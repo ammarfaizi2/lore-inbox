@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLOE4s>; Thu, 14 Dec 2000 23:56:48 -0500
+	id <S129267AbQLOF3G>; Fri, 15 Dec 2000 00:29:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbQLOE4h>; Thu, 14 Dec 2000 23:56:37 -0500
-Received: from ferret.phonewave.net ([208.138.51.183]:21252 "EHLO
-	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S129257AbQLOE4Y>; Thu, 14 Dec 2000 23:56:24 -0500
-Date: Thu, 14 Dec 2000 20:24:11 -0800 (PST)
-From: ferret@phonewave.net
-To: Alexander Viro <viro@math.psu.edu>
-cc: David Riley <oscar@the-rileys.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linus's include file strategy redux
-In-Reply-To: <Pine.GSO.4.21.0012141958410.10441-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.3.96.1001214201955.12438B-100000@tarot.mentasm.org>
+	id <S129421AbQLOF25>; Fri, 15 Dec 2000 00:28:57 -0500
+Received: from waste.org ([209.173.204.2]:23651 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129267AbQLOF2p>;
+	Fri, 15 Dec 2000 00:28:45 -0500
+Date: Thu, 14 Dec 2000 22:58:05 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Stephen Frost <sfrost@snowman.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Netfilter <netfilter@us5.samba.org>
+Subject: Re: test13-pre1 changelog
+In-Reply-To: <Pine.LNX.4.10.10012141552180.12695-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0012142244200.27741-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 14 Dec 2000, Linus Torvalds wrote:
 
+> On Thu, 14 Dec 2000, Stephen Frost wrote:
+> >
+> > 	Any idea if these issues would cause a general slow-down of a
+> > machine?  For no apparent reason after 5 days running 2.4.0test12
+> > everything going through my firewall (set up using iptables) I got about
+> > 100ms time added on to pings and traceroutes.
+>
+> Probably not related to that particular bug - the netfilter issue has
+> apparently been around forever, and it was just some changes in IP
+> fragmentation that just made it show up as an oops.
+>
+> A 100ms delay sounds like some interrupt shut up or similar (and then
+> timer handling makes it limp along).
 
-On Thu, 14 Dec 2000, Alexander Viro wrote:
+Possibly related datapoint: after several days of uptime, my
+2.4.0-test10pre? machine went into some sort of slow mode after coming
+back from suspend (and doing an /etc/init.d/networking restart). Symptoms
+seemed to be extra second or so setting up a TCP connection. Ping, etc.,
+appeared to work just fine, no packet loss apparent, bandwidth looked good
+too. Sadly I had to do actual work that required zippy web access, so I
+rebooted rather than doing a thorough diagnostic. This is a VAIO with
+compiled in eepro100, no special networking options.
 
-> 
-> 
-> On Thu, 14 Dec 2000, David Riley wrote:
-> 
-> > Alexander Viro wrote:
-> > > 
-> > >         Actually, I suspect that quite a few of us had done that since long -
-> > > IIRC I've got burned on 1.2/1.3 and decided that I had enough. Bugger if I
-> > > remember what exactly it was - ISTR that it was restore(8) built with
-> > > 1.3.<something> headers and playing funny games on 1.2, but it might be
-> > > something else...
-> > 
-> > So then what's the correct header tree to put in /usr/include/linux?  I
-> > could use the stock 2.2.14-patched headers that came with the dist, but
-> > how often does it need to be updated?  Or should I use the latest 2.2?
-> 
-> Whatever your libc was built against. It shouldn't matter that much,
-> but when shit hits the fan... you really don't want to be there.
-> 
-> Look at it that way: you don't want to build some object files with one
-> set of headers, some - with another and link them together. Now,
-> s/some object files/libc/. With a minimal luck you will be OK, but
-> it's easier not to ask for trouble in the first place.
+Oh, and btw, test12-pre7 seems to have broken my USB camera, which worked
+with the aforementioned kernel. My build of gphoto2 downloads images via
+usbdevfs (ugh) and quietly created a bunch of .jpgs that were almost
+entirely 0s..
 
-Yep. At one point, about six months ago, I recompiled glibc 2.0.7(?)
-against 2.2.15(?) with USB backport due to occational USB v4l
-device-related bus locks, recompiled the v4l app I was using (w3cam
-package I think) and the problems mostly went away. As far as I understand
-it's a matter of a kernel/userland seperation. But again, sometimes you
-just have to update your libc.
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

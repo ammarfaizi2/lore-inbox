@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTFFQRk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 12:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTFFQRk
+	id S261928AbTFFQWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 12:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTFFQWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 12:17:40 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4869 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261801AbTFFQRi
+	Fri, 6 Jun 2003 12:22:25 -0400
+Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:44699 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S261928AbTFFQWY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 12:17:38 -0400
-Date: Fri, 6 Jun 2003 12:25:01 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: khromy <khromy@lnuxlab.ath.cx>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Generic x86 support in 2.5.70-bk
-In-Reply-To: <20030601182532.GA1948@lnuxlab.ath.cx>
-Message-ID: <Pine.LNX.3.96.1030606114726.4191D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Jun 2003 12:22:24 -0400
+Subject: Re: 2.5.70 thru bk10 amd64 compile failure
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Warren Togami <warren@togami.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1054878617.3699.134.camel@laptop>
+References: <1054878617.3699.134.camel@laptop>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054917352.28218.3.camel@serpentine.internal.keyresearch.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 06 Jun 2003 09:35:52 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jun 2003, khromy wrote:
+On Thu, 2003-06-05 at 22:50, Warren Togami wrote:
 
-> Generic x86 support (X86_GENERIC) [N/y/?] (NEW) ?
-> 
-> Including some tuning for non selected x86 CPUs too.
-> when it has moderate overhead. This is intended for generic 
-> distributions kernels.
-> 
-> ^-- Am I the only one confused by this description?
+> kernel-2.5.70, 2.5.70-bk9 and 2.5.70-bk10 all fail compilation here on
+> my amd64 with gcc-3.2.2-10 on stock RedHat GinGin64.  Please pardon me
+> if this is a duplicate report, I am now subscribing in order to keep a
+> closer eye on this list.
 
-The second sentence was mangled when it was machine translated from the
-original Klingon ;-)
+You're compiling with CONFIG_VT turned off.  Turn it on for now, as I
+don't have a patch for that problem yet.
 
-Seriously, it doesn't parse. I can't decide if "when" in that sentence is
-the wrong word, or if it snuck in uncapitalized and shouldn't be there at
-all. I don't feel to "too" in the first sentence belongs, it doesn't refer
-to several things.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+	<b
 

@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265467AbRGSRYi>; Thu, 19 Jul 2001 13:24:38 -0400
+	id <S265443AbRGSRYi>; Thu, 19 Jul 2001 13:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265452AbRGSRY3>; Thu, 19 Jul 2001 13:24:29 -0400
-Received: from mail.intrex.net ([209.42.192.246]:29958 "EHLO intrex.net")
-	by vger.kernel.org with ESMTP id <S265443AbRGSRYK>;
-	Thu, 19 Jul 2001 13:24:10 -0400
-Date: Thu, 19 Jul 2001 13:29:35 -0400
-From: jlnance@intrex.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: Request for comments
-Message-ID: <20010719132935.A10126@bessie.localdomain>
-In-Reply-To: <Pine.LNX.4.21.0107191757400.17990-100000@groove.rdsnet.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0107191757400.17990-100000@groove.rdsnet.ro>; from ctrl@rdsnet.ro on Thu, Jul 19, 2001 at 06:44:52PM +0300
+	id <S265467AbRGSRY2>; Thu, 19 Jul 2001 13:24:28 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:17681 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S265452AbRGSRYR>;
+	Thu, 19 Jul 2001 13:24:17 -0400
+Date: Thu, 19 Jul 2001 14:24:12 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+        Dave McCracken <dmc@austin.ibm.com>, Dirk Wetter <dirkw@rentec.com>
+Subject: Re: [PATCH] swap usage of high memory (fwd)
+In-Reply-To: <Pine.LNX.4.33.0107190940370.7162-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0107191358070.8447-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 19, 2001 at 06:44:52PM +0300, Cornel Ciocirlan wrote:
+On Thu, 19 Jul 2001, Linus Torvalds wrote:
 
-> What this would do is keep a "cache" of all the "flows" that are passing
-> through the system; a flow is defined as the set of packets that have the
-> same headers - or header fields. For example we could choose "ip source,
-> ip destination, ip protocol, ip source port [if relevant], ip destination
-> port [ if relevant ], and maintain a cache of all distinct such
-> "flows" that pass through the system. The flows would have to be
-> "expired" from the cache (LRU) and there should be a limit on the size of
-> the cache.
+> Note that the unfair aging (apart from just being a natural requirement of
+> higher allocation pressure) actually has some other advantages too: it
+> ends up being  aload balancing thing. Sure, it might throw out some things
+> that get "unfairly" treated, but once we bring them in again we have a
+> better chance of bringing them into a zone that _isn't_ under pressure.
+>
+> So unfair eviction can actually end up being a natural solution to
+> different memory pressure too
 
-This sounds a lot like what MPLS does.  I believe that someone has MPLS
-patches for the kernel, but I dont know who.  You might want to find them
-and take a look.
+Note the difference between unfair aging and unfair eviction.
 
-Jim
+Unfair eviction is needed and is no problem because with
+fair aging this will lead to a large surplus of inactive
+pages in less loaded zones, increasing the chances that
+future allocations will end up in those zones.
+
+Unfair aging, OTOH, throws away that information, making
+it harder for the system to get the pressure across the
+zones equal again.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

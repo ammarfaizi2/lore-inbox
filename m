@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311339AbSCLUmK>; Tue, 12 Mar 2002 15:42:10 -0500
+	id <S311341AbSCLUnK>; Tue, 12 Mar 2002 15:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311340AbSCLUmA>; Tue, 12 Mar 2002 15:42:00 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:29321 "EHLO segfault.osdl.org")
-	by vger.kernel.org with ESMTP id <S311339AbSCLUlm>;
-	Tue, 12 Mar 2002 15:41:42 -0500
-Date: Tue, 12 Mar 2002 12:40:01 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: "'Mario 'BitKoenig' Holbe'" <Mario.Holbe@RZ.TU-Ilmenau.DE>,
-        Pavel Machek <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] ACPI: kbd-pw-on/WOL don't work anymore since 2.4.14
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7CDB@orsmsx111.jf.intel.com>
-Message-ID: <Pine.LNX.4.33.0203121234360.3237-100000@segfault.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311342AbSCLUm5>; Tue, 12 Mar 2002 15:42:57 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:31950 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S311341AbSCLUmg>;
+	Tue, 12 Mar 2002 15:42:36 -0500
+Date: Tue, 12 Mar 2002 12:39:04 -0800 (PST)
+Message-Id: <20020312.123904.78107946.davem@redhat.com>
+To: beezly@beezly.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sun GEM card looses TX on x86 32bit PCI
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1015965269.1937.22.camel@monkey>
+In-Reply-To: <1015887102.2051.4.camel@monkey>
+	<20020312.093134.35196670.davem@redhat.com>
+	<1015965269.1937.22.camel@monkey>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Beezly <beezly@beezly.org.uk>
+   Date: 12 Mar 2002 20:34:29 +0000
+   
+   I had a quick fiddle around with pci_find_capability(<blah>,
+   PCI_CAP_ID_VPD), but it always returns NULL (i.e. no VPD). However, I've
+   also noticed that no-one appears to use that macro in any of the kernel
+   source. Is there another way to look at the VPD?
 
-On Tue, 12 Mar 2002, Grover, Andrew wrote:
+The vital product data is stored in the PCI ROM.
+pci_find_capability() does not give you the VPD, it is for
+capabilities indicated in PCI config space.
 
-> > From: Mario 'BitKoenig' Holbe [mailto:Mario.Holbe@RZ.TU-Ilmenau.DE]
-> > However, if someone of the ACPI developers or someone of the
-> > patch-acceptors (:)) tells me 'do it, we'll patch it in', I'll do
-> > it.
-> > If it has no chance to get in, I wont do it - for me myself, my
-> > patch is quite enough :)
-> 
-> Basically we have to disable non-wake GPEs prior to sleeping - I agree with
-> Pavel that this should not be a config option. The real problem is that the
-> keyboard GPE should be flagged as a wake GPE, but it isn't yet.
-> 
-> What needs to happen is, when we are entering a sleep state, we need to
-> evaluate _PRW and _PSW objects for devices, and take the appropriate action
-> - I would bet that a result of doing this would be that keyboard (WOL too?
-> maybe) would be properly flagged as a wake device, so the call to that
-> function would but turn off its GPE bit.
+The VPD format in the PCI ROM is specified in the PCI-2.x
+specification.  To dump out the PCI ROM you'll need to
+ioremap() the PCI_ROM_RESOURCE it just like we do the registers.
+Then you have to enable the ROM so it will respond (by setting
+PCI_ROM_ADDRESS_ENABLE in "PCI_ROM_ADDRESS" in PCI config space).
 
-It seems like this would ideally be specified in the config file for the 
-power management agent. So, before the transition to sleep began, the 
-agent would enable those devices to wake the system (probably by writing a 
-value to a driverfs file). 
-
-The only thing is that you probably want all devices of a particular class 
-to wake a system - like all keyboards or all net devices. I don't know 
-what the config file format for ospmd looks like, but it might articulated 
-like:
-
-/* devices to wake the system when we go to sleep */
-wake {
-	keyboard
-	network
-	mouse
-}
-
-Right?
-
-	-pat
+Then you can use the ioremap() cookie to read the ROM using
+readl(cookie + offset).
 

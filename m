@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132616AbRDSStP>; Thu, 19 Apr 2001 14:49:15 -0400
+	id <S132659AbRDSS6Q>; Thu, 19 Apr 2001 14:58:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132629AbRDSStF>; Thu, 19 Apr 2001 14:49:05 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:65033 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132616AbRDSSsu>;
-	Thu, 19 Apr 2001 14:48:50 -0400
-Date: Thu, 19 Apr 2001 20:48:19 +0200
-From: Jens Axboe <axboe@suse.de>
-To: AJ Lewis <lewis@sistina.com>
-Cc: Jes Sorensen <jes@linuxcare.com>, linux-kernel@vger.kernel.org,
-        linux-openlvm@nl.linux.org, Arjan van de Ven <arjanv@redhat.com>,
-        Martin Kasper Petersen <mkp@linuxcare.com>, riel@conectiva.com.br,
-        linux-lvm@sistina.com
-Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
-Message-ID: <20010419204819.D30135@suse.de>
-In-Reply-To: <d37l0gvkuf.fsf@lxplus015.cern.ch> <20010419132927.D10345@sistina.com>
-Mime-Version: 1.0
+	id <S132660AbRDSS6G>; Thu, 19 Apr 2001 14:58:06 -0400
+Received: from m9-mp1-cvx1a.col.ntl.com ([213.104.68.9]:10112 "EHLO
+	[213.104.68.9]") by vger.kernel.org with ESMTP id <S132659AbRDSS5x>;
+	Thu, 19 Apr 2001 14:57:53 -0400
+To: Patrick Mochel <mochel@transmeta.com>
+Cc: "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Next gen PM interface
+In-Reply-To: <Pine.LNX.4.10.10104182122250.7690-100000@nobelium.transmeta.com>
+From: John Fremlin <chief@bandits.org>
+Date: 19 Apr 2001 19:57:10 +0100
+In-Reply-To: <Pine.LNX.4.10.10104182122250.7690-100000@nobelium.transmeta.com>
+Message-ID: <m24rvkpvjt.fsf@bandits.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Solid Vapor)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010419132927.D10345@sistina.com>; from lewis@sistina.com on Thu, Apr 19, 2001 at 01:29:27PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19 2001, AJ Lewis wrote:
-> It is unfortunate that this could not have been resolved in a more mature
-> manner.  Saying "I don't like the way somebody is doing something.  I won't
-> bother to talk to them about it, I'll just flame them and try to undermine
-> their work." is not acceptable.  It would have been nice if you'd actually
-> tried to work this out instead of handling it this way.
+ Patrick Mochel <mochel@transmeta.com> writes:
 
-LVM concerns us all now that it is not just an addon, but actually a
-part of the kernel. Rejecting mails and reports from users and
-developers who just might be able to lend you a hand fixing bugs, is not
-just counter productive it's downright rude!
+> > > IMHO the pm interface should be split up as following:
+> > 
+> > Nobody has disagreed: therefore this separation must be perfect ;-)
+> 
+> I once heard that patience is a virtue. :)
+> 
+> > >         (1) Battery status, power status, UPS status polling. It
+> > >         should be possible for lots of processes to do this
+> > >         simultaneously. [That does not prohibit a single process
+> > >         querying the kernel and all the others querying it.]
+> > 
+> > Solution. Have a bunch of procfs or dev nodes each giving info on a
+> > particular power source, like now, but vaguely standardise the output.
 
-Besides, I didn't think the posting was flame material at all. If
-nothing else, it's a wake up call.
+[...]
+
+> I can see at least two types of events - (forgive the lack of colorful
+> terminology) passive and active. Passive events are simply providing
+> status updates, much like the events described above. These are simply so
+> some UI can notify the user of things like a low battery or detection of
+> an AC adapter. These can be handled in much the same way as described
+> above.
+
+No they can't. They only happen once. Battery status exists all the
+time.
+
+[...]
+
 
 -- 
-Jens Axboe
 
+	http://www.penguinpowered.com/~vii

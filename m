@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbUCHXuf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:50:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbUCHXuf
+	id S261403AbUCHXxr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUCHXxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:50:35 -0500
-Received: from anumail4.anu.edu.au ([150.203.2.44]:29887 "EHLO anu.edu.au")
-	by vger.kernel.org with ESMTP id S261409AbUCHXuV (ORCPT
+	Mon, 8 Mar 2004 18:53:47 -0500
+Received: from quasar.dynaweb.hu ([195.70.37.87]:54943 "EHLO quasar.dynaweb.hu")
+	by vger.kernel.org with ESMTP id S261403AbUCHXxp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:50:21 -0500
-Message-ID: <404D06AA.6070100@cyberone.com.au>
-Date: Tue, 09 Mar 2004 10:50:02 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: blk_congestion_wait racy?
-References: <OF335311D8.7BCE1E48-ONC1256E51.0049DBF1-C1256E51.004AEA2A@de.ibm.com>
-In-Reply-To: <OF335311D8.7BCE1E48-ONC1256E51.0049DBF1-C1256E51.004AEA2A@de.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 8 Mar 2004 18:53:45 -0500
+Date: Tue, 9 Mar 2004 00:53:38 +0100
+From: Rumi Szabolcs <rumi_ml@rtfm.hu>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Marvell PATA-SATA bridge meets 2.4.x
+Message-Id: <20040309005338.376ae31d.rumi_ml@rtfm.hu>
+In-Reply-To: <404CEEAF.5020608@matchmail.com>
+References: <20040305231642.708841dd.rumi_ml@rtfm.hu>
+	<404A9D14.5030107@matchmail.com>
+	<20040308172839.17178753.rumi_ml@rtfm.hu>
+	<404CEEAF.5020608@matchmail.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; sparc-sun-solaris2.9)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Sender-Domain: cyberone.com.au
-X-Spam-Score: (-2.8)
-X-Spam-Tests: EMAIL_ATTRIBUTION,IN_REP_TO,QUOTE_TWICE_1,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky wrote:
+On Mon, 08 Mar 2004 14:07:43 -0800
+Mike Fedyk <mfedyk@matchmail.com> wrote:
 
->
->
->
->>Gad, that'll make the VM scan its guts out.
->>
->Yes, I expected something like this.
->
->
->>>2.6.4-rc2 + "fix" with 1 cpu
->>>sys     0m0.880s
->>>
->>>2.6.4-rc2 + "fix" with 2 cpu
->>>sys     0m1.560s
->>>
->>system time was doubled though.
->>
->That would be the additional cost for not waiting.
->
->
+> >>You want to use a 2.6 kernel and talk to Bart, and Jeff about this...
+> > 
+> > Well, I don't really want a 2.6 kernel on that machine (yet) because
+> > in my opinion it is not stable enough for a production system.
+> 
+> What problems are you having?
 
-I'd say its more like cacheline contention or something: reclaim
-won't simply be spinning with nothing to do because you're dirtying
-plenty of memory. And if any queues were full it will mostly just be
-blocking in the block layer.
+I'm just tracking lkml and seeing all the serious bug reports in 2.6
+each day. Maybe 2.6.3 is really rock stable compared to what 2.4.3 was
+like but compared to VMS 6.2 it looks about as stable as a barrel of
+nitroglycerine, so I thought I better wait for at least 2.6.10
+before even trying to put it on anything in production.
 
->>Nope, something is obviously broken.   I'll take a look.
->>
->That would be very much appreciated.
->
+By the way, I wrote "in my opinion" to avoid starting a flame war on
+that "is 2.6 stable already or not?" thing, now it seems like I've
+failed... ;-)
 
-I'm looking at 2.6.1 source, so apologies if I'm wrong, but
-drivers/block/ll_rw_blk.c:
-freed_request does not need the memory barrier because the queue is
-protected by the per queue spinlock. And I think clear_queue_congested
-should have a memory barrier right before if (waitqueue_active(wqh)).
+So, until the reliability of 2.6 becomes acceptable for everyone I think
+many people would appreciate fixes/backports for 2.4, especially for
+those problems which don't take too much of an effort to fix.
 
-Another problem is that if there are no requests anywhere in the system,
-sleepers in blk_congestion_wait will not get kicked. blk_congestion_wait
-could probably have blk_run_queues moved after prepare_to_wait, which
-might help.
-
-Just some ideas.
-
-
+Regards,
+Szabolcs Rumi

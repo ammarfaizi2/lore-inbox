@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265639AbUFCQXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265636AbUFCQXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265639AbUFCQXL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 12:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUFCQXL
+	id S265636AbUFCQXl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 12:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265642AbUFCQXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 12:23:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14770 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265639AbUFCQXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 12:23:05 -0400
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,
-	2.6.7-rc2-bk2
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-In-Reply-To: <Pine.LNX.4.58.0406031031480.14817@innerfire.net>
-References: <20040602205025.GA21555@elte.hu>
-	 <Pine.LNX.4.58.0406031031480.14817@innerfire.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ggoJnIqgl02oXsC1s9kr"
-Organization: Red Hat UK
-Message-Id: <1086279741.2709.6.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 03 Jun 2004 18:22:21 +0200
+	Thu, 3 Jun 2004 12:23:41 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:17319
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S265636AbUFCQXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 12:23:38 -0400
+Message-ID: <40BF501D.5080402@redhat.com>
+Date: Thu, 03 Jun 2004 09:21:49 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040601
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org> <20040603072146.GA14441@elte.hu>
+In-Reply-To: <20040603072146.GA14441@elte.hu>
+X-Enigmail-Version: 0.84.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> gcc's
+> PT_GNU_STACK mechanism is very conservative - e.g. if an application
+> does an asm() then gcc assumes that it might rely on stack executability
+> and emits the X flag. 
 
---=-ggoJnIqgl02oXsC1s9kr
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Actually, this isn't the case.  asm() alone don't trigger this.  There
+are far too many of them in use.  And there never has been a reported
+problem.  Only trampolines etc cause gcc to automatically request the X
+flag to be set.  In case an asm() indeed causes problems the user can
+pass the --execstack option to the linker.
 
-On Thu, 2004-06-03 at 16:36, Gerhard Mack wrote:
-> >  kernel tried to access NX-protected page - exploit attempt? (uid: 500)
-> >  Unable to handle kernel paging request at virtual address f78d0f40
-> >   printing eip:
-> >  ...
->=20
-> Just a small nitpick...
->=20
-> Can you please drop the "- exploit attempt" from the error?  Buffer
-> overflows aren't always exploits.
+It's all explained in
 
-buffer overflows that then also execute code are pretty much always
-exploits tho ;)
+  http://people.redhat.com/drepper/nonselsec.pdf
 
-
---=-ggoJnIqgl02oXsC1s9kr
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAv1A9xULwo51rQBIRAmu5AJ4ly2uV0aXGpPMOlmJskylSCAdklgCeKsLR
-IXIgfA99X10YG/HI3zRCTmg=
-=474N
------END PGP SIGNATURE-----
-
---=-ggoJnIqgl02oXsC1s9kr--
-
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

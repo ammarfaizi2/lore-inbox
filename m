@@ -1,120 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262525AbTCIPiP>; Sun, 9 Mar 2003 10:38:15 -0500
+	id <S262526AbTCIPlh>; Sun, 9 Mar 2003 10:41:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262526AbTCIPiP>; Sun, 9 Mar 2003 10:38:15 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:20494 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262525AbTCIPiN>; Sun, 9 Mar 2003 10:38:13 -0500
-Date: Sun, 9 Mar 2003 15:48:42 +0000
-From: John Levon <levon@movementarian.org>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org, wli@holomorphy.com,
-       oprofile-list@lists.sf.net
-Subject: [PATCH] fix oprofile on x86 > 1 counter
-Message-ID: <20030309154841.GA19585@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262527AbTCIPlh>; Sun, 9 Mar 2003 10:41:37 -0500
+Received: from jkd.jeetkunedomaster.net ([64.186.37.179]:40834 "EHLO
+	jkd.jeetkunedomaster.net") by vger.kernel.org with ESMTP
+	id <S262526AbTCIPlg>; Sun, 9 Mar 2003 10:41:36 -0500
+From: Jason Straight <jason@JeetKuneDoMaster.net>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Subject: Re: 2.5.64bk3 no screen after Ok booting kernel
+Date: Sun, 9 Mar 2003 10:52:13 -0500
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200303090734.XAA01410@adam.yggdrasil.com> <20030308233913.02050257.akpm@digeo.com>
+In-Reply-To: <20030308233913.02050257.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18s32Y-000JGE-00*TJZxKzeGu9E*
+Message-Id: <200303091052.13291.jason@JeetKuneDoMaster.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 09 March 2003 02:39 am, Andrew Morton wrote:
+> "Adam J. Richter" <adam@yggdrasil.com> wrote:
+> > On another desktop computer (a P3), I get no kernel printk's but user
+> > level programs print their output.  For example I see fsck print its
+> > output.  However, that computer system hangs after fsck apparently
+> > finishes.  The computer with the console problems under 2.5.64bk3
+> > boots 2.5.64 and 2.5.64bk1 fine.  I haven't tried 2.5.64bk2 yet.
+>
+> Did you try adding "console=tty0" to the boot command?  That got broken
+> too.
 
-See the comment below, without this we have a choice between
-dropping lots of counter events for counters > 0, or getting dazed and
-confused. This brings it inline with the 2.4 module code. Tested on my 2-way.
+Yeah, got that. I think it's probably the fact that CONFIG_VT_CONSOLE isn't 
+defined because it's not in the menuconfig anywhere, putting it in .config 
+get's cleaned out by checkconfig.pl. 
 
-Also fix a typo from Steven Cole, and remove some unnecessary code
+-- 
+Jason Straight
+jason@JeetKuneDoMaster.net
+icq: 1796276
+pgp: http://www.JeetKuneDoMaster.net/~jason/pubkey.asc
 
-please apply,
-john
-
-
-diff -Naur -X dontdiff linux-linus/arch/alpha/oprofile/op_model_ev4.c linux/arch/alpha/oprofile/op_model_ev4.c
---- linux-linus/arch/alpha/oprofile/op_model_ev4.c	2003-02-25 13:53:47.000000000 +0000
-+++ linux/arch/alpha/oprofile/op_model_ev4.c	2003-03-08 04:31:28.000000000 +0000
-@@ -34,7 +34,7 @@
- 	   for these "disabled" counter overflows are ignored by the
- 	   interrupt handler.
- 
--	   This is most irritating, becuase the hardware *can* enable and
-+	   This is most irritating, because the hardware *can* enable and
- 	   disable the interrupts for these counters independently, but the
- 	   wrperfmon interface doesn't allow it.  */
- 
-diff -Naur -X dontdiff linux-linus/arch/i386/oprofile/op_model_athlon.c linux/arch/i386/oprofile/op_model_athlon.c
---- linux-linus/arch/i386/oprofile/op_model_athlon.c	2003-02-15 18:10:37.000000000 +0000
-+++ linux/arch/i386/oprofile/op_model_athlon.c	2003-03-09 13:09:00.000000000 +0000
-@@ -104,10 +104,11 @@
- 		if (CTR_OVERFLOWED(low)) {
- 			oprofile_add_sample(eip, is_kernel, i, cpu);
- 			CTR_WRITE(reset_value[i], msrs, i);
--			return 1;
- 		}
- 	}
--	return 0;
-+
-+	/* See op_model_ppro.c */
-+	return 1;
- }
- 
-  
-diff -Naur -X dontdiff linux-linus/arch/i386/oprofile/op_model_p4.c linux/arch/i386/oprofile/op_model_p4.c
---- linux-linus/arch/i386/oprofile/op_model_p4.c	2003-03-06 16:18:50.000000000 +0000
-+++ linux/arch/i386/oprofile/op_model_p4.c	2003-03-09 13:08:41.000000000 +0000
-@@ -608,13 +608,14 @@
-  			CTR_WRITE(reset_value[i], real);
- 			/* P4 quirk: you have to re-unmask the apic vector */
- 			apic_write(APIC_LVTPC, apic_read(APIC_LVTPC) & ~APIC_LVT_MASKED);
--			return 1;
- 		}
- 	}
- 
- 	/* P4 quirk: you have to re-unmask the apic vector */
- 	apic_write(APIC_LVTPC, apic_read(APIC_LVTPC) & ~APIC_LVT_MASKED);
--	return 0;
-+
-+	/* See op_model_ppro.c */
-+	return 1;
- }
- 
- 
-diff -Naur -X dontdiff linux-linus/arch/i386/oprofile/op_model_ppro.c linux/arch/i386/oprofile/op_model_ppro.c
---- linux-linus/arch/i386/oprofile/op_model_ppro.c	2003-02-15 18:10:37.000000000 +0000
-+++ linux/arch/i386/oprofile/op_model_ppro.c	2003-03-09 14:15:07.000000000 +0000
-@@ -98,10 +98,17 @@
- 		if (CTR_OVERFLOWED(low)) {
- 			oprofile_add_sample(eip, is_kernel, i, cpu);
- 			CTR_WRITE(reset_value[i], msrs, i);
--			return 1;
- 		}
- 	}
--	return 0;
-+
-+	/* We can't work out if we really handled an interrupt. We
-+	 * might have caught a *second* counter just after overflowing
-+	 * the interrupt for this counter then arrives
-+	 * and we don't find a counter that's overflowed, so we
-+	 * would return 0 and get dazed + confused. Instead we always
-+	 * assume we found an overflow. This sucks.
-+	 */
-+	return 1;
- }
- 
-  
-diff -Naur -X dontdiff linux-linus/drivers/oprofile/cpu_buffer.c linux/drivers/oprofile/cpu_buffer.c
---- linux-linus/drivers/oprofile/cpu_buffer.c	2003-03-06 16:18:50.000000000 +0000
-+++ linux/drivers/oprofile/cpu_buffer.c	2003-03-06 16:24:34.000000000 +0000
-@@ -85,9 +85,6 @@
- 	unsigned long head = b->head_pos;
- 	unsigned long tail = b->tail_pos;
- 
--	if (tail == head)
--		return b->buffer_size;
--
- 	if (tail > head)
- 		return tail - head;
- 

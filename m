@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261331AbSIWTcH>; Mon, 23 Sep 2002 15:32:07 -0400
+	id <S261421AbSIWTwY>; Mon, 23 Sep 2002 15:52:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261329AbSIWTax>; Mon, 23 Sep 2002 15:30:53 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261306AbSIWSlg>;
-	Mon, 23 Sep 2002 14:41:36 -0400
-Date: Mon, 23 Sep 2002 10:27:45 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Matthew Wilcox <willy@debian.org>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: Configure/compile error with 2.5.38
-In-Reply-To: <20020923164144.B27458@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.10.10209231026330.390-100000@master.linux-ide.org>
+	id <S261423AbSIWTwY>; Mon, 23 Sep 2002 15:52:24 -0400
+Received: from h106-129-61.datawire.net ([207.61.129.106]:8940 "EHLO
+	newmail.datawire.net") by vger.kernel.org with ESMTP
+	id <S261421AbSIWTwX> convert rfc822-to-8bit; Mon, 23 Sep 2002 15:52:23 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] EXT3 vs EXT2 results with rmap14a and testing with contest 0.34
+Date: Mon, 23 Sep 2002 16:00:03 -0400
+User-Agent: KMail/1.4.6
+Cc: Andreas Dilger <adilger@clusterfs.com>, sct@redhat.com,
+       Con Kolivas <conman@kolivas.net>, linux-kernel@vger.kernel.org
+References: <200209182118.12701.spstarr@sh0n.net> <3D896F73.5D1265B5@digeo.com> <20020923200337.L11682@redhat.com>
+In-Reply-To: <20020923200337.L11682@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200209231600.03978.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Correct, that is why I had it scheduled to be moved into legacy.
-However until many issuse are settle down minor fixes like this are on
-hold.
+Which branch of the kernel is this going into? an -ac branch or 2.5 bk?
 
-On Mon, 23 Sep 2002, Matthew Wilcox wrote:
-
-> 
-> Got an interesting one here; this combination fails to link:
-> 
-> CONFIG_BLK_DEV_CMD640=y
-> # CONFIG_BLK_DEV_IDEPCI is not set
-> 
-> Why not?  Well.. cmd640.c is in drivers/ide/pci/ which is only
-> entered if CONFIG_BLK_DEV_IDEPCI, and if CONFIG_BLK_DEV_CMD640 is set,
-> drivers/ide/ide.c contains a reference to cmd640_vlb which is defined
-> in cmd640.c.
-> 
-> The "obvious" solution to make CMD640 depend on IDEPCI is not correct
-> because of the aforementioned VLB controllers.  Maybe we could just add
-> the line:
-> obj-$(CONFIG_BLK_DEV_CMD640)            += pci/
-> to drivers/ide/Makefile which is a bit of a kludge..
-> 
-> -- 
-> Revolutions do not require corporate support.
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
+On September 23, 2002 03:03 pm, Stephen C. Tweedie wrote:
+> Hi,
+>
+> On Wed, Sep 18, 2002 at 11:32:19PM -0700, Andrew Morton wrote:
+> > I had a little patch.  Stephen is working on the big fix.
+>
+> It passed an overnight Cerberus at the end of last week.  :-)
+> Checking into CVS shortly, then I need to set up a pile of recovery
+> tests to make sure it's still writing everything it needs to in time.
+>
+> --Stephen
 

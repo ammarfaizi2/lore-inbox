@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273558AbRIQKI4>; Mon, 17 Sep 2001 06:08:56 -0400
+	id <S272404AbRIQKF4>; Mon, 17 Sep 2001 06:05:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273554AbRIQKIr>; Mon, 17 Sep 2001 06:08:47 -0400
-Received: from PA1-1C-u-0120.mc.onolab.com ([62.42.200.121]:32269 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id <S272548AbRIQKIh>;
-	Mon, 17 Sep 2001 06:08:37 -0400
-Date: Mon, 17 Sep 2001 12:09:54 +0200
-From: Celso Gonzalez <mitago@ono.com>
+	id <S272548AbRIQKFq>; Mon, 17 Sep 2001 06:05:46 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:23302 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S272404AbRIQKFk>; Mon, 17 Sep 2001 06:05:40 -0400
+Date: Mon, 17 Sep 2001 12:06:03 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Little bug in 8139too net driver
-Message-ID: <20010917120954.A14699@debian>
-Reply-To: mitago@ono.com
+Subject: Re: [PATCH] lazy umount (1/4)
+Message-ID: <20010917120603.B13815@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu> <20010915083236.A9271@bessie.localdomain> <20010915135118.A24067@mikef-linux.matchmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.22i
-X-Mailer: Mutt 1.3.22i (2001-08-30)
+In-Reply-To: <20010915135118.A24067@mikef-linux.matchmail.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sat, 15 Sep 2001, Mike Fedyk wrote:
 
-This patch fixes a bug with an unasigned variable in the net driver 8139too
-when its compiled with the
-CONFIG_8139TOO_PIO=y option from kernel 2.4.3 to 2.4.9
+> Either way, you'd have a system you can't reboot without hardware reset if
+> you have a process stuck in D state on a rw FS.
 
-The error message normally is "Assertion failed! ioaddr != NULL"
+That is EVIL, so eventually, the umount must succeed at all costs.
 
+-- 
+Matthias Andree
 
-diff -u -r linux-2.4.9/drivers/net/8139too.c
-linux-2.4.9-patched/drivers/net/8139too.c
---- linux-2.4.9/drivers/net/8139too.c   Sun Aug 12 19:52:29 2001
-+++ linux-2.4.9-patched/drivers/net/8139too.c   Mon Sep 17 11:10:40 2001
-@@ -825,6 +825,7 @@
- #ifdef USE_IO_OPS
-        ioaddr = (void *) pio_start;
-        dev->base_addr = pio_start;
-+       tp->mmio_addr = ioaddr;
- #else
-        /* ioremap MMIO region */
-        ioaddr = ioremap (mmio_start, mmio_len);
-
-I try to contact with Jeff Garzik , but seems heŽs missing. 
-
-Regards
-
-Celso González
-(mitago@ono.com)
+"Those who give up essential liberties for temporary safety deserve
+neither liberty nor safety." - Benjamin Franklin

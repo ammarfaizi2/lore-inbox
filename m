@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286147AbRLZDvy>; Tue, 25 Dec 2001 22:51:54 -0500
+	id <S286153AbRLZEAZ>; Tue, 25 Dec 2001 23:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286148AbRLZDvo>; Tue, 25 Dec 2001 22:51:44 -0500
-Received: from f259.law9.hotmail.com ([64.4.8.134]:11270 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S286147AbRLZDvd>;
-	Tue, 25 Dec 2001 22:51:33 -0500
-X-Originating-IP: [66.92.149.187]
-From: "William Knop" <w_knop@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: LKML signal to noise ratio-- improvement
-Date: Tue, 25 Dec 2001 22:51:27 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F259ZrIkyPzGNsokLQ800008cb0@hotmail.com>
-X-OriginalArrivalTime: 26 Dec 2001 03:51:27.0505 (UTC) FILETIME=[98831810:01C18DC0]
+	id <S286148AbRLZEAG>; Tue, 25 Dec 2001 23:00:06 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:63700 "EHLO
+	phalynx") by vger.kernel.org with ESMTP id <S286150AbRLZD74>;
+	Tue, 25 Dec 2001 22:59:56 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: nknight@pocketinet.com, "James Stevenson" <mistral@stev.org>,
+        <linux-kernel@vger.kernel.org>, <netfilter-devel@lists.samba.org>
+Subject: Re: file names ?
+Date: Tue, 25 Dec 2001 19:59:25 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <000701c18d82$57158ea0$0801a8c0@Stev.org> <E16IyNw-0003UO-00@phalynx> <WHITEGlOVj8P8F7xztz000005f3@white.pocketinet.com>
+In-Reply-To: <WHITEGlOVj8P8F7xztz000005f3@white.pocketinet.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16J5Dz-0003gr-00@phalynx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M. Edward Borasky wrote:
->I rather like the way the R project does it. They have three lists:
->one for developers, one for "announcements" and one for help. The
->announcements list is probably irrelevant; the announcements show up
->on the other two lists.
+> Actually there should be *no* problem at all. Just enable UMSDOS and
+> the UMSDOS filesystem will take care of ensuring that the FAT
+> filesystem supports the links, and the same filenames. Just don't try
+> to extract the files anywhere but in Linux with UMSDOS enabled.
 
-Ah yes, I meant to include -announcements too, but I forgot by the time I 
-got down to the named parts. Perhaps a -proposals would be good too, so 
-something like -misc posts would truly not fit into a preconcieved catagory. 
-If people still announce to the other lists, they can be scolded.
+UMSDOS is a POSIX filesystem, FAT isn't. It's pretty simple.
 
-Although, it seems that with so many lists it gets too complex and parts of 
-the system might be ignored; perhaps you are right, that three lists would 
-suffice. But either way, one list with 7000+ messages a month is, as many 
-have admitted, not optimal for developers and maintainers.
-
-Thanks,
-Will
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
-
+-Ryan

@@ -1,122 +1,302 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbUJZAwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbUJZA45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbUJZAwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 20:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbUJZAwP
+	id S261833AbUJZA45 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 20:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbUJZA44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 20:52:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35516 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261826AbUJZAvp (ORCPT
+	Mon, 25 Oct 2004 20:56:56 -0400
+Received: from gate.crashing.org ([63.228.1.57]:45782 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261833AbUJZA4n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 20:51:45 -0400
-Date: Mon, 25 Oct 2004 17:51:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Andrea Arcangeli <andrea@novell.com>, Larry McVoy <lm@work.bitmover.com>,
-       Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <Pine.LNX.4.61.0410252350240.17266@scrub.home>
-Message-ID: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
- <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com>
- <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com>
- <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random>
- <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random>
- <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random>
- <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
- <Pine.LNX.4.61.0410252350240.17266@scrub.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Oct 2004 20:56:43 -0400
+Subject: [PATCH] ppc64: Improve PCI config accessors
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 26 Oct 2004 10:53:51 +1000
+Message-Id: <1098752032.17887.2.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch improves the config space access routines on G5, by adding
+a generic helper function to locate the pci_controller structure (to
+be used by an upcoming new platform too) and cleaning up the pmac
+routines. It includes the fix to skip devices that aren't present
+in the OF tree that is necessary for newer G5 desktop models.
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
 
-On Tue, 26 Oct 2004, Roman Zippel wrote:
-> 
-> On Mon, 25 Oct 2004, Linus Torvalds wrote:
-> 
-> > In short, BK isn't the problem. You are.
-> 
-> I think you're making it yourself way too easy.
->
-> Blaming Andrea for this mess is of course easy, but it doesn't solve 
-> anything and misses the point
+Index: linux-work/arch/ppc64/kernel/pmac.h
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/pmac.h	2004-10-17 12:07:07.000000000 +1000
++++ linux-work/arch/ppc64/kernel/pmac.h	2004-10-26 10:38:38.799817160 +1000
+@@ -18,7 +18,6 @@
+ extern void pmac_pcibios_fixup(void);
+ extern void pmac_pci_init(void);
+ extern void pmac_setup_pci_dma(void);
+-extern void fixup_k2_sata(struct pci_dev* dev);
+ extern void pmac_check_ht_link(void);
+ 
+ extern void pmac_setup_smp(void);
+Index: linux-work/include/asm-ppc64/pci-bridge.h
+===================================================================
+--- linux-work.orig/include/asm-ppc64/pci-bridge.h	2004-10-26 08:30:21.000000000 +1000
++++ linux-work/include/asm-ppc64/pci-bridge.h	2004-10-26 10:38:38.800817008 +1000
+@@ -101,5 +101,22 @@
+ 
+ extern void phbs_remap_io(void);
+ 
++static inline struct pci_controller *pci_bus_to_host(struct pci_bus *bus)
++{
++	struct device_node *busdn;
++
++	busdn = bus->sysdata;
++	if (busdn == 0) {
++		struct pci_bus *b;
++		for (b = bus->parent; b && bus->sysdata == 0; b = b->parent)
++			;
++		busdn = b->sysdata;
++	}
++	if (busdn == NULL)
++		return NULL;
++	return busdn->phb;
++}
++
++
+ #endif
+ #endif /* __KERNEL__ */
+Index: linux-work/arch/ppc64/kernel/pmac_pci.c
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/pmac_pci.c	2004-10-17 12:07:07.000000000 +1000
++++ linux-work/arch/ppc64/kernel/pmac_pci.c	2004-10-26 10:38:38.803816552 +1000
+@@ -46,7 +46,6 @@
+  * assuming we won't have both UniNorth and Bandit */
+ static int has_uninorth;
+ static struct pci_controller *u3_agp;
+-u8 pci_cache_line_size;
+ struct pci_dev *k2_skiplist[2];
+ 
+ static int __init fixup_one_level_bus_range(struct device_node *node, int higher)
+@@ -150,16 +149,9 @@
+ 				      int offset, int len, u32 *val)
+ {
+ 	struct pci_controller *hose;
+-	struct device_node *busdn;
+ 	unsigned long addr;
+ 
+-	if (bus->self)
+-		busdn = pci_device_to_OF_node(bus->self);
+-	else
+-		busdn = bus->sysdata;	/* must be a phb */
+-	if (busdn == NULL)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-	hose = busdn->phb;
++	hose = pci_bus_to_host(bus);
+ 	if (hose == NULL)
+ 		return PCIBIOS_DEVICE_NOT_FOUND;
+ 
+@@ -188,16 +180,9 @@
+ 				       int offset, int len, u32 val)
+ {
+ 	struct pci_controller *hose;
+-	struct device_node *busdn;
+ 	unsigned long addr;
+ 
+-	if (bus->self)
+-		busdn = pci_device_to_OF_node(bus->self);
+-	else
+-		busdn = bus->sysdata;	/* must be a phb */
+-	if (busdn == NULL)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-	hose = busdn->phb;
++	hose = pci_bus_to_host(bus);
+ 	if (hose == NULL)
+ 		return PCIBIOS_DEVICE_NOT_FOUND;
+ 
+@@ -236,14 +221,44 @@
+  * implement self-view of the HT host yet
+  */
+ 
+-static int skip_k2_device(struct pci_bus *bus, unsigned int devfn)
++/*
++ * This function deals with some "special cases" devices.
++ *
++ *  0 -> No special case
++ *  1 -> Skip the device but act as if the access was successfull
++ *       (return 0xff's on reads, eventually, cache config space
++ *       accesses in a later version)
++ * -1 -> Hide the device (unsuccessful acess)
++ */
++static int u3_ht_skip_device(struct pci_controller *hose,
++			     struct pci_bus *bus, unsigned int devfn)
+ {
++	struct device_node *busdn, *dn;
+ 	int i;
+ 
++	/*
++	 * When a device in K2 is powered down, we die on config
++	 * cycle accesses. Fix that here.
++	 */
+ 	for (i=0; i<2; i++)
+ 		if (k2_skiplist[i] && k2_skiplist[i]->bus == bus &&
+ 		    k2_skiplist[i]->devfn == devfn)
+ 			return 1;
++
++	/* We only allow config cycles to devices that are in OF device-tree
++	 * as we are apparently having some weird things going on with some
++	 * revs of K2 on recent G5s
++	 */
++	if (bus->self)
++		busdn = pci_device_to_OF_node(bus->self);
++	else
++		busdn = hose->arch_data;
++	for (dn = busdn->child; dn; dn = dn->sibling)
++		if (dn->devfn == devfn)
++			break;
++	if (dn == NULL)
++		return -1;
++
+ 	return 0;
+ }
+ 
+@@ -259,8 +274,7 @@
+ {
+ 	if (bus == hose->first_busno) {
+ 		/* For now, we don't self probe U3 HT bridge */
+-		if (PCI_FUNC(devfn) != 0 || PCI_SLOT(devfn) > 7 ||
+-		    PCI_SLOT(devfn) < 1)
++		if (PCI_SLOT(devfn) == 0)
+ 			return 0;
+ 		return ((unsigned long)hose->cfg_data) + U3_HT_CFA0(devfn, offset);
+ 	} else
+@@ -271,39 +285,21 @@
+ 				    int offset, int len, u32 *val)
+ {
+ 	struct pci_controller *hose;
+-	struct device_node *busdn, *dn;
+ 	unsigned long addr;
+ 
+-	if (bus->self)
+-		busdn = pci_device_to_OF_node(bus->self);
+-	else
+-		busdn = bus->sysdata;	/* must be a phb */
+-	if (busdn == NULL)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-	hose = busdn->phb;
+-	if (hose == NULL)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+ 
+-	/* We only allow config cycles to devices that are in OF device-tree
+-	 * as we are apparently having some weird things going on with some
+-	 * revs of K2 on recent G5s
+-	 */
+-	for (dn = busdn->child; dn; dn = dn->sibling)
+-		if (dn->devfn == devfn)
+-			break;
+-	if (dn == NULL)
++	hose = pci_bus_to_host(bus);      
++	if (hose == NULL)
+ 		return PCIBIOS_DEVICE_NOT_FOUND;
+ 
+ 	addr = u3_ht_cfg_access(hose, bus->number, devfn, offset);
+ 	if (!addr)
+ 		return PCIBIOS_DEVICE_NOT_FOUND;
+-	/*
+-	 * When a device in K2 is powered down, we die on config
+-	 * cycle accesses. Fix that here. We may ultimately want
+-	 * to cache the config space for those instead of returning
+-	 * 0xffffffff's to make life easier to HW detection tools
+-	 */
+-	if (skip_k2_device(bus, devfn)) {
++
++	switch (u3_ht_skip_device(hose, bus, devfn)) {
++	case 0:
++		break;
++	case 1:
+ 		switch (len) {
+ 		case 1:
+ 			*val = 0xff; break;
+@@ -313,6 +309,8 @@
+ 			*val = 0xfffffffful; break;
+ 		}
+ 		return PCIBIOS_SUCCESSFUL;
++	default:
++		return PCIBIOS_DEVICE_NOT_FOUND;
+ 	}
+ 
+ 	/*
+@@ -337,28 +335,24 @@
+ 				     int offset, int len, u32 val)
+ {
+ 	struct pci_controller *hose;
+-	struct device_node *busdn;
+ 	unsigned long addr;
+ 
+-	if (bus->self)
+-		busdn = pci_device_to_OF_node(bus->self);
+-	else
+-		busdn = bus->sysdata;	/* must be a phb */
+-	if (busdn == NULL)
+-		return PCIBIOS_DEVICE_NOT_FOUND;
+-	hose = busdn->phb;
++	hose = pci_bus_to_host(bus);
+ 	if (hose == NULL)
+ 		return PCIBIOS_DEVICE_NOT_FOUND;
+ 
+ 	addr = u3_ht_cfg_access(hose, bus->number, devfn, offset);
+ 	if (!addr)
+ 		return PCIBIOS_DEVICE_NOT_FOUND;
+-	/*
+-	 * When a device in K2 is powered down, we die on config
+-	 * cycle accesses. Fix that here.
+-	 */
+-	if (skip_k2_device(bus, devfn))
++
++	switch (u3_ht_skip_device(hose, bus, devfn)) {
++	case 0:
++		break;
++	case 1:
+ 		return PCIBIOS_SUCCESSFUL;
++	default:
++		return PCIBIOS_DEVICE_NOT_FOUND;
++	}
+ 
+ 	/*
+ 	 * Note: the caller has already checked that offset is
+@@ -675,7 +669,6 @@
+ 	pci_fix_bus_sysdata();
+ 
+ 	iommu_setup_u3();
+-
+ }
+ 
+ static void __init pmac_fixup_phb_resources(void)
+@@ -750,11 +743,6 @@
+ 	/* Tell pci.c to use the common resource allocation mecanism */
+ 	pci_probe_only = 0;
+ 	
+-	/* HT don't do more than 64 bytes transfers. FIXME: Deal with
+-	 * the exception of U3/AGP (hook into pci_set_mwi)
+-	 */
+-	pci_cache_line_size = 16; /* 64 bytes */
+-
+ 	/* Allow all IO */
+ 	io_page_mask = -1;
+ }
+@@ -763,7 +751,7 @@
+  * Disable second function on K2-SATA, it's broken
+  * and disable IO BARs on first one
+  */
+-void fixup_k2_sata(struct pci_dev* dev)
++static void fixup_k2_sata(struct pci_dev* dev)
+ {
+ 	int i;
+ 	u16 cmd;
 
-[ Answering these in a different order ]
 
-The only thing I blame Andrea for is _whining_. Don't get me wrong, I 
-don't blame him for the bad state of CVS or anything like that.
-
-The fact is, Andrea doesn't actually do anything constructive when it 
-comes to SCM. He just complains every time somebody says something 
-positive about a product that (a) he didn't do anything for and (b) nobody 
-forces him to use, and (c) there are no real alternatives for today (much 
-less the three years ago he was whining about).
-
-> The ability to handle big amounts of patches includes also the
-> possibility to merge a lot of crap. What keeps up the general quality?
-
-No SCM is _ever_ going to be a quality manager.
-
-And I also claim that people who think that "processes" are quality 
-management (see iso9000, or Dilbert) are seriously mistaken too.
-
-The thing that keeps up the general quality is _people_. Good people, who 
-take pride in the quality. They end up being maintainers, not because they 
-chose the job, but because people ended up chosing them, for better of for 
-worse.
-
-And the way to help those people is to make the day-to-day job easy, so
-that they can spend as much time as possible on the thing that matters:  
-upholding good taste (and in the process keeping quality up). And that's
-where an SCM comes in - not as a primary source of quality, but as a way
-to keep track of the details, so that people can concentrate on what is
-important.
-
-And the SCM doesn't have to be anything really fancy. It can be a few 
-scripts to keep track of patches (that tends to grow and become slightly 
-more sophisticated over time). I'm not saying that BK is "it". There's a 
-number of BK users there, but clearly there are other ways to maintain 
-patches too - and people use them.
-
-But complaining when a maintainer uses a tool that suits him is _stupid_. 
-It's arrogant to think that you can tell me how to do my work, but it's 
-really stupid when you can't give any reasonable alternatives that would 
-help me do it as efficiently.
-
-And that's what Andrea is doing. Sure, BK is commercial, but dammit, so is
-that 2GHz dual-G5 too and that Shuttle box in my corner. They happen to be
-the tools I use for what I do. If Andrea told me that I should use a
-slower machine because that's what most people use, I'd consider him a
-total idiot. Similarly, when he complains that people use software tools
-that clearly _do_ make them more productive, I consider his complaint
-stupid.
-
-There are other tools I use to make myself more productive. Many of them
-are open source. Some I wrote myself. But I still use "uemacs" and "pine"  
-as part of my tool-chest, for example - and last I saw, they weren't open
-source either (but I hear that the uemacs author stopped caring, so that
-one might have been re-licensed).
-
-Should I (or anybody else) ask Andrea's permission before we start using 
-non-opensource tools? No.  If Andrea were complaining about my "pine" 
-usage, he'd be laughed off the planet. It may be ass-backwards and old and 
-text-only, but the fact is, it's really none of his damn business, even 
-though he can see the effects in every email I write in the headers.
-
-Similarly, Andrea can see some of the effects of me using BK when he looks
-at the tar-balls and patches - syntactic markers that show that they have
-been generated by a person who uses BK. It's really _no_ different from
-the fact that I use pine to communicate. And no, neither BK nor pine are
-under an open source license.  Deal with it.
-
-Can Andrea point me to open-source tools and ask me politely whether I've 
-considered them as alternatives? Hell yes. I encourage him to do so when 
-something appears.
-
-		Linus

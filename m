@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278424AbRJ1PI7>; Sun, 28 Oct 2001 10:08:59 -0500
+	id <S278448AbRJ1PlK>; Sun, 28 Oct 2001 10:41:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278429AbRJ1PIt>; Sun, 28 Oct 2001 10:08:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14348 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278424AbRJ1PIf>; Sun, 28 Oct 2001 10:08:35 -0500
-Subject: Re: [PATCH] linux-2.4.13 - i8xx series chipsets patches
-To: wim@iguana.be (Wim Van Sebroeck)
-Date: Sun, 28 Oct 2001 15:15:41 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011028153419.A24908@medelec.uia.ac.be> from "Wim Van Sebroeck" at Oct 28, 2001 03:34:19 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S278527AbRJ1PlB>; Sun, 28 Oct 2001 10:41:01 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:56436 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S278448AbRJ1Pks>; Sun, 28 Oct 2001 10:40:48 -0500
+Date: Sun, 28 Oct 2001 16:41:08 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.14pre3aa2
+Message-ID: <20011028164108.E1396@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15xrf3-00084J-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Why all this renaming and reformatting - what does your patch really do
-> > other than generate a lot of pointless noise
-> 
-> Sorry to upset you for this reformatting. What I did was look at the I/O Controller Hub of the intel 8xx series of chipsets and had a look what was supported and what was not. The 82801CA and 82801CAM I/O Controller Hubs were not supported yet and thus I added support for this in the IDE code, the watchdog timer and the random number generator. These Hubs will support intel 830 and intel 830MP (and probably others in the future as well) series of motherboards. 
-> My main source of info was the datasheets from intel on the different 82801 chips.
+I merged some bits from mainline to trigger swapout earlier to see if it
+helps , but still no anon pages in the lru, it's easy to add them back
+in the lru as soon as we verify the largemem works ok too.
 
-Can you send me this as two seperate patches then. Firstly a patch which
-just updates the naming because our existing naming is wrong (if its
-actually wrong rather than just differet)
+As usual it is been tested on high end hardware kindly provided by
+www.osdlab.org.
 
-Secondly a patch which just adds the ones we are missing
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre3aa2/
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre3aa2.bz2
 
-Thanks
+Only in 2.4.14pre3aa1: 00_rcu-poll-1
+Only in 2.4.14pre3aa2: 00_rcu-poll-2
 
-Alan
+	Don't waste an additional cacheline, move the quiescent sequence number
+	in the schedule_data so rcu become zerocost in terms of cpu cache and
+	memory bandwith in the fast path.
+
+Only in 2.4.14pre3aa1: 10_numa-sched-12
+Only in 2.4.14pre3aa2: 10_numa-sched-13
+
+	rediffed due rcu-poll changes.
+
+Only in 2.4.14pre3aa1: 10_vm-5
+Only in 2.4.14pre3aa2: 10_vm-6
+
+	Merged max_mapped*10 logic from Linus, still not adding anon pages
+	from the lru, so we can see the difference, I can readd the anon
+	pages to the lru anytime as soon as it's clear what's better.
+
+Andrea

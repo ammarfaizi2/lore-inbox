@@ -1,96 +1,159 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315442AbSELWGp>; Sun, 12 May 2002 18:06:45 -0400
+	id <S315440AbSELWMS>; Sun, 12 May 2002 18:12:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315441AbSELWGo>; Sun, 12 May 2002 18:06:44 -0400
-Received: from inet01.olgc.on.ca ([216.94.172.42]:37905 "EHLO inet01")
-	by vger.kernel.org with ESMTP id <S315440AbSELWGm>;
-	Sun, 12 May 2002 18:06:42 -0400
-To: barryn@pobox.com (Barry K. Nathan)
+	id <S315441AbSELWMR>; Sun, 12 May 2002 18:12:17 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:50948 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S315440AbSELWMP>; Sun, 12 May 2002 18:12:15 -0400
+Date: Mon, 13 May 2002 00:12:09 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Marcus Alanen <marcus@infa.abo.fi>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: UDMA Troubles and Possible Physical Damage?!
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF705FCF97.C476D53D-ON85256BB7.007934A6@LocalDomain>
-From: aeleblanc@olgc.on.ca
-Date: Sun, 12 May 2002 18:04:55 -0400
-Content-Type: text/plain; charset="us-ascii"
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020512221209.GE1020@louise.pinerecords.com>
+In-Reply-To: <20020512010709.7a973fac.spyro@armlinux.org> <abmi0f$ugh$1@penguin.transmeta.com> <abmi0f$ugh$1@penguin.transmeta.com> <873cwx2hi4.fsf@CERT.Uni-Stuttgart.DE> <200205122142.AAA26566@infa.abo.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 1:11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok thanks for the pointers Barry, I'll try out that other kernel.
+> [Marcus Alanen <marcus@infa.abo.fi>, May-13 2002, Mon, 00:42 +0300]
+> In mailing-lists.linux-kernel, you wrote:
+> >torvalds@transmeta.com (Linus Torvalds) writes:
+> >
+> >> Perl is the obvious choice for doing transformations like these. Is
+> >> anybody willing to write a perl script that does the "sort by author"
+> >> thing?
+>
+> [snip]
+> Basically the same, this treats each patch separately:
+
+I took the liberty of kicking it up another notch :)
+
+	- allow whitespace at the beginning of email line (strip it, though)
+
+	- remove whitespace at the beginning and the end of "content"
+	lines and print everything out with a single tab in front
+
+T.
 
 
+Will process horrible mess like:
+--
+ <jsimmons@heisenberg.transvirtual.com> asfd
+     A bunch of fixes.
+
+<jsimmons@heisenberg.transvirtual.com>	
+	    Pmac updates
+
+<jsimmons@heisenberg.transvirtual.com>	   mmmm
+   Some more small fixes.
+
+<rmk@arm.linux.org.uk>
+	      [PATCH] 2.5.13: vmalloc link failure
+
+	The following patch fixes this, and also fixes the similar problem in
+	 scsi_debug.c:
+
+<trond.myklebust@fys.uio.no>
+	[PATCH] in_ntoa link failure
+
+	Nothing serious. Whoever it was that did that global replacemissed a
+	spot is all...
+
+<viro@math.psu.edu>
+	[PATCH] change_floppy() fix
+
+	Needed both in 2.4 and 2.5
+
+-- into: --
+
+<jsimmons@heisenberg.transvirtual.com>
+	--------------------------------------------------------------
+	A bunch of fixes.
+
+	--------------------------------------------------------------
+	Pmac updates
+
+	--------------------------------------------------------------
+	Some more small fixes.
 
 
+<rmk@arm.linux.org.uk>
+	--------------------------------------------------------------
+	[PATCH] 2.5.13: vmalloc link failure
+
+	The following patch fixes this, and also fixes the similar problem in
+	scsi_debug.c:
 
 
-barryn@pobox.com (Barry K. Nathan)
-12-05-02 06:06 PM
+<trond.myklebust@fys.uio.no>
+	--------------------------------------------------------------
+	[PATCH] in_ntoa link failure
 
- 
-        To:     aeleblanc@olgc.on.ca
-        cc:     linux-kernel@vger.kernel.org
-        Subject:        Re: UDMA Troubles and Possible Physical Damage?!
-
-
-> Duron 1GHz on an ACS Mobo with SiS Chipset. 100MHz FSB & 384 MB PC133 
-> SDRAM.
-> and a Fujitsu 30MB ATA100 Drive
-> 
-> 
-> I Just finished installing Debian - Woody, which installs Kernel Version 
-
-> 2.2.17 I Believe (I may be wrong there)
-
-For anything recent, you really want the IDE support in 2.4.19-preX 
-(latest
-is -pre8).
-
-> I installed and ran hdparm and after telling me that dma and all that 
-> other good stuff was disabled it said "HDIO: Failed to check BUSSTATE"
-> 
-> i ran hdparm -c3 -d1 -X34 to try and get DMA Working... the command ran 
-
-Usually -X## commands are just asking for trouble these days (the driver
-should be doing it on its own, and in the newer kernels, it does). The
-most that should be needed is "hdparm -d1" and that's only needed if the
-"DMA enabled by default" config option wasn't enabled at kernel compile
-time. 
-
-> fine but as soon as I tried to run another command (just 'ls' in fact) 
-the 
-> system Locked up Solid.  upon rebooting my Bios didn't even Pick up the 
-> Hard drive.. I did a Hard reset again and the Bios picked it up, then 
-> reset again and it failed to pick it up again.. is it possible that I 
-> Screwed up my motherboard or Hard drive somehow?
-
-In this kind of situation you want to turn off the power to the machine
-for a few minutes, ideally unplugging the machine from mains if you really
-want to be sure. If the IDE controller somehow gets confused, a "hard
-reset" alone isn't enough to fix things (speaking from personal
-experience).
-
-I doubt there is physical damage, but I don't know for sure. In any case,
-try unplugging the thing for a few minutes, and see if you still have
-problems. (Make sure you do *not* use that hdparm -X34 option.)
-
-> the on a side note, before attempting to use hdparm under the above 
-> mentioned kernel, I compiled a custom 2.4.18 kernel, however it caused 
-> even more problems with ide, a bunch of:
-> 
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> 
-> Flew by then it said ide0: reset: success, then locked up again.
-> 
-> if anyone can help it would be greatly appreciated.
-
-I would start by trying 2.4.19-pre8. If that doesn't help, there are even
-newer IDE driver patches on http://www.linuxdiskcert.org/ which might be
-worth a try.
-
--Barry K. Nathan <barryn@pobox.com>
+	Nothing serious. Whoever it was that did that global replacemissed a
+	spot is all...
 
 
+<viro@math.psu.edu>
+	--------------------------------------------------------------
+	[PATCH] change_floppy() fix
 
+	Needed both in 2.4 and 2.5
+
+--
+
+#!/usr/bin/perl -w
+
+use strict;
+
+my %people = ();
+my $addr = "";
+my @cur = ();
+
+sub append_item() {
+	if (!$addr) { return; }
+	if (!$people{$addr}) { @{$people{$addr}} = (); }
+	push @{$people{$addr}}, [@cur];
+
+	@cur = ();
+}
+
+while (<>) {
+	# Match address
+	if (/^\s*<([^>]+)>/) {
+		# Add old item (if any) before beginning new
+		append_item();
+		$addr = $1;
+	} elsif ($addr) {
+		# Add line to patch
+		s/^\s*(.*)\s*$/$1/;
+		push @cur, "\t$_\n";
+	} else {
+		# Header information
+		print;
+	}
+}
+
+
+sub print_items($) {
+	my @items = @{$people{$_[0]}};
+	# Vain attempt to sort patches from one address
+	@items = sort @items;
+	while ($_ = shift @items) {
+		# Item separator
+		print "\t--------------------------------------------------------------\n";
+		print @$_;
+	}
+}
+
+append_item();
+foreach $addr (sort keys %people) {
+	print "<$addr>\n";
+	print_items($addr);
+	print "\n";
+}

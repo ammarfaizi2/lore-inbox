@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbTI0UMy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 16:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbTI0UMy
+	id S262133AbTI0UVU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 16:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTI0UVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 16:12:54 -0400
-Received: from holomorphy.com ([66.224.33.161]:20892 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261871AbTI0UMx (ORCPT
+	Sat, 27 Sep 2003 16:21:19 -0400
+Received: from gprs151-62.eurotel.cz ([160.218.151.62]:30336 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262133AbTI0UVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 16:12:53 -0400
-Date: Sat, 27 Sep 2003 13:13:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Cc: Roger Luethi <rl@hellgate.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] No Swap. Re: [BUG 2.6.90-test5] kernel shits itself with 48mb ram under moderate load
-Message-ID: <20030927201347.GM4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ihar 'Philips' Filipau <filia@softhome.net>,
-	Roger Luethi <rl@hellgate.ch>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <ArQ0.821.23@gated-at.bofh.it> <ArQ0.821.25@gated-at.bofh.it> <ArQ0.821.21@gated-at.bofh.it> <ArZC.8f1.9@gated-at.bofh.it> <3F75EC3B.4030305@softhome.net>
+	Sat, 27 Sep 2003 16:21:18 -0400
+Date: Sat, 27 Sep 2003 22:19:51 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, akpm@osdl.org,
+       petero2@telia.com, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8/8] Add BTN_TOUCH to Synaptics driver. Update mousedev.
+Message-ID: <20030927201951.GA401@elf.ucw.cz>
+References: <10645086121286@twilight.ucw.cz> <200309251323.33416.dtor_core@ameritech.net> <20030925223032.GA32130@ucw.cz> <200309260224.54264.dtor_core@ameritech.net> <20030926075408.GA7330@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F75EC3B.4030305@softhome.net>
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030926075408.GA7330@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 27, 2003 at 09:59:55PM +0200, Ihar 'Philips' Filipau wrote:
->    Sorry, I even marked $subject as [OT].
->    I'm answering the question '2.4 without swap' - Yes. It is. Works. 
-> No  problems.
->    <rant>'Paging like crazy' became for me a synonym of Linux. It 
-> doesn't matter how much memory you have. Less == worse. Developers 
-> stopped testing VMM regression on low-memory computers long time ago. 
-> <sarcasm>We have now fashion for clusters and numas. And a lot of swap 
-> on very fast raids. <sarcasm size=+100%>After all it is cheap. Just 
-> couple of thousands greenbacks. </sarcasm> </sarcasm> It was really 
-> funny when developers on LKML were sugesting to buy another hdd for 
-> swap. Very funny.</rant>
->    Unfortunately I'm not a specialist in VMM...
->    As I see there is not that much edge case testing going around.
+Hi!
 
-It's known what has to be done for it. AFAICT upstream doesn't like
-the answers and just says "throw hardware at it". I've written it off
-as a lost cause, though I was at one time interested.
+> > IMHO we should let input device driver explicitly request which input
+> > handler it wishes to bind to (for example by passing a bitmap of desired
+> > input handlers when registering input device and everyone binds to evdev). 
+> > It is not as flexible as capabilities checking solution but much more 
+> > simple and predictable. I do not thing that there will be that many handlers 
+> > implemented...
+> 
+> No, it won't work. It assumes that all the handlers are known
+> beforehand. Someone may want to load their own input handler module and
+> it wouldn't bind to any device, because it wouldn't be on the list.
+> 
+> Also, we need to communicate the information not just to kernel
+> handlers, but also to userspace programs/drivers ...
+> 
+> One thing I tried to avoid is a 'device class' kind of field, that'd
+> tell if a device is a mouse a touchpad, touchscreen, tablet, whatever.
+> I tried to avoid it because there are devices that don't fall into any
+> predefined class and if we make enough classes, someone someday will
+> make a device that won't fit again.
 
+I believe having "is overlaid over screen" bit gets it right :-).
 
--- wli
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129664AbRBQALT>; Fri, 16 Feb 2001 19:11:19 -0500
+	id <S129166AbRBQAN7>; Fri, 16 Feb 2001 19:13:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129375AbRBQALJ>; Fri, 16 Feb 2001 19:11:09 -0500
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:8202 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129664AbRBQALB>; Fri, 16 Feb 2001 19:11:01 -0500
-From: rjd@xyzzy.clara.co.uk
-Message-Id: <200102170010.f1H0Aqa26773@xyzzy.clara.co.uk>
-Subject: Re: Linux stifles innovation...
-To: dennis@etinc.com (Dennis)
-Date: Sat, 17 Feb 2001 00:10:52 +0000 (GMT)
-Cc: jesse@cats-chateau.net, A.J.Scott@casdn.neu.edu,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com> from "Dennis" at Feb 16, 2001 11:37:39 
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129193AbRBQANj>; Fri, 16 Feb 2001 19:13:39 -0500
+Received: from [24.221.218.186] ([24.221.218.186]:54008 "HELO
+	matrix.the-republic.org") by vger.kernel.org with SMTP
+	id <S129166AbRBQANe>; Fri, 16 Feb 2001 19:13:34 -0500
+Date: Sat, 17 Feb 2001 00:11:16 +0000 (GMT)
+From: "Willis L. Sarka" <wlsarka@the-republic.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Multiport NICs and ether channel?
+Message-ID: <Pine.LNX.4.30.0102170006240.24008-100000@matrix.the-republic.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dennis wrote:
-...
-> objective, arent we?
-Nope. Are you claiming to be?
+Greetings,
 
-> For example, if there were six different companies that marketed ethernet 
-> drivers for the eepro100, you'd have a choice of which one to buy..perhaps 
-... Rant deleted
+Just a general question or two.. Please point me to a URL or tell me where
+to RTFM, or answer back ;-).
 
-I had a problem with eepro100.
-It was fixed same night cause I had the source.
-Don't even try to compare with MickyS**t.
+What is the status/condition of using muliport NICs  and bonding
+them together to form a larger pipe (i.e. a quad channel ethernet card for
+an Intel box, bonding all four interfaces together to get a theoretical
+400Mbps pipe)?  Are there any highly recommended cards of this type?  Will
+the bonding work when connected to a Cisco catalyst switch with ether
+channel?
 
-> The biggest thing that the linux community does to stifle innovation is to 
-> bash commercial vendors trying to make a profit by whining endlessly about 
-> "sourceless" distributions and recommending "open-source" solutions even 
-> when they are wholly inferior. You're only hurting yourselves in the long 
-> run. In that respect MS is correct, because those with the dollars to 
-> innovate will stay away.
+Again, thanks in advance.  If you need any further info, or if I need to
+describe something in greater detail please let me know.
 
-When companys with less than a dozen people think it's worth while paying
-someone like me to develop code exclusivly for Linux we've got to have a
-chance. Source to binary ratio is probably 70/30 mainly because of code
-tied up in previous companys but they are trying.
+Cheers,
+Will Sarka
 
-The project they're funding now is more like 90% GPL. Of course I could be
-producing crap code. 20 years kernel hacking and a cybernetics degree can't
-mean as much as being an MSCE.
-
-
-ps. This is definately a message from home and a bottom of a glass of whisky.
 -- 
-	Bob Dunlop	rjd@xyzzy.clara.co.uk
+---------------------------------------------
+Those, who would give up essential liberty to
+purchase a little temporary safety, deserve
+neither liberty nor safety.
+
+-Ben Franklin
+Historical Review of Constitution and
+Government of Pennsylvania
+---------------------------------------------
+

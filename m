@@ -1,45 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262938AbTCKOsH>; Tue, 11 Mar 2003 09:48:07 -0500
+	id <S262935AbTCKOmV>; Tue, 11 Mar 2003 09:42:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262939AbTCKOsH>; Tue, 11 Mar 2003 09:48:07 -0500
-Received: from angband.namesys.com ([212.16.7.85]:39824 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S262938AbTCKOsG>; Tue, 11 Mar 2003 09:48:06 -0500
-Date: Tue, 11 Mar 2003 17:58:48 +0300
-From: Oleg Drokin <green@namesys.com>
-To: neilb@cse.unsw.edu.au, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: [2.5] nfsd/export.c memleak.
-Message-ID: <20030311175848.A3142@namesys.com>
+	id <S262936AbTCKOmV>; Tue, 11 Mar 2003 09:42:21 -0500
+Received: from cs-ats40.donpac.ru ([217.107.128.161]:58375 "EHLO pazke")
+	by vger.kernel.org with ESMTP id <S262935AbTCKOmT>;
+	Tue, 11 Mar 2003 09:42:19 -0500
+Date: Tue, 11 Mar 2003 17:02:49 +0300
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] kernel/rcupdate.c microcleanup
+Message-ID: <20030311140249.GB756@pazke>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="ADZbWkCsHQ7r3kzd"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.3.28i
+X-Uname: Linux 2.4.20aa1 i686 unknown
+From: Andrey Panin <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-     There is trivial memleak on error exit path in nfsd.
-     See the patch below.
-     Found with help of smatch + enhanced unfree script.
+--ADZbWkCsHQ7r3kzd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Bye,
-    Oleg
+Hi all,
 
-===== fs/nfsd/export.c 1.71 vs edited =====
---- 1.71/fs/nfsd/export.c	Tue Feb 25 13:08:50 2003
-+++ edited/fs/nfsd/export.c	Tue Mar 11 17:55:18 2003
-@@ -294,7 +294,10 @@
+attached patch (2.5.64) contains small cleanup of RCU code:
+    - move smp_processor_id() outside of irq disabled region in call_rcu();
+    - consolidate multiple spin_unlock() in the rcu_check_quiescent_state(),
+      remove some unneeded {} and make this function inline.
+
+Tested and works (at least doesn't crash). Please consider applying.
+
+Best regards.
+
+-- 
+Andrey Panin		| Embedded systems software developer
+pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+
+--ADZbWkCsHQ7r3kzd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-rcu
+
+diff -urN -X /usr/share/dontdiff linux-2.5.64.vanilla/kernel/rcupdate.c linux-2.5.64/kernel/rcupdate.c
+--- linux-2.5.64.vanilla/kernel/rcupdate.c	Thu Nov 28 01:35:46 2002
++++ linux-2.5.64/kernel/rcupdate.c	Mon Mar 10 20:18:48 2003
+@@ -67,13 +67,12 @@
+  */
+ void call_rcu(struct rcu_head *head, void (*func)(void *arg), void *arg)
+ {
+-	int cpu;
++	int cpu = smp_processor_id();
+ 	unsigned long flags;
  
- 	/* client */
- 	len = qword_get(&mesg, buf, PAGE_SIZE);
--	if (len <= 0) return -EINVAL;
-+	if (len <= 0) {
-+		err = -EINVAL;
-+		goto out;
-+	}
- 	err = -ENOENT;
- 	dom = auth_domain_find(buf);
- 	if (!dom)
+ 	head->func = func;
+ 	head->arg = arg;
+ 	local_irq_save(flags);
+-	cpu = smp_processor_id();
+ 	list_add_tail(&head->list, &RCU_nxtlist(cpu));
+ 	local_irq_restore(flags);
+ }
+@@ -117,13 +116,12 @@
+  * switch). If so and if it already hasn't done so in this RCU
+  * quiescent cycle, then indicate that it has done so.
+  */
+-static void rcu_check_quiescent_state(void)
++static inline void rcu_check_quiescent_state(void)
+ {
+ 	int cpu = smp_processor_id();
+ 
+-	if (!test_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask)) {
++	if (!test_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask))
+ 		return;
+-	}
+ 
+ 	/* 
+ 	 * Races with local timer interrupt - in the worst case
+@@ -134,23 +132,22 @@
+ 		RCU_last_qsctr(cpu) = RCU_qsctr(cpu);
+ 		return;
+ 	}
+-	if (RCU_qsctr(cpu) == RCU_last_qsctr(cpu)) {
++	if (RCU_qsctr(cpu) == RCU_last_qsctr(cpu))
+ 		return;
+-	}
+ 
+ 	spin_lock(&rcu_ctrlblk.mutex);
+-	if (!test_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask)) {
+-		spin_unlock(&rcu_ctrlblk.mutex);
+-		return;
+-	}
++	if (!test_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask))
++		goto out_unlock;
++
+ 	clear_bit(cpu, &rcu_ctrlblk.rcu_cpu_mask);
+ 	RCU_last_qsctr(cpu) = RCU_QSCTR_INVALID;
+-	if (rcu_ctrlblk.rcu_cpu_mask != 0) {
+-		spin_unlock(&rcu_ctrlblk.mutex);
+-		return;
+-	}
++	if (rcu_ctrlblk.rcu_cpu_mask != 0)
++		goto out_unlock;
++
+ 	rcu_ctrlblk.curbatch++;
+ 	rcu_start_batch(rcu_ctrlblk.maxbatch);
++
++out_unlock:
+ 	spin_unlock(&rcu_ctrlblk.mutex);
+ }
+ 
+
+--ADZbWkCsHQ7r3kzd--

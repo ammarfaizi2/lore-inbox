@@ -1,36 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267770AbUIJUhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267779AbUIJUjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267770AbUIJUhh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 16:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267776AbUIJUhh
+	id S267779AbUIJUjN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 16:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267777AbUIJUjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 16:37:37 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2310 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S267770AbUIJUhg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 16:37:36 -0400
-Date: Fri, 10 Sep 2004 22:37:33 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: janitor@sternwelten.at
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: [patch 17/25]  drivers/tc/zs.c MIN/MAX removal
-In-Reply-To: <E1C2cAK-0007RF-2m@sputnik>
-Message-ID: <Pine.LNX.4.58L.0409102233570.20057@blysk.ds.pg.gda.pl>
-References: <E1C2cAK-0007RF-2m@sputnik>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Sep 2004 16:39:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50831 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267779AbUIJUiu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 16:38:50 -0400
+Date: Fri, 10 Sep 2004 13:30:46 -0700
+From: Greg KH <greg@kroah.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev: udevd shall inform us abot trouble
+Message-ID: <20040910203046.GA19655@kroah.com>
+References: <200409081018.43626.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409081018.43626.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Sep 2004 janitor@sternwelten.at wrote:
-
-> Patch (against 2.6.7) removes unnecessary min/max macros and changes
-> calls to use kernel.h macros instead.
+On Wed, Sep 08, 2004 at 10:18:43AM +0300, Denis Vlasenko wrote:
+> Hi Greg,
 > 
-> Feedback is always welcome
+> I found out why udev didn't work for me.
+> At first I compiled it with wrong install path ($DESTDIR).
+> On subsequent recompiles with corrected DESTDIR binaries
+> were still compiled with old DESTDIR hardcoded into them.
+> 
+> I think this Make rule is generating a udev_version.h:
+> 
+> # Rules on how to create the generated header files
+> udev_version.h:
+>         @echo \#define UDEV_VERSION             \"$(VERSION)\" > $@
+>         @echo \#define UDEV_ROOT                \"$(udevdir)/\" >> $@
+>         @echo \#define UDEV_DB                  \"$(udevdir)/.udev.tdb\" >> $@
+>         @echo \#define UDEV_CONFIG_DIR          \"$(configdir)\" >> $@
+>         @echo \#define UDEV_CONFIG_FILE         \"$(configdir)/udev.conf\" >> $@
+>         @echo \#define UDEV_RULES_FILE          \"$(configdir)/rules.d\" >> $@
+>         @echo \#define UDEV_PERMISSION_FILE     \"$(configdir)/permissions.d\" >> $@
+>         @echo \#define UDEV_LOG_DEFAULT         \"yes\" >> $@
+>         @echo \#define UDEV_BIN                 \"$(DESTDIR)$(sbindir)/udev\" >> $@
+>         @echo \#define UDEVD_BIN                \"$(DESTDIR)$(sbindir)/udevd\" >> $@
+> 
+> which is not re-created even if DESTDIR has changed.
+> 
+> As a result, udevd was trying to exec udev with wrong path.
 
- The current version of the driver (that is in the MIPS/Linux CVS) has
-already been updated and uses the preferred min() macro instead.  Thanks
-for your effort anyway.
+Ick, not nice.
 
-  Maciej
+> I built udev with:
+> 
+> USE_LOG = true
+> DEBUG = false
+> 
+> but udevd does not log anything under such setting (all
+> udevd messages are coded as debug messages).
+> 
+> This patch improves situation by changing some dbg()'s
+> into info()'s.
+
+No, I don't like this change, as it increases the size of udevd pretty
+unnecessarily (errors like what happened to you are very rare, and we
+could blame them on pilot error...)
+
+thanks,
+
+greg k-h

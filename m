@@ -1,94 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267474AbUBTCCA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 21:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267480AbUBTCCA
+	id S267686AbUBTCGW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 21:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267675AbUBTCGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 21:02:00 -0500
-Received: from mail.kroah.org ([65.200.24.183]:53947 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267474AbUBTCBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 21:01:51 -0500
-Date: Thu, 19 Feb 2004 17:54:34 -0800
-From: Greg KH <greg@kroah.com>
-To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: HOWTO use udev to manage /dev
-Message-ID: <20040220015433.GC3134@kroah.com>
-References: <20040219185932.GA10527@kroah.com> <20040219191636.GC10527@kroah.com> <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org> <20040219230749.GA15848@kroah.com> <Pine.LNX.4.58.0402192033490.694@pervalidus.dyndns.org> <20040219235602.GI15848@kroah.com> <Pine.LNX.4.58.0402192057590.694@pervalidus.dyndns.org>
+	Thu, 19 Feb 2004 21:06:21 -0500
+Received: from smtp-out2.xs4all.nl ([194.109.24.12]:13331 "EHLO
+	smtp-out2.xs4all.nl") by vger.kernel.org with ESMTP id S267667AbUBTCGI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 21:06:08 -0500
+Subject: [PATCH][BUGFIX] : Megaraid patch for 2.6 2/5
+From: Paul Wagland <paul@kungfoocoder.org>
+To: Linux SCSI mailing list <linux-scsi@vger.kernel.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, James.Bottomley@HansenPartnership.com,
+       atulm@lsil.com
+Content-Type: multipart/mixed; boundary="=-ARPBelpW9QLdsUC18RF+"
+Organization: Kung Foo Coders!
+Message-Id: <1077242759.12567.78.camel@morsel.kungfoocoder.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0402192057590.694@pervalidus.dyndns.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 20 Feb 2004 03:06:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 09:51:52PM -0300, Frédéric L. W. Meunier wrote:
-> On Thu, 19 Feb 2004, Greg KH wrote:
-> 
-> > So if you take out the line about starting udevd, does it
-> > work for you?
-> 
-> No.
-> 
-> > How about changing the #!/bin/bash to #!/bin/sash in the
-> > first line for the start_udev script?
-> 
-> I didn't have it, but compiled and changed. Yes, it works.
-> 
-> > What distro is this?
-> 
-> Slackware, with a cute rc.S. /bin/bash was also recompiled, shared:
-> 
-> $ ldd /bin/bash
->         libreadline.so.4 => /usr/lib/libreadline.so.4 (0x4001c000)
->         libhistory.so.4 => /usr/lib/libhistory.so.4 (0x40049000)
->         libncurses.so.5 => /lib/libncurses.so.5 (0x40050000)
->         libdl.so.2 => /lib/libdl.so.2 (0x4008f000)
->         libc.so.6 => /lib/libc.so.6 (0x40092000)
->         /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
-> 
-> Maybe the problem ? Does yours differ ?
 
-Mine does differ, but it is dynamic:
+--=-ARPBelpW9QLdsUC18RF+
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-$ ldd /bin/bash
-        linux-gate.so.1 =>  (0xffffe000)
-        libtermcap.so.2 => /lib/libtermcap.so.2 (0x4d5b5000)
-        libdl.so.2 => /lib/libdl.so.2 (0x4d3b4000)
-        libc.so.6 => /lib/tls/libc.so.6 (0x4d254000)
-        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x4d238000)
+Hi all,
 
-> bash from Slackware:
-> 
->         libtermcap.so.2 => /lib/libtermcap.so.2 (0x4001c000)
->         libdl.so.2 => /lib/libdl.so.2 (0x4005c000)
->         libc.so.6 => /lib/libc.so.6 (0x4005f000)
->         /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
-> 
-> OK, I'll later boot with it and see if it works. If it does,
-> I'll run strace with the other.
+On Linux-SCSI over the last few days I have been discussing a couple of
+problems with the 2.6.2 megaraid driver. This patch fixes the problem
+that the /proc files were being created in the wrong place, the reason
+for this is that the /proc/megaraid directory was being created too
+late, so it has been moved earlier in the initialisation sequence. There
+has been one comment made about the #ifdef CONFIG_PROC_FS not being
+needed, but if they are removed then I would also need to remove the
+error when we can't create it, since it always "fails" to create a proc
+entry when CONFIG_PROC_FS is not set. Please let me know if you would
+like this re-submitted.
 
-How about using sash?  That is statically linked.
+patch is attached and below.
 
-> > Can you run strace on the start_udev script after boot to see who is
-> > needing access to /dev/null?
-> 
-> I forgot to run it, but noticed there was a /dev/null, but a
-> text file (0644). And I didn't create it anywhere.
+diff --recursive --ignore-all-space --unified linux-2.6.2.o/drivers/scsi/megaraid.c linux-2.6.2.megaraid/drivers/scsi/megaraid.c
+--- linux-2.6.2.o/drivers/scsi/megaraid.c	2004-02-20 01:32:21.000000000 +0100
++++ linux-2.6.2.megaraid/drivers/scsi/megaraid.c	2004-02-20 01:32:26.000000000 +0100
+@@ -5119,10 +5119,6 @@
+ 	if (max_mbox_busy_wait > MBOX_BUSY_WAIT)
+ 		max_mbox_busy_wait = MBOX_BUSY_WAIT;
+ 
+-	error = pci_module_init(&megaraid_pci_driver);
+-	if (error) 
+-		return error;
+-	
+ #ifdef CONFIG_PROC_FS
+ 	mega_proc_dir_entry = proc_mkdir("megaraid", &proc_root);
+ 	if (!mega_proc_dir_entry) {
+@@ -5130,6 +5126,13 @@
+ 				"megaraid: failed to create megaraid root\n");
+ 	}
+ #endif
++	error = pci_module_init(&megaraid_pci_driver);
++	if (error) {
++#ifdef CONFIG_PROC_FS
++		remove_proc_entry("megaraid", &proc_root);
++#endif
++		return error;
++	}
+ 
+ 	/*
+ 	 * Register the driver as a character device, for applications
 
-That sounds like some program is trying to write to it.
 
-Hm, there is a patch in the Red Hat version of udev that basically makes
-udev do the start_udev logic, in the .c file because they do not have a
-shell in their initrd.  If you can dig it out of there, that might be a
-solution for you to use.
+--=-ARPBelpW9QLdsUC18RF+
+Content-Disposition: attachment; filename=2-megaraid.init.patch
+Content-Type: text/x-patch; name=2-megaraid.init.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Other than that, how about running strace on start_udev when your rc.S
-script calls it?  That might help out.
+diff --recursive --ignore-all-space --unified linux-2.6.2.o/drivers/scsi/megaraid.c linux-2.6.2.megaraid/drivers/scsi/megaraid.c
+--- linux-2.6.2.o/drivers/scsi/megaraid.c	2004-02-20 01:32:21.000000000 +0100
++++ linux-2.6.2.megaraid/drivers/scsi/megaraid.c	2004-02-20 01:32:26.000000000 +0100
+@@ -5119,10 +5119,6 @@
+ 	if (max_mbox_busy_wait > MBOX_BUSY_WAIT)
+ 		max_mbox_busy_wait = MBOX_BUSY_WAIT;
+ 
+-	error = pci_module_init(&megaraid_pci_driver);
+-	if (error) 
+-		return error;
+-	
+ #ifdef CONFIG_PROC_FS
+ 	mega_proc_dir_entry = proc_mkdir("megaraid", &proc_root);
+ 	if (!mega_proc_dir_entry) {
+@@ -5130,6 +5126,13 @@
+ 				"megaraid: failed to create megaraid root\n");
+ 	}
+ #endif
++	error = pci_module_init(&megaraid_pci_driver);
++	if (error) {
++#ifdef CONFIG_PROC_FS
++		remove_proc_entry("megaraid", &proc_root);
++#endif
++		return error;
++	}
+ 
+ 	/*
+ 	 * Register the driver as a character device, for applications
 
-thanks,
+--=-ARPBelpW9QLdsUC18RF+--
 
-greg k-h

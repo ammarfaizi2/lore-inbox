@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267798AbUIUPiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUIUPnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267798AbUIUPiz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 11:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267792AbUIUPiy
+	id S267767AbUIUPnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 11:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267769AbUIUPnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 11:38:54 -0400
-Received: from mail.aei.ca ([206.123.6.14]:16862 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S267760AbUIUPhO (ORCPT
+	Tue, 21 Sep 2004 11:43:08 -0400
+Received: from mail.kroah.org ([69.55.234.183]:45704 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267767AbUIUPnF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 11:37:14 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
-From: Shane Shrybman <shrybman@aei.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040921073219.GA10095@elte.hu>
-References: <1095714967.3646.14.camel@mars> <20040921073219.GA10095@elte.hu>
-Content-Type: text/plain
-Message-Id: <1095781027.3612.1.camel@mars>
+	Tue, 21 Sep 2004 11:43:05 -0400
+Date: Tue, 21 Sep 2004 08:41:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Hunold <hunold@linuxtv.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       sensors@stimpy.netroedge.com
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+Message-ID: <20040921154111.GA13028@kroah.com>
+References: <414F111C.9030809@linuxtv.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 21 Sep 2004 11:37:07 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <414F111C.9030809@linuxtv.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-21 at 03:32, Ingo Molnar wrote:
-> * Shane Shrybman <shrybman@aei.ca> wrote:
-> 
-> > I am having what appears to be IDE DMA problems with 2.6.9-rc2-mm1-S1.
-> > 2.6.9-rc2-mm1 does not show this problem and runs fine. Before this I
-> > was happily using 2.6.8-rc3-O5.
-> > 
-> > I tried booting with acpi=off but was unable to enter my user name at
-> > the login prompt, it just hung with no response to sysreq. I also
-> > tried turning off irq threading for that irq but it made no
-> > difference.
-> 
-> does undoing (patch -R) the attached patch fix this IDE problem?
-> 
+On Mon, Sep 20, 2004 at 07:19:24PM +0200, Michael Hunold wrote:
+>  
+> +	/* a ioctl like command that can be used to perform specific functions
+> +	 * with the adapter.
+> +	 */
+> +	int (*command)(struct i2c_adapter *adapter, unsigned int cmd, void *arg);
 
-Yes, backing out that patch seems to have fixed that problem. Thanks.
+Ick ick ick.  We don't like ioctls for the very reason they aren't type
+safe, and you can pretty much stick anything in there you want.  So
+let's not try to add the same type of interface to another subsystem.
 
-> 	Ingo
+How about we add the exact explicit functionality that you want, one
+function per "type" of operation, like all other subsystems have.
 
-Regards,
+thanks,
 
-Shane
-
+greg k-h

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285096AbRLUUIX>; Fri, 21 Dec 2001 15:08:23 -0500
+	id <S285098AbRLUUKX>; Fri, 21 Dec 2001 15:10:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285113AbRLUUIN>; Fri, 21 Dec 2001 15:08:13 -0500
-Received: from weta.f00f.org ([203.167.249.89]:56004 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S285096AbRLUUIF>;
-	Fri, 21 Dec 2001 15:08:05 -0500
-Date: Sat, 22 Dec 2001 09:10:33 +1300
-From: Chris Wedgwood <cw@f00f.org>
+	id <S285099AbRLUUKO>; Fri, 21 Dec 2001 15:10:14 -0500
+Received: from waste.org ([209.173.204.2]:62339 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S285098AbRLUUKC>;
+	Fri, 21 Dec 2001 15:10:02 -0500
+Date: Fri, 21 Dec 2001 14:09:48 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
 To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>,
+cc: "Eric S. Raymond" <esr@thyrsus.com>,
         David Garfield <garfield@irving.iisd.sra.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Configure.help editorial policy
-Message-ID: <20011221201033.GA32368@weta.f00f.org>
-In-Reply-To: <20011220143247.A19377@thyrsus.com> <15394.29882.361540.200600@irving.iisd.sra.com> <20011220185226.A25080@thyrsus.com> <15395.33489.779730.767039@irving.iisd.sra.com> <20011221134034.B11147@thyrsus.com> <20011221141847.E15926@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20011221141847.E15926@redhat.com>
-User-Agent: Mutt/1.3.24i
-X-No-Archive: Yes
+Message-ID: <Pine.LNX.4.43.0112211357460.16844-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 02:18:47PM -0500, Benjamin LaHaise wrote:
+On Fri, 21 Dec 2001, Benjamin LaHaise wrote:
 
-    So, encouraging non-uniform terminology, breaking applicates *and*
-    confusing the hell out of everyone is better?  Face it, the only
-    people trying to confuse things are the disk vendors.  DRAM is
-    sold by the MB, everyone talks about MB == 1024*1024...  I'm
-    having a hard time giving a sympathetic ear to anyone try to
-    change the well established, and consistent (barring the storage
-    venduhs), standard.
+> On Fri, Dec 21, 2001 at 01:40:34PM -0500, Eric S. Raymond wrote:
+> > What, and *encourage* non-uniform terminology?  No, I won't do that.
+> > Better to have a single standard set of abbreviations, no matter how
+> > ugly, than this.
+>
+> So, encouraging non-uniform terminology, breaking applicates *and*
+> confusing the hell out of everyone is better?  Face it, the only
+> people trying to confuse things are the disk vendors.  DRAM is sold
+> by the MB, everyone talks about MB == 1024*1024...  I'm having a
+> hard time giving a sympathetic ear to anyone try to change the well
+> established, and consistent (barring the storage venduhs), standard.
 
-And disks by the GB where GB == 1000^3 so I don't see any problem in
-moving from KB to KiB and friends ESPECIALLY AS THEY ARE STANDARDIZED
-BEYOND THE KERNEL and nothing will change this.
+Not true. Bandwidth is measured in metric. Pixels are measured in metric.
+Basically anything but RAM is measured in metric. RAM is the exception
+because of its intimate relation to bus width and that's an obvious
+anachronism. There's no reason anyone but a systems programmer should give
+a damn about powers of two.
 
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-
-  --CW

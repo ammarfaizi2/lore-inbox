@@ -1,95 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314138AbSIDSRE>; Wed, 4 Sep 2002 14:17:04 -0400
+	id <S313571AbSIDSUu>; Wed, 4 Sep 2002 14:20:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314149AbSIDSRE>; Wed, 4 Sep 2002 14:17:04 -0400
-Received: from cats-mx1.ucsc.edu ([128.114.129.36]:41171 "EHLO cats.ucsc.edu")
-	by vger.kernel.org with ESMTP id <S314138AbSIDSRC>;
-	Wed, 4 Sep 2002 14:17:02 -0400
-Subject: 3 ultra100 controllers
-From: "T. Ryan Halwachs" <halwachs@cats.ucsc.edu>
-To: kernel mailing list <linux-kernel@vger.kernel.org>,
-       ataraid mailing list <ataraid-list@redhat.com>, andre@linux-ide.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 04 Sep 2002 11:19:50 -0700
-Message-Id: <1031163605.4320.41.camel@p700m700>
-Mime-Version: 1.0
-X-UCSC-CATS-MailScanner: Found to be clean
+	id <S313898AbSIDSUu>; Wed, 4 Sep 2002 14:20:50 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2944 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S313571AbSIDSUt>; Wed, 4 Sep 2002 14:20:49 -0400
+Date: Wed, 4 Sep 2002 14:25:21 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Libershteyn, Vladimir" <vladimir.libershteyn@hp.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Problem on a kernel driver(SuSE, SMP)
+In-Reply-To: <8C18139EDEBC274AAD8F2671105F0E8E121766@cacexc02.americas.cpqcorp.net>
+Message-ID: <Pine.LNX.3.95.1020904141906.425A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sent this to promise:
+On Wed, 4 Sep 2002, Libershteyn, Vladimir wrote:
 
-> -----Original Message-----
-> From: T. Ryan Halwachs [mailto:halwachs@cats.ucsc.edu] 
-> Sent: Monday, August 26, 2002 4:18 PM
-> To: support@promise.com
-> Subject: 3 ultra100 controllers
+> > 
+> > You are not too specific, which makes it hard to understand what may
+> > be going wrong so I'll assume that you probably did a bad thing.
 > 
+> I think I gave all the specific information
 > 
-> hi,
->  i am trying to use three Promise technology controllers in one system.
-> the promise bios only shows drives attached to the first 2 controllers.
-> how can i use the drives attached to the third controller?
+> > 
+> > (1)  You cannot sleep in an interrupt, which means you can't use
+> > down_*() and friends inside an ISR.
 > 
-> cheers,
-> ryan
+> I DO NOT sleep in ISR, the up*() routine is inside the ISR, dut not down*()
+> This is a standard use of the mechanism
 > 
+> > 
+> > (2)  Wait queues should work fine from the 'user-side' of a driver,
+> > but again, you cannot ever sleep in an interrupt service routine.
+> > Look in ../linux/drivers/* for examples of code that works.
+> > 
 > 
+> Again there is NO sleep in ISR, and I know that queues should work fine, 
+> but they don't, that why I have a problem, but problem only on
+> SMP machine.
 > 
+> > (3)  You can't use any wait-queue or sleep on a semaphore while
+> > holding a spin-lock or while the interrupts are disabled. You can
+> > manage your own lock against re-entry in your procedure, but you
+> > can't allow two tasks to try the same semaphore at (nearly) the
+> > same time or you can dead-lock.
+> 
+> I DO NOT hold any spinlocks, while use down_interruptible
+> 
+> > 
+> > 
+> > (4)	The fact that 'down' hangs means that there is nothing
+> > that the CPU can do. This is direct evidence that you have the
+> > interrupts disabled when down executes.
+> 
+> To be more specific, here is a code:
+> ----------------------------------------------------
+> function when thread go to sleep, if data not ready 
+> ---------------------------------------------------
 
-got this in reply:
+Snipped code.
 
-> From: support <support@promise.com>
-> To: 'T. Ryan Halwachs' <halwachs@cats.ucsc.edu>
-> Subject: RE: 3 ultra100 controllers
-> Date: 28 Aug 2002 08:23:29 -0700
-> 
-> Hi Ryan
-> 	Sorry you will not be able to used 3 ultra100 in single system.
-> 2 is the most.
-> 
-> It's All About Your Data!
-> 
-> Kevin Huynh
-> Reseller Technical Support.
-> Promise Technology, Inc
-> 1745 McCandless Dr.
-> Milpitas Ca, 95035
-> 408-228-6300
-> 
-> 
+How do you know that 
+ 	up(&a->sem[enumerator]);
+in the ISR and...
+ 	down_interruptible(&a->sem[enumerator]);
+In axl_get_response...
+	... have the same value of 'enumerator', therefore the same
+semaphore?
 
-from pdc202xx.c in 2.4.19-ac4
+One comes from a modulus and another from indirection off from 'board
+address'?
 
-/* 
-*  linux/drivers/ide/pdc202xx.c	Version 0.35	Mar. 30, 2002 
-* 
-*  Copyright (C) 1998-2002		Andre Hedrick <andre@linux-ide.org> 
-* 
-*  Promise Ultra33 cards with BIOS v1.20 through 1.28 will need this 
-*  compiled into the kernel if you have more than one card installed. 
-*  Note that BIOS v1.29 is reported to fix the problem.  Since this is 
-*  safe chipset tuning, including this support is harmless 
-* 
-*  Promise Ultra66 cards with BIOS v1.11 this 
-*  compiled into the kernel if you have more than one card installed. 
-* 
-*  Promise Ultra100 cards. 
-* 
-*  The latest chipset code will support the following :: 
-*  Three Ultra33 controllers and 12 drives. 
-*  8 are UDMA supported and 4 are limited to DMA mode 2 multi-word. 
-*  The 8/4 ratio is a BIOS code limit by promise. 
-* 
-*  UNLESS you enable "CONFIG_PDC202XX_BURST" 
-* 
-*/
+I think there is a bug there.
 
-is it possible (using Linux) to run 3 (or more) PDC20267 based ultra100 cards in the same machine?
 
-cheers,
-ryan
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbUKZWBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263854AbUKZV40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262417AbUKZWBq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbUKZV4e
+	id S263854AbUKZV40 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbUKZVva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 16:56:34 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:49861 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263931AbUKZTxP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:53:15 -0500
-Date: Thu, 25 Nov 2004 07:26:49 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: avi@argo.co.il, alan@lxorguk.ukuu.org.uk, torvalds@osdl.org,
-       hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041125062649.GB29278@vagabond>
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain> <41A47B67.6070108@argo.co.il> <E1CWwqF-0007Ng-00@dorka.pomaz.szeredi.hu>
+	Fri, 26 Nov 2004 16:51:30 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:31139 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262480AbUKZTxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:53:51 -0500
+Subject: Re: Suspend 2 merge: 9/51: init/* changes.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125215807.GI2488@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101293918.5805.221.camel@desktop.cunninghams>
+	 <20041125170718.GA1417@openzaurus.ucw.cz>
+	 <1101418614.27250.21.camel@desktop.cunninghams>
+	 <20041125214524.GE2488@elf.ucw.cz>
+	 <1101419500.27250.41.camel@desktop.cunninghams>
+	 <20041125215807.GI2488@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101420204.27250.54.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CUfgB8w4ZwR/yMy5"
-Content-Disposition: inline
-In-Reply-To: <E1CWwqF-0007Ng-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 09:03:24 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---CUfgB8w4ZwR/yMy5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 2004-11-26 at 08:58, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > And if you really want to make it changeable, pass major:minor from userland; once
+> > > > > userland is running getting them is easy.
+> > > > 
+> > > > Yes, but that's also far uglier, and who thinks in terms of major and
+> > > > minor numbers anyway? I think of my harddrive as /dev/sda, not 08:xx.
+> > > > The parsing accepts majors and minors, of course, but shouldn't we make
+> > > > these things easier to do, not harder? (Would we insist on using majors
+> > > > and minors for root=?).
+> > > 
+> > > Kernel interface is not supposed to be "easy". root= has exception,
+> > > that's init code, and you can't easily ls -al /dev at that point. If
+> > > you want easy interface, create userland program that looks up
+> > > minor/major in /dev/ and uses them.
+> > 
+> > That's a fair possibility, but is it really worth it when all we need to
+> > do is make two routines not be init? We would still have to duplicate
+> > some of this code elsewhere anyway, because we need to parse the major
+> > and minor numbers.
+> 
+> Parsing major/minor should be as simple as sscanf("%d %d"). And you'll
+> have one less modification to generic code. Yes I think it is worth
+> it.
 
-On Wed, Nov 24, 2004 at 14:05:51 +0100, Miklos Szeredi wrote:
-> > http://lkml.org/lkml/2004/7/26/68
-> >=20
-> > discusses a userspace filesystem (implemented as a userspace nfs server=
-=20
-> > mounted on a loopback nfs mount), the problem, a solution (exactly your=
-=20
-> > suggestion), and a more generic solution.
->=20
-> Thanks for the pointer, very interesting read.
->=20
-> However, I don't like the idea that the userspace filesystem must
-> cooperate with the kernel in this regard.  With this you lose one of
-> the advantages of doing filesystem in userspace: namely that you can
-> be sure, that anything you do cannot bring the system down.
->=20
-> And I firmly believe that this can be done without having to special
-> case filesystem serving processes.
->=20
-> There are already "strange" filesystems in the kernel which cannot
-> really get rid of dirty data.  I'm thinking of tmpfs and ramfs.
-> Neither of them are prone to deadlock, though both of them are "worse
-> off" than a userspace filesystem, in the sense that they have not even
-> the remotest chance of getting rid of the dirty data.
->=20
-> Of course, implementing this is probably not trivial.  But I don't see
-> it as a theoretical problem as Linus does.=20
->=20
-> Is there something which I'm missing here?
+In that case, we shouldn't access names at boot time either; the
+interface should be consistent, shouldn't it? I really would prefer to
+keep things as they are; is it worth all this fuss?
 
-But they KNOW that they won't be able to get rid of the dirty data. But
-fuse does not.
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
----------------------------------------------------------------------------=
-----
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 
---CUfgB8w4ZwR/yMy5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBpXspRel1vVwhjGURAmNGAKCiEPKHXCf14IcMMmIAx37UAZyd3gCbBy1c
-FEBkMx3dJDNmOZrWOJExExc=
-=a0sp
------END PGP SIGNATURE-----
-
---CUfgB8w4ZwR/yMy5--

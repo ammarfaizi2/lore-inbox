@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264931AbRFULoI>; Thu, 21 Jun 2001 07:44:08 -0400
+	id <S264934AbRFUL46>; Thu, 21 Jun 2001 07:56:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264933AbRFULn5>; Thu, 21 Jun 2001 07:43:57 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:42736 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S264931AbRFULnr>; Thu, 21 Jun 2001 07:43:47 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Alan Cox <laughing@shared-source.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac16
-In-Reply-To: <20010619183135.A24337@lightning.swansea.linux.org.uk>
-Organisation: SAP LinuxLab
-Date: 21 Jun 2001 13:42:25 +0200
-In-Reply-To: <20010619183135.A24337@lightning.swansea.linux.org.uk>
-Message-ID: <m31yoerrdq.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S264936AbRFUL4j>; Thu, 21 Jun 2001 07:56:39 -0400
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:10697 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP
+	id <S264934AbRFUL4g>; Thu, 21 Jun 2001 07:56:36 -0400
+Date: Thu, 21 Jun 2001 18:38:09 +0700
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: Balbir Singh <balbir_soni@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is it useful to support user level drivers
+In-Reply-To: <20010621104132.91801.qmail@web13609.mail.yahoo.com>
+Message-ID: <Pine.SGI.4.10.10106211833390.3193032-100000@Sky.inp.nsk.su>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Thu, 21 Jun 2001, Balbir Singh wrote:
 
-On Tue, 19 Jun 2001, Alan Cox wrote:
-> 2.4.5-ac16
-> o	Drop the shmem/removepage changes to see if they(me)
-> 	are cuaisng the instabilities in ac15
+> I realize that the Linux kernel supports user
+> level drivers (via ioperm, etc). However interrupts
+> at user level are not supported, does anyone think
+> it would be a good idea to add user level interrupt
+> support ? I have a framework for it, but it still
+> needs
+> a lot of work.
 
-Any conclusions on that? 
+http://www.ibiblio.org/pub/Linux/kernel/irq-1.68.2.tar.gz
+ ftp://ftp.inp.nsk.su/export/fedorov/soft/irq-1.68.2.tar.gz
 
-Greetings
-		Christoph
+(2.0.x - 2.2.x kernels)
 
+kernel module to delivery hardware interrupts to user space
+programs. Hardware interrupts (IRQ) are accessible by
+character devices /dev/irq[0-15]. Interrupts delivered by
+signals and select(2)/poll(2)
 

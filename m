@@ -1,34 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283486AbRLIPLe>; Sun, 9 Dec 2001 10:11:34 -0500
+	id <S283510AbRLIPai>; Sun, 9 Dec 2001 10:30:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283503AbRLIPLY>; Sun, 9 Dec 2001 10:11:24 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:37562 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S283486AbRLIPLO>; Sun, 9 Dec 2001 10:11:14 -0500
-Date: 09 Dec 2001 14:06:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8EWhHLVmw-B@khms.westfalen.de>
-In-Reply-To: <20011207145535.A18152@codepoet.org>
-Subject: Re: On re-working the major/minor system
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+	id <S283527AbRLIPa1>; Sun, 9 Dec 2001 10:30:27 -0500
+Received: from trappist.elis.rug.ac.be ([157.193.67.1]:63944 "EHLO
+	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
+	id <S283510AbRLIPaL>; Sun, 9 Dec 2001 10:30:11 -0500
+Date: Sun, 9 Dec 2001 16:30:05 +0100 (CET)
+From: Frank Cornelis <fcorneli@elis.rug.ac.be>
+To: <linux-kernel@vger.kernel.org>
+Subject: kmem_cache_alloc & kernel_lock
+Message-ID: <Pine.LNX.4.33.0112091626110.27042-100000@trappist.elis.rug.ac.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <9urbtm$69e$1@cesium.transmeta.com> <E16CJnv-0005c0-00@the-village.bc.nu> <20011207135100.A17683@codepoet.org> <9urbtm$69e$1@cesium.transmeta.com> <20011207145535.A18152@codepoet.org>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andersen@codepoet.org (Erik Andersen)  wrote on 07.12.01 in <20011207145535.A18152@codepoet.org>:
+Hi,
 
-> The C library, and the POSIX standard, etc, etc.
+Can I use kmem_cache_alloc(mycache_cachep, SLAB_KERNEL) within
+a kernel_lock/kernel_unlock block? Or should it be SLAB_ATOMIC?
 
-I think you'll find that there is *NOTHING* in either the C standard,  
-POSIX, or the Austin future-{POSIX,UNIX} standard that knows about major  
-or minor numbers.
+Thanks in advance?
 
-MfG Kai
+Frank.
+
+

@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264230AbTDPLFG (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 07:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTDPLFG 
+	id S264292AbTDPLLc (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 07:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTDPLLb 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 07:05:06 -0400
-Received: from mail.hometree.net ([212.34.181.120]:21187 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S264230AbTDPLFF 
+	Wed, 16 Apr 2003 07:11:31 -0400
+Received: from [212.202.223.187] ([212.202.223.187]:29568 "EHLO gw.localnet")
+	by vger.kernel.org with ESMTP id S264292AbTDPLLb 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 07:05:05 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [2.4.21-pre7-ac1] IDE Warning when booting
-Date: Wed, 16 Apr 2003 11:16:57 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b7je39$cfp$1@tangens.hometree.net>
-References: <b7jahc$8f0$1@tangens.hometree.net> <20030416103105.GC7135@miggy.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1050491817 12793 212.34.181.4 (16 Apr 2003 11:16:57 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 16 Apr 2003 11:16:57 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Wed, 16 Apr 2003 07:11:31 -0400
+Message-ID: <3E9D3D34.3030601@trash.net>
+Date: Wed, 16 Apr 2003 13:23:32 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: [Bug 592] New: BUG at kernel/softirq.c:105
+References: <20030416120330.B7188@flint.arm.linux.org.uk>
+In-Reply-To: <20030416120330.B7188@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Athanasius <link@gurus.tf> writes:
+Andrew Morton wrote something about this BUG, his mail
+is here: http://marc.theaimsgroup.com/?l=linux-kernel&m=104979788626334&w=2
 
+Bye,
+Patrick
 
->--ALfTUftag+2gvp1h
->Content-Type: text/plain; charset=us-ascii
->Content-Disposition: inline
->Content-Transfer-Encoding: quoted-printable
+Russell King wrote:
 
->On Wed, Apr 16, 2003 at 10:16:12AM +0000, Henning P. Schmiedehausen wrote:
->> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
->> vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
->> hda: task_no_data_intr: status=3D0x51 { DriveReady SeekComplete Error }
->> hda: task_no_data_intr: error=3D0x04 { DriveStatusError }
->> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+>I've been trying to trace this callpath, and have hit a dead end in
+>release_dev().  It seems to go weird after there, which makes it
+>difficult to audit the code path.
+>
+>Anyone got any ideas?
+>
+>I'm not too bothered about this bug since I don't look after the ppp
+>or tty (line discipline) code, so I'm also looking for someone else
+>to assign this to.
+>  
+>
 
->   Not the exact, byte-for-byte, same, but, from Configure.help:
-
-Alan did post an explanation for these (which I haven't read before
-posting this) that these are harmless. And yes, the task_no_data_intr
-vs. set_multmode makes all the difference. :-) Getting these quieted
-down would be nice, though.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire

@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261254AbRFRNBQ>; Mon, 18 Jun 2001 09:01:16 -0400
+	id <S262076AbRFRNJh>; Mon, 18 Jun 2001 09:09:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261268AbRFRNBI>; Mon, 18 Jun 2001 09:01:08 -0400
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:27408 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S261254AbRFRNAz>; Mon, 18 Jun 2001 09:00:55 -0400
-Date: Mon, 18 Jun 2001 09:00:52 -0400 (EDT)
-From: Modular Forms Boy <eger@cc.gatech.edu>
-To: linux-kernel@vger.kernel.org
-cc: eger@cc.gatech.edu
-Subject: New Linux Drivers - Configure question
-Message-ID: <Pine.SOL.4.21.0106180852480.16027-100000@oscar.cc.gatech.edu>
+	id <S262436AbRFRNJ0>; Mon, 18 Jun 2001 09:09:26 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:62726 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S262076AbRFRNJS>;
+	Mon, 18 Jun 2001 09:09:18 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15149.64869.116478.513419@cargo.ozlabs.ibm.com>
+Date: Mon, 18 Jun 2001 23:08:53 +1000 (EST)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux/PPC maintainer changing
+In-Reply-To: <20010617151351.B16494@hq.fsmlabs.com>
+In-Reply-To: <20010617151351.B16494@hq.fsmlabs.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Cort has put in an enormous amount of time and effort into maintaining
+the PowerPC port of Linux over the past 5 or 6 years, and I for one
+would like to acknowledge that publicly and thank him for that.  It
+has not always been an easy task, I know, because there are a wide
+range of opinions within the PPC/Linux camp and Cort has been the man
+on the spot to sort out the balance between the competing interests.
+And I for one will miss the time, effort and resources he has put into
+the infrastructure things such as the repository, web pages, ftp site
+etc.
 
-I am working on a new framebuffer driver for an LCD controller that's
-custom to the PowerPC embedded world.  As such, it's architecture
-dependent.  Where should I place the driver in the tree, and how should I
-set up the proper Configure options?  Where do I put checks for #ifdef
-CONFIGURE_blah_blah_blah?
+I would also like to thank FSM Labs for contributing the space and
+bandwidth for the PPC/Linux repository over the last couple of years.
 
-Yours truly,
-David Eger
-
+Paul.

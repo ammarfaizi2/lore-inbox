@@ -1,62 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266160AbSKUAUv>; Wed, 20 Nov 2002 19:20:51 -0500
+	id <S266161AbSKUAYq>; Wed, 20 Nov 2002 19:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266121AbSKUAUu>; Wed, 20 Nov 2002 19:20:50 -0500
-Received: from fw-az.mvista.com ([65.200.49.158]:10234 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id <S266041AbSKUAUr>; Wed, 20 Nov 2002 19:20:47 -0500
-Message-ID: <3DDC28E2.30404@mvista.com>
-Date: Wed, 20 Nov 2002 17:29:22 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S265413AbSKUAYp>; Wed, 20 Nov 2002 19:24:45 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:47784 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S265285AbSKUAYl>; Wed, 20 Nov 2002 19:24:41 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Date: Thu, 21 Nov 2002 11:31:35 +1100
+Message-ID: <15836.10599.736315.623964@notabene.cse.unsw.edu.au>
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: RFC - new raid superblock layout for md driver
-References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>	<3DDBC0D9.5030904@mvista.com> <15836.8031.649441.843857@notabene.cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: RFC - new raid superblock layout for md driver
+In-Reply-To: message from Lars Marowsky-Bree on Thursday November 21
+References: <20021120234743.GF29881@marowsky-bree.de>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday November 21, lmb@suse.de wrote:
+>   
+> However, for none-RAID devices like multipathing I believe that activating a
+> drive on multiple hosts should be possible; ie, for these it might not be
+> necessary to scribble to the superblock every time.
+> 
+> (The md patch for 2.4 I sent you already does that; it reconstructs the
+> available paths fully dynamic on startup (by activating all paths present);
+> however it still updates the superblock afterwards)
 
+I haven't thought much about multipat I admit.....
 
-Neil Brown wrote:
+Mt feeling is that a multipath superblock should never be updated.
+Just writen once at creation and left like that (raid0 and linear are
+much the same) The only lose would be the utime update, and I don't
+think that is a real lose.
 
->On Wednesday November 20, sdake@mvista.com wrote:
->  
->
->>Neil,
->>
->>I would suggest adding a 64 bit field called "unique_identifier" to the 
->>per-device structure.  This would allow a RAID volume to be locked to a 
->>specific host, allowing the ability for true multihost operation.
->>    
->>
->
->You seem to want a uniq id in 'per device' which will identify the
->'volume'.
->That doesn't make sense to me so maybe I am missing something.
->If you want to identify the 'volume', you put some sort of id in the
->'per-volume' data structure.
->
->This is what the 'name' field is for.
->  
->
-This is useful, atleast in the current raid implementation, because 
-md_import can be changed to return an error if the device's unique 
-identifier doesn't match the host identifier.  In this way, each device 
-of a RAID volume is individually locked to the specific host, and 
-rejection occurs at import of the device time.
+> >	/* constant this-device information - 64 bytes */
+> >   u64  address of superblock in device
+> >   u32  number of this device in array  /* constant over reconfigurations 
+> >   */
+> >   u32  device_uuid[4]
+> 
+> What is "address of superblock in device" ? Seems redundant, otherwise you
+> would have been unable to read it, or am missing something?
 
-Perhaps locking using the name field would work except that other 
-userspace applications may reuse that name field for some other purpose, 
-not providing any kind of uniqueness.
+Suppose I have a device with a partition that ends at the end of the
+device (and starts at a 64k align location).  Then if there is a
+superblock in the whole device, it will also be in the final
+partition... but which is right?  Storing the location of the
+superblock allows us to disambiguate.
 
-Thanks for the explination of how the name field was intended to be used.
+> 
+> Special case here might be required for multipathing. (ie, device_uuid == 0)
+> 
+> >   u32  pad3[9]
+> >
+> >	/* array state information - 64 bytes */
+> >   u32  utime
+> 
+> Timestamps (also above, ctime) are always difficult. Time might not be set
+> correctly at any given time, in particular during early bootup. This field
+> should only be advisory.
 
--steve
+Indeed, they are only advisory.
 
+> 
+> >   u32  state    /* clean, resync-in-progress */
+> >   u32  sb_csum
+> >   u64  events
+> >   u64  resync-position	/* flag in state if this is valid)
+> >   u32  number of devices
+> >   u32  pad2[8]
+> >
+> >	/* device state information, indexed by 'number of device in array' 
+> >	   4 bytes per device */
+> >   for each device:
+> >     u16 position     /* in raid array or 0xffff for a spare. */
+> >     u16 state flags  /* error detected,  in-sync */
+> 
+> u16 != u32; your position flags don't match up. I'd like to be able to take
+> the "position in the superblock" as a mapping here so it can be found in this
+> list, or what is the proposed relationship between the two?
 
+u16 for device flags.  u32 (over kill for) array flags.  Is there are
+problem that I am missing?
+
+There is an array of
+   struct {
+	u16 position;	/* aka role.  0xffff for spare */
+	u16 state;	/* error/insync */
+   }
+in each copy of the superblock.  It is indexed by 'number of this
+device in array' which is constant for any given device despite any
+configuration changes (until the device is removed from the array).
+If you have two hot spares, then their 'postition' (aka role) will
+initially be 0xffff.  After a failure, one will be swapped in and it's
+position becomes (say) 3.  Once rebuild is complete, the insync flag
+is set and the device becomes fully active.
+
+Does that make it clear?
+
+NeilBrown

@@ -1,83 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbUCQUfX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 15:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCQUfX
+	id S262026AbUCQUfx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 15:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCQUfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 15:35:23 -0500
-Received: from fep21-0.kolumbus.fi ([193.229.0.48]:49112 "EHLO
-	fep21-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262026AbUCQUfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 15:35:10 -0500
-Date: Wed, 17 Mar 2004 22:35:07 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Matthias Andree <ma+lscsi@dt.e-technik.uni-dortmund.de>
-cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.5-rc1 SCSI + st regressions (was: Linux 2.6.5-rc1)
-In-Reply-To: <20040316215659.GA3861@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.58.0403172145420.1093@kai.makisara.local>
-References: <Pine.LNX.4.58.0403152154070.19853@ppc970.osdl.org>
- <20040316211203.GA3679@merlin.emma.line.org> <20040316211700.GA25059@parcelfarce.linux.theplanet.co.uk>
- <20040316215659.GA3861@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Mar 2004 15:35:52 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:19328 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262026AbUCQUfq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 15:35:46 -0500
+Date: Wed, 17 Mar 2004 21:36:58 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: pingc@wacom.com, linux-kernel@vger.kernel.org
+Subject: Re: Wacom USB driver patch
+Message-ID: <20040317203658.GA369@ucw.cz>
+References: <Pine.LNX.4.58L.0402262354190.1653@logos.cnet> <20040317092959.5e00fab4.zaitcev@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040317092959.5e00fab4.zaitcev@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Mar 2004, Matthias Andree wrote:
+On Wed, Mar 17, 2004 at 09:29:59AM -0800, Pete Zaitcev wrote:
 
-> On Tue, 16 Mar 2004, Matthew Wilcox wrote:
+> Dear Ping,
 > 
-> > On Tue, Mar 16, 2004 at 10:12:03PM +0100, Matthias Andree wrote:
-> > > I have some SCSI troubles with 2.6.5-rc1 (from BK) that 2.6.4 didn't
-> > > have.
-> > > 
-> > > Modprobe, loading the st driver, tries a NULL pointer dereference in
-> > > kernel space and my 2nd tape drive isn't found: st1 is not shown. cat
-> > > /proc/scsi/scsi (typed after the attempted zero page dereference) hangs
-> > > in rwsem_down_read_failed with process state D.
-> > 
-> > I notice you're using the sym2 driver.  Could you try backing out the
-> > changes made to it in 2.6.5-rc1, just to be sure we're looking at an st
-> > problem, not a sym2 problem?
+> Vojtech posted your 2.6 patch to linux-kernel yesterday, so I examined it
+> (Subject: [PATCH 32/44] Update of Wacom driver from Ping Cheng (from Wacom)).
+> Unlike the 2.4 version, it does not feature a reset thread. Please tell
+> me why that thread was required in 2.4.
 > 
-I was able to reproduce this with the scsi_debug driver (you can use it 
-for simple tape tests by changing TYPE_DISK to TYPE_TAPE). Reverting the 
-patch:
+> Or perhaps it was present in your original submission which I lost and
+> Vojtech removed that element of the patch?
 
-# ChangeSet
-#   2004/03/12 16:22:36-08:00 greg@kroah.com 
-#   remove cdev_set_name completely as it is not needed.
+I didn't remove it - it was not present in the 2.6 patch.
 
-(and editing drivers/char/tty_io.c to get the kernel to compile) solved 
-the problem for me. st.c is using the name put into kobj.name in making 
-the class file names. I will make a patch that removes this dependency.
-
-While looking at this problem, I noticed that the naming changes already 
-committed to BK had disappeared. Looking at st.c history revealed that the 
-following change had been committed (sorry for wrapping) by greg@kroah.com 
-46 hours ago:
-
---- 1.80+1.79.1.2/drivers/scsi/st.c	Wed Mar 17 12:25:28 2004
-+++ 1.81/drivers/scsi/st.c	Wed Mar 17 12:25:28 2004
-@@ -3896,11 +3896,6 @@
- 				       dev_num);
- 				goto out_free_tape;
- 			}
--			/* Make sure that the minor numbers corresponding 
-to the four
--			   first modes always get the same names */
--			i = mode << (4 - ST_NBR_MODE_BITS);
--			snprintf(cdev->kobj.name, KOBJ_NAME_LEN, "%s%s%s", 
-j ? "n" : "",
--				 disk->disk_name, st_formats[i]);
- 			cdev->owner = THIS_MODULE;
- 			cdev->ops = &st_fops;
-
-The change comment was "merge" and it resulted in st.c version 1.81. (I am 
-not using Bitkeeper but trying to extract information from bkbits.net.)
-
-	Kai
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

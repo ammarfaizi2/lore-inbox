@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbTEBVtj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 17:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTEBVtj
+	id S263188AbTEBV4p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 17:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbTEBV4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 17:49:39 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:58512 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S263184AbTEBVti
+	Fri, 2 May 2003 17:56:45 -0400
+Received: from twinlark.arctic.org ([168.75.98.6]:2744 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S263188AbTEBV4o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 17:49:38 -0400
-Subject: Re: 2.5.68-mm4
-From: Steven Cole <elenstev@mesatop.com>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <1051912190.14310.2.camel@andyp.pdx.osdl.net>
-References: <20030502020149.1ec3e54f.akpm@digeo.com>
-	 <1051905879.2166.34.camel@spc9.esa.lanl.gov>
-	 <20030502133405.57207c48.akpm@digeo.com>
-	 <1051908541.2166.40.camel@spc9.esa.lanl.gov>
-	 <20030502140508.02d13449.akpm@digeo.com>
-	 <1051910420.2166.55.camel@spc9.esa.lanl.gov>
-	 <1051912190.14310.2.camel@andyp.pdx.osdl.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051912828.2163.60.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 02 May 2003 16:00:29 -0600
-Content-Transfer-Encoding: 7bit
+	Fri, 2 May 2003 17:56:44 -0400
+Date: Fri, 2 May 2003 15:09:08 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Anders Karlsson <anders@trudheim.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Centrino
+In-Reply-To: <1051851208.2846.84.camel@marx>
+Message-ID: <Pine.LNX.4.53.0305021508050.1629@twinlark.arctic.org>
+References: <1051851208.2846.84.camel@marx>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-02 at 15:49, Andy Pfiffer wrote:
-> > > > > I found that e100 failed to bring up the
-> > > > > interface on restart ("failed selftest"), but eepro100 was OK.
-> 
-> > Here is a snippet from dmesg output for a successful kexec e100 boot:
-> 
-> Any chance we could get lspci output from both of these systems?
+On Thu, 2 May 2003, Anders Karlsson wrote:
 
-Sure.  I posted that initially.  See this:
+> driver (radeon.o) and the IDE subsystem. I've been trying to install it
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105190618322919&w=2
+the IDE subsystem is trivial to support.  it's in -ac patches from some
+point i forget, and also here
+<http://arctic.org/~dean/patches/linux-2.4.21-pre5-ac2-centrino.patch>
 
-Steven
-
-
+-dean

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264682AbSJTX7w>; Sun, 20 Oct 2002 19:59:52 -0400
+	id <S264680AbSJUArB>; Sun, 20 Oct 2002 20:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264685AbSJTX7w>; Sun, 20 Oct 2002 19:59:52 -0400
-Received: from mail.tpgi.com.au ([203.12.160.58]:23433 "EHLO mail2.tpgi.com.au")
-	by vger.kernel.org with ESMTP id <S264682AbSJTX7u>;
-	Sun, 20 Oct 2002 19:59:50 -0400
-Message-ID: <3DB3442A.7050002@tpg.com.au>
-Date: Mon, 21 Oct 2002 10:02:50 +1000
-From: Bill Leckey <bleckey@tpg.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020514
-X-Accept-Language: en-us, en
+	id <S264681AbSJUArA>; Sun, 20 Oct 2002 20:47:00 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56583 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264680AbSJUAq7>; Sun, 20 Oct 2002 20:46:59 -0400
+Date: Sun, 20 Oct 2002 20:52:45 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: thunder7@xs4all.nl,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Any hope of fixing shutdown power off for SMP?
+In-Reply-To: <20021020235107.GA14334@werewolf.able.es>
+Message-ID: <Pine.LNX.3.96.1021020204830.1444A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: System lockup.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a terminal server that's supporting up to 240 lines.  It's a 
-2.4.17 kernel, and is running squid, and using the reiser file system to 
-store log files, squid cache and other data.  About every day or so, the 
-machine locks up.  The screen is blank, keyboard doesn't respond, the 
-serial console I set up shows no 'dying gasp' and there is nothing in 
-any of the system logs.
+On Mon, 21 Oct 2002, J.A. Magallon wrote:
 
-This doesn't appear to be related to load as it has happened both during 
-the busiest times and during the low times.
+> 
+> On 2002.10.20 Jurriaan wrote:
+> >From: Bill Davidsen <davidsen@tmr.com>
+> >Date: Sat, Oct 19, 2002 at 03:40:22PM -0400
+> >> I've beaten this dead horse before, but it still irks me that Linux can't
+> >> power down an SMP system. People claim that it can't be done safely, but
+> >> maybe somone can reverse engineer NT if we aren't up to the job.
+> >> 
+> >I'm trying to find out the same. So far:
+> >
+> 
+> There are patches both in the -ac and -aa tree to make smp kernels shut
+> down properly, even to support full APM if you have enough luck. shutdown
+> works fine on my smp box...
 
-I'm still servicing interrupts from our serial devices (on IRQ 11), so 
-it seems interrupts are still happening.
+I'm kind of out of time to play any more, I think I'm going to leave
+2.5.43 where it is (lots of stuff not working), send the patches to -mm3
+and think about 2.5.44. That should be less volatile since Linus is out.
 
-Beyond this, however, I have no idea where to go from here.  If anyone 
-has any hints on what the problem might be, or even a way to gather more 
-information, I would be grateful.
+I can't get apm to even load, it whines in depmod about missing stuff, and
+I've got about two days of my so-called vacation in what I do hve working,
+so a good time to call it a version.
+
+Thanks for the pointer, I'll try -aa and -ac kernels again at .44.
 
 -- 
-Bill Leckey - Senior Software Design Engineer
-TPG Research and Development
-Ph: +61 2 62851711
-Fax: +61 2 62853939
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,132 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUHONZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUHONf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUHONZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 09:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUHONZ5
+	id S266687AbUHONf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 09:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUHONf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 09:25:57 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:56734 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S266679AbUHONZw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 09:25:52 -0400
-Date: Sun, 15 Aug 2004 15:25:48 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kj <kernel-janitors@osdl.org>
-Subject: Re: Add msleep_interruptible() function to kernel/timer.c
-Message-ID: <20040815132548.GF1799@stro.at>
-References: <20040815121805.GA15111@stro.at> <1092570891.17605.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092570891.17605.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 15 Aug 2004 09:35:27 -0400
+Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:37049 "EHLO
+	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266687AbUHONfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 09:35:03 -0400
+Message-ID: <411F6679.5080008@kolivas.org>
+Date: Sun, 15 Aug 2004 23:34:49 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck kernel mailing list <ck@vds.kolivas.org>
+Subject: 2.6.8.1-ck1
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigEDF1A3A8D57B6152D33D4684"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Aug 2004, Alan Cox wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigEDF1A3A8D57B6152D33D4684
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Sul, 2004-08-15 at 13:18, maximilian attems wrote:
-> > + * msleep_interruptible - sleep waiting for waitqueue interruptions
-> > + * @msecs: Time in milliseconds to sleep for
-> > + */
-> > +void msleep_interruptible(unsigned int msecs)
-> > +{
-> > +	unsigned long timeout = msecs_to_jiffies(msecs);
-> > +
-> > +	while (timeout) {
-> 
-> You want to have while(timeout && !signal_pending(current))
-> 
-> A signal will wake the timeout which will then loop. It might also
-> be good to add
-> 
-> > +		set_current_state(TASK_INTERRUPTIBLE);
-> > +		timeout = schedule_timeout(timeout);
-> > +	}
-> 
-> return timeout;
-> 
-> so that the caller knows more about how long the timer ran for before
-> the interrupt and if it was interrupted.
+Patchset update.
 
-belows patches returns timeout in msecs 
-as the function is also called with that unit, 
-added definition in include/linux/delay.h
+These are patches designed to improve system responsiveness with 
+specific emphasis on the desktop, but configurable to any workload.
+
+Web site with faq:
+http://kernel.kolivas.org
+Patches:
+http://ck.kolivas.org/patches/2.6/2.6.8.1/2.6.8.1-ck1/
 
 
+Added since 2.6.7-ck6:
 
-this function is equivalent to:
-	current->state = TASK_INTERRUPTIBLE;
-	schedule_timeout(timeout);
-
-idea from Ingo Molnar:
-well, aboves is not 100% equivalent because msleep() is uninterruptible so
-stoppage of the md thread (upon shutdown) will occur with only a 250 msec
-delay. Someone should add a msleep_interruptible() function to kernel/timer.c.
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
-
----
-
- linux-2.6.8-max/kernel/timer.c |   17 +++++++++++++++++
- 1 files changed, 17 insertions(+)
++sched-adjust-p4gain
+tiny p4HT nice handling optimisation
++1g_lowmem_i386.diff
+Allows 1Gb of ram to be used without enabling highmem
++kiflush1.diff
+A slow cache clearing memory defragmenter for desktop (see web page 
+faq); *Rather unorthodox and orthogonal thing to do but is beneficial on 
+the desktop*.
++token-thrashing-control.patch
+Rik's swap-thrash control patches
++*latency*
+A number of low latency hacks from Andrew Morton
 
 
-this function is equivalent to:
-	current->state = TASK_INTERRUPTIBLE;
-	schedule_timeout(timeout);
-
-idea from Ingo Molnar:
-well, aboves is not 100% equivalent because msleep() is uninterruptible so
-stoppage of the md thread (upon shutdown) will occur with only a 250 msec
-delay. Someone should add a msleep_interruptible() function to kernel/timer.c.
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
+Changed:
+~from_2.6.8.1_to_staircase7.I
+Staircase scheduler updated to latest
+~schediso2.5.diff
+Tiny sched_iso change for optimal compatibility with s7.I
+~hard_swappiness1.diff
+A tiny relaxation of the "hard swappiness" algorithm to allow mapped 
+pages to swap out below the vm_swappiness watermark if extreme memory 
+pressure is occurring (prevents oom).
 
 
----
+Merged:
+~cfq1.fix
+~cfq2.fix
+~cfq3.fix
+~cfq-bad-allocation2.fix
+~crq-fixes.diff
+~1100_ip_tables.patch
+~1105_CAN-2004-0497.patch
+~1110_proc.patch
 
- linux-2.6.8-max/include/linux/delay.h |    1 +
- linux-2.6.8-max/kernel/timer.c        |   16 ++++++++++++++++
- 2 files changed, 17 insertions(+)
 
-diff -puN kernel/timer.c~add-msleep_interruptible kernel/timer.c
---- linux-2.6.8/kernel/timer.c~add-msleep_interruptible	2004-08-15 15:15:01.000000000 +0200
-+++ linux-2.6.8-max/kernel/timer.c	2004-08-15 15:18:56.000000000 +0200
-@@ -1503,3 +1503,19 @@ void msleep(unsigned int msecs)
- 
- EXPORT_SYMBOL(msleep);
- 
-+/**
-+ * msleep_interruptible - sleep waiting for waitqueue interruptions
-+ * @msecs: Time in milliseconds to sleep for
-+ */
-+unsigned int msleep_interruptible(unsigned int msecs)
-+{
-+       unsigned long timeout = msecs_to_jiffies(msecs);
-+
-+       while (timeout && !signal_pending(current)) {
-+               set_current_state(TASK_INTERRUPTIBLE);
-+               timeout = schedule_timeout(timeout);
-+       }
-+       return jiffies_to_msecs(timeout);
-+}
-+
-+EXPORT_SYMBOL(msleep_interruptible);
-diff -puN include/linux/delay.h~add-msleep_interruptible include/linux/delay.h
---- linux-2.6.8/include/linux/delay.h~add-msleep_interruptible	2004-08-15 15:15:01.000000000 +0200
-+++ linux-2.6.8-max/include/linux/delay.h	2004-08-15 15:17:56.000000000 +0200
-@@ -39,5 +39,6 @@ extern unsigned long loops_per_jiffy;
- #endif
- 
- void msleep(unsigned int msecs);
-+unsigned int msleep_interruptible(unsigned int msecs);
- 
- #endif /* defined(_LINUX_DELAY_H) */
+Removed:
+-bootsplash-3.1.4-sp3-2.6.7.diff
+Framebuffer code changed too dramatically and code getting difficult (ie 
+a lot of work) to merge safely in current state.
 
-_
+
+Full Patches:
+from_2.6.8.1_to_staircase7.I
+schedrange.diff
+schedbatch2.4.diff
+schediso2.5.diff
+sched-adjust-p4gain
+hard_swappiness1.diff
+supermount-ng204.diff.bz2
+defaultcfq.diff
+config_hz.diff
+1g_lowmem_i386.diff
+kiflush1.diff
+token-thrashing-control.patch
+__cleanup_transaction-latency-fix.patch
+filemap_sync-latency-fix.patch
+jbd-recovery-latency-fix.patch
+journal_clean_checkpoint_list-latency-fix.patch
+kjournald-smp-latency-fix.patch
+prune_dcache-latency-fix.patch
+slab-latency-fix.patch
+truncate_inode_pages-latency-fix.patch
+unmap_vmas-smp-latency-fix.patch
+9000-SuSE-117-writeback-lat.patch
+2.6.8.1-ck1-version.diff
+
+
+Cheers,
+Con
+
+--------------enigEDF1A3A8D57B6152D33D4684
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBH2Z8ZUg7+tp6mRURAqa7AJwINAXA9aK4x/nrNnaFH3nc8xf3awCeMqo2
+ifbrWHA0QIAHOhgacQ9HVEI=
+=kV2c
+-----END PGP SIGNATURE-----
+
+--------------enigEDF1A3A8D57B6152D33D4684--

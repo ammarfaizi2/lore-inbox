@@ -1,103 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270227AbRHRPli>; Sat, 18 Aug 2001 11:41:38 -0400
+	id <S270228AbRHRPul>; Sat, 18 Aug 2001 11:50:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270228AbRHRPl3>; Sat, 18 Aug 2001 11:41:29 -0400
-Received: from runningman.mobilixnet.dk ([212.97.204.27]:52750 "EHLO
-	runningman.mobilixnet.dk") by vger.kernel.org with ESMTP
-	id <S270227AbRHRPlU>; Sat, 18 Aug 2001 11:41:20 -0400
-Date: Sat, 18 Aug 2001 17:41:32 +0200
-From: Eirikur Hjartarson <eiki.hjartarson@wanadoo.dk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.8-ac6 panic in schedule
-Message-ID: <20010818174132.A444@pluto.home>
-Reply-To: eiki.hjartarson@wanadoo.dk
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
+	id <S270229AbRHRPuW>; Sat, 18 Aug 2001 11:50:22 -0400
+Received: from pf107.gdansk.sdi.tpnet.pl ([213.77.129.107]:6670 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S270228AbRHRPuC>; Sat, 18 Aug 2001 11:50:02 -0400
+Subject: Compaq Notebook 100, PCMCIA trouble in 2.4.x
+To: dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
+Date: Sat, 18 Aug 2001 17:49:20 +0200 (CEST)
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E15Y8Lg-0005jD-00@mm.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-I just got a kernel panic.  The machine froze so I had to
-hand copy the oops from the screen!
+first I thought it was some APM BIOS bug, but strange things happen on
+my Compaq Notebook 100 under 2.4.x (not 2.2.19) even without APM.
 
-At the time I was initiating isdn callout ("isdnctrl dial ippp0").
-Otherwise the machine has been stable for a long time.
+After the PCMCIA driver (yenta_socket) is loaded, the machine seems to
+suddenly power off (or sometimes just turn off the backlight and lock up
+hard with the HDD still spinning, then the power button has to be held
+for a few seconds to power off) on anything that might have something to
+do with the BIOS.  This includes rebooting, suspending, loading the APM
+driver, running "apm" or "apmd" if APM was compiled in, etc.
 
-=========================================================================
-isdn_ppp_xmit: lp->ppp_slot -1
-invalid operand: 0000
-CPU:	0
-EIP:	0010:[<c0111a80>]
-EFLAGS:	00010296
-eax: 00000018 ebx: c166c000 ecx: c1860000 edx: 00000001
-esi: 00000000 edi: c11d57a0 ebp: c166df98 esp: c166df74
-ds: 0000 es: 0018 ss: 0018
-Process named (pid: 296, stackpage=c166d000)
-Stack: c01ed1d6 00000004 c166c000 00000000 c166c000 40640654 c166c000 00000000
-       00000000 c166dfc4 c0105dcb 80004003 00000000 00004003 00000000 c166c000
-       406409ac 400575e8 40640994 c0106d1b 406409ac 00000008 403ee264 406409ac
-Code: 0f 0b 8d 65 f4 5b 5e 5f 5d c3 8d b6 00 00 00 00 8b 45 e8 c1
- <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-=========================================================================
+Same problems with several kernels from 2.4.0 to 2.4.9, statically
+compiled by me or completely modular packaged by Debian, always using
+the PCMCIA drivers that came with the 2.4.x kernel.
 
-The output from ksymoops follows.
+No problems with kernel 2.2.19, pcmcia-cs 3.1.27, pcmcia-modules 3.1.25,
+i82365 driver (there was no yenta_socket driver in 2.2.x, and the i82365
+driver stopped detecting the "TI 1211 rev 00" under 2.4.x).
 
-=========================================================================
-ksymoops 2.4.1 on i686 2.4.8-ac6.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.8-ac6/ (default)
-     -m /boot/System.map-2.4.8-ac6 (specified)
+PLANET ENW-3503 PCMCIA LAN+modem card works fine under both 2.2.x and
+2.4.x - but these power-offs under 2.4.x happen even if the card is not
+plugged in and its drivers (pcnet_cs, serial_cs) are not loaded.
 
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0111a80>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010296
-eax: 00000018 ebx: c166c000 ecx: c1860000 edx: 00000001
-esi: 00000000 edi: c11d57a0 ebp: c166df98 esp: c166df74
-ds: 0000 es: 0018 ss: 0018
-Process named (pid: 296, stackpage=c166d000)
-Stack:  c01ed1d6 00000004 c166c000 00000000 c166c000 40640654 c166c000 00000000
-        00000000 c166dfc4 c0105dcb 80004003 00000000 00004003 00000000 c166c000
-        406409ac 400575e8 40640994 c0106d1b 406409ac 00000008 403ee264 406409ac
-Code: 0f 0b 8d 65 f4 5b 5e 5f 5d c3 8d b6 00 00 00 00 8b 45 e8 c1
+The yenta_socket driver does not have to be loaded at the time of the
+crash or power-off, just loading and unloading it once is enough to later
+cause "apm" or reboot to power off the machine, it's 100% reproducible.
+This suggests that yenta_socket initialization might overwrite some BIOS
+code in memory.  One more thing is that sometimes after such crash, the
+RTC is off by a few hours (but minutes are correct).
 
->>EIP; c0111a80 <schedule+50/3a0>   <=====
-Code;  c0111a80 <schedule+50/3a0>
-00000000 <_EIP>:
-Code;  c0111a80 <schedule+50/3a0>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0111a82 <schedule+52/3a0>
-   2:   8d 65 f4                  lea    0xfffffff4(%ebp),%esp
-Code;  c0111a85 <schedule+55/3a0>
-   5:   5b                        pop    %ebx
-Code;  c0111a86 <schedule+56/3a0>
-   6:   5e                        pop    %esi
-Code;  c0111a87 <schedule+57/3a0>
-   7:   5f                        pop    %edi
-Code;  c0111a88 <schedule+58/3a0>
-   8:   5d                        pop    %ebp
-Code;  c0111a89 <schedule+59/3a0>
-   9:   c3                        ret    
-Code;  c0111a8a <schedule+5a/3a0>
-   a:   8d b6 00 00 00 00         lea    0x0(%esi),%esi
-Code;  c0111a90 <schedule+60/3a0>
-  10:   8b 45 e8                  mov    0xffffffe8(%ebp),%eax
-Code;  c0111a93 <schedule+63/3a0>
-  13:   c1 00 00                  roll   $0x0,(%eax)
+I hope you find this bug report useful.  Thanks for any help.
 
- <0>Kernel panic: Aiee, killing interrupt handler!
-=========================================================================
+	Marek
 
-If I can supply any more information, please let me know.
-
-Regards,
--- 
-Eiki

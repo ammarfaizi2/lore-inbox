@@ -1,83 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263256AbTJVBUw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 21:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTJVBUw
+	id S263277AbTJVBWj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 21:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTJVBWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 21:20:52 -0400
-Received: from diesel.grid4.com ([208.49.116.17]:47744 "EHLO diesel.grid4.com")
-	by vger.kernel.org with ESMTP id S263256AbTJVBUu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 21:20:50 -0400
-Date: Tue, 21 Oct 2003 21:21:53 -0400
-From: Paul <set@pobox.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IRQ Routing. [A 2.6 question about smp irq balancing]
-Message-ID: <20031022012153.GA1620@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-References: <3F9396C7.50807@superbug.demon.co.uk> <763050000.1066659824@[10.10.2.4]> <20031021055923.GI13549@squish.home.loc> <7820000.1066746840@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7820000.1066746840@[10.10.2.4]>
+	Tue, 21 Oct 2003 21:22:39 -0400
+Received: from hibernia.jakma.org ([213.79.33.168]:63123 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263277AbTJVBWh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 21:22:37 -0400
+Date: Wed, 22 Oct 2003 02:22:06 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Steven Cole <elenstev@mesatop.com>
+cc: Larry McVoy <lm@bitmover.com>, Timothy Miller <miller@techsource.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+In-Reply-To: <200309272113.18030.elenstev@mesatop.com>
+Message-ID: <Pine.LNX.4.56.0310220220130.27492@fogarty.jakma.org>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com>
+ <20030910151238.GC32321@work.bitmover.com> <Pine.LNX.4.56.0309280249030.19081@fogarty.jakma.org>
+ <200309272113.18030.elenstev@mesatop.com>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com>, on Tue Oct 21, 2003 [07:34:01 AM] said:
-[paul said]
-> > 	Ok, my question is, is this how it is supposed to be?
-> > I ask because I am seeing a throughput decrease on 2.6 v 2.4
-> > on hdparm -t, bonnie, kernel compile benchmarks, though interactivity
-> > seems to be better.
-> 
-> I doubt that's caused by interrupt load, but try this:
-> 
+On Sat, 27 Sep 2003, Steven Cole wrote:
 
-	Hi;
+> It appears that SGI is working to scale the Altix to 128 CPUs on
+> Linux.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106323064611280&w=2
 
-	Thanks;
-	This seems to generate a more of a distribution.
-(uptime 3 hours) You are correct that I notice no performance
-difference.
+This may be interesting so:
 
-Paul
-set@pobox.com
+	http://lwn.net/Articles/54822/
 
-           CPU0       CPU1       
-  0:    5011222    5035676    IO-APIC-edge  timer
-  1:       5441          0    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  3:       8203          1    IO-APIC-edge  serial
-  4:      58980     356739    IO-APIC-edge  serial
-  5:          0          0    IO-APIC-edge  eth0
-  8:          2          0    IO-APIC-edge  rtc
- 12:       4968       3423    IO-APIC-edge  i8042
- 14:     119080      62085    IO-APIC-edge  ide0
- 15:        142          0    IO-APIC-edge  ide1
- 16:        101          1   IO-APIC-level  eth1
- 17:        110      10782   IO-APIC-level  eth2
- 19:       1776          0   IO-APIC-level  Ensoniq AudioPCI
-NMI:   10044606   10041826 
-LOC:   10042436   10042460 
-ERR:          0
-MIS:          0
+it announces:
 
-> diff -urN linux-2.6.0-test4-clean/arch/i386/kernel/io_apic.c
-> linux-2.6.0-test4-div10/arch/i386/kernel/io_apic.c
-> --- linux-2.6.0-test4-clean/arch/i386/kernel/io_apic.c 2003-09-15
-> 06:46:02.000000000 -0700
-> +++ linux-2.6.0-test4-div10/arch/i386/kernel/io_apic.c 2003-09-15
-> 06:47:17.000000000 -0700
-> @@ -393,7 +393,7 @@
->         unsigned long max_cpu_irq = 0, min_cpu_irq = (~0);
->         unsigned long move_this_load = 0;
->         int max_loaded = 0, min_loaded = 0;
-> -       unsigned long useful_load_threshold = balanced_irq_interval +
-> 10;
-> +       unsigned long useful_load_threshold = (balanced_irq_interval +
-> 10) / 10;
->         int selected_irq;
->         int tmp_loaded, first_attempt = 1;
->         unsigned long tmp_cpu_irq;
+	"record levels of sustained performance and scalability on a
+        256-processor global shared-memory SGI Altix 3000 system, the 
+        largest such system ever to run on the Linux ® operating 
+        system."
+
+> Steven
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+I'm going to give my psychoanalyst one more year, then I'm going to Lourdes.
+		-- Woody Allen

@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289243AbSBNAns>; Wed, 13 Feb 2002 19:43:48 -0500
+	id <S289270AbSBNApK>; Wed, 13 Feb 2002 19:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289270AbSBNAni>; Wed, 13 Feb 2002 19:43:38 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:34178 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S289243AbSBNAnd>; Wed, 13 Feb 2002 19:43:33 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Craig Christophel <merlin@transgeek.com>
-Date: Thu, 14 Feb 2002 11:42:26 +1100 (EST)
+	id <S289272AbSBNAo7>; Wed, 13 Feb 2002 19:44:59 -0500
+Received: from dsl-213-023-039-092.arcor-ip.net ([213.23.39.92]:12174 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289270AbSBNAot>;
+	Wed, 13 Feb 2002 19:44:49 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] sys_sync livelock fix
+Date: Thu, 14 Feb 2002 01:49:03 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Bill Davidsen <davidsen@tmr.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com> <E16b9jW-0002QL-00@starship.berlin> <3C6B06E5.F6A7AD9F@zip.com.au>
+In-Reply-To: <3C6B06E5.F6A7AD9F@zip.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15467.2034.663448.825288@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-Subject: Re: [PATCH] -- filesystems.c::sys_nfsservctl 
-In-Reply-To: message from Craig Christophel on Wednesday February 13
-In-Reply-To: <20020213205144Z282414-24962+32@thor.valueweb.net>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16bA59-0002Qa-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday February 13, merlin@transgeek.com wrote:
-> Ok guys get ready to flame me....  
+On February 14, 2002 01:37 am, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > 
+> > On February 13, 2002 11:24 pm, Bill Davidsen wrote:
+> > > ...
+> > > It doesn't matter, if you write the existing dirty buffers the filesystem
+> > > type is irrelevant.
+> > 
+> > Incorrect.  The modern crop of filesystems has the concept of consistency
+> > points, and data written after a consistency point is irrelevant except to the
+> > next consistency point.  IOW, it's often ok to leave some buffers dirty on a
+> > sync.  But for a dumb filesystem you just have to guess at what's needed for
+> > a consistency point, and the best guess is 'whatever's dirty at the time of
+> > sync'.
+> > 
+> > For metadata-only journalling the issues get more subtle and we need a ruling
+> > from the ext3 guys.
 > 
-> 	The attached patch removes the lock/unlock in this function.   Now I am 80% 
-> sure of this one, but would like a word from the kmod maintainer about 
-> whether request_module needs the BKL or not.   do_nfsservctl already takes 
-> the BKL inside the function so as long as request_module is safe this pair 
-> can be removed -- effectively making do_nfsservctl responsible for it's own 
-> locking scheme.
+> The current implementation of fsync_dev is about as good as
+> it'll get for journal=writeback mode - write the data,
+> run a commit, write the data again then wait on it all.
+
+What's the theory behind writing the data both before and after the commit?
+
+> > 
+> > Sorry, I don't see the connection to sync.
 > 
-> 	So whoever knows for SURE about request_module, please reply.
+> I don't understand the whole thread :)
 
-Please see
-  http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/2.5.4-pre5/
-for current nfsd patches.
-  patch-E-NfsdSyscallCleanup  
-might be of particular interest.
+Dangerous advocacy of the broken SuS semantics for sync, has to be stamped
+out before it spreads ;-)
 
-When I have finished testing these (sometime next week I hope) I will
-be submitting them to Linux for 2.5, and then backporting them to 2.4,
-and hopefully submitting the least intrusive ones to Marcello shortly
-after 2.4.18 comes out.
-
-These patches:
-  remove most of the BKL
-  enable TCP support
-  plus assorted other things.
-
-Comments, and testing, most welcome.
-
-NeilBrown
+-- 
+Daniel

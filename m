@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314285AbSE0ILp>; Mon, 27 May 2002 04:11:45 -0400
+	id <S314483AbSE0IT0>; Mon, 27 May 2002 04:19:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314483AbSE0ILo>; Mon, 27 May 2002 04:11:44 -0400
-Received: from mail0.epfl.ch ([128.178.50.57]:23827 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S314285AbSE0ILn>;
-	Mon, 27 May 2002 04:11:43 -0400
-Message-ID: <3CF1EA3F.4070608@epfl.ch>
-Date: Mon, 27 May 2002 10:11:43 +0200
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, ja
+	id <S314486AbSE0ITZ>; Mon, 27 May 2002 04:19:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18183 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314483AbSE0ITY>;
+	Mon, 27 May 2002 04:19:24 -0400
+Message-ID: <3CF1ECD1.A1BB2CF1@zip.com.au>
+Date: Mon, 27 May 2002 01:22:41 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Alessandro Morelli <alex@alphac.it>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: memory corruption with i815 chipset variant
-In-Reply-To: <fa.mm4ng1v.vmenaj@ifi.uio.no> <fa.gciunnv.cnaf99@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jens Axboe <axboe@suse.de>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+        Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org,
+        "chen, xiangping" <chen_xiangping@emc.com>
+Subject: Re: Poor read performance when sequential write presents
+In-Reply-To: <3CED4843.2783B568@zip.com.au> <XFMail.20020524105942.pochini@shiny.it> <3CEE0758.27110CAD@zip.com.au> <20020524094606.GH14918@holomorphy.com> <3CEE1035.1E67E1B8@zip.com.au> <20020527080632.GC17674@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
+Jens Axboe wrote:
 > 
-> That means its actually using the same GART code as the 440BX and friends
-> if I remember rightly (the i815 special stuff is for on board video)
-
-
-Alessandro reported the problem to me also. I went through the i815 
-specs and found 2 'strange' things (maybe they are not but...)
-1) No 'ERRSTS' register (well... a bus that does no error should be a 
-feature ;-)
-2) The ATTBASE register to which the *_configure functions write is 
-different from other Intel chipsets. In the i815, the ATT base adress 
-should be written between bits 12 and 28, whereas in all other Intel 
-chipsets, it should be written between bits 12 and 31 (don't ask me why 
-Intel feels like changing the adresses/specs for registers at each new 
-chipsets....) .
-Alan, do you think this could cause all those troubles ?
-
+> ...
+> > But in 2.5, head-activeness went away and as far as I know, IDE and SCSI are
+> > treated the same.  Odd.
 > 
->>Without agpgart module, kernel seems stable.  A naive (totally naive,
->>I admit it) interpretation suggests a problem in setting the AGP aperture.
-> 
-> 
-> Does the ram survive memtest86 overnight with no errors logged if you boot
-> memtest86 and just leave it ?
+> It didn't really go away, it just gets handled automatically now.
+> elv_next_request() marks the request as started, in which case the i/o
+> scheduler won't consider it for merging etc. SCSI removes the request
+> directly after it has been marked started, while IDE leaves it on the
+> queue until it completes. For IDE TCQ, the behaviour is the same as with
+> SCSI.
 
- From what Alessandro reported, it seems clear that the 'insmod agpgart' 
-triggers the mayhem, including memtest failures.
+It won't consider the active request at the head of the queue for 
+merging (making the request larger).  But it _could_ consider the
+request when making decisions about insertion (adding a new request
+at the head of the queue because it's close-on-disk to the active
+one).   Does it do that?
 
-Best regards
-
-Nicolas.
--- 
-Nicolas Aspert      Signal Processing Institute (ITS)
-Swiss Federal Institute of Technology (EPFL)
-
-
+-

@@ -1,47 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261605AbTC0Xli>; Thu, 27 Mar 2003 18:41:38 -0500
+	id <S261595AbTC0XlM>; Thu, 27 Mar 2003 18:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261608AbTC0Xli>; Thu, 27 Mar 2003 18:41:38 -0500
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:14502 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S261605AbTC0Xlf>; Thu, 27 Mar 2003 18:41:35 -0500
-Date: Thu, 27 Mar 2003 18:47:29 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: config options for PS/2 kbd and USB mouse?
-Message-ID: <Pine.LNX.4.44.0303271841350.1387-100000@dell>
+	id <S261605AbTC0XlM>; Thu, 27 Mar 2003 18:41:12 -0500
+Received: from dc-mx03.cluster1.charter.net ([209.225.8.13]:36578 "EHLO
+	dc-mx03.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S261595AbTC0XlJ>; Thu, 27 Mar 2003 18:41:09 -0500
+Message-ID: <3E838956.1000400@charter.net>
+Date: Thu, 27 Mar 2003 18:29:26 -0500
+From: "B. Douglas Hilton" <bdhilton@charter.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: 2.4.21-pre6 - "mbool" causes xconfig failure
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[1.] One line summary of the problem:
 
-  i have a dell inspiron 8100 laptop on which some of the keys
-are starting to misbehave, so to get around this, until i get
-the chance to send it back to dell, i attached:
+"make xconfig fails" drivers/net/Config.in: 188: unknown command
 
-  1) optical logitech USB mouse
-  2) dirt-cheap PS/2 keyboard
+[2.] Full description of the problem/report:
 
-under red hat 2.4.18-4 kernel, everything works fine -- with the
-current configuration, i can use either the laptop keyboard or the
-external PS/2 keyboard at the same time.
+Lines 188 and 189 of drivers/net/Config.in reference a define_mbool and dep_mbool
+which causes xconfig to fail. Switching these to define_bool and dep_bool allows
+it to work.
 
-i managed to boot the new 2.5.66 kernel on this box, but while the
-system boots fully, neither keyboard seems to be recognized.
-i thought i selected all of the necessary options under input
-devices and so on, but both keyboards are stone dead.  (and,
-because of that, it's kind of hard to tell if the mouse is
-doing anything either, but i'll deal with one problem at a 
-time.)
+[3.] Keywords (i.e., modules, networking, kernel):
 
-are there new options i should be looking at to support a
-PS/2 keyboard on this laptop?  i've selected pretty much all
-of the options i thought i needed, but no results so far.
+mbool Config.in CONFIG_EEPRO100_PIO
 
-any advice appreciated.
+[4.] Kernel version (from /proc/version):
 
-rday
+2.4.21-pre6
+
+[5.] Output of Oops.. message (if applicable) with symbolic information
+      resolved (see Documentation/oops-tracing.txt)
+
+n/a
+
+[6.] A small shell script or example program which triggers the
+      problem (if possible)
+
+n/a
+
+[7.] Environment
+
+n/a
+
+[7.1.] Software (add the output of the ver_linux script here)
+
+n/a
+
+[7.2.] Processor information (from /proc/cpuinfo):
+
+n/a
+
+[7.3.] Module information (from /proc/modules):
+
+n/a
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+
+n/a
+
+[7.5.] PCI information ('lspci -vvv' as root)
+
+n/a
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+
+n/a
+
+[7.7.] Other information that might be relevant to the problem
+        (please look in /proc and include all information that you
+        think to be relevant):
+
+n/a
+
+[X.] Other notes, patches, fixes, workarounds:
+
+Just change "mbool" to "bool", not sure what the deal is here
+or what an mbool is exactly.
 

@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265616AbSJRSyz>; Fri, 18 Oct 2002 14:54:55 -0400
+	id <S265404AbSJRTL2>; Fri, 18 Oct 2002 15:11:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265278AbSJRSvc>; Fri, 18 Oct 2002 14:51:32 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:15448 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S265277AbSJRSpV>; Fri, 18 Oct 2002 14:45:21 -0400
-Date: Fri, 18 Oct 2002 20:51:32 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       george anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
-       Michael Hohnbaum <hbaum@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.5.34_vsyscall_A0
-Message-ID: <20021018185132.GW23930@dualathlon.random>
-References: <20021018171139.GM23930@dualathlon.random> <Pine.LNX.4.44.0210181018070.21302-100000@home.transmeta.com> <20021018172121.GO23930@dualathlon.random> <1034966240.5851.20.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1034966240.5851.20.camel@dell_ss3.pdx.osdl.net>
-User-Agent: Mutt/1.3.27i
+	id <S265401AbSJRTKJ>; Fri, 18 Oct 2002 15:10:09 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:64411 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S265568AbSJRSuV>; Fri, 18 Oct 2002 14:50:21 -0400
+Message-ID: <3DB05918.40204@nortelnetworks.com>
+Date: Fri, 18 Oct 2002 14:55:20 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: John Myers <jgmyers@netscape.com>, Dan Kegel <dank@kegel.com>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+References: <Pine.LNX.4.44.0210151403370.1554-100000@blue1.dev.mcafeelabs.com> <3DAC9035.2010208@netscape.com> <3DADC5F8.60708@kegel.com> <3DAEF6DC.9000708@netscape.com> <20021018170024.GA13087@mark.mielke.cc>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 11:37:19AM -0700, Stephen Hemminger wrote:
+Mark Mielke wrote:
+>>>>>   while (read() == EAGAIN)
+>>>>>       wait(POLLIN);
+>>>>>
 > 
-> > agreed. Hear my idea:
-> > 
-> > 	actually my idea on 64bit was to use the high 8 bit of each 64bit word to
-> > 	give you the cpuid, to get out the coherent data, including the sequence
-> > 	number that are read and written inversely with mb() like now (the
-> > 	sequence number as well will become per-cpu), so it is definitely doable
-> > 	without any single problem and in a very performant way, just not as
-> > 	easy as without the per-cpu info. Even if segmentation per-cpu tricks
-> > 	would be possible or available (remeber long mode is pure paging, no
-> > 	segmentation) it would be not worthwhile IMHO, the cpuid encoded
-> > 	atomically in each 64bit data provided by the vsyscall seems a much
-> > 	simpler and possibly more performant solution. You set a different
-> > 	per-cpu data-mapping with different pte settings in each cpu. The
-> > 	vsyscall bytecode remains the same, aware about this cpuid encoded in
-> > 	each 64bit word. Doing it in 32bit is ugly (or at least much slower)
-> > 	since most data is natively at least 32bit, it would need some slow
-> > 	demultiplexing.
+> I find myself still not understanding this thread. Lots of examples of
+> code that should or should not be used, but I would always choose:
 > 
-> At least on IA32 you could still use XCHG64 to atomically access the
-> values, but that always forces a write so it isn't cache friendly. Still
-
-yep, it would hurt scalability if possible at all, and I doubt the
-chpxchg64 could work on a readonly piece of memory, the pte is marked
-writeprotect, so it should generate a sigsegv.
-
-> it probably is better than encoding the data in 32bit.  It all depends
-
-yes.
-
-> on how much data is needed.
+>    ... ensure file descriptor is blocking ...
+>    for (;;) {
+>        int nread = read(...);
+>        ...
+>    }
 > 
+> Over the above, or any derivative of the above.
+
+The main point here is determining which of many open connections need servicing.
+
+select() and poll() do not scale well, so this is where stuff like /dev/epoll comes in--to tell you 
+which of those file descriptors need to be serviced.
+
+Chris
 
 
-Andrea
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

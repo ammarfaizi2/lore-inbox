@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbRCUBV4>; Tue, 20 Mar 2001 20:21:56 -0500
+	id <S131171AbRCUBkP>; Tue, 20 Mar 2001 20:40:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129478AbRCUBVt>; Tue, 20 Mar 2001 20:21:49 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:17924 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S129460AbRCUBVh>; Tue, 20 Mar 2001 20:21:37 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Serge Orlov <sorlov@con.mcst.ru>, <linux-kernel@vger.kernel.org>,
-        Jakob Østergaard <jakob@unthought.net>
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Linus Torvalds's message of "Tue, 20 Mar 2001 10:43:33 -0800 (PST)"
-Date: 20 Mar 2001 19:20:28 -0600
-Message-ID: <vba1yrr7w9v.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S131063AbRCUBkG>; Tue, 20 Mar 2001 20:40:06 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:20096 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130882AbRCUBj4>;
+	Tue, 20 Mar 2001 20:39:56 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15032.1585.623431.370770@pizda.ninka.net>
+Date: Tue, 20 Mar 2001 17:38:57 -0800 (PST)
+To: buhr@stat.wisc.edu (Kevin Buhr)
+Cc: Linus Torvalds <torvalds@transmeta.com>, Serge Orlov <sorlov@con.mcst.ru>,
+        <linux-kernel@vger.kernel.org>,
+        Jakob Østergaard <jakob@unthought.net>
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+In-Reply-To: <vba1yrr7w9v.fsf@mozart.stat.wisc.edu>
+In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>
+	<vba1yrr7w9v.fsf@mozart.stat.wisc.edu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
-> 
-> Cool. Somebody actually found a real case.
-> 
-> I'll fix the mmap case asap. Its' not hard, I just waited to see if it
-> ever actually triggers. Something like g++ certainly counts as major.
 
-I frequently build Mozilla from scratch on my (aging) dual Celeron
-machine.  That's about 65 megs of actual C++ source, and it takes
-about an hour of real time to compile.  I see times for the whole
-build like this:
+Kevin Buhr writes:
+ > If I recall correctly, RedHat's 2.96 was a modified development
+ > snapshot of GCC 3.0, not an official GCC release.  If this is just a
+ > quirk in 2.96 that can be fixed before the official release of 3.0 by
+ > a trivial patch to libiberty, maybe your original hunch was right and
+ > the kernel should be left as-is.
 
-    real    60m4.574s
-    user    101m18.260s
-    sys     3m23.520s
+It is the garbage collector scheme used for memory allocation in gcc
+>=2.96 that triggers the bad cases seen by Serge.
 
-with gcc 2.95.2 20000220 (Debian GNU/Linux) under Linux 2.4.2.
-
-The sys-to-user ratio seems much closer to Serge's 2.2.13 numbers than
-his 2.4.2 numbers, and I'm wondering why.
-
-If I recall correctly, RedHat's 2.96 was a modified development
-snapshot of GCC 3.0, not an official GCC release.  If this is just a
-quirk in 2.96 that can be fixed before the official release of 3.0 by
-a trivial patch to libiberty, maybe your original hunch was right and
-the kernel should be left as-is.
-
-> Are you willing to test out patches?
-
-I'm willing to help test out the patch; I'd be curious to see what
-effect it has on the performance of 2.95.2.
-
-Kevin <buhr@stat.wisc.edu>
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,132 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282275AbRLMFNT>; Thu, 13 Dec 2001 00:13:19 -0500
+	id <S283379AbRLMFQK>; Thu, 13 Dec 2001 00:16:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282934AbRLMFNK>; Thu, 13 Dec 2001 00:13:10 -0500
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:20494 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S282275AbRLMFNC>;
-	Thu, 13 Dec 2001 00:13:02 -0500
-Message-ID: <3C1838FA.1010802@si.rr.com>
-Date: Thu, 13 Dec 2001 00:13:30 -0500
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.1-pre10: drivers/ide/ide-tape.c compile error
-Content-Type: multipart/mixed;
- boundary="------------050307020300070000000703"
+	id <S283380AbRLMFPv>; Thu, 13 Dec 2001 00:15:51 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:59074
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S283379AbRLMFPk>; Thu, 13 Dec 2001 00:15:40 -0500
+Date: Thu, 13 Dec 2001 00:05:42 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk,
+        linux-arm-kernel@lists.arm.linux.org.uk, bjornw@axis.com,
+        dev-etrax@axis.com, Hartmut Penner <hp@de.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Rob van der Heij <rvdhei@iae.nl>, davidm@hpl.hp.com,
+        linux-ia64@linuxia64.org
+Subject: Re: [RFC/PATCH] wide Configure.help entries (was Re: We're down to just 32...)
+Message-ID: <20011213000542.A2159@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	"Barry K. Nathan" <barryn@pobox.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	rmk@arm.linux.org.uk, linux-arm-kernel@lists.arm.linux.org.uk,
+	bjornw@axis.com, dev-etrax@axis.com, Hartmut Penner <hp@de.ibm.com>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	Rob van der Heij <rvdhei@iae.nl>, davidm@hpl.hp.com,
+	linux-ia64@linuxia64.org
+In-Reply-To: <20011212213307.A31039@thyrsus.com> <20011213044510.CC30A8A5A8@cx518206-b.irvn1.occa.home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011213044510.CC30A8A5A8@cx518206-b.irvn1.occa.home.com>; from barryn@pobox.com on Wed, Dec 12, 2001 at 08:45:10PM -0800
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050307020300070000000703
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Barry K. Nathan <barryn@pobox.com>:
+> Which brings up the question of whether this problem (of entries being
+> too wide for menuconfig) should be fixed, and if so, for which kernel
+> versions/series. IMO, the problem should be fixed for the 2.4 kernels,
+> since (if I'm not mistaken) it's going to be a while before CML2 becomes
+> standard for 2.4 kernels, if it ever happens at all. For 2.5, OTOH,
+> perhaps the help entries should be left alone in this regard since
+> CML2's menuconfig isn't affected by this problem and CML2 is going to be
+> merged into 2.5.
 
-Hello all,
-   I haven't seen this posted yet. While a 'make modules' on 
-2.5.1-pre10, I received the attached compile error on 
-drivers/ide/ide-tape.c . I noticed this with 2.5.1-pre9 as well. I don't 
-recall seeing it with 2.5.1-pre7, and I'm using the same .config .
+On the other hand, the 2.4 and 2.5 Configure.help files have not forked yet,
+and the overhead of fixing this problem is low.
 
-Regards,
-Frank
+Here's what I've done.  First, I have applied your patch.  Next, I added
+the following line near the bottom of Configure.help.
 
---------------050307020300070000000703
-Content-Type: text/plain;
- name="IDE-TAPE"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="IDE-TAPE"
+# compile-command: "egrep -n '^  .{71,}[^ ]+' Configure.help /dev/null"
 
-make -C ide modules
-make[2]: Entering directory `/usr/src/linux/drivers/ide'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/linux/include/linux/modversions.h   -c -o ide-tape.o ide-tape.c
-ide-tape.c: In function `idetape_input_buffers':
-ide-tape.c:1512: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_output_buffers':
-ide-tape.c:1538: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_update_buffers':
-ide-tape.c:1565: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_abort_pipeline':
-ide-tape.c:1709: warning: comparison between pointer and integer
-ide-tape.c:1710: incompatible types in assignment
-ide-tape.c:1711: warning: comparison between pointer and integer
-ide-tape.c:1712: incompatible types in assignment
-ide-tape.c: In function `idetape_active_next_stage':
-ide-tape.c:1738: structure has no member named `bh'
-ide-tape.c: In function `__idetape_kfree_stage':
-ide-tape.c:1785: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_end_request':
-ide-tape.c:1871: warning: comparison between pointer and integer
-ide-tape.c:1911: warning: comparison between pointer and integer
-ide-tape.c: In function `idetape_queue_pc_head':
-ide-tape.c:1987: incompatible types in assignment
-ide-tape.c: In function `idetape_create_read_cmd':
-ide-tape.c:2540: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_create_read_buffer_cmd':
-ide-tape.c:2572: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_create_write_cmd':
-ide-tape.c:2589: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_do_request':
-ide-tape.c:2621: warning: int format, pointer arg (arg 4)
-ide-tape.c:2623: warning: long int format, int arg (arg 4)
-ide-tape.c:2626: warning: comparison between pointer and integer
-ide-tape.c:2626: warning: comparison between pointer and integer
-ide-tape.c:2630: warning: int format, pointer arg (arg 3)
-ide-tape.c:2664: warning: comparison between pointer and integer
-ide-tape.c:2677: warning: comparison between pointer and integer
-ide-tape.c:2677: warning: comparison between pointer and integer
-ide-tape.c:2691: warning: comparison between pointer and integer
-ide-tape.c:2696: warning: comparison between pointer and integer
-ide-tape.c:2703: warning: int format, pointer arg (arg 2)
-ide-tape.c:2721: warning: comparison between pointer and integer
-ide-tape.c:2732: switch quantity not an integer
-ide-tape.c:2747: structure has no member named `bh'
-ide-tape.c:2764: structure has no member named `bh'
-ide-tape.c:2769: structure has no member named `bh'
-ide-tape.c:2772: incompatible types in assignment
-ide-tape.c:2780: incompatible types in assignment
-ide-tape.c:2785: incompatible types in assignment
-ide-tape.c:2734: warning: unreachable code at beginning of switch statement
-ide-tape.c: In function `__idetape_kmalloc_stage':
-ide-tape.c:2836: structure has no member named `b_reqnext'
-ide-tape.c:2868: structure has no member named `b_reqnext'
-ide-tape.c:2873: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_copy_stage_from_user':
-ide-tape.c:2922: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_copy_stage_to_user':
-ide-tape.c:2949: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_wait_for_request':
-ide-tape.c:3080: warning: comparison between pointer and integer
-ide-tape.c:3080: warning: comparison between pointer and integer
-ide-tape.c: In function `__idetape_queue_pc_tail':
-ide-tape.c:3188: incompatible types in assignment
-ide-tape.c: In function `idetape_queue_rw_tail':
-ide-tape.c:3450: structure has no member named `bh'
-ide-tape.c:3451: incompatible types in assignment
-ide-tape.c: In function `idetape_onstream_read_back_buffer':
-ide-tape.c:3500: incompatible types in assignment
-ide-tape.c: In function `idetape_verify_stage':
-ide-tape.c:3658: structure has no member named `b_reqnext'
-ide-tape.c: In function `idetape_add_chrdev_write_request':
-ide-tape.c:3775: incompatible types in assignment
-ide-tape.c: In function `idetape_empty_write_pipeline':
-ide-tape.c:3863: structure has no member named `b_reqnext'
-ide-tape.c:3866: structure has no member named `b_reqnext'
-ide-tape.c:3878: structure has no member named `b_reqnext'
-ide-tape.c:3846: warning: `bh' might be used uninitialized in this function
-ide-tape.c: In function `idetape_initiate_read':
-ide-tape.c:3963: incompatible types in assignment
-ide-tape.c: In function `idetape_pad_zeros':
-ide-tape.c:4152: structure has no member named `b_reqnext'
-make[2]: *** [ide-tape.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/drivers/ide'
-make[1]: *** [_modsubdir_ide] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_mod_drivers] Error 2
+Now I can do compile-command in my Emacs and step through the wide entries,
+correcting them where possible.  Sometimes it's not; there are some *long* URLs 
+in the file.  
 
---------------050307020300070000000703--
+I'll clean this up before each Configure.help release.
 
+We're now down to 29 missing entries, by the way; I got three almost immediately
+on posting the request, and congratualations to the IA64 port group who are now
+completely clean.  Here is the revised list:
+
+ARM port:
+
+CPU_ARM1020_CPU_IDLE: arch/arm/mm/proc-arm1020.S
+CPU_ARM1020_D_CACHE_ON: arch/arm/config.in arch/arm/mm/proc-arm1020.S
+CPU_ARM1020_FORCE_WRITE_THROUGH: arch/arm/config.in arch/arm/mm/proc-arm1020.S
+CPU_ARM1020_I_CACHE_ON: arch/arm/config.in arch/arm/mm/proc-arm1020.S
+CPU_ARM1020_ROUND_ROBIN: arch/arm/config.in arch/arm/mm/proc-arm1020.S
+CPU_ARM920_CPU_IDLE: arch/arm/config.in arch/arm/mm/proc-arm920.S
+CPU_ARM920_D_CACHE_ON: arch/arm/config.in arch/arm/mm/proc-arm920.S
+CPU_ARM920_I_CACHE_ON: arch/arm/config.in arch/arm/mm/proc-arm920.S
+CPU_ARM920_WRITETHROUGH: arch/arm/config.in arch/arm/mm/proc-arm920.S
+CPU_ARM926_CPU_IDLE: arch/arm/config.in arch/arm/mm/proc-arm926.S
+CPU_ARM926_D_CACHE_ON: arch/arm/config.in arch/arm/mm/proc-arm926.S
+CPU_ARM926_I_CACHE_ON: arch/arm/config.in arch/arm/mm/proc-arm926.S
+CPU_ARM926_ROUND_ROBIN: arch/arm/config.in arch/arm/mm/proc-arm926.S
+CPU_ARM926_WRITETHROUGH: arch/arm/config.in arch/arm/mm/proc-arm926.S
+CPU_FREQ: drivers/video/sa1100fb.c drivers/video/sa1100fb.h drivers/pcmcia/sa1100_generic.c arch/arm/config.in arch/arm/mach-sa1100/Makefile arch/arm/mach-sa1100/generic.c arch/arm/mach-integrator/cpu.c
+
+S390 port:
+
+DASD_AUTO_DIAG: drivers/s390/Config.in drivers/s390/block/dasd.c
+DASD_AUTO_ECKD: drivers/s390/Config.in drivers/s390/block/dasd.c
+DASD_AUTO_FBA: drivers/s390/Config.in drivers/s390/block/dasd.c
+HWC_CPI: drivers/s390/Config.in drivers/s390/char/Makefile
+PFAULT: arch/s390/config.in arch/s390/kernel/smp.c arch/s390/kernel/traps.c arch/s390/mm/fault.c arch/s390x/config.in arch/s390x/kernel/smp.c arch/s390x/kernel/traps.c arch/s390x/mm/fault.c
+SHARED_KERNEL: arch/s390/Makefile arch/s390/config.in arch/s390/kernel/head.S arch/s390x/Makefile arch/s390x/config.in arch/s390x/kernel/head.S
+
+CRIS port:
+
+ETRAX_ETHERNET_LPSLAVE: arch/cris/drivers/Config.in arch/cris/drivers/Makefile arch/cris/kernel/head.S
+ETRAX_ETHERNET_LPSLAVE_HAS_LEDS: arch/cris/drivers/Config.in arch/cris/drivers/lpslave/e100lpslave.S
+ETRAX_NETWORK_LED_ON_WHEN_ACTIVITY: arch/cris/drivers/Config.in arch/cris/drivers/ethernet.c arch/cris/drivers/lpslave/e100lpslave.S
+ETRAX_NETWORK_LED_ON_WHEN_LINK: arch/cris/drivers/Config.in arch/cris/drivers/ethernet.c arch/cris/drivers/lpslave/e100lpslave.S
+ETRAX_SHUTDOWN_BIT: include/asm-cris/io.h arch/cris/config.in
+
+Miscellaneous:
+
+ITE_I2C_ADAP: drivers/i2c/Config.in drivers/i2c/Makefile
+ITE_I2C_ALGO: drivers/i2c/Config.in drivers/i2c/Makefile
+MTD_ARM_INTEGRATOR: drivers/mtd/maps/Config.in drivers/mtd/maps/Makefile
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Government is actually the worst failure of civilized man. There has
+never been a really good one, and even those that are most tolerable
+are arbitrary, cruel, grasping and unintelligent.
+	-- H. L. Mencken 

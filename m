@@ -1,78 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVATTcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVATTdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVATTcE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVATTcD
+	id S261902AbVATTdW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVATTcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 14:32:03 -0500
-Received: from mail.joq.us ([67.65.12.105]:19847 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261785AbVATTbn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 14:31:43 -0500
-To: "Rui Nuno Capela" <rncbc@rncbc.org>
-Cc: "Con Kolivas" <kernel@kolivas.org>, "linux" <linux-kernel@vger.kernel.org>,
-       "Ingo Molnar" <mingo@elte.hu>, rlrevell@joe-job.com,
-       paul@linuxaudiosystems.com, "CK Kernel" <ck@vds.kolivas.org>,
-       "utz" <utz@s2y4n2c.de>, "Andrew Morton" <akpm@osdl.org>,
-       alexn@dsv.su.se
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt    
- scheduling
-References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>
-	<873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org>
-	<87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org>
-	<87oefkd7ew.fsf@sulphur.joq.us>
-	<10752.195.245.190.93.1106211979.squirrel@195.245.190.93>
-	<65352.195.245.190.94.1106240981.squirrel@195.245.190.94>
-From: "Jack O'Quin" <joq@io.com>
-Date: Thu, 20 Jan 2005 13:32:20 -0600
-In-Reply-To: <65352.195.245.190.94.1106240981.squirrel@195.245.190.94> (Rui
- Nuno Capela's message of "Thu, 20 Jan 2005 17:09:41 -0000 (WET)")
-Message-ID: <874qhb99rv.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Thu, 20 Jan 2005 14:32:54 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:1729 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261881AbVATTc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 14:32:28 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][RFC] swsusp: speed up image restoring on x86-64
+Date: Thu, 20 Jan 2005 20:32:31 +0100
+User-Agent: KMail/1.7.1
+Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501202032.31481.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rui Nuno Capela" <rncbc@rncbc.org> writes:
+Hi,
 
-> OK. Here goes my fresh and newly jack_test4.1 test suite. It might be
-> still rough, as usual ;)
+The following patch speeds up the restoring of swsusp images on x86-64
+and makes the assembly code more readable (tested and works on AMD64).  It's
+against 2.6.11-rc1-mm1, but applies to 2.6.11-rc1-mm2.  Please consifer for applying.
 
-Thanks for all your work on this fine test suite.
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-> This phenomenon, so to speak, shows up as a sudden full increase of
-> DSP/CPU load after a few minutes running jackd while perfectly normal and
-> stable until that moment. Once that occurs, and it does now everytime I
-> run jack_test4_run.sh with default parameters (14 clients, 4x4 ports), you
-> end under a horrible XRUN storm--see attached chart--you can even hear it
-> perfectly as the 1KHz audible tone burps and stutters, resembling
-> radioactivity morse pulses.
+--- linux-2.6.11-rc1-mm1/arch/x86_64/kernel/suspend_asm.S	2004-12-24 22:35:28.000000000 +0100
++++ linux-2.6.11-rc1-mm1-rjw/arch/x86_64/kernel/suspend_asm.S	2005-01-20 17:28:30.000000000 +0100
+@@ -49,43 +49,28 @@
+ 	movq	%rcx, %cr3;
+ 	movq	%rax, %cr4;  # turn PGE back on
+ 
++	movq	pagedir_nosave(%rip), %rdx
++	/* compute the limit */
+ 	movl	nr_copy_pages(%rip), %eax
+-	xorl	%ecx, %ecx
+-	movq	$0, %r10
+ 	testl	%eax, %eax
+ 	jz	done
+-.L105:
+-	xorl	%esi, %esi
+-	movq	$0, %r11
+-	jmp	.L104
+-	.p2align 4,,7
+-copy_one_page:
+-	movq	%r10, %rcx
+-.L104:
+-	movq	pagedir_nosave(%rip), %rdx
+-	movq	%rcx, %rax
+-	salq	$5, %rax
+-	movq	8(%rdx,%rax), %rcx
+-	movq	(%rdx,%rax), %rax
+-	movzbl	(%rsi,%rax), %eax
+-	movb	%al, (%rsi,%rcx)
++	shlq	$5, %rax; # multiply by sizeof(struct pbe)
++	addq	%rdx, %rax
++loop:
++	/* get addresses from the pbe and copy the page */
++	movq	(%rdx), %rsi
++	movq	8(%rdx), %rdi
++	movq	$512, %rcx
++	rep
++	movsq
+ 
+-	movq	%cr3, %rax;  # flush TLB
+-	movq	%rax, %cr3;
++	movq	%cr3, %rcx;  # flush TLB
++	movq	%rcx, %cr3;
+ 
+-	movq	%r11, %rax
+-	incq	%rax
+-	cmpq	$4095, %rax
+-	movq	%rax, %rsi
+-	movq	%rax, %r11
+-	jbe	copy_one_page
+-	movq	%r10, %rax
+-	incq	%rax
+-	movq	%rax, %rcx
+-	movq	%rax, %r10
+-	mov	nr_copy_pages(%rip), %eax
+-	cmpq	%rax, %rcx
+-	jb	.L105
++	/* progress to the next pbe */
++	addq	$32, %rdx; # add sizeof(struct pbe)
++	cmpq	%rax, %rdx
++	jb	loop
+ done:
+ 	movl	$24, %eax
+ 	movl	%eax, %ds
 
-Looking at the graph, it appears that your DSP load is hovering just
-above 70% most of the time.  This happens to be the default threshold
-for revoking realtime privileges.  Perhaps that is the problem.  Try
-running it with the threshold set to 90%.  (I don't recall exactly
-how, but I think there's a /proc/sys/kernel control somewhere.)
 
-> So it seems that this showstopper is an issue only under extreme loads,
-> and is probably relative to the hardware you're running into. On my other
-> P4@3.3Ghz/HT desktop I could not reproduce this. Instead, I hit a rather
-> older issue, which comes like the magic 14 client limit. As it seems, I
-> now find trouble when starting more than 14 connected clients, as the
-> jack_watchdog kills everything in sight beyhond that point. This wasn't
-> happening with the jack_test3.2 suite, suspectedly because those clients
-> weren't being connected to each other.
 
-I'll take a look.  The old problem with more than 14 clients has been
-fixed.  I routinely run 30 or 40 without trouble.  
+Greets,
+RJW
 
-Perhaps we're running out of some port resource?
 
-> Please check this out, and would you try at least to reproduce the naughty
-> behavior such as the pictured on the attached chart?
-
-Will do.
 -- 
-  joq
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

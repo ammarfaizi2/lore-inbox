@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129520AbQLAAGP>; Thu, 30 Nov 2000 19:06:15 -0500
+	id <S129257AbQLAAl2>; Thu, 30 Nov 2000 19:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129552AbQLAAGF>; Thu, 30 Nov 2000 19:06:05 -0500
-Received: from north.net.CSUChico.EDU ([132.241.66.18]:2832 "EHLO
-	north.net.csuchico.edu") by vger.kernel.org with ESMTP
-	id <S129520AbQLAAGC>; Thu, 30 Nov 2000 19:06:02 -0500
-Date: Thu, 30 Nov 2000 15:35:35 -0800
-From: John Kennedy <jk@csuchico.edu>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: loopback block sizes vs. truncation
-Message-ID: <20001130153535.A10494@north.csuchico.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S129520AbQLAAlT>; Thu, 30 Nov 2000 19:41:19 -0500
+Received: from mail1-gui.server.ntli.net ([194.168.222.13]:2788 "EHLO
+	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
+	id <S129257AbQLAAlH>; Thu, 30 Nov 2000 19:41:07 -0500
+Date: Fri, 1 Dec 2000 00:15:45 +0000 (GMT)
+From: Ben Mansell <ben@zeus.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: TCP push missing with writev()
+In-Reply-To: <200011302301.PAA07267@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.30.0011302342590.1741-100000@bagpipe.bogo.bogus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  In trying to test the international crypto patch-2.2.17.11pre1 I was
-doing some QA on my bootloader program.  It looks like the loopback
-device will return EOF before a file is finished.
+On Thu, 30 Nov 2000, David S. Miller wrote:
 
-  In my case in particular, I was using files instead of block devices
-(again, for testing) and had a nulled loop_info so I wasn't dealing with
-encryption at that point.  I had a 7851-byte test file, which happens
-to be (7*1024)+683.  The general setup was:
+> 	       vector[ 1 ].iov_base = NULL;
+> 	       vector[ 1 ].iov_len = 0;
+>
+> "Don't do that" :-)
+>
+> I'll doubt I will bother to fix it (it's not %100 trivial to fix and
+> it will put a cost into a hot path).  Even if I did, you're going to
+> need to fix Zeus not to do writev's with empty iovec's like this so
+> that you get the PSH's in current kernels.
 
-	(<stdin> -> /dev/loop0) -> <stdout>	[ < /tmp/in > /tmp/out ]
+Its OK, our web server currently doesn't have this problem :)
 
-			... which should equate to
+I ran into the problem developing code that wrote data out of a circular
+buffer - so the data being written may potentially be in two sections if
+the buffer wraps around. A generic writev() call then emptied as much data
+out of the buffer as possible, and so tripping the bug. I guess what I'm saying
+is that you don't have to have plain dumb code (like the example code I
+gave) in order to hit this problem.
 
-			(/tmp/in -> /dev/loop0) -> /tmp/out
-
-  I was getting a output file truncated at 7168 (7*1024) bytes.  That
-wasn't even a multiple of 4096, which is st_blksize if you stat() the
-input, output, or loopback file descriptors.
-
-  No problems with files that are multiples of 1K so far.
-
-  I assume it is just giving me the finger because the leftover 683
-bytes aren't a multiple of the block size, but right now I'm not sure
-how to go about getting the proper block size anyway.
+Paranoia check: can this bug occur with writev() and other combinations of
+sizes, or is it only when there is a 0-length buffer in there?
 
 
-  No real problem dealing with it, but it made me wonder what was going
-on with the whole 1K/4K filesystem block size again.
+Ben
 
-  [This is with a patched 2.2.18pre24 kernel.]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

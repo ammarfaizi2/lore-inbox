@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269175AbUJERAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269008AbUJERJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269175AbUJERAI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:00:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269171AbUJEQ7f
+	id S269008AbUJERJq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269068AbUJERJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 12:59:35 -0400
-Received: from havoc.gtf.org ([69.28.190.101]:6079 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S269116AbUJEQ7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 12:59:13 -0400
-Date: Tue, 5 Oct 2004 12:53:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Mark Lord <lsml@rtr.ca>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Oliver Neukum <oliver@neukum.org>, Anton Blanchard <anton@samba.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Core scsi layer crashes in 2.6.8.1
-Message-ID: <20041005165323.GA24922@havoc.gtf.org>
-References: <1096401785.13936.5.camel@localhost.localdomain> <4162B345.9000806@rtr.ca> <1096988167.2064.7.camel@mulgrave> <200410051749.22245.oliver@neukum.org> <1096991666.2064.25.camel@mulgrave> <4162C474.8010505@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4162C474.8010505@rtr.ca>
-User-Agent: Mutt/1.4.1i
+	Tue, 5 Oct 2004 13:09:46 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:31911 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S269008AbUJERJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:09:43 -0400
+Message-ID: <4162D554.5010109@nortelnetworks.com>
+Date: Tue, 05 Oct 2004 11:09:40 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: question on do_sigaltstack() -- want to allow nested calls
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 11:57:40AM -0400, Mark Lord wrote:
-> James Bottomley wrote:
-> >
-> >It would add quite a bit of complexity to the reference counted
-> >aynchronous model to try and force synchronicity between queuecommand
-> >and scsi_remove_host in the mid-layer.  Therefore it's much easier to
-> >let the LLD decide what to do with the command.
-> 
-> Presumably the same is also true for scsi_remove_device() ?
 
-What I do in my local hotplug code is assume that the SCSI layer will be
-stupid and send commands after I call scsi_remove_device(), for an
-indeterminant but short period of time.
+The man page says that you can't call sigaltstack() while you are actually in 
+the alternate stack.
 
-	Jeff
+I have an emulator app that wants to do some special stuff, and it seems to 
+require nested calls. [1]
+
+So...
+
+Is it enough in this case to simply bypass the "if (on_sig_stack(sp))" check in 
+do_sigaltstack()?
+
+Chris
+
+
+
+
+
+
+
+
+
+1: Here's why I want to do this, if anyone is interested.
+
+case 1: --the segfault handler is set to run on alt stack, and tries to do some 
+fancy stuff to trace the call chain
+	--would like to set up alternate stack for SIGSEGV then drop block on that 
+signal, while still in the handler for the first instance.  If we get the second 
+fault, then we die a bit more messily.
+
+case 2: --emulator software sets up handler for SIGTRAP on alt stack
+	--some routines then have to run code in software being emulated, but we don't 
+trust it
+	--would like to set up alternate stacks for signals, then drop blocks on them 
+and run code being emulated, while still running the first handler
+
 
 
 

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266215AbUBDBBT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 20:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUBDBBT
+	id S265148AbUBDBFn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 20:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUBDBFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 20:01:19 -0500
-Received: from www.trustcorps.com ([213.165.226.2]:50193 "EHLO raq1.nitrex.net")
-	by vger.kernel.org with ESMTP id S266215AbUBDBBQ (ORCPT
+	Tue, 3 Feb 2004 20:05:43 -0500
+Received: from mail.kroah.org ([65.200.24.183]:47329 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265148AbUBDBFh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 20:01:16 -0500
-Message-ID: <402043C9.8000703@hcunix.net>
-Date: Wed, 04 Feb 2004 00:58:49 +0000
-From: the grugq <grugq@hcunix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <20040204004318.GA253@elf.ucw.cz> <4020416B.3050301@hcunix.net> <20040204005514.GB253@elf.ucw.cz>
-In-Reply-To: <20040204005514.GB253@elf.ucw.cz>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Feb 2004 20:05:37 -0500
+Date: Tue, 3 Feb 2004 17:01:59 -0800
+From: Greg KH <greg@kroah.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bttv oops
+Message-ID: <20040204010159.GA23386@kroah.com>
+References: <401E69AD.4080606@earthlink.net> <87u129eb5p.fsf@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87u129eb5p.fsf@bytesex.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
-
+On Mon, Feb 02, 2004 at 04:47:14PM +0100, Gerd Knorr wrote:
+> Stephen Clark <stephen.clark@earthlink.net> writes:
 > 
-> [Perhaps I got confused somewhere in between]
-
-nope, just me.
-
+> > Gentle people,
+> > 
+> > I am having the following problem. Also if I compile bttv into the
+> > kernel I get a panic in the driver at boot.
+> > 
+> > Any ideas?
 > 
-> I think chattr +s file should be zeroed, along with its metadata. I
-> thought your patch already does that. If not, doing that would be
-> great...
+> disable CONFIG_I2C_*_DEBUG, the debug printk() dereference pointers
+> unchecked.
 
-it does already zero the meta-data. I was simply asking if you think the 
-whole "erase" operation should be under the control of chattr 's', or 
-just a subset (i.e. only data overwriting is optional). Its clear now 
-that you want the whole thing to be controled by chattr 's'. I'll knock 
-that up then, and re-submit.
+Here's the patch that has been reported to fix this oops.  I've added it
+to my i2c bk tree.
 
+thanks,
 
-peace,
+greg k-h
 
---gq
+# I2C: fix oops when CONFIG_I2C_DEBUG_CORE is enabled and the bttv driver is loaded.
+
+diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c	Tue Feb  3 17:00:46 2004
++++ b/drivers/i2c/i2c-core.c	Tue Feb  3 17:00:46 2004
+@@ -598,7 +598,7 @@
+ 		ret = adap->algo->master_xfer(adap,&msg,1);
+ 		up(&adap->bus_lock);
+ 	
+-		dev_dbg(&client->dev, "master_recv: return:%d (count:%d, addr:0x%02x)\n",
++		dev_dbg(&client->adapter->dev, "master_recv: return:%d (count:%d, addr:0x%02x)\n",
+ 			ret, count, client->addr);
+ 	
+ 		/* if everything went ok (i.e. 1 msg transmitted), return #bytes

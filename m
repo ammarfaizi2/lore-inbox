@@ -1,58 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275259AbTHMPq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 11:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275238AbTHMPqz
+	id S275271AbTHMPnn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 11:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275267AbTHMPmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 11:46:55 -0400
-Received: from fern.math.ucla.edu ([128.97.4.251]:39552 "EHLO
-	fern.math.ucla.edu") by vger.kernel.org with ESMTP id S275259AbTHMPpf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 11:45:35 -0400
-Date: Wed, 13 Aug 2003 08:44:56 -0700 (PDT)
-From: Jim Carter <jimc@math.ucla.edu>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Jamie Lokier <jamie@shareable.org>, Matt Mackall <mpm@selenic.com>,
-       James Morris <jmorris@intercode.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, davem@redhat.com
-Subject: Re: i810_rng.o on various Dell models
-In-Reply-To: <20030813035257.GB1244@think>
-Message-ID: <Pine.LNX.4.53.0308130830170.3016@xena.cft.ca.us>
-References: <20030809173329.GU31810@waste.org>
- <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au>
- <20030810174528.GZ31810@waste.org> <20030811020919.GD10446@mail.jlokier.co.uk>
- <20030813035257.GB1244@think>
+	Wed, 13 Aug 2003 11:42:05 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:9454 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S275266AbTHMPlq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 11:41:46 -0400
+Date: Wed, 13 Aug 2003 17:40:23 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+cc: Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Bogus serial port ttyS02
+Message-ID: <Pine.GSO.4.21.0308131601070.11378-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In response to a message of Theodore Ts'o <tytso@mit.edu> dated 2003-08-12
-(Subject was: [RFC][PATCH] Make cryptoapi non-optional?):
 
-I've recently come to the unpleasant conclusion that the reason i810_rng.o
-(kernel 2.4.20) doesn't load on various Dell models (on none of the
-numerous Dell models I've tried) is that the motherboards actually lack the
-hardware random number generator.  The motherboard of a Dell Dimension 4100
-has a SST 49LF004A firmware hub, not an Intel 82802AB, and among those
-chips plus the Winbond W39V040FA and the STM M50FW040, presumably most of
-the ones competing for that market, only the Intel chip has the random
-number generator.
+Linux always finds 3 serial ports instead of 2:
 
-It's a violation of modularity plus a very effective marketing ploy for
-Intel to put the RNG on the BIOS flash RAM chip.  Hiss, boo!
+| ttyS00 at 0x03f8 (irq = 4) is a 16550A
+| ttyS01 at 0x02f8 (irq = 3) is a 16550A
+| ttyS02 at 0x03e8 (irq = 4) is a 16450
 
-Dell has a very effective procedure for discouraging customer feedback, and
-I have not been able to identify a useful recipient for product
-suggestions.  If any of you people happen to have the ear of someone at
-Dell, could you please carry a message that there are people who depend on
-crypto, and will suggest to their management that all machines must have a
-hardware random number generator, and that would leave Dell out of the
-running.
+The last one is bogus.
 
-A similar suggestion might be made to Winbond, STM and SST.
+This is not exactly a new problem, and it happens with (and is not limited to)
+both 2.4.21 and 2.6.0-test3. System is a PPC box (CHRP LongTrail) with a
+National Semiconductor PC78308VUL SuperI/O, which has 2 internal 16550As.
 
-James F. Carter          Voice 310 825 2897    FAX 310 206 6673
-UCLA-Mathnet;  6115 MSA; 405 Hilgard Ave.; Los Angeles, CA, USA 90095-1555
-Email: jimc@math.ucla.edu  http://www.math.ucla.edu/~jimc (q.v. for PGP key)
+Anyone with a clue? I know nothing about serial chip probing.
+
+
+Ah, I still have some old dmesg outputs for that machine in my local CVS repo:
+
+2.2.7: OK
+2.3.18: OK
+2.3.22: OK
+2.3.42: not OK
+2.3.47: not OK
+2.3.48: not OK
+2.3.50: not OK
+2.3.51: not OK
+2.3.99-pre3: not OK
+2.4.0-test1: not OK
+2.4.0-test1-ac7: OK
+2.4.0-test1-ac10: OK
+2.4.0-test11: not OK
+2.4.0-test13-pre3: not OK
+2.4.0-prerelease-ac5: not OK
+2.4.0: not OK
+2.4.1-pre2: not OK
+2.4.1-pre10: not OK
+2.4.1: not OK
+
+So the problem was introduced between 2.3.22 and 2.3.42, and temporarily solved
+in 2.4.0-test1-ac7 and 2.4.0-test1-ac10.
+
+2.4.0-test1 has serial driver version 4.93 (2000-03-20)
+2.4.0-test1-ac7 and 2.4.0-test1-ac10 have version 5.01 (2000-05-29)
+2.4.0-test11 has version 5.02 (2000-08-09)
+
+All are with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled. Looking at the diffs
+between 2.4.0-test1 and 2.4.0-test1-ac7, and 2.4.0-test1-ac7 and 2.4.0-test11
+I couldn't find anything suspicious.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264852AbUEJQ17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUEJQcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264852AbUEJQ17 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 12:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264855AbUEJQ17
+	id S264860AbUEJQcX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 12:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264861AbUEJQcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 12:27:59 -0400
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:4386 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S264852AbUEJQ15 (ORCPT
+	Mon, 10 May 2004 12:32:23 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:29096 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S264860AbUEJQcV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 12:27:57 -0400
-Date: Mon, 10 May 2004 09:26:45 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, helgehaf@aitel.hist.no,
-       linux-kernel@vger.kernel.org
-Subject: Re: dentry bloat.
-Message-ID: <20040510162645.GA1646@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20040508211920.GD4007@in.ibm.com> <20040508171027.6e469f70.akpm@osdl.org> <Pine.LNX.4.58.0405081947290.1592@ppc970.osdl.org> <20040508201215.24f0d239.davem@redhat.com> <Pine.LNX.4.58.0405082039510.1592@ppc970.osdl.org> <20040509210312.GL5414@waste.org> <409F3CEE.8060102@aitel.hist.no> <1084177928.4925.13.camel@laptop.fenrus.com> <20040510024658.53cb0b80.akpm@osdl.org> <20040510145403.GL28459@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 May 2004 12:32:21 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix init_idle() locking problem
+Date: Mon, 10 May 2004 10:32:18 -0600
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040510145403.GL28459@waste.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405101032.18508.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 09:54:04AM -0500, Matt Mackall wrote:
-> On Mon, May 10, 2004 at 02:46:58AM -0700, Andrew Morton wrote:
-> > Arjan van de Ven <arjanv@redhat.com> wrote:
-> > >
-> > > On Mon, 2004-05-10 at 10:27, Helge Hafting wrote:
-> > >  > Matt Mackall wrote:
-> > >  > 
-> > >  > >One also wonders about whether all the RCU stuff is needed on UP. I'm
-> > >  > >not sure if I grok all the finepoints here, but it looks like the
-> > >  > >answer is no and that we can make struct_rcu head empty and have
-> > >  > >call_rcu fall directly through to the callback. This would save
-> > >  > >something like 16-32 bytes (32/64bit), not to mention a bunch of
-> > >  > >dinking around with lists and whatnot.
-> > >  > >
-> > >  > >So what am I missing?
-> > >  > >  
-> > >  > >
-> > >  > Preempt can happen anytime, I believe.
-> > > 
-> > >  ok so for UP-non-preempt we can still get those 16 bytes back from the
-> > >  dentry....
-> > 
-> > I suppose so.  And on small SMP, really.  We chose not to play those games
-> > early on so the code got the best testing coverage.
-> 
-> Ok, I can spin something up. I'll start with a generic no-RCU-on-UP
-> and then we can think about the small SMP case a bit later.
+When starting up secondary CPUs, most architectures do something
+like this:
 
-Hello, Matt,
+	do_boot_cpu(int cpu)
+	{
+		idle = fork_by_hand();
+		wake_up_forked_process(idle);
+		init_idle(idle, cpu);
 
-You may wish to start with the dcache portion of Dipankar's earlier patch:
+init_idle() removes "idle" from its runqueue, but there's a window
+between looking up the runqueue and locking it, where another CPU
+can move "idle" to a different runqueue, i.e., via load_balance().
 
-http://sourceforge.net/mailarchive/forum.php?thread_id=3644163&forum_id=730
+This is based on 2.6.6.
 
-It does not remove the extra rcu_head from the dentry, but does the
-rest of the work.
-
-						Thanx, Paul
+===== kernel/sched.c 1.261 vs edited =====
+--- 1.261/kernel/sched.c	Mon Apr 26 23:07:43 2004
++++ edited/kernel/sched.c	Mon May 10 09:59:54 2004
+@@ -2660,11 +2660,18 @@
+ 
+ void __init init_idle(task_t *idle, int cpu)
+ {
+-	runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(task_cpu(idle));
++	runqueue_t *idle_rq = cpu_rq(cpu), *rq;
+ 	unsigned long flags;
+ 
++repeat_lock_runqueues:
++	rq = task_rq(idle);
+ 	local_irq_save(flags);
+ 	double_rq_lock(idle_rq, rq);
++	if (rq != task_rq(idle)) {
++		double_rq_unlock(idle_rq, rq);
++		local_irq_restore(flags);
++		goto repeat_lock_runqueues;
++	}
+ 
+ 	idle_rq->curr = idle_rq->idle = idle;
+ 	deactivate_task(idle, rq);

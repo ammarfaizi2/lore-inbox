@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbTIJCxr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 22:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264497AbTIJCxq
+	id S264450AbTIJCwh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 22:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbTIJCwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 22:53:46 -0400
-Received: from sat.sws.net.au ([202.5.161.49]:15281 "EHLO sat.sws.net.au")
-	by vger.kernel.org with ESMTP id S264481AbTIJCxo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 22:53:44 -0400
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] uml-patch-2.6.0-test5
-Date: Wed, 10 Sep 2003 12:53:33 +1000
+	Tue, 9 Sep 2003 22:52:35 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:42667
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S264450AbTIJCwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 22:52:34 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH]O20.1int
+Date: Wed, 10 Sep 2003 13:00:20 +1000
 User-Agent: KMail/1.5.3
-References: <200309092235.h89MZU2J005307@ccure.karaya.com>
-In-Reply-To: <200309092235.h89MZU2J005307@ccure.karaya.com>
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_tIpX/pDKHVGYpxK"
-Message-Id: <200309101253.33028.russell@coker.com.au>
+  boundary="Boundary-00=_EPpX/xg8EOXez9x"
+Message-Id: <200309101300.20634.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_tIpX/pDKHVGYpxK
+--Boundary-00=_EPpX/xg8EOXez9x
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-On Wed, 10 Sep 2003 08:35, Jeff Dike wrote:
-> This patch updates UML to 2.6.0-test5.  There were a couple of bug fixes,
-> but no functional changes in this patch.
+Should be the last of the O1int patches.
 
-The attached patch is needed on top of that for compiling UML with SE Linux 
-support.
+Tiny tweak to keep top two interactive levels round robin at the fastest 
+(10ms) which keeps X smooth when another interactive task is also using 
+bursts of cpu (eg web browser).
 
--- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
+Credit. Is this too bold?
 
---Boundary-00=_tIpX/pDKHVGYpxK
+Con
+
+--Boundary-00=_EPpX/xg8EOXez9x
 Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="diff"
+  charset="us-ascii";
+  name="patch-O20-O20.1int"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
+Content-Disposition: inline; filename="patch-O20-O20.1int"
 
---- include/asm-um/common.lds.S.orig	Wed Sep 10 04:33:15 2003
-+++ include/asm-um/common.lds.S	Wed Sep 10 04:34:53 2003
-@@ -78,6 +78,8 @@
-   __uml_initcall_end = .;
-   __init_end = .;
+--- linux-2.6.0-test5-mm1-O20/kernel/sched.c	2003-09-10 11:15:45.000000000 +1000
++++ linux-2.6.0-test5-mm1/kernel/sched.c	2003-09-10 11:51:38.000000000 +1000
+@@ -14,6 +14,7 @@
+  *		an array-switch method of distributing timeslices
+  *		and per-CPU runqueues.  Cleanups and useful suggestions
+  *		by Davide Libenzi, preemptible kernel bits by Robert Love.
++ *  2003-09-03	Interactivity tuning by Con Kolivas.
+  */
  
-+  SECURITY_INIT
-+
-   __exitcall_begin = .;
-   .exitcall : { *(.exitcall.exit) }
-   __exitcall_end = .;
+ #include <linux/mm.h>
+@@ -122,12 +123,12 @@
+ 		MAX_SLEEP_AVG)
+ 
+ #ifdef CONFIG_SMP
+-#define TIMESLICE_GRANULARITY(p) \
+-	(MIN_TIMESLICE * (1 << (MAX_BONUS - CURRENT_BONUS(p))) * \
+-		num_online_cpus())
++#define TIMESLICE_GRANULARITY(p)	(MIN_TIMESLICE * \
++		(1 << (((MAX_BONUS - CURRENT_BONUS(p)) ? : 1) - 1)) * \
++			num_online_cpus())
+ #else
+-#define TIMESLICE_GRANULARITY(p) \
+-	(MIN_TIMESLICE * (1 << (MAX_BONUS - CURRENT_BONUS(p))))
++#define TIMESLICE_GRANULARITY(p)	(MIN_TIMESLICE * \
++		(1 << (((MAX_BONUS - CURRENT_BONUS(p)) ? : 1) - 1)))
+ #endif
+ 
+ #define SCALE(v1,v1_max,v2_max) \
 
---Boundary-00=_tIpX/pDKHVGYpxK--
+--Boundary-00=_EPpX/xg8EOXez9x--
 

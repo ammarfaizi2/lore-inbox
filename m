@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265275AbUFSIbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUFSIex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265275AbUFSIbI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 04:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUFSIbI
+	id S262190AbUFSIex (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 04:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265302AbUFSIex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 04:31:08 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:63460 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265275AbUFSIbD (ORCPT
+	Sat, 19 Jun 2004 04:34:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:41868 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262190AbUFSIev (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 04:31:03 -0400
-Date: Sat, 19 Jun 2004 10:31:02 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Stop printk printing non-printable chars
-Message-ID: <20040619083102.GW20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040618205355.GA5286@newtoncomputing.co.uk> <20040618213252.GS20632@lug-owl.de> <20040619000330.GC5286@newtoncomputing.co.uk>
+	Sat, 19 Jun 2004 04:34:51 -0400
+Date: Sat, 19 Jun 2004 01:34:46 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] flexible-mmap-2.6.7-D5
+Message-ID: <20040619083446.GP1863@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <20040618213814.GA589@elte.hu> <20040618231631.GO1863@holomorphy.com> <20040619074612.GB12020@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dMkI/qROo9ELDG6P"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040619000330.GC5286@newtoncomputing.co.uk>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040619074612.GB12020@elte.hu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 19, 2004 at 09:46:12AM +0200, Ingo Molnar wrote:
+> the patch already takes care of this via two mechanisms:
+> - the top of the mmaps is moved down by the expected maximum size of the
+>   stack (the stack rlimit).
+> - we maintain a minimum 128 MB 'gap' between stack top and mmap top. 
+> moving it to 0x08040000 is asking for trouble, there are people who need
+> 1GB stacks (dont ask why). This approach has been in production use for
+> ~2 years and it works fine for a wide range of applications and VM
+> needs.
 
---dMkI/qROo9ELDG6P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm not terribly convinced the stack's virtual placement helps in the
+case where 1GB stacks are needed as within rlimits, it's usually lazily
+expanded. I suppose the users in need of it adjust their rlimits, say,
+in the shell spawning the process wanting it to precisely what they
+need in this scheme, which is awkward, but doesn't require code
+modification for the offending apps.
 
-On Sat, 2004-06-19 01:03:30 +0100, matthew-lkml@newtoncomputing.co.uk <matt=
-hew-lkml@newtoncomputing.co.uk>
-wrote in message <20040619000330.GC5286@newtoncomputing.co.uk>:
-> On Fri, Jun 18, 2004 at 11:32:52PM +0200, Jan-Benedict Glaw wrote:
-> > On Fri, 2004-06-18 21:53:55 +0100, matthew-lkml@newtoncomputing.co.uk <=
-matthew-lkml@newtoncomputing.co.uk>
-> > wrote in message <20040618205355.GA5286@newtoncomputing.co.uk>:
+Also, I suspect some more graceful fallback would make sense
+particularly for the case of RLIM_INFINITY, which would leave users
+that run with, say, all rlimits at RLIM_INFINITY in the interest of
+having full access to system resources with a mere 512MB of
+virtualspace for the heap, which IIRC glibc is intelligent enough to
+circumvent for malloc(), but not for mmap(NULL, ...). If it's been in
+production that long, I find it hard to believe that's never been
+tripped over. This is one of the reasons that when I thought about this
+and split off an isolated patch for top-down vma allocation from
+execshield, I gave up immediately on the rlimits and said "let them
+malloc() their own stacks", and shoved the default down low (also, that
+128MB is currently wasted); the rlimits appeared to need too precise of
+tuning and be easy to mis-tune. But that was a matter of thinking about
+it, not experience.
 
-> > It's dandy if you pump out some data via serial link.
->=20
-> Is printk ever used to send anything out via a serial link? I assumed it
-> was only kernel log messages (that should really be fairly sane). Log
-> messages sent to serial printer, etc, don't want dodgy chars in them
-> that may mess up the printer, do they?
+These are questions whose answers largely do not affect me personally
+or anything I work on. If the answer is "it suffices as-is" I won't get
+worked up about it. I didn't raise the RLIM_INFINITY point in my prior
+post (b/c I missed the rlimit bit), so for the sake of completeness I
+droned on and on about it here.
 
-printk() is a printf() like interface to the log buffer. From there, all
-console drivers are fed, and in development (not for office or private
-use), you often attach a seruak cibsike to capture Oops messages and the
-like.
+Last and definitely least, the declaration in sched.h of functions only
+used in mmap.c set off some warning flags; it may make sense to just
+declare the things in mm/mmap.c, possibly with __attribute__((weak)) or
+some such (AIUI this is now allowed, the last buggy arches' toolchains
+were fixed, and it's already used now with cond_syscall() etc.). There
+is a bit of nastiness with sched.h being a "garbage can" header it'd be
+nice to avoid aggravating.
 
-MfG, JBG
+Thanks.
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
 
---dMkI/qROo9ELDG6P
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA0/nGHb1edYOZ4bsRApDiAJ95a9HJnQPNguT0S7Frmbj3t1cDvwCeIRSQ
-gfNuuDTwooJxfEmynJzJ9sg=
-=QaPp
------END PGP SIGNATURE-----
-
---dMkI/qROo9ELDG6P--
+-- wli

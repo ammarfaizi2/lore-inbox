@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280934AbRKOQqK>; Thu, 15 Nov 2001 11:46:10 -0500
+	id <S280940AbRKOQra>; Thu, 15 Nov 2001 11:47:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280940AbRKOQqA>; Thu, 15 Nov 2001 11:46:00 -0500
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:30986
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S280934AbRKOQpv>; Thu, 15 Nov 2001 11:45:51 -0500
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200111151623.fAFGN0o03243@www.hockin.org>
-Subject: Re: 32 Groups Maximum in 2.4
-To: reynolds@redhat.com (Tommy Reynolds)
-Date: Thu, 15 Nov 2001 08:22:59 -0800 (PST)
-Cc: jackie.m@vt.edu (Jackie Meese), linux-kernel@vger.kernel.org
-In-Reply-To: <20011115094116.290282cc.reynolds@redhat.com> from "Tommy Reynolds" at Nov 15, 2001 09:41:16 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S280941AbRKOQrV>; Thu, 15 Nov 2001 11:47:21 -0500
+Received: from symphony-03.iinet.net.au ([203.59.3.35]:16139 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S280940AbRKOQrC>;
+	Thu, 15 Nov 2001 11:47:02 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Adam Harvey <matlhdam@iinet.net.au>
+To: Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Subject: Re: 2.4.14 fails to boot on a MediaGX
+Date: Fri, 16 Nov 2001 00:47:50 +0800
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E163y2Z-0004OH-00@the-village.bc.nu> <01111513115600.00812@blackbox.local> <3BF388B9.33CFDBDB@loewe-komp.de>
+In-Reply-To: <3BF388B9.33CFDBDB@loewe-komp.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01111600475101.00812@blackbox.local>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I've been looking for some time on how to raise the maximum number of 
-> > groups for the 2.4 kernel.  I've discovered how to do this kernel, with 
-> > a discussion a few months ago on this 
-> > list.http://www.cs.helsinki.fi/linux/linux-kernel/2001-13/0807.html
-> 
-> Look at the file "include/asm-<proc>/param.h to find the symbol "NGROUPS".
-> Change that to whatever value you like.
+On Thu, 15 Nov 2001 17:19, Peter Wächtler wrote:
+> What kind of motherboard and peripherals are you using?
+> AKAIK the mediagx only supports one external pci busmaster and only
+> on a specific "device".
 
+I don't know the make of the motherboard without actually pulling the box 
+apart. The system was designed and used in hotels for Internet access in 
+rooms to start with... I picked it up after they were replaced about a year 
+ago.
 
+It's unusual, because it has a PCI chipset, yet only has a couple of ISA 
+slots. I've been enabling PCI mainly out of habit and in case anything on the 
+motherboard was using the bus (apparently not), but I wouldn't be surprised 
+if the PCI chipset is basically broken, since it wasn't really needed.
 
-We have a patch that we haven't submitted yet (out of mostlyt cowardice)
-that makes this fully dynamic.  task->groups is dynamically allocated and
-handled, and can grow up to a sysctl() defined maximum.
+>
+> We are using mediaGXm on ETX and had problems with the wiring of the
+> TVIA CyberPro5050 (combined video+audio controller, audio as busmaster)
 
-It has been working wonderfully for 10,000+ groups.  Does this patch have a
-chance in hell of going standard?? (don't have the patch on hand, or I'd post
-it).
+Could be applicable, given that video and audio are handled on-board. I might 
+have to open her up tomorrow and have a poke around.
+
+>
+> Then there are also tweaks in the PCI IDE configuration for mediaGX.
+> Did you enable that?
+
+I've had them on and off, they don't affect the booting problem.
+
+I'll build a kernel using the BIOS access mode (as suggested by Alan) 
+tomorrow and see if that clears it up.
+
+Adam

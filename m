@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266689AbUG0W5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266695AbUG0XDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266689AbUG0W5U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 18:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266692AbUG0W5U
+	id S266695AbUG0XDD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 19:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266697AbUG0XDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 18:57:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23689 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266689AbUG0W5Q (ORCPT
+	Tue, 27 Jul 2004 19:03:03 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32207 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266695AbUG0XDB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 18:57:16 -0400
-Date: Tue, 27 Jul 2004 18:56:33 -0400
-From: Alan Cox <alan@redhat.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: PATCH: fix bogus ioctl return in mtrr
-Message-ID: <20040727225633.GA23921@devserv.devel.redhat.com>
+	Tue, 27 Jul 2004 19:03:01 -0400
+Date: Tue, 27 Jul 2004 16:06:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bh_lru_install
+Message-Id: <20040727160617.321ce504.akpm@osdl.org>
+In-Reply-To: <20040723170338.0c9a38ef.davem@redhat.com>
+References: <20040723170338.0c9a38ef.davem@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is fairly self explanatory - ENOIOCTLCMD is an internal code outside of
-the -1 to -511 range. The correct return for an unknown ioctl is -ENOTTY
-although some Linux devices return the incorrect -EINVAL result.
+"David S. Miller" <davem@redhat.com> wrote:
+>
+> So I was doing some profiling of memcpy() calls to try and tune
+> the UltraSPARC-III memcpy a little more, and you wouldn't believe
+> what was at the top of the list during a kernel build :-)
+> 
+> It's bh_lru_install.  On a 64-bit system every time the local
+> cpu's lru->bh[0] doesn't match 'bh' we do a 64-byte memcpy()
+> from the stack into the lru->bh[] array.
 
-Patch-By: Alan Cox <alan@redhat.com>
-OSDL Developer Certificate of Origin 1.0 included herein by reference
+Well I said it was dopey-but-simple ;)
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.7/arch/i386/kernel/cpu/mtrr/if.c 2.6.7-ac/arch/i386/kernel/cpu/mtrr/if.c
---- linux-2.6.7/arch/i386/kernel/cpu/mtrr/if.c	2004-06-16 21:10:14.000000000 +0100
-+++ 2.6.7-ac/arch/i386/kernel/cpu/mtrr/if.c	2004-06-26 19:01:54.000000000 +0100
-@@ -160,7 +160,7 @@
- 
- 	switch (cmd) {
- 	default:
--		return -ENOIOCTLCMD;
-+		return -ENOTTY;
- 	case MTRRIOC_ADD_ENTRY:
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
+> It shouldn't be too hard to make the code just work without
+> an on-stack copy, shuffling the lru->bh[] array entries
+> directly.
 
+Yup, that plus making it a ringbuffer maybe.
 
-
+But I don't recall seeing bh_lru_install() standing out on profiles.  I
+expect that when the system is working hard we're averaging nearly zero
+cache misses in that copy.  Do you really think it is worth optimising?

@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUHBNIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266499AbUHBNLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266512AbUHBNIm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 09:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266523AbUHBNIm
+	id S266499AbUHBNLP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 09:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbUHBNLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 09:08:42 -0400
-Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:33966 "EHLO
-	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266512AbUHBNIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 09:08:40 -0400
-Message-ID: <410E3CAF.6080305@kolivas.org>
-Date: Mon, 02 Aug 2004 23:07:59 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Mon, 2 Aug 2004 09:11:15 -0400
+Received: from mail.jambit.com ([62.245.207.83]:41735 "EHLO mail.jambit.com")
+	by vger.kernel.org with ESMTP id S266499AbUHBNKw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 09:10:52 -0400
+From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
+To: akpm@osdl.org
+Date: Mon, 02 Aug 2004 15:10:43 +0200
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-mm2
-References: <20040802015527.49088944.akpm@osdl.org>
-In-Reply-To: <20040802015527.49088944.akpm@osdl.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7638F16970A57304FCCC5490"
+Subject: Off by one error for SIGXCPURLMIC_CPU checking
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, michael.kerrisk@gmx.net
+Message-ID: <410E5973.9054.18DDCD2@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7638F16970A57304FCCC5490
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello Andrew,
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc2/2.6.8-rc2-mm2/
-> - Added Con's staircase CPU scheduler.
-> 
->   This will probably have to come out again because various people are still
->   fiddling with the CPU scheduler.  But my feeling here is that the current
->   1st-gen CPU scheduler has been tweaked as far as it can go and is still not
->   100% right.  It is time to start thinking about a new design which addresses
->   the requirements and current problems by algorithmic means rather than by
->   tweaking.  Removing over 300 lines from the scheduler is a good sign.
-> 
->   Feedback on this patch is sought.
+There is a lonstanding off-by-one error that results from an incorrect 
+comparison when checking whether a process has consumed CPU time in 
+excess of its RLIMIT_CPU limits.  
 
-Anyone with feedback on this please cc me. This was developed separately 
-from the -mm series which has heaps of other scheduler patches which 
-were not trivial to merge with so there may be teething problems. Good 
-reports dont hurt either ;)
+This means, for example, that if we use setrlimit() to set the soft CPU 
+limit (rlim_cur) to 5 seconds and the hard limit (rlim_max) to 10 seconds, 
+
+then the process only receives a SIGXCPU signal after consuming 6 seconds 
+of CPU time, and, if it continues consuming CPU after handling that 
+signal, only receives SIGKILL after consuming 11 seconds of CPU time.
+
+The fix is trivial, and included below.
 
 Cheers,
-Con
 
---------------enig7638F16970A57304FCCC5490
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Michael
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBDjyyZUg7+tp6mRURAkfzAJ4wz8GXwrP0B0myQQkDM+TtHAQv3gCdFHeP
-XS/vSwMWlZnBCEE6Gr5T4mU=
-=J4HI
------END PGP SIGNATURE-----
+--- /spare/KERNEL/linux-2.6.7/kernel/timer.c	2004-06-16 07:19:52.000000000 
++0200
++++ /spare/KERNEL/linux-2.6.7-xcpu/kernel/timer.c	2004-08-02 
+09:34:10.000000000 +0200
+@@ -792,12 +792,12 @@
+ 
+ 	psecs = (p->utime += user);
+ 	psecs += (p->stime += system);
+-	if (psecs / HZ > p->rlim[RLIMIT_CPU].rlim_cur) {
++	if (psecs / HZ >= p->rlim[RLIMIT_CPU].rlim_cur) {
+ 		/* Send SIGXCPU every second.. */
+ 		if (!(psecs % HZ))
+ 			send_sig(SIGXCPU, p, 1);
+ 		/* and SIGKILL when we go over max.. */
+-		if (psecs / HZ > p->rlim[RLIMIT_CPU].rlim_max)
++		if (psecs / HZ >= p->rlim[RLIMIT_CPU].rlim_max)
+ 			send_sig(SIGKILL, p, 1);
+ 	}
+ }
 
---------------enig7638F16970A57304FCCC5490--

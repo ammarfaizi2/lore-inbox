@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVDDLop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVDDMOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVDDLop (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 07:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVDDLop
+	id S261226AbVDDMOy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 08:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVDDMOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 07:44:45 -0400
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:53733 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261223AbVDDLon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 07:44:43 -0400
-Subject: Re: [ACPI] Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: David Shaohua <shaohua.li@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI List <acpi-devel@lists.sourceforge.net>, zwane@linuxpower.ca,
-       len.brown@intel.com
-In-Reply-To: <20050404113129.GA7120@atrey.karlin.mff.cuni.cz>
-References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com>
-	 <20050403193750.40cdabb2.akpm@osdl.org>
-	 <1112608444.3757.17.camel@desktop.cunningham.myip.net.au>
-	 <20050404113129.GA7120@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Message-Id: <1112615184.3757.21.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 04 Apr 2005 21:46:24 +1000
+	Mon, 4 Apr 2005 08:14:54 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:18870 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261226AbVDDMOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 08:14:52 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16977.12215.621136.359066@alkaid.it.uu.se>
+Date: Mon, 4 Apr 2005 14:14:47 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: "Don Guy" <mostly_harmless@sympatico.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: v2.4.29 won't compile with PCI support disabled
+In-Reply-To: <BAYC1-PASMTP03A4A4DD478BB2FC220CE1E13B0@cez.ice>
+References: <BAYC1-PASMTP03A4A4DD478BB2FC220CE1E13B0@cez.ice>
+	<002401c53900$9a47b0e0$1d2aa8c0@stormie>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
+Don Guy writes:
+ > PROBLEM:
+ > 
+ > Attempts to compile v2.4.29 with PCI support disabled result in the
+ > following errors:
+ > 
+ > drivers/char/char.o: In function `siig10x_init_fn':
+ > drivers/char/char.o(.text.init+0x12cd): undefined reference to
+ > `pci_siig10x_fn'
+ > drivers/char/char.o: In function `siig20x_init_fn':
+ > drivers/char/char.o(.text.init+0x12ed): undefined reference to
+ > `pci_siig20x_fn'
+ > 
+ > It has been suggested that enabling PCI support in the kernel will make this
+ > go away however a) enabling PCI support on a 486 which only has ISA & VLB is
+ > downright silly, and b) a test run with CONFIG_PCI=y resulted in a plethora
+ > of other errors.
 
-On Mon, 2005-04-04 at 21:31, Pavel Machek wrote:
-> Hi!
-> 
-> > > > The patches are against 2.6.11-rc1 with Zwane's CPU hotplug patch in -mm
-> > > >  tree.
-> > > 
-> > > Should I merge that thing into mainline?  It seems that a few people are
-> > > needing it.
-> > 
-> > Perhaps we should address the MTRR issue first.
-> > 
-> > I've had code in Suspend2 for quite a while (6 months+) that removes the
-> > sysdev support for MTRRs and saves and restores them with CPU context,
-> > thereby avoiding the smp_call-while-interrupts-disabled issue. Perhaps
-> > it would be helpful here?
-> 
-> This seems like separate issue... I'd prefer not to block this patch.
-> 
-> MTRRs should be probably handled by some kind of "cpu is going down"
-> and "cpu is going up" callbacks... Zwane, do you have any ideas?
-> Linklist of handlers should be enough...
+Presumably this is because of other CONFIG options which are still
+enabled but don't work w/o CONFIG_PCI. So please post your .config.
 
-What else is it needed for? CpuFreq?
+Both 2.4 and 2.6 kernels with CONFIG_PCI=n work Ok(*) on my 486.
 
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+/Mikael
 
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
-
+(*) 2.6 kernels need HZ=100 and broken Fedora needs RDTSC emulation.

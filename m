@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129749AbRCWHCz>; Fri, 23 Mar 2001 02:02:55 -0500
+	id <S129854AbRCWHLf>; Fri, 23 Mar 2001 02:11:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129828AbRCWHCp>; Fri, 23 Mar 2001 02:02:45 -0500
-Received: from bacchus.veritas.com ([204.177.156.37]:64453 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S129749AbRCWHCj>; Fri, 23 Mar 2001 02:02:39 -0500
-Message-ID: <3ABAF49B.9080109@muppetlabs.com>
-Date: Thu, 22 Mar 2001 23:00:43 -0800
-From: Amit D Chaudhary <amit@muppetlabs.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S129855AbRCWHL0>; Fri, 23 Mar 2001 02:11:26 -0500
+Received: from marks-43.caltech.edu ([131.215.92.43]:21441 "EHLO
+	velius.chaos2.org") by vger.kernel.org with ESMTP
+	id <S129854AbRCWHLU>; Fri, 23 Mar 2001 02:11:20 -0500
+Date: Thu, 22 Mar 2001 23:10:28 -0800 (PST)
+From: Jacob Luna Lundberg <jacob@velius.chaos2.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: use the kernel to change an irq?
+Message-ID: <Pine.LNX.4.32.0103222258140.388-100000@velius.chaos2.org>
 MIME-Version: 1.0
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-CC: lermen@fgan.de, linux-kernel@vger.kernel.org
-Subject: Re: /linuxrc query
-In-Reply-To: <3ABAEED2.6020708@muppetlabs.com> <20010323075107.Q3932@almesberger.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Thanks for the response. PSB,
+Oh Great Gurus:
 
-Werner Almesberger wrote:
+I have an agp video card that seems quite picky about interrupts, and a
+bios that is insisting on sharing the video card's interrupt with whatever
+is in the first pci slot.  So my question is, is there any way for the
+kernel to more or less say ``screw you'' to the bios and pick the irq for
+the video card itself?  I have a spare irq I'd love for it to use...
 
-> Amit D Chaudhary wrote:
-> 
-> No, you would continue using the file descriptors which are already
-> open, i.e. on /dev/console on the old root.
-So, makes sense. And the child process that follow will use now the new fd's.
+Oh, almost forgot:  Yes, I'd just vacate the pci slot below the video
+card, but sadly all my pci slots are in use.  :(
 
->> Also, why chroot, why not call init directly?
-> 
-> 
-> To make sure the root of the current process is indeed changed.
-> pivot_root currently forces a chroot on all processes (except the
-> ones that have explicitly moved out of /) in order to move all the
-> kernel threads too, but this is not a nice solution. Once a better
-> solution is implemented for the kernel threads, we might drop the
-> forced chroot, and then the explicit chroot here becomes important.
-So, it is not a requirement currently but it is useful to have the script not 
-dependent on the current pivot_root implementation.
+Ok, I'll admit the card is an nVidia card and I'm trying to use the (evil)
+binary drivers.  But note I'm *not* asking for help with that directly.
+I'm merely asking if there's a way to avoid sharing the interrupt...
 
+Thanks Muchly,
+-Jacob
 
-> You can run them later, e.g. /etc/rc.d/rc.local
-> Or, if you needs the space immediately,  make "what-follows" a
-> script than first frees them, and then exec's init.
-Sure will put in a script that does it. I had left it in /linuxrc as I thought 
-that's what initrd.txt suggested one to do. But other information in the 
-initrd.txt mentions otherwise, hence the query here.
+-- 
 
-I am assuming umount and thereby blockdev after pivot_script and before "chroot 
-. init ..." don't make sense as files(dev/console among others) are\might still 
-be in use.
+The authoritarian attitude has to be fought wherever
+you find it, lest it smother you and other hackers.
 
-Best Regards
-Amit
-
+ - Eric S. Raymond
 

@@ -1,63 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288983AbSAITwQ>; Wed, 9 Jan 2002 14:52:16 -0500
+	id <S288981AbSAITwO>; Wed, 9 Jan 2002 14:52:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288990AbSAITwD>; Wed, 9 Jan 2002 14:52:03 -0500
-Received: from ppp-RAS1-3-100.dialup.eol.ca ([64.56.226.100]:50952 "EHLO
-	node0.opengeometry.ca") by vger.kernel.org with ESMTP
-	id <S288984AbSAITuz>; Wed, 9 Jan 2002 14:50:55 -0500
-Date: Wed, 9 Jan 2002 14:50:41 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: Rob Landley <landley@trommello.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Two hdds on one channel - why so slow?
-Message-ID: <20020109145041.A4866@node0.opengeometry.ca>
-Mail-Followup-To: Rob Landley <landley@trommello.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200201041740.LAA07840@tomcat.admin.navo.hpc.mil> <200201082029.g08KTAA28497@snark.thyrsus.com> <20020108161819.A1878@node0.opengeometry.ca> <200201091843.g09IhnA25130@snark.thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200201091843.g09IhnA25130@snark.thyrsus.com>; from landley@trommello.org on Wed, Jan 09, 2002 at 05:56:32AM -0500
+	id <S288983AbSAITwA>; Wed, 9 Jan 2002 14:52:00 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:43272 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S288981AbSAITu0>;
+	Wed, 9 Jan 2002 14:50:26 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200201091949.WAA21218@ms2.inr.ac.ru>
+Subject: Re: [PATCH] removed socket buffer in unix domain socket
+To: alan@lxorguk.UKuu.ORG.UK (Alan Cox)
+Date: Wed, 9 Jan 2002 22:49:35 +0300 (MSK)
+Cc: yasuma@miraclelinux.COM, viro@math.psu.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <E16NaD0-0001Hs-00@the-village.bc.nu> from "Alan Cox" at Jan 8, 2 12:45:24 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 05:56:32AM -0500, Rob Landley wrote:
-> On Tuesday 08 January 2002 04:18 pm, William Park wrote:
-> > Hi Rob, how did you manage to get 10TB storage?  It's my understanding
-> > that kernel block device still counts 1kB blocks using 32bit (signed)
-> > integer.  So, that's 2TB in total.  Are you talking about 5 x 2TB?
-> 
-> Made a cluster.
-> 
-> We were extracting stuff out of it via URL, with a database to lookup where 
-> each URL lived, so we could have different files live on different servers.  
-> (If we'd wanted everything to look like it lived on exactly the same machine, 
-> we could have had one machine mount the other machines' space via samba or 
-> nfs, but that would have created extra network traffic inside the cluster.)
-> 
-> The proposed design was to have the whole cluster look like it was at 1 
-> public IP address via IP masquerading and port forwarding (port 80 is the 
-> apache on node 0, 81 is the apache on node 1, 82 is the apache on node 2...)  
-> This was just to save world-routable IPs.  We didn't get that far...
-> 
-> Bascially, we just wanted lots of storage, cheap and reliable (we were doing 
-> RAID 5 across the disks in each cluster), and didn't care what it looked 
-> like.  We were also experimenting with DVD jukeboxes to feed data into the 
-> cluster (the cluster was cache for larger offline storage, the project was to 
-> license syndicated television content (old episodes of mash, battlestar 
-> galactica, you name it) and provide video on demand for a flat monthly fee.  
-> Each local cable company would have a cluster, which would pull data through 
-> the internet from servers in atlanta or california, wherever an ultimate 
-> content licensor lived.  It could be shipped around on DVD stacks too...)
-> 
-> Fun project.  Too bad it didn't work out...
+Hello!
 
-Darn... You could do it nicely now with 10 servers, 1TB in each box.
-Since you're only "broadcasting", you can mount the disks read-only,
-too. :-)
+> The bug may be real
 
--- 
-William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>.
-8 CPU cluster, NAS, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Tin
+Yes, it is... There is window when socket is already in hash table
+(and visible by gc) but still not referenced by listening socket.
+It is nice for everything, but GC fairly concludes that such socket
+is orphan. Damn. It is even no related to SMP, the problem is present
+in 2.2 as well if we sleep in sock_wmalloc...
+
+Well, the following ugly patch is supposed to cure this. (Please, check)
+
+To explain: embrion while it is in flight can be marked for GC to see
+that it is not orphan. Deflated inflight counter is ugly but valid marker.
+
+In 2.2 interning to hash table can be moved to point after enqueueing
+to listening socket or to an area protected by kernel lock.
+This is impossible in 2.4, and I see no solution but marking.
+
+Alexey
+
+
+diff -ur ../t/vger3-011229+local/linux/net/unix/af_unix.c linux/net/unix/af_unix.c
+--- ../t/vger3-011229+local/linux/net/unix/af_unix.c	Sat Jan  5 04:30:19 2002
++++ linux/net/unix/af_unix.c	Wed Jan  9 03:28:44 2002
+@@ -484,7 +484,7 @@
+ 	sk->protinfo.af_unix.dentry=NULL;
+ 	sk->protinfo.af_unix.mnt=NULL;
+ 	sk->protinfo.af_unix.lock = RW_LOCK_UNLOCKED;
+-	atomic_set(&sk->protinfo.af_unix.inflight, 0);
++	atomic_set(&sk->protinfo.af_unix.inflight, sock ? 0 : -1);
+ 	init_MUTEX(&sk->protinfo.af_unix.readsem);/* single task reading lock */
+ 	init_waitqueue_head(&sk->protinfo.af_unix.peer_wait);
+ 	sk->protinfo.af_unix.list=NULL;
+@@ -991,7 +991,12 @@
+ 	unix_state_wunlock(sk);
+ 
+ 	/* take ten and and send info to listening sock */
+-	skb_queue_tail(&other->receive_queue,skb);
++	spin_lock(&other->receive_queue.lock);
++	__skb_queue_tail(&other->receive_queue,skb);
++	/* Undo artificially decreased inflight after embrion
++	 * is installed to listening socket. */
++	atomic_inc(&newsk->protinfo.af_unix.inflight);
++	spin_unlock(&other->receive_queue.lock);
+ 	unix_state_runlock(other);
+ 	other->data_ready(other, 0);
+ 	sock_put(other);
+diff -ur ../t/vger3-011229+local/linux/net/unix/garbage.c linux/net/unix/garbage.c
+--- ../t/vger3-011229+local/linux/net/unix/garbage.c	Fri Jul 20 22:12:11 2001
++++ linux/net/unix/garbage.c	Wed Jan  9 03:27:49 2002
+@@ -205,12 +205,21 @@
+ 
+ 	forall_unix_sockets(i, s)
+ 	{
++		int open_count = 0;
++
+ 		/*
+ 		 *	If all instances of the descriptor are not
+ 		 *	in flight we are in use.
++		 *
++		 *	Special case: when socket s is embrion, it may be
++		 *	hashed but still not in queue of listening socket.
++		 *	In this case (see unix_create1()) we set artificial
++		 *	negative inflight counter to close race window.
++		 *	It is trick of course and dirty one.
+ 		 */
+-		if(s->socket && s->socket->file &&
+-		   file_count(s->socket->file) > atomic_read(&s->protinfo.af_unix.inflight))
++		if(s->socket && s->socket->file)
++			open_count = file_count(s->socket->file);
++		if (open_count > atomic_read(&s->protinfo.af_unix.inflight))
+ 			maybe_unmark_and_push(s);
+ 	}
+ 

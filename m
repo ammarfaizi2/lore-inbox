@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUE1QzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263697AbUE1Q5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbUE1QzY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 12:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUE1QzY
+	id S263697AbUE1Q5H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 12:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUE1Q5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 12:55:24 -0400
-Received: from cantor.suse.de ([195.135.220.2]:29839 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261668AbUE1QzU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 12:55:20 -0400
-Subject: Re: filesystem corruption (ReiserFS, 2.6.6): regions replaced by
-	\000 bytes
-From: Chris Mason <mason@suse.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: David Madore <david.madore@ens.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040528164544.GF422@louise.pinerecords.com>
-References: <20040528122854.GA23491@clipper.ens.fr>
-	 <1085748363.22636.3102.camel@watt.suse.com>
-	 <20040528162450.GE422@louise.pinerecords.com>
-	 <1085761753.22636.3329.camel@watt.suse.com>
-	 <20040528164544.GF422@louise.pinerecords.com>
-Content-Type: text/plain
-Message-Id: <1085763331.22636.3334.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 28 May 2004 12:55:31 -0400
+	Fri, 28 May 2004 12:57:07 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:64945 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S263772AbUE1Q4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 12:56:52 -0400
+From: "braam" <braam@clusterfs.com>
+To: <arjanv@redhat.com>, <hch@infradead.org>
+Cc: <torvalds@osdl.org>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "'Phil Schwan'" <phil@clusterfs.com>
+Subject: RE: [PATCH/RFC] Lustre VFS patch
+Date: Sat, 29 May 2004 00:56:40 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+In-Reply-To: <1085406284.2780.13.camel@laptop.fenrus.com>
+Thread-Index: AcRBlUgsCy3m3OkDSbK8YehV/86AmgDB3YzQ
+Message-Id: <20040528165649.91F1F3100D3@moraine.clusterfs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-05-28 at 12:45, Tomas Szepe wrote:
+Hi Arjan, 
 
-[ reiserfs data corruption bug ]
-
-> > > So did this only affect SMP machines?
-> > 
-> > No, if you slept in the right spot you could hit it on UP.
+> -----Original Message-----
+> From: Arjan van de Ven [mailto:arjanv@redhat.com] 
 > 
-> Uh oh.  Any idea about when the bug was introduced?
+> fun question: how does it deal with say a rename that would 
+> span mounts on the client but wouldn't on the server? :)
 
-2.6.6, with the reiserfs data=ordered patches.
 
--chris
+Mostly checks are done like in sys_rename.  
 
+Some cases require new distributed state in the FS, such as the fact that a
+certain directory is a mountpoint, possibly not on the node doing a rename,
+but on another node.  
+
+For this the Linux VFS has no api - we added something we call "pinning" for
+this in 2.4, but not in 2.6 yet.
+
+- Peter -
 

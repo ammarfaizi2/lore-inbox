@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbTEWBdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 21:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTEWBdJ
+	id S263573AbTEWBbv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 21:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTEWBbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 21:33:09 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:10743 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263578AbTEWBcC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 21:32:02 -0400
-From: Rusty Russell <rusty@au1.ibm.com>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       David Mosberger-Tang <davidm@hpl.hp.com>
-Subject: Re: [PATCH 4/3] Replace dynamic percpu implementation 
-In-reply-to: Your message of "Thu, 22 May 2003 16:19:44 +0530."
-             <20030522104944.GE27614@in.ibm.com> 
-Date: Fri, 23 May 2003 09:56:01 +1000
-Message-Id: <20030523014454.AE3401A0F1@ozlabs.au.ibm.com>
+	Thu, 22 May 2003 21:31:50 -0400
+Received: from dp.samba.org ([66.70.73.150]:16833 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263573AbTEWBbr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 21:31:47 -0400
+Date: Fri, 23 May 2003 10:53:51 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: Displaying/modifying PCI device id tables via sysfs
+Message-Id: <20030523105351.2ba4f9b2.rusty@rustcorp.com.au>
+In-Reply-To: <20030303182553.GG16741@kroah.com>
+References: <20BF5713E14D5B48AA289F72BD372D680392F82C-100000@AUSXMPC122.aus.amer.dell.com>
+	<20030303182553.GG16741@kroah.com>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030522104944.GE27614@in.ibm.com> you write:
-> On Thu, May 22, 2003 at 06:36:31PM +1000, Rusty Russell wrote:
-> > Interesting: personally I consider the cacheline sharing a feature,
-> > and unless you've done something special, the static declaration
-> > should be interlaced too, no?
+On Mon, 3 Mar 2003 10:25:53 -0800
+Greg KH <greg@kroah.com> wrote:
+
+> On Mon, Mar 03, 2003 at 11:57:05AM -0600, Matt Domsch wrote:
+> > A lot of PCI drivers today use the pci_device_id table model to specify 
+> > what IDs the driver supports.  I'd like to be able to do 2 things with 
+> > this information:
+> > 1) display it in sysfs
 > 
-> Yes, the static declartion was interlaced too. What I meant to say is that
-> cacheline sharing feature helped alloc_percpu/static percpu, compensate
-> for the small extra memory reference cost in getting __percpu_offset[]
-> when you compare with kmalloc_percpu_new.
+> That info is already exported to userspace through the modules.pcimap
+> file.
 
-Ah, thanks, that clarifies.  Sorry for my misread.
+Matt's patch just went into Linus' tree, so I'll comment on this.
 
-> > Aside: if kmalloc_percpu uses the per-cpu offset too, it probably
-> > makes sense to make the per-cpu offset to a first class citizen, and
-> > smp_processor_id to be derived, rather than the other way around as at
-> > the moment.  This would offer further speedup by removing a level of
-> > indirection.
-> > 
-> > If you're interested I can probably produce such a patch for x86...
-> 
-> Sure, it might help per-cpu data but will it cause performance
-> regression elsewhere? (other users of smp_processor_id).
+More importantly, the modules now contain suitable aliases embedded within
+them: modules.pcimap et al will vanish before 2.6 whenever Greg (hint hint)
+updates the hotplug scripts to use them instead of modules.XXXmap.
 
-AFAICT, all the time-critical smp_processor_id() things are basically
-for indexing into a per-cpu data array.  Even things like module.h and
-percpu_counter.h would benifit from replacing those huge
-inside-structure [NR_CPUS] arrays with a dynamic allocation.
+So the question is, how do you add PCI IDs to a module which isn't loaded?
+You can trivially add a new alias for it, which will cause modprobe to
+find it, but the module won't know it can handle the new PCI ID, and
+will fail to load.
 
-> I can run it through the same tests and find out.  Maybe it'll make
-> good paper material for later? ;)
+Obvious options include:
+	just update the damn module
+	inserting the new PCI entry in the module (simple, but icky)
+	adding a module param to say "add these IDs"
 
-I'll try to find time today or early next week.
+I agree with Alan (and Jeff Garzik who pointed this out to me before)
+that it's neat to be able to update these tables on the fly, but that
+is probably even more important for modules which aren't loaded.
 
-Thanks!
+Matt, do you have thoughts on this?
+
+Cheers,
 Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

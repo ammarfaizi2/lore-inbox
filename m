@@ -1,66 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268042AbUJLWir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUJLWj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268042AbUJLWir (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 18:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJLWg2
+	id S267988AbUJLWj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 18:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJLWj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 18:36:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29121 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268045AbUJLWfv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 18:35:51 -0400
-Message-ID: <416C5C26.9020403@redhat.com>
-Date: Tue, 12 Oct 2004 15:35:18 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041010
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/3] lsm: add bsdjail module
-References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain> <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
-In-Reply-To: <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Tue, 12 Oct 2004 18:39:28 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:32777 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S268043AbUJLWhM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 18:37:12 -0400
+Date: Tue, 12 Oct 2004 15:36:42 -0700
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Bill Huey <bhuey@lnxw.com>, dwalker@mvista.com,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       amakarov@ru.mvista.com, ext-rt-dev@mvista.com,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041012223642.GB30966@nietzsche.lynx.com>
+References: <20041010084633.GA13391@elte.hu> <1097437314.17309.136.camel@dhcp153.mvista.com> <20041010142000.667ec673.akpm@osdl.org> <20041010215906.GA19497@elte.hu> <1097517191.28173.1.camel@dhcp153.mvista.com> <20041011204959.GB16366@elte.hu> <1097607049.9548.108.camel@dhcp153.mvista.com> <1097610393.19549.69.camel@thomas> <20041012211201.GA28590@nietzsche.lynx.com> <1097618415.19549.190.camel@thomas>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097618415.19549.190.camel@thomas>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Oct 13, 2004 at 12:00:16AM +0200, Thomas Gleixner wrote:
+> On Tue, 2004-10-12 at 23:12, Bill Huey wrote:
+> > My tree is stable. I was able to hammer this machine for 2-3 days straight
+> > (no networking, that's another major can of worms) with deadlocking
+> > using multipule mass "find / -exec egrep" of some sort that stress both
+> > process creation and all parts of the IO system.
+> 
+> He, a system without networking is a real measurement ? Ever heard of
+> hackbench in combination with ping -f ?
 
-Serge E. Hallyn wrote:
+The problem with doing this project is to create an identically
+functioning system that's correct. The current track taking by Monta Vista
+is highly unstable given the lack of locking throughout their kernel. It
+has all of the complexities of mutex style conventions without any debugging
+methodology attached to it. It's no longer the spinlock universe that
+Linux is using since a deadlock situation just leaves use running in
+cpu_idle wondering what is going on.
 
-> +If a private IP was specified for the jail, then
-> +		cat /proc/$$/attr/current
+It's something that needs to be address in the large scheme of the project.
+ 
+> > That graph that I saw from Lee is consistent with my results in that a
+> > deadlock prone system will have phenomenal latency performance at the
+> > expense of being absolutely incorrect. It's just a flat out broken
+> > system at this point that they've released.
+> 
+> Thats a major problem caused by "dumb" priority inheritence. The goal is
+> not priority inheritence at the very end. It's proxy execution, where
+> priority inheritence is a subset.
 
-How is this going to interact with SELinux?  Currently SELinux uses
-/proc/*/attr/current to report the current security context of the
-process.  libselinux expects the file to contain one string (not even a
-newline) which is the textual representation of the context.  Now with
-your changes you want to change this.  libselinux as-is would break
-miserably.
+This has been articulate a couple of times by both me and Ingo (recent email).
+The MV's system is highly unstable, not because of priority inheritance,
+but because of basic lock violation in the lock graph itself. It's another kind
+of SMP granularity problem. The hard problem was just what Ingo was saying and
+it's higher, but higher in the graph.
 
-I don't know the history of the file and who is hijacking the file.
-Fact is that the file content is currently unstructured and libselinux
-couldn't possibly determine what part is of interest to itself.
+> > Yes, I agree, but the convention needs to be standardized.
+> 
+> That's all I was talking about.
 
-So, either you use another file, SELinux uses another file, or the file
-gets tagged lines like
+Yeah, it needs to be done. I like the "_" methodology that both Monta Vista
+and Ingo are using. I'll convert my stuff over to using it when I'm finished
+with a couple of large items here.
 
-  selinux: user_u:user_r:user_t
+> I'm not talking about automatic conversion of rules. I'm talking about
+> automatic conversion of different concurrency controls into a
+> equivillance function, which lets you better identify the neccecary
+> manual changes and leaves room for simple and non intrusive replacement
+> implementations.
 
-I guess you couldn't even start the userlevel code in FC3 in such a jail
-in the moment since the libselinux startup tests would fail.
+This is kind of a sketchy problem. So far all of what I've seen really needs
+to be done manually and can be done using the all of the normal Linux locking
+and scheduler/interrupt masking primitives. I'd hate to see another system
+added to this that solves a problem that may not exist. Please, correct
+me if I'm not understanding you.
 
-- --
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+> > Give me a bit of time to upload those files. I was just given permission
+> > to talk about this openly now. But I can definitely tell you that I had
+> > this running months before Monta Vista's announcement over the weekend.
+ 
+> There are a bunch of other efforts underway around the world, which
+> might be concentrated now into one.
 
-iD8DBQFBbFwm2ijCOnn/RHQRAvimAJ9W3bIil5Yi1Ex/CX1FpUjzxyheIQCeNKRu
-RHv5SGG0iQSEsmbIWfHmwAA=
-=HZM3
------END PGP SIGNATURE-----
+bill
+

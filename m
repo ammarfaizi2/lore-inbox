@@ -1,54 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262516AbULDAgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbULDBsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262516AbULDAgb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 19:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbULDAgb
+	id S262518AbULDBsk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 20:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbULDBsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 19:36:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55986 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262516AbULDAgW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 19:36:22 -0500
-Date: Fri, 3 Dec 2004 16:40:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
-Cc: gh@us.ibm.com, linux-kernel@vger.kernel.org, riel@redhat.com,
-       mason@suse.com, ckrm-tech@lists.sourceforge.net, llp@CS.Princeton.EDU,
-       acb@CS.Princeton.EDU, mlhuang@CS.Princeton.EDU, smuir@CS.Princeton.EDU
-Subject: Re: [ckrm-tech] Re: [PATCH] CKRM: 0/10 Class Based Kernel Resource
- Management
-Message-Id: <20041203164034.2191957c.akpm@osdl.org>
-In-Reply-To: <NIBBJLJFDHPDIBEEKKLPMEBMCOAA.mef@cs.princeton.edu>
-References: <E1CYu5M-00015C-00@w-gerrit.beaverton.ibm.com>
-	<NIBBJLJFDHPDIBEEKKLPMEBMCOAA.mef@cs.princeton.edu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Dec 2004 20:48:40 -0500
+Received: from sullivan.realtime.net ([205.238.132.76]:7437 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id S262518AbULDBsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 20:48:36 -0500
+Date: Fri, 3 Dec 2004 19:47:19 -0600 (CST)
+Message-Id: <200412040147.iB41lIlK031974@sullivan.realtime.net>
+To: klibc@zytor.com, linux-kernel@vger.kernel.org
+Cc: hpa@zytor.com, viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org
+Subject: INITRAMFS: allow no trailer
+From: Milton Miller <miltonm@bga.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Marc E. Fiuczynski" <mef@CS.Princeton.EDU> wrote:
->
-> I integrated CKRM with the kernel used by PlanetLab (www.planet-lab.org),
-> and I believe we (PlanetLab) are the first to use CKRM in a production
-> setting.
-> ...
-> Hope this helps.
+According to "initramfs buffer format -- third draft"
+http://lwn.net/2002/0117/a/initramfs-buffer-format.php3
+"the cpio "TRAILER!!!" entry (cpio end-of-archive) is optional, but is
+not ignored"
 
-It does, thanks.
+The kernel handling does not follow this spec.   If you add null padding
+after an uncompressed cpio without TRAILER!!! the kernel complains "no
+cpio magic".  In a gzipped archive one gets "junk in gzipped archive"
+without the TRAILER!!!
 
-A concern which I have about the CKRM implementation is that the patches
-which have been sent out appear to be simply the "core" of CKRM, plus
-minimally-intrusive hooks.  I have the impression that this core will not
-be terribly useful to real-world users and that follow-on patches will be
-required to add more functionality and to wire up more instrumentation and
-control points.
+This patch changes the state transitions so the kernel will follow the spec.
 
-I would not like to be in a situation where we merge the "core" patch, but
-the as-yet-unseen follow-on patches which make CKRM useful and complete end
-up creating a big unmaintainable mess.  We end up not wanting to go
-forwards and being unable to go backwards.
+Tested: padded uncompressed, padded compressed, unpadded compressed (error)
+and trailing junk in compressed (error).
 
-IOW: I think we need to see a reasonably-close-to-final implementation of
-CKRM before we can take it much further.
+---
+I have a boot loader that knows how to load files, determine their size,
+and advance to the next 4-byte boundary and reports the total size of 
+the files loaded.  It doesn't understand about converting this number
+to some ASCII representation.
+
+With this patch I can embed the contents of a file padded with NULs
+with out knowing the exact size of the file with the following files:
+
+1) file containing cpio header & file name, padded to 4 bytes
+2) contents of file
+3) pad file of zeros, the size at least as large as the that specified
+   for the file.
+
+hpa points out that you should be careful with the headers, use unique
+inode numbers and/or add a cpio header with just TRAILER!!! to reset
+the inode hash table to avoid unwanted hard links.  I just put this
+sequence as the last files loaded.
+
+---
+
+ gr_work-miltonm/init/initramfs.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+diff -puN init/initramfs.c~allow-no-trailer init/initramfs.c
+--- gr_work/init/initramfs.c~allow-no-trailer	2004-12-03 16:54:02.778579302 -0600
++++ gr_work-miltonm/init/initramfs.c	2004-12-03 16:54:02.789577561 -0600
+@@ -241,10 +241,9 @@ static __initdata int wfd;
+ static int __init do_name(void)
+ {
+ 	state = SkipIt;
+-	next_state = Start;
++	next_state = Reset;
+ 	if (strcmp(collected, "TRAILER!!!") == 0) {
+ 		free_hash();
+-		next_state = Reset;
+ 		return 0;
+ 	}
+ 	if (dry_run)
+@@ -295,7 +294,7 @@ static int __init do_symlink(void)
+ 	sys_symlink(collected + N_ALIGN(name_len), collected);
+ 	sys_lchown(collected, uid, gid);
+ 	state = SkipIt;
+-	next_state = Start;
++	next_state = Reset;
+ 	return 0;
+ }
+ 
+@@ -331,6 +330,10 @@ static void __init flush_buffer(char *bu
+ 			buf += written;
+ 			len -= written;
+ 			state = Start;
++		} else if (c == 0) {
++			buf += written;
++			len -= written;
++			state = Reset;
+ 		} else
+ 			error("junk in compressed archive");
+ 	}
+_

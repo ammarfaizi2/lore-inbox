@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVDEEOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVDEEYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVDEEOp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 00:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVDEEOp
+	id S261441AbVDEEYV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 00:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVDEEYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 00:14:45 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:27536 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261441AbVDEEOm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 00:14:42 -0400
-Date: Tue, 5 Apr 2005 06:13:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: ext3 allocate-with-reservation latencies
-Message-ID: <20050405041359.GA17265@elte.hu>
-References: <1112673094.14322.10.camel@mindpipe>
+	Tue, 5 Apr 2005 00:24:21 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:55774 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S261441AbVDEEYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 00:24:16 -0400
+Date: Tue, 5 Apr 2005 00:23:29 -0400
+To: Greg KH <greg@kroah.com>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 00/04] Load keyspan firmware with hotplug
+Message-ID: <20050405042329.GA10171@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Sven Luther <sven.luther@wanadoo.fr>,
+	Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+	debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112673094.14322.10.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050404191745.GB12141@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> I can trigger latencies up to ~1.1 ms with a CVS checkout.  It looks
-> like inside ext3_try_to_allocate_with_rsv, we spend a long time in this
-> loop:
+On Mon, Apr 04, 2005 at 12:17:46PM -0700, Greg KH wrote:
+> On Mon, Apr 04, 2005 at 08:27:53PM +0200, Sven Luther wrote:
+> > Mmm, probably that 2001 discussion about the keyspan firmware, right ?
+> > 
+> >   http://lists.debian.org/debian-legal/2001/04/msg00145.html
+> > 
+> > Can you summarize the conclusion of the thread, or what you did get from it,
+> > please ? 
 > 
-> ext3_test_allocatable (bitmap_search_next_usable_block)
-> find_next_zero_bit (bitmap_search_next_usable_block)
-> find_next_zero_bit (bitmap_search_next_usable_block)
+> That people didn't like the inclusion of firmware, I posted how you can
+> fix it by moving it outside of the kernel, and asked for patches.
 > 
-> ext3_test_allocatable (bitmap_search_next_usable_block)
-> find_next_zero_bit (bitmap_search_next_usable_block)
-> find_next_zero_bit (bitmap_search_next_usable_block)
+> None have come.
 
-Breaking the lock is not really possible at that point, and it doesnt 
-look too easy to make that path preemptable either. (To make it 
-preemptable rsv_lock would need to become a semaphore (this could be 
-fine, as it's only used when a new reservation window is created).)
+Didn't know you were waiting for it. How about something like the
+following series of patches?
 
-The hard part is the seqlock - the read side is performance-critical, 
-maybe it could be solved via a preemptable but still scalable seqlock 
-variant that uses a semaphore for the write side? It all depends on what 
-the scalability impact of using a semaphore for the new-window code 
-would be.
+[01/04] - add simple Intel IHEX format parser to the firmware loader.
+[02/04] - make the keyspan driver use request_firmware.
+[03/04] - converter program used to dump the keyspan headers as IHex files.
+[04/04] - result of running the previous program.
 
-the best longterm solution for these types of tradeoffs seems to be to 
-add a locking primitive that is a spinlock on !PREEMPT kernels and a 
-semaphore on PREEMPT kernels. I.e. not as drastic as a full PREEMPT_RT 
-kernel, but good enough to make latency-critical codepaths of ext3 
-preemptable, without having to hurt scalability on !PREEMPT. The 
-PREEMPT_RT kernel has all the 'compile-time type-switching' 
-infrastructure for such tricks, all that needs to be changed to switch a 
-lock's type is to change the spinlock definition - all the 
-spin_lock(&lock) uses can remain unchanged. (The same method is used on 
-PREEMPT_RT to have 'dual-type' spinlocks.)
+This ofcourse doesn't actually solve Debian's distribution issues since
+the keyspan firmware can only be distributed as part of 'Linux or other
+Open Source operating system kernel'.
 
-the same thing could then also be used for things like the mm lock, and 
-other longer-held locks that PREEMPT would like to see preemptable. It 
-would also be a good first step towards merging the PREEMPT_RT 
-infrastructure ;-) I'll cook up something.
+> So I refuse to listen to talk about this, as obviously, no one cares
+> enough about this to actually fix the issue.
 
-	Ingo
+I got tired of always building my own kernels on Debian just to get my
+serial dongle to work since their included keyspan.ko driver is so
+useless that it isn't even worth having. The only way to use it with a
+Debian kernel is to have the dongle in a powered hub and first boot into
+Windows or a normal kernel.org kernel to get the thing initialized.
+Didn't send the patch earlier since I wanted to split off the
+pre-numeration part of the driver so that after intialization we can
+unload the unused parts of the driver as well as the the firmware class
+module.
+
+Jan

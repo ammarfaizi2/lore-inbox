@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319065AbSIJHdx>; Tue, 10 Sep 2002 03:33:53 -0400
+	id <S319068AbSIJHlz>; Tue, 10 Sep 2002 03:41:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319066AbSIJHdx>; Tue, 10 Sep 2002 03:33:53 -0400
-Received: from tnt-2-45.pops.easynet.fr ([212.180.33.45]:49402 "HELO
-	hubert.heliogroup.fr") by vger.kernel.org with SMTP
-	id <S319065AbSIJHdw>; Tue, 10 Sep 2002 03:33:52 -0400
-From: Hubert Tonneau <hubert.tonneau@pliant.cx>
-To: linux-kernel@vger.kernel.org
-Subject: A service based ressources sharing model proposal
-Date: Tue, 10 Sep 2002 07:36:58 GMT
-X-Mailer: Pliant 76
-Message-Id: <20020910073352Z319065-685+45664@vger.kernel.org>
+	id <S319069AbSIJHlz>; Tue, 10 Sep 2002 03:41:55 -0400
+Received: from users.linvision.com ([62.58.92.114]:24726 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S319068AbSIJHlx>; Tue, 10 Sep 2002 03:41:53 -0400
+Date: Tue, 10 Sep 2002 09:46:16 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Zwane Mwaikambo <zwane@mwaikambo.name>,
+       Robert Love <rml@tech9.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+Message-ID: <20020910094616.B21776@bitwizard.nl>
+References: <Pine.LNX.4.44.0209092041300.30411-100000@localhost.localdomain> <Pine.LNX.4.33.0209091151200.14841-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0209091151200.14841-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the general picture:
-. each process is assigned to a service (Ingo pointed out that service
-  could be group)
-. each service has a profile specifying how many CPU percent, memory, threads
-  handle, etc is assigned to it
-. each service is assigned a timeout for shrinking ressources usage
+On Mon, Sep 09, 2002 at 11:53:40AM -0700, Linus Torvalds wrote:
+> 
+> (Btw, if there is, that would also allow us to notice the "constantly
+> screaming PCI interrupt" without help from the low-level isrs)
 
-The key idea is that the service profile does not prevent any process within
-a service to get more ressources that what's assigned to the service, but
-in case of lack of ressources, the profile will be used to decide who must
-release some ressources.
+OH! That'd be nice: instead of a lockup if a PCI device's interrupt
+isn't serviced, you get a nice message and a machine that might
+still work!
 
-Let's assume that at a given point, the kernel lacks of handles. Then
-for each service, it will compute total handles consumed minus assigned
-in the service profile. For the service having the highest difference,
-it will send a signal to all processes in the service specifying 'hey,
-you must close some handles'. Now, if after the service shrinking timeout
-has ellapsed, there is still no handle available, the kernel will start
-killing the processes within the faulty service.
+On the other hand, you have a possibility for disaster if the 
+threshold isn't set right. 
 
-The special case of CPU: As I suggested to Ingo, this would mean switching
-the scheduler from a flat model (one process is selected to run) to a two
-levels model (one service is selected to run, then one process within the
-selected service is selected to run)
+I have written serial drivers where the card will limit the interrupt
+rate to max 100 per second. I then build in a detection: if my IRQ 
+handler gets called more than 10 times in a jiffy, we're in trouble.
 
-With such a service notion, you can have several services running in
-one powerfull computer, let's say one SQL server, file sharing, and many
-HTTP servers running chrooted, and be granted that if one web site
-is suddenly under high load, then it will be abble to get most of the
-ressources, including most of the CPU time, but will not be abble to disturb
-other services, since they will still receive their assigned percentage of
-the CPU when they require it, and in case of complete ressources stavation,
-the right process (the one which is the most outside of it's profile)
-will be killed first.
+Turns out that I left this in "in the field" and some people put the
+serial card on the same interrupt line as a SCSI controller. The
+scsi controller can generate more than 1000 interrupts per second ->
+my driver shuts down.... 
 
-My view of the problem is that historically in Unix, one service was
-basically one process. This is no more true and that's why the service
-(once again, Ingo said it could be group) notion has to be introduced.
+Something similar may happen if say you net-spray a sligtly 
+under-powered machine with a Gigabit ethernet card: The GBE card may
+indeed have a new packet ready by the time the interrupt tries to 
+return. Leads to an interesting DOS: just send a bunch of packets
+in quick succession and the machine drops off the internet... 
 
+				Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currenly in such an       * 
+* excursion: The stable situation does not include humans. ***************

@@ -1,117 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267732AbUH2LjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267756AbUH2LtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267732AbUH2LjM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 07:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267739AbUH2LjM
+	id S267756AbUH2LtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 07:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267754AbUH2LtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 07:39:12 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:25296 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S267732AbUH2LjD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 07:39:03 -0400
-Date: Sun, 29 Aug 2004 13:38:02 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       "Christian T. Steigies" <cts@debian.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: kernel-image-2.6.7
-In-Reply-To: <20040826195643.GI9539@mars.ravnborg.org>
-Message-ID: <Pine.GSO.4.58.0408291324020.10903@teasel.sonytel.be>
-References: <20040809073126.GA4669@skeeve> <Pine.LNX.4.58.0408221129590.25793@anakin>
- <Pine.LNX.4.58.0408221145090.25793@anakin> <20040822101914.GA7480@skeeve>
- <Pine.GSO.4.58.0408221224310.12638@waterleaf.sonytel.be>
- <Pine.LNX.4.58.0408221333460.13834@anakin> <4128C3F4.6070507@linux-m68k.org>
- <Pine.GSO.4.58.0408230947190.29370@waterleaf.sonytel.be>
- <Pine.GSO.4.58.0408252214080.28854@waterleaf.sonytel.be>
- <20040826195643.GI9539@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Aug 2004 07:49:16 -0400
+Received: from clusterfw.beeline3G.net ([217.118.66.232]:27213 "EHLO
+	crimson.namesys.com") by vger.kernel.org with ESMTP id S267745AbUH2LtI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 07:49:08 -0400
+Date: Sun, 29 Aug 2004 15:42:26 +0400
+From: Alex Zarochentsev <zam@namesys.com>
+To: Steve Bergman <steve@rueb.com>
+Cc: Hans Reiser <reiser@namesys.com>, Nikita Danilov <nikita@clusterfs.com>,
+       Christoph Hellwig <hch@lst.de>, Christophe Saout <christophe@saout.de>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs <reiserfs-list@namesys.com>
+Subject: Re: reiser4 plugins
+Message-ID: <20040829114226.GJ5108@backtop.namesys.com>
+References: <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <1093527307.11694.23.camel@leto.cs.pocnet.net> <20040826134034.GA1470@lst.de> <1093528683.11694.36.camel@leto.cs.pocnet.net> <412E786E.5080608@namesys.com> <16687.9051.311225.697109@thebsh.namesys.com> <412F7A59.8060508@namesys.com> <1093645747.17445.19.camel@voyager.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093645747.17445.19.camel@voyager.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Aug 2004, Sam Ravnborg wrote:
-> Could you try to stuff in an echo line here - something like:
-> 	echo  $(LD) $(LDFLAGS) 					\
->         $(LD) $(LDFLAGS) -r -o $@ $(@D)/.tmp_$(@F)              \
->                 -T $(@D)/.tmp_$(@F:.o=.ver);                    \
->
-> Just to be confirmed that there is no LDFLAGS that fouls us here.
+On Fri, Aug 27, 2004 at 05:29:07PM -0500, Steve Bergman wrote:
+> On Fri, 2004-08-27 at 11:15 -0700, Hans Reiser wrote:
+> > >
+> > If you ask real users, they say that reiser4 is fast, and their 
+> > experience matches our benchmark.  You can criticize the benchmark if 
+> > you want, but then you should run your own and publish it.
+> > 
+> 
+> 
+> As a "real" desktop user who just converted all his partitions from ext3
+> to reiser4, I have not, as yet, noticed any startling performance
+> increase.  Being slightly slightly irked to hear that the benchmark
+> numbers that have been paraded around on Slashdot and the internet in
+> general, at ext3's expense, have had reiser4's "bad" results surgically
+> extracted, I am running my own benchmarks to get the real story on
+> reiser4/ext3 mongo performance on my, rather average, desktop hardware.
+> 
+> I am using the latest Mongo on FC/rawhide and the 2.6.8.1-mm4 kernel.
+> 
+> Unfortunately, I get an error from mongo.pl that "Done" is not a numeric
+> argument at line 439.
+> 
+> I have done this to fix it:
+> 
+> 
+> --- mongo.pl    2004-08-27 17:07:01.681723313 -0500
+> +++ mongo_fixed.pl      2004-08-27 17:06:51.369306735 -0500
+> @@ -429,8 +429,8 @@
+>         if ( -e ${ERR_FILE}) {
+>             &DIE ("\nEXITED WITH FAIL\n");
+>         }
+> -       my $real = (split ' ', $time_output[0])[1];
+> -       my $cpu  = (split ' ', $time_output[2])[1];
+> +       my $real = (split ' ', $time_output[1])[1];
+> +       my $cpu  = (split ' ', $time_output[3])[1];
+>   
+>         unless ( $real =~ /\s*\d+/ && $cpu =~ /\s*\d+/) {
+>           LOG "@time_output";
+> 
+> 
+> What it gets me is the "real" line of the "time" output for "STAT
+> REAL_TIME" and the "sys" line of the "time" output for "STAT CPU_TIME".
+> i.e. only system time is counted. I believe this was the intent of the
+> original code, but want to verify before continuing.
 
-And LDFLAGS doesn't foul us here (it's just `-m m68kelf').
+it works on our test servers which are SuSE9.0/9.1.
 
-Just for those that are interested: after some more digging this turned out to
-be a bug in the (old) binutils I'm using. It got fixed in later releases of
-binutils. (Originally I thought the problem was introduced during the final
-linking step of the kernel, and it showed up with whatever version of ld I
-used for the final linking step).
+I think there is a dependency on system utilities,  "Done" is not printed by
+mongo.pl or any other program from the mongo package.
 
-How to reproduce:
+It would be nice to tell us what linux distro you are using and what mongo
+phase fails. 
 
-| anakin$ cat test.s
-|         .version        "01.01"
-| .section        .bss
-| m68k_memory:
-|         .zero   32
-| anakin$
+> Thanks,
+> Steve Bergman
 
-The key is the `.version' keyword, without that the problem cannot be
-reproduced.
+Thanks.
 
-| anakin$ cat test.ver
-| anakin$
-
-Yep, an empty linker script is fine. Without a linker script it cannot be
-reproduced, though.
-
-Results for dfferent versions of binutils:
-
-| anakin$ m68k-linux-as -o test.o test.s && m68k-linux-ld -r -o test2.o test.o -T test.ver && m68k-linux-objdump -h test*.o | grep bss; m68k-linux-ld -V
-|   2 .bss          00000020  00000000  00000000  00000034  2**2
-|   2 .bss          00000000  00000000  00000000  00000034  2**2
-                    ^^^^^^^^
-BUG! .bss becomes zero sized!
-
-| GNU ld version 2.9.5 (with BFD 2.9.5.0.37)
-|   Supported emulations:
-|    m68kelf
-|    m68klinux
-| anakin$
-
-And newer binutils are fine:
-
-| tux$ m68k-linux-as -o test.o test.s && m68k-linux-ld -r -o test2.o test.o -T test.ver && m68k-linux-objdump -h test*.o | grep bss; m68k-linux-ld -V
-|   2 .bss          00000020  00000000  00000000  00000034  2**2
-|   2 .bss          00000020  00000000  00000000  00000034  2**2
-| GNU ld version 2.13.90.0.10 20021010
-|   Supported emulations:
-|    m68kelf
-|    m68klinux
-| tux$
-
-| anakin$ m68k-linux-as -o test.o test.s && m68k-linux-ld -r -o test2.o test.o -T test.ver && m68k-linux-objdump -h test*.o | grep bss; m68k-linux-ld -V
-|   2 .bss          00000020  00000000  00000000  00000034  2**2
-|   2 .bss          00000020  00000000  00000000  00000034  2**2
-| GNU ld version 2.14.90.0.7 20031029 Debian GNU/Linux
-|   Supported emulations:
-|    m68kelf
-|    m68klinux
-| anakin$
-
-Conclusions: gcc 2.95.2 and binutils 2.9.5 are fine for compiling 2.6.x kernels
-for m68k, but:
-  - You need a newer binutils for building initramfs (make usr/)
-  - You need a newer binutils for building modular kernels with
-    CONFIG_MODVERSIONS=y
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Alex.

@@ -1,93 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282966AbRLQWrG>; Mon, 17 Dec 2001 17:47:06 -0500
+	id <S282976AbRLQWnr>; Mon, 17 Dec 2001 17:43:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282993AbRLQWq5>; Mon, 17 Dec 2001 17:46:57 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:41677 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S282966AbRLQWqn>;
-	Mon, 17 Dec 2001 17:46:43 -0500
-Date: Mon, 17 Dec 2001 14:45:49 -0800
-To: Martin Diehl <lists@mdiehl.de>
-Cc: Pawel Kot <pkot@linuxnews.pl>, Dag Brattli <dagb@cs.uit.no>,
-        linux-kernel@vger.kernel.org, linux-irda@pasta.cs.uit.no
-Subject: Re: [BUG()] IrDA in 2.4.16 + preempt
-Message-ID: <20011217144549.B3647@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <Pine.LNX.4.33.0112141128300.662-100000@urtica.linuxnews.pl> <Pine.LNX.4.21.0112161338110.444-100000@notebook.diehl.home>
+	id <S282988AbRLQWnh>; Mon, 17 Dec 2001 17:43:37 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:5328 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S282976AbRLQWn1>; Mon, 17 Dec 2001 17:43:27 -0500
+From: Ronald Lembcke <es186@fen-net.de>
+Date: Mon, 17 Dec 2001 23:42:26 +0100
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] alpha jensen, sync pci-noop.c to pci.h (for <= 2.4.17rc1)
+Message-ID: <20011217224226.GA14912@defiant.crash>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0112161338110.444-100000@notebook.diehl.home>; from lists@mdiehl.de on Mon, Dec 17, 2001 at 10:28:45AM +0100
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 10:28:45AM +0100, Martin Diehl wrote:
-> 
-> [Jean added to CC]
-> 
-> On Fri, 14 Dec 2001, Pawel Kot wrote:
-> 
-> > I found an annoying problem with irda on 2.4.16.
-> > When I remove irlan module I get sementation fault:
-> > root@blurp:~# rmmod irlan
-> > Dec 14 02:27:35 blurp kernel: kernel BUG at slab.c:1200!
-> > Dec 14 02:27:35 blurp kernel: invalid operand: 0000
-> > Dec 14 02:27:35 blurp kernel: CPU:    0
-> > Dec 14 02:27:35 blurp kernel: EIP:    0010:[kmem_extra_free_checks+81/140] Not tainted
-> [...]
-> > Dec 14 02:27:35 blurp kernel: Process rmmod (pid: 110, stackpage=cc045000)
-> [..]
-> > Dec 14 02:27:35 blurp kernel: Call Trace:
+This patche fixes a few dummy-functions only used for the old
+Alpha - Jensen computers.
+
+asm/pci.h got changed but pci-noop was left unchanged, resulting
+in compile errors. The bug has probably been there for some time
+(at least 2.4.16, didn't check earlier)
 
 
-	Where is this comming from ? Was it sent to the IrDA mailing list ?
+--- linux/arch/alpha/kernel/pci-noop.c_2.4.17rc1	Sun Dec 16 22:17:59 2001
++++ linux/arch/alpha/kernel/pci-noop.c	Sun Dec 16 22:17:54 2001
+@@ -104,21 +104,21 @@
+ }
+ /* stubs for the routines in pci_iommu.c */
+ void *
+-pci_alloc_consistent(struct pci_dev *pdev, long size, dma_addr_t *dma_addrp)
++pci_alloc_consistent(struct pci_dev *pdev, size_t size, dma_addr_t *dma_addrp)
+ {
+ }
+ void
+-pci_free_consistent(struct pci_dev *pdev, long size, void *cpu_addr,
++pci_free_consistent(struct pci_dev *pdev, size_t size, void *cpu_addr,
+ 		    dma_addr_t dma_addr)
+ {
+ }
+ dma_addr_t
+-pci_map_single(struct pci_dev *pdev, void *cpu_addr, long size,
++pci_map_single(struct pci_dev *pdev, void *cpu_addr, size_t size,
+ 	       int direction)
+ {
+ }
+ void
+-pci_unmap_single(struct pci_dev *pdev, dma_addr_t dma_addr, long size,
++pci_unmap_single(struct pci_dev *pdev, dma_addr_t dma_addr, size_t size,
+ 		 int direction)
+ {
+ }
 
-
->  [kfree+450/576]
->  [netdev_finish_unregister+145/152]
->  [unregister_netdevice+451/632]
->  [unregister_netdev+16/40]
-> 
-> Seems some inconsistency in the way how the irlan netdev is handled:
-> having NETIF_F_DYNALLOC set for a netdev which is not allocated as an
-> independent object doesn't seem to be a good idea to me ;-)
-> 
-> The patch below simply removes NETIF_F_DYNALLOC just before calling
-> unregister_netdev() und should fix the issue. It's untested however,
-> since I'm unable to reproduce the Oops on UP without preempt (but it
-> should be there as well, due to ipfrag_time for example). At least it
-> compiles and doesn't do any harm to me.
-
-	Why don't you just fix irlan_eth_init() ? The NETIF_F_DYNALLOC
-is only used in the unregister_netdevice() functions (check your
-kernel), so it's cleaner to never set the flag in the first place.
-
-	Also : I suspect the Dag added this flag as a workaround for
-some refcount problem, because with it the code does one more unref
-that without. So, I suspect the refcount is broken. By the way, this
-flag doesn't change the behaviour as far as waiting for people that
-hold some refcount on the device.
-
-> IMHO, retiring dynalloc is just some sort of band-aid because I do
-> believe, using it would be a good idea - but would need some more
-> changes for irlan.
-
-	No, that the right way. NETIF_F_DYNALLOC is only ever used for
-that. One the other hand, you might need to fix the refcount.
-
-> Btw., I'm not sure about the status of irlan - I'm only using ppp over
-> ircomm or irnet.
-
-	Same for me.
-
-> HTH
-> Martin
-
-	Have fun...
-
-	Jean

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbUBYRq6 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261497AbUBYRq6 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 25 Feb 2004 12:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbUBYRos
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUBYRon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 12:44:48 -0500
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:51348 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261487AbUBYRoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 12:44:08 -0500
-Date: Wed, 25 Feb 2004 18:44:04 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Kyle Wong <kylewong@southa.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: Any recommended PATA or SATA chip for kernel 2.6.x ?
-Message-ID: <20040225174404.GA662@merlin.emma.line.org>
-Mail-Followup-To: Kyle Wong <kylewong@southa.com>,
-	linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <004c01c3fb66$b7ba9440$9c02a8c0@southa.com>
+	Wed, 25 Feb 2004 12:44:43 -0500
+Received: from gprs151-5.eurotel.cz ([160.218.151.5]:4483 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261490AbUBYRoD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 12:44:03 -0500
+Date: Wed, 25 Feb 2004 18:43:27 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: dual_bereta_r0x@arenanetwork.com.br, linux-kernel@vger.kernel.org,
+       cpufreq@www.linux.org.uk
+Subject: Re: 2.6.2: P4 ClockMod speed
+Message-ID: <20040225174326.GD1214@elf.ucw.cz>
+References: <20040216213435.GA9680@dominikbrodowski.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <004c01c3fb66$b7ba9440$9c02a8c0@southa.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040216213435.GA9680@dominikbrodowski.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Feb 2004, Kyle Wong wrote:
+Hi!
 
-> I found in the market that most PCI IDE card are using "siimage (CMD?),
-> HiPoint and IT8212 chip, are they working well with 2.6.x ?
+> By doing so it becomes easier to enter different frequencies e.g. into
+> /sys/devices/system/cpu/cpufreq/scaling_setspeed -- on my desktop, typing in
+> 1200000 is easier than 12121224... [*]
+... 
+> [*] The _actual_ CPU speed should be used on all cpufreq drivers where this
+> specific CPU frequency has implications to external components, e.g. LCD,
+> memory or pcmcia devices. Where only the _frequency ratio_ is of importance
+> [for loops_per_jiffy and friends] such "rounding" is acceptable, as long as
+> the ratio is constant.
 
-http://kerneltrap.org/node/view/1787
+Hey, that's ugly. Values should be real.
 
-http://www.freebsd.org/cgi/cvsweb.cgi/src/sys/dev/ata/ata-chipset.c?only_with_tag=MAIN#rev1.50
-
-http://docs.freebsd.org/cgi/mid.cgi?402F88AB.8010003
-http://docs.freebsd.org/cgi/mid.cgi?200311262104.hAQL4ICN024652
-http://docs.freebsd.org/cgi/mid.cgi?40250AF7.3010804
-http://docs.freebsd.org/cgi/mid.cgi?4022B5EF.4030807
-http://docs.freebsd.org/cgi/mid.cgi?4023BF1C.6020008
+If you have troubles typing real frequency, you can either use
+/proc/cpufreq and specify values in percent, or modify
+scaling_setspeed to go for nearest lower frequency, or create bash
+scripts "hi_speed" and "low_speed"; but please don't break
+interface....
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

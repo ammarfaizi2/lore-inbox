@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbUATGAw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 01:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUATGAw
+	id S265110AbUATGCT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 01:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUATGCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 01:00:52 -0500
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:1186 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S264961AbUATGAv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 01:00:51 -0500
-From: Rusty Russell <rusty@au1.ibm.com>
-To: vatsa@in.ibm.com
-Cc: lhcs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org, rml@tech9.net
-Subject: CPU Hotplug: Hotplug Script And SIGPWR
-In-reply-to: Your message of "Fri, 16 Jan 2004 17:44:46 +0530."
-             <20040116174446.A2820@in.ibm.com> 
-Date: Tue, 20 Jan 2004 16:44:45 +1100
-Message-Id: <20040120060027.91CC717DE5@ozlabs.au.ibm.com>
+	Tue, 20 Jan 2004 01:02:18 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:22631 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265110AbUATGCP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 01:02:15 -0500
+Date: Tue, 20 Jan 2004 17:00:52 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Oliver Kiddle <okiddle@yahoo.co.uk>, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: page allocation failure
+Message-ID: <20040120060052.GC953@frodo>
+References: <7641.1074512162@gmcs3.local> <20040119193837.6369d498.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040119193837.6369d498.akpm@osdl.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040116174446.A2820@in.ibm.com> you write:
-> Would it make sense if we defer invoking hotplug script _after_
-> the CPU is completely dead (i.e after issuing the CPU_DEAD
-> notification)?
+On Mon, Jan 19, 2004 at 07:38:37PM -0800, Andrew Morton wrote:
+> Oliver Kiddle <okiddle@yahoo.co.uk> wrote:
+> >
+> >  It has happened three times now and on all occasions, I was untarring a
+> >  huge file on an XFS partition. I assume the problem is something to do
+> >  with VM. The machine has 1GB of RAM which should be plenty. For the
+> ...
+> You probably should apply this patch to tell us where the allocation
+> failures are coming from.  Make sure that CONFIG_KALLSYMS is enabled in
+> kernel config.
 
-The original code wanted to block until the hotplug script
-acknowledged the removal before completing it.  Greg KH says hotplug
-doesn't work this way, so now it could well be delivered after
-everything is over.  If it's simpler, we can just do it after.
+We do have known issues in XFS on 2.6 with handling certain VM
+allocation failures -- maybe hitting that here.  Christoph has
+been looking at making XFS do a better job there; __GFP_NOFAIL
+allocations failing seem to be the worst issue for us - on the
+occasions I've hit that though, its always immediately fatal.
 
-The other issue I wanted to revisit: we currently send SIGPWR to all
-processes which we have to undo the CPU affinity for (with a new
-si_info field containing the cpu going down).
+cheers.
 
-The main problem is that a process can call sched_setaffinity on
-another (unrelated) task, which might not know about it.  One option
-would be to only deliver the signal if it's not SIG_DFL for that
-process.  Another would be not to signal, and expect hotplug scripts
-to clean up.
-
-Thoughts?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Nathan

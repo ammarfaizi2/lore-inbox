@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281488AbRKMFRx>; Tue, 13 Nov 2001 00:17:53 -0500
+	id <S281493AbRKMFYX>; Tue, 13 Nov 2001 00:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281503AbRKMFRe>; Tue, 13 Nov 2001 00:17:34 -0500
-Received: from rj.sgi.com ([204.94.215.100]:64996 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S281499AbRKMFR3>;
-	Tue, 13 Nov 2001 00:17:29 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Janice Girouard <girouard@us.ibm.com>,
-        Takao Indoh <indou.takao@jp.fujitsu.com>,
-        "Chad N. Tindel" <ctindel@ieee.org>, Mark Huth <mhuth@mvista.com>
-Subject: Re: Linux 2.4.15-pre4 - merge with Alan 
-In-Reply-To: Your message of "Mon, 12 Nov 2001 11:01:56 -0800."
-             <Pine.LNX.4.33.0111121056260.1078-100000@penguin.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Nov 2001 16:17:18 +1100
-Message-ID: <12029.1005628638@kao2.melbourne.sgi.com>
+	id <S281494AbRKMFYN>; Tue, 13 Nov 2001 00:24:13 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:52361 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281493AbRKMFYE>; Tue, 13 Nov 2001 00:24:04 -0500
+Date: Mon, 12 Nov 2001 22:23:27 -0700
+Message-Id: <200111130523.fAD5NRK18457@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPLONLY kernel symbols???
+In-Reply-To: <3BF0AC47.221B6CD6@mandrakesoft.com>
+In-Reply-To: <200111130324.fAD3OE916102@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0111122249160.22925-100000@weyl.math.psu.edu>
+	<200111130358.fAD3wgb16617@vindaloo.ras.ucalgary.ca>
+	<3BF09E44.58D138A6@mandrakesoft.com>
+	<200111130437.fAD4b2j17329@vindaloo.ras.ucalgary.ca>
+	<3BF0A788.8CCBC91@mandrakesoft.com>
+	<200111130500.fAD50Wi17879@vindaloo.ras.ucalgary.ca>
+	<3BF0AC47.221B6CD6@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/net/bonding.c has #include <limits.h>, exposing the kernel to
-user space dependencies.  It must be removed.
+Jeff Garzik writes:
+> Is a compromise possible?  Can you keep a local codebase in your own
+> coding style, and then run Lindent before sending to Linus?
 
-I could not find a maintainer for this beast so cc'ed to seevral users
-in the changelog.
+The problem is that I'm not the only writer of that code.
+Occasionally, global API changes are made, and these aren't sent to
+me, but go to Linus directly, unfortunately. So I do have to merge
+stuff back into my tree from time to time.
 
+A few days ago I was thinking about this, and I thought how cool it
+would be to have a reliable utility that could convert between the two
+coding styles. If I had that (and it was bulletproof) then it could be
+used with some kind of userfs to give me two views of the kernel: the
+underlying one "raw" one, to which I'd apply patches and generate them
+from, and a "sanitised" one, that I would read and edit.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315170AbSFELJc>; Wed, 5 Jun 2002 07:09:32 -0400
+	id <S314787AbSFELJT>; Wed, 5 Jun 2002 07:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315335AbSFELJc>; Wed, 5 Jun 2002 07:09:32 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:60178 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S315170AbSFELJa>; Wed, 5 Jun 2002 07:09:30 -0400
-Message-ID: <3CFDF1E9.4040601@loewe-komp.de>
-Date: Wed, 05 Jun 2002 13:11:37 +0200
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
-In-Reply-To: <Pine.LNX.4.44.0206041418460.2614-100000@waste.org> <E17FQPj-0001Rr-00@starship>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315170AbSFELJS>; Wed, 5 Jun 2002 07:09:18 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:35470 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S314787AbSFELJR>;
+	Wed, 5 Jun 2002 07:09:17 -0400
+Date: Wed, 5 Jun 2002 13:09:13 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.20 don't compil...
+Message-ID: <20020605110912.GA21939@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> On Tuesday 04 June 2002 21:29, Oliver Xymoron wrote:
-> 
->>On Mon, 3 Jun 2002, Daniel Phillips wrote:
->>
->>
->>>traditional IT.  Not to mention that I can look forward to a sound
->>>system where I can be *sure* my mp3s won't skip.
->>>
->>Not unless you're loading your entire MP3 into memory, mlocking it down,
->>and handing it off to a hard RT process. And then your control of the
->>playback of said song through a non-RT GUI could be arbitrarily coarse,
->>depending on load.
->>
-> 
-> Thanks for biting :-)
-> 
-> First, these days it's no big deal to load an entire mp3 into memory.  
-> 
-> Second, and of more interest to broadcasting industry professionals and the 
-> like, it's possible to write a real-time filesystem that bypasses all the 
-> normal non-realtime facilities of the operating system, and where the latency 
-> of every operation is bounded according to the amount of data transferred.  
-> Such a filesystem could use its own dedicated disk, or, more practically, the 
-> RTOS (or realtime subsystem) could operate the disk's block queue.
-> 
-> If I recall correctly, XFS makes an attempt to provide such realtime 
-> guarantees, or at least the Solaris version does.  However, the operating 
-> system must be able to provide true realtime guarantees in order for the 
-> filesystem to provide them, and I doubt that the combination of XFS and 
-> Solaris can do that.
-> 
-> 
+Hello,
 
-It's XFS with a realtime volume under Irix.
-With the React extension Irix is also capable of "hard realtime".
-But these days the term realtime is a lot misused - and leeds to
-assumption of a better "system".
+I got:
 
+make[2]: Entering directory `/usr/src/linux-2.5/drivers/scsi'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE
+-DKBUILD_BASENAME=sym53c416  -c -o sym53c416.o sym53c416.c
+sym53c416.c: In function `sym53c416_intr_handle':
+sym53c416.c:452: structure has no member named `address'
+sym53c416.c:478: structure has no member named `address'
+make[2]: *** [sym53c416.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5/drivers/scsi'
+make[1]: *** [_modsubdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
+make: *** [_mod_drivers] Error 2
+
+I have already reported that problem, and sent a patch to this list...
+
+What should I do?
+
+Thanks you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

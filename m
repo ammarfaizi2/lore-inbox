@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266096AbRGLMMe>; Thu, 12 Jul 2001 08:12:34 -0400
+	id <S266103AbRGLMXz>; Thu, 12 Jul 2001 08:23:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266129AbRGLMMZ>; Thu, 12 Jul 2001 08:12:25 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:40076 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S266096AbRGLMMU>; Thu, 12 Jul 2001 08:12:20 -0400
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200107121211.NAA10270@mauve.demon.co.uk>
+	id <S266118AbRGLMXj>; Thu, 12 Jul 2001 08:23:39 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:28319 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S266103AbRGLMXc>; Thu, 12 Jul 2001 08:23:32 -0400
+Date: Thu, 12 Jul 2001 07:23:06 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200107121223.HAA53012@tomcat.admin.navo.hpc.mil>
+To: ralf@uni-koblenz.de, Andreas Dilger <adilger@turbolinux.com>
 Subject: Re: Switching Kernels without Rebooting?
-To: linux-kernel@vger.kernel.org
-Date: Thu, 12 Jul 2001 13:11:43 +0100 (BST)
-In-Reply-To: <01071205133300.23879@tabby> from "Jesse Pollard" at Jul 12, 2001 05:07:09 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: "C. Slater" <cslater@wcnet.org>, linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ralf Baechle <ralf@uni-koblenz.de>:
+> On Wed, Jul 11, 2001 at 05:44:45PM -0600, Andreas Dilger wrote:
 > 
-> On Wed, 11 Jul 2001, C. Slater wrote:
-> >Would anyone else like to point out some other task somewhat related 
-> >and have me do it? :-)
-> >
-> >> > Before you even try switching kernels, first implement a process
-> >> > checkpoint/restart. The process must be resumed after a boot
-> >> > using the same
-> >> > kernel, with all I/O resumed. Now get it accepted into the kernel.
-> >> 
-> >> Hear, hear!  That would be a useful feature, maybe not network servers, 
-> >> but for pure number crunching apps it would save people having to write 
-> >> all the state saving and recovery that is needed now for long term 
-> >> computations.
-> >
-> >Get a computer with hibernation support. That's just about what it is.
+> > The best proposal I've heard so far was to use MOSIX to do live job
+> > migration between machines, and then upgrade the kernel like normal.
+> > In the end, it is the jobs that are running on the kernel, and not
+> > the kernel or the individual machine that are the most important.  One
+> > person pointed out that there is a single point of failure in the
+> > MOSIX "stub" machine, which doesn't help you in the end (how do you
+> > update the kernel there?).  If you can figure a way to enhance MOSIX
+> > to allow migrating the MOSIX "stub" processes to another machine, you
+> > will have solved your problem in a much easier way, IMHO.
 > 
-> Bzzzt wrong anser. Hibernation stops the entire kernel. checkpoint restart
-> stops processes, saves the entire state of the process. hibernation
-> is just halt the processor.
+> Virtual machines a la VM are also nice for this.  Build a HA cluster from
+> two VMs, then upgrade one after another.  All that's required is HA stuff
+> as it already is available.
 
-Hibernation may not be.
-I've just suspended to disk after the list line, pulled the power supplies,
-taken the RAM chip out, shorted the pins to make really sure, then powered
-back up.
-Everything just resumed fine.
+That isn't even the same problem.
+First, processes do not survive the upgrade.
+Second, the upgrade must still be compatable with the host OS.
 
-All I'd need to do kernel migration is a quick vi of the
-disk file.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-(well, almost)
-
+Any opinions expressed are solely my own.

@@ -1,45 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267325AbUG1X0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266194AbUG1Xai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267325AbUG1X0p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 19:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266780AbUG1XUe
+	id S266194AbUG1Xai (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267331AbUG1X2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 19:20:34 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:28293 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266531AbUG1XMk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 19:12:40 -0400
-Date: Wed, 28 Jul 2004 16:13:33 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-mm1
-Message-Id: <20040728161333.744870b7.pj@sgi.com>
-In-Reply-To: <20040728020444.4dca7e23.akpm@osdl.org>
-References: <20040728020444.4dca7e23.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 28 Jul 2004 19:28:05 -0400
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:56015 "EHLO
+	yoda.timesys") by vger.kernel.org with ESMTP id S266194AbUG1XYT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 19:24:19 -0400
+Date: Wed, 28 Jul 2004 19:24:16 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Scott Wood <scott@timesys.com>, linux-kernel@vger.kernel.org,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Manas Saksena <manas.saksena@timesys.com>, Bill Huey <bhuey@lnxw.com>
+Subject: Re: [patch] IRQ threads
+Message-ID: <20040728232416.GF6685@yoda.timesys>
+References: <20040727225040.GA4370@yoda.timesys> <20040728062722.GA15283@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040728062722.GA15283@elte.hu>
+User-Agent: Mutt/1.5.4i
+From: Scott Wood <scott@timesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Wed, Jul 28, 2004 at 08:27:22AM +0200, Ingo Molnar wrote:
+> > 4. This might be a good time to get around to moving the bulk of the
+> > arch/whatever/kernel/irq.c into generic code, as the code said was
+> > supposed to happen in 2.5.  This patch is currently only for x86
+> > (though we've run IRQ threads on many different platforms in the
+> > past).
+> 
+> agreed. I punted this one for the time being as it's clearly separate
+> from the issue of latencies and it's deeply intrusive to 2.6.
 
-The patch:
+The intrusiveness is somewhat mitigated by not having to convert all
+architectures at once, though; the generic code would only be
+included for those architectures that set the relevant CONFIG_.  At
+that point, it basically is just moving code from one file to another
+(for x86), and doing minor tweaks for those architectures that are
+close to what x86 does.
 
-  gcc35-index.html.patch
+> > 5. Is there any reason why an IRQ controller might want to have its
+> > end() called even if IRQ_DISABLED or IRQ_INPROGRESS is set?  It'd be
+> > nice to merge those checks in with the
+> > IRQ_THREADPENDING/IRQ_THREADRUNNING checks.
+> 
+> e.g. in the IO-APIC case if we ack the local APIC only in the end()
+> function then we must do that - an un-acked local APIC prevents other
+> IRQs from being delivered. We do this for level-triggered IO-APIC irqs.
 
-in the broken-out patch set is _very_ trivial.
-So much so that quilt complains:
+Yes, but the IO-APIC code needs to be changed anyway to work properly
+with IRQ threads.
 
-  Only garbage was found in the patch input.
+> what do you think about making the i8259A's interrupt priorities
+> configurable? (a'la rtirq patch) Does it make any sense, given how early
+> we mask the source irq and ack the interrupt controller [hence giving
+> all other interrupts a fair chance to arrive ASAP]?
 
-I trust I won't be missing much if I delete this
-one from the series file ;).
+It could be useful for SA_NOTHREAD interrupts, but I don't think it
+buys much for threaded interrupts (as you'd have to wait until normal
+IRQs are enabled to schedule the handler thread anyway).
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+> Bernhard Kuhn's rtirq patch is for IO-APIC/APICs, but i think the
+> latency issues could be equally well fixed by not keeping the local APIC
+> un-ACK-ed during level triggered irqs, but doing the mask & ack thing.
+> This will be slightly slower but should make them both redirectable and
+> more symmetric and fair.
+
+I agree.  How much slower would it be (is it worth an #ifdef for irq
+threads)?  Hopefully PIC operations aren't as slow as they are on the
+8259...
+
+-Scott

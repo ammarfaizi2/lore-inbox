@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130309AbQLIMYc>; Sat, 9 Dec 2000 07:24:32 -0500
+	id <S129930AbQLIM3Y>; Sat, 9 Dec 2000 07:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129930AbQLIMYW>; Sat, 9 Dec 2000 07:24:22 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52229 "EHLO
+	id <S130483AbQLIM3F>; Sat, 9 Dec 2000 07:29:05 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56069 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131574AbQLIMYP>; Sat, 9 Dec 2000 07:24:15 -0500
-Subject: Re: 2.2.18-25 and PS/2 Mouse
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Sat, 9 Dec 2000 11:55:43 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001208212929.A10469@vger.timpanogas.org> from "Jeff V. Merkey" at Dec 08, 2000 09:29:29 PM
+	id <S129930AbQLIM2q>; Sat, 9 Dec 2000 07:28:46 -0500
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+To: viro@math.psu.edu (Alexander Viro)
+Date: Sat, 9 Dec 2000 11:59:42 +0000 (GMT)
+Cc: mhaque@haque.net (Mohammad A. Haque), ben@kalifornia.com (Ben Ford),
+        sabre@nondot.org (Chris Lattner), linux-kernel@vger.kernel.org,
+        orbit-list@gnome.org, korbit-cvs@lists.sourceforge.net
+In-Reply-To: <Pine.GSO.4.21.0012090028550.29053-100000@weyl.math.psu.edu> from "Alexander Viro" at Dec 09, 2000 12:39:36 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E144ibR-0005Hf-00@the-village.bc.nu>
+Message-Id: <E144ifI-0005IB-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The mouse problems have gone away with the 2.2.18-25 pre-patch.  I 
-> am not seeing the problems anymore on the affected systems.  I am
+> Yeah... "Infinitely extendable API" and all such. Roughly translated
+> as "we can't live without API bloat". Frankly, judging by the GNOME
+> codebase people who designed the thing are culturally incompatible with
+> UNIX.
 
-I think that is chance. There are no mouse driver changes from -24 to -25 8)
+Oh they are definitely unix people, but ORBit is about solving a very 
+different sort of problem to scribbling bits on a disk, or it was until very
+crazy people got involved
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,105 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292289AbSCONQ4>; Fri, 15 Mar 2002 08:16:56 -0500
+	id <S291279AbSCONak>; Fri, 15 Mar 2002 08:30:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292291AbSCONQh>; Fri, 15 Mar 2002 08:16:37 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:56332 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S292289AbSCONQT>; Fri, 15 Mar 2002 08:16:19 -0500
-Date: Fri, 15 Mar 2002 13:16:12 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, davej@suse.de
-Subject: [PATCH] 2.4 and 2.5: remove Alt-Sysrq-L
-Message-ID: <20020315131612.C24984@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S292294AbSCONa0>; Fri, 15 Mar 2002 08:30:26 -0500
+Received: from mail.spylog.com ([194.67.35.220]:662 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S291279AbSCONaF>;
+	Fri, 15 Mar 2002 08:30:05 -0500
+Date: Fri, 15 Mar 2002 16:30:38 +0300
+From: Peter Zaitsev <pz@spylog.ru>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: Peter Zaitsev <pz@spylog.ru>
+Organization: SpyLOG
+X-Priority: 3 (Normal)
+Message-ID: <551905871007.20020315163038@spylog.ru>
+To: mysql@lists.mysql.com
+Cc: linux-kernel@vger.kernel.org
+Subject: MYSQL,Linux & large threads number
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Marcelo, Dave,
+Hello mysql,
 
-The following patch removes Alt-Sysrq-L and its associated hack to kill
-of PID1, the init process.  This is a mis-feature.
+  Some time ago I wrote about slow down of mysql with large number of
+  threads, which is quite common in Linux-Apache-Mysql-PHP enviroment.
 
-If PID1 is killed, the kernel immediately enters an infinite loop in the
-depths of do_exit() with interrupts disabled, completely locking the
-machine.  Obviously you can only reach for the reset button or power
-switch after this, leaving you with dirty filesystems.
+  The test was simulating the worst case of concurrency - all the
+  threads are modified global variable in a loop 5000000 times in
+  total, using standard mutex for synchronization. The yeild is used
+  in a loop to force even more fair distribution of lock usage by
+  threads and increase context switches, therefore it did not change
+  much with large number of threads. I.e with 64 threads time without
+  yeild is 1:33.5
 
-This patch has appeared on LKML a couple of months ago.
+  Test was run on PIII-500 1G RAM Kernel 2.4.18. 3 runs were made for
+  each number of threads and best results were taken:
 
---- orig/drivers/char/sysrq.c	Fri Mar 15 10:13:07 2002
-+++ linux/drivers/char/sysrq.c	Mon Mar 11 11:44:18 2002
-@@ -284,24 +284,20 @@
- 
- /* signal sysrq helper function
-  * Sends a signal to all user processes */
--static void send_sig_all(int sig, int even_init)
-+static void send_sig_all(int sig)
+ Num threads.       Time      Peak cs rate.
+    2               53.4          179518
+    4               53.8          144828
+    16              1:06.3         85172
+    64              1:48.1         48394
+    256             8:10.6         10235
+    1000           36:46.2          2602
+
+
+The surprising thing is the time grows in less then linear way for up
+to 64 threads but later it stars to go linear way or even worse. May
+be this is because some other process are sleeping in the system which
+also is used in scheduling.
+
+
+For Next test I'll try to use Ingo's scheduler to see if it helps to
+solve the problem, also I'll try to test real mysql server to see
+which slowdown it will have.
+
+
+
+
+CODE: (Dumb one just for test)
+
+  
+#include <stdio.h>
+#include <pthread.h>
+#include <time.h>
+#define NUM_TH 1000
+
+#define TOTAL_VALUE 5000000
+
+#define LOOP (TOTAL_VALUE/NUM_TH)
+
+pthread_t th[NUM_TH];
+int thread_data[NUM_TH];
+
+int rc,rc2;
+
+int global=0;
+
+pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t start = PTHREAD_MUTEX_INITIALIZER;
+
+
+void f(int *thn)
  {
- 	struct task_struct *p;
- 
- 	for_each_task(p) {
--		if (p->mm) { /* Not swapper nor kernel thread */
--			if (p->pid == 1 && even_init)
--				/* Ugly hack to kill init */
--				p->pid = 0x8000;
--			if (p->pid != 1)
--				force_sig(sig, p);
--		}
-+		if (p->mm && p->pid != 1)
-+			/* Not swapper, init nor kernel thread */
-+			force_sig(sig, p);
- 	}
- }
- 
- static void sysrq_handle_term(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
--	send_sig_all(SIGTERM, 0);
-+	send_sig_all(SIGTERM);
- 	console_loglevel = 8;
- }
- static struct sysrq_key_op sysrq_term_op = {
-@@ -312,7 +308,7 @@
- 
- static void sysrq_handle_kill(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
--	send_sig_all(SIGKILL, 0);
-+	send_sig_all(SIGKILL);
- 	console_loglevel = 8;
- }
- static struct sysrq_key_op sysrq_kill_op = {
-@@ -321,17 +317,6 @@
- 	action_msg:	"Kill All Tasks",
- };
- 
--static void sysrq_handle_killall(int key, struct pt_regs *pt_regs,
--		struct kbd_struct *kbd, struct tty_struct *tty) {
--	send_sig_all(SIGKILL, 1);
--	console_loglevel = 8;
--}
--static struct sysrq_key_op sysrq_killall_op = {
--	handler:	sysrq_handle_killall,
--	help_msg:	"killalL",
--	action_msg:	"Kill All Tasks (even init)",
--};
--
- /* END SIGNAL SYSRQ HANDLERS BLOCK */
- 
- 
-@@ -366,7 +351,7 @@
- #else
- /* k */	NULL,
- #endif
--/* l */	&sysrq_killall_op,
-+/* l */	NULL,
- /* m */	&sysrq_showmem_op,
- /* n */	NULL,
- /* o */	NULL, /* This will often be registered
+ int i;  
+ pthread_mutex_lock(&start);
+ pthread_mutex_unlock(&start);
+ for (i=0;i<LOOP;i++)
+  { 
+   pthread_mutex_lock(&mut);
+   global++;
+   pthread_yield();
+   pthread_mutex_unlock(&mut);
+  }
+ } 
+
+
+
+main()
+ { 
+  int i;
+  pthread_mutex_lock(&start);                                                                                                 
+  for (i=0;i<NUM_TH;i++)
+  {
+   thread_data[i]=i;
+   rc=pthread_create(&th[i],NULL,f,&thread_data[i]);
+   if (rc!=0)
+    {
+      printf("Failed to create thread #%d errorcode:%d\n",i,rc);
+    } 
+  }
+  pthread_mutex_unlock(&start); 
+
+ for (i=0;i<NUM_TH;i++)
+  {
+   rc2=pthread_join(th[i],NULL);    
+  }
+ printf("Global Value: %d\n",global); 
+
+ }   
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Best regards,
+ Peter                          mailto:pz@spylog.ru
+

@@ -1,90 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVCRPrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVCRPvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVCRPrL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:47:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVCRPrL
+	id S261639AbVCRPvv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVCRPvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:47:11 -0500
-Received: from occmta04a.terra.com.mx ([200.53.64.60]:11231 "EHLO
-	emailcluster.terra.com.mx") by vger.kernel.org with ESMTP
-	id S261653AbVCRPqy convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:46:54 -0500
-Date: Fri, 18 Mar 2005 15:39:03 +0000
-Message-ID: <4235B4540000CB00@occmta04a.terra.com.mx>
-From: jacob_amos@terra.com.mx
-Subject: CONFIANCE
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 18 Mar 2005 10:51:51 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:16772 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261639AbVCRPvs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 10:51:48 -0500
+Date: Fri, 18 Mar 2005 07:33:25 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: Real-Time Preemption and RCU
+Message-ID: <20050318153325.GA1299@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050318002026.GA2693@us.ibm.com> <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu> <20050318095327.GA15190@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050318095327.GA15190@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bonjour,
+On Fri, Mar 18, 2005 at 10:53:27AM +0100, Ingo Molnar wrote:
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > there's one detail on PREEMPT_RT though (which i think you noticed too). 
+> > 
+> > Priority inheritance handling can be done in a pretty straightforward
+> > way as long as no true read-side nesting is allowed for rwsems and
+> > rwlocks - i.e. there's only one owner of a lock at a time. So
+> > PREEMPT_RT restricts rwsem and rwlock concurrency: readers are
+> > writers, with the only exception that they are allowed to 'self-nest'.
+> > [...]
+> 
+> this does not affect read-side RCU, because read-side RCU can never
+> block a higher-prio thread. (as long as callback processing is pushed
+> into a separate kernel thread.)
+> 
+> so RCU will be pretty much the only mechanism (besides lock-free code)
+> that allows reader concurrency on PREEMPT_RT.
 
+This is a relief!  I was wondering how on earth I was going to solve
+the multi-task priority-inheritance problem!
 
-je suis le M. Jacob Amos Cadre à la BANQUE
-INTERNATIONALE DE LAFRIQUE DE LOUEST(BIAO)Abidjan Cote
-D'ivoire
-Permettez moi de vous dire que je ne crois pas au
-hasard et que toute chose arrive parce que le TOUT
-PUISSANT le permet.
-J'ai découvert des fonds abandonnés d'un montant de
-11.5millions de dollars que notre banque est sur le
-point de reconvertir dans son trésor propre car selon
-le reglèment interieur et les statuts,tout somme
-d'argent non réclamée au dela d'un certain nombre
-d'années est systématiquement reconverti dans le
-trésor de la banque.
+But...  How do we handle the following scenario?
 
-C'est argent appartenait à l'un de nos clients
-ALLEMAND d'origine qui trouva la mort avec toute sa
-famille dans un accident d'avion et jusqu'à ce jour
-aucune personne ne s'est presenté comme bénéficiaire
-ou ayant droit.
-Je vous ai donc contacté pour qu'ensemble nous
-fassions sortir ces fonds de ce pays la cote d'ivoire
-pour votre compte et qu'au terme de cette transaction
-nous partagions ces fonds selon les pourcentages
-convenus à savoir 30% pour vous et le reste à moi.
+0.	A bunch of low-priority threads are preempted in the
+	middle of various RCU read-side critical sections.
 
-Sachez que j'ai pris tous les dispositions utiles pour
-la reussite de cette affaire autrement je ne perdrais
-pas mon temps ni le votre.
-Lorsque vous me donnerez votre accord de principe je
-vous enverrai le formulaire de réclamation que vous
-remplirez et faxerez à la banque en vous presentant
-comme associé du defunt donc bénéficiaire des fonds et
-moi à la banque appuierai votre réclamation de sorte
-que la baqnue transfère les fonds dans votre compte
-indiqué.
+1.	High-priority thread does kmalloc(), but there is no
+	memory, so it blocks.
 
-Toutes les dispositions seront prises pour que cette
-transaction soit légale avec documents authentiques à
-l'appui
-Un détail important gardez la discretion autour de
-cette affaire et ne permettez pas que la banque sache
-que c'est qui vous fournit toutes ces informations au
-risque de compromettre la transaction dans laquelle
-j'ai investi beaucoup d'aregnt d'efforts et de temps.
+2.	OOM handling notices, and decides to clean up the outstanding
+	RCU callbacks.  It therefore invokes _synchronize_kernel()
+	(in implementation #5).
 
-Dans l'attente d'une réponse favorable je vous adresse
-mes fraternelles salutations
+3.	The _synchronize_kernel() function tries to acquire all of
+	the read-side locks, which are held by numerous preempted
+	low-priority threads.
 
+4.	What now???
 
-Jacob Amos.
+Or does the current patch do priority inheritance across the memory
+allocator?  In other words, can we get away with ignoring this one?  ;-)
 
-
-
-___________________________________________________________________________
-Con Terra MAIL obtienes 6MB de espacio además de bloqueo ANTISPAM
-http://terramail.terra.com.mx/TerraMail/
-Acceso a Internet 3 x 1, desde ¡$179 pesos al mes! 
-http://www.terra.com.mx/acceso/suscribete/
-Encuentra los mejores productos y precios increibles!!
-Aprovecha nuestra promoción a 12 pagos sin intereses con Banamex y Bancomer
-http://www.decompras.com/
-
-
-
+						Thanx, Paul

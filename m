@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279749AbRJ3C12>; Mon, 29 Oct 2001 21:27:28 -0500
+	id <S279752AbRJ3Cc5>; Mon, 29 Oct 2001 21:32:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279752AbRJ3C1R>; Mon, 29 Oct 2001 21:27:17 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:51885 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S279749AbRJ3C07>; Mon, 29 Oct 2001 21:26:59 -0500
-Date: Tue, 30 Oct 2001 02:29:17 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] pre5 export free_lru_page
-Message-ID: <Pine.LNX.4.21.0110300226580.932-100000@localhost.localdomain>
+	id <S279754AbRJ3Ccr>; Mon, 29 Oct 2001 21:32:47 -0500
+Received: from anime.net ([63.172.78.150]:51212 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S279752AbRJ3Ccg>;
+	Mon, 29 Oct 2001 21:32:36 -0500
+Date: Mon, 29 Oct 2001 18:33:04 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+cc: willy tarreau <wtarreau@yahoo.fr>, <linux-kernel@vger.kernel.org>
+Subject: Re: Ethernet NIC dual homing
+In-Reply-To: <3BDDDF6A.B823F5C3@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.30.0110291831160.9540-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- 2.4.14-pre5/kernel/ksyms.c	Tue Oct 30 01:40:29 2001
-+++ linux/kernel/ksyms.c	Tue Oct 30 02:05:03 2001
-@@ -94,6 +94,7 @@
- EXPORT_SYMBOL(alloc_pages_node);
- EXPORT_SYMBOL(__get_free_pages);
- EXPORT_SYMBOL(get_zeroed_page);
-+EXPORT_SYMBOL(free_lru_page);
- EXPORT_SYMBOL(__free_pages);
- EXPORT_SYMBOL(free_pages);
- EXPORT_SYMBOL(num_physpages);
+On Mon, 29 Oct 2001, Christopher Friesen wrote:
+> Are there issues with using MII to detect link state?  I thought it was fairly
+> reliable...
+
+It doesn't work to detect link state through bridging device (say, bridged
+ethernet over T3). The T3 might go down, but your MII link to the local
+router will remain "up", so you will never know about the loss of link and
+your packets will happily go into the void...
+
+-Dan
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

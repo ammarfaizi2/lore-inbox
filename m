@@ -1,129 +1,318 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUAOUoK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 15:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbUAOUoJ
+	id S262784AbUAOUoc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 15:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUAOUoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 15:44:09 -0500
-Received: from mail.kroah.org ([65.200.24.183]:10203 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262686AbUAOUoC (ORCPT
+	Thu, 15 Jan 2004 15:44:32 -0500
+Received: from mail.kroah.org ([65.200.24.183]:10971 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262784AbUAOUoD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 15:44:02 -0500
-Date: Thu, 15 Jan 2004 12:42:59 -0800
+	Thu, 15 Jan 2004 15:44:03 -0500
+Date: Thu, 15 Jan 2004 12:41:11 -0800
 From: Greg KH <greg@kroah.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: [PATCH] add sysfs class support for OSS sound devices [07/10]
-Message-ID: <20040115204259.GH22199@kroah.com>
-References: <20040115204048.GA22199@kroah.com> <20040115204111.GB22199@kroah.com> <20040115204125.GC22199@kroah.com> <20040115204138.GD22199@kroah.com> <20040115204153.GE22199@kroah.com> <20040115204209.GF22199@kroah.com> <20040115204241.GG22199@kroah.com>
+Subject: [PATCH] add class_simple support [01/10]
+Message-ID: <20040115204111.GB22199@kroah.com>
+References: <20040115204048.GA22199@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040115204241.GG22199@kroah.com>
+In-Reply-To: <20040115204048.GA22199@kroah.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds support for all OSS sound devices.
+This patch adds a struct class_simple which can be used to create
+"simple" class support for subsystems.
 
-This patch is based on a work originally written by 
-Leann Ogasawara <ogasawara@osdl.org>
+It also adds a class_release() callback for struct class, as it is
+needed to properly handle the reference counting logic.
+
+The following sysfs class patches all require this patch.
 
 
-
-diff -Nru a/sound/oss/soundcard.c b/sound/oss/soundcard.c
---- a/sound/oss/soundcard.c	Thu Jan 15 11:06:01 2004
-+++ b/sound/oss/soundcard.c	Thu Jan 15 11:06:01 2004
-@@ -73,6 +73,7 @@
+diff -Nru a/drivers/base/Makefile b/drivers/base/Makefile
+--- a/drivers/base/Makefile	Thu Jan 15 11:05:59 2004
++++ b/drivers/base/Makefile	Thu Jan 15 11:05:59 2004
+@@ -1,7 +1,7 @@
+ # Makefile for the Linux device tree
  
+ obj-y			:= core.o sys.o interface.o bus.o \
+-			   driver.o class.o platform.o \
++			   driver.o class.o class_simple.o platform.o \
+ 			   cpu.o firmware.o init.o map.o
+ obj-y			+= power/
+ obj-$(CONFIG_FW_LOADER)	+= firmware_class.o
+diff -Nru a/drivers/base/class.c b/drivers/base/class.c
+--- a/drivers/base/class.c	Thu Jan 15 11:06:02 2004
++++ b/drivers/base/class.c	Thu Jan 15 11:06:02 2004
+@@ -46,6 +46,19 @@
+ 	return ret;
+ }
  
- unsigned long seq_time = 0;	/* Time for /dev/sequencer */
-+extern struct class_simple *sound_class;
- 
- /*
-  * Table for configurable mixer volume handling
-@@ -569,6 +570,9 @@
- 		devfs_mk_cdev(MKDEV(SOUND_MAJOR, dev_list[i].minor),
- 				S_IFCHR | dev_list[i].mode,
- 				"sound/%s", dev_list[i].name);
-+		class_simple_device_add(sound_class, 
-+					MKDEV(SOUND_MAJOR, dev_list[i].minor),
-+					NULL, "%s", dev_list[i].name);
- 
- 		if (!dev_list[i].num)
- 			continue;
-@@ -578,6 +582,10 @@
- 						dev_list[i].minor + (j*0x10)),
- 					S_IFCHR | dev_list[i].mode,
- 					"sound/%s%d", dev_list[i].name, j);
-+			class_simple_device_add(sound_class,
-+					MKDEV(SOUND_MAJOR, dev_list[i].minor + (j*0x10)),
-+					NULL,
-+					"%s%d", dev_list[i].name, j);
- 		}
- 	}
- 
-@@ -593,10 +601,13 @@
- 
- 	for (i = 0; i < sizeof (dev_list) / sizeof *dev_list; i++) {
- 		devfs_remove("sound/%s", dev_list[i].name);
-+		class_simple_device_remove(MKDEV(SOUND_MAJOR, dev_list[i].minor));
- 		if (!dev_list[i].num)
- 			continue;
--		for (j = 1; j < *dev_list[i].num; j++)
-+		for (j = 1; j < *dev_list[i].num; j++) {
- 			devfs_remove("sound/%s%d", dev_list[i].name, j);
-+			class_simple_device_remove(MKDEV(SOUND_MAJOR, dev_list[i].minor + (j*0x10)));
-+		}
- 	}
- 	
- 	unregister_sound_special(1);
-diff -Nru a/sound/sound_core.c b/sound/sound_core.c
---- a/sound/sound_core.c	Thu Jan 15 11:05:56 2004
-+++ b/sound/sound_core.c	Thu Jan 15 11:05:56 2004
-@@ -65,6 +65,9 @@
- extern int msnd_pinnacle_init(void);
- #endif
- 
-+struct class_simple *sound_class;
-+EXPORT_SYMBOL(sound_class);
++static void class_release(struct kobject * kobj)
++{
++	struct class *class = to_class(kobj);
 +
- /*
-  *	Low level list operator. Scan the ordered list, find a hole and
-  *	join into it. Called with the lock asserted
-@@ -171,6 +174,8 @@
++	pr_debug("class '%s': release.\n", class->name);
++
++	if (class->class_release)
++		class->class_release(class);
++	else
++		pr_debug("class '%s' does not have a release() function, "
++			 "be careful\n", class->name);
++}
++
+ static struct sysfs_ops class_sysfs_ops = {
+ 	.show	= class_attr_show,
+ 	.store	= class_attr_store,
+@@ -53,6 +66,7 @@
  
- 	devfs_mk_cdev(MKDEV(SOUND_MAJOR, s->unit_minor),
- 			S_IFCHR | mode, s->name);
-+	class_simple_device_add(sound_class, MKDEV(SOUND_MAJOR, s->unit_minor),
-+				NULL, s->name+6);
- 	return r;
+ static struct kobj_type ktype_class = {
+ 	.sysfs_ops	= &class_sysfs_ops,
++	.release	= class_release,
+ };
  
-  fail:
-@@ -193,6 +198,7 @@
- 	spin_unlock(&sound_loader_lock);
- 	if (p) {
- 		devfs_remove(p->name);
-+		class_simple_device_remove(MKDEV(SOUND_MAJOR, p->unit_minor));
- 		kfree(p);
- 	}
- }
-@@ -556,6 +562,7 @@
- 	   empty */
- 	unregister_chrdev(SOUND_MAJOR, "sound");
- 	devfs_remove("sound");
-+	class_simple_destroy(sound_class);
- }
+ /* Hotplug events for classes go to the class_obj subsys */
+diff -Nru a/drivers/base/class_simple.c b/drivers/base/class_simple.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/base/class_simple.c	Thu Jan 15 11:06:03 2004
+@@ -0,0 +1,201 @@
++/*
++ * class_simple.c - a "simple" interface for classes for simple char devices.
++ *
++ * Copyright (c) 2003-2004 Greg Kroah-Hartman <greg@kroah.com>
++ * Copyright (c) 2003-2004 IBM Corp.
++ * 
++ * This file is released under the GPLv2
++ *
++ */
++
++#define DEBUG 1
++
++#include <linux/device.h>
++#include <linux/kdev_t.h>
++#include <linux/err.h>
++
++struct class_simple {
++	struct class_device_attribute attr;
++	struct class class;
++};
++#define to_class_simple(d) container_of(d, struct class_simple, class)
++
++struct simple_dev {
++	struct list_head node;
++	dev_t dev;
++	struct class_device class_dev;
++};
++#define to_simple_dev(d) container_of(d, struct simple_dev, class_dev)
++
++static LIST_HEAD(simple_dev_list);
++static spinlock_t simple_dev_list_lock = SPIN_LOCK_UNLOCKED;
++
++static void release_simple_dev(struct class_device *class_dev)
++{
++	struct simple_dev *s_dev = to_simple_dev(class_dev);
++	kfree(s_dev);
++}
++
++static ssize_t show_dev(struct class_device *class_dev, char *buf)
++{
++	struct simple_dev *s_dev = to_simple_dev(class_dev);
++	return print_dev_t(buf, s_dev->dev);
++}
++
++static void class_simple_release(struct class *class)
++{
++	struct class_simple *cs = to_class_simple(class);
++	kfree(cs);
++}
++
++/**
++ * class_simple_create - create a struct class_simple structure
++ * @owner: pointer to the module that is to "own" this struct class_simple
++ * @name: pointer to a string for the name of this class.
++ *
++ * This is used to create a struct class_simple pointer that can then be used
++ * in calls to class_simple_device_add().  This is used when you do not wish to
++ * create a full blown class support for a type of char devices.
++ *
++ * Note, the pointer created here is to be destroyed when finished by making a
++ * call to class_simple_destroy().
++ */
++struct class_simple *class_simple_create(struct module *owner, char *name)
++{
++	struct class_simple *cs;
++	int retval;
++
++	cs = kmalloc(sizeof(*cs), GFP_KERNEL);
++	if (!cs) {
++		retval = -ENOMEM;
++		goto error;
++	}
++	memset(cs, 0x00, sizeof(*cs));
++
++	cs->class.name = name;
++	cs->class.class_release = class_simple_release;
++	cs->class.release = release_simple_dev;
++
++	cs->attr.attr.name = "dev";
++	cs->attr.attr.mode = S_IRUGO;
++	cs->attr.attr.owner = owner;
++	cs->attr.show = show_dev;
++	cs->attr.store = NULL;
++
++	retval = class_register(&cs->class);
++	if (retval)
++		goto error;
++
++	return cs;
++
++error:
++	kfree(cs);
++	return ERR_PTR(retval);
++}
++EXPORT_SYMBOL(class_simple_create);
++
++/**
++ * class_simple_destroy - destroys a struct class_simple structure
++ * @cs: pointer to the struct class_simple that is to be destroyed
++ *
++ * Note, the pointer to be destroyed must have been created with a call to
++ * class_simple_create().
++ */
++void class_simple_destroy(struct class_simple *cs)
++{
++	if ((cs == NULL) || (IS_ERR(cs)))
++		return;
++
++	class_unregister(&cs->class);
++}
++EXPORT_SYMBOL(class_simple_destroy);
++
++/**
++ * class_simple_device_add - adds a class device to sysfs for a character driver
++ * @cs: pointer to the struct class_simple that this device should be registered to.  
++ * @dev: the dev_t for the device to be added.
++ * @device: a pointer to a struct device that is assiociated with this class device.
++ * @fmt: string for the class device's name
++ *
++ * This function can be used by simple char device classes that do not
++ * implement their own class device registration.  A struct class_device will
++ * be created in sysfs, registered to the specified class.  A "dev" file will
++ * be created, showing the dev_t for the device.  The pointer to the struct
++ * class_device will be returned from the call.  Any further sysfs files that
++ * might be required can be created using this pointer.
++ * Note: the struct class_device passed to this function must have previously been
++ * created with a call to class_simple_create().
++ */
++struct class_device *class_simple_device_add(struct class_simple *cs, dev_t dev, struct device *device, const char *fmt, ...)
++{
++	va_list args;
++	struct simple_dev *s_dev = NULL;
++	int retval;
++
++	if ((cs == NULL) || (IS_ERR(cs))) {
++		retval = -ENODEV;
++		goto error;
++	}
++
++	s_dev = kmalloc(sizeof(*s_dev), GFP_KERNEL);
++	if (!s_dev) {
++		retval = -ENOMEM;
++		goto error;
++	}
++	memset(s_dev, 0x00, sizeof(*s_dev));
++
++	s_dev->dev = dev;
++	s_dev->class_dev.dev = device;
++	s_dev->class_dev.class = &cs->class;
++	
++	va_start(args,fmt);
++	vsnprintf(s_dev->class_dev.class_id, BUS_ID_SIZE, fmt, args);
++	va_end(args);
++	retval = class_device_register(&s_dev->class_dev);
++	if (retval)
++		goto error;
++
++	class_device_create_file(&s_dev->class_dev, &cs->attr);
++
++	spin_lock(&simple_dev_list_lock);
++	list_add(&s_dev->node, &simple_dev_list);
++	spin_unlock(&simple_dev_list_lock);
++
++	return &s_dev->class_dev;
++
++error:
++	kfree(s_dev);
++	return ERR_PTR(retval);
++}
++EXPORT_SYMBOL(class_simple_device_add);
++
++/**
++ * class_simple_device_remove - removes a class device that was created with class_simple_device_add()
++ * @dev: the dev_t of the device that was previously registered.
++ *
++ * This call unregisters and cleans up a class device that was created with a
++ * call to class_device_simple_add()
++ */
++void class_simple_device_remove(dev_t dev)
++{
++	struct simple_dev *s_dev = NULL;
++	struct list_head *tmp;
++	int found = 0;
++
++	spin_lock(&simple_dev_list_lock);
++	list_for_each(tmp, &simple_dev_list) {
++		s_dev = list_entry(tmp, struct simple_dev, node);
++		if (s_dev->dev == dev) {
++			found = 1;
++			break;
++		}
++	}
++	if (found) {
++		list_del(&s_dev->node);
++		spin_unlock(&simple_dev_list_lock);
++		class_device_unregister(&s_dev->class_dev);
++	} else {
++		spin_unlock(&simple_dev_list_lock);
++	}
++}
++EXPORT_SYMBOL(class_simple_device_remove);
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	Thu Jan 15 11:05:58 2004
++++ b/include/linux/device.h	Thu Jan 15 11:05:58 2004
+@@ -46,6 +46,7 @@
+ struct device_driver;
+ struct class;
+ struct class_device;
++struct class_simple;
  
- static int __init init_soundcore(void)
-@@ -565,6 +572,9 @@
- 		return -EBUSY;
- 	}
- 	devfs_mk_dir ("sound");
-+	sound_class = class_simple_create(THIS_MODULE, "sound");
-+	if (IS_ERR(sound_class))
-+		return PTR_ERR(sound_class);
+ struct bus_type {
+ 	char			* name;
+@@ -155,6 +156,7 @@
+ 			   int num_envp, char *buffer, int buffer_size);
  
- 	return 0;
- }
+ 	void	(*release)(struct class_device *dev);
++	void	(*class_release)(struct class *class);
+ };
+ 
+ extern int class_register(struct class *);
+@@ -246,6 +248,13 @@
+ extern int class_interface_register(struct class_interface *);
+ extern void class_interface_unregister(struct class_interface *);
+ 
++/* interface for class simple stuff */
++extern struct class_simple *class_simple_create(struct module *owner, char *name);
++extern void class_simple_destroy(struct class_simple *cs);
++extern struct class_device *class_simple_device_add(struct class_simple *cs, dev_t dev, struct device *device, const char *fmt, ...)
++	__attribute__((format(printf,4,5)));
++extern void class_simple_device_remove(dev_t dev);
++
+ 
+ struct device {
+ 	struct list_head node;		/* node in sibling list */
+

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270748AbTGUWsR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 18:48:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270753AbTGUWsR
+	id S270753AbTGUXJs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 19:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270329AbTGUXJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 18:48:17 -0400
-Received: from law15-f43.law15.hotmail.com ([64.4.23.43]:46342 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S270748AbTGUWsQ
+	Mon, 21 Jul 2003 19:09:48 -0400
+Received: from CPE-203-51-35-8.nsw.bigpond.net.au ([203.51.35.8]:45814 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S270756AbTGUXJr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 18:48:16 -0400
-X-Originating-IP: [212.152.91.179]
-X-Originating-Email: [ef057@hotmail.com]
-From: "Bryan K." <ef057@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: MTRRs question
-Date: Mon, 21 Jul 2003 23:03:18 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law15-F43PuZ91Bo1At0002a457@hotmail.com>
-X-OriginalArrivalTime: 21 Jul 2003 23:03:18.0713 (UTC) FILETIME=[46498A90:01C34FDC]
+	Mon, 21 Jul 2003 19:09:47 -0400
+Message-ID: <3F1C763E.78D67BC3@eyal.emu.id.au>
+Date: Tue, 22 Jul 2003 09:24:46 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22pre7aa1: unresolved in sk98lin
+References: <20030719013223.GA31330@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an athlon-tbird cpu with 768MB and I am doing some experiments with 
-MTRRs. I want to have the first 512 MB of ram write-back and the rest 256 
-uncachable. So i (would like to) do:
+Andrea Arcangeli wrote:
+> 
+> URL:
+> 
+>         http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.22pre7aa1.bz2
+>         http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.22pre7aa1/
+> 
 
-echo "base=0x00000000 size=0x20000000 type=write-back" > /proc/mtrr
-echo "base=0x20000000 size=0x10000000 type=uncachable" > /proc/mtrr
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.22-pre7-aa1/kernel/drivers/net/sk98lin/sk98lin.o
+depmod:         __udivdi3
 
-But after the execution of the first command and before I complete the 
-typing of the second the system hangs.
-What is really a mystery for me is that if i do the echos in the opposite 
-order, meaning
+Using Debian stable (woody) - gcc 2.95.4.
 
-echo "base=0x20000000 size=0x10000000 type=uncachable" > /proc/mtrr
-echo "base=0x00000000 size=0x20000000 type=write-back" > /proc/mtrr
-
-everyting works as expected.
-I would be grateful if someone cound give me some explanation of this.
-Thank you in advance.
-
-_________________________________________________________________
-Protect your PC - get McAfee.com VirusScan Online 
-http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

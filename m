@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267695AbRGPUnm>; Mon, 16 Jul 2001 16:43:42 -0400
+	id <S267697AbRGPUpC>; Mon, 16 Jul 2001 16:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267699AbRGPUnd>; Mon, 16 Jul 2001 16:43:33 -0400
-Received: from [154.11.70.101] ([154.11.70.101]:15377 "HELO mtl-vipswitch-01")
-	by vger.kernel.org with SMTP id <S267695AbRGPUnS>;
-	Mon, 16 Jul 2001 16:43:18 -0400
-Date: Mon, 16 Jul 2001 16:26:26 -0400 (EDT)
-From: Stephane Dalton <sdalton@vipswitch.com>
-X-X-Sender: <sdalton@gemini.vip.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: ramfs problems
-Message-ID: <Pine.LNX.4.33.0107161622430.28104-100000@gemini.vip.ca>
+	id <S267698AbRGPUow>; Mon, 16 Jul 2001 16:44:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:33920 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267697AbRGPUoq>;
+	Mon, 16 Jul 2001 16:44:46 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15187.21029.24931.310840@pizda.ninka.net>
+Date: Mon, 16 Jul 2001 13:44:21 -0700 (PDT)
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Ben LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jens Axboe <axboe@suse.de>, Jes Sorensen <jes@sunsite.dk>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit
+ machine
+In-Reply-To: <Pine.LNX.4.30.0107161601480.23444-100000@biker.pdb.fsc.net>
+In-Reply-To: <Pine.LNX.4.30.0107161601480.23444-100000@biker.pdb.fsc.net>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using 2.4.6 ac2 on a Pentium III 600 Mhz with 384 Mo of memory.
 
-After mounting a ramfs giving the maxsize option a value of 20Mb, I found that
-the disk size increase but is not decreasing when files are deleted. Copying
-more files give me an not enough space left error message.
+Martin Wilck writes:
+ > Thus the IA-64 API will probably emerge as a matter-of-fact standard
 
-Am I the only one with this problem or is it a known bugs, after looking a the
-mailing list archive I didn't see any report of this problem.
+It is, and can only be, an IA-64 hack, not an API.  This hack simply
+cannot work at all on any 32-bit platform.  Only an API using page +
+offset + len triplets can work successfully on all platforms.
 
-Thanks
+And I think the new aic7xxx driver can be made to work just fine, and
+the fact that the old aic7xxx driver is able to be nice to the IO
+mapping allocator pool (AND get decent performance) is evidence of
+this.  Really, what I hear sounds like merely a cop out.
 
+Later,
+David S. Miller
+davem@redhat.com

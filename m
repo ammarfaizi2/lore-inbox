@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261791AbRFAW1k>; Fri, 1 Jun 2001 18:27:40 -0400
+	id <S261759AbRFAWdK>; Fri, 1 Jun 2001 18:33:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261759AbRFAW1b>; Fri, 1 Jun 2001 18:27:31 -0400
-Received: from kathy-geddis.astound.net ([24.219.123.215]:63237 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S261758AbRFAW1Y>; Fri, 1 Jun 2001 18:27:24 -0400
-Date: Fri, 1 Jun 2001 15:27:23 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: Magnus.Sandberg@bluelabs.se
-cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org,
-        magnus.sandberg@test.bluelabs.se
-Subject: Re: Problem with kernel 2.2.19 Ultra-DMA and SMP, once more
-In-Reply-To: <OFE14B9341.A598AA4B-ONC1256A5E.00770506@bluelabs.se>
-Message-ID: <Pine.LNX.4.10.10106011525220.10960-100000@master.linux-ide.org>
+	id <S261793AbRFAWdA>; Fri, 1 Jun 2001 18:33:00 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:58472 "EHLO
+	c0mailgw02.prontomail.com") by vger.kernel.org with ESMTP
+	id <S261759AbRFAWc4> convert rfc822-to-8bit; Fri, 1 Jun 2001 18:32:56 -0400
+Message-ID: <3B1817DD.48A91CB8@mvista.com>
+Date: Fri, 01 Jun 2001 15:31:57 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dieter =?iso-8859-15?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: missing sysrq
+In-Reply-To: <Pine.LNX.4.10.10106011050380.2614-100000@coffee.psychology.mcmaster.ca> <20010601203841Z261493-933+3160@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-If this is a VIA SMP system there are APIC problems that you do not want
-to even think about addressing.
-
-MPS1.1 and passing "noapic" will fix most of there mess, but you have a
-semi-crippled system, but it runs.
-
-On Fri, 1 Jun 2001 Magnus.Sandberg@bluelabs.se wrote:
-
-> Hi once more...
+Dieter Nützel wrote:
 > 
-> I'm sorry for the layout of this mail. It is written in a web mail
-> system...
-> The attachements are in ASCII format even if the web-mail make it base-64
+> Am Freitag, 1. Juni 2001 16:51 schrieben Sie:
+> > > Have you tried "echo 1 > /proc/sys/kernel/sysrq"?
+> > > You need both, compiled in and activation.
+> >
+> > no, look at the code.  the enable variable defaults to 1.
 > 
-> Now I have compiled a vanilla 2.2.19 kernel and have SMP working, without
-> Ultra-DMA. I used the functional kernel config from 2.2.19-ide and just
-> activated SMP.
+> Then there must be a bug?
+> I get "0" with 2.4.5-ac2 and -ac5 without "echo 1".
 > 
-> >From that I have 3 very simular kernel configurations:
-> 2.2.19 with Hidrick's IDE-patch, no SMP: working
-> 2.2.19 without IDE-patch, with SMP: working
-> 2.2.19 with IDE-patch and SMP: not booting
-> 
-> With all the information I hope that someone can help me with the
-> IDE-and-SMP
-> problem.
-> 
->                                   _\\|//_
->                                   (-0-0-)
-> /-------------------------------ooO-(_)-Ooo------------------------------\
-> | Magnus Sandberg                    Email: Magnus.Sandberg@bluelabs.se  |
-> | Network Engineer, Bluelabs                     http://www.bluelabs.se/ |
-> | Phone: +46-8-470 2155    (FAX: +46-8-470 2199)    GSM: +46-708-225 805 |
-> \------------------------------------------------------------------------/
->                                   ||   ||
->                                  ooO   Ooo
+> Fresh booted 2.4.5-ac2:
 
-Andre Hedrick
-ASL Kernel Development
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+Bet not!  Most distro scripts turn it off on the way up.  Sometimes it
+is a bit hard to find where they do it too.
 
+George

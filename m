@@ -1,69 +1,223 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263158AbTLAFhr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 00:37:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbTLAFhr
+	id S263166AbTLAFs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 00:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTLAFs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 00:37:47 -0500
-Received: from m17.lax.untd.com ([64.136.30.80]:19634 "HELO m17.lax.untd.com")
-	by vger.kernel.org with SMTP id S263158AbTLAFhq (ORCPT
+	Mon, 1 Dec 2003 00:48:28 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:42651 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S263166AbTLAFsW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 00:37:46 -0500
-To: hugh@veritas.com
-Cc: linux-kernel@vger.kernel.org
-Date: Sun, 30 Nov 2003 18:59:11 -0800
-Subject: Re: Oops with tmpfs on both 2.4.22 & 2.6.0-test11
-Message-ID: <20031130.185915.-1591395.7.mcmechanjw@juno.com>
-X-Mailer: Juno 5.0.33
+	Mon, 1 Dec 2003 00:48:22 -0500
+From: Andrew Miklas <public@mikl.as>
+Reply-To: public@mikl.as
+Subject: Possible bug with munmap/nopage
+Date: Mon, 1 Dec 2003 00:43:41 -0500
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Juno-Line-Breaks: 0-11,13-15,17-27,29-37
-From: James W McMechan <mcmechanjw@juno.com>
+Message-Id: <200312010043.41754.public@mikl.as>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a test program  which will generate the Oops easily.
-No maintainer was listed for tmpfs and the best Google reference is
-about 2 years back, and it does not seem to be about this issue.
+Hi all,
 
-This Oops both 2.4.22 and 2.6.0-test11
-It results from a ARCH=um bugreport and I kept making the
-test program shorter, now down to one executable line.
 
-It oops with the list poison address on 2.6.0-test11
-Neither myself nor William Lee Irwin III know what the
-list_del(q);
-list_add(q, &dentry->d_subdirs);
-from fs/libfs.c:90 or 137 is intended to do but he suggested you might
-know
-I think that is where it is corrupting the list entries.
+I'm seeing a very strange bug when trying to map more than one page using the 
+nopage callback.  I'm not sure if the problem is with my module or the 
+kernel.
 
-/* by James_McMechan at hotmail com */                                   
-      
-/* test2 program to Oops shmfs mounted at /dev/shm */
-/* yes it is dumb but unprivileged users should not be able */
-/* to Oops the kernel regardless of how dumb the program */
-#include <sys/types.h>
-#include <dirent.h>
-main()
-{/* off 0 is "." off 1 is ".." off 2 is empty */
-        seekdir(opendir("/dev/shm"), (off_t) 2);
+A process is able to map and unmap a region once successfully using my module; 
+however, the next time the process (or another) has the same page mapped into 
+its space, the munmap call will lock the process up and the system becomes 
+unusable.  (Not quite a full lockup, but many things, such as starting "top", 
+killing off the offending process, etc. don't work).
+
+This happens even when I rmmod and insmod my module between runs of the 
+process.  I think something (possibly my module) is doing something incorrect 
+to the pages when they are unmapped.
+
+This doesn't happen if only one page is mapped by nopage.  In that case, 
+everything works correctly, even for multiple map/unmaps.
+
+
+Here is the backtrace produced by using sysrq-T:
+(I'm running 2.4.22 patched with kdb)
+
+rwsem_down_failed_common + 0x4C/0x70
+rwsem_down_read_failed + 0x1f/0x30
+.text.lock.fault + 0x7/0x63
+fbcon_scroll + 0x5a1/0xa90
+scrup + 0xf8/0x110
+lf + 0x62/0x70
+do_page_fault + 0x0/0x4dd
+error_code + 0x34/0x40
+__free_pages_ok + 0x252/0x300
+__free_pages + 0x27/0x30
+free_pages_and_swap_cache + 0x19/0x40
+__free_pte + 0x5a/0x70
+zap_pte_range + 0x10f/0x134
+zap_page_range + 0x82/0x100
+do_munmap + 0x1d1/0x250
+sys_munmap + 0x32/0x50
+system_call + 0x33/0x40
+
+
+I've included the code for the module and test process below.
+
+
+Am I doing something wrong, or is the lockup the result of some bug in the 
+kernel?
+
+
+Thanks for any help.
+
+
+
+-- Andrew
+
+
+========================
+
+
+module code
+------------------------
+
+#include <linux/module.h>
+#include <linux/pci.h>
+#include <linux/fs.h>
+#include <linux/proc_fs.h>
+#include <asm/page.h>
+#include <asm/pgtable.h>
+
+#define DMA_BUF_SIZE 0x2000
+
+static int user_dma_mmap(struct file *, struct vm_area_struct *);
+static struct page *user_dma_mmap_nopage(struct vm_area_struct *, unsigned 
+long, int);
+
+
+static void* kernAddr;
+static dma_addr_t dmaAddr;
+
+
+static struct file_operations fileOps = 
+{
+	mmap: user_dma_mmap
+};
+
+static struct vm_operations_struct vmaOps = 
+{
+	nopage: user_dma_mmap_nopage
+};
+
+
+static struct page *user_dma_mmap_nopage(struct vm_area_struct *area, unsigned 
+long address, int unused)
+{
+	struct page *pagePtr;
+	unsigned long offset = address - area->vm_start;
+	unsigned long kernPageBase;
+
+	if (offset >= DMA_BUF_SIZE)
+	{
+		// The process tried to remap beyond the buffer we have allocated for them.
+		return NOPAGE_SIGBUS;
+	}
+
+	kernPageBase = (unsigned long) kernAddr + offset;
+
+	// This is ok, because addresses returned by pci_alloc_consistent (ie. 
+get_free_pages)
+	// are safe for use with virt_to_page, right?
+	pagePtr = virt_to_page(kernPageBase);
+
+	get_page(pagePtr);
+
+	return pagePtr;
 }
 
-On Sun, 30 Nov 2003 20:51:01 -0800 William Lee Irwin III
-<wli@holomorphy.com> writes:
-> On Sun, Nov 30, 2003 at 06:06:41PM -0800, James W McMechan wrote:
-> > Have you got a suggestion on who to bug, I have not found
-> > maintainers on tmpfs or now the libfs section.
-> 
-> Hugh Dickins is highly clueful and generally maintains tmpfs. He's
-> fixed bugs in fs/libfs.c before, too.
-> 
-> 
-> -- wli
 
-________________________________________________________________
-The best thing to hit the internet in years - Juno SpeedBand!
-Surf the web up to FIVE TIMES FASTER!
-Only $14.95/ month - visit www.juno.com to sign up today!
+static int user_dma_mmap(struct file *filp, struct vm_area_struct *vma)
+{
+	// We'll do the interesting stuff in nopage
+	vma->vm_ops = &vmaOps;
+	return 0;
+}
+
+
+static int __init user_dma_init(void)
+{
+	struct proc_dir_entry *dmaProc;
+
+	printk(KERN_DEBUG "User DMA interface loading.\n");
+
+	kernAddr = pci_alloc_consistent(NULL, DMA_BUF_SIZE, &dmaAddr);
+	dmaProc = create_proc_entry("user_dma", S_IFBLK | S_IRUGO | S_IWUGO, 
+&proc_root);
+
+	dmaProc->proc_fops = &fileOps;
+	return 0;
+}
+
+static void __exit user_dma_exit(void)
+{
+	pci_free_consistent(NULL, DMA_BUF_SIZE, kernAddr, dmaAddr);
+	remove_proc_entry("user_dma", &proc_root);
+	printk(KERN_DEBUG "User DMA interface unloading.\n");
+}
+
+
+MODULE_AUTHOR("Andrew Miklas (public at mikl dot as)");
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("Userspace DMA Interface");
+
+module_init(user_dma_init);
+module_exit(user_dma_exit);
+
+
+=========================================
+
+
+test process code
+----------------------
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+
+// 2 page mapping will cause the problem, 1 page will not.
+#define SIZE 0x2000
+#define OFFSET 0
+#define PAGE_SIZE 0x1000
+
+int main(int argc, char *argv[])
+{
+	int retVal;
+	int fd = open("/proc/user_dma", O_RDWR);
+	void *dmaMap = mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 
+OFFSET);
+
+	printf("MAP: %p\n", dmaMap);
+
+	if (dmaMap != MAP_FAILED)
+	{
+		int i;
+		for (i = 0; i < SIZE; i += PAGE_SIZE)
+		{
+			*((char*) (dmaMap + i));
+		}
+
+		printf("Pre unmap\n");
+		retVal = munmap(dmaMap, SIZE);
+		printf("UNMAP: %i\n", retVal);
+	}
+
+	close(fd);
+	return 0;
+}
+

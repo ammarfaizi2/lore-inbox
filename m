@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262302AbSKCSgW>; Sun, 3 Nov 2002 13:36:22 -0500
+	id <S262317AbSKCSkD>; Sun, 3 Nov 2002 13:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262310AbSKCSgW>; Sun, 3 Nov 2002 13:36:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31246 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262302AbSKCSgW>; Sun, 3 Nov 2002 13:36:22 -0500
-Date: Sun, 3 Nov 2002 10:42:50 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: yodaiken@fsmlabs.com
-cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <davej@suse.de>
-Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <20021103112510.A1873@hq.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44.0211031034300.11657-100000@home.transmeta.com>
+	id <S262322AbSKCSkD>; Sun, 3 Nov 2002 13:40:03 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:36797 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262317AbSKCSkC>;
+	Sun, 3 Nov 2002 13:40:02 -0500
+Message-ID: <3DC56EC1.4040403@us.ibm.com>
+Date: Sun, 03 Nov 2002 10:45:21 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
+Subject: Re: U160 on Adaptec 39160
+References: <4.3.2.7.2.20021103124403.00b4c860@mail.dns-host.com> <20021103133014.GJ23425@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+ > 39160 does 80MB/s/channel, the 160MB/s happens pretty much only as
+ > the sum of both channels.
 
-On Sun, 3 Nov 2002 yodaiken@fsmlabs.com wrote:
+Nope, quoting from Adaptec's site:
+ > <snip>
+ > enterprise servers. Combining a 64-bit PCI interface with two
+ > Ultra160 SCSI channels, this card moves data at the fastest speeds
+ > possible. <snip>
+
+The 3950 had dual 80MB/s channels.
+
+ > I've had one for a couple of years, and it performs very well,
+ > though it won't ever quite live up to the marketing gimmick for
+ > bandwidth on a single channel. ISTR something about RAID across
+ > channels involved, but I just use disks directly instead.
+
+Even out of good disks, you're unlikely to get more than 20MB/S out of 
+each of them.  So, it would take at least 8 of those in a striped 
+array to fill up a U160 channel.  Unlike IDE's claims of _burst_ 
+speeds, SCSI can take all the bandwidth up, if you give it enough 
+devices.
+
+ > On Sun, Nov 03, 2002 at 12:59:44PM +0100, Margit Schubert-While
+ > wrote:
 > 
-> So capabilities then just seems like a hack.  You can write a trusted
-> user space suid gateway program that consults a database, builds you a
-> temporary file system with links and permissions to an otherwise hidden
-> shared tree and puts you safely in that "temporary  tree". If I understand
-> what this does.
+> <4>Attached scsi disk sdb at scsi1, channel 0, id 1, lun 0
+> <4>(scsi1:A:0): 80.000MB/s transfers (40.000MHz, offset 127, 16bit)
+> <4>SCSI device sda: 35885448 512-byte hdwr sectors (18373 MB) 
 
-That works for stuff where you are willing to live in a very limited 
-environment.
+During negotiation, the drives will train down in speed if they don't 
+think they can run at full speed which can be caused by cabling or 
+termination issues.  You can also take their speed down manually in 
+the card's BIOS, so check that too.
 
-Most people aren't willing to live in such environments. They want to look 
-up user files in ~/.xxxxx, falling back to /usr/lib/xxxx/config, etc. And 
-they want to take advantage of being able to use other programs in the 
-system etc etc.
+It looks to me from your dmesg that all of your devices are on the 
+same channel.  Am I misreading things?
 
-In other words, yes, you can create a temporary tree, and pretty much
-arbitrarily restrict what any process can actually see of the filesystem. 
-But it's a _lot_ of work, and requires a lot of care, and by limiting your 
-filesystem view you limit yourself to only using that view. 
-
-And the fact is, most programmers are lazy. They don't want to go to that 
-effort, since it makes it harder for them. And you can't really blame them 
-for that - especially since 99% of all projects evolve from something 
-where security wasn't a big deal ("it's only for my own use anyway").
-
-Look at how few programs bother with chroot(), and that's a lot easier to 
-use (and portable). 
-
-		Linus
-
-PS. Yeah, to some degree namespaces are at least in theory easier to use
-than chroot, since they allow for a lot more flexibility and you can
-cherry-pick and do things like just re-mount /usr/bin with nosuid inside
-your namespace, which chroot doesn't allow. With chroot you end up having
-to copy the files explicitly and maintain a separate chroot directory
-structure.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129674AbRCHUfs>; Thu, 8 Mar 2001 15:35:48 -0500
+	id <S129541AbRCHUm2>; Thu, 8 Mar 2001 15:42:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbRCHUfj>; Thu, 8 Mar 2001 15:35:39 -0500
-Received: from waste.org ([209.173.204.2]:30552 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S129674AbRCHUfY>;
-	Thu, 8 Mar 2001 15:35:24 -0500
-Date: Thu, 8 Mar 2001 14:34:46 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Ben Greear <greearb@candelatech.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ?
- (No
-In-Reply-To: <3AA71B5C.5AD8661E@candelatech.com>
-Message-ID: <Pine.LNX.4.30.0103081430310.30996-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129598AbRCHUmS>; Thu, 8 Mar 2001 15:42:18 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:64875 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S129541AbRCHUmM>; Thu, 8 Mar 2001 15:42:12 -0500
+Date: Thu, 8 Mar 2001 14:41:42 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103082041.OAA14001@tomcat.admin.navo.hpc.mil>
+To: root@mauve.demon.co.uk, pollard@tomcat.admin.navo.hpc.mil
+Subject: Re: Microsoft begining to open source Windows 2000?
+In-Reply-To: <200103081834.SAA22871@mauve.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Ben Greear wrote:
+---------  Received message begins Here  ---------
 
-> For the power/insane user, there could be a --really-do-stupid-thing-i-told-you-to
-> option, and it should be that hard to type!!
+> 
+> <snip "microsoft may be going open source">
+> > Not a chance. First your company must have at least 1500 licences.... and
+> > you can't modify any code... which implies that you can't rebuild either...
+> 
+> You can modify your compiler, so that it accepts patches (with no context)
+> and completely rewrite anything that needs modified.
+> The modified source would never be stored anywhere.
 
-There is, though historically it's undocumented. It's called "root
-password".
+So you have the source to the MS compiler???? And they gave you all of the
+object modules (or at least the source) AND the makefiles (or equivalent)???
 
-Pause. Reflect.
+I believe their "can't modify" includes the OS you were supplied under a
+different license.
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
+Any opinions expressed are solely my own.

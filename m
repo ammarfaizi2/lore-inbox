@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTEMDBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 23:01:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbTEMDAO
+	id S263180AbTEMC6y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 22:58:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbTEMC6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 23:00:14 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:45297 "EHLO
+	Mon, 12 May 2003 22:58:54 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:41713 "EHLO
 	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S263177AbTEMC7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 22:59:01 -0400
-Date: Mon, 12 May 2003 20:10:52 -0700
+	id S263180AbTEMC6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 22:58:33 -0400
+Date: Mon, 12 May 2003 20:10:31 -0700
 From: Chris Wright <chris@wirex.com>
 To: linux-kernel@vger.kernel.org, hch@infradead.org, gregkh@kroah.com,
        linux-security-module@wirex.com
-Cc: gerg@snapgear.com
+Cc: geert@linux-m68k.org
 Subject: Re: [PATCH] Early init for security modules
-Message-ID: <20030512201052.P19432@figure1.int.wirex.com>
+Message-ID: <20030512201031.O19432@figure1.int.wirex.com>
 Mail-Followup-To: linux-kernel@vger.kernel.org, hch@infradead.org,
 	gregkh@kroah.com, linux-security-module@wirex.com,
-	gerg@snapgear.com
+	geert@linux-m68k.org
 References: <20030512200309.C20068@figure1.int.wirex.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -39,15 +39,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is just the arch specific linker bits for the early initialization
 for security modules patch.  Does this look sane for this arch?
 
---- 1.7/arch/m68knommu/vmlinux.lds.S	Wed Apr  2 00:42:56 2003
-+++ edited/arch/m68knommu/vmlinux.lds.S	Mon May 12 16:16:58 2003
-@@ -305,6 +305,9 @@
- 		__con_initcall_start = .;
- 		*(.con_initcall.init)
- 		__con_initcall_end = .;
-+		__security_initcall_start = .;
-+		*(.security_initcall.init)
-+		__security_initcall_end = .;
- 		. = ALIGN(4);
- 		__initramfs_start = .;
- 		*(.init.ramfs)
+--- 1.16/arch/m68k/vmlinux-std.lds	Wed Apr  2 00:42:56 2003
++++ edited/arch/m68k/vmlinux-std.lds	Mon May 12 16:16:58 2003
+@@ -67,6 +67,9 @@
+   __con_initcall_start = .;
+   .con_initcall.init : { *(.con_initcall.init) }
+   __con_initcall_end = .;
++  __security_initcall_start = .;
++  .security_initcall.init : { *(.security_initcall.init) }
++  __security_initcall_end = .;
+   . = ALIGN(8192);
+   __initramfs_start = .;
+   .init.ramfs : { *(.init.ramfs) }
+
+--- 1.14/arch/m68k/vmlinux-sun3.lds	Wed Apr  2 00:42:56 2003
++++ edited/arch/m68k/vmlinux-sun3.lds	Mon May 12 16:16:59 2003
+@@ -61,6 +61,9 @@
+ 	__con_initcall_start = .;
+ 	.con_initcall.init : { *(.con_initcall.init) }
+ 	__con_initcall_end = .;
++	__security_initcall_start = .;
++	.security_initcall.init : { *(.security_initcall.init) }
++	__security_initcall_end = .;
+ 	. = ALIGN(8192);
+ 	__initramfs_start = .;
+ 	.init.ramfs : { *(.init.ramfs) }

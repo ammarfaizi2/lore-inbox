@@ -1,103 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263666AbTLYTvi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 14:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbTLYTvi
+	id S261753AbTLYUXD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 15:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbTLYUXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 14:51:38 -0500
-Received: from smtp2.actcom.co.il ([192.114.47.15]:33754 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S263666AbTLYTvd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 14:51:33 -0500
-Date: Thu, 25 Dec 2003 21:51:16 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Andrea Barisani <lcars@infis.univ.trieste.it>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       alsa-devel@alsa-project.org
-Subject: Re: kernel 2.6.0, wrong Kconfig directives
-Message-ID: <20031225195115.GQ31789@actcom.co.il>
-References: <20031222235622.GA17030@sole.infis.univ.trieste.it> <87smj8bt6y.fsf@devron.myhome.or.jp>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="25rOlkxR6a4U87uN"
-Content-Disposition: inline
-In-Reply-To: <87smj8bt6y.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.4i
+	Thu, 25 Dec 2003 15:23:03 -0500
+Received: from smtp2.dei.uc.pt ([193.137.203.229]:8119 "EHLO smtp2.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S261753AbTLYUXB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 15:23:01 -0500
+Date: Thu, 25 Dec 2003 20:22:42 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.6.0-mjb1
+In-Reply-To: <165810000.1072370137@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.58.0312252019070.23168@student.dei.uc.pt>
+References: <165810000.1072370137@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---25rOlkxR6a4U87uN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 25 Dec 2003, Martin J. Bligh wrote:
 
-On Fri, Dec 26, 2003 at 04:20:21AM +0900, OGAWA Hirofumi wrote:
->=20
-> > - SOUND_GAMEPORT option is always turned on
-> >=20
-> > ./drivers/input/gameport/Kconfig
-> >=20
-> > 22: config SOUND_GAMEPORT
-> > 23:         tristate
-> > 24:         default y if GAMEPORT!=3Dm
-> > 25:         default m if GAMEPORT=3Dm
-> >=20
-> > line 24 is definetly wrong, option is enabled if GAMEPORT=3Dn.
->=20
-> This patch uses "select" for the dependency of GAMEPORT.
+> I'd be very interested in feedback from anyone willing to test on any
+> platform, however large or small.
 
-This is wrong. It forces the joystick (GAMEPORT) in even when it's not
-needed, whereas SOUND_GAMEPORT handles all cases fine. That way lies
-kernel bloat. Please apply this documentation patch instead:=20
+It's working perfectly for me: in fact it's what I'm running right now.
+I'm running it on an Asus M3700N laptop...
+Any tests you want me to do, just e-mail asking them.
 
-Index: drivers/input/gameport/Kconfig
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-RCS file: /home/muli/kernel/cvsroot/linux-2.5/drivers/input/gameport/Kconfi=
-g,v
-retrieving revision 1.4
-diff -u -u -r1.4 Kconfig
---- drivers/input/gameport/Kconfig	26 Sep 2003 00:23:18 -0000	1.4
-+++ drivers/input/gameport/Kconfig	25 Dec 2003 19:48:49 -0000
-@@ -19,6 +19,17 @@
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called gameport.
-=20
-+
-+# Yes, this looks a bit odd. Yes, it ends up being turned on in lots
-+# of cases. Please don't touch it. It is here to handle the case where
-+# a sound driver can be either a module or compiled in if GAMEPORT is
-+# not selected, but must be a module if the joystick is selected as a=20
-+# module. The sound driver calls GAMEPORT functions. If GAMEPORT is
-+# not selected, stubs are provided. If GAMEPORT is built in,
-+# everything is fine. If GAMEPORT is a module, however, it would need
-+# to be loaded for the sound driver to be able to link
-+# properly. Therefore, the sound driver must be a module as well in
-+# that case (and the GAMEPORT module must be loaded first).=20
- config SOUND_GAMEPORT
- 	tristate
- 	default y if GAMEPORT!=3Dm
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.0/patch-2.6.0-mjb1.bz2
 
-"the nucleus of linux oscillates my world" - gccbot@#offtopic
+Mirror at http://deinix.dei.uc.pt/software/kernel/v2.6/patch-2.6.0-mjb1.bz2
 
 
---25rOlkxR6a4U87uN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+
+Thanks for the patch,
+Mind Booster Noori
+
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-iD8DBQE/6z+zKRs727/VN8sRAm87AKCzhG+XkRPHC1TYoWrhdA68zuOv+wCgn5ig
-/wZMGZH7K9reZFA+CQoHSsg=
-=6Olt
+iD8DBQE/60cWmNlq8m+oD34RApoHAKDtGXC7YX/CpFYFuJzmvbGVpQo5ogCfbaE8
+gxzvi+3Eo5C/y1ODwqWkbQM=
+=v/yK
 -----END PGP SIGNATURE-----
 
---25rOlkxR6a4U87uN--

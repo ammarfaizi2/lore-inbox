@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131569AbQLGXWo>; Thu, 7 Dec 2000 18:22:44 -0500
+	id <S131204AbQLGXZp>; Thu, 7 Dec 2000 18:25:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131564AbQLGXWe>; Thu, 7 Dec 2000 18:22:34 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:23570 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131557AbQLGXWW>;
-	Thu, 7 Dec 2000 18:22:22 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: georgn@somanetworks.com
-cc: linux-kernel@vger.kernel.org, greg@wind.enjellic.com, sct@redhat.com
-Subject: Re: linux-2.4.0-test11 and sysklogd-1.3-31 
-In-Reply-To: Your message of "Thu, 07 Dec 2000 12:36:01 CDT."
-             <14895.51841.431444.405949@somanetworks.com> 
-Mime-Version: 1.0
+	id <S131564AbQLGXZe>; Thu, 7 Dec 2000 18:25:34 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:24540 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S131332AbQLGXZQ>; Thu, 7 Dec 2000 18:25:16 -0500
+Message-ID: <3A301535.BD342364@haque.net>
+Date: Thu, 07 Dec 2000 17:54:45 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at buffer.c:827! and scsi modules no load at boot w/ 
+ initrd - test12pre7
+In-Reply-To: <3A2FF076.946076FC@haque.net> <90p2ds$2hs$1@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Dec 2000 09:51:48 +1100
-Message-ID: <5597.976229508@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000 12:36:01 -0500 (EST), 
-"Georg Nikodym" <georgn@somanetworks.com> wrote:
->>>>>> "KO" == Keith Owens <kaos@ocs.com.au> writes:
->
-> KO> I would prefer to see the oops decoding completely removed from
-> KO> klogd.
->
->Since nobody else has weighed in on this issue, I quickly did the
->necessary to effect Keith's suggestion.  What follows is a patch to
->sysklogd-1.3-31 (which after applying, ksym_mod.c can be removed):
+Will do in a few hours. Working on stupid cs project right now.
 
-You only removed the module symbol handling.  The problem is that the
-entire klogd oops handling is out of date and broken.  I recommend
-removing all oops processing from klogd, which means that klogd does
-not need any symbols nor System.map.
+Linus Torvalds wrote:
+> Do you have something special that triggers this? Can you test if it
+> only happens with initrd, for example?
 
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

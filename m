@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262062AbSKHOfz>; Fri, 8 Nov 2002 09:35:55 -0500
+	id <S262083AbSKHOpK>; Fri, 8 Nov 2002 09:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262065AbSKHOfy>; Fri, 8 Nov 2002 09:35:54 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46605 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262062AbSKHOfy>; Fri, 8 Nov 2002 09:35:54 -0500
-Date: Fri, 8 Nov 2002 14:42:34 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: Re: [PATCH] SCSI on non-ISA systems
-Message-ID: <20021108144234.A24114@flint.arm.linux.org.uk>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>,
-	Rusty Trivial Russell <trivial@rustcorp.com.au>
-References: <20021108135742.A22790@flint.arm.linux.org.uk> <Pine.GSO.4.21.0211081522050.23267-100000@vervain.sonytel.be>
+	id <S262080AbSKHOpK>; Fri, 8 Nov 2002 09:45:10 -0500
+Received: from email.gcom.com ([206.221.230.194]:58509 "EHLO gcom.com")
+	by vger.kernel.org with ESMTP id <S262076AbSKHOpK>;
+	Fri, 8 Nov 2002 09:45:10 -0500
+Message-Id: <5.1.0.14.2.20021108084936.03fe6eb8@localhost>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 08 Nov 2002 08:51:07 -0600
+To: landley@trommello.org
+From: David Grothe <dave@gcom.com>
+Subject: Re: [PATCH] Linux-streams registration 2.5.46
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200211080637.06511.landley@trommello.org>
+References: <5.1.0.14.2.20021107145447.027905c8@localhost>
+ <5.1.0.14.2.20021107145447.027905c8@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0211081522050.23267-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Fri, Nov 08, 2002 at 03:22:55PM +0100
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 03:22:55PM +0100, Geert Uytterhoeven wrote:
-> On Fri, 8 Nov 2002, Russell King wrote:
-> > This isn't actually the original purpose of CONFIG_GENERIC_ISA_DMA (it
-> > was to allow an architecture to provide ISA-like DMA without having to
-> > use the ISA DMA request/free functions - eg, they need to claim interrupts
-> > on request_dma() and free them on free_dma()).
-> 
-> Then what's the correct(TM) fix? Unconditionally #define
-> CONFIG_GENERIC_ISA_DMA, so it behaves like before?
+At 06:37 AM 11/8/2002 Friday, Rob Landley wrote:
+>On Thursday 07 November 2002 21:00, David Grothe wrote:
+>
+>Just a random comment, but the feature freeze was October 31st.  Is this a
+>repost of something we saw before then?
 
-Probably the correct answer is to get everyone to use an explicit release
-function and just kill scsi_host_generic_release() entirely.
+Yes.  This came up in late September and I posted a patch in early October 
+for 2.4.  It took until just a few days ago to get LiS ported to 2.5 so 
+that I could test the patch for 2.5.
+-- Dave
 
-However, I'm sure other people will have differing views on that.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

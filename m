@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268970AbRHFTuC>; Mon, 6 Aug 2001 15:50:02 -0400
+	id <S268971AbRHFUAO>; Mon, 6 Aug 2001 16:00:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268966AbRHFTtw>; Mon, 6 Aug 2001 15:49:52 -0400
-Received: from 63-216-69-197.sdsl.cais.net ([63.216.69.197]:15880 "EHLO
-	vyger.freesoft.org") by vger.kernel.org with ESMTP
-	id <S268970AbRHFTtk>; Mon, 6 Aug 2001 15:49:40 -0400
-Message-ID: <3B6EF4DA.8899E1D3@freesoft.org>
-Date: Mon, 06 Aug 2001 15:49:46 -0400
-From: Brent Baccala <baccala@freesoft.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthew Dharm <mdharm@one-eyed-alien.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: Problem with usb-storage using HP 8200 external CD-ROM burner
-In-Reply-To: <3B68FB0C.5BC83115@freesoft.org> <20010806014626.K24225@one-eyed-alien.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S268973AbRHFUAE>; Mon, 6 Aug 2001 16:00:04 -0400
+Received: from mx1.afara.com ([63.113.218.20]:51343 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S268971AbRHFT75>;
+	Mon, 6 Aug 2001 15:59:57 -0400
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+To: Riley Williams <rhw@MemAlpha.CX>
+Cc: Chris Wedgwood <cw@f00f.org>, Mark Atwood <mra@pobox.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108042028320.16941-100000@infradead.org>
+In-Reply-To: <Pine.LNX.4.33.0108042028320.16941-100000@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 06 Aug 2001 12:59:22 -0700
+Message-Id: <997127962.6478.31.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 06 Aug 2001 19:56:44.0356 (UTC) FILETIME=[EAFCB840:01C11EB1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm wrote:
+On 04 Aug 2001 20:35:37 +0100, Riley Williams wrote:
+
+> One of my systems has SIX ethernet cards, these being three ISA and
+> two PCI NE2000 clones and a DEC Tulip. Here's the relevant section of
+> modules.conf on the system in question:
 > 
-> Brent --
+>  Q> alias eth0 ne
+>  Q> options eth0 io=0x340
+>  Q> alias eth1 ne
+>  Q> options eth1 io=0x320
+>  Q> alias eth2 ne
+>  Q> options eth2 io=0x2c0
+>  Q> alias eth3 ne2k-pci
+>  Q> alias eth4 ne2k-pci
+>  Q> alias eth5 tulip
 > 
-> As the module maintainer, I'm very intereted in your analysis.....
-> 
-> Of course, I'm interested in knowing how the command_abort function can be
-> made safe -- I think there are already patches in the 2.4.8 kernel which
-> should fix the cause of this function getting called.
-> 
-> Any ideas on how to fix this issue?
+> Best wishes from Riley.
 
-Well, what comes to mind immediately is two things.
+ok, well this makes sense for the ISA cards.  I have card A in my hand,
+I set the jumpers on it to an io port 0x340, stick it in slot X on my
+computer, plug the wire into it from network 1, then I mentally can map
+all the stuff together, so I know how to setup the network in Linux
 
-First, does scsiglue.c's abort_command really need to handshake with the
-code in usb.c?  If not, just get rid of the down and its matching up.
+eth0 == io 0x340 == card A == slot X in my computer == network 1
 
-Second, this code (in scsi_error.c):
+but, how can you tell the difference between eth3 and eth4 -- and
+specify which *physical* card gets assigned to which virtual eth?
+name...ie, how do I know which pci slot is which eth?  besides reading
+the motherboard documentation and maybe learning which direction and how
+the pci bus is ordered...which can differ between motherboard
+manufacturers and BIOS's, etc, etc. 
 
-      774         spin_lock_irqsave(&io_request_lock, flags);
-      775         rtn = SCpnt->host->hostt->eh_abort_handler(SCpnt);
-      776         spin_unlock_irqrestore(&io_request_lock, flags);
+and how do I change it if I don't like the default order (based off of
+pci scan order).  what if I want card B, a pci card stuck in PCI slot Y
+to be eth4?
 
-seems like a real shotgun approach.  Get rid of the spinlock stuff, and
-make sure that the abort handlers lock io_request_lock themselves if
-they need it.  Of course, this would require changes to all the scsi
-drivers.
+hope this is clearer...
 
-I don't work with the kernel that much, so really I'm hoping somebody
-else can suggest the fix - that's why I posted it in the first place. 
-I'll cc this to the mailing lists, in the hope that somebody will have
-an idea.
+thanks,
 
--- 
-                                        -bwb
+-tduffy
 
-                                        Brent Baccala
-                                        baccala@freesoft.org
-
-==============================================================================
-       For news from freesoft.org, subscribe to announce@freesoft.org:
-   
-mailto:announce-request@freesoft.org?subject=subscribe&body=subscribe
-==============================================================================

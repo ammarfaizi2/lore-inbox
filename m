@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269169AbTGJKNA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 06:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269170AbTGJKNA
+	id S269175AbTGJKSj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 06:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269174AbTGJKSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 06:13:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:1695 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269169AbTGJKM7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 06:12:59 -0400
-Date: Thu, 10 Jul 2003 12:26:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mikael Starvik <mikael.starvik@axis.com>
-Cc: "'Alan Shih'" <alan@storlinksemi.com>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Question regarding DMA xfer to user space directly
-Message-ID: <20030710102655.GN825@suse.de>
-References: <3C6BEE8B5E1BAC42905A93F13004E8AB034C5623@mailse01.axis.se> <3C6BEE8B5E1BAC42905A93F13004E8AB03277A7C@mailse01.axis.se>
+	Thu, 10 Jul 2003 06:18:39 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:2712 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S269173AbTGJKSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 06:18:38 -0400
+Date: Thu, 10 Jul 2003 10:33:17 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: memset (was: Redundant memset in AIO read_events)
+Message-ID: <20030710103317.D21655@devserv.devel.redhat.com>
+References: <20030710100417.83333.qmail@web11801.mail.yahoo.com.suse.lists.linux.kernel> <1057832361.5817.2.camel@laptop.fenrus.com.suse.lists.linux.kernel> <p73smpepte1.fsf@oldwotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB03277A7C@mailse01.axis.se>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <p73smpepte1.fsf@oldwotan.suse.de>; from ak@suse.de on Thu, Jul 10, 2003 at 12:29:10PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10 2003, Mikael Starvik wrote:
-> Hi,
-> 
-> Use map_user_kiobuf to do this. There are several examples
-> in the kernel tree. One of the simplest may be 
-> arch/cris/drivers/examples/kiobuftest.c.
+On Thu, Jul 10, 2003 at 12:29:10PM +0200, Andi Kleen wrote:
+> The problem is that the instruction that avoid write-allocate usually also force 
+> the result out of cache. 
 
-get_user_pages() is a much better idea, considering 2.5/6 has no concept
-of kiobufs.
-
--- 
-Jens Axboe
-
+that's for the current implementation; rep stosl may get the WA-avoiding
+behavior sometime without the negative cache effects.. someday maybe.

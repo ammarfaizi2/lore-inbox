@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUEYPfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264934AbUEYPo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264931AbUEYPfO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 11:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbUEYPfO
+	id S264934AbUEYPo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 11:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbUEYPoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 11:35:14 -0400
-Received: from janus.foobazco.org ([198.144.194.226]:13186 "EHLO
-	mail.foobazco.org") by vger.kernel.org with ESMTP id S264912AbUEYPfH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 11:35:07 -0400
-Date: Tue, 25 May 2004 08:35:01 -0700
-From: Keith M Wesolowski <wesolows@foobazco.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthew Wilcox <willy@debian.org>, Andrea Arcangeli <andrea@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@kvack.org>,
-       linux-mm@kvack.org, Architectures Group <linux-arch@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-Message-ID: <20040525153501.GA19465@foobazco.org>
-References: <1085369393.15315.28.camel@gaston> <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org> <1085371988.15281.38.camel@gaston> <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org> <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org> <20040525034326.GT29378@dualathlon.random> <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org> <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+	Tue, 25 May 2004 11:44:55 -0400
+Received: from rrcs-central-24-106-242-83.biz.rr.com ([24.106.242.83]:33438
+	"EHLO viper.vortech.net") by vger.kernel.org with ESMTP
+	id S264912AbUEYPop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 11:44:45 -0400
+From: Joshua Jackson <linux-kernel@vortech.net>
+Reply-To: linux-kernel@vortech.net
+Organization: Vortech Consulting
+To: linux-kernel@vger.kernel.org
+Subject: VLAN startup info patch
+Date: Tue, 25 May 2004 11:44:44 -0400
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_sn2sAMykkrlfKcr"
+Message-Id: <200405251144.44507.linux-kernel@vortech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 07:48:24AM -0700, Linus Torvalds wrote:
 
-> > > the equivalent. You can always do it with a simple compare-and-exchange 
-> > > loop, something any SMP-capable architecture should have.
-> 
-> The race is:
->  - one CPU sets the dirty bit (possibly with a hardware walker, but I 
->    guess on PA it's probably done in sw)
->  - the other CPU sets the accessed bit in sw as part of the 
->    "handle_pte_fault()" processing.
-> 
-> Right now we set the accessed bit with a simple "ptep_establish()", which 
-> will use "set_pte()", which is just a regular write. So setting the 
-> accessed bit will basically be a nonatomic sequence of
-> 
->  - read pte entry
->  - entry = pte_mkyoung(entry)
->  - set_pte(entry)
-> 
-> which is all done under the mm->page_table_lock, but which does NOT 
-> protect against any hardware page-table walkers or any asynchronous sw 
-> walkers (if anybody does them).
+--Boundary-00=_sn2sAMykkrlfKcr
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Some sparc32 CPUs are also vulnerable to this race; in fact the
-supersparc manual describes it specifically and even outlines the
-compare-exchange loop using our rotten swap instruction.  In our case,
-the race is with a hardware walker.
+Attached is a patch against the 2.4.26 802.1q vlan support header 
+(kernel/linux/net/8021q/vlan.h) to make the startup info obey the "quiet" 
+kernel parameter.
 
--- 
-Keith M Wesolowski
+Currently, it will dump its copyright information even if the quiet parameter 
+is specified... including an "all bugs added by" "buggyright" message, which 
+tends to confuse some people when it is the only thing displayed durring 
+boot.
+
+--
+Joshua Jackson
+Vortech Consulting, LLC
+http://www.vortech.net
+
+--Boundary-00=_sn2sAMykkrlfKcr
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="vlan.h.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="vlan.h.patch"
+
+--- vlan.h.orig	2004-05-25 11:34:49.000000000 -0400
++++ vlan.h	2004-05-25 11:35:00.000000000 -0400
+@@ -7,7 +7,7 @@
+ /* #define VLAN_DEBUG */
+ 
+ #define VLAN_ERR KERN_ERR
+-#define VLAN_INF KERN_ALERT
++#define VLAN_INF KERN_INFO
+ #define VLAN_DBG KERN_ALERT /* change these... to debug, having a hard time
+                              * changing the log level at run-time..for some reason.
+                              */
+
+--Boundary-00=_sn2sAMykkrlfKcr--

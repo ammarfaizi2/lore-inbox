@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265855AbRFYCv5>; Sun, 24 Jun 2001 22:51:57 -0400
+	id <S265857AbRFYCv5>; Sun, 24 Jun 2001 22:51:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265850AbRFYCvs>; Sun, 24 Jun 2001 22:51:48 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:61085 "HELO
+	id <S265855AbRFYCvr>; Sun, 24 Jun 2001 22:51:47 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:60573 "HELO
 	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S265851AbRFYCv3>; Sun, 24 Jun 2001 22:51:29 -0400
+	id <S265850AbRFYCv3>; Sun, 24 Jun 2001 22:51:29 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@webofficenow.com>
 Reply-To: landley@webofficenow.com
-To: Jeff Dike <jdike@karaya.com>, landley@webofficenow.com
-Subject: Re: Microsoft and Xenix.
-Date: Sun, 24 Jun 2001 16:51:55 -0400
+To: Larry McVoy <lm@bitmover.com>, "J . A . Magallon" <jamagallon@able.es>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Date: Sun, 24 Jun 2001 16:24:33 -0400
 X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200106250145.UAA03758@ccure.karaya.com>
-In-Reply-To: <200106250145.UAA03758@ccure.karaya.com>
+Cc: landley@webofficenow.com,
+        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Timur Tabi <ttabi@interactivesi.com>,
+        "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz> <20010625003002.A1767@werewolf.able.es> <20010624165024.H8832@work.bitmover.com>
+In-Reply-To: <20010624165024.H8832@work.bitmover.com>
 MIME-Version: 1.0
-Message-Id: <0106241651550F.03436@localhost.localdomain>
+Message-Id: <0106241624340C.03436@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 June 2001 21:45, Jeff Dike wrote:
-> landley@webofficenow.com said:
-> > Licklidder wasn't just a bigwig behind  arpanet, he also kicked off
-> > project mac at MIT.
+On Sunday 24 June 2001 19:50, Larry McVoy wrote:
+> On Mon, Jun 25, 2001 at 12:30:02AM +0200, J . A . Magallon wrote:
+> > They use fork().
+> > They port their app to solaris.
+> > The performance sucks.
+> > It is not Solaris fault.
+> > It is linux fast fork() ...
 >
-> You're right, but you could at least spell his name right - J. C. R.
-> Licklider.
->
-> 		Jeff (who was his last undergraduate thesis supervisee at MIT)
+> One for the quotes page, eh?  We're terribly sorry, we'll get busy on
+> adding some delay loops in Linux so it too can be slow.
 
-What can I say, I'm bad with names?
+I'm still working that one out myself...
 
-This is why I'm so careful to write them down accurately in my notebook, 
-which is at home.  (I have some stuff typed into a text file on my laptop, 
-but it's easier to drag out a notebook and jot something down then to wait 30 
-seconds for my dell monstrosity's bios to boot up, open a window, cd to the 
-approprite directory, edit a text file, then shut everything down again.
+Okay, so Linux programmers are supposed to avoid APIs that are either 
+broken, badly implemented, or missing, on some other platform.
 
-I should probably get a palm pilot one of these days...
+That's pretty much all of them, isn't it?
 
 Rob

@@ -1,84 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274171AbRI1ADu>; Thu, 27 Sep 2001 20:03:50 -0400
+	id <S274160AbRI0X5T>; Thu, 27 Sep 2001 19:57:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274161AbRI1ADk>; Thu, 27 Sep 2001 20:03:40 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:25852 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274164AbRI1ADX>;
-	Thu, 27 Sep 2001 20:03:23 -0400
-Date: Fri, 28 Sep 2001 02:03:34 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
-Message-ID: <20010928020334.B14277@athlon.random>
-In-Reply-To: <E15mkaf-0000ms-00@mail.tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15mkaf-0000ms-00@mail.tv-sign.ru>; from oleg@tv-sign.ru on Fri, Sep 28, 2001 at 03:29:13AM +0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274161AbRI0X5J>; Thu, 27 Sep 2001 19:57:09 -0400
+Received: from host-029.nbc.netcom.ca ([216.123.146.29]:16914 "EHLO
+	mars.infowave.com") by vger.kernel.org with ESMTP
+	id <S274160AbRI0X5D>; Thu, 27 Sep 2001 19:57:03 -0400
+Message-ID: <6B90F0170040D41192B100508BD68CA1015A81B0@earth.infowave.com>
+From: Alex Cruise <acruise@infowave.com>
+To: "'Randy.Dunlap'" <rddunlap@osdlab.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: apm suspend broken in 2.4.10
+Date: Thu, 27 Sep 2001 16:56:36 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 03:29:13AM +0400, Oleg Nesterov wrote:
-> --- 2.4.10-softirq-A7/kernel/softirq.c.orig	Thu Sep 27 22:31:06 2001
-> +++ 2.4.10-softirq-A7/kernel/softirq.c	Thu Sep 27 22:54:37 2001
-> @@ -85,7 +85,7 @@
->  {
->  	int max_restart = MAX_SOFTIRQ_RESTART;
->  	int cpu = smp_processor_id();
-> -	__u32 pending, mask;
-> +	__u32 pending;
->  	long flags;
->  
->  	if (in_interrupt())
-> @@ -98,7 +98,6 @@
->  	if (pending) {
->  		struct softirq_action *h;
->  
-> -		mask = ~pending;
->  		local_bh_disable();
->  restart:
->  		/* Reset the pending bitmask before enabling irqs */
+From: Randy.Dunlap [mailto:rddunlap@osdlab.org]
 
-correct.
+> > -0xe1a
+> {little-endian n[iy]bbles ?}
 
-> @@ -381,26 +380,22 @@
->  #endif
->  
->  	current->nice = 19;
-> -	schedule();
-> -	__set_current_state(TASK_INTERRUPTIBLE);
+It's just the closest I can get to my own name in hex. ;)
 
-buggy (check cpus_allowed).
+> Sounds like our 2.4.10's are different then.  :)
 
->  	for (;;) {
-> -back:
-> +		schedule();
-> +		__set_current_state(TASK_INTERRUPTIBLE);
-> +
->  		do {
->  			do_softirq();
->  			if (current->need_resched)
->  				goto preempt;
->  		} while (softirq_pending(cpu));
-> -		schedule();
-> -		__set_current_state(TASK_INTERRUPTIBLE);
-> -	}
->  
-> +		continue;
->  preempt:
-> -	__set_current_state(TASK_RUNNING);
-> -	schedule();
-> -	__set_current_state(TASK_INTERRUPTIBLE);
-> -	goto back;
-> +		__set_current_state(TASK_RUNNING);
-> +	}
->  }
+It's possible... I got mine from kernel.org, applied the preemptible-kernel
+and ext3fs patches, and  compiled with RH's "kgcc" 
 
-you dropped Ingo's optimization (but you resurrected the strictier /proc
-statistics).
+> Without this patch, mine didn't create /proc/apm, register as a
+> misc device, or create the kapmd-idle kernel thread.
+> Must be a distro thingy.
 
-Andrea
+Did you have apm=on set before, or nothing at all?  Here's what I've seen so
+far:
+
+In all cases, I've got apm compiled into the kernel, not a module.
+
+- With 2.4.10, Before your patch, with no apm= option in the kernel command
+line, APM in general works, but suspend doesn't.  When I append apm=on or
+apm=off to my kernel command line, APM is disabled.
+- With 2.4.10, After applying your patch, apm=on no longer disables APM, but
+suspend still doesn't work.
+
+> Return of EAGAIN from the SUSPEND ioctl means that
+> send_event() failed, which means that some device driver
+> didn't want suspend to happen...which means that some
+> device driver got changed. :(
+
+Just for fun, I tried removing all of my loaded 2.4.10 modules one by one,
+and attempting 'apm --suspend' in between, and still had the same problem
+when I got down to the bare minimum (ext3 and jbd)
+
+> What was the last working kernel AFAUK (for this APM stuff)?
+
+I just checked, and the RH-compiled 2.4.9-0.5 doesn't suspend either.  It
+appears to suffer from the same "apm=on" command-line bug too.  I'm gonna go
+try the 2.4.7 from RH's "Roswell" beta now.
+
+-0xe1a

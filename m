@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUKILjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbUKILoC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbUKILjt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 06:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbUKILh3
+	id S261477AbUKILoC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 06:44:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbUKILoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 06:37:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:28596 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261477AbUKILf5 (ORCPT
+	Tue, 9 Nov 2004 06:44:02 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:9425 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261477AbUKILnr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 06:35:57 -0500
-Subject: Re: [PATCH 2/11] oprofile: arch-independent code for stack trace
-	sampling
-From: Greg Banks <gnb@melbourne.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: OProfile List <oprofile-list@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041109030557.1de3f96a.akpm@osdl.org>
-References: <1099996668.1985.783.camel@hole.melbourne.sgi.com>
-	 <20041109030557.1de3f96a.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Silicon Graphics Inc, Australian Software Group.
-Message-Id: <1100000147.1985.839.camel@hole.melbourne.sgi.com>
+	Tue, 9 Nov 2004 06:43:47 -0500
+Date: Tue, 9 Nov 2004 13:45:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] little schedule() cleanup: use cached current value
+Message-ID: <20041109124553.GA25663@elte.hu>
+References: <4190ADD7.CE7EFB7C@tv-sign.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 09 Nov 2004 22:35:48 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4190ADD7.CE7EFB7C@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-09 at 22:05, Andrew Morton wrote:
-> Greg Banks <gnb@melbourne.sgi.com> wrote:
-> >
-> > +	struct oprofile_cpu_buffer * cpu_buf = &cpu_buffer[smp_processor_id()];
-> 
-> oprofile is currently doing suspicious things with smp_processor_id() in
-> premptible reasons.  Is this patch compounding things?
 
-It's not changing the contexts where smp_processor_id() is called,
-just pushing it down one level from a bunch of interrupt handlers
-to the 2 oprofile sampling functions they call.  If it was busted
-before it's no more nor less busted now.
+* Oleg Nesterov <oleg@tv-sign.ru> wrote:
 
-I presume the perceived problem is that with CONFIG_PREEMPT=y the
-thread can be pre-empted onto another CPU?  If it makes everyone
-happier I can sprinkle a few preempt_disable()s around, but I'd
-prefer to do it in a subsequent patch rather than respin this.
+> @@ -2636,7 +2636,7 @@ switch_tasks:
+>  	} else
+>  		spin_unlock_irq(&rq->lock);
+>  
+> -	reacquire_kernel_lock(current);
+> +	reacquire_kernel_lock(next);
+>  	preempt_enable_no_resched();
+>  	if (unlikely(test_thread_flag(TIF_NEED_RESCHED)))
+>  		goto need_resched;
 
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+nack. We switch the kernel stack in switch_to() so 'next' here is the
+old task we switched to before we went off the CPU. The value of 'next'
+doesnt get carried over a context-switch. (we do carry 'prev' over via
+assembly trickery because we need it, but not 'next'.) This change would
+most likely result in rare, hard-to-track-down BKL-related crashes all
+around the place.
 
+the other bits are OK, please resend them.
 
+	Ingo

@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVBKItV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVBKIwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbVBKItV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 03:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVBKItV
+	id S262009AbVBKIwF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 03:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVBKIwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 03:49:21 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:10628 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262003AbVBKItQ (ORCPT
+	Fri, 11 Feb 2005 03:52:05 -0500
+Received: from postimies.kymp.net ([80.248.96.135]:27397 "EHLO vesta.kymp.net")
+	by vger.kernel.org with ESMTP id S262009AbVBKIvz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 03:49:16 -0500
-Date: Fri, 11 Feb 2005 09:48:43 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Chris Wright <chrisw@osdl.org>,
-       "Jack O'Quin" <jack.oquin@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com
-Subject: Re: 2.6.11-rc3-mm2
-Message-ID: <20050211084843.GA3980@elte.hu>
-References: <420C25D6.6090807@bigpond.net.au> <200502110341.j1B3fS8o017685@localhost.localdomain> <20050211065753.GE15058@waste.org> <20050211075417.GA2287@elte.hu> <20050211082536.GF15058@waste.org>
+	Fri, 11 Feb 2005 03:51:55 -0500
+Date: Fri, 11 Feb 2005 10:51:53 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: the "Turing Attack" (was: Sabotaged PaXtest)
+Message-ID: <20050211085153.GA22540@bostik.iki.fi>
+Reply-To: Mika Bostrom <bostik+lkml@bostik.iki.fi>
+References: <42080689.15768.1B0C5E5F@localhost> <42093CC7.5086.1FC83D3E@localhost> <20050208164815.GA9903@elte.hu> <20050208220851.GA23687@elte.hu> <20050210134314.GA4146@elte.hu> <20050210135845.GT347@unthought.net> <20050210152149.GA6697@elte.hu> <20050210200300.GE19998@khan.acc.umu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-In-Reply-To: <20050211082536.GF15058@waste.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050210200300.GE19998@khan.acc.umu.se>
+User-Agent: Mutt/1.5.6+20040907i
+From: bostik@bostik.iki.fi (Mika Bostrom)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Matt Mackall <mpm@selenic.com> wrote:
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Here's Chris' patch for reference:
-> 
-> http://groups-beta.google.com/group/linux.kernel/msg/6408569e13ed6e80
+  [Posted only on LKML, this has become humour.]
 
-how does this patch solve the separation of 'negative nice values' and
-'RT priority rlimits'? In one piece of code it handles the rlimit value
-as a 0-39 nice value, in another place it handles it as a limit for a
-1-100 RT priority range. The two ranges overlap and have nothing to do
-with each other. [*]
+On Thu, Feb 10, 2005 at 09:03:00PM +0100, David Weinehall wrote:
+> On Thu, Feb 10, 2005 at 04:21:49PM +0100, Ingo Molnar wrote:
+> >=20
+> > * Jakob Oestergaard <jakob@unthought.net> wrote:
+> > > > PaX cannot be a 'little bit pregnant'. (you might argue that exec-s=
+hield
+> > > > is in the 6th month, but that does not change the fundamental
+> > > > end-result: a child will be born ;-)
+> > >=20
+> > > Yes and no.  I would think that the chances of a child being born are
+> > > greater if the pregnancy has lasted successfully up until the 6th mon=
+th,
+> > > compared to a first week pregnancy.
+> > >=20
+> > > I assume you get my point  :)
+> >=20
+> > the important point is: neither PaX nor exec-shield can claim _for sure_
+> > that no child will be born, and neither can claim virginity ;-)
+> >=20
+> > [ but i guess there's a point where a bad analogy must stop ;) ]
+>=20
+> Yeah, sex is *usually* a much more pleasant experience than having your
+> machine broken into, even if it results in a pregnancy. =3D)
 
-anyway, as long as it doesnt touch the scheduler runtime code (and it
-doesnt), both types of solutions are fine to me - it's basically the
-security-subsystem people's call.
+  I'll bite, before anyone else says it...
 
-if the patch solves the negative-nice-value and the RT-priority issues
-at once, then it indeed looks more flexible (and more generic) than the
-LSM solution. [**]
+  It can not be a mere coincidence that the most rigorous security
+audits include penetration testing.
 
-	Ingo
+--=20
+ Mika Bostr=F6m      +358-40-525-7347  \-/  "World peace will be achieved
+ Bostik@iki.fi    www.iki.fi/bostik   X    when the last man has killed
+ Security freak, and proud of it.    /-\   the second-to-last." -anon?
 
-[*]  one acceptable way to 'merge' the two priority ranges would be to
-     introduce a unified priority range of 0-139: 0-39 would be for nice
-     values while 40-139 would be for RT priorities 1-99. NOTE: due to
-     rlimit semantics (users can always lower them without any security
-     checks), value 39 _must_ denote nice -20 and value 0 must denote
-     nice +19. I.e. it must strictly in increasing priority order.
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-[**] in fact, the 'Gnome problem' wrt. suid/gid binaries would be solved 
-     via the rlimit too.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCDHIpv829VwOfGI4RAnOhAJ4milQBuKBo4h+3hpsTfmAuUiATiACgh+kV
+fFsU+y2YdbnbJ26o56eJiaE=
+=QutP
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--

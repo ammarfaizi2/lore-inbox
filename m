@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRANLdu>; Sun, 14 Jan 2001 06:33:50 -0500
+	id <S130018AbRANLfj>; Sun, 14 Jan 2001 06:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130018AbRANLdj>; Sun, 14 Jan 2001 06:33:39 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8091 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129741AbRANLd2>;
-	Sun, 14 Jan 2001 06:33:28 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S131066AbRANLf3>; Sun, 14 Jan 2001 06:35:29 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:45074 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S130018AbRANLfO>; Sun, 14 Jan 2001 06:35:14 -0500
+Date: 14 Jan 2001 12:16:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <7trueV0Xw-B@khms.westfalen.de>
+In-Reply-To: <31714.979301892@ocs3.ocs-net>
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go?
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14945.36440.59585.376942@pizda.ninka.net>
-Date: Sun, 14 Jan 2001 03:32:40 -0800 (PST)
-To: Petru Paler <ppetru@ppetru.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-pre3+zerocopy: weird messages
-In-Reply-To: <20010114132845.F1394@ppetru.net>
-In-Reply-To: <20010114121105.B1394@ppetru.net>
-	<14945.32886.671619.99921@pizda.ninka.net>
-	<20010114124549.D1394@ppetru.net>
-	<14945.34414.185794.396720@pizda.ninka.net>
-	<20010114132845.F1394@ppetru.net>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3A5EF208.4013B5F7@innominate.de> <31714.979301892@ocs3.ocs-net>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kaos@ocs.com.au (Keith Owens)  wrote on 12.01.01 in <31714.979301892@ocs3.ocs-net>:
 
-Petru Paler writes:
- > > Oh, I think I know why this happens.  Can you add this patch, and next
- > > time the UDP bad csum message appears, tell me if it says "UDP packet
- > > with bad csum was fragmented." in the next line of your syslog
- > > messages?  Thanks.
- > 
- > Sure, but I also need the actual patch :)
+> On Fri, 12 Jan 2001 13:01:12 +0100,
+> Daniel Phillips <phillips@innominate.de> wrote:
+> >Keith Owens wrote:
+> >> I want to completely remove this multi layered method for setting
+> >> initialisation order and go back to basics.  I want the programmer to
+> >> say "initialise E and F after G, H and I".  The kernel build system
+> >> works out the directed graph of initialisation order then controls the
+> >> execution of startup code to satisfy this graph.
+> >
+> >I don't doubt you will come up with a workable solution at build time.
+> >However, working out a valid graph at execution time is trivial and
+> >efficient, given a list of precedence relations of the kind you're
+> >suggesting.  In fact you don't even have to work out the graph before
+> >starting the initialization, it's also trivial to keep a count of
+> >unsatisfied initialization conditions at the beginning of each
+> >initialization sequence and block until the count goes to zero.  (In
+> >essence, evaluate a priority sort on the fly.)
+>
+> It is safer to evaluate the graph at link time in case somebody
+> mistakenly codes a dependency loop, that is an abort case.  Finding
+> that you have a loop at load time and aborting the kernel is a little
+> too drastic for my tastes.
+>
+> In any case it is academic.  Linus insists on link order being
+> explicitly and completely specified by the programmer and he likes the
+> link order being implied by Makefile order.  So there is no point in
+> working on a better system.
 
-Duh, here it is :-)
+I'm not so sure about that. I think it _should_ be possible to do both,  
+and get better documentation at the same time.
 
---- net/ipv4/udp.c.~1~	Thu Jan 11 10:20:40 2001
-+++ net/ipv4/udp.c	Sun Jan 14 02:58:07 2001
-@@ -855,6 +855,8 @@
- 		if (!udp_check(uh, ulen, saddr, daddr, skb->csum))
- 			return 0;
- 		NETDEBUG(printk(KERN_DEBUG "udp v4 hw csum failure.\n"));
-+		if (skb_shinfo(skb)->frag_list != NULL)
-+			printk(KERN_DEBUG "UDP packet with bad csum was fragmented.\n");
- 		skb->ip_summed = CHECKSUM_NONE;
- 	}
- 	if (skb->ip_summed != CHECKSUM_UNNECESSARY)
+How about this:
+
+* Invent some method for modules to declare these dependencies. Maybe even
+  in /** */ type comments, so it goes right into the documentation.
+
+* Write a program to collect all dependencies, do a tsort on them
+  (alerting the developer if a loop is found), determining a reasonable
+  initialization order, and spitting out the relevant Makefiles or
+  Makefile fragments to *create* that initialization order the Linus way.
+
+Or in other words, don't do it at runtime, don't do it at compile time, do  
+it at develop time. (Or patch time, perhaps.)
+
+MfG Kai
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

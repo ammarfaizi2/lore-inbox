@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269208AbUISKLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269213AbUISKN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269208AbUISKLn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 06:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269209AbUISKLn
+	id S269213AbUISKN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 06:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269210AbUISKN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 06:11:43 -0400
-Received: from web11906.mail.yahoo.com ([216.136.172.190]:28168 "HELO
-	web11906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269208AbUISKLl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 06:11:41 -0400
-Message-ID: <20040919101139.98941.qmail@web11906.mail.yahoo.com>
-Date: Sun, 19 Sep 2004 03:11:39 -0700 (PDT)
-From: Mike Mestnik <cheako911@yahoo.com>
-Subject: Re: Design for setting video modes, ownership of sysfs attributes
-To: Jon Smirl <jonsmirl@gmail.com>,
-       Vladimir Dergachev <volodya@mindspring.com>
-Cc: Keith Packard <keithp@keithp.com>, Mike Mestnik <cheako911@yahoo.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910409181916446719b8@mail.gmail.com>
-MIME-Version: 1.0
+	Sun, 19 Sep 2004 06:13:56 -0400
+Received: from verein.lst.de ([213.95.11.210]:53673 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S269209AbUISKNp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 06:13:45 -0400
+Date: Sun, 19 Sep 2004 12:13:38 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] mark inter_module_* deprecated
+Message-ID: <20040919101337.GA5910@lst.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Jon Smirl <jonsmirl@gmail.com> wrote:
-
-> You did that from an xterm, right? Which console device is the xterm
-> running on?
-> 
-> X starts up a process that knows which device it is running and it can
-> remember that device since X stays running.
-> 
-Remember X opens the VC sepratly from it's console, hence it workes even
-when run from a serial or ssh terminal.
-
-> Maybe the answer is that this is something for the VC layer since the
-> VC layer stays running and knows what device it was started on. An
-> escape sequence could query the device from the VC terminal emulator.
-> 
-> Is there some way to figure this out from the environment? 
-> 
-> On Sat, 18 Sep 2004 21:57:32 -0400 (EDT), Vladimir Dergachev
-> <volodya@mindspring.com> wrote:
-> > On Sat, 18 Sep 2004, Jon Smirl wrote:
-> > > Isn't there an enviroment variable that tells what device is the
-> > > console for the session? How do you tell what serial port you're on
-> > > when multiple people are logged in on serial lines?
-> > 
-> > From any program you can do this:
-> > 
-> > volodya@silver:~$ ls -l /proc/self/fd/0
-> > lrwx------  1 volodya users 64 Sep 18 21:56 /proc/self/fd/0 ->
-> /dev/pts/1
-> > 
-> > So you get the pointer to the actual device stdin is associated to.
-> 
-> -- 
-> Jon Smirl
-> jonsmirl@gmail.com
-> 
+These had been officially deprecated since Rusty's module rewrite, but
+never got the __deprecated marker.  The only remaining users are drm and
+mtd, so we'll get some warnings for common builds.  But maybe that's the
+only way to get the drm people to fix the mess :)
 
 
-
-		
-_______________________________
-Do you Yahoo!?
-Declare Yourself - Register online to vote today!
-http://vote.yahoo.com
+--- 1.79/include/linux/module.h	2004-06-27 09:19:28 +02:00
++++ edited/include/linux/module.h	2004-09-19 11:52:33 +02:00
+@@ -580,10 +580,12 @@
+ 
+ /* Use symbol_get and symbol_put instead.  You'll thank me. */
+ #define HAVE_INTER_MODULE
+-extern void inter_module_register(const char *, struct module *, const void *);
+-extern void inter_module_unregister(const char *);
+-extern const void *inter_module_get(const char *);
+-extern const void *inter_module_get_request(const char *, const char *);
+-extern void inter_module_put(const char *);
++extern void __deprecated inter_module_register(const char *,
++		struct module *, const void *);
++extern void __deprecated inter_module_unregister(const char *);
++extern const void * __deprecated inter_module_get(const char *);
++extern const void * __deprecated inter_module_get_request(const char *,
++		const char *);
++extern void __deprecated inter_module_put(const char *);
+ 
+ #endif /* _LINUX_MODULE_H */

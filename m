@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262130AbSLJRXl>; Tue, 10 Dec 2002 12:23:41 -0500
+	id <S262506AbSLJRgV>; Tue, 10 Dec 2002 12:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264723AbSLJRXl>; Tue, 10 Dec 2002 12:23:41 -0500
-Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:53999 "EHLO
-	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S262130AbSLJRXk>; Tue, 10 Dec 2002 12:23:40 -0500
-Date: Tue, 10 Dec 2002 10:24:17 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: CaT <cat@zip.com.au>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.51 (fbcon issues)
-In-Reply-To: <20021210062258.GA667@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0212101017150.2617-100000@maxwell.earthlink.net>
+	id <S262807AbSLJRgV>; Tue, 10 Dec 2002 12:36:21 -0500
+Received: from intpop.corp.wcom.ca ([205.150.160.74]:35990 "EHLO corp.wcom.ca")
+	by vger.kernel.org with ESMTP id <S262506AbSLJRgV> convert rfc822-to-8bit;
+	Tue, 10 Dec 2002 12:36:21 -0500
+Message-ID: <03ad01c2a073$bc5e1200$9c094d8e@wcom.ca>
+From: "Serge Kuznetsov" <serge@wcom.ca>
+To: "Dave Jones" <davej@codemonkey.org.uk>, <ebuddington@wesleyan.edu>
+Cc: <linux-kernel@vger.kernel.org>
+References: <20021210111835.A92@ma-northadams1b-112.bur.adelphia.net> <20021210170939.GC577@codemonkey.org.uk>
+Subject: Re: 2.5.51 won't boot with devfs enabled
+Date: Tue, 10 Dec 2002 12:44:06 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4920.2300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>  > I had the same problem with 2.5.50, avoidable by disabling devfs entirely.
+> 
+> Sounds similar to http://bugzilla.kernel.org/show_bug.cgi?id=110
+> Does enabling UNIX98 pty's fix your problem ?
 
-> I removed both and it works fine. thanks. :)
+I have the same issue, even with
+CONFIG_UNIX98_PTYS = Y
+CONFIG_DEVFS_FS = Y
+CONFIG_DEVFS_MOUNT = Y
+CONFIG_DEVFS_DEBUG = Y
+CONFIG_DEVPTS_FS = Y
 
-Yeah!!!
-
-> It also seems a lot faster then the 2.4.x version which is way-cool. :)
-
-I know :-) With the help of Antonino Daplas we really go fast code. The
-benchmarks show a 2.5.x to 3x improvement over fbcon-cfb*!!! The accelerated
-drivers blows the benchmarks away!!!!
-
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@users.sf.net] 	                ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
+I am trying to invistigate problem closely for now.
 
 
+All the Best!
+Serge.

@@ -1,91 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVCAWXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVCAW0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVCAWXO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 17:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVCAWXH
+	id S262091AbVCAW0p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 17:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVCAW0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 17:23:07 -0500
-Received: from gate.crashing.org ([63.228.1.57]:51394 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262089AbVCAWWo (ORCPT
+	Tue, 1 Mar 2005 17:26:44 -0500
+Received: from gate.crashing.org ([63.228.1.57]:54978 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262091AbVCAW0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 17:22:44 -0500
+	Tue, 1 Mar 2005 17:26:11 -0500
 Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, Matthew Wilcox <matthew@wil.cx>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
        Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       Linas Vepstas <linas@austin.ibm.com>,
+       linux-ia64@vger.kernel.org, Linas Vepstas <linas@austin.ibm.com>,
        "Luck, Tony" <tony.luck@intel.com>
-In-Reply-To: <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
-References: <422428EC.3090905@jp.fujitsu.com> <42249A44.4020507@pobox.com>
+In-Reply-To: <200503010910.29460.jbarnes@engr.sgi.com>
+References: <422428EC.3090905@jp.fujitsu.com>
 	 <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
+	 <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk>
+	 <200503010910.29460.jbarnes@engr.sgi.com>
 Content-Type: text/plain
-Date: Wed, 02 Mar 2005 09:20:22 +1100
-Message-Id: <1109715623.5679.40.camel@gaston>
+Date: Wed, 02 Mar 2005 09:23:47 +1100
+Message-Id: <1109715827.5679.44.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-01 at 08:49 -0800, Linus Torvalds wrote:
+On Tue, 2005-03-01 at 09:10 -0800, Jesse Barnes wrote:
+> On Tuesday, March 1, 2005 8:59 am, Matthew Wilcox wrote:
+> > The MCA handler has to go and figure out what the hell just happened
+> > (was it a DIMM error, PCI bus error, etc).  OK, fine, it finds that it
+> > was an error on PCI bus 73.  At this point, I think the architecture
+> > error handler needs to call into the PCI subsystem and say "Hey, there
+> > was an error, you deal with it".
+> >
+> > If we're lucky, we get all the information that allows us to figure
+> > out which device it was (eg a destination address that matches a BAR),
+> > then we could have a ->error method in the pci_driver that handles it.
+> > If there's no ->error method, at leat call ->remove so one device only
+> > takes itself down.
+> >
+> > Does this make sense?
 > 
-> On Tue, 1 Mar 2005, Jeff Garzik wrote:
-> > 
-> > A new API handles none of this.
-> 
-> Ehh? 
-> 
-> The new API is what _allows_ a driver to care. It doesn't handle DMA, but
-> I think that's because nobody knows how to handle it (ie it's probably
-> hw-dependent and all existign implementations would thus be
-> driver-specific anyway).
+> This was my thought too last time we had this discussion.  A completely 
+> asynchronous call is probably needed in addition to Hidetoshi's proposed API, 
+> since as you point out, the driver may not be running when an error occurs 
+> (e.g. in the case of a DMA error or more general bus problem).  The async 
+> ->error callback could do a total reset of the card, or something along those 
+> lines as Jeff suggests, while the inline ioerr_clear/ioerr_check API could 
+> potentially deal with errors as they happen (probably in the case of PIO 
+> related errors), when the additional context may allow us to be smarter about 
+> recovery.
 
-We do on pSeries. Additionally, another device on the same physical
-segment can trigger an error and cause a slot isolation on us even when
-we do no IOs, so we also need asynchronous notification.
+What I think we need is an async call that takes:
 
-> And in the sense of "any general new api handles none of it", your 
-> argument doesn't make sense. The _old_ IO API's clearly don't handle it. 
-> So if you seem to say that "A new API" can't handle it either, then that 
-> translates to "no API can ever handle it". Fair enough, if you think it's 
-> impossible, but clearly you can handle some things.
-> 
-> And yes, CLEARLY drivers will have to do all the heavy lifting. 
+ - an opaque blob with the error informations and accessors (see my
+reply to Jeff)
 
-I think Seto has a good start tho. But it's not enough. See my other
-mail to Jeff for my other thought on the issue, I'm still trying to get
-some API I'm happy myself with however, since it's not a simple issue.
+ - a slot state (slot isolated, slot has been reset, slot has IOs /DMA
+enabled/disabled, must probably be a bitmask)
 
-> I don't expect most drivers to care. In fact, I expect about five to ten
-> drivers to be converted to really care, and then for some forseeable time
-> you'll have to be very picky about your hardware if you care about PCI 
-> parity errors etc. Most people don't, and most drivers won't be written in 
-> environments where they can be reasonably tested.
+ - a bit mask of possible actions the driver can request (nothing, reset
+slot, re-enable IOs, ...)
 
-On pSeries, we'll default, for drivers that don't care, to triggering a
-PCI unplug, slot reset, PCI re-plug. This is perfect for ethernet
-drivers for example. But it's a real pain for block devices since they
-won't be able to recover (and we can't even force unmount the dangling
-filesystem afaik).
+I'm afraid tho that the combinatory explosion will make it difficult to
+drivers to deal with the right thing. Maybe we can simplify the mecanism
+to archs that can just 1) re-enable IOs, 2) reset slot.
 
-For drivers like IPR SCSI, we want to expose a richer API so they can
-make use of the features provided by the platform, like resetting the
-slot.
+Note that the reason to re-enable IOs before trying to reset the slot is
+that some devices will allow you to extract diagnostic informations, and
+it's always useful to gather as much informations as possible upon an
+error of this type.
 
-But the above also need to be able to differenciate a driver that cares
-from a driver that doesn't. I think an additional callback in pci_driver
-for notifying of async events (error happened, slot has been reset, IOs
-are re-enabled, whatever we define ...) is a good idea, since the
-presence of a callback is a good enough indication to the core of wether
-the driver has it's own recovery strategy or not.
+Ben.
 
-> That's just a fact. Anybody who expects all drivers to suddenly start 
-> doing IO checks is just living in a dream world.
-> 
-> 		Linus
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

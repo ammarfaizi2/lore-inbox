@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbUCECLD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 21:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbUCECLD
+	id S262159AbUCECSz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 21:18:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbUCECSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 21:11:03 -0500
-Received: from gate.crashing.org ([63.228.1.57]:15305 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262157AbUCECLA (ORCPT
+	Thu, 4 Mar 2004 21:18:55 -0500
+Received: from mx02.qsc.de ([213.148.130.14]:17900 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S262159AbUCECSy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 21:11:00 -0500
-Subject: Re: problem with cache flush routine for G5?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Tom Rini <trini@kernel.crashing.org>
-In-Reply-To: <4047CBB3.9050608@nortelnetworks.com>
-References: <40479A50.9090605@nortelnetworks.com>
-	 <1078444268.5698.27.camel@gaston>  <4047CBB3.9050608@nortelnetworks.com>
-Content-Type: text/plain
-Message-Id: <1078452637.5700.45.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Mar 2004 13:10:38 +1100
+	Thu, 4 Mar 2004 21:18:54 -0500
+Message-ID: <4047E231.60304@trash.net>
+Date: Fri, 05 Mar 2004 03:13:05 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthew Strait <quadong@users.sourceforge.net>
+CC: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] matching any helper in ipt_helper.c
+References: <Pine.LNX.4.60.0403031947450.8957@dsl093-017-216.msp1.dsl.speakeasy.net> <40469E10.7080100@trash.net> <Pine.LNX.4.60.0403032150000.8957@dsl093-017-216.msp1.dsl.speakeasy.net> <4046BFB9.809@trash.net> <Pine.LNX.4.60.0403041500280.10634@dsl093-017-216.msp1.dsl.speakeasy.net> <4047A42E.6080307@trash.net> <Pine.LNX.4.60.0403041821010.21790@dsl093-017-216.msp1.dsl.speakeasy.net>
+In-Reply-To: <Pine.LNX.4.60.0403041821010.21790@dsl093-017-216.msp1.dsl.speakeasy.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Strait wrote:
+> Silly me, I assumed that the error was generated in user space.  Ok.  In
+> that case, let's forget translating "any" to "", because that just makes
+> the output of "iptables -L" confusing.  Sound good?
+>
 
-> It did in 2.4, and we added a syscall to export it to userspace.  Now 
-> I'm supposed to figure out what to do for 2.6, and it appears that the 
-> kernel version is gone and the one in boot is screwed.
+I actually meant translate in both direction. But no problem, I'm going
+to make a patch for iptables myself, if Martin is fine with it we can
+remove the childlevel match.
 
-Ugh ? No, the kernel doesn't contain a routine that you can
-use to flush the entire cache. It contains and use routines
-to flush regions of the dcache & icache, and those can prefectly
-be used in userland. In fact, none of the cache flush code is
-relying on supervisor mode, you don't need to add a syscall for
-that, just copy the code you need in userland.
+Thanks.
 
-> The only remaining ppc version of flush_data_cache is used by 
-> flush_instruction_cache in arc/ppc/boot/common/util.S
-
-That's wrong. You should flush the cache over the range
-where you need it flushed. Also, there are very few reasons
-why one would want to flush the dcache, so it would be interesting
-to know what you are really trying to do.
-
-> There is also another version of flush_instruction_cache implemented in 
-> arch/ppc/kernel/misc.S.
-
-That is only used on some embedded CPUs afaik.
-
-Ben.
-
-
+Patrick

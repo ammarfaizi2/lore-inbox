@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264253AbTDWULH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 16:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTDWULG
+	id S264250AbTDWUJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 16:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTDWUJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 16:11:06 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:4109 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264253AbTDWUKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 16:10:01 -0400
-Date: Wed, 23 Apr 2003 21:22:08 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Mika Kukkonen <mika@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, cgl_discussion@osdl.org
-Subject: Re: [cgl_discussion] Re: OSDL CGL-WG draft specs available for review
-Message-ID: <20030423212208.B7383@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mika Kukkonen <mika@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-	cgl_discussion@osdl.org
-References: <1051044403.1384.44.camel@miku-t21-redhat.koti> <20030423174958.A2603@infradead.org> <1051122743.7515.97.camel@miku-t21-redhat.koti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1051122743.7515.97.camel@miku-t21-redhat.koti>; from mika@osdl.org on Wed, Apr 23, 2003 at 11:32:25AM -0700
+	Wed, 23 Apr 2003 16:09:40 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:32010 "HELO
+	hemi.commfireservices.com") by vger.kernel.org with SMTP
+	id S264250AbTDWUJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 16:09:36 -0400
+Date: Wed, 23 Apr 2003 16:13:42 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Philippe =?ISO-8859-1?B?R3JhbW91bGzp?= 
+	<philippe.gramoulle@mmania.com>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.67-mm4 & IRQ balancing
+In-Reply-To: <Pine.LNX.3.96.1030423153128.4451E-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.50.0304231610030.27414-100000@montezuma.mastecende.com>
+References: <Pine.LNX.3.96.1030423153128.4451E-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 11:32:25AM -0700, Mika Kukkonen wrote:
-> On Wed, 2003-04-23 at 09:49, Christoph Hellwig wrote:
-> > >    4.10 Force unmount (2) 2 Experimental Availability Core
-> (...)
-> > This is very hard to get right.  What the expermintel implementation
-> > you're referring to?
-> 
-> This feature was mentioned in v1.1 spec, so some distributions already
-> provide "experimental" versions of this feature. There are no Open
-> Source projects I know of, though.
+On Wed, 23 Apr 2003, Bill Davidsen wrote:
 
-How do they provide  "experimental" versions of this feature?  I don't
-see how this can be done without major fileystem surgery, so it
-kindof must be an OSS implementation..
+> I like the idea of being able to tune the int processing with a user
+> program. I don't think I share your vision of making a user program part
 
-> > Without really big kernel changes it's hard to get full POSIX thread
-> > semantics. e.g. we still don't have credential sharing for tasks.  And
-> > it doesn't lool like this makes 2.6.  I'd rather remove this one..
-> 
-> Ah, we are not aiming to get our features into a certain kernel version,
-> and actually we do not expect or even want (because of 2.6
-> stabilization) that our v2 spec kernel features get merged into 2.6 at
-> this point of time (some of them might, though).
-> 
-> For us it is enough that the distros will pick most of the features
-> after v2 specs get released and through that adaption some of
-> those features will get merged into 2.7 or whatever is coming after 2.6.
-> So we are not in hurry ;-)
+You've actually been able to do this with echo(1) for a while, just not 
+'automagically'
 
-Well, this is not doable ontop of any existing kernel without major
-suregery (introducing a credential cache and passing it down to
-every place that's doing uid/gid based access control).
+> of the kernel to allow diddling an interface which might be better getting
+> right the first time, and protecting against "features" being added.
+> Hopefully it will be minimalist, and may well benefit from a totally
+> different user program for various machine types.
 
-So none of the CGL distros can really support that.
+The smp interrupt affinity interface hasn't changed for a while (since 
+inception?), we're only now deciding on where to put the autotune aspect 
+of it.
 
+	Zwane
+
+--
+function.linuxpower.ca

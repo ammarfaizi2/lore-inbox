@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262354AbRERPrX>; Fri, 18 May 2001 11:47:23 -0400
+	id <S262357AbRERPrn>; Fri, 18 May 2001 11:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262356AbRERPrP>; Fri, 18 May 2001 11:47:15 -0400
-Received: from sal.qcc.sk.ca ([198.169.27.3]:1551 "HELO sal.qcc.sk.ca")
-	by vger.kernel.org with SMTP id <S262354AbRERPrD>;
-	Fri, 18 May 2001 11:47:03 -0400
-Date: Fri, 18 May 2001 09:47:02 -0600
-From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010518094702.A21217@qcc.sk.ca>
-In-Reply-To: <20010518093414.A21164@qcc.sk.ca> <Pine.LNX.4.33.0105180727270.17872-100000@dlang.diginsite.com>
-Mime-Version: 1.0
+	id <S262356AbRERPrd>; Fri, 18 May 2001 11:47:33 -0400
+Received: from conn.mc.mpls.visi.com ([208.42.156.2]:32154 "HELO
+	conn.mc.mpls.visi.com") by vger.kernel.org with SMTP
+	id <S262357AbRERPrX>; Fri, 18 May 2001 11:47:23 -0400
+Message-ID: <3B053E1E.CA57DC6A@steinerpoint.com>
+Date: Fri, 18 May 2001 10:22:06 -0500
+From: Al Borchers <alborchers@steinerpoint.com>
+Reply-To: alborchers@steinerpoint.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl, tytso@mit.edu,
+        Peter Berger <pberger@brimson.com>, andrewm@uow.edu.au
+Subject: Re: [patch] 2.4.0, 2.2.18: A critical problem with tty_io.c
+In-Reply-To: <E150iOA-0006z3-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0105180727270.17872-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Fri, May 18, 2001 at 07:30:07AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang <david.lang@digitalinsight.com> wrote:
+Alan Cox wrote:
+> Add an 'owner' field to the objects we are using. Then we can lock the tty
+> and the ldisc from the tyy_io code rather than in serial.c and friends. This
+> removes the unload during open/close races we currently have in serial.c
+> 
+> Take a look at videodev.c for a fairly clear example.
 
-> > Whether this is desirable or not is debatable.  The big question is:  why
-> > on earth would Aunt Tillie _want_ to compile a kernel at all, let alone
-> > re-configure one?  If she's using Linux, she's installing her
-> > distribution's pre-compiled kernel, and has no need for anything else.
+Andrew Morton wrote:
+> I have a work-in-non-progress here which addresses a few of
+> these things.  It would be good if someone could review it
+> and finish it off...
 
-> why is it that so many people seem to think that it's a good thing to only
-> use precompiled kernels from the distro?  a kernel tuned for a particular
-> machine can boot faster and run faster then a 'stock' kernel.
+I will take a look.
 
-I'm not saying it's a good thing.  I'm saying that the 5% performance increase
-that results is not something that the average "I just want to use the system"
-will even notice, let alone care about.
-
-> unless you want to replace the kernel compile config options with a
-> similar sized menu to select between precompiled kernels with the correct
-> options (never mind what that will do to the size of the distros to ship
-> so many kernels)
-
-They don't need to ship a mass of kernels.  Modern distributions probably
-don't need to worry about shipping three or four modular kernels.  Any user
-who cares about the minor performance benefits of a custom-configured kernel
-is going to reconfigure and recompile regardless of how dumbed-down the
-interface is.
-
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
-Any opinions expressed are just that -- my opinions.
------------------------------------------------------------------------
+-- Al

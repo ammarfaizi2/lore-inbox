@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbTFTJDs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 05:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTFTJDs
+	id S262494AbTFTJJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 05:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTFTJJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 05:03:48 -0400
-Received: from news.cistron.nl ([62.216.30.38]:59909 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262493AbTFTJDr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 05:03:47 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Sco vs. IBM
-Date: Fri, 20 Jun 2003 09:17:47 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <bcujfr$ka9$1@news.cistron.nl>
-References: <A46BBDB345A7D5118EC90002A5072C780E0409E9@orsmsx116.jf.intel.com>
+	Fri, 20 Jun 2003 05:09:09 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:34375 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262494AbTFTJJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 05:09:08 -0400
+Date: Fri, 20 Jun 2003 02:23:08 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Fruhwirth Clemens <clemens-dated-1056963973.bf26@endorphin.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Initial Vector Fix for loop.c.
+Message-Id: <20030620022308.2afa8142.akpm@digeo.com>
+In-Reply-To: <20030620090612.GA1322@ghanima.endorphin.org>
+References: <20030620090612.GA1322@ghanima.endorphin.org>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1056100667 20809 62.216.29.200 (20 Jun 2003 09:17:47 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Jun 2003 09:23:08.0347 (UTC) FILETIME=[8FD158B0:01C3370D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <A46BBDB345A7D5118EC90002A5072C780E0409E9@orsmsx116.jf.intel.com>,
-Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
->> From: miquels@cistron-office.nl [mailto:miquels@cistron-office.nl]
->> There is. If you want to develop a commercial application under
->> KDE you need to pay TrollTech for the Qt license. Basically
->> TrollTech controls all commercial KDE applications.
+Fruhwirth Clemens <clemens-dated-1056963973.bf26@endorphin.org> wrote:
 >
->I'd say that GPL file appended to the dual license
->of Qt says otherwise ... but IANAL...
+> If this bug is fixed, we can go ahead and add cryptoloop which is ready and
+>  tested.
 
-I have nothing against Qt or Trolltech. I just happen to think that
-the GPL is a bad license for a core-library (which Qt is for KDE).
-But I shouldn't have gone this far offtopic anyway. Sorry.
+Does it use the crypto framework which is present in the 2.5 kernel?
 
-Mike.
+If it does not then the cryptoloop implementation which you mention
+is inappropriate for inclusion.
 
+If it does then it would be nice to see the full patchset.

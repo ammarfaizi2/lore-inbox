@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262046AbTCZTkY>; Wed, 26 Mar 2003 14:40:24 -0500
+	id <S262003AbTCZTgU>; Wed, 26 Mar 2003 14:36:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262048AbTCZTix>; Wed, 26 Mar 2003 14:38:53 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27147 "EHLO
+	id <S262005AbTCZTgU>; Wed, 26 Mar 2003 14:36:20 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24331 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262046AbTCZThg>; Wed, 26 Mar 2003 14:37:36 -0500
-Date: Wed, 26 Mar 2003 19:48:45 +0000
+	id <S262003AbTCZTgQ>; Wed, 26 Mar 2003 14:36:16 -0500
+Date: Wed, 26 Mar 2003 19:47:26 +0000
 From: Russell King <rmk@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PULL] (9/9) PCMCIA changes
-Message-ID: <20030326194845.K8871@flint.arm.linux.org.uk>
+Subject: Re: [BK PULL] (5/9) PCMCIA changes
+Message-ID: <20030326194726.G8871@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20030326193427.B8871@flint.arm.linux.org.uk> <20030326193511.C8871@flint.arm.linux.org.uk> <20030326193537.D8871@flint.arm.linux.org.uk> <20030326193601.E8871@flint.arm.linux.org.uk> <20030326193625.F8871@flint.arm.linux.org.uk> <20030326194726.G8871@flint.arm.linux.org.uk> <20030326194747.H8871@flint.arm.linux.org.uk> <20030326194807.I8871@flint.arm.linux.org.uk> <20030326194827.J8871@flint.arm.linux.org.uk>
+References: <20030326193427.B8871@flint.arm.linux.org.uk> <20030326193511.C8871@flint.arm.linux.org.uk> <20030326193537.D8871@flint.arm.linux.org.uk> <20030326193601.E8871@flint.arm.linux.org.uk> <20030326193625.F8871@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030326194827.J8871@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Wed, Mar 26, 2003 at 07:48:27PM +0000
+In-Reply-To: <20030326193625.F8871@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Wed, Mar 26, 2003 at 07:36:25PM +0000
 X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -26,101 +26,149 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.889.359.8 -> 1.889.359.9
-#	drivers/pcmcia/Makefile	1.21    -> 1.22   
+#	           ChangeSet	1.889.359.4 -> 1.889.359.5
+#	 drivers/pcmcia/cs.c	1.18    -> 1.19   
+#	drivers/pcmcia/rsrc_mgr.c	1.10    -> 1.11   
+#	drivers/pcmcia/Kconfig	1.2     -> 1.3    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 03/03/24	hch@com.rmk.(none)	1.889.359.9
-# [PCMCIA] drivers/pcmcia/Makefile tidyups
+# 03/03/18	rmk@flint.arm.linux.org.uk	1.889.359.5
+# [PCMCIA] pcmcia-6: s/CONFIG_ISA/CONFIG_PCMCIA_PROBE/
 # 
-# (1) use the builtin foo-$(BAR) mechanism of the 2.5 kbuild
-# (2) align all += foo.o statements
+# Remove the dependence of the PCMCIA layer on CONFIG_ISA - introduce
+# CONFIG_PCMCIA_PROBE to determine whether we need the resource
+# handling code.  This prevents oopsen on SA11x0 and similar platforms
+# which use statically mapped, non-windowed sockets.
 # --------------------------------------------
 #
-diff -Nru a/drivers/pcmcia/Makefile b/drivers/pcmcia/Makefile
---- a/drivers/pcmcia/Makefile	Wed Mar 26 19:22:52 2003
-+++ b/drivers/pcmcia/Makefile	Wed Mar 26 19:22:52 2003
-@@ -2,46 +2,43 @@
- # Makefile for the kernel pcmcia subsystem (c/o David Hinds)
- #
+diff -Nru a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
+--- a/drivers/pcmcia/Kconfig	Wed Mar 26 19:21:02 2003
++++ b/drivers/pcmcia/Kconfig	Wed Mar 26 19:21:02 2003
+@@ -87,5 +87,9 @@
+ 	tristate "SA1111 support"
+ 	depends on PCMCIA_SA1100 && SA1111
  
--obj-$(CONFIG_PCMCIA)			+= pcmcia_core.o ds.o
-+obj-$(CONFIG_PCMCIA)				+= pcmcia_core.o ds.o
- ifeq ($(CONFIG_CARDBUS),y)
--  obj-$(CONFIG_PCMCIA) 			+= yenta_socket.o
-+  obj-$(CONFIG_PCMCIA) 				+= yenta_socket.o
- endif
++config PCMCIA_PROBE
++	bool
++	default y if ISA && !ARCH_SA1100 && !ARCH_CLPS711X
++
+ endmenu
  
--obj-$(CONFIG_I82365)			+= i82365.o
--obj-$(CONFIG_I82092)			+= i82092.o
--obj-$(CONFIG_TCIC)			+= tcic.o
--obj-$(CONFIG_HD64465_PCMCIA)		+= hd64465_ss.o
--obj-$(CONFIG_PCMCIA_SA1100)		+= sa1100_cs.o
--obj-$(CONFIG_PCMCIA_SA1111)		+= sa1111_cs.o
-+obj-$(CONFIG_I82365)				+= i82365.o
-+obj-$(CONFIG_I82092)				+= i82092.o
-+obj-$(CONFIG_TCIC)				+= tcic.o
-+obj-$(CONFIG_HD64465_PCMCIA)			+= hd64465_ss.o
-+obj-$(CONFIG_PCMCIA_SA1100)			+= sa1100_cs.o
-+obj-$(CONFIG_PCMCIA_SA1111)			+= sa1111_cs.o
+diff -Nru a/drivers/pcmcia/cs.c b/drivers/pcmcia/cs.c
+--- a/drivers/pcmcia/cs.c	Wed Mar 26 19:21:02 2003
++++ b/drivers/pcmcia/cs.c	Wed Mar 26 19:21:02 2003
+@@ -1621,7 +1621,7 @@
+ 	free_irq(req->AssignedIRQ, req->Instance);
+     }
  
--yenta_socket-objs				:= pci_socket.o yenta.o
-+yenta_socket-y					+= pci_socket.o yenta.o
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+     if (req->AssignedIRQ != s->cap.pci_irq)
+ 	undo_irq(req->Attributes, req->AssignedIRQ);
+ #endif
+@@ -1883,7 +1883,7 @@
+     if (!s->cap.irq_mask) {
+ 	irq = s->cap.pci_irq;
+ 	ret = (irq) ? 0 : CS_IN_USE;
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+     } else if (s->irq.AssignedIRQ != 0) {
+ 	/* If the interrupt is already assigned, it must match */
+ 	irq = s->irq.AssignedIRQ;
+diff -Nru a/drivers/pcmcia/rsrc_mgr.c b/drivers/pcmcia/rsrc_mgr.c
+--- a/drivers/pcmcia/rsrc_mgr.c	Wed Mar 26 19:21:02 2003
++++ b/drivers/pcmcia/rsrc_mgr.c	Wed Mar 26 19:21:02 2003
+@@ -62,7 +62,7 @@
+ #define INT_MODULE_PARM(n, v) static int n = v; MODULE_PARM(n, "i")
  
--pcmcia_core-objs-y				:= cistpl.o rsrc_mgr.o bulkmem.o cs.o
--pcmcia_core-objs-$(CONFIG_CARDBUS)		+= cardbus.o
--pcmcia_core-objs				:= $(pcmcia_core-objs-y)
-+pcmcia_core-y					+= cistpl.o rsrc_mgr.o bulkmem.o cs.o
-+pcmcia_core-$(CONFIG_CARDBUS)			+= cardbus.o
+ INT_MODULE_PARM(probe_mem,	1);		/* memory probe? */
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+ INT_MODULE_PARM(probe_io,	1);		/* IO port probe? */
+ INT_MODULE_PARM(mem_limit,	0x10000);
+ #endif
+@@ -87,7 +87,7 @@
  
--sa1111_cs-objs-y				:= sa1111_generic.o
--sa1111_cs-objs-$(CONFIG_SA1100_ADSBITSY)	+= sa1100_adsbitsy.o
--sa1111_cs-objs-$(CONFIG_ASSABET_NEPONSET)	+= sa1100_neponset.o
--sa1111_cs-objs-$(CONFIG_SA1100_BADGE4)		+= sa1100_badge4.o
--sa1111_cs-objs-$(CONFIG_SA1100_GRAPHICSMASTER)	+= sa1100_graphicsmaster.o
--sa1111_cs-objs-$(CONFIG_SA1100_JORNADA720)	+= sa1100_jornada720.o
--sa1111_cs-objs-$(CONFIG_SA1100_PFS168)		+= sa1100_pfs168.o
--sa1111_cs-objs-$(CONFIG_SA1100_PT_SYSTEM3)	+= sa1100_system3.o
--sa1111_cs-objs-$(CONFIG_SA1100_XP860)		+= sa1100_xp860.o
--sa1111_cs-objs					:= $(sa1111_cs-objs-y)
-+sa1111_cs-y					+= sa1111_generic.o
-+sa1111_cs-$(CONFIG_SA1100_ADSBITSY)		+= sa1100_adsbitsy.o
-+sa1111_cs-$(CONFIG_ASSABET_NEPONSET)		+= sa1100_neponset.o
-+sa1111_cs-$(CONFIG_SA1100_BADGE4)		+= sa1100_badge4.o
-+sa1111_cs-$(CONFIG_SA1100_GRAPHICSMASTER)	+= sa1100_graphicsmaster.o
-+sa1111_cs-$(CONFIG_SA1100_JORNADA720)		+= sa1100_jornada720.o
-+sa1111_cs-$(CONFIG_SA1100_PFS168)		+= sa1100_pfs168.o
-+sa1111_cs-$(CONFIG_SA1100_PT_SYSTEM3)		+= sa1100_system3.o
-+sa1111_cs-$(CONFIG_SA1100_XP860)		+= sa1100_xp860.o
+ static DECLARE_MUTEX(rsrc_sem);
  
--sa1100_cs-objs-y				:= sa1100_generic.o
--sa1100_cs-objs-$(CONFIG_SA1100_ASSABET)		+= sa1100_assabet.o
--sa1100_cs-objs-$(CONFIG_SA1100_CERF)		+= sa1100_cerf.o
--sa1100_cs-objs-$(CONFIG_SA1100_FLEXANET)	+= sa1100_flexanet.o
--sa1100_cs-objs-$(CONFIG_SA1100_FREEBIRD)	+= sa1100_freebird.o
--sa1100_cs-objs-$(CONFIG_SA1100_GRAPHICSCLIENT)	+= sa1100_graphicsclient.o
--sa1100_cs-objs-$(CONFIG_SA1100_H3600)		+= sa1100_h3600.o
--sa1100_cs-objs-$(CONFIG_SA1100_PANGOLIN)	+= sa1100_pangolin.o
--sa1100_cs-objs-$(CONFIG_SA1100_SHANNON)		+= sa1100_shannon.o
--sa1100_cs-objs-$(CONFIG_SA1100_SIMPAD)		+= sa1100_simpad.o
--sa1100_cs-objs-$(CONFIG_SA1100_STORK)		+= sa1100_stork.o
--sa1100_cs-objs-$(CONFIG_SA1100_TRIZEPS) 	+= sa1100_trizeps.o
--sa1100_cs-objs-$(CONFIG_SA1100_YOPY)		+= sa1100_yopy.o
--sa1100_cs-objs					:= $(sa1100_cs-objs-y)
-+sa1100_cs-y					+= sa1100_generic.o
-+sa1100_cs-$(CONFIG_SA1100_ASSABET)		+= sa1100_assabet.o
-+sa1100_cs-$(CONFIG_SA1100_CERF)			+= sa1100_cerf.o
-+sa1100_cs-$(CONFIG_SA1100_FLEXANET)		+= sa1100_flexanet.o
-+sa1100_cs-$(CONFIG_SA1100_FREEBIRD)		+= sa1100_freebird.o
-+sa1100_cs-$(CONFIG_SA1100_GRAPHICSCLIENT)	+= sa1100_graphicsclient.o
-+sa1100_cs-$(CONFIG_SA1100_H3600)		+= sa1100_h3600.o
-+sa1100_cs-$(CONFIG_SA1100_PANGOLIN)		+= sa1100_pangolin.o
-+sa1100_cs-$(CONFIG_SA1100_SHANNON)		+= sa1100_shannon.o
-+sa1100_cs-$(CONFIG_SA1100_SIMPAD)		+= sa1100_simpad.o
-+sa1100_cs-$(CONFIG_SA1100_STORK)		+= sa1100_stork.o
-+sa1100_cs-$(CONFIG_SA1100_TRIZEPS) 		+= sa1100_trizeps.o
-+sa1100_cs-$(CONFIG_SA1100_YOPY)			+= sa1100_yopy.o
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+ 
+ typedef struct irq_info_t {
+     u_int			Attributes;
+@@ -273,7 +273,7 @@
+     
+ ======================================================================*/
+ 
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+ static void do_io_probe(ioaddr_t base, ioaddr_t num)
+ {
+     
+@@ -378,7 +378,7 @@
+     return (num - bad);
+ }
+ 
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+ 
+ static u_long inv_probe(int (*is_valid)(u_long),
+ 			int (*do_cksum)(u_long),
+@@ -442,7 +442,7 @@
+     up(&rsrc_sem);
+ }
+ 
+-#else /* CONFIG_ISA */
++#else /* CONFIG_PCMCIA_PROBE */
+ 
+ void validate_mem(int (*is_valid)(u_long), int (*do_cksum)(u_long),
+ 		  int force_low, socket_info_t *s)
+@@ -459,7 +459,7 @@
+     }
+ }
+ 
+-#endif /* CONFIG_ISA */
++#endif /* CONFIG_PCMCIA_PROBE */
+ 
+ /*======================================================================
+ 
+@@ -545,7 +545,7 @@
+     
+ ======================================================================*/
+ 
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+ 
+ static void fake_irq(int i, void *d, struct pt_regs *r) { }
+ static inline int check_irq(int irq)
+@@ -634,7 +634,7 @@
+ 
+ /*====================================================================*/
+ 
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+ 
+ void undo_irq(u_int Attributes, int irq)
+ {
+@@ -725,7 +725,7 @@
+ 	    ret = CS_IN_USE;
+ 	    break;
+ 	}
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+ 	if (probe_io)
+ 	    do_io_probe(base, num);
+ #endif
+@@ -747,7 +747,7 @@
+ static int adjust_irq(adjust_t *adj)
+ {
+     int ret = CS_SUCCESS;
+-#ifdef CONFIG_ISA
++#ifdef CONFIG_PCMCIA_PROBE
+     int irq;
+     irq_info_t *info;
+     
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

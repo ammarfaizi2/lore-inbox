@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUHJNXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265031AbUHJM5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265106AbUHJNXX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 09:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUHJNUL
+	id S265031AbUHJM5r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 08:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUHJMzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 09:20:11 -0400
-Received: from AGrenoble-152-1-15-201.w82-122.abo.wanadoo.fr ([82.122.13.201]:50320
-	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
-	id S265263AbUHJNNo convert rfc822-to-8bit (ORCPT
+	Tue, 10 Aug 2004 08:55:21 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:51854 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265051AbUHJMyb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 09:13:44 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mj@ucw.cz, James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk,
-       axboe@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <200408101246.i7ACkTbm014030@burner.fokus.fraunhofer.de>
-References: <200408101246.i7ACkTbm014030@burner.fokus.fraunhofer.de>
-Content-Type: text/plain; charset=utf-8
-Message-Id: <1092143397.8744.19.camel@gonzales>
+	Tue, 10 Aug 2004 08:54:31 -0400
+Date: Tue, 10 Aug 2004 14:55:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>, V13 <v13@priest.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040810125529.GA22650@elte.hu>
+References: <200408091217.50786.jbarnes@engr.sgi.com> <20040810100234.GN11200@holomorphy.com> <20040810115307.GR11200@holomorphy.com> <200408101552.22501.v13@priest.com> <20040810125140.GU11200@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 10 Aug 2004 15:09:57 +0200
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040810125140.GU11200@holomorphy.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 10/08/2004 à 14:46, Joerg Schilling a écrit :
 
-> Your statements are correct for programs that include locale support.
+* William Lee Irwin III <wli@holomorphy.com> wrote:
 
-If your program doesn't have locale support, then it shouldn't print
-locale-dependant text, that's all. Saying it's someone else's fault for
-not using the same locale as you is misplaced at best.
+> On Tue, Aug 10, 2004 at 03:52:20PM +0300, V13 wrote:
+> > Why don't you create a copy of printk() and start commenting out lines in 
+> > there?
+> 
+> This is a very good idea.
 
+i'd guess it's the con->write() in __call_console_drivers() that makes
+the difference. (i.e. touching the framebuffer)
 
-
+	Ingo

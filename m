@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266870AbUIOCmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUIOCly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266870AbUIOCmL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 22:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUIOCmA
+	id S266880AbUIOCly (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 22:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUIOCly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 22:42:00 -0400
-Received: from fire.osdl.org ([65.172.181.4]:37560 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S266870AbUIOClg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 22:41:36 -0400
-Message-ID: <1109.4.5.49.23.1095216021.squirrel@www.osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0409150255590.981@scrub.home>
-References: <41476413.1060100@linux-user.net>
-    <Pine.LNX.4.61.0409150255590.981@scrub.home>
-Date: Tue, 14 Sep 2004 19:40:21 -0700 (PDT)
-Subject: Re: [PATCH] README (resend) - Explain new 2.6.xx.x version number
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Roman Zippel" <zippel@linux-m68k.org>
-Cc: "Daniel Andersen" <anddan@linux-user.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-User-Agent: SquirrelMail/1.4.2-1_osdl_00
+	Tue, 14 Sep 2004 22:41:54 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:13977 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S266304AbUIOClA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 22:41:00 -0400
+Message-ID: <4147AB5A.4060804@rtr.ca>
+Date: Tue, 14 Sep 2004 22:39:22 -0400
+From: Mark Lord <lsml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lkml@rtr.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] New QStor SATA/RAID Driver for 2.6.9-rc2
+References: <41471163.10709@rtr.ca>  <414723B0.1090600@pobox.com> <1095186343.2008.29.camel@mulgrave>
+In-Reply-To: <1095186343.2008.29.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
->
-> On Tue, 14 Sep 2004, Daniel Andersen wrote:
->
->> This one ended up in the void last time without any comments.
->
-> The funny thing is by the time people managed to apply the patch
-> correctly, they don't need to read the README anymore.
+ >Actually, its only wrong in queuecommand because that can be called in
+ >softirq context.
+ >
+ >Sleeping in the eh paths is fine (as long as you drop the locks that the
+ >EH thread has uselessly taken for you).
 
-That's correct for this time.  However, if they have other kernel
-trees (in the future) with this patch applied, it can help.
+Good, that's how I understood it as well.
 
-> Seriously, without knowing about the pre-patches, what would you expect
-> about the patch order if you found the patches 2.6.8, 2.6.8.1, 2.6.9?
+But the locking is certainly a mess as-is in the QStor driver.
+Sure, it is actually all technically correct, but hard to follow.
 
-We have evidence that it's confusing to more than one person.
+I believe I can remove nearly all of it and really tidy things up
+as a result.
 
-~Randy
-
+Thanks guys, this has been really helpful so far.
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

@@ -1,35 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267061AbSIRPmk>; Wed, 18 Sep 2002 11:42:40 -0400
+	id <S267096AbSIRP4I>; Wed, 18 Sep 2002 11:56:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267063AbSIRPmk>; Wed, 18 Sep 2002 11:42:40 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:4092 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267061AbSIRPmk>; Wed, 18 Sep 2002 11:42:40 -0400
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
-	elimination, 2.5.35-BK
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Andries Brouwer <aebr@win.tue.nl>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020918090104.E14918@host110.fsmlabs.com>
-References: <Pine.LNX.4.44.0209180024090.30913-100000@localhost.localdomain>
-	<20020918123206.GA14595@win.tue.nl> <20020918144939.GU3530@holomorphy.com> 
-	<20020918090104.E14918@host110.fsmlabs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 18 Sep 2002 16:50:46 +0100
-Message-Id: <1032364246.20498.108.camel@irongate.swansea.linux.org.uk>
+	id <S267107AbSIRP4I>; Wed, 18 Sep 2002 11:56:08 -0400
+Received: from dmz.hesby.net ([81.29.32.2]:45252 "HELO firewall.hesbynett.no")
+	by vger.kernel.org with SMTP id <S267096AbSIRP4G> convert rfc822-to-8bit;
+	Wed, 18 Sep 2002 11:56:06 -0400
+Subject: Re: Virtual to physical address mapping
+From: Ole =?ISO-8859-1?Q?Andr=E9?= Vadla =?ISO-8859-1?Q?Ravn=E5s?= 
+	<oleavr-lkml@jblinux.net>
+To: root@chaos.analogic.com
+Cc: steve@neptune.ca, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1020918075900.3583A-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1020918075900.3583A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Sep 2002 18:04:44 +0200
+Message-Id: <1032365084.3481.12.camel@zole.jblinux.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-18 at 16:01, Cort Dougan wrote:
-> Can we get a lockless, scalable, fault-tolerant, pre-emption safe,
-> zero-copy and distributed get_pid() that meets the Carrier Grade
-> specification?  If at all possible I need it to do garbage collection, too.
+On Wed, 2002-09-18 at 14:06, Richard B. Johnson wrote:
+> On 18 Sep 2002, Ole [ISO-8859-1] André Vadla [ISO-8859-1] Ravnås wrote:
+> 
+> > Thanks, but the address specified there is certainly not the same as the
+> > base address ifconfig reports. I made a simple program to verify this:
+> 
+> [SNIPPED...]
+> 
+> `ifconfig` reports the base address of a port (I don't know why).
+> There are other addresses in use.
 
-I did one, but it garbage collected and there was nothing left 8)
+Ah.. that explains it all, as I modified net/core/dev.c earlier today to
+report the base_addr present in the net_device structure in the
+sprintf_stats() which is responsible for the /proc/net/dev output --
+and, what I got was:
+0xf88fa000
+where the ifmap structure returned by the SIOCGIFMAP ioctl contained a
+base_addr saying:
+0xa000
+I did this ugly hack (WRT net/core/dev.c) since I discovered that the
+net_device()'s base_addr was an unsigned long, while ifmap's base_addr
+was an unsigned short - and indeed, just like you said, it's only the
+base-address that's returned in the ifmap. :-)
+
+> eth0      Link encap:Ethernet  HWaddr 00:50:DA:19:7A:7D  
+>           inet addr:10.100.2.224  Bcast:10.255.255.255  Mask:255.0.0.0
+>           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+>           RX packets:2630005 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:307396 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:2430 txqueuelen:100 
+>           Interrupt:10 Base address:0xb800 
+> 
+> [SNIPPED...]
+> 
+> A private version of `lspci` that actually reads the PCI ports
+> shows:
+> 
+> Device      Vendor                    Type
+>    0   Intel Corporation              440BX/ZX - 82443BX/ZX Host bridge
+> [SNIPPED...]
+>   11   3Com Corporation               3c905B 100BaseTX [Cyclone]         
+>        IRQ 10 Pin A
+>        I/O  ports : 0xb800->0xb87e
+>        I/O memory : 0xdf800000->0xdf80007f
+> 
+> Notice that it has memory-mapped I/O.
+> That said, neither of these addresses are the virtual addresses.
+> On an ix86, these are physical addresses which are the same as
+> the bus addresses. Other machines may not have the same physical
+> and bus address. The virtual address is whatever mmap() returns
+> in user-space, and whatever ioremap() returns in kernel space.
+> Note that in kernel space, the returned value should not be used
+> as a pointer. There are macros defined to access the I/O addressed
+> elements. See .../linux/Documentation/IO-mapping.txt.
+
+Ah, I see! Thanks a lot for your help! :-)
+
+Best regards
+Ole André
+
 

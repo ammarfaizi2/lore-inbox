@@ -1,38 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131478AbQKJTOq>; Fri, 10 Nov 2000 14:14:46 -0500
+	id <S129741AbQKJTRg>; Fri, 10 Nov 2000 14:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130553AbQKJTO1>; Fri, 10 Nov 2000 14:14:27 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:2574 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131478AbQKJTOP>; Fri, 10 Nov 2000 14:14:15 -0500
-Message-ID: <3A0C4816.F07F8700@timpanogas.org>
-Date: Fri, 10 Nov 2000 12:10:14 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S130553AbQKJTR0>; Fri, 10 Nov 2000 14:17:26 -0500
+Received: from ryouko.dgim.crc.ca ([142.92.39.75]:60043 "EHLO
+	ryouko.dgim.crc.ca") by vger.kernel.org with ESMTP
+	id <S129741AbQKJTRV>; Fri, 10 Nov 2000 14:17:21 -0500
+Date: Fri, 10 Nov 2000 14:15:57 -0500 (EST)
+From: "William F. Maton" <wmaton@ryouko.dgim.crc.ca>
+Reply-To: wmaton@ryouko.dgim.crc.ca
 To: Richard A Nelson <cowboy@vnet.ibm.com>
-CC: wmaton@ryouko.dgim.crc.ca, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in  
- /var/spool/mqueue]
+cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in   /var/spool/mqueue]
 In-Reply-To: <Pine.LNX.4.30.0011101405490.19584-100000@back40.badlands.lexington.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.GSO.3.96LJ1.1b7.1001110141514.27803C-100000@ryouko.dgim.crc.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 10 Nov 2000, Richard A Nelson wrote:
 
-Send me an email from it with an attachment > 1MB, and I will forward
-back to you when (and if) It gets delivered before next week.
-
-:-)
-
-Jeff
-
-Richard A Nelson wrote:
-> 
 > On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
 > 
 > > "William F. Maton" wrote:
@@ -44,16 +32,27 @@ Richard A Nelson wrote:
 > 
 > Eh?!? TLS is an optional, negotiated protocol started *after* the two
 > sendmails are communicating.
-> 
+
+You anticipated what I was about to type :-)
+ 
 > I've not seen any problems, save a documented case with *one* third
 > party SMTP server (don't recall who it was).
+
+No problems here either...
+
 > 
-> --
+> -- 
 > Rick Nelson
 > Old MacLinus had a stack/l-i-n-u-x/and on this stack he had a trace/l-i-n-u-x
 > with an Oops-Oops here and an Oops-Oops there
 > here an Oops, there an Oops, everywhere an Oops-Oops.
->         -- tjimenez@site.gmu.edu, linux.dev.kernel
+> 	-- tjimenez@site.gmu.edu, linux.dev.kernel
+> 
+
+
+
+wfms
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

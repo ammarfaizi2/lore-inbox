@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUG1WeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUG1Whn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266603AbUG1WeH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266397AbUG1Wco
+	id S266705AbUG1Whn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbUG1Whl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:32:44 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:32005 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S266603AbUG1WcP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:32:15 -0400
-Date: Wed, 28 Jul 2004 15:32:03 -0700
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
-Message-ID: <20040728223203.GA9009@nietzsche.lynx.com>
-References: <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040727162759.GA32548@elte.hu> <1090968457.743.3.camel@mindpipe> <20040728050535.GA14742@elte.hu> <1091051452.791.52.camel@mindpipe>
-Mime-Version: 1.0
+	Wed, 28 Jul 2004 18:37:41 -0400
+Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:4741 "EHLO
+	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266705AbUG1WeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 18:34:20 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091051452.791.52.camel@mindpipe>
-User-Agent: Mutt/1.5.6+20040722i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16648.10711.200049.616183@wombat.chubb.wattle.id.au>
+Date: Thu, 29 Jul 2004 08:33:59 +1000
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: stat very inefficient
+In-Reply-To: <233602095@toto.iv>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 05:50:52PM -0400, Lee Revell wrote:
-> With L2, 1:3, max_sectors_kb=256, and the above change, the performance
-> is truly amazing.  Over 20 million interrupts, on a 600Mhz machine, the
-> worst latency I was able to trigger was 46 usecs.  There does not seem
-> to be any adverse affect on any aspect of the system.
-> 
-> This looks like the perfect setup for a DAW.
+>>>>> "viro" == viro  <viro@parcelfarce.linux.theplanet.co.uk> writes:
 
-And as a musician into the notion of owning tons of pro-audio gear (I
-don't at this time), I encourage you and the ALSA folks to go with it. :)
+On Tue, Jul 27, 2004 at 08:13:01PM -0700, David S. Miller wrote:
+>> I was about to make sparc64 specific copies of all the stat system
+>> calls in order to optimize this properly.  But that makes little
+>> sense, instead I think fs/stat.c should call upon arch-specific
+>> stat{,64} structure fillin routines that can do the magic, given a
+>> kstat struct.
+>> 
+>> Comments?
 
-bill
+viro> I'm not sure that it's worth doing for anything below the
+viro> "widest" version of stat.  For that one - yeah, no objections.
+
+Agree -- glibc redirects stat() to stat64() under many compilation
+models.
+
+But is stat{,64} actually showing up badly in profiles?
+If it's not I don't think it's worth doing *anything* (I can imagine
+loads where it would, e.g., make on a large sourcetree, or running a
+backup)
+
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*
+
+
 

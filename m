@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129816AbRCATYM>; Thu, 1 Mar 2001 14:24:12 -0500
+	id <S129826AbRCAT0b>; Thu, 1 Mar 2001 14:26:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129823AbRCATYB>; Thu, 1 Mar 2001 14:24:01 -0500
-Received: from [63.68.113.130] ([63.68.113.130]:21419 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S129816AbRCATXn>;
-	Thu, 1 Mar 2001 14:23:43 -0500
-Date: Thu, 1 Mar 2001 11:22:13 -0800
+	id <S129830AbRCAT0W>; Thu, 1 Mar 2001 14:26:22 -0500
+Received: from host217-32-133-45.hg.mdip.bt.net ([217.32.133.45]:41989 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129826AbRCAT0H>;
+	Thu, 1 Mar 2001 14:26:07 -0500
+Date: Thu, 1 Mar 2001 19:25:45 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
 To: Hans Reiser <reiser@namesys.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+cc: James Lewis Nance <jlnance@intrex.net>, linux-kernel@vger.kernel.org,
+        brian jenkins <bjenkins@thresholdnetworks.com>,
+        dave hecht <dhecht@thresholdnetworks.com>,
+        Nikita Danilov <god@namesys.com>
 Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-Message-ID: <20010301112213.B30284@osdlab.org>
-In-Reply-To: <Pine.A41.4.33.0102282123180.68876-100000@aix09.unm.edu> <3A9E72D3.36B28B8F@namesys.com> <20010301090416.E27440@osdlab.org> <3A9E96A6.41D725A3@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3A9E96A6.41D725A3@namesys.com>; from reiser@namesys.com on Thu, Mar 01, 2001 at 09:36:22PM +0300
-From: Nathan Dabney <smurf@osdlab.org>
+In-Reply-To: <3A9E972D.CEA149B0@namesys.com>
+Message-ID: <Pine.LNX.4.21.0103011920470.993-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 09:36:22PM +0300, Hans Reiser wrote:
-> Nathan Dabney wrote:
-> > 
-> > On Thu, Mar 01, 2001 at 07:03:31PM +0300, Hans Reiser wrote:
-> > 
-> > The above link contains some decent squid performance hints for 2.2+Squid.
-> > 
-> > -Nathan Dabney
-> It does not say anything about BSD vs. Linux 2.4 networking code.
+On Thu, 1 Mar 2001, Hans Reiser wrote:
 > 
-> If I can't get information about BSD v. Linux 2.4 networking code, then reiserfs
-> has to get ported to BSD which will be both nice and a pain to do.
+> This is indeed what we should do if we get no answer from the list by someone
+> who has already done such work.
 > 
-> Hans
 
-Correct, it only has information which would help tune the setup you first described (the 2.2 setup for your client).
+Hans,
 
-The individuals doing the technical side of that company have a high level of knowledge regarding Linux kernel issues which affect Squid performance and can /possibly/ discuss 2.4 vs. BSD issues with you if you ask.
+exactly what you want to measure? I have UP, 2way-SMP and 4way-SMP
+machines all of which have at least Linux+FreeBSD installed. All my tests
+so far (e.g. comparing NFS servers or filesystems etc) showed Linux (2.4)
+to be a lot faster than FreeBSD in all areas. However, to get specific
+answers you need to ask specific questions. Ask and you shall receive.
 
-However, for your client I believe the "technical information" would not be as useful as demonstrated performance.  I can't imagine that testing squid would require that much effort when compared to porting resierfs.
+(things like SPEC SFS results I can't tell because it is illegal (without
+going through proper steps of publishing them), I shouldn't even be saying
+that they show Linux to be much faster :)
 
-It's up to you of course.
+Regards,
+Tigran
 
--Nathan 
+
 

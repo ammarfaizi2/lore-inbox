@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289822AbSBKPcN>; Mon, 11 Feb 2002 10:32:13 -0500
+	id <S289833AbSBKPsd>; Mon, 11 Feb 2002 10:48:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289823AbSBKPcD>; Mon, 11 Feb 2002 10:32:03 -0500
-Received: from [195.89.159.99] ([195.89.159.99]:59122 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S289822AbSBKPbu>; Mon, 11 Feb 2002 10:31:50 -0500
-Date: Mon, 11 Feb 2002 15:26:55 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BUG preserve registers
-Message-ID: <20020211152655.A7564@kushida.apsleyroad.org>
-In-Reply-To: <3C65F523.FDDB7FA@zip.com.au> <Pine.LNX.4.33.0202092211001.10024-100000@home.transmeta.com> <3C660517.AAA7FA8@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C660517.AAA7FA8@zip.com.au>; from akpm@zip.com.au on Sat, Feb 09, 2002 at 09:28:55PM -0800
+	id <S289832AbSBKPsT>; Mon, 11 Feb 2002 10:48:19 -0500
+Received: from smtp02.web.de ([217.72.192.151]:30243 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S289829AbSBKPrz>;
+	Mon, 11 Feb 2002 10:47:55 -0500
+To: John Weber <weber@nyc.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.4 Compile Error
+In-Reply-To: <3C67666B.2060507@nyc.rr.com>
+In-Reply-To: <3C674CFA.2030107@nyc.rr.com> <3C6750CD.46575DAA@mandrakesoft.com>  <3C675E6B.4010605@nyc.rr.com> <1013408447.806.409.camel@phantasy> <3C67666B.2060507@nyc.rr.com>
+Reply-To: pharao90@tzi.de
+Message-Id: <E16aIiP-0000FT-00@neptune.sol.net>
+From: Pascal Schmidt <pleasure.and.pain@web.de>
+Date: Mon, 11 Feb 2002 16:50:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> The preprocessor is simply pasting together its -I argument and the
-> string from the #include statement.  There doesn't seem to be a way
-> of getting it to just emit "include/linux/dcache.h" or "drivers/char/serial.c".
+On Mon, 11 Feb 2002 07:50:06 +0100, you wrote in linux.kernel:
 
-Doesn't that work if you do this?
+>  I understand the syntax, but I don't understand why one would want to 
+>  return the address of something 3 longs away.  What is this function
+>  supposed to be doing?
 
-   (cd $(TOPDIR);
-    gcc -Idrivers/char -I- -Iinclude \
-        -c -o drivers/char/serial.o drivers/char/serial.c)
+Well, from the name thread_saved_pc() it tries to get some value of PC
+(the program counter ;) that's saved by that thread, right? My guess
+would be that the desired value is stored on the stack at esp[3].
 
--- Jamie
+-- 
+Ciao,
+Pascal

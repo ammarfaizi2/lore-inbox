@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265033AbTIDOWl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 10:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265034AbTIDOWk
+	id S265076AbTIDOdm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 10:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTIDOc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 10:22:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:27566 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S265033AbTIDOVw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 10:21:52 -0400
-Date: Thu, 4 Sep 2003 07:12:11 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Matt Porter <mporter@kernel.crashing.org>
-Cc: paulus@samba.org, rmk@arm.linux.org.uk, hch@lst.de, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-Message-Id: <20030904071211.24d4fa58.davem@redhat.com>
-In-Reply-To: <20030904071535.A22822@home.com>
-References: <20030903203231.GA8772@lst.de>
-	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
-	<20030904071334.GA14426@lst.de>
-	<20030904083007.B2473@flint.arm.linux.org.uk>
-	<16215.1054.262782.866063@nanango.paulus.ozlabs.org>
-	<20030904023624.592f1601.davem@redhat.com>
-	<20030904104801.A7387@flint.arm.linux.org.uk>
-	<16215.14133.352143.660688@nanango.paulus.ozlabs.org>
-	<20030904060139.5ef43d71.davem@redhat.com>
-	<20030904071535.A22822@home.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 10:32:27 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:61312 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265043AbTIDOb6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 10:31:58 -0400
+Date: Thu, 4 Sep 2003 10:33:56 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Sean Neakums <sneakums@zork.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: nasm over gas?
+In-Reply-To: <6uiso8r5wl.fsf@zork.zork.net>
+Message-ID: <Pine.LNX.4.53.0309041030000.3497@chaos>
+References: <20030904104245.GA1823@leto2.endorphin.org> <3F5741BD.5000401@mbda.fr>
+ <Pine.LNX.4.53.0309041001090.3367@chaos> <6uiso8r5wl.fsf@zork.zork.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Sep 2003 07:15:35 -0700
-Matt Porter <mporter@kernel.crashing.org> wrote:
+On Thu, 4 Sep 2003, Sean Neakums wrote:
 
-> The global space method doesn't allow for proper resource management
-> in systems with a small floating physical address window but a huge
-> bus address space to be accessed.  MPC8245's DAC scheme is a good
-> example of this as well as numerous Xscale PCI implementations.
-> Paul's suggestion would allow the removal of lots of ugly hacks.
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+>
+> > If you decide to use gcc as a preprocessor, you can't use comments,
+> > NotGood(tm) because the "#" and some stuff after it gets "interpreted"
+> > by cpp.
+>
+> Although one could use C-style comments in this scenario, yes?
+>
 
-There is nothing that cannot be represented with a big integer.
-Encode the "window" in the upper bits, or whatever, get creative.
+Sure. Then it's not assembly. It's some polymorphic conglomeration
+of crap ......... don't get me started.  If you write in assembler,
+please learn to use the assembler. Assembly is not 'C'.
+
+Use the right tool for the right thing. Both are tools, the fact
+that you can shovel with an axe does not make the axe a shovel.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131848AbRAVDMt>; Sun, 21 Jan 2001 22:12:49 -0500
+	id <S130405AbRAVDck>; Sun, 21 Jan 2001 22:32:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130405AbRAVDMj>; Sun, 21 Jan 2001 22:12:39 -0500
-Received: from web11604.mail.yahoo.com ([216.136.172.56]:28935 "HELO
-	web11604.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131848AbRAVDM0>; Sun, 21 Jan 2001 22:12:26 -0500
-Message-ID: <20010122031225.81962.qmail@web11604.mail.yahoo.com>
-Date: Sun, 21 Jan 2001 19:12:25 -0800 (PST)
-From: Tom <freyason@yahoo.com>
-Subject: coprocessor_segment_overrun
-To: linux-kernel@vger.kernel.org
+	id <S130648AbRAVDcb>; Sun, 21 Jan 2001 22:32:31 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:41861 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S130405AbRAVDcQ>;
+	Sun, 21 Jan 2001 22:32:16 -0500
+Message-ID: <3A6BA9A2.A9E043FF@pobox.com>
+Date: Sun, 21 Jan 2001 19:31:46 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8-ll i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: nigel@nrg.org
+CC: Paul Barton-Davis <pbd@op.net>, yodaiken@fsmlabs.com,
+        Andrew Morton <andrewm@uow.edu.au>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I received the following kernel dump. I was in X, running xmms and
-netscape and a few terms.... not sure if this is a problem in the
-kernel but I thought I'd post it.
+Nigel Gamble wrote:
 
-Kernel: 2.4.0 (final release)
-GCC Version 2.95.3
-Debian 2.2
+> Yes, I most emphatically do disagree with Victor!  IRIX is used for
+> mission-critical audio applications - recording as well playback - and
+> other low-latency applications.  The same OS scales to large numbers of
+> CPUs.  And it has the best desktop interactive response of any OS I've
+> used.  I will be very happy when Linux is as good in all these areas,
+> and I'm working hard to achieve this goal with negligible impact on the
+> current Linux "sweet-spot" applications such as web serving.
 
-Please reply via e-mail rather than to mailing list.
+I have to agree - when I worked at the University of California,
+a number of us had SGI Indys in our offices. The desktop was
+lightning fast, and the graphics were awesome. This is no news
+to anybody, since SGI is known for graphics. The big surprise,
+however, came when we were trying to find the best nfs server
+platform, and benchmarked the SGI just for fun - as it turns out,
+a little Indy workstation blew away all other platforms, including
+some rather large expensive SPARC boxes, as an nfs server.
 
-Thanks!
+So Irix clearly showed the best of both worlds - great latency
+and great throughput.
 
-Tom
+I guess what I'm saying is, there are a lot of proven concepts
+in Irix, which work well in real life situations - don't throw out the
+baby with the bath water -
 
-Kernel msgs:
-
-kernel:  printing eip:
-kernel: c0108f75
-kernel: Oops: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[coprocessor_segment_overrun+5/16]
-kernel: EFLAGS: 00010297
-kernel: eax: 58060001   ebx: c0193a0c   ecx: 0009b932   edx: 00000010
-kernel: esi: 08dd9800   edi: 08dd9000   ebp: 40001c26   esp: c4a23fe8
-kernel: ds: 002b   es: 002b   ss: 0018
-kernel: Process netscape (pid: 4856, stackpage=c4a23000)
-kernel: Stack: c0108f68 4010ada2 00000023 00010202 bfffe3c8 0000002b
-kernel: Call Trace: [invalid_op+8/16]
-kernel:
-kernel: Code: 8b 10 ff 75 10 ff 75 0c 50 8b 42 68 9c 95 10 c0 e9 c6 fe
-ff
-kernel:  printing eip:
-kernel: c0108f75
-kernel: Oops: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[coprocessor_segment_overrun+5/16]
-kernel: EFLAGS: 00210297
-kernel: eax: 00000000   ebx: c0193a0c   ecx: 081f27f8   edx: 0000004c
-kernel: esi: 08143440   edi: 08142f00   ebp: 400007ca   esp: c545ffe8
-kernel: ds: 002b   es: 002b   ss: 0018
-kernel: Process xmms (pid: 5694, stackpage=c545f000)
-kernel: Stack: c0108f68 4021eda2 00000023 00210206 bffff824 0000002b
-kernel: Call Trace: [invalid_op+8/16]
-kernel:
-kernel: Code: 8b 10 ff 75 10 ff 75 0c 50 8b 42 68 9c 95 10 c0 e9 c6 fe
-ff
+jjs
 
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - Buy the things you want at great prices. 
-http://auctions.yahoo.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

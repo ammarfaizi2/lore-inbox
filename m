@@ -1,68 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131208AbRCKGO4>; Sun, 11 Mar 2001 01:14:56 -0500
+	id <S131196AbRCKGAb>; Sun, 11 Mar 2001 01:00:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131273AbRCKGOp>; Sun, 11 Mar 2001 01:14:45 -0500
-Received: from cold.fortyoz.org ([64.40.111.214]:46086 "HELO cold.fortyoz.org")
-	by vger.kernel.org with SMTP id <S131208AbRCKGO3>;
-	Sun, 11 Mar 2001 01:14:29 -0500
-Date: Sat, 10 Mar 2001 22:14:27 -0800
-From: David Raufeisen <david@fortyoz.org>
+	id <S131208AbRCKGAW>; Sun, 11 Mar 2001 01:00:22 -0500
+Received: from d172.as5200.mesatop.com ([208.164.122.172]:24203 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S131196AbRCKGAM>; Sun, 11 Mar 2001 01:00:12 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Sat, 10 Mar 2001 23:03:19 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.3pre1: kernel BUG at page_alloc.c:73!
-Message-ID: <20010310221427.A5415@fortyoz.org>
-Reply-To: David Raufeisen <david@fortyoz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Operating-System: Linux 2.2.17 i686
+Subject: List of recent (2.4.0 to 2.4.2-ac18) CONFIG options needing Configure.help text.
+MIME-Version: 1.0
+Message-Id: <01031023031904.08110@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mar 10 21:34:30 prototype kernel: kernel BUG at page_alloc.c:73!
-Mar 10 21:34:30 prototype kernel: invalid operand: 0000
-Mar 10 21:34:30 prototype kernel: CPU:    0
-Mar 10 21:34:30 prototype kernel: EIP:    0010:[__free_pages_ok+34/784]
-Mar 10 21:34:30 prototype kernel: EFLAGS: 00013082
-Mar 10 21:34:30 prototype kernel: eax: 0000001f   ebx: c14285d0   ecx: c3642000   edx: c7839380
-Mar 10 21:34:30 prototype kernel: esi: cfa70000   edi: 0000001f   ebp: 00000003   esp: c3643c68
-Mar 10 21:34:30 prototype kernel: ds: 0018   es: 0018   ss: 0018
-Mar 10 21:34:30 prototype kernel: Process X (pid: 6847, stackpage=c3643000)
-Mar 10 21:34:30 prototype kernel: Stack: c021c565 c021c6f3 00000049 ffffffff cfa70000 0000001f c3643cbc c0112c37 
-Mar 10 21:34:30 prototype kernel:        cda57000 c88ce837 cda57000 e0000000 c012af3a c012af64 c88ce933 cda1d004 
-Mar 10 21:34:30 prototype kernel:        c51aea40 c0044646 03050000 c3643cd0 c3643cd0 c3643cd0 c88d6dc4 cfa70000 
-Mar 10 21:34:30 prototype kernel: Call Trace: [<cfa70000>] [iounmap+23/32] [<cda57000>] [NVdriver:osUnmapKernelSpace+67/76] [<cda57000>] [<e0000000>] [__free_pages+26/32] 
-Mar 10 21:34:30 prototype kernel:        [free_pages+36/48] [NVdriver:osFreeContigPages+79/84] [<cda1d004>] [NVdriver:RmTeardownAGP+156/176] [<cfa70000>] [NVdriver:nv_devices+0/384] [NVdriver:nvExtEscape+2888/3100] [<
-cda1d004>] 
-Mar 10 21:34:30 prototype kernel:        [<cda1d004>] [<cda1d004>] [NVdriver:_nv_rmsym_01225+71/104] [<cda1d004>] [<cda21308>] [<cda212c8>] [NVdriver:_nv_rmsym_01425+446/468] [<cda1d004>]
-Mar 10 21:34:30 prototype kernel:        [<cda212c8>] [<cda1d004>] [NVdriver:_nv_rmsym_00560+222/432] [<cda1d004>] [<cda1d004>] [NVdriver:nv_devices+0/384] [<cda1d004>] [<cda1d004>] 
-Mar 10 21:34:30 prototype kernel:        [alloc_skb+230/384] [sock_def_readable+38/80] [<cda22028>] [<cda1d004>] [<cda1d004>] [NVdriver:_nv_rmsym_00958+116/168] [<cda1d004>] [<cda1d004>] 
-Mar 10 21:34:30 prototype kernel:        [NVdriver:_nv_rmsym_00345+0/204] [<cda1d004>] [NVdriver:_nv_rmsym_01083+293/776] [<cda1d004>] [<cda1d004>] [NVdriver:nv_ioctl+449/480] [NVdriver:nv_devices+0/384] [__run_task_q
-ueue+76/96] 
-Mar 10 21:34:30 prototype kernel:        [<cda1d004>] [NVdriver:nv_bottom_halves+0/2560] [NVdriver:nv_bottom_halves+0/2560] [schedule+614/912] [sys_ioctl+359/384] [system_call+51/56]
-Mar 10 21:34:30 prototype kernel: 
-Mar 10 21:34:30 prototype kernel: Code: 0f 0b 83 c4 0c 83 7b 08 00 74 16 6a 4b 68 f3 c6 21 c0 68 65
+Hello all,
 
-Linux prototype 2.4.3-pre1 #1 Sun Mar 4 14:14:54 PST 2001 i686 unknown
- 
-Gnu C                  2.95.3
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.11
-modutils               2.4.2
-e2fsprogs              1.19
-reiserfsprogs          3.x.0b
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.58
-Kbd                    command
-Sh-utils               2.0.11
-Modules Loaded         NVdriver
+With the 2.4.0 kernel, there were 476 CONFIG options which had
+no help entry in Configure.help.  With 2.4.2-ac18, this number is now 547,
+which has been kept this low with 54 options getting Configure.help text.  
 
-reiserfs is the filesystem.. machine is athlon thunderbird 800mhz.
+The bottom line is that since 2.4.0, there are 125 new CONFIG options with 
+no Configure.help text. One obvious point: there are some options which don't 
+need Configure.help text, but if you're responsible for that option, I'm sure you'll 
+be aware of which of your options are in that category.
 
--- 
-David Raufeisen <david@fortyoz.org>
-Cell: (604) 818-3596
+If you see any of _your_ options in the list below, please consider making
+a patch for Configure.help for your CONFIG option.  Or, you can send me
+the information and I'll make the patch.
+Steven
+
+CONFIG_3270
+CONFIG_3270_CONSOLE
+CONFIG_8xx_CONS_SMC2
+CONFIG_ADVANTECH_WDT
+CONFIG_BLK_DEV_MPC8xx_IDE
+CONFIG_BLK_DEV_Q40IDE
+CONFIG_BLK_DEV_XPRAM
+CONFIG_COBALT_28
+CONFIG_COBALT_MICRO_SERVER
+CONFIG_DEBUG_PORT0
+CONFIG_DEBUG_PORT1
+CONFIG_DEBUG_PORT2
+CONFIG_DEBUG_PORT3
+CONFIG_DEBUG_PORT_NULL
+CONFIG_DN_SERIAL
+CONFIG_ETRAX100LX
+CONFIG_ETRAX100LX_V2
+CONFIG_ETRAX_90000000_LEDS
+CONFIG_ETRAX_AXISFLASHMAP
+CONFIG_ETRAX_ETHERNET
+CONFIG_ETRAX_FLASH_BUSWIDTH
+CONFIG_ETRAX_FLASH_LENGTH
+CONFIG_ETRAX_GPIO
+CONFIG_ETRAX_I2C
+CONFIG_ETRAX_I2C_USES_PB_NOT_PB_I2C
+CONFIG_ETRAX_IDE
+CONFIG_ETRAX_IDE_CSE1_16_RESET
+CONFIG_ETRAX_IDE_G27_RESET
+CONFIG_ETRAX_IDE_PB7_RESET
+CONFIG_ETRAX_LED1G
+CONFIG_ETRAX_LED1R
+CONFIG_ETRAX_LED2G
+CONFIG_ETRAX_LED2R
+CONFIG_ETRAX_LED3G
+CONFIG_ETRAX_LED3R
+CONFIG_ETRAX_NO_LEDS
+CONFIG_ETRAX_PA_BUTTON_BITMASK
+CONFIG_ETRAX_PA_LEDS
+CONFIG_ETRAX_PB_LEDS
+CONFIG_ETRAX_SER0_CD_ON_PB_BIT
+CONFIG_ETRAX_SER0_DSR_ON_PB_BIT
+CONFIG_ETRAX_SER0_DTR_ON_PB_BIT
+CONFIG_ETRAX_SER0_DTR_RI_DSR_CD_ON_PB
+CONFIG_ETRAX_SER0_RI_ON_PB_BIT
+CONFIG_ETRAX_SER1_CD_ON_PB_BIT
+CONFIG_ETRAX_SER1_DSR_ON_PB_BIT
+CONFIG_ETRAX_SER1_DTR_ON_PB_BIT
+CONFIG_ETRAX_SER1_DTR_RI_DSR_CD_ON_PB
+CONFIG_ETRAX_SER1_RI_ON_PB_BIT
+CONFIG_ETRAX_SER2_CD_ON_PA_BIT
+CONFIG_ETRAX_SER2_DSR_ON_PA_BIT
+CONFIG_ETRAX_SER2_DTR_ON_PA_BIT
+CONFIG_ETRAX_SER2_DTR_RI_DSR_CD_ON_PA
+CONFIG_ETRAX_SER2_RI_ON_PA_BIT
+CONFIG_ETRAX_SERIAL
+CONFIG_ETRAX_SERIAL_PORT1
+CONFIG_ETRAX_SERIAL_PORT2
+CONFIG_ETRAX_SERIAL_PORT3
+CONFIG_ETRAX_SYNCHRONOUS_SERIAL
+CONFIG_ETRAX_SYNCHRONOUS_SERIAL0_DMA
+CONFIG_ETRAX_SYNCHRONOUS_SERIAL1_DMA
+CONFIG_ETRAX_SYNCHRONOUS_SERIAL_PORT0
+CONFIG_ETRAX_SYNCHRONOUS_SERIAL_PORT1
+CONFIG_ETRAX_USB_HOST
+CONFIG_ETRAX_USB_HOST_PORT1
+CONFIG_ETRAX_USB_HOST_PORT2
+CONFIG_ETRAX_WATCHDOG
+CONFIG_FB_ATY_CT
+CONFIG_FB_ATY_GX
+CONFIG_FB_RADEON
+CONFIG_FB_SIS_300
+CONFIG_FB_SIS_315
+CONFIG_FB_STI
+CONFIG_FPS850L
+CONFIG_HD64465_PCMCIA
+CONFIG_HISAX_ELSA_CS
+CONFIG_HISAX_SEDLBAUER_CS
+CONFIG_IDE_DELAY
+CONFIG_IRQ_ALL_CPUS
+CONFIG_IVMS8
+CONFIG_JULIETTE
+CONFIG_KCORE
+CONFIG_KERNEL_IFCONFIG
+CONFIG_LVM_PROC_FS
+CONFIG_MCYRIXIII
+CONFIG_MIPS_RTC
+CONFIG_MPENTIUMIII
+CONFIG_NLS_CODEPAGE_1251
+CONFIG_NLS_ISO8859_13
+CONFIG_NLS_KOI8_U
+CONFIG_PA_CHANGEABLE_BITS
+CONFIG_PA_CHANGEABLE_DIR
+CONFIG_PB_CHANGEABLE_BITS
+CONFIG_PB_CHANGEABLE_DIR
+CONFIG_PROCESS_DEBUG
+CONFIG_PROFILE
+CONFIG_PROFILE_SHIFT
+CONFIG_RESCUE_SER0
+CONFIG_RESCUE_SER1
+CONFIG_RESCUE_SER2
+CONFIG_RESCUE_SER3
+CONFIG_RS485
+CONFIG_RS485_DISABLE_RECEIVER
+CONFIG_RS485_ON_PA
+CONFIG_RS485_ON_PA_BIT
+CONFIG_S390_SUPPORT
+CONFIG_S390_TAPE
+CONFIG_S390_TAPE_3480
+CONFIG_S390_TAPE_3490
+CONFIG_S390_TAPE_BLOCK
+CONFIG_S390_TAPE_CHAR
+CONFIG_SCC3_ENET
+CONFIG_SDRAM
+CONFIG_SM850
+CONFIG_SOUND_MAESTRO3
+CONFIG_SOUND_YMFPCI_LEGACY
+CONFIG_SPD823TS
+CONFIG_SVINTO_SIM
+CONFIG_TMSISA
+CONFIG_TQM823L
+CONFIG_TQM850L
+CONFIG_TQM855L
+CONFIG_USB_HP5300
+CONFIG_USE_MDIO
+CONFIG_USE_SERIAL_CONSOLE

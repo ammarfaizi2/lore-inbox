@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285842AbRLYUyu>; Tue, 25 Dec 2001 15:54:50 -0500
+	id <S285879AbRLYVaU>; Tue, 25 Dec 2001 16:30:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285879AbRLYUyk>; Tue, 25 Dec 2001 15:54:40 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:17575 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S285842AbRLYUy1>;
-	Tue, 25 Dec 2001 15:54:27 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 25 Dec 2001 20:54:15 GMT
-Message-Id: <UTC200112252054.UAA97748.aeb@cwi.nl>
-To: Andries.Brouwer@cwi.nl, pavel@suse.cz
-Subject: Re: Configure.help editorial policy
-Cc: bcrl@redhat.com, cw@f00f.org, esr@thyrsus.com,
-        garfield@irving.iisd.sra.com, linux-kernel@vger.kernel.org,
-        riel@conectiva.com.br
+	id <S285881AbRLYVaK>; Tue, 25 Dec 2001 16:30:10 -0500
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:32987 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S285879AbRLYV3w>; Tue, 25 Dec 2001 16:29:52 -0500
+Date: Tue, 25 Dec 2001 22:23:53 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: Legacy Fishtank <garzik@havoc.gtf.org>
+Cc: Manfred Spraul <manfred@colorfullife.com>, Colonel <klink@clouddancer.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 
+Message-ID: <20011225222353.A2961@ping.be>
+In-Reply-To: <002001c18d5f$98cb62c0$010411ac@local> <20011225141441.A14941@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011225141441.A14941@havoc.gtf.org>; from garzik@havoc.gtf.org on Tue, Dec 25, 2001 at 02:14:41PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 25, 2001 at 02:14:41PM -0500, Legacy Fishtank wrote:
+> On Tue, Dec 25, 2001 at 05:17:01PM +0100, Manfred Spraul wrote:
+> > It seems that RTNETLINK is now unconditionally enabled, I don't know
+> > why.
+> 
+> It's required by newer RedHat and MDK initscripts, perhaps others.
+> ip, iproute and similar utilities use it, and so since it's commonly
+> required DaveM made it unconditional...  I think the checkin comment was
+> something along the lines of "make it unconditional unless Alan
+> complains about kernel bloat" :)
 
-    > > In many cases binary and decimal units are mixed,
-    > > leading to something which is impossible to "get right".
-    > > Disk space would be one example of this.
-    > 
-    > No. All disk manufacturers only use decimal units.
+But ifconfig and route don't use it, and now you can't do certain
+things you could before.
 
-    Really? Even ATA flashcard manufacturers? So now I have to know if
-    CF-card has spinning parts to decide size?
+One thing that comes to mind is showing the ipv6 routig cache,
+because it only made that proc entry when it's not enabled.
 
-What makes you think so?
+Should I mention my kernel got bigger?
 
-Looking at a flash card here (sold as 8 MB), I see
-
-SCSI device sdb: 15872 512-byte hdwr sectors (8 MB)
-
-Now if the manufacturer claimed 8 MiB I could sue him,
-but since he only claims 8 MB, this one is large enough
-(it has 31 . 2^18 = 8126464 bytes).
-It is 8.1 MB and 7.75 MiB.
-
-Andries
+(I also was under the impression that this was a stable series.)
 
 
-Always remember:
-(i) k=1000, M=1000k, G=1000M
-(ii) specifications are rounded down, so that customers cannot complain
-(iii) if something exists only in power-of-two sizes, that helps
-guessing the actual size; however, this is not true for disks,
-and as this example shows, it is not true for CF cards either.
+Kurt
+

@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132428AbRAERaJ>; Fri, 5 Jan 2001 12:30:09 -0500
+	id <S131848AbRAERb3>; Fri, 5 Jan 2001 12:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132373AbRAERaA>; Fri, 5 Jan 2001 12:30:00 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52998 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132429AbRAER30>; Fri, 5 Jan 2001 12:29:26 -0500
-Subject: Re: Change of policy for future 2.2 driver submissions
-To: Christoph.Hellwig.<hchÀcaldera.de@pop.zip.com.au>@ns.caldera.de
-Date: Fri, 5 Jan 2001 17:31:26 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200101051723.SAA17498@ns.caldera.de> from "Christoph.Hellwig.<hchÀcaldera.de>@ns.caldera.de" at Jan 05, 2001 06:23:09 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131639AbRAERbT>; Fri, 5 Jan 2001 12:31:19 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:46863 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S132474AbRAERbH>;
+	Fri, 5 Jan 2001 12:31:07 -0500
+Message-ID: <3A56042B.4729E26C@innominate.de>
+Date: Fri, 05 Jan 2001 18:28:12 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Laramie Leavitt <laramieleavitt@onetel.net.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4 Kernel Lockup
+In-Reply-To: <JKEGJJAJPOLNIFPAEDHLAEJNCCAA.laramieleavitt@onetel.net.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14Eai9-00086P-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > By your personal definition of stable 2.0.3x is the current stable kernel. 
+Laramie Leavitt wrote:
 > 
-> Btw:  Any chance to see an official 2.0.39 soon?
-> 2.0.39final is out for about half a year now...
+> I seem to be getting a rather odd kernel lockup on 2.4.
+> I am using XFree 3.3.6 ( I believe ).
+> 
+> Whenever I start X, my session starts up like normal,
+> but soon locks HARD.  Is this a known issue?  I
+> suspected the fb stuff, and so I removed it and the
+> problem remains.
+> 
+> Any ideas?  I can repeat it every single time.
 
-David sent me one thing to look at before he's happy. So right now Im the guilty
-party holding it up. Hopefulyl a day or two
+Can you please provide full details of your
+system/configuration/anything else that might be relevant?  (lkml faq)
 
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

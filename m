@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266040AbTFWOML (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 10:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266045AbTFWOML
+	id S266045AbTFWORW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 10:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbTFWORW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 10:12:11 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:27350 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S266040AbTFWOMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 10:12:10 -0400
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-From: David Woodhouse <dwmw2@infradead.org>
+	Mon, 23 Jun 2003 10:17:22 -0400
+Received: from lvs00-fl.valueweb.net ([216.219.253.199]:48583 "EHLO
+	ams003.ftl.affinity.com") by vger.kernel.org with ESMTP
+	id S266045AbTFWORV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 10:17:21 -0400
+Message-ID: <3EF70EF8.3050107@coyotegulch.com>
+Date: Mon, 23 Jun 2003 10:30:16 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Larry McVoy <lm@bitmover.com>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
+CC: David Woodhouse <dwmw2@infradead.org>,
+       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
        lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030623140943.GE6715@work.bitmover.com>
-References: <20030620142436.GB14404@work.bitmover.com>
-	 <20030620143012.GC14404@work.bitmover.com>
-	 <20030620163349.GG17563@work.bitmover.com>
-	 <20030621142048.2ae63afa.skraw@ithnet.com>
-	 <20030621133831.GA10089@work.bitmover.com>
-	 <1056358467.29264.41.camel@passion.cambridge.redhat.com>
-	 <20030623132231.GC6715@work.bitmover.com>
-	 <1056375161.29264.178.camel@passion.cambridge.redhat.com>
-	 <20030623133714.GB4302@work.bitmover.com>
-	 <1056377073.29264.200.camel@passion.cambridge.redhat.com>
-	 <20030623140943.GE6715@work.bitmover.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056378374.29264.215.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Mon, 23 Jun 2003 15:26:14 +0100
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+References: <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com>
+In-Reply-To: <20030623132231.GC6715@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-23 at 15:09, Larry McVoy wrote:
-> The difference is that I can charge a price for the word processor which
-> gives me enough profit to build the spread sheet application. 
+Larry McVoy wrote:
+> The one flaw in this argument and all of those which say basically "services
+> is the answer" is that it only works if you produce crappy software which
+> needs servicing.  
 
-...and when that and the rest of the suite are complete, what next? You
-only postponed the end, surely?
+Your definition of "services" is far too narrow. Requirements change 
+with time; ideal software today may be inadequate tomorrow. I make most 
+of my money from customizing software to a specific customer's needs. I 
+combine and refine existing components to produce unique software.
 
->  If you are trying to do the same thing but your app is GPLed, you can
-> forget about it. The market won't pay $300 for something they can
-> download for free.
-
-This is absolutely true -- but why is it relevant and to whom? 
-
-OK, perhaps I see why it makes _vendors_ uneasy, but the _consumer_
-doesn't lose out, and it's the consumer's money which drives the trend. 
-
-There will always be companies around to provide whatever needs the
-consumer is willing to pay for.
-
-It may turn out that tomorrow's consumer is not willing to pay up-front
-for software, at least _commodity_ software.
-
-Markets come and markets go -- life will go on, as it always does. 
+A case in point: My Java Indexed Serialization Package (JISP) provides a 
+very basic tool; about half my business comes from people who like the 
+Jisp concept, and need a custom version that is tightly coupled to their 
+requirements. I don't sell Jisp; I sell *what I can do* with Jisp.
 
 -- 
-dwmw2
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Professional programming for science and engineering;
+Interesting and unusual bits of very free code.
 

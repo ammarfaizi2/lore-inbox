@@ -1,154 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261757AbTCQD26>; Sun, 16 Mar 2003 22:28:58 -0500
+	id <S262670AbTCQD6p>; Sun, 16 Mar 2003 22:58:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262670AbTCQD26>; Sun, 16 Mar 2003 22:28:58 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:44675 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261757AbTCQD2z>; Sun, 16 Mar 2003 22:28:55 -0500
-Date: Sun, 16 Mar 2003 19:39:24 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make kgdb less invasive (when disabled)
-Message-ID: <6200000.1047872364@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S262685AbTCQD6p>; Sun, 16 Mar 2003 22:58:45 -0500
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:8936 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S262670AbTCQD6o> convert rfc822-to-8bit;
+	Sun, 16 Mar 2003 22:58:44 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Joshua Kwan <joshk@triplehelix.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Weirdness with 2.4.20-ck4
+Date: Mon, 17 Mar 2003 15:09:23 +1100
+User-Agent: KMail/1.5
+References: <20030316201124.GA2849@triplehelix.org>
+In-Reply-To: <20030316201124.GA2849@triplehelix.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
+Message-Id: <200303171509.34696.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had it with kgdb remaning schedule to do_schedule, even when
-it's disabled ... makes it hard to merge other scheduler diag patches,
-and harder to compare profiles. It also seems to introduce an extra 
-call into the schedule call path (even when disabled). Grrr. 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Patch below fixes it ... booted without kgdb, and with kgdb+threads. 
-Would be nice if you'd merge it into your kgdb patch so we can sync up ....
-Nearly all the bits I'm fiddling with are the same as the original
-patch was changing, so it shouldn't make it bigger or harder to maintain.
+Hi Josh
 
-M.
+On Mon, 17 Mar 2003 07:11, Joshua Kwan wrote:
+> So I tried out 2.4.20-ck4 on my server box, which continually leans
+> towards the experimental because, well, it seems to work fine.
+>
+> For 13 days, everything was peachy. Then on the 14th morning I wake
+> up and dhcp3-server is not responding timely, since my laptop
+> is unable to acquire an IP address automatically. I serial in and
+> init has gone D and is eating 99.8% of the CPU.
+>
+> Every single process under init was DEFUNCT!
+>
+> New processes also were defunct as well, after being started. I guess
+> bash was somehow not affected when I logged in.
+>
+> I can't provide a dmesg, since the machine eventually stopped responding
+> and I had to hard reboot it. But unless I know for sure what's going on
+> soon, I'll need to move back to a vanilla kernel or perhaps try out
+> 2.4.20aa, without the rest of the 'desktop' tuning stuff that I don't
+> really make use of.
+>
+> Sorry I can't give much info, except possibly my .config. You can get it
+> at http://triplehelix.org/~joshk/linux/config.gz. If this happens again
+> I'll be sure to get some pstree output logged somewhere. (Would slabinfo
+> be useful too in this kind of situation?)
 
-diff -urpN -X /home/fletch/.diff.exclude 550-sched_interactive/arch/i386/kernel/entry.S 560-kgdb_cleanup/arch/i386/kernel/entry.S
---- 550-sched_interactive/arch/i386/kernel/entry.S	Sun Mar 16 13:38:59 2003
-+++ 560-kgdb_cleanup/arch/i386/kernel/entry.S	Sun Mar 16 18:34:49 2003
-@@ -49,6 +49,10 @@
- #include <asm/page.h>
- #include "irq_vectors.h"
- 
-+#ifndef CONFIG_KGDB_THREAD
-+#define user_schedule schedule
-+#endif
-+
- EBX		= 0x00
- ECX		= 0x04
- EDX		= 0x08
-diff -urpN -X /home/fletch/.diff.exclude 550-sched_interactive/arch/sparc64/kernel/rtrap.S 560-kgdb_cleanup/arch/sparc64/kernel/rtrap.S
---- 550-sched_interactive/arch/sparc64/kernel/rtrap.S	Sun Mar 16 13:38:57 2003
-+++ 560-kgdb_cleanup/arch/sparc64/kernel/rtrap.S	Sun Mar 16 18:34:49 2003
-@@ -15,6 +15,10 @@
- #include <asm/visasm.h>
- #include <asm/processor.h>
- 
-+#ifndef CONFIG_KGDB_THREAD
-+#define user_schedule schedule
-+#endif
-+
- #define		RTRAP_PSTATE		(PSTATE_RMO|PSTATE_PEF|PSTATE_PRIV|PSTATE_IE)
- #define		RTRAP_PSTATE_IRQOFF	(PSTATE_RMO|PSTATE_PEF|PSTATE_PRIV)
- #define		RTRAP_PSTATE_AG_IRQOFF	(PSTATE_RMO|PSTATE_PEF|PSTATE_PRIV|PSTATE_AG)
-diff -urpN -X /home/fletch/.diff.exclude 550-sched_interactive/arch/x86_64/kernel/entry.S 560-kgdb_cleanup/arch/x86_64/kernel/entry.S
---- 550-sched_interactive/arch/x86_64/kernel/entry.S	Sun Mar 16 13:38:57 2003
-+++ 560-kgdb_cleanup/arch/x86_64/kernel/entry.S	Sun Mar 16 18:34:49 2003
-@@ -46,6 +46,10 @@
- 
- #define PDAREF(field) %gs:field	 		
- 
-+#ifndef CONFIG_KGDB_THREAD
-+#define user_schedule schedule
-+#endif
-+
- #ifdef CONFIG_PREEMPT
- #define preempt_stop cli
- #else
-diff -urpN -X /home/fletch/.diff.exclude 550-sched_interactive/include/linux/sched.h 560-kgdb_cleanup/include/linux/sched.h
---- 550-sched_interactive/include/linux/sched.h	Sun Mar 16 13:39:06 2003
-+++ 560-kgdb_cleanup/include/linux/sched.h	Sun Mar 16 18:34:49 2003
-@@ -171,9 +171,13 @@ extern unsigned long cache_decay_ticks;
- 
- #define	MAX_SCHEDULE_TIMEOUT	LONG_MAX
- extern signed long FASTCALL(schedule_timeout(signed long timeout));
--asmlinkage void do_schedule(void);
--asmlinkage void kern_schedule(void);
--asmlinkage void kern_do_schedule(struct pt_regs);
-+#ifdef CONFIG_KGDB_THREAD
-+ asmlinkage void do_schedule(void);
-+ asmlinkage void kern_schedule(void);
-+ asmlinkage void kern_do_schedule(struct pt_regs);
-+#else
-+ asmlinkage void schedule(void);
-+#endif
- 
- struct namespace;
- 
-@@ -691,7 +695,7 @@ extern void unhash_process(struct task_s
- #ifdef CONFIG_KGDB_THREAD
- #define schedule() kern_schedule()
- #else
--#define schedule() do_schedule()
-+#define user_schedule() schedule()
- #endif
- 
- /* Protects ->fs, ->files, ->mm, and synchronises with wait4().  Nests inside tasklist_lock */
-diff -urpN -X /home/fletch/.diff.exclude 550-sched_interactive/kernel/ksyms.c 560-kgdb_cleanup/kernel/ksyms.c
---- 550-sched_interactive/kernel/ksyms.c	Sun Mar 16 13:39:06 2003
-+++ 560-kgdb_cleanup/kernel/ksyms.c	Sun Mar 16 18:34:49 2003
-@@ -466,9 +466,11 @@ EXPORT_SYMBOL(sleep_on);
- EXPORT_SYMBOL(sleep_on_timeout);
- EXPORT_SYMBOL(interruptible_sleep_on);
- EXPORT_SYMBOL(interruptible_sleep_on_timeout);
--EXPORT_SYMBOL(do_schedule);
- #ifdef CONFIG_KGDB_THREAD
- EXPORT_SYMBOL(kern_schedule);
-+EXPORT_SYMBOL(do_schedule);
-+#else
-+EXPORT_SYMBOL(schedule);
- #endif
- #ifdef CONFIG_PREEMPT
- EXPORT_SYMBOL(preempt_schedule);
-diff -urpN -X /home/fletch/.diff.exclude 550-sched_interactive/kernel/sched.c 560-kgdb_cleanup/kernel/sched.c
---- 550-sched_interactive/kernel/sched.c	Sun Mar 16 13:51:51 2003
-+++ 560-kgdb_cleanup/kernel/sched.c	Sun Mar 16 18:34:49 2003
-@@ -1411,7 +1411,11 @@ void scheduling_functions_start_here(voi
- /*
-  * schedule() is the main scheduler function.
-  */
-+#ifdef CONFIG_KGDB_THREAD
- asmlinkage void do_schedule(void)
-+#else
-+asmlinkage void schedule(void)
-+#endif
- {
- 	task_t *prev, *next;
- 	runqueue_t *rq;
-@@ -1667,15 +1671,13 @@ void complete_all(struct completion *x)
- 	spin_unlock_irqrestore(&x->wait.lock, flags);
- }
- 
-+#ifdef CONFIG_KGDB_THREAD
- asmlinkage void user_schedule(void)
- {
--#ifdef CONFIG_KGDB_THREAD
- 	current->thread.kgdbregs = NULL;
--#endif
- 	do_schedule();
- }
- 
--#ifdef CONFIG_KGDB_THREAD
- asmlinkage void kern_do_schedule(struct pt_regs regs)
- {
- 	current->thread.kgdbregs = &regs;
+Using it on a server box? You should reverse patch the desktop tuning (patch 
+010) at the very least. Your throughput will be higher without that and it 
+may well be responsible for the hang.
+
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE+dUp4F6dfvkL3i1gRAuYDAJ9jr0p7iS07dQYr9IFLzoX40s0tvACdGhFJ
+D8zOf7QDB0BAShCZS0HvePo=
+=rOd+
+-----END PGP SIGNATURE-----
 

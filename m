@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUJHXaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUJHXcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUJHXaa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUJHXa3
+	id S266216AbUJHXcs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUJHXcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:30:29 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:26675 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266195AbUJHX3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:29:35 -0400
-To: Greg KH <greg@kroah.com>
-Cc: "Eric W. Biederman" <ebiederman@lnxi.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-X-Message-Flag: Warning: May contain useful information
-References: <20041008202247.GA9653@kroah.com>
-	<m3d5zs966r.fsf@maxwell.lnxi.com> <20041008231307.GA32530@kroah.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 08 Oct 2004 16:29:03 -0700
-In-Reply-To: <20041008231307.GA32530@kroah.com> (Greg KH's message of "Fri,
- 8 Oct 2004 16:13:07 -0700")
-Message-ID: <524ql4n60w.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Fri, 8 Oct 2004 19:32:47 -0400
+Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:62374
+	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
+	id S266233AbUJHXcC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:32:02 -0400
+Date: Sat, 9 Oct 2004 00:32:01 +0100 (BST)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with ide=nodma
+Message-ID: <Pine.LNX.4.58.0410090019150.26458@ppg_penguin.kenmoffat.uklinux.net>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 08 Oct 2004 23:29:04.0011 (UTC) FILETIME=[992E0DB0:01C4AD8E]
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> All I know is a number of different people, from different
-    Greg> companies are suddenly very worried about this.  The fact
-    Greg> that they don't want to comment on it in public leads me to
-    Greg> believe that there is something behind their fears.
+Hi,
 
-Hmm, I haven't heard anything.  I guess I'm out of the loop.
+ I'm trying a sii 0680 disk controller at the moment, as a possible
+workaround for some via southbridge problems (this is on a ppc which
+isn't yet supported by the official kernels, but it has been stable here
+since 2.6.7 and looks nearly ready for a first review).  Unfortunately,
+DMA is a big no go at the moment so I have to pass ide=nodma in the
+bootargs.
 
-    Greg> One specific IBTA member has issues with the adaption of
-    Greg> Linux, and has already done one thing to restrict a full IB
-    Greg> implementation that would work on Linux.
+ I've got the drives plugged into the sii card, and ide=reverse is doing
+its job.  But although dmesg shows that dma has been turned off,
+/proc/ide/hda/settings and hdparm show that dma is in use.  This is in
+2.6.9-rc3.
 
-Microsoft is actually no longer an IBTA member.
+ Doesn't ide=nodma work for off-board chipsets ?
 
-Thanks,
-  Roland
+Ken
+-- 
+ das eine Mal als Tragödie, das andere Mal als Farce
+

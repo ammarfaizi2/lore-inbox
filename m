@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288859AbSBMUeI>; Wed, 13 Feb 2002 15:34:08 -0500
+	id <S288896AbSBMUei>; Wed, 13 Feb 2002 15:34:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288896AbSBMUd6>; Wed, 13 Feb 2002 15:33:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37900 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288859AbSBMUds>; Wed, 13 Feb 2002 15:33:48 -0500
-Subject: Re: LDT_ENTRIES in ldt.h: why 8192?
-To: setha@plaza.ds.adp.com (Seth D. Alford)
-Date: Wed, 13 Feb 2002 20:47:41 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, setha@plaza.ds.adp.com (Seth D. Alford)
-In-Reply-To: <20020213121848.A31469@mallard.plaza.ds.adp.com> from "Seth D. Alford" at Feb 13, 2002 12:18:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288897AbSBMUed>; Wed, 13 Feb 2002 15:34:33 -0500
+Received: from gatekeeper-WAN.credit.com ([209.155.225.68]:56803 "EHLO
+	gatekeeper") by vger.kernel.org with ESMTP id <S288896AbSBMUeW>;
+	Wed, 13 Feb 2002 15:34:22 -0500
+Date: Wed, 13 Feb 2002 12:33:37 -0800 (PST)
+From: Eugene Chupkin <ace@credit.com>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: linux-kernel@vger.kernel.org, tmeagher@credit.com
+Subject: Re: 2.4.x ram issues?
+In-Reply-To: <20020213122159.A16078@lynx.turbolabs.com>
+Message-ID: <Pine.LNX.4.10.10202131229480.683-100000@mail.credit.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16b6JZ-0006NL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> wondering about an alternate solution.  What would happen if LDT_ENTRIES was
-> reduced, to, say, 4096, or 512, instead of 8192?
 
-Some apps using LDT will stop working. Very little actually uses LDT's - the
-main ones being wine and the sco 286 emulation software. Its also used by
-glibc 2.2 by threads, and due to extremely stupid design considerations
-by the glibc 2.3 current snapshots for everything.
 
-Using LDT's has a measurable performance hit on task switching, so good
-apps don't use them unless they really need them (eg for a threaded app
-there is no other good way to do thread local storage and it is much
-cheaper than having different memory maps)
+On Wed, 13 Feb 2002, Andreas Dilger wrote:
+
+> On Feb 13, 2002  11:05 -0800, Eugene Chupkin wrote:
+> > On Tue, 12 Feb 2002, Andreas Dilger wrote:
+> > > The other possibility with that much RAM is that the page tables are taking
+> > > up all of the low RAM.  Andrea has a patch to put the page tables into
+> > > higmem in the recent -aa kernels.
+> > 
+> > I got it, the 2.4.18pre2aa2/pte-highmem-5 but I can't seem to figure out
+> > what to patch this on, I tried patching it on to 2.2.17, 2.2.18-pre1,
+> > and 2.2.18-pre2. On all those I get a Hunk failed. Any feedback is
+> > appreciated.
+> 
+> You may need to use a whole bunch of -aa patches to get it to apply.  In
+> general, the -aa tree is tuned for large machines such as yours, so you
+> are probably better off getting the whole thing.
+> 
+
+Whola!!! This fixed my problem. CONFIG_HIGHIO did it. So my kernel is lets
+see here... 2.4.18pre2aa2+pte-highmem-5. I hope this will be included in
+the 2.4.18 final. Thanks for all your help.
+
+-E
 

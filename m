@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVAWJSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVAWJUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVAWJSw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 04:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVAWJSw
+	id S261263AbVAWJUL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 04:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVAWJUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 04:18:52 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51972 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261201AbVAWJSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 04:18:50 -0500
-Date: Sun, 23 Jan 2005 10:18:49 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Nishanth Aravamudan <nacc@us.ibm.com>
-Subject: Re: 2.6.11-rc2-kj
-Message-ID: <20050123091849.GB3196@stusta.de>
-References: <20050122235426.GB22170@nd47.coderock.org>
+	Sun, 23 Jan 2005 04:20:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50852 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261263AbVAWJUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 04:20:01 -0500
+Date: Sun, 23 Jan 2005 01:19:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org
+Subject: Re: Memory leak in 2.6.11-rc1?
+Message-Id: <20050123011918.295db8e8.akpm@osdl.org>
+In-Reply-To: <20050123091154.GC16648@suse.de>
+References: <20050121161959.GO3922@fi.muni.cz>
+	<1106360639.15804.1.camel@boxen>
+	<20050123091154.GC16648@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050122235426.GB22170@nd47.coderock.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 23, 2005 at 12:54:26AM +0100, Domen Puncer wrote:
->...
-> new in this release:
-> --------------------
->...
-> wait_event_int_t-drivers_input_joystick_iforce_iforce.h.patch
->   From: Nishanth Aravamudan <nacc@us.ibm.com>
->   Subject: [KJ] [PATCH 13/39] input/iforce-packets: use 	wait_event_interruptible_timeout()
->...
+Jens Axboe <axboe@suse.de> wrote:
+>
+>  This is after 2 days of uptime, the box is basically unusable.
 
-This patch causes two compile errors:
+hm, no indication where it all went.
 
-#ifdef CONFIG_JOYSTICK_IFORCE_USB:
-- semicolon instead of opening bracket in line 265
-
-#ifdef CONFIG_JOYSTICK_IFORCE_232:
-- typo 'wait_event_interrutible_timeout'
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Does the machine still page properly?  Can you do a couple of monster
+usemems or fillmems to page everything out, then take another look at
+meminfo and the sysrq-M output?
 

@@ -1,70 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263451AbTDSUWx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 16:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTDSUWx
+	id S263459AbTDSU1H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 16:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTDSU1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 16:22:53 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:16126 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263451AbTDSUWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 16:22:52 -0400
-Date: Sat, 19 Apr 2003 14:33:25 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: John Bradford <john@grabjohn.com>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-ID: <20030419143325.T26054@schatzie.adilger.int>
-Mail-Followup-To: John Bradford <john@grabjohn.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030419185201.55cbaf43.skraw@ithnet.com> <200304192004.h3JK4Sgc000152@81-2-122-30.bradfords.org.uk>
+	Sat, 19 Apr 2003 16:27:07 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:44497 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263459AbTDSU1E convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 16:27:04 -0400
+Date: Sat, 19 Apr 2003 13:38:37 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Philippe =?ISO-8859-1?B?R3JhbW91bGzp?= 
+	<philippe.gramoulle@mmania.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm4 & IRQ balancing
+Message-Id: <20030419133837.0118907b.akpm@digeo.com>
+In-Reply-To: <20030419153923.6d63e22b.philippe.gramoulle@mmania.com>
+References: <20030419015836.6acbaeb6.philippe.gramoulle@mmania.com>
+	<20030418175116.75c8aa7b.akpm@digeo.com>
+	<20030419153923.6d63e22b.philippe.gramoulle@mmania.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200304192004.h3JK4Sgc000152@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Sat, Apr 19, 2003 at 09:04:28PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 19 Apr 2003 20:38:59.0433 (UTC) FILETIME=[B4898590:01C306B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 19, 2003  21:04 +0100, John Bradford wrote:
-> > > > I wonder whether it would be a good idea to give the linux-fs
-> > > > (namely my preferred reiser and ext2 :-) some fault-tolerance.
+Philippe Gramoullé <philippe.gramoulle@mmania.com> wrote:
+>
+> [ SMP IRQ distribution ]
+>
+> Is this what you are looking for ? and are the values changes meaningful ?
 
-I'm not against this in principle, but in practise it is almost useless.
-Modern disk drives do bad sector remapping at write time, so unless something
-is terribly wrong you will never see a write error (which is exactly the time
-that the filesystem could do such remapping).  Normally, you will only see
-an error like this at read time, at which point it is too late to fix.
+Looks good to me.  But it didn't affect your machine at all, did it?
 
-If you do an fsck, it would normally detect the read error and try to write
-back the repaired data, and cause the device to do remapping.  It will not
-normally be possible to regenerate metadata with anything less than a full
-fsck (if at all).
+This stuff only counts when the machine is doing a lot of work.  The current
+IRQ balancer works well under high interrupt frequencies, but does quite the
+wrong thing if you're doing a lot of softirq work at low interrupt
+frequencies (gige routing with NAPI).
 
-> > > Fault tollerance should be done at a lower level than the filesystem.
-> > 
-> > I know it _should_ to live in a nice and easy world. Unfortunately
-> > real life is different. The simple question is: you have tons of
-> > low-level drivers for all kinds of storage media, but you have
-> > comparably few filesystems. To me this sound like the preferred
-> > place for this type of behaviour can be fs, because all drivers
-> > inherit the feature if it lives in fs.
-> 
-> The sort of feature you are describing would really belong in a
-> separate layer, somewhat analogous to the MD driver, but for defect
-> management.  You could create a virtual block device that has 90% of
-> the capacity of the real block device, then allocte spare blocks from
-> the real device if and when blocks failed.
+My gut feel is that we'll never get this right with a single in-kernel IRQ
+balancer.  So the proposal is to pull the IRQ balancer out altogether and to
+then merge Arjan's userspace balancer into the main kernel tree.
 
-Hmm, like the "bad blocks relocation" plugin for EVMS?
+It's a little radical to go placing userspace daemons into the kernel tree,
+but I think it is appropriate - this thing is very tightly coupled to the
+kernel.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+The proposal has these advantages:
 
+- No version skew problems: if the format of /proc/interrupts changes, we
+  patch the irq balance daemon at the same time.
+
+- Can build irqbalanced into the intial initramfs image as part of kernel
+  build. (lacking klibc, we would need to statically link against glibc)
+
+- Doing it in userspace means that we can do more things.
+
+  - The balancer can "know about" the differences between NICs, disk
+    controllers, etc.
+
+  - The balancer can be controlled by config files: "I am a router"
+
+  - The balancer can support non-x86 architectures
+
+
+Anyway, that's the theory.  None of it has been done yet.

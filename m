@@ -1,96 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131174AbQLOU5Z>; Fri, 15 Dec 2000 15:57:25 -0500
+	id <S131429AbQLOU6m>; Fri, 15 Dec 2000 15:58:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131139AbQLOU5Q>; Fri, 15 Dec 2000 15:57:16 -0500
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:13576 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S131174AbQLOU5C>; Fri, 15 Dec 2000 15:57:02 -0500
-Date: Fri, 15 Dec 2000 15:31:30 -0500
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Mike Black <mblack@csihq.com>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18 signal.h
-Message-ID: <20001215153130.B24830@munchkin.spectacle-pond.org>
-In-Reply-To: <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com> <20001215175632.A17781@inspiron.random> <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com> <20001215184325.B17781@inspiron.random> <4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com> <20001215195433.G17781@inspiron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001215195433.G17781@inspiron.random>; from andrea@suse.de on Fri, Dec 15, 2000 at 07:54:33PM +0100
+	id <S131427AbQLOU6c>; Fri, 15 Dec 2000 15:58:32 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:18670 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S131139AbQLOU6Z>; Fri, 15 Dec 2000 15:58:25 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200012152027.eBFKRmh07217@webber.adilger.net>
+Subject: Re: [Q] Remote serial ports?
+In-Reply-To: <200012151514.JAA29931@mccoy.penguinpowered.com>
+ "from Jens Petersohn at Dec 15, 2000 09:14:57 am"
+To: Jens Petersohn <jkp@mccoy.penguinpowered.com>
+Date: Fri, 15 Dec 2000 13:27:48 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 07:54:33PM +0100, Andrea Arcangeli wrote:
-> On Fri, Dec 15, 2000 at 06:59:24PM +0100, Franz Sirl wrote:
-> > It's required by ISO C, and since that's the standard now, gcc spits out a 
-> > warning. Just adding a ; is enough and already done for most stuff in 
-> > 2.4.0-test12.
+Jens Petersohn writes:
+> I have an application in which it would be useful to have access to
+> remote serial ports as if they where local ports. 
 > 
-> I'm not complaining gcc folks, I just dislike the new behaviour in general,
-> it's inconsistent.
+> Machine A has several serial ports on it connected to various
+> special types of devices in a locked machine room.
 > 
-> This is wrong:
+> Developers on workstation B wants to execute an application that
+> communicates with the special devices, but can only do so via
+> /dev/ttySXX. The developer however (for various reasons) cannot
+> directly log into Machine A.
 > 
-> x()
-> {
-> 
-> 	switch (1) {
-> 	case 0:
-> 	case 1:
-> 	case 2:
-> 	case 3:
-> 	}
-> }
-> 
-> and this is right:
-> 
-> x()
-> {
-> 
-> 	switch (1) {
-> 	case 0:
-> 	case 1:
-> 	case 2:
-> 	case 3:
-> 	;
-> 	}
-> }
-> 
-> Why am I required to put a `;' only in the last case and not in all
-> the previous ones? Or maybe gcc-latest is forgetting to complain about
-> the previous ones ;)
+> Is there some software that would allow "remote forwarding" of
+> serial ports? I.e. a driver that emulates a serial port on
+> machine B and forwards the read/write/ioctl operations to machine A?
+> Does this exist? Is it possible to implement if it doesn't?
+> Am I overlooking something obvious?
 
-Because neither
+Please see the posting on l-k today "[NEW DRIVER] New user space serial port"
+which does just what you want.  Just-in-time kernel development has arrived.
 
-	<label>:		(nor)
-	case <expr>:		(nor)
-	default:
-
-are statements by themselves.  They are an optional start of a statement.  The
-ebnf looks like:
-
-	statement:
-		  labeled-statement
-		| expression-statem
-		| compoundstatement
-		| selection-statement
-		| iteration-statement
-		| jump-statement
-
-	labeled-statement:
-		  identifier ':' statement
-		| 'case' constant-expression ':' statement
-		| 'default' ':' statement
-
+Cheers, Andreas
 -- 
-Michael Meissner, Red Hat, Inc.  (GCC group)
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,74 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129849AbQLEW30>; Tue, 5 Dec 2000 17:29:26 -0500
+	id <S130517AbQLEWaq>; Tue, 5 Dec 2000 17:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130517AbQLEW3Q>; Tue, 5 Dec 2000 17:29:16 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:5395 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129849AbQLEW3H>; Tue, 5 Dec 2000 17:29:07 -0500
-Date: Tue, 5 Dec 2000 13:58:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@innominate.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre5
-In-Reply-To: <00120522275601.09076@gimli>
-Message-ID: <Pine.LNX.4.10.10012051349580.7163-100000@penguin.transmeta.com>
+	id <S130803AbQLEWag>; Tue, 5 Dec 2000 17:30:36 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24836 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130797AbQLEWaU>; Tue, 5 Dec 2000 17:30:20 -0500
+Subject: Re: 2.4.0-test12-pre4 + cs46xx + KDE 2.0 = frozen system
+To: scole@lanl.gov
+Date: Tue, 5 Dec 2000 22:02:20 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <00120510163700.00846@spc.esa.lanl.gov> from "Steven Cole" at Dec 05, 2000 10:16:37 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E143QAI-0000GI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Crystal 4280/461x + AC97 Audio, version 0.13, 08:56:46 Dec  5 2000
+> cs461x: Card found at 0xf8ffe000 and 0xf8e00000, IRQ 18
+> cs461x: Unknown card (1028:0096) at 0xf8ffe000/0xf8e00000, IRQ 18
+> ac97_codec: AC97 Audio codec, vendor id1: 0x4352, id2: 0x5914 (Unknown)
 
+This correctly sees the card
 
-On Tue, 5 Dec 2000, Daniel Phillips wrote:
-> 
-> OK, I see - this isn't easy at all.  You start the io if necessary, and
-> some time later it completes.
+> cs461x: Card found at 0xf8ffe000 and 0xf8e00000, IRQ 18
+> cs461x: Unknown card (FFFFFFFF:FFFFFFFF) at 0xf8ffe000/0xf8e00000, IRQ 18
 
-Right. You don't know when. Once completed, it will unlock the page and
-wake up waiters. It will also set PG_Uptodate if the read was successful
-(and obviously it might not have been).
+This gets garbage back when it reads the vendor subids. I dont at this point
+see it being a sound bug but a pci layer bug
 
-If you only care about the contents of the page, you can just test the
-Uptodate flag - if the page is up-to-date you may not care whether IO is
-outstanding on the page, or whether somebody is modifying page state
-(removing page buffers etc). So it's entirely legal to look up a page in
-the page cache and only look at uptodate.
-
-(Of course, if it _isn't_ uptodate, you will still have to get the page
-lock and re-test and possibly start the IO if it still isn't up-to-date
-after you got the page lock. This is what all the generic_file_read()
-stuff does for you).
-
->				  The locking state is therefore
-> indeterminate after ->readpage or ->writepage; all we know is that
-> after some finite amount of time the lock bit will go down.
-
-Yes. It might have completed immediately (ramdisks or what not), or be
-fast enough that by the time you get back it's already done. But the
-likely case is that the page will be locked, and you'd be better off going
-away and doing something else in the meantime (this is certainly important
-for the VM layer - it needs to continue doing swap-outs so that it
-doesn't just dribble the pages out one by one).
-
-The main reason for the page locking changes for the writepage() case were
-really:
-
- - the swapping code serializes accesses by using the page lock, and
-   doesn't have any other underlying serializing primitives. So we needed
-   to let the brw_page() code leave the lock set until the write has
-   physically completed.
-
- - the VM code really wants to have a notion of "I have this many pages in
-   flight", so that it can sanely make a decision on when to start waiting
-   on page writeout completion, instead of just writing as much as it can.
-   The block device layer does some of this, of course, but the VM layer
-   can do more by just using the "nr_async_pages" thing. However, before
-   the unlock changes, this could not work for shared file mappings.
-
-I hope that explains the change,
-
-		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

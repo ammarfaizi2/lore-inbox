@@ -1,62 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269593AbUHZUiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269648AbUHZUsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269593AbUHZUiq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269625AbUHZUfS
+	id S269648AbUHZUsF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269636AbUHZUo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:35:18 -0400
-Received: from [194.85.238.98] ([194.85.238.98]:10393 "EHLO school.ioffe.ru")
-	by vger.kernel.org with ESMTP id S269586AbUHZUaX (ORCPT
+	Thu, 26 Aug 2004 16:44:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54165 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269553AbUHZUnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:30:23 -0400
-Date: Fri, 27 Aug 2004 00:30:17 +0400
-To: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       torvalds@osdl.org, reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 16:43:20 -0400
+Date: Thu, 26 Aug 2004 13:40:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+cc: Diego Calleja <diegocg@teleline.es>, jamie@shareable.org,
+       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
+       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
+       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826203017.GA14361@school.ioffe.ru>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <412DAC59.4010508@namesys.com> <1093548414.5678.74.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1093548414.5678.74.camel@krustophenia.net>
-User-Agent: Mutt/1.5.6+20040722i
-From: mitya@school.ioffe.ru (Dmitry Baryshkov)
+In-Reply-To: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0408261315110.2304@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-On Thu, Aug 26, 2004 at 03:26:55PM -0400, Lee Revell wrote:
-> On Thu, 2004-08-26 at 05:24, Hans Reiser wrote:
-> > 
-> > Well, in V4, you can easily compose a plugin from plugin methods of 
-> > other plugins, write a little piece of code with the one thing you want 
-> > different, and add it in.  Disk format changes, no big deal, add a new 
-> > disk format plugin, or a new item plugin, or a new node plugin, etc., 
-> > and you got your new format.
-> > 
+
+
+On Thu, 26 Aug 2004, Rik van Riel wrote:
 > 
-> OK, real world example.  My roommate has an AKAI MPC-2000, a very
-> popular hardware sampler from the 90's.  The disk format is known,there
-> are a few utilities to edit the disks on a PC and extract the PCM
-> samples, but there are no tools to mount it on a modern PC.  Are you
-> saying that, since I know the MPC disk format, I could write a reiser4
-> plugin to mount an MPC drive?
-> 
+> Thinking about it some more, how would file managers and file chosers
+> handle this situation ?
 
-Another example: Can ext2/etx3/reiserfsv3/xfs be implemented as reiser4
-plugins? From Hans' words it seems so. If this is correct, then maybe
-reiser4 core should be updated to completely replace current VFS layer?
-Then it's a good point to create a branch (in old development model it
-would be 2.7, dunno for new :), replace VFS layer with reiser4 core, and
-rewrite all (or at least most used) FS as reiser4 plugins. Then
-everybody will be happy.
+The same way they already handle it on other platforms that support it? By 
+taking advantage of it..
 
-But this looks too good to be true. Perhaps I misunderstood Hans' words
-aboud 'new disk format', did I?
+People literally use this for icon and preview information, so some of the
+stuff shows up very much in file managers. And I'd assume that a normal
+double-click would just open the main file, and you can right-click for 
+management information, including opening the file.
 
--- 
-With best wishes
-Dmitry Baryshkov
+If you want an entity that acts as a directory, you create a directory. 
 
+Directories don't go away - you still have S_ISDIR() and S_ISREG(), and 
+they still return information. A file that has associated information is 
+still a _file_, and people should treat it that way, it's just that it 
+also has a list of named sub-streams. You can open it as a directory, but 
+the stat information clearly says it is a file, and the "directory" view 
+is very much associated with _that_ file.
+
+I definitely don't think you want the file manager to act as if a named 
+stream is exactly the same as a stand-alone file. They have all the same 
+operations, but there's no question that there are differences too. 
+Especially on a conceptual level - but for most filesystems there are 
+likely real technical differences too.
+
+For example, it's likely that most filesystems would _not_ allow linking 
+of a named stream anywhere else. And you might not be able to change the 
+permissions or date on the named stream either, since it may or may not 
+have a separate date/permission thing from the container.
+
+So don't believe that just because the named streams are _named_ like real 
+files, that they suddenly have any existence beyond the container that 
+they are part of.
+
+There may be other limitations too - again depending on how the filesystem
+actually implements named streams. It might not support more than one
+level of naming, for example - so you might not be able to create a
+directory structure within the named streams, for example.
+
+In short: the fact that the VFS layer exposes the _capability_ to see the 
+named streams as a full POSIX filesystem of its own does _not_ mean that 
+the low-level filesystem necessarily allows the full possible semantics. 
+So you shouldn't design your apps that know about named streams to think 
+they are normal directories.
+
+The directory thing is just a very powerful naming scheme, and one that 
+fits into the existing UNIX model.
+
+> Do we really want to have a file paradigm that's different
+> from the other OSes out there ?
+
+Different from what other OSes?
+
+Last I looked, Windows, Solaris, and OSX all supported named streams. What 
+other OS's are out there that you care about? 
+
+In other words, this is _not_ a different paradigm from what others do.  
+The discussion is whether we want to implement it at all, and more
+importantly about syntactic issues (ie we clearly already implement
+extended attributes, just with a much more limited syntactic power).
+
+We don't have to go all the way. Solaris has "openat()", which is kind of 
+a half-way there - not really directly available in the same namespace, 
+but at least the result is available as a real file interface (as opposed 
+to the Linux "xattr" interfaces that are _totally_ special-cased system 
+calls).
+
+In other words - the paradigm is already there. It's just that currently
+it's pretty much unusable under Linux, because it requires so much
+specialized knowledge that it's not worth it to modify existing apps. And
+the interfaces are really very limited, so even if you _do_ end up using 
+the specialized Linux interfaces, you can't actually do a lot of what you 
+might want to do.
+
+			Linus

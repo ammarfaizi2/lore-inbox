@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbUEJWMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUEJWNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbUEJWMN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 18:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUEJWMM
+	id S261673AbUEJWNc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 18:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUEJWNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 18:12:12 -0400
-Received: from roadrunner.doc.ic.ac.uk ([146.169.1.193]:9169 "EHLO
-	roadrunner.doc.ic.ac.uk") by vger.kernel.org with ESMTP
-	id S261984AbUEJWLu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 18:11:50 -0400
-Message-ID: <409FFE22.4050508@bluetheta.com>
-Date: Mon, 10 May 2004 23:11:46 +0100
-From: Andre Ben Hamou <andre@bluetheta.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Multithread select() bug
-References: <409FF38C.7080902@bluetheta.com> <409FFADD.7050204@cosmosbay.com>
-In-Reply-To: <409FFADD.7050204@cosmosbay.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 10 May 2004 18:13:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28574 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261673AbUEJWNY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 18:13:24 -0400
+Date: Mon, 10 May 2004 15:15:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm1
+Message-Id: <20040510151554.49965f1d.akpm@osdl.org>
+In-Reply-To: <20040510230558.A8159@infradead.org>
+References: <20040510024506.1a9023b6.akpm@osdl.org>
+	<20040510223755.A7773@infradead.org>
+	<20040510150203.3257ccac.akpm@osdl.org>
+	<20040510230558.A8159@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> Your program is racy and have undefined behavior.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> > Capabilities are broken and don't work.  Nobody has a clue how to provide
+> > the required services with SELinux and nobody has any code and we need the
+> > feature *now* before vendors go shipping even more ghastly stuff.
 > 
-> A thread should not close a handle 'used by another thread blocked in a 
-> sytemcall'
-> 
-> The race is : if a thread does a close(fd), then the fd value may be 
-> reused by another thread during an open()/socket()/dup()... syscall, and 
-> the first thread could issue the select() syscall (or 
-> read()/write()/...) on the bad file.
+> The thing is special privilegues for a group don't fit into any of the
+> various privilegues schemes we have (capabilities, selinux, etc..),
+> it's really a horrible hack.
 
-Apologies, but I don't follow this.
+It beats the alternatives which are floating about, which includes a sysctl
+which defeats CAP_SYS_MLOCK system-wide.
 
-It was my understanding that the (potentially) many threads of a single 
-process all share a canonical file descriptor table. Hence as long as 
-the various calls you mention are issued in a guaranteed order, 
-maintaining state as you go (which is what the 1 second sleep in the 
-test code was a very quick and dirty way to almost do), I don't see how 
-a race condition arises.
+>  What happened to the patch rick promised
+> to make mlock an rlimit?  This is the right approach and could be easily
+> extended to hugetlb pages.
 
-If I were to replace the sleep (1) with, say a global semaphore or 
-something similar, would your explanation still hold?
+rlimits don't work for this.  shm segments persist after process exit and
+aren't associated with a particular user.
 
-Cheers,
-
-Andre Ben Hamou
-Imperial College London
-
--- 
-
-...and, on the seventh day, God switched off his Mac.

@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275045AbRJBOm4>; Tue, 2 Oct 2001 10:42:56 -0400
+	id <S274270AbRJBOv3>; Tue, 2 Oct 2001 10:51:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275044AbRJBOmr>; Tue, 2 Oct 2001 10:42:47 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:29865 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S275037AbRJBOmf>; Tue, 2 Oct 2001 10:42:35 -0400
-Subject: Re: Single .c files
-From: Stephane Dudzinski <stephane@antefacto.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20011003004105.02280710@mail.ispdr.net.au>
-In-Reply-To: <4.3.2.7.2.20011003004105.02280710@mail.ispdr.net.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 02 Oct 2001 15:39:22 +0100
-Message-Id: <1002033562.29779.46.camel@steph>
-Mime-Version: 1.0
+	id <S275037AbRJBOvT>; Tue, 2 Oct 2001 10:51:19 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:56747 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S274270AbRJBOvP>; Tue, 2 Oct 2001 10:51:15 -0400
+Date: Tue, 2 Oct 2001 11:07:14 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.11-ac3 -- unresolved symbols in cramfs.o --
+In-Reply-To: <E15oQIF-0004nT-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0110021057490.114-100000@rc.priv.hereintown.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That is what patches are for, get them from your closest kernel.org
-mirror.
+On Tue, 2 Oct 2001, Alan Cox wrote:
 
-/S
+> > This problem is still present in 2.4.11-ac3.
+> >
+> > > Frank Davis <fdavis@si.rr.com> wrote:
+> > >
+> > > Hello all,
+> > >     I received the following while 'make modules_install'
+> > > depmod: *** Unresolved symbols in
+> > > /lib/modules/2.4.9-ac17/kernel/fs/cramfs/cramfs/cramfs.o
+> > > depmod:  zlib_fs_inflateInit_
+> > > depmod:  zlib_fs_inflateEnd
+>
+> In what circumstances do you get this . I do cross chekx the -ac trees
+> for module symbol problems so Im curious what config is triggering it.
+>
+> Right now I can only trigger a couple of acpi module ones
 
-On Tue, 2001-10-02 at 15:43, Anthony wrote:
-> Hi everyone,
-> 	Just a quick question: Is it possible for an average person (like me) to 
-> download from somewhere, single .c files from the latest stable kernel? I 
-> only need a few files from the 2.4.9 or .10 release and I'm really not keen 
-> on downloading all 27Mb. :) Any info on this would be great.
-> 
-> 
-> ----------------------------
-> Anthony (aslan@ispdr.net.au)
-> ----------------------------
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I get something similar without module support just doing a "make bzImage"
+of 2.4.10-ac3.
+
+This is on the laptop that I'm just now setting up so I don't have gpm on
+it yet, but let me see what I can get, compiling...
+
+Looks like zconf.h included from zlib_fs.h can't be found.  zconf.h
+defines voidpf so all hell breaks loose when zconf.h desides to use it.
+
+At least that is what I'm seeing here.
+
+-Chris
 -- 
-__________________________________________
-Stephane Dudzinski   Systems Administrator
-a n t e f a c t o     t: +353 1 8586009
-www.antefacto.com     f: +353 1 8586014
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 

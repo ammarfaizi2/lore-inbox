@@ -1,29 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274972AbRIYLui>; Tue, 25 Sep 2001 07:50:38 -0400
+	id <S274976AbRIYMAU>; Tue, 25 Sep 2001 08:00:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274974AbRIYLu2>; Tue, 25 Sep 2001 07:50:28 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:60944 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S274972AbRIYLuR>;
-	Tue, 25 Sep 2001 07:50:17 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem compiling 2.4.9 kernel (fwd) 
-In-Reply-To: Your message of "Tue, 25 Sep 2001 16:16:49 +0530."
-             <Pine.LNX.4.10.10109251616130.3864-100000@blrmail> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 25 Sep 2001 21:50:33 +1000
-Message-ID: <14236.1001418633@ocs3.intra.ocs.com.au>
+	id <S274974AbRIYMAL>; Tue, 25 Sep 2001 08:00:11 -0400
+Received: from gate.perex.cz ([194.212.165.105]:19976 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S274976AbRIYMAA>;
+	Tue, 25 Sep 2001 08:00:00 -0400
+Date: Tue, 25 Sep 2001 13:59:02 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
+Subject: parallel port setup code for NSC8739x LPC Super I/O chipsets
+In-Reply-To: <Pine.LNX.4.21.0109251349130.15691-100000@gate.perex.cz>
+Message-ID: <Pine.LNX.4.31.0109251356290.4391-200000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323584-564681414-1001419142=:4391"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Sep 2001 16:16:49 +0530 (IST), 
-"SATHISH.J" <sathish.j@tatainfotech.com> wrote:
->I compiled the linux 2.4.9 kernel with the kdb patch "kdb-v1.8-2.4.9" got
->/bin/sh: /sbin/kallsyms: No such file or directory
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Read Documentation/Changes, your modutils is too old.
+--8323584-564681414-1001419142=:4391
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+Hello,
+
+	I've attached a patch for NSC8739x LPC Super I/O chipsets to
+enable and configure the parallel port. It would be nice to include this
+code to the official linux kernel tree. Thank you.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+SuSE Linux    http://www.suse.com
+ALSA project  http://www.alsa-project.org
+
+--8323584-564681414-1001419142=:4391
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nsc-superio-2.4.10.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.31.0109251359020.4391@pnote.perex-int.cz>
+Content-Description: 
+Content-Disposition: attachment; filename="nsc-superio-2.4.10.patch"
+
+LS0tIGxpbnV4LTIuNC4xMC9kcml2ZXJzL3BhcnBvcnQvcGFycG9ydF9wYy5j
+CVR1ZSBTZXAgMjUgMTM6MDE6NTEgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMv
+cGFycG9ydC9wYXJwb3J0X3BjLmMJTW9uIFNlcCAyNCAxMDo0NDowOCAyMDAx
+DQpAQCAtMTM3Niw2ICsxMzc2LDY0IEBADQogCX0NCiB9DQogDQorc3RhdGlj
+IHZvaWQgX19kZXZpbml0IHNob3dfcGFyY29uZmlnX25zYzM5eChpbnQgaW8p
+DQorew0KKwlpbnQgY3IzMCxjcjYwLGNyNjEsY3I3MCxjcjc0LGNyZjAsbW9k
+ZTQsaT0wOw0KKwljaGFyICptb2Rlc1tdPXsgIlN0YW5kYXJkIChTUFApIiwg
+LyogMCAqLw0KKwkJCSJFeHRlbmRlZCAoU1BQKSIsDQorCQkJIkVQUCAxLjci
+LA0KKwkJCSJFUFAgMS45IiwNCisJCQkiRUNQIiwNCisJCQkidW5kZWZpbmVk
+ISIsCQkvKiA1ICovDQorCQkJInVuZGVmaW5lZCEiLAkJLyogNiAqLw0KKwkJ
+CSJFQ1AgYW5kIEVQUCJ9Ow0KKwkJDQorCS8qIFRoZSByZWdpc3RlcnMgYXJl
+IGNhbGxlZCBjb21wYXRpYmxlLVBuUCBiZWNhdXNlIHRoZQ0KKyAgICAgICAg
+ICAgcmVnaXN0ZXIgbGF5b3V0IGlzIG1vZGVsbGVkIGFmdGVyIElTQS1QblAs
+IHRoZSBhY2Nlc3MNCisgICAgICAgICAgIG1ldGhvZCBpcyBqdXN0IGFub3Ro
+ZXIgLi4uICovDQorCW91dGIoMHgwNyxpbyk7ICAgLyogUmVnaXN0ZXIgNzog
+U2VsZWN0IExvZ2ljYWwgRGV2aWNlICovDQorCW91dGIoMHgwMSxpbysxKTsg
+LyogTEQxIGlzIFBhcmFsbGVsIFBvcnQgKi8NCisJb3V0YigweDMwLGlvKTsN
+CisJY3IzMD1pbmIoaW8rMSk7DQorCW91dGIoMHg2MCxpbyk7DQorCWNyNjA9
+aW5iKGlvKzEpOw0KKwlvdXRiKDB4NjEsaW8pOw0KKwljcjYxPWluYihpbysx
+KTsNCisJb3V0YigweDcwLGlvKTsNCisJY3I3MD1pbmIoaW8rMSk7DQorCW91
+dGIoMHg3NCxpbyk7DQorCWNyNzQ9aW5iKGlvKzEpOw0KKwlvdXRiKDB4ZjAs
+aW8pOw0KKwljcmYwPWluYihpbysxKTsNCisJbW9kZTQ9KGNyMzAgJiAweDAx
+KSA/IGluYigoY3I2MDw8OCl8Y3I2MSkgOiAwOw0KKw0KKwlwcmludGsoIk5T
+Qzg3Mzl4IExQVCBDb25maWc6IGNyXzMwPSUwMnggNjAsNjE9JTAyeCUwMngg
+Ig0KKwkgICAgICAgIjcwPSUwMnggNzQ9JTAyeCwgZjA9JTAyeFxuIiwgY3Iz
+MCxjcjYwLGNyNjEsY3I3MCxjcjc0LGNyZjApOw0KKwlwcmludGsoIk5TQzg3
+Mzl4IExQVCBDb25maWc6IGFjdGl2ZT0lcywgaW89MHglMDJ4JTAyeCBpcnE9
+JWQsICIsIA0KKwkgICAgICAgKGNyMzAgJiAweDAxKSA/ICJ5ZXMiOiJubyIs
+IGNyNjAsY3I2MSxjcjcwJjB4MGYgKTsNCisJaWYgKChjcjc0ICYgMHgwNykg
+PiAzKQ0KKwkJcHJpbnRrKCJkbWE9bm9uZVxuIik7DQorCWVsc2UNCisJCXBy
+aW50aygiZG1hPSVkXG4iLGNyNzQgJiAweDA3KTsNCisJcHJpbnRrKCJOU0M4
+NzM5eCBMUFQgQ29uZmlnOiBQb3J0IG1vZGU9JXMlc1xuIiwgbW9kZXNbY3Jm
+MCA+PiA1XSwNCisJICAgICAgIChjcmYwICYgMHhlMCkgPT0gMHhlMCA/ICgo
+bW9kZTQgJiAweDEwKSA/ICIgMS45IiA6ICIgMS43IikgOiAiIik7DQorCXBy
+aW50aygiTlNDODczOXggTFBUIENvbmZpZzogRXh0ZW5kZWQgcmVnaXN0ZXJz
+IGF0IDB4JXggYXJlJXMgYWNjZXNzaWJsZVxuIiwNCisJICAgICAgICgoY3I2
+MDw8OCl8Y3I2MSkgKyAweDQwMCwgKGNyZjAgJiAweDEwKSA/ICIiIDogIiBu
+b3QiKTsNCisNCisJaWYoY3IzMCAmIDB4MDEpIHsgLyogdGhlIHNldHRpbmdz
+IGNhbiBiZSBpbnRlcnJvZ2F0ZWQgbGF0ZXIgLi4uICovDQorCQl3aGlsZSgo
+c3VwZXJpb3NbaV0uaW8hPSAwKSAmJiAoaTxOUl9TVVBFUklPUykpDQorCQkJ
+aSsrOw0KKwkJaWYoaT09TlJfU1VQRVJJT1MpIA0KKwkJCXByaW50aygiU3Vw
+ZXItSU86IHRvbyBtYW55IGNoaXBzIVxuIik7DQorCQllbHNlIHsNCisJCQlz
+dXBlcmlvc1tpXS5pbyA9IChjcjYwPDw4KXxjcjYxOw0KKwkJCXN1cGVyaW9z
+W2ldLmlycSA9IGNyNzAmMHgwZjsNCisJCQlzdXBlcmlvc1tpXS5kbWEgPSAo
+KChjcjc0ICYgMHgwNykgPiAzKSA/DQorCQkJCQkgICBQQVJQT1JUX0RNQV9O
+T05FIDogKGNyNzQgJiAweDA3KSk7DQorCQl9DQorCX0NCit9DQorDQogc3Rh
+dGljIHZvaWQgX19kZXZpbml0IGRlY29kZV93aW5ib25kKGludCBlZmVyLCBp
+bnQga2V5LCBpbnQgZGV2aWQsIGludCBkZXZyZXYsIGludCBvbGRpZCkNCiB7
+DQogCWNoYXIgKnR5cGU9TlVMTDsNCkBAIC0xNTM3LDYgKzE1OTUsMTYgQEAN
+CiAgICAgICAgIGRlY29kZV9zbXNjKGlvLGtleSxvbGRpZCxvbGRyZXYpOw0K
+IH0NCiANCitzdGF0aWMgdm9pZCBfX2RldmluaXQgbnNjMzl4X2NoZWNrKGlu
+dCBpbykNCit7DQorCWlmIChpbmIoaW8pID09IDB4ZmYpDQorCQlyZXR1cm47
+DQorCW91dGIoMHgyMCxpbyk7DQorCWlmIChpbmIoaW8rMSkgIT0gMHhlYSkN
+CisJCXJldHVybjsNCisJc2hvd19wYXJjb25maWdfbnNjMzl4KGlvKTsNCit9
+DQorDQogDQogc3RhdGljIHZvaWQgX19kZXZpbml0IGRldGVjdF9hbmRfcmVw
+b3J0X3dpbmJvbmQgKHZvaWQpDQogeyANCkBAIC0xNTU5LDYgKzE2MjcsMTMg
+QEANCiAJc21zY19jaGVjaygweDNmMCwweDQ0KTsNCiAJc21zY19jaGVjaygw
+eDM3MCwweDQ0KTsNCiB9DQorDQorc3RhdGljIHZvaWQgX19kZXZpbml0IGRl
+dGVjdF9hbmRfcmVwb3J0X25zYyAodm9pZCkNCit7DQorCXByaW50aygiTlND
+IFN1cGVyLUlPIGRldGVjdGlvbiwgbm93IHRlc3RpbmcgUG9ydHMgMkUsIDRF
+IC4uLlxuIik7DQorCW5zYzM5eF9jaGVjaygweDJFKTsNCisJbnNjMzl4X2No
+ZWNrKDB4NEUpOw0KK30NCiAjZW5kaWYgLyogQ09ORklHX1BBUlBPUlRfUENf
+U1VQRVJJTyAqLw0KIA0KIHN0YXRpYyBpbnQgX19kZXZpbml0IGdldF9zdXBl
+cmlvX2RtYSAoc3RydWN0IHBhcnBvcnQgKnApDQpAQCAtMjgwOSw2ICsyODg0
+LDcgQEANCiAjaWZkZWYgQ09ORklHX1BBUlBPUlRfUENfU1VQRVJJTw0KIAlk
+ZXRlY3RfYW5kX3JlcG9ydF93aW5ib25kICgpOw0KIAlkZXRlY3RfYW5kX3Jl
+cG9ydF9zbXNjICgpOw0KKwlkZXRlY3RfYW5kX3JlcG9ydF9uc2MgKCk7DQog
+I2VuZGlmDQogDQogCS8qIE9uYm9hcmQgU3VwZXJJTyBjaGlwc2V0cyB0aGF0
+IHNob3cgdGhlbXNlbHZlcyBvbiB0aGUgUENJIGJ1cy4gKi8NCg==
+--8323584-564681414-1001419142=:4391--

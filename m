@@ -1,33 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129805AbRAER5a>; Fri, 5 Jan 2001 12:57:30 -0500
+	id <S132115AbRAER7u>; Fri, 5 Jan 2001 12:59:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130378AbRAER5K>; Fri, 5 Jan 2001 12:57:10 -0500
-Received: from tonib-gw-old.customer.0rbitel.net ([195.24.39.218]:8455 "HELO
-	gateway.izba.bg") by vger.kernel.org with SMTP id <S129805AbRAER5H>;
-	Fri, 5 Jan 2001 12:57:07 -0500
-Date: Fri, 5 Jan 2001 19:57:05 +0200 (EET)
-From: Vasil Kolev <lnxkrnl@mail.ludost.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0: Problems on Alpha with NCR53c810
-Message-ID: <Pine.LNX.4.10.10101051951010.6358-100000@doom.bastun.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132701AbRAER7k>; Fri, 5 Jan 2001 12:59:40 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:23802 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S132115AbRAER72>;
+	Fri, 5 Jan 2001 12:59:28 -0500
+Date: Fri, 5 Jan 2001 10:00:40 -0800
+From: Greg KH <greg@wirex.com>
+To: Heitzso <xxh1@cdc.gov>
+Cc: "'antirez@invece.org'" <antirez@invece.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Johannes Erdfelt'" <johannes@erdfelt.com>
+Subject: Re: USB broken in 2.4.0
+Message-ID: <20010105100040.A25217@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, Heitzso <xxh1@cdc.gov>,
+	"'antirez@invece.org'" <antirez@invece.org>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	'Johannes Erdfelt' <johannes@erdfelt.com>
+In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E7F99@mcdc-atl-5.cdc.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E7F99@mcdc-atl-5.cdc.gov>; from xxh1@cdc.gov on Fri, Jan 05, 2001 at 12:38:25PM -0500
+X-Operating-System: Linux 2.4.0-prerelease (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
-I tried installing 2.4.0 on my digital alpha server 400 /233 , and with no
-success... First, I tried compiling it with ncr53c7,8xx driver, and it
-failed with signal 1 ( always failed there.... that file never wanted to
-compile, no matter how I tried)  ... I blame the compiler there, but I
-didn't wanted to change the compiler, and I saw there was another driver
-that supports the controler, so I compiled with it, and the machine
-stopped at the detection , just doing resets on the SCSI bus... The same
-driver works with 2.2.18 ( I checked, in 2.4 the driver is older than in
-2.2)... 
-  Any ideas?
+On Fri, Jan 05, 2001 at 12:38:25PM -0500, Heitzso wrote:
+> I just tested with fresh-out-of-the-box
+> 2.4.0 and using the newer libusb 0.1.2 
+> as suggested by antirez  (see email chain
+> below for more info).  I compiled libusb
+> and s10sh code this AM under 2.4.0. 
+> 
+> It blows up BAD by finding increasingly
+> larger photo images in the camera over
+> the usb link and extracting them to disk.
+> So by the third file you're trying to
+> extract gig sized files.  Obviously the
+> filesystem files up, the sytem chokes, etc.
+> 
+> This is the same code that works fine
+> under 2.2.18 kernel (I use it all of the
+> time there).
 
+I made the same request to Jordan Mendelson yesterday, who has the same
+problem.  Could you be so kind as to try to narrow down which kernel
+version this broke on?  I have reports that it used to work on -test9
+but doesn't now.  Could you try -test10, etc and let me know?
+
+thanks,
+
+greg k-h
+
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,98 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbUCWRiL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 12:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbUCWRiL
+	id S262721AbUCWRnM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 12:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUCWRnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 12:38:11 -0500
-Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:52762 "EHLO
-	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S262743AbUCWRiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 12:38:05 -0500
-Message-ID: <406075FE.1060308@blueyonder.co.uk>
-Date: Tue, 23 Mar 2004 17:38:06 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm1
-References: <405F8DFB.1010801@blueyonder.co.uk> <40601D54.1040305@blueyonder.co.uk>
-In-Reply-To: <40601D54.1040305@blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 23 Mar 2004 12:43:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26794 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262721AbUCWRnD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 12:43:03 -0500
+Date: Tue, 23 Mar 2004 09:42:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: smurf@smurf.noris.de, linux-m68k@lists.linux-m68k.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: remove-page-list patch in -mm breaks m68k
+Message-Id: <20040323094220.2a6e729e.akpm@osdl.org>
+In-Reply-To: <Pine.GSO.4.58.0403231322200.4928@waterleaf.sonytel.be>
+References: <pan.2004.03.23.11.15.01.701720@smurf.noris.de>
+	<Pine.GSO.4.58.0403231322200.4928@waterleaf.sonytel.be>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Mar 2004 17:38:04.0762 (UTC) FILETIME=[98AF6BA0:01C410FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vanilla 2.6.5-rc2 x86_64 builds OK.
-Regards
-Sid.
-
-Sid Boyce wrote:
-
-> Strange, cross checked with entry.S for 2.6.4-mm1 and 2.6.5-rc1 and 
-> they all seem to be the same in the lines complained about.
-> # gcc -v
-> Reading specs from /usr/lib64/gcc-lib/x86_64-suse-linux/3.3.1/specs
-> Configured with: ../configure --enable-threads=posix --prefix=/usr 
-> --with-local-prefix=/usr/local --info
-> dir=/usr/share/info --mandir=/usr/share/man --libdir=/usr/lib64 
-> --enable-languages=c,c++,f77,objc,java,a
-> da --disable-checking --enable-libgcj 
-> --with-gxx-include-dir=/usr/include/g++ --with-slibdir=/lib64 --wi
-> th-system-zlib --enable-shared --enable-__cxa_atexit x86_64-suse-linux
-> Thread model: posix
-> gcc version 3.3.1 (SuSE Linux)
-> Regards
-> Sid.
+Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 >
-> Sid Boyce wrote:
->
->> No response so far to the following.
->> Regards
->> Sid.
->>
->>
->> ------------------------------------------------------------------------
->>
->> Subject:
->> RE: 2.6.5-rc2-mm1 x86_64 entry.S errors
->> From:
->> Sid Boyce <sboyce@blueyonder.co.uk>
->> Date:
->> Sun, 21 Mar 2004 18:24:51 +0000
->> To:
->> linux-kernel@vger.kernel.org
->>
->> To:
->> linux-kernel@vger.kernel.org
->>
->>
->>  AS      arch/x86_64/kernel/entry.o
->> arch/x86_64/kernel/entry.S: Assembler messages:
->> arch/x86_64/kernel/entry.S:184: Error: missing separator
->> arch/x86_64/kernel/entry.S:434: Error: missing separator
->> arch/x86_64/kernel/entry.S:551: Error: missing separator
->> arch/x86_64/kernel/entry.S:554: Error: missing separator
->> arch/x86_64/kernel/entry.S:557: Error: missing separator
->> arch/x86_64/kernel/entry.S:719: Error: missing separator
->> arch/x86_64/kernel/entry.S:778: Error: missing separator
->> arch/x86_64/kernel/entry.S:806: Error: missing separator
->> arch/x86_64/kernel/entry.S:819: Error: missing separator
->> arch/x86_64/kernel/entry.S:872: Error: missing separator
->> arch/x86_64/kernel/entry.S:888: Error: missing separator
->> arch/x86_64/kernel/entry.S:912: Error: missing separator
->> make[1]: *** [arch/x86_64/kernel/entry.o] Error 1
->> make: *** [arch/x86_64/kernel] Error 2
->> Regards
->> Sid.
->>
->
->
+> On Tue, 23 Mar 2004, Matthias Urlichs wrote:
+> > The patch mentioned in $SUBJECT, which is included in Andrew's mm tree,
+> > does this to "struct page":
+> >
+> > diff -Nru a/include/linux/mm.h b/include/linux/mm.h
+> > --- a/include/linux/mm.h        Tue Mar 23 11:29:11 2004
+> > +++ b/include/linux/mm.h        Tue Mar 23 11:29:11 2004
+> > @@ -177,7 +177,6 @@
+> >         page_flags_t flags;             /* atomic flags, some possibly
+> >                                            updated asynchronously */
+> >         atomic_t count;                 /* Usage count, see below. */
+> > -       struct list_head list;          /* ->mapping has some page lists. */
+> >         struct address_space *mapping;  /* The inode (or ...) we belong to. */
+> >         pgoff_t index;                  /* Our offset within mapping. */
+> >         struct list_head lru;           /* Pageout list, eg. active_list;
+> >
+> > In principle, anything that makes "struct page" smaller is a good idea.
+> > Unfortunately, this change breaks m68k, as arch/m68k/mm/memory.c has,
+> > and actually uses,
+> >
+> > #define PD_PTABLE(page) ((ptable_desc *)&(virt_to_page(page)->list))
+> >
 
+ah-hah, thanks.
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+--- 25/arch/m68k/mm/memory.c~m68k-stop-using-page-list	2004-03-23 09:39:17.212548984 -0800
++++ 25-akpm/arch/m68k/mm/memory.c	2004-03-23 09:39:31.179425696 -0800
+@@ -29,8 +29,8 @@
+ typedef struct list_head ptable_desc;
+ static LIST_HEAD(ptable_list);
+ 
+-#define PD_PTABLE(page) ((ptable_desc *)&(virt_to_page(page)->list))
+-#define PD_PAGE(ptable) (list_entry(ptable, struct page, list))
++#define PD_PTABLE(page) ((ptable_desc *)&(virt_to_page(page)->lru))
++#define PD_PAGE(ptable) (list_entry(ptable, struct page, lru))
+ #define PD_MARKBITS(dp) (*(unsigned char *)&PD_PAGE(dp)->index)
+ 
+ #define PTABLE_SIZE (PTRS_PER_PMD * sizeof(pmd_t))
+
+_
+
+> | tux$ find arch -type f | xargs grep 'page.*->list'
+> | arch/i386/mm/pageattr.c:                list_add(&kpte_page->list, &df_list);
+> | arch/i386/mm/hugetlbpage.c:     list_add(&page->list,
+> | arch/i386/mm/hugetlbpage.c:             list_del(&page->list);
+> | arch/i386/mm/hugetlbpage.c:     INIT_LIST_HEAD(&page->list);
+> | arch/m68k/mm/memory.c:#define PD_PTABLE(page) ((ptable_desc *)&(virt_to_page(page)->list))
+> | arch/sparc64/mm/hugetlbpage.c:  list_add(&page->list,
+> | arch/sparc64/mm/hugetlbpage.c:          list_del(&page->list);
+> | arch/sparc64/mm/hugetlbpage.c:  INIT_LIST_HEAD(&page->list);
+> | arch/ia64/mm/hugetlbpage.c:     list_add(&page->list,
+> | arch/ia64/mm/hugetlbpage.c:             list_del(&page->list);
+> | arch/ia64/mm/hugetlbpage.c:     INIT_LIST_HEAD(&page->list);
+> | arch/ppc64/mm/hugetlbpage.c:    list_add(&page->list,
+> | arch/ppc64/mm/hugetlbpage.c:            list_del(&page->list);
+> | arch/ppc64/mm/hugetlbpage.c:    INIT_LIST_HEAD(&page->list);
+> | arch/arm26/machine/small_page.c:                        list_del_init(&page->list);
+> | arch/arm26/machine/small_page.c:                        list_add(&page->list, &order->queue);
+> | arch/arm26/machine/small_page.c:                        list_add(&page->list, &order->queue);
+> | arch/arm26/machine/small_page.c:        list_del_init(&page->list);
+> | tux$
+> 
+> Are all of these (except for m68k) converted in the mm tree?
+
+All except for arm26:
+
+--- 25/arch/arm26/machine/small_page.c~arm-stop-using-page-list	2004-03-23 09:35:33.994483288 -0800
++++ 25-akpm/arch/arm26/machine/small_page.c	2004-03-23 09:37:08.227157744 -0800
+@@ -95,7 +95,7 @@ again:
+ 		offset = ffz(USED_MAP(page));
+ 		SET_USED(page, offset);
+ 		if (USED_MAP(page) == order->all_used)
+-			list_del_init(&page->list);
++			list_del_init(&page->lru);
+ 		spin_unlock_irqrestore(&small_page_lock, flags);
+ 
+ 		return (unsigned long) page_address(page) + (offset << order->shift);
+@@ -110,7 +110,7 @@ need_new_page:
+ 				goto no_page;
+ 			SetPageReserved(page);
+ 			USED_MAP(page) = 0;
+-			list_add(&page->list, &order->queue);
++			list_add(&page->lru, &order->queue);
+ 			goto again;
+ 		}
+ 
+@@ -151,7 +151,7 @@ static void __free_small_page(unsigned l
+ 		spin_lock_irqsave(&small_page_lock, flags);
+ 
+ 		if (USED_MAP(page) == order->all_used)
+-			list_add(&page->list, &order->queue);
++			list_add(&page->lru, &order->queue);
+ 
+ 		if (!TEST_AND_CLEAR_USED(page, spage))
+ 			goto already_free;
+@@ -167,7 +167,7 @@ free_page:
+ 	/*
+ 	 * unlink the page from the small page queue and free it
+ 	 */
+-	list_del_init(&page->list);
++	list_del_init(&page->lru);
+ 	spin_unlock_irqrestore(&small_page_lock, flags);
+ 	ClearPageReserved(page);
+ 	__free_page(page);
+
+_
 

@@ -1,108 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279548AbRJXMcU>; Wed, 24 Oct 2001 08:32:20 -0400
+	id <S279544AbRJXMY1>; Wed, 24 Oct 2001 08:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279551AbRJXMcL>; Wed, 24 Oct 2001 08:32:11 -0400
-Received: from mailgate.FH-Aachen.DE ([149.201.10.254]:50866 "EHLO
-	mailgate.fh-aachen.de") by vger.kernel.org with ESMTP
-	id <S279548AbRJXMcB>; Wed, 24 Oct 2001 08:32:01 -0400
-Posted-Date: Wed, 24 Oct 2001 14:25:04 +0100 (WEST)
-Date: Wed, 24 Oct 2001 14:38:36 +0200
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200110241238.OAA02419@db0bm.ampr.org>
+	id <S279548AbRJXMYH>; Wed, 24 Oct 2001 08:24:07 -0400
+Received: from home.geizhals.at ([213.229.14.34]:62726 "HELO home.geizhals.at")
+	by vger.kernel.org with SMTP id <S279544AbRJXMX7>;
+	Wed, 24 Oct 2001 08:23:59 -0400
+Message-ID: <3BD6B278.3070300@geizhals.at>
+Date: Wed, 24 Oct 2001 14:22:16 +0200
+From: Marinos Yannikos <mjy@geizhals.at>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.5) Gecko/20011011
+X-Accept-Language: de-AT,en,el
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.12-ac, lm-sensors broken ??
+Subject: gdth / SCSI read performance issues (2.2.19 and 2.4.10)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-I use the lm-sensors on my system, it works fine with 2.2.20pre and 2.4.13 but
-not with the ac tree, is there any reason for that ? I compile the i2c and
-lm-sensors package as modules outside the kernel. The .config are the same for
-both the kernels. The various modules (w83781d i2c-proc i2c-isa i2c-core) loads
-fine with both systems.
+our brand-new ICP GDT8523RZ controller with 6 disks peaks out at
+45MB/s under 2.4.10, while with 2.2.19 it reaches 85MB/s (seq.
+read performance). It should realistically be able to reach
+at least 150-200MB/s in this configuration (RAID-5, 6 disks,
+it's a 64-bit 66MHz PCI card). It's in a dual P3-1GHz box with
+Tyan 2510NG board. Sequential write performance is OK with both
+kernels, it's higher than the read performance on 2.4.10 (60MB/s).
 
-with 2.4.12-ac5
----------------
-[jean-luc@debian-f5ibh] ~ # uname -a
-Linux debian-f5ibh 2.4.12-ac5 #1 lun oct 22 12:18:52 CEST 2001 i586 unknown
+Under 2.4.10, when I test the performance with a simple program
+that just read()'s 16MB blocks from /dev/sda, both CPUs report
+40-50% System time usage. 2.2.19 reports ~20% for one CPU (and
+better performance).
 
-[jean-luc@debian-f5ibh] ~ # sensors
-No sensors found!
+Is there anything that can be done about this? It seems like a
+serious performance problem either with the gdth driver or the
+kernel and it renders this neat controller rather ineffective.
 
+Regards,
+-mjy
+[please CC: answers]
 
-system data :
-
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
- 
-Linux debian-f5ibh 2.4.12-ac5 #1 lun oct 22 12:18:52 CEST 2001 i586 unknown
- 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-binutils               2.11.90.0.27
-util-linux             2.11l
-modutils               2.4.10
-e2fsprogs              tune2fs
-reiserfsprogs          3.x.0j
-PPP                    2.4.1
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         usb-ohci usbcore nfsd lockd sunrpc serial parport_pc lp parport autofs4 es1371 soundcore ac97_codec gameport w83781d i2c-proc i2c-isa i2c-core rtc unix
-
-with 2.4.13
------------
-[jean-luc@debian-f5ibh] ~ # uname -a
-Linux debian-f5ibh 2.4.13 #1 mer oct 24 13:22:17 CEST 2001 i586 unknown
-
-[jean-luc@debian-f5ibh] ~ # sensors
-w83781d-isa-0290
-Adapter: ISA adapter
-Algorithm: ISA algorithm
-Vcore 1:   +2.24 V  (min =  +2.09 V, max =  +2.30 V)              
-Vcore 2:   +2.24 V  (min =  +2.09 V, max =  +2.30 V)              
-+3.5V:     +3.52 V  (min =  +3.32 V, max =  +3.66 V)              
-+5V:       +4.86 V  (min =  +4.72 V, max =  +5.24 V)              
-+12V:     +12.08 V  (min = +11.36 V, max = +12.58 V)              
--12V:     -11.82 V  (min = -11.33 V, max = -12.55 V)              
--5V:       -5.19 V  (min =  -4.74 V, max =  -5.24 V)              
-CPU fan:  5400 RPM  (min = 3000 RPM, div = 2)                     
-MB:       +39.0°C   (limit = +55°C, hysteresis = +55°C)        
-Processor:+46.8°C   (limit = +65°C, hysteresis = +65°C)        
-vid:      +3.50 V
-alarms:   Chassis intrusion detection                             
-beep_enable:
-          Sound alarm disabled
-
-system data :
-
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
- 
-Linux debian-f5ibh 2.4.13 #1 mer oct 24 13:22:17 CEST 2001 i586 unknown
- 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-binutils               2.11.90.0.27
-util-linux             2.11l
-modutils               2.4.10
-e2fsprogs              tune2fs
-reiserfsprogs          3.x.0j
-PPP                    2.4.1
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         usb-ohci usbcore nfsd lockd sunrpc serial parport_pc lp parport autofs4 es1371 soundcore ac97_codec gameport w83781d i2c-proc i2c-isa i2c-core rtc unix
-
---- 
-Regards
-		Jean-Luc

@@ -1,211 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264825AbUEEW0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264821AbUEEW26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264825AbUEEW0C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 18:26:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264824AbUEEW0A
+	id S264821AbUEEW26 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 18:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264824AbUEEW25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 18:26:00 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:53192 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264821AbUEEWZv
+	Wed, 5 May 2004 18:28:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26020 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264821AbUEEW24
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 18:25:51 -0400
-Date: Wed, 05 May 2004 15:23:51 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-       roms@lpg.ticalc.org, jb@technologeek.org
-Subject: Re: [PATCH 2.6.6-rc3] Add class support to drivers/usb/misc/tiglusb.c
-Message-ID: <36460000.1083795831@dyn318071bld.beaverton.ibm.com>
-In-Reply-To: <20040502064915.GF3766@kroah.com>
-References: <79660000.1083267538@dyn318071bld.beaverton.ibm.com> <20040502064915.GF3766@kroah.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 5 May 2004 18:28:56 -0400
+Date: Wed, 5 May 2004 10:55:23 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: manfred@colorfullife.com, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] simplify mqueue_inode_info->messages allocation
+Message-ID: <20040505135523.GC1418@logos.cnet>
+References: <20040504174214.D21045@build.pdx.osdl.net> <20040504174713.E21045@build.pdx.osdl.net> <20040504180622.F21045@build.pdx.osdl.net> <20040504183722.H21045@build.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20040504183722.H21045@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Saturday, May 01, 2004 11:49:15 PM -0700 Greg KH <greg@kroah.com> wrote:
-
-> On Thu, Apr 29, 2004 at 12:38:58PM -0700, Hanna Linder wrote:
->> +static int class_minor;
+On Tue, May 04, 2004 at 06:37:22PM -0700, Chris Wright wrote:
+> * Chris Wright (chrisw@osdl.org) wrote:
+> > --- ./ipc/mqueue.c~single_alloc	2004-05-04 15:16:34.000000000 -0700
+> > +++ ./ipc/mqueue.c~	2004-05-04 15:59:25.000000000 -0700
 > 
-> This will not work if you have multiple devices and unload the driver,
-> right?
+> Ugh!  Andrew pointed out to me that this is crap.  Sorry about the added
+> noise.  Here's a patch relative to a file that actually exists. 
 
-Right. Here is the fixed patch.
+While we're at it, in do_create:
 
-Thanks.
+        ret = vfs_create(dir->d_inode, dentry, mode, NULL);
+        if (ret) {
+                kfree(msgs);
+                return ERR_PTR(ret);
 
-Hanna
-
------
-diff -Nrup -Xdontdiff linux-2.6.6-rc3/drivers/usb/misc/tiglusb.c linux-2.6.6-rc3p/drivers/usb/misc/tiglusb.c
---- linux-2.6.6-rc3/drivers/usb/misc/tiglusb.c	2004-04-27 18:34:59.000000000 -0700
-+++ linux-2.6.6-rc3p/drivers/usb/misc/tiglusb.c	2004-05-05 13:47:44.000000000 -0700
-@@ -33,6 +33,7 @@
- #include <linux/usb.h>
- #include <linux/smp_lock.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/device.h>
- 
- #include <linux/ticable.h>
- #include "tiglusb.h"
-@@ -49,6 +50,7 @@
- 
- static tiglusb_t tiglusb[MAXTIGL];
- static int timeout = TIMAXTIME;	/* timeout in tenth of seconds     */
-+static struct class_simple *tiglusb_class;
- 
- /*---------- misc functions ------------------------------------------- */
- 
-@@ -336,7 +338,7 @@ tiglusb_probe (struct usb_interface *int
- {
- 	struct usb_device *dev = interface_to_usbdev(intf);
- 	int minor = -1;
--	int i;
-+	int i, err = 0;
- 	ptiglusb_t s;
- 
- 	dbg ("probing vendor id 0x%x, device id 0x%x",
-@@ -347,18 +349,23 @@ tiglusb_probe (struct usb_interface *int
- 	 * the TIGL hardware, there's only 1 configuration.
- 	 */
- 
--	if (dev->descriptor.bNumConfigurations != 1)
--		return -ENODEV;
-+	if (dev->descriptor.bNumConfigurations != 1) {
-+		err = -ENODEV;
-+		goto out;
-+	}
- 
- 	if ((dev->descriptor.idProduct != 0xe001)
--	    && (dev->descriptor.idVendor != 0x451))
--		return -ENODEV;
-+	    && (dev->descriptor.idVendor != 0x451)) {
-+		err = -ENODEV;
-+		goto out;
-+	}
- 
- 	// NOTE:  it's already in this config, this shouldn't be needed.
- 	// is this working around some hardware bug?
- 	if (usb_reset_configuration (dev) < 0) {
- 		err ("tiglusb_probe: reset_configuration failed");
--		return -ENODEV;
-+		err = -ENODEV;
-+		goto out;
- 	}
- 
- 	/*
-@@ -372,8 +379,10 @@ tiglusb_probe (struct usb_interface *int
- 		}
- 	}
- 
--	if (minor == -1)
--		return -ENODEV;
-+	if (minor == -1) {
-+		err = -ENODEV;
-+		goto out;
-+	}
- 
- 	s = &tiglusb[minor];
- 
-@@ -383,17 +392,29 @@ tiglusb_probe (struct usb_interface *int
- 	up (&s->mutex);
- 	dbg ("bound to interface");
- 
--	devfs_mk_cdev(MKDEV(TIUSB_MAJOR, TIUSB_MINOR) + s->minor,
-+	class_simple_device_add(tiglusb_class, MKDEV(TIUSB_MAJOR, TIUSB_MINOR + s->minor),
-+			NULL, "usb%d", s->minor);
-+	err = devfs_mk_cdev(MKDEV(TIUSB_MAJOR, TIUSB_MINOR) + s->minor,
- 			S_IFCHR | S_IRUGO | S_IWUGO,
- 			"ticables/usb/%d", s->minor);
- 
-+	if (err)
-+		goto out_class;
-+
- 	/* Display firmware version */
- 	info ("firmware revision %i.%02x",
- 		dev->descriptor.bcdDevice >> 8,
- 		dev->descriptor.bcdDevice & 0xff);
- 
- 	usb_set_intfdata (intf, s);
--	return 0;
-+	err = 0;
-+	goto out;
-+
-+out_class:
-+	class_simple_device_remove(MKDEV(TIUSB_MAJOR, TIUSB_MINOR + s->minor));
-+	class_simple_destroy(tiglusb_class);
-+out:
-+	return err;
- }
- 
- static void
-@@ -423,6 +444,8 @@ tiglusb_disconnect (struct usb_interface
- 	s->dev = NULL;
- 	s->opened = 0;
- 
-+	class_simple_device_remove(MKDEV(TIUSB_MAJOR, TIUSB_MINOR + s->minor));
-+	class_simple_destroy(tiglusb_class);
- 	devfs_remove("ticables/usb/%d", s->minor);
- 
- 	info ("device %d removed", s->minor);
-@@ -473,7 +496,7 @@ static int __init
- tiglusb_init (void)
- {
- 	unsigned u;
--	int result;
-+	int result, err = 0;
- 
- 	/* initialize struct */
- 	for (u = 0; u < MAXTIGL; u++) {
-@@ -490,28 +513,41 @@ tiglusb_init (void)
- 	/* register device */
- 	if (register_chrdev (TIUSB_MAJOR, "tiglusb", &tiglusb_fops)) {
- 		err ("unable to get major %d", TIUSB_MAJOR);
--		return -EIO;
-+		err = -EIO;
-+		goto out;
- 	}
- 
- 	/* Use devfs, tree: /dev/ticables/usb/[0..3] */
- 	devfs_mk_dir ("ticables/usb");
- 
-+	tiglusb_class = class_simple_create(THIS_MODULE, "tiglusb");
-+	if (IS_ERR(tiglusb_class)) {
-+		err = PTR_ERR(tiglusb_class);
-+		goto out_chrdev;
-+	}
- 	/* register USB module */
- 	result = usb_register (&tiglusb_driver);
- 	if (result < 0) {
--		unregister_chrdev (TIUSB_MAJOR, "tiglusb");
--		return -1;
-+		err = -1;
-+		goto out_chrdev;
- 	}
- 
- 	info (DRIVER_DESC ", version " DRIVER_VERSION);
- 
--	return 0;
-+	err = 0;
-+	goto out;
-+
-+out_chrdev:
-+	unregister_chrdev (TIUSB_MAJOR, "tiglusb");
-+out:
-+	return err;
- }
- 
- static void __exit
- tiglusb_cleanup (void)
- {
- 	usb_deregister (&tiglusb_driver);
-+	class_simple_destroy(tiglusb_class);
- 	devfs_remove("ticables/usb");
- 	unregister_chrdev (TIUSB_MAJOR, "tiglusb");
- }
-
+The msgs pointer can be NULL. Isnt that going to BUG if so?
 

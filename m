@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318858AbSICRZy>; Tue, 3 Sep 2002 13:25:54 -0400
+	id <S318853AbSICRVe>; Tue, 3 Sep 2002 13:21:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318860AbSICRZy>; Tue, 3 Sep 2002 13:25:54 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:49170 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S318858AbSICRZv>;
-	Tue, 3 Sep 2002 13:25:51 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209031730.g83HUIb15556@oboe.it.uc3m.es>
+	id <S318855AbSICRVe>; Tue, 3 Sep 2002 13:21:34 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:59659 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S318853AbSICRVd>; Tue, 3 Sep 2002 13:21:33 -0400
+Date: Tue, 3 Sep 2002 14:26:00 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: Lars Marowsky-Bree <lmb@suse.de>,
+       linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC] mount flag "direct"
-In-Reply-To: <Pine.LNX.4.44.0209031003370.1889-100000@dlang.diginsite.com> from
- David Lang at "Sep 3, 2002 10:07:48 am"
-To: David Lang <david.lang@digitalinsight.com>
-Date: Tue, 3 Sep 2002 19:30:18 +0200 (MET DST)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+In-Reply-To: <200209031641.g83GfnD10219@oboe.it.uc3m.es>
+Message-ID: <Pine.LNX.4.44L.0209031425180.1519-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago David Lang wrote:"
-> Peter, the thing that you seem to be missing is that direct mode only
-> works for writes, it doesn't force a filesystem to go to the hardware for
-> reads.
+On Tue, 3 Sep 2002, Peter T. Breuer wrote:
 
-Yes it does. I've checked! Well, at least I've checked that writing
-then reading causes the reads to get to the device driver. I haven't
-checked what reading twice does.
+> > Your approach is not feasible.
+>
+> But you have to be specific about why not. I've responded to the
+> particular objections so far.
 
-If it doesn't cause the data to be read twice, then it ought to, and
-I'll fix it (given half a clue as extra pay ..:-)
+[snip]
 
-> for many filesystems you cannot turn off their internal caching of data
-> (metadata for some, all data for others)
+> Please don't condescend! I am honestly not in need of education :-).
 
-Well, let's take things one at a time. Put in a VFS mechanism and then
-convert some FSs to use it.
+You make it sound like you bet your masters degree on
+doing a distributed filesystem without filesystem support ;)
 
-> so to implement what you are after you will have to modify the filesystem
-> to not cache anything, since you aren't going to do this for every
+Rik
+-- 
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
 
-Yes.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-> filesystem you end up only haivng this option on the one(s) that you
-> modify.
-
-I intend to make the generic mechanism attractive.
-
-> if you have a single (or even just a few) filesystems that have this
-> option you may as well include the locking/syncing software in them rather
-> then modifying the VFS layer.
-
-Why? Are you advocating a particular approach? Yes, I agree that that
-is a possible way to go - but I will want the extra VFS ops anyway, 
-and will want to modify the particular fs to use them, no?
-
-Peter

@@ -1,90 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129772AbRB0TYG>; Tue, 27 Feb 2001 14:24:06 -0500
+	id <S129283AbRB0TlK>; Tue, 27 Feb 2001 14:41:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129774AbRB0TX4>; Tue, 27 Feb 2001 14:23:56 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:11018 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129772AbRB0TXn>; Tue, 27 Feb 2001 14:23:43 -0500
-Message-ID: <3A9C0CE4.EAE660CE@t-online.de>
-Date: Tue, 27 Feb 2001 21:24:04 +0100
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: torvalds@transmeta.com
-CC: linux-kernel@vger.kernel.org
-Subject: Patch(2.4.2): Fix Timdia/Sunix serial PCI cards
-Content-Type: multipart/mixed;
- boundary="------------2EC01E6A7F5BEEE672C2C9BD"
+	id <S129781AbRB0TlB>; Tue, 27 Feb 2001 14:41:01 -0500
+Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:4092 "EHLO
+	intech19.enhanced.com") by vger.kernel.org with ESMTP
+	id <S129283AbRB0Tkq>; Tue, 27 Feb 2001 14:40:46 -0500
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Mike Dresser <mdresser@windsormachine.com>, Khalid Aziz <khalid@fc.hp.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 IDE tape problem, with ide-scsi
+In-Reply-To: <Pine.LNX.4.10.10102271103360.32662-100000@master.linux-ide.org>
+From: Camm Maguire <camm@enhanced.com>
+Date: 27 Feb 2001 14:40:10 -0500
+In-Reply-To: Andre Hedrick's message of "Tue, 27 Feb 2001 11:05:52 -0800 (PST)"
+Message-ID: <54lmqrsyn9.fsf@intech19.enhanced.com>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------2EC01E6A7F5BEEE672C2C9BD
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi Andre, and thanks for this note (and of course, your work on
+ide!).  
 
-Hi,
-this patch fixes subvendor vs. subdevice and
-makes my serial PCI card happy again.
+1) I assume you are referring to the HP colorado 14G, and not the
+   Conner (Seagate) TR-4 8G mentioned in my original note.
+2) If so, what could be wrong with the Conner?
+3) Where can I find what is supported and what not?  The Conner is a
+   standard TR-4, and I thought that was supported.
+4) Can one signal the driver to try qic157 emulation?
+5) Separately, Since the Colorado 14G seems so popular, is there any
+   chance of getting what it is that works currently into the new ide
+   stuff? After all, it *does* work at present with stock 2.2.x.
 
-Linus, please apply if you like.
+Thanks again for all your hard work!
 
-Regards, Gunther
+Andre Hedrick <andre@linux-ide.org> writes:
 
---- linux/drivers/char/serial.c-241-orig        Sat Feb  3 13:00:53 2001
-+++ linux/drivers/char/serial.c Sat Feb  3 13:31:33 2001
-@@ -3845,7 +3845,6 @@
-        offset = board->first_uart_offset;
- 
-        /* Timedia/SUNIX uses a mixture of BARs and offsets */
--       /* Ugh, this is ugly as all hell --- TYT */
-        if(dev->vendor == PCI_VENDOR_ID_TIMEDIA )  /* 0x1409 */
-                switch(idx) {
-                        case 0: base_idx=0;
-@@ -4175,12 +4174,17 @@
-        for (i=0; timedia_data[i].num; i++) {
-                ids = timedia_data[i].ids;
-                for (j=0; ids[j]; j++) {
--                       if (pci_get_subvendor(dev) == ids[j]) {
-+                       if (pci_get_subdevice(dev) == ids[j]) {
-                                board->num_ports = timedia_data[i].num;
-+                               printk("serial: Timedia/Sunix/Exsys PCI with %d ports (%x:%x)\n",
-+                                       board->num_ports, pci_get_subvendor(dev),
-+                                       pci_get_subdevice(dev));
-                                return 0;
-                        }
-                }
-        }
-+       printk("serial: ignoring unknown Timedia/Sunix card (%x:%x)\n",
-+               pci_get_subvendor(dev),pci_get_subdevice(dev));
-        return 0;
- }
---------------2EC01E6A7F5BEEE672C2C9BD
-Content-Type: application/octet-stream;
- name="gmdiff-lx241-serial-timedia-fix"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="gmdiff-lx241-serial-timedia-fix"
+> Maybe you should check to find out which devices are supported and which
+> are not.  HP messed up a good device class by doing something like a
+> modified TR-4 or TR-5; however, it may be a QIC157 that is better
+> supported under emulation.
+> 
+> On Tue, 27 Feb 2001, Mike Dresser wrote:
+> 
+> > Camm Maguire wrote:
+> > 
+> > > Greetings!  You are certainly right here, at least in part.  The ide
+> > > patches for 2.2 definitely impair tape operation on these boxes.
+> > > There was a crude workaround suggested on this list to use the
+> > > ide-scsi driver -- this basically worked, but gave *many* error
+> > > messages in the kernel log, and was significantly less reliable than
+> > > stock 2.2.18.  I'm still using ide-scsi out of inertia, but I suspect
+> > > that ide-tape might be just fine with stock 2.2.18 too.  And when I
+> > > saw some support for the ALI chipset, the decision was clear to drop
+> > > the latest ide stuff.
+> > >
+> > > This has been the situation for some time.  Is this going to be
+> > > resolved soon?
+> > 
+> > Wish i knew, I'm praying that 2.2.19 hasn't/doesn't implement the ide patches like 2.4.x did.  If so, and a major problem is found in
+> > 2.2.18, then I have to maintain another machine running 2.2.18 to restore tapes.  Also means i'd have to stop using taper or dump,
+> > and stick to tar only, as both want to read the tape back in at some point.
+> > 
+> > Mike
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> Andre Hedrick
+> Linux ATA Development
+> ASL Kernel Development
+> -----------------------------------------------------------------------------
+> ASL, Inc.                                     Toll free: 1-877-ASL-3535
+> 1757 Houret Court                             Fax: 1-408-941-2071
+> Milpitas, CA 95035                            Web: www.aslab.com
+> 
+> 
+> 
 
-LS0tIGxpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYy0yNDEtb3JpZwlTYXQgRmViICAzIDEz
-OjAwOjUzIDIwMDEKKysrIGxpbnV4L2RyaXZlcnMvY2hhci9zZXJpYWwuYwlTYXQgRmViICAz
-IDEzOjMxOjMzIDIwMDEKQEAgLTM4NDUsNyArMzg0NSw2IEBACiAJb2Zmc2V0ID0gYm9hcmQt
-PmZpcnN0X3VhcnRfb2Zmc2V0OwogCiAJLyogVGltZWRpYS9TVU5JWCB1c2VzIGEgbWl4dHVy
-ZSBvZiBCQVJzIGFuZCBvZmZzZXRzICovCi0JLyogVWdoLCB0aGlzIGlzIHVnbHkgYXMgYWxs
-IGhlbGwgLS0tIFRZVCAqLwogCWlmKGRldi0+dmVuZG9yID09IFBDSV9WRU5ET1JfSURfVElN
-RURJQSApICAvKiAweDE0MDkgKi8KIAkJc3dpdGNoKGlkeCkgewogCQkJY2FzZSAwOiBiYXNl
-X2lkeD0wOwpAQCAtNDE3NSwxMiArNDE3NCwxNyBAQAogCWZvciAoaT0wOyB0aW1lZGlhX2Rh
-dGFbaV0ubnVtOyBpKyspIHsKIAkJaWRzID0gdGltZWRpYV9kYXRhW2ldLmlkczsKIAkJZm9y
-IChqPTA7IGlkc1tqXTsgaisrKSB7Ci0JCQlpZiAocGNpX2dldF9zdWJ2ZW5kb3IoZGV2KSA9
-PSBpZHNbal0pIHsKKwkJCWlmIChwY2lfZ2V0X3N1YmRldmljZShkZXYpID09IGlkc1tqXSkg
-ewogCQkJCWJvYXJkLT5udW1fcG9ydHMgPSB0aW1lZGlhX2RhdGFbaV0ubnVtOworCQkJCXBy
-aW50aygic2VyaWFsOiBUaW1lZGlhL1N1bml4L0V4c3lzIFBDSSB3aXRoICVkIHBvcnRzICgl
-eDoleClcbiIsCisJCQkJCWJvYXJkLT5udW1fcG9ydHMsIHBjaV9nZXRfc3VidmVuZG9yKGRl
-diksCisJCQkJCXBjaV9nZXRfc3ViZGV2aWNlKGRldikpOwogCQkJCXJldHVybiAwOwogCQkJ
-fQogCQl9CiAJfQorCXByaW50aygic2VyaWFsOiBpZ25vcmluZyB1bmtub3duIFRpbWVkaWEv
-U3VuaXggY2FyZCAoJXg6JXgpXG4iLAorCQlwY2lfZ2V0X3N1YnZlbmRvcihkZXYpLHBjaV9n
-ZXRfc3ViZGV2aWNlKGRldikpOwogCXJldHVybiAwOwogfQogCg==
---------------2EC01E6A7F5BEEE672C2C9BD--
-
+-- 
+Camm Maguire			     			camm@enhanced.com
+==========================================================================
+"The earth is but one country, and mankind its citizens."  --  Baha'u'llah

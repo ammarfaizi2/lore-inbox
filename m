@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264875AbTLERyp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 12:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTLERyp
+	id S264602AbTLESM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:12:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264855AbTLESM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 12:54:45 -0500
-Received: from mail.gmx.de ([213.165.64.20]:8613 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264875AbTLERym (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 12:54:42 -0500
-X-Authenticated: #689055
-Message-ID: <3FD0C64D.5050804@gmx.de>
-Date: Fri, 05 Dec 2003 18:54:21 +0100
-From: Torsten Scheck <torsten.scheck@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Large-FAT32-Filesystem Bug
-References: <3FD0555F.5060608@gmx.de> <20031205160746.GA18568@codepoet.org>
-In-Reply-To: <20031205160746.GA18568@codepoet.org>
-X-Enigmail-Version: 0.81.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 13:12:29 -0500
+Received: from slider.rack66.net ([212.3.252.135]:20126 "EHLO
+	slider.rack66.net") by vger.kernel.org with ESMTP id S264602AbTLESMX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 13:12:23 -0500
+Date: Fri, 5 Dec 2003 19:12:22 +0100
+From: Filip Van Raemdonck <filipvr@xs4all.be>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031205181222.GA24882@debian>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031205140304.GF17870@michonline.com> <001401c3bb56$3b2fdd40$ca41cb3f@amer.cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001401c3bb56$3b2fdd40$ca41cb3f@amer.cisco.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
-> On Fri Dec 05, 2003 at 10:52:31AM +0100, Torsten Scheck wrote:
-[...]
->>I found a critical FAT32 bug when I tried to store data onto an
->>internal IDE 160 GB and onto an external USB2/FW-250 GB hard
->>disk.
+On Fri, Dec 05, 2003 at 09:35:52AM -0800, Hua Zhong wrote:
+> > So far, I don't see any reason why a module that uses an 
+> > inline function provided via a kernel header could be distributed in
+> > binary 
+> > format without being a "derived work" and thus bound by the GPL.
 > 
-> 
-> Does this help?
-> 
->  -Erik
+> Yeah, the same reason that XFS, NUMA, etc are derived works from Unix
+> since they must include Unix header files.
 
-[... int=>loff_t ino,inum-patch ...]
+Nope, they #include Linux header files - at least in their Linux version.
+Even if one version does #include Unix headers, that does not mean
+copyright to the rest of the code automatically belongs to the Unix
+copyright holder.
 
-Hi Erik:
-
-I applied your patch to 2.4.23 and it solved the problem. No more lost 
-clusters. All data stays where it belongs.
-
-I'll test it for a few days and get back to you later.
-
-Thank you very much.
-
-Torsten
+And we're not even talking about source code; we're talking about
+_binary modules_. Which do include object code which comes from GPLed
+(inline) code; and are thus derived works.
 
 
-For those who play with vfat filesystems now:
+Regards,
 
-I noticed that fsck.vfat just pretends to repair a _mounted_ vfat 
-filesystem. You have to unmount it, so it is actually repaired. An error 
-message would be appropriate here. I'll contact the dosfsck maintainer, 
-but I thought telling you might avoid confusion.
+Filip
 
+-- 
+We have joy, we have fun,
+we have Linux on our Sun.

@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263291AbVBDUol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264630AbVBDUun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263291AbVBDUol (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:44:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264408AbVBDUf0
+	id S264630AbVBDUun (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbVBDUpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:35:26 -0500
-Received: from alog0095.analogic.com ([208.224.220.110]:1408 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264629AbVBDUWY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:22:24 -0500
-Date: Fri, 4 Feb 2005 15:22:25 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Rahul Jain <rbj2@oak.njit.edu>
-cc: Kernel Traffic Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to add source files in kernel
-In-Reply-To: <Pine.GSO.4.58.0502041408540.12006@chrome.njit.edu>
-Message-ID: <Pine.LNX.4.61.0502041519220.5805@chaos.analogic.com>
-References: <Pine.GSO.4.58.0502041408540.12006@chrome.njit.edu>
+	Fri, 4 Feb 2005 15:45:13 -0500
+Received: from mail.linicks.net ([217.204.244.146]:49290 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S265977AbVBDUks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:40:48 -0500
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Post install 2.4.29 causes many apps to seg fault.
+Date: Fri, 4 Feb 2005 20:40:46 +0000
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502042040.46367.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005, Rahul Jain wrote:
+>> Is there something more that I need to compile besides the kernel for 
+>> compatability or is this a sign of some type of bug.  I do realize that 
+RHEL3 
+>> itself has some proprietary items added to their kernel but replacing it 
+>> shouldn't make other applications fails.
+>> 
+>> Any assistance would be greatly appreciated.
+>> 
+> If lots of things fail in strange places, I would wonder if your glibc
+> is compatible with your kernel. I suggest you take it up on a redhat
+> mailinglist.
 
-> Hi All,
->
-> I am trying to add 2 new files (a .h and a .c) in the kernel. I copied my
-> .h file in /include/linux and .c in /net/core. I then made the
-> following change to the Makefile in /net/core.
->
-> obj-y := sock.o skbuff.o iovec.o datagram.o scm.o split_helper.o
->
-> where split_helper.o is for the .c file that I am adding.
->
-> The kernel recompilation went without any problems. I wrote loadable
-> module programs that can access the functions defined in .c. When I try to
-> install these modules, they came back with the following error
->
-> /sbin/insmod x.o
-> x.o: unresolved symbol enqueue_sfi
-> x.o: unresolved symbol init_skbuff_list
-> x.o: unresolved symbol get_head_sfi
-> x.o: unresolved symbol search_sfi
-> x.o: unresolved symbol enqueue_skbuff_list
-> x.o: unresolved symbol init_head_sfi
-> x.o:
-> Hint: You are trying to load a module without a GPL compatible license
->      and it has unresolved symbols.  Contact the module supplier for
->      assistance, only they can help you.
->
-> make: *** [install] Error 1
->
-> These functions are defined in the .c file and declared with the extern
-> keyword in the .h file. In my modules I am including the .h file.
->
-> Any suggestions on what I might be missing here ?
->
-> Thanks,
-> Rahul.
+Yes, I had a similar problems at work when I  up2date'd the latest GLIBC for 
+RHEL 3 late last year.  A colleague in Montreal (I am in UK) sussed what was 
+going on.  I will _presume_ you are seeing similar problems with a kernel 
+build.
 
-MODULE_LICENSE("GPL");
+Here is the link that explains it... what to do with many processes 
+segfaulting, I don't know.  RHEL support is _very_ good - give them a ring.
 
-Needs to be in one of your files. This is part of the
-"New World Order".
+http://people.redhat.com/drepper/assumekernel.html
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

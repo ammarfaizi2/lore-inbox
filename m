@@ -1,116 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263314AbTJKNrr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 09:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTJKNrr
+	id S263311AbTJKNld (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 09:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263314AbTJKNld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 09:47:47 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33735
-	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
-	id S263314AbTJKNro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 09:47:44 -0400
-Date: Sat, 11 Oct 2003 15:48:31 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Matt_Domsch@Dell.com,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH] page->flags corruption fix
-Message-ID: <20031011134831.GJ16013@velociraptor.random>
-References: <Pine.LNX.4.44.0310081648560.3138-100000@localhost.localdomain> <Pine.LNX.4.44.0310081156320.5568-100000@chimarrao.boston.redhat.com>
+	Sat, 11 Oct 2003 09:41:33 -0400
+Received: from 24-216-47-19.charter.com ([24.216.47.19]:62104 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S263311AbTJKNla
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 09:41:30 -0400
+Date: Sat, 11 Oct 2003 09:41:27 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Stale NFS Handles in 2.6
+Message-ID: <20031011134127.GU20940@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0cPfB1ccX8kkdppm"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310081156320.5568-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 08, 2003 at 11:59:06AM -0400, Rik van Riel wrote:
-> On Wed, 8 Oct 2003, Hugh Dickins wrote:
-> > On Wed, 8 Oct 2003 Matt_Domsch@Dell.com wrote:
-> 
-> > > We've seen a similar failure with the RHEL2.1 kernel w/o RMAP patches
-> > > too.  So we fully believe it's possible in stock 2.4.x.
-> > 
-> > A similar failure - but what exactly?
-> > And what is the actual race which would account for it?
-> > 
-> > I don't mind you and Rik fixing bugs!
-> > I'd just like to understand the bug before it's fixed.
-> 
-> 1) cpu A adds page P to the swap cache, loading page->flags
->    and modifying it locally
-> 
-> 2) a second thread scans a page table entry and sees that
->    the page was accessed, so cpu B moves page P to the
->    active list
-> 
-> 3) cpu A undoes the PG_inactive -> PG_active bit change,
->    corrupting the page->flags of P
-> 
-> The -rmap VM doesn't do anything to this bug, except making
-> it easy to trigger due to some side effects.
 
-I believe the more correct fix is to hold the pagemap_lru_lock during
-__add_to_page_cache. The race exists between pages with PG_lru set (in
-the lru) that are being added to the pagecache/swapcache. Holding both
-spinlocks really avoids the race, your patch sounds less obviously safe
-(since the race still happens but it's more "controlled") and a single
-spinlock should be more efficient than the flood of atomic bitops
-anyways. Comments?  Hugh?
+--0cPfB1ccX8kkdppm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I also can't see why you care about the page->flags in __free_pages_ok.
-by that time, if the page is still visible anywhere that's a _real_
-huge bug, so that second part really looks wrong and it should be backed
-out IMHO. For sure at that time the page can't be in any lru list, at
-least in my tree, see what the correct code is there, this's the only
-way to handle that case right (the in_interrupt() part is needed only if
-you've aio like in your tree like in my tree). So your changes in
-free_pages are definitely superflous in page_alloc.c, and I guess
-they're not closing all the bugs in your tree too (you need the below
-too, if you allow anon pages to be freed while in the lru still with
-asynchronous io).
 
-The first part of your patch I agree fixes the race, but I'd prefer just
-taking one more spinlock to avoid the race at all, instead of trying to
-control it with a flood of bitops.
+> > Hi,
+> > since 2.6.0-test6 I get "Stale NFS file handle" when transferring huge
+> > amounts=20
+> > of data from a nfs-server which is running on -test6.
+> > The client also runs -test6. Transfers from a server running kernel
+> > 2.4.22=20
+> > work flawless.
+> >=20
+> > I use the nfs-kernel-server 1.0.6 on Debian/sid.
+>=20
+> Are you using mount options when mounting the NFS volume?
+> I had this problem when I used rsize=3D8192 and wsize=3D8192 as nfs mount
+> options. Just left them out and everything was fine again.
+>=20
+> Axel
 
-static void __free_pages_ok (struct page *page, unsigned int order)
-{
-	unsigned long index, page_idx, mask, flags;
-	free_area_t *area;
-	struct page *base;
-	zone_t *zone;
-#ifdef CONFIG_SMP
-	per_cpu_pages_t *per_cpu_pages;
-#endif
+Will this help the Stale NFS problem I'm getting as well? (Detailed
+below)
 
-	/*
-	 * Yes, think what happens when other parts of the kernel take 
-	 * a reference to a page in order to pin it for io. -ben
-	 */
-	if (PageLRU(page)) {
-		if (unlikely(in_interrupt())) {
-			unsigned long flags;
+---------------------------------
+> >
+> >
+> >   I've been trying to run my NFS server on 2.6 kernels for a while
+> >   now.
+> > My desktop and my Firewall are both 2.6 already and happy.  My
+> > fileserver though is giving me an ulcer.
+>
+> >   I get the stale handles.  Reverting back to 2.4 and all is well on
+> >   the
+> > same export and mount configs.
+> >
+> > Thoughts?
+> you could search the archives for "NFS Problem" and "STALE", you
+> will probably find my post near end of September. The short solution:
+>=20
+> Use "no_subtree_check" in /etc/exports like this:
+>=20
+> /home \
+>   tony.local.net(rw,sync,no_root_squash,no_subtree_check)
+>=20
+> I think I have found a bug in the nfs server code that always
+> returns a failure on subtree checks. I described my findings in
+> a post to this list, but nobody answered.
+----------------------------------
 
-			spin_lock_irqsave(&free_pages_ok_no_irq_lock, flags);
 
-			page->next_hash = free_pages_ok_no_irq_head;
-			free_pages_ok_no_irq_head = page;
-			page->index = order;
 
-			spin_unlock_irqrestore(&free_pages_ok_no_irq_lock, flags);
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
 
-			schedule_task(&free_pages_ok_no_irq_task);
-			return;
-		}
-		lru_cache_del(page);
-	}
-[..]
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
 
-Andrea - If you prefer relying on open source software, check these links:
-	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
-	    http://www.cobite.com/cvsps/
+--0cPfB1ccX8kkdppm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/iAiH8+1vMONE2jsRApsbAKCQ4tnaCI3e0794+rDry/x2MmmCewCghKY2
+7EXAbxZ/ag2BAiOS/zYhkrM=
+=Vr9U
+-----END PGP SIGNATURE-----
+
+--0cPfB1ccX8kkdppm--

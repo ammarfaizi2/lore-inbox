@@ -1,142 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265126AbTLKPVu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 10:21:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbTLKPVu
+	id S265116AbTLKPcC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 10:32:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbTLKPcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 10:21:50 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:29148 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S265126AbTLKPVU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 10:21:20 -0500
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-From: Craig Bradney <cbradney@zip.com.au>
-To: Jesse Allen <the3dfxdude@hotmail.com>
-Cc: Ian Kumlien <pomac@vapor.com>, linux-kernel@vger.kernel.org,
-       ross@datscreative.com.au, macro@ds2.pg.gda.pl
-In-Reply-To: <20031211145847.GA609@tesore.local>
-References: <200312072312.01013.ross@datscreative.com.au>
-	 <200312101543.39597.ross@datscreative.com.au>
-	 <Pine.LNX.4.55.0312101653490.31543@jurand.ds.pg.gda.pl>
-	 <200312111655.25456.ross@datscreative.com.au>
-	 <1071143274.2272.4.camel@big.pomac.com> <20031211145847.GA609@tesore.local>
-Content-Type: text/plain
-Message-Id: <1071156058.14260.55.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Dec 2003 16:20:58 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Dec 2003 10:32:02 -0500
+Received: from 101.24.177.216.inaddr.g4.Net ([216.177.24.101]:32698 "EHLO
+	sparrow.stearns.org") by vger.kernel.org with ESMTP id S265116AbTLKPby
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 10:31:54 -0500
+Date: Thu, 11 Dec 2003 10:31:43 -0500 (EST)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Willy Tarreau <willy@w.ods.org>
+cc: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>,
+       ML-linux-kernel <linux-kernel@vger.kernel.org>,
+       William Stearns <wstearns@pobox.com>
+Subject: Re: 2.4.23 + tmpfs: where's my mem?!
+In-Reply-To: <20031211133124.GA18161@alpha.home.local>
+Message-ID: <Pine.LNX.4.44.0312111027300.23867-100000@sparrow>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not really sure what I'm looking at here but as you guys are showing
-this information I thought it might be helpful for those that can use it
-to have the information run on a Asus A7N8X Deluxe (v2.0 bios 1007) with
-Athlon XP 2600+. 
+Good morning, Alexandre,
 
-===============================================================================
+On Thu, 11 Dec 2003, Willy Tarreau wrote:
 
-MPTable, version 2.0.15 Linux
-
--------------------------------------------------------------------------------
-
-MP Floating Pointer Structure:
-
-  location:                     BIOS
-  physical address:             0x000f5ce0
-  signature:                    '_MP_'
-  length:                       16 bytes
-  version:                      1.1
-  checksum:                     0x00
-  mode:                         Virtual Wire
-
--------------------------------------------------------------------------------
-
-MP Config Table Header:
-
-  physical address:             0x0xf0c00
-  signature:                    '
-'
-  base table length:            65287
-  version:                      1.255
-  checksum:                     0x04
-  OEM ID:                       ''
-  Product ID:                   ''
-  OEM table pointer:            0x00000704
-  OEM table size:               15
-  entry count:                  3896
-  local APIC address:           0x00070500
-  extended table length:        3584
-  extended table checksum:      0
-
--------------------------------------------------------------------------------
-
-MP Config Base Table Entries:
-
---
-Processors:     APIC ID Version State           Family  Model   Step   
-Flags
-                13       0x 0    AP, usable      3       0       0      
-0xff070600
-                 0       0xff    BSP, usable     0       12      4      
-0x0001
---
-MPTABLE HOSED! record type = 53
-
-
-
-Craig
-
-
-On Thu, 2003-12-11 at 15:58, Jesse Allen wrote:
-> My mptable output looks pretty weird.  (Product ID "ny Key "?)
-> It doesn't even compare to the other two.  I have a shuttle AN35N.
+> On Thu, Dec 11, 2003 at 10:54:28AM -0200, dual_bereta_r0x wrote:
+> > root@hquest:/tmp# cat /etc/slackware-version
+> > Slackware 9.1.0
+> > root@hquest:/tmp# uname -a
+> > Linux hquest 2.4.23 #6 Sat Nov 29 22:47:03 PST 2003 i686 unknown unknown 
+> > GNU/Linux
+> > root@hquest:/tmp# df /tmp
+> > Filesystem           1K-blocks      Used Available Use% Mounted on
+> > tmpfs                   124024    112388     11636  91% /tmp
+> > root@hquest:/tmp# du -s .
+> > 32      .
+> > root@hquest:/tmp# _
 > 
-> 
-> ===============================================================================
-> 
-> MPTable, version 2.0.15 Linux
-> 
-> -------------------------------------------------------------------------------
-> 
-> MP Floating Pointer Structure:
-> 
->   location:			BIOS
->   physical address:		0x000f5650
->   signature:			'_MP_'
->   length:			16 bytes
->   version:			1.1
->   checksum:			0x00
->   mode:				Virtual Wire
-> 
-> -------------------------------------------------------------------------------
-> 
-> MP Config Table Header:
-> 
->   physical address:		0x0xf0c00
->   signature:			'N   '
->   base table length:		8224
->   version:			1.32
->   checksum:			0x20
->   OEM ID:			'    : '
->   Product ID:			'ny Key '
->   OEM table pointer:		0x2031462d
->   OEM table size:		17152
->   entry count:			29300
->   local APIC address:		0x32462d6c
->   extended table length:	32
->   extended table checksum:	67
-> 
-> -------------------------------------------------------------------------------
-> 
-> MP Config Base Table Entries:
-> 
-> --
-> MPTABLE HOSED! record type = 114
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> maybe you have a process which creates a temporary file in /tmp, and deletes
+> the entry while keeping the fd open. vmware 1.2 did that, and probably more
+> recent ones still do. It's a very clever way to automatically remove temp
+> files when the process terminates.
+
+	Agreed - very likely.  User-Mode Linux does the same for its UML 
+memory images.
+	To see what process is doing this, try looking at:
+
+ls -Al /proc/[0-9]*/fd/* | grep ' /tmp/'
+
+	Which will show you all open files in /tmp, deleted or not.
+
+lr-x------    1 wstearns wstearns       64 Dec 11 10:23 /proc/10370/fd/6 -> /tmp/sfs8eEBBc (deleted)
+
+	The pid following /proc/ (10370 in this case) is the process 
+holding this file open.
+	Cheers,
+	- Bill
+
+---------------------------------------------------------------------------
+	"Any sufficiently advanced technology is indistinguishable from
+magic." 
+	-- Arthur C. Clark (?)
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
+rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
+Linux articles at:                         http://www.opensourcedigest.com
+--------------------------------------------------------------------------
 

@@ -1,107 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267890AbTAHU2u>; Wed, 8 Jan 2003 15:28:50 -0500
+	id <S267903AbTAHUaS>; Wed, 8 Jan 2003 15:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267893AbTAHU2t>; Wed, 8 Jan 2003 15:28:49 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:9346 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267890AbTAHU2s>; Wed, 8 Jan 2003 15:28:48 -0500
-Date: Wed, 8 Jan 2003 15:40:32 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andrew McGregor <andrew@indranet.co.nz>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-In-Reply-To: <81050000.1042056570@localhost.localdomain>
-Message-ID: <Pine.LNX.3.95.1030108151955.416A-100000@chaos.analogic.com>
+	id <S267907AbTAHUaR>; Wed, 8 Jan 2003 15:30:17 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:7420 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267903AbTAHUaN>;
+	Wed, 8 Jan 2003 15:30:13 -0500
+Message-ID: <3E1C7E32.8F68F8A9@mvista.com>
+Date: Wed, 08 Jan 2003 11:38:26 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Fleischer, Julie N" <julie.n.fleischer@intel.com>
+CC: high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG - HRT patch] nanosleep returns 0 on failure
+References: <D9223EB959A5D511A98F00508B68C20C17F1C71E@orsmsx108.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003, Andrew McGregor wrote:
+"Fleischer, Julie N" wrote:
+> 
+> George -
+> In the latest 2.5.54-bk1 high-res-timers patches, it appears that
+> nanosleep() is returning 0 (success) and not setting errno when an rqtp
+> argument is sent that specifies a nsec value < 0 or >= 1000 million.  In
+> this instance, the POSIX System Interfaces doc states that errno is supposed
+> to be set to EINVAL, and nanosleep should return -1.
 
-> Actually, talking to some people off-list, I realised that what happened 
-> with the instances I saw was probably that the packets were corrupted 
-> inside the host, somewhere after the ethernet checksum had done its job. 
-> DMA problems or a slow address line on some RAM somewhere could easily beat 
-> the TCP checksum, but as many folks have pointed out, ethernet CRC is much 
-> stronger.
+Looks like I missed a line in the compatibility layer.  I
+found it and it will be fixed in the next release.
+
+If you don't mind, I will add your test code to my
+clock_nanosleep test code so this does not creep back in.
+
+Thanks for the report.
+
+-g
 > 
-> Having seen something odd like that in practice, I overestimated the 
-> probability of these problems.
+> In the 2.5.50 high-res-timers patches, behavior was as expected (i.e.,
+> returned -1 and set errno=EINVAL).  Unfortunately, I haven't looked at any
+> patches since then to know exactly which patch stopped behaving as expected.
+> A plain 2.5.54-bk1 kernel also behaves as expected (returns -1, sets
+> errno=EINVAL).
 > 
-> It was also pointed out that iSCSI also makes it's CRC optional only if 
-> there is some other mechanism (ESP, AH or some other high-integrity 
-> transport) providing the data integrity.  Partly this is because that 
-> checksum is the same as used by Fiber Channel, and is therefore available 
-> 'for free' in some, but not all, hardware, so there needs to be another way 
-> to integrity protect the data.
+> The tests I am using to reproduce this issue are part of the POSIX Test
+> Suite at http://posixtest.sf.net under
+> posixtestsuite/conformance/interfaces/nanosleep.  5-1.c (sending -1 nsec),
+> 6-1.c (sending multiple nsec values < 0 and >= 1,000 million), and 10000-1.c
+> (sending other nsec values < 0 and >= 1,000 million) are failing.  I've
+> included 5-1.c below.
 > 
-> Andrew
+> Additional information is below:
+> kernel used = 2.5.54-bk1
+> HRT patches applied =
+>  hrtimers-core-2.5.54-bk1-1.0.patch
+>  hrtimers-hrposix-2.5.54-bk1-1.0.patch
+>  hrtimers-i386-2.5.54-bk1-1.0.patch
+>  hrtimers-posix-2.5.54-bk1-1.0.patch
+>  hrtimers-support-2.5.52-1.0.patch
 > 
-> --On Wednesday, January 08, 2003 11:10:44 -0800 "H. Peter Anvin" 
-> <hpa@zytor.com> wrote:
+> Thanks.
+> - Julie Fleischer
 > 
-> > Followup to:  <20030107053146.A16578@kerberos.ncsl.nist.gov>
-> > By author:    Olivier Galibert <galibert@pobox.com>
-> > In newsgroup: linux.dev.kernel
-> >>
-> >> On Tue, Jan 07, 2003 at 01:39:38PM +1300, Andrew McGregor wrote:
-> >> > Ethernet and TCP were both designed to be cheap to evaluate, not the
-> >> > absolute last word in integrity.  There is a move underway to provide
-> >> > an  optional stronger TCP digest for IPv6, and if used with that then
-> >> > there is  no need for the iSCSI digest.  Otherwise, well, play dice
-> >> > with the data.  Loaded in your favour, but still dice.
-> >>
-> >> Ethernet's checksum is a standard crc32, with all the usual good
-> >> properties and, at least on FE and lower, 1500bytes max of payload.
-> >> So it's quite reasonable.  TCP's checksum, though, is crap.
-> >>
-> >> I'm not entirely sure how crc32 would behave on jumbo frames.
-> >>
-> >
-> > AUTODIN-II CRC32 (the one used by Ethernet) is stable up to 11454
-> > bytes.  The jumbo frame size was chosen as the largest multiple of the
-> > standard IP payload size to fit within this number.
-> >
-> > 	-hpa
+> ----
+> test 5-1.c below
+> (Output was:  nanosleep() did not return -1 on failure)
 > 
+> /*
+>  * Copyright (c) 2002, Intel Corporation. All rights reserved.
+>  * Created by:  julie.n.fleischer REMOVE-THIS AT intel DOT com
+>  * This file is licensed under the GPL license.  For the full content
+>  * of this license, see the COPYING file at the top level of this
+>  * source tree.
+> 
+>  * Test that nanosleep() returns -1 on failure.
+>  * Simulate failure condition by sending -1 as the nsec to sleep for.
+>  */
+> #include <stdio.h>
+> #include <time.h>
+> 
+> #define PTS_PASS        0
+> #define PTS_FAIL        1
+> #define PTS_UNRESOLVED  2
+> 
+> int main(int argc, char *argv[])
+> {
+>         struct timespec tssleepfor, tsstorage;
+>         int sleepnsec = -1;
+> 
+>         tssleepfor.tv_sec=0;
+>         tssleepfor.tv_nsec=sleepnsec;
+>         if (nanosleep(&tssleepfor, &tsstorage) == -1) {
+>                 printf("Test PASSED\n");
+>                 return PTS_PASS;
+>         } else {
+>                 printf("nanosleep() did not return -1 on failure\n");
+>                 return PTS_FAIL;
+>         }
+> 
+>         printf("This code should not be executed.\n");
+>         return PTS_UNRESOLVED;
+> }
+> 
+> **These views are not necessarily those of my employer.**
 > -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-The TCP/IP checksum is 'strange' in that if all 0x00 are changed to 0xff,
-it will not detect the error. But... in the 'real world', the TCP/IP
-checksum does quite well detecting the kinds of errors likely in
-serial links. Many years ago, in one of our products, some 'junior'
-designer once decided that the way to control some equipment would be to
-use RS-232C. Nobody at the design reviews caught this. RS-232C is about
-99.999 percent reliable. That means that one byte in 10,000 may be
-damaged. Normally humans correct RS-232C errors by looking at echo and
-fixing the 'typo'. The product ran off a VAXen serial link at 19,200 baud,
-the highest speed to which the VAX could be set.
-
-The machine would not work. I ended up having to 'fix' the problem
-in software. I used a TCP/IP checksum. The communications then never
-failed (after the necessary retries). Since this was a 'success' I
-decided to keep a record of the number of bad blocks retransmitted.
-
-The customer got interested and emphatically stated; "The TCP/IP
-checksum is wortless because.....". The result being pages of the
-known anomolies of the checksum. The customer then required a
-32-bit CRC they they specified. It was a standard polynominal,
-but it was initialized with 0xaa55aa55 rather than 0xffffffff
-(that's what then wanted). So, I used both and I logged the
-operation of both.
-
-There were never any errors, detected by the CRC, that were not
-also detected by the checksum. This interface was for a spectrometer
-that ran continuous serial commands (and data) for months at a time.
-I recall that there were typically 40 to 50 recovered errors per
-hour of operation. We delivered thousands of these.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,68 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267408AbUHRSQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267410AbUHRS0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267408AbUHRSQt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 14:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267416AbUHRSQt
+	id S267410AbUHRS0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 14:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUHRS0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 14:16:49 -0400
-Received: from web11412.mail.yahoo.com ([216.136.131.9]:29809 "HELO
-	web11412.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267408AbUHRSQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 14:16:46 -0400
-Message-ID: <20040818181646.28610.qmail@web11412.mail.yahoo.com>
-Date: Wed, 18 Aug 2004 11:16:46 -0700 (PDT)
-From: Shriram R <shriram1976@yahoo.com>
-Subject: Effect of deleting executables of running programs
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Aug 2004 14:26:23 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:16000 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267410AbUHRSZ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 14:25:57 -0400
+Subject: Re: Oops modprobing i830 with 2.6.8.1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Dave Jones <davej@redhat.com>,
+       David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040818101540.A30983@infradead.org>
+References: <20040817220816.GA14343@hardeman.nu>
+	 <20040817233732.GA8264@redhat.com> <20040818004339.A27701@infradead.org>
+	 <20040817234522.GA4170@redhat.com> <1092801681.27352.194.camel@bach>
+	 <20040818101540.A30983@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092849766.26057.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 18 Aug 2004 18:22:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mer, 2004-08-18 at 10:15, Christoph Hellwig wrote:
+> Similarly drm should depend on AGP for those cards where there are only
+> AGP versions (most of them) and the driver where pci is also posisble (some
+> ati driver only IIRC) could compile with or withut but I'd be a compile-time
+> thing.
 
-Newbie here. I am not sure if I am sending this email
-to the right list.  My apologies if I am not and I
-would be happy if someone can point me to the right
-mailing list.
+VIA and SiS can function with AGP cards when no supported AGPGart is
+available. They don't function as well but they do function.
 
-We have a 24 node/48 processor cluster in our lab with
-the following specs.
-
-AMD Athlon
-Redhat 7.3
-Kernel version - 2.4.19
-
-I had around 10 jobs that had been running on the
-cluster for about 15 or so days.  These were
-using a common executable "abcd.out" (compiled in
-fortran 90).  After they had been running for
-about 15 days, I made the mistake of deleting
-abcd.out.  Immediately about
-3 or 4 of my jobs crashed with a "bus error".  But,
-some 6-7 of my jobs
-continued running.  I had 2 questions with regards to
-this :
- 
-a) I always thought that once a job is running, the
-executable is
-   entirely loaded into memory and the abcd.out file
-is no longer needed.
-   If so, then why does the a running job crash on
-deleting abcd.out ?  
- 
-b) To what extent can I trust that the rest of the 6-7
-jobs that are
-   running have not been affected by this deletion of
-"abcd.out" ?
- 
-Thanks in advance,
-shriram.
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 

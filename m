@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263172AbVBCVAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVBCVPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263172AbVBCVAv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 16:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263213AbVBCVAu
+	id S262844AbVBCVPX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 16:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVBCVPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 16:00:50 -0500
-Received: from ns1.lanforge.com ([66.165.47.210]:40865 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S263172AbVBCVAe (ORCPT
+	Thu, 3 Feb 2005 16:15:23 -0500
+Received: from hera.kernel.org ([209.128.68.125]:54477 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S263125AbVBCVPQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 16:00:34 -0500
-Message-ID: <420290ED.8020302@candelatech.com>
-Date: Thu, 03 Feb 2005 13:00:29 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Roskin <proski@gnu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Please open sysfs symbols to proprietary modules
-References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Feb 2005 16:15:16 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [PATCH] Configure MTU via kernel DHCP
+Date: Thu, 3 Feb 2005 21:14:52 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <ctu48c$ovm$1@terminus.zytor.com>
+References: <200502022148.00045.shane@hathawaymix.org> <E1CwfQK-00011a-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1107465292 25591 127.0.0.1 (3 Feb 2005 21:14:52 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 3 Feb 2005 21:14:52 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Roskin wrote:
+Followup to:  <E1CwfQK-00011a-00@gondolin.me.apana.org.au>
+By author:    Herbert Xu <herbert@gondor.apana.org.au>
+In newsgroup: linux.dev.kernel
+> 
+> Have you looked at using initramfs and running the DHCP client in
+> user space? You'll get a lot more freedom that way.
+> 
 
-> All I want to do is to have a module that would create subdirectories 
-> for some network interfaces under /sys/class/net/*/, which would contain 
-> additional parameters for those interfaces.  I'm not creating a new 
-> subsystem or anything like that.  sysctl is not good because the data is 
-> interface specific.  ioctl on a socket would be OK, although it wouldn't 
-> be easily scriptable.  The restriction on sysfs symbols would just force 
-> me to write a proprietary userspace utility to set those parameters 
-> instead of using a shell script.
+Note that the klibc distribution already contains a working dhcp
+client.  The only thing missing is just "putting the backwards into
+backwards compatible", i.e. handling *all* the (sometimes weird)
+kernel behaviours for full compatibility.
 
-How about /proc/net/pavelStuff
-
-Still scriptable, and does not require GPL symbols....
-
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+	-hpa

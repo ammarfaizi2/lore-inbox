@@ -1,85 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263915AbTCVWfH>; Sat, 22 Mar 2003 17:35:07 -0500
+	id <S263932AbTCVWhA>; Sat, 22 Mar 2003 17:37:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263916AbTCVWfH>; Sat, 22 Mar 2003 17:35:07 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7813
+	id <S263933AbTCVWhA>; Sat, 22 Mar 2003 17:37:00 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8581
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263915AbTCVWfF>; Sat, 22 Mar 2003 17:35:05 -0500
-Date: Sat, 22 Mar 2003 23:50:47 GMT
+	id <S263932AbTCVWg5>; Sat, 22 Mar 2003 17:36:57 -0500
+Date: Sat, 22 Mar 2003 23:52:39 GMT
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303222350.h2MNolxF020673@hraefn.swansea.linux.org.uk>
+Message-Id: <200303222352.h2MNqdxY020679@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: redo the n_tty fix
+Subject: PATCH: abstract out mach_reboot for x86 platforms
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Two problems with the original change
-
-1. We should return bytes actually processed on an error according to
-SuS/POSIX. Technically the EFAULT path is outside the spec but its best
-we follow
-
-2. We need to fix most of this anyway because the final section of the
-change was wrong. If retval was set we retried and got an efault again
-in some cases
-
-I think this way of doing it is right but it could do with further
-review
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65-bk3/drivers/char/n_tty.c linux-2.5.65-ac3/drivers/char/n_tty.c
---- linux-2.5.65-bk3/drivers/char/n_tty.c	2003-03-22 19:35:11.000000000 +0000
-+++ linux-2.5.65-ac3/drivers/char/n_tty.c	2003-03-22 20:27:06.000000000 +0000
-@@ -1029,8 +1029,10 @@
- 				break;
- 			cs = tty->link->ctrl_status;
- 			tty->link->ctrl_status = 0;
--			if (put_user(cs, b++)) {
-+			if (put_user(cs, b++))
-+			{
- 				retval = -EFAULT;
-+				b--;
- 				break;
- 			}
- 			nr--;
-@@ -1071,8 +1073,9 @@
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65-bk3/arch/i386/kernel/reboot.c linux-2.5.65-ac3/arch/i386/kernel/reboot.c
+--- linux-2.5.65-bk3/arch/i386/kernel/reboot.c	2003-03-22 19:33:19.000000000 +0000
++++ linux-2.5.65-ac3/arch/i386/kernel/reboot.c	2003-02-14 22:48:47.000000000 +0000
+@@ -8,6 +8,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/mc146818rtc.h>
+ #include <asm/uaccess.h>
++#include "mach_reboot.h"
  
- 		/* Deal with packet mode. */
- 		if (tty->packet && b == buf) {
--			if (put_user(TIOCPKT_DATA, b++)) {
-+			if (put_user(TIOCPKT_DATA, b++)) {
- 				retval = -EFAULT;
-+				b--;
- 				break;
- 			}
- 			nr--;
-@@ -1101,8 +1104,9 @@
- 				spin_unlock_irqrestore(&tty->read_lock, flags);
+ /*
+  * Power off function, if any
+@@ -125,15 +126,6 @@
+ 	0xea, 0x00, 0x00, 0xff, 0xff		/*    ljmp  $0xffff,$0x0000  */
+ };
  
- 				if (!eol || (c != __DISABLED_CHAR)) {
--					if (put_user(c, b++)) {
-+					if (put_user(c, b++)) {
- 						retval = -EFAULT;
-+						b--;
- 						break;
- 					}
- 					nr--;
-@@ -1110,7 +1114,7 @@
- 				if (eol)
- 					break;
- 			}
--			if (retval)
-+			if (retval)
- 				break;
- 		} else {
- 			int uncopied;
-@@ -1146,7 +1150,7 @@
- 
- 	current->state = TASK_RUNNING;
- 	size = b - buf;
--	if (!retval && size) {
-+	if (size) {
- 		retval = size;
- 		if (nr)
- 	       		clear_bit(TTY_PUSH, &tty->flags);
+-static inline void kb_wait(void)
+-{
+-	int i;
+-
+-	for (i=0; i<0x10000; i++)
+-		if ((inb_p(0x64) & 0x02) == 0)
+-			break;
+-}
+-
+ /*
+  * Switch to real mode and then execute the code
+  * specified by the code and length parameters.
+@@ -264,13 +256,7 @@
+ 		/* rebooting needs to touch the page at absolute addr 0 */
+ 		*((unsigned short *)__va(0x472)) = reboot_mode;
+ 		for (;;) {
+-			int i;
+-			for (i=0; i<100; i++) {
+-				kb_wait();
+-				udelay(50);
+-				outb(0xfe,0x64);         /* pulse reset low */
+-				udelay(50);
+-			}
++			mach_reboot();
+ 			/* That didn't work - force a triple fault.. */
+ 			__asm__ __volatile__("lidt %0": :"m" (no_idt));
+ 			__asm__ __volatile__("int3");
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65-bk3/include/asm-i386/mach-default/mach_reboot.h linux-2.5.65-ac3/include/asm-i386/mach-default/mach_reboot.h
+--- linux-2.5.65-bk3/include/asm-i386/mach-default/mach_reboot.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.65-ac3/include/asm-i386/mach-default/mach_reboot.h	2003-02-14 22:59:20.000000000 +0000
+@@ -0,0 +1,30 @@
++/*
++ *  arch/i386/mach-generic/mach_reboot.h
++ *
++ *  Machine specific reboot functions for generic.
++ *  Split out from reboot.c by Osamu Tomita <tomita@cinet.co.jp>
++ */
++#ifndef _MACH_REBOOT_H
++#define _MACH_REBOOT_H
++
++static inline void kb_wait(void)
++{
++	int i;
++
++	for (i = 0; i < 0x10000; i++)
++		if ((inb_p(0x64) & 0x02) == 0)
++			break;
++}
++
++static inline void mach_reboot(void)
++{
++	int i;
++	for (i = 0; i < 100; i++) {
++		kb_wait();
++		udelay(50);
++		outb(0xfe, 0x64);         /* pulse reset low */
++		udelay(50);
++	}
++}
++
++#endif /* !_MACH_REBOOT_H */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65-bk3/include/asm-i386/mach-pc9800/mach_reboot.h linux-2.5.65-ac3/include/asm-i386/mach-pc9800/mach_reboot.h
+--- linux-2.5.65-bk3/include/asm-i386/mach-pc9800/mach_reboot.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.65-ac3/include/asm-i386/mach-pc9800/mach_reboot.h	2003-02-14 22:59:47.000000000 +0000
+@@ -0,0 +1,21 @@
++/*
++ *  arch/i386/mach-pc9800/mach_reboot.h
++ *
++ *  Machine specific reboot functions for PC-9800.
++ *  Written by Osamu Tomita <tomita@cinet.co.jp>
++ */
++#ifndef _MACH_REBOOT_H
++#define _MACH_REBOOT_H
++
++#ifdef CMOS_WRITE
++#undef CMOS_WRITE
++#define CMOS_WRITE(a,b)	do{}while(0)
++#endif
++
++static inline void mach_reboot(void)
++{
++	outb(0, 0xf0);		/* signal CPU reset */
++	mdelay(1);
++}
++
++#endif /* !_MACH_REBOOT_H */

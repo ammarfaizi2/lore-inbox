@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265134AbRFZWgE>; Tue, 26 Jun 2001 18:36:04 -0400
+	id <S265135AbRFZWin>; Tue, 26 Jun 2001 18:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbRFZWfn>; Tue, 26 Jun 2001 18:35:43 -0400
-Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:21754 "EHLO
-	intech19.enhanced.com") by vger.kernel.org with ESMTP
-	id <S265134AbRFZWfd>; Tue, 26 Jun 2001 18:35:33 -0400
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: User space zero copy HOWTO?
-In-Reply-To: <200106260243.f5Q2hfJ177651@saturn.cs.uml.edu>
-From: Camm Maguire <camm@enhanced.com>
-Date: 26 Jun 2001 18:35:28 -0400
-In-Reply-To: "Albert D. Cahalan"'s message of "Mon, 25 Jun 2001 22:43:41 -0400 (EDT)"
-Message-ID: <54d77qg98v.fsf@intech19.enhanced.com>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S265142AbRFZWid>; Tue, 26 Jun 2001 18:38:33 -0400
+Received: from lithium.nac.net ([64.21.52.68]:52493 "HELO lithium.nac.net")
+	by vger.kernel.org with SMTP id <S265135AbRFZWiY>;
+	Tue, 26 Jun 2001 18:38:24 -0400
+Date: Tue, 26 Jun 2001 18:38:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Swap error message I've seen in 2.4.5-ac17
+Message-ID: <20010626183808.A905@debian>
+In-Reply-To: <20010623222954.A9031@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010623222954.A9031@debian>
+User-Agent: Mutt/1.3.18i
+From: <tcm@nac.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings, and thanks for this.  If I recall, there is some facility
-for this in the tulip cards too, no?  Can one get any benefit with
-100Mbps, or is the copy too fast anyway?  Is the source code for Tux
-available somewhere?  This is probably the best bet.  It seems as
-though the source for X15 is not available.  Any pointers
-appreciated.  I'm investigating implementing something like this for
-the lam MPI libs.
+Yep, me again. I've been playing around with ac17 on my old 486 machine
+for a few days (it seems strange that the 486 works fine while the K6
+doesn't, but I digress) and I noticed today something that made my hair
+stand on end:
 
-Take care,
+Jun 26 16:17:27 debian kernel: VM: Bad swap entry 0033da00
+Jun 26 16:17:27 debian kernel: Unused swap offset entry in swap_count
+0033da00
+Jun 26 16:17:27 debian kernel: Unused swap offset entry in swap_count
+0033da00
+Jun 26 16:38:16 debian -- MARK --
+Jun 26 16:53:13 debian kernel: PPP BSD Compression module registered
+Jun 26 16:53:14 debian kernel: PPP Deflate Compression module registered
+Jun 26 16:53:24 debian kernel: VM: Bad swap entry 0033da00
 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+Now I have been told by Rik Van Riel that this is a kernel bug - I
+initially figured it was a bad disk, thanks to him I can breathe now...
 
-> > Greetings!  Is there any faq/sample code somewhere showing how to get
-> > zero copy tcp/ip with kernel 2.4, and what special hardware if any is
-> > required?  Any information most appreciated.  Kindly cc me directly.
-> 
-> The hardware must do scatter-gather and IP checksuming.
-> 
-> The Alteon-based gigabit cards do this well. They are fully
-> programmable, and even have a developer's kit that can be used
-> to implement non-IP message passing protocols.
-> 
-> 
-> 
-> 
+Anyway, at the time the kernel did these messages I was just stopping
+playing quake on my K6-III (486 handles packets to/from the modem) and
+was reloading the compression modules, changing the mtu of my modem's 
+interface to 1500 from 576, and starting fetchmail. And about one
+minute later I decided to simply disconnect.
 
--- 
-Camm Maguire			     			camm@enhanced.com
-==========================================================================
-"The earth is but one country, and mankind its citizens."  --  Baha'u'llah
+I can't seem to find a way to reproduce this problem all the time like I
+can with the freezing bug, but I will reply to this thread if I see it
+again and/or can repeatedly reproduce it.

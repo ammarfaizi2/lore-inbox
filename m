@@ -1,91 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267924AbUHEX01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267932AbUHEX2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267924AbUHEX01 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 19:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267932AbUHEX01
+	id S267932AbUHEX2M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 19:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267933AbUHEX2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 19:26:27 -0400
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:41128 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S267924AbUHEX0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 19:26:20 -0400
-Date: Thu, 5 Aug 2004 16:26:18 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: akpm@osdl.org
+	Thu, 5 Aug 2004 19:28:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40879 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267932AbUHEX2B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 19:28:01 -0400
+Date: Thu, 5 Aug 2004 19:42:44 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Thomas Richter <thor@math.TU-Berlin.DE>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][PPC32] Cleanup PPC44x mmu_mapin_ram()
-Message-ID: <20040805162618.I14159@home.com>
+Subject: Re: [PATCH] NetMOS 9805 ParPort interface
+Message-ID: <20040805224244.GC18155@logos.cnet>
+References: <200408051143.NAA23740@cleopatra.math.tu-berlin.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <200408051143.NAA23740@cleopatra.math.tu-berlin.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove some old cruft in the kernel lowmem mapping code and
-save some memory in the process.
+On Thu, Aug 05, 2004 at 01:43:13PM +0200, Thomas Richter wrote:
+> 
+> Hi folks,
+> 
+> here's a tiny patch against parport/parport_pc.c for kernel 2.4.26.
+> It adds support for the NetMOS 9805 chip, used in several popular
+> parallel port extension cards available here in germany. The patch below
+> has been found working in a beige G3 Mac and a Canon BJC just fine.
 
-Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
+Hi Thomas,
 
-===== arch/ppc/mm/44x_mmu.c 1.3 vs edited =====
---- 1.3/arch/ppc/mm/44x_mmu.c	Fri Feb 13 08:24:55 2004
-+++ edited/arch/ppc/mm/44x_mmu.c	Thu Aug  5 16:18:10 2004
-@@ -93,10 +93,14 @@
- }
- 
- /*
-- * Configure PPC44x TLB for AS0 exception processing.
-+ * MMU_init_hw does the chip-specific initialization of the MMU hardware.
-  */
--static void __init
--ppc44x_tlb_config(void)
-+void __init MMU_init_hw(void)
-+{
-+	flush_instruction_cache();
-+}
-+
-+unsigned long __init mmu_mapin_ram(void)
- {
- 	unsigned int pinned_tlbs = 1;
- 	int i;
-@@ -124,39 +128,6 @@
- 			unsigned int phys_addr = (PPC44x_LOW_SLOT-i) * PPC44x_PIN_SIZE;
- 			ppc44x_pin_tlb(i, phys_addr+PAGE_OFFSET, phys_addr);
- 		}
--}
--
--/*
-- * MMU_init_hw does the chip-specific initialization of the MMU hardware.
-- */
--void __init MMU_init_hw(void)
--{
--	flush_instruction_cache();
--
--	ppc44x_tlb_config();
--}
--
--/* TODO: Add large page lowmem mapping support */
--unsigned long __init mmu_mapin_ram(void)
--{
--	unsigned long v, s, f = _PAGE_GUARDED;
--	phys_addr_t p;
--
--	v = KERNELBASE;
--	p = PPC_MEMSTART;
--
--	for (s = 0; s < total_lowmem; s += PAGE_SIZE) {
--		if ((char *) v >= _stext && (char *) v < etext)
--			f |= _PAGE_RAM_TEXT;
--		else
--			f |= _PAGE_RAM;
--		map_page(v, p, f);
--		v += PAGE_SIZE;
--		p += PAGE_SIZE;
--	}
--
--	if (ppc_md.progress)
--		ppc_md.progress("MMU:mmu_mapin_ram done", 0x401);
- 
--	return s;
-+	return total_lowmem;
- }
+Looks good, I've queued it for 2.4.28-pre.
+
+Care to write a v2.6 version of it ? 
+
+Most of NetMos support has been merged recently in v2.4.27 and v2.6.7/v2.6.8.
+
+Thanks!
+
+> --- parport_pc_old.c	Wed Jul 28 10:26:23 2004
+> +++ parport_pc.c	Wed Jul 28 10:28:16 2004
+> @@ -2692,6 +2692,7 @@
+>  	syba_2p_epp,
+>  	syba_1p_ecp,
+>  	titan_010l,
+> +	titan_1284p1,
+>  	titan_1284p2,
+>  	avlab_1p,
+>  	avlab_2p,
+> @@ -2759,6 +2760,7 @@
+>  	/* syba_2p_epp AP138B */	{ 2, { { 0, 0x078 }, { 0, 0x178 }, } },
+>  	/* syba_1p_ecp W83787 */	{ 1, { { 0, 0x078 }, } },
+>  	/* titan_010l */		{ 1, { { 3, -1 }, } },
+> +	/* titan_1284p1 */              { 1, { { 0, 1 }, } },
+>  	/* titan_1284p2 */		{ 2, { { 0, 1 }, { 2, 3 }, } },
+>  	/* avlab_1p		*/	{ 1, { { 0, 1}, } },
+>  	/* avlab_2p		*/	{ 2, { { 0, 1}, { 2, 3 },} },
+> @@ -2826,6 +2828,7 @@
+>  	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, syba_1p_ecp },
+>  	{ PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_010L,
+>  	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, titan_010l },
+> +	{ 0x9710, 0x9805, 0x1000, 0x0010, 0, 0, titan_1284p1 },
+>  	{ 0x9710, 0x9815, 0x1000, 0x0020, 0, 0, titan_1284p2 },
+>  	/* PCI_VENDOR_ID_AVLAB/Intek21 has another bunch of cards ...*/
+>  	{ 0x14db, 0x2120, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_1p}, /* AFAVLAB_TK9902 */
+> 
+> The same patch should also apply to more modern kernels since it just adds
+> some PCI ids.
+> 
+> Similar patches for other NetMOS products might be easy since they're all
+> documented; I could add a couple of PCI Ids to the parport_pc - I just don't
+> have the hardware for testing.

@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315528AbSFJQjA>; Mon, 10 Jun 2002 12:39:00 -0400
+	id <S315503AbSFJQmG>; Mon, 10 Jun 2002 12:42:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315536AbSFJQi7>; Mon, 10 Jun 2002 12:38:59 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:4342 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S315528AbSFJQi6>; Mon, 10 Jun 2002 12:38:58 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Mon, 10 Jun 2002 10:37:02 -0600
-To: Dan Aloni <da-x@gmx.net>
-Cc: Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] 2.5.21 - list.h cleanup
-Message-ID: <20020610163702.GL20388@turbolinux.com>
-Mail-Followup-To: Dan Aloni <da-x@gmx.net>,
-	Lightweight patch manager <patch@luckynet.dynu.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0206090508330.22407-100000@hawkeye.luckynet.adm> <Pine.LNX.4.44.0206090641330.24893-100000@hawkeye.luckynet.adm> <20020610152824.GC9581@callisto.yi.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S315539AbSFJQmF>; Mon, 10 Jun 2002 12:42:05 -0400
+Received: from mailrelay.nefonline.de ([212.114.153.196]:17417 "EHLO
+	mailrelay.nefonline.de") by vger.kernel.org with ESMTP
+	id <S315503AbSFJQmD>; Mon, 10 Jun 2002 12:42:03 -0400
+Message-Id: <200206101642.SAA30947@myway.myway.de>
+From: "Daniela Engert" <dani@ngrt.de>
+To: "Martin Wilck" <Martin.Wilck@Fujitsu-Siemens.com>
+Cc: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
+Date: Mon, 10 Jun 2002 18:41:56 +0200 (CDT)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.20.2200 for OS/2 Warp 4.05
+In-Reply-To: <1023724379.23630.309.camel@biker.pdb.fsc.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: Re: Serverworks OSB4 in impossible state
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 10, 2002  18:28 +0300, Dan Aloni wrote:
-> This patch is against 2.5.21 vanilla. 
->  + replace __inline__ with inline.
+Hello Martin,
 
-Good.
+On 10 Jun 2002 17:52:58 +0200, Martin Wilck wrote:
 
->  + add the new list_move and list_move_tail mutators as inline functions.
+>We have a CD with a corrupt last block. If we try to read this block in
+>PIO mode (hdparm -d 0 /dev/hdc) , we get errors like in the first
+>attachment.
 
-Good.
+The error code returned is "check condition" with a sense key of 3
+"medium error". The most appropriate driver action would have been to
+issue a "request sense" command to learn the precise error and retry
+only in case of a good chance of a recoverable problem - but that's a
+different story.
 
->  + use list_t intead of struct list_head (no bytes we harmed, bla.. bla..)
+>If we read the block in DMA mode (with dd), the machine stalls with the
+>"impossible state" message.
+>
+>A PCI bus scan reveals that the IO register (dma_base+2) contains indeed
+>0xa5 (bit 0 set), which leads to the panic. Normally the read on that
+>register returns 0xa0.
 
-I think you will find that the "struct list_head" is the preferred way
-to go (which is why there are lots of "struct list_head" users in the
-code and few "list_t" users.
+The intersting bits of the DMA status register are bits 0 though 2. A
+value of 5 indicates the condition "interrupt from unit, DMA state
+machine active". This is a valid status! It basically means the unit
+issued an interrupt before the PRD table is exhausted. This makes sense
+because the CD-ROM units fails to transfer the amount of data described
+by the PRD table because of the non-recoverable read error.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+>We see in our PCI bus scan that a successful DMA of 4096 bytes was
+>carried out ~23ms before the stall condition. Another 4096 byte request
+>was scheduled but never seen. Between the successful DMA and the stall
+>condition we see nothing but a few timer interrupts.
+>Then an IDE interrupt occurs, which leads immediately to the panic.
+
+What you makes sense (the next DMA transfer is scheduled but never
+carried out by the CD-ROM unit) except for the panic, ofcoz. The
+correct driver action in this case were stopping the DMA engine and
+issuing a reset of the state machines involved (both on the host and
+the unit side).
+
+>Any ideas/comments?
+
+I hope this clears up things a little ...
+
+Ciao,
+  Dani
+
 

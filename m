@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269615AbUICLJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269464AbUICL2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269615AbUICLJF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 07:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269621AbUICLJE
+	id S269464AbUICL2e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 07:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269621AbUICL2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 07:09:04 -0400
-Received: from mail.renesas.com ([202.234.163.13]:21473 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S269615AbUICLJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 07:09:01 -0400
-Date: Fri, 03 Sep 2004 20:08:49 +0900 (JST)
-Message-Id: <20040903.200849.783373656.takata.hirokazu@renesas.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: Re: 2.6.9-rc1-mm3
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20040903014811.6247d47d.akpm@osdl.org>
-References: <20040903014811.6247d47d.akpm@osdl.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+	Fri, 3 Sep 2004 07:28:34 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:30671 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S269464AbUICL2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 07:28:32 -0400
+Date: Fri, 3 Sep 2004 13:28:33 +0200
+From: Roeland Moors <roelandmoors@telenet.be>
+To: linux-kernel@vger.kernel.org
+Subject: udev removable media
+Message-ID: <20040903112833.GA3584@laptop>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew,
+I have an USB zip drive in combination with udev.
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Fri, 3 Sep 2004 01:48:11 -0700
-> 
-> - Added the m32r architecture.  Haven't looked at it yet.
-> 
+When I connect the drive with a disk inserted, everything works
+fine. Here is the udev rule:
+BUS="usb", SYSFS{product}="USB Zip 750", KERNEL="sd?1",
+NAME="%k", SYMLINK="zip"
 
-Wonderful!  :-)
-Thank you very much.
+When connecting the drive without a disk the symlink is not
+created. This is ok, beceause there is no disk.
+
+But if I now insert a disk, there is still no symlink?
+
+I've search a bit on google and if I understand correctly the
+main problem is the SCSI protocol.
+
+Is there a solution to this problem?
+
+I hope this is the right list to ask this.
+
+-- 
+Roeland

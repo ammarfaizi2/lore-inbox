@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278924AbRJVVIK>; Mon, 22 Oct 2001 17:08:10 -0400
+	id <S278933AbRJVVLk>; Mon, 22 Oct 2001 17:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278930AbRJVVIB>; Mon, 22 Oct 2001 17:08:01 -0400
-Received: from host2.in.gov ([199.8.101.18]:52026 "EHLO bart.ai.org")
-	by vger.kernel.org with ESMTP id <S278924AbRJVVHx>;
-	Mon, 22 Oct 2001 17:07:53 -0400
-X-Recipient: <linux-kernel@vger.kernel.org>
-Message-ID: <3BD48BAD.4936C0E6@www.IN.gov>
-Date: Mon, 22 Oct 2001 16:12:13 -0500
-From: Greg Swallow <gswallow@www.IN.gov>
-Reply-To: gswallow@www.IN.gov
-Organization: Access Indiana
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: rtl8139 drivers
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278928AbRJVVLa>; Mon, 22 Oct 2001 17:11:30 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:19979 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S278927AbRJVVLY>; Mon, 22 Oct 2001 17:11:24 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+Message-ID: <86256AED.00746AB6.00@smtpnotes.altec.com>
+Date: Mon, 22 Oct 2001 16:07:55 -0500
+Subject: Re: Linux 2.2.20pre10
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I just installed linux on a box with a builtin Realtek 8139 chipset. 
-Using the 8139too.o module caused all kinds of performance problems, and
-there are  suspicious statements in the 8139too.txt file:
 
-THIS DRIVER IS A DEVELOPMENT RELEASE FOR A DEVELOPMENT KERNEL.  DO NOT
-USE IN A PRODUCTION ENVIRONMENT.
+As the person  who first brought Iraq into this thread, I have to say this:  If
+you think I was comparing the US to Iraq then you're mistaken.  I was merely
+pointing out Iraq (semi-jokingly) as an example of a country that would not care
+about enforcing US laws.
 
-However, I've used Donald Becker's rtl8139 driver in the past without
-issues, and I'm using them now with v2.4.10.  I would like to request
-that the stable code go back in place, please -- perhaps users can
-choose between rtl8139 and 8139too?
+Wayne
 
-Thanks!
 
--- "There's nothing that the proper funk cannot render funkable" -
-+--------------+--------------------+---------------+-- G. Clinton +
-| Greg Swallow | Assistant Sysadmin | accessIndiana | 888.4IN.EGOV |
-+--------------+--------------------+---------------+----(446.3468)+
+
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> on 10/22/2001 03:28:38 PM
+
+To:   tudorb@pikka.net (Tudor Bosman)
+cc:   linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org) (bcc: Wayne
+      Brown/Corporate/Altec)
+
+Subject:  Re: Linux 2.2.20pre10
+
+
+
+> 1. A description of a security hole is constitutionally protected
+> speech, and as such cannot be construed as violating the sections of the
+> DMCA.  If such description fits the definition of "technology, product,
+> service, device, component, or part thereof", then we're in big trouble,
+> because source code itself is much closer to the definition of a
+> "product" than a description of the source code.
+
+I firmly believe that if justice prevails in the existing DMCA cases you
+will be shown to be right. I've seen people compare the US to Iraq and
+I don't buy that.
+
+However until people stop shooting I'd prefer not to be a potential target.
+
+Alan
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

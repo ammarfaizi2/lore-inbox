@@ -1,60 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311582AbSCXFja>; Sun, 24 Mar 2002 00:39:30 -0500
+	id <S311587AbSCXFsK>; Sun, 24 Mar 2002 00:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311579AbSCXFjV>; Sun, 24 Mar 2002 00:39:21 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:16208 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S311577AbSCXFjE>; Sun, 24 Mar 2002 00:39:04 -0500
-Date: Sun, 24 Mar 2002 00:38:58 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Patch to split kmalloc in sd.c in 2.4.18+
-Message-ID: <20020324003858.A27380@devserv.devel.redhat.com>
-In-Reply-To: <20020322215809.A17173@devserv.devel.redhat.com> <3C9CB643.FC33C0AF@torque.net> <20020323143753.A1011@devserv.devel.redhat.com> <3C9D5219.1403288B@torque.net>
-Mime-Version: 1.0
+	id <S311586AbSCXFsB>; Sun, 24 Mar 2002 00:48:01 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35076
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S311583AbSCXFrn>; Sun, 24 Mar 2002 00:47:43 -0500
+Date: Sat, 23 Mar 2002 21:47:30 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Brad Roberts <braddr@puremagic.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: partition detection failure between 2.4.19-pre2 and pre3
+In-Reply-To: <Pine.LNX.4.33.0203232054210.27124-100000@portland.puremagic.com>
+Message-ID: <Pine.LNX.4.10.10203232146380.2377-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Your patch worked ok for me. I have a couple of real
-> disks and 120 simulated ones with scsi_debug. My last disk
-> was /dev/sddq and I was able to fdisk, mke2fs, mount
-> and copy files to it ok.
 
-Great many thanks. I'll give it some time to settle and will ask
-Alan or Marcelo to take it. BTW, the real test is not being able
-to load modules and do stuff. The bad part is what happens when
-you do a string of rmmod/modprobe in random order and with varying
-parameters for scsi_debug (scsi_debug_num_devs=NN). Then it's going
-to show if memory leaks or get corrupted. I certainly hope that
-I did it right, but I was known to make mistakes before.
+But it did not alter the behavior between 2.4.19-pre2 and pre3.
+Unless there was was a partial patch inclusion for dealing w/ fs/msdos as
+a module and it did not make it totally there.
 
-Another side note: towards the end of the patch, there is a reminder
-about an entirely different issue that noted when doing the patch:
+Andre Hedrick
+LAD Storage Consulting Group
 
-+               for (i = 0; i < N_USED_SD_MAJORS; i++) {
-+#if 0 /* XXX aren't we forgetting to deallocate something? */
-+                       kfree(sd_gendisks[i].de_arr);
-+                       kfree(sd_gendisks[i].flags);
-+#endif
-+                       kfree(sd_gendisks[i].part);
-+               }
-        }
-        for (i = 0; i < N_USED_SD_MAJORS; i++) {
-                del_gendisk(&sd_gendisks[i]);
--               blk_size[SD_MAJOR(i)] = NULL;
-+               blk_size[SD_MAJOR(i)] = NULL;   /* XXX blksize_size actually? */                hardsect_size[SD_MAJOR(i)] = NULL; 
-                read_ahead[SD_MAJOR(i)] = 0;
-        }
+On Sat, 23 Mar 2002, Brad Roberts wrote:
 
-E.g. I do not see a place where .flags and .de_arr are freed; also,
-I am not sure why we assign blksize_size[], but we zero blk_size[].
-I do not want to mix this up with the split-allocation patch, but
-it is curious. I think we leak memory on sd_mod unload here.
+> (not on the list, I read it via a list archive due to traffic, so please
+> cc me on all replies)
+> 
+> Starting with 2.4.19-pre3 (and continuing for -pre4 and every post-pre2 ac
+> kernel I've tried) bootup hangs during partition detection:
+> 
+> 2.4.19-pre2 output:
+> 
+> <snip>
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> PDC20265: IDE controller on PCI bus 00 dev 30
+> PCI: Found IRQ 5 for device 00:06.0
+> PCI: Sharing IRQ 5 with 00:10.0
+> PCI: Sharing IRQ 5 with 00:11.2
+> PCI: Sharing IRQ 5 with 00:11.3
+> PCI: Sharing IRQ 5 with 00:11.4
+> PDC20265: chipset revision 2
+> PDC20265: not 100% native mode: will probe irqs later
+> PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+>     ide2: BM-DMA at 0xb400-0xb407, BIOS settings: hde:DMA, hdf:pio
+>     ide3: BM-DMA at 0xb408-0xb40f, BIOS settings: hdg:DMA, hdh:pio
+> VP_IDE: IDE controller on PCI bus 00 dev 89
+> PCI: Found IRQ 11 for device 00:11.1
+> PCI: Sharing IRQ 11 with 01:00.0
+> VP_IDE: chipset revision 6
+> VP_IDE: not 100% native mode: will probe irqs later
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
+>     ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:pio
+> hda: Maxtor 98196H8, ATA DISK drive
+> hdc: 52X CD-ROM, ATAPI CD/DVD-ROM drive
+> hde: Maxtor 4D060H3, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> ide2 at 0xd800-0xd807,0xd402 on irq 5
+> hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=9964/255/63, UDMA(100)
+> hde: 120069936 sectors (61476 MB) w/2048KiB Cache, CHS=119117/16/63, UDMA(100)
+> hdc: ATAPI 52X CD-ROM drive, 128kB Cache, UDMA(33)
+> Uniform CD-ROM driver Revision: 3.12
+> Partition check:
+>  hda: hda1 hda2 < hda5 > hda3 hda4
+>  hde: hde1
+> <snip>
+> 
+> 
+> The pre-3 output stops right after:
+> 
+> Partition check:
+>  hda: hda1 hda2 < hda5 > hda3 hda4
+>  hde:
+> 
+> 
+> Ie, it never detects any partitions on hde.  The motherboard is an
+> A7V266-E asus motherboard.
+> 
+> Suggestions?  I started looking through the changes between pre2 and pre3,
+> but the ide subsystem got overhauled reasonably thoroughly in pre3.
+> 
+> Thanks,
+> Brad
 
--- Pete

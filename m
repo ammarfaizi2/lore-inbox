@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265973AbUGVOQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264900AbUGVOXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265973AbUGVOQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 10:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUGVOQW
+	id S264900AbUGVOXg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 10:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUGVOXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 10:16:22 -0400
-Received: from hera.kernel.org ([63.209.29.2]:19339 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S265973AbUGVOQH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 10:16:07 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [PATCH] Delete cryptoloop
-Date: Thu, 22 Jul 2004 14:14:42 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <cdoi4i$iic$1@terminus.zytor.com>
-References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <20040721230044.20fdc5ec.akpm@osdl.org> <Pine.LNX.4.58.0407212319560.13098@devserv.devel.redhat.com> <pan.2004.07.22.07.43.41.872460@smurf.noris.de>
+	Thu, 22 Jul 2004 10:23:33 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:50086 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S264900AbUGVOXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 10:23:32 -0400
+Subject: Re: Inode question
+From: Paulo Marques <pmarques@grupopie.com>
+Reply-To: pmarques@grupopie.com
+To: sankarshana rao <san_wipro@yahoo.com>
+Cc: root@chaos.analogic.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040721225752.90581.qmail@web50902.mail.yahoo.com>
+References: <20040721225752.90581.qmail@web50902.mail.yahoo.com>
+Content-Type: text/plain
+Organization: Grupo PIE
+Message-Id: <1090506209.8842.20.camel@pmarqueslinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1090505682 19021 127.0.0.1 (22 Jul 2004 14:14:42 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Thu, 22 Jul 2004 14:14:42 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 22 Jul 2004 15:23:30 +0100
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.26.0.10; VDF: 6.26.0.39; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <pan.2004.07.22.07.43.41.872460@smurf.noris.de>
-By author:    Matthias Urlichs <smurf@smurf.noris.de>
-In newsgroup: linux.dev.kernel
->
-> Hi, James Morris wrote:
+On Wed, 2004-07-21 at 23:57, sankarshana rao wrote:
+> Guys,
+> Thx for the inputs...I got it with path_lookup....
 > 
-> > It would be good if we could get some further review on the issue by an 
-> > independent, well known cryptographer.
-> 
-> Well, I'm not, but ...
-> 
-> AFAIK, the main issue is: If I write some data to the start of block N, I
-> get a bit pattern. If I write the same data *anywhere* else (the middle of
-> block N, the start of block M != N, a different on-disk bit pattern must
-> result.
-> 
-> If there are identical bit patterns, then the system is vulnerable.
-> Obviously, this vulnerability doesn't depend on whether you're using
-> cryptoloop or dm-crypt.
-> 
+> Can I pass the inode pointer back to the user space???
 
-So does cryptoloop use a different IV for different blocks?  The need
-for the IV to be secret is different for different ciphers, but for
-block ciphers the rule is that is must not repeat, and at least
-according to some people must not be trivially predictable.  One way
-to do that is to use a secure hash of (key,block #) as the IV.
+To get an inode number from user space you can simply use the "stat" or
+"fstat" functions. You don't need to create your own module.
 
-	-hpa
+> I have a scenario in which I have to create multiple
+> folders on the harddisk. The number of folders can be
+> in hundreds. Instead of parsing the path name
+> everytime I need to create a folder (that's what
+> sys_mkdir does??? ), I was thinking if I have the
+> inode* of the parent folder, I can avoid this parsing
+> and directly create a subfolder under the parent
+> folder...
+
+Is this really a problem? The dentry cache should make this quite fast,
+leaving the bottleneck to the actual write on disk of the result.
+
+I tried a small program (if it can be called a program) to create a
+thousand directories and it takes less than 100 ms on my machine.
+
+Best regards,
+
+-- 
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"
 

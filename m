@@ -1,67 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264727AbUFLLsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264725AbUFLMEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264727AbUFLLsO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 07:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264729AbUFLLsO
+	id S264725AbUFLMEx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 08:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbUFLMEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 07:48:14 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50099 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264727AbUFLLsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 07:48:09 -0400
-Date: Sat, 12 Jun 2004 13:48:08 +0200
-From: Jan Kara <jack@suse.cz>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Cc: Eugene Crosser <crosser@rol.ru>, akpm@osdl.org
-Subject: Quota and page lock
-Message-ID: <20040612114808.GD22251@atrey.karlin.mff.cuni.cz>
+	Sat, 12 Jun 2004 08:04:53 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:5074 "EHLO slimnas.slim")
+	by vger.kernel.org with ESMTP id S264725AbUFLMEt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 08:04:49 -0400
+Subject: 3ware 9000 driver kernel 2.6.7-rc3-mm1 vs 3ware 2.6 source
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1087042390.8961.8.camel@paragon.slim>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 12 Jun 2004 14:13:10 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The 3ware 9000 driver from kernel 2.6.7-rc3-mm1 just creates one scsi
+device (is this case sdf) for my 4 disk RAID5 setup while the 3ware 2.6
+driver from the install CD (tested with 2.6.5) creates sdf through sdm.
+Each drive corresponds to the same logical drive. Is this a driver bug
+or just a different approach? The in-kernel driver looks cleaner.
 
-  Hello!
+from 2.6.5 with 3ware driver from install CD:
 
-  Thanks to Eugene Crosser I've spotted one more lock which comes into play
-when using quotas and that is the lock on each page. The quota code is called
-inside a transaction and needs to write the changed data to the quota file (at
-least in the journalled quota case) and writing of the data needs PageLock.
-OTOH standard ordering is that the PageLock is acquired first and then the
-transaction is started (and this actually happens even if we are journalling
-data because after we commit a transaction we mark the jbddirty buffers dirty,
-pdflush comes and wants to write them...). So we have a lock inversion on
-PageLock and journal_lock. Bad.
-  In the unjournalled quota case I could imagine it will be possible to do an
-assertion that quota calls which need to do IO (DQUOT_INIT, DQUOT_DROP,
-DQUOT_TRANSFER) will be called outside a transaction and so the locking problem
-would not arise (it would be a real pain to synchronize the things inside the
-quota code when some routines will be called inside the transaction and some of
-them outside but probably there is some way). But in the case of journalled
-quota the IO must be started inside a transaction - it is a question of data
-integrity... So how to solve this? I have two ideas:
-  1) Always acquire the PageLock inside a transaction - uh oh... need to change
-     all the filesystems doing journalling and the generic code for writing.
-     I'm afraid this would cause more problems than we currently have...
-  2) Avoid acquiring PageLock at all - we could just start threating the quota
-     data as a filesystem metadata (which IMO makes a sence) and do not access
-     them by foo_file_read/write but via bread and such. Probably a filesystem
-     would have to provide some interface similar to ext3_bread for reading
-     and to ext3_journal_dirty_metadata for writing... Using this approach
-     there will arise an issue with consistency when userspace accesses the
-     quota files. But we can invalidate the pages of the quota files during
-     the quotaoff and quota sync so that userspace will get consistent
-     data afterwards and we can invalidate_bdev and sync quota files
-     during quotaon so that we see the updates userspace did before. Writing to
-     files when quota is turned on is not allowed and who does it deserves
-     to loose the data...
+3ware 9000 Storage Controller device driver for Linux v2.26.00.006fw.
+3w-9xxx: scsi2: Found a 3ware 9000 Storage Controller at 0xfeafec00,
+IRQ: 21.
+3w-9xxx: scsi2: Firmware FE9X 2.02.00.008, BIOS BE9X 2.02.01.037, Ports:
+4.
+scsi2 : 3ware 9000 Storage Controller
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sda: 507904 512-byte hdwr sectors (260 MB)
+sda: assuming Write Enabled
+sda: assuming drive cache: write through
+ sda: sda1
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+Attached scsi removable disk sdb at scsi1, channel 0, id 0, lun 0
+Attached scsi removable disk sdc at scsi1, channel 0, id 0, lun 1
+Attached scsi removable disk sdd at scsi1, channel 0, id 0, lun 2
+Attached scsi removable disk sde at scsi1, channel 0, id 0, lun 3
+SCSI device sdf: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdf: drive cache: write back, no read (daft)
+ sdf: sdf1
+Attached scsi disk sdf at scsi2, channel 0, id 0, lun 0
+SCSI device sdg: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdg: drive cache: write back, no read (daft)
+ sdg: sdg1
+Attached scsi disk sdg at scsi2, channel 0, id 0, lun 1
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdh: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdh: drive cache: write back, no read (daft)
+ sdh: sdh1
+Attached scsi disk sdh at scsi2, channel 0, id 0, lun 2
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdi: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdi: drive cache: write back, no read (daft)
+ sdi: sdi1
+Attached scsi disk sdi at scsi2, channel 0, id 0, lun 3
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdj: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdj: drive cache: write back, no read (daft)
+ sdj: sdj1
+Attached scsi disk sdj at scsi2, channel 0, id 0, lun 4
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdk: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdk: drive cache: write back, no read (daft)
+ sdk: sdk1
+Attached scsi disk sdk at scsi2, channel 0, id 0, lun 5
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdl: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdl: drive cache: write back, no read (daft)
+ sdl: sdl1
+Attached scsi disk sdl at scsi2, channel 0, id 0, lun 6
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdm: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdm: drive cache: write back, no read (daft)
+ sdm: sdm1
+Attached scsi disk sdm at scsi2, channel 0, id 0, lun 7
 
-  I like 2) more - do you think that it is plausible to implement quota IO this
-way? Any comments and suggestions welcome :)
+from 2.6.7-mm1:
 
-									Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+scsi2 : 3ware 9000 Storage Controller
+3w-9xxx: scsi2: Found a 3ware 9000 Storage Controller at 0xfeafec00,
+IRQ: 21.
+3w-9xxx: scsi2: Firmware FE9X 2.02.00.008, BIOS BE9X 2.02.01.037, Ports:
+4.
+  Vendor: 3ware     Model: Logical Disk 00   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdf: 937433088 512-byte hdwr sectors (479966 MB)
+SCSI device sdf: drive cache: write back, no read (daft)
+ sdf: sdf1
+Attached scsi disk sdf at scsi2, channel 0, id 0, lun 0
+
+Jurgen
+
+

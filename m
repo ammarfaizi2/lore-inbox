@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbTLDCaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 21:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTLDCaZ
+	id S261659AbTLDCk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 21:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTLDCk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 21:30:25 -0500
-Received: from desire.actrix.co.nz ([203.96.16.164]:14052 "EHLO
-	desire.actrix.co.nz") by vger.kernel.org with ESMTP id S261522AbTLDCaX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 21:30:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Charles Manning <manningc2@actrix.gen.nz>
-Reply-To: manningc2@actrix.gen.nz
-To: Linus Torvalds <torvalds@osdl.org>,
-       =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
-Subject: Re: partially encrypted filesystem
-Date: Thu, 4 Dec 2003 15:37:05 +1300
-X-Mailer: KMail [version 1.3.1]
-Cc: Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
-       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-References: <1070485676.4855.16.camel@nucleon> <20031203214443.GA23693@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312031600460.2055@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312031600460.2055@home.osdl.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20031204023019.3466017340@desire.actrix.co.nz>
+	Wed, 3 Dec 2003 21:40:29 -0500
+Received: from quechua.inka.de ([193.197.184.2]:21123 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261659AbTLDCk2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 21:40:28 -0500
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: XFS for 2.4
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <3FCE8D7C.4070704@wanadoo.es>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.6.0-test11 (i686))
+Message-Id: <E1ARjPZ-0005DD-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Thu, 04 Dec 2003 03:40:13 +0100
+X-Scanner: exiscan *1ARjPZ-0005DD-00*rjOhk7Rc3PA*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3FCE8D7C.4070704@wanadoo.es> you wrote:
+> are really problematic when 2.4 is a *must be stable* .
 
-> ** NOTE NOTE NOTE **
->
-> If you don't need to mmap() the files, writing becomes much easier.
-> Because then you can make rules like "the page cache accesses always
-> happen with the page locked", and then the encryption layer can do the
-> encryption in-place.
->
-> So it is potentially much easier to make encrypted files a special case,
-> and disallow mmap on them, and also disallow concurrent read/write on
-> encrypted files. This may be acceptable for a lot of uses (most programs
-> still work without mmap - but you won't be able to encrypt demand-loaded
-> binaries, for example).
->
+you mean stable as in "NUMA"?
 
-Is there a useful half-way point here: how about supporting mmap reading but 
-not mmap writing. JFFS2, which incidentally also does compression, does this 
-to allow execution of binaries.
+I can see, that SGI had not the best track in the world in an open
+development model. But it is realy true that XFS is the longest maintained,
+nearly non intrusive patch which is pending for 2.4. Besides: most
+distributions ship it anyway AFAIK.
 
--- Charles
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

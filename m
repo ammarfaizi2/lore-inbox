@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVAERES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVAERGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVAERES (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 12:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVAERES
+	id S261834AbVAERGc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 12:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVAERGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 12:04:18 -0500
-Received: from math.ut.ee ([193.40.5.125]:30870 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261827AbVAEREP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 12:04:15 -0500
-Date: Wed, 5 Jan 2005 19:04:13 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.9+ keyboard LED problem
-Message-ID: <Pine.SOC.4.61.0501051856090.9146@math.ut.ee>
+	Wed, 5 Jan 2005 12:06:32 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:61332 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S261834AbVAERGM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 12:06:12 -0500
+Date: Wed, 5 Jan 2005 18:06:09 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: APIC/LAPIC hanging problems on nForce2 system.
+In-Reply-To: <41DC1AD7.7000705@gmx.de>
+Message-ID: <Pine.LNX.4.60.0501051757300.25946@kepler.fjfi.cvut.cz>
+References: <Pine.LNX.4.60.0501051604200.24191@kepler.fjfi.cvut.cz>
+ <41DC1AD7.7000705@gmx.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The input changes in 2.6.9 made keyboard LED setting unreliable. 2.6.8 
-is OK, 2.6.9, 2.6.10 and todays BK are buggy.
 
-The problem is that setting the LEDs now interferes with keyboard and 
-ps/2 mouse input and makes the kernel lose key press and key release 
-events.
+On Wed, 5 Jan 2005, Prakash K. Cheemplavam wrote:
 
-Short demonstation:
-#!/bin/sh
-while :; do xset led 3; xset -led 3; sleep 0.01; done
+> Martin Drab schrieb:
+> > Hi,
+> > 
+> > I'm witnessing a total freeze on my system when the APIC and LAPIC are
+> > enabled in kernel 2.6.10-bk7.
+> 
+> Do you know whether your bios already contains the C1 halt disconnect
+> fix? I couldn't find this line in your dmesg:
 
-This script works from X but the same effect can be seen on the console 
-using setleds. The problem was found with ledcontrol package but is 
-easyly reproduced with the script above.
+Aha! That might be the problem. Because there is still the factory BIOS, 
+which is F11. I'll try the current F20 when I get home and I'll let you 
+know.
 
-Key press and release events are lost, mouse movement is lost or 
-movement is converted into clicks or mouse loses sync (by dmesg info). 
-There are also messages like
-atkbd.c: Unknown key released (translated set 2, code 0xe0 on isa0060/serio0).
-atkbd.c: Use 'setkeycodes e060 <keycode>' to make it known.
-in dmesg.
+> PCI: nForce2 C1 Halt Disconnect fixup
 
-Don't try the script without the sleep command unless you have a network 
-connection to log in and kill the script ;)
+OK, I'll check it out.
 
--- 
-Meelis Roos (mroos@linux.ee)
+> Did it occur with earlier kernels? If yes, this is a regression.
+
+Well as I said, with the native Mandrake kernel 2.6.8.1-12mdk everything 
+was OK. First vanilla kernel I tried on this MB was somthing about 
+2.6.9-rc2 if I remember correctly and it allready had the problem, and all 
+subsequent ones had it as well.
+
+> Try as workaround if
+> 
+> athcool off
+
+OK, I'll try that.
+
+> makes your system stable. If yes, you need above fix activated.
+
+OK, I'll take a look at it and let you know of the results (hopefully in
+few hours).
+
+Thanks,
+Martin

@@ -1,35 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbUKTJek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbUKTJh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbUKTJek (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 04:34:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbUKTJej
+	id S261422AbUKTJh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 04:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUKTJh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 04:34:39 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7430 "EHLO
+	Sat, 20 Nov 2004 04:37:27 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9990 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261482AbUKTJeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 04:34:25 -0500
-Date: Sat, 20 Nov 2004 09:34:13 +0000
+	id S261422AbUKTJf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 04:35:29 -0500
+Date: Sat, 20 Nov 2004 09:35:22 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: janitor@sternwelten.at
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nacc@us.ibm.com
-Subject: Re: [patch 2/8]  pcmcia/yenta_socket: 	replace schedule_timeout() with msleep()
-Message-ID: <20041120093413.B7482@flint.arm.linux.org.uk>
-Mail-Followup-To: janitor@sternwelten.at, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, nacc@us.ibm.com
-References: <E1CO1zz-0002xy-38@sputnik>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] pcmcia/yenta_socket.c: remove an unused function
+Message-ID: <20041120093522.C7482@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org
+References: <20041028231326.GD3207@stusta.de> <20041029002509.GW29142@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1CO1zz-0002xy-38@sputnik>; from janitor@sternwelten.at on Sun, Oct 31, 2004 at 12:47:02AM +0200
+In-Reply-To: <20041029002509.GW29142@stusta.de>; from bunk@stusta.de on Fri, Oct 29, 2004 at 02:25:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 12:47:02AM +0200, janitor@sternwelten.at wrote:
-> Any comments would be appreciated.
+On Fri, Oct 29, 2004 at 02:25:09AM +0200, Adrian Bunk wrote:
+> The patch below removes an unused function from 
+> drivers/pcmcia/yenta_socket.c
 
-Applied, thanks.
+I'd rather not remove this function - it's part of a logical set of IO
+primitives for this device.
 
 -- 
 Russell King

@@ -1,123 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267797AbTAHKAL>; Wed, 8 Jan 2003 05:00:11 -0500
+	id <S267790AbTAHJsR>; Wed, 8 Jan 2003 04:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267800AbTAHKAL>; Wed, 8 Jan 2003 05:00:11 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:56080 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S267797AbTAHKAJ>;
-	Wed, 8 Jan 2003 05:00:09 -0500
-Date: Wed, 8 Jan 2003 11:08:41 +0100 (CET)
-From: venom@sns.it
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Larry McVoy <lm@bitmover.com>, Matthias Andree <matthias.andree@gmx.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Honest does not pay here ...
-In-Reply-To: <Pine.LNX.4.10.10301071659480.421-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.43.0301081058320.28725-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267791AbTAHJsR>; Wed, 8 Jan 2003 04:48:17 -0500
+Received: from cmailm3.svr.pol.co.uk ([195.92.193.19]:15109 "EHLO
+	cmailm3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267790AbTAHJsM>; Wed, 8 Jan 2003 04:48:12 -0500
+Date: Wed, 8 Jan 2003 09:56:23 +0000
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 4/10] dm: rwlock_t -> rw_semaphore (fluff)
+Message-ID: <20030108095623.GE2063@reti>
+References: <20030108095221.GA2063@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030108095221.GA2063@reti>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-if I understand your point, a vendor could ask to the end user to apply a patch
-to the new kernels, so that modules infrastructure will be changed, and also non
-GPLed modules can create their own run queue.
-
-
-Yes, it is possible, because we are talking about open source (I mean a more
-generic definition instead of free-software, i.e. all the software that comes
-with source code). I would add, it's in the rules of the game.
-But developers for this patch have to be paid, and
-patch could create conflicts, and has to be maintained togheter with the
-binary only module (depends on costs).
-
-To say the truth, I do not even expect end users to care if the modules is
-running with its own kernel threads in his own run queue, or it is using the
-defaul queue.
-
-Anyway I found the runqueue concept, as it has been implemented, an
-equilibrate and factual solution to incentivate companies to GPL their code,
-and I was surprised that none (except a short allusion from you),
-in two threads took the opportunity to talk about a fact and a good point.
-
-Luigi Genoni
-
-
-On Tue, 7 Jan 2003, Andre Hedrick wrote:
-
-> Date: Tue, 7 Jan 2003 17:10:41 -0800 (PST)
-> From: Andre Hedrick <andre@linux-ide.org>
-> To: venom@sns.it
-> Cc: Larry McVoy <lm@bitmover.com>, Matthias Andree <matthias.andree@gmx.de>,
->      linux-kernel@vger.kernel.org
-> Subject: Re: Honest does not pay here ...
->
->
-> Luigi,
->
-> You forgot one thing.  None of us can control what the end user does.
-> If a vendor tells the enduser to alter the 2.5/2.6 kernel and recompile.
-> What are you going to do?
->
-> Add a clause where the enduser can not change the source code or apply a
-> patch to do it for them?
->
-> Funny, you lost your rights to do that w/ GPL, as did I.
->
-> *sigh*
->
-> Andre Hedrick
-> LAD Storage Consulting Group
->
-> On Wed, 8 Jan 2003 venom@sns.it wrote:
->
-> >
-> > well, I was forgetting to specify,
-> > queues are kernel threads, and that is quite
-> > optimum expecially on SMP systems.
-> > One big advantage is that conflicts possibilities are
-> > (should be) less than minimal.
-> >
-> > Luigi
-> >
-> > On Tue, 7 Jan 2003, Larry McVoy wrote:
-> >
-> > > Date: Tue, 7 Jan 2003 16:30:50 -0800
-> > > From: Larry McVoy <lm@bitmover.com>
-> > > To: venom@sns.it
-> > > Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
-> > >      andre@linux-ide.org
-> > > Subject: Re: Honest does not pay here ...
-> > >
-> > >
-> > > > In very semplicistic words:
-> > > > In 2.5/2.6 kernels, non GPL modules have a big
-> > > > penalty, because they cannot create their own queue, but have to use a default
-> > > > one.
-> > >
-> > > I may be showing my ignorance here (won't be the first time) but this makes
-> > > me wonder if Linux could provide a way to do "user level drivers".  I.e.,
-> > > drivers which ran in kernel mode but in the context of a process and had
-> > > to talk to the real kernel via pipes or whatever.  It's a fair amount of
-> > > plumbing but could have the advantage of being a more stable interface
-> > > for the drivers.
-> > >
-> > > If you think about it, drivers are more or less open/close/read/write/ioctl.
-> > > They need kernel privileges to do their thing but don't need (and shouldn't
-> > > have) access to all the guts of the kernel.
-> > >
-> > > Can any well traveled driver people see this working or is it nuts?
-> > > --
-> > > ---
-> > > Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm
-> > >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
-
+Use a rw_semaphore in dm_target.c rather than a rwlock_t, just to keep
+in line with dm.c
+--- diff/drivers/md/dm-target.c	2003-01-02 11:16:16.000000000 +0000
++++ source/drivers/md/dm-target.c	2003-01-02 11:26:27.000000000 +0000
+@@ -19,7 +19,7 @@
+ };
+ 
+ static LIST_HEAD(_targets);
+-static rwlock_t _lock = RW_LOCK_UNLOCKED;
++static DECLARE_RWSEM(_lock);
+ 
+ #define DM_MOD_NAME_SIZE 32
+ 
+@@ -42,7 +42,7 @@
+ {
+ 	struct tt_internal *ti;
+ 
+-	read_lock(&_lock);
++	down_read(&_lock);
+ 
+ 	ti = __find_target_type(name);
+ 	if (ti) {
+@@ -52,7 +52,7 @@
+ 			ti->use++;
+ 	}
+ 
+-	read_unlock(&_lock);
++	up_read(&_lock);
+ 	return ti;
+ }
+ 
+@@ -86,13 +86,13 @@
+ {
+ 	struct tt_internal *ti = (struct tt_internal *) t;
+ 
+-	read_lock(&_lock);
++	down_read(&_lock);
+ 	if (--ti->use == 0)
+ 		module_put(ti->tt.module);
+ 
+ 	if (ti->use < 0)
+ 		BUG();
+-	read_unlock(&_lock);
++	up_read(&_lock);
+ 
+ 	return;
+ }
+@@ -117,13 +117,13 @@
+ 	if (!ti)
+ 		return -ENOMEM;
+ 
+-	write_lock(&_lock);
++	down_write(&_lock);
+ 	if (__find_target_type(t->name))
+ 		rv = -EEXIST;
+ 	else
+ 		list_add(&ti->list, &_targets);
+ 
+-	write_unlock(&_lock);
++	up_write(&_lock);
+ 	return rv;
+ }
+ 
+@@ -131,21 +131,21 @@
+ {
+ 	struct tt_internal *ti;
+ 
+-	write_lock(&_lock);
++	down_write(&_lock);
+ 	if (!(ti = __find_target_type(t->name))) {
+-		write_unlock(&_lock);
++		up_write(&_lock);
+ 		return -EINVAL;
+ 	}
+ 
+ 	if (ti->use) {
+-		write_unlock(&_lock);
++		up_write(&_lock);
+ 		return -ETXTBSY;
+ 	}
+ 
+ 	list_del(&ti->list);
+ 	kfree(ti);
+ 
+-	write_unlock(&_lock);
++	up_write(&_lock);
+ 	return 0;
+ }
+ 

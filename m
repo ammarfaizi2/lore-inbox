@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312867AbSC0A3W>; Tue, 26 Mar 2002 19:29:22 -0500
+	id <S312871AbSC0Agx>; Tue, 26 Mar 2002 19:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312871AbSC0A3M>; Tue, 26 Mar 2002 19:29:12 -0500
-Received: from ligur.expressz.com ([212.24.178.154]:16575 "EHLO expressz.com")
-	by vger.kernel.org with ESMTP id <S312867AbSC0A25>;
-	Tue, 26 Mar 2002 19:28:57 -0500
-Date: Wed, 27 Mar 2002 01:28:02 +0100 (CET)
-From: "BODA Karoly jr." <woockie@expressz.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Malcolm Mallardi <magamo@ranka.2y.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre4-ac1 vmware and emu10k1 problems
-In-Reply-To: <E16q0ZJ-0004D0-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020327012531.18245B-100000@ligur.expressz.com>
+	id <S312872AbSC0Agn>; Tue, 26 Mar 2002 19:36:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62475 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312871AbSC0Agi>; Tue, 26 Mar 2002 19:36:38 -0500
+Subject: Re: signal_pending() and schedule()
+To: melkorainur@yahoo.com (Melkor Ainur)
+Date: Wed, 27 Mar 2002 00:53:16 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020327001955.99099.qmail@web21203.mail.yahoo.com> from "Melkor Ainur" at Mar 26, 2002 04:19:55 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16q1gi-0004OW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Mar 2002, Alan Cox wrote:
+> but fails for netscape. In debugging this, I observe
+> that after calling schedule_timeout(), the sigpending
+> bit appears to be set immediately and thus 
 
-> > The vmware modules will not compile properly under 2.4.19-pre4-ac1, or
-> > under 2.4.19-pre2-ac2, but compile fine on their mainline kernel
-> > counterparts.  Here is the errors that I get from vmware-config.pl:
-> Please take vmware problems up with the vmware folks
+It means a signal was delivered
 
-	I think it would be easy to fix.. He wrote this:
+> schedule() doesn't actually put the process to sleep.
 
-/lib/modules/2.4.19-pre4-ac1/build/include/linux/malloc.h:4: #error
-linux/malloc.h is deprecated, use linux/slab.h instead.
-make[2]: *** [driver.d] Error 1
-
-	So change in the file where it appeared the 
-#include <linux/malloc.h> 
-to
-#include <linux/slab.h>
-
--- 
-						Woockie
-..."what is there in this world that makes living worthwhile?"
-Death thought about it. "CATS," he said eventually, "CATS ARE NICE."
-			           (Terry Pratchett, Sourcery)
-
+Because the signal is pending. The kernel is expecting to return or take
+some action and return to user space if its an interrutible sleep

@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267272AbUHSTNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUHSTOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267272AbUHSTNH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 15:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUHSTNH
+	id S267283AbUHSTOu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 15:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUHSTOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 15:13:07 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:12677 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267272AbUHSTNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 15:13:04 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       kernel@wildsau.enemy.org, diablod3@gmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408191800.56581.bzolnier@elka.pw.edu.pl>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org>
-	 <4124BA10.6060602@bio.ifi.lmu.de>
-	 <1092925942.28353.5.camel@localhost.localdomain>
-	 <200408191800.56581.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092938773.28350.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 19 Aug 2004 19:06:14 +0100
+	Thu, 19 Aug 2004 15:14:50 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:30850 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267283AbUHSTOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 15:14:42 -0400
+From: jmerkey@comcast.net
+To: Rik van Riel <riel@redhat.com>
+Cc: linux-kernel@vger.kernel.org, <jmerkey@drdos.com>
+Subject: Re: kallsyms 2.6.8 address ordering
+Date: Thu, 19 Aug 2004 19:14:40 +0000
+Message-Id: <081920041914.20259.4124FC20000DAD5E00004F232200762302970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-19 at 17:00, Bartlomiej Zolnierkiewicz wrote:
-> > As a security fix it was sufficiently important that it had to be done.
+
+
+
+> On Thu, 19 Aug 2004 jmerkey@comcast.net wrote:
 > 
-> IMO work-rounding this in kernel is a bad idea and could break a lot of 
-> existing apps (some you even don't know about).  Much better way to deal with 
-> this is to create library for handling I/O commands submission and gradually 
-> teach user-space apps to use it.
+> > kallsyms in 2.6.8 is presenting module symbol tables with out of order
+> > addresses in 2.6.X.  This makes maintaining a commercial kernel debugger
+> > for Linux 2.6 kernels nighmareish. 
+> 
+> How hard could it be to sort the table in your debugger ?
+> 
 
-And what do you do the day someone posts "lock IDE drive with random
-password as any user" to bugtraq ?
+How about not sorting it at all and not being required to increase memory consumption for 
+debugging purposes?  
 
+
+
+> > Also, the need to kmalloc name strings (like kdb does) from kallsyms in
+> > kdbsupport.c while IN THE DEBUGGER makes it impossible to debug large
+> > portions of the kernel code with kdb, so I have rewritten large sections
+> > of kallsyms.c to handle all these broken, brain-dead cases in mdb and I
+> > am not relying much on kdb hooks anymore.
+>      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 
+> Sounds like your commercial debugger might just be violating
+> the GPL ;)
+
+No.  it's not.  Chris makes a suggestion I should make it work on unpatched kernels.  
+I will address on his thread.
+
+Jeff
+
+> 
+> -- 
+> "Debugging is twice as hard as writing the code in the first place.
+> Therefore, if you write the code as cleverly as possible, you are,
+> by definition, not smart enough to debug it." - Brian W. Kernighan
+> 

@@ -1,170 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266088AbUKBDwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S521224AbUKBEaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266088AbUKBDwG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 22:52:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S379619AbUKAW4B
+	id S521224AbUKBEaS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 23:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S281716AbUKBE24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 17:56:01 -0500
-Received: from twinlark.arctic.org ([168.75.98.6]:43416 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S272981AbUKAVXm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 16:23:42 -0500
-Date: Mon, 1 Nov 2004 13:23:42 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: linux-os@analogic.com
-cc: Linus Torvalds <torvalds@osdl.org>, Andreas Steinmetz <ast@domdv.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: Semaphore assembly-code bug
-In-Reply-To: <Pine.LNX.4.61.0411011542430.24533@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0411011311520.8483@twinlark.arctic.org>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
- <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
-  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
- <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
- <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
- <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
- <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de>
- <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com>
- <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
- <Pine.LNX.4.61.0410291424180.4870@chaos.analogic.com>
- <Pine.LNX.4.58.0410291209170.28839@ppc970.osdl.org>
- <Pine.LNX.4.61.0410312024150.19538@chaos.analogic.com>
- <Pine.LNX.4.61.0411011219200.8483@twinlark.arctic.org>
- <Pine.LNX.4.61.0411011542430.24533@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Nov 2004 23:28:56 -0500
+Received: from gate.crashing.org ([63.228.1.57]:61103 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262557AbUKBE1u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 23:27:50 -0500
+Subject: Re: [PATCH] Serial updates
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1099368552.29693.434.camel@gaston>
+References: <20041031175114.B17342@flint.arm.linux.org.uk>
+	 <1099368552.29693.434.camel@gaston>
+Content-Type: text/plain
+Date: Tue, 02 Nov 2004 15:20:26 +1100
+Message-Id: <1099369226.29689.441.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Nov 2004, linux-os wrote:
+And here's another one that also fixes a little bug in the
+default console selection code ...
 
-> On Mon, 1 Nov 2004, dean gaudet wrote:
-> 
-> > On Sun, 31 Oct 2004, linux-os wrote:
-> > 
-> > > Timer overhead = 88 CPU clocks
-> > > push 3, pop 3 = 12 CPU clocks
-> > > push 3, pop 2 = 12 CPU clocks
-> > > push 3, pop 1 = 12 CPU clocks
-> > > push 3, pop none using ADD = 8 CPU clocks
-> > > push 3, pop none using LEA = 8 CPU clocks
-> > > push 3, pop into same register = 12 CPU clocks
-> > 
-> > your microbenchmark makes assumptions about rdtsc which haven't been valid
-> > since the days of the 486.  rdtsc has serializing aspects and overhead that
-> > you can't just eliminate by running it in a tight loop and subtracting out
-> > that "overhead".
-> > 
-> 
-> Wrong.
+--- linux-work.orig/arch/ppc64/kernel/setup.c	2004-10-27 13:05:41.000000000 +1000
++++ linux-work/arch/ppc64/kernel/setup.c	2004-11-02 15:18:26.707500208 +1100
+@@ -31,7 +31,7 @@
+ #include <linux/cpu.h>
+ #include <linux/unistd.h>
+ #include <linux/serial.h>
+-#include <linux/8250.h>
++#include <linux/serial_8250.h>
+ #include <asm/io.h>
+ #include <asm/prom.h>
+ #include <asm/processor.h>
+@@ -901,7 +901,7 @@
+ 	DBG("Found serial console at ttyS%d\n", offset);
+ 
+ 	if (spd) {
+-		char opt[16];
++		static char __initdata opt[16];
+ 		sprintf(opt, "%d", *spd);
+ 		return add_preferred_console("ttyS", offset, opt);
+ 	} else
+@@ -1123,8 +1123,8 @@
+  */
+ 
+ #define MAX_LEGACY_SERIAL_PORTS	8
+-static struct old_serial_port	old_serial_ports[MAX_LEGACY_SERIAL_PORTS];
+-static unsigned int		old_serial_count;
++static struct plat_serial8250_port serial_ports[MAX_LEGACY_SERIAL_PORTS+1];
++static unsigned int old_serial_count;
+ 
+ void __init generic_find_legacy_serial_ports(unsigned int *default_speed)
+ {
+@@ -1202,13 +1202,13 @@
+ 			if (index >= old_serial_count)
+ 				old_serial_count = index + 1;
+ 			/* Check if there is a port who already claimed our slot */
+-			if (old_serial_ports[index].port != 0) {
++			if (serial_ports[index].iobase != 0) {
+ 				/* if we still have some room, move it, else override */
+ 				if (old_serial_count < MAX_LEGACY_SERIAL_PORTS) {
+ 					DBG("Moved legacy port %d -> %d\n", index,
+ 					    old_serial_count);
+-					old_serial_ports[old_serial_count++] =
+-						old_serial_ports[index];
++					serial_ports[old_serial_count++] =
++						serial_ports[index];
+ 				} else {
+ 					DBG("Replacing legacy port %d\n", index);
+ 				}
+@@ -1220,18 +1220,17 @@
+ 			old_serial_count = index + 1;
+ 
+ 		/* Now fill the entry */
+-		memset(&old_serial_ports[index], 0, sizeof(struct old_serial_port));
+-		old_serial_ports[index].uart = 0;
+-		old_serial_ports[index].baud_base = clk ? (*clk / 16) : BASE_BAUD;
+-		old_serial_ports[index].port = reg->address;
+-		old_serial_ports[index].irq = interrupts ? interrupts[0] : 0;
+-		old_serial_ports[index].flags = ASYNC_BOOT_AUTOCONF;
++		memset(&serial_ports[index], 0, sizeof(struct plat_serial8250_port));
++		serial_ports[index].uartclk = clk ? *clk : BASE_BAUD * 16;
++		serial_ports[index].iobase = reg->address;
++		serial_ports[index].irq = interrupts ? interrupts[0] : 0;
++		serial_ports[index].flags = ASYNC_BOOT_AUTOCONF;
+ 
+ 		DBG("Added legacy port, index: %d, port: %x, irq: %d, clk: %d\n",
+ 		    index,
+-		    old_serial_ports[index].port,
+-		    old_serial_ports[index].irq,
+-		    old_serial_ports[index].baud_base * 16);
++		    serial_ports[index].iobase,
++		    serial_ports[index].irq,
++		    serial_ports[index].uartclk);
+ 
+ 		/* Get phys address of IO reg for port 1 */
+ 		if (index != 0)
+@@ -1279,19 +1278,21 @@
+ 	DBG(" <- generic_find_legacy_serial_port()\n");
+ }
+ 
+-struct old_serial_port *get_legacy_serial_ports(unsigned int *count)
+-{
+-	*count = old_serial_count;
+-	return old_serial_ports;
+-}
+-#else
+-struct old_serial_port *get_legacy_serial_ports(unsigned int *count)
++static struct platform_device serial_device = {
++	.name	= "serial8250",
++	.id	= 0,
++	.dev	= {
++		.platform_data = serial_ports,
++	},
++};
++
++static int __init serial_dev_init(void)
+ {
+-	*count = 0;
+-	return 0;
++	return platform_device_register(&serial_device);
+ }
++arch_initcall(serial_dev_init);
++
+ #endif /* CONFIG_PPC_ISERIES */
+-EXPORT_SYMBOL(get_legacy_serial_ports);
+ 
+ int check_legacy_ioport(unsigned long base_port)
+ {
+Index: linux-work/include/asm-ppc64/serial.h
+===================================================================
+--- linux-work.orig/include/asm-ppc64/serial.h	2004-10-26 08:30:21.000000000 +1000
++++ linux-work/include/asm-ppc64/serial.h	2004-11-02 15:17:27.620482800 +1100
+@@ -4,8 +4,6 @@
+ #ifndef _PPC64_SERIAL_H
+ #define _PPC64_SERIAL_H
+ 
+-#include <linux/config.h>
+-
+ /*
+  * This assumes you have a 1.8432 MHz clock for your UART.
+  *
+@@ -22,9 +20,4 @@
+ /* Default baud base if not found in device-tree */
+ #define BASE_BAUD ( 1843200 / 16 )
+ 
+-#define ARCH_HAS_GET_LEGACY_SERIAL_PORTS
+-struct old_serial_port;
+-extern struct old_serial_port *get_legacy_serial_ports(unsigned int *count);
+-#define UART_NR	(8 + CONFIG_SERIAL_8250_NR_UARTS)
+-
+ #endif /* _PPC64_SERIAL_H */
 
-if you were correct then i should be able to measure 1 cycle differences
-in sequences such as the following:
 
-	rdtsc
-	mov %eax,%edi
-	shr $1,%ecx
-	rdtsc
-
-	rdtsc
-	mov %eax,%edi
-	shr $1,%ecx
-	shr $1,%ecx
-	rdtsc
-...
-	rdtsc
-	mov %eax,%edi
-	shr $1,%ecx
-	shr $1,%ecx
-	shr $1,%ecx
-	shr $1,%ecx
-	shr $1,%ecx
-	shr $1,%ecx
-	shr $1,%ecx
-	shr $1,%ecx
-	rdtsc
-
-yet the attached program demonstrates that such measurements are
-inaccurate.  the results should be a sequence of numbers increasing
-by 1 each time.
-
-p4 model 2:	80 80 84 84 84 84 84 84
-p4 model 3:	120 120 120 120 120 120 120 128
-p-m model 9:	47 46 47 48 49 50 56 57
-k8:		5 5 5 5 5 5 5 5
-
--dean
-
-% gcc -O -o rdtsc-rounding rdtsc-rounding.c
-
-rdtsc-rounding.c:
-
-#include <stdio.h>
-#include <stdint.h>
-
-#define template(n) \
-	static uint32_t foo##n(void) \
-	{ \
-		uint32_t start, done, trash1, trash2; \
- \
-		__asm volatile( \
-			"\n	rdtsc" \
-			"\n	mov %%eax,%0" \
-			x##n("\n	shr $1,%1") \
-			"\n	rdtsc" \
-			: "=&r" (start), "=&r" (trash1), "=&a" (done), "=&d" (trash2) \
-		); \
-		return done - start; \
-	}
-
-#define x1(x) x
-#define x2(x) x x
-#define x3(x) x x x
-#define x4(x) x2(x) x2(x)
-#define x5(x) x4(x) x
-#define x6(x) x3(x2(x))
-#define x7(x) x6(x) x
-#define x8(x) x4(x2(x))
-
-template(1)
-template(2)
-template(3)
-template(4)
-template(5)
-template(6)
-template(7)
-template(8)
-
-static uint32_t (*fn[9])(void) = {
-	0, foo1, foo2, foo3, foo4, foo5, foo6, foo7, foo8
-};
-
-
-static uint32_t bench(uint32_t (*f)(void))
-{
-	uint32_t best;
-	unsigned i;
-
-	best = ~0;
-	for (i = 0; i < 100000; ++i) {
-		uint32_t cur = f();
-		if (cur < best) {
-			best = cur;
-		}
-	}
-	return best;
-}
-
-
-int main(int argc, char **argv)
-{
-	unsigned i;
-
-	for (i = 1; i < sizeof(fn)/sizeof(fn[0]); ++i) {
-		printf("%u ", bench(fn[i]));
-	}
-	printf("\n");
-	return 0;
-}

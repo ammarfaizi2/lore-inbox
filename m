@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUHTNsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268043AbUHTNuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267985AbUHTNsU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 09:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267943AbUHTNsU
+	id S268043AbUHTNuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 09:50:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267943AbUHTNuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 09:48:20 -0400
-Received: from mail.kamp-dsl.de ([195.62.99.42]:22994 "HELO dsl-mail.kamp.net")
-	by vger.kernel.org with SMTP id S267473AbUHTNrT (ORCPT
+	Fri, 20 Aug 2004 09:50:05 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:27454 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267974AbUHTNtP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 09:47:19 -0400
-Message-ID: <412600FB.6000700@ti.uni-trier.de>
-Date: Fri, 20 Aug 2004 15:47:39 +0200
-From: Jochen Bern <bern@ti.uni-trier.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040413 Debian/1.6-5 Mnenhy/0.6.0.102
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Timer-ing ATKBD Communication?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 20 Aug 2004 09:49:15 -0400
+Message-ID: <d577e56904082006495a66179c@mail.gmail.com>
+Date: Fri, 20 Aug 2004 09:49:11 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+Reply-To: Patrick McFarland <diablod3@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Cc: vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org,
+       kernel@wildsau.enemy.org, fsteiner-mail@bio.ifi.lmu.de,
+       b.zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <4125FE92.nail8LD4QVROS@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200408191732.i7JHWSkL005470@laptop14.inf.utfsm.cl> <4125FE92.nail8LD4QVROS@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could someone please give me a hint (function name, pointer to example 
-code or docs) how to accomplish the following?
+On Fri, 20 Aug 2004 15:37:22 +0200, Joerg Schilling
+<schilling@fokus.fraunhofer.de> wrote:
+> The Linux kernel is broken because it it did break existing interfaces - period.
 
-I'm trying to implement additional communication between kernel and a 
-PS/2 connected AT keyboard. What I have right now (in 2.6.4-52 so far) is:
--- one additional branch in
-    drivers/input/keyboard/atkbd.c::atkbd_interrupt() that recognizes
-    the keyboard's (different) responses, processes them, and keeps
-    them away from the normal atkbd_interrupt() processing
--- another additional branch that, if a special key was pressed, uses
-    atkbd_sendbyte() to initiate the communication. (Note that this
-    being hooked into atkbd_interrupt() provides me with direct access
-    to struct atkbd *atkbd to fill the first param of atkbd_sendbyte().)
-The actual communication seems to work (awaiting kernel upgrade and 
-stress testing), but I need part of the communication initiated at 
-regular intervals (about every second or so) instead of keying off other 
-keyboard activity ...
+What you really meant to say is that they fixed a previously broken
+interface so that it worked correctly; which just happened to break
+your poorly written app. If you had any shread of self respect, you'd
+silently fix cdrecord without a further mention of it here.
 
-TIA,
-								J. Bern
+-- 
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264750AbSJ3RvQ>; Wed, 30 Oct 2002 12:51:16 -0500
+	id <S264751AbSJ3R4b>; Wed, 30 Oct 2002 12:56:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264751AbSJ3RvQ>; Wed, 30 Oct 2002 12:51:16 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:3782 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S264750AbSJ3RvP>;
-	Wed, 30 Oct 2002 12:51:15 -0500
-Message-ID: <3DC01D91.9020307@colorfullife.com>
-Date: Wed, 30 Oct 2002 18:57:37 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	id <S264757AbSJ3R4b>; Wed, 30 Oct 2002 12:56:31 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:56758 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S264751AbSJ3R4a> convert rfc822-to-8bit; Wed, 30 Oct 2002 12:56:30 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18: Loopback mount times out over apm suspend.
+Date: Wed, 30 Oct 2002 02:46:44 +0000
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-To: Bernhard Kaindl <bk@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210300246.44819.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You are right, there is a race in pipelined_send, but slightly different 
-than in your description:
-pipelined_send is carefull not to read the msr pointer after 
-wake_up_process, but it does rely on the contents of the msr structure 
-after setting msr->r_msg.
+APM suspend is a fairly impolite ting to do to an active system, but it 
+reveals all sorts of funky timeouts.  (For example, Xfree86 used to exit all 
+the time coming back from an APM suspend, but 4.20 finally seems to have 
+gotten most of that to go away.)
 
-I.e. the description is
+I just hit a new one: a process was extracting a tarball from a loopback 
+mounted zisofs system.  On return from the apm suspend, tar reported 
+unexpected end of file and the mount point has mysteriously unmounted itself.
 
-       CPU 1                    CPU 2
+Fun datapoint for people looking at that sort of thing.  Is there some generic 
+"timeout but take system suspend into account" function these sort of things 
+should be using?
 
-	sys_msgrcv()
-	(sleeps for messsage)
+Standard Red Hat 8.0 kernel in this instance.  Well it's what this system 
+happened to be running at the time...
 
-				sys_msgsnd()
-				pipelined_send()
-	(woken up by a signal)
-	Notices that a message is there,
-	accepts the message and exists.
-	stack trashed, perhaps even task structure gone.
-	                        wake_up_process(msr->r_tsk)
-				*oops - msr is not valid anymore.
+Rob
 
-Is that possible? Do you apps use signals?
-
-Your fix solves the problem, but I'd prefer to keep the current, lockless receive path - it avoids 50% of the spinlock operations.
-I'll write a patch that adds the missing memory barriers and copies the fields before setting msr->r_msg.
-
---
-	Manfred
-
-
+-- 
+http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
+CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?

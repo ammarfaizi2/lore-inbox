@@ -1,62 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbUKDSlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbUKDSzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbUKDSlt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:41:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbUKDSeP
+	id S262310AbUKDSzh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbUKDSzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:34:15 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:47509 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262359AbUKDScA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:32:00 -0500
-Message-Id: <200411041831.iA4IVqc1000781@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: Adam Heath <doogie@debian.org>
-Cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers 
-In-Reply-To: Your message of "Thu, 04 Nov 2004 12:15:47 CST."
-             <Pine.LNX.4.58.0411041214590.1229@gradall.private.brainfood.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org> <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu>
-            <Pine.LNX.4.58.0411041214590.1229@gradall.private.brainfood.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1917734624P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 4 Nov 2004 13:55:35 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:986 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262310AbUKDSzT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 13:55:19 -0500
+Message-ID: <418A7B0B.7040803@trash.net>
+Date: Thu, 04 Nov 2004 19:55:07 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: netfilter-devel@lists.netfilter.org, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks
+ amanda dumps
+References: <20041104121522.GA16547@merlin.emma.line.org>
+In-Reply-To: <20041104121522.GA16547@merlin.emma.line.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 04 Nov 2004 13:31:52 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1917734624P
-Content-Type: text/plain; charset=us-ascii
+Matthias Andree wrote:
 
-On Thu, 04 Nov 2004 12:15:47 CST, Adam Heath said:
+>You can use "bk receive" to patch with this mail.
+>
+>BK: Parent repository is bk://linux.bkbits.net/linux-2.5
+>
+>Patch description:
+>ChangeSet@1.2427, 2004-11-04 13:00:54+01:00, matthias.andree@gmx.de
+>    Fix ip_conntrack_amanda data corruption bug that breaks amanda dumps.
+>  
+>    Fix a bug where the ip_conntrack_amanda module replaces the first LF
+>    after "CONNECT " by a NUL byte. This causes the UDP checksum to become
+>    corrupt and strips off the OPTIONS argument from the received packet,
+>    breaking amanda's sendbackup component altogether.  Replace the LF
+>    character before releasing the buffer.
+>  
+>
+The data that is changed is only a copy, the actual packet is not touched.
 
-> Use faster hardware to compile a kernel.  Cross-compiling is easy for kernels
-.
+Regards
+Patrick
 
-Hmm.. Send some faster hardware to Zwane then - I seem to recall
-that his *faster* hardware was a 3-CPU 400mz box.
+>  
+>    Signed-off-by: Matthias Andree <matthias.andree@gmx.de>
+>
+>Matthias Andree
+>
+>------------------------------------------------------------------------
+>
+>##### DIFFSTAT #####
+> ip_conntrack_amanda.c |   12 ++++++++----
+> 1 files changed, 8 insertions(+), 4 deletions(-)
+>
+>##### GNUPATCH #####
+>--- 1.10/net/ipv4/netfilter/ip_conntrack_amanda.c	2004-08-19 02:14:53 +02:00
+>+++ 1.11/net/ipv4/netfilter/ip_conntrack_amanda.c	2004-11-04 12:59:26 +01:00
+>@@ -49,7 +49,7 @@
+> {
+> 	struct ip_conntrack_expect *exp;
+> 	struct ip_ct_amanda_expect *exp_amanda_info;
+>-	char *amp, *data, *data_limit, *tmp;
+>+	char *amp, *data, *data_limit, *tmp, *le = 0;
+> 	unsigned int dataoff, i;
+> 	u_int16_t port, len;
+> 
+>@@ -83,9 +83,10 @@
+> 		goto out;
+> 	data += strlen("CONNECT ");
+> 
+>-	/* Only search first line. */	
+>-	if ((tmp = strchr(data, '\n')))
+>-		*tmp = '\0';
+>+	/* Only search first line.
+>+	 * NB: The change to the data must be reverted later! */
+>+	if ((le = strchr(data, '\n')))
+>+		*le = '\0';
+> 
+> 	for (i = 0; i < ARRAY_SIZE(conns); i++) {
+> 		char *match = strstr(data, conns[i]);
+>@@ -120,6 +121,9 @@
+> 	}
+> 
+> out:
+>+	/* replace LF character to repair the packet */
+>+	if (le)
+>+	    *le = '\n';
+> 	UNLOCK_BH(&amanda_buffer_lock);
+> 	return NF_ACCEPT;
+> }
+>
+>  
+>
 
-And then feel free to send faster hardware to everybody else on this
-list who's not lucky enough to work for a company that will buy them
-the latest-and-greatest.  For a lot of us, even a $700 consumer-class
-machine is a major investment, and has to be balanced against things
-like mortgages and food and keeping the car running so you can get to
-your day job.....
-
---==_Exmh_1917734624P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBinWYcC3lWbTT17ARAu4QAJ9PJN8EKUTDQguHoTkcA5CMLsR3ngCgq9j6
-dRMAEQIYtZeTt4cmB22D9SY=
-=0jI1
------END PGP SIGNATURE-----
-
---==_Exmh_1917734624P--

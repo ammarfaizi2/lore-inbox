@@ -1,78 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136430AbREDPnu>; Fri, 4 May 2001 11:43:50 -0400
+	id <S136441AbREDPsK>; Fri, 4 May 2001 11:48:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136432AbREDPnl>; Fri, 4 May 2001 11:43:41 -0400
-Received: from srv01s4.cas.org ([134.243.50.9]:36005 "EHLO srv01.cas.org")
-	by vger.kernel.org with ESMTP id <S136430AbREDPn2>;
-	Fri, 4 May 2001 11:43:28 -0400
-From: Mike Harrold <mharrold@cas.org>
-Message-Id: <200105041543.LAA17264@mah21awu.cas.org>
-Subject: Re: close()
-To: washer@us.ibm.com (James Washer)
-Date: Fri, 4 May 2001 11:43:18 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF9A886AE5.01B7651A-ON88256A42.0053B697@LocalDomain> from "James Washer" at May 04, 2001 08:15:59 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S136438AbREDPsA>; Fri, 4 May 2001 11:48:00 -0400
+Received: from wks79.navicsys.com ([207.180.73.79]:8927 "EHLO noop")
+	by vger.kernel.org with ESMTP id <S136433AbREDPrr>;
+	Fri, 4 May 2001 11:47:47 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: console=ttyS0 doesn't work 2.4.4
+In-Reply-To: <m3zoct9peg.fsf@yahoo.com>
+From: Nick Papadonis <npapadon@yahoo.com>
+Organization: None
+X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
+ <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
+ !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
+Content-Type: text/plain; charset=US-ASCII
+Date: 04 May 2001 11:44:49 -0400
+In-Reply-To: <m3zoct9peg.fsf@yahoo.com> (Nick Papadonis's message of "04 May 2001 10:09:43 -0400")
+Message-ID: <m3wv7x6rv2.fsf@yahoo.com>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 
-> What kind of file was it close()ing?
->  - jim
+Solved.  Disregard.  I didn't have serial console support compiled in.
 
-Ah, good question. I should have specified this. It is a socket that is
-being closed, not a regular file (the socket has nonblocking set).
+Nick Papadonis <npapadon@yahoo.com> writes:
 
-> p.s. Are you familiar with the strace(1) utility? It might help you get
-> more information the next time this happens... especially the "-p pid"
-> option.
-
-I didn't think about this. I'll give this a whirl next time.
-
-/Mike
-
+> I compiled the Linux kernel v2.4.4 and can't get 'console=ttyS0,115200
+> console=tty0' to work.  This appended line works fine when I boot
+> into my 2.2.x series kernel.
 > 
+> Anyone have similar problems?  Has anyone verified serial console
+> output works with the 2.4.x kernels?  Thanks.
 > 
-> Mike Harrold <mharrold@cas.org>@vger.kernel.org on 05/04/2001 07:44:53 AM
-> 
-> Sent by:  linux-kernel-owner@vger.kernel.org
-> 
-> 
-> To:   linux-kernel@vger.kernel.org
-> cc:
-> Subject:  close()
-> 
-> 
-> 
-> Hi,
-> 
-> We have a server which runs on a machine that now runs the new 2.4 kernel.
-> Since upgrading we've seen periods where it seems to just hang for minutes
-> at a time (anywhere form 5 minutes to an hour). I was finally able to get
-> a core dump of the server during one of these periods and it appears that
-> the hang is occuring during a call to close().
-> 
-> Has anyone else seen anything like this? Kernel version is:
-> 
->   Linux version 2.4.2-4GB (root@Pentium.suse.de)
-> 
-> Thanks,
-> 
-> /Mike
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
-> 
-
+> - Nick

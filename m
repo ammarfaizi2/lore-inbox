@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263025AbTDRLec (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 07:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbTDRLec
+	id S263018AbTDRMFA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 08:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbTDRMFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 07:34:32 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:49130 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263025AbTDRLeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 07:34:31 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200304181146.h3IBkOx06987@devserv.devel.redhat.com>
-Subject: Re: Linux 2.5.67-ac2: ide reset issue
-To: rain.wang@mic.com.tw (rain.wang)
-Date: Fri, 18 Apr 2003 07:46:24 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), axboe@suse.de (Jens Axboe),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3E9F9440.7F7CBDC8@mic.com.tw> from "rain.wang" at Ebr 18, 2003 01:59:28 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Apr 2003 08:05:00 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30412
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263018AbTDRME7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 08:04:59 -0400
+Subject: Re: Subtle semantic issue with sleep callbacks in drivers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Greg KH <greg@kroah.com>, John Bradford <john@grabjohn.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Patrick Mochel <mochel@osdl.org>,
+       Grover Andrew <andrew.grover@intel.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030418101042.B25177@flint.arm.linux.org.uk>
+References: <20030417150926.GA25402@gtf.org>
+	 <200304171547.h3HFljoK000140@81-2-122-30.bradfords.org.uk>
+	 <20030418073754.GA2753@kroah.com>
+	 <20030418101042.B25177@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050664711.1218.2.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 18 Apr 2003 12:18:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     I don't know if there's enough reason to change reset semantics
-> now to wait for completion, so that the next call be free of race.
-> and  I once had a simpler fix to let it delay another 50ms, that works
-> on my box but seems not a thorough one. does it help?
+On Gwe, 2003-04-18 at 10:10, Russell King wrote:
+> On Fri, Apr 18, 2003 at 12:37:54AM -0700, Greg KH wrote:
+> > PCI Hotplug does not support video cards for just this reason.
+> 
+> /me points at the Mobility Electronics EV1000 Cardbus-PCI widget
+> with a ATI Rage VGA device.  Ok, it's hot-pluggable, but it'd be
+> nice to work out a way to support it.
 
-BWGROUP(drive)->busy should never reach zero until the reset is
-done. The 50mS miught be enough that this occurs, as might waiting
-for HWGROUP(drive)->busy hitting 0. I don't yet understand why it
-matters, and to fix it properly I have to figure that out.
-
-If you need reliable reset for something like a test harness, or
-IDE drive tester its a usable workaround, but I need to fix it
-properly (eventually)
-
-> +			/* wait for another 50ms */
-> +			mdelay(50);
-
-In your test set is HWGROUP(drive)->busy always zero after the
-mdelay ?
+2.4 PCI hotplug correctly supports switching frame buffer on a plug
+event. Who broke it 8) ?
 

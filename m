@@ -1,57 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267773AbTGTTUl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 15:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267844AbTGTTUl
+	id S267844AbTGTT0r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 15:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267852AbTGTT0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 15:20:41 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:7861 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267773AbTGTTUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 15:20:40 -0400
-Message-ID: <3F1AD2AA.9010603@cornell.edu>
-Date: Sun, 20 Jul 2003 13:34:34 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
-X-Accept-Language: en-us, en
+	Sun, 20 Jul 2003 15:26:47 -0400
+Received: from indianer.linux-kernel.at ([212.24.125.53]:58601 "EHLO
+	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
+	id S267844AbTGTT0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 15:26:46 -0400
+Message-Id: <200307201939.h6KJdqxs005419@indianer.linux-kernel.at>
+From: Oliver Pitzeier <oliver@linux-kernel.at>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Makefile 'rpm' target on Red Hat (8.0/9)
+Date: Sun, 20 Jul 2003 21:40:23 +0200
+Organization: Linux Kernel Austria
+X-Mailer: Oracle Outlook Connector 3.4 40812
 MIME-Version: 1.0
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6-test1 startup messages?
-References: <20030720140035.GC20163@rdlg.net>
-In-Reply-To: <20030720140035.GC20163@rdlg.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary=-------18644ec818644ec8
+X-MailScanner-Information: Please contact your Internet E-Mail Service Provider for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamScore: s
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert L. Harris wrote:
-> 
->   I just converted a box to 2.6-test1.  I've installed the module-init-tools
-> per another thread on the list.  Spread throughout the startup messages
-> of the system (Debian Unstable) are messages that read:
-> 
-> FATAL: Module /dev/tts not found
-> FATAL: Module /dev/tts not found
-> FATAL: Module /dev/ttsS?? not found
-> FATAL: Module /dev/ttsS?? not found
-> 
-> looking at /dev/tty* I have /dev/tty, /dev/tty0-tty63.  There is no
-> /dev/ttyS0 (serial console) or tts*.
->
 
-Are you using devfs?
-I get the same messages with devfs.
-Looking up a /dev file that does not presently exist
-or have a corresponding module results in the above warnings.
-At boot time, on a redhat distro pam_console_apply tries to lookup
-the devices specified in /etc/security/console.perms, which causes a 
-zillion warnings for me. The question is - are those warnings to correct 
-way to handle a devfs lookup of a nonexisting device. I don't remember 
-getting warnings under 2.4. Maybe I did, and just didn't notice (but I 
-doubt it). They're certainly annoying and I don't like them.
+This is a multi-part message in MIME format
 
-P.S. Not a kernel developer - just a tester :)
+---------18644ec818644ec8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+Hi folks!
 
+Since Red Hat moved options like '-ta', '-ba' (all the _build_ targets) awa=
+y from the command 'rpm' to 'rpmbuild', the 'rpm' target is 'broken' (this =
+is true for - at least - 2.4.19 'til 2.4.21-pre5). This is of course not a =
+really big bug, but it also can be easily solved, by simply changing 'rpm -=
+ta' to 'rpmbuild -ta'.
+
+I'm not sure about other distributions like SuSE, Mandrake...
+
+If 'rpmbuild' doesn't work on other rpm-based distributions (like the two a=
+bove) I would recommend checking for /etc/redhat-release... Patch for Makef=
+ile (from kver 2.4.21-pre5) attached.
+
+Best regards,
+ Oliver
+
+---------18644ec818644ec8
+Content-Type: application/octet-stream; name=Makefile.patch
+Content-Disposition: attachment; filename=Makefile.patch
+Content-Transfer-Encoding: base64
+
+LS0tIE1ha2VmaWxlLm9sZCAgICAgICAgMjAwMy0wNy0yMCAyMToxNDo1OS4wMDAwMDAwMDAg
+KzAyMDANCisrKyBNYWtlZmlsZSAgICAyMDAzLTA3LTIwIDIxOjM2OjQ3LjAwMDAwMDAwMCAr
+MDIwMA0KQEAgLTEzLDYgKzEzLDkgQEANCiAgICAgICAgICBlbHNlIGVjaG8gc2g7IGZpIDsg
+ZmkpDQogVE9QRElSIDo9ICQoc2hlbGwgL2Jpbi9wd2QpDQoNCitSUE0gOj0gJChzaGVsbCBp
+ZiBbIC1mIC9ldGMvcmVkaGF0LXJlbGVhc2UgXTsgdGhlbiBlY2hvIHJwbWJ1aWxkOyBcDQor
+ICAgICAgICAgZWxzZSBlY2hvIHJwbTsgZmkpDQorDQogSFBBVEggICAgICAgICAgPSAkKFRP
+UERJUikvaW5jbHVkZQ0KIEZJTkRIUEFUSCAgICAgID0gJChIUEFUSCkvYXNtICQoSFBBVEgp
+L2xpbnV4ICQoSFBBVEgpL3Njc2kgJChIUEFUSCkvbmV0ICQoSFBBVEgpL21hdGgtZW11DQoN
+CkBAIC00Myw3ICs0Niw4IEBADQoNCiBleHBvcnQgVkVSU0lPTiBQQVRDSExFVkVMIFNVQkxF
+VkVMIEVYVFJBVkVSU0lPTiBLRVJORUxSRUxFQVNFIEFSQ0ggXA0KICAgICAgICBDT05GSUdf
+U0hFTEwgVE9QRElSIEhQQVRIIEhPU1RDQyBIT1NUQ0ZMQUdTIENST1NTX0NPTVBJTEUgQVMg
+TEQgQ0MgXA0KLSAgICAgICBDUFAgQVIgTk0gU1RSSVAgT0JKQ09QWSBPQkpEVU1QIE1BS0Ug
+TUFLRUZJTEVTIEdFTktTWU1TIE1PREZMQUdTIFBFUkwNCisgICAgICAgQ1BQIEFSIE5NIFNU
+UklQIE9CSkNPUFkgT0JKRFVNUCBNQUtFIE1BS0VGSUxFUyBHRU5LU1lNUyBNT0RGTEFHUyBQ
+RVJMIFwNCisgICAgICAgUlBNDQoNCiBhbGw6ICAgZG8taXQtYWxsDQoNCkBAIC01NzAsNSAr
+NTc0LDUgQEANCiAgICAgICAgcm0gJChLRVJORUxQQVRIKSA7IFwNCiAgICAgICAgY2QgJChU
+T1BESVIpIDsgXA0KICAgICAgICAuIHNjcmlwdHMvbWt2ZXJzaW9uID4gLnZlcnNpb24gOyBc
+DQotICAgICAgIHJwbSAtdGEgJChUT1BESVIpLy4uLyQoS0VSTkVMUEFUSCkudGFyLmd6IDsg
+XA0KKyAgICAgICAkKFJQTSkgLXRhICQoVE9QRElSKS8uLi8kKEtFUk5FTFBBVEgpLnRhci5n
+eiA7IFwNCiAgICAgICAgcm0gJChUT1BESVIpLy4uLyQoS0VSTkVMUEFUSCkudGFyLmd6DQo=
+
+---------18644ec818644ec8--
 

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265038AbSJWPMh>; Wed, 23 Oct 2002 11:12:37 -0400
+	id <S265039AbSJWPP6>; Wed, 23 Oct 2002 11:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265045AbSJWPMh>; Wed, 23 Oct 2002 11:12:37 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:9111 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265038AbSJWPMf> convert rfc822-to-8bit;
-	Wed, 23 Oct 2002 11:12:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Nivedita Singhvi <niv@us.ibm.com>, bert hubert <ahu@ds9a.nl>
-Subject: O_DIRECT sockets? (was [RESEND] tuning linux for high network performance?)
-Date: Wed, 23 Oct 2002 17:26:21 +0200
-User-Agent: KMail/1.4.1
-Cc: netdev@oss.sgi.com, Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200210231218.18733.roy@karlsbakk.net> <20021023130101.GA646@outpost.ds9a.nl> <3DB6B96F.A0DE47BF@us.ibm.com>
-In-Reply-To: <3DB6B96F.A0DE47BF@us.ibm.com>
+	id <S265045AbSJWPP6>; Wed, 23 Oct 2002 11:15:58 -0400
+Received: from 62-190-219-129.pdu.pipex.net ([62.190.219.129]:17668 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S265039AbSJWPP6>; Wed, 23 Oct 2002 11:15:58 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210231531.g9NFVU0w000243@darkstar.example.net>
+Subject: Re: 2.5 Problem Report Status
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 23 Oct 2002 16:31:30 +0100 (BST)
+Cc: tmolina@cox.net, erik@debill.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1035386743.4033.61.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Oct 23, 2002 04:25:43 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210231726.21135.roy@karlsbakk.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 October 2002 16:59, Nivedita Singhvi wrote:
-> bert hubert wrote:
-> > > ...adding the whole profile output - sorted by the first column this
-> > > time...
-> > >
-> > > 905182 total                                      0.4741
-> > > 121426 csum_partial_copy_generic                474.3203
-> > >  93633 default_idle                             1800.6346
-> > >  74665 do_wp_page                               111.1086
-> >
-> > Perhaps the 'copy' also entails grabbing the page from disk, leading to
-> > inflated csum_partial_copy_generic stats?
->
-> I think this is strictly a copy from user space->kernel and vice versa.
-> This shouldnt include the disk access etc.
+> > definitely wrong, because I can actually hear the disk spindown for a
+> > fraction of a second, then spin up again, (at least with 2.5.43, so
+> > far not with 2.5.44).
+> 
+> Someone broke the power management code. When they fix it then I expect
+> the IDE powerdown stuff will behave better again. If you had scsi then
+> the scsi stuff may have been what broke it all.
 
-hm
+Ah, right, OK.  On the subject of SCSI, recent 2.5.x kernels have
+caused the SCSI bus activity LED on my Adaptec 2940AU to stay on after
+powerdown as well, is this related?
 
-I'm doing O_DIRECT read (from disk), so it needs to be user -> kernel, then.
-
-any chance of using O_DIRECT to the socket?
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+John.

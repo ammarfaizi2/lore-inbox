@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136730AbRECKoX>; Thu, 3 May 2001 06:44:23 -0400
+	id <S136751AbRECKrn>; Thu, 3 May 2001 06:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136751AbRECKoN>; Thu, 3 May 2001 06:44:13 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7942 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136730AbRECKoD>; Thu, 3 May 2001 06:44:03 -0400
-Subject: Re: T/TCP
-To: patrizio@dada.it (Patrizio Bruno)
-Date: Thu, 3 May 2001 11:48:00 +0100 (BST)
+	id <S136752AbRECKrd>; Thu, 3 May 2001 06:47:33 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:16650 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S136751AbRECKrQ>;
+	Thu, 3 May 2001 06:47:16 -0400
+Date: Thu, 3 May 2001 12:46:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Shaun <delius@progsoc.uts.edu.au>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105031223540.18099-100000@blacksheep.at.dada.it> from "Patrizio Bruno" at May 03, 2001 12:33:13 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: Disk Performance Measurements
+Message-ID: <20010503124647.F16507@suse.de>
+In-Reply-To: <20010502124445.J25336@suse.de> <Pine.LNX.4.21.0105030750410.10591-100000@ftoomsh.progsoc.uts.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14vGeS-0005Lu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0105030750410.10591-100000@ftoomsh.progsoc.uts.edu.au>; from delius@progsoc.uts.edu.au on Thu, May 03, 2001 at 07:59:53AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the T/TCP concept, but I sadly found that the linux's tcp/ip stack doesn't
-> support it, basing on what stevens says, that's because of a buggy tcp/ip
-> implementation, infact the standard tcp/ip should can send
+On Thu, May 03 2001, Shaun wrote:
+> Again, this isn't the case in the 2.2.16 kernel I'm working with. Each
+> call to make_request() causes pgin/pgout to be incremented, since these
+> requests can be of different sizes (even for the same disk) I can't see
+> how a kb value can be deduced. 
 
-People have since shown T/TCP has other problems and to my knowledge nobody
-has bothered to do the work to improve the protocol. T/TCP also contrary to
-a lot of belief does involve violating the original TCP specification and
-sending data into an unadvertisd and possibly zero window.
+Check if the latest 2.2 is correct then, 2.4 is.
 
-Alan
+> Just as a question though, a disk/partition doesn't need to have a
+> filesystem on it, so why is the "correct_size" for a buffer request on the
+> block device defined based on a filesystem block system? 
+
+It's not, but the fs may set the block size (ext2 does).
+
+-- 
+Jens Axboe
 

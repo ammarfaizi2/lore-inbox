@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131409AbRCUJyX>; Wed, 21 Mar 2001 04:54:23 -0500
+	id <S131260AbRCUKFx>; Wed, 21 Mar 2001 05:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131408AbRCUJyN>; Wed, 21 Mar 2001 04:54:13 -0500
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:26108 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S131407AbRCUJx5>; Wed, 21 Mar 2001 04:53:57 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103210951.f2L9pot18383@webber.adilger.int>
-Subject: Re: Question about memory usage in 2.4 vs 2.2
-In-Reply-To: <20010321172800.A11353@comp.nus.edu.sg> from Zou Min at "Mar 21,
- 2001 05:28:00 pm"
-To: Zou Min <zoum@comp.nus.edu.sg>
-Date: Wed, 21 Mar 2001 02:51:49 -0700 (MST)
-CC: Rik van Riel <riel@conectiva.com.br>, Josh Grebe <squash@primary.net>,
-        Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S131262AbRCUKFo>; Wed, 21 Mar 2001 05:05:44 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:32707 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131260AbRCUKFh>; Wed, 21 Mar 2001 05:05:37 -0500
+Date: Wed, 21 Mar 2001 10:04:23 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org,
+        Will Newton <will@misconception.org.uk>
+Subject: Re: VIA audio and parport in 2.4.2
+Message-ID: <20010321100423.P12081@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0103171951340.440-100000@mikeg.weiden.de> <Pine.LNX.4.33.0103190015080.8534-100000@dogfox.localdomain> <20010318192221.A27150@redhat.com> <3AB82C36.C807B787@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="UJhykcm+BCcdfd3/"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AB82C36.C807B787@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, Mar 20, 2001 at 11:21:10PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zou Min writes:
-> Then how to interpret slabinfo in 2.2.16 box? 
-> e.g. grep cache /proc/slabinfo
-> 
-> kmem_cache            32     42
-> skbuff_head_cache   2676   2730
-> dentry_cache       15626  16988
-> files_cache          103    108
-> uid_cache             10    127
-> slab_cache            85    126
-> 
-> what does those numbers mean?
 
-First number is in-use objects in that cache, second number is
-currently-allocated objects in that cache.
+--UJhykcm+BCcdfd3/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Furthermore, are those cache info above reported as part of the total
-> cache in /proc/meminfo ? 
+On Tue, Mar 20, 2001 at 11:21:10PM -0500, Jeff Garzik wrote:
 
-Don't know.
+> The current Via-specific parport_pc.c code forces on the best possible
+> parallel port modes the chip can handle.  In retrospect, what it should
+> be doing is reading the configuration BIOS has set up, and not touching
+> it.
 
-> Lastly, which cache can be reclaimed, and which can't?
+Yes, I think you are right.
 
-Slab cache will shrink if there are whole pages which are empty (it may
-be that they have to be at the end of the cache).  It is hard to tell
-from the above numbers if any of the caches could shrink, because it
-depends on the number of objects per page, and if there are any whole
-pages without allocated objects.
+> I am not sure that I agree, however, that an "irq=none" on the kernel
+> cmd line should affect the operation of the Via code.  I would much
+> rather fix the Via code as I suggest above.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+irq=none should definitely be honoured, or else the user has to reboot
+in order to debug problems with printing.  The user's io=, irq= and
+dma= settings should always be honoured. IMHO.
+
+When irq=auto, the BIOS settings should be used.
+
+Case in point: until very recently there was a bad problem in the
+irq-driven printing path.  But only people with Via chipsets were
+reporting it, and it didn't go away with 'irq=none' (which parport.txt
+says to do in order to trouble-shoot).  It makes Via chipsets the
+exception, and it's confusing IMHO (it confused me, anyhow).
+
+Tim.
+*/
+
+--UJhykcm+BCcdfd3/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6uHymONXnILZ4yVIRApohAJ4ka7ZnTSjHMZkaG6Hs+rHCtMviSQCdE1NP
+WWfbgAXhem32s9SaGMQfIjk=
+=ojRc
+-----END PGP SIGNATURE-----
+
+--UJhykcm+BCcdfd3/--

@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273834AbRIREzr>; Tue, 18 Sep 2001 00:55:47 -0400
+	id <S273836AbRIRE5h>; Tue, 18 Sep 2001 00:57:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273835AbRIREzi>; Tue, 18 Sep 2001 00:55:38 -0400
-Received: from mail.direcpc.com ([198.77.116.30]:46497 "EHLO
-	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
-	id <S273834AbRIREz1>; Tue, 18 Sep 2001 00:55:27 -0400
-Message-ID: <3BA6D4C0.1010309@ix.netcom.com>
-Date: Tue, 18 Sep 2001 00:59:44 -0400
-From: Jeffrey Ingber <jhingber@ix.netcom.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010816
-X-Accept-Language: en-us
+	id <S273835AbRIRE51>; Tue, 18 Sep 2001 00:57:27 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:44042 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273837AbRIRE5N>; Tue, 18 Sep 2001 00:57:13 -0400
+Date: Tue, 18 Sep 2001 00:33:15 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <20010918065423.W698@athlon.random>
+Message-ID: <Pine.LNX.4.21.0109180031210.7152-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, xpert@XFree86.org, alan@lxorguk.ukuu.org.uk
-Subject: [FIXED] Random Sig'11 in XF864 with kernel > 2.2.x
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem mentioned in the following threads:
 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0109.1/0932.html
-http://www.xfree86.org/pipermail/xpert/2001-September/011055.html
-http://www.xfree86.org/pipermail/xpert/2001-September/011230.html
+On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
 
-Is fixed in at least 2.4.9-ac10.  I haven't been a regular user of the 
--ac series so I can't say when exactly this was fixed.  However, this 
-problem still persists in Linus 2.4.10-pre10.  Can anyone who chimed in 
-with similar problems to mine try said kernel (2.4.9-ac10) and provide 
-any feedback?  It would excellent if the exact fix could be identified.
+> On Mon, Sep 17, 2001 at 11:53:10PM -0300, Marcelo Tosatti wrote:
+> > Don't you agree that your code can introduce new stability bugs ?
+> 
+> not anything that can corrupt randomly your hd.
 
-Thanks,
-Jeffrey H. Ingber (jhingber _at_ ix.netcom.com)
+Sure, the old code did not corrupt hd's randomly, did it?
 
-
-
- > The random Sig 11's are observed in the stock XFree86 4.x drivers with
- > none of the 'extras' enabled, such as DRI on several sets of video cards
- > (Matrox and ATI). I can run both UP and SMP kernels in the 2.2 series
- > and 2.4 UP kernels with unlimited uptimes. However, switching to a 2.4
- > SMP kernel will cause random Sig 11's in X, seemingly irregardless of
- > video card/vendor.=20
-
-I'm aware of the reports. Its very hard to figure out what might be
-involved. Later 2.4 kernels we have fixed the odd possible candidate where
-segment registers or LDT propogation on SMP might go awry but nothing that
-really explains the X11 ones and whether they are PCI/AGP setup , power
-management or kernel bug triggered
-
-Alan
+Let me redo the question: Don't you think the old stinky and slow code was
+reasonably stable ? :) 
 
 

@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSGUNaC>; Sun, 21 Jul 2002 09:30:02 -0400
+	id <S315779AbSGUNec>; Sun, 21 Jul 2002 09:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315611AbSGUNaB>; Sun, 21 Jul 2002 09:30:01 -0400
-Received: from tomts19.bellnexxia.net ([209.226.175.73]:35279 "EHLO
-	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S315413AbSGUNaB>; Sun, 21 Jul 2002 09:30:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
-Date: Sun, 21 Jul 2002 09:33:01 -0400
+	id <S315805AbSGUNec>; Sun, 21 Jul 2002 09:34:32 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:49039 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315779AbSGUNeb> convert rfc822-to-8bit; Sun, 21 Jul 2002 09:34:31 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+To: linux-kernel@vger.kernel.org
+Subject: heavy Disk I/O and system stops reacting for seconds
+Date: Sun, 21 Jul 2002 15:37:23 +0200
 X-Mailer: KMail [version 1.4]
-Cc: linux-mm@kvack.org
-References: <Pine.LNX.4.44.0207210245080.6770-100000@loke.as.arizona.edu>
-In-Reply-To: <Pine.LNX.4.44.0207210245080.6770-100000@loke.as.arizona.edu>
+Organization: Linux-Systeme GmbH
+X-PRIORITY: 2 (High)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207210933.01211.tomlins@cam.org>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207211537.03813.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On July 21, 2002 07:24 am, Craig Kulesa wrote:
+Hi there,
 
-> This patch is intermediate between where we were (freeing slab caches
-> blindly and not in tune with the rest of the VM), and where we want to be
-> (cache pruning by page as we scan the active list looking for cold pages
-> to deactivate).  Uhhh, well, I *think* that's where we want to be.  :)
->
-> How do we get there?
->
-> Given a slab page, I can find out what cachep and slab I'm dealing with
-> (via GET_PAGE_SLAB and friends).  If the cache is prunable one,
-> cachep->pruner tells me what kind of callback (dcache/inode/dquot) I
-> should invoke to prune the page.  No problem.
->
-> The trouble comes when we try to replace shrink_dcache_memory() and
-> friends with slab-aware pruners.  Namely, how to teach those
-> inode/dcache/dquot callbacks to free objects belonging to a *specified*
-> page or slab?  If I have a dentry slab, I'd like to try to liberate
-> *those* dentries, not some random ones like shrink_dcache_memory does now.
+I think someone else notices this too, but anyway, i write down my 
+experiences.
 
-Well not quite random.  It prunes the oldest entries.  The idea behind the prunable
-callback is that some caches have specific aging methods.   What I tried to do here
-was keep the rate of aging in sync with the VM.  
+I've tested 2.4.19rc[1|2|3], AC tree, AA tree, jam tree and mjc tree
+All of them shows up the same behaviour. If i do some disk i/o, f.e.:
 
-> I'm still trying to figure out how to make that work.  Or is that
-> totally the wrong approach?  Thoughts?  ;)
+tar xzpf linux-2.4.18.tar.gz; rm -rf linux-2.4.18
 
-Thats a question I have asked myself too.  What could be done is,  scan the 
-entries in the slab encountered, using a call back, free them if they are purgeable.
-If this ends up producing an empty slab, release it.
+the system stopps reacting while untar/ungzipping the file for more than 5 
+seconds. Nothing but the mouse reacts. This does NOT occur with 2.4.18 and 
+early 2.4.19-pre's ...
 
->Intermezzo has a funky dentry cache that may need a pruner method (??), 
->but I didn't touch it.  If there was a better way to do this, I was too 
->blind to see it.  
+System is a Celeron 800MHz, 256 MB RAM, EIDE UDMA100 Intel BX440 running ext3 
+filesystem.
 
-Looking at the Intermezzo dcache code, I think you made the right choise.
-I do not think this needs a pruner method.
+If you need more informations tell me what and I provide them.
+If this is already fixed by someone, please tell me :-)
 
-Ed Tomlinson
+Please CC, i am not subscribed!
 
+-- 
+Kind regards
+        Marc-Christian Petersen
 
+http://sourceforge.net/projects/wolk
 
+PGP/GnuPG Key: 1024D/408B2D54947750EC
+Fingerprint: 8602 69E0 A9C2 A509 8661 2B0B 408B 2D54 9477 50EC
+Key available at www.keyserver.net. Encrypted e-mail preferred.

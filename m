@@ -1,137 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbUCMCHh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 21:07:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUCMCHh
+	id S262800AbUCMCMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 21:12:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbUCMCMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 21:07:37 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:45557 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262638AbUCMCHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 21:07:33 -0500
-Message-ID: <40526CE3.7000509@acm.org>
-Date: Fri, 12 Mar 2004 20:07:31 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Race in signal handling with reproducer program
-References: <404F8FDE.3050305@acm.org>
-In-Reply-To: <404F8FDE.3050305@acm.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 21:12:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55752 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262800AbUCMCMM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 21:12:12 -0500
+Date: Fri, 12 Mar 2004 18:12:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: thockin@Sun.COM, linux-kernel@vger.kernel.org
+Subject: Re: calling flush_scheduled_work()
+Message-Id: <20040312181214.15316729.akpm@osdl.org>
+In-Reply-To: <1079140670.3166.87.camel@lade.trondhjem.org>
+References: <20040312205814.GY1333@sun.com>
+	<20040312152747.0b3f74d3.akpm@osdl.org>
+	<1079140670.3166.87.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a program to reproduce this problem.  The attached program will 
-segv pretty quickly on 2.4 and 2.6 kernels on SMP machines, and I assume 
-this is possible (although less likely) with preempt on a uniprocessor 
-(I could not reproduce the problem that way, but I didn't try very 
-hard).  It ends up crashing because the program counter is set to 
-0x00000001, not surprisingly the value of SIG_IGN.  Just to test and see 
-if the program was ok, I changed the SIG_IGN to a second signal handler 
-function and everything worked ok, so I think the program is valid.
-
-The program below has three threads that share signal handlers.  Thread 
-1 changes the signal handler for a signal from a handler to SIG_IGN and 
-back.  Thread 0 sends signals to thread 3, which just receives them.  
-What I believe is happening is that thread 1 changes the signal handler 
-in the process of thread 3 receiving the signal, between the time that 
-thread 3 fetches the signal info using get_signal_to_deliver() and 
-actually delivers the signal with handle_signal().
-
-Although the program is obvously an extreme case, it seems like any time 
-you set the handler value of a signal to SIG_IGN or SIG_DFL, you can 
-have this happen.  Changing signal attributes might also cause problems, 
-although I am not so sure about that.
-
-Has anyone seen this?  Is there a fix available?  It seems to me that to 
-fix this properly, get_signal_to_deliver() would have to return all the 
-information about the signal delivery and that's a pretty major change 
-that would affect all architectures.
-
-The program....
-
-#include <signal.h>
-#include <stdio.h>
-#include <sched.h>
-
-char stack1[4096];
-char stack2[4096];
-
-void
-sighnd(int sig)
-{
-}
-
-int
-child1(void *data)
-{
-  struct sigaction act;
-
-  sigemptyset(&act.sa_mask);
-  act.sa_flags = 0;
-  for (;;) {
-    act.sa_handler = sighnd;
-    sigaction(45, &act, NULL);
-    act.sa_handler = SIG_IGN;
-    sigaction(45, &act, NULL);
-  }
-}
-
-int
-child2(void *data)
-{
-  for (;;) {
-    sleep(100);
-  }
-}
-
-int
-main(int argc, char *argv[])
-{
-  int pid1, pid2;
-
-  signal(45, SIG_IGN);
-  pid2 = clone(child2, stack2+4092, CLONE_SIGHAND | CLONE_VM, NULL);
-  pid1 = clone(child1, stack1+4092, CLONE_SIGHAND | CLONE_VM, NULL);
-
-  for (;;) {
-    kill(pid2, 45);
-  }
-}
-
-Corey Minyard wrote:
-
-> I'm hoping I am wrong, but I think I have found a race in signal 
-> handling.  I believe this can only happen in an SMP system or a system 
-> with preempt on.  I'll use 2.6 for the example, but I think it applies 
-> to 2.4, too.
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 >
-> In arch/i386/signal.c, in the do_signal() function, it calls 
-> get_signal_to_deliver() which returns the signal number to deliver 
-> (along with siginfo).  get_signal_to_deliver() grabs and releases the 
-> lock, so the signal handler lock is not held in do_signal().  Then the 
-> do_signal() calls handle_signal(), which uses the signal number to 
-> extract the sa_handler, etc.
->
-> Since no lock is held, it seems like another thread with the same 
-> signal handler set can come in and call sigaction(), it can change 
-> sa_handler between the call to get_signal_to_deliver() and fetching 
-> the value of sa_handler.  If the sigaction() call set it to SIG_IGN, 
-> SIG_DFL, or some other fundamental change, that bad things can happen.
->
-> Am I correct here, or am I missing something?
->
-> -Corey
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> På fr , 12/03/2004 klokka 18:27, skreiv Andrew Morton:
+> > Seems simple enough to fix the workqueue code to handle this situation.
+> > 
+> > Wanna test this for me?
+> 
+> What if one of the workloads on the queue has another call to
+> flush_scheduled_work()? (which again finds itself calling another
+> instance, ...)
+
+I fixed that with the old solution-via-changelog:
 
 
+  Because keventd is a resource which is shared between unrelated parts
+  of the kernel it is possible for one person's workqueue handler to
+  accidentally call another person's flush_scheduled_work().  thockin
+  managed it by calling mntput() from a workqueue handler.  It deadlocks.
+
+  It's simple enough to fix: teach flush_scheduled_work() to go direct
+  when it discovers that the calling thread is the one which should be
+  running the work.
+
+  Note that this can cause recursion.  The depth of that recursion is
+  equal to the number of currently-queued works which themselves want to
+  call flush_scheduled_work().  If this ever exceeds three I'll eat my hat.
+
+
+Really, it's so unlikely it's hardly worth bothering about.
+
+> This fix doesn't really resolve the deadlock issue. It just reduces the
+> possibilities of it having any consequences...
+> 
+> Could you please at least include a dump_stack() before the call to
+> run_workqueue()) so that we can catch the bug in the act, and attempt to
+> fix it.
+
+How's this?
+
+
+
+Add a debug check for workqueues nested more than three deep via the
+direct-run-workqueue() path.
+
+
+---
+
+ 25-akpm/kernel/workqueue.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
+
+diff -puN kernel/workqueue.c~flush_scheduled_work-recursion-detect kernel/workqueue.c
+--- 25/kernel/workqueue.c~flush_scheduled_work-recursion-detect	2004-03-12 17:54:32.859424968 -0800
++++ 25-akpm/kernel/workqueue.c	2004-03-12 18:11:09.939845704 -0800
+@@ -47,6 +47,7 @@ struct cpu_workqueue_struct {
+ 	struct workqueue_struct *wq;
+ 	task_t *thread;
+ 
++	int run_depth;		/* Detect run_workqueue() recursion depth */
+ } ____cacheline_aligned;
+ 
+ /*
+@@ -140,6 +141,13 @@ static inline void run_workqueue(struct 
+ 	 * done.
+ 	 */
+ 	spin_lock_irqsave(&cwq->lock, flags);
++	cwq->run_depth++;
++	if (cwq->run_depth > 3) {
++		/* morton gets to eat his hat */
++		printk("%s: recusrion depth exceeded: %d\n",
++			__FUNCTION__, cwq->run_depth);
++		dump_stack();
++	}
+ 	while (!list_empty(&cwq->worklist)) {
+ 		struct work_struct *work = list_entry(cwq->worklist.next,
+ 						struct work_struct, entry);
+@@ -157,6 +165,7 @@ static inline void run_workqueue(struct 
+ 		cwq->remove_sequence++;
+ 		wake_up(&cwq->work_done);
+ 	}
++	cwq->run_depth--;
+ 	spin_unlock_irqrestore(&cwq->lock, flags);
+ }
+ 
+@@ -286,6 +295,7 @@ struct workqueue_struct *create_workqueu
+ 	wq = kmalloc(sizeof(*wq), GFP_KERNEL);
+ 	if (!wq)
+ 		return NULL;
++	memset(wq, 0, sizeof(*wq));
+ 
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		if (!cpu_online(cpu))
+
+_
 

@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133005AbRDST2C>; Thu, 19 Apr 2001 15:28:02 -0400
+	id <S133022AbRDSTb2>; Thu, 19 Apr 2001 15:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133009AbRDST1I>; Thu, 19 Apr 2001 15:27:08 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:49290 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S133005AbRDST1G>;
-	Thu, 19 Apr 2001 15:27:06 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Abramo Bagnara <abramo@alsa-project.org>, Alon Ziv <alonz@nolaviz.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mike Kravetz <mkravetz@sequent.com>
-Subject: Re: light weight user level semaphores
-In-Reply-To: <Pine.LNX.4.31.0104191036220.5052-100000@penguin.transmeta.com>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 19 Apr 2001 12:26:03 -0700
-In-Reply-To: Linus Torvalds's message of "Thu, 19 Apr 2001 10:38:34 -0700 (PDT)"
-Message-ID: <m3ofts3d4k.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+	id <S133018AbRDSTbS>; Thu, 19 Apr 2001 15:31:18 -0400
+Received: from m646-mp1-cvx1b.col.ntl.com ([213.104.74.134]:17280 "EHLO
+	[213.104.74.134]") by vger.kernel.org with ESMTP id <S133009AbRDSTau>;
+	Thu, 19 Apr 2001 15:30:50 -0400
+To: Patrick Mochel <mochel@transmeta.com>
+Cc: "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Next gen PM interface
+In-Reply-To: <Pine.LNX.4.10.10104191206100.7690-100000@nobelium.transmeta.com>
+From: John Fremlin <chief@bandits.org>
+Date: 19 Apr 2001 20:30:41 +0100
+In-Reply-To: <Pine.LNX.4.10.10104191206100.7690-100000@nobelium.transmeta.com>
+Message-ID: <m2vgo0offi.fsf@bandits.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Solid Vapor)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Patrick Mochel <mochel@transmeta.com> writes:
 
-> Looks good to me. Anybody want to try this out and test some benchmarks?
+[...]
 
-I fail to see how this works across processes.  How can you generate a
-file descriptor for this pipe in a second process which simply shares
-some memory with the first one?  The first process is passive: no file
-descriptor passing must be necessary.
+> > > I can see at least two types of events - (forgive the lack of colorful
+> > > terminology) passive and active. Passive events are simply providing
+> > > status updates, much like the events described above. These are simply so
+> > > some UI can notify the user of things like a low battery or detection of
+> > > an AC adapter. These can be handled in much the same way as described
+> > > above.
+> > 
+> > No they can't. They only happen once. Battery status exists all the
+> > time.
+> 
+> Yes they can. My point was they can be handled from userspace in the
+> same way that battery status does - by doing a select on a file in
+> /proc or /dev. Once in a while (or constantly) they get data from
+> the kernel - battery status, AC change, etc - that can be then
+> translated and displayed in the UI.
 
-How these things are working elsewhere is that a memory address
-(probably a physical address) is used as a token.  The semaphore
-object is placed in the memory shared by the processes and the virtual
-address is passed in the syscall.
+I think these events have a generic utility not specific to UIs. In
+particular, when ones battery is running out, one would quite like the
+event manager to be notified. As is currently the case with e.g. apmd.
 
-Note that semaphores need not always be shared between processes.
-This is a property the user has to choose.  So the implementation can
-be easier in the normal intra-process case.
+Polling on battery charge left or battery voltage/current is different
+from this, surely? Why should such programs have to be notified that
+the battery was low? The event itself is pretty useless if you're
+doing polling but there is no point throwing it away, in case you
+aren't.
 
-In any case all kinds of user-level operations are possible as well
-and all the schemes suggested for dealing with the common case without
-syscalls can be applied here as well.
+[...]
 
 -- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+
+	http://www.penguinpowered.com/~vii

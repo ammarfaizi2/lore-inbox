@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132338AbRDFTmF>; Fri, 6 Apr 2001 15:42:05 -0400
+	id <S132385AbRDFUBK>; Fri, 6 Apr 2001 16:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132352AbRDFTl4>; Fri, 6 Apr 2001 15:41:56 -0400
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:16036 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S132338AbRDFTlt>; Fri, 6 Apr 2001 15:41:49 -0400
-Date: Fri, 6 Apr 2001 12:40:36 -0700 (PDT)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>, <majer@endeca.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: memory allocation problems
-In-Reply-To: <Pine.LNX.4.10.10104061433030.19450-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.30.0104061227240.25381-100000@mf1.private>
+	id <S132389AbRDFUBB>; Fri, 6 Apr 2001 16:01:01 -0400
+Received: from mx.interplus.ro ([193.231.252.3]:6662 "EHLO mx.interplus.ro")
+	by vger.kernel.org with ESMTP id <S132385AbRDFUAs>;
+	Fri, 6 Apr 2001 16:00:48 -0400
+Message-ID: <3ACE2095.BE3A4E6D@interplus.ro>
+Date: Fri, 06 Apr 2001 23:01:25 +0300
+From: Mircea Ciocan <mirceac@interplus.ro>
+Organization: Home Office
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac24 i686)
+X-Accept-Language: ro, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lk <linux-kernel@vger.kernel.org>
+Subject: Special packet inspecting bridging
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Apr 2001, Mark Hahn wrote:
+                Hi all,
 
-> note, though, that you *CAN* actually malloc a lot more than 1G: you
-> just have to avoid causing mmaps that chop your VM at
-> TASK_UNMAPPED_BASE:
+        I'd like to start a project involving a packet inspecting
+Ethernet
+bridge/firewall/traffic shaper that is protocol independent ( I mean no
+ties to high level protocols like TCP/IP or IPX for ex.).
+        What I want to do is get raw Ethernet packets from one
+interface, pipe
+it trough an user level program and then inject it in the other one, and
+viceversa, of course ;).
+        Please advise me of the means of doing this with minimum
+overhead
+possible, or if someone started a similar project please let me know.
 
-Neat trick.  I didn't realize that you could avoid allocating the mmap()
-buffers for stdin and stdout.
+                        Thank you,
 
-As was pointed out to me in January, another solution for i386 would be to
-fix a maximum stack size and have the mmap() allocations grow downward
-from the "top" of the stack (3GB - max stack size).  I'm not sure why that
-is not currently done.
-
-I once wrote a tiny patch to do this, and ran it successfully for a couple
-days, but knowing so little about the kernel I probably did it in a
-completely wrong, inefficient way.  For example, some of the vma
-structures are sorted in increasing address order, and so perhaps to do
-this properly one should change them to decreasing address order.
-
-Cheers,
-Wayne
-
-
+                        Mircea C.

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271359AbTGWW2l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 18:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271360AbTGWW2l
+	id S271269AbTGWW1a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 18:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271358AbTGWW1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 18:28:41 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7187 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S271359AbTGWW2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 18:28:31 -0400
-Date: Wed, 23 Jul 2003 15:35:38 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
-       Adrian Bunk <bunk@fs.tum.de>, "Adam J. Richter" <adam@yggdrasil.com>,
-       andersen@codepoet.org, jgarzik@pobox.com,
+	Wed, 23 Jul 2003 18:27:30 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:3823 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271269AbTGWW10
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 18:27:26 -0400
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Bernardo Innocenti <bernie@develer.com>, Christoph Hellwig <hch@lst.de>,
+       uClinux development list <uclinux-dev@uclinux.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-In-Reply-To: <Pine.LNX.4.44.0307240039230.717-100000@serv>
-Message-ID: <Pine.LNX.4.10.10307231534370.14556-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20030723222747.GF643@alpha.home.local>
+References: <200307232046.46990.bernie@develer.com>
+	 <20030723193246.GA836@lst.de> <200307232357.25128.bernie@develer.com>
+	 <200307240007.15377.bernie@develer.com>
+	 <20030723222747.GF643@alpha.home.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058999665.6890.19.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jul 2003 23:34:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2003-07-23 at 23:27, Willy Tarreau wrote:
+> I was interested in using a very minimal pre-boot kernel with kexec which would
+> automatically select a valid image among several ones. But 500 kB overhead for
+> a boot loader quickly refrained me...
 
-I forgot ... Hey ESR johnny get your guns we are going hunting to enforce
-GPL cause litigation is not practical.
-
-Bye,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Thu, 24 Jul 2003, Roman Zippel wrote:
-
-> Hi,
-> 
-> On Wed, 23 Jul 2003, Andre Hedrick wrote:
-> 
-> > Freedom comes from keeping all of it free.
-> > Litigation is a means to prevent the blanket theift of today.
-> > You cleary do not get it.
-> 
-> Litigation is not the only way, that's what you don't understand.
-> 
-> bye, Roman
-> 
+Something like the GPL'd eCos might be a better option (or on x86 there
+is the 64K Linux 8086)
 

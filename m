@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317434AbSGDQHq>; Thu, 4 Jul 2002 12:07:46 -0400
+	id <S313898AbSGDREK>; Thu, 4 Jul 2002 13:04:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317435AbSGDQHq>; Thu, 4 Jul 2002 12:07:46 -0400
-Received: from pophost.cs.tamu.edu ([128.194.130.106]:27355 "EHLO cs.tamu.edu")
-	by vger.kernel.org with ESMTP id <S317434AbSGDQHp>;
-	Thu, 4 Jul 2002 12:07:45 -0400
-Date: Thu, 4 Jul 2002 11:10:16 -0500 (CDT)
-From: Xinwen - Fu <xinwenfu@cs.tamu.edu>
-To: george anzinger <george@mvista.com>
-cc: root@chaos.analogic.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel timers vs network card interrupt
-In-Reply-To: <3D23FD5F.19C0DDDC@mvista.com>
-Message-ID: <Pine.SOL.4.10.10207041109300.12365-100000@dogbert>
+	id <S314325AbSGDREJ>; Thu, 4 Jul 2002 13:04:09 -0400
+Received: from vvv.conterra.de ([212.124.44.162]:12562 "EHLO vvv.conterra.de")
+	by vger.kernel.org with ESMTP id <S313898AbSGDREJ>;
+	Thu, 4 Jul 2002 13:04:09 -0400
+Message-ID: <3D24809B.2A2B51B2@conterra.de>
+Date: Thu, 04 Jul 2002 19:06:35 +0200
+From: Dieter Stueken <stueken@conterra.de>
+Organization: con terra GmbH
+X-Accept-Language: German, de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: still pdc202x problems with 2.4.19-rc1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        In fact I want a timer (either in user level or kernel level).
-This timer (hope it is a periodic timer) must expire at the interval that
-I specify. For example, if I
-want that the timer expires at 10ms, it should never be fired at
-10.0000000001ms or
-9.9999999999ms. That is the key part that I want!
+I try to run a MAXTOR 120G on a PDC (promise) controller.
+Using 2.5.19-pre10-ac2 or 2.4.19-rc1 the system does not
+hang any more during partition check, but I still can
+enforce kernel Oopses quite easily: I have large IDE disks
+(but <128Gb) on both primary/secondary and run /sbin/badblocks
+in parallel. On a quite new board with a 1Ghz-PIII I get
+an Oops/Kernel-Panic after about 5 seconds, reproducible.
+
+In order to exclude any crap hardware, I tried this with
+three different boards and with a PDC20267 and some older
+PDC20262, too. But all combinations produced some errors,
+even if the slowest board (200Mhz) took about 1 hour to fail.
+Interestingly the system seems to be much more sensible
+to the Maxtor disk. Running two IBM disk (75G and 80G) on
+both channels, it took about 20 minutes vs. 5 seconds to fail.
+Tests with the on-board IDE controllers did not fail, so far.
 
-        Have an idea?
+Sorry, I can't catch the Oops messages by now. Can some of
+the kernel gurus please try to reproduce this to find
+if it is still a bug?
 
-        Thanks!
-
-Xinwen Fu
-
-
-On Thu, 4 Jul 2002, george anzinger wrote:
-
-> "Richard B. Johnson" wrote:
-> > 
-> > On Wed, 3 Jul 2002, Xinwen - Fu wrote:
-> > 
-> > > Hi, all,
-> > >       I'm curious that if a network card interrupt happens at the same
-> > > time as the kernel timer expires, what will happen?
-> > >
-> > >       It's said the kernel timer is guaranteed accurate. But if
-> > > interrupts are not masked off, the network interrupt also should get
-> > > response when a kernel timer expires. So I don't know who will preempt
-> > > who.
-> > >
-> > >       Thanks for information!
-> > >
-> > > Xinwen Fu
-> > 
-> > The highest priority interrupt will get serviced first. It's the timer.
-> > Interrupts are serviced in priority-order. Hardware "remembers" which
-> > ones are pending so none are lost if some driver doesn't do something
-> > stupid.
-> 
-> That is true as far as it goes, HOWEVER, timers are serviced
-> by bottom half code which is run at the end of the
-> interrupt, WITH THE INTERRUPT SYSTEM ON.  Therefore, timer
-> servicing can be interrupted by an interrupt and thus be
-> delayed.
->  
-> -- 
-> George Anzinger   george@mvista.com
-> High-res-timers: 
-> http://sourceforge.net/projects/high-res-timers/
-> Real time sched:  http://sourceforge.net/projects/rtsched/
-> Preemption patch:
-> http://www.kernel.org/pub/linux/kernel/people/rml
-> 
-
+Dieter.
+-- 
+Dieter Stüken, con terra GmbH, Münster
+    stueken@conterra.de        
+    http://www.conterra.de/   
+    (0)251-7474-501

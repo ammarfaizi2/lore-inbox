@@ -1,84 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269711AbTGOVfI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 17:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269716AbTGOVfI
+	id S269439AbTGOVi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 17:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269514AbTGOVi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 17:35:08 -0400
-Received: from h24-76-142-122.wp.shawcable.net ([24.76.142.122]:28940 "HELO
-	signalmarketing.com") by vger.kernel.org with SMTP id S269711AbTGOVfB
+	Tue, 15 Jul 2003 17:38:57 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:45555 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S269439AbTGOVi4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 17:35:01 -0400
-Date: Tue, 15 Jul 2003 16:49:50 -0500 (CDT)
-From: derek@signalmarketing.com
-X-X-Sender: manmower@uberdeity.signalmarketing.com
-To: linux-kernel@vger.kernel.org
-Subject: IDE performance problems on 2.6.0-pre1
-Message-ID: <Pine.LNX.4.56.0307151617430.2932@uberdeity.signalmarketing.com>
+	Tue, 15 Jul 2003 17:38:56 -0400
+Message-ID: <3F1477B2.6090106@mvista.com>
+Date: Tue, 15 Jul 2003 14:52:50 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bernardo Innocenti <bernie@develer.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       akpm@zip.com.au, rmk@arm.linux.org.uk, torvalds@osdl.org
+Subject: Re: do_div64 generic
+References: <3F1360F4.2040602@mvista.com> <200307150717.54981.bernie@develer.com> <20030714223805.4e5bee3f.akpm@osdl.org> <200307150823.01602.bernie@develer.com>
+In-Reply-To: <200307150823.01602.bernie@develer.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Bernardo Innocenti wrote:
+> On Tuesday 15 July 2003 07:38, Andrew Morton wrote:
+> 
+> 
+>>> Here's a patch that takes care of all architectures.
+>>
+>>AFAICT, we can just rework posix-timers.c to use the standard do_div() and
+>>be done with it, can we not?  ie: no div_long_long_rem(), no
+>>div_ll_X_l_rem().  Just do_div().
+> 
+> 
+> We could, and it would be easy and almost as efficient in all places
+> where div_long_long_rem() is being used:
+> 
+>    value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
+> 
+> becomes:
+> 
+>    value->tv_nsec = do_div(nsec, NSEC_PER_SEC);
+>    value->tv_sec = nsec;
+> 
+> George, do you agree? May I go on and post a patch killing
+> div_long_long_rem() everywhere?
 
-My ide performance seems to have dropped noticably from 2.4.x to 
-2.6.0-pre1...
+The issue is that div is a very long instruction and the do_div() 
+thing uses 2 or three of them, while the div_long_long_rem() is just 
+1.  Also, a lot of archs already have the required div by a different 
+name.  It all boils down to a performance thing.
 
-the controller is an hpt-366, there's only one drive connected to it.  
-It's on an 80 pin cable, and the cable is plugged in the right way.
+-g
+> 
+> 
+>>Please use `static inline', not `extern inline', btw.
+> 
+> 
+> Oops. Fixed. I had just copied it over from asm-i386/div64.h.
+> 
+> Is it worth posting a big patch to replace all remaining
+> occurrences of 'extern inline' all over the kernel?
+> 
+> I'd also like to point out that __inline__ is often being
+> used inconsistently. We should be using __inline__ rather
+> than inline in public headers needed by glibc for apps
+> compiled with -ansi. Since it's so ugly, it shouldn't
+> be used in other places.
+> 
 
-hdparm reports that the drive is using udma4 (it's udma5 capable, the 
-controller is not)
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-from 2.4.x, hdparm -t
- Timing buffered disk reads:  140 MB in  3.02 seconds =  46.36 MB/sec
-
-and vmstat 1 while it's running shows
- 0  0      0 349064   1964   9784    0    0     0     0  101     4  0  0 100  0
- 1  0      0 335360   1964  23480    0    0 11648     0  282   356  0  9 90  0
- 1  0      0 286976   1964  71864    0    0 48384     0  863  1469  1 38 61  0
- 1  0      0 239360   1964 119480    0    0 47616     0  844  1451  1 33 65  0
- 0  0      0 349108   1964   9784    0    0 35840     0  664  1095  0 31 69  0
-
-also,
-
-time dd if=/dev/hde1 of=/dev/null bs=4096
-768088+0 records in
-768088+0 records out
-
-real    1m6.079s
-user    0m0.850s
-sys     0m16.720s
-
-
-under 2.6.0-pre1, I get
-
- Timing buffered disk reads:   88 MB in  3.02 seconds =  29.14 MB/sec
-
-vmstat says
- 0  0      0 334748   2172  10816    0    0     0     0 1002     4  0  0 100  0
- 1  1      0 329180   5636  12860    0    0  3464     0 1031    64  0  2 93  4
- 1  0      0 298140  35692  12860    0    0 30080     0 1244   483  1 20 50 30
- 1  0      0 266972  65924  12888    0    0 30208     0 1239   480  0 19 50 30
- 1  0      0 334108   2172  10884    0    0 26496     0 1253   426  0 26 48 26
- 0  0      0 334180   2172  10884    0    0     0     0 1010    18  0  0 100  0
-
-(this is a dual processor machine, so this looks to me like I'm cpu bound 
-where I wasn't before?)
-
-time dd if=/dev/hde1 of=/dev/null bs=4096
-dd: reading `/dev/hde1': Input/output error
-768088+0 records in
-768088+0 records out
-
-real    1m33.977s
-user    0m0.967s
-sys     0m26.695s
-
-the input/output error is new too...
-
-I also tried with everything in the Kernel Hacking sub-menu disabled, and 
-got results from hdparm as high as 31.53MB/sec
-
-Any idea what's wrong?

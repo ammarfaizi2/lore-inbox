@@ -1,88 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265471AbUBAVEK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 16:04:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUBAVEJ
+	id S265604AbUBAVXU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 16:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265598AbUBAVWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 16:04:09 -0500
-Received: from fiberbit.xs4all.nl ([213.84.224.214]:10902 "EHLO
-	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S265471AbUBAVDU
+	Sun, 1 Feb 2004 16:22:51 -0500
+Received: from mhub-w6.tc.umn.edu ([160.94.160.36]:2295 "EHLO
+	mhub-w6.tc.umn.edu") by vger.kernel.org with ESMTP id S265596AbUBAVUU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 16:03:20 -0500
-Date: Sun, 1 Feb 2004 22:02:37 +0100
-From: Marco Roeland <marco.roeland@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Cc: Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: Unrecognizable insn
-Message-ID: <20040201210237.GA22841@localhost>
-References: <20040201204143.GA26961@MAIL.13thfloor.at>
+	Sun, 1 Feb 2004 16:20:20 -0500
+Subject: Re: Uptime counter
+From: Matthew Reppert <repp0017@tc.umn.edu>
+To: Ludootje <ludootje@linux.be>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1075673274.4047.8.camel@gax.mynet>
+References: <Pine.LNX.4.44.0402012239010.6206-100000@midi>
+	 <20040201205115.GS2259@mea-ext.zmailer.org>
+	 <1075673274.4047.8.camel@gax.mynet>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kvHIFpLNELnU9P/1CMWp"
+Message-Id: <1075670417.14322.9.camel@minerva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20040201204143.GA26961@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 01 Feb 2004 15:20:18 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday February 1st 2004 Herbert Poetzl wrote:
 
-> anybody seen that before?
-> 
-> fs/proc/array.c: In function `proc_pid_stat':
-> fs/proc/array.c:441: Unrecognizable insn:
-> ...
+--=-kvHIFpLNELnU9P/1CMWp
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Yes, it's a known compiler bug, specific for gcc 2.96. It's recommended
-you upgrade it. Or use the following workaround until you do: ;-)
+On Sun, 2004-02-01 at 16:07, Ludootje wrote:
+> On Sun, 2004-02-01 at 20:51, Matti Aarnio wrote:
+> > On Sun, Feb 01, 2004 at 10:41:41PM +0200, Markus H=C3=A4stbacka wrote:
+> > > Hi list,
+> > > I wonder does any kernel branch have a uptime counter that doesn't st=
+op
+> > > counting at 497 days? Or is a patch needed for the job to
+> > > 2.{0,2,4,6} kernel?
+> >=20
+> > Any 64 bit machine since day 1,  but also 2.6 at i386 does work.
+> >=20
+> > > 	Markus
+> >=20
+> > /Matti Aarnio
+>=20
+> It's the first time I hear about the uptime being resetted after 497 days=
+,
+> why is this? Is this a mistake or are their reasons for it?
 
---- linux-2.6.0-test8/fs/proc/array.c.orig	2003-10-21 16:18:40.000000000 +0200
-+++ linux-2.6.0-test8/fs/proc/array.c	2003-10-23 09:30:27.000000000 +0200
-@@ -302,6 +302,7 @@
- 	pid_t ppid;
- 	int num_threads = 0;
- 	struct mm_struct *mm;
-+	unsigned long long starttime;
- 
- 	state = *get_task_state(task);
- 	vsize = eip = esp = 0;
-@@ -343,9 +344,7 @@
- 	read_lock(&tasklist_lock);
- 	ppid = task->pid ? task->real_parent->pid : 0;
- 	read_unlock(&tasklist_lock);
--	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
--%lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
--%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
-+	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu ",
- 		task->pid,
- 		task->comm,
- 		state,
-@@ -355,7 +354,9 @@
- 		tty_nr,
- 		tty_pgrp,
- 		task->flags,
--		task->min_flt,
-+		task->min_flt);
-+	starttime = jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES);
-+	res += sprintf(buffer + res,"%lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu ",
- 		task->cmin_flt,
- 		task->maj_flt,
- 		task->cmaj_flt,
-@@ -367,15 +368,15 @@
- 		nice,
- 		num_threads,
- 		jiffies_to_clock_t(task->it_real_value),
--		(unsigned long long)
--		    jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES),
-+		starttime,
- 		vsize,
- 		mm ? mm->rss : 0, /* you might want to shift this left 3 */
- 		task->rlim[RLIMIT_RSS].rlim_cur,
- 		mm ? mm->start_code : 0,
- 		mm ? mm->end_code : 0,
- 		mm ? mm->start_stack : 0,
--		esp,
-+		esp);
-+	res += sprintf(buffer + res,"%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
- 		eip,
- 		/* The signal information here is obsolete.
- 		 * It must be decimal for Linux 2.0 compatibility.
+On 32-bit architectures, the uptime counter is only 32 bits wide. Each
+"tick" of the counter is worth 1/HZ seconds (IIRC). So, you can get the
+number of seconds this will hold with simple math (2^32 * 1/HZ, HZ
+being 100 on i386). This is about 497.1 days.
+
+Of course, on 64-bit architectures, the counter will hold 4 billion
+times that, which is about as long as the Earth has existed. Apparently
+2.6 has come up with a way to deal with this on 32-bit architectures.
+
+Matt
+
+--=-kvHIFpLNELnU9P/1CMWp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAHW2QA9ZcCXfrOTMRAi5qAKCSpdzFyUv/aa58/6Tv07TuoqgMFACgxJWJ
+3jZ3HjUZ5opCd9UqhEQxx9E=
+=dEMO
+-----END PGP SIGNATURE-----
+
+--=-kvHIFpLNELnU9P/1CMWp--
+

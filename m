@@ -1,68 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263335AbUDYUNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUDYUVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263335AbUDYUNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Apr 2004 16:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUDYUNZ
+	id S261984AbUDYUVA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Apr 2004 16:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUDYUVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Apr 2004 16:13:25 -0400
-Received: from mail3.absamail.co.za ([196.35.40.69]:12188 "EHLO absamail.co.za")
-	by vger.kernel.org with ESMTP id S263335AbUDYUNX (ORCPT
+	Sun, 25 Apr 2004 16:21:00 -0400
+Received: from pop.gmx.de ([213.165.64.20]:35530 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261984AbUDYUUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Apr 2004 16:13:23 -0400
-Subject: [2.6.6-rc2] ACPI unusable on TP
-From: Niel Lambrechts <antispam@absamail.co.za>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1082923946.5356.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 25 Apr 2004 22:12:27 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 25 Apr 2004 16:20:55 -0400
+X-Authenticated: #555161
+Message-ID: <408C1DE2.4070704@hasw.net>
+Date: Sun, 25 Apr 2004 22:21:54 +0200
+From: Sebastian Witt <se.witt@gmx.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com
+Subject: Re: PROBLEM: Oops when using both channels of the PDC20262
+References: <40898ADA.8020708@hasw.net> <200404250331.25606.bzolnier@elka.pw.edu.pl> <408BFD32.7090202@hasw.net> <200404252147.05725.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200404252147.05725.bzolnier@elka.pw.edu.pl>
+Content-Type: multipart/mixed;
+ boundary="------------000506010606060808060605"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------000506010606060808060605
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I have ACPI working to a considerable extent in 2.6.5 (I use my own
-dsdt). In 2.6.6rc-1/2 and mm1 however, the system refuses to boot. 
+Bartlomiej Zolnierkiewicz wrote:
 
-There are no messages apart from the 1st "decompressing ..." message,
-even with ACPI debug statements on (or pci=noacpi for that matter).
+> On Sunday 25 of April 2004 20:02, Sebastian Witt wrote:
+>>Thanks, this patch works. I've tested now multiple times a 2.6.5 kernel
+>>with and without this patch. The BIOS of my controller is also disabled
+>>if this is important...
+> 
+> Thanks.  Can you retest with enabled BIOS?
 
-How do I troubleshoot this?
+If I find it ;-). It was removed some time ago because
+sometimes the computer doesn't start when the controller was plugged in.
 
--Niel
+> Please also send me output output of 'cat /proc/ide/ide2/config'
+> and 'cat /proc/ide/ide3/config' before and after applying this patch.
 
-PS. I include settings for ACPI and APIC.
+No problem.
 
-Cfg:
-IBM Thinkpad R50P
-SuSE 9.0 Pro
+Regards,
+Sebastian
 
-# Power management options (ACPI, APM)
-# ACPI (Advanced Configuration and Power Interface) Support
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_BATTERY=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_ASUS=m
-CONFIG_ACPI_TOSHIBA=m
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_X86_ACPI_CPUFREQ=m
-CONFIG_X86_GOOD_APIC=y
-# CONFIG_X86_UP_APIC is not set
+--------------000506010606060808060605
+Content-Type: text/plain;
+ name="ide2-patched"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide2-patched"
 
+pci bus 00 device 88 vendor 105a device 4d38 channel 0
+5a 10 38 4d 07 00 00 02 01 00 04 01 00 20 00 00
+01 cc 00 00 01 d0 00 00 01 d4 00 00 01 d8 00 00
+01 dc 00 00 00 00 00 d9 00 00 00 00 5a 10 33 4d
+00 00 00 00 00 00 00 00 00 00 00 00 11 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ca 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d4 23 41 00 d4 23 41 00 d4 23 41 00 d4 23 41 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+5a 10 38 4d 07 00 00 02 01 00 04 01 00 20 00 00
+01 cc 00 00 01 d0 00 00 01 d4 00 00 01 d8 00 00
+01 dc 00 00 00 00 00 d9 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 11 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ca 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d4 23 41 00 d4 23 41 00 d4 23 41 00 d4 23 41 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
+--------------000506010606060808060605
+Content-Type: text/plain;
+ name="ide2-unpatched"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide2-unpatched"
+
+pci bus 00 device 88 vendor 105a device 4d38 channel 0
+5a 10 38 4d 07 00 00 02 01 00 04 01 00 20 00 00
+01 cc 00 00 01 d0 00 00 01 d4 00 00 01 d8 00 00
+01 dc 00 00 00 00 00 d9 00 00 00 00 5a 10 33 4d
+00 00 00 00 00 00 00 00 00 00 00 00 11 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ca 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+11 24 41 00 11 24 41 00 11 24 41 00 11 24 41 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+5a 10 38 4d 07 00 00 02 01 00 04 01 00 20 00 00
+01 cc 00 00 01 d0 00 00 01 d4 00 00 01 d8 00 00
+01 dc 00 00 00 00 00 d9 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 11 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ca 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+11 24 41 00 11 24 41 00 11 24 41 00 11 24 41 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+--------------000506010606060808060605
+Content-Type: text/plain;
+ name="ide3-patched"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide3-patched"
+
+pci bus 00 device 88 vendor 105a device 4d38 channel 1
+5a 10 38 4d 07 00 00 02 01 00 04 01 00 20 00 00
+01 cc 00 00 01 d0 00 00 01 d4 00 00 01 d8 00 00
+01 dc 00 00 00 00 00 d9 00 00 00 00 5a 10 33 4d
+00 00 00 00 00 00 00 00 00 00 00 00 11 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ca 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d4 23 41 00 d4 23 41 00 d4 23 41 00 d4 23 41 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+5a 10 38 4d 07 00 00 02 01 00 04 01 00 20 00 00
+01 cc 00 00 01 d0 00 00 01 d4 00 00 01 d8 00 00
+01 dc 00 00 00 00 00 d9 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 11 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ca 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d4 23 41 00 d4 23 41 00 d4 23 41 00 d4 23 41 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+--------------000506010606060808060605
+Content-Type: text/plain;
+ name="ide3-unpatched"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide3-unpatched"
+
+pci bus 00 device 88 vendor 105a device 4d38 channel 1
+5a 10 38 4d 07 00 00 02 01 00 04 01 00 20 00 00
+01 cc 00 00 01 d0 00 00 01 d4 00 00 01 d8 00 00
+01 dc 00 00 00 00 00 d9 00 00 00 00 5a 10 33 4d
+00 00 00 00 00 00 00 00 00 00 00 00 11 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ca 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+11 24 41 00 11 24 41 00 11 24 41 00 11 24 41 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+5a 10 38 4d 07 00 00 02 01 00 04 01 00 20 00 00
+01 cc 00 00 01 d0 00 00 01 d4 00 00 01 d8 00 00
+01 dc 00 00 00 00 00 d9 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 11 01 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ca 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+11 24 41 00 11 24 41 00 11 24 41 00 11 24 41 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+--------------000506010606060808060605--
 

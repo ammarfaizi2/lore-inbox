@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVBGWbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVBGWei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVBGWbl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVBGWbl
+	id S261286AbVBGWei (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVBGWeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:31:41 -0500
-Received: from gprs215-244.eurotel.cz ([160.218.215.244]:1408 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261269AbVBGWbY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:31:24 -0500
-Date: Mon, 7 Feb 2005 23:11:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: 2.6.11-rc3: Kylix application no longer works?
-Message-ID: <20050207221107.GA1369@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 7 Feb 2005 17:34:37 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:41982 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261286AbVBGWeL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:34:11 -0500
+Message-ID: <4207ECDB.7060506@us.ibm.com>
+Date: Mon, 07 Feb 2005 16:34:03 -0600
+From: Brian King <brking@us.ibm.com>
+Reply-To: brking@us.ibm.com
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] PCI: Dynids - passing driver data
+References: <200502072200.j17M0S0N008552@d01av02.pok.ibm.com> <20050207221820.GA27543@kroah.com>
+In-Reply-To: <20050207221820.GA27543@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Greg KH wrote:
+> On Mon, Feb 07, 2005 at 04:00:27PM -0600, brking@us.ibm.com wrote:
+> 
+>>Currently, code exists in the pci layer to allow userspace to specify
+>>driver data when adding a pci dynamic id from sysfs. However, this data
+>>is never used and there exists no way in the existing code to use it.
+> 
+> 
+> Which is a good thing, right?  "driver_data" is usually a pointer to
+> somewhere.  Having userspace specify it would not be a good thing.
 
-I have some obscure Kylix application here... It started gets
-misteriously killed in 2.6.11-rc3 and -rc3-mm1...
+That depends on the driver usage, and the patch allows it to be 
+configurable and defaults to not being used.
 
-pavel@amd:~/slovnik/bin$ strace ./Slovnik
-execve("./Slovnik", ["./Slovnik"], [/* 32 vars */]) = 0
-+++ killed by SIGKILL +++
-pavel@amd:~/slovnik/bin$ ldd ./Slovnik
-/usr/bin/ldd: line 1:  8759 Killed
-LD_TRACE_LOADED_OBJECTS=1 LD_WARN= LD_BIND_NOW=
-LD_LIBRARY_VERSION=$verify_out LD_VERBOSE= "$file"
-pavel@amd:~/slovnik/bin$
+>>This patch allows device drivers to indicate that they want driver data
+>>passed to them on dynamic id adds by initializing use_driver_data in their
+>>pci_driver->pci_dynids struct. The documentation has also been updated
+>>to reflect this.
+> 
+> 
+> What driver wants to use this?
 
-I get this in 2.6.10-rc3:
+I am in the process of adding dynids support into the ipr scsi driver. I 
+originally was using driver_data as a pointer, but am changing it to be 
+an index instead, so that it can be specified by the user.
 
-pavel@amd:~/slovnik/bin$ ./Slovnik
-./Slovnik: relocation error: ./Slovnik: undefined symbol:
-initPAnsiStrings
-pavel@amd:~/slovnik/bin$ ldd ./Slovnik
-                libz.so.1 => /usr/lib/libz.so.1 (0xb7fc2000)
-        libX11.so.6 => /usr/X11/lib/libX11.so.6 (0xb7efa000)
-        libpthread.so.0 => /lib/libpthread.so.0 (0xb7ea9000)
-        libdl.so.2 => /lib/libdl.so.2 (0xb7ea6000)
-        libc.so.6 => /lib/libc.so.6 (0xb7d73000)
-        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0xb7fea000)
-pavel@amd:~/slovnik/bin$
+There are essentially 2 different types of chipsets that ipr controls, 
+the primary difference being the register offsets. I am using 
+driver_data to figure that out today.
 
-When I set LD_LIBRARY_PATH right, it will actually work. Any ideas?
+My other option is to somehow change the driver to cope with having no 
+driver data, but that will result in more driver code and will 
+ultimately be less flexible in the new chipsets that can be added using 
+dynids.
 
-								Pavel
+
+-Brian
+
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center

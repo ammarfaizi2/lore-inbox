@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262518AbTCIOim>; Sun, 9 Mar 2003 09:38:42 -0500
+	id <S262519AbTCIOjT>; Sun, 9 Mar 2003 09:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262519AbTCIOim>; Sun, 9 Mar 2003 09:38:42 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:37903 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S262518AbTCIOih>; Sun, 9 Mar 2003 09:38:37 -0500
-Date: Sun, 9 Mar 2003 15:49:09 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4: high system load with SG_IO on IDE-SCSI: PIO?
-Message-ID: <20030309144909.GA6475@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S262520AbTCIOjT>; Sun, 9 Mar 2003 09:39:19 -0500
+Received: from dspnet.fr.eu.org ([62.73.5.179]:51214 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id <S262519AbTCIOjR>;
+	Sun, 9 Mar 2003 09:39:17 -0500
+Date: Sun, 9 Mar 2003 15:49:55 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030309144954.GA66265@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0303090401160.32518-100000@serv> <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0303081936400.27974-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Mar 08, 2003 at 07:42:24PM -0800, Linus Torvalds wrote:
+> 
+> On Sun, 9 Mar 2003, Roman Zippel wrote:
+> > On Sat, 8 Mar 2003, Zack Brown wrote:
+> > 
+> > >   * Distributed rename handling.
+> > 
+> > This actually a very bk specific problem, because the real problem under 
+> > bk there can be only one src/SCCS/s.foo.c.
+> 
+> I don't think that is the issue.
+> 
+> [ Well, yes, I agree that the SCCS format is bad, but for other reasons ]
 
-I have seen readcd ("sg driver 3.2.0") use 96% system time for a readcd
--c2scan on IDE-SCSI (ATAPI CD-ROM, Plextor PX-4824TA 1.04, UDMA/33),
-Linux 2.4.19+SuSE patches (k_athlon-2.4.19-167).
+It is a large part of the issue though.  If you don't have one
+repository file per project file with a name that resembles the
+repository's one you find out that the project file name is somewhat
+unimportant, just yet another of the metadata to track.
 
-...
-ioctl(3, 0x2285, 0xbfffec20)            = 0
-...
 
-The same application on a real SCSI-device with SCSI host adaptor
-(aic7xxx FWIW) is way below 5% system CPU time.
+> The problem is _distribution_.
 
-Might SG_IO use PIO on ATAPI CD-ROMs? If so, are there patches to enable
-DMA? Is this at all possible with SG_IO?
+The only problem with distribution is sending as little as possible
+over the network.  All the problems you're talking about exist with a
+single repository as soon as you have decent branches.
 
-I find 96% system load is way too high for modern hardware. (Duron/700
-that is, VIA 82C686a).
 
-Thanks in advance,
+> In other words, two people rename the same 
+> file. Or two people rename two _different_ files to the same name. Or two 
+> people create two different files with the same name. What happens when 
+> you merge?
 
--- 
-Matthias Andree
+A conflict, what else?  The file name is only one of the
+characteristics of a file.  And BTW, the interesting problem which is
+what to do when you find out two different files end up being in fact
+the same one is not covered by bk (or wasn't).
+
+  OG.

@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbTJHMHV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 08:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTJHMHV
+	id S261458AbTJHMQH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 08:16:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbTJHMQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 08:07:21 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18902 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261406AbTJHMHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 08:07:18 -0400
-Date: Wed, 8 Oct 2003 14:07:11 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>, Greg KH <greg@kroah.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] document that udev isn't yet ready
-Message-ID: <20031008120711.GF8388@fs.tum.de>
-References: <20031007131719.27061.qmail@web40910.mail.yahoo.com> <200310072128.09666.insecure@mail.od.ua> <20031007194124.GA2670@kroah.com> <200310072347.41749.insecure@mail.od.ua> <20031007205244.GA2978@kroah.com> <1065561443.840.76.camel@clubneon.priv.hereintown.net> <20031007214848.GC3095@kroah.com> <pan.2003.10.08.07.30.20.119386@dungeon.inka.de>
+	Wed, 8 Oct 2003 08:16:07 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:48429 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261411AbTJHMQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 08:16:04 -0400
+Date: Wed, 8 Oct 2003 13:15:23 +0100
+From: Dave Jones <davej@redhat.com>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkcd-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] Poll-based IDE driver
+Message-ID: <20031008121523.GH705@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Srivatsa Vaddagiri <vatsa@in.ibm.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	lkcd-devel@lists.sourceforge.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-ide@vger.kernel.org
+References: <20030917144120.A11425@in.ibm.com> <1063806900.12279.47.camel@dhcp23.swansea.linux.org.uk> <20031008151357.A31976@in.ibm.com> <20031008115051.GD705@redhat.com> <20031008174458.A32517@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <pan.2003.10.08.07.30.20.119386@dungeon.inka.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031008174458.A32517@in.ibm.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 08, 2003 at 09:30:21AM +0200, Andreas Jellinghaus wrote:
-> On Tue, 07 Oct 2003 21:51:27 +0000, Greg KH wrote:
-> > And remember, _I_ did not submit that patch to the kernel marking devfs
-> > obsolete.  Other kernel developers did.  And for good reasons, which
-> > have all been explained before.  Even if udev wasn't even written yet,
-> > it would have been done.
-> 
-> "Note that devfs has been obsoleted by udev,"
-> 
-> Most people expect after reading that sentence, that udev can do the
-> work devfs did for them. But udev is not ready to do that, even by
-> far. Thats why people complain.
->...
+On Wed, Oct 08, 2003 at 05:44:58PM +0530, Srivatsa Vaddagiri wrote:
 
-The following trivial change to te help text should clarify it:
+ > > Why not just use udelay() ?  The above code cannot possibly do
+ > > the right thing on all processors.
+ > 
+ > Since my code is supposed to run when system is crashing, I would like 
+ > to avoid calling any function in the kernel as far as possible, since 
+ > the kernel and its data structures may be in a inconsistent state 
+ > and/or corrupted.
 
---- linux-2.6.0-test6-mm4/fs/Kconfig.old	2003-10-08 14:02:15.000000000 +0200
-+++ linux-2.6.0-test6-mm4/fs/Kconfig	2003-10-08 14:03:33.000000000 +0200
-@@ -784,7 +784,7 @@
- 	  ptys, you will also need to enable (and mount) the /dev/pts
- 	  filesystem (CONFIG_DEVPTS_FS).
+By the same principle, your dump_udelay() is just as likely to get
+stomped on as the kernels udelay() function.
  
--	  Note that devfs has been obsoleted by udev,
-+	  Note that devfs will be obsoleted by udev
- 	  <http://www.kernel.org/pub/linux/utils/kernel/hotplug/>.
- 	  It has been stripped down to a bare minimum and is only provided for
- 	  legacy installations that use its naming scheme which is
+ > I do realize that the above code does not provide accurate 
+ > delay and may not work on all platforms. In that direction
+ > I was considering using the loops_per_jiffy variable 
+ > which may provide more accurate/platform-independent delay (?) ..
 
+If you must reinvent a wheel, use a round one. Copy udelay().
 
-> Regards, Andreas
-
-cu
-Adrian
+		Dave
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ Dave Jones     http://www.codemonkey.org.uk

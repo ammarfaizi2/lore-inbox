@@ -1,46 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265711AbRF1NIX>; Thu, 28 Jun 2001 09:08:23 -0400
+	id <S265720AbRF1NNX>; Thu, 28 Jun 2001 09:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265709AbRF1NIN>; Thu, 28 Jun 2001 09:08:13 -0400
-Received: from m1002-mp1-cvx1c.col.ntl.com ([213.104.79.234]:20352 "EHLO
-	[213.104.79.234]") by vger.kernel.org with ESMTP id <S265706AbRF1NIC>;
-	Thu, 28 Jun 2001 09:08:02 -0400
-To: Stefan Hoffmeister <lkml."2001"@econos.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VM Requirement Document - v0.0
-In-Reply-To: <15160.65442.682067.38776@gargle.gargle.HOWL>
-	<Pine.LNX.4.33L.0106261838320.23373-100000@duckman.distro.conectiva>
-	<qn1ijt06guu1014p6om26opk7k5933kb7i@4ax.com>
-From: John Fremlin <vii@users.sourceforge.net>
-Date: 28 Jun 2001 14:07:16 +0100
-In-Reply-To: <qn1ijt06guu1014p6om26opk7k5933kb7i@4ax.com> (Stefan Hoffmeister's message of "Wed, 27 Jun 2001 00:21:09 +0200")
-Message-ID: <m2wv5whhx7.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265716AbRF1NNN>; Thu, 28 Jun 2001 09:13:13 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:2318 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S265714AbRF1NND>;
+	Thu, 28 Jun 2001 09:13:03 -0400
+Date: Thu, 28 Jun 2001 17:12:58 +0400
+To: linux-kernel@vger.kernel.org
+Subject: [uPATCH] i810-tco watchdog, 
+Message-ID: <20010628171258.A2214@orbita1.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XOIedfhf+7KOe/yw"
+User-Agent: Mutt/1.0.1i
+X-Uptime: 4:54pm  up 29 days, 38 min,  2 users,  load average: 0.66, 0.48, 0.19
+X-Uname: Linux orbita1.ru 2.2.20pre2 
+From: <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Stefan Hoffmeister <lkml.2001@econos.de> writes:
 
-[...]
+--XOIedfhf+7KOe/yw
+Content-Type: multipart/mixed; boundary="huq684BweRXVnRxX"
 
-> Windows NT/2000 has flags that can be for each CreateFile operation
-> ("open" in Unix terms), for instance
-> 
->   FILE_ATTRIBUTE_TEMPORARY
-> 
->   FILE_FLAG_WRITE_THROUGH
->   FILE_FLAG_NO_BUFFERING
->   FILE_FLAG_RANDOM_ACCESS
->   FILE_FLAG_SEQUENTIAL_SCAN
-> 
-> If Linux does not have mechanism that would allow the signalling of
-> specific use case, it might be helpful to implement such a hinting
-> system?
 
-madvise(2) does it on mappings IIRC
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Seeking summer job at last minute - see http://ape.n3.net/cv.html
+Hi all,
+
+Intel ICHx have one(?) ugly feature: reboot by TCO timer can be
+disabled by the hardware. Current message isn't very informative and
+can cause false bugreports, so the attached micropatch.
+
+BTW this hardware braindamage already reported on Sony Vaio pCG-FX140.
+
+Best regards.
+
+P.S. What's wrong with my previous patches including Intel ICH and SCL90E66
+PCI quirks ?
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-i810-msg
+
+diff -ur -X dontdiff linux.vanilla/drivers/char/i810-tco.c linux/drivers/char/i810-tco.c
+--- linux.vanilla/drivers/char/i810-tco.c	Tue Jun 26 10:37:47 2001
++++ linux/drivers/char/i810-tco.c	Thu Jun 28 16:51:17 2001
+@@ -289,7 +289,7 @@
+ 			pci_write_config_byte (i810tco_pci, 0xd4, val1);
+ 			pci_read_config_byte (i810tco_pci, 0xd4, &val1);
+ 			if (val1 & 0x02) {
+-				printk (KERN_ERR "i810tco init: failed to reset NO_REBOOT flag\n");
++				printk (KERN_ERR "i810tco init: failed to reset NO_REBOOT flag, reboot disabled by hardware\n");
+ 				return 0;	/* Cannot reset NO_REBOOT bit */
+ 			}
+ 		}
+
+--huq684BweRXVnRxX--
+
+--XOIedfhf+7KOe/yw
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7Oy1aBm4rlNOo3YgRAiTwAJ4t5EvV6TgW/v+GpC8eXSPERFAYSwCdHxZD
+gRCFk8urxfD3IqgaLLHxyPw=
+=No4M
+-----END PGP SIGNATURE-----
+
+--XOIedfhf+7KOe/yw--

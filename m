@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272923AbTG3PJg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 11:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272927AbTG3PJf
+	id S272936AbTG3PEb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 11:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272940AbTG3PEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 11:09:35 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:30188 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272923AbTG3PJK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 11:09:10 -0400
-Date: Wed, 30 Jul 2003 08:08:46 -0700
-From: "Martin J. Bligh" <mjbligh@us.ibm.com>
-To: Anuradha Ratnaweera <anuradha@ratnaweera.net>,
-       LKML <linux-kernel@vger.kernel.org>
+	Wed, 30 Jul 2003 11:04:31 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:64756 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272936AbTG3PE1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 11:04:27 -0400
 Subject: Re: Contributing to the kernel while being employed
-Message-ID: <20700000.1059577725@[10.10.2.4]>
-In-Reply-To: <1059574407.1759.26.camel@anuradha>
-References: <1059574407.1759.26.camel@anuradha>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Anuradha Ratnaweera <anuradha@ratnaweera.net>
+Cc: Bas Mevissen <ml@basmevissen.nl>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1059576606.1759.31.camel@anuradha>
+References: <1059576606.1759.31.camel@anuradha>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1059577097.8041.50.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Jul 2003 15:58:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Before working for a commercial organization, one usually has to sign a
-> contract which makes all the work done during the period of employment
-> (including innovations, "hobby" coding done during "after hours")
-> copyrighted by the employer.  This introduces various problems when one
-> wishes to do open source development, especially as a hobby.
+On Mer, 2003-07-30 at 15:50, Anuradha Ratnaweera wrote:
+> > Isn't this whole "problem" solved if you do your hobbies in your own 
+> > free time? Of course, then you should also NOT use any IP from your 
+> > employer then.
 > 
-> I am not talking about companies that do open source contributions as
-> institutions (e.g., JFS, XFS, and numerous device drivers).  But if one
-> wants to do something as a hobby and host it somewhere (say
-> sourceforge), or if one wants to send a substantial patch, then it is a
-> different story.
-> 
-> For example, if I do some changes and send a patch, and hopefully if it
-> is accepted into the kernel, that code becomes GPL.  But this doesn't
-> prevent the employer from later questioning my right to do so, because
-> the patch was never under my copyright according to the contract, and my
-> applying of GPL (or whatever the lisence I used) is void.
-> 
-> Obviously, there are many folks who work for commercial organizations,
-> but still actively get involved in the kernel development.  I am keen to
-> know how they get around with copyright issues and contracts.
+> Not always.  Some contracts talk about "employement", while others (most
+> are of this catagory) are about the "employement period".  The latter
+> _does_ include all 24 hours of the day (I have checked it with some
+> legal folks.)
 
-I suggest you ask your employer for a written waiver to that contract
-for GPL'ed work, and make sure it's signed by the right people. They may 
-want it more restricted, in which case, falling back to the position 
-of just covering submissions to the Linux kernel.
+It depends a lot on the country (and in the US even the state). You'll
+find everything from outright prohibition of your employer owning
+anything outside of working hours through to a default assumption they 
+own everything you produce (where one wonders if that entitles you to 
+have your sewage delivered to their CEO's office...)
 
-M.
 

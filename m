@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268396AbUHYFgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268300AbUHYFi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268396AbUHYFgY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 01:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268577AbUHYFgK
+	id S268300AbUHYFi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 01:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268280AbUHYFi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 01:36:10 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:51870 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S268537AbUHYFfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 01:35:55 -0400
-Date: Wed, 25 Aug 2004 07:35:16 +0200
-To: Greg KH <greg@kroah.com>
-Cc: "Nemosoft Unv." <nemosoft@smcc.demon.nl>,
-       Linux USB Mailing List 
-	<linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: kernel 2.6.8 pwc patches and counterpatches
-Message-ID: <20040825053516.GA19771@gamma.logic.tuwien.ac.at>
-References: <1092793392.17286.75.camel@localhost> <1092845135.8044.22.camel@localhost> <20040823221028.GB4694@kroah.com> <200408250058.24845@smcc.demon.nl> <20040824230458.GA12422@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040824230458.GA12422@kroah.com>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Wed, 25 Aug 2004 01:38:28 -0400
+Received: from av9-1-sn4.m-sp.skanova.net ([81.228.10.108]:21977 "EHLO
+	av9-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S268482AbUHYFiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 01:38:20 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Speed up the cdrw packet writing driver
+References: <m33c2py1m1.fsf@telia.com> <20040823114329.GI2301@suse.de>
+	<m3llg5dein.fsf@telia.com> <20040824202951.GA24280@suse.de>
+	<m3hdqsckoo.fsf@telia.com> <20040824144707.100e0cfd.akpm@osdl.org>
+	<m3d61gchyb.fsf@telia.com> <20040824155635.3d1a1dd6.akpm@osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 25 Aug 2004 07:38:16 +0200
+In-Reply-To: <20040824155635.3d1a1dd6.akpm@osdl.org>
+Message-ID: <m36577dbg7.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Die, 24 Aug 2004, Greg KH wrote:
-> > * you are going to accept that there is a driver in the Linux kernel that 
-> > has a hook that _may_ be used to load a binary-only decompressor part into 
-> > the kernel, at the user's disgression. Maybe, one day, that part will be 
-> > open source too but I cannot guarantuee that. 
+Andrew Morton <akpm@osdl.org> writes:
+
+> Peter Osterlund <petero2@telia.com> wrote:
+> >
+> > > Are you saying that your requests are so huge that each one has 1000 BIOs? 
+> > > That would be odd, for an IDE interface.
+> > 
+> > No, the thing is that the packet driver doesn't create requests at
+> > all. It stuffs incoming bio's in the rbtree, then the worker thread
+> > collects bio's from the rbtree for the same "zone" on the disc (each
+> > zone is 64kb on a CDRW and 32KB on a DVD). The driver then creates a
+> > new bio with the same size as the zone size and submits it to the real
+> > CD/DVD device.
 > 
-> I now realize that.  So I've ripped that hook out, as it's only used to
-> load a binary driver, which is not allowed.
-> 
-> That's the change I'm going to make.
-> 
-> If you want to send me a patch to tell me to rip the whole driver out,
-> fine I will, no problems, I completly understand.
+> Good lord.  I assume there's a good reason for this?
 
-Bummer. This is rubbish. And I am sure that this is not the intention of
-Linus comments. IF the module would be NON functional without the closed
-plugin, then yes, rip it out. But it is useable, and this hook *can* be
-used for closed modules, but also for other modules. 
+The reason is that generic_make_request() takes a bio, not a request.
+Loop and md don't deal with "struct request" either, they also work
+directly at the bio level.
 
-It really looks like personal stuff going on here, not really objective
-discussion on this point.
+The reason the driver doesn't process the bios in sequential order
+like md and loop seems to do, is because it wants to maximize I/O
+performance. With a typical DVD drive, write bandwidth is 5.3MB/s and
+seek times when writing are 500ms. Also, there is a big penalty for
+not being able to completely fill a "zone", because it means that the
+driver will have to read the missing pieces from the disc before being
+able to submit the "write bio".
 
-> But realize that anyone can then add it back, as the work you did was
-> released under the GPL :)
+Is there some problem doing what the pktcdvd driver is doing?
 
-And who will take over the level of support that Nemosoft has put into
-this driver without the internal knowledge of the device? Good luck.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-SCOPWICK (n.)
-The flap of skin which is torn off you lip when trying to smoke an
-untipped cigarette.
-			--- Douglas Adams, The Meaning of Liff
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

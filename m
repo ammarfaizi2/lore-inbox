@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263623AbTH0QLp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 12:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTH0QK2
+	id S263480AbTH0QFG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 12:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTH0QDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 12:10:28 -0400
-Received: from gw-nl5.philips.com ([212.153.235.109]:22510 "EHLO
-	gw-nl5.philips.com") by vger.kernel.org with ESMTP id S263610AbTH0QJU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 12:09:20 -0400
-Message-ID: <3F4CD7FC.4040309@basmevissen.nl>
-Date: Wed, 27 Aug 2003 18:10:36 +0200
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: usb-storage: how to ruin your hardware(?)
-References: <200308271511.h7RFBFHu017520@wildsau.idv.uni.linz.at>
-In-Reply-To: <200308271511.h7RFBFHu017520@wildsau.idv.uni.linz.at>
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Aug 2003 12:03:01 -0400
+Received: from main.gmane.org ([80.91.224.249]:12196 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263553AbTH0QCk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 12:02:40 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Pasi Savolainen <psavo@iki.fi>
+Subject: Re: [PATCH] Pentium Pro - sysenter - doublefault
+Date: Wed, 27 Aug 2003 16:02:35 +0000 (UTC)
+Message-ID: <slrnbkplgr.eu5.psavo@varg.dyndns.org>
+References: <1061498486.3072.308.camel@new.localdomain> <20030825040514.GA20529@mail.jlokier.co.uk> <20030826122621.GB3140@malvern.uk.w2k.superh.com> <20030827140121.GA1973@mail.jlokier.co.uk>
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H.Rosmanith (Kernel Mailing List) wrote:
->>>
-> okidok.... I got an new flashdisk from the vendor, but managed to ruin
-> it again. anyway, I also managed to repair it again. the vendor ships
-> a seperate formating-tool, which will repair the device, even when you
-> get "SCSI sense key errors".
+* Jamie Lokier <jamie@shareable.org>:
+> Richard Curnow wrote:
+>> OK, since I get something different to the other reports I saw:
+>> 
+>>  1:20PM-malvern-0-534-% ./sysenter
+>>  1:20PM-malvern-STKFLT-535-% echo $?
+>> 144
 > 
-
-Q for the specialists: What SCSI access can still work then? I'm 
-wondering if you can still write something to it. My first guess about 
-that vender tool was that it just writes a valid partition table to the 
-disk. The only problem is that you need to deduce the actual size of the 
-flashdisk. But that can be retrieved from some USB identification string.
-
-But it's more likely that it just uses some propriety interface to reset 
-the device.
-
-> however, I still don't understand what's going on and *why* it is not
-> allowed to format the drive "at will". I'd also would like to know how
-> this vendor supplied formating-tool works. Possibly some vendor-specific
-> usb-commands to ... do what? hm. I can only guess.
+> Hi Richard,
 > 
+> That's because you ran it on a 2.5/2.6 kernel, right?  The test code
+> is meant for 2.4 kernels and earlier :)
 
-You can use USB Snoopy <http://www.wingmanteam.com/usbsnoopy/> to find 
-out what that vendor tool (for Windows, I presume) does.
+If this is of any help..
 
-Bas.
+- -
+pvsavola@a11a:~/code$ cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 1
+model name      : Pentium Pro
+stepping        : 6
+cpu MHz         : 199.312
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov
+bogomips        : 397.31
 
+pvsavola@a11a:~/code$ ./sysent ; echo $?
+Segmentation fault
+139
+pvsavola@a11a:~/code$ uname -a
+Linux a11a 2.4.19-ck3-rmap #1 Mon Aug 26 21:38:49 EEST 2002 i686 GNU/Linux
+- -
+
+-- 
+   Psi -- <http://www.iki.fi/pasi.savolainen>
 

@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263442AbRFKGjV>; Mon, 11 Jun 2001 02:39:21 -0400
+	id <S263501AbRFKIYh>; Mon, 11 Jun 2001 04:24:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263444AbRFKGjK>; Mon, 11 Jun 2001 02:39:10 -0400
-Received: from [164.164.82.20] ([164.164.82.20]:56050 "EHLO subexgroup.com")
-	by vger.kernel.org with ESMTP id <S263442AbRFKGjD>;
-	Mon, 11 Jun 2001 02:39:03 -0400
-From: "Anil Kumar" <anilk@subexgroup.com>
-To: <kiran.thirumalai@in.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: RE:
-Date: Mon, 11 Jun 2001 12:24:25 +0530
-Message-ID: <NEBBIIKAMMOCGCPMPBJOKEAFCFAA.anilk@subexgroup.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <CA256A68.001C53EA.00@d73mta01.au.ibm.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
-X-Return-Path: anilk@subexgroup.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	id <S263497AbRFKIYR>; Mon, 11 Jun 2001 04:24:17 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:47868 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S263495AbRFKIYG>; Mon, 11 Jun 2001 04:24:06 -0400
+Message-Id: <l03130300b74a2f8d4db6@[192.168.239.105]>
+In-Reply-To: <01061023364200.03146@oscar>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 11 Jun 2001 09:20:58 +0100
+To: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: what is using memory?
+Cc: linux-mm@kvack.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you can use "sys_mprotect" call which is kernel space equ. of "mprotect" .
-The implementation for the same can be found in "mm\mprotect.c".
+>My box has
+>
+>320280K
+>
+>from proc/meminfo
+>
+> 17140	buffer
+>123696	cache
+> 32303	free
+>
+>leaving unaccounted
+>
+>123627K
 
-anil
+This is your processes' memory, the inode and dentry caches, and possibly
+some extra kernel memory which may be allocated after boot time.  It is
+*very* much accounted for.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of
-kiran.thirumalai@in.ibm.com
-Sent: Monday, June 11, 2001 10:29 AM
-To: linux-kernel@vger.kernel.org
-Subject:
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
 
+The key to knowledge is not to rely on people to teach you it.
 
-Hi,
-Is there some kernel api to validate memory allocated using kmalloc.
-Suppose, I allocate some memory using kmalloc and at a later point of
-execution
-I would like to validate if the memory allocated is not possibly freed by
-some other thread.
-
-Pls suggest a patch/pointers if any.
-I also noticed a commented 'CONFIG_DEBUG_MALLOC' config option  (2.4.3
-source),
-It doesn't seem to be functional.  Any pointers towards the history behind
-it would also be helpful.
-
-Thanks in advance,
-Kiran
-
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
 
 

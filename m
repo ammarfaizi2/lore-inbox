@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284866AbRLXNk3>; Mon, 24 Dec 2001 08:40:29 -0500
+	id <S284837AbRLXNi3>; Mon, 24 Dec 2001 08:38:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284868AbRLXNkT>; Mon, 24 Dec 2001 08:40:19 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:46091 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S284866AbRLXNkG>;
-	Mon, 24 Dec 2001 08:40:06 -0500
-Message-ID: <3C273028.6070305@free.fr>
-Date: Mon, 24 Dec 2001 14:39:52 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011220
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: esr@thyrsus.com
-Cc: Steven Cole <scole@lanl.gov>, linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-In-Reply-To: <200112201721.KAA05522@tstac.esa.lanl.gov> <20011220135213.B18128@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284857AbRLXNiU>; Mon, 24 Dec 2001 08:38:20 -0500
+Received: from cc78409-a.hnglo1.ov.nl.home.com ([212.120.97.185]:386 "EHLO
+	dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S284837AbRLXNiL>; Mon, 24 Dec 2001 08:38:11 -0500
+From: spamtrap@use.reply-to (Erik Hensema)
+Subject: bug: de2104x driver in 2.5.1
+Date: 24 Dec 2001 13:38:08 GMT
+Message-ID: <slrna2ebu0.39m.spamtrap@dexter.hensema.xs4all.nl>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.6.3 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond wrote:
 
-> 
-> 
-> This change came as a patch from David Woodhouse.  I think the new
-> abbreviations are awful ugly, myself, but they do have the virtue of
-> not being ambiguous.  So I swallowed hard and took the patch.
-> 
+Last weekend my cablemodem connection went dead. I was running 2.5.1 using
+the de2104x driver (previously the tulip driver).
 
-This could even have the nice side effect of teaching something to Linux 
-newbies (mainly the fact that the difference between 2^10 and 10^3 
-matters in some areas). I see 2 cases :
+/var/log/messages:
 
-- already encountered the kiB/MiB/GiB notation and understood the 
-meaning: no problem if we take out of the equation the aesthetic of the 
-abreviations.
+Dec 22 04:43:28 dexter kernel: eth0: 10baseT auto link ok, mode 7ffc2002 status 51c8
+Dec 22 04:44:28 dexter kernel: eth0: 10baseT auto link ok, mode 7ffc2002 status 51c8
+Dec 22 04:45:28 dexter kernel: eth0: 10baseT auto link ok, mode 7ffc2002 status 51c8
+Dec 22 04:46:28 dexter kernel: eth0: 10baseT auto link ok, mode 7ffc2002 status 51c8
+Dec 22 04:46:37 dexter kernel: eth0: link down
+Dec 22 04:46:42 dexter kernel: eth0: link up, media 10baseT-HD
+Dec 22 04:46:42 dexter kernel: eth0: set link 10baseT-HD, mode 7ffc0000, sia c0,ffffef01,ffff6f3f,ffff0008
+Dec 22 04:46:42 dexter kernel:                  set mode 7ffc0000, set sia ef01,6f3f,8
+Dec 22 04:46:42 dexter kernel: bug: kernel timer added twice at cc8ed139.
+Dec 22 04:46:42 dexter kernel: eth0: no link, trying media 10baseT-HD, status 21ce
+Dec 22 04:47:41 dexter kernel: eth0: 10baseT-HD link ok, mode 7ffc2002 status 1c0
+Dec 22 04:48:41 dexter kernel: eth0: 10baseT-HD link ok, mode 7ffc2002 status 1c0
+Dec 22 04:49:41 dexter kernel: eth0: 10baseT-HD link ok, mode 7ffc2002 status 1c0
 
-- this is a new thing for the reader, 3 cases:
-  . Computer literate person : she uses her intuition and understand its 
-meaning : no problem apart the time used to put her intuition at work,
-  . Computer illiterate person which don't care enough : she doesn't 
-understand the difference with kB/MB/GB and takes the notation as a 
-different syntax but with the same semantic : the only problem would be 
-a temporary confusion (from a fraction of a second to several minutes) 
-until this assumption is made. It certainly would be made by computer 
-illiterate people who are lost in the first place: we trade a 
-misunderstanding for another.
-  . Computer illiterate person which really tries to understand : she 
-doesn't understand and take the time to document herself : no problem 
-she might discover something she didn't even thought about.
+(the messages are repeated every minute)
 
-This is a simplified view but I believe the actual readers' behaviour 
-would be somehow a combination of several of the above cases.
+dexter:~$ /sbin/lspci 
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP] (rev 41)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 02)
+00:07.3 Host bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
+00:0a.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 03)
+00:0b.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 21)
+00:0c.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01)
 
-So what's the tradeoff :
-* aesthetic and shor time spent in temporary confusion or reflexion
-* for clarity and education of some people in the end.
-
-Hiding complexity in the docs would only keep some users ignorant.
-This is my personal opinion but don't we prefer educated users instead 
-of ignorant ones ?
-
-I find the choice obvious...
-We could argue on the choice of these particular abreviations against 
-others but as I don't see any other around...
-
-LB
-
+-- 
+Erik Hensema (erik@hensema.net)
+I'm on the list, no need to Cc: me, though I appreciate one if your
+mailer doesn't support the References header.

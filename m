@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266243AbSLTCwA>; Thu, 19 Dec 2002 21:52:00 -0500
+	id <S267705AbSLTDSk>; Thu, 19 Dec 2002 22:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267700AbSLTCwA>; Thu, 19 Dec 2002 21:52:00 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:40915 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266243AbSLTCwA>;
-	Thu, 19 Dec 2002 21:52:00 -0500
-Date: Thu, 19 Dec 2002 18:58:56 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Hanna Linder <hannal@us.ibm.com>, <linux-kernel@vger.kernel.org>
+	id <S267709AbSLTDSk>; Thu, 19 Dec 2002 22:18:40 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:10950 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267705AbSLTDSj>; Thu, 19 Dec 2002 22:18:39 -0500
+Date: Thu, 19 Dec 2002 19:26:36 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Brian Jackson <brian-kernel-list@mdrx.com>,
+       John Bradford <john@grabjohn.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Dedicated kernel bug database
-In-Reply-To: <56740000.1040350938@flay>
-Message-ID: <Pine.LNX.4.33L2.0212191858150.32456-100000@dragon.pdx.osdl.net>
+Message-ID: <66310000.1040354795@titus>
+In-Reply-To: <20021219173329.32340.qmail@escalade.vistahp.com>
+References: <200212191335.gBJDZRDL000704@darkstar.example.net>
+ <20021219173329.32340.qmail@escalade.vistahp.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002, Martin J. Bligh wrote:
+> I would just like to second what somebody said about bugzilla yesterday,
+> that it is hard to search for bugs that have already been entered. Just
+> something to think about.   --Brian Jackson
 
-| >> There are a bunch of categories that aren't really "owned" as such,
-| >> and default to khoa or myself. Those are really good candidates to
-| >> steal ... they'll be owned by bugme-janitors soon to make this more
-| >> obvious ...
-| >
-| > OK. Which categories are not owned? Anything with you or khoa as owners?
-|
-| More or less, yes. There are a couple of categories I really own, eg
-| NUMA/discontigmem, and I'll probably look after ia32 specific bugs
-| unless Linus wants his category back ;-)
-|
-| Will switch to bugme-janitors in a few days, then will all be much more
-| obvious
+Give me an example ... what are you trying to search for?
 
-What does this last sentence mean?
-
--- 
-~Randy
+M.
 

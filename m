@@ -1,88 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUKIVVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUKIVY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUKIVVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 16:21:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUKIVVq
+	id S261685AbUKIVY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 16:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbUKIVY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 16:21:46 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:40067 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261693AbUKIVVm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 16:21:42 -0500
-Message-ID: <419134E0.60906@g-house.de>
-Date: Tue, 09 Nov 2004 22:21:36 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
-       Pekka Enberg <penberg@gmail.com>, Matt_Domsch@dell.com
-Subject: Re: [PATCH] kobject: fix double kobject_put() in error path of kobject_add()
-References: <418F6E33.8080808@g-house.de> <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org> <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com> <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de> <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <20041109190420.GA2498@kroah.com> <20041109190809.GA2628@kroah.com>
-In-Reply-To: <20041109190809.GA2628@kroah.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Nov 2004 16:24:27 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:60173 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261685AbUKIVYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 16:24:06 -0500
+Date: Tue, 9 Nov 2004 22:23:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, kraxel@bytesex.org
+Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+Subject: [2.6 patch] remove stale bttv_parse prototype
+Message-ID: <20041109212334.GC5892@stusta.de>
+References: <20041109074909.3f287966.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041109074909.3f287966.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Nov 09, 2004 at 07:49:09AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.10-rc1-mm3:
+>...
+> +v4l-bttv-update.patch
+>...
+>  v4l updates
+>...
 
-Greg KH schrieb:
-> 
-> Christian, I don't know if this patch explicitly fixes your problem, but
-> it fixes problems other people have been having with the driver core
-> lately.  I'd appreciate it if you could test it out and let me know if
-> it solves your problem, with CONFIG_EDD enabled, or if it doesn't help
-> at all.
-> 
 
-yes, i'll do so and test the patch. is this in current -BK yet? because
-applying your patch [1] to 2.6.10-rc1 gives:
+This patch removes bttv_parse but not it's prototype from bttv.h
 
-Hunk #1 FAILED at 181.
-1 out of 1 hunk FAILED -- saving rejects to file lib/kobject.c.rej
+Trivial fix:
 
-i've done a few other things before, let me just post the results before i
-go on with your suggestions:
 
-i've compiled a recent (BK) 2.6.10-rc1 again with CONFIG_EDD=m|y|n
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/config-2.6.10-rc1_edd-modular.txt
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/config-2.6.10-rc1_edd.txt
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/config-2.6.10-rc1_no-edd.txt
+--- linux-2.6.10-rc1-mm4-full/drivers/media/video/bttv.h.old	2004-11-09 22:09:15.000000000 +0100
++++ linux-2.6.10-rc1-mm4-full/drivers/media/video/bttv.h	2004-11-09 22:09:25.000000000 +0100
+@@ -230,9 +230,6 @@
+ extern void tea5757_set_freq(struct bttv *btv, unsigned short freq);
+ extern void bttv_tda9880_setnorm(struct bttv *btv, int norm);
+ 
+-/* kernel cmd line parse helper */
+-extern int bttv_parse(char *str, int max, int *vals);
+-
+ /* extra tweaks for some chipsets */
+ extern void bttv_check_chipset(void);
+ extern int bttv_handle_chipset(struct bttv *btv);
 
-the results:
 
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/dmesg-2.6.10-rc1_edd-modular.txt
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/dmesg-2.6.10-rc1_edd.txt
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/dmesg-2.6.10-rc1_no-edd.txt
-
-the interesting thing (for me) was, that when CONFIG_EDD=m was set, my
-sound card was working properly and i could do "modprobe edd" and "rmmod
-edd" as i like:
-
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/typescript-2.6.10-rc1_edd-modular.txt
-
-again: i double checked and compiled on 2 different hosts, each having
-it's own -BK tree.
-
-thanks,
-Christian.
-
-[1] http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/edd-fix.patch
-- --
-BOFH excuse #22:
-
-monitor resolution too high
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBkTTg+A7rjkF8z0wRAvFPAKCCM05vqhg4u2NH2wklRRbxdVSpcwCff9a3
-/KodSmgp9J4Nf2LDcTiBOCo=
-=B/3X
------END PGP SIGNATURE-----

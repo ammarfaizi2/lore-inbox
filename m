@@ -1,88 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUD3VHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbUD3VKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUD3VHG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 17:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUD3VGp
+	id S261244AbUD3VKF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 17:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUD3VEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 17:06:45 -0400
-Received: from out002pub.verizon.net ([206.46.170.141]:20422 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S261186AbUD3VDr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 17:03:47 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Timothy Miller <miller@techsource.com>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Fri, 30 Apr 2004 17:03:44 -0400
-User-Agent: KMail/1.6
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, Paul Wagland <paul@wagland.net>,
-       Rik van Riel <riel@redhat.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       David Gibson <david@gibson.dropbear.id.au>,
-       Marc Boucher <marc@linuxant.com>
-References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <40923D65.2010704@aitel.hist.no> <40927CC5.7060901@techsource.com>
-In-Reply-To: <40927CC5.7060901@techsource.com>
-MIME-Version: 1.0
+	Fri, 30 Apr 2004 17:04:52 -0400
+Received: from sitemail3.everyone.net ([216.200.145.37]:55467 "EHLO
+	omta12.mta.everyone.net") by vger.kernel.org with ESMTP
+	id S261298AbUD3U77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 16:59:59 -0400
+Content-Type: text/plain
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404301703.44551.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [141.153.75.83] at Fri, 30 Apr 2004 16:03:45 -0500
+Mime-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+Date: Fri, 30 Apr 2004 13:59:50 -0700 (PDT)
+From: john moser <bluefoxicy@linux.net>
+To: linux-kernel@vger.kernel.org
+Subject: VM/Swap performance ideas
+Reply-To: bluefoxicy@linux.net
+X-Originating-Ip: [68.33.185.81]
+X-Eon-Sig: AQHDJlhAkr5GAAbv9wEAAAAB,017f3982c8dfe0c78dc6e9b49b401fb3
+Message-Id: <20040430205950.74B9F3946@sitemail.everyone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 April 2004 12:20, Timothy Miller wrote:
->Helge Hafting wrote:
->> Timothy Miller wrote:
->>> While we're on all of this, are we going to change "tained" to
->>> some other less alarmist word?  Say there is a /proc file or some
->>> report that you can generate about the kernel that simply wants
->>> to indicate that the kernel contains closed-source modules, and
->>> we want to use a short, concise word like "tainted" for this. 
->>> "An untrusted module has been loaded into this kernel" would be
->>> just a bit too long to qualify.
->>>
->>> Hmmm... how about "untrusted"?  Not sure...
->>
->> "Unsupported" seems a good candidate to me.  It describes the
->> situation fairly well.  Such a kernel is unsupported by the
->> kernel community, and probably by the binary module vendor
->> too. They tend to restrict support to their own module . . .
->
->GOOD!  And if people misunderstood "unsupported" to also mean that
-> the VENDOR doesn't support it either, that's fine, because it's
-> almost always true.  :)
->
-I'm on this side of the fence too.  There are some vendors whose gear 
-I will not knowingly buy, memorex being one of them after I got a 
-device damaged by a power surge from nearby lightning, and was 
-summarily told by the telephone support dweebs that they did NOT 
-support linux, and that my warranty was worthless if it was ever 
-hooked to a linux box.  Hieing myself back to the dealer, he tried it 
-on a windows box, and it indeed was broken as far as the passthru was 
-concerned, but it almost made a picture so that was good enough for 
-them and I was told to go piss up a rope.
+I know it's slashdot, but this guy has a valid idea.  Don't just chuck
+it, consider it a bit.
 
-We should, and really, no dis-respect for Marc is intended here, 
-demand that the drivers furnished for linux be 100% open source.
+If you read the comment on slashdot at:
+http://slashdot.org/comments.pl?sid=105934&cid=9018548
 
-I have an nvidia card, but run the nv driver for exactly that reason.
+You'll see that this person is proposing to allow disk cache pages to
+exist in ram for a given amount of time before dropping them in favor
+of swapping application data back in.  This is a good idea, and could
+probably be refined quite a bit.
 
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+The first thing to note is that sticking swap in page cache is NOT a
+good solution to retrieving data in swap.  It works for a while,
+yeah; you can fault a page back in by mapping the area of swap that
+it exists in into the pagecache, and then mapping that area of ram
+to the application.  But in this case, you eat up BOTH ram and swap.
+This doubles ram usage.  I want 512M ram and 512M swap to let me
+put 1G of data into memory.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+For swapping back in, I suggest that you first map the swap pages
+into the page cache.  After that's remained valid for a while, pull
+it from the disk and make it exist purely in ram.  This will free
+up swap.  Add a sysctl, vm.pagecache.swap_grace, to specify how
+long swap pages must remain in pagecache before being pulled from
+swap and placed back into ram.  0 should mean infinite.  Value is
+in seconds.
+
+Second, this person suggested to give page cache data a max
+lifetime.  This is a good idea, because after a really long time,
+we can assume that we no longer care about the page cache data
+and would rather use that ram to quickly activate an application.
+
+I suggest you add a sysctl, vm.pagecache.max_life, to specify the
+maximum page cache dormancy period in seconds.  Purge entries in
+page cache that haven't been accessed for that long, except for
+swap page cache entries.  0 should be infinite.
+
+Third, we need to fasttrack useless page cache entries out of
+page cache.  Think about moving music around.  You read it in,
+it goes to page cache, you spit it back out.  Now you have it
+in page cache for no reason.  We no longer care about this
+data.
+
+For this, two syscalls should be added.
+vm.pagecache.fasttrack_life should be the time in seconds to
+allow a page cache entry to be deemed as useful.  The second,
+vm.pagecache.fasttrack_access, should be the number of
+accesses to the page cache entry that must occur in this time
+to make it appear useful.  For example, setting these to
+vm.pagecache.fasttrack_life=15 and
+vm.pagecache.fasttrack_access=3 will usually ensure that a
+simple copy or move of files between partitions is quickly
+purged from the page cache; in the first 3 seconds, the
+original file is read (1 access), the new file is written (1
+access), the original file is deleted (2 access to the inode
+data).  Then it's not bothered anymore.  12 seconds later,
+the page cache entry is purged in favor of some data from
+swap.  This could also be linked to inodes, and whether
+they're still open or not after the fasttrack_life.
+
+
+I must say that I AM NOT CODING THIS.  I'll give you guys
+ideas, but I have my own coding projects and college classes
+and can't be devoting time to keeping up with you while
+bending the vm around.
+
+Also, I haven't actually reviewed the VM code in depth.
+Some of the stuff I and the slashdot poster suggested may
+already be implimented.  Good job if so.
+
+_____________________________________________________________
+Linux.Net -->Open Source to everyone
+Powered by Linare Corporation
+http://www.linare.com/

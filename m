@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131184AbRDBR3t>; Mon, 2 Apr 2001 13:29:49 -0400
+	id <S130791AbRDBRh7>; Mon, 2 Apr 2001 13:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131194AbRDBR3k>; Mon, 2 Apr 2001 13:29:40 -0400
-Received: from front2.grolier.fr ([194.158.96.52]:40629 "EHLO
-	front2.grolier.fr") by vger.kernel.org with ESMTP
-	id <S131184AbRDBR3a> convert rfc822-to-8bit; Mon, 2 Apr 2001 13:29:30 -0400
-Date: Mon, 2 Apr 2001 16:16:21 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-To: Christian Kurz <shorty@getuid.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Assumption in sym53c8xx.c failed
-In-Reply-To: <20010331234823.B1858@seteuid.getuid.de>
-Message-ID: <Pine.LNX.4.10.10104021605310.926-100000@linux.local>
+	id <S131079AbRDBRht>; Mon, 2 Apr 2001 13:37:49 -0400
+Received: from platan.vc.cvut.cz ([147.32.240.81]:13323 "EHLO
+	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
+	id <S130791AbRDBRhj>; Mon, 2 Apr 2001 13:37:39 -0400
+Message-ID: <3AC8B8B2.FF9F66B7@vc.cvut.cz>
+Date: Mon, 02 Apr 2001 10:36:50 -0700
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac28-4g i686)
+X-Accept-Language: cz, cs, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: mythos <papadako@csd.uoc.gr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Matrox G400 Dualhead
+In-Reply-To: <Pine.GSO.4.33.0104012313000.20758-100000@iridanos.csd.uch.gr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 31 Mar 2001, Christian Kurz wrote:
-
-> Hi,
+mythos wrote:
 > 
-> I'm currently running 2.4.2-ac28 and today I got a failing assumption in
-> sym53c8xx.c. I'm not sure about the exact steps that I did to produce
-> this error, but it must have been something like: cdparanoia -blank=all,
-> then sending Ctrl+C to this process and after it's been killed
-> cdparanoia -blank=fast. I then got assertion: k!=-1 failed. But I found
-> no hint about this in the messages or syslog file. So I looked through
-> sym53c8xx.c to find this code and it seems like line 10123 is
-> responsible for creating this error and kernel panic. Should this be the
-> normal behaviour or is this a bug in the code?
+> I solved the problem with dualhead!!!
+> Second head from 2.4.3 is /dev/fb2 rather than /dev/fb1.
+> Just had to look to the messages.
 
-This might well be both at the same time. I mean normal behaviour given a
-bug in the code. :-)
+And who is /dev/fb1? You must change your configuration...
 
-Could you try this tiny patch and let me know:
+> P.S. Petr on the second head if I put mouse in the right-corner at the
+> bottom of the screen I will have a nice white border around the screen.
 
---- sym53c8xx.c.0402	Mon Apr  2 15:58:32 2001
-+++ sym53c8xx.c	Mon Apr  2 16:02:43 2001
-@@ -10167,14 +10167,13 @@
- 				if (i >= MAX_START*2)
- 					i = 0;
- 			}
--			assert(k != -1);
- 			if (k != 1) {
- 				np->squeue[k] = np->squeue[i]; /* Idle task */
- 				np->squeueput = k; /* Start queue pointer */
--				cp->host_status = HS_ABORTED;
--				cp->scsi_status = S_ILLEGAL;
--				ncr_complete(np, cp);
- 			}
-+			cp->host_status = HS_ABORTED;
-+			cp->scsi_status = S_ILLEGAL;
-+			ncr_complete(np, cp);
- 		}
- 		break;
- 	/*
+It is feature. Secondary head does not have any blanking, it just
+repeats
+last 64bits (last memory fetch cycle) again and again through whole
+vertical
+blanking interval (try 'setterm -bgcolor red' and you'll see). There are
+two possible workarounds:
+(1) create screen with width = 648 instead of 640 (it must be visible
+width!)
+    and fill this column with black.
+    This brokes too many apps because of they expect that they can
+horizontally
+    scroll for vxres - xres pixels :-( 
+    This is what Windows drivers do.
+(2) create screen with height = 481 instead of 480 and fill this line
+with
+    black. Unfortunately, you cannot use virtual scrolling then :-(
+So I decided just to live with it... You can just try 'fbset -yres 481
+-vyres 481'
+- it should implement (2).
 
-What happens is that this part of the driver code assumed that the CCB for
-an IO to abort is queued to the SCSI SCRIPTS. This is not always true
-since the driver may temporarily not queue all IOs to SCRIPTS. This may
-happens on QUEUE FULL condition or for devices that donnot accept tagged
-commands, for example.
+> Also cursor blinks very strange if there is a lot of move on another
+> framebuffer on the first head and leaves some white blocks around.
 
-Regards,
-  Gérard.
-
+You are not using 'video=scrollback:0', do you? You should... There were
+some
+changes in console_lock recently, maybe that someone now forgets to grab
+lock
+when doing scrolling/putcs?
+									Petr

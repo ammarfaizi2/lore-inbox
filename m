@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUESLt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbUESL4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbUESLt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 07:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbUESLt5
+	id S262388AbUESL4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 07:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbUESL4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 07:49:57 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:22933 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263664AbUESLtz convert rfc822-to-8bit
+	Wed, 19 May 2004 07:56:16 -0400
+Received: from mx1.actcom.net.il ([192.114.47.13]:27340 "EHLO
+	smtp1.actcom.co.il") by vger.kernel.org with ESMTP id S262388AbUESL4O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 07:49:55 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] [RESEND] 2.4.27-pre3  backout acpi_fixed_pwr_button
-Date: Wed, 19 May 2004 19:49:10 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8404623067@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [RESEND] 2.4.27-pre3  backout acpi_fixed_pwr_button
-Thread-Index: AcQ9j5OXWcVhXzBQTKG7Ze9Y4OaqHgABwc9g
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "O.Sezer" <sezero@superonline.com>,
-       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Cc: "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 May 2004 11:49:11.0423 (UTC) FILETIME=[4CFD20F0:01C43D97]
+	Wed, 19 May 2004 07:56:14 -0400
+Date: Wed, 19 May 2004 13:54:29 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] Remove bogus WARN_ON in futex_wait
+Message-ID: <20040519105429.GH31630@mulix.org>
+References: <20040519122350.2792e050.ak@suse.de> <20040519104339.GG31630@mulix.org> <20040519125001.3866f830.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+Hr//EUsa8//ouuB"
+Content-Disposition: inline
+In-Reply-To: <20040519125001.3866f830.ak@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your catching. As far as I know, Len has done it in his bk tree. And I think it will be pushed into baseline soon.
 
-Thanks,
-Luming
+--+Hr//EUsa8//ouuB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, May 19, 2004 at 12:50:01PM +0200, Andi Kleen wrote:
+> On Wed, 19 May 2004 13:43:40 +0300
+> Muli Ben-Yehuda <mulix@mulix.org> wrote:
+>=20
+> > On Wed, May 19, 2004 at 12:23:50PM +0200, Andi Kleen wrote:
+> > >=20
+> > > futex_wait goes to an interruptible sleep, but does a WARN_ON later
+> > > if it wakes up early. But waking up early is totally legal, since
+> > > the sleep is interruptible and any signal can wake it up.
+> >=20
+> > That's not what the WARN_ON is saynig, unless I'm missing
+> > something. It's checking if we were woken up early and there's no
+> > signal pending for us.=20
+>=20
+> True. Anyways, it seems to happen in practice.
+
+Granted; the interesting question is whether this is harmless or
+something to worry about. Any ideas why it happens?=20
+
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
 
+--+Hr//EUsa8//ouuB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of O.Sezer
->Sent: Wednesday, May 19, 2004 6:29 PM
->To: Marcelo Tosatti
->Cc: Brown, Len; linux-kernel@vger.kernel.org
->Subject: [PATCH] [RESEND] 2.4.27-pre3 backout acpi_fixed_pwr_button
->
->Marcelo:
->
->2.4.27-pre3 still seems to have the acpi_fixed_pwr_button and
->acpi_fixed_sleep_button changes in it, which oopses for me
->upon module unload. Sergey Vlasov's response to my report is
->attached. The original oops report is here:
->http://marc.theaimsgroup.com/?l=linux-kernel&m=108405180820535&w=2
->
->If you don't have another fix for it, please apply the included
->patch in order to back that out.
->
->Regards,
->Özkan Sezer
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAqzzlKRs727/VN8sRApYKAJ9u5jld8rcOY26sUvTwc6LuzQDGugCfWn3c
+l9EW5Wn5w38wEINNqZWAhbc=
+=xeil
+-----END PGP SIGNATURE-----
+
+--+Hr//EUsa8//ouuB--

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263262AbUCTXKM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 18:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbUCTXKM
+	id S263568AbUCTXMx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 18:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263570AbUCTXMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 18:10:12 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:2488 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S263262AbUCTXKG (ORCPT
+	Sat, 20 Mar 2004 18:12:53 -0500
+Received: from post1.dk ([62.242.36.44]:62226 "EHLO post1.dk")
+	by vger.kernel.org with ESMTP id S263568AbUCTXMt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 18:10:06 -0500
-Date: Sun, 21 Mar 2004 00:10:03 +0100 (MET)
-Message-Id: <200403202310.i2KNA3sp006345@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@suse.de
-Subject: [PATCH][2.4.26-pre5][x86_64] pci=noapci bogus warning
-Cc: linux-kernel@vger.kernel.org
+	Sat, 20 Mar 2004 18:12:49 -0500
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+Subject: Re: 2.6.4-mm2
+From: sam@ravnborg.org
+Reply-To: sam@ravnborg.org
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+X-Mailer: acmemail <URL:http://www.astray.com/acmemail/>
+Message-Id: <20040320231248.89BBA15C1E@post1.dk>
+Date: Sun, 21 Mar 2004 00:12:48 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+Date: Lør, 20 Mar 2004 23:50:30 +0100 skrev Olaf Hering <olh@suse.de> : 
 
-2.4.26-pre5 on x86_64 does implement pci=noacpi, but
-using the option triggers a scary message from PCI that
-the option is unknown. (It's really e820.c and ACPI
-that implement it.)
+>
+>I think that one made it into rc2. It breaks uml compilation, 
+>
+>  CC	   kernel/acct.o
+>  IKCFG   kernel/ikconfig.h
+>  GZIP    kernel/config_data.gz
+>  IKCFG   kernel/config_data.h
+>/bin/sh: line 1: scripts/bin2c: No such file or directory
+>make[1]: *** [kernel/config_data.h] Error 1
+>make: *** [kernel] Error 2
+>error: Bad exit status from /var/tmp/rpm-tmp.18419 (%build)
+>
+>looks like IKCFG does not depend on scripts/bin2c anymore?
 
-This is highly confusing when once's trying to figure
-out which combination of apic/noapic, acpi=, and pci=
-leads to a working system :-(
+There is a missing dependency on 'scripts' in the Makefile.
+Try add scripts as target on the line that says something like:
 
-The patch below fixes this by updating pci-pc.c to
-handle "pci=noacpi" like i386 does.
 
-[My MSI K8T-NEO-FIS2R needs ACPI for poweroff (since
-there's no APM in the x86_64 kernel), and then pci=noacpi
-to prevent ACPI from overriding the perfectly good MP
-table's data and mess up the timer and the NIC.]
+$(SUBDIRS): prepare-all scripts
+                        ^---- The scripts target you shall add.
+     $(Q)$(MAKE) $(build)=$@
 
-/Mikael
 
-diff -ruN linux-2.4.26-pre5/arch/x86_64/kernel/pci-pc.c linux-2.4.26-pre5.x86_64-pci=noacpi-fix/arch/x86_64/kernel/pci-pc.c
---- linux-2.4.26-pre5/arch/x86_64/kernel/pci-pc.c	2003-11-29 00:28:11.000000000 +0100
-+++ linux-2.4.26-pre5.x86_64-pci=noacpi-fix/arch/x86_64/kernel/pci-pc.c	2004-03-20 23:22:27.000000000 +0100
-@@ -645,6 +645,9 @@
- 	} else if (!strncmp(str, "lastbus=", 8)) {
- 		pcibios_last_bus = simple_strtol(str+8, NULL, 0);
- 		return NULL;
-+	} else if (!strncmp(str, "noacpi", 6)) {
-+		acpi_noirq_set();
-+		return NULL;
- 	}
- 	return str;
- }
+Cannot test rigth now - not on my Linux machine.
+
+     Sam

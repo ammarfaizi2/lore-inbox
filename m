@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264215AbTEXAva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 20:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTEXAva
+	id S264218AbTEXAvh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 20:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTEXAvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 20:51:30 -0400
+	Fri, 23 May 2003 20:51:33 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:14555 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264215AbTEXAv1 (ORCPT
+	by vger.kernel.org with ESMTP id S264218AbTEXAv2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 20:51:27 -0400
-Date: Fri, 23 May 2003 17:37:12 -0700
+	Fri, 23 May 2003 20:51:28 -0400
+Date: Fri, 23 May 2003 17:33:07 -0700
 From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Matt_Domsch@Dell.com, linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: Displaying/modifying PCI device id tables via sysfs
-Message-ID: <20030524003712.GA15086@kroah.com>
-References: <20BF5713E14D5B48AA289F72BD372D680392F82C-100000@AUSXMPC122.aus.amer.dell.com> <20030303182553.GG16741@kroah.com> <20030523105351.2ba4f9b2.rusty@rustcorp.com.au>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: Device-mapper filesystem interface
+Message-ID: <20030524003307.GB14875@kroah.com>
+References: <20030522085036.GD441@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030523105351.2ba4f9b2.rusty@rustcorp.com.au>
+In-Reply-To: <20030522085036.GD441@fib011235813.fsnet.co.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 23, 2003 at 10:53:51AM +1000, Rusty Russell wrote:
+On Thu, May 22, 2003 at 09:50:36AM +0100, Joe Thornber wrote:
+> I thought I'd kick off a thread concerning the filesystem interface
+> for device-mapper after it came up on last nights 'must-fix' meeting.
 > 
-> More importantly, the modules now contain suitable aliases embedded within
-> them: modules.pcimap et al will vanish before 2.6 whenever Greg (hint hint)
-> updates the hotplug scripts to use them instead of modules.XXXmap.
+> To recap:
+> 
+> Alasdair Kergon and I spent a lot of time thinking last autumn about
+> how to best map the dm semantics onto an fs.  The end result was this
+> very rough and ready patchset:
+> 
+> http://people.sistina.com/~thornber/patches/2.5-unstable/2.5.51/2.5.51-dmfs-1.tar.bz2
+> 
+> The reception was not favourable.  People didn't like the way creating
+> a directory was analagous to creating a device, or the fact that these
+> device directories were pre-populated with table, status and
+> dependency files.  Gregkh was the only person who put forward
+> alternatives ideas (sysfs), and I don't think even he had thought
+> through how all of the dm functionality was going to be mapped.  eg,
+> with dmfs as it stands the 'wait for event' ioctl has translated into
+> a poll on the status file, ie wait until the status file changes - I
+> think this is neat.
 
-Yeah, yeah, yeah, I'll get to it soon, sorry :)
+Yeah, I went down the sysfs path for a while, then got distracted by
+other issues (driver core, etc.)  If you need this feature, then yes, a
+dmfs does make sense to have, and not use sysfs.
 
-> So the question is, how do you add PCI IDs to a module which isn't loaded?
-
-Do we really care about this question?  I mean, if a user knows that
-they want to use a specific module for their device (as they must know
-this somehow), then they can just load the module today, and use the
-dynamic id feature to add the new id.  At that time the device is bound
-to the driver.
-
-I don't really see this as a problem, but I might be missing something
-obvious.
-
-> You can trivially add a new alias for it, which will cause modprobe to
-> find it, but the module won't know it can handle the new PCI ID, and
-> will fail to load.
-
-Not true.  The module will load just fine, just not bind to the device.
-Well, old-style pci modules will not load, but I don't feel sorry about
-them at all.  They have had about 3 years to convert to the "new" pci
-api.
+I'm not opposed to your implementation, it was just a bit strange at
+first glance.  Care to update your old patch for this?
 
 thanks,
 

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267923AbTAHUex>; Wed, 8 Jan 2003 15:34:53 -0500
+	id <S267916AbTAHUcS>; Wed, 8 Jan 2003 15:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267924AbTAHUex>; Wed, 8 Jan 2003 15:34:53 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58379 "EHLO
+	id <S267918AbTAHUcR>; Wed, 8 Jan 2003 15:32:17 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45067 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267923AbTAHUew>; Wed, 8 Jan 2003 15:34:52 -0500
-To: linux-kernel@vger.kernel.org
+	id <S267916AbTAHUcN>; Wed, 8 Jan 2003 15:32:13 -0500
+Message-ID: <3E1C8CD2.4070402@zytor.com>
+Date: Wed, 08 Jan 2003 12:40:50 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH][TRIVIAL] menuconfig color sanityExpires:
-Date: 8 Jan 2003 12:43:30 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <avi2hi$136$1@cesium.transmeta.com>
-References: <20030108104714.GM268@gage.org> <Pine.LNX.3.96.1030108095857.21895A-100000@gatekeeper.tmr.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI code:  why need  outb (0x01, 0xCFB); ?
+References: <3014AAAC8E0930438FD38EBF6DCEB5647D0D1C@fmsmsx407.fm.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.3.96.1030108095857.21895A-100000@gatekeeper.tmr.com>
-By author:    Bill Davidsen <davidsen@tmr.com>
-In newsgroup: linux.dev.kernel
-> 
-> Man, did you look at this on a console? That is uglier than a hedgehog's
-> asshole! Good idea, poor implementation. Please retry, the default colors
-> are not as bad on an xterm as the new colors on a console. And with small
-> memory machines I sure don't build kernels using X! 
+Nakajima, Jun wrote:
+>
+> Normally all accesses should be long (0xcf8/0xcfc) but x86 is byte addresseable and some chipsets do support byte accesses. 
+> We do not encourage use of byte accesses as it will not be supported in future platforms.
 > 
 
-Also, whatever color set is chosen: make sure it works on a
-512-character font console, which doesn't have the high-intensity
-colors.
+The PCI standard is quite explicit: byte accesses are permitted to the
+data window (0xCFC) and not permitted to the address window (0xCF8).
+Accepting byte accesses to the address window, or not supporting byte
+accesses to the data window, *will* result in breakage (I can attest to
+this fact quite well.)
 
 	-hpa
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+

@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbVCXREW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbVCXREp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbVCXREW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 12:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbVCXREV
+	id S263121AbVCXREp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 12:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbVCXREk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 12:04:21 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34257 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262463AbVCXREE (ORCPT
+	Thu, 24 Mar 2005 12:04:40 -0500
+Received: from geode.he.net ([216.218.230.98]:43022 "HELO noserose.net")
+	by vger.kernel.org with SMTP id S263121AbVCXRET (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 12:04:04 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: drm bugs hopefully fixed but there might still be one..
-Date: Thu, 24 Mar 2005 09:02:03 -0800
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-References: <Pine.LNX.4.58.0503241015190.7647@skynet>
-In-Reply-To: <Pine.LNX.4.58.0503241015190.7647@skynet>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503240902.03808.jbarnes@engr.sgi.com>
+	Thu, 24 Mar 2005 12:04:19 -0500
+From: ecashin@noserose.net
+Message-Id: <1111683853.31205@geode.he.net>
+Date: Thu, 24 Mar 2005 09:04:13 -0800
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Arjan van de Ven <arjan@infradead.org>, Greg K-H <greg@kroah.com>
+Subject: Re: [PATCH 2.6.11] aoe [5/12]: don't try to free null bufpool
+X-Draft-From: ("nntp+news.gmane.org:gmane.linux.kernel" 290230)
+References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com>
+	<1111677437.28285@geode.he.net>
+	<1111679884.6290.93.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, March 24, 2005 2:33 am, Dave Airlie wrote:
-> Hi Andrew, Dave,
->
-> I've put a couple of patches into my drm-2.6 tree that hopefully fix up
-> the multi-bridge on i915 and the XFree86 4.3 issue.. Andrew can you drop
-> the two patches in your tree.. the one from Brice and the one I attached
-> to the bug? you'll get conflicts anyway I'm sure. I had to modify Brices
-> one as it didn't look safe to me in all cases..
->
-> I think their might be one left, but I think it only seems to be on
-> non-intel AGP system, as in my system works fine for a combination of
-> cards and X releases ... anyone with a VIA chipset and Radeon graphics
-> card or r128 card.. testing the next -mm would help me a lot..
+Arjan van de Ven <arjan@infradead.org> writes:
 
-I'm trying to get ahold of one--so hopefully I'll be able to test and fix this 
-stuff up when I do.
+> On Thu, 2005-03-24 at 07:17 -0800, ecashin@noserose.net wrote:
+>> don't try to free null bufpool
+>
+> in linux there is a "rule" that all memory free routines are supposed to
+> also accept NULL as argument, so I think this patch is not needed (and
+> even wrong)
+>
 
-Jesse
+Hmm.  The mm/mempool.c:mempool_destroy function immediately
+dereferences the pointer passed to it:
+
+void mempool_destroy(mempool_t *pool)
+{
+	if (pool->curr_nr != pool->min_nr)
+		BUG();		/* There were outstanding elements */
+	free_pool(pool);
+}
+
+... so I'm not sure mempool_destroy fits the rule.  Are you suggesting
+that the patch should instead modify mempool_destroy?
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>

@@ -1,101 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265891AbUF3M6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266661AbUF3NFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265891AbUF3M6h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 08:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266656AbUF3M6e
+	id S266661AbUF3NFR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 09:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUF3NFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 08:58:34 -0400
-Received: from david.siemens.de ([192.35.17.14]:6098 "EHLO david.siemens.de")
-	by vger.kernel.org with ESMTP id S265891AbUF3M6a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 08:58:30 -0400
-From: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>
-Organization: Siemens Schweiz AG
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
-Date: Wed, 30 Jun 2004 14:58:04 +0200
-User-Agent: KMail/1.6
-Cc: laflipas@telefonica.net, linux-kernel@vger.kernel.org, t.hirsch@web.de,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <20040629143232.52963.qmail@web81303.mail.yahoo.com> <200406291253.10542.dtor_core@ameritech.net> <200406300102.16083.dtor_core@ameritech.net>
-In-Reply-To: <200406300102.16083.dtor_core@ameritech.net>
-X-Face: 9PH_I\aV;CM))3#)Xntdr:6-OUC=?fH3fC:yieXSa%S_}iv1M{;Mbyt%g$Q0+&K=uD9w$8bsceC[_/u\VYz6sBz[ztAZkg9R\txq_7]J_WO7(cnD?s#c>i60S
-MIME-Version: 1.0
+	Wed, 30 Jun 2004 09:05:16 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:32464 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S266661AbUF3NEt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 09:04:49 -0400
+Date: Wed, 30 Jun 2004 15:04:42 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: s390(64) per_cpu in modules (ipv6)
+Message-ID: <20040630130442.GA2440@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406301458.04705.Marc.Waeckerlin@siemens.com>
-X-OriginalArrivalTime: 30 Jun 2004 12:58:07.0853 (UTC) FILETIME=[E3D7C1D0:01C45EA1]
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 30. Juni 2004 08.02 schrieb Dmitry Torokhov unter "Re: Continue: 
-psmouse.c - synaptics touchpad driver sync problem":
-> The mux got confused as to where the byte came from. They byte itself seems
-> to be in line with other data in the stream. At this moment your mouse has
-> probably started jumping around. The patch I send earlier should help with
-> this kind of problem.
+> > It seems to work fine, but I'm wondering if a better fix can
+> > be found.
+> 
+> How does __attribute__((used)) fare?
 
-Well, there are several things:
- 1) Cursor hangs on system load with internal mousepad
-    (no external mouse connected)
- 2) Cursor jumps a bit with internal mousepad
-    (no external mouse connected)
- 3) Cursor jumps like crazy when moving external mouse
- 4) Cursor randomly clicks when moving external mouse
- 5) Hitting the mouse pad does not do a button1-click
- 6) Sometimes the keyboard does not work anymore or 
-    sends neverending random events - even with no
-    external mouse/keyboard
+__attribute_used__ isn't really what we want. If a statically
+defined per cpu variable isn't used in the C file then gcc
+should be allowed to remove it. It's not used after all.
+What we need is a way to tell the compiler that an inline
+assembly uses a variable without passing any kind of address
+of the variable to it. The solution is the "X" constraint.
+While I was at it I cleaned things up a bit, I don't like
+the #undefs in percpu.h. Patch is attached, I will include
+it in my next update for Andrew.
 
-I did not recognize that the previous patch helped in any of these problems, 
-but No. 2 is the hardest to check, because I have to work for a while until 
-it occurs.
+blue skies,
+  Martin.
 
-The second patch does not help either.
-
-The i8042.nodemux option only "resolved" No. 3 and No. 4, because the external 
-mouse was no more available. Until now, nothing makes anything better.
-
-
-> > drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux3, 12) [181878]
-> > Jun 28 16:01:20 qingwa kernel: drivers/input/serio/i8042.c: 00 <- i8042
-> > (interrupt, aux3, 12) [181880]
-
-> Not quite sure what all this is about... Did you plug external keyboard
-> here?
-
-Possible.
-
-
-> > [184574] Jun 28 16:01:22 qingwa kernel: drivers/input/serio/i8042.c: 00
-> > <- i8042 (interrupt, aux3, 12) [184576] Jun 28 16:01:22 qingwa kernel:
-> > drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux3, 12) [184585]
-
-> It seems that we are missing a byte between ff and 18, delay between 2
-> bytes is about a second... Where did the byte go? Do you have DMA turned on
-> on your hard driver? Anything polling battery status? Can't do anything
-> here...
-
-Do you mean hard disk DMA? Then Yes for DMA and yes for polling.
-
-
-> Could you change drivers/input/mouse/psmouse-base.c - psmouse_interrupt()
-> in call to time time_after HZ/2 to HZ/4. You may see more "lost x bytes"
-> messages but I bet touchpad handling will feel much better.
-
-I'll try if I can find out what you mean...
-...ok, did the change.
-
-As far as I understand, it has only effect on internal touchpad. I will 
-therefore need some time for long time check. You'll hear from me later, but 
-this surely won't resolve problems No. 2 - 6.
-
-It is now together with your second patch, you first patch is no more in my 
-sources. Is this good? (I understand that by "Vanilla" you mean the original 
-source without your first patch?)
-
-
-Regards
-Marc
+diff -urN linux-2.6/include/asm-s390/percpu.h linux-2.6-s390/include/asm-s390/percpu.h
+--- linux-2.6/include/asm-s390/percpu.h	Wed Jun 16 07:20:04 2004
++++ linux-2.6-s390/include/asm-s390/percpu.h	Wed Jun 30 14:37:45 2004
+@@ -1,30 +1,70 @@
+ #ifndef __ARCH_S390_PERCPU__
+ #define __ARCH_S390_PERCPU__
+ 
+-#include <asm-generic/percpu.h>
++#include <linux/compiler.h>
+ #include <asm/lowcore.h>
+ 
++#define __GENERIC_PER_CPU
++
+ /*
+- * For builtin kernel code s390 uses the generic implementation for
+- * per cpu data, with the exception that the offset of the cpu local
+- * data area is cached in the cpu's lowcore memory
++ * s390 uses its own implementation for per cpu data, the offset of
++ * the cpu local data area is cached in the cpu's lowcore memory.
+  * For 64 bit module code s390 forces the use of a GOT slot for the
+  * address of the per cpu variable. This is needed because the module
+  * may be more than 4G above the per cpu area.
+  */
+ #if defined(__s390x__) && defined(MODULE)
+-#define __get_got_cpu_var(var,offset) \
++
++#define __reloc_hide(var,offset) \
+   (*({ unsigned long *__ptr; \
+-       asm ( "larl %0,per_cpu__"#var"@GOTENT" : "=a" (__ptr) ); \
+-       ((typeof(&per_cpu__##var))((*__ptr) + offset)); \
+-    }))
+-#undef __get_cpu_var
+-#define __get_cpu_var(var) __get_got_cpu_var(var,S390_lowcore.percpu_offset)
+-#undef per_cpu
+-#define per_cpu(var,cpu) __get_got_cpu_var(var,__per_cpu_offset[cpu])
++       asm ( "larl %0,per_cpu__"#var"@GOTENT" \
++             : "=a" (__ptr) : "X" (per_cpu__##var) ); \
++       (typeof(&per_cpu__##var))((*__ptr) + (offset)); }))
++
+ #else
+-#undef __get_cpu_var
+-#define __get_cpu_var(var) (*RELOC_HIDE(&per_cpu__##var, S390_lowcore.percpu_offset))
++
++#define __reloc_hide(var, offset) \
++  (*({ unsigned long __ptr; \
++       asm ( "" : "=a" (__ptr) : "0" (&per_cpu__##var) ); \
++       (typeof(&per_cpu__##var)) (__ptr + (offset)); }))
++
+ #endif
+ 
++#ifdef CONFIG_SMP
++
++extern unsigned long __per_cpu_offset[NR_CPUS];
++
++/* Separate out the type, so (int[3], foo) works. */
++#define DEFINE_PER_CPU(type, name) \
++    __attribute__((__section__(".data.percpu"))) \
++    __typeof__(type) per_cpu__##name
++
++#define __get_cpu_var(var) __reloc_hide(var,S390_lowcore.percpu_offset)
++#define per_cpu(var,cpu) __reloc_hide(var,__per_cpu_offset[cpu])
++
++/* A macro to avoid #include hell... */
++#define percpu_modcopy(pcpudst, src, size)			\
++do {								\
++	unsigned int __i;					\
++	for (__i = 0; __i < NR_CPUS; __i++)			\
++		if (cpu_possible(__i))				\
++			memcpy((pcpudst)+__per_cpu_offset[__i],	\
++			       (src), (size));			\
++} while (0)
++
++#else /* ! SMP */
++
++#define DEFINE_PER_CPU(type, name) \
++    __typeof__(type) per_cpu__##name
++
++#define __get_cpu_var(var) __reloc_hide(var,0)
++#define per_cpu(var,cpu) __reloc_hide(var,0)
++
++#endif /* SMP */
++
++#define DECLARE_PER_CPU(type, name) extern __typeof__(type) per_cpu__##name
++
++#define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(per_cpu__##var)
++#define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(per_cpu__##var)
++
+ #endif /* __ARCH_S390_PERCPU__ */

@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUIZUDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUIZUbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUIZUDm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 16:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUIZUDm
+	id S263769AbUIZUbs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 16:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUIZUbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 16:03:42 -0400
-Received: from sa9.bezeqint.net ([192.115.104.23]:51878 "EHLO sa9.bezeqint.net")
-	by vger.kernel.org with ESMTP id S263540AbUIZUDl (ORCPT
+	Sun, 26 Sep 2004 16:31:48 -0400
+Received: from ozlabs.org ([203.10.76.45]:13519 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263769AbUIZUbq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 16:03:41 -0400
-Date: Sun, 26 Sep 2004 23:04:51 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG: 2.6.9-rc2-bk11] input completely dead in X
-Message-ID: <20040926210450.GA2960@luna.mooo.com>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	Sun, 26 Sep 2004 16:31:46 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040818i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16727.9953.113125.387097@cargo.ozlabs.ibm.com>
+Date: Mon, 27 Sep 2004 06:30:25 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrea Arcangeli <andrea@novell.com>, Rik van Riel <riel@redhat.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ptep_establish/establish_pte needs set_pte_atomic and all
+	set_pte must be written in asm
+In-Reply-To: <1096160383.18233.67.camel@gaston>
+References: <20040926002037.GP3309@dualathlon.random>
+	<Pine.LNX.4.44.0409252030260.28582-100000@chimarrao.boston.redhat.com>
+	<20040926004608.GS3309@dualathlon.random>
+	<1096160383.18233.67.camel@gaston>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just tried kernel 2.6.9-rc2-bk11 and when I start X input is completely
-dead (including num-lock, caps-lock, sysrq and mouse). The computer is
-otherwise functional (I can log in with ssh, kill X and everything is
-functional again).
+Benjamin Herrenschmidt writes:
 
-In the console is completely functional, before and after starting X.
+> On Sun, 2004-09-26 at 10:46, Andrea Arcangeli wrote:
+> 
+> > As far as the C language is concerned that *ptep = something can be
+> > implemented with 8 writes of 1 byte each (or alternatively with an
+> > assembler instruction that may make the written data visible not
+> > atomically to other cpus, despite it was written with a single opcode,
+> > similarly to what happens if you use incl without the lock prefix). I'm
+> > not saying such instruction exists in ppc64, but the compiler is
+> > definitely allowed to break the above. You can blame on the compiler to
+> > be inefficient, but you can't blame on the compiler for the security
+> > hazard it would generate. Only the kernel would be to blame if for
+> > whatever reason a gcc version would be underoptimized.
+> 
+> BTW, for your reading pleasure :)
+> 
+> #define atomic_set(v,i)		(((v)->counter) = (i))
 
-I had exactly the same behavior with mm kernels from version 2.6.7 or
-2.6.8 (not sure) onwards, which was fixed by reversing the bk-input
-patch.
+FWIW, we also rely on several other things that are not guaranteed by
+the C standard, for instance that integer arithmetic is 2's
+complement, that bytes are individually addressable, and that pointers
+are represented by an address that is no bigger than a long.
 
-kernel 2.6.9-rc2 works fine.
+Paul.
 
-The machine is Sony Vaio PCG-FXA53 laptop (amd 1500+ and via chipset).
-The keyboard is recognized as ps2 AFAIK and the touchpad is an alps
-(with the alps kernel patch).

@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbTKJWNm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 17:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbTKJWNm
+	id S264134AbTKJWRT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 17:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264136AbTKJWRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 17:13:42 -0500
-Received: from web11904.mail.yahoo.com ([216.136.172.188]:19719 "HELO
-	web11904.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263203AbTKJWNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 17:13:41 -0500
-Message-ID: <20031110221340.76741.qmail@web11904.mail.yahoo.com>
-Date: Mon, 10 Nov 2003 14:13:40 -0800 (PST)
-From: Mike Mestnik <cheako911@yahoo.com>
-Subject: Re: [Dri-devel] Problems with the radeon 1.9.0 driver in 2.6.0-test9-mm2
-To: "lists.sourceforge.net dri-devel" <dri-devel@lists.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1068466480.9513.27.camel@thor.asgaard.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Nov 2003 17:17:19 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16900 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264134AbTKJWRS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 17:17:18 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Date: 10 Nov 2003 22:06:45 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bop25l$759$1@gatekeeper.tmr.com>
+References: <3FA69CDF.5070908@gmx.de> <3FAABFBF.3040300@gmx.de> <20031107210535.GA445@suse.de> <3FAE1BB7.5090203@gmx.de>
+X-Trace: gatekeeper.tmr.com 1068502005 7337 192.168.12.62 (10 Nov 2003 22:06:45 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3FAE1BB7.5090203@gmx.de>,
+Prakash K. Cheemplavam <prakashkc@gmx.de> wrote:
 
---- Michel Dänzer <michel@daenzer.net> wrote:
-> On Fri, 2003-11-07 at 23:05, Andrew Morton wrote: 
-> > 
-> > Has anyone actually tested the functionality which this patch is supposed
-> > to provide?  That loading the DRM module magically triggers a load of AGP? 
-> 
-> Haven't tried it, but I doubt it does looking at the code for symbol_get
-> and friends... try_then_request_module() might do the trick instead?
-> 
-> Either way, it won't help the fact that loading agpgart is no longer
-> enough, the chipset specific AGP module needs to be loaded.
-> 
-This is what aliases are for :)
-I think modprobe can be made to handel everything, if modules advertise what aliases thay provide.
- Depmod can list aliases depending on device IDs depending on the real module in it's database,
-then when modprobe is assked to load (an alias) it can make a match and load the right mod(s if
-there is more than one).  It would brakdown like this.  There would be several mods with the same
-name, modprobe would try to satisfy the dependencys of each one, failing if the device IDs are not
-present.
+| Yup, I verified it in windows. Same issue, so it is a hardware and not 
+| software issue.
 
-indicate on your message that you wish to be personally CC'ed the answers/comments posted to the
-list in response to your posting.
+Would you humor me and get the isosize of the image from isoinfo, then
+try to read the image with 
+  "dd if=/dev/cdrom bs=2k count={ISOSIZE} of=copy.iso" 
+and see if reading just the correct amount will in fact get the last
+data? Note that this is another of those "sometimes works" things, your
+firmware may really not allow you to avoid readahead, but I have several
+drives (one CD one CD-R) which do work this way.
 
-> > Or is it the other way around?
-> 
-> Only really makes sense this way around. :)
-> 
-How about we put the AGP module name in the XF86Config and have X load everything.  I personaly
-HATE this idea, IMHO X(and other programs for that matter) should not alter loaded modules nor
-should it alter device nodes exept to change the owner like login dose for ttys.
+Curiosity only, but easier than doing md5sum on all the files after
+mounting the CD.
 
-
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree
+I think the issue is pretty well defined, with no pad some drives can't
+read to the end, and with pad a few drives will read the pad if you just
+copy all the drive can read. And use of DAO vs TAO to record makes a
+difference with some burners as well.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

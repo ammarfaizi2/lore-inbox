@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291055AbSAaMxr>; Thu, 31 Jan 2002 07:53:47 -0500
+	id <S291051AbSAaMxR>; Thu, 31 Jan 2002 07:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291053AbSAaMxi>; Thu, 31 Jan 2002 07:53:38 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:17415 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S291052AbSAaMx0>; Thu, 31 Jan 2002 07:53:26 -0500
-Date: Thu, 31 Jan 2002 15:53:25 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Dave Jones <davej@suse.de>, Sebastian Dr?ge <sebastian.droege@gmx.de>,
-        linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
-Message-ID: <20020131155325.A3629@namesys.com>
-In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de> <20020130173715.B2179@namesys.com> <20020130163951.13daca94.sebastian.droege@gmx.de> <20020130190905.A820@namesys.com> <20020130174011.L24012@suse.de> <20020130201054.6e150f78.sebastian.droege@gmx.de> <20020130201757.Q24012@suse.de> <20020131122424.A874@namesys.com> <20020131134931.A5948@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020131134931.A5948@suse.de>
-User-Agent: Mutt/1.3.22.1i
+	id <S291052AbSAaMxH>; Thu, 31 Jan 2002 07:53:07 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:44811 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S291051AbSAaMw4>; Thu, 31 Jan 2002 07:52:56 -0500
+Message-ID: <3C593E19.1070309@evision-ventures.com>
+Date: Thu, 31 Jan 2002 13:52:41 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: David Weinehall <tao@acc.umu.se>
+CC: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <3C59353F.3080208@evision-ventures.com> <Pine.LNX.4.33.0201311515350.9106-100000@localhost.localdomain> <20020131132830.W1735@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+David Weinehall wrote:
 
-On Thu, Jan 31, 2002 at 01:49:31PM +0100, Dave Jones wrote:
+>On Thu, Jan 31, 2002 at 03:17:52PM +0100, Ingo Molnar wrote:
+>
+>>On Thu, 31 Jan 2002, Martin Dalecki wrote:
+>>
+>>>And then we are still just discussing here how to get things IN. But
+>>>there apparently currently is nearly no way to get things OUT of the
+>>>kernel tree. Old obsolete drivers used by some computer since
+>>>archeologists should be killed (Atari, Amiga, support, obsolete
+>>>drivers and so on). Just let *them* maintains theyr separate kernel
+>>>tree...
+>>>
+>>'old' architectures do not hinder development - they are separate, and
+>>they have to update their stuff. (and i think the m68k port is used by
+>>many other people and not CS archeologists.) Old drivers are not a true
+>>problem either - if they dont compile that's the problem of the
+>>maintainer. Occasionally old drivers get zapped (mainly when there is a
+>>new replacement driver).
+>>
+>
+>To testify that even really old hardware is used, I recently received a
+>patch for 2.0.xx to add autodetection for wd1002s-wx2 in the
+>xd.c-driver. Not particularly recent hardware, but the person who sent
+>the patch uses it. Why deny him usage of his hardware when it doesn't
+>intrude upon the rest of the codebase?
+>
 
->  > 2.5.2-dj7 breaks instantly on the first truncate call to reiserfs.
->  > I tried to dig up the difference between these 2 kernels but have not found
->  > anything that will change that behaviour yet. And resierfs code is identical.
->  > But dj7 seems to have a lot of modifications in the mm/* and fs/* stuff
->  > compared to 2.5.3
->  One possible is that I've goofed whilst merging Andrew Mortons
->  "out of disk space during truncate" fixes from 2.4.  Andrew, could
->  have a quick scan through the fs/ changes in -dj6 and see if anything
->  jumps out at you ?
-Hm, but I remember dj6 was reported as "working"?
+He should feel free to use the 2.0.xx kernel up no end. Nobody denys it 
+to him. But from the mainline
+it all should get out of the sight for the developement.
 
->  I'll take a look myself later too, but right now, it's a head-scratcher.
-Do you have some place where one can see all separate patches 2.5.2-dj7 
-consist of?
-
-Bye,
-    Oleg

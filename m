@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261791AbSJQTrd>; Thu, 17 Oct 2002 15:47:33 -0400
+	id <S261794AbSJQTwK>; Thu, 17 Oct 2002 15:52:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261890AbSJQTrd>; Thu, 17 Oct 2002 15:47:33 -0400
-Received: from vena.lwn.net ([206.168.112.25]:8978 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S261791AbSJQTrc>;
-	Thu, 17 Oct 2002 15:47:32 -0400
-Message-ID: <20021017195331.10286.qmail@eklektix.com>
-To: EricAltendorf@orst.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question: Favorite Linux kernel book? 
-From: corbet@lwn.net (Jonathan Corbet)
-In-reply-to: Your message of "Thu, 17 Oct 2002 10:33:06 PDT."
-             <200210171033.06451.EricAltendorf@orst.edu> 
-Date: Thu, 17 Oct 2002 13:53:31 -0600
+	id <S261859AbSJQTwK>; Thu, 17 Oct 2002 15:52:10 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:28679 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261794AbSJQTwJ>; Thu, 17 Oct 2002 15:52:09 -0400
+Date: Thu, 17 Oct 2002 20:58:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Robert Love <rml@tech9.net>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       riel@conectiva.com.br
+Subject: Re: [PATCH] pre-decoded wchan output
+Message-ID: <20021017205803.A7555@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Robert Love <rml@tech9.net>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, riel@conectiva.com.br
+References: <1034882043.1072.589.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1034882043.1072.589.camel@phantasy>; from rml@tech9.net on Thu, Oct 17, 2002 at 03:14:02PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was just wondering if anyone had any recommendations for reading 
-> material to introduce the Linux kernel, design & code.
+On Thu, Oct 17, 2002 at 03:14:02PM -0400, Robert Love wrote:
+> Linus,
+> 
+> Attached patch implements a /proc/#/wchan which provides a pre-decoded
+> wchan via kallsyms.  I.e.,
+> 
+> 	[15:05:06]rml@phantasy:~$ cat /proc/1228/wchan
+> 	wait4
+> 
+> Which is damn cool to me and will let ps(1) grab wchan information
+> without having to parse System.map.  It also means procps will not need
+> System.map.
+> 
+> If CONFIG_KALLSYMS is enabled, /proc/#/wchan exists and exports the
+> pre-decoded symbol name.  The old wchan value in /proc/#/stat is
+> hard-coded to zero.
+> 
+> If CONFIG_KALLSYMS is not enabled, /proc/#/wchan does not exist to
+> conserve memory.  In that case, the old wchan field in /proc/#/stat will
+> export the usual wchan address.
+> 
+> This will not break procps, however the wchan field will be zero without
+> an updated version if CONFIG_KALLSYMS is set.  That is fine as 2.5
+> requires an updated procps anyhow.  If CONFIG_KALLSYMS is not set,
+> things are unchanged.
 
-I can't let this go by without recommending "Linux Device Drivers", which
-covers much of the kernel API.  Available at your favorite bookstore, or
-online (under the FDL) at: http://www.xml.com/ldd/chapter/book/index.html.
-Of course, I'm a little biased on that one...
+Can't you just left the old, nuerical one in even if CONFIG_KALLSYMS
+ise set?  One ifdef less and far less surprises..
 
-Other worthwhile books include "Understanding the Linux Kernel," also
-published by O'Reilly (though it's a little behind the times now), and
-"ia-64 Linux Kernel," which is well worthwhile even if you have no interest
-in the ia-64 architecture.
-
-jon
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net

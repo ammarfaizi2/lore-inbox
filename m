@@ -1,78 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTELHJV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 03:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTELHJV
+	id S261969AbTELHVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 03:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTELHVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 03:09:21 -0400
-Received: from mail9.atl.registeredsite.com ([64.224.219.83]:2878 "EHLO
-	mail9.atl.registeredsite.com") by vger.kernel.org with ESMTP
-	id S261965AbTELHJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 03:09:20 -0400
-Subject: problems with using multicast
-From: "Shantanu.Gogate" <shantanu.gogate@wibhu.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052723893.1807.54.camel@Jughead.Wibhu>
+	Mon, 12 May 2003 03:21:09 -0400
+Received: from almesberger.net ([63.105.73.239]:63247 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261969AbTELHVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 03:21:08 -0400
+Date: Mon, 12 May 2003 04:33:43 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: anyone ever implemented a reparent(pid) syscall?
+Message-ID: <20030512043343.A1861@almesberger.net>
+References: <3EBBF965.4060001@nortelnetworks.com> <20030510063936.D13069@almesberger.net> <3EBF1398.9090704@nortelnetworks.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 12 May 2003 12:48:13 +0530
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EBF1398.9090704@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Sun, May 11, 2003 at 11:23:04PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I am trying to use multicast in an application which. I am running
-kernel 2.4.19.I have interfaces lo, and eth0 on bootup.  Here is what I
-am trying to do...
+Chris Friesen wrote:
+> Sure. So the monitorer starts up, attempts to watch a pid, gets an error
+> saying that it doesn't exist, and handles it.
 
-When i try to create a socket which becomes a member of a multicast
-group by specifying the grp address and using INADDR_ANY as the
-interface to use, i am able to receive packets sent out the multicast
-group. However if i specifically bind it to the address of eth0 and then
-try to receive packets...i am not getting any....The only other
-interfaces i have are lo. I cant explain why it is working when i use
-INADDR_ANY and does not receive packets when i use the specific address
-of the device....
+You'd still have a PID reuse race. Of course, you could also
+cover this by checking the process' start time ...
 
-the code for this socket init looks as follows ...i have removed error
-handling for readability right now
---------------
-         server_socket = socket(AF_INET, SOCK_DGRAM,0);
-  
-         memset(&saddr,0,sizeof(struct sockaddr_in));
-         saddr.sin_family = AF_INET;
-         saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-         saddr.sin_port = port;
+But just designing the parent to be simple enough to be reliable
+and/or generic enough that it doesn't even need to be upgraded
+still looks like a more promising approach to me.
 
-        bind(server_socket, (struct sockaddr *) &saddr, sizeof(saddr);
-        
-on=1;
-setsockopt(server_socket,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on));
+- Werner
 
-        mreq.imr_multiaddr.s_addr = mcast_addr;
-        mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-       
-setsockopt(server_socket,SOL_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq))
-
-ttl = 1;
-setsockopt(server_socket, IPPROTO_IP, IP_MULTICAST_TTL,&ttl,sizeof(ttl))
-
-loop = 0;
-setsockoptserver_socket,IPPROTO_IP,IP_MULTICAST_LOOP,&loop,sizeof(loop))
-
-return server_socket;
-----------------------------------      
-if i replace INADDR_ANY with the actual interface address which i get
-using ioctl, then i cant receive any packets... However when i see the
-dump from tcpdump i can see the packets coming in, but for some reason
-they are not reaching the socket which had become a member. I can also
-see that the group membership was added if i do netstat -g
-
-
-I would appreciate any help.
-
-Thanks and regards,
-Shantanu.
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

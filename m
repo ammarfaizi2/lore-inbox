@@ -1,86 +1,173 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281005AbRLIBPP>; Sat, 8 Dec 2001 20:15:15 -0500
+	id <S280984AbRLIBSF>; Sat, 8 Dec 2001 20:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280984AbRLIBPG>; Sat, 8 Dec 2001 20:15:06 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:11727 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S281024AbRLIBOz>;
-	Sat, 8 Dec 2001 20:14:55 -0500
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S281017AbRLIBR4>; Sat, 8 Dec 2001 20:17:56 -0500
+Received: from shell.cyberus.ca ([216.191.240.114]:20219 "EHLO
+	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S280984AbRLIBRp>;
+	Sat, 8 Dec 2001 20:17:45 -0500
+Date: Sat, 8 Dec 2001 20:14:10 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: bert hubert <ahu@ds9a.nl>
+cc: <lartc@mailman.ds9a.nl>, <linux-kernel@vger.kernel.org>,
+        <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>
+Subject: Re: CBQ and all other qdiscs now REALLY completely documented
+ (almost!)
+In-Reply-To: <20011209002344.C20125@outpost.ds9a.nl>
+Message-ID: <Pine.GSO.4.30.0112081841050.4764-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15378.47872.93458.589286@napali.hpl.hp.com>
-Date: Sat, 8 Dec 2001 17:14:40 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davidm@hpl.hp.com, marcelo@conectiva.com.br (Marcelo Tosatti),
-        akpm@zip.com.au (Andrew Morton), j-nomura@ce.jp.nec.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processorinitializationcheck)
-In-Reply-To: <E16CsYv-0003QO-00@the-village.bc.nu>
-In-Reply-To: <15378.46887.160213.680268@napali.hpl.hp.com>
-	<E16CsYv-0003QO-00@the-village.bc.nu>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 9 Dec 2001 01:15:25 +0000 (GMT), Alan Cox <alan@lxorguk.ukuu.org.uk> said:
 
-  Alan> And break the ability for non broken setups to debug SMP boot
-  Alan> up. Lets do the job properly.
 
-Then use Andrew's patch (attached below).
+On Sun, 9 Dec 2001, bert hubert wrote:
 
-	--david
+> On Sat, Dec 08, 2001 at 02:20:20PM -0500, jamal wrote:
+>
+> > Linux remaps packets incoming with different values to some internal
+> > value; the colum "mapped to" shows the internal mapping
+> >
+> > 8value(hex)   TOS(dec) mapped to(dec)
+> > ----------------------------------
+> > 0x0              0      0
+> >                  1      7
+> >                  2      0
+> >                  3      0
+> >                  4      2
+> >                  5      2
+> >                  6      2
+> >                  7      2
+> > 0x10             8      6
+> >                  9      6
+> >                 10      6
+> >                 11      6
+> >                 12      2
+> >                 13      2
+> >                 14      2
+> >                 15      2
+>
+> I find this tos2prio table in the kernel (2.5.x), which is somewhat
+> different than your table:
+>
+> 0        TC_PRIO_BESTEFFORT,     0
+> 1        TC_PRIO_(FILLER),       1
+> 2        TC_PRIO_BESTEFFORT,     0
+> 3        TC_PRIO_(BESTEFFORT),   0
+> 4        TC_PRIO_BULK,           2
+> 5        TC_PRIO_(BULK),         2
+> 6        TC_PRIO_BULK,           2
+> 7        TC_PRIO_(BULK),         2
+> 8        TC_PRIO_INTERACTIVE,    6
+> 9        TC_PRIO_(INTERACTIVE),  6
+> 10       TC_PRIO_INTERACTIVE,    6
+> 11       TC_PRIO_(INTERACTIVE),  6
+> 12       TC_PRIO_INTERACTIVE_BULK,       4
+> 13       TC_PRIO_(INTERACTIVE_BULK),     4
+> 14       TC_PRIO_INTERACTIVE_BULK,       4
+> 15       TC_PRIO_(INTERACTIVE_BULK)      4
+>
+>
+> > Fill in the  "8value(hex)" column gaps using the bitmap from RFC1349 for
+> > the 8 bits; These are the values ou would see with tcpdump -vvv
+> > I filled the two easiest ones i could compute in my head.
+> >
+> > Second step:
+> >
+> > Take the default priority map:
+> >  1, 2, 2, 2, 1, 2, 0, 0 , 1, 1, 1, 1, 1, 1, 1, 1
+> > This applies for both default prio and the 3-band FIFO queue.
+> > Note the queue map fitted on the last column
+> >
+> > 8 but value     TOS     mapped to   queue map
+> > ---------------------------------------------
+> > 0x0              0      0              1
+> >                  1      7              2
+> >                  2      0              2
+> >                  3      0              2
+> >                  4      2              1
+> >                  5      2              2
+> >                  6      2              0
+> >                  7      2              0
+> > 0x10             8      6              1
+> >                  9      6              1
+> >                 10      6              1
+> >                 11      6              1
+> >                 12      2              1
+> >                 13      2              1
+> >                 14      2              1
+> >                 15      2              1
+>
+> I've changed this table to:
+> TOS     Bits  Means                    Linux Priority    Band
+> ------------------------------------------------------------
+> 0x0     0     Normal Service           0 Best Effort     1
+> 0x2     1     Minimize Monetary Cost   1 Filler          2
+> 0x4     2     Maximize Reliability     0 Best Effort     1
+> 0x6     3     mmc+mr                   0 Best Effort     1
+> 0x8     4     Maximize Throughput      2 Bulk            2
+> 0xa     5     mmc+mt                   2 Bulk            2
+> 0xc     6     mr+mt                    2 Bulk            2
+> 0xe     7     mmc+mr+mt                2 Bulk            2
+> 0x10    8     Minimize Delay           6 Interactive     0
+> 0x12    9     mmc+md                   6 Interactive     0
+> 0x14    10    mr+md                    6 Interactive     0
+> 0x16    11    mmc+mr+md                6 Interactive     0
+> 0x18    12    mt+md                    4 Int. Bulk       1
+> 0x1a    13    mmc+mt+md                4 Int. Bulk       1
+> 0x1c    14    mr+mt+md                 4 Int. Bulk       1
+> 0x1e    15    mmc+mr+mt+md             4 Int. Bulk       1
+>
 
---- linux-2.4.17-pre4/include/asm-ia64/system.h	Thu Nov 22 23:02:59 2001
-+++ linux-akpm/include/asm-ia64/system.h	Wed Dec  5 23:09:15 2001
-@@ -405,6 +405,10 @@ extern void ia64_load_extra (struct task
- 	ia64_psr(ia64_task_regs(prev))->dfh = 1;				\
- 	__switch_to(prev,next,last);						\
-   } while (0)
-+
-+/* Return true if this CPU can call the console drivers in printk() */
-+#define arch_consoles_callable() (cpu_online_map & (1UL << smp_processor_id()))
-+
- #else
- # define switch_to(prev,next,last) do {						\
- 	ia64_psr(ia64_task_regs(next))->dfh = (ia64_get_fpu_owner() != (next));	\
---- linux-2.4.17-pre4/kernel/printk.c	Thu Nov 22 23:02:59 2001
-+++ linux-akpm/kernel/printk.c	Wed Dec  5 23:03:54 2001
-@@ -38,6 +38,10 @@
- 
- #define LOG_BUF_MASK	(LOG_BUF_LEN-1)
- 
-+#ifndef arch_consoles_callable
-+#define arch_consoles_callable() (1)
-+#endif
-+
- /* printk's without a loglevel use this.. */
- #define DEFAULT_MESSAGE_LOGLEVEL 4 /* KERN_WARNING */
- 
-@@ -438,6 +442,14 @@ asmlinkage int printk(const char *fmt, .
- 			log_level_unknown = 1;
- 	}
- 
-+	if (!arch_consoles_callable()) {
-+		/*
-+		 * On some architectures, the consoles are not usable
-+		 * on secondary CPUs early in the boot process.
-+		 */
-+		spin_unlock_irqrestore(&logbuf_lock, flags);
-+		goto out;
-+	}
- 	if (!down_trylock(&console_sem)) {
- 		/*
- 		 * We own the drivers.  We can drop the spinlock and let
-@@ -454,6 +466,7 @@ asmlinkage int printk(const char *fmt, .
- 		 */
- 		spin_unlock_irqrestore(&logbuf_lock, flags);
- 	}
-+out:
- 	return printed_len;
- }
- EXPORT_SYMBOL(printk);
+
+Yes, sorry the last 4 are int_bulk (value 4) and not just bulk (2). good
+eye. You are still abusing the word TOS. Thats only 4 bits not 8;
+Use the terminology from RFC1349 at least.
+
+> http://ds9a.nl/lartc/HOWTO/cvs/2.4routing/output/2.4routing-9.html#ss9.2
+>
+> Your table appears to imply that a Maximum Reliability, Mininum Delay
+> packet, TOS bits=9, gets mapped to band 1, not 0, which would not make
+> sense.
+>
+
+This is the priomap: 1, 2, 2, 2, 1, 2, 0, 0 , 1, 1, 1, 1, 1, 1, 1, 1
+It says 1 is the right value
+
+> Laying it out like this, which does appear how it works, does mean that you
+> can specify priorities in the priomap which do not correspond to possible
+> TOS values.
+>
+
+You cant remap the 3 band scheduler trivially, but you should be able to
+replace it with a default prio qdisc get exactly the same behavior and use
+whatever map you want (eg your 0 to 1 substitution for TOS 1001)
+
+> Is it possible at all to set skb->priority from userspace without going
+> through the tos2prio mapping?
+>
+
+SO_PRIORITY socket option is doable; you have to be root.
+
+> CBQ can use the skb->priority to classify:
+
+so do prio and pfifo_fast (as i am sure you are aware)
+
+>         /*
+>          *  Step 1. If skb->priority points to one of our classes, use it.
+>          */
+>         if (TC_H_MAJ(prio^sch->handle) == 0 &&
+>             (cl = cbq_class_lookup(q, prio)) != NULL)
+>                         return cl;
+>
+> But to do this, you would need to be able to set skb->priority to a 32bit
+> number:
+>
+
+Cant think of a straight way to do this .... Alexey would know,
+
+cheers,
+jamal
+
+

@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbUCMHSp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 02:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUCMHSp
+	id S262416AbUCMHtn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 02:49:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbUCMHtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 02:18:45 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:16655 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262316AbUCMHSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 02:18:43 -0500
-Date: Sat, 13 Mar 2004 08:02:30 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: juerep@gmx.at
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: Re: ALSA via82xx fails since 2.6.2
-Message-ID: <20040313070230.GC14537@alpha.home.local>
-References: <200403122134.21542.juerep@gmx.at>
+	Sat, 13 Mar 2004 02:49:42 -0500
+Received: from prosun.first.gmd.de ([194.95.168.2]:16895 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S262416AbUCMHtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 02:49:41 -0500
+Subject: Re: 2.6.4 - powerbook 15" - usb oops+backtrace
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1079137438.1960.47.camel@gaston>
+References: <1079097936.1837.102.camel@localhost>
+	 <1079137438.1960.47.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1079164176.3198.1.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403122134.21542.juerep@gmx.at>
-User-Agent: Mutt/1.4i
+Date: Sat, 13 Mar 2004 08:49:37 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 09:34:11PM +0100, J?rgen Repolusk wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Sat, 2004-03-13 at 01:23, Benjamin Herrenschmidt wrote:
+> On Sat, 2004-03-13 at 00:25, Soeren Sonnenburg wrote:
+> > Hi!
+> > 
+> > I got this oops when inserting mouse/keyboard (both usb).
+> > 
+> > usb 1-1: new low speed USB device using address 4
+> > input: USB HID v1.00 Mouse [Cypress Sem USB Mouse] on usb-0001:01:18.0-1
+> > Oops: kernel access of bad area, sig: 11 [#1]
+> > NIP: 5A5A5A58 LR: C026D8B0 SP: ED6B1E10 REGS: ed6b1d60 TRAP: 0401    Not
 > 
-> I see this in dmesg on 2.6.4-rc1:
-> 
-> VIA 82xx Audio: probe of 0000:00:07.5 failed with error -16
-> 
-> this is on a sony vaio pcg-fx505
+> NIP is the program counter, something tried to jump into nowhereland,
+> find out who by looking at who "owns" C026D8B0 in System.map
 
-Please retry without sonypi. I have nearly the same crappy notebook (fx705)
-and when I tried sonypi, I discovered that it prevented the VIA audio from
-registering because the IO controller was within the audio's IO space.
-And it seems you've got the same problem: sonypi @1080-1084 and VIA @1000-10FF :
+this is the area around c026d8b0, so input_accept_process or noone ?!
 
-> sonypi: Sony Programmable I/O Controller Driver v1.21.
-> sonypi: detected type2 model, verbose = 0, fnkeyinit = off, camera = off,
-> compat = off, mask = 0xffffffff, useinput = on
-> sonypi: enabled at irq=11, port1=0x1080, port2=0x1084
-> sonypi: device allocated minor is 63
+c026d350 T input_event
+c026d7c0 t input_repeat_key
+c026d874 T input_accept_process
+c026d8b8 T input_grab_device
+c026d8dc T input_release_device
+c026d8f8 T input_open_device
+c026d94c T input_flush_device
+c026d990 T input_close_device
 
-.../...
-
-> unable to grab ports 0x1000-0x10ff
-> VIA 82xx Audio: probe of 0000:00:07.5 failed with error -16
-
-.../...
-
-> lspci -vvxxx (via 82xx only)
-> 
-> 00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97
-> Audio Controller (rev 50)
->         Subsystem: Sony Corporation: Unknown device 80f6
->         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
-> Stepping- SERR- FastB2B-
->         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-> <TAbort- <MAbort- >SERR- <PERR-
->         Interrupt: pin C routed to IRQ 5
->         Region 0: I/O ports at 1000 [size=256]
->         Region 1: I/O ports at 1c54 [size=4]
->         Region 2: I/O ports at 1c50 [size=4]
-
-
-Cheers,
-Willy
+Soeren
 

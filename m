@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUI0SoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUI0SxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267170AbUI0SoX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 14:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUI0SoW
+	id S267189AbUI0SxA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 14:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUI0SxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 14:44:22 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:10515 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267170AbUI0Sn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 14:43:58 -0400
-Date: Mon, 27 Sep 2004 19:43:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Antony Suter <suterant@users.sourceforge.net>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       List LKML <linux-kernel@vger.kernel.org>, torvalds@osdl.org
-Subject: Re: [PATCH] __VMALLOC_RESERVE export
-Message-ID: <20040927194353.A26669@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Antony Suter <suterant@users.sourceforge.net>,
-	List LKML <linux-kernel@vger.kernel.org>, torvalds@osdl.org
-References: <1096304623.9430.8.camel@hikaru.lan> <20040927181229.A25704@infradead.org> <1096309603.9430.17.camel@hikaru.lan>
+	Mon, 27 Sep 2004 14:53:00 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:25233 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S267184AbUI0Sw5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 14:52:57 -0400
+Date: Mon, 27 Sep 2004 11:52:44 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: anil.s.keshavamurthy@intel.com, len.brown@intel.com,
+       acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/4] Add unregister_node() to drivers/base/node.c
+Message-ID: <20040927115244.A30443@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920094719.H14208@unix-os.sc.intel.com> <20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com> <20040924013123.000067cd.tokunaga.keiich@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1096309603.9430.17.camel@hikaru.lan>; from suterant@users.sourceforge.net on Tue, Sep 28, 2004 at 04:26:43AM +1000
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040924013123.000067cd.tokunaga.keiich@jp.fujitsu.com>; from tokunaga.keiich@jp.fujitsu.com on Fri, Sep 24, 2004 at 01:31:23AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 04:26:43AM +1000, Antony Suter wrote:
-> On Tue, 2004-09-28 at 03:12, Christoph Hellwig wrote:
-> > On Tue, Sep 28, 2004 at 03:03:43AM +1000, Antony Suter wrote:
-> > > __VMALLOC_RESERVE itself is not exported but is used by something that
-> > > is. This patch is against 2.6.9-rc2-bk11
-> > > 
-> > > This is required by the nvidia binary driver 1.0.6111
-> > 
-> > And the driver does absolutely nasty things it shouldn't do.  This is an
-> > implementation detail that absolutely should not be exported.
+On Fri, Sep 24, 2004 at 01:31:23AM +0900, Keiichiro Tokunaga wrote:
 > 
-> However __VMALLOC_RESERVE, specific to arch-i386 is now used by the
-> macro MAXMEM. MAXMEM is _not_ specific to arch-i386. The nvidia driver
-> has a kernel module that uses the macro MAXMEM. Is it wrong for a kernel
-> module to use MAXMEM?
+> -int __init register_node(struct node *node, int num, struct node *parent)
+> +int register_node(struct node *node, int num, struct node *parent)
 
-Yes.
+__devinit please
 
+> +void  unregister_node(struct node *node, struct node *parent)
+
+unregister_node is required only for hotplug case. Please hide this function
+under suitable #ifdef's, say this is only required if CONFIG_HOTPLUG is enabled.
+
+> +	sysdev_remove_file(&node->sysdev, &attr_cpumap);
+> +	sysdev_remove_file(&node->sysdev, &attr_meminfo);
+
+add sysdev_remove_file(&node->sysdev, &attr_numastat);
+
+> +EXPORT_SYMBOL(node_online_map);
+Why do you need this in this patch?

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290267AbSAXGAK>; Thu, 24 Jan 2002 01:00:10 -0500
+	id <S290272AbSAXF7u>; Thu, 24 Jan 2002 00:59:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290269AbSAXF7u>; Thu, 24 Jan 2002 00:59:50 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:5893 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S290267AbSAXF7l>; Thu, 24 Jan 2002 00:59:41 -0500
-Date: Thu, 24 Jan 2002 06:59:15 +0100
-From: Jurriaan on Alpha <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Quick question about 2.4.18-pre7.
-Message-ID: <20020124055915.GB2018@alpha.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <3C4F7F92.564A4989@starband.net>
+	id <S290270AbSAXF7k>; Thu, 24 Jan 2002 00:59:40 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:11751 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S290267AbSAXF7a>;
+	Thu, 24 Jan 2002 00:59:30 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kdb/mdb hardware breakpoints broken 2.4.17/18 
+In-Reply-To: Your message of "Wed, 23 Jan 2002 14:00:45 PDT."
+             <20020123140045.A17976@vger.timpanogas.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C4F7F92.564A4989@starband.net>
-User-Agent: Mutt/1.3.25i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+Date: Thu, 24 Jan 2002 16:59:21 +1100
+Message-ID: <2504.1011851961@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 23, 2002 at 10:29:22PM -0500, Justin Piszcz wrote:
-> - Fix 3dfx fb crash with high pixelclock        (Jurriaan on Alpha)
-> 
-> I see that there is a 3DFX fix with high pixelclock.
-> 
-> Without the fix, could this be a reason why my machine locks up when
-> I am scrolling through various MPG or DIVX movies with mplayer
-> (sometimes)?
-> 
-> I have a 3DFX Voodoo 3 3000 AGP.
-> 
-I wrote the fix, so here goes:
+On Wed, 23 Jan 2002 14:00:45 -0700, 
+"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote:
+>Please find a patch that corrects the problem with hardware 
+>breakpoints not working with kdb.  I have noticed that gdb uses 
+>inserted int3 (0xCC) breakpoints (as does kdb) for soft breakpoint
+>support, so this fix may not affect these programs.  It is not 
+>clear why every signal handled is writing a 0 t the DR7 register.
 
-the fix only applies if you run your DAC at over half the maximum speed.
-That means that with a Voodoo 3 you'd need a 150 MHz pixelclock to
-trigger it. If you run linux using no framebuffer or a framebuffer at
-frequencies below that, nothing is changed, and you'll need to find
-another culprit. If you run above that, you could try to copy in
-tdfxfb.c from the previous version. If that fixes it, I've got a
-problem.
+Not a 0, it is %0, gcc asm parameter 0.  There used to be a bug in
+ptrace handling where db7 would get cleared in taps.c and would not get
+reinstated until one timeslice after the initial trap.  Fixed by James
+Cownie in June 2000 by reinstating db7 before passing the signal to
+user space.
 
-Anybody with a voodoo card and running high-frequency framebuffer:
-please post your experiences.
+The conflict with kdb is inherent in the lack of a kernel interface for
+assigning debug registers.  gdb/ptrace always uses i386 db4-7 no matter
+what kdb is doing.  The kernel always uses db7, even if no tracing is
+being done.  If you want to use gdb/ptrace then restrict your kdb usage
+to db0-3, without gdb/ptrace kdb can use db0-6.
 
-Thanks,
-Jurriaan
--- 
-***************************** WARNING *****************************
-Linux should not be used by those under the influence of MicroSoft.
-May cause dissiness or vertigo. Consult your tech support before
-using Linux. (note--after using Linux, you may notice extreme dis-
-comfort when using MicroSoft. Discontinue use of Microsoft.)
-***************************** WARNING *****************************
-GNU/Linux 2.4.18-pre6 on Debian/Alpha 64-bits 990 bogomips load:0.03 0.22 0.18
+It would be nice to have a proper debug register function to
+automatically detect conflicts and tell one of the debuggers to go
+away.   However Linus "I don't want kernel debuggers" Torvalds does not
+care about this problem and I don't want the footprint of kdb to be any
+bigger than it has to be.  So kdb relies on the user to know which
+debug registers then can use.
+

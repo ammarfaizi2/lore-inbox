@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319290AbSHNU4V>; Wed, 14 Aug 2002 16:56:21 -0400
+	id <S319311AbSHNUr1>; Wed, 14 Aug 2002 16:47:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319338AbSHNUzg>; Wed, 14 Aug 2002 16:55:36 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51716 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319290AbSHNUyy>; Wed, 14 Aug 2002 16:54:54 -0400
-Message-ID: <3D5AC481.2080505@zytor.com>
-Date: Wed, 14 Aug 2002 13:58:41 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en, sv
+	id <S319319AbSHNUq4>; Wed, 14 Aug 2002 16:46:56 -0400
+Received: from mail.gurulabs.com ([208.177.141.7]:21931 "HELO
+	mail.gurulabs.com") by vger.kernel.org with SMTP id <S319311AbSHNUph>;
+	Wed, 14 Aug 2002 16:45:37 -0400
+Date: Wed, 14 Aug 2002 14:49:30 -0600 (MDT)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: dkelson@mooru.gurulabs.com
+To: torvalds@transmeta.com, "Kendrick M. Smith" <kmsmith@umich.edu>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>
+Subject: Will NFSv4 be accepted?
+In-Reply-To: <Pine.SOL.4.44.0208131901270.25942-100000@rastan.gpcc.itd.umich.edu>
+Message-ID: <Pine.LNX.4.44.0208141435210.30333-100000@mooru.gurulabs.com>
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
-References: <3D56B13A.D3F741D1@zip.com.au> <Pine.NEB.4.44.0208132322340.1351-100000@mimas.fachschaften.tu-muenchen.de> <ajc095$hk1$1@cesium.transmeta.com> <20020814194019.A31761@bitwizard.nl> <3D5AB250.3070104@zytor.com> <20020814204556.GA7440@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> 
-> There would be a solution to tell gcc not to optimize things, which may
-> not require too much work from gcc people. Basically, we would need to
-> implement a __builtin_nop() function that would respect dependencies but
-> not generate any code. This way, we could have :
-> 
-> 	for (i=0; i<N, i++);
-> 
-> optimized as i=N
-> and
-> 	for (i=0; i<N; i++)
-> 		__builtin_nop();
-> or even
-> 	for (i=0; i<N; __builtin_nop(i++));
-> do the real work.
-> 
-> This way, some loops could be optimized, and the developpers could explicitely
-> tell the compiler when they need to prevent any optimization.
-> 
 
-#define __nop() asm volatile("")
+Linus, I'm curious if the NFSv4 patches will be accepted in the near 
+future (ie, before 2.6).
 
-Since some processors now have "busy wait delay" instructions, this
-would also make it possible to do:
+I for one would REALLY like to see NFSv4 (actually, Kerberized NFSv4 is 
+what I'm after).   I just finished setting up a Kerberized Solaris NFS 
+environment with home directories automounted from the clients with 
+strong user authentication.
 
-#if defined(__i386__) || defined(__x86_64__)
+Frankly, the stock (non-Kerberized) NFS security model blows.
 
-#define __busy_wait() asm volatile("rep;nop")
+The fact that any janitor with a laptop (or any client with a malicious
+root user) can nuke all home directories from a standard NFS home
+directory server bothers me greatly.
 
-#else
-
-#define __busy_wait() asm volatile("")
-
-#endif
+Dax Kelson
+Guru Labs
 

@@ -1,223 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbULBCnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbULBCoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbULBCnW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 21:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbULBCnW
+	id S261576AbULBCoF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 21:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbULBCoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 21:43:22 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25350 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261573AbULBCmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 21:42:55 -0500
-Date: Thu, 2 Dec 2004 03:42:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
-       greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] select HOTPLUG
-Message-ID: <20041202024254.GL5148@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 1 Dec 2004 21:44:05 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:39808 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S261576AbULBCni
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 21:43:38 -0500
+From: james4765@verizon.net
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, Jason.Jorgensen@comtrol.com, james4765@verizon.net
+Message-Id: <20041202024400.13570.64282.90901@localhost.localdomain>
+Subject: [PATCH] rocket: documentation changes
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [209.158.220.243] at Wed, 1 Dec 2004 20:43:37 -0600
+Date: Wed, 1 Dec 2004 20:43:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below changes all dependencies on HOTPLUG to selects.
+Add some configuration information to Documentation/rocket.txt that was included
+with the external driver package.
 
-The help text of HOTPLUG is adjusted in a way, that manually selecting 
-it is only required for external modules.
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-If an option already depends on PCMCIA or selects FW_LOADER an explicit 
-select of HOTPLUG is not required.
-
-
-diffstat output:
- arch/i386/Kconfig             |    3 ++-
- arch/ia64/Kconfig             |   13 +++++++------
- arch/ppc64/Kconfig            |    3 ++-
- arch/s390/Kconfig             |    3 ++-
- drivers/base/Kconfig          |    2 +-
- drivers/net/pcmcia/Kconfig    |    2 +-
- drivers/net/tokenring/Kconfig |    2 +-
- drivers/net/wireless/Kconfig  |    2 +-
- drivers/parport/Kconfig       |    2 +-
- drivers/pci/hotplug/Kconfig   |    2 +-
- drivers/pcmcia/Kconfig        |    2 +-
- init/Kconfig                  |   17 +++--------------
- 12 files changed, 23 insertions(+), 30 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/init/Kconfig.old	2004-12-02 03:30:27.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/init/Kconfig	2004-12-02 03:36:04.000000000 +0100
-@@ -195,20 +195,9 @@
- 	bool "Support for hot-pluggable devices" if !ARCH_S390
- 	default ARCH_S390
- 	help
--	  Say Y here if you want to plug devices into your computer while
--	  the system is running, and be able to use them quickly.  In many
--	  cases, the devices can likewise be unplugged at any time too.
--
--	  One well known example of this is PCMCIA- or PC-cards, credit-card
--	  size devices such as network cards, modems or hard drives which are
--	  plugged into slots found on all modern laptop computers.  Another
--	  example, used on modern desktops as well as laptops, is USB.
--
--	  Enable HOTPLUG and KMOD, and build a modular kernel.  Get agent
--	  software (at <http://linux-hotplug.sourceforge.net/>) and install it.
--	  Then your kernel will automatically call out to a user mode "policy
--	  agent" (/sbin/hotplug) to load modules and set up software needed
--	  to use devices as you hotplug them.
-+	  This option is provided for the case where no in-kernel-tree
-+	  modules require HOTPLUG functionality, but a module built
-+	  outside the kernel tree does. Such modules require Y here.
+diff -urN --exclude='*~' linux-2.6.10-rc2-original/Documentation/rocket.txt linux-2.6.10-rc2/Documentation/rocket.txt
+--- linux-2.6.10-rc2-original/Documentation/rocket.txt	2004-10-18 17:54:29.000000000 -0400
++++ linux-2.6.10-rc2/Documentation/rocket.txt	2004-12-01 17:20:04.660318196 -0500
+@@ -20,8 +20,27 @@
+ into them.  Installations instructions for the external module
+ are in the included README and HW_INSTALL files.
  
- config KOBJECT_UEVENT
- 	bool "Kernel Userspace Events"
---- linux-2.6.10-rc2-mm4-full/drivers/base/Kconfig.old	2004-12-02 03:20:45.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/base/Kconfig	2004-12-02 03:20:59.000000000 +0100
-@@ -20,7 +20,7 @@
+-RocketPort ISA and RocketModem II PCI boards are also supported by this
+-driver, but must use the external module driver for configuration reasons.  
++RocketPort ISA and RocketModem II PCI boards currently are only supported by
++this driver in module form.
++
++The RocketPort ISA board requires I/O ports to be configured by the DIP
++switches on the board.  See the section "ISA Rocketport Boards" below for
++information on how to set the DIP switches.
++
++You pass the I/O port to the driver using the following module parameters:
++
++board1 :	I/O port for the first ISA board
++board2 :	I/O port for the second ISA board
++board3 :	I/O port for the third ISA board
++board4 :	I/O port for the fourth ISA board
++
++There is a set of utilities and scripts provided with the external driver
++( downloadable from http://www.comtrol.com ) that ease the configuration and
++setup of the ISA cards.
++
++The RocketModem II PCI boards require firmware to be loaded into the card
++before it will function.  The driver has only been tested as a module for this
++board.
  
- config FW_LOADER
- 	tristate "Hotplug firmware loading support"
--	depends on HOTPLUG
-+	select HOTPLUG
- 	---help---
- 	  This option is provided for the case where no in-kernel-tree modules
- 	  require hotplug firmware loading support, but a module built outside
---- linux-2.6.10-rc2-mm4-full/drivers/net/wireless/Kconfig.old	2004-12-02 03:21:17.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/net/wireless/Kconfig	2004-12-02 03:21:37.000000000 +0100
-@@ -311,7 +311,7 @@
- 	depends on NET_RADIO && PCI
- config PRISM54
- 	tristate 'Intersil Prism GT/Duette/Indigo PCI/Cardbus' 
--	depends on PCI && NET_RADIO && EXPERIMENTAL && HOTPLUG
-+	depends on PCI && NET_RADIO && EXPERIMENTAL
- 	select FW_LOADER
- 	---help---
- 	  Enable PCI and Cardbus support for the following chipset based cards:
---- linux-2.6.10-rc2-mm4-full/drivers/net/pcmcia/Kconfig.old	2004-12-02 03:21:47.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/net/pcmcia/Kconfig	2004-12-02 03:38:54.000000000 +0100
-@@ -3,7 +3,7 @@
- #
+ =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  
- menu "PCMCIA network device support"
--	depends on NETDEVICES && HOTPLUG && PCMCIA!=n
-+	depends on NETDEVICES && PCMCIA!=n
+@@ -55,12 +74,95 @@
+ >mknod /dev/ttyR1 c 46 1
+ >mknod /dev/ttyR2 c 46 2  
  
- config NET_PCMCIA
- 	bool "PCMCIA network device support"
---- linux-2.6.10-rc2-mm4-full/drivers/net/tokenring/Kconfig.old	2004-12-02 03:22:20.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/net/tokenring/Kconfig	2004-12-02 03:22:29.000000000 +0100
-@@ -84,7 +84,7 @@
+-The Linux script MAKEDEV will create the first 16 ttyRx device names (nodes) for you:
++The Linux script MAKEDEV will create the first 16 ttyRx device names (nodes)
++for you:
  
- config TMS380TR
- 	tristate "Generic TMS380 Token Ring ISA/PCI adapter support"
--	depends on TR && (PCI || ISA) && HOTPLUG
-+	depends on TR && (PCI || ISA)
- 	select FW_LOADER
- 	---help---
- 	  This driver provides generic support for token ring adapters
---- linux-2.6.10-rc2-mm4-full/drivers/pci/hotplug/Kconfig.old	2004-12-02 03:22:40.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/pci/hotplug/Kconfig	2004-12-02 03:23:19.000000000 +0100
-@@ -3,11 +3,11 @@
- #
+ >/dev/MAKEDEV ttyR
  
- menu "PCI Hotplug Support"
--	depends on HOTPLUG
+ =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  
- config HOTPLUG_PCI
- 	tristate "Support for PCI Hotplug (EXPERIMENTAL)"
- 	depends on PCI && EXPERIMENTAL
-+	select HOTPLUG
- 	---help---
- 	  Say Y here if you have a motherboard with a PCI Hotplug controller.
- 	  This allows you to add and remove PCI cards while the machine is
---- linux-2.6.10-rc2-mm4-full/drivers/parport/Kconfig.old	2004-12-02 03:26:56.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/parport/Kconfig	2004-12-02 03:27:11.000000000 +0100
-@@ -83,7 +83,7 @@
++ISA Rocketport Boards
++---------------------
++
++You must assign and configure the I/O addresses used by the ISA Rocketport
++card before installing and using it.  This is done by setting a set of DIP
++switches on the Rocketport board.
++
++
++SETTING THE I/O ADDRESS
++-----------------------
++
++Before installing RocketPort(R) or RocketPort RA boards, you must find
++a range of I/O addresses for it to use. The first RocketPort card
++requires a 68-byte contiguous block of I/O addresses, starting at one
++of the following: 0x100h, 0x140h, 0x180h, 0x200h, 0x240h, 0x280h,
++0x300h, 0x340h, 0x380h.  This I/O address must be reflected in the DIP
++switiches of *all* of the Rocketport cards.
++
++The second, third, and fourth RocketPort cards require a 64-byte
++contiguous block of I/O addresses, starting at one of the following
++I/O addresses: 0x100h, 0x140h, 0x180h, 0x1C0h, 0x200h, 0x240h, 0x280h,
++0x2C0h, 0x300h, 0x340h, 0x380h, 0x3C0h.  The I/O address used by the
++second, third, and fourth Rocketport cards (if present) are set via
++software control.  The DIP switch settings for the I/O address must be
++set to the value of the first Rocketport cards.  
++
++In order to destinguish each of the card from the others, each card
++must have a unique board ID set on the dip switches.  The first
++Rocketport board must be set with the DIP switches corresponding to
++the first board, the second board must be set with the DIP switches
++corresponding to the second board, etc.  IMPORTANT: The board ID is
++the only place where the DIP switch settings should differ between the
++various Rocketport boards in a system.
++
++The I/O address range used by any of the RocketPort cards must not
++conflict with any other cards in the system, including other
++RocketPort cards.  Below, you will find a list of commonly used I/O
++address ranges which may be in use by other devices in your system.
++On a Linux system, "cat /proc/ioports" will also be helpful in
++identifying what I/O addresses are being used by devics on your
++system.
++
++Remember, the FIRST RocketPort uses 68 I/O addresses.  So, if you set it
++for 0x100, it will occupy 0x100 to 0x143.  This would mean that you
++CAN NOT set the second, third or fourth board for address 0x140 since
++the first 4 bytes of that range are used by the first board.  You would
++need to set the second, third, or fourth board to one of the next available
++blocks such as 0x180.
++
++=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
++
++RocketPort and RocketPort RA SW1 Settings:
++
++          +-------------------------------+
++          | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 |
++          +-------+-------+---------------+
++          | Unused| Card  | I/O Port Block|
++          +-------------------------------+
++
++DIP Switches                             DIP Switches
++7    8                                   6    5
++===================                      ===================
++On   On   UNUSED, MUST BE ON.            On   On   First Card    <==== Default
++                                         On   Off  Second Card
++                                         Off  On   Third Card
++                                         Off  Off  Fourth Card
++
++DIP Switches         I/O Address Range
++4    3    2    1     Used by the First Card
++=====================================
++On   Off  On   Off   100-143 
++On   Off  Off  On    140-183 
++On   Off  Off  Off   180-1C3       <==== Default
++Off  On   On   Off   200-243
++Off  On   Off  On    240-283
++Off  On   Off  Off   280-2C3
++Off  Off  On   Off   300-343
++Off  Off  Off  On    340-383
++Off  Off  Off  Off   380-3C3
++
++=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
++
+ REPORTING BUGS
+ --------------
  
- config PARPORT_PC_PCMCIA
- 	tristate "Support for PCMCIA management for PC-style ports"
--	depends on PARPORT!=n && HOTPLUG && (PCMCIA!=n && PARPORT_PC=m && PARPORT_PC || PARPORT_PC=y && PCMCIA)
-+	depends on PARPORT!=n && (PCMCIA!=n && PARPORT_PC=m && PARPORT_PC || PARPORT_PC=y && PCMCIA)
- 	help
- 	  Say Y here if you need PCMCIA support for your PC-style parallel
- 	  ports. If unsure, say N.
---- linux-2.6.10-rc2-mm4-full/drivers/pcmcia/Kconfig.old	2004-12-02 03:27:18.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/drivers/pcmcia/Kconfig	2004-12-02 03:28:08.000000000 +0100
-@@ -6,10 +6,10 @@
- #
- 
- menu "PCCARD (PCMCIA/CardBus) support"
--	depends on HOTPLUG
- 
- config PCCARD
- 	tristate "PCCard (PCMCIA/CardBus) support"
-+	select HOTPLUG
- 	---help---
- 	  Say Y here if you want to attach PCMCIA- or PC-cards to your Linux
- 	  computer.  These are credit-card size devices such as network cards,
---- linux-2.6.10-rc2-mm4-full/arch/i386/Kconfig.old	2004-12-02 03:28:17.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/Kconfig	2004-12-02 03:28:29.000000000 +0100
-@@ -1240,7 +1240,8 @@
- 
- config HOTPLUG_CPU
- 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
--	depends on SMP && HOTPLUG && EXPERIMENTAL
-+	depends on SMP && EXPERIMENTAL
-+	select HOTPLUG
- 	---help---
- 	  Say Y here to experiment with turning CPUs off and on.  CPUs
- 	  can be controlled through /sys/devices/system/cpu.
---- linux-2.6.10-rc2-mm4-full/arch/ia64/Kconfig.old	2004-12-02 03:28:40.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/ia64/Kconfig	2004-12-02 03:29:14.000000000 +0100
-@@ -249,13 +249,14 @@
- 	  performance hit.
- 
- config HOTPLUG_CPU
--    bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
--    depends on SMP && HOTPLUG && EXPERIMENTAL
-+	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
-+	depends on SMP && EXPERIMENTAL
-+	select HOTPLUG
- 	default n
--    ---help---
--      Say Y here to experiment with turning CPUs off and on.  CPUs
--      can be controlled through /sys/devices/system/cpu/cpu#.
--      Say N if you want to disable CPU hotplug.
-+	---help---
-+	  Say Y here to experiment with turning CPUs off and on.  CPUs
-+	  can be controlled through /sys/devices/system/cpu/cpu#.
-+	  Say N if you want to disable CPU hotplug.
- 
- config PREEMPT
- 	bool "Preemptible Kernel"
---- linux-2.6.10-rc2-mm4-full/arch/ppc64/Kconfig.old	2004-12-02 03:29:24.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/ppc64/Kconfig	2004-12-02 03:29:36.000000000 +0100
-@@ -305,7 +305,8 @@
- 
- config HOTPLUG_CPU
- 	bool "Support for hot-pluggable CPUs"
--	depends on SMP && HOTPLUG && EXPERIMENTAL && PPC_PSERIES
-+	depends on SMP && EXPERIMENTAL && PPC_PSERIES
-+	select HOTPLUG
- 	---help---
- 	  Say Y here to be able to turn CPUs off and on.
- 
---- linux-2.6.10-rc2-mm4-full/arch/s390/Kconfig.old	2004-12-02 03:30:04.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/s390/Kconfig	2004-12-02 03:30:16.000000000 +0100
-@@ -85,7 +85,8 @@
- 
- config HOTPLUG_CPU
- 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
--	depends on SMP && HOTPLUG && EXPERIMENTAL
-+	depends on SMP && EXPERIMENTAL
-+	select HOTPLUG
- 	default n
- 	help
- 	  Say Y here to experiment with turning CPUs off and on.  CPUs
-

@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUJEV2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUJEVXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUJEV2O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 17:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUJEV2O
+	id S265331AbUJEVXG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 17:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUJEVXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 17:28:14 -0400
-Received: from gprs214-120.eurotel.cz ([160.218.214.120]:12167 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265910AbUJEV2L (ORCPT
+	Tue, 5 Oct 2004 17:23:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57227 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265331AbUJEVXC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 17:28:11 -0400
-Date: Tue, 5 Oct 2004 23:27:58 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc3[+recent swsusp patches]: swsusp kernel-preemption-unfriendly?
-Message-ID: <20041005212757.GB5763@elf.ucw.cz>
-References: <200410052314.25253.rjw@sisk.pl>
-Mime-Version: 1.0
+	Tue, 5 Oct 2004 17:23:02 -0400
+Date: Tue, 5 Oct 2004 14:22:49 -0700
+Message-Id: <200410052122.i95LMntn007340@magilla.sf.frob.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410052314.25253.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Christoph Lameter <clameter@sgi.com>
+X-Fcc: ~/Mail/linus
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] CPU time clock support in clock_* syscalls
+In-Reply-To: Christoph Lameter's message of  Tuesday, 5 October 2004 13:53:44 -0700 <Pine.LNX.4.58.0410051350360.28733@schroedinger.engr.sgi.com>
+Emacs: the prosecution rests its case.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Is there a standard for that? Or is it an opaque type that you have
+> defined this way?
 
-> It looks like there's a probel with the kernel preemption vs swsusp:
+Of course there is no standard for the bits used in a clockid_t.  This is
+an implementation detail in POSIX terms.  POSIX defines function interfaces
+to return clockid_t values (clock_getcpuclockid, pthread_getcpuclockid).  
+I have chosen the kernel-user ABI for Linux clockid_t's here, but that is
+only of concern to the kernel and glibc.
 
-It is not in kernel preemption, see that NULL pointer dereference? Try
-this one...
+> Posix only defines a process and a thread clock. This is much more.
 
-								Pavel
+Like I said the first time, it's three kinds of clocks.  One is what we
+will in future use to define POSIX's CPUTIME clocks in our POSIX
+implementation, and the other two are what we already use to define
+ITIMER_REAL/ITIMER_VIRTUAL in our existing POSIX implementation.
 
---- clean-suse/kernel/power/swsusp.c	2004-10-05 11:36:23.000000000 +0200
-+++ linux-suse/kernel/power/swsusp.c	2004-10-05 22:35:21.000000000 +0200
-@@ -568,6 +568,7 @@
- 	struct zone *zone;
- 	unsigned long zone_pfn;
- 	struct pbe * pbe = pagedir_nosave;
-+	int pages_copied = 0;
- 	
- 	for_each_zone(zone) {
- 		if (is_highmem(zone))
-@@ -576,13 +577,17 @@
- 			if (saveable(zone, &zone_pfn)) {
- 				struct page * page;
- 				page = pfn_to_page(zone_pfn + zone->zone_start_pfn);
-+
- 				pbe->orig_address = (long) page_address(page);
- 				/* copy_page is no usable for copying task structs. */
- 				memcpy((void *)pbe->address, (void *)pbe->orig_address, PAGE_SIZE);
- 				pbe++;
-+				pages_copied++;
- 			}
- 		}
- 	}
-+	BUG_ON(pages_copied > nr_copy_pages);
-+	nr_copy_pages = pages_copied;
- }
- 
- 
-@@ -863,7 +868,7 @@
- 
- asmlinkage int swsusp_restore(void)
- {
--	BUG_ON (nr_copy_pages_check != nr_copy_pages);
-+//	BUG_ON (nr_copy_pages_check != nr_copy_pages);
- 	BUG_ON (pagedir_order_check != pagedir_order);
- 	
- 	/* Even mappings of "global" things (vmalloc) need to be fixed */
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> I wonder how glibc will realize access to special timer hardware. Will
+> glibc be able load device drivers for timer chips?
+
+glibc has zero interest in doing any of that.  It will use the single new
+"best information" kernel interface when that is available, and it's the
+kernel's concern what the best information available from the hardware is.
+
+
+
+Thanks,
+Roland

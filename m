@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268457AbTBSNNo>; Wed, 19 Feb 2003 08:13:44 -0500
+	id <S268461AbTBSNTW>; Wed, 19 Feb 2003 08:19:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268461AbTBSNNo>; Wed, 19 Feb 2003 08:13:44 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44683
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268457AbTBSNNn>; Wed, 19 Feb 2003 08:13:43 -0500
-Subject: Re: PATCH: clean up the IDE iops, add ones for a dead iface
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1045647562.12533.1.camel@zion.wanadoo.fr>
-References: <E18lC5R-00067P-00@the-village.bc.nu>
-	 <20030218230910.A27653@flint.arm.linux.org.uk>
-	 <1045619583.25795.11.camel@irongate.swansea.linux.org.uk>
-	 <1045647562.12533.1.camel@zion.wanadoo.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045664739.27427.5.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 19 Feb 2003 14:25:39 +0000
+	id <S268556AbTBSNTW>; Wed, 19 Feb 2003 08:19:22 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:17939 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S268461AbTBSNTV>; Wed, 19 Feb 2003 08:19:21 -0500
+Date: Wed, 19 Feb 2003 14:29:15 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH 2.5.62]: 3/3: Very small menu cleanup
+In-Reply-To: <200302181359.37969.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.44.0302191422110.32518-100000@serv>
+References: <200302181359.37969.m.c.p@wolk-project.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-19 at 09:39, Benjamin Herrenschmidt wrote:
-> Hrm... I tend to agree with Russell here... 0x7f is the "safe" value
-> for IDE. IDE controllers with nothing wired shall have a pull down
-> on D7. The reason is simple: busy loops in the IDE code waiting for
-> BSY to go down.
-> 
-> Now, if your point is to keep BSY up and have wait loops timeout,
-> then 0xff may actually make some sense ;)
+Hi,
 
-0xFF is what happens with a real hot unplug so we must handle it
-irrespective of convenience. Your probe loop might want to check
-some kind of 'dead' variable when this is all done I guess. That
-way we can have
+On Tue, 18 Feb 2003, Marc-Christian Petersen wrote:
 
-	unplugged_event()
-	{
-		change iops
-		drive->dead = 1;
-	}
+> 1. Move "JBD (ext3) debugging support" two spaces rightwards
 
-and the probe code can spot ->dead in the poll loop
+Don't do this, indentation is now derived from the dependencies. Adding 
+spaces helps 'make config' but not really the other front ends.
+The correct fix would be to change JBD into:
+
+config JBD
+	bool
+	default y
+	depends on EXT3_FS
+
+Now the following JBD_DEBUG entry should be an entry under EXT3_FS,
+but unfortunately there seems to be bug somewhere, it's inserted to high 
+in the menu tree. As a work around you can add EXT3_FS as dependency to 
+JBD_DEBUG, I'll look into it as soon as possible.
+
+bye, Roman
 

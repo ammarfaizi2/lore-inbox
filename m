@@ -1,78 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbUBTRrN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 12:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUBTRrN
+	id S261356AbUBTSAh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 13:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbUBTSAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 12:47:13 -0500
-Received: from mail.shareable.org ([81.29.64.88]:62336 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261323AbUBTRrJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 12:47:09 -0500
-Date: Fri, 20 Feb 2004 17:47:04 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Tridge <tridge@samba.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
-Message-ID: <20040220174704.GG8994@mail.shareable.org>
-References: <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <20040220120417.GA4010@elte.hu> <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 20 Feb 2004 13:00:37 -0500
+Received: from grassmarket.ucs.ed.ac.uk ([129.215.166.64]:62136 "EHLO
+	grassmarket.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
+	id S261356AbUBTSAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 13:00:33 -0500
+Message-ID: <40364BE3.2000002@sms.ed.ac.uk>
+Date: Fri, 20 Feb 2004 18:03:15 +0000
+From: Jonathan Boler <j.m.boler@sms.ed.ac.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040217)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.6.3-mm1 compile error
+Content-Type: multipart/mixed;
+ boundary="------------000207000302080508010506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote to Ingo Molnar;
-> Your version is also not multi-threaded: you can never allow more than one 
-> thread doing the "sys_mark_dir_clean()".
+This is a multi-part message in MIME format.
+--------------000207000302080508010506
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It's fine as long as each thread has its own dirfd.  The "clean bit"
-applies to an fd.  Or did I miss something obvious?
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+   CHK     include/linux/compile.h
+   GEN     .version
+   CHK     include/linux/compile.h
+   UPD     include/linux/compile.h
+   CC      init/version.o
+   LD      init/built-in.o
+   LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o(.text+0xcd46): In function `acpi_apic_setup':
+: undefined reference to `smp_found_config'
+arch/i386/kernel/built-in.o(.text+0xcd4f): In function `acpi_apic_setup':
+: undefined reference to `clustered_apic_check'
+make: *** [.tmp_vmlinux1] Error 1
 
-> The problem is that you'd still need other system calls
 
-Here's a thought.  It's a bit ugly, but it offers O_CLEAN-like
-functionality without extra system calls for each operation:
+If I enable APIC the error goes away.
 
-    fchdir(dirfd);
+I have a Dell laptop with a broken bios so the APIC doesn't enable so I 
+leave it disabled in .config.
 
-That means change to dirfd in the current process (or thread if
-CLONE_FS), and when the "clean bit" is set on dirfd, then any creation
-of a name _with no directory component_ will abort.
+My .config is attached.
 
-For example, these operations all create names which will check
-dirfd's clean bit, and abort if it's set:
+Jonathan
 
-    open("file1", O_CREAT|O_TRUNC|O_RDWR, 0666);
-    link("file1", "file2");
-    symlink("file1","file3");
-    rename("file1", "file4");
-    link("subdir/file1", "file2");
-    symlink("subdir/file1","file3");
-    rename("subdir/file1", "file4");
+--------------000207000302080508010506
+Content-Type: application/octet-stream;
+ name="config.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="config.bz2"
 
-These operations don't check any clean bits:
-
-    open("/tmp/file1", O_CREAT|O_TRUNC|O_RDWR, 0666);
-    open("./file1", O_CREAT|O_TRUNC|O_RDWR, 0666);
-    link("file1", "subdir/file2");
-    symlink("file1","subdir/file3");
-    rename("file1", "subdir/file4");
-
-If dirfd is closed, then of course the current directory stays the
-same, but there is no clean bit to check any more.  chdir() also
-implies no clean bit to check.
-
-In other words the notion of current directory is extended to be
-(inode, fd).  fd can be NULL, or an fd whose clean bit must be checked
-before allowing name creation for "/"-less paths.
-
-(As you know I prefer to use dnotify on dirfd to represent the "clean
-bit", but that's the subject of another mail).
-
--- Jamie
+QlpoOTFBWSZTWZSec5cABo5fgEAQWOf/8j////C////gYBacAB7aOKRT0NrCYm+9dYAs21VV
+313evuZc2VHcsr2wr2s9Md27u887t57mc9a3pHe31727bzHXDTSCNGjRoEGggmTESenoU9T9
+CeqflE8oPUGmiaATQENCaSEzUA9TRpkAAAAxAiFT8aSp+EjUyaDRoABoMgAAEmkkImmkp+1U
+2U/RR6j2qYIBkGgMQD0mgNpSjJkmaGQNE0A000DQAAAA0EiQJkEyNTIRT9T0p6QAAaA0AAHf
+83vn/leTCosBtCpBYoo2hUWAKSiVh9gvEmId+aQfpov2ZRB18mf5z/ScLo3Yk2YVWcoQhbsy
+xK0trRv1/X78NG1q9QlHrUSpWKFVkrLaChUUqKIwBrT8KYsyoiqCNYVBjFIsBGgrVEqVKNlr
+7aGe6hpMRtS0UlSDbFGMqQrAbWMqLCCyC0tFtaO1JjJDGiEpaLBLZFgFVtsWpUG0FqUtKMil
+YVrCVirURgKDSQhaLAZWsloWDSo1YitaKVVpshVyrFhUqlVa+m5Mosra2nuy4NapbWtEbULR
+otqg4QgxklzRUnliKlqGXkvb9gyNK66Gvp7EUABAUuJ+NK2/lR4FlFGTV9SJVtA/J+vw+zBE
+gHcbGJtIgWlM7qeXf4uVON7v8PxYc0Riw0m7OERhnF5IDyn6b98cbdsKy2CUkJWU1uVNCBnl
+ZTVbvXefx/W77147iq67LaScXV/I5mrGJyF7Yduyl+CsetUKcnv+3j57evXz17fLz9V9KdPL
+f0Gzz53e+EGTezipUtYLL6u9+P1a6WLPFuTK2RDGrmZ0kYz2bPY2+TnOn8iIVMGG/FPuo8SL
+rR+vVV6q73hCvO16z/eeftzpjP+mUcDDjg0D8YnMbCS+lzoPDnv58ypGxm2e+chjxPqdq58u
+wa8G13j5149oe3fKoqNV8N61xGhyxxvp2TjT8zmjFnOLXTaMnaNDck4b+MspaLJWM3t4yjt/
+GRiyxjBVi6zbH20y79PHPZhz36xk8hyQfDP9nAaL81h8CPeo0oLeVnZ7TXTvk1IePMMhvB4K
+/nDEtD5oexPOvCMtkOWLzt3svrfg7ZL0y22v2yGMOb3S1oc4ce7WnbRblnwqs2PVZYsZPPpw
+bvjRuY63pNhGt4uL7+D5XU2WQ27c6WcJ1OEiwU8WDHGVD7caqGGKxbVnrWWd0+z28R2+DygR
+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
+--------------000207000302080508010506--

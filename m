@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315207AbSFITk6>; Sun, 9 Jun 2002 15:40:58 -0400
+	id <S314929AbSFIT77>; Sun, 9 Jun 2002 15:59:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSFITk5>; Sun, 9 Jun 2002 15:40:57 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:1293 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S315207AbSFITk4>;
-	Sun, 9 Jun 2002 15:40:56 -0400
-Date: Sun, 9 Jun 2002 21:43:29 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: tim@cyberelk.net, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Get rid of warnings in pd.c and pcd.c
-Message-ID: <20020609214329.A13417@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S315091AbSFIT76>; Sun, 9 Jun 2002 15:59:58 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13996 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S314929AbSFIT76>; Sun, 9 Jun 2002 15:59:58 -0400
+Date: Sun, 9 Jun 2002 14:59:57 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Albert Cranford <ac9410@bellsouth.net>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5.21 lm_sensor support 1/5
+In-Reply-To: <3D03AACF.E85DE83D@bellsouth.net>
+Message-ID: <Pine.LNX.4.44.0206091457390.20459-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 9 Jun 2002, Albert Cranford wrote:
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Patch adds lm_sensor support for 2.5.21
+> --- linux/drivers/Makefile.orig	2002-05-20 09:54:49.000000000 -0400
+> +++ linux/drivers/Makefile	2002-05-30 00:36:36.000000000 -0400
+> @@ -10,7 +10,7 @@
+>  		message scsi md ieee1394 pnp isdn atm \
+>  		fc4 i2c acpi bluetooth input/serio \
+>  		input/gameport parport hotplug \
+> -		base char block misc net media cdrom
+> +		base char block misc net media cdrom i2c/busses i2c/chips
+>  
+>  obj-$(CONFIG_PCI)		+= pci/
+>  obj-$(CONFIG_ACPI)		+= acpi/
+> @@ -42,6 +42,8 @@
+>  obj-$(CONFIG_SERIO)		+= input/serio/
+>  obj-$(CONFIG_I2O)		+= message/
+>  obj-$(CONFIG_I2C)		+= i2c/
+> +obj-$(CONFIG_MAINBOARD)		+= i2c/busses/
+> +obj-$(CONFIG_SENSORS)		+= i2c/chips/
+>  obj-$(CONFIG_PHONE)		+= telephony/
+>  obj-$(CONFIG_MD)		+= md/
+>  obj-$(CONFIG_BLUEZ)		+= bluetooth/
 
-Removed two unused variables in paride/pd.c and paride/pcd.c.
-Agains 2.5.21
+Is there any reason why you cannot link busses, chips from within 
+i2c/Makefile?
 
-	Sam
+It will work like this, but it surely is cleaner to do it from inside i2c
+- CONFIG_MAINBOARD and CONFIG_SENSORS can not be set without CONFIG_I2C
+AFAICS.
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="paride.patch"
+--Kai
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.488   -> 1.489  
-#	drivers/block/paride/pcd.c	1.14    -> 1.15   
-#	drivers/block/paride/pd.c	1.23    -> 1.24   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/09	sam@mars.ravnborg.org	1.489
-# Get rid of two warnings in paride/pd.c and paride/pcd.c
-# --------------------------------------------
-#
-diff -Nru a/drivers/block/paride/pcd.c b/drivers/block/paride/pcd.c
---- a/drivers/block/paride/pcd.c	Sun Jun  9 21:21:50 2002
-+++ b/drivers/block/paride/pcd.c	Sun Jun  9 21:21:50 2002
-@@ -330,7 +330,7 @@
- 
- int pcd_init (void)	/* preliminary initialisation */
- 
--{       int 	i, unit;
-+{       int 	unit;
- 
- 	if (disable) return -1;
- 
-diff -Nru a/drivers/block/paride/pd.c b/drivers/block/paride/pd.c
---- a/drivers/block/paride/pd.c	Sun Jun  9 21:21:50 2002
-+++ b/drivers/block/paride/pd.c	Sun Jun  9 21:21:50 2002
-@@ -382,7 +382,7 @@
- 
- int pd_init (void)
- 
--{       int i;
-+{
- 	request_queue_t * q; 
- 
- 	if (disable) return -1;
 
---fUYQa+Pmc3FrFX/N--

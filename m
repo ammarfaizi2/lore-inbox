@@ -1,96 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262958AbVCDRU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262938AbVCDRVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262958AbVCDRU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 12:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbVCDRR7
+	id S262938AbVCDRVC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 12:21:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbVCDRS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 12:17:59 -0500
-Received: from cantor.suse.de ([195.135.220.2]:56517 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262938AbVCDRRJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 12:17:09 -0500
-Message-ID: <42289812.9020009@suse.de>
-Date: Fri, 04 Mar 2005 18:17:06 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Fri, 4 Mar 2005 12:18:26 -0500
+Received: from 200-170-96-180.veloxmail.com.br ([200.170.96.180]:1397 "HELO
+	qmail-out.veloxmail.com.br") by vger.kernel.org with SMTP
+	id S262930AbVCDROm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 12:14:42 -0500
+X-qfilter-stat: ok
+Date: Fri, 4 Mar 2005 14:14:37 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: radeonfb blanks my monitor
+In-Reply-To: <Pine.LNX.4.62.0503032044350.416@darkstar.example.net>
+Message-ID: <Pine.LNX.4.62.0503041407230.163@darkstar.example.net>
+References: <Pine.LNX.4.62.0503022347070.311@darkstar.example.net>  <1109823010.5610.161.camel@gaston> 
+	<Pine.LNX.4.62.0503030134200.311@darkstar.example.net>  <1109825452.5611.163.camel@gaston> 
+	<Pine.LNX.4.62.0503031149280.311@darkstar.example.net> <1109890137.5610.233.camel@gaston>
+	<Pine.LNX.4.62.0503032044350.416@darkstar.example.net>
+X-Archive: encrypt
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mjg59@srcf.ucam.org, hare@suse.de,
-       pavel@suse.cz
-Subject: Re: swsusp: allow resume from initramfs
-References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org>
-In-Reply-To: <20050304030410.3bc5d4dc.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-341110897-1109956477=:163"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> I don't understand how this can be affected by the modularness of the
-> kernel.  Can you explain a little more?
+--8323328-341110897-1109956477=:163
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-normally, resume takes place _before_ the initramfs is entered. If your
-swap device depends on a module that is loaded from initramfs, you are lost.
+On Thu, 3 Mar 2005, Fr=E9d=E9ric L. W. Meunier wrote:
 
-This patch (or the version in the kernel i am running right now at
-least) still does this (resume early), but if it does not find a device,
-it allows resume to be triggered from initramfs after the module is loaded.
+> On Fri, 4 Mar 2005, Benjamin Herrenschmidt wrote:
+>
+>>  Well, I would need the full log, and with radeonfb verbose debug enable=
+d=20
+>>  in the config.
+>
+> I'll later try as module with debug.
 
-Excerpt from dmesg on my machine (i did boot and not resume this time):
-[...]
-TCP established hash table entries: 32768 (order: 6, 262144 bytes)
-TCP bind hash table entries: 32768 (order: 5, 131072 bytes)
-TCP: Hash tables configured (established 32768 bind 32768)
-NET: Registered protocol family 1
-PM: Checking swsusp image.
-PM: Resume from disk failed.
-ACPI wakeup devices:
- LID PBTN PCI0 USB0 USB1 USB2 USB3 MODM PCIE
-ACPI: (supports S0 S1 S3 S4 S4bios S5)
-Freeing unused kernel memory: 204k freed
-input: AT Translated Set 2 keyboard on isa0060/serio0
-input: PS/2 Generic Mouse on isa0060/serio1
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH4: IDE controller at PCI slot 0000:00:1f.1
-PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
-PCI: setting IRQ 11 as level-triggered
-ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 11 (level, low) -> IRQ 11
-ICH4: chipset revision 1
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xbfa0-0xbfa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xbfa8-0xbfaf, BIOS settings: hdc:DMA, hdd:pio
-Probing IDE interface ide0...
-hda: IC25N060ATMR04-0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: HL-DT-STCD-RW/DVD-ROM GCC-4243N, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 1024KiB
-hda: 117210240 sectors (60011 MB) w/7884KiB Cache, CHS=16383/255/63,
-UDMA(100)
-hda: cache flushes supported
- hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
-ide-floppy driver 0.99.newide
-hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-Attempting manual resume
-PM: Checking swsusp image.
-swsusp: Suspend partition has wrong signature?
-PM: Resume from disk failed.
-ReiserFS: hda3: found reiserfs format "3.6" with standard journal
-ReiserFS: hda3: using ordered data mode
+Here's:
 
-unfortunately the errors did not get caught by dmesg, but the first
-error is -6 (no such device), later it is -22 (-EINVAL, no valid suspend
-signature). This is in fact ok since i did not suspend before ;-)
+/var/log/messages:
 
-Hope this helps (and the patch is working fine in my extended tests, it
-could get some documentation on how to set it up since it is not totally
-trivial. Hannes?).
+Mar  4 14:00:29 pervalidus kernel: radeonfb: Found Intel x86 BIOS ROM Image
+Mar  4 14:00:29 pervalidus kernel: radeonfb: Retreived PLL infos from BIOS
+Mar  4 14:00:30 pervalidus kernel: radeonfb: Monitor 1 type CRT found
+Mar  4 14:00:30 pervalidus kernel: radeonfb: EDID probed
+Mar  4 14:00:30 pervalidus kernel: radeonfb: Monitor 2 type no found
 
-   Stefan
+/var/log/syslog:
 
+Mar  4 14:00:28 pervalidus kernel: radeonfb_pci_register BEGIN
+Mar  4 14:00:28 pervalidus kernel: radeonfb (0000:01:00.0): Found 262144k o=
+f DDR 128 bits wide videoram
+Mar  4 14:00:29 pervalidus kernel: radeonfb (0000:01:00.0): mapped 16384k v=
+ideoram
+Mar  4 14:00:29 pervalidus kernel: radeonfb: Reference=3D27.00 MHz (RefDiv=
+=3D12) Memory=3D325.00 Mhz, System=3D200.00 MHz
+Mar  4 14:00:29 pervalidus kernel: radeonfb: PLL min 20000 max 40000
+Mar  4 14:00:29 pervalidus kernel: 1 chips in connector info
+Mar  4 14:00:29 pervalidus kernel:  - chip 1 has 2 connectors
+Mar  4 14:00:29 pervalidus kernel:   * connector 0 of type 2 (CRT) : 2300
+Mar  4 14:00:29 pervalidus kernel:   * connector 1 of type 3 (DVI-I) : 3221
+Mar  4 14:00:29 pervalidus kernel: Starting monitor auto detection...
+Mar  4 14:00:29 pervalidus kernel: radeonfb: I2C (port 1) ... not found
+Mar  4 14:00:29 pervalidus kernel: radeonfb: I2C (port 2) ... not found
+Mar  4 14:00:29 pervalidus kernel: radeonfb: I2C (port 3) ... found CRT dis=
+play
+Mar  4 14:00:30 pervalidus kernel: radeonfb: I2C (port 4) ... not found
+Mar  4 14:00:30 pervalidus kernel: radeonfb: I2C (port 2) ... not found
+Mar  4 14:00:30 pervalidus kernel: radeonfb: I2C (port 4) ... not found
+Mar  4 14:00:30 pervalidus kernel: radeonfb: I2C (port 3) ... found CRT dis=
+play
+Mar  4 14:00:30 pervalidus kernel: hStart =3D 694, hEnd =3D 757, hTotal =3D=
+ 795
+Mar  4 14:00:30 pervalidus kernel: vStart =3D 402, vEnd =3D 408, vTotal =3D=
+ 418
+Mar  4 14:00:30 pervalidus kernel: h_total_disp =3D 0x590062^I   hsync_strt=
+_wid =3D0x8702c0
+Mar  4 14:00:30 pervalidus kernel: v_total_disp =3D 0x18f01a1^I   vsync_str=
+t_wid =3D 0x860191
+Mar  4 14:00:30 pervalidus kernel: pixclock =3D 85925
+Mar  4 14:00:30 pervalidus kernel: freq =3D 1163
+Mar  4 14:00:30 pervalidus kernel: freq =3D 1666, PLL min =3D 20000, PLL ma=
+x =3D 40000
+Mar  4 14:00:30 pervalidus kernel: ref_div =3D 12, ref_clk =3D 2700, output=
+_freq =3D 26656
+Mar  4 14:00:30 pervalidus kernel: ref_div =3D 12, ref_clk =3D 2700, output=
+_freq =3D 26656
+Mar  4 14:00:30 pervalidus kernel: post div =3D 0x5
+Mar  4 14:00:30 pervalidus kernel: fb_div =3D 0x76
+Mar  4 14:00:30 pervalidus kernel: ppll_div_3 =3D 0x50076
+Mar  4 14:00:30 pervalidus kernel: Console: switching to colour frame buffe=
+r device 90x25
+Mar  4 14:00:30 pervalidus kernel: radeonfb (0000:01:00.0): ATI Radeon AP
+Mar  4 14:00:30 pervalidus kernel: radeonfb_pci_register END
+
+BTW, I noticed that it locking the system. I was able to issue=20
+a shutdown. The commands still work, but beep is disabled.
+
+--=20
+How to contact me - http://www.pervalidus.net/contact.html
+
+--8323328-341110897-1109956477=:163--

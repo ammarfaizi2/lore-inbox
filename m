@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131254AbRC3J13>; Fri, 30 Mar 2001 04:27:29 -0500
+	id <S131244AbRC3Jht>; Fri, 30 Mar 2001 04:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131269AbRC3J1T>; Fri, 30 Mar 2001 04:27:19 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:46344 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131254AbRC3J1P>; Fri, 30 Mar 2001 04:27:15 -0500
-Date: Thu, 29 Mar 2001 13:57:17 +0200
-From: Jens Taprogge <taprogge@idg.rwth-aachen.de>
-To: Klaus Reimer <k@ailis.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: opl3sa2 in 2.4.2 on Toshiba Tecra 8000
-Message-ID: <20010329135717.A1466@maggie.romantica.wg>
-Mail-Followup-To: Jens Taprogge <taprogge@idg.rwth-aachen.de>,
-	Klaus Reimer <k@ailis.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <01032910124007.00454@neo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <01032910124007.00454@neo>; from k@ailis.de on Thu, Mar 29, 2001 at 10:12:40AM +0200
+	id <S131246AbRC3Jhk>; Fri, 30 Mar 2001 04:37:40 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:36418 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S131244AbRC3Jhc>; Fri, 30 Mar 2001 04:37:32 -0500
+Date: Fri, 30 Mar 2001 03:36:40 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Tom Leete <tleete@mountain.net>
+cc: Ulrich Drepper <drepper@cygnus.com>, dank@trellisinc.com,
+   linux-kernel@vger.kernel.org, Eli Carter <eli.carter@inet.com>
+Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
+In-Reply-To: <3AC3BD64.7702CD7B@mountain.net>
+Message-ID: <Pine.LNX.3.96.1010330033440.8826B-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The same problem exists for the Toshiba 4000CDS. I think it is because
-the OPL3SA2 in these machines is not using PNP. 
+On Thu, 29 Mar 2001, Tom Leete wrote:
+> Ulrich Drepper wrote:
+> > 
+> > dank@trellisinc.com writes:
+> > 
+> > > with the new ansi standard, this use of __inline__ is no longer
+> > > necessary,
+> > 
+> > This is not correct.  Since the semantics of inline in C99 and gcc
+> > differ all code which depends on the gcc semantics should continue to
+> > use __inline__ since this keyword will hopefully forever signal the
+> > gcc semantics.
 
-Probably the support for non-PNP chips broke during the recent update of
-the driver (2.4.0 works perfectly).
+> Unfortunately, it seems that gcc will define __inline__ as a synonym for
+> inline, whatever inline is currently in use. I asked this on the gcc list a
+> while ago. The archive there should have the replies.
 
-Jens
+None of this matters :)
 
-On Thu, Mar 29, 2001 at 10:12:40AM +0200, Klaus Reimer wrote:
-> Hi,
-> 
-> I have switched from 2.2.17 to 2.4.2 and now the sound is no longer working 
-> on my Toshiba Tecra 8000 Notebook. In 2.2.17 I used the following modules:
--- 
-Jens Taprogge
+The kernel standard is 'static inline', so that is the preferred
+usage in standard kernel code, without overriding reasons.
+
+(also note that it is an outstanding cleanup item to replace
+ 'extern [__]inline[__]' with 'static inline', unless there are
+ overriding reasons not to do so.)
+
+	Jeff
+
+
 

@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbUBWRNw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 12:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbUBWRNw
+	id S261961AbUBWRYi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 12:24:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUBWRYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 12:13:52 -0500
-Received: from ppp-151-35-32-252-pd01u-dada6.iunet.it ([151.35.32.252]:6922
-	"HELO ppp-151-35-32-252-pd01u-dada6.iunet.it") by vger.kernel.org
-	with SMTP id S261939AbUBWRNs (ORCPT
+	Mon, 23 Feb 2004 12:24:37 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:34012 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261903AbUBWRYe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 12:13:48 -0500
-Message-ID: <IRBJXHHETNQPOTDKIVOCNQA@yahoo.com>
-From: "Fletcher Brandon" <shannon_White704@yahoo.com>
-Reply-To: "Fletcher Brandon" <shannon_White704@yahoo.com>
-To: linux-ia64@vger.kernel.org
-Subject: cheapest sugper viagrga !  dusky anselm
-Date: Mon, 23 Feb 2004 12:04:41 -0500
+	Mon, 23 Feb 2004 12:24:34 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230C730@exa-atlanta.se.lsil.com>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: [PATCH][BUGFIX] : megaraid patch for 2.10.1 (irq disable bug fix)
+Date: Mon, 23 Feb 2004 12:24:31 -0500
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="--84286083921261177169"
-X-IP: 163.250.208.28
-X-Priority: 1
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----84286083921261177169
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+Hello all,
 
-fabuklous!
+The following patch fixes a bug in megaraid driver version 2.10.1
+where irq was erroneously being disabled.
 
-I took the only one pijll of Cialgs and 
-that was such a GREAT weekend!
+Thanks,
+Sreenivas
 
-All the girls at the party were just 
-punch-drungk with my potentiagl
-
-I have fgcked all of them 
-THREE times but my dgck WAS able to do some 
-more!
-
-Cgalis - it`s COOL!!! 
-The best weekend stuff I've ever trgied!
-Haven`t you tgried yet?
-Shipped world wide!
-
-DO IT at 
-
-http://medspro.net/sv/index.php?pid=3Devaph6163
-http://medspro.net/sv/index.php?pid=3Devaph6163
-
-
-britannic bebop
-
-----84286083921261177169--
-
+diff -Naur current/drivers/scsi/megaraid.c patched/drivers/scsi/megaraid.c
+--- current/drivers/scsi/megaraid.c	2004-02-23 23:56:10.000000000 -0500
++++ patched/drivers/scsi/megaraid.c	2004-02-23 23:56:18.000000000 -0500
+@@ -2474,7 +2474,9 @@
+ 	memset(raw_mbox, 0, sizeof(raw_mbox));
+ 	raw_mbox[0] = FLUSH_ADAPTER;
+ 
+-	irq_disable(adapter);
++	if( adapter->flag & BOARD_IOMAP ) 
++		irq_disable(adapter);
++
+ 	free_irq(adapter->host->irq, adapter);
+ 
+ 	/* Issue a blocking (interrupts disabled) command to the card */
+@@ -4040,7 +4042,9 @@
+ 		memset(raw_mbox, 0, sizeof(raw_mbox));
+ 		raw_mbox[0] = FLUSH_ADAPTER;
+ 
+-		irq_disable(adapter);
++		if( adapter->flag & BOARD_IOMAP ) 
++			irq_disable(adapter);
++
+ 		free_irq(adapter->host->irq, adapter);
+ 
+ 		/*

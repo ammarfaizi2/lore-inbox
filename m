@@ -1,74 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263224AbTJPXod (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 19:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbTJPXod
+	id S263258AbTJPX6U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 19:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTJPX6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 19:44:33 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:504 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263224AbTJPXob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 19:44:31 -0400
-Date: Thu, 16 Oct 2003 17:42:28 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Eli Billauer <eli_billauer@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [RFC] frandom - fast random generator module
-Message-ID: <20031016174227.K7000@schatzie.adilger.int>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Eli Billauer <eli_billauer@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
-References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <20031016102020.A7000@schatzie.adilger.int> <3F8EC7D0.5000003@pobox.com> <20031016121825.D7000@schatzie.adilger.int> <3F8F26F0.6080002@pobox.com>
+	Thu, 16 Oct 2003 19:58:20 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:61190 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263258AbTJPX6R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 19:58:17 -0400
+Date: Thu, 16 Oct 2003 16:58:11 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Transparent compression in the FS
+Message-ID: <20031016235811.GE29279@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws> <3F8F2A32.90101@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F8F26F0.6080002@pobox.com>; from jgarzik@pobox.com on Thu, Oct 16, 2003 at 07:17:04PM -0400
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <3F8F2A32.90101@pobox.com>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This Outlook installation has been found to be susceptible to misuse.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 16, 2003  19:17 -0400, Jeff Garzik wrote:
-> Andreas Dilger wrote:
-> > It isn't a matter of unbreakable crypto, but the fact that we want
-> > relatively unique values that will not be the same on a reboot.  Currently
-> > we do just as you propose for our "crappy PRNG", which is "grab 8 bytes
-> > via get_random_bytes and increment", but that is a little _too_ easy to
-> > guess (although good enough for the time being).
+On Thu, Oct 16, 2003 at 07:30:58PM -0400, Jeff Garzik wrote:
+> jw schultz wrote:
+> >Because each hash algorithm has different pathologies
+> >multiple hashes are generally better than one but their
+> >effective aggregate bit count is less than the sum of the
+> >separate bit counts.
 > 
-> If you care at all about it being easy to guess, then why bother with 
-> the crappy PRNG?  :)
+> I was coming to this conclusion too...  still, it's safer simply to 
+> handle collisions.
+
+And because, in a filesystem, you have to handle collisions
+you balance the cost of the hash quality against the cost of
+collision.  A cheap hash with low colission rate is probably
+better than an expensive hash with a near-zero colission
+rate.
+
 > 
-> If you _don't_ care about the numbers being easy to guess -- i.e. you 
-> simply want unique values -- then it doesn't seem like a PRNG is needed 
-> at all.  With a random number you have to deal with collisions between 
-> nodes choosing the same number coincidentally _anyway_, so why not just 
-> use sequence numbers?
+> 
+> >The idea of this sort of block level hashing to allow
+> >sharing of identical blocks seems attractive but i wouldn't
+> >trust any design that did not accept as given that there
+> >would be false positives.  This means that a write would
+> >have to not only hash the block but then if there is a
+> >collision do a compare of the raw data.  Then you have to
+> 
+> yep
+> 
+> 
+> >add the overhead of having lists of blocks that match a hash
+> >value and reference counts for each block itself.  Further,
+> >every block write would then need to include, at minimum,
+> >relinking facilities on the hash lists and hash entry
+> >allocations plus the inode block list being updated. Finally
+> 
+> Consider a simple key-value map, where "$hash $n" is the key and the 
+> value is the block of data.  Only three operations need occur:
+> * if hash exists (highly unlikely!), read and compare w/ raw data
+> * write new block to disk
+> * add single datum to key-value index
 
-For the current version of Lustre security is not a primary concern (our
-customers run Lustre in very secure network environments).  We started
-with get_random_bytes() but had to remove it because of the overhead.
-Note that the random numbers are produced and consumed local to a single
-node but are passed over the network to clients as an opaque handle,
-so cross-node collisions are not a concern.
+Nicely described, but each block now needs a reference count
+which is incrmented if the raw compare yields a positive and
+decremented when a reference to it receives a write.
+It may help to also have a reverse reference somewhere
+from the block to the hash.
 
-At some point in the future we may need to increase the security of such
-handles, but it would be nice to not increase the CPU usage as much as
-get_random_bytes() did.  Direct HW RNG would suit this perfectly.
+More detail than this gets into writing pseudocode.
 
-Note that the security of these handles isn't really that critical to
-the overall security model when implemented (which will be kerberos based
-like AFS and DCE), but it would be nice from a warm-n-fuzzy point of view
-to have something better than "last handle + N" which is what we have now.
+> Inode block lists would need to be updated regardless of any collision; 
+> that would be a standard and required part of any VFS interaction. And 
 
-In any case, this is getting off topic for l-k now so we should probably
-end the discussion here.
+Under current schemes if i overwrite an already allocated
+block of a file the block list need not be updated unless
+the block is relocated.  But that is a nit.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+> the internal workings of the key-value index (think Berkeley DB) are 
+> static, regardless of any collision.
+> 
+> 	Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

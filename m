@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVBBEAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVBBD7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262212AbVBBEAb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 23:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbVBBEAN
+	id S262258AbVBBD7v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 22:59:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbVBBD4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 23:00:13 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:14110 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262212AbVBBD5v (ORCPT
+	Tue, 1 Feb 2005 22:56:20 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:58250 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262252AbVBBDDn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 22:57:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=JhHm7pNoXTye/ol1nhBjvOuaISQi0yv4MUbqI7oVRGa2Vf28RR6FtUmaOtE5mo9PtC2skTziOLHadctfwc1kat5Qo2Et7E91wpFOeAG3a1Ly8gfH3ctdeXJHwYvThak5esqKIFe2ir5y8h/g42ldktClA+u1Hba+ZBDl3YY7Ecc=
-Message-ID: <9e4733910502011957145191f5@mail.gmail.com>
-Date: Tue, 1 Feb 2005 22:57:51 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Tejun Heo <tj@home-tj.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: ide and ROMs
+	Tue, 1 Feb 2005 22:03:43 -0500
+Date: Wed, 2 Feb 2005 12:03:41 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2 19/29] ide: ide_diag_taskfile() rq initialization fix
+Message-ID: <20050202030341.GD1187@htj.dyndns.org>
+References: <20050202024017.GA621@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202024017.GA621@htj.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since it looks like ide is being worked on, can you convert ide to use
-the PCI ROM access calls in drivers/pci/rom.c instead of directly
-manipulating PCI config space? The new ROM calls work on all
-architectures.
+> 19_ide_diag_taskfile_use_init_drive_cmd.patch
+> 
+> 	In ide_diag_taskfile(), when initializing taskfile rq,
+> 	ref_count wasn't initialized properly.  Modified to use
+> 	ide_init_drive_cmd().  This doesn't really change any behavior
+> 	as the request isn't managed via the block layer.
 
-These are the places that need to be fix:
-[jonsmirl@jonsmirl ide]$ grep -r PCI_ROM_ADDRESS_ENABLE *
-pci/aec62xx.c:          pci_write_config_dword(dev, PCI_ROM_ADDRESS,
-dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
-pci/cmd64x.c:           pci_write_config_byte(dev, PCI_ROM_ADDRESS,
-dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
-pci/hpt34x.c:                          
-dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
-pci/hpt366.c:                   dev->resource[PCI_ROM_RESOURCE].start
-| PCI_ROM_ADDRESS_ENABLE);
-pci/pdc202xx_new.c:                    
-dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
-pci/pdc202xx_old.c:                    
-dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
-[jonsmirl@jonsmirl ide]$
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Signed-off-by: Tejun Heo <tj@home-tj.org>
+
+
+Index: linux-ide-export/drivers/ide/ide-taskfile.c
+===================================================================
+--- linux-ide-export.orig/drivers/ide/ide-taskfile.c	2005-02-02 10:28:05.642130143 +0900
++++ linux-ide-export/drivers/ide/ide-taskfile.c	2005-02-02 10:28:05.851096238 +0900
+@@ -471,7 +471,7 @@ static int ide_diag_taskfile(ide_drive_t
+ {
+ 	struct request rq;
+ 
+-	memset(&rq, 0, sizeof(rq));
++	ide_init_drive_cmd(&rq);
+ 	rq.flags = REQ_DRIVE_TASKFILE;
+ 	rq.buffer = buf;
+ 

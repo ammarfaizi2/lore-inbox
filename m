@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130086AbRBVJrD>; Thu, 22 Feb 2001 04:47:03 -0500
+	id <S130301AbRBVJ7b>; Thu, 22 Feb 2001 04:59:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130471AbRBVJqx>; Thu, 22 Feb 2001 04:46:53 -0500
-Received: from ns.caldera.de ([212.34.180.1]:59910 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S130086AbRBVJqq>;
-	Thu, 22 Feb 2001 04:46:46 -0500
-Date: Thu, 22 Feb 2001 10:46:04 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: lvm-devel@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] *** ANNOUNCEMENT *** LVM 0.9.1 beta5 available at www.sistina.com
-Message-ID: <20010222104603.A1992@caldera.de>
-Mail-Followup-To: Peter Samuelson <peter@cadcamlab.org>,
-	lvm-devel@sistina.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010221180035.N25927@athlon.random> <200102211718.SAA25997@ns.caldera.de> <20010221221225.B21010@cadcamlab.org>
-Mime-Version: 1.0
+	id <S130296AbRBVJ7V>; Thu, 22 Feb 2001 04:59:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17424 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130284AbRBVJ7C>; Thu, 22 Feb 2001 04:59:02 -0500
+Subject: Re: Linux-2.4.2
+To: kerndev@sc-software.com (John Heil)
+Date: Thu, 22 Feb 2001 10:01:08 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com> from "John Heil" at Feb 21, 2001 06:31:18 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20010221221225.B21010@cadcamlab.org>; from peter@cadcamlab.org on Wed, Feb 21, 2001 at 10:12:25PM -0600
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14VsYg-0003ny-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 21, 2001 at 10:12:25PM -0600, Peter Samuelson wrote:
-> 
-> [Christoph Hellwig]
-> > It would be really good to have something devfs-like just for LVM in
-> > setups that don't use LVM, so we could avoid mounting root read/write
->                         ^^^devfs?
+> Which -ac series patch does this match up with or superceed
+> ie should this be considered superior to -ac19 ?
 
-Yes...
+I'll be merging most of the 2.4.2 changes if there are any I dont have with
+Linus for the next -ac which will be a 2.4.2-ac1 and thus somewhat shorter
 
-> > for device-creation.
-> 
-> For most people, read/write access to /dev is rarely needed -- how
-> often do you create new VGs or LVs?  How often do you run MAKEDEV or
-> vgscan?
-
-On every bootup, _before_ doing mount -a
-
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.

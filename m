@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310482AbSCGTdN>; Thu, 7 Mar 2002 14:33:13 -0500
+	id <S310484AbSCGTdW>; Thu, 7 Mar 2002 14:33:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310481AbSCGTdC>; Thu, 7 Mar 2002 14:33:02 -0500
-Received: from bitmover.com ([192.132.92.2]:52361 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S310480AbSCGTcr>;
-	Thu, 7 Mar 2002 14:32:47 -0500
-Date: Thu, 7 Mar 2002 11:32:46 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S310480AbSCGTdD>; Thu, 7 Mar 2002 14:33:03 -0500
+Received: from pat.uio.no ([129.240.130.16]:33250 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S310478AbSCGTcq>;
+	Thu, 7 Mar 2002 14:32:46 -0500
+To: Alexander.Riesen@synopsys.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020307113246.E20271@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com> <20020306221305.GA370@elf.ucw.cz> <a68edn$jjp$1@penguin.transmeta.com>
-Mime-Version: 1.0
+Subject: Re: 2.4.2-SMP: problem locking nfs files mounted on HPUX (ENOLCK)
+In-Reply-To: <20020307180608.A2750@riesen-pc.gr05.synopsys.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 07 Mar 2002 20:32:39 +0100
+In-Reply-To: <20020307180608.A2750@riesen-pc.gr05.synopsys.com>
+Message-ID: <shslmd4jhrc.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <a68edn$jjp$1@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Mar 07, 2002 at 07:18:15PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The most productive thing people could do might be to just do a BK->CVS
-> gateway, if you really feel like it.  Or just go on and ignore the fact
-> that some people are using BK - you don't actually have to ever even
-> know. 
+>>>>> " " == Alex Riesen <Alexander.Riesen@synopsys.com> writes:
 
-We've thought of making a readonly CVS pserver interface to BK which would
-at least make it easy to get the source in some form that the GPL folks
-like.  Somebody else should be able to do that with a perl script.  You
-could attempt a read/write interface as well, that's a lot harder, the
-impedance mismatch between BK and CVS becomes much more apparent in
-the read/write case.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+     > Hi, all i'm trying to lock a file using advisory locks.  The
+     > file is on the filesystem exported by a linux machine (RH 6.2,
+     > 2.4.2-SMP). The filesystem is mounted on HP-UX B.11.00 (HP-UX
+     > host1 B.11.00 A 9000/785 2011306912 two-user license).  Right
+     > now i cannot try this with the newer kernels.
+
+     > The following simple program fails with ENOLCK.
+
+HP clients require the 'insecure_locks' option to be set in the RedHat
+server's /etc/exports file.
+
+Cheers,
+   Trond

@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269951AbRHQIni>; Fri, 17 Aug 2001 04:43:38 -0400
+	id <S269968AbRHQIrh>; Fri, 17 Aug 2001 04:47:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269944AbRHQIn2>; Fri, 17 Aug 2001 04:43:28 -0400
-Received: from ns.suse.de ([213.95.15.193]:18189 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S269951AbRHQInN>;
-	Fri, 17 Aug 2001 04:43:13 -0400
-To: "David S. Miller" <davem@redhat.com>
+	id <S269944AbRHQIr1>; Fri, 17 Aug 2001 04:47:27 -0400
+Received: from elin.scali.no ([195.139.250.10]:47113 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S269981AbRHQIrW>;
+	Fri, 17 Aug 2001 04:47:22 -0400
+Subject: Re: [PATCH] processes with shared vm
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9 does not compile [PATCH]
-In-Reply-To: <Your message of "Fri, 17 Aug 2001 00:35:02 +0100."  <5.1.0.14.2.20010817002825.00b1e4e0@pop.cus.cam.ac.uk.suse.lists.linux.kernel> <5.1.0.14.2.20010817015007.045689b0@pop.cus.cam.ac.uk.suse.lists.linux.kernel> <3B7C7846.FD9DEE68@zip.com.au.suse.lists.linux.kernel> <20010816.185319.88475216.davem@redhat.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 17 Aug 2001 09:30:18 +0200
-In-Reply-To: "David S. Miller"'s message of "17 Aug 2001 03:59:36 +0200"
-Message-ID: <oupofpfw3cl.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <oupelqbw0z4.fsf@pigdrop.muc.suse.de>
+In-Reply-To: <997973469.7632.10.camel@pc-16.suse.lists.linux.kernel> 
+	<oupelqbw0z4.fsf@pigdrop.muc.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 17 Aug 2001 10:46:59 +0200
+Message-Id: <998038019.7627.21.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
-
->    From: Andrew Morton <akpm@zip.com.au>
->    Date: Thu, 16 Aug 2001 18:49:58 -0700
+Den 17 Aug 2001 10:21:35 +0200, skrev Andi Kleen:
+> Terje Eggestad <terje.eggestad@scali.no> writes:
 > 
->    int test(int __x, int __y)
->    {
->            return min(__x, __y);		/* sic */
->    }
+> > I figured out that it's difficult to find out from /proc
+> > which processes that share VM (created with clone(CLONE_VM)). 
+> > 
+> > made a patch that adds in /proc/<pid>/status a VmClones field that tells
+> > how many proc that uses the same VM (mm_struct).  if there are clones I
+> > add another field VmFirstClone with the pid of clone with the lowest
+> > pid. 
+> > 
+> > Needed for things like gtop that adds mem usage of groups of proc, or
+> > else they add up the usage of SIZE and RSS of threads.
+> > 
+> > The patch need to be applied to linux/fs/proc/array.c
 > 
-> People are expected not to use underscore prefixed
-> variables in normal C code, this is why macros
-> in the kernel make liberal use of them for locals.
+> The basic idea is a good one (I have written a similar thing in the past ;)
+> Your implementation is O(n^2) however in ps, which is not acceptable.
+> Much better is it to add a new field to mm_struct that gets initialised
+> on first creation with the pid, and adding a place holder in pid hash
+> if that process goes away and the mm_struct is still there to avoid pid
+> reuse (or alternatively link task_structs to mms and always use the pid of
+> the first entry)
+> 
+> -Andi
 
-You are joking, right?  The kernel is full of double under score prefixed
-identifiers, for functions that do slighter lower level things than others.
-While this expectation may exist in POSIX/C89 and is frequently violated there,
-in kernel C nobody cares about it at all.
+Thought of all that, yes ps will have O(n^2) BUT ONLY FOR CLONED PROCS.
+How many cloned procs do you usually have????
 
-It doesn't matter anyways, the way C macro expansion works guarantees that
-only macro arguments written in the macro get expanded; the arguments are not
-recursively expanded. Therefore any games with "magic" macro names 
-is totally unnecessary.
+Even if I agree that there should be a linked list of all the cloned
+procs, it means major changes to the data structs in the kernel.
 
--Andi
+With the number of threaded programs out there, this is "good enough".
+
+TJ
+
+
+-- 
+_________________________________________________________________________
+
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

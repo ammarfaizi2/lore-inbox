@@ -1,316 +1,197 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315805AbSGYRac>; Thu, 25 Jul 2002 13:30:32 -0400
+	id <S315806AbSGYRe3>; Thu, 25 Jul 2002 13:34:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315870AbSGYRac>; Thu, 25 Jul 2002 13:30:32 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:64899
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S315805AbSGYRaZ>; Thu, 25 Jul 2002 13:30:25 -0400
-Date: Thu, 25 Jul 2002 10:33:37 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] A generic RTC driver [3/3]
-Message-ID: <20020725173337.GF746@opus.bloom.county>
-Mime-Version: 1.0
+	id <S316089AbSGYReN>; Thu, 25 Jul 2002 13:34:13 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47856 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S315806AbSGYRbo>;
+	Thu, 25 Jul 2002 13:31:44 -0400
+Message-ID: <3D4036A0.6FAA303@mvista.com>
+Date: Thu, 25 Jul 2002 10:34:24 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Per Gregers Bilse <bilse@qbfox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 clock warps 4294 seconds
+References: <200207251036.LAA04618@spirit.qbfox.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 3 of 3 of the genrtc patches.  This is my own slight bit
-of work.  This changes set_rtc_time(struct *rtc_time) to return an int
-instead of void.  This was done so that the arch-specific code here
-could do additional checks on the time and return an error if needed.
-This then introduces include/asm-generic/rtc.h, include/asm-i386/rtc.h
-and include/asm-alpha/rtc.h.  include/asm-generic/rtc.h contains the
-get_rtc_time and set_rtc_time logic that is in drivers/char/rtc.c,
-slightly modified to not duplicate the tests done by the genrtc code but
-keeping the additional ones (years > 255 and > 169, as well as the
-CONFIG_DECSTATION ones).  This portion has been tested on SMP i386.
-This also modifies include/asm-ppc/rtc.h to return -EINVAL if no rtc
-hardware is present (it would silently fail previously).
+Per Gregers Bilse wrote:
+> 
+> On Jul 25, 11:01am, Per Gregers Bilse <bilse@qbfox.com> wrote:
+> > Ie, set flag/value in do_fast_gettimeoffset(), check/print in
+> > do_gettimeofday().  I figure that should catch it if it happens
+> > again, and safely so.
+> 
+> Not sure if that's the right thing to do, the check succeeds very
+> frequently.  A modified version, printing only every 1000th time,
+> yields:
+
+You have the number a bit low.  If I recall, this is an 800
+MHz machine, so each TSC tick is 1.25 nano seconds.  This
+means your threshold (with 5,000,000) is 6.25 ms.  The
+system should easily recover from anything up to about 9.9
+ms.  If you were to use 8,000,000 it would trigger on loss
+of a tick (i.e. 10 ms).  On the other hand, the warp you see
+is caused by the subtract overflowing.  For this the test
+would be something like:
+
+if ( eax & 0x80000000)  (i.e. is the sign bit set?)  OR you
+could do:
+
+if ( (int)eax < 0)
+
+
+Now if we are convinced that you are having these long
+"black outs" the question turns to why.  We are talking
+about an interrupt hold off here, not a preemption issue. 
+The first thing I would check is that you are using DMA for
+you disc transfers.  To the best of my knowledge, the
+default config file still has DMA off for these transfers
+and this can cause long delays.  Beyond this, I would look
+for special content in your system.  From the analytical
+point of view, some analysis of what is running when this
+happens might be of use.
+
+-g
+
+
+> 
+> Jul 25 11:18:36 vulpes kernel: do_gettimeofday warp 0 eax 6968466
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 1000 eax 5301486
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 2000 eax 5814470
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 3000 eax 6238995
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 4000 eax 6662828
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 5000 eax 7109559
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 6000 eax 7534440
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 7000 eax 7959034
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 8000 eax 6302366
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 9000 eax 6736399
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 10000 eax 7160461
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 11000 eax 7584511
+> Jul 25 11:18:39 vulpes kernel: do_gettimeofday warp 12000 eax 5855713
+> Jul 25 11:19:15 vulpes kernel: do_gettimeofday warp 13000 eax 6265463
+> Jul 25 11:19:15 vulpes kernel: do_gettimeofday warp 14000 eax 7992560
+> Jul 25 11:19:15 vulpes kernel: do_gettimeofday warp 15000 eax 6263791
+> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 16000 eax 5247486
+> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 17000 eax 6358315
+> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 18000 eax 7393344
+> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 19000 eax 6237626
+> Jul 25 11:19:20 vulpes kernel: do_gettimeofday warp 20000 eax 6406708
+> Jul 25 11:19:21 vulpes kernel: do_gettimeofday warp 21000 eax 6005906
+> Jul 25 11:19:21 vulpes kernel: do_gettimeofday warp 22000 eax 5056750
+> Jul 25 11:19:23 vulpes kernel: do_gettimeofday warp 23000 eax 6434750
+> Jul 25 11:19:24 vulpes kernel: do_gettimeofday warp 24000 eax 5093940
+> Jul 25 11:19:25 vulpes kernel: do_gettimeofday warp 25000 eax 6269335
+> Jul 25 11:19:26 vulpes kernel: do_gettimeofday warp 26000 eax 5596617
+> Jul 25 11:19:27 vulpes kernel: do_gettimeofday warp 27000 eax 7918244
+> Jul 25 11:19:29 vulpes kernel: do_gettimeofday warp 28000 eax 7266647
+> Jul 25 11:19:33 vulpes kernel: do_gettimeofday warp 29000 eax 5293260
+> Jul 25 11:19:53 vulpes kernel: do_gettimeofday warp 30000 eax 6751016
+> Jul 25 11:21:32 vulpes kernel: do_gettimeofday warp 31000 eax 6213632
+> Jul 25 11:23:24 vulpes kernel: do_gettimeofday warp 32000 eax 6997568
+> Jul 25 11:24:16 vulpes kernel: do_gettimeofday warp 33000 eax 5326413
+> Jul 25 11:25:10 vulpes kernel: do_gettimeofday warp 34000 eax 5717715
+> Jul 25 11:25:37 vulpes kernel: do_gettimeofday warp 35000 eax 6464694
+> Jul 25 11:26:19 vulpes kernel: do_gettimeofday warp 36000 eax 5969042
+> Jul 25 11:27:05 vulpes kernel: do_gettimeofday warp 37000 eax 7196006
+> Jul 25 11:28:10 vulpes kernel: do_gettimeofday warp 38000 eax 7129216
+> Jul 25 11:28:40 vulpes kernel: do_gettimeofday warp 39000 eax 5971848
+> Jul 25 11:29:04 vulpes kernel: do_gettimeofday warp 40000 eax 6347832
+> Jul 25 11:29:38 vulpes kernel: do_gettimeofday warp 41000 eax 6769141
+> Jul 25 11:30:19 vulpes kernel: do_gettimeofday warp 42000 eax 5279110
+> Jul 25 11:31:18 vulpes kernel: do_gettimeofday warp 43000 eax 6256288
+> Jul 25 11:31:34 vulpes kernel: do_gettimeofday warp 44000 eax 6483175
+> 
+> Here are complete code excerpts from arch/i386/kernel/time.c,
+> look for glob_eax:
+> 
+> static unsigned long glob_eax;
+> 
+> static inline unsigned long do_fast_gettimeoffset(void)
+> {
+>         register unsigned long eax, edx;
+> 
+>         /* Read the Time Stamp Counter */
+> 
+>         rdtsc(eax,edx);
+> 
+>         /* .. relative to previous jiffy (32 bits is enough) */
+>         eax -= last_tsc_low;    /* tsc_low delta */
+> 
+>         if ( eax > 5000000 ) {
+>                 glob_eax = eax;
+>                 return delay_at_last_interrupt;
+>         }
+> 
+>         /*
+>          * Time offset = (tsc_low delta) * fast_gettimeoffset_quotient
+>          *             = (tsc_low delta) * (usecs_per_clock)
+>          *             = (tsc_low delta) * (usecs_per_jiffy / clocks_per_jiffy)
+>          *
+>          * Using a mull instead of a divl saves up to 31 clock cycles
+>          * in the critical path.
+>          */
+> 
+>         __asm__("mull %2"
+>                 :"=a" (eax), "=d" (edx)
+>                 :"rm" (fast_gettimeoffset_quotient),
+>                  "0" (eax));
+> 
+>         /* our adjusted time offset in microseconds */
+>         return delay_at_last_interrupt + edx;
+> }
+> 
+> void do_gettimeofday(struct timeval *tv)
+> {
+>         unsigned long flags;
+>         unsigned long usec, sec;
+>         static unsigned warp;
+> 
+>         read_lock_irqsave(&xtime_lock, flags);
+>         usec = do_gettimeoffset();
+>         {
+>                 unsigned long lost = jiffies - wall_jiffies;
+>                 if (lost)
+>                         usec += lost * (1000000 / HZ);
+>         }
+>         sec = xtime.tv_sec;
+>         usec += xtime.tv_usec;
+>         read_unlock_irqrestore(&xtime_lock, flags);
+> 
+>         while (usec >= 1000000) {
+>                 usec -= 1000000;
+>                 sec++;
+>         }
+> 
+>         tv->tv_sec = sec;
+>         tv->tv_usec = usec;
+> 
+>         if ( glob_eax != 0 ) {
+>                 if ( warp % 1000 == 0 )
+>                         printk("do_gettimeofday warp %u eax %lu\n",warp,glob_eax);
+>                 warp++;
+>                 glob_eax = 0;
+>         }
+> }
+> 
+> Is this correctly detecting the problem?  Or is the low word (eax) of the TSC
+> a red herring?
+> 
+> Thanks.
+> 
+>   -- Per
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
-
---- linux-2.5/drivers/char/genrtc.c-original	2002-07-24 12:23:40.000000000 -0700
-+++ linux-2.5/drivers/char/genrtc.c	2002-07-24 13:22:05.000000000 -0700
-@@ -33,9 +33,10 @@
-  *      1.03 make it more portable            zippel@linux-m68k.org
-  *      1.04 removed useless timer code       rz@linux-m68k.org
-  *      1.05 portable RTC_UIE emulation       rz@linux-m68k.org
-+ *      1.06 set_rtc_time can return an error trini@kernel.crashing.org
-  */
- 
--#define RTC_VERSION	"1.05"
-+#define RTC_VERSION	"1.06"
- 
- #include <linux/module.h>
- #include <linux/config.h>
-@@ -326,8 +327,7 @@
- 		    wtime.tm_sec < 0 || wtime.tm_sec >= 60)
- 			return -EINVAL;
- 
--		set_rtc_time(&wtime);
--		return 0;
-+		return set_rtc_time(&wtime);
- 	    }
- 	}
- 
---- linux-2.5/include/asm-ppc/rtc.h-original	2002-07-24 13:25:15.000000000 -0700
-+++ linux-2.5/include/asm-ppc/rtc.h	2002-07-24 13:25:36.000000000 -0700
-@@ -68,7 +68,10 @@
- 				time->tm_sec);
- 
- 		(ppc_md.set_rtc_time)(nowtime);
--	}
-+
-+		return 0;
-+	} else
-+		return -EINVAL;
- }
- 
- static inline unsigned int get_rtc_ss(void)
---- /dev/null	1969-12-31 17:00:00.000000000 -0700
-+++ linux-2.5/include/asm-generic/rtc.h	2002-07-24 11:06:48.000000000 -0700
-@@ -0,0 +1,211 @@
-+/* 
-+ * inclue/asm-generic/rtc.h
-+ *
-+ * Author: Tom Rini <trini@mvista.com>
-+ *
-+ * Based on:
-+ * drivers/char/rtc.c
-+ *
-+ * Please read the COPYING file for all license details.
-+ */
-+
-+#ifndef __ASM_RTC_H__
-+#define __ASM_RTC_H__
-+
-+#ifdef __KERNEL__
-+
-+#include <linux/mc146818rtc.h>
-+#include <linux/rtc.h>
-+
-+#define RTC_PIE 0x40		/* periodic interrupt enable */
-+#define RTC_AIE 0x20		/* alarm interrupt enable */
-+#define RTC_UIE 0x10		/* update-finished interrupt enable */
-+
-+extern void gen_rtc_interrupt(unsigned long);
-+
-+/* some dummy definitions */
-+#define RTC_SQWE 0x08		/* enable square-wave output */
-+#define RTC_DM_BINARY 0x04	/* all time/date values are BCD if clear */
-+#define RTC_24H 0x02		/* 24 hour mode - else hours bit 7 means pm */
-+#define RTC_DST_EN 0x01	        /* auto switch DST - works f. USA only */
-+
-+/*
-+ * Returns true if a clock update is in progress
-+ */
-+static inline unsigned char rtc_is_updating(void)
-+{
-+	unsigned char uip;
-+
-+	spin_lock_irq(&rtc_lock);
-+	uip = (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP);
-+	spin_unlock_irq(&rtc_lock);
-+	return uip;
-+}
-+
-+static inline void get_rtc_time(struct rtc_time *time)
-+{
-+	unsigned long uip_watchdog = jiffies;
-+	unsigned char ctrl;
-+#ifdef CONFIG_DECSTATION
-+	unsigned int real_year;
-+#endif
-+
-+	/*
-+	 * read RTC once any update in progress is done. The update
-+	 * can take just over 2ms. We wait 10 to 20ms. There is no need to
-+	 * to poll-wait (up to 1s - eeccch) for the falling edge of RTC_UIP.
-+	 * If you need to know *exactly* when a second has started, enable
-+	 * periodic update complete interrupts, (via ioctl) and then 
-+	 * immediately read /dev/rtc which will block until you get the IRQ.
-+	 * Once the read clears, read the RTC time (again via ioctl). Easy.
-+	 */
-+
-+	if (rtc_is_updating() != 0)
-+		while (jiffies - uip_watchdog < 2*HZ/100) {
-+			barrier();
-+			cpu_relax();
-+		}
-+
-+	/*
-+	 * Only the values that we read from the RTC are set. We leave
-+	 * tm_wday, tm_yday and tm_isdst untouched. Even though the
-+	 * RTC has RTC_DAY_OF_WEEK, we ignore it, as it is only updated
-+	 * by the RTC when initially set to a non-zero value.
-+	 */
-+	spin_lock_irq(&rtc_lock);
-+	time->tm_sec = CMOS_READ(RTC_SECONDS);
-+	time->tm_min = CMOS_READ(RTC_MINUTES);
-+	time->tm_hour = CMOS_READ(RTC_HOURS);
-+	time->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
-+	time->tm_mon = CMOS_READ(RTC_MONTH);
-+	time->tm_year = CMOS_READ(RTC_YEAR);
-+#ifdef CONFIG_DECSTATION
-+	real_year = CMOS_READ(RTC_DEC_YEAR);
-+#endif
-+	ctrl = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irq(&rtc_lock);
-+
-+	if (!(ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
-+	{
-+		BCD_TO_BIN(time->tm_sec);
-+		BCD_TO_BIN(time->tm_min);
-+		BCD_TO_BIN(time->tm_hour);
-+		BCD_TO_BIN(time->tm_mday);
-+		BCD_TO_BIN(time->tm_mon);
-+		BCD_TO_BIN(time->tm_year);
-+	}
-+
-+#ifdef CONFIG_DECSTATION
-+	time->tm_year += real_year - 72;
-+#endif
-+
-+	/*
-+	 * Account for differences between how the RTC uses the values
-+	 * and how they are defined in a struct rtc_time;
-+	 */
-+	if (time->tm_year <= 69)
-+		time->tm_year += 100;
-+
-+	time->tm_mon--;
-+}
-+
-+/* Set the current date and time in the real time clock. */
-+static inline int set_rtc_time(struct rtc_time *time)
-+{
-+	unsigned char mon, day, hrs, min, sec;
-+	unsigned char save_control, save_freq_select;
-+	unsigned int yrs;
-+#ifdef CONFIG_DECSTATION
-+	unsigned int real_yrs, leap_yr;
-+#endif
-+
-+	yrs = time->tm_year;
-+	mon = time->tm_mon + 1;   /* tm_mon starts at zero */
-+	day = time->tm_mday;
-+	hrs = time->tm_hour;
-+	min = time->tm_min;
-+	sec = time->tm_sec;
-+
-+	if (yrs > 255)	/* They are unsigned */
-+		return -EINVAL;
-+
-+	spin_lock_irq(&rtc_lock);
-+#ifdef CONFIG_DECSTATION
-+	real_yrs = yrs;
-+	leap_yr = ((!((yrs + 1900) % 4) && ((yrs + 1900) % 100)) ||
-+			!((yrs + 1900) % 400));
-+	yrs = 72;
-+
-+	/*
-+	 * We want to keep the year set to 73 until March
-+	 * for non-leap years, so that Feb, 29th is handled
-+	 * correctly.
-+	 */
-+	if (!leap_yr && mon < 3) {
-+		real_yrs--;
-+		yrs = 73;
-+	}
-+#endif
-+	/* These limits and adjustments are independant of
-+	 * whether the chip is in binary mode or not.
-+	 */
-+	if (yrs > 169) {
-+		spin_unlock_irq(&rtc_lock);
-+		return -EINVAL;
-+	}
-+
-+	if (yrs >= 100)
-+		yrs -= 100;
-+
-+	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY)
-+	    || RTC_ALWAYS_BCD) {
-+		BIN_TO_BCD(sec);
-+		BIN_TO_BCD(min);
-+		BIN_TO_BCD(hrs);
-+		BIN_TO_BCD(day);
-+		BIN_TO_BCD(mon);
-+		BIN_TO_BCD(yrs);
-+	}
-+
-+	save_control = CMOS_READ(RTC_CONTROL);
-+	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
-+	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
-+	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
-+
-+#ifdef CONFIG_DECSTATION
-+	CMOS_WRITE(real_yrs, RTC_DEC_YEAR);
-+#endif
-+	CMOS_WRITE(yrs, RTC_YEAR);
-+	CMOS_WRITE(mon, RTC_MONTH);
-+	CMOS_WRITE(day, RTC_DAY_OF_MONTH);
-+	CMOS_WRITE(hrs, RTC_HOURS);
-+	CMOS_WRITE(min, RTC_MINUTES);
-+	CMOS_WRITE(sec, RTC_SECONDS);
-+
-+	CMOS_WRITE(save_control, RTC_CONTROL);
-+	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
-+
-+	spin_unlock_irq(&rtc_lock);
-+
-+	return 0;
-+}
-+
-+static inline unsigned int get_rtc_ss(void)
-+{
-+	struct rtc_time h;
-+
-+	get_rtc_time(&h);
-+	return h.tm_sec;
-+}
-+
-+static inline int get_rtc_pll(struct rtc_pll_info *pll)
-+{
-+	return -EINVAL;
-+}
-+static inline int set_rtc_pll(struct rtc_pll_info *pll)
-+{
-+	return -EINVAL;
-+}
-+
-+#endif /* __KERNEL__ */
-+#endif /* __ASM_RTC_H__ */
---- /dev/null	1969-12-31 17:00:00.000000000 -0700
-+++ linux-2.5/include/asm-i386/rtc.h	2002-07-23 10:38:32.000000000 -0700
-@@ -0,0 +1,10 @@
-+#ifndef _I386_RTC_H
-+#define _I386_RTC_H
-+
-+/*
-+ * x86 uses the default access methods for the RTC.
-+ */
-+
-+#include <asm-generic/rtc.h>
-+
-+#endif
---- /dev/null	1969-12-31 17:00:00.000000000 -0700
-+++ linux-2.5/include/asm-alpha/rtc.h	2002-07-23 10:38:32.000000000 -0700
-@@ -0,0 +1,10 @@
-+#ifndef _ALPHA_RTC_H
-+#define _ALPHA_RTC_H
-+
-+/*
-+ * Alpha uses the default access methods for the RTC.
-+ */
-+
-+#include <asm-generic/rtc.h>
-+
-+#endif
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287401AbSA3AVn>; Tue, 29 Jan 2002 19:21:43 -0500
+	id <S287439AbSA3AZE>; Tue, 29 Jan 2002 19:25:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287109AbSA3AV1>; Tue, 29 Jan 2002 19:21:27 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:26367 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S287115AbSA3AUo>;
-	Tue, 29 Jan 2002 19:20:44 -0500
-Date: Wed, 30 Jan 2002 01:20:30 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.2-dj7
-In-Reply-To: <Pine.LNX.4.10.10201291602510.29648-100000@www.transvirtual.com>
-Message-ID: <Pine.GSO.4.30.0201300118010.11159-100000@balu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287595AbSA3AYs>; Tue, 29 Jan 2002 19:24:48 -0500
+Received: from terminus.zytor.com ([64.158.222.227]:16015 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S287532AbSA3AXb>; Tue, 29 Jan 2002 19:23:31 -0500
+Message-Id: <200201300023.g0U0NQZ26438@terminus.zytor.com>
+Subject: master.kernel.org down
+To: linux-kernel@vger.kernel.org
+Date: Tue, 29 Jan 2002 12:54:25 -0800 (PST)
+From: hpa@zytor.com (H. Peter Anvin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello everyone,
 
-> > I just asked, because sometimes gpm can lock up my keyboard if it cannot
-> > read psaux. (it's 2.4) Might it be related?
->
-> Have you tried the DJ tree with the new input devices to see if you still
-> have this problem?
+master.kernel.org is currently offline; it seems that some of the
+preparation work for doing an OS upgrade later this week backfired and
+triggered a problem (not necessarily a bug -- this was more in the
+class of pilot error) with the RAID controller.  We are trying to
+bring it back online, but it might take a while; if we can't we will
+restore it from backups.
 
-I only used 2.4, but i'll give it a try next time.
+In the meantime ftp.kernel.org et al will operate normally, but will
+not receive new updates.
 
--- 
-Pozsar Balazs
+	-hpa
 
+[Apologies if this is a duplicate.  This hasn't been the only disaster
+today.]

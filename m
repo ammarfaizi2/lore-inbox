@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbVC2H1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbVC2H1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262500AbVC2H1X (ORCPT <rfc822;willy@w.ods.org>);
+	id S262476AbVC2H1X (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 29 Mar 2005 02:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbVC2H0V
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVC2H0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 02:26:21 -0500
-Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:38330 "EHLO
-	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S262500AbVC2HMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 02:12:25 -0500
-Date: Tue, 29 Mar 2005 02:12:10 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, netdev@oss.sgi.com
-Subject: Re: [PATCH] s390: claw network device driver
-Message-ID: <20050329071210.GA16409@havoc.gtf.org>
-References: <200503290533.j2T5XEYT028850@hera.kernel.org> <4248FBFD.5000809@pobox.com> <20050328230830.5e90396f.akpm@osdl.org>
+	Tue, 29 Mar 2005 02:26:30 -0500
+Received: from fire.osdl.org ([65.172.181.4]:35993 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262503AbVC2HNK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 02:13:10 -0500
+Date: Mon, 28 Mar 2005 23:12:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: kfree(null) is unlikely
+Message-Id: <20050328231258.053dac28.akpm@osdl.org>
+In-Reply-To: <4248FE3C.6030906@pobox.com>
+References: <200503290507.j2T57k3U017427@hera.kernel.org>
+	<4248FE3C.6030906@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050328230830.5e90396f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 28, 2005 at 11:08:30PM -0800, Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> >
-> > Linux Kernel Mailing List wrote:
-> >  > ChangeSet 1.2231.1.122, 2005/03/28 19:50:29-08:00, richtera@us.ibm.com
-> >  > 
-> >  > 	[PATCH] s390: claw network device driver
-> >  > 	
-> >  > 	Add support for claw network devices.
-> >  > 	
-> >  > 	Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> >  > 	Signed-off-by: Andrew Morton <akpm@osdl.org>
-> >  > 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Linux Kernel Mailing List wrote:
+> > ChangeSet 1.2231.1.8, 2005/03/28 19:18:25-08:00, akpm@osdl.org
 > > 
-> >  Grumpity grump grump grump.  How tough is it to send new net drivers to 
-> >  netdev and me for review?
+> > 	[PATCH] slab: kfree(null) is unlikely
+> > 	
+> > 	- mark kfree(NULL) as being unlikely
 > 
-> Was cc'ed to linux-net last Thursday, but it looks like the messages was
-> too large and the vger server munched it.
+> This is just a wild guess, right?
 
-This also brings up a larger question... why was a completely unreviewed
-net driver merged?
+More like a judgement based on experience?
 
-	Jeff
+> Seems to me, it depends on the code.
+> 
 
-
-
+If someone is doing kfree(0) with sufficient frequency for this patch to
+matter, then they need to stop doing that, rather than pessimising kfree(not 0).

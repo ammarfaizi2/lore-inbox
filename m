@@ -1,105 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263586AbUDPQgw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 12:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUDPQgY
+	id S263450AbUDPQmM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 12:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263442AbUDPQmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 12:36:24 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:36255 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S263419AbUDPQfo (ORCPT
+	Fri, 16 Apr 2004 12:42:11 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:22279 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S263435AbUDPQmH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 12:35:44 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BC53C@exa-atlanta.se.lsil.com>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'Jord Tanner'" <jord@indygecko.com>, linux-kernel@vger.kernel.org
-Cc: brad_mssw@gentoo.org, "Mukker, Atul" <Atulm@lsil.com>
-Subject: RE: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
-Date: Fri, 16 Apr 2004 12:35:03 -0400
+	Fri, 16 Apr 2004 12:42:07 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Subject: RE: IO-APIC on nforce2 [PATCH]
+Date: Fri, 16 Apr 2004 09:41:20 -0700
+Message-ID: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FBAE@mail-sc-6-bk.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: IO-APIC on nforce2 [PATCH]
+Thread-Index: AcQjIu9aDPRMBA/URkSimSzX9IlAGQArjjEA
+From: "Allen Martin" <AMartin@nvidia.com>
+To: "Len Brown" <len.brown@intel.com>
+Cc: <ross@datscreative.com.au>,
+       =?iso-8859-1?Q?Christian_Kr=F6ner?= 
+	<christian.kroener@tu-harburg.de>,
+       "Linux-Nforce-Bugs" <Linux-Nforce-Bugs@exchange.nvidia.com>,
+       <linux-kernel@vger.kernel.org>,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please use the latest driver 2.20.0.B2, about to be released today. Please
-provide a feedback if you see the same issues.
+> I'm also excited to see a linux-nforce-bugs@exchange.nvidia.com alias
+> on your note.  Perhaps you can explain how we should use it.  Should
+> this alias be included on discussions of the more important issue --
+> the system hang that seems to be related to HALT in idle/C1?
 
--Atul Mukker
-LSI Logic
+Yes, any issues that are relevant to linux operation on nForce boards can go there.  That list gets a lot of volume though, so any pressing issue that needs a response you can cc me directly.
 
-> -----Original Message-----
-> From: Jord Tanner [mailto:jord@indygecko.com]
-> Sent: Friday, April 16, 2004 9:57 AM
-> To: linux-kernel@vger.kernel.org
-> Cc: brad_mssw@gentoo.org; Atulm@lsil.com
-> Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
-> 
-> 
-> 
-> On Tue Dec 30 2003 - 16:11:40 EST Brad House wrote:
-> 
->         Ok, I just ported the 2.00.9 driver to 2.6.0.
->         It still has these warnings during compilation as I did not
->         attempt to apply my 64bit fixes from before as I've been told
->         they are just plain wrong :/
->         
->         But, I suppose this should work fine in 32bit mode, I would
->         greatly appreciate any help in porting it for 64bit platforms.
->         
->         The patch can be downloaded here :
->         
-> http://dev.gentoo.org/~brad_mssw/kernel_patches/megaraid/megar
-> aid-v2.00.9-linux2.6.patch
->         And only applies to the source from ftp.lsil.com, it's not a
->         kernel-patch
->         per-se, but copying the result over to the drivers/scsi will
->         compile inplace
->         of the current versions.
->         
->         Please CC me on any replies!
->         -Brad House <brad_mssw@xxxxxxxxxx>
-> 
-> 
-> 
-> This thread has been inactive for a while, but I've not found anything
-> more relevant to my situation. 
-> 
-> I'm running 2.6.3-gentoo (and 2.6.5-gentoo) with a LSILogic SATA
-> Megaraid 150-6 raid controller on a dual Opteron system. The entire
-> system is compiled in 64bit. We are seeing random database corruption
-> when access very large Postgres tables (more than 10 million rows).
-> Other than that, the system runs beautifully.
-> 
-> As far as I can tell, no amd64 specific patches have been 
-> applied to the
-> megaraid driver in 2.6.3 (version 2.00.3). Brad House has posted a 2.6
-> patch for megaraid 2.00.9, but his previous amd64 patches 
-> were removed.
-> LSI tech support has suggested I upgrade to 2.00.9, but the LSI source
-> is for 2.4.
-> 
-> So my questions are:
-> 
->         - Could the 2.00.3 driver be responsible for random data
->         corruption when running on 2.6.3 in 64bit?
->         - Is it safe to run Brad House's 2.6 megaraid 2.00.9 
-> patches in
->         64 bit mode on amd64?
->         - Are there any patches for megaraid 2.00.9 (or higher, I see
->         2.00.10-3 has just been released) that combine patches for 2.6
->         and amd64?
->         
-> TIA,
-> 
-> 
-> -- 
-> Jord Tanner <jord@indygecko.com>
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-Allen

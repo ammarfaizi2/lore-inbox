@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278334AbRJMQ5s>; Sat, 13 Oct 2001 12:57:48 -0400
+	id <S274162AbRJMRC2>; Sat, 13 Oct 2001 13:02:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278335AbRJMQ5k>; Sat, 13 Oct 2001 12:57:40 -0400
-Received: from mx0.gmx.net ([213.165.64.100]:64156 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S278334AbRJMQ51>;
-	Sat, 13 Oct 2001 12:57:27 -0400
-Date: Sat, 13 Oct 2001 18:57:57 +0200 (MEST)
-From: Michael Kerrisk <m.kerrisk@gmx.net>
+	id <S273213AbRJMRCU>; Sat, 13 Oct 2001 13:02:20 -0400
+Received: from grip.panax.com ([63.163.40.2]:1031 "EHLO panax.com")
+	by vger.kernel.org with ESMTP id <S278335AbRJMRCA>;
+	Sat, 13 Oct 2001 13:02:00 -0400
+Date: Sat, 13 Oct 2001 13:02:28 -0400
+From: Patrick McFarland <unknown@panax.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Purpose of file system user / group ID (FSUID/FSGID)
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0005657596@gmx.net
-X-Authenticated-IP: [213.6.63.246]
-Message-ID: <15105.1002992277@www50.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Subject: Which is better at vm, and why? 2.2 or 2.4
+Message-ID: <20011013130228.E249@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
+X-Operating-System: Linux 2.4.12 i586
+X-Distributed: Join the Effort!  http://www.distributed.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gidday,
 
-Sigh - that last post should have had a title! 
+--TakKZr9L6Hm6aLOc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[Hmmm, tried posting this from another address but it doesn't seem to have
-made it through - this is another shot, apologies if it turns out to be a
-duplicate]
+Now, the great kernel hacker, ac, said that 2.2 is better at vm in low memo=
+ry situations than 2.4 is. Why is this? Why hasnt someone fixed the 2.4 cod=
+e?
 
-I've put this question out on C.O.L.D.S, but have not really received any
-conclusive answer, and archive searches don't seem to reveal anything, so
-I'll bring it here...
+--=20
+Patrick "Diablo-D3" McFarland || unknown@panax.com
 
-I'm slightly puzzled about the use of the file system UID and GID
-features.  The setfsuid(2) man page says:
+--TakKZr9L6Hm6aLOc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
->> An explict call to setfsuid is usually only used  by  pro­
->> grams  such  as  the  Linux NFS server that need to change
->> what user ID is used for file access without a correspond­
->> ing change in the real and effective user IDs. A change in
->> the normal user IDs for a program such as the  NFS  server
->> is  a security hole that can expose it to unwanted signals
->> from other user IDs.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-Now I can see that it can be convenient for the NFS server to change the
-FSUID in order to masquerade as another user for the purposes of file
-access permissions, while at the same time maintaining privileges via the
-effective/saved set-user IDs.  
+iD8DBQE7yHOj8Gvouk7G1cURAhsjAKCTUvnaTVaIY+Ki4lbp4JkqEZk4EQCeNoRK
+Do4X+MYWEfVE4sI5iuz7ALI=
+=o9hz
+-----END PGP SIGNATURE-----
 
-However, the statement about signals sounds strange to me: on Linux (as
-with other Unices), one process can send another process a signal if the
-[REAL or EFFECTIVE UID of the sender] matches the [REAL or SAVED SET-
-USER-ID of the receiver].
-
-Thus a process could use (say) seteuid(2) to change the process' 
-effective UID (while leaving the real and saved set-user-id unchanged) ,
-and still not be a target for signals sent by another process with the
-same real of effective UID.  In other words, the FSUID doesn't appear to
-be necessary, at least from the point of view of protection from signals. 
-
-Is the explanation on the manual page incomplete?  Or have I missed
-something?  (I've had a read of the NFS sources and haven't been 
-enlightened.)
-
-Thanks,
-
-Michael
-
-
--- 
-GMX - Die Kommunikationsplattform im Internet.
-http://www.gmx.net
-
+--TakKZr9L6Hm6aLOc--

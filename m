@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVABDH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVABDZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVABDH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 22:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVABDH7
+	id S261236AbVABDZx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 22:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVABDZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 22:07:59 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:26893 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261230AbVABDH5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 22:07:57 -0500
-Date: Sun, 2 Jan 2005 04:07:53 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andries Brouwer <aebr@win.tue.nl>, Bodo Eggert <7eggert@gmx.de>,
-       Fryderyk Mazurek <dedyk@go2.pl>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org, len.brown@intel.com,
-       gustavo@compunauta.com
-Subject: Re: [ide] ide-disk: enable stroke by default - was Re: Problems with 2.6.10
-Message-ID: <20050102030753.GF2818@pclin040.win.tue.nl>
-References: <fa.b02ekp9.12i8ti1@ifi.uio.no> <fa.ekat19o.emk580@ifi.uio.no> <E1CktTx-0003bC-00@be1.7eggert.dyndns.org> <20050102010434.GE2818@pclin040.win.tue.nl> <20050102024451.GA7893@ime.usp.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050102024451.GA7893@ime.usp.br>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: SINECTIS: pastinakel.tue.nl 1114; Body=1 Fuz1=1 Fuz2=1
+	Sat, 1 Jan 2005 22:25:52 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:34031 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S261236AbVABDZr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 22:25:47 -0500
+Message-ID: <41D769CE.1070902@verizon.net>
+Date: Sat, 01 Jan 2005 22:26:06 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Eugene K <evgfpeters@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to start
+References: <20050102030444.51206.qmail@web51002.mail.yahoo.com>
+In-Reply-To: <20050102030444.51206.qmail@web51002.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [209.158.220.243] at Sat, 1 Jan 2005 21:25:46 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 12:44:51AM -0200, Rogério Brito wrote:
-> On Jan 02 2005, Andries Brouwer wrote:
-> > That is, we used to have "stroke", but we want to have "nostroke".
+Eugene K wrote:
+> For many years I've been involved in OS/kernel and
+> network development on various platforms (including
+> Intel86) and OSes, but I am totally new to Linux. What
+> would be an optimal way for somebody like me to learn
+> both Linux driver development and Linux Kernel
+> internals ?
 > 
-> What exactly does "stroke" mean? The description in the help file is a bit
-> cryptic for a layman.
+> 
 
-It is possible to set the size of the disk to something smaller than
-its actual size, either temporarily (can be undone at will) or permanently
-(valid until the next reboot). It is also possible to attach a password
-to this change.
-
-One of the reasons is that people want to have code or data at the end
-of the disk (operating system, diagnostics, backup, other) that the user
-cannot tamper with.
-
-But the existence of BIOSes that cannot handle large disks gives another
-use of this "setmax" operation: make the disk appear smaller at the time
-the BIOS looks at it, and give it full size under Linux.
-
-Now that I think about it - the originator of this thread had problems
-rebooting with the full-size disk since his BIOS didnt like it.
-Instead of using a kernel boot option "nostroke", it is possible that
-he could use my utility setmax at reboot time to make the disk smaller again.
-That would allow use of the full disk under Linux.
-
-Andries
-
-
+Hit http://www.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html - has a good 
+selection of dead-tree and online references.  The kernel-janitors project - 
+http://www.kerneljanitors.org/ - is a good starting point; that's where a lot of 
+kernel hackers get their start.

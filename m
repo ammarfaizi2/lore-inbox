@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263820AbUGZUza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUGZU42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263820AbUGZUza (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 16:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUGZUza
+	id S265789AbUGZU42 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 16:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbUGZUz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 16:55:30 -0400
-Received: from agminet02.oracle.com ([141.146.126.229]:39558 "EHLO
-	agminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S265724AbUGZUjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 16:39:54 -0400
-Date: Mon, 26 Jul 2004 13:29:46 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Autotune swappiness01
-Message-ID: <20040726202946.GD26075@ca-server1.us.oracle.com>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org>
+	Mon, 26 Jul 2004 16:55:56 -0400
+Received: from ss1000.ms.mff.cuni.cz ([195.113.20.8]:62361 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265978AbUGZUmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 16:42:33 -0400
+Date: Mon, 26 Jul 2004 22:42:28 +0200
+From: Rudo Thomas <rudo@matfyz.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Lenar L?hmus <lenar@vision.ee>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: no luck with max_sectors_kb (Re: voluntary-preempt-2.6.8-rc2-J4)
+Message-ID: <20040726204228.GA1231@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Lenar L?hmus <lenar@vision.ee>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <20040726100103.GA29072@elte.hu> <20040726101536.GA29408@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cone.1090802581.972906.20693.502@pc.kolivas.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20040726101536.GA29408@elte.hu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 26, 2004 at 10:43:01AM +1000, Con Kolivas wrote:
-> Low memory boxes and ones that are heavily laden with applications find 
-> that ends up making things slow down trying to keep all applications in 
-> physical ram.
+> > Changes since -J3:
+> > 
+> >  - make block device max_sectors sysfs tunable. There's a new entry
+> >    /sys/block/*/queue/max_sectors_kb which stores the current max 
+> >    request size in KB. You can write it to change the size.
+> > 
+> > [...]
+>
+> i've refined the patch (new version attached below): drivers use
+> blk_queue_max_sectors() to set the maximum # of sectors that the driver
+> or hw can handle.
+> 
+> so i've introduced a new queue entry called max_hw_sectors, and the new
+> /sys entry listens to this maximum and only updates max_sectors. This
+> entry is also exported to /sys as a readonly entry. (so that users can
+> see the maximum the driver supports.)
 
-	Lowish memory boxes with plain desktop loads find that the default
-of '60' is a terrible one (I'm speaking of 1GHz-ish machines with 256MB
-(like mine) or 512MB (like a guy next to me)).  Every person I know who
-installs 2.6 complains about how it feels slow and choppy.  I tell them
-"The first thing I do after installing 2.6 is set swappiness to '20'."
-Sure enough, they set swappiness to 20 and their box starts behaving
-like a properly tuned one.
-	I don't know what workload the default of '60' is for, but for
-the (128MB < x < 1GB) of RAM case, it sucks (and I've seen the same
-behavior on a 300MHz 196MB box).
+Hi there.
 
-Joel
+I do not seem to have success with tuning the max_sectors_kb value.
 
--- 
+After setting it to 32 (the hw max is 128), userland programs fail with I/O
+errors. Setting it back to 128 gets it back to working, sort of. The errors
+probably get bufferred somewhere.
 
-"Maybe the time has drawn the faces I recall.
- But things in this life change very slowly,
- If they ever change at all."
+During the "bad" setting (32), messages like this one show up in kernel log.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+bio too big device hda3 (104 > 64)
+
+I am using J7 voluntary_preemption patch (set at 2:1), cfq io scheduler,
+via82cxxx IDE driver. I will gladly provide further details.
+
+Rudo.

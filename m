@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267792AbUBRSqO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 13:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUBRSoO
+	id S268088AbUBRVBo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 16:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268082AbUBRVA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 13:44:14 -0500
-Received: from mail.kroah.org ([65.200.24.183]:18084 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267828AbUBRSoE (ORCPT
+	Wed, 18 Feb 2004 16:00:58 -0500
+Received: from mail.kroah.org ([65.200.24.183]:14296 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268087AbUBRVAv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 13:44:04 -0500
-Date: Wed, 18 Feb 2004 09:55:41 -0800
+	Wed, 18 Feb 2004 16:00:51 -0500
+Date: Wed, 18 Feb 2004 12:57:41 -0800
 From: Greg KH <greg@kroah.com>
-To: "Hayden A. James" <hjames@quantumcode.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB access via KVM broken in 2.6[0-3]
-Message-ID: <20040218175540.GB2924@kroah.com>
-References: <1077081034.6813.22.camel@haydend.quantumcode.net>
+To: johnrose@austin.ibm.com
+Cc: linux-kernel@vger.kernel.org, gregkh@us.ibm.com, lxie@us.ibm.com,
+       wortman@us.ibm.com, scheel@us.ibm.com,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [PATCH] PPC64 PCI Hotplug Driver for RPA
+Message-ID: <20040218205741.GB5175@kroah.com>
+References: <200402110112.i1B1CToT022755@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1077081034.6813.22.camel@haydend.quantumcode.net>
+In-Reply-To: <200402110112.i1B1CToT022755@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 12:10:34AM -0500, Hayden A. James wrote:
-> I don't know what happened between 2.4.x and the latest 2.6.x release
-> but USB access to my keyboard and mouse from my USB KVM (Ioport
-> miniview) does NOT work at all for any of the devices.  The devices work
-> normally in 2.6 without having the kvm connected, however.  Is this an
-> already known issue?
+On Tue, Feb 10, 2004 at 07:12:29PM -0600, johnrose@austin.ibm.com wrote:
+> Please consider the following patch for submission.  This patch contains the
+> implementation of the I/O Slot DLPAR Drivers for PPC64 RISC Platform
+> Architecture.  This module depends on the RPA PCI Hotplug Module in the
+> previous post.  The patch is made against kernel version 2.6.3-rc2.  
+> 
+> The Dynamic Logical Partitioning Module allows the runtime movement of I/O
+> Slots between logical partitions.  An administrator can logically add/remove
+> PCI Buses to/from a PPC64 partition at runtime.  These operations are initiated
+> using interface files located at:
+> /sys/bus/pci/pci_hotplug_slots/control/
+> Development contact for this module is John Rose (johnrose@austin.ibm.com).
 
-Yes, some people have reported problems with some brands of USB KVM
-devices.  Do you get some "timeout" style messages when your devices
-stop working?  Odds are the devices are way out of spec...
-
-Try enabling CONFIG_USB_DEBUG and post the messages to the
-linux-usb-devel mailing list.
-
-thanks,
+Applied, thanks.
 
 greg k-h

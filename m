@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUHETxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267918AbUHET46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267926AbUHETxb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 15:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267930AbUHETxb
+	id S267918AbUHET46 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 15:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267932AbUHET46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 15:53:31 -0400
-Received: from 104.engsoc.carleton.ca ([134.117.69.104]:7610 "EHLO
-	certainkey.com") by vger.kernel.org with ESMTP id S267926AbUHETx3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 15:53:29 -0400
-Date: Thu, 5 Aug 2004 15:49:14 -0400
-From: Jean-Luc Cooke <jlcooke@certainkey.com>
-To: James Morris <jmorris@redhat.com>
-Cc: Michal Ludvig <mludvig@suse.cz>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]
-Message-ID: <20040805194914.GC23994@certainkey.com>
-References: <41123B7E.2060601@suse.cz> <Xine.LNX.4.44.0408051000130.17694-100000@dhcp83-76.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Aug 2004 15:56:58 -0400
+Received: from ms003msg.fastwebnet.it ([213.140.2.42]:33425 "EHLO
+	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S267918AbUHET4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 15:56:38 -0400
+From: Alessandro Amici <alexamici@fastwebnet.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cputime (1/6): move call to update_process_times.
+Date: Thu, 5 Aug 2004 21:57:47 +0200
+User-Agent: KMail/1.6.2
+References: <20040805180335.GB9240@mschwid3.boeblingen.de.ibm.com>
+In-Reply-To: <20040805180335.GB9240@mschwid3.boeblingen.de.ibm.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0408051000130.17694-100000@dhcp83-76.boston.redhat.com>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408052157.47603.alexamici@fastwebnet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
 
-Would you be against a patch to cryptoapi to have access to a
-non-scatter-list set of calls?
+Martin,
 
-I know a few people would like to see that , and I would also like to use
-some low-level:
+On Thursday 05 August 2004 20:03, Martin Schwidefsky wrote:
+> For non-smp kernels the call to update_process_times is done
+> in the do_timer function. It is more consistent with smp kernels
+> to move this call to the architecture file which calls do_timer.
 
-crypto_digest_update_byte(struct digest_alg *digest,
-                          unsigned char *buf,
-                          unsigned int  nbytes);
-crypto_cipher_encrypt_byte(struct cipher_alg *cipher,
-                           unsigned char *dst,
-                           unsigned char *src,
-                           unsigned int  nbytes);
+I don't have enough knowledge to comment on the merit of the move to 
+architecture files, but the proliferation of #ifndef CONFIG_SMP looks really 
+ugly.
 
-I'm in the middle of preparing for a paper and would like to get code running
-without scatterlists.
+Wouldn't it be possible to move the #ifndef into sched.h?
 
-Cheers,
-
-JLC
-
-On Thu, Aug 05, 2004 at 10:11:14AM -0400, James Morris wrote:
-> On Thu, 5 Aug 2004, Michal Ludvig wrote:
-> 
-> > Hi James,
-> > 
-> > the aes-i586 patch recently added to BK breaks compilation of AES on
-> > non-i586 platforms. Attached patch fixes it.
-> 
-> Thanks, the code is about to be dropped and replaced, so we need to
-> remember to fix it then.
-> 
-> 
-> - James
-> -- 
-> James Morris
-> <jmorris@redhat.com>
-> 
-> 
-> _______________________________________________
-> 
-> Subscription: http://lists.logix.cz/mailman/listinfo/cryptoapi
-> List archive: http://lists.logix.cz/pipermail/cryptoapi
+--
+Alessandro

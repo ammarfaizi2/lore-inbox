@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262983AbTI2WCv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 18:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTI2WCv
+	id S262980AbTI2WBp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 18:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbTI2WBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 18:02:51 -0400
-Received: from gprs144-48.eurotel.cz ([160.218.144.48]:51332 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262983AbTI2WCs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 18:02:48 -0400
-Date: Mon, 29 Sep 2003 23:59:46 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: pm: Revert swsusp to 2.6.0-test3
-Message-ID: <20030929215946.GG1815@elf.ucw.cz>
-References: <20030928100620.5FAA63450F@smtp-out2.iol.cz> <Pine.LNX.4.44.0309281038270.6307-100000@home.osdl.org> <20030928175853.GF359@elf.ucw.cz> <20030929204634.GA2425@elf.ucw.cz> <20030929213446.GF1815@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030929213446.GF1815@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 29 Sep 2003 18:01:45 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54289 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262980AbTI2WBo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 18:01:44 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: PROBLEM: kernel 2.6-test5 rmmod: kernel NULL pointer dereference
+Date: 29 Sep 2003 21:52:16 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bla9ig$483$1@gatekeeper.tmr.com>
+References: <35776.10.0.0.50.1064747073.squirrel@mail.hackaholic.org>
+X-Trace: gatekeeper.tmr.com 1064872336 4355 192.168.12.62 (29 Sep 2003 21:52:16 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In article <35776.10.0.0.50.1064747073.squirrel@mail.hackaholic.org>,
+detach <detach@hackaholic.org> wrote:
+| Hello,
+| 
+| I hope I'm using the right method to reporting this problem, I'll send it
+| to the mailing list as this problem seems to be an overall kernel problem.
+| No flames please :).
+| Here's what happened,
+| I wrote a CD so I did a modprobe ide-scsi .. then wrote the CD, now I
+| wanted to check the contents of the CD, so i did rmmod ide-scsi first so
+| that i could load ide-cd. Well, rmmod hung, and I checked /proc/kern.log
+| on debian woody (with custom compiled linux 2.6-test5).Here's the output in /proc/kern.log:
 
-> > > > I'd also like to have some kind of readme or similar on the different 
-> > > > suspend/resume issues, and why we have two different
-> > > > approaches. Hmm?
-> > 
-> > <azbestos underwear on>What about this one?</off>
-> 
-> Thanks to Tomas Szepe, grammar fixed a bit.
+Do you find there is any difference between the ide-cd operation and the
+ide-scsi behaviour mounting /dev/scd0 (or sr0 depending on
+distribution)? Redhat just uses the SCSI version, and I use SCSI on
+Slackware as well most of the time (ie. when I have a burner).
 
-Okay, third version, thanks to Samurai.
-
---- clean/Documentation/power/swsusp.txt	2003-08-27 12:00:01.000000000 +0200
-+++ linux/Documentation/power/swsusp.txt	2003-09-29 23:59:01.000000000 +0200
-@@ -17,6 +17,24 @@
- You need to append resume=/dev/your_swap_partition to kernel command
- line. Then you suspend by echo 4 > /proc/acpi/sleep.
- 
-+Pavel's unreliable guide to swsusp mess
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-+
-+There are currently two versions of swap suspend in the kernel, the old
-+"Pavel's" version in kernel/power/swsusp.c and the new "Patrick's"
-+version in kernel/power/pmdisk.c. They provide the same functionality;
-+the old version looks ugly but was tested, while the new version looks
-+nicer but did not receive so much testing. echo 4 > /proc/acpi/sleep
-+calls the old version, echo disk > /sys/power/state calls the new one.
-+
-+[In the future, when the new version is stable enough, two things can
-+happen:
-+
-+* the new version is moved into swsusp.c, and swsusp is renamed to swap
-+  suspend (Pavel prefers this)
-+
-+* pmdisk is kept as is and swsusp.c is removed from the kernel]
-+
- [Notice. Rest docs is pretty outdated (see date!) It should be safe to
- use swsusp on ext3/reiserfs these days.]
- 
-
+It's good that you have reported a bug, but you may not need to go
+through that path at all. As noted, supposedly fixed, although I haven't
+built test6 yet.
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

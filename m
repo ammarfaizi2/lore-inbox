@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267713AbUG3Pdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267714AbUG3Pfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267713AbUG3Pdz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 11:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267714AbUG3Pdz
+	id S267714AbUG3Pfr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 11:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267716AbUG3Pfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 11:33:55 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:56767 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267713AbUG3Pdx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 11:33:53 -0400
-Subject: Re: Recent 2.6 kernels can't read an entire ATAPI CD or DVD
-From: Robert Love <rml@ximian.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Bryan O'Sullivan" <bos@serpentine.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Dave Jones <davej@redhat.com>,
-       Edward Angelo Dayao <edward.dayao@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040730063834.GG18347@suse.de>
-References: <20040728145543.GB18846@devserv.devel.redhat.com>
-	 <20040728163353.GJ10377@suse.de> <20040728170507.GK10377@suse.de>
-	 <1091051858.13651.1.camel@camp4.serpentine.com>
-	 <20040729084928.GR10377@suse.de> <1091166553.1982.9.camel@localhost>
-	 <20040730055333.GC7925@suse.de> <1091167031.1982.13.camel@localhost>
-	 <20040730061005.GF18347@suse.de> <1091168884.2009.1.camel@localhost>
-	 <20040730063834.GG18347@suse.de>
-Content-Type: text/plain
-Date: Fri, 30 Jul 2004 11:33:59 -0400
-Message-Id: <1091201639.1794.2.camel@localhost>
+	Fri, 30 Jul 2004 11:35:47 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:7294 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267714AbUG3Pfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 11:35:30 -0400
+Message-ID: <b71082d8040730083519917daa@mail.gmail.com>
+Date: Fri, 30 Jul 2004 17:35:29 +0200
+From: Bart Alewijnse <scarfboy@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: gigabit trouble
+In-Reply-To: <b71082d80407291541f9d6f93@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <b71082d8040729094537e59a11@mail.gmail.com> <20040729210401.A32456@electric-eye.fr.zoreil.com> <b71082d80407291541f9d6f93@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 08:38 +0200, Jens Axboe wrote:
-
-> And the CD that never works, is that consistent across different drives?
-
-Yes.  So in this machine I have two drives (a CD-RW and a DVD-ROM) and
-the same disk works in neither.
-
-I think I should do a binary search backward to find where it started
-failing.
-
-	Robert Love
+(I am a moron, and gmail isn't helping. I keep sending this stuff to
+people, not the list. Sorry.)
 
 
+On Fri, 30 Jul 2004 00:41:03 +0200, Bart Alewijnse <scarfboy@gmail.com> wrote:
+> I was going to do an exhaustive test, but because my computer stopped
+> running completely, I'll reply to the one or two bits I can now.
+
+...which was unrelated. Although I can't get the noise anymore
+now either. I'm not too happy, I like my problems reproducable.
+Of course, in the course of tring to fix the nonbootability, I changed
+a bunch of things. Hrm.
+I'll try getting it back later.
+
+> > > So, question one - how do I see the link speed under linux, and how,
+> > > if at all, do I control it?
+> >
+> > ethtool
+> Thanks. That wasn't the problem - the line speed's a gbit.
+
+Definately. I've now seen speeds up to 22MB/s, but only in pure
+network benching (netio), and only with udp, although I guess
+that makes a some sense.
+
+(Also, for some reason it makes a respectable difference which
+computer I run the netio server on. I mean, netio measures
+speed both ways on one run, and it's different depending on
+where I run it. I guess that suggests io limiting)
+
+So the hanging around ten MB/s was just coincidence - it still
+does it in both nfs and samba, but I guess it's io limited
+*somewhere*, but trying to figure out why doesn't belong
+in this list, I guess. Or maybe it does; I've always wondered
+why samba hangs around 3, 4, 5, maybe 6 MB/s on a 100mbit
+link - which with netio shows that it can go at 11MB/s, its full
+speed - and even nfs rarely tops above eight. On my friend's
+setup too, and he *does* have respectable hardware in his
+server:)
+
+I assume the 20MB/s top speed on my gbit cards is io limiting,
+and possibly the fact that they're 32bit cards in 33mhz slots.
+Still, it's far from impressive. Any suggestions (on where to
+go) about improving it?
+
+Anyhow, thanks for the help so far.
+
+--Bart Alewijnse

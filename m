@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311616AbSCNNny>; Thu, 14 Mar 2002 08:43:54 -0500
+	id <S311564AbSCNNwD>; Thu, 14 Mar 2002 08:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311617AbSCNNnp>; Thu, 14 Mar 2002 08:43:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311616AbSCNNnk>; Thu, 14 Mar 2002 08:43:40 -0500
-Subject: Re: [patch] vmalloc_to_page() backport for 2.4
-To: tigran@veritas.com (Tigran Aivazian)
-Date: Thu, 14 Mar 2002 13:58:43 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kraxel@bytesex.org (Gerd Knorr),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        linux-kernel@vger.kernel.org (Kernel List), arjan@fenrus.demon.nl
-In-Reply-To: <Pine.LNX.4.33.0203141219180.1643-100000@einstein.homenet> from "Tigran Aivazian" at Mar 14, 2002 12:30:14 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311563AbSCNNvx>; Thu, 14 Mar 2002 08:51:53 -0500
+Received: from alpha1.ebi.ac.uk ([193.62.196.122]:1547 "EHLO alpha1.ebi.ac.uk")
+	by vger.kernel.org with ESMTP id <S311619AbSCNNvn>;
+	Thu, 14 Mar 2002 08:51:43 -0500
+Message-Id: <200203141351.NAA257264@alpha1.ebi.ac.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: Jonathan Barker <jbarker@ebi.ac.uk>
+Reply-To: jbarker@ebi.ac.uk
+Organization: EMBL-EBI
+To: linux-kernel@vger.kernel.org
+Subject: VFS mediator?
+Date: Thu, 14 Mar 2002 14:52:04 +0000
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16lVkh-0000oW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> help them be independent of PAE/non-PAE kernel configuration. And, as
-> such, it suggests that the _GPL bit in the export clause is not justified
-> and should be removed. There is no reason whatsoever why Linux base kernel
-> should allow some useful functionality to GPL modules and disallow the
-> same to non-GPL ones.
+Dear all
 
-I disagree. The code in question is GPL code from a GPL driver or three that
-was used internally in those drivers. It is now available for those drivers
-to share. If you aren't writing a GPL module you can go write your own 
-version of it, just like people have always had to before. 
+In brief: a kernel module which "exported" VFS requests to a (specified) 
+user-space daemon would be useful. My particular application is a daemon 
+which generates files on the fly - I would like to expose this as part of the 
+filesystem. Ideally, the kernel module would deal with generation of fake 
+inode numbers etc and the user-space daemon would simply be asked to create a 
+pipe corresponding to a "filename" and (possibly) supply a directory tree. 
 
-Similarly the PAE/non-PAE thing is a red herring. Given that even basic
-data types change size on pae no module is going to be magically pae/non-pae
-clean if its binary only.
+Clearly, an application-specific module could do the job - cf NFS. But I am 
+not (yet) skilled enough in kernel development to know how, and it seems to 
+me that a "VFS mediator" module could simplify development of many 
+VFS-related applications (eg mounting ftp sites). Is there a kind soul out 
+there who has already done this, or is willing to undertake such a task? 
 
-Alan
+Thanks for any input
+
+Jonathan
+
+Dr Jonathan Barker
+EMBL-EBI Hinxton
+jbarker@ebi.ac.uk
+
+ 

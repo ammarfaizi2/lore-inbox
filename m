@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbSL3PON>; Mon, 30 Dec 2002 10:14:13 -0500
+	id <S266999AbSL3PPK>; Mon, 30 Dec 2002 10:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266981AbSL3PON>; Mon, 30 Dec 2002 10:14:13 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40463 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266987AbSL3POM>; Mon, 30 Dec 2002 10:14:12 -0500
-Date: Mon, 30 Dec 2002 15:22:25 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Dhammika Pathirana <dhammikap@millenniumit.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] acorn_request_region fix 2.5.48
-Message-ID: <20021230152225.B28435@flint.arm.linux.org.uk>
-Mail-Followup-To: Dhammika Pathirana <dhammikap@millenniumit.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3DE1B86C.30505@millenniumit.com>
+	id <S267005AbSL3PPK>; Mon, 30 Dec 2002 10:15:10 -0500
+Received: from bitmover.com ([192.132.92.2]:63392 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S266999AbSL3PPH>;
+	Mon, 30 Dec 2002 10:15:07 -0500
+Date: Mon, 30 Dec 2002 07:23:25 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Hannes Reinecke <mail@hannes-reinecke.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Alpha port still maintained in 2.5
+Message-ID: <20021230152325.GB8766@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Hannes Reinecke <mail@hannes-reinecke.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Sam Ravnborg <sam@ravnborg.org>
+References: <3E10611D.10108@hannes-reinecke.de> <20021230151531.GA1863@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DE1B86C.30505@millenniumit.com>; from dhammikap@millenniumit.com on Mon, Nov 25, 2002 at 11:43:08AM +0600
+In-Reply-To: <20021230151531.GA1863@mars.ravnborg.org>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 25, 2002 at 11:43:08AM +0600, Dhammika Pathirana wrote:
-> Following patch is to fix acorn request region failure. Pls apply.
+I have a spare Alpha box (in theory I made need it some day if we ever
+decide to support Tru64 but that seems like a small market).  I don't 
+know how useful it is but I could put it up outside our firewall if 
+that helped.  I'd have to install Linux on it and I'm booked up until
+Jan 9th but if you still need it then let me know.
 
-In the great spirit of the white space vs tab debate that's been on lkml
-over the past few days, welcome to why white space advocates coding their
-stupid ideas into mailers is bad news.
-
-Your patch doesn't apply for this very reason.  Please try sending it to
-me as a text/plain attachment.
-
-Thanks.
+On Mon, Dec 30, 2002 at 04:15:31PM +0100, Sam Ravnborg wrote:
+> On Mon, Dec 30, 2002 at 04:07:09PM +0100, Hannes Reinecke wrote:
+> > Hi all,
+> > 
+> > appearently there are some secret channels by which one has to post his 
+> > messages for them to actually being _read_ by someone ...
+> 
+> I follow lkml, but has no particular Alpha interest, so foregive me ;-)
+> That I do some Alpha patching is from a kbuild persepctive, not
+> particulary Alpha. I'm do not have tools to do so, nor any machine.
+> 
+> 	Sam
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

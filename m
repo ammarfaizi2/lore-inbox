@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266577AbUBQWXN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 17:23:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266654AbUBQWV3
+	id S266691AbUBQWaz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 17:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266693AbUBQW1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 17:21:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40069 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266657AbUBQWM3 (ORCPT
+	Tue, 17 Feb 2004 17:27:39 -0500
+Received: from gate.crashing.org ([63.228.1.57]:47523 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266691AbUBQWYa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 17:12:29 -0500
-Date: Tue, 17 Feb 2004 14:12:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior
-In-Reply-To: <20040217213714.GI24311@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0402171400540.2154@home.osdl.org>
-References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
- <20040216062152.GB5192@pegasys.ws> <20040216155534.GA17323@mail.shareable.org>
- <20040217064755.GC9466@pegasys.ws> <20040217213714.GI24311@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 17:24:30 -0500
+Subject: Re: Radeonfb problem
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Damian Kolkowski <damian@kolkowski.no-ip.org>
+Cc: Kronos <kronos@kronoz.cjb.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
+In-Reply-To: <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
+References: <200402172008.39887.vergata@stud.fbi.fh-darmstadt.de>
+	 <20040217203604.GA19110@dreamland.darkstar.lan>
+	 <20040217211120.ALLYOURBASEAREBELONGTOUS.A8392@kolkowski.no-ip.org>
+	 <20040217213441.GA22103@dreamland.darkstar.lan>
+	 <20040217215738.ALLYOURBASEAREBELONGTOUS.B9706@kolkowski.no-ip.org>
+Content-Type: text/plain
+Message-Id: <1077056532.1076.27.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 18 Feb 2004 09:22:12 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 17 Feb 2004, Jamie Lokier wrote:
+On Wed, 2004-02-18 at 08:57, Damian Kolkowski wrote:
+> * Kronos <kronos@kronoz.cjb.net> [2004-02-17 22:51]:
+> > > 2.6.3-rc4 with new radeonfb looks better, but in lilo.con append for radeonfb
+> > > wont work.
+> > 
+> > What do you mean? What are passing to the kernel?
 > 
-> Many terminals will not ever display UTF-8.  Think: all the serial terminals.
+> For example:
 > 
-> This is why I think "stty utf8" or something along those lines would
-> be useful.  The terminal itself doesn't have to talk UTF-8; however,
-> the applications talking with /dev/tty would always see UTF-8.
+> append = "video=radeon:1024x768-32@100" works for 2.4.x
+> append = "video=radeonfb:1024x768-32@100 works for 2.6.x
 > 
-> That seems to solve most of the practical user interface problems of
-> the command line, in one single clean place.
+> but for new radeonfb _radeonfb_ in append won't work, my screean start with
+> small res on 36 Hz ;-) So I need to use fbset.
+> 
+> Besides don't use 2.6.x even on desktop, that was only a test with new
+> radeonfb from Ben H.
 
-Doesn't "screen" already do this? I don't think you want to have the
-locale handling in the kernel, along with translation of multi-key
-characters (and from things like CJK terminals? I don't know what format
-they send).  Sounds like you should use a user-mode thing that knows about
-locales...
+Ugh ? Send me a dmesg log at boot please without any command
+line. radeonfb should set your display to the native panel size
+by default
 
-		Linus
+Ben.
+
+

@@ -1,104 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318731AbSICOsB>; Tue, 3 Sep 2002 10:48:01 -0400
+	id <S318782AbSICOs1>; Tue, 3 Sep 2002 10:48:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318782AbSICOsA>; Tue, 3 Sep 2002 10:48:00 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:61700
+	id <S318783AbSICOs1>; Tue, 3 Sep 2002 10:48:27 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:64004
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318731AbSICOr6>; Tue, 3 Sep 2002 10:47:58 -0400
-Subject: [PATCH] flag type cleanup
+	with ESMTP id <S318782AbSICOs0>; Tue, 3 Sep 2002 10:48:26 -0400
+Subject: [PATCH] bad: schedule() with irqs disabled!
 From: Robert Love <rml@tech9.net>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, morten.helgesen@nextframe.net
+In-Reply-To: <20020903153636.A1415@sexything>
+References: <20020903153636.A1415@sexything>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 03 Sep 2002 10:52:26 -0400
-Message-Id: <1031064747.978.3203.camel@phantasy>
+Date: 03 Sep 2002 10:52:55 -0400
+Message-Id: <1031064775.979.3205.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Tue, 2002-09-03 at 09:36, Morten Helgesen wrote:
 
-Attached patch fixes various instances of the interrupt flag variable
-not being the proper `unsigned long'.
+> bad: schedule() with irqs disabled!
 
-Most notably, kernel/softirq.c ...
+OK, Linus, you are right... there are enough instances of this we are
+not going to find them all (although I suspect Andrew's slab.c fixes
+will cover most of the cases).  Further, I think we can should actually
+purposely call preempt_schedule() in certain cases after interrupt
+reenable to check for reschedules...
+
+Let's just make it a rule "no preemption if interrupts are off" and
+enforce that.
 
 Patch is against 2.5.33-BK, please apply.
 
 	Robert Love
 
-diff -urN linux-2.5.33/drivers/cdrom/sbpcd.c linux/drivers/cdrom/sbpcd.c
---- linux-2.5.33/drivers/cdrom/sbpcd.c	Sat Aug 31 18:04:51 2002
-+++ linux/drivers/cdrom/sbpcd.c	Tue Sep  3 10:38:59 2002
-@@ -1307,7 +1307,7 @@
- 	
- 	static int cc_DriveReset(void);
- 	int i, j, l=0, m, ntries;
--	long flags;
-+	unsigned long flags;
- 
- 	D_S[d].error_state=0;
- 	D_S[d].b3=0;
-diff -urN linux-2.5.33/drivers/scsi/sym53c8xx.c linux/drivers/scsi/sym53c8xx.c
---- linux-2.5.33/drivers/scsi/sym53c8xx.c	Sat Aug 31 18:04:49 2002
-+++ linux/drivers/scsi/sym53c8xx.c	Tue Sep  3 10:33:06 2002
-@@ -14115,7 +14115,7 @@
- 	if (len)
- 		return -EINVAL;
- 	else {
--		long flags;
-+		unsigned long flags;
- 
- 		NCR_LOCK_NCB(np, flags);
- 		ncr_usercmd (np);
-diff -urN linux-2.5.33/drivers/scsi/sym53c8xx_2/sym_glue.c linux/drivers/scsi/sym53c8xx_2/sym_glue.c
---- linux-2.5.33/drivers/scsi/sym53c8xx_2/sym_glue.c	Sat Aug 31 18:05:23 2002
-+++ linux/drivers/scsi/sym53c8xx_2/sym_glue.c	Tue Sep  3 10:33:25 2002
-@@ -1686,7 +1686,7 @@
- 	if (len)
- 		return -EINVAL;
- 	else {
--		long flags;
-+		unsigned long flags;
- 
- 		SYM_LOCK_HCB(np, flags);
- 		sym_exec_user_command (np, uc);
-diff -urN linux-2.5.33/fs/intermezzo/kml_utils.c linux/fs/intermezzo/kml_utils.c
---- linux-2.5.33/fs/intermezzo/kml_utils.c	Sat Aug 31 18:05:27 2002
-+++ linux/fs/intermezzo/kml_utils.c	Tue Sep  3 10:39:54 2002
-@@ -25,7 +25,7 @@
-         va_list args;
-         int  i;
-         char *path;
--        long flags;
-+        unsigned long flags;
- 
-         spin_lock_irqsave(&kml_lock, flags);
-         va_start(args, format);
-diff -urN linux-2.5.33/kernel/softirq.c linux/kernel/softirq.c
---- linux-2.5.33/kernel/softirq.c	Sat Aug 31 18:04:52 2002
-+++ linux/kernel/softirq.c	Tue Sep  3 10:31:14 2002
-@@ -59,7 +59,7 @@
- asmlinkage void do_softirq()
+diff -urN linux-2.5.33/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.33/kernel/sched.c	Sat Aug 31 18:04:53 2002
++++ linux/kernel/sched.c	Tue Sep  3 10:48:56 2002
+@@ -1032,15 +1032,12 @@
  {
- 	__u32 pending;
--	long flags;
-+	unsigned long flags;
- 	__u32 mask;
- 	int cpu;
+ 	struct thread_info *ti = current_thread_info();
  
-@@ -129,7 +129,7 @@
+-	if (unlikely(ti->preempt_count))
++	/*
++	 * If there is a non-zero preempt_count or interrupts are disabled,
++	 * we do not want to preempt the current task.  Just return..
++	 */
++	if (unlikely(ti->preempt_count || irqs_disabled()))
+ 		return;
+-	if (unlikely(irqs_disabled())) {
+-		preempt_disable();
+-		printk("bad: schedule() with irqs disabled!\n");
+-		show_stack(NULL);
+-		preempt_enable_no_resched();
+-		return;
+-	}
  
- void raise_softirq(unsigned int nr)
- {
--	long flags;
-+	unsigned long flags;
- 
- 	local_irq_save(flags);
- 	cpu_raise_softirq(smp_processor_id(), nr);
-
-
+ need_resched:
+ 	ti->preempt_count = PREEMPT_ACTIVE;
 

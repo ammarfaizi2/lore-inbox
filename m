@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276982AbRKAArE>; Wed, 31 Oct 2001 19:47:04 -0500
+	id <S276988AbRKAAuY>; Wed, 31 Oct 2001 19:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277097AbRKAAqy>; Wed, 31 Oct 2001 19:46:54 -0500
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:10249 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S276982AbRKAAqo>;
-	Wed, 31 Oct 2001 19:46:44 -0500
-Date: Wed, 31 Oct 2001 16:49:44 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: J Sloan <jjs@pobox.com>
-cc: Ville Herva <vherva@niksula.hut.fi>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Nasty suprise with uptime
-In-Reply-To: <3BE07D05.3B71B67D@pobox.com>
-Message-ID: <Pine.LNX.4.10.10110311642060.7849-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277000AbRKAAuO>; Wed, 31 Oct 2001 19:50:14 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:19409 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S276988AbRKAAuA>;
+	Wed, 31 Oct 2001 19:50:00 -0500
+Date: Thu, 1 Nov 2001 01:50:15 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Linus Torvlads <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Thomas Hood <jdthood@mail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Stop APM readers from responding to events
+Message-ID: <20011101015015.G25701@khan.acc.umu.se>
+In-Reply-To: <20011101012900.1a2f3287.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011101012900.1a2f3287.sfr@canb.auug.org.au>; from sfr@canb.auug.org.au on Thu, Nov 01, 2001 at 01:29:00AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, J Sloan wrote:
-
-> Vile Hernia wrote:
+On Thu, Nov 01, 2001 at 01:29:00AM +1100, Stephen Rothwell wrote:
+> Hi Linus,
 > 
-> > BTW, on win95 the HZ is 1024, which caused it to _always_ crash if it ever
-> > reached 48.5 days of uptime. I've seen NT4 SMP to to crash at same point as
-> > well (though it doesn't do it always).
+> This is just a small patch, but fills a hole.  Thanks to Thomas Hood for a
+> patch.
 > 
-> It's funny that windoze went for years
-> without anybody ever realizing about
-> the 49 day crash - heck, one crash
-> every 49 days is lost in the noise on
-> a windoze pee cee - no wonder they
-> never noticed.
-> 
-> OTOH, when our Linux uptimes went back
-> to zero at 497 days, I noticed immediately,
-> and screamed bloody murder until I found
-> it was just a timer wraparound.
-> 
-Seems to be a cultural diffrence between windows and linux users.
+> Alan, This will also apply to 2.4.13-ac5.
 
-Probably something for ESR or whoever to do a paper on ;)
+Shouldn't this be done using capabilities instead?!
 
-        Gerhard
+> diff -ruN 2.4.14-pre5/arch/i386/kernel/apm.c 2.4.14-pre5-APM.1/arch/i386/kernel/apm.c
+> --- 2.4.14-pre5/arch/i386/kernel/apm.c	Wed Oct 24 16:12:20 2001
+> +++ 2.4.14-pre5-APM.1/arch/i386/kernel/apm.c	Thu Nov  1 01:09:48 2001
+> @@ -1471,7 +1471,7 @@
+>  	as = filp->private_data;
+>  	if (check_apm_user(as, "ioctl"))
+>  		return -EIO;
+> -	if (!as->suser)
+> +	if ((!as->suser) || (!as->writer))
+>  		return -EPERM;
+>  	switch (cmd) {
+>  	case APM_IOC_STANDBY:
 
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,94 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUD2IbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263721AbUD2Ie1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUD2IbP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 04:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUD2IbP
+	id S263721AbUD2Ie1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 04:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbUD2Ie1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 04:31:15 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:25985 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S263713AbUD2IZQ
+	Thu, 29 Apr 2004 04:34:27 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:30593 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S263721AbUD2IZT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 04:25:16 -0400
-Message-ID: <4090BBE1.4080106@watson.ibm.com>
-Date: Thu, 29 Apr 2004 04:25:05 -0400
+	Thu, 29 Apr 2004 04:25:19 -0400
+Message-ID: <4090BBE5.7070404@watson.ibm.com>
+Date: Thu, 29 Apr 2004 04:25:09 -0400
 From: Shailabh Nagar <nagar@watson.ibm.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: [PATCH 4/6] CKRM numtasks resource controller
+Subject: [PATCH 3/6] CKRM task_class classtype
 Content-Type: multipart/mixed;
- boundary="------------090909030202010004090107"
+ boundary="------------050304020306020605070501"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090909030202010004090107
+--------------050304020306020605070501
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
---------------090909030202010004090107
+--------------050304020306020605070501
 Content-Type: text/plain;
- name="03-numtasks.ckrm-E12.patch"
+ name="02-taskclass.ckrm-E12.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="03-numtasks.ckrm-E12.patch"
+ filename="02-taskclass.ckrm-E12.patch"
 
-diff -Nru a/include/linux/ckrm_tsk.h b/include/linux/ckrm_tsk.h
+diff -Nru a/include/linux/ckrm_tc.h b/include/linux/ckrm_tc.h
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/ckrm_tsk.h	Wed Apr 28 22:41:05 2004
-@@ -0,0 +1,41 @@
-+/* ckrm_tsk.h - No. of tasks resource controller for CKRM
-+ *
-+ * Copyright (C) Chandra Seetharaman, IBM Corp. 2003
-+ * 
-+ * Provides No. of tasks resource controller for CKRM
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+/* Changes
-+ *
-+ * 31 Mar 2004
-+ *    Created.
-+ */
-+
-+#ifndef _LINUX_CKRM_TSK_H
-+#define _LINUX_CKRM_TSK_H
-+
++++ b/include/linux/ckrm_tc.h	Wed Apr 28 22:41:05 2004
+@@ -0,0 +1,18 @@
 +#include <linux/ckrm_rc.h>
 +
-+#ifdef CONFIG_CKRM_RES_NUMTASKS
 +
-+extern int numtasks_get_ref(void *, int);
-+extern int numtasks_get_ref_resid(void *, int, int);
-+extern void numtasks_put_ref(void *);
 +
-+#else
++#define TASK_CLASS_TYPE_NAME "taskclass"
 +
-+#define numtasks_get_ref(a, b)		1
-+#define numtasks_get_ref_resid(a, b, c)		1
-+#define numtasks_put_ref(a)
++typedef struct ckrm_task_class {
++	struct ckrm_core_class core;   
++} ckrm_task_class_t;
 +
-+#endif
 +
-+#endif // _LINUX_CKRM_RES_H
-diff -Nru a/kernel/ckrm/ckrm_tasks.c b/kernel/ckrm/ckrm_tasks.c
++// Index into genmfdesc array, defined in rcfs/dir_modules.c,
++// which has the mfdesc entry that taskclass wants to use
++#define TC_MF_IDX  0
++
++
++extern int ckrm_forced_reclassify_pid(int pid, struct ckrm_task_class *cls);
++
+diff -Nru a/kernel/ckrm/ckrm_tc.c b/kernel/ckrm/ckrm_tc.c
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/kernel/ckrm/ckrm_tasks.c	Wed Apr 28 22:41:05 2004
-@@ -0,0 +1,509 @@
-+/* ckrm_numtasks.c - "Number of tasks" resource controller for CKRM
++++ b/kernel/ckrm/ckrm_tc.c	Wed Apr 28 22:41:05 2004
+@@ -0,0 +1,770 @@
++/* ckrm_tc.c - Class-based Kernel Resource Management (CKRM)
 + *
-+ * Copyright (C) Chandra Seetharaman,  IBM Corp. 2003
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003,2004
++ *           (C) Shailabh Nagar,  IBM Corp. 2003
++ *           (C) Chandra Seetharaman,  IBM Corp. 2003
++ *	     (C) Vivek Kashyap,	IBM Corp. 2004
 + * 
++ * 
++ * Provides kernel API of CKRM for in-kernel,per-resource controllers 
++ * (one each for cpu, memory, io, network) and callbacks for 
++ * classification modules.
++ *
 + * Latest version, more details at http://ckrm.sf.net
 + * 
 + * This program is free software; you can redistribute it and/or modify
@@ -99,500 +84,851 @@ diff -Nru a/kernel/ckrm/ckrm_tasks.c b/kernel/ckrm/ckrm_tasks.c
 + */
 +
 +/* Changes
-+ * 
-+ * 31 Mar 2004: Created
-+ * 
++ *
++ * 28 Aug 2003
++ *        Created.
++ * 06 Nov 2003
++ *        Made modifications to suit the new RBCE module.
++ * 10 Nov 2003
++ *        Fixed a bug in fork and exit callbacks. Added callbacks_active and
++ *        surrounding logic. Added task paramter for all CE callbacks.
++ * 23 Mar 2004
++ *        moved to referenced counted class objects and correct locking
++ * 12 Apr 2004
++ *        introduced adopted to emerging classtype interface
 + */
 +
-+/*
-+ * Code Description: TBD
-+ */
-+
-+#include <linux/module.h>
++#include <linux/config.h>
 +#include <linux/init.h>
-+#include <linux/slab.h>
++#include <linux/linkage.h>
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <asm/uaccess.h>
++#include <linux/mm.h>
 +#include <asm/errno.h>
++#include <linux/string.h>
 +#include <linux/list.h>
 +#include <linux/spinlock.h>
-+#include <linux/ckrm.h>
++#include <linux/module.h>
 +#include <linux/ckrm_rc.h>
++
 +#include <linux/ckrm_tc.h>
 +
-+#define TOTAL_NUM_TASKS (131072) // 128 K
-+#define NUMTASKS_DEBUG
-+#define NUMTASKS_NAME "numtasks"
-+
-+typedef struct ckrm_numtasks {
-+	struct ckrm_core_class *core; // the core i am part of...
-+	struct ckrm_core_class *parent; // parent of the core above.
-+	struct ckrm_shares shares;
-+	spinlock_t cnt_lock; // always grab parent's lock first and then child's
-+	int cnt_guarantee; // num_tasks guarantee in local units
-+	int cnt_unused; // has to borrow if more than this is needed
-+	int cnt_limit; // no tasks over this limit.
-+	atomic_t cnt_cur_alloc; // current alloc from self
-+	atomic_t cnt_borrowed; // borrowed from the parent
-+
-+	int over_guarantee; //turn on/off when cur_alloc goes over/under guarantee
-+
-+	// internally maintained statictics to compare with max numbers
-+	int limit_failures; // no. of failures 'cause the request was over the limit
-+	int borrow_sucesses; // no. of successful borrows
-+	int borrow_failures; // no. of borrow faileures
-+
-+	// Maximum the specific statictics has reached.
-+	int max_limit_failures;
-+	int max_borrow_sucesses;
-+	int max_borrow_failures;
-+
-+	// Total number of specific statistics
-+	int tot_limit_failures;
-+	int tot_borrow_sucesses;
-+	int tot_borrow_failures;
-+} ckrm_numtasks_t;
-+
-+struct ckrm_res_ctlr numtasks_rcbs;
-+
-+/* Initialize rescls values
-+ * May be called on each rcfs unmount or as part of error recovery
-+ * to make share values sane.
-+ * Does not traverse hierarchy reinitializing children.
-+ */
-+static void
-+numtasks_res_initcls_one(ckrm_numtasks_t *res)
-+{
-+	res->shares.my_guarantee     = CKRM_SHARE_DONTCARE;
-+	res->shares.my_limit         = CKRM_SHARE_DONTCARE;
-+	res->shares.total_guarantee  = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
-+	res->shares.max_limit        = CKRM_SHARE_DFLT_MAX_LIMIT;
-+	res->shares.unused_guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
-+	res->shares.cur_max_limit    = 0;
-+
-+	res->cnt_guarantee           = CKRM_SHARE_DONTCARE;
-+	res->cnt_unused              = CKRM_SHARE_DONTCARE;
-+	res->cnt_limit               = CKRM_SHARE_DONTCARE;
-+
-+	res->over_guarantee          = 0;
-+
-+	res->limit_failures          = 0;
-+	res->borrow_sucesses         = 0;
-+	res->borrow_failures         = 0;
-+
-+	res->max_limit_failures      = 0;
-+	res->max_borrow_sucesses     = 0;
-+	res->max_borrow_failures     = 0;
-+
-+	res->tot_limit_failures      = 0;
-+	res->tot_borrow_sucesses     = 0;
-+	res->tot_borrow_failures     = 0;
-+
-+	atomic_set(&res->cnt_cur_alloc, 0);
-+	atomic_set(&res->cnt_borrowed, 0);
-+	return;
-+}
-+
-+#if 0	
-+static void
-+numtasks_res_initcls(void *my_res)
-+{
-+	ckrm_numtasks_t *res = my_res;
-+
-+	/* Write a version which propagates values all the way down 
-+	   and replace rcbs callback with that version */
-+	
-+}
-+#endif
-+
-+int
-+numtasks_get_ref(void *arg, int force)
-+{
-+	int rc, resid = numtasks_rcbs.resid;
-+	ckrm_numtasks_t *res;
-+	ckrm_core_class_t *core = arg;
-+
-+	if ((resid < 0) || (core == NULL))
-+		return 1;
-+
-+	res = ckrm_get_res_class(core, resid, ckrm_numtasks_t);
-+	if (res == NULL) 
-+		return 1;
-+
-+	atomic_inc(&res->cnt_cur_alloc);
-+
-+	rc = 1;
-+	if (((res->parent) && (res->cnt_unused == CKRM_SHARE_DONTCARE)) ||
-+			(atomic_read(&res->cnt_cur_alloc) > res->cnt_unused)) {
-+
-+		rc = 0;
-+		if (!force && (res->cnt_limit != CKRM_SHARE_DONTCARE) && 
-+				(atomic_read(&res->cnt_cur_alloc) > res->cnt_limit)) {
-+			res->limit_failures++;
-+			res->tot_limit_failures++;
-+		} else if (res->parent != NULL) {
-+			if ((rc = numtasks_get_ref(res->parent, force)) == 1) {
-+				atomic_inc(&res->cnt_borrowed);
-+				res->borrow_sucesses++;
-+				res->tot_borrow_sucesses++;
-+				res->over_guarantee = 1;
-+			} else {
-+				res->borrow_failures++;
-+				res->tot_borrow_failures++;
-+			}
-+		} else {
-+			rc = force;
-+		}
-+	} else if (res->over_guarantee) {
-+		res->over_guarantee = 0;
-+
-+		if (res->max_limit_failures < res->limit_failures) {
-+			res->max_limit_failures = res->limit_failures;
-+		}
-+		if (res->max_borrow_sucesses < res->borrow_sucesses) {
-+			res->max_borrow_sucesses = res->borrow_sucesses;
-+		}
-+		if (res->max_borrow_failures < res->borrow_failures) {
-+			res->max_borrow_failures = res->borrow_failures;
-+		}
-+		res->limit_failures = 0;
-+		res->borrow_sucesses = 0;
-+		res->borrow_failures = 0;
-+	}
-+
-+	if (!rc) {
-+		atomic_dec(&res->cnt_cur_alloc);
-+	}
-+	return rc;
-+}
-+
-+void
-+numtasks_put_ref(void *arg)
-+{
-+	int resid = numtasks_rcbs.resid;
-+	ckrm_numtasks_t *res;
-+	ckrm_core_class_t *core = arg;
-+
-+	if ((resid == -1) || (core == NULL)) {
-+		return;
-+	}
-+
-+	res = ckrm_get_res_class(core, resid, ckrm_numtasks_t);
-+	if (res == NULL) 
-+		return;
-+	atomic_dec(&res->cnt_cur_alloc);
-+	if (atomic_read(&res->cnt_borrowed) > 0) {
-+		atomic_dec(&res->cnt_borrowed);
-+		numtasks_put_ref(res->parent);
-+	}
-+	return;
-+}
-+
-+static void *
-+numtasks_res_alloc(struct ckrm_core_class *core, struct ckrm_core_class *parent)
-+{
-+	ckrm_numtasks_t *res;
-+	
-+	res = kmalloc(sizeof(ckrm_numtasks_t), GFP_ATOMIC);
-+	
-+	if (res) {
-+		res->core = core;
-+		res->parent = parent;
-+		numtasks_res_initcls_one(res);
-+		res->cnt_lock = SPIN_LOCK_UNLOCKED;
-+		if (parent == NULL) {
-+			// I am part of root class. so set the max tasks to available
-+			// default
-+			res->cnt_guarantee = TOTAL_NUM_TASKS;
-+			res->cnt_unused =  TOTAL_NUM_TASKS;
-+			res->cnt_limit = TOTAL_NUM_TASKS;
-+		}
-+	} else {
-+		printk(KERN_ERR "numtasks_res_alloc: failed GFP_ATOMIC alloc\n");
-+	}
-+	return res;
-+}
-+
-+/*
-+ * No locking of this resource class object necessary as we are not
-+ * supposed to be assigned (or used) when/after this function is called.
-+ */
-+static void
-+numtasks_res_free(void *my_res)
-+{
-+	ckrm_numtasks_t *res = my_res, *parres, *childres;
-+	ckrm_core_class_t *child = NULL;
-+	int i, borrowed, maxlimit, resid = numtasks_rcbs.resid;
-+
-+	if (!res) 
-+		return;
-+
-+	// Assuming there will be no children when this function is called
-+	
-+	parres = ckrm_get_res_class(res->parent, resid, ckrm_numtasks_t);
-+
-+	if (unlikely(atomic_read(&res->cnt_cur_alloc) != 0 ||
-+				atomic_read(&res->cnt_borrowed))) {
-+		printk(KERN_ERR "numtasks_res_free: resource still alloc'd %p\n", res);
-+		if ((borrowed = atomic_read(&res->cnt_borrowed)) > 0) {
-+			for (i = 0; i < borrowed; i++) {
-+				numtasks_put_ref(parres->core);
-+			}
-+		}
-+	}
-+
-+	// return child's limit/guarantee to parent node
-+	spin_lock(&parres->cnt_lock);
-+	child_guarantee_changed(&parres->shares, res->shares.my_guarantee, 0);
-+
-+	// run thru parent's children and get the new max_limit of the parent
-+	ckrm_lock_hier(parres->core);
-+	maxlimit = 0;
-+	while ((child = ckrm_get_next_child(parres->core, child)) != NULL) {
-+		childres = ckrm_get_res_class(child, resid, ckrm_numtasks_t);
-+		if (maxlimit < childres->shares.my_limit) {
-+			maxlimit = childres->shares.my_limit;
-+		}
-+	}
-+	ckrm_unlock_hier(parres->core);
-+	if (parres->shares.cur_max_limit < maxlimit) {
-+		parres->shares.cur_max_limit = maxlimit;
-+	}
-+
-+	spin_unlock(&parres->cnt_lock);
-+	kfree(res);
-+	return;
-+}
-+/*
-+ * Recalculate the guarantee and limit in real units... and propagate the
-+ * same to children.
-+ * Caller is responsible for protecting res and for the integrity of parres
-+ */
-+static void
-+recalc_and_propagate(ckrm_numtasks_t *res, ckrm_numtasks_t *parres)
-+{
-+	ckrm_core_class_t *child = NULL;
-+	ckrm_numtasks_t *childres;
-+	int resid = numtasks_rcbs.resid;
-+
-+	if (parres) {
-+		struct ckrm_shares *par = &parres->shares;
-+		struct ckrm_shares *self = &res->shares;
-+
-+		// calculate cnt_guarantee and cnt_limit
-+		//
-+		if (parres->cnt_guarantee == CKRM_SHARE_DONTCARE) {
-+			res->cnt_guarantee = CKRM_SHARE_DONTCARE;
-+		} else {
-+			res->cnt_guarantee = (self->my_guarantee * parres->cnt_guarantee) 
-+					/ par->total_guarantee;
-+		}
-+		if (parres->cnt_limit == CKRM_SHARE_DONTCARE) {
-+			res->cnt_limit = CKRM_SHARE_DONTCARE;
-+		} else {
-+			res->cnt_limit = (self->my_limit * parres->cnt_limit)
-+					/ par->max_limit;
-+		}
-+
-+		// Calculate unused units
-+		if (res->cnt_guarantee == CKRM_SHARE_DONTCARE) {
-+			res->cnt_unused = CKRM_SHARE_DONTCARE;
-+		} else {
-+			res->cnt_unused = (self->unused_guarantee *
-+					res->cnt_guarantee) / self->total_guarantee;
-+		}
-+	}
-+
-+	// propagate to children
-+	ckrm_lock_hier(res->core);
-+	while ((child = ckrm_get_next_child(res->core, child)) != NULL) {
-+		childres = ckrm_get_res_class(child, resid, ckrm_numtasks_t);
-+
-+		spin_lock(&childres->cnt_lock);
-+		recalc_and_propagate(childres, res);
-+		spin_unlock(&childres->cnt_lock);
-+	}
-+	ckrm_unlock_hier(res->core);
-+	return;
-+}
-+
-+static int
-+numtasks_set_share_values(void *my_res, struct ckrm_shares *new)
-+{
-+	ckrm_numtasks_t *parres, *res = my_res;
-+	struct ckrm_shares *cur = &res->shares, *par;
-+	int rc = -EINVAL, resid = numtasks_rcbs.resid;
-+
-+	if (!res) 
-+		return rc;
-+
-+	if (res->parent) {
-+		parres = ckrm_get_res_class(res->parent, resid, ckrm_numtasks_t);
-+		spin_lock(&parres->cnt_lock);
-+		spin_lock(&res->cnt_lock);
-+		par = &parres->shares;
-+	} else {
-+		spin_lock(&res->cnt_lock);
-+		par = NULL;
-+		parres = NULL;
-+	}
-+
-+	rc = set_shares(new, cur, par);
-+
-+	if ((rc == 0) && parres) {
-+		// Calculate parent's unused units
-+		if (parres->cnt_guarantee == CKRM_SHARE_DONTCARE) {
-+			parres->cnt_unused = CKRM_SHARE_DONTCARE;
-+		} else {
-+			parres->cnt_unused = (par->unused_guarantee *
-+					parres->cnt_guarantee) / par->total_guarantee;
-+		}
-+
-+		recalc_and_propagate(res, parres);
-+	}
-+	spin_unlock(&res->cnt_lock);
-+	if (res->parent) {
-+		spin_unlock(&parres->cnt_lock);
-+	}
-+	return rc;
-+}
-+
-+
-+static int
-+numtasks_get_share_values(void *my_res, struct ckrm_shares *shares)
-+{
-+	ckrm_numtasks_t *res = my_res;
-+
-+	if (!res) 
-+		return -EINVAL;
-+	*shares = res->shares;
-+	return 0;
-+}
-+
-+static int  
-+numtasks_get_stats(void *my_res, struct seq_file *sfile)
-+{
-+	ckrm_numtasks_t *res = my_res;
-+
-+	if (!res) 
-+		return -EINVAL;
-+
-+	seq_printf(sfile, "Number of tasks resource:\n");
-+	seq_printf(sfile, "Total Over limit failures: %d\n",
-+			res->tot_limit_failures);
-+	seq_printf(sfile, "Total Over guarantee sucesses: %d\n",
-+			res->tot_borrow_sucesses);
-+	seq_printf(sfile, "Total Over guarantee failures: %d\n",
-+			res->tot_borrow_failures);
-+
-+	seq_printf(sfile, "Maximum Over limit failures: %d\n",
-+			res->max_limit_failures);
-+	seq_printf(sfile, "Maximum Over guarantee sucesses: %d\n",
-+			res->max_borrow_sucesses);
-+	seq_printf(sfile, "Maximum Over guarantee failures: %d\n",
-+			res->max_borrow_failures);
-+#ifdef NUMTASKS_DEBUG
-+	seq_printf(sfile, "cur_alloc %d; borrowed %d; cnt_guar %d; cnt_limit %d "
-+			"unused_guarantee %d, cur_max_limit %d\n",
-+			atomic_read(&res->cnt_cur_alloc),
-+			atomic_read(&res->cnt_borrowed),
-+			res->cnt_guarantee,
-+			res->cnt_limit,
-+			res->shares.unused_guarantee,
-+			res->shares.cur_max_limit);
-+#endif
-+
-+	return 0;
-+}
-+
-+static int  
-+numtasks_show_config(void *my_res, struct seq_file *sfile)
-+{
-+	ckrm_numtasks_t *res = my_res;
-+
-+	if (!res) 
-+		return -EINVAL;
-+
-+	seq_printf(sfile, "res=%s,parameter=somevalue\n",NUMTASKS_NAME);
-+	return 0;
-+}
-+
-+static int  
-+numtasks_set_config(void *my_res, const char *cfgstr)
-+{
-+	ckrm_numtasks_t *res = my_res;
-+
-+	if (!res) 
-+		return -EINVAL;
-+	printk("numtasks config='%s'\n",cfgstr);
-+	return 0;
-+}
-+
-+static void
-+numtasks_change_resclass(void *task, void *old, void *new)
-+{
-+	ckrm_numtasks_t *oldres = old;
-+	ckrm_numtasks_t *newres = new;
-+
-+	if (oldres != (void *) -1) {
-+		struct task_struct *tsk = task;
-+		if (!oldres) {
-+			struct ckrm_core_class *old_core = &(tsk->parent->taskclass->core);
-+			oldres = ckrm_get_res_class(old_core, numtasks_rcbs.resid,
-+					ckrm_numtasks_t);
-+		}
-+		numtasks_put_ref(oldres->core);
-+	}
-+	if (newres) {
-+		(void) numtasks_get_ref(newres->core, 1);
-+	}
-+}
-+
-+struct ckrm_res_ctlr numtasks_rcbs = {
-+	.res_name          = NUMTASKS_NAME,
-+	.res_hdepth        = 1,
-+	.resid             = -1,
-+	.res_alloc         = numtasks_res_alloc,
-+	.res_free          = numtasks_res_free,
-+	.set_share_values  = numtasks_set_share_values,
-+	.get_share_values  = numtasks_get_share_values,
-+	.get_stats         = numtasks_get_stats,
-+	.show_config       = numtasks_show_config,
-+	.set_config        = numtasks_set_config,
-+	.change_resclass   = numtasks_change_resclass,
++static struct ckrm_task_class  taskclass_dflt_class = {
 +};
 +
-+int __init
-+init_ckrm_numtasks_res(void)
++const char *dflt_taskclass_name = TASK_CLASS_TYPE_NAME;
++
++static struct ckrm_core_class *ckrm_alloc_task_class(struct ckrm_core_class *parent, const char *name);
++static int ckrm_free_task_class(struct ckrm_core_class *core);
++
++static int  tc_forced_reclassify(ckrm_core_class_t *target, const char *resname);
++static int  tc_show_members(struct ckrm_core_class *core, struct seq_file *seq);
++static void tc_add_resctrl(struct ckrm_core_class *core, int resid);
++
++struct ckrm_classtype CT_taskclass = {
++	.mfidx          = TC_MF_IDX,
++	.name           = TASK_CLASS_TYPE_NAME,
++	.typeID         = CKRM_CLASSTYPE_TASK_CLASS, 
++	.maxdepth       = 3,                           // Hubertus .. just to start 
++	.resid_reserved = 4,                           // Hubertus .. reservation
++	.max_res_ctlrs  = CKRM_MAX_RES_CTLRS,        
++	.max_resid      = 0,
++	.bit_res_ctlrs  = 0L,
++	.res_ctlrs_lock = SPIN_LOCK_UNLOCKED,
++	.classes        = LIST_HEAD_INIT(CT_taskclass.classes),
++
++	.default_class  = &taskclass_dflt_class.core,
++	
++	// private version of functions 
++	.alloc          = &ckrm_alloc_task_class,
++	.free           = &ckrm_free_task_class,
++	.show_members   = &tc_show_members,
++	.forced_reclassify = &tc_forced_reclassify,
++
++	// use of default functions 
++	.show_shares    = &ckrm_class_show_shares,
++	.show_stats     = &ckrm_class_show_stats,
++	.show_config    = &ckrm_class_show_config,
++	.set_config     = &ckrm_class_set_config,
++	.set_shares     = &ckrm_class_set_shares,
++	.reset_stats    = &ckrm_class_reset_stats,
++
++	// mandatory private version .. no dflt available
++	.add_resctrl    = &tc_add_resctrl,	
++};
++
++/**************************************************************************
++ *                   Helper Functions                                     *
++ **************************************************************************/
++
++static inline void
++ckrm_init_task_lock(struct task_struct *tsk)
 +{
-+	struct ckrm_classtype *clstype;
-+	int resid = numtasks_rcbs.resid;
-+
-+	clstype = ckrm_find_classtype_by_name("taskclass");
-+	if (clstype == NULL) {
-+		printk(KERN_INFO " Unknown ckrm classtype<taskclass>");
-+		return -ENOENT;
-+	}
-+
-+	if (resid == -1) {
-+		resid = ckrm_register_res_ctlr(clstype,&numtasks_rcbs);
-+		printk("........init_ckrm_numtasks_res -> %d\n",resid);
-+	}
-+	return 0;
-+}	
-+
-+void __exit
-+exit_ckrm_numtasks_res(void)
-+{
-+	ckrm_unregister_res_ctlr(&numtasks_rcbs);
-+	numtasks_rcbs.resid = -1;
++	tsk->ckrm_tsklock = SPIN_LOCK_UNLOCKED;
 +}
 +
-+module_init(init_ckrm_numtasks_res)
-+module_exit(exit_ckrm_numtasks_res)
++// Hubertus .. following functions should move to ckrm_rc.h
 +
-+EXPORT_SYMBOL(numtasks_get_ref);
-+EXPORT_SYMBOL(numtasks_put_ref);
++static inline void
++ckrm_task_lock(struct task_struct *tsk)
++{
++  	spin_lock(&tsk->ckrm_tsklock);
++}
 +
-+MODULE_LICENSE("GPL");
++static inline void
++ckrm_task_unlock(struct task_struct *tsk)
++{
++  	spin_unlock(&tsk->ckrm_tsklock);
++}
++
++/*
++ * Change the task class of the given task.
++ *
++ * Change the task's task class  to "newcls" if the task's current 
++ * class (task->taskclass) is same as given "oldcls", if it is non-NULL.
++ *
++ * Caller is responsible to make sure the task structure stays put through
++ * this function.
++ *
++ * This function should be called with the following locks NOT held
++ * 	- tsk->ckrm_task_lock
++ * 	- core->ckrm_lock, if core is NULL then ckrm_dflt_class.ckrm_lock
++ * 	- tsk->taskclass->ckrm_lock 
++ * 
++ * Function is also called with a ckrm_core_grab on the new core, hence
++ * it needs to be dropped if no assignment takes place.
++ */
++
++static void
++ckrm_set_taskclass(struct task_struct *tsk, ckrm_task_class_t *newcls, 
++		   ckrm_task_class_t *oldcls, enum ckrm_event event)
++{
++	int i;
++	ckrm_classtype_t  *clstype;
++	ckrm_res_ctlr_t   *rcbs;
++	ckrm_task_class_t *curcls;
++	void *old_res_class, *new_res_class;
++	int drop_old_cls;
++
++	ckrm_task_lock(tsk);
++	curcls = tsk->taskclass;
++
++	// check whether compare_and_exchange should
++	if (oldcls && (oldcls != curcls)) {
++		ckrm_task_unlock(tsk);
++		if (newcls) {
++			/* compensate for previous grab */
++			printk("ckrm_set_taskclass(%s:%d): Race-condition caught <%s> %d\n",
++				tsk->comm,tsk->pid,class_core(newcls)->name,event);
++			ckrm_core_drop(class_core(newcls));
++		}
++		return;
++	}
++
++	// make sure we have a real destination core
++	if (!newcls) {
++		newcls = &taskclass_dflt_class;
++		ckrm_core_grab(class_core(newcls));
++	}
++
++	// take out of old class 
++	// remember that we need to drop the oldcore
++	if ((drop_old_cls = (curcls != NULL))) {
++		class_lock(class_core(curcls));
++		if (newcls == curcls) {
++			// we are already in the destination class.
++			// we still need to drop oldcore
++			class_unlock(class_core(curcls));
++			ckrm_task_unlock(tsk);
++			goto out;
++		}
++		list_del(&tsk->taskclass_link);
++		INIT_LIST_HEAD(&tsk->taskclass_link);
++		tsk->taskclass = NULL;
++		class_unlock(class_core(curcls));
++	}	
++
++	// put into new class 
++	class_lock(class_core(newcls));
++	tsk->taskclass = newcls;
++	list_add(&tsk->taskclass_link, &class_core(newcls)->objlist);
++	class_unlock(class_core(newcls));
++
++	if (newcls == curcls) {
++		ckrm_task_unlock(tsk);
++		goto out;
++	}
++
++	CE_NOTIFY(&CT_taskclass,event,newcls,tsk);
++
++	ckrm_task_unlock(tsk);
++
++	clstype = class_isa(newcls);                      // Hubertus .. can hardcode ckrm_CT_taskclass
++	for (i = 0; i < clstype->max_resid; i++) {
++		atomic_inc(&clstype->nr_resusers[i]);
++		old_res_class = curcls ? class_core(curcls)->res_class[i] : NULL;
++		new_res_class = newcls ? class_core(newcls)->res_class[i] : NULL;
++		rcbs = clstype->res_ctlrs[i];
++		if (rcbs && rcbs->change_resclass && (old_res_class != new_res_class)) 
++			(*rcbs->change_resclass)(tsk, old_res_class, new_res_class);
++		atomic_dec(&clstype->nr_resusers[i]);
++	}
++
++ out:
++	if (drop_old_cls) 
++		ckrm_core_drop(class_core(curcls));
++	return;
++}
++
++// HF SUGGEST: we could macro-tize this for other types DEF_FUNC_ADD_RESCTRL(funcname,link)
++//          would DEF_FUNC_ADD_RESCTRL(tc_add_resctrl,taskclass_link)
++
++static void
++tc_add_resctrl(struct ckrm_core_class *core, int resid)
++{
++	struct task_struct *tsk;
++	struct ckrm_res_ctlr *rcbs;
++
++	if ((resid < 0) || (resid >= CKRM_MAX_RES_CTLRS) || ((rcbs = core->classtype->res_ctlrs[resid]) == NULL)) 
++		return;
++
++	spin_lock(&core->ckrm_lock);
++	list_for_each_entry(tsk, &core->objlist, taskclass_link) {
++		if (rcbs->change_resclass)
++			(*rcbs->change_resclass)(tsk, (void *) -1, core->res_class[resid]);
++	}
++	spin_unlock(&core->ckrm_lock);
++}
++
++
++/**************************************************************************
++ *                   Functions called from classification points          *
++ **************************************************************************/
++
++#define ECB_PRINTK(fmt, args...) // do { if (CT_taskclass.ce_regd) printk("%s: " fmt, __FUNCTION__ , ## args); } while (0)
++
++#define CE_CLASSIFY_TASK(event, tsk)						\
++do {										\
++	struct ckrm_task_class *newcls = NULL, *oldcls = tsk->taskclass;	\
++										\
++	CE_CLASSIFY_RET(newcls,&CT_taskclass,event,tsk);			\
++	if (newcls) {								\
++		/* called synchrously. no need to get task struct */		\
++		ckrm_set_taskclass(tsk, newcls, oldcls, event);			\
++	}									\
++} while (0)
++
++#define CE_CLASSIFY_TASK_PROTECT(event, tsk)	\
++do {						\
++	ce_protect(&CT_taskclass);		\
++	CE_CLASSIFY_TASK(event,tsk);		\
++	ce_release(&CT_taskclass);              \
++} while (0)
++
++
++
++
++static void
++cb_taskclass_newtask(struct task_struct *tsk)
++{
++	tsk->taskclass = NULL;
++	INIT_LIST_HEAD(&tsk->taskclass_link);
++}
++
++
++static void
++cb_taskclass_fork(struct task_struct *tsk)
++{
++	struct ckrm_task_class *cls = NULL;
++
++	ECB_PRINTK("%p:%d:%s\n",tsk,tsk->pid,tsk->comm);
++
++	ce_protect(&CT_taskclass);
++	CE_CLASSIFY_RET(cls,&CT_taskclass,CKRM_EVENT_FORK,tsk);	     
++	if (cls == NULL) {
++		ckrm_task_lock(tsk->parent);
++		cls = tsk->parent->taskclass;
++		ckrm_core_grab(class_core(cls));
++		ckrm_task_unlock(tsk->parent);
++	}
++	if (!list_empty(&tsk->taskclass_link))
++		printk("BUG in cb_fork.. tsk (%s:%d> already linked\n",
++			tsk->comm,tsk->pid);
++
++	ckrm_set_taskclass(tsk, cls, NULL, CKRM_EVENT_FORK);
++	ce_release(&CT_taskclass);
++}
++
++static void
++cb_taskclass_exit(struct task_struct *tsk)
++{
++	ckrm_task_class_t *cls;
++
++	// Remove the task from the current core class
++	
++	ECB_PRINTK("%p:%d:%s\n",tsk,tsk->pid,tsk->comm);
++	ckrm_task_lock(tsk);
++
++	CE_CLASSIFY_NORET( &CT_taskclass, CKRM_EVENT_EXIT, tsk);
++
++	if ((cls = tsk->taskclass) != NULL) {
++		class_lock(class_core(cls));
++		tsk->taskclass = NULL;
++		list_del(&tsk->taskclass_link);
++		class_unlock(class_core(cls));
++		ckrm_core_drop(class_core(cls));
++	} else {
++		INIT_LIST_HEAD(&tsk->taskclass_link);
++	}
++	ckrm_task_unlock(tsk);
++}
++
++static void
++cb_taskclass_exec(const char *filename)
++{
++	ECB_PRINTK("%p:%d:%s <%s>\n",current,current->pid,current->comm,filename);
++	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_EXEC, current);
++}
++
++static void
++cb_taskclass_uid(void)
++{
++	ECB_PRINTK("%p:%d:%s\n",current,current->pid,current->comm);
++	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_UID, current);
++}
++
++static void
++cb_taskclass_gid(void)
++{
++	ECB_PRINTK("%p:%d:%s\n",current,current->pid,current->comm);
++	CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_GID, current);
++}
++
++static struct ckrm_event_spec taskclass_events_callbacks[] = {
++	CKRM_EVENT_SPEC( NEWTASK, cb_taskclass_newtask ),
++	CKRM_EVENT_SPEC( EXEC   , cb_taskclass_exec ),
++	CKRM_EVENT_SPEC( FORK   , cb_taskclass_fork ),
++	CKRM_EVENT_SPEC( EXIT   , cb_taskclass_exit ),
++	CKRM_EVENT_SPEC( UID    , cb_taskclass_uid  ),
++	CKRM_EVENT_SPEC( GID    , cb_taskclass_gid  ),
++	{ -1 }
++};
++
++/***********************************************************************
++ *
++ * Asynchronous callback functions   (driven by RCFS)
++ * 
++ *    Async functions force a setting of the task structure
++ *    synchronous callbacks are protected against race conditions 
++ *    by using a cmpxchg on the core before setting it.
++ *    Async calls need to be serialized to ensure they can't 
++ *    race against each other 
++ *
++ ***********************************************************************/
++
++DECLARE_MUTEX(async_serializer);    // serialize all async functions
++
++
++/*
++ * Go through the task list and reclassify all tasks according to the current
++ * classification rules.
++ *
++ * We have the problem that we can not hold any lock (including the 
++ * tasklist_lock) while classifying. Two methods possible
++ *
++ * (a) go through entire pidrange (0..pidmax) and if a task exists at 
++ *     that pid then reclassify it
++ * (b) go several time through task list and build a bitmap for a particular 
++ *     subrange of pid otherwise the memory requirements ight be too much.
++ * 
++ * We use a hybrid by comparing ratio nr_threads/pidmax
++ */
++
++static void
++ckrm_reclassify_all_tasks(void)
++{
++	extern int pid_max;
++
++	struct task_struct *proc, *thread;
++	int i;
++	int curpidmax = pid_max;
++	int ratio;
++	int use_bitmap;
++
++
++	ratio = curpidmax / nr_threads;
++	if (curpidmax <= PID_MAX_DEFAULT) {
++	     use_bitmap = 1;
++	} else {
++	     use_bitmap = (ratio >= 2);
++	}
++
++	ce_protect(&CT_taskclass);
++
++ retry:		
++	if (use_bitmap == 0) {
++		// go through it in one walk
++		read_lock(&tasklist_lock);
++		for ( i=0 ; i<curpidmax ; i++ ) {
++			if ((thread = find_task_by_pid(i)) == NULL) 
++				continue;
++			get_task_struct(thread);
++			read_unlock(&tasklist_lock);
++			CE_CLASSIFY_TASK(CKRM_EVENT_RECLASSIFY, thread);
++			put_task_struct(thread);
++			read_lock(&tasklist_lock);
++		}
++		read_unlock(&tasklist_lock);
++	} else {
++		unsigned long *bitmap;
++		int bitmapsize;
++		int order = 0;
++		int num_loops;
++		int pid, do_next;
++
++
++		bitmap = (unsigned long*) __get_free_pages(GFP_KERNEL,order);
++		if (bitmap == NULL) {
++			use_bitmap = 0;
++			goto retry;
++		}
++
++		bitmapsize = 8 * (1 << (order + PAGE_SHIFT));
++		num_loops  = (curpidmax + bitmapsize - 1) / bitmapsize;
++
++		do_next = 1;
++		for ( i=0 ; i < num_loops && do_next; i++) {
++			int pid_start = i*bitmapsize; 
++			int pid_end   = pid_start + bitmapsize;
++			int num_found = 0;
++			int pos;
++
++			memset(bitmap, 0, bitmapsize/8); // start afresh
++			do_next = 0;
++
++			read_lock(&tasklist_lock);
++			do_each_thread(proc, thread) {
++				pid = thread->pid;
++				if ((pid < pid_start) || (pid >= pid_end)) {
++					if (pid >= pid_end) {
++						do_next = 1;
++					}
++					continue;
++				}
++				pid -= pid_start;
++				set_bit(pid, bitmap);
++				num_found++;
++			} while_each_thread(proc, thread);
++			read_unlock(&tasklist_lock);
++		
++			if (num_found == 0) 
++				continue;
++
++			pos = 0;
++			for ( ; num_found-- ; ) {
++				pos = find_next_bit(bitmap, bitmapsize, pos);
++				pid = pos + pid_start;
++
++				read_lock(&tasklist_lock);
++				if ((thread = find_task_by_pid(pid)) != NULL) {
++					get_task_struct(thread);
++					read_unlock(&tasklist_lock);
++					CE_CLASSIFY_TASK(CKRM_EVENT_RECLASSIFY, thread);
++					put_task_struct(thread);
++				} else {
++					read_unlock(&tasklist_lock);
++				}
++			}
++		}
++
++	}
++	ce_release(&CT_taskclass);
++}
++
++int
++ckrm_reclassify(int pid)
++{
++	struct task_struct *tsk;
++	int rc = 0;
++
++	down(&async_serializer);   // protect again race condition
++	if (pid < 0) {
++		// do we want to treat this as process group .. should YES ToDo
++		 rc = -EINVAL;
++	} else if (pid == 0) {
++		// reclassify all tasks in the system
++		ckrm_reclassify_all_tasks();
++	} else {
++		// reclassify particular pid
++		read_lock(&tasklist_lock);
++		if ((tsk = find_task_by_pid(pid)) != NULL) {
++			get_task_struct(tsk);
++			read_unlock(&tasklist_lock);
++			CE_CLASSIFY_TASK_PROTECT(CKRM_EVENT_RECLASSIFY, tsk);
++			put_task_struct(tsk);
++		} else {
++			read_unlock(&tasklist_lock);
++			rc = -EINVAL;
++		}
++	}
++	up(&async_serializer);
++	return rc;
++}
++
++/*
++ * Reclassify all tasks in the given core class.
++ */
++
++static void
++ckrm_reclassify_class_tasks(struct ckrm_task_class *cls)
++{
++	int ce_regd;
++	struct ckrm_hnode *cnode;
++	struct ckrm_task_class *parcls;
++
++	if (!ckrm_validate_and_grab_core(&cls->core))
++		return;
++
++	down(&async_serializer);   // protect again race condition
++
++
++	printk("\t%s: start %p:%s:%d\n",__FUNCTION__,cls,cls->core.name, cls->core.refcnt);
++	// If no CE registered for this classtype, following will be needed repeatedly;
++	ce_regd =  class_core(cls)->classtype->ce_regd;
++	cnode = &(class_core(cls)->hnode);
++	parcls = class_type(ckrm_task_class_t, cnode->parent);
++
++next_task:
++	class_lock(class_core(cls));
++	if (!list_empty(&class_core(cls)->objlist)) {
++		struct ckrm_task_class *newcls = NULL;
++		struct task_struct *tsk = 
++			list_entry(class_core(cls)->objlist.next,
++				   struct task_struct, taskclass_link);
++		
++		get_task_struct(tsk);
++		class_unlock(class_core(cls));
++
++		if (ce_regd) {
++			CE_CLASSIFY_RET(newcls,&CT_taskclass,CKRM_EVENT_RECLASSIFY,tsk); 
++		} else {
++			newcls = parcls;
++			ckrm_core_grab(class_core(newcls));
++		}
++
++		if (cls == newcls) {
++			// don't allow reclassifying to the same class
++			// as we are in the process of cleaning up this class
++			ckrm_core_drop(class_core(newcls)); // to compensate CE's grab
++			newcls = NULL;
++		}
++		ckrm_set_taskclass(tsk, newcls, cls, CKRM_EVENT_RECLASSIFY);
++		put_task_struct(tsk);
++		goto next_task;
++	}
++	printk("\t%s: stop  %p:%s:%d\n",__FUNCTION__,cls,cls->core.name, cls->core.refcnt);
++	ckrm_core_drop(class_core(cls));
++	class_unlock(class_core(cls));
++
++	up(&async_serializer);
++
++	return ;
++}
++
++/*
++ * Change the core class of the given task.
++ */
++
++int 
++ckrm_forced_reclassify_pid(pid_t pid, struct ckrm_task_class *cls)
++{
++	struct task_struct *tsk;
++
++	if (!ckrm_validate_and_grab_core(class_core(cls)))
++		return - EINVAL;
++
++	read_lock(&tasklist_lock);
++	if ((tsk = find_task_by_pid(pid)) == NULL) {
++		read_unlock(&tasklist_lock);
++		return -EINVAL;
++	}
++	get_task_struct(tsk);
++	read_unlock(&tasklist_lock);
++	
++	down(&async_serializer);   // protect again race condition
++	
++	ce_protect(&CT_taskclass);
++	ckrm_set_taskclass(tsk, cls, NULL, CKRM_EVENT_MANUAL);
++	ce_release(&CT_taskclass);
++	put_task_struct(tsk);
++	
++	up(&async_serializer);
++	return 0;
++}
++
++static struct ckrm_core_class *
++ckrm_alloc_task_class(struct ckrm_core_class *parent, const char *name)
++{
++	struct ckrm_task_class *taskcls;
++	taskcls = kmalloc(sizeof(struct ckrm_task_class), GFP_KERNEL);
++	if (taskcls == NULL) 
++		return NULL;
++
++	ckrm_init_core_class(&CT_taskclass,
++			     class_core(taskcls),parent,name);
++
++	ce_protect(&CT_taskclass);
++	if (CT_taskclass.ce_cb_active && CT_taskclass.ce_callbacks.class_add)
++		(*CT_taskclass.ce_callbacks.class_add)(name,taskcls);
++	ce_release(&CT_taskclass);
++
++	return class_core(taskcls);
++}
++
++static int
++ckrm_free_task_class(struct ckrm_core_class *core)
++{
++	struct ckrm_task_class *taskcls;
++
++	if (!ckrm_is_core_valid(core)) {
++		// Invalid core
++		return (-EINVAL);
++	}
++	if (core == core->classtype->default_class) {
++		// reset the name tag
++		core->name = dflt_taskclass_name;
++ 		return 0;
++	}
++
++	printk("%s: stop  %p:%s:%d\n",__FUNCTION__,core,core->name, core->refcnt);
++	taskcls = class_type(struct ckrm_task_class, core);
++
++	ce_protect(&CT_taskclass);
++
++	if (CT_taskclass.ce_cb_active && CT_taskclass.ce_callbacks.class_delete)
++		(*CT_taskclass.ce_callbacks.class_delete)(core->name,taskcls);
++	ckrm_reclassify_class_tasks( taskcls );
++
++	ce_release(&CT_taskclass);
++
++	ckrm_release_core_class(core);  // Hubertus .... could just drop the class .. error message
++	return 0;
++}
++
++
++void __init
++ckrm_meta_init_taskclass(void)
++{
++	printk("...... Initializing ClassType<%s> ........\n",CT_taskclass.name);
++	// intialize the default class
++	ckrm_init_core_class(&CT_taskclass, class_core(&taskclass_dflt_class),
++			     NULL,dflt_taskclass_name);
++
++	// register classtype and initialize default task class
++	ckrm_register_classtype(&CT_taskclass);
++	ckrm_register_event_set(taskclass_events_callbacks);
++
++	// note registeration of all resource controllers will be done later dynamically 
++	// as these are specified as modules
++}
++
++
++
++static int                      
++tc_show_members(struct ckrm_core_class *core, struct seq_file *seq) 
++{
++	struct list_head *lh;
++	struct task_struct *tsk;
++
++	spin_lock(&core->ckrm_lock);
++	list_for_each(lh, &core->objlist) {	
++		tsk = container_of(lh, struct task_struct, taskclass_link);
++		seq_printf(seq,"%ld\n", (long)tsk->pid);
++	}
++	spin_unlock(&core->ckrm_lock);
++
++	return 0;
++}
++
++static int
++tc_forced_reclassify(struct ckrm_core_class *target,const char *obj)
++{	
++	pid_t pid;
++	int rc = -EINVAL;
++
++	pid = (pid_t) simple_strtoul(obj,NULL,10);
++	if (pid > 0) {
++		rc = ckrm_forced_reclassify_pid(pid,
++				class_type(ckrm_task_class_t,target));
++	}
++	return rc;
++} 
++	
++#if 1
++
++/***************************************************************************************
++ * Debugging Task Classes:  Utility functions
++ **************************************************************************************/
++
++void
++check_tasklist_sanity(struct ckrm_task_class *cls)
++{
++	struct ckrm_core_class *core = class_core(cls);
++	struct list_head *lh1, *lh2;
++	int count = 0;
++
++	if (core) {
++		class_lock(core);
++		if (list_empty(&core->objlist)) {
++			class_lock(core);
++			printk("check_tasklist_sanity: class %s empty list\n",
++					core->name);
++			return;
++		}
++		list_for_each_safe(lh1, lh2, &core->objlist) {
++			struct task_struct *tsk = container_of(lh1, struct task_struct, taskclass_link);
++			if (count++ > 20000) {
++				printk("list is CORRUPTED\n");
++				break;
++			}
++			if (tsk->taskclass != cls) {
++				const char *tclsname;
++				tclsname = (tsk->taskclass) ? class_core(tsk->taskclass)->name 
++					                    : "NULL";
++				printk("sanity: task %s:%d has ckrm_core |%s| but in list |%s|\n",
++				       tsk->comm,tsk->pid,tclsname,core->name);
++			}
++		}
++		class_unlock(core);
++	}
++}
++
++void 
++ckrm_debug_free_task_class(struct ckrm_task_class *tskcls)
++{
++	struct task_struct *proc, *thread;
++	int count = 0;
++
++	printk("Analyze Error <%s> %d\n",
++	       class_core(tskcls)->name,atomic_read(&(class_core(tskcls)->refcnt)));
++
++	read_lock(&tasklist_lock);
++	class_lock(class_core(tskcls));
++	do_each_thread(proc, thread) {
++		count += (tskcls == thread->taskclass);
++		if ((thread->taskclass == tskcls) || (tskcls == NULL)) {
++			const char *tclsname;
++			tclsname = (thread->taskclass) ? class_core(thread->taskclass)->name : "NULL";
++			printk("%d thread=<%s:%d>  -> <%s> <%lx>\n",
++			       count,thread->comm,thread->pid,tclsname, thread->flags & PF_EXITING);
++		}
++	} while_each_thread(proc, thread);
++	class_unlock(class_core(tskcls));
++	read_unlock(&tasklist_lock);
++
++	printk("End Analyze Error <%s> %d\n",
++	       class_core(tskcls)->name,atomic_read(&(class_core(tskcls)->refcnt)));
++} 
++
++#endif
+diff -Nru a/fs/rcfs/tc_magic.c b/fs/rcfs/tc_magic.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/fs/rcfs/tc_magic.c	Wed Apr 28 22:41:05 2004
+@@ -0,0 +1,94 @@
++/* 
++ * fs/rcfs/tc_magic.c 
++ *
++ * Copyright (C) Shailabh Nagar,      IBM Corp. 2004
++ *           (C) Vivek Kashyap,       IBM Corp. 2004
++ *           (C) Chandra Seetharaman, IBM Corp. 2004
++ *           (C) Hubertus Franke,     IBM Corp. 2004
++ *           
++ * 
++ * define magic fileops for taskclass classtype
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++/* Changes
++ *
++ * 23 Apr 2004
++ *        Created.
++ *
++ */
++
++#include <linux/rcfs.h>
++#include <linux/ckrm_tc.h>
++
++
++/*******************************************************************************
++ * Taskclass general
++ *
++ * Define structures for taskclass root directory and its magic files 
++ * In taskclasses, there is one set of magic files, created automatically under
++ * the taskclass root (upon classtype registration) and each directory (class) 
++ * created subsequently. However, classtypes can also choose to have different 
++ * sets of magic files created under their root and other directories under root
++ * using their mkdir function. RCFS only provides helper functions for creating 
++ * the root directory and its magic files
++ * 
++ *******************************************************************************/
++
++#define TC_FILE_MODE (S_IFREG | S_IRUGO | S_IWUSR) 
++	
++#define NR_TCROOTMF  6
++struct rcfs_magf tc_rootdesc[NR_TCROOTMF] = {
++	/* First entry must be root */
++	{ 
++//		.name    = should not be set, copy from classtype name
++		.mode    = RCFS_DEFAULT_DIR_MODE,
++		.i_op    = &rcfs_dir_inode_operations,
++		.i_fop   = &simple_dir_operations,
++	},
++	/* Rest are root's magic files */
++	{ 
++		.name    =  "target", 
++		.mode    = TC_FILE_MODE, 
++		.i_fop   = &target_fileops,
++		.i_op    = &rcfs_file_inode_operations,
++	},
++	{ 
++		.name    =  "config", 
++		.mode    = TC_FILE_MODE, 
++		.i_fop   = &config_fileops, 
++		.i_op    = &rcfs_file_inode_operations,
++	},
++	{ 
++		.name    =  "members", 
++		.mode    = TC_FILE_MODE, 
++		.i_fop   = &members_fileops,
++		.i_op    = &rcfs_file_inode_operations,
++	},
++	{ 
++		.name    =  "stats", 
++		.mode    = TC_FILE_MODE, 
++		.i_fop   = &stats_fileops, 
++		.i_op    = &rcfs_file_inode_operations,
++	},
++	{ 
++		.name    =  "shares", 
++		.mode    = TC_FILE_MODE,
++		.i_fop   = &shares_fileops, 
++		.i_op    = &rcfs_file_inode_operations,
++	},
++};
++
++struct rcfs_mfdesc tc_mfdesc = {
++	.rootmf          = tc_rootdesc,
++	.rootmflen       = NR_TCROOTMF,
++};
++
 +
 
---------------090909030202010004090107--
+--------------050304020306020605070501--

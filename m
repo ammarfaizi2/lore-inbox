@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbRFEFh4>; Tue, 5 Jun 2001 01:37:56 -0400
+	id <S263988AbRFEOIc>; Tue, 5 Jun 2001 10:08:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263230AbRFEFhq>; Tue, 5 Jun 2001 01:37:46 -0400
-Received: from [211.99.224.223] ([211.99.224.223]:22278 "HELO linux.tcpip.cxm")
-	by vger.kernel.org with SMTP id <S263228AbRFEFhf>;
-	Tue, 5 Jun 2001 01:37:35 -0400
-Date: Tue, 5 Jun 2001 13:36:43 -0800
-From: hugang <linuxbest_hugang@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Where can find document of  RPC program in kernel.
-Message-Id: <20010605133643.1dea4477.linuxbest_hugang@yahoo.com>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.6; i686-pc-linux-gnu)
-Organization: soul
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S263987AbRFEOIV>; Tue, 5 Jun 2001 10:08:21 -0400
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:43141 "EHLO
+	smtprelay3.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S263986AbRFEOIM>; Tue, 5 Jun 2001 10:08:12 -0400
+Message-ID: <3B1D122E.87AEF85F@adelphia.net>
+Date: Tue, 05 Jun 2001 10:09:02 -0700
+From: Stephen Wille Padnos <stephenwp@adelphia.net>
+Organization: Thoth Systems, Inc.
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Exporting new functions from kernel 2.2.14
+In-Reply-To: <OIBBKHIAILDFLNOGGFMNOEHLCBAA.arthur.naseef@ariel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
-	
-	I try to write a kernel modules with RPC (SUN Remote Procedure Call)
-,Someone know where can find documents for it. 
+Thanks.
 
-thanks 
+Actually, the symbols in question aren't in modules.  The kernel is module
+enabled, but all drivers are being compiled in (this is for an embedded
+system).  My external module (which needs to grab the timer interrupt) is in a
+separate source tree.
 
--- 
-Best Regard!
-礼！
---------------------------------------------------
-mail from: hugang [胡刚]
-mail	 : gang_hu@soul.com.cn linuxbest@sina.com
-China Beijing Soul  [北京众志合达]
---------------------------------------------------
+Thanks for the printk info - I guess boneheads like me could use a FAQ that
+tells which order the miscellaneoud include files need to be in.  (I had
+modules.h after linux.h).  I changed the order, butI am waiting for a recompile
+now, so I don't know if the reordering worked.
+
+Arthur Naseef wrote:
+
+...
+
+> you can edit the .ver file yourself (under /usr/src/linux/include/modules/)
+> and add entries.  This will eliminate the funny versioning, as in:
+> As far as the printk() warning, you need to make sure your module code
+> includes the right header files.  In this case, I believe you need to grab
+> <linux/kernel.h> after including <linux/module.h>.
+>
+> I hope this helps.
+>
+> -art
+>
+
+
+

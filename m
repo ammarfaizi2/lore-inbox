@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316632AbSE3NWO>; Thu, 30 May 2002 09:22:14 -0400
+	id <S316617AbSE3NVG>; Thu, 30 May 2002 09:21:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316635AbSE3NWN>; Thu, 30 May 2002 09:22:13 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:57995 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316632AbSE3NWM>; Thu, 30 May 2002 09:22:12 -0400
-Date: Thu, 30 May 2002 08:22:10 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.19 - What's up with the kernel build?
-In-Reply-To: <3CF5E698.2020806@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0205300820220.16047-100000@chaos.physics.uiowa.edu>
+	id <S316632AbSE3NVF>; Thu, 30 May 2002 09:21:05 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:59406 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316617AbSE3NVE>; Thu, 30 May 2002 09:21:04 -0400
+Message-ID: <3CF6197A.9030306@evision-ventures.com>
+Date: Thu, 30 May 2002 14:22:18 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+        Gerald Champagne <gerald@io.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.18 IDE 73
+In-Reply-To: <1022698033.12888.279.camel@irongate.swansea.linux.org.uk>  <1022680784.2945.24.camel@wiley> <3CF4D19F.9080402@evision-ventures.com> <20020529183343.A19610@ucw.cz> <3CF4F7E8.2020300@evision-ventures.com> <12607.1022748536@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 May 2002, Jeff Garzik wrote:
-
-> A small request to add to the list:
+David Woodhouse wrote:
+> On the subject of blacklists -- when downgrading the speed of a drive 
+> because it's found a blacklist, or indeed for any other reason, please 
+> _print_ the reason for doing so. 
 > 
-> Current 2.4.x kernels build (at least on x86) with
->      -nostdinc -I /usr/lib/gcc-lib/i586-mandrake-linux-gnu/3.0.4/include
-> added to CFLAGS...  IMOit is a good idea in general to build all kernel 
-> code this way.  (note that userland programs created during build should 
-> not use this rule, of course)
+> I have drives which work fine at UDMA66, but which some kernels randomly 
+> refuse to configure above UDMA33 without telling me why. 
 
-Yep, sure make sense. - It was on my list of things to look at anyway, I 
-didn't realize it's in 2.4 already, though - so that saves some testing ;)
+Which are those ones on which controller configuration?
 
---Kai
+> 
+> Basically, any time you run a drive at a transfer speed lower than the 
+> minimum of the drive's and host's listed capabilities, you should say why 
+> you're doing so. 
+
+Sure just let do one steop after other OK.
 
 

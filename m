@@ -1,86 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264570AbRFOXqT>; Fri, 15 Jun 2001 19:46:19 -0400
+	id <S264571AbRFOXvj>; Fri, 15 Jun 2001 19:51:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264571AbRFOXqJ>; Fri, 15 Jun 2001 19:46:09 -0400
-Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:18950
-	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S264570AbRFOXqB>; Fri, 15 Jun 2001 19:46:01 -0400
-Date: Fri, 15 Jun 2001 16:45:56 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Tobias Ringstrom <tori@unhappy.mine.nu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Snowhite and the Seven Dwarfs - The REAL story!
-Message-ID: <20010615164556.A31511@one-eyed-alien.net>
-Mail-Followup-To: Tobias Ringstrom <tori@unhappy.mine.nu>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <0GEZ00E36SUCK1@iris.services.ou.edu> <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se>
+	id <S264572AbRFOXva>; Fri, 15 Jun 2001 19:51:30 -0400
+Received: from [212.1.33.3] ([212.1.33.3]:38520 "EHLO borg4.zapnet.de")
+	by vger.kernel.org with ESMTP id <S264571AbRFOXvS>;
+	Fri, 15 Jun 2001 19:51:18 -0400
+Message-Id: <200106152351.BAA12360@borg4.zapnet.de>
+Date: Sat, 16 Jun 2001 01:51:15 +0200
+From: Ivan Schreter <is@zapwerk.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: john@deater.net, linux-kernel@vger.kernel.org
+Subject: Re: Buffer management - interesting idea
+In-Reply-To: <Pine.LNX.4.33.0106151550010.2262-100000@duckman.distro.conectiva>
+In-Reply-To: <200106151705.TAA07359@borg4.zapnet.de>
+	<Pine.LNX.4.33.0106151550010.2262-100000@duckman.distro.conectiva>
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.8; Linux 2.2.16; i686)
+Organization: zapwerk AG
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se>; from tori@unhappy.mine.nu on Sat, Jun 16, 2001 at 01:34:59AM +0200
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+please CC: replies to me, since I'm not subscribed to the list.
 
-No kidding... getting this once was funny enough on this mailing list...
-but twice in the same day?  I am just rolling in the asiles here...
+On Fri, 15 Jun 2001 15:50:33 -0300 (BRST)
+Rik van Riel <riel@conectiva.com.br> wrote:
 
-Matt
+> On Fri, 15 Jun 2001, Ivan Schreter wrote:
+>> In 2Q, when a page is present in LRU queue, you move it to the front of
+>> [...]
 
-On Sat, Jun 16, 2001 at 01:34:59AM +0200, Tobias Ringstrom wrote:
-> On Fri, 15 Jun 2001, Hahaha wrote:
->=20
-> > Today, Snowhite was turning 18. The 7 Dwarfs always where very educated=
- and
-> > polite with Snowhite. When they go out work at mornign, they promissed a
-> > *huge* surprise. Snowhite was anxious. Suddlently, the door open, and t=
-he Seven
-> > Dwarfs enter...
->=20
-> Ah... the joy of reading mail using non-MS software, on a non-MS OS...
->=20
-> Hahaha, indeed!
->=20
-> /Tobias
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> This description has me horribly confused. Do you have
+> any pointers to state diagrams of this thing? ;)
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+Well, I posted an URL where is complete paper about 2Q, here it is again:
 
-S:  Another stupid question?
-G:  There's no such thing as a stupid question, only stupid people.
-					-- Stef and Greg
-User Friendly, 7/15/1998
+	http://citeseer.nj.nec.com/63909.html
 
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+(click there in top right corner on download PS or PDF).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+In general, it is like LRU, but the pages make it into LRU only after
+going through FIFO. So a page which is requested only once (or few times
+in a row) will pass through this FIFO and be swapped out. When a page is
+actively used, it will pass through FIFO and on a new request for this
+page it will not be loaded into FIFO, but into LRU.
 
-iD8DBQE7Kp40z64nssGU+ykRAsh7AKCVhSlGvXv1BcxXb7YAcy/U6HdIFwCggDgt
-YNJoYwMvOMWQIklVeSYpaUo=
-=BSMd
------END PGP SIGNATURE-----
+Since FIFO is small relative to LRU (10% or so), you don't waste buffer
+space for long time for once (or few times) used pages which are not
+needed anymore (like big find, cat, dd, etc.).
 
---mYCpIKhGyMATD0i+--
+The trick is how to determine whether the page should be loaded into FIFO
+or into LRU at swap-in. And here comes another queue - they call it A1out
+in original paper. This queue (or cyclic buffer or whatever) is another
+FIFO queue, which stores INDICES of physical pages, which were swapped out
+of FIFO queue (and lived only shortly). When a page is found in this A1out
+queue, it is put into LRU (it is a "hot" page) and will live longer in LRU
+list. A1out queue size is up to experiments, I used 50% of memory buffer
+count and it performed well.
+
+And yes, look into the program I posted last time, look into functions
+r2q_page(), which loads a page into buffer and r2q_reclaim() which swaps
+out a page to make space.
+
+I was also doing some experiments with not swapping out hot pages out of
+FIFO queue (USE_FASTPAGE conditional), but they didn't bring any
+reasonable improvement (few tenths of percent up or down from original
+performance), so it's probably not worth it.
+
+BTW, this 2Q algorithm can be well used for madvise() syscall
+implementation, like this:
+
+	- NORMAL - no change
+	- RANDOM - no change
+	- SEQUENTIAL - load pages in FIFO and DON'T put them in A1out
+	  after expiry
+	- WILLNEED - load pages directly in LRU
+	- DONTNEED - move pages to FRONT of FIFO (or TAIL of LRU)
+
+(see BSD madvise() syscall, but I believe you know what I'm talking about
+;-)
+
+BTW2, I'm quite happy that people care about new ideas :-) I would be
+happy to hack the kernel full-time and implement them myself, but
+unfortunately I need to make money out of something, so no time :-)
+
+--
+Ivan Schreter
+is@zapwerk.com

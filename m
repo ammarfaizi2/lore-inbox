@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281926AbRLKRVM>; Tue, 11 Dec 2001 12:21:12 -0500
+	id <S281923AbRLKRTC>; Tue, 11 Dec 2001 12:19:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282046AbRLKRVC>; Tue, 11 Dec 2001 12:21:02 -0500
-Received: from [12.234.19.19] ([12.234.19.19]:2061 "HELO ocean.lucon.org")
-	by vger.kernel.org with SMTP id <S281926AbRLKRUy>;
-	Tue, 11 Dec 2001 12:20:54 -0500
-Date: Tue, 11 Dec 2001 09:20:52 -0800
-From: "H . J . Lu" <hjl@lucon.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: Linux 1394 <linux1394-devel@lists.sourceforge.net>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Slow Disk I/O with QPS M3 80GB HD
-Message-ID: <20011211092052.A26418@lucon.org>
-In-Reply-To: <20011210203452.A3250@lucon.org> <20011210235708.A17743@lucon.org> <20011211110507.H22537@visi.net> <20011211084552.A25750@lucon.org> <20011211120506.J22537@visi.net>
-Mime-Version: 1.0
+	id <S281926AbRLKRSx>; Tue, 11 Dec 2001 12:18:53 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24594 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281923AbRLKRSo>; Tue, 11 Dec 2001 12:18:44 -0500
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Tue, 11 Dec 2001 17:28:04 +0000 (GMT)
+Cc: hps@intermeta.de, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0112111426450.1352-100000@duckman.distro.conectiva> from "Rik van Riel" at Dec 11, 2001 03:09:01 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011211120506.J22537@visi.net>; from bcollins@debian.org on Tue, Dec 11, 2001 at 12:05:06PM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16DqhI-0005vG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 11, 2001 at 12:05:06PM -0500, Ben Collins wrote:
-> On Tue, Dec 11, 2001 at 08:45:52AM -0800, H . J . Lu wrote:
-> > On Tue, Dec 11, 2001 at 11:05:07AM -0500, Ben Collins wrote:
-> > > On Mon, Dec 10, 2001 at 11:57:08PM -0800, H . J . Lu wrote:
-> > > > On Mon, Dec 10, 2001 at 08:34:52PM -0800, H . J . Lu wrote:
-> > > > > I have a very strange problem. The disk I/O of my QPS M3 80GB HD is
-> > > > > very slow under 2.4.10 and above. I got like 1.77 MB/s from hdparm.
-> > > > > But under 2.4.9, I got 14 MB/s on the same hardware. A 30GB HD has
-> > > > > consistent I/O performance under 2.4.9 and above on the same bus. Has
-> > > > > anyone else seen this? Does anyone have a large (>= 80GB) 1394 HD?
-> > > > > 
-> > > > 
-> > > > I did a binary search. 2.4.10-pre10 is the last good kernel. I got
-> > > > 
-> > > > # hdparm -t /dev/sda
-> > > > 
-> > > > /dev/sda:
-> > > >  Timing buffered disk reads:  64 MB in  4.40 seconds = 14.55 MB/sec
-> > > 
-> > > Have you checked the way that your ohci and sbp2 devices are detected
-> > > under each case? Most notably the max packet size.
-> > > 
-> > 
-> > They all say
-> > 
-> > ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[19]  MMIO=[f8ffd000-f8ffe000]  Max Packet=[1024]
-> > ieee1394: sbp2: SBP-2 device max speed S200 and payload 1KB
+> > I'm not happy about your usage of magic numbers, either. So it is
+> > still running on solid 2.2.19 until further notice (or until Rik loses
+> > his patience. ;-) )
 > 
-> Have you tried linux1394 CVS with a 2.4.10pre10 kernel to narrow down
-> where the slowdown has occured?
+> I've lost patience and have decided to move development away
+> from the main tree.  http://linuxvm.bkbits.net/   ;)
 
-I don't think the 1394 driver is the problem. I have tried the 1394
-driver from a good kernel. I got the same result.
+Are your patches available in a format that is accessible using free
+software ?
 
+(Now where did I put the troll sign 8))
 
-
-H.J.

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133001AbRAJBqg>; Tue, 9 Jan 2001 20:46:36 -0500
+	id <S132957AbRAJBsG>; Tue, 9 Jan 2001 20:48:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133025AbRAJBq0>; Tue, 9 Jan 2001 20:46:26 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:55557 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S133001AbRAJBqR>; Tue, 9 Jan 2001 20:46:17 -0500
-Date: Wed, 10 Jan 2001 01:45:47 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Zlatko Calusic <zlatko@iskon.hr>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.10.10101091041150.2070-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0101100144280.7564-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132967AbRAJBr4>; Tue, 9 Jan 2001 20:47:56 -0500
+Received: from zen.via.ecp.fr ([138.195.130.71]:45064 "HELO zen.via.ecp.fr")
+	by vger.kernel.org with SMTP id <S132957AbRAJBrs>;
+	Tue, 9 Jan 2001 20:47:48 -0500
+Date: Wed, 10 Jan 2001 02:47:44 +0100
+From: Stéphane Borel <stef@via.ecp.fr>
+To: linux-kernel@vger.kernel.org
+Subject: IBM Netfinity with 2.4.0
+Message-ID: <20010110024744.A26255@via.ecp.fr>
+Mail-Followup-To: Stéphane Borel <stef@via.ecp.fr>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Linus Torvalds wrote:
+We have two Netfinity (7100 with 4 Xeon and 4500R with two PIII) and we
+have noticed a weird behaviour with kernel 2.4.0 test and final.
 
-> And this _is_ a downside, there's no question about it. There's the worry
-> about the potential loss of locality, but there's also the fact that you
-> effectively need a bigger swap partition with 2.4.x - never mind that
-> large portions of the allocations may never be used. You still need the
-> disk space for good VM behaviour.
->
-> There are always trade-offs, I think the 2.4.x tradeoff is a good one.
+*On the 7100, the final kernel can't detect two pci card (3C980 and
+ForeRunnerLE.
+*On the 4500R, the test kernel crash unexpectedly in two or three hours
 
-How does this affect embedded systems with no swap space at all?
+And we have had two hard drive crashes with the serveraid cards that
+resulted in a unusable filesystem.
+
+Does anyone know if these are known issues of 2.4 kernels or if it may
+be caused by another problem ?
+
+The systems work with 2.2 kernels but we would like to use 2.4 for atm
+support.
+
+Thank you for your help.
 
 -- 
-dwmw2
-
-
+Stef
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

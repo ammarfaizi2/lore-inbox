@@ -1,71 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261542AbSJYSst>; Fri, 25 Oct 2002 14:48:49 -0400
+	id <S261549AbSJYSvc>; Fri, 25 Oct 2002 14:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbSJYSst>; Fri, 25 Oct 2002 14:48:49 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:18134 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S261542AbSJYSsq>; Fri, 25 Oct 2002 14:48:46 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: chrisl@vmware.com, "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: How to get number of physical CPU in linux from user space?
-Date: Fri, 25 Oct 2002 11:54:53 -0700
+	id <S261550AbSJYSvc>; Fri, 25 Oct 2002 14:51:32 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:29419 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261549AbSJYSv3>;
+	Fri, 25 Oct 2002 14:51:29 -0400
+Message-ID: <3DB992B7.E8919930@us.ibm.com>
+Date: Fri, 25 Oct 2002 11:51:35 -0700
+From: mingming cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Paul Larson <plars@linuxtestproject.org>
+CC: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
+       manfred@colorfullife.com, lkml <linux-kernel@vger.kernel.org>,
+       dipankar@in.ibm.com, lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [PATCH]updated ipc lock patch
+References: <Pine.LNX.4.44.0210211946470.17128-100000@localhost.localdomain>
+		<3DB86B05.447E7410@us.ibm.com> <3DB87458.F5C7DABA@digeo.com> 
+		<3DB880E8.747C7EEC@us.ibm.com> <1035555715.3447.150.camel@plars> 
+		<3DB97C90.2DF810E6@us.ibm.com> <1035570043.5646.191.camel@plars>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent distributions or the AC tree has additional fields in /proc/cpu,
-which tell
-- physical package id
-- number of threads 
-for each CPU.
+Paul Larson wrote:
+> 
+> On Fri, 2002-10-25 at 12:17, mingming cao wrote:
+> >
+> > shmctl01    3  FAIL  :  # of attaches is incorrect - 0
+> I guess you are running it with -i2?
+No, I did not use -i2.
 
-Using this info, you should be able to detect it. The problem is that they
-are not using the same keywords. I'm asking them to make those fields
-consistent.
+What I did is just run ./shmctl01
 
-Thanks,
-Jun
+>  I just tried shmctl01 -i2 on a
+> 2.5.44 kernel and did not get this error.
+Sorry, Paul.  Could you try 2.5.44-mm4?  I saw the error on clean
+2.5.44-mm4(without my patch). And I remember I saw this on 2.5.42-mm2
+also. 
 
------Original Message-----
-From: chrisl@vmware.com [mailto:chrisl@vmware.com]
-Sent: Friday, October 25, 2002 11:20 AM
-To: Martin J. Bligh
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to get number of physical CPU in linux from user space?
+Here is what I saw:
 
+[root@elm3b83 shmctl]# ./shmctl01
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
+pass #2
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    3  FAIL  :  # of attaches is incorrect - 0
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    4  PASS  :  new mode and change time are correct
 
-
-On Fri, Oct 25, 2002 at 01:27:00AM -0700, Martin J. Bligh wrote:
-> Define "physical CPU number" ;-) If you want to deteact which
-
-I mean the number of cpu chip you can count on the mother board.
-
-> ones are paired up, I believe that if all but the last bit
-> of the apicid is the same, they're siblings. You might have to
-> dig the apicid out of the bootlog if the cpuinfo stuff doesn't
-> tell you.
-
-And you are right. Those apicid, after mask out the siblings,
-are put in phys_cpu_id[] array in kernel.
-
-I think about look at bootlog too, but that is not a reliable
-way because bootlog might already been flush out after some
-time.
-
-Cheers
-
-Chris
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+[root@elm3b83 shmctl]# ./shmctl01 -i2
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
+pass #2
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    3  FAIL  :  # of attaches is incorrect - 0
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    4  PASS  :  new mode and change time are correct
+shmctl01    1  BROK  :  couldn't create the shared memory segment
+shmctl01    2  BROK  :  Remaining cases broken
+shmctl01    3  BROK  :  Remaining cases broken
+shmctl01    4  BROK  :  Remaining cases broken

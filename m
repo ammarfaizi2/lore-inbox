@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313261AbSDOU7S>; Mon, 15 Apr 2002 16:59:18 -0400
+	id <S313264AbSDOVCo>; Mon, 15 Apr 2002 17:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313264AbSDOU7R>; Mon, 15 Apr 2002 16:59:17 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13841 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S313261AbSDOU7Q>; Mon, 15 Apr 2002 16:59:16 -0400
-Date: Mon, 15 Apr 2002 17:58:58 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, <wli@holomorphy.com>
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-In-Reply-To: <Pine.LNX.4.33.0204151344200.13034-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0204151755491.16531-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313265AbSDOVCn>; Mon, 15 Apr 2002 17:02:43 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:27911 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S313264AbSDOVCn>;
+	Mon, 15 Apr 2002 17:02:43 -0400
+Date: Mon, 15 Apr 2002 16:57:40 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: Bill Abt <babt@us.ibm.com>, drepper@redhat.com,
+        linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
+        =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] Futex Generalization Patch
+Message-ID: <20020415165740.A28056@mark.mielke.cc>
+In-Reply-To: <OF24E0B753.2B92A422-ON85256B9C.00512368@raleigh.ibm.com> <20020415172204.4B6073FE08@smtp.linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Apr 2002, Linus Torvalds wrote:
-> On Mon, 15 Apr 2002, Rik van Riel wrote:
-> > replace slightly obscure while loops with for_each_zone and
-> > for_each_pgdat macros, this version has the added optimisation
-> > of skipping empty zones       (thanks to William Lee Irwin)
->
-> I'd suggest against making this kind of complicated inlien functions, and
-> I also don't see why the for_each_zone() isn't a simpler doubly nested
-> for-loop instead of being forced into a less obvious iterative loop?
+On Mon, Apr 15, 2002 at 12:22:59PM -0400, Hubertus Franke wrote:
+> typedef struct siginfo {
+>    ...
+>         union {
+>                 int _pad[SI_PAD_SIZE];
+>  
+>                 struct {
+>                         ...
+>                 } _kill;
+>  ...
+> 
+> I'd suggest we tag along the _sigfault semantics.
+> We don't need to know who woke us up, just which <addr> got signalled.
+> 
 
-Because code that doesn't care about pgdats shouldn't have to
-learn about them, IMHO.  I used to have the doubly nested for
-loop in -rmap, but William Irwin came up with a way to make
-it a singly nested loop for code that only cares about zones.
+Is there issues with creating a new struct in the union that represents
+exactly what you wish it to represent?
 
-> In short, this looks syntactically simple, but the syntactic simplicity
-> comes at the expense of a unnecessarily complex implementation.
+mark
 
-Since it was mostly done to clean up code I guess it makes
-sense to simplify the thing a bit, if possible.
-
-However, I really don't like the fact of teaching now-simple
-VM code about pgdats again ;)
-
-regards,
-
-Rik
 -- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-http://www.surriel.com/		http://distro.conectiva.com/
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

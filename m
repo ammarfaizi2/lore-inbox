@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265325AbSKAT4o>; Fri, 1 Nov 2002 14:56:44 -0500
+	id <S265718AbSKAT6G>; Fri, 1 Nov 2002 14:58:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265364AbSKAT4o>; Fri, 1 Nov 2002 14:56:44 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:36529
-	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
-	id <S265325AbSKAT4n>; Fri, 1 Nov 2002 14:56:43 -0500
-Date: Fri, 1 Nov 2002 12:03:11 -0800
-From: Phil Oester <kernel@theoesters.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Allow 2.5.45 IDE to compile without DMA
-Message-ID: <20021101120311.A31647@ns1.theoesters.com>
+	id <S265726AbSKAT6G>; Fri, 1 Nov 2002 14:58:06 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:36616 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S265718AbSKAT6B>;
+	Fri, 1 Nov 2002 14:58:01 -0500
+Date: Fri, 1 Nov 2002 21:00:42 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Pawel Kot <pkot@bezsensu.pl>, Rusty Russell <rusty@rustcorp.com.au>,
+       Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+       Anton Altaparmakov <aia21@cantab.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.45: NTFS unresolved symbol
+Message-ID: <20021101200042.GB1832@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+	Pawel Kot <pkot@bezsensu.pl>, Rusty Russell <rusty@rustcorp.com.au>,
+	Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <200211010431.00941.Dieter.Nuetzel@hamburg.de> <Pine.LNX.4.33.0211011318270.5622-100000@urtica.linuxnews.pl> <3DC2DAA0.A46C5085@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DC2DAA0.A46C5085@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I enable generic IDE chipset support, but do not enable DMA, the kernel won't compile.  The patch below (while admittedly inelegant) fixed that up for me.
+On Fri, Nov 01, 2002 at 11:48:48AM -0800, Andrew Morton wrote:
+> We have these magical symbols which describe the offset of
+> a member of the per-cpu storage, which need to be exposed
+> to modules.  So I added an EXPORT_PER_CPU_SYMBOL() helper:
+> 
+> #define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
+> #define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
 
-For the record, I only enabled these IDE options:
+I would expect the following to work:
+#define EXPORT_SYMBOL_PER_CPU(var) EXPORT_SYMBOL(var##__per_cpu)
+#define EXPORT_SYMBOL_PER_CPU_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
 
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
+In this case the magic "EXPORT_SYMBOL" is still present.
 
--Phil Oester
-
-
-diff -ru linux-2.5.45-orig/drivers/ide/pci/generic.c linux-2.5.45/drivers/ide/pci/generic.c
---- linux-2.5.45-orig/drivers/ide/pci/generic.c Wed Oct 30 19:42:57 2002
-+++ linux-2.5.45/drivers/ide/pci/generic.c      Fri Nov  1 14:42:16 2002
-@@ -60,7 +60,11 @@
- 
- static void init_dma_generic (ide_hwif_t *hwif, unsigned long dmabase)
- {
-+#ifdef CONFIG_BLK_DEV_IDEDMA
-        ide_setup_dma(hwif, dmabase, 8);
-+#else /* !CONFIG_BLK_DEV_IDEDMA */
-+       return;
-+#endif /* CONFIG_BLK_DEV_IDEDMA */
- }
- 
- extern void ide_setup_pci_device(struct pci_dev *, ide_pci_device_t *);
-diff -ru linux-2.5.45-orig/drivers/ide/setup-pci.c linux-2.5.45/drivers/ide/setup-pci.c
---- linux-2.5.45-orig/drivers/ide/setup-pci.c   Wed Oct 30 19:42:28 2002
-+++ linux-2.5.45/drivers/ide/setup-pci.c        Fri Nov  1 14:00:55 2002
-@@ -475,6 +475,8 @@
-        return hwif;
- }
- 
-+#ifdef CONFIG_BLK_DEV_IDEDMA
-+
- /**
-  *     ide_hwif_setup_dma      -       configure DMA interface
-  *     @dev: PCI device
-@@ -528,6 +530,8 @@
-        }
- }
- 
-+#endif /* CONFIG_BLK_DEV_IDEDMA */
-+
- /**
-  *     ide_setup_pci_controller        -       set up IDE PCI
-  *     @dev: PCI device
-
+	Sam

@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268138AbUJLBGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUJLBGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268138AbUJLBGo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 21:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUJLBFl
+	id S267381AbUJLBGp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 21:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269390AbUJLBFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 21:05:41 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:15772 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266888AbUJLBCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 21:02:30 -0400
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark_H_Johnson@Raytheon.com, Andrew Morton <akpm@osdl.org>,
-       Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Rui Nuno Capela <rncbc@rncbc.org>, thewade@aproximation.org
-In-Reply-To: <20041011215909.GA20686@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-	 <20041011215909.GA20686@elte.hu>
+	Mon, 11 Oct 2004 21:05:16 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:46560 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266892AbUJLBDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 21:03:34 -0400
+Subject: Re: Difference in priority
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: kernel@kolivas.org, ankitjain1580@yahoo.com, mingo@elte.hu, rml@tech9.net
 Content-Type: text/plain
-Message-Id: <1097542629.1453.117.camel@krustophenia.net>
+Organization: 
+Message-Id: <1097542651.2666.7860.camel@cube>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 11 Oct 2004 20:57:10 -0400
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 11 Oct 2004 20:57:31 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 17:59, Ingo Molnar wrote:
-> * Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
-> 
-> > I would have to say this is "very rough" at this point. I had the
-> > following problems in the build:
-> 
-> i've uploaded -T5 which should fix most of the build issues:
-> 
->  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T5
-> 
+Con Kolivas writes:
+> Ankit Jain wrote:
 
-Ingo, are any of the VP patches known to work on x64?  Here is thewade's
-latest report:
+>> if somebody knows the difference b/w /PRI of both
+>> these commands because both give different results
+>>
+>> ps -Al
+>> & top
+>>
+>> as per priority rule we can set priority upto 0-99
+>> but top never shows this high priority
+>
+> Priority values 0-99 are real time ones and 100-139 are normal 
+> scheduling ones. RT scheduling does not change dynamic priority while 
+> running wheras normal scheduling does (between 100-139). top shows the 
+> value of the current dynamic priority in the PRI column as the current 
+> dynamic priority-100. If you have a real time task in top it shows as a 
+> -ve value. ps -Al seems to show the current dynamic priority+60.
 
---
+What would you like to see? There are numerous
+competing ideas of reality. There's also the matter
+of history and standards. I'd gladly "fix" ps, if
+people could agree on what "fix" would mean.
 
-I applied the patch and the kernel built, but like 2.6.9-mm2-VP-S9 it
-crashed before it could load. The last bit of the message was a lot of
-what I guess are frame pointers, but there was a few lines that had
-info.
-For example an RIP message having to do with add_preempt_count+16
+Various desirable but conflicting traits include:
 
-But it all ended with Aieee...
+a. for normal idle processes, PRI matches NI
+b. for RT processes, PRI matches RT priority
+c. for RT processes, PRI is negative of RT priority
+d. PRI is the unmodified value seen in /proc
+e. PRI is never negative
+f. low PRI is low priority (SysV "pri" keyword)
+g. low PRI is high priority (UNIX "PRI", SysV "opri")
+h. PRI matches some kernel-internal value
+i. PRI is in the range -99 to 999 (not too wide)
 
-I have yet to get any VP kernel to run on my x86_64. I suppose I should
-try just the mm3 or mm4 patches without the VP portion, so that is what
-I will do.
+I had originally tried to match up with Solaris and
+a few other systems, but that's looking hopeless.
+I intend to change to something sane, perhaps even
+making the PRI of "-o pri" be the same as that of "-l".
+Currently I don't even try to document PRI.
 
---
+It is good to keep the value narrow. I really wish
+we didn't have so many RT levels; POSIX only requires
+that there be 32. A simple 0..99 value would be great.
 
-Lee
+Here is what I have in my current code, with the
+headers edited so they won't be confusing. Note
+that the left two versions ("aaa" and "bbb") are
+similar to the traditional SysV "pri", but the new
+POSIX and UNIX standard makes them unsuitable for use
+as the "PRI" displayed by "ps -l". It is common to
+generate the "PRI" of "ps -l" via an "opri" keyword.
+
+$ LD_LIBRARY_PATH=../../proc ../../ps/ps -t pts/8 --sort=-priority -o stat,pri,pri_api,rtprio,pri_bar,priority,pri_baz,opri,pri_foo,ni,cls,sched,comm
+STAT aaa bbb RTPRIO ccc ddd eee fff ggg  NI CLS SCH COMMAND
+SN     0 -40      -  40  39 139  99  19  19  TS   0 setpriority19
+Ss+   23 -17      -  17  16 116  76  -4   0  TS   0 bash
+S<    39  -1      -   1   0 100  60 -20 -20  TS   0 setpriority-20
+S     41   1      1  -1  -2  98  58 -22   -  RR   2 min_rr
+S    139  99     99 -99 -100  0 -40 -120  -  FF   1 max_fifo
+
 

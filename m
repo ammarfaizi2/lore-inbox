@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132820AbRA0LAa>; Sat, 27 Jan 2001 06:00:30 -0500
+	id <S132818AbRA0LBK>; Sat, 27 Jan 2001 06:01:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132613AbRA0LAU>; Sat, 27 Jan 2001 06:00:20 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:37636 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S132863AbRA0LAB>;
-	Sat, 27 Jan 2001 06:00:01 -0500
-Message-ID: <20010127111759.A163@bug.ucw.cz>
-Date: Sat, 27 Jan 2001 11:17:59 +0100
+	id <S132890AbRA0LBB>; Sat, 27 Jan 2001 06:01:01 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:38916 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S132818AbRA0LA1>;
+	Sat, 27 Jan 2001 06:00:27 -0500
+Message-ID: <20010126184137.C260@bug.ucw.cz>
+Date: Fri, 26 Jan 2001 18:41:37 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: "David L. Nicol" <david@kasey.umkc.edu>, linux-kernel@vger.kernel.org,
-        chris.ricker@genetics.utah.edu
-Subject: Re: "no such 386 instruction" with gcc 2.95.2
-In-Reply-To: <3A709EC8.72C3F911@kasey.umkc.edu>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
+Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
+Subject: Re: vfat <-> vfat copying of ~700MB file, so slow!
+In-Reply-To: <20010124131431.A19957@ikar.t17.ds.pwr.wroc.pl> <200101242053.f0OKrps154856@saturn.cs.uml.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <3A709EC8.72C3F911@kasey.umkc.edu>; from David L. Nicol on Thu, Jan 25, 2001 at 03:46:48PM -0600
+In-Reply-To: <200101242053.f0OKrps154856@saturn.cs.uml.edu>; from Albert D. Cahalan on Wed, Jan 24, 2001 at 03:53:51PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I think I must need to upgrade my assembler, but:
-> 2.4.0/Documentation/Changes does not list an assembler version.
+> > Copying between vfat <-> vfat partitions is so slow. It seems
+> > that it's vfat/msdos kernel driver problem because I tried to copy
 > 
-> 
-> 
-> 
-> make[2]: Entering directory `/mnt/sdb2/src/linux-2.4.0/drivers/md'
-> gcc -D__KERNEL__ -I/mnt/sdb2/src/linux-2.4.0/include -Wall -Wstrict-proto
-> types -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-sta
-> ck-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /mnt/sdb2/src/l
-> inux-2.4.0/include/linux/modversions.h   -DEXPORT_SYMTAB -c xor.c
-> {standard input}: Assembler messages:
-> {standard input}:996: Error: no such 386 instruction: `movups'
-> {standard input}:997: Error: no such 386 instruction: `movups'
-> {standard input}:998: Error: no such 386 instruction: `movups'
-> {standard input}:999: Error: no such 386 instruction: `movups'
-> {standard input}:1001: Error: no such 386 instruction: `prefetcht0'
-> {standard input}:1002: Error: no such 386 instruction: `prefetcht0'
-> {standard input}:1005: Error: no such 386 instruction: `movaps'
-> {sta...
-> ...
+> I reported this years ago, with a 700 kB file on a floppy and
+> a 4 MB file on a Zip disk. In both cases mcopy was several times
+> faster than the kernel code.
 
-Hmm, perhaps I understand: xor wants to have best routines for all
-possible CPUs, so it has instructions beyond 386....
+Perhaps linear scan of FAT?
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

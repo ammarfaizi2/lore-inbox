@@ -1,69 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUKCQNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbUKCQUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbUKCQNh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbUKCQNh
+	id S261675AbUKCQUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUKCQUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:13:37 -0500
-Received: from ltgp.iram.es ([150.214.224.138]:37763 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S261662AbUKCQNb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:13:31 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Wed, 3 Nov 2004 17:13:04 +0100
-To: "H. Wiese" <7.e.Q@syncro-community.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IP Layer on VME-Bus
-Message-ID: <20041103161304.GB8075@iram.es>
-References: <33093.192.35.17.30.1099489553.squirrel@config.hostunreachable.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <33093.192.35.17.30.1099489553.squirrel@config.hostunreachable.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 3 Nov 2004 11:20:16 -0500
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:52876
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S261675AbUKCQUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 11:20:03 -0500
+Subject: [patch 1/1] uml: fix ptrace() hang on 2.6.9 host due to host changes
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, cw@f00f.org,
+       blaisorblade_spam@yahoo.it, kraxel@bytesex.org
+From: blaisorblade_spam@yahoo.it
+Date: Wed, 03 Nov 2004 17:06:19 +0100
+Message-Id: <20041103160621.0707356742@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 02:45:53PM +0100, H. Wiese wrote:
-> Hello,
-> 
-> we develop a driver which enables us to use an ip layer on top of the vme-bus
-> technology. Now we got some problems with coding the driver. We already have
-> an old version of this driver (called "dpn") which works well but has no use
-> for us anymore since we upgraded our system from kernel 2.2.14 to 2.6.7. So
-> now we have to create a new driver.
-> 
-> The old driver established the ip layer by accessing the dual port ram of
-> the VME bus, which is based on a Tundra Universe II Chipset. This enables
-> us to transfer data, ping etc. between active VME-modules using the
-> VME-bus. Very useful.
 
-Which Universe driver did you use? 
+From: Gerd Knorr <kraxel@bytesex.org>, Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 
-There are several floating around, mine among them. I plan to port 
-it to 2.6, time permitting but I'm a bit worried by the size of the 
-kernel these days. I have to run diskless systems with 16MB of RAM, 
-my 2.2 kernels are about 800kB while the 2.6 kernels on my Mac are 
-in the 5MB or more range. Even after removing USB, ext3 and a few 
-other things, the 2.6.x kernel will be at least twice the size of 
-the 2.2 series it seems.
+Uml was using kill(pid, SIGKILL) instead of ptrace(PTRACE_KILL, pid), which
+used to work, while being probably undocumented. Due to the changes in 2.6.9
+to the ptrace(2) semantics, with the introduction of TASK_TRACED by Roland
+McGrath, this does not more work, so this patch should fix it.
 
-With my Universe driver or anything derived from it, the thing to 
-watch out for is the PCI memory space allocation, 2.2 simply did 
-not have the support (it mostly used the thing as the BIOS/firmware
-had configures it) and the Universe is a PCI mmio space hog with
-base registers outside the standard PCI header space (there are 
-valid reasons for both of these characteristics). 
+With help of Gerd Knorr report and analysis, and its early fix of this
+problem. He fixed the problem by sending SIGCONT to the child processes after
+SIGKILL. Which IMHO should not be needed (I think this is a regression, which
+he already reported).
 
-> Well, the problem we will surely run into is: will the driver work as fine as
-> the old one if we only recreate the initialization functions working with the
-> new kernel function set (e.g. wait_event_interruptible instead of
-> interruptible_sleep_on etc.), copy the essential functions from the old
-> driver
-> to the new one and alter them a little to work with the new kernel functions?
+I improved his one, by replacing the SIGCONT hack with using PTRACE_KILL
+instead.
 
-I'm already using wait_event_ and friends in my 2.2 drivers,
-you should select a better example ;-)
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
 
-	Regards,
-	Gabriel
+ vanilla-linux-2.6.9-paolo/arch/um/include/os.h             |    1 +
+ vanilla-linux-2.6.9-paolo/arch/um/kernel/skas/process.c    |    2 +-
+ vanilla-linux-2.6.9-paolo/arch/um/kernel/tt/process_kern.c |    2 +-
+ vanilla-linux-2.6.9-paolo/arch/um/os-Linux/process.c       |    8 ++++++++
+ 4 files changed, 11 insertions(+), 2 deletions(-)
+
+diff -puN arch/um/include/os.h~uml-hang-on-2.6.9-host arch/um/include/os.h
+--- vanilla-linux-2.6.9/arch/um/include/os.h~uml-hang-on-2.6.9-host	2004-10-31 23:46:12.232616920 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/include/os.h	2004-10-31 23:46:12.237616160 +0100
+@@ -157,6 +157,7 @@ extern unsigned long os_process_pc(int p
+ extern int os_process_parent(int pid);
+ extern void os_stop_process(int pid);
+ extern void os_kill_process(int pid, int reap_child);
++extern void os_kill_ptraced_process(int pid, int reap_child);
+ extern void os_usr1_process(int pid);
+ extern int os_getpid(void);
+ 
+diff -puN arch/um/os-Linux/process.c~uml-hang-on-2.6.9-host arch/um/os-Linux/process.c
+--- vanilla-linux-2.6.9/arch/um/os-Linux/process.c~uml-hang-on-2.6.9-host	2004-10-31 23:46:12.233616768 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/os-Linux/process.c	2004-10-31 23:52:07.401623024 +0100
+@@ -8,6 +8,7 @@
+ #include <errno.h>
+ #include <signal.h>
+ #include <linux/unistd.h>
++#include <sys/ptrace.h>
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+ #include "os.h"
+@@ -94,6 +95,13 @@ void os_kill_process(int pid, int reap_c
+ 		
+ }
+ 
++void os_kill_ptraced_process(int pid, int reap_child)
++{
++	ptrace(PTRACE_KILL, pid);
++	if(reap_child)
++		CATCH_EINTR(waitpid(pid, NULL, 0));
++}
++
+ void os_usr1_process(int pid)
+ {
+ 	kill(pid, SIGUSR1);
+diff -puN arch/um/kernel/skas/process.c~uml-hang-on-2.6.9-host arch/um/kernel/skas/process.c
+--- vanilla-linux-2.6.9/arch/um/kernel/skas/process.c~uml-hang-on-2.6.9-host	2004-10-31 23:46:12.234616616 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/kernel/skas/process.c	2004-10-31 23:51:43.532251720 +0100
+@@ -389,7 +389,7 @@ void switch_mm_skas(int mm_fd)
+ void kill_off_processes_skas(void)
+ {
+ #warning need to loop over userspace_pids in kill_off_processes_skas
+-	os_kill_process(userspace_pid[0], 1);
++	os_kill_ptraced_process(userspace_pid[0], 1);
+ }
+ 
+ void init_registers(int pid)
+diff -puN arch/um/kernel/tt/process_kern.c~uml-hang-on-2.6.9-host arch/um/kernel/tt/process_kern.c
+--- vanilla-linux-2.6.9/arch/um/kernel/tt/process_kern.c~uml-hang-on-2.6.9-host	2004-10-31 23:46:12.235616464 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/kernel/tt/process_kern.c	2004-10-31 23:46:12.238616008 +0100
+@@ -82,7 +82,7 @@ void *switch_to_tt(void *prev, void *nex
+ 	prev_sched = current->thread.prev_sched;
+	if((prev_sched->exit_state == EXIT_ZOMBIE) ||
+	   (prev_sched->exit_state == EXIT_DEAD))
+-		os_kill_process(prev_sched->thread.mode.tt.extern_pid, 1);
++		os_kill_ptraced_process(prev_sched->thread.mode.tt.extern_pid, 1);
+ 
+ 	/* This works around a nasty race with 'jail'.  If we are switching
+ 	 * between two threads of a threaded app and the incoming process 
+_

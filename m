@@ -1,36 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278959AbRJVVcA>; Mon, 22 Oct 2001 17:32:00 -0400
+	id <S278960AbRJVVcK>; Mon, 22 Oct 2001 17:32:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278958AbRJVVbq>; Mon, 22 Oct 2001 17:31:46 -0400
-Received: from mamona.cetuc.puc-rio.br ([139.82.74.4]:41111 "EHLO
-	mamona.cetuc.puc-rio.br") by vger.kernel.org with ESMTP
-	id <S278957AbRJVVb0> convert rfc822-to-8bit; Mon, 22 Oct 2001 17:31:26 -0400
-Message-ID: <3032.139.82.28.36.1003786396.squirrel@mamona.cetuc.puc-rio.br>
-Date: Mon, 22 Oct 2001 19:33:16 -0200 (BRST)
-Subject: Re: VM
-From: "Marcelo Roberto Jimenez" <mroberto@cetuc.puc-rio.br>
-To: linux-kernel@vger.kernel.org
-X-Mailer: SquirrelMail (version 1.0.6)
+	id <S278958AbRJVVcC>; Mon, 22 Oct 2001 17:32:02 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:23814 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S278957AbRJVVbt>; Mon, 22 Oct 2001 17:31:49 -0400
+Date: Mon, 22 Oct 2001 19:32:11 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Craig Dickson <crdic@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <20011022142302.A17992@crdic.ath.cx>
+Message-ID: <Pine.LNX.4.33L.0110221928440.22127-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by mamona.cetuc.puc-rio.br id f9MLXB203323
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > > Too ugly for words.
-> >
-> > Though, if it's done from the start of 2.5, it could be very possible. 
-> > Is there a way to make it non-ugly?
-> 
-> I would hope by then we have a definitive answer as to the best path in 
-> the VM world
+On Mon, 22 Oct 2001, Craig Dickson wrote:
+> Rik van Riel wrote:
+>
+> > Maybe Alan will allow publishing of the changelogs on
+> > http://thefreeworld.net/  ?
+>
+> Earlier today he said he wanted to put them online in a way that
+> US citizens couldn't get at them. That's simply not acceptable.
 
-Maybe there's no such answer. Maybe it's undecidable. In the mathematical  (Gödel) sense.
+It's perfectly fine with me ;)
 
-Marcelo.
+> Now, if he backs off to simply not including them in email, but
+> publishing them on a non-US website that is freely accessible to
+> Americans, that might be a reasonable compromise.
 
+We're working on implementing access control for
+thefreeworld.net so the classified content won't
+be available for citizens and inhabitants of the
+USA.
+
+This is done so we won't be liable for publishing
+things to the USA which would be illegal there.
+
+> Alan has done a great many wonderful things for the kernel, and
+> it would indeed be very sad if he could not continue to do so.
+> However, if he's unwilling to do the job completely, making
+> changelogs and all other public information available without
+> restrictions, then he is no longer doing a very important part
+> of his job, and someone else should take over.
+
+So if the SSSCA gets approved and open source is outlawed
+(because only software with 'approved security measures'
+is allowed) Linux should stop entirely ?
+
+I don't agree that one US law, which hurts US citizens,
+should also hurt the rest of the world. It's your country,
+it's your law, it should only hurt you...
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

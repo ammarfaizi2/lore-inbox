@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130207AbRALAQZ>; Thu, 11 Jan 2001 19:16:25 -0500
+	id <S135415AbRALATp>; Thu, 11 Jan 2001 19:19:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131033AbRALAP4>; Thu, 11 Jan 2001 19:15:56 -0500
-Received: from feral.com ([192.67.166.1]:60782 "EHLO feral.com")
-	by vger.kernel.org with ESMTP id <S129790AbRALAPn>;
-	Thu, 11 Jan 2001 19:15:43 -0500
-Date: Thu, 11 Jan 2001 16:15:34 -0800 (PST)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: mjacob@feral.com
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S132672AbRALATf>; Thu, 11 Jan 2001 19:19:35 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:2432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131033AbRALATa>; Thu, 11 Jan 2001 19:19:30 -0500
+Date: Thu, 11 Jan 2001 19:19:09 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Mark Longair <list-reader@ideaworks3d.com>
 cc: linux-kernel@vger.kernel.org
-Subject: RESEND: [ PATCH ] externalize (new) scsi timer function
-Message-ID: <Pine.LNX.4.21.0101111613210.29666-100000@zeppo.feral.com>
+Subject: Re: [2.2.18] outgoing connections getting stuck in SYN_SENT
+In-Reply-To: <14942.18985.174437.785751@starfruit.iwks.multi.local>
+Message-ID: <Pine.LNX.3.95.1010111191618.1531A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Jan 2001, Mark Longair wrote:
 
-I sent this about a month ago. I think it's important. For what it's worth,
-Doug Gilbert thought it was a good idea too. Can you please reconsider and
-drop it in.
+> I'm having a problem where twice a day or so, any new tcp connection
+> it gets stuck in SYN_SENT.  Eventually this situation rights itself,
+> but obviously in the meantime many services (e.g. squid, X) are
+> broken.  The machine does IP masquerdading with ipchains, and
+> masqueraded connections through it seem to be unaffected.  The kernel
+> version is 2.2.18, although the same happened with 2.2.17.
+> 
+[SNIPPED]
 
----------
+You probably compiled your kernel with "CONFIG_INET_ECN" set.
+If so, you need to turn it OFF in /proc/sys/net/...something_ecn.
 
-Late in the game, and possibly questionable, but it would be helpful to have
-the (new) scsi timer functions externalized so that loadable HBA modules can
-easily see them.
+Many/most/all servers are "not ready for prime time" and will
+reject packets that have "strange" bits set.
 
-This is needed because, particularly for Fibre Channel, it's only the HBA that
-knows when a command is actually sent to the device as opposed to being
-(temporarily) queued up locally while some Fibre Channel or SCSI reset
-wreckage is being cleared. The time limit for a command should be while it's
-actually active- not while it's waiting to be started.
 
-The alternative of returning commands as having not been queued doesn't work
-as well because of race conditions. You can, with several type os HBA, get
-cases of having queued up one or more commands and after returning success to
-the midlayer, still get an interrupt that says, "that command you thought I
-started? Ooops... Sorry. I lied. I couldn't get it started, but it's really
-okay to start it now...".
+Cheers,
+Dick Johnson
 
-At any rate- it's a minor change, which I've been using for a bit, which
-really only is an aid to the case that you have a loadable module that wants
-this symbol (natuarally, resident drivers don't care). The only real downside
-to any of this is that effectively use the scsi_add_timer to restart a timer
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
 
-is that you have to use a portion of the Scsi_Cmnd that is not marked as
-public. An alternative could be to change the midlayer to add a function to
-pause and restart the timer.
-
--matt
-
---- linux.orig/drivers/scsi/scsi_syms.c Wed Nov 29 18:19:45 2000
-+++ linux/drivers/scsi/scsi_syms.c Wed Nov 29 18:18:35 2000
-@@ -91,3 +91,10 @@
- EXPORT_SYMBOL(scsi_devicelist);
- EXPORT_SYMBOL(scsi_device_types);
-
-+/*
-+ * Externalize timers so that HBAs can safely start/restart commands.
-+ */
-+extern void scsi_add_timer(Scsi_Cmnd *, int, void ((*) (Scsi_Cmnd *)));
-+extern int scsi_delete_timer(Scsi_Cmnd *);
-+EXPORT_SYMBOL(scsi_add_timer);
-+EXPORT_SYMBOL(scsi_delete_timer);
-
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
 -

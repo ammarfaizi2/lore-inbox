@@ -1,74 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVAYRhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVAYRi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbVAYRhb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 12:37:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVAYRhb
+	id S262020AbVAYRi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 12:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVAYRi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 12:37:31 -0500
-Received: from pat.uio.no ([129.240.130.16]:11425 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262019AbVAYRhY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 12:37:24 -0500
-Subject: Re: [patch 1/13] Qsort
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Olaf Kirch <okir@suse.de>, Andi Kleen <ak@muc.de>,
-       Nathan Scott <nathans@sgi.com>,
-       Mike Waychison <Michael.Waychison@sun.com>,
-       Jesper Juhl <juhl-lkml@dif.dk>, Felipe Alfaro Solana <lkml@mac.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Buck Huppmann <buchk@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Tim Hockin <thockin@hockin.org>
-In-Reply-To: <1106673415.9607.36.camel@winden.suse.de>
-References: <20050122203326.402087000@blunzn.suse.de>
-	 <41F570F3.3020306@sun.com> <20050125065157.GA8297@muc.de>
-	 <200501251112.46476.agruen@suse.de> <20050125120023.GA8067@muc.de>
-	 <20050125120507.GH19199@suse.de>
-	 <1106671920.11449.11.camel@lade.trondhjem.org>
-	 <1106672028.9607.33.camel@winden.suse.de>
-	 <1106672637.11449.24.camel@lade.trondhjem.org>
-	 <1106673415.9607.36.camel@winden.suse.de>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 09:37:00 -0800
-Message-Id: <1106674620.11449.43.camel@lade.trondhjem.org>
+	Tue, 25 Jan 2005 12:38:27 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:38928 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S262020AbVAYRiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 12:38:17 -0500
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+	crypto_tfm
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Michal Ludvig <michal@logix.cz>
+In-Reply-To: <Xine.LNX.4.44.0501251042020.26690-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0501251042020.26690-100000@thoron.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t6ebtz95d453ekIuVcWJ"
+Date: Tue, 25 Jan 2005 18:38:14 +0100
+Message-Id: <1106674694.13913.14.camel@ghanima>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12,
-	autolearn=disabled)
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 25.01.2005 Klokka 18:16 (+0100) skreiv Andreas Gruenbacher:
 
-> > Whatever Sun chooses to do or not do changes nothing to the question of
-> > why our client would want to do a quicksort in the kernel.
-> 
-> Well, it determines what we must accept, both on the server side and the
-> client side.
+--=-t6ebtz95d453ekIuVcWJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I can see why you might want it on the server side, but I repeat: why
-does the client need to do this in the kernel? The client code should
-not be overriding the server when it comes to what is acceptable or not
-acceptable. That's just wrong...
+On Tue, 2005-01-25 at 10:52 -0500, James Morris wrote:
 
-I can also see that if the server _must_ have a sorted list, then doing
-a sort on the client is a good thing since it will cut down on the work
-that said server will need to do, and so it will scale better with the
-number of clients (though note that, conversely, this server will scale
-poorly with the Sun clients or others if they do not sort the lists).
+> I think the generic scatterwalk changes are more important and=20
+> fundamental (still to be fully reviewed).
+>=20
+> I agree with Fruhwirth that the cipher code is starting to become
+> ungainly.  I'm not sure these patches are heading in the right direction=20
+> from a design point of view, although we do need the functionality. =20
+>=20
+> Perhaps temporarily drop the multible block changes above until we get th=
+e
+> generic scatterwalk code in and a cleaned up design to handle cipher mode
+> offload.
+>=20
+> Fruhwirth, do you have any cycles to work on implementing your ideas for=20
+> more cleanly reworking Michal's multiblock code?
 
-I'm asking 'cos if the client doesn't need this code, then it seems to
-me you can move helper routines like the quicksort and posix checking
-routines into the nfsd module rather than having to keeping it in the
-VFS (unless you foresee that other modules will want to use the same
-routines???).
+The changes, I purposed, shouldn't be too hard to implement. I will
+build a skeleton for Michael, but I can't test the code, as I don't own
+a padlock system, further, I'm sorry to say but, my time is somehow
+constrained.. I really gotta start to write my diploma thesis, I'm
+delaying this for too long for crypto stuff now.
 
-Cheers,
- Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+But before I put that into the my queue, I would like to see some kind
+of decision on an async crypto framework. acrypto cames with hardware
+support. So, are we heading for hardware support in cryptoapi, hardware
+support in acrypto, acrypto instead of cryptoapi, OCF instead of
+cryptoapi, or put everything into the kernel and export 3 interface?=20
 
+And how - when there is more than one interface - are these projects
+going to reuse code?
+
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+
+--=-t6ebtz95d453ekIuVcWJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBB9oQFW7sr9DEJLk4RAnCsAKCDCmMVxgSfOmX3c+ejPK+kR8ci9QCeI2il
+uMV4IBDvKaJZZYqsGAbzQbQ=
+=aCtT
+-----END PGP SIGNATURE-----
+
+--=-t6ebtz95d453ekIuVcWJ--

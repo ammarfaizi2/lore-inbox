@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268084AbUIPOIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUIPOJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268084AbUIPOIs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 10:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268083AbUIPOIr
+	id S268085AbUIPOJI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 10:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268082AbUIPOJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 10:08:47 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:26499 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S268082AbUIPOIM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 10:08:12 -0400
-Date: Thu, 16 Sep 2004 10:07:45 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Having problem with mmap system call!!!
-In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348111078FE@mail.esn.co.in>
-Message-ID: <Pine.LNX.4.53.0409160958070.12146@chaos>
-References: <4EE0CBA31942E547B99B3D4BFAB348111078FE@mail.esn.co.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Sep 2004 10:09:08 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:52133 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S268083AbUIPOI5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 10:08:57 -0400
+Date: Thu, 16 Sep 2004 16:09:36 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-ID: <20040916140936.GC3146@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Paul Jackson <pj@sgi.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040913135253.GA3118@crusoe.alcove-fr> <20040915153013.32e797c8.akpm@osdl.org> <20040916064320.GA9886@deep-space-9.dsnet> <20040916000438.46d91e94.akpm@osdl.org> <20040916104535.GA3146@crusoe.alcove-fr> <20040916065750.106fc170.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040916065750.106fc170.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004, Srinivas G. wrote:
+On Thu, Sep 16, 2004 at 06:57:50AM -0700, Paul Jackson wrote:
 
-> Hi All,
->
-> I have a doubt about mmap system call.
->
+> This still has a 'size' attribute.  As Andrew noted,
+> this might not be needed.
 
-mmap() works. Otherwise you wouldn't be sending any email.
-It is used every time you open an application because that's
-how shared libraries work.
+No, Andrew noted that 'len' was unneeded (although he talked about
+'size', he really meant 'len' == the amount of data in the FIFO) (*)
 
-You need to return the PHYSICAL address of your camera buffer
-to user-space (probably using a driver ioctl()). Then the
-user-mode code does ....
+> See for example:
+> 
+>   http://cse.stanford.edu/class/cs110/handouts/27Queues.pdf
+> 
+> for coding a fifo queue with just a put and get pointer.
 
+... and a start and a end pointer. 
 
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/mman.h>
+This is identical to my patch (minus the fact that 'start' is called
+'buffer' in my patch and I have the 'size' field instead of an 'end'
+pointer).
+> 
+> The queue is empty if put == get, and it is full if adding one more
+> would make it empty.  The number of elements in the queue can be done
+> using modulo arithmetic on the difference between put and get (or what
+> the above *.pdf file and your code calls head and tail), with no
+> distinct 'size' element.   The head and tail wrap.
 
-#define HINT  0x20000000
-#define PROT (PROT_READ|PROT_WRITE)
-#define FLAGS (MAP_FIXED|MAP_SHARED)
-#define SHM_FAIL (void *)-1
+Did you read my second patch ?
 
-
-void *init_shmem(size_t addr, size_t len)
-{
-    int fd;
-    void *vp;
-    if((fd = open("/dev/mem", O_RDWR, 0)) < 0)
-    {
-        fprintf(stderr, "Can't open memory device\n");
-        exit(EXIT_FAILURE);
-    }
-    if((vp = mmap((caddr_t) HINT, len, PROT, FLAGS, fd, addr)) == SHM_FAIL)
-    {
-        fprintf(stderr, "Can't access shared memory\n");
-        exit(EXIT_FAILURE);
-    }
-    (void)close(fd);
-    return vp;
-}
-
-After that, anything the camera writes to its address will
-be available in user-mode at the memory-mapped address.
-This DOES work. That's how I do direct DMA to user-space
-all the time.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>    

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314325AbSFTNF3>; Thu, 20 Jun 2002 09:05:29 -0400
+	id <S314340AbSFTNHt>; Thu, 20 Jun 2002 09:07:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314340AbSFTNF2>; Thu, 20 Jun 2002 09:05:28 -0400
-Received: from jalon.able.es ([212.97.163.2]:22671 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S314325AbSFTNF1>;
-	Thu, 20 Jun 2002 09:05:27 -0400
-Date: Thu, 20 Jun 2002 15:05:11 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrea Arcangeli <andrea@suse.de>
+	id <S314381AbSFTNHs>; Thu, 20 Jun 2002 09:07:48 -0400
+Received: from draco.netpower.no ([212.33.133.34]:40197 "EHLO
+	draco.netpower.no") by vger.kernel.org with ESMTP
+	id <S314340AbSFTNHr>; Thu, 20 Jun 2002 09:07:47 -0400
+Date: Thu, 20 Jun 2002 15:07:30 +0200
+From: Erlend Aasland <erlend-a@innova.no>
+To: Felipe Alfaro Solana <falfaro@borak.es>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre10aa3
-Message-ID: <20020620130511.GA8426@werewolf.able.es>
-References: <20020620055933.GA1308@dualathlon.random>
+Subject: Re: 2.5.23 won't compile
+Message-ID: <20020620150730.A12658@innova.no>
+References: <3D11CDED.4070106@borak.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020620055933.GA1308@dualathlon.random>; from andrea@suse.de on Thu, Jun 20, 2002 at 07:59:33 +0200
-X-Mailer: Balsa 1.3.6
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3D11CDED.4070106@borak.es>; from falfaro@borak.es on Thu, Jun 20, 2002 at 02:43:25PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 20, 2002 at 02:43:25PM +0200, Felipe Alfaro Solana wrote:
+>     sched.c: In function `sys_sched_getaffinity':
+>     sched.c:1391: `cpu_online_map' undeclared (first use in this function)
 
-On 2002.06.20 Andrea Arcangeli wrote:
->
->Only in 2.4.19pre10aa3: 07_e100-1.8.38.gz
->Only in 2.4.19pre10aa3: 08_e100-includes-1
->Only in 2.4.19pre10aa3: 09_e100-compilehack-1
->
->	Merged e100 GPL driver from Intel (also make it link
->	into the kernel).
->
+This was fixed by Linus with this patch (it is in Linus' BK repository):
 
-???
+--- a/include/linux/smp.h       Wed Jun 19 00:00:41 2002
++++ b/include/linux/smp.h       Wed Jun 19 00:00:41 2002
+@@ -86,6 +86,7 @@
+ #define smp_call_function(func,info,retry,wait)        ({ 0; })
+ static inline void smp_send_reschedule(int cpu) { }
+ static inline void smp_send_reschedule_all(void) { }
+ +#define cpu_online_map                        1
+ #define cpu_online(cpu)                                1
+ #define num_online_cpus()                      1
+ #define __per_cpu_data
 
-Current driver is 2.0.30...
-And would not have been easier to get it from 2.5 ? You just have
-good Makefiles, instead of hacking those from Intel, that I suppose
-are prepared for building separate from kernel tree.
 
-Or just take it from jam2...I have been using both e100 and e1000
-in the same cluster and no problem with them.
+ Mvh Erlend Aasland
 
-Btw, would you mind mergin also e1000...? ;).
-
-By.
-
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-pre10-jam3, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.4mdk)
+ P.S. BTW, this has already been asked twice on this list:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102447447725526&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102445697313894&w=2
+ The linux-kernel archives at http://marc.theaimsgroup.com/?l=linux-kernel
+ is a nice place to check if somebody already has asked a question.

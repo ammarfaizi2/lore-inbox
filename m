@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbULICXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbULICX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbULICXS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 21:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbULICXR
+	id S261427AbULICX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 21:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbULICX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 21:23:17 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:1490 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261436AbULICWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 21:22:55 -0500
-From: Limin Gu <limin@dbear.engr.sgi.com>
-Message-Id: <200412090209.iB929oh23239@dbear.engr.sgi.com>
-Subject: Re: [RFC][PATCH] jobfs - new virtual filesystem for job kernel/user interface
-To: chrisw@osdl.org (Chris Wright)
-Date: Wed, 8 Dec 2004 18:09:49 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org, limin@dbear.engr.sgi.com (Limin Gu)
-In-Reply-To: <20041208171603.G469@build.pdx.osdl.net> from "Chris Wright" at Dec 08, 2004 05:16:03 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	Wed, 8 Dec 2004 21:23:59 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:34319 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261427AbULICXz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 21:23:55 -0500
+Date: Thu, 9 Dec 2004 02:23:55 +0000
+From: John Levon <levon@movementarian.org>
+To: Greg Banks <gnb@sgi.com>
+Cc: Philippe Elie <phil.el@wanadoo.fr>, Akinobu Mita <amgta@yacht.ocn.ne.jp>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
+Message-ID: <20041209022355.GA50185@compsoc.man.ac.uk>
+References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041208160055.GA82465@compsoc.man.ac.uk> <20041208223156.GB4239@sgi.com> <20041208235623.GA563@zaniah> <20041209003906.GE4239@sgi.com> <20041209014622.GB48804@compsoc.man.ac.uk> <20041209015024.GG4239@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20041209015024.GG4239@sgi.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Graham Coxon - Happiness in Magazines
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CcDyF-000Nb2-73*zoNg7YjjzBE*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> * Limin Gu (limin@dbear.engr.sgi.com) wrote:
-> > I am looking for your comments on the attached draft, it is the job patch 
-> > for 2.6.9. I have posted job patch for older kernel before, but in this patch
-> > I have replaced the /proc/job binary ioctl calls with a new small virtual 
-> > filesystem (jobfs).
-> 
-> Limin, glad to see you got to this.
+On Thu, Dec 09, 2004 at 12:50:24PM +1100, Greg Banks wrote:
 
-Chris,
+> Ok, how about this patch?
 
-Thanks for your detailed review, I will work through your 
-comments later. I will make the code look better.
+Fine by me
 
-Do you have any major concern about the overall design of jobfs?
-Do you find any major flaw or big no no where you read the code?
-For example, using existing procfs other than creating a new virtual
-filesystem. It seems that people are moving things out of /proc, not
-adding more, also procfs does not provide mkdir/chown operations, 
-that are the reasons I chose a custom fs over procfs.
+john
 
-Another question is where do we mount the jobfs. The mount point does 
-not show up in the kernel code, but what are the choices, /job, 
-/dev/job, or other places? Is there any guideline about this?
-
-Thanks!
-
---Limin
- 
+> Allow stack tracing to work when sampling on timer is forced
+> using the timer=1 boot option.  Reported by Akinobu Mita.

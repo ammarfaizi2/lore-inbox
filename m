@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275340AbTHMTyA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 15:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275332AbTHMTyA
+	id S275352AbTHMUIS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 16:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275363AbTHMUIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 15:54:00 -0400
-Received: from uns-y4.unisinos.br ([200.188.162.4]:25561 "EHLO
-	sav03.unisinos.br") by vger.kernel.org with ESMTP id S275420AbTHMTxK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 15:53:10 -0400
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: 2.4.21 + NFS oops
-Date: Wed, 13 Aug 2003 16:42:29 -0300
-User-Agent: KMail/1.5
+	Wed, 13 Aug 2003 16:08:18 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:65032 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S275352AbTHMUIQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 16:08:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: Catalin BOIE <util@deuroconsult.ro>, Lars Duesing <ld@stud.fh-muenchen.de>
+Subject: Re: 2.6.0test3mm1 + gcc 3.2.3 | gcc3.3 compile error (Input/output error)
+Date: Wed, 13 Aug 2003 23:08:03 +0300
+X-Mailer: KMail [version 1.4]
 Cc: linux-kernel@vger.kernel.org
-References: <200308121440.24983.lucasvr@gobolinux.org> <20030812233256.21c80830.skraw@ithnet.com> <200308131612.49627.lucasvr@gobolinux.org>
-In-Reply-To: <200308131612.49627.lucasvr@gobolinux.org>
+References: <Pine.LNX.4.56.0308121603010.8716@hosting.rdsbv.ro> <1060694115.22608.3.camel@ws1.intern.stud.fh-muenchen.de> <Pine.LNX.4.56.0308121621280.8716@hosting.rdsbv.ro>
+In-Reply-To: <Pine.LNX.4.56.0308121621280.8716@hosting.rdsbv.ro>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308131642.29018.lucasvr@gobolinux.org>
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308132308.03220.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 August 2003 04:12 pm, Lucas Correia Villa Real wrote:
-> On Tuesday 12 August 2003 06:32 pm, Stephan von Krawczynski wrote:
-> > On Tue, 12 Aug 2003 14:40:24 -0300
+On Tuesday 12 August 2003 16:22, Catalin BOIE wrote:
+> > Hi Catalin,
 > >
-> > Lucas Correia Villa Real <lucasvr@gobolinux.org> wrote:
-> > > Hi,
-> > >
-> > > I have been trying to export an reiserfs partition on NFS. I can mount
-> > > it remotely and even create files on it, but I always got a kernel oops
-> > > when trying to remove any file. I have also tryied to export another
-> > > partition, formatted as ext2 (but keeping my root fs as reiserfs), but
-> > > the problem has persisted.
+> > > arch/i386/kernel/built-in.o: could not read symbols: Input/output error
+> > > make: *** [.tmp_vmlinux1] Error 1
 > >
-> > Have you tried to compile your kernel with another compiler (i.e. not gcc
-> > 3.2.X) ?
+> > There it says :)
+> > ld could not read data from harddisk - either it is full, or corrupted.
 >
-> Well, I have just compiled it with GCC 2.95.3, and I got the same kernel
-> oops. By the way, I have formatted the whole disk with XFS, so it seems
-> like this isn't a reiserfs issue.
+> I have space on disk.
+> cat "arch/i386/kernel/built-in.o > /dev/null" works ok, without errors
+> (dmesg).
 >
-> Anyone suffering from NFS on 2.4.21, too, or any ideas...?
+> Other ideas?
 
-Nevermind. It was a broken patch being applied without being noticed.
-
-Thanks,
-Lucas
-
+strace ld invocation
+--
+vda

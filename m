@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSEQSqp>; Fri, 17 May 2002 14:46:45 -0400
+	id <S316648AbSEQSq1>; Fri, 17 May 2002 14:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316650AbSEQSqo>; Fri, 17 May 2002 14:46:44 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:19888 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S316649AbSEQSqn>;
-	Fri, 17 May 2002 14:46:43 -0400
-Message-ID: <3CE55009.9050505@colorfullife.com>
-Date: Fri, 17 May 2002 20:46:33 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "'Roger Luethi'" <rl@hellgate.ch>, linux-kernel@vger.kernel.org,
-        Shing Chuang <ShingChuang@via.com.tw>
-Subject: Re: [PATCH] #2 VIA Rhine stalls: TxAbort handling
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S316647AbSEQSq0>; Fri, 17 May 2002 14:46:26 -0400
+Received: from warrior.services.quay.plus.net ([212.159.14.227]:38340 "HELO
+	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S316646AbSEQSqZ>; Fri, 17 May 2002 14:46:25 -0400
+Date: Fri, 17 May 2002 19:45:44 +0100
+From: "J.P. Morris" <jpm@it-he.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Aralion and IDE blasphemy
+Message-Id: <20020517194544.6c97490b.jpm@it-he.org>
+In-Reply-To: <E178iAB-0006Xu-00@the-village.bc.nu>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> All the three conditions caused the TXON bit of CR1 went off. the
->> driver must wait  a little while until the bit go off, reset the pointer of
->> [...]
->> do {} while (BYTE_REG_BITS_IS_ON(CR0_TXON,&pMacRegs->byCR0));
+On Fri, 17 May 2002 14:52:55 +0100 (BST)
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> > The culprit is an ARALION ARS106S chipset card.  Interestingly it works
+> > in DOS, and if the hard disks are attached to it, it will even boot
 > 
-> The driver "waits a little" in the interrupt handler? How long can that
-> take, worst case? I don't know of many places where the kernel stops to
-> wait for an external device to change some value.
+> What does lspci say the chipset really is ?
+
+Here's the entry for it from lspci -v.  I can quote the entire file if you prefer.
+
+00:11.0 RAID bus controller: ARALION Inc: Unknown device 0301
+        Flags: bus master, 66Mhz, slow devsel, latency 32, IRQ 10
+        I/O ports at ac00 [size=16]
+        I/O ports at b000 [size=16]
+        I/O ports at b400 [size=16]
+        I/O ports at b800 [size=16]
+        I/O ports at bc00 [size=16]
+        I/O ports at c000 [size=8]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [40] Power Management version 1
+
+
+However.  I put the thing in to try and relieve a problem of drive bays and
+connector lengths.  A bit of lateral thinking has provided another solution
+and I no longer need the card urgently.
+
+> 
+> Alan
 > 
 
-It's not that uncommon: Most network drivers busy-wait after stopping 
-the tx process during netif_close().
 
-But I would add a maximum timeout and a printk - just to avoid 
-unexplainable system hangs. One example would be natsemi_stop_rxtx() in 
-drivers/net/natsemi.c.
-IIRC all register reads from the addresses that belong to a pulled out 
-PCMCIA card return 0xFFFFFFFF ;-)
-
-Shing, I don't like the empty body of the while loop. It's not a bug, 
-but doesn't that generate a large load on the pci bus?
-
-I've always added an udelay(1), i.e. wait one microsecond, into such loops.
-
---
-	Manfred
-
+-- 
+JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  jpm@it-he.org
+Fun things to do with the Ultima games            http://www.it-he.org
+Developing a U6/U7 clone                          http://ire.it-he.org
+d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
+uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)

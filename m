@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271692AbRICNQ3>; Mon, 3 Sep 2001 09:16:29 -0400
+	id <S271698AbRICNRa>; Mon, 3 Sep 2001 09:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271694AbRICNQK>; Mon, 3 Sep 2001 09:16:10 -0400
-Received: from matrix.fr.professo.net ([213.11.43.1]:49929 "EHLO
-	fr.professo.net") by vger.kernel.org with ESMTP id <S271692AbRICNP7>;
-	Mon, 3 Sep 2001 09:15:59 -0400
-Message-ID: <008801c1347a$9bb269e0$c200a8c0@professo.lan>
-From: "Ghozlane Toumi" <gtoumi@messel.emse.fr>
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>,
-        "Benjamin Gilbert" <bgilbert@backtick.net>
-Cc: <linux-kernel@vger.kernel.org>,
-        "Linux Fbdev development list" 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <26751224E05@vcnet.vc.cvut.cz>
-Subject: Re:Re: matroxfb problems with dualhead G400
-Date: Mon, 3 Sep 2001 15:15:52 +0200
+	id <S271697AbRICNRV>; Mon, 3 Sep 2001 09:17:21 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51985 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271694AbRICNRG>; Mon, 3 Sep 2001 09:17:06 -0400
+Subject: Re: Linux 2.4.9-ac6
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Mon, 3 Sep 2001 14:21:04 +0100 (BST)
+Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010903150529.J699@athlon.random> from "Andrea Arcangeli" at Sep 03, 2001 03:05:29 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-Id: <E15dtey-0001i0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Monday, September 03, 2001 4:51 PM, You wwrote:
-> On  3 Sep 01 at 0:25, Benjamin Gilbert wrote:
-> > [ software scroll back kills on dualhead ]
->
-> You must boot your kernel with 'video=scrollback:0'. Otherwise your
-> kernel die sooner or later... JJ's scrollback code does not cope with
-> more than one visible console, so you must disable it if you have more
-> than one display in the box.
->                                                 Petr Vandrovec
+> what's the point of such information? If something I would understand to
+> specify the licence of a module when it's _not_ GPL.
 
-could we somehow detect in register_framebuffer that whe're going
-multihead and disable software scrolling ?
+Because vendors will Im sure neglect to put non-GPL optional tags on their
+code. While putting GPL tags on non GPL code is not going to make their
+lawyers happy 8)
 
-I didn't look at the code so i don't know if it's feasible , just a
-suggestion ..
-
-ghoz
-
+Alan

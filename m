@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265651AbRFXAOM>; Sat, 23 Jun 2001 20:14:12 -0400
+	id <S265654AbRFXAQn>; Sat, 23 Jun 2001 20:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265654AbRFXAOC>; Sat, 23 Jun 2001 20:14:02 -0400
-Received: from durham-24-086.biz.dsl.gtei.net ([4.3.24.86]:62849 "HELO
-	amanda.mallet-assembly.org") by vger.kernel.org with SMTP
-	id <S265651AbRFXANu>; Sat, 23 Jun 2001 20:13:50 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Microsoft and Xenix.
-In-Reply-To: <E15DZbq-0008D8-00@roo.home>
-	<01062310075401.00696@localhost.localdomain>
-From: Michael Alan Dorman <mdorman@debian.org>
-Date: 23 Jun 2001 20:13:13 -0400
-In-Reply-To: <01062310075401.00696@localhost.localdomain>
-Message-ID: <877ky2ohuu.fsf@amanda.mallet-assembly.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S265664AbRFXAQd>; Sat, 23 Jun 2001 20:16:33 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:56588 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S265654AbRFXAQY>;
+	Sat, 23 Jun 2001 20:16:24 -0400
+Date: Sun, 24 Jun 2001 02:16:01 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "D. Stimits" <stimits@idcomm.com>,
+        kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: Is this part of newer filesystem hierarchy?
+In-Reply-To: <E15Dx9t-0005zT-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106240210540.29573-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <landley@webofficenow.com> writes:
-> That would be the X version of emacs.  And there's the explanation
-> for the split between GNU and X emacs: it got forked and the
-> closed-source version had a vew years of divergent development
-> before opening back up, by which point it was very different to
-> reconcile the two code bases.
+The point was that Stimits says that on its Red Hat 7.1 he has no
+ldscripts directory, and so no files like elf_i386.x and so on.
+I was just surprised, since i know thay are all necessary to /usr/bin/ld
+to work.
 
-No, sorry, wrong, for at least a couple of reasons reasons:
+Then he was alo wondering why he has
+two libc
+/lib/libc.so.6 and /lib/i686/libc.so.6, one is tripped and the other
+contains debug symbols.
+I can figure why, but he adfirms that /lib/i686 is not included in
+/etc/ld.so.conf, there is no preload configured, but this is the directory
+used by the loader to find the libc to load.
 
- 1) XEmacs, being constrained to be under the same license (GPL) as
-    its progenitor, GNU Emacs, could never have been closed-source.
+I have to red hat installed, so i was trying to figure out how things are
+working on new releases (my last red hat was 6.2 when i was working at red
+hat Italy).
 
- 2) Lucid Emacs, the version of Emacs that becamse XEmacs, was not
-    started until ca. 1992
+Bests
+Luigi
 
-    I refer you to http://www.jwz.org/doc/emacs-timeline.html for
-    documentation---JWZ was Mr. Lucid Emacs for quite a time.
+On Sun, 24 Jun 2001, Alan Cox wrote:
 
-In 1987, there are any number of things that it could have been---I'd
-guess either Unipress Emacs or perhaps Gosling Emacs.
+> > glad to know this, i do wonder how does /usr/bin/ld work for red hat.
+> > to my old mentality this seems red hat is going out of any resonable
+> > standard.
+>
+> It works like /usr/bin/ld on any other platform I know of
+>
+> > if the same libc stripped would not run library, and they HAVE to mantein
+> > a libc.so.6 linside of /lib, otherway this would be too mutch against
+> > a resonable standard.
+>
+> bash-2.04$ ls -l /lib/libc.so.6
+> lrwxrwxrwx    1 root     root           13 May 14 16:46 /lib/libc.so.6 -> libc-2.2.2.so
+>
+> I don't follow the discussion here.
+>
 
-Mike.

@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131159AbRAVBvH>; Sun, 21 Jan 2001 20:51:07 -0500
+	id <S130431AbRAVCCB>; Sun, 21 Jan 2001 21:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131533AbRAVBu5>; Sun, 21 Jan 2001 20:50:57 -0500
-Received: from renoir.op.net ([207.29.195.4]:20750 "EHLO renoir.op.net")
-	by vger.kernel.org with ESMTP id <S131159AbRAVBur>;
-	Sun, 21 Jan 2001 20:50:47 -0500
-Message-Id: <200101220150.UAA29623@renoir.op.net>
-To: nigel@nrg.org
-cc: yodaiken@fsmlabs.com, Andrew Morton <andrewm@uow.edu.au>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0 
-In-Reply-To: Your message of "Sun, 21 Jan 2001 16:54:47 PST."
-             <Pine.LNX.4.05.10101211652360.509-100000@cosmic.nrg.org> 
-Date: Sun, 21 Jan 2001 20:49:05 -0500
-From: Paul Barton-Davis <pbd@Op.Net>
+	id <S130648AbRAVCBw>; Sun, 21 Jan 2001 21:01:52 -0500
+Received: from typhoon.mail.pipex.net ([158.43.128.27]:56269 "HELO
+	typhoon.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S130431AbRAVCBh>; Sun, 21 Jan 2001 21:01:37 -0500
+To: linux-kernel@vger.kernel.org
+From: Trevor-Hemsley@dial.pipex.com (Trevor Hemsley)
+Date: Mon, 22 Jan 2001 02:00:47
+Subject: Re: Incorrect module init message..
+X-Mailer: ProNews/2 V1.51.ib103
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010122020147Z130431-18594+148@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Let me just point out that Victor has his own commercial axe to grind in
->his continual bad-mouthing of IRIX, the internals of which he knows
->nothing about.
+On Wed, 17 Jan 2001 09:09:01, "Mike A. Harris" 
+<mharris@opensourceadvocate.org> wrote:
 
-1) do you actually disagree with victor ?
+> 1 root@asdf:/# mcdr
+> Detected scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+> sr0: scsi3-mmc drive: 6x/6x writer cd/rw xa/form2 cdda tray
+>                       ^^^^^
+>  
+> HP7200i burner 2x/2x/6x  (CDR/CDRW/read)
+>  
+> Don't know if anyone cares to fix the message..
 
-2) victor is not the only person who has expressed this opinion. the
-   most prolific irix critic seems to be larry mcvoy, who certainly
-   claims to know quite a bit about the internals.
+The message is reporting current/maximum read speeds. There's no 
+indication that this is or is not what was intended to be reported. If
+it was intended to be max write/read speeds then it should be using 
+the two bytes at +18 and 19 of mode page 2a not the ones at +14 and 
+15.
 
-this discussion has the hallmarks of turning into a personal
-bash-fest, which is really pointless. what is *not* pointless is a
-considered discussion about the merits of the IRIX "RT" approach over
-possible approaches that Linux might take which are dissimilar to the
-IRIX one. on the other hand, as Victor said, a large part of that
-discussion ultimately comes down to a design style rather than hard
-factual or logical reasoning.
-
-Paul Davis <pbd@op.net>                                 Bala Cynwyd, PA, USA
-Linux Audio Systems                                             610-667-4807
-----------------------------------------------------------------------------
-hybrid rather than pure; compromising rather than clean;
-distorted rather than straightforward; ambiguous rather than
-articulated; both-and rather than either-or; the difficult
-unity of inclusion rather than the easy unity of exclusion.   Robert Venturi
-----------------------------------------------------------------------------
-
-
-   
+-- 
+Trevor Hemsley, Brighton, UK.
+Trevor-Hemsley@dial.pipex.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

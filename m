@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263211AbRFAPiQ>; Fri, 1 Jun 2001 11:38:16 -0400
+	id <S263217AbRFAPnG>; Fri, 1 Jun 2001 11:43:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263584AbRFAPiG>; Fri, 1 Jun 2001 11:38:06 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:18703 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S263211AbRFAPhx>; Fri, 1 Jun 2001 11:37:53 -0400
-Date: Fri, 1 Jun 2001 17:37:45 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] which routines must be re-entrant?
-Message-ID: <20010601173745.A421@ping.be>
-In-Reply-To: <200105312301.QAA16524@csl.Stanford.EDU>
+	id <S263218AbRFAPm4>; Fri, 1 Jun 2001 11:42:56 -0400
+Received: from ns.caldera.de ([212.34.180.1]:25236 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S263217AbRFAPmj>;
+	Fri, 1 Jun 2001 11:42:39 -0400
+Date: Fri, 1 Jun 2001 17:42:32 +0200
+From: Marcus Meissner <Marcus.Meissner@caldera.de>
+To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: PATCH: ns558 bugfix / CSC ids
+Message-ID: <20010601174232.A6493@caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <200105312301.QAA16524@csl.Stanford.EDU>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 31, 2001 at 04:01:34PM -0700, Dawson Engler wrote:
-> Is there an easy way to tell which routines must be re-entrant? 
-> (it doesn't have to be exhaustive, even an incomplete set is useful)
-> 
-> I was going to write a checker to make sure supposedly re-entrant
-> routines actually were, but was having a hard time figuring out which
-> ones were supposed to be...
+Hi,
 
-Their was an post on bugtraq a few days ago about this, it had a
-list with all system calls which are reentrant safe under
-OpenBSD.  The paper was about signals, and is available at
+I have added two CSC function ids to the ISAPNP joystick probing.
+CSC cards use a lot of varying ids for the functions, but in my
+set of data, 0010 and 0110 are always 'CTL'Game Controllers.
 
-http://razor.bindview.com/publish/papers/signals.txt
+One bugfix: port->size must be set, or the release_region on rmmod ns558
+fails badly.
 
-OpenBSD had a manpage wich lists all the function which should be
-be safe to call from a signal handler.  It might be a nice
-place to start.  You should only look at those from section 2
-of course.
+Tested on IBM Netfinity 3500.
 
-http://www.openbsd.org/cgi-bin/man.cgi?query=sigaction
+Ciao, Marcus
 
-
-
-Kurt
-
+Index: drivers/char/joystick/ns558.c
+===================================================================
+RCS file: /build/mm/work/repository/linux-mm/drivers/char/joystick/ns558.c,v
+retrieving revision 1.16
+diff -u -r1.16 ns558.c
+--- drivers/char/joystick/ns558.c	2001/06/01 11:33:11	1.16
++++ drivers/char/joystick/ns558.c	2001/06/01 15:31:09
+@@ -178,6 +178,8 @@
+ 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x7001), 0 },
+ 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x7002), 0 },
+ 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','S','C'), ISAPNP_DEVICE(0x0b35), 0 },
++	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','S','C'), ISAPNP_DEVICE(0x0010), 0 },
++	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','S','C'), ISAPNP_DEVICE(0x0110), 0 },
+ 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('P','N','P'), ISAPNP_DEVICE(0xb02f), 0 },
+ 	{ 0, },
+ };
+@@ -217,6 +219,7 @@
+ 	port->next = next;
+ 	port->type = NS558_PNP;
+ 	port->gameport.io = ioport;
++	port->size = iolen;
+ 	port->dev = dev;
+ 
+ 	gameport_register_port(&port->gameport);

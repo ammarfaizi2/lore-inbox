@@ -1,114 +1,228 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129280AbQKAJwP>; Wed, 1 Nov 2000 04:52:15 -0500
+	id <S129555AbQKAKAF>; Wed, 1 Nov 2000 05:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129355AbQKAJwF>; Wed, 1 Nov 2000 04:52:05 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:59880 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129280AbQKAJvw>; Wed, 1 Nov 2000 04:51:52 -0500
-Message-Id: <5.0.0.25.2.20001101094152.03caed30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Wed, 01 Nov 2000 09:51:35 +0000
-To: Andrea Arcangeli <andrea@suse.de>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, Larry McVoy <lm@bitmover.com>,
-        Paul Menage <pmenage@ensim.com>, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20001101023010.G13422@athlon.random>
-In-Reply-To: <39FF49C8.475C2EA7@timpanogas.org>
- <E13qj56-0003h9-00@pmenage-dt.ensim.com>
- <39FF3D53.C46EB1A8@timpanogas.org>
- <20001031140534.A22819@work.bitmover.com>
- <39FF4488.83B6C1CE@timpanogas.org>
- <20001031142733.A23516@work.bitmover.com>
- <39FF49C8.475C2EA7@timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129552AbQKAJ7z>; Wed, 1 Nov 2000 04:59:55 -0500
+Received: from smtp1.mail.yahoo.com ([128.11.69.60]:17420 "HELO
+	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129355AbQKAJ7m>; Wed, 1 Nov 2000 04:59:42 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <39FFE80A.5F1072D4@yahoo.com>
+Date: Wed, 01 Nov 2000 04:53:14 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.17 i486)
+MIME-Version: 1.0
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: Linux 2.2.18pre18 [rtc_lock]
+In-Reply-To: <E13peHk-0005ep-00@the-village.bc.nu> <8th8sk$9rs$1@enterprise.cistron.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:30 01/11/2000, Andrea Arcangeli wrote:
-> > Larry McVoy wrote:
-> >> Are there processes with virtual memory?
->On Tue, Oct 31, 2000 at 03:38:00PM -0700, Jeff V. Merkey wrote:
-> > Yes.
->
->If that stack switch is your context switch then you share the same VM for all
->tasks. I think the above answer "yes" just means you have pagetables so 
->you can
->swap, but you _must_ miss memory protection across different processes.  That
->also mean any program can corrupt the memory of all the other programs.  Even
->on the Palm that's a showstopper limitation (and on the Palm that's an 
->hardware
->limitation, not a software deficiency of PalmOS).
->
->That will never happen in linux, nor in windows, nor internally to kde2. It
->happens in uclinux to deal with hardware without MMU. And infact the agenda
->uses mips with memory protection even on a organizer with obvious advantages.
->
->Just think kde2 could have all the kde app sharing the same VM skipping 
->all the
->tlb flushes by simply using clone instead of fork. Guess why they aren't doing
->that? And even if they would do that, the first bug would _only_ destabilize
->kde, so kill it and restart and everything else will keep running fine (you
->don't even need to kill X). With your ring 0 linux _everything_ will 
->crash, not
->just kde.
+Miquel van Smoorenburg wrote:
+> 
+> In article <E13peHk-0005ep-00@the-village.bc.nu>,
+> Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+> >2.2.18pre18
+> >o      Fix rtc_lock for ide-probe, and hd.c            (Richard Johnson)
+> 
+> I need this to get it to compile:
 
-No need for imagination. Reality shows it: In my experience Netware is very 
-unstable as an OS. - We are running 5 Netware servers here in College (used 
-to be 3.12 now are 4.11) and whenever we do any upgrades (e.g. new service 
-pack) the servers start crashing every day or so until we find one by one 
-all modules that are not SMP capable (I assume that this is the reason it 
-is crashing?) and take them out / replace them with 3rd party equivalent 
-modules. - Just to name some things: Novell FTP server, Xconsole and/or 
-associated modules, "Apple desktop rebuilding thing" module... - All of 
-those would cause the server to crash into the debugger when running SMP 
-usually with a page fault. - Admittedly Netware is great at file & 
-application serving so we use it but it gets nowhere near to the stability 
-of Linux. The number of times Linux production systems in College have 
-crashed can be counted on the fingers of my hand while I have lost count of 
-the Novell crashes a long time ago.
+[include <linux/mc146818rtc.h> to get the extern spinlock decl.]
 
-IMHO stability is more important than anything else. - I prefer to run 20 
-Linux servers which will result in no phonecalls at midnight calling me 
-into College to reboot them compared to a Netware server which runs as fast 
-as the 20 Linux servers but disturbs my out-of-working-hours time!
+I just looked at pre18 and there are 2 other cases where the rtc lock
+should be deployed - those being in the floppy driver, and in the nvram
+driver.
 
-I agree that having ring 0 OS will improve performance, no doubt about 
-that, but at what price?
+As an added bonus you get a fixed nvram driver that no longer does
+get/put_user from within a cli() region.
 
-Just my 2p.
+Paul.
 
-Anton
+--- include/asm-i386/floppy.h.orig	Wed Jul  1 03:28:48 1998
++++ include/asm-i386/floppy.h	Wed Nov  1 04:01:18 2000
+@@ -285,8 +285,23 @@
+ static int FDC1 = 0x3f0;
+ static int FDC2 = -1;
+ 
+-#define FLOPPY0_TYPE	((CMOS_READ(0x10) >> 4) & 15)
+-#define FLOPPY1_TYPE	(CMOS_READ(0x10) & 15)
++#define FLOPPY0_TYPE	({				\
++	unsigned long flags;				\
++	unsigned char val;				\
++	spin_lock_irqsave(&rtc_lock, flags);		\
++	val = (CMOS_READ(0x10) >> 4) & 15;		\
++	spin_unlock_irqrestore(&rtc_lock, flags);	\
++	val;						\
++})
++
++#define FLOPPY1_TYPE	({				\
++	unsigned long flags;				\
++	unsigned char val;				\
++	spin_lock_irqsave(&rtc_lock, flags);		\
++	val = CMOS_READ(0x10) & 15;			\
++	spin_unlock_irqrestore(&rtc_lock, flags);	\
++	val;						\
++})
+ 
+ #define N_FDC 2
+ #define N_DRIVE 8
+--- drivers/char/nvram.c.orig	Wed Jun 28 13:35:50 2000
++++ drivers/char/nvram.c	Wed Nov  1 04:04:36 2000
+@@ -25,9 +25,10 @@
+  * the kernel and is not a module. Since the functions are used by some Atari
+  * drivers, this is the case on the Atari.
+  *
++ * 1.0a		Paul Gortmaker: use rtc_lock, fix get/put_user in cli bugs.
+  */
+ 
+-#define NVRAM_VERSION		"1.0"
++#define NVRAM_VERSION		"1.0a"
+ 
+ #include <linux/module.h>
+ #include <linux/config.h>
+@@ -78,10 +79,12 @@
+ #define	mach_set_checksum	atari_set_checksum
+ #define	mach_proc_infos		atari_proc_infos
+ 
++static spinlock_t rtc_lock;	/* optimized away; no SMP m68K */
++
+ #endif
+ 
+ /* Note that *all* calls to CMOS_READ and CMOS_WRITE must be done with
+- * interrupts disabled. Due to the index-port/data-port design of the RTC, we
++ * rtc_lock held. Due to the index-port/data-port design of the RTC, we
+  * don't want two different things trying to get to it at once. (e.g. the
+  * periodic 11 min sync from time.c vs. this driver.)
+  */
+@@ -233,23 +236,28 @@
+ 	unsigned long flags;
+ 	unsigned i = *ppos;
+ 	char *tmp = buf;
++	int checksum;
+ 	
+ 	if (i != *ppos)
+ 		return -EINVAL;
+ 
+-	save_flags(flags);
+-	cli();
+-	
+-	if (!nvram_check_checksum_int()) {
+-		restore_flags(flags);
++	spin_lock_irqsave(&rtc_lock, flags);
++	checksum = nvram_check_checksum_int();
++	spin_unlock_irqrestore(&rtc_lock, flags);
++
++	if (!checksum)
+ 		return( -EIO );
+-	}
+ 
+ 	for( ; count-- > 0 && i < NVRAM_BYTES; ++i, ++tmp )
+-		put_user( nvram_read_int(i), tmp );
++	{
++		int val;
++		spin_lock_irqsave(&rtc_lock, flags);
++		val = nvram_read_int(i);
++		spin_unlock_irqrestore(&rtc_lock, flags);
++		put_user( val, tmp );
++	}
+ 	*ppos = i;
+ 
+-	restore_flags(flags);
+ 	return( tmp - buf );
+ }
+ 
+@@ -260,26 +268,31 @@
+ 	unsigned i = *ppos;
+ 	const char *tmp = buf;
+ 	char c;
++	int checksum;
+ 	
+ 	if (i != *ppos)
+ 		return -EINVAL;
+ 
+-	save_flags(flags);
+-	cli();
+-	
+-	if (!nvram_check_checksum_int()) {
+-		restore_flags(flags);
++	spin_lock_irqsave(&rtc_lock, flags);
++	checksum = nvram_check_checksum_int();
++	spin_unlock_irqrestore(&rtc_lock, flags);
++
++	if (!checksum)
+ 		return( -EIO );
+-	}
+ 
+ 	for( ; count-- > 0 && i < NVRAM_BYTES; ++i, ++tmp ) {
+ 		get_user( c, tmp );
++		spin_lock_irqsave(&rtc_lock, flags);
+ 		nvram_write_int( c, i );
++		spin_unlock_irqrestore(&rtc_lock, flags);
+ 	}
++
++	spin_lock_irqsave(&rtc_lock, flags);
+ 	nvram_set_checksum_int();
++	spin_unlock_irqrestore(&rtc_lock, flags);
++
+ 	*ppos = i;
+ 
+-	restore_flags(flags);
+ 	return( tmp - buf );
+ }
+ 
+@@ -295,14 +308,13 @@
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return( -EACCES );
+ 
+-		save_flags(flags);
+-		cli();
++		spin_lock_irqsave(&rtc_lock, flags);
+ 
+ 		for( i = 0; i < NVRAM_BYTES; ++i )
+ 			nvram_write_int( 0, i );
+ 		nvram_set_checksum_int();
+ 		
+-		restore_flags(flags);
++		spin_unlock_irqrestore(&rtc_lock, flags);
+ 		return( 0 );
+ 	  
+ 	  case NVRAM_SETCKS:		/* just set checksum, contents unchanged
+@@ -311,10 +323,9 @@
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return( -EACCES );
+ 
+-		save_flags(flags);
+-		cli();
++		spin_lock_irqsave(&rtc_lock, flags);
+ 		nvram_set_checksum_int();
+-		restore_flags(flags);
++		spin_unlock_irqrestore(&rtc_lock, flags);
+ 		return( 0 );
+ 
+ 	  default:
+@@ -363,11 +374,10 @@
+     int i, len = 0;
+     off_t begin = 0;
+ 	
+-	save_flags(flags);
+-	cli();
++	spin_lock_irqsave(&rtc_lock, flags);
+ 	for( i = 0; i < NVRAM_BYTES; ++i )
+ 		contents[i] = nvram_read_int( i );
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&rtc_lock, flags);
+ 	
+ 	*eof = mach_proc_infos( contents, buffer, &len, &begin, offset, size );
+ 
 
->And on sane architectures like alpha you don't even need to flush the TLB
->during "real" context switching so all your worry to share the same VM for
->everything is almost irrelevant there since it happens all the time anyways
->(until you overflow the available ASN bits that takes a lots of forks to
->happen).
->
->So IMHO for you it's much saner to move all your performance critical code 
->into
->kernel space (that will be just stability-risky enough as khttpd and tux are).
->In 2.4.x that will avoid all the cr3 reloads and that will be enough as what
->you really care during fileserving are the copies that you must avoid.
->
->Andrea
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->Please read the FAQ at http://www.tux.org/lkml/
 
--- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

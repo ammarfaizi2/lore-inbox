@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263136AbTKETjS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 14:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263148AbTKETjS
+	id S263129AbTKETmw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 14:42:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbTKETmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 14:39:18 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:60813 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S263136AbTKETjI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 14:39:08 -0500
-Date: Wed, 5 Nov 2003 11:39:06 -0800
-To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: IrDA patches for 2.6.X
-Message-ID: <20031105193906.GA24323@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Wed, 5 Nov 2003 14:42:51 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:2813 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263129AbTKETmV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 14:42:21 -0500
+Date: Wed, 5 Nov 2003 20:41:58 +0100 (MET)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Flavio Bruno Leitner <fbl@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: IDE disk information changed from 2.4 to 2.6
+In-Reply-To: <20031105184203.GG5304@conectiva.com.br>
+Message-ID: <Pine.SOL.4.30.0311052031510.1988-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Dave,
 
-	Here is a set of patches for 2.6.0-test10. As per Linus
-requirement, those are only critical bug fixes. The first Oops was
-experienced by various people on LKML, the second by me.
-        Patches tested on 2.6.0-test9, please push to Linus...
+On Wed, 5 Nov 2003, Flavio Bruno Leitner wrote:
 
-        Thanks...
+> On Wed, Nov 05, 2003 at 06:29:07PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > On Wed, 5 Nov 2003, Flavio Bruno Leitner wrote:
+> > > Using 2.4:
+> > > hda: 12594960 sectors (6449 MB) w/2048KiB Cache, CHS=784/255/63, UDMA (33)
+> > >
+> > > Using 2.6:
+> > > hda: 12594960 sectors (6449 MB) w/2048KiB Cache, CHS=13328/15/63, UDMA (33)
+>
+> The line with CHS=784/255/63 is LBA and CHS=13328/15/63 is NORMAL.
+>
+> Where kernel check to see if is LBA or NORMAL? BIOS? Which line is correct?
 
-        Jean
+Nowhere, kernel uses LBA whenever possible.
 
-----------------------------------------------------------------------
+In 2.6.x it doesn't even read BIOS info (which is wrong IMO, it should
+do this but only as last resort - if partition can't be mounted).
 
-[FEATURE] : Add a new feature to the IrDA stack
-[CORRECT] : Fix to have the correct/expected behaviour
-[CRITICA] : Fix potential kernel crash
+Difference in CHS translation should matter only if you have some old DOS
+partitions created using CHS information.  Then you can force geometry
+using boot parameter "hd?=".  Unfortunately I've seen recently bugreport
+when 2.4.20 (?) works and 2.6.x fails even with forced geometry.
 
-ir2609_ircomm_might_sleep-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Original patch from Martin Diehl>
-	o [CRITICA] Don't do copy_from_user() under spinlock
-	o [CRITICA] Always access self->skb under spinlock
+--bartlomiej
 
-ir2609_irnet_ppp_open_race-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	o [CRITICA] Prevent sending status event to dead/kfree sockets
-	o [CORRECT] Disable PPP access before deregistration
-		PPP deregistration might sleep -> race condition
-
-ir2609_irlmp_open_leak.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Original patch from Chris Wright>
-	o [CORRECT] Prevent 'self' leak on error in irlmp_open.
-		ASSERT is compiled in only with DEBUG option => risk = 0.

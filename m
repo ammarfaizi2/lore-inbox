@@ -1,214 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbUKFD3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbUKFDac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbUKFD3G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 22:29:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbUKFD3F
+	id S261305AbUKFDac (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 22:30:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUKFD3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 22:29:05 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:36770 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261304AbUKFDXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 22:23:40 -0500
-Date: Fri, 5 Nov 2004 19:23:20 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 3/3] WIN_* -> ATA_CMD_* conversion: cleanup hdreg.h
-Message-ID: <20041106032320.GD6060@taniwha.stupidest.org>
-References: <20041103091101.GC22469@taniwha.stupidest.org> <418AE8C0.3040205@pobox.com> <58cb370e041105051635c15281@mail.gmail.com>
+	Fri, 5 Nov 2004 22:29:18 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:4356 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261307AbUKFD0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 22:26:16 -0500
+Subject: RE: Possible GPL infringement in Broadcom-based routers
+From: David Woodhouse <dwmw2@infradead.org>
+To: davids@webmaster.com
+Cc: "Jp@Enix. Org" <jp@enix.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOECKPJAA.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKOECKPJAA.davids@webmaster.com>
+Content-Type: text/plain
+Date: Sat, 06 Nov 2004 03:23:24 +0000
+Message-Id: <1099711404.27598.44.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e041105051635c15281@mail.gmail.com>
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-===== include/linux/hdreg.h 1.28 vs edited =====
---- 1.28/include/linux/hdreg.h	2004-11-02 11:32:44 -08:00
-+++ edited/include/linux/hdreg.h	2004-11-05 18:56:41 -08:00
-@@ -21,12 +21,8 @@
- #define HD_HCYL		0x1f5		/* high byte of starting cyl */
- #define HD_CURRENT	0x1f6		/* 101dhhhh , d=drive, hhhh=head */
- #define HD_STATUS	0x1f7		/* see status-bits */
--#define HD_FEATURE	HD_ERROR	/* same io address, read=error, write=feature */
--#define HD_PRECOMP	HD_FEATURE	/* obsolete use of this port - predates IDE */
--#define HD_COMMAND	HD_STATUS	/* same io address, read=status, write=cmd */
- 
- #define HD_CMD		0x3f6		/* used for resets */
--#define HD_ALTSTATUS	0x3f6		/* same as HD_STATUS but doesn't clear irq */
- 
- /* remainder is shared between hd.c, ide.c, ide-cd.c, and the hdparm utility */
- 
-@@ -180,154 +176,20 @@
- #define TASKFILE_P_IN_DMAQ		0x2000
- #define TASKFILE_P_OUT_DMAQ		0x4000
- 
--/* ATA/ATAPI Commands pre T13 Spec */
--#define WIN_NOP				0x00
--/*
-- *	0x01->0x02 Reserved
-- */
--#define CFA_REQ_EXT_ERROR_CODE		0x03 /* CFA Request Extended Error Code */
--/*
-- *	0x04->0x07 Reserved
-- */
--#define WIN_SRST			0x08 /* ATAPI soft reset command */
--#define WIN_DEVICE_RESET		0x08
--/*
-- *	0x09->0x0F Reserved
-- */
--#define WIN_RECAL			0x10
--#define WIN_RESTORE			WIN_RECAL
--/*
-- *	0x10->0x1F Reserved
-- */
--#define WIN_READ			0x20 /* 28-Bit */
--#define WIN_READ_ONCE			0x21 /* 28-Bit without retries */
--#define WIN_READ_LONG			0x22 /* 28-Bit */
--#define WIN_READ_LONG_ONCE		0x23 /* 28-Bit without retries */
--#define WIN_READ_EXT			0x24 /* 48-Bit */
--#define WIN_READDMA_EXT			0x25 /* 48-Bit */
--#define WIN_READDMA_QUEUED_EXT		0x26 /* 48-Bit */
--#define WIN_READ_NATIVE_MAX_EXT		0x27 /* 48-Bit */
--/*
-- *	0x28
-- */
--#define WIN_MULTREAD_EXT		0x29 /* 48-Bit */
--/*
-- *	0x2A->0x2F Reserved
-- */
--#define WIN_WRITE			0x30 /* 28-Bit */
--#define WIN_WRITE_ONCE			0x31 /* 28-Bit without retries */
--#define WIN_WRITE_LONG			0x32 /* 28-Bit */
--#define WIN_WRITE_LONG_ONCE		0x33 /* 28-Bit without retries */
--#define WIN_WRITE_EXT			0x34 /* 48-Bit */
--#define WIN_WRITEDMA_EXT		0x35 /* 48-Bit */
--#define WIN_WRITEDMA_QUEUED_EXT		0x36 /* 48-Bit */
--#define WIN_SET_MAX_EXT			0x37 /* 48-Bit */
--#define CFA_WRITE_SECT_WO_ERASE		0x38 /* CFA Write Sectors without erase */
--#define WIN_MULTWRITE_EXT		0x39 /* 48-Bit */
--/*
-- *	0x3A->0x3B Reserved
-- */
--#define WIN_WRITE_VERIFY		0x3C /* 28-Bit */
--/*
-- *	0x3D->0x3F Reserved
-- */
--#define WIN_VERIFY			0x40 /* 28-Bit - Read Verify Sectors */
--#define WIN_VERIFY_ONCE			0x41 /* 28-Bit - without retries */
--#define WIN_VERIFY_EXT			0x42 /* 48-Bit */
--/*
-- *	0x43->0x4F Reserved
-- */
--#define WIN_FORMAT			0x50
--/*
-- *	0x51->0x5F Reserved
-- */
--#define WIN_INIT			0x60
--/*
-- *	0x61->0x5F Reserved
-- */
--#define WIN_SEEK			0x70 /* 0x70-0x7F Reserved */
--
--#define CFA_TRANSLATE_SECTOR		0x87 /* CFA Translate Sector */
--#define WIN_DIAGNOSE			0x90
--#define WIN_SPECIFY			0x91 /* set drive geometry translation */
--#define WIN_DOWNLOAD_MICROCODE		0x92
--#define WIN_STANDBYNOW2			0x94
--#define WIN_STANDBY2			0x96
--#define WIN_SETIDLE2			0x97
--#define WIN_CHECKPOWERMODE2		0x98
--#define WIN_SLEEPNOW2			0x99
--/*
-- *	0x9A VENDOR
-- */
--#define WIN_PACKETCMD			0xA0 /* Send a packet command. */
--#define WIN_PIDENTIFY			0xA1 /* identify ATAPI device	*/
--#define WIN_QUEUED_SERVICE		0xA2
--#define WIN_SMART			0xB0 /* self-monitoring and reporting */
--#define CFA_ERASE_SECTORS		0xC0
--#define WIN_MULTREAD			0xC4 /* read sectors using multiple mode*/
--#define WIN_MULTWRITE			0xC5 /* write sectors using multiple mode */
--#define WIN_SETMULT			0xC6 /* enable/disable multiple mode */
--#define WIN_READDMA_QUEUED		0xC7 /* read sectors using Queued DMA transfers */
--#define WIN_READDMA			0xC8 /* read sectors using DMA transfers */
--#define WIN_READDMA_ONCE		0xC9 /* 28-Bit - without retries */
--#define WIN_WRITEDMA			0xCA /* write sectors using DMA transfers */
--#define WIN_WRITEDMA_ONCE		0xCB /* 28-Bit - without retries */
--#define WIN_WRITEDMA_QUEUED		0xCC /* write sectors using Queued DMA transfers */
--#define CFA_WRITE_MULTI_WO_ERASE	0xCD /* CFA Write multiple without erase */
--#define WIN_GETMEDIASTATUS		0xDA
--#define WIN_ACKMEDIACHANGE		0xDB /* ATA-1, ATA-2 vendor */
--#define WIN_POSTBOOT			0xDC
--#define WIN_PREBOOT 			0xDD
--#define WIN_DOORLOCK			0xDE /* lock door on removable drives */
--#define WIN_DOORUNLOCK			0xDF /* unlock door on removable drives */
--#define WIN_STANDBYNOW1			0xE0
--#define WIN_IDLEIMMEDIATE		0xE1 /* force drive to become "ready" */
--#define WIN_STANDBY			0xE2 /* Set device in Standby Mode */
--#define WIN_SETIDLE1			0xE3
--#define WIN_READ_BUFFER			0xE4 /* force read only 1 sector */
--#define WIN_CHECKPOWERMODE1		0xE5
--#define WIN_SLEEPNOW1			0xE6
--#define WIN_FLUSH_CACHE			0xE7
--#define WIN_WRITE_BUFFER		0xE8 /* force write only 1 sector */
--#define WIN_WRITE_SAME			0xE9 /* read ata-2 to use */
--	/* SET_FEATURES 0x22 or 0xDD */
--#define WIN_FLUSH_CACHE_EXT		0xEA /* 48-Bit */
--#define WIN_IDENTIFY			0xEC /* ask drive to identify itself	*/
--#define WIN_MEDIAEJECT			0xED
--#define WIN_IDENTIFY_DMA		0xEE /* same as WIN_IDENTIFY, but DMA */
--#define WIN_SETFEATURES			0xEF /* set special drive features */
- #define EXABYTE_ENABLE_NEST		0xF0
--#define WIN_SECURITY_SET_PASS		0xF1
--#define WIN_SECURITY_UNLOCK		0xF2
--#define WIN_SECURITY_ERASE_PREPARE	0xF3
--#define WIN_SECURITY_ERASE_UNIT		0xF4
--#define WIN_SECURITY_FREEZE_LOCK	0xF5
--#define WIN_SECURITY_DISABLE		0xF6
--#define WIN_READ_NATIVE_MAX		0xF8 /* return the native maximum address */
--#define WIN_SET_MAX			0xF9
--#define DISABLE_SEAGATE			0xFB
- 
--/* WIN_SMART sub-commands */
-+/* ATA_CMD_SMART sub-commands */
- 
- #define SMART_READ_VALUES		0xD0
- #define SMART_READ_THRESHOLDS		0xD1
--#define SMART_AUTOSAVE			0xD2
--#define SMART_SAVE			0xD3
--#define SMART_IMMEDIATE_OFFLINE		0xD4
--#define SMART_READ_LOG_SECTOR		0xD5
--#define SMART_WRITE_LOG_SECTOR		0xD6
--#define SMART_WRITE_THRESHOLDS		0xD7
- #define SMART_ENABLE			0xD8
--#define SMART_DISABLE			0xD9
--#define SMART_STATUS			0xDA
--#define SMART_AUTO_OFFLINE		0xDB
- 
- /* Password used in TF4 & TF5 executing SMART commands */
- 
- #define SMART_LCYL_PASS			0x4F
- #define SMART_HCYL_PASS			0xC2
- 
--/* WIN_SETFEATURES sub-commands */
-+/* ATA_CMD_SET_FEATURES sub-commands */
- #define SETFEATURES_EN_8BIT	0x01	/* Enable 8-Bit Transfers */
- #define SETFEATURES_EN_WCACHE	0x02	/* Enable write cache */
- #define SETFEATURES_DIS_DEFECT	0x04	/* Disable Defect Management */
-@@ -359,15 +221,6 @@
- #define SETFEATURES_DIS_RI	0xDD	/* Disable release interrupt ATAPI */
- #define SETFEATURES_EN_SAME_M	0xDD	/* for a entire device ATA-1 */
- #define SETFEATURES_DIS_SI	0xDE	/* Disable SERVICE interrupt ATAPI */
--
--/* WIN_SECURITY sub-commands */
--
--#define SECURITY_SET_PASSWORD		0xBA
--#define SECURITY_UNLOCK			0xBB
--#define SECURITY_ERASE_PREPARE		0xBC
--#define SECURITY_ERASE_UNIT		0xBD
--#define SECURITY_FREEZE_LOCK		0xBE
--#define SECURITY_DISABLE_PASSWORD	0xBF
- 
- struct hd_geometry {
-       unsigned char heads;
+On Fri, 2004-11-05 at 11:59 -0800, David Schwartz wrote:
+> If that were true, I could poem up on a billboard and sue anyone who read it.
+
+Your analogy is flawed. Consider instead the case where you want to sue
+not someone who _read_ it, but someone who copied it down into their
+notebook, went home and then published an anthology of poems including
+yours. 
+
+>  The FSF is, of course, free to take any position it wants to. As I
+> understand the law, if you want to restrict use, you must restrict access.
+> Give free access, you give free use.
+
+Adam said 'an activity that is restricted by copyright', and in the
+context it's blindingly obvious that he means _copying_ and
+_distribution_, not just use. Yet you persist in your misdirection.
+
+Anyone copying and distributing the Linux kernel must comply with the
+copyright licence which _conditionally_ grants them permission to do so.
+
+In particular, the permissions granted by the GPL on the Linux kernel
+are conditional on your agreement that when you distribute a collective
+work which is based in part on the Linux kernel, you also release all
+other parts of that whole, EVEN THOSE WHICH ARE NOT DERIVED WORKS OF THE
+KERNEL, under the terms of the GPL.
+
+The GPL does not claim any fundamental 'rights' to those parts which are
+your own work, just as commercial copyright licences don't claim any
+fundamental 'right' to your money. It's just a trade you are offered;
+that is what is asked of you, in return for permission to distribute the
+GPL'd work.
+
+You have the right to refrain from entering that agreement; to refrain
+from distributing the GPL'd work. You do not have the right to
+distribute the GPL'd work _without_ complying with the terms of its
+licence. That would be a criminal offence.
+
+Anyone distributing a work which is a whole based on the Linux kernel
+and other non-GPL'd works, other than 'mere aggregation on a volume of a
+storage or distribution medium', is quite clearly violating the terms of
+the GPL. (Bearing in mind the specific exception for userspace).
+
+It's very clear, given that the firmware for these routers is completely
+useless without either the kernel or the network driver modules, that
+it's more than 'mere aggregation' -- the parts form a coherent whole.
+
+Thus, even when the modules are NOT a 'derived work', they _MUST_ be
+distributed under the terms of the GPL in order for permission to
+distribute the _kernel_ to be granted.
+
+-- 
+dwmw2
+

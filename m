@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272066AbTHRP23 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 11:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272067AbTHRP23
+	id S272002AbTHRPWF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 11:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272046AbTHRPWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 11:28:29 -0400
-Received: from 204.244.250.2.net-conex.com ([204.244.250.2]:35110 "EHLO
-	mail4.angio.com") by vger.kernel.org with ESMTP id S272066AbTHRP22
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 11:28:28 -0400
-Message-ID: <E2B3FD6B3FF2804CB276D9ED037268354FF6FA@mail4.angio.com>
-From: "Hassard, Stephen" <SHassard@angio.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Communication problem with via-rhine in kernel-2.6.0-test3-bk3+
-Date: Mon, 18 Aug 2003 08:28:24 -0700
+	Mon, 18 Aug 2003 11:22:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20155 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272002AbTHRPWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 11:22:01 -0400
+Date: Mon, 18 Aug 2003 08:21:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries.Brouwer@cwi.nl
+cc: Dominik.Strasser@t-online.de, <hch@infradead.org>,
+       <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
+In-Reply-To: <UTC200308181219.h7ICJfw14963.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0308180820470.1672-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-I've been happily using the Rhine-II NIC on my VIA Epia-800 with
-2.6.0-test3, but ever since bk3 via-rhine seems to be broken.
-2.6.0-test3-bk2 works without problems.
+On Mon, 18 Aug 2003 Andries.Brouwer@cwi.nl wrote:
+> 
+> I see that Linus already applied this, but I am quite unhappy with
+> these changes. Entirely needlessly user space software is broken.
 
-I've contacted the driver maintainer, Roger Luethi, and he mentioned that if
-it was a problem since 2.6.0-test3, I should contact the kernel mailing
-list.
+If it's supposed to be exported to user space, it _still_ must not use 
+"u_char", since that isn't namespace-clean.
 
-The interface is detected properly, but no data is transmitted. DHCP doesn't
-work. When I manually configure the interface and try to send data, I get
-the following error, which repeats:
->>
-eth0: Transmit timed out, status 1003, PHY status 786d, resetting...
-eth0: Setting full-duplex based on MII #1 link partner capability of 45e1.
-<<
+If it needs exporting, it must use "__u8".
 
-Any help would be appreciated.
+			Linus
 
-I'm not subscribed to this list, so please CC responses to me.
-
-Thanks,
-Stephen Hassard

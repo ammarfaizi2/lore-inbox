@@ -1,98 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268518AbUHQXYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268526AbUHQXvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268518AbUHQXYh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 19:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268512AbUHQXYh
+	id S268526AbUHQXvX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 19:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHQXvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 19:24:37 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:47080 "EHLO
-	mail-out.m-online.net") by vger.kernel.org with ESMTP
-	id S268518AbUHQXYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 19:24:33 -0400
-To: Peter Osterlund <petero2@telia.com>
-Cc: Frediano Ziglio <freddyz77@tin.it>, axboe@suse.de,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Packet writing problems
-References: <1092669361.4254.24.camel@freddy> <m3acwuq5nc.fsf@telia.com>
-	<m3657iq4rk.fsf@telia.com> <1092686149.4338.1.camel@freddy>
-	<m37jrxk024.fsf@telia.com>
-From: Julien Oster <lkml-7994@mc.frodoid.org>
-Organization: FRODOID.ORG
-Mail-Followup-To: Peter Osterlund <petero2@telia.com>,
-	Frediano Ziglio <freddyz77@tin.it>, axboe@suse.de,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Date: Wed, 18 Aug 2004 01:31:58 +0200
-In-Reply-To: <m37jrxk024.fsf@telia.com> (Peter Osterlund's message of "17
- Aug 2004 21:59:47 +0200")
-Message-ID: <87acwt49zl.fsf@killer.ninja.frodoid.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Aug 2004 19:51:23 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:44982 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S268526AbUHQXtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 19:49:19 -0400
+Subject: Re: 2.6.8-rc4-mm1 doesn't boot
+From: Len Brown <len.brown@intel.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040817231119.GB1387@fs.tum.de>
+References: <566B962EB122634D86E6EE29E83DD808182C2B33@hdsmsx403.hd.intel.com>
+	 <200408121550.15892.bjorn.helgaas@hp.com>
+	 <1092350580.7765.190.camel@dhcppc4>
+	 <200408131515.56322.bjorn.helgaas@hp.com>
+	 <20040813235515.GB28687@fs.tum.de> <1092450142.5028.232.camel@dhcppc4>
+	 <20040817231119.GB1387@fs.tum.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092786485.25902.28.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 17 Aug 2004 19:48:06 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> writes:
+On Tue, 2004-08-17 at 19:11, Adrian Bunk wrote:
+> On Fri, Aug 13, 2004 at 10:22:22PM -0400, Len Brown wrote:
+> >...
+> > Also, it would be helpful to see the lines with LNKD
+> > in the dmesg for floppy enabled and floppy disabled cases --
+> > a 2.6.7 vintage kernel should work fine:
+> > 
+> > ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 *6 7 10 11 12 14 15)
+> >         ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 6
+> 
+> I've used 2.6.8.1, and in both cases I got the following (in the
+> enabled 
+> case, no floppy was actually present):
+> 
+> ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 *6 7 10 11 12 14 15)
+> ...
+> ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 6
+> ACPI: PCI interrupt 0000:00:04.0[A] -> GSI 6 (level, low) -> IRQ 6
 
-Hello Peter,
+That's interesting, IRQ6 is being given to PCI, even when the floppy
+controller is enabled.
 
-> That shouldn't cause any real problems, but since it's quite
-> confusing, here is a patch to fix it.  With this change, both DVD+RW
-> and DVD-RW media is correctly identified in the kernel log, and DVD
-> speeds are printed in kB/s.
+> 
+> > If you can also run acpidmp in both those scenarios
+> > (any kernel version, ACPI enabled or disabled should do)
+> > and send me the two output files, that would be great.
+> > 
+> > thanks,
+> > -Len
+> > 
+> > ps. you can get acpidmp in /usr/sbin/ or from pmtools here
+> > http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
+> 
+> It didn't compile for me:
+> 
+> <--  snip  -->
+> 
+> ...
+> gcc -Wall -fno-strength-reduce -fomit-frame-pointer -D__KERNEL__ 
+> -DMODULE -I/usr/src/linux/include -Wall -Wno-unused -Wno-multichar  
+> -c 
+> -o pmtest.o pmtest.c
+> In file included from /usr/include/asm/system.h:5,
+>                  from /usr/include/asm/processor.h:18,
+>                  from /usr/include/asm/thread_info.h:13,
+>                  from /usr/include/linux/thread_info.h:21,
+>                  from /usr/include/linux/spinlock.h:19,
+>                  from /usr/include/linux/capability.h:45,
+>                  from /usr/include/linux/sched.h:7,
+>                  from /usr/include/linux/module.h:10,
+>                  from pmtest.c:21:
+> /usr/include/linux/kernel.h:72: error: parse error before "size_t"
+> ...
 
-The following patch on top of your patch adds all commonly used media
-types to the output and changes CD-R and CD-RW to be detected by
-profile type. It also reports unconforming non-standard profiles as
-well as profiles which have a MMC profile definition but are unknown
-as of the current MMC3 revision.
+you don't care about pmtest, just acpidmp.
 
-Please review.
+cd acpidmp
+make
 
---- fuzzy-2.6.8.1-orig/drivers/block/pktcdvd.c	2004-08-18 01:22:53.540198893 +0200
-+++ fuzzy-2.6.8.1/drivers/block/pktcdvd.c	2004-08-18 01:24:25.983297748 +0200
-@@ -1628,14 +1628,38 @@ static int pkt_probe_settings(struct pkt
- 		return -ENXIO;
- 
- 	switch (pd->mmc3_profile) {
-+	        case 0x08: /* CD-ROM */
-+	                printk("pktcdvd: inserted media is CD-ROM\n");
-+			break;
-+	        case 0x09: /* CD-R */
-+	                printk("pktcdvd: inserted media is CD-R\n");
-+			break;
-+	        case 0x0a: /* CD-RW */
-+	                printk("pktcdvd: inserted media is CD-RW\n");
-+			break;
-+	        case 0x10: /* DVD-ROM */
-+	                printk("pktcdvd: inserted media is DVD-ROM\n");
-+			break;
-+	        case 0x11: /* DVD-R */
-+	                printk("pktcdvd: inserted media is DVD-R\n");
-+			break;
-+	        case 0x12: /* DVD-RAM */
-+	                printk("pktcdvd: inserted media is DVD-RAM\n");
-+			break;
-+		case 0x13: /* DVD-RW restricted overwrite */
-+			printk("pktcdvd: inserted media is DVD-RW with restricted overwrite\n");
-+			break;
-+		case 0x14: /* DVD-RW sequential recording */
-+			printk("pktcdvd: inserted media is DVD-RW with sequential recording\n");
-+			break;
- 		case 0x1a: /* DVD+RW */
- 			printk("pktcdvd: inserted media is DVD+RW\n");
- 			break;
--		case 0x13: /* DVD-RW */
--			printk("pktcdvd: inserted media is DVD-RW\n");
-+		case 0xffff: /* unconforming */
-+			printk("pktcdvd: inserted media does not conform to a known standard\n");
- 			break;
- 		default:
--			printk("pktcdvd: inserted media is CD-R%s\n", di.erasable ? "W" : "");
-+			printk("pktcdvd: inserted media is yet UNKNOWN by pktcdvd\n");
- 			break;
- 	}
- 	pd->type = di.erasable ? PACKET_CDRW : PACKET_CDR;
+thanks,
+-Len
 
 
-Regards,
-Julien

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317491AbSHGNKt>; Wed, 7 Aug 2002 09:10:49 -0400
+	id <S317366AbSHGNJT>; Wed, 7 Aug 2002 09:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317402AbSHGNJT>; Wed, 7 Aug 2002 09:09:19 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:10003 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S317351AbSHGNIM>;
-	Wed, 7 Aug 2002 09:08:12 -0400
-Date: Wed, 7 Aug 2002 15:08:25 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at tg3.c:1557
-Message-ID: <20020807130825.GA943@alpha.home.local>
-References: <Pine.LNX.4.44.0208071332110.3394-100000@pc40.e18.physik.tu-muenchen.de> <1028726077.18478.284.camel@irongate.swansea.linux.org.uk>
+	id <S317402AbSHGNJP>; Wed, 7 Aug 2002 09:09:15 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50425 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317388AbSHGNIi>; Wed, 7 Aug 2002 09:08:38 -0400
+Subject: Re: [lkml] Linux 2.4.19-ac4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ian Soboroff <ian.soboroff@nist.gov>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+In-Reply-To: <9cfeldcmanw.fsf@rogue.ncsl.nist.gov>
+References: <200208051147.g75Blh720012@devserv.devel.redhat.com>
+	<9cflm7kmbht.fsf@rogue.ncsl.nist.gov>  <9cfeldcmanw.fsf@rogue.ncsl.nist.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 15:31:42 +0100
+Message-Id: <1028730702.18156.300.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028726077.18478.284.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 02:14:37PM +0100, Alan Cox wrote:
-> I've never been able to get a broadcom chipset ethernet card stable on a
-> dual athlon with AMD 76x chipset. I have no idea what the problem is
-> although it certainly appears to be PCI versus main memory ordering
-> funnies.
+On Tue, 2002-08-06 at 13:30, Ian Soboroff wrote:
+> 
+> Never mind.  It turns out I still have to pass 'ide0=ata66 ide1=ata66'
+> on the kernel command line.  2.4.19-ac4 boots for me!
 
-have you tried it in a 5V slot ? My DL2K nearly doesn't work at all in
-3V slots: it sends hundreds of packets, and the driver needs to be unloaded
-then reloaded. In a 5V slot, at least, it hangs really later :-/
+Do you have ALI_INIT_CODE_TEST in the file defined or undef ?
 
-At first, I thought it came from a problem with the 64bit slots, but I had
-problems with this card only on 3V slots on other machines. Although it's
-not a broadcom chipset, the problem may be similar.
+If its defined then this means the code path that causs the problem is
+quite small and is in the function
 
-Cheers,
-Willy
+ata66_ali15x3
+
+Can you comment out the bit below and see if that is the cure
+
+        /*
+         * CD_ROM DMA on (m5229, 0x53, bit0)
+	 *	Enable this bit even if we want to use PIO
+	 * PIO FIFO off (m5229, 0x53, bit1)
+	 *	The hardware will use 0x54h and 0x55h to control PIO FIFO
+	 */
+	pci_read_config_byte(dev, 0x53, &tmpbyte);
+	tmpbyte = (tmpbyte & (~0x02)) | 0x01;
+
+	pci_write_config_byte(dev, 0x53, tmpbyte);
 

@@ -1,102 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264872AbSKNMB7>; Thu, 14 Nov 2002 07:01:59 -0500
+	id <S264883AbSKNM3i>; Thu, 14 Nov 2002 07:29:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264875AbSKNMB7>; Thu, 14 Nov 2002 07:01:59 -0500
-Received: from port-213-148-149-130.reverse.qsc.de ([213.148.149.130]:24467
-	"EHLO eumucln01.mscsoftware.com") by vger.kernel.org with ESMTP
-	id <S264872AbSKNMB5>; Thu, 14 Nov 2002 07:01:57 -0500
-From: Martin Knoblauch <martin.knoblauch@mscsoftware.com>
-Reply-To: martin.knoblauch@mscsoftware.com
-Organization: MSC.Software GmbH
+	id <S264885AbSKNM3i>; Thu, 14 Nov 2002 07:29:38 -0500
+Received: from [212.130.55.83] ([212.130.55.83]:20243 "EHLO smtp.tt.dk")
+	by vger.kernel.org with ESMTP id <S264883AbSKNM3g>;
+	Thu, 14 Nov 2002 07:29:36 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [Patch] Prevent crash when loading "cpqfc" with Tachyon XL2 cards (against 2.4.20-rc1-ac1)
-Date: Thu, 14 Nov 2002 13:07:49 +0100
-User-Agent: KMail/1.4.2
-Cc: fibrechannel@compaq.com, ehm@cris.com, grif@cs.ucr.edu
-MIME-Version: 1.0
-Message-Id: <200211141307.49206.martin.knoblauch@mscsoftware.com>
-X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.2; AVE: 6.16.0.0; VDF: 6.16.0.17
-	 at mailmuc has not found any known virus in this email.
-X-MIMETrack: Itemize by SMTP Server on EUMUCLN01/MSCsoftware(Release 5.0.10 |March 22, 2002) at
- 11/14/2002 01:04:15 PM,
-	Serialize by Router on EUMUCLN01/MSCsoftware(Release 5.0.10 |March 22, 2002) at
- 11/14/2002 01:04:24 PM,
-	Serialize complete at 11/14/2002 01:04:24 PM
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_11FKYUZU8UVFVF8XEIJW"
+Subject: [PATCH 2.5 (2.4)] wrong information for detection of serial pci devices
+Cc: linus@transmeta.com, rmk@arm.linux.org.uk
+Message-Id: <E18CJEO-0006YZ-00@brmlinux.tt.dk>
+From: brm@tt.dk
+Date: Thu, 14 Nov 2002 13:36:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch fixes some outdated structure members for Titan Serial Boards.
+With a simple substitution of serial.c for 8250_pci.c (and a directory
+change) it also applies to 2.4 where the identical error can be found.
 
---------------Boundary-00=_11FKYUZU8UVFVF8XEIJW
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-  charset="us-ascii"
+/Brian
 
-Hi,
-
- please apply the appended patch to "drivers/scsi/cpqfcTSinit.c". It=20
-adds a call to "pci_enable_device" which prevents a hard crash when=20
-loading the driver on a Tachyon XL2 based HP card (IA64 platform). The=20
-patch is against 2.4.20-rc1-ac1, but should apply to mainline.
-
- In general, is someone working making the Tachyon XL2 cards really work=20
-with the cpqfc driver? I am very interested in that. It is really sad=20
-to see those 60 FC disks idle when Linux is booted on our rx5670 :-( I=20
-would love to help out with testing and experimenting.
-
- The current problems (after applying this patch are):
-
-- unable to read WWN from NVRAM
-- no GBIC found
-- no link state
-- no disks found
-
-
-
-Thanks
-Martin
---=20
-Martin Knoblauch
-Senior System Architect
-MSC.software GmbH
-Am Moosfeld 13
-D-81829 Muenchen, Germany
-
-e-mail: martin.knoblauch@mscsoftware.com
-http://www.mscsoftware.com
-Phone/Fax: +49-89-431987-189 / -7189
-Mobile: +49-174-3069245
-
---------------Boundary-00=_11FKYUZU8UVFVF8XEIJW
-Content-Transfer-Encoding: 7bit
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="cpqfcTSinit.c.patch"
-Content-Disposition: attachment; filename="cpqfcTSinit.c.patch"
-
---- cpqfcTSinit.c-orig	Wed Nov 13 11:05:10 2002
-+++ cpqfcTSinit.c	Thu Nov 14 12:48:48 2002
-@@ -242,6 +242,10 @@
+--- linux-2.5.46/drivers/serial/8250_pci.c	2002-11-04 23:30:46.000000000 +0100
++++ linux-2.5.46-mine/drivers/serial/8250_pci.c	2002-11-14 11:05:59.000000000 +0100
+@@ -474,6 +474,9 @@
+ 	pbn_b1_4_1382400,
+ 	pbn_b1_8_1382400,
  
- 		while ((PciDev = pci_find_device(cpqfc_boards[i].vendor_id, cpqfc_boards[i].device_id, PciDev))) {
++	pbn_b1_bt_1_921600,
++	pbn_b1_bt_2_921600,
++
+ 	pbn_b2_1_115200,
+ 	pbn_b2_8_115200,
+ 	pbn_b2_4_460800,
+@@ -487,6 +490,9 @@
+ 	pbn_b2_bt_4_115200,
+ 	pbn_b2_bt_2_921600,
  
-+			if (pci_enable_device(PciDev) != 0) {
-+				printk(KERN_WARNING "cpqfc: pci_enable_devive failed, skipping.\n");
-+				continue;
-+			}
- 			if (pci_set_dma_mask(PciDev, CPQFCTS_DMA_MASK) != 0) {
- 				printk(KERN_WARNING "cpqfc: HBA cannot support required DMA mask, skipping.\n");
- 				continue;
-@@ -411,6 +415,7 @@
- 	// can we find an FC device mapping to this SCSI target?
- 	DumCmnd.channel = ScsiDev->channel;	// For searching
- 	DumCmnd.target = ScsiDev->id;
-+	DumCmnd.lun = ScsiDev->lun;
- 	pLoggedInPort = fcFindLoggedInPort(fcChip, &DumCmnd,	// search Scsi Nexus
- 					   0,	// DON'T search linked list for FC port id
- 					   NULL,	// DON'T search linked list for FC WWN
-
---------------Boundary-00=_11FKYUZU8UVFVF8XEIJW--
-
++	pbn_bt_4_921600,
++	pbn_bt_8_921600,
++
+ 	pbn_panacom,
+ 	pbn_panacom2,
+ 	pbn_panacom4,
+@@ -554,6 +563,8 @@
+ 	{ SPCI_FL_BASE1, 4, 1382400 },		/* pbn_b1_4_1382400 */
+ 	{ SPCI_FL_BASE1, 8, 1382400 },		/* pbn_b1_8_1382400 */
+ 
++	{ SPCI_FL_BASE1 | SPCI_FL_BASE_TABLE, 1, 921600 }, /* pbn_b1_bt_1_921600 */
++	{ SPCI_FL_BASE1 | SPCI_FL_BASE_TABLE, 2, 921600 }, /* pbn_b1_bt_2_921600 */
+ 	{ SPCI_FL_BASE2, 1, 115200 },		/* pbn_b2_1_115200 */
+ 	{ SPCI_FL_BASE2, 8, 115200 },		/* pbn_b2_8_115200 */
+ 	{ SPCI_FL_BASE2, 4, 460800 },		/* pbn_b2_4_460800 */
+@@ -567,6 +578,8 @@
+ 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 4, 115200 }, /* pbn_b2_bt_4_115200 */
+ 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 2, 921600 }, /* pbn_b2_bt_2_921600 */
+ 
++	{ SPCI_FL_BASE_TABLE, 4, 921600 }, 		/* pbn_bt_4_921600 */
++	{ SPCI_FL_BASE_TABLE, 8, 921600 }, 		/* pbn_bt_8_921600 */
+ 	{ SPCI_FL_BASE2, 2, 921600, /* IOMEM */		   /* pbn_panacom */
+ 		0x400, 7, pci_plx9050_fn },
+ 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 2, 921600,   /* pbn_panacom2 */
+@@ -992,19 +1005,18 @@
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0, 
+ 		pbn_b0_4_921600 },
+ 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_100L,
+-		PCI_ANY_ID, PCI_ANY_ID,
+-		SPCI_FL_BASE1, 1, 921600 },
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_b1_bt_1_921600 },
+ 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_200L,
+-		PCI_ANY_ID, PCI_ANY_ID,
+-		SPCI_FL_BASE1 | SPCI_FL_BASE_TABLE, 2, 921600 },
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_b1_bt_2_921600 },
+ 	/* The 400L and 800L have a custom hack in get_pci_port */
+ 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_400L,
+-		PCI_ANY_ID, PCI_ANY_ID,
+-		SPCI_FL_BASE_TABLE, 4, 921600 },
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_bt_4_921600 },
+ 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_800L,
+-		PCI_ANY_ID, PCI_ANY_ID,
+-		SPCI_FL_BASE_TABLE, 8, 921600 },
+-
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_bt_8_921600 },
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S_10x_550,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig10x_0 },

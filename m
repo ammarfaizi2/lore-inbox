@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265240AbSJRUo1>; Fri, 18 Oct 2002 16:44:27 -0400
+	id <S265223AbSJRUuB>; Fri, 18 Oct 2002 16:50:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265286AbSJRUo1>; Fri, 18 Oct 2002 16:44:27 -0400
-Received: from web21108.mail.yahoo.com ([216.136.227.110]:17321 "HELO
-	web21108.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265240AbSJRUo0>; Fri, 18 Oct 2002 16:44:26 -0400
-Message-ID: <20021018205026.56875.qmail@web21108.mail.yahoo.com>
-Date: Fri, 18 Oct 2002 21:50:26 +0100 (BST)
-From: =?iso-8859-1?q?Steven=20Newbury?= <s_j_newbury@yahoo.co.uk>
-Subject: Re: RPM installation problem.
-To: tompr_2002@yahoo.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S265311AbSJRUuB>; Fri, 18 Oct 2002 16:50:01 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:34293 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S265223AbSJRUuA>; Fri, 18 Oct 2002 16:50:00 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 18 Oct 2002 14:50:43 -0600
+To: tytso@mit.edu
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 9/9] Add default mount options support to ext2/3
+Message-ID: <20021018205043.GO14989@clusterfs.com>
+Mail-Followup-To: tytso@mit.edu, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <E182cAR-0000vl-00@snap.thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E182cAR-0000vl-00@snap.thunk.org>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Tom Pr <tompr_2002@yahoo.com> wrote:
-> Hi Sam,
+On Oct 18, 2002  14:48 -0400, tytso@mit.edu wrote:
+> This patch adds support for default mount options to be stored in the
+> superblock, so they don't have to be specified on the mount command line
+> (or in /etc/fstab).
 > 
-> Sorry for confusion. It is SRPM. Any idea why I am
-> getting this problem. I wanted to install kernel
-> source RPM and compile the kernel.
-> 
-> Thanks.
-> 
-> --- Sam Ravnborg <sam@ravnborg.org> wrote:
-> > On Fri, Oct 18, 2002 at 10:52:47AM -0700, Tom Pr
-> > wrote:
-> > > Hi All,
-> > > 
-> > > If I try to install an RPM on my machine, it works
-> > > fine. It displays  ####.............  100%. I am
-> > > sure it is installing perfectly.Once installation
-> > is
-> > > completed if I query for the RPM, it says the RPM
-> > > never installed. what is it behaving that way? Do
-> > I
-> > > need to do any thing else?
-> > > 
-> > > Any inputs will be appreciated.
-> > 1) This is not a question for lkml - try the most
-> > local LUG ml instead.
-> > 2) To my knowledge Source RPM's does not show up in
-> > the database, and therefore not in rpm -q.
-> >  Maybe it's a SRPM?
-> > 
-> > 	Sam
+> This patch assumes that the ext2/3 extended attribute and ACL patches
+> have been applied first.  Support for setting this new superblock field
+> is available in the e2fsprogs BK repository.
 
+I think this one is a stand-alone patch that could be applied without
+the others, and could probably be submitted as a prereq to the EA and
+ACL patches instead of the other way around...
 
-Assuming you are using RedHat or similar, you want to install a kernel-source
-RPM not a kernel SRPM.  The kernel SRPM is for rebuilding a packaged kernel
-RPM, while if you want to play with the distributions kernel source you want
-the kernel-source RPM.
+You also are missing the settings for default journaling mode - a few
+people have expressed interest in this, especially for the root fs,
+where it is somewhat non-obvious to specify the journaling mode.
 
-Alternativly, you could download kernel source from kernel.org or a mirror. 
-This is different to the kernel that came with your distribution.  The kernels
-that come with distributions have been modified with various patches for
-feature enhancements and/or bugfixes.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-It is the kernels available from kernel.org that are discussed on linux-kernel.
- Distribution kernels should be disscussed on distribution mail-lists.
-
-
-=====
-Steve
-
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com

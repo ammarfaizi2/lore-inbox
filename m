@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274544AbRJTHMQ>; Sat, 20 Oct 2001 03:12:16 -0400
+	id <S275115AbRJTH0j>; Sat, 20 Oct 2001 03:26:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274809AbRJTHMG>; Sat, 20 Oct 2001 03:12:06 -0400
-Received: from pcow028o.blueyonder.co.uk ([195.188.53.124]:2825 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S274544AbRJTHLy>;
-	Sat, 20 Oct 2001 03:11:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Alan Chandler <alan@chandlerfamily.org.uk>
+	id <S275449AbRJTH03>; Sat, 20 Oct 2001 03:26:29 -0400
+Received: from zero.tech9.net ([209.61.188.187]:1811 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S275115AbRJTH0S>;
+	Sat, 20 Oct 2001 03:26:18 -0400
+Subject: [PATCH] updated preempt-kernel
+From: Robert Love <rml@tech9.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Unresolved symbol hotplug_path in usbcore.o as a module (2.4.12)
-Date: Sat, 20 Oct 2001 08:12:14 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <28682.1003560517@ocs3.intra.ocs.com.au>
-In-Reply-To: <28682.1003560517@ocs3.intra.ocs.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15uqJ1-0008Mq-01@roo.home>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
+Date: 20 Oct 2001 03:27:12 -0400
+Message-Id: <1003562833.862.65.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Testers Wanted:
 
-On Saturday 20 October 2001 7:48 am, Keith Owens wrote:
-> On Fri, 19 Oct 2001 20:21:17 +0100,
->
-> Alan Chandler <alan@chandlerfamily.org.uk> wrote:
-> >I have built the the 2.4.12 kernel with CONFIG_HOTPLUG set and the usb
-> > stuff all compiled as modules.
-> >
-> >depmod -e  shows that usbcore.o has an unresolved symbol (which of course
-> >fails when the module tries to load) of hot_plug path.
->
-> I need the output from
->   nm -A `/sbin/modprobe -l`  | grep hotplug_path
+patches to enable a fully preemptible kernel are available at:
+	http://tech9.net/rml/linux
+for kernels 2.4.10, 2.4.12, 2.4.12-ac3, and 2.4.13-pre5.
 
-alan@kanger:~$ nm -A `/sbin/modprobe -l` | grep hotplug_path
-/lib/modules/2.4.12/kernel/drivers/usb/usbcore.o:         U hotplug_path
-alan@kanger:~$
+What is this:
 
->   grep hotplug_path /proc/ksyms System.map
+A preemptible kernel.  It lowers your latency.
 
+What is New:
 
-alan@kanger:/$ grep hotplug_path /proc/ksyms System.map
-/proc/ksyms:c0290960 hotplug_path_R__ver_hotplug_path
-System.map:c02810a0 ? __kstrtab_hotplug_path
-System.map:c028bb98 ? __ksymtab_hotplug_path
-System.map:c0290960 D hotplug_path
-alan@kanger:/$
-- -- 
+* sync with new kernel releases
 
-  Alan - alan@chandlerfamily.org.uk
-http://www.chandlerfamily.org.uk
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+* if HIGHMEM_DEBUG was on the preempt counter would be incremented at
+times but never decremented.  this resulted in preemption becoming
+permanently disabled.
 
-iD8DBQE70SPa1mf3M5ZDr2kRAkb6AJ0eyEL3EDiCdrrZdNGeT5utXP+rRwCgzaDY
-MkVDEVYXdsfCWrin8w30w0M=
-=qjMd
------END PGP SIGNATURE-----
+* if HIGHMEM_DEBUG was not on, HIGHMEM would crash the system horribly
+due to a case where preemption was enabled without a corresponding
+disable.
+
+* reapply dropped hunk to pgalloc to prevent reentrancy onto per-CPU
+data
+
+The next few patches are going to work on identifying any remaining
+per-CPU variables that need explicit locking under preemption.
+
+	Robert Love
+

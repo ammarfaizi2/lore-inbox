@@ -1,53 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVDBINk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVDBI2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVDBINk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 03:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVDBINk
+	id S261214AbVDBI2b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 03:28:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVDBI2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 03:13:40 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:20888 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261207AbVDBINh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 03:13:37 -0500
-Subject: RE: x86 TSC time warp puzzle
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Jonathan Lundell <linux@lundell-bros.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004629635@scsmsx403.amr.corp.intel.com>
-References: <88056F38E9E48644A0F562A38C64FB6004629635@scsmsx403.amr.corp.intel.com>
-Content-Type: text/plain
-Date: Sat, 02 Apr 2005 03:13:36 -0500
-Message-Id: <1112429616.24111.7.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Sat, 2 Apr 2005 03:28:31 -0500
+Received: from ozlabs.org ([203.10.76.45]:2456 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261214AbVDBI2Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 03:28:24 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16974.20858.121298.165539@cargo.ozlabs.ibm.com>
+Date: Sat, 2 Apr 2005 18:02:02 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: benh@kernel.crashing.org, trini@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc: add syscall6 definition
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-01 at 23:05 -0800, Pallipadi, Venkatesh wrote:
-> It can be SMI happening in the platform. Typically BIOS uses some SMI
-> polling 
-> to handle some devices during early boot. Though 500 microseconds sounds
-> a 
-> bit too high.
-> 
+Since we have some syscalls with 6 arguments, it's useful to have a
+definition of _syscall6 in asm-ppc/unistd.h.  This patch adds a
+suitable definition.
 
-Nope, that sounds just about right.  Buggy BIOSes that implement ACPI
-via SMM (or so I have been told) can stall the machine for over a
-millisecond, this is why some laptops lose timer ticks at HZ=1000.  The
-issue is well known by Linux audio users, as it causes big problems for
-people who buy laptops for live audio use.
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-A list of known good/bad machines would be a tremendous help, but no one
-knows the exact extent of the problem.  All Acer laptops seem to be
-affected.
-
-Hardware manufacturers (laptops anyway) don't seem to care about
-anything below 1-2ms because Windows uses HZ=100 and the ASIO drivers on
-that platform only go down to about ~1.5 ms latency.
-
-Lee
-
-
-
+diff -urN linux-2.5/include/asm-ppc/unistd.h pmac-2.5/include/asm-ppc/unistd.h
+--- linux-2.5/include/asm-ppc/unistd.h	2005-03-11 08:36:23.000000000 +1100
++++ pmac-2.5/include/asm-ppc/unistd.h	2005-03-14 14:14:08.000000000 +1100
+@@ -297,6 +297,7 @@
+ 		register unsigned long __sc_5  __asm__ ("r5");		\
+ 		register unsigned long __sc_6  __asm__ ("r6");		\
+ 		register unsigned long __sc_7  __asm__ ("r7");		\
++		register unsigned long __sc_8  __asm__ ("r8");		\
+ 									\
+ 		__sc_loadargs_##nr(name, args);				\
+ 		__asm__ __volatile__					\
+@@ -305,10 +306,10 @@
+ 			: "=&r" (__sc_0),				\
+ 			  "=&r" (__sc_3),  "=&r" (__sc_4),		\
+ 			  "=&r" (__sc_5),  "=&r" (__sc_6),		\
+-			  "=&r" (__sc_7)				\
++			  "=&r" (__sc_7),  "=&r" (__sc_8)		\
+ 			: __sc_asm_input_##nr				\
+ 			: "cr0", "ctr", "memory",			\
+-			  "r8", "r9", "r10","r11", "r12");		\
++			  "r9", "r10","r11", "r12");			\
+ 		__sc_ret = __sc_3;					\
+ 		__sc_err = __sc_0;					\
+ 	}								\
+@@ -336,6 +337,9 @@
+ #define __sc_loadargs_5(name, arg1, arg2, arg3, arg4, arg5)		\
+ 	__sc_loadargs_4(name, arg1, arg2, arg3, arg4);			\
+ 	__sc_7 = (unsigned long) (arg5)
++#define __sc_loadargs_6(name, arg1, arg2, arg3, arg4, arg5, arg6)	\
++	__sc_loadargs_5(name, arg1, arg2, arg3, arg4, arg5);		\
++	__sc_8 = (unsigned long) (arg6)
+ 
+ #define __sc_asm_input_0 "0" (__sc_0)
+ #define __sc_asm_input_1 __sc_asm_input_0, "1" (__sc_3)
+@@ -343,6 +347,7 @@
+ #define __sc_asm_input_3 __sc_asm_input_2, "3" (__sc_5)
+ #define __sc_asm_input_4 __sc_asm_input_3, "4" (__sc_6)
+ #define __sc_asm_input_5 __sc_asm_input_4, "5" (__sc_7)
++#define __sc_asm_input_6 __sc_asm_input_5, "6" (__sc_8)
+ 
+ #define _syscall0(type,name)						\
+ type name(void)								\
+@@ -380,6 +385,12 @@
+ 	__syscall_nr(5, type, name, arg1, arg2, arg3, arg4, arg5);	\
+ }
+ 
++#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4,type5,arg5,type6,arg6) \
++type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5, type6 arg6) \
++{									\
++	__syscall_nr(6, type, name, arg1, arg2, arg3, arg4, arg5, arg6); \
++}
++
+ #ifdef __KERNEL__
+ 
+ #define __NR__exit __NR_exit

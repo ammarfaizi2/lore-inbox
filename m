@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264522AbRFJMAr>; Sun, 10 Jun 2001 08:00:47 -0400
+	id <S264525AbRFJNKy>; Sun, 10 Jun 2001 09:10:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264523AbRFJMA1>; Sun, 10 Jun 2001 08:00:27 -0400
-Received: from t2.redhat.com ([199.183.24.243]:19194 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S264522AbRFJMAQ>; Sun, 10 Jun 2001 08:00:16 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <m1593mW-001RQEC@mozart> 
-In-Reply-To: <m1593mW-001RQEC@mozart> 
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        Dawson Engler <engler@csl.Stanford.EDU>
-Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8 
-Mime-Version: 1.0
+	id <S264526AbRFJNKe>; Sun, 10 Jun 2001 09:10:34 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35338 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264525AbRFJNKY>; Sun, 10 Jun 2001 09:10:24 -0400
+Subject: Re: [patch] ess maestro, support for hardware volume control
+To: pfaffben@msu.edu
+Date: Sun, 10 Jun 2001 14:08:56 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <877kyl2e4t.fsf@pfaffben.user.msu.edu> from "Ben Pfaff" at Jun 09, 2001 11:43:46 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 10 Jun 2001 12:59:29 +0100
-Message-ID: <20904.992174369@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1594xc-0006ZB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> What can happen as I see it is that userspace #2, which wants to
+> talk to a particular misc driver, actually ends up talking to a
+> different one because the minor gets reassigned between reading
+> /proc/misc to find out the number and mknoding and opening the
+> device:
 
-rusty@rustcorp.com.au said:
-> In message <19317.992115181@redhat.com> you write:
-> > torvalds@transmeta.com said:
-> > >  Good point. Spinlocks (with the exception of read-read locks, of
-> > > course) and semaphores will deadlock on recursive use, while the BKL
-> > > has this "process usage counter" recursion protection.
-> > 
-> > Obtaining a read lock twice can deadlock too, can't it
-> > Or do we not make new readers sleep if there's a writer waiting?
->
-> We can never[1] make new readers sleep if there's a writer waiting, as
-> Linus guaranteed that an IRQ handler which only ever grabs a read lock
-> means the rest of the code doesn't need to block interrupts on its
-> read locks (see Documentation/spinlock.txt IIRC).
-
-You're right. Despite the fact that upon closer examination it's obvious
-that Linus was only referring to rw-spinlocks as safe, I was actually
-thinking of rw-semaphores. 
-
---
-dwmw2
+Looks true to me. So get a real misc device assigned for anything you use 8)
 
 

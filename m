@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275201AbTHGHhj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 03:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275202AbTHGHhj
+	id S275211AbTHGHuh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 03:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275213AbTHGHuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 03:37:39 -0400
-Received: from mx0.gmx.net ([213.165.64.100]:61435 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id S275201AbTHGHhi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 03:37:38 -0400
-Date: Thu, 7 Aug 2003 09:37:36 +0200 (MEST)
-From: Daniel Blueman <daniel.blueman@gmx.net>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net
+	Thu, 7 Aug 2003 03:50:35 -0400
+Received: from tudela.mad.ttd.net ([194.179.1.233]:35050 "EHLO
+	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S275211AbTHGHue
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 03:50:34 -0400
+Date: Thu, 7 Aug 2003 09:49:43 +0200 (MEST)
+From: Javier Achirica <achirica@telefonica.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] airo driver: fix races, oops, etc..
+In-Reply-To: <1060076891.615.57.camel@gaston>
+Message-ID: <Pine.SOL.4.30.0308070946380.22832-100000@tudela.mad.ttd.net>
 MIME-Version: 1.0
-References: <3F319CD5.7060706@pacbell.net>
-Subject: Re: [linux-usb-devel] [2.6.0-test2-bk5] OHCI USB printing causing system lockup...
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0008973862@gmx.net
-X-Authenticated-IP: [194.202.174.101]
-Message-ID: <4210.1060241856@www4.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It does seem that it's the usblp driver, and I think the way forward is to
-collect more information with compiling the driver with debugging to see more
-of what's happening here. I'll do this tonight and report findings.
 
-The module author string is "Michael Gee, Pavel Machek, Vojtech Pavlik,
-Randy Dunlap, Pete Zaitcev, David Paschal" - who should I CC my results to?
 
-Thanks!
+On 5 Aug 2003, Benjamin Herrenschmidt wrote:
 
-> Daniel Blueman wrote:
-> > When printing a test page on an Epson C62 through an unpowered USB 1.1
-> hub,
-> > the printer printed part of the page, then stopped.
-> > 
-> > The 'error -110' messages were being sent to the syslogs, and after
-> pulling
-> > the connector to the USB hub, the system locked up.
-> 
-> So it seems like there are two errors:
-> 
->   - timeouts during printing, reported recently on UHCI too;
-> 
->   - the usb_buffer_free() oops from printer cleanup, likewise.
-> 
-> Seems more related to the printer driver than to OHCI ...
+> On Tue, 2003-08-05 at 10:53, Javier Achirica wrote:
+> > I've integrated this patch in my code. I've done a major change: Instead
+> > of using schedule_delayed_work(), I create a new workqueue and use
+> > queue_work() on that queue. As all tasks sleep in the same lock, I can
+> > queue them there and make them sleep instead of requeueing them.
+> >
+> > I haven't sent them to Jeff yet, as I want to do more testing. If you want
+> > to help testing them, please tell me.
+>
+> Well... creating a work queue means you create one thread per CPU, that
+> sucks a bit don't think ? Maybe using a single thread for the driver
+> with your own queuing primitives...
 
--- 
-Daniel J Blueman
+I've been studying the problem for a while and I've implemented a solution
+using a single kernel thread and a wait queue for synchronization. I've
+tested it and looks like it works fine. It can be used both in 2.4
+and 2.6 kernels. Before submitting a patch with it I'd like someone with
+experience in this kind of code to take a look at it just in case I'm
+doing something dumb. Jeff? :-)
 
-COMPUTERBILD 15/03: Premium-e-mail-Dienste im Test
---------------------------------------------------
-1. GMX TopMail - Platz 1 und Testsieger!
-2. GMX ProMail - Platz 2 und Preis-Qualitätssieger!
-3. Arcor - 4. web.de - 5. T-Online - 6. freenet.de - 7. daybyday - 8. e-Post
+Javier Achirica
 

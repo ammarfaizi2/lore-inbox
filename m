@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265690AbUFDMUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUFDMZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265690AbUFDMUh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 08:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUFDMUh
+	id S265701AbUFDMZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 08:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbUFDMZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 08:20:37 -0400
-Received: from gprs214-121.eurotel.cz ([160.218.214.121]:1153 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265690AbUFDMUg (ORCPT
+	Fri, 4 Jun 2004 08:25:27 -0400
+Received: from gprs214-121.eurotel.cz ([160.218.214.121]:1665 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265701AbUFDMZ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 08:20:36 -0400
-Date: Fri, 4 Jun 2004 14:20:27 +0200
+	Fri, 4 Jun 2004 08:25:26 -0400
+Date: Fri, 4 Jun 2004 14:25:18 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Flavio Stanchina <flavio@stanchina.net>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: swappiness=0 makes software suspend fail.
-Message-ID: <20040604122027.GA11950@elf.ucw.cz>
-References: <200405280000.56742.rob@landley.net> <20040529222308.GA1535@elf.ucw.cz> <20040531031743.0d7566e3.akpm@osdl.org> <200405310638.21015.rob@landley.net> <40BBB861.1010002@stanchina.net>
+Subject: Re: [PATCH] Driver Core fixes for 2.6.7-rc1
+Message-ID: <20040604122518.GB11950@elf.ucw.cz>
+References: <10857795552653@kroah.com> <10857795552130@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40BBB861.1010002@stanchina.net>
+In-Reply-To: <10857795552130@kroah.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,23 +27,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >Of course, mounting/fscking any of the filesystems in question would kinda 
-> >screw that up too, [...]
+> [PATCH] Report which device failed to suspend
 > 
-> That reminds me of a question I wanted to ask for a long time.
-> 
-> Why doesn't suspend just remount everything read-only before saving the
-> memory image? Would that be impossible in this context? I find it quite
-> scary to have my filesystems dirty *and* part of my files saved in the
-> memory image.
+> Based on a patch from Nickolai Zeldovich <kolya@MIT.EDU> but put into the
+> proper place by me.
 
-Try umount / on busy system some day. No, its not possible in this
-context.
+Seems good.
 
-OTOH swsuspend does sync(), so your filesystems are not in *that*
-scary state.
+I'm seeing lots of problems with drivers & swsusp these days. Perhaps
+even printing names of devices as they are suspended is good idea?
 
-									Pavel
+								Pavel
 
 -- 
 934a471f20d6580d5aad759bf0d97ddc

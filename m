@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVBGOeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVBGOaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbVBGOeV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:34:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVBGOb3
+	id S261426AbVBGOaK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVBGO2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:31:29 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:30440 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261432AbVBGOaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:30:11 -0500
-To: linux lover <linux_lover2004@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to read file in kernel module?
-References: <20050207061718.47940.qmail@web52203.mail.yahoo.com>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Mon, 07 Feb 2005 15:29:52 +0100
-Message-ID: <87ekfsl9y7.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
+	Mon, 7 Feb 2005 09:28:53 -0500
+Received: from gprs215-44.eurotel.cz ([160.218.215.44]:34206 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261433AbVBGO1n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 09:27:43 -0500
+Date: Mon, 7 Feb 2005 15:27:06 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Hu Gang <hugang@soulinfo.com>
+Subject: Re: [RFC][PATCH] swsusp: do not use higher order allocations on resume [update 2]
+Message-ID: <20050207142706.GD8040@elf.ucw.cz>
+References: <200501310019.39526.rjw@sisk.pl> <200502071208.50001.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200502071208.50001.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux lover <linux_lover2004@yahoo.com> writes:
+Hi!
 
-> Now what i want is to use same bufproc_read &
-> bufproc_write  functions defined in /proc file
-> handling kernel module to be used in another kernel
-> module to read that /proc/file in kernel module.The
-> second kernel module only used to read /proc file in
-> kernel. I am not understanding how can i open that
-> /proc/file in second kenrel module to read in kernel?
+> > The following patch is (yet) an(other) attempt to eliminate the need for using higher
+> > order memory allocations on resume.  It accomplishes this by replacing the array
+> > of page backup entries with a list, so it is only necessary to allocate individual
+> > memory pages.  This approach makes it possible to avoid relocating many memory
+> > pages on resume (as a result, much less memory is used) and to simplify
+> > the assembly code that restores the image.
+> 
+> I have updated the resume patch to apply to the 2.6.11-rc3-mm1 kernel that
+> contains the suspend part and the x86_64-Speed-up-suspend patch.  The patch
+> is only for x86-64 and i386.
+> 
+> [Note: without this patch the resume process fails on my box ("out of memory")
+> during every 7th - 8th suspend/resume cycle, on the average.]
 
-Look at kernel_read() in fs/exec.c and fs/binfmt_*.c
-
-Regards, Olaf.
+Pssst. At this point, solution would be to revert the first part,
+too. 2.6.11 is too near to do anything else.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,88 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265665AbUBJGr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 01:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUBJGr1
+	id S265667AbUBJGvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 01:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265669AbUBJGvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 01:47:27 -0500
-Received: from pool-64-222-172-33.man.east.verizon.net ([64.222.172.33]:50374
-	"EHLO mx.wuff.dhs.org") by vger.kernel.org with ESMTP
-	id S265665AbUBJGrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 01:47:24 -0500
-Subject: Re: HT CPU handling - 2.6.2
-From: Hod McWuff <hod@wuff.dhs.org>
-To: Len Brown <len.brown@intel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1076391435.4103.730.camel@dhcppc4>
-References: <BF1FE1855350A0479097B3A0D2A80EE0023E8B98@hdsmsx402.hd.intel.com>
-	 <1076391435.4103.730.camel@dhcppc4>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1076395641.2246.5.camel@siberian.wuff.dhs.org>
+	Tue, 10 Feb 2004 01:51:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40426 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265667AbUBJGvH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 01:51:07 -0500
+Date: Mon, 9 Feb 2004 22:53:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] warning: `__attribute_used__' redefined
+Message-Id: <20040209225336.1f9bc8a8.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com>
+References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 10 Feb 2004 01:47:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Chua <jeffchua@silk.corp.fedex.com> wrote:
+>
+> Here's a small fix for linux 2.6.3-rc2 to get rid of the annoying warnings
+>  while non-kernel programs ...
+> 
+>  /usr/include/linux/compiler-gcc2.h:15: warning: `__attribute_used__' redefined
+>  /usr/include/sys/cdefs.h:170: warning: this is the location of the previous definition
 
-OK, the BIOS setting is disabled and cannot be changed, so the message
-won't get cleaned up that way. I could of course disable SMP in my
-kernel, but that really doesn't address anything.
+It is more likely that we need to extend the __KERNEL__ coverage somewhere.
 
-What I'm wondering is, if the second "CPU" appears to exist but is
-merely marked disabled, who cares about the BIOS flag? Why couldn't the
-disable flag be cleared or ignored?
+Can you please do a `gcc -H' of that application and show us the inclusion
+route by which it is hitting compiler.h?
 
-Couldn't the ACPI/APIC/SMP code just cope with the odd LAPIC ID somehow?
-
-On Tue, 2004-02-10 at 00:37, Len Brown wrote:
-> Your BIOS is reporting the 2nd CPU as disabled, and telling us that it
-> has LAPIC id 0x81 = 129.  The ACPI table code prints this out and
-> registers the processor anyway, but that chokes because the LAPIC ID is
-> way out of bounds.
-> 
-> I'm thinking that ACPI should not register a processor that the BIOS
-> marked as disabled...
-> 
-> What should you do?  Apparently you've got an HT-enabled platform, BIOS,
-> and OS, but do not have an HT-enabled processor.  Your choices are to
-> disable HT in the BIOS SETUP to clean up this message, or plug in an
-> HT-enabled processor.
-> 
-> cheers,
-> -Len
-> 
-> On Mon, 2004-02-09 at 15:44, Hod McWuff wrote:
-> > I've got a 2.0A GHz P4, advertised as non-hyperthread, that seems to
-> > be
-> > reporting the presence of a second CPU. It also seems to be disabled
-> > by
-> > setting bit 7 of its ID. I've tried compiling with support for 130
-> > CPU's
-> > and nothing changed. What would have to be done to get this disabled
-> > CPU half back online?
-> > 
-> > Feb  9 04:45:03 pug ACPI: Local APIC address 0xfee00000
-> > Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-> > Feb  9 04:45:03 pug Processor #0 15:2 APIC version 20
-> > Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x02] lapic_id[0x81]
-> > disabled)
-> > Feb  9 04:45:03 pug Processor #129 invalid (max 16)
-> > Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl lint[0x1])
-> > Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x02] dfl dfl lint[0x1])
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

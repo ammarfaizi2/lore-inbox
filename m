@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313641AbSDFBv2>; Fri, 5 Apr 2002 20:51:28 -0500
+	id <S290593AbSDFBQI>; Fri, 5 Apr 2002 20:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313916AbSDFBvS>; Fri, 5 Apr 2002 20:51:18 -0500
-Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:10196 "EHLO
-	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S313641AbSDFBvJ> convert rfc822-to-8bit; Fri, 5 Apr 2002 20:51:09 -0500
-Message-Id: <5.1.0.14.2.20020405174611.00b1dad0@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 05 Apr 2002 17:49:02 -0800
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: some more nifty benchmarks
-Cc: Ed Sweetman <ed.sweetman@wmich.edu>, Robert Love <rml@tech9.net>,
-        Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@zip.com.au>,
-        George Anzinger <george@mvista.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrea Arcange <andrea@suse.de>
-In-Reply-To: <200204052237.29299.Dieter.Nuetzel@hamburg.de>
+	id <S313857AbSDFBPs>; Fri, 5 Apr 2002 20:15:48 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:19182 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S290593AbSDFBPh>; Fri, 5 Apr 2002 20:15:37 -0500
+Date: Sat, 6 Apr 2002 11:12:07 +1000
+From: CaT <cat@zip.com.au>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre5-ac3
+Message-ID: <20020406011206.GY550@zip.com.au>
+In-Reply-To: <20020406010402.GX550@zip.com.au> <200204060109.g36199g10373@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:37 PM 5/04/2002 +0200, Dieter Nützel wrote:
->That's not true with the O(1)-scheduler.
->In most of my tests (Ingo got my results) you have to renice the audio daemon
->to something like -16 (first "real time" class) and X to -10 (for good
->interactivity) during "heavy" background stuff (40 gcc and 40 g++ processes
->reniced +19 for example). This load resulting in ~350 processes, 80~85
->running in parallel and sound playing on my "old" 1 GHz Athlon II with 640
->MB...;-)
+On Fri, Apr 05, 2002 at 08:09:09PM -0500, Alan Cox wrote:
+> > Would love to but unless I mis-grepped it is not in the patch... Wanted
+> > to find out if it plays nice with ext3 now. :)
+> 
+> Its there ok
 
-you've completely missed the point.
+Including Documentation/swsusp.txt? Cos I can't see it in the patch.
+Just references to it.
 
-for "CPU intensive" tasks (which GCC will be for large files being 
-compiled), it will want to use its entire time-slice.
-with HZ set at 100 for x86, that means it can run for up to 10msec without 
-being preempted (if its not performing any system calls, I/O or other 
-things which can cause a context-switch).
+12 [11:11:16] root@theirongiant:/usr/src>> bzgrep -i swsusp patch-2.4.19-pre5-ac3.bz2 
++  'swsusp' or 'shutdown -z <time>' (patch for sysvinit needed). It
++  For more information take a look at Documentation/swsusp.txt.
++L:     http://lister.fornax.hu/mailman/listinfo/swsusp
++static void sysrq_handle_swsusp(int key, struct pt_regs *pt_regs,
++static struct sysrq_key_op sysrq_swsusp_op = {
++       handler:        sysrq_handle_swsusp,
++/* d */        &sysrq_swsusp_op,
++#ifndef __ASM_I386_SWSUSP_H
++#define __ASM_I386_SWSUSP_H
++#endif /* __ASM_I386_SWSUSP_H */
++#ifndef _LINUX_SWSUSP_H
++#define _LINUX_SWSUSP_H
++#endif /* _LINUX_SWSUSP_H */
++ * linux/kernel/swsusp.c
++ * For TODOs,FIXMEs also look in Documentation/swsusp.txt
 
-with 40 of these running, i have no doubt that you'll get skips on your audio.
-
-are you using xmms?  if so, this has been discussed to death previously - 
-and the fault lies with the userspace application.
-
-
-cheers,
-
-lincoln.
-
+-- 
+SOCCER PLAYER IN GENITAL-BITING SCANDAL  ---  "It was something between
+friends that I thought would have no importance until this morning when
+I got up and saw all  the commotion in the news,"  Gallardo told a news
+conference. "It stunned me."
+Reyes told Marca that he had "felt a slight pinch."
+      -- http://www.azcentral.com/offbeat/articles/1129soccer29-ON.html

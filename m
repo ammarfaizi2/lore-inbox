@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130248AbQJaV6x>; Tue, 31 Oct 2000 16:58:53 -0500
+	id <S130669AbQJaV7o>; Tue, 31 Oct 2000 16:59:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130723AbQJaV6o>; Tue, 31 Oct 2000 16:58:44 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41098 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130708AbQJaV6i>;
-	Tue, 31 Oct 2000 16:58:38 -0500
-Date: Tue, 31 Oct 2000 13:44:17 -0800
-Message-Id: <200010312144.NAA19788@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: jmerkey@timpanogas.org
-CC: pmenage@ensim.com, riel@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <39FF3D53.C46EB1A8@timpanogas.org> (jmerkey@timpanogas.org)
+	id <S129977AbQJaV7e>; Tue, 31 Oct 2000 16:59:34 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:35824 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130669AbQJaV7P>; Tue, 31 Oct 2000 16:59:15 -0500
+Date: Tue, 31 Oct 2000 19:58:49 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Reto Baettig <baettig@scs.ch>
+cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com> <39FF3D53.C46EB1A8@timpanogas.org>
+In-Reply-To: <39FEF93D.2AB63201@scs.ch>
+Message-ID: <Pine.LNX.4.21.0010311957450.1190-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Tue, 31 Oct 2000 14:44:51 -0700
-   From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+On Tue, 31 Oct 2000, Reto Baettig wrote:
 
-   not web servers copying read only data from cache...
+> Is there any documentation about the Tux zero-copy
+> implementation so that I don't have to read half of the 2.4
+> kernel sources before having a clue?
 
-Actually, a sizable portion of SpecWEB99 is dynamic content, so it's
-not all read-only.
+Reading the 2.4 sources won't do you much good since
+the Tux layer isn't integrated ;)
 
-Later,
-David S. Miller
-davem@redhat.com
+> Are the kernel changes going to be in the mainstream kernel?
+
+Dunno, ask Ingo and/or Linus...
+
+> Sorry for the newbie questions, but it's really hard to find
+> information about Tux (other than the holy source code, of
+> course ;-)
+
+Maybe there's some documentation included with the Tux
+source code or maybe there's something on the Tux web
+page?  Have you tried looking there?
+
+regards,
+
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
+
+http://www.conectiva.com/		http://www.surriel.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262846AbTCSA1w>; Tue, 18 Mar 2003 19:27:52 -0500
+	id <S262840AbTCSA1a>; Tue, 18 Mar 2003 19:27:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262849AbTCSA1w>; Tue, 18 Mar 2003 19:27:52 -0500
-Received: from sabre.velocet.net ([216.138.209.205]:14601 "HELO
-	sabre.velocet.net") by vger.kernel.org with SMTP id <S262846AbTCSA1u>;
-	Tue, 18 Mar 2003 19:27:50 -0500
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: Greg Stark <gsstark@mit.edu>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-ac2 Memory Leak?
-References: <8765qgb6z0.fsf@stark.dyndns.tv>
-	<1048030102.1521.77.camel@tux.rsn.bth.se>
-	<87znns9r1k.fsf@stark.dyndns.tv>
-	<1048031585.748.83.camel@tux.rsn.bth.se>
-In-Reply-To: <1048031585.748.83.camel@tux.rsn.bth.se>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 18 Mar 2003 19:05:11 -0500
-Message-ID: <87u1e09q6g.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262846AbTCSA1a>; Tue, 18 Mar 2003 19:27:30 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:58266 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262840AbTCSA13>;
+	Tue, 18 Mar 2003 19:27:29 -0500
+Subject: [PATCH] boot time parameter to turn of TSC usage
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jerry Cooperstein <coop@axian.com>
+In-Reply-To: <20030319002119.GA5351@p3.attbi.com>
+References: <20030318190557.GA14447@p3.attbi.com>
+	 <1048019543.6294.3.camel@dell_ss3.pdx.osdl.net>
+	 <20030318205907.GB4081@p3.attbi.com>
+	 <200303182340.h2INeE4r098586@northrelay04.pok.ibm.com>
+	 <20030319002119.GA5351@p3.attbi.com>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1048034299.6296.85.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 18 Mar 2003 16:38:20 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Josefsson <gandalf@wlug.westbo.se> writes:
+For machines that don't want to cooperate and have bad TSC counter and/or
+change CPU frequency without change support.
 
-> On Wed, 2003-03-19 at 00:46, Greg Stark wrote:
-> > Martin Josefsson <gandalf@wlug.westbo.se> writes:
-> > 
-> > > This can be the source of your problems, connections can get very long
-> > > timeouts and stay in ip_conntrack.
-> > 
-> > Is there a way to list the connections and confirm this is the problem?
-> > It seems it would require an awful lot of connections to consume megabytes of
-> > memory.
-> 
-> cat /proc/net/ip_conntrack
-> 
-> The third field is the timeout in seconds.
-> The fourth field is the state of the connection, if it's TIME_WAIT with
-> a large timeout then it's the list handling bug. (iirc it was TIME_WAIT
-> that showed the problem...)
+This fixes the problem on Jerry Cooperstein's PIII laptop.
+Could be useful for other people and tech support situations.
 
-Nope, a total of 16 entries in ip_conntrack, one of which is in TIME_WAIT with
-a timeout of 2m.
+Please consider applying.
+Thanks
+Steve
 
 
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	Tue Mar 18 15:28:10 2003
++++ b/arch/i386/kernel/timers/timer_tsc.c	Tue Mar 18 15:28:10 2003
+@@ -15,6 +15,7 @@
+ #include <asm/processor.h>
+ 
+ int tsc_disable __initdata = 0;
++static int tsc_clock_disable __initdata = 0;
+ 
+ extern spinlock_t i8253_lock;
+ 
+@@ -241,6 +242,13 @@
+ };
+ #endif
+ 
++/* Don't use TSC for time of day clock */
++static int __init tsc_noclock_setup(char *str)
++{
++	tsc_clock_disable = 1;
++	return 1;
++}
++__setup("notsclock", tsc_noclock_setup);
+ 
+ static int init_tsc(void)
+ {
+@@ -273,7 +281,7 @@
+ 	cpufreq_register_notifier(&time_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
+ #endif
+ 
+-	if (cpu_has_tsc) {
++	if (cpu_has_tsc && !tsc_clock_disable) {
+ 		unsigned long tsc_quotient = calibrate_tsc();
+ 		if (tsc_quotient) {
+ 			fast_gettimeoffset_quotient = tsc_quotient;
 
-> The default tcp timeout is 5 days for esatblished connections.
-> 
-> There's a patch in patch-o-matic that enables you to tune the timeouts
-> without having to edit the source. Instructions on how to get
-> patch-o-matic are availiable on http://www.netfilter.org
 
-Thanks.
-
--- 
-greg
 

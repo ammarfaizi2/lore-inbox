@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266407AbTGEQx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 12:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266410AbTGEQx0
+	id S266415AbTGERCh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 13:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266419AbTGERCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 12:53:26 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:23947 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266407AbTGEQxW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 12:53:22 -0400
-Date: Sat, 5 Jul 2003 18:06:32 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, benh@kernel.crashing.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-Message-ID: <20030705170632.GB27500@mail.jlokier.co.uk>
-References: <20030704193848.GG22152@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0307041259050.10035-100000@home.osdl.org> <20030704201840.GH22152@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030704201840.GH22152@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+	Sat, 5 Jul 2003 13:02:37 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:6414 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S266415AbTGERCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 13:02:34 -0400
+Date: Sun, 6 Jul 2003 03:16:09 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Andrew Morton <akpm@osdl.org>, <Andries.Brouwer@cwi.nl>,
+       <akpm@digeo.com>, <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
+Subject: Re: [PATCH] cryptoloop
+In-Reply-To: <3F068F49.1883BE0D@pp.inet.fi>
+Message-ID: <Mutt.LNX.4.44.0307060312520.21967-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> > It is entirely possible that they do not do this out of signal handlers, 
-> > since that has its own set of problems anyway, and one of the reasons for 
-> > doing co-operative user level threading is to not need locking, and thus 
-> > you never want to do any thread switching asynchronously (eg from a signal 
-> > context).
+On Sat, 5 Jul 2003, Jari Ruusu wrote:
 
-longjmp() out of signal handlers has a fine tradition, not just for
-threading but also code written for systems where SIGCLD doesn't
-interrupt select(), to pick a real example.  Admittedly such code
-doesn't have to be written that way on Linux, but it does exist and
-has been run on Linux.  I doubt such code ever uses sigaltstack().
+> This tests only low level cipher functions aes_encrypt() and aes_decrypt()
+> from linux-2.5.74/crypto/aes.c with all CryptoAPI overhead removed. In real
+> use, including CryptoAPI overhead, these numbers should be a little bit
+> smaller.
+> 
+> key length 128 bits, encrypt speed 68.5 Mbits/sec
+> key length 128 bits, decrypt speed 58.9 Mbits/sec
+> key length 192 bits, encrypt speed 58.3 Mbits/sec
+> key length 192 bits, decrypt speed 50.3 Mbits/sec
+> key length 256 bits, encrypt speed 51.0 Mbits/sec
+> key length 256 bits, decrypt speed 43.8 Mbits/sec
 
-About co-operative threading: one of the points is that the locks are
-cheaper, and it's possible for a thread to disable/enable pre-emption
-very fast, with no system calls or locked memory cycles.  In that
-environment, longjmp() or setcontext() out of timer signals makes sense.
+[snip]
 
-Many years ago I looked at a paper about fixups from signal handlers,
-an ML run-time environment on SunOS I think, and they decided that
-longjmp() from the handler was not a reliable strategy.  What they did
-instead was to change the instruction pointer in the sigcontext, and
-return from the handler.  This works on Linux too, but there are two
-disadvantages: 1. two system calls instead of one (which is an issue
-when these are a high rate of SIGSEGVs for memory management); 2. the
-code is necessarily architecture specific, whereas longjmp() from
-timer signals is relatively portable.
+> This tests aes_encrypt() and aes_decrypt() from loop-AES-v1.7d/aes.c
+> Loop-AES users running non-x86 kernels or x86 configured for i386/i486 will
+> run this version.
+> 
+> key length 128 bits, encrypt speed 81.2 Mbits/sec
+> key length 128 bits, decrypt speed 83.4 Mbits/sec
+> key length 192 bits, encrypt speed 68.5 Mbits/sec
+> key length 192 bits, decrypt speed 70.6 Mbits/sec
+> key length 256 bits, encrypt speed 58.9 Mbits/sec
+> key length 256 bits, decrypt speed 60.9 Mbits/sec
 
--- Jamie
+These results are interesting, if they represent a pure comparison of the
+crypto algorithm implementations -- both the mainline kernel version and
+yours are based on the same Gladman code.
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+

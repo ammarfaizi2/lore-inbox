@@ -1,86 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265800AbSKTF5A>; Wed, 20 Nov 2002 00:57:00 -0500
+	id <S265815AbSKTGSy>; Wed, 20 Nov 2002 01:18:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265806AbSKTF5A>; Wed, 20 Nov 2002 00:57:00 -0500
-Received: from pop016pub.verizon.net ([206.46.170.173]:14824 "EHLO
-	pop016.verizon.net") by vger.kernel.org with ESMTP
-	id <S265800AbSKTF47>; Wed, 20 Nov 2002 00:56:59 -0500
-Date: Wed, 20 Nov 2002 01:03:11 -0500
-From: Akira Tsukamoto <akira-t@suna-asobi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: Performance improvement with Akira Tsukamoto's Athlon copy_user patch
-Cc: Akira Tsukamoto <at541@columbia.edu>, linux-kernel@vger.kernel.org,
-       Hirokazu Takahashi <taka@valinux.co.jp>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <3DDA8E81.4070508@colorfullife.com>
-References: <3DDA8E81.4070508@colorfullife.com>
-Message-Id: <20021120004212.5F4C.AKIRA-T@suna-asobi.com>
+	id <S265816AbSKTGSy>; Wed, 20 Nov 2002 01:18:54 -0500
+Received: from mtl.slowbone.net ([213.237.73.175]:1408 "EHLO
+	leeloo.slowbone.net") by vger.kernel.org with ESMTP
+	id <S265815AbSKTGSx>; Wed, 20 Nov 2002 01:18:53 -0500
+Message-ID: <003e01c2905d$b413a5e0$0201a8c0@mtl>
+From: =?iso-8859-1?Q?Thorbj=F8rn_Lind?= <mtl@slowbone.net>
+To: <linux-kernel@vger.kernel.org>
+References: <15835.5488.59408.747895@wombat.chubb.wattle.id.au>
+Subject: Re: [patch] 2.5.48-bk, md raid0 fix
+Date: Wed, 20 Nov 2002 07:26:04 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop016.verizon.net from [138.89.33.207] at Wed, 20 Nov 2002 00:03:56 -0600
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not deeply but I looked your exception safe kfpu.
+> Are you not using power-of-two sized chunks?  If not, use the
+Yes
 
-'kernel_fpu_begin/end' was like delayed FPU sate switching,
-on the other hand, kfpu is more abstracted FPU semaphore
-which works per cpu.
+> You could try ... (untested)
+> - return (chunk_size - ((block & (chunk_size - 1)) + bio_sz)) << 10;
+> + return (chunk_size - (sector_div(block, chunk_size) + bio_sz)) << 10;
 
-I have not compiled it but it should work fine on 2.4, but
-have some questions using kfpu for 2.5.
+No good either.. not many using raid0 I guess :)
 
- 1)Is 'per CPU' safe for 2.5?
-   I think the new O(1) scheduler has process migration between cpus
-   and I am a bit afraid.
-   If not safe, any good idea for it?
-   May be per task could be safer even not optimal for smp?
- 2)Need to add preempt_disable/enable().
- 3)struct kfpuacquire {} kfpuacquire; is in the kfpu.h header,
-   might cause compile problem.
+... here is what happenes with either of the above.
 
-> Have you tried SSE based copy_to_user? With SSE, you can just save the affected registers, without unexpected sideeffects.
+raid0_mergeable: chunk_size 32768 bi_sector 524288, bi_size 0, bv_len 4096, ret 28672
+raid0_mergeable: chunk_size 32768 bi_sector 100401152, bi_size 0, bv_len 4096, ret 28672
+raid0_mergeable: chunk_size 32768 bi_sector 96, bi_size 0, bv_len 4096, ret 12288
+raid0_mergeable: chunk_size 32768 bi_sector 4216, bi_size 0, bv_len 4096, ret 0
+kernel BUG at drivers/block/ll_rw_blk.c:1995!
+invalid operand: 0000
 
-No, my CPU don't run SSE......:)
+Should it really return 0 when we are actually ready to recieve that 4k request? That is.. should it
+return how much can be merged or how much it can take after the merge. The first seems to work.
+That would be something like:
 
-By the way,
-do you have separeted patch only for kfpu?
+--- a/drivers/md/raid0.c        2002-11-18 05:29:46.000000000 +0100
++++ b/drivers/md/raid0.c        2002-11-20 07:19:15.000000000 +0100
+@@ -173,15 +173,10 @@
+ static int raid0_mergeable_bvec(request_queue_t *q, struct bio *bio, struct bio_vec *biovec)
+ {
+        mddev_t *mddev = q->queuedata;
+-       sector_t block;
+-       unsigned int chunk_size;
+-       unsigned int bio_sz;
++       unsigned int chunk_sects = mddev->chunk_size >> 9;
++       unsigned int max_sectors = chunk_sects - (bio->bi_sector % chunk_sects);
 
-Thank you,
+-       chunk_size = mddev->chunk_size >> 10;
+-       block = bio->bi_sector >> 1;
+-       bio_sz = (bio->bi_size + biovec->bv_len) >> 10;
+-
+-       return (chunk_size - ((block & (chunk_size - 1)) + bio_sz)) << 10;
++       return (max_sectors - (bio->bi_size >> 9)) << 9;
+ }
 
-Akira Tsukamoto
+ static int raid0_run (mddev_t *mddev)
 
-On Tue, 19 Nov 2002 20:18:25 +0100
-Manfred Spraul <manfred@colorfullife.com> mentioned:
-
-> >I read the code of laze FPU state saving and confirmed that 
-> >if the function does not generate exception than
-> >'kernel_fpu_begin/end()' should assure fpu safe inside kernel.
-> >
-> >However, it is not enough where exception could rise, as Takahashi
-> >mentioned.
-> 
-> 
-> I had prototyped an exception safe kfpu framework, but then I didn't have the time to submit/cleanup it.
-> 
-> http://www.colorfullife.com/~manfred/linux-2.5/sse/patch-kfpu
-> 
-> Have you tried SSE based copy_to_user? With SSE, you can just save the affected registers, without unexpected sideeffects.
-> 
-> --
-> 	Manfred
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Akira Tsukamoto <akira-t@suna-asobi.com, at541@columbia.edu>
 
 

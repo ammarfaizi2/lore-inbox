@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbTBJPNA>; Mon, 10 Feb 2003 10:13:00 -0500
+	id <S262452AbTBJPQa>; Mon, 10 Feb 2003 10:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261733AbTBJPNA>; Mon, 10 Feb 2003 10:13:00 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:13843 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S261724AbTBJPM6>;
-	Mon, 10 Feb 2003 10:12:58 -0500
-Message-ID: <3E47C3BF.6030609@mvista.com>
-Date: Mon, 10 Feb 2003 09:22:39 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
+	id <S262789AbTBJPQa>; Mon, 10 Feb 2003 10:16:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2053 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262452AbTBJPQ3>; Mon, 10 Feb 2003 10:16:29 -0500
+Date: Mon, 10 Feb 2003 07:22:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Anton Blanchard <anton@samba.org>, <linux-kernel@vger.kernel.org>,
+       Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@digeo.com>,
+       <arjanv@redhat.com>
+Subject: Re: heavy handed exit() in latest BK
+In-Reply-To: <Pine.LNX.4.44.0302100951540.2724-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0302100720020.2127-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: suparna@in.ibm.com
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org> <3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org> <20030210174243.B11250@in.ibm.com> <3E47AF93.8030807@mvista.com> <20030210203715.A11739@in.ibm.com>
-In-Reply-To: <20030210203715.A11739@in.ibm.com>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Suparna Bhattacharya wrote:
+On Mon, 10 Feb 2003, Ingo Molnar wrote:
+> 
+> > Interesting. Especially as the last thing exit_notify() does (just a few
+> > lines above the schedule()) is to do
+> > 
+> >         tsk->state = TASK_ZOMBIE;
+> > 
+> > and that schedule() _really_ really shouldn't return. Regardless of any
+> > signal handler changes.
+> 
+> the proper way to avoid such scenarios (besides removing tasks from all
+> waitqueues) is to remove the thread from all the PID-hashes prior setting
+> it to TASK_ZOMBIE.
 
-|On Mon, Feb 10, 2003 at 07:56:35AM -0600, Corey Minyard wrote:
-|
-|>-----BEGIN PGP SIGNED MESSAGE-----
-|>Hash: SHA1
-|>
-|>Suparna Bhattacharya wrote:
-|>
-|>|Yes. It actually saves a formatted compressed dump in memory,
-|>|and later writes it out to disk as is.
-|>
-|>MCL coredump does funny memory shuffling, too.  It compresses
-|>pages into a contiguous area of memory, and as it runs into output
-|>pages that it has not yet compressed, it moves them into pages that
-|>it has already compressed and keeps track of where everything is
-|
-|
-|AFAICR, the MCL coredump implementation I'd seen (and used as
-|a reference to model some of this code for lkcd) seemed to
-|save only a kernel dump (not user space pages), so it would
-|use the free and user pages as destination for compressed
-|dump. What you are describing sounds a little different and
-|closer to what we are doing. I'd be interested in takng a look
-|at the implementation you are working with if it actually
-|saves the whole memory by making use of pages it has already
-|compressed. Could you point me to the code ?
+Not a good idea.
 
-I remembered incorrectly here.  I was thinking of bootimg, which does to 
-some wierd
-page shuffling.  MCL coredump does not save in a contiguous region, it 
-keeps a free list
-of pages it has alread compressed and allocates destination pages from 
-it's free list,
-and stores those in a map.
+We still want to find zombie processes, since they show up in "ps"  
+listings etc. And I don't think sending a signal to a zombie process
+should return ESRCH, since it's there.
 
-- -Corey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Btw, I fixed it by making all wake-up events give a mask of which states 
+can be woken up. That's really what SIGCONT wanted anyway (only wake up 
+stopped tasks), _and_ it's what default_wake_function() really wanted.
 
-iD8DBQE+R8NemUvlb4BhfF4RApfrAJ4tWv3mU8N4TDYXaymM4FBXJurJ3ACfef4r
-qHRXTq8OS/+fb7KSFqWMKiw=
-=h6qs
------END PGP SIGNATURE-----
-
+		Linus
 

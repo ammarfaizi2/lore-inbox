@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316309AbSHOBJJ>; Wed, 14 Aug 2002 21:09:09 -0400
+	id <S316342AbSHOBMY>; Wed, 14 Aug 2002 21:12:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSHOBJJ>; Wed, 14 Aug 2002 21:09:09 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:49658 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316309AbSHOBJH>; Wed, 14 Aug 2002 21:09:07 -0400
-Subject: Re: [NFS] Re: Will NFSv4 be accepted?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Brian Pawlowski <beepy@netapp.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, dax@gurulabs.com,
-       Linus Torvalds <torvalds@transmeta.com>, kmsmith@umich.edu,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-In-Reply-To: <200208142234.g7EMYvQ21700@tooting-fe.eng>
-References: <200208142234.g7EMYvQ21700@tooting-fe.eng>
-Content-Type: text/plain
+	id <S316390AbSHOBMY>; Wed, 14 Aug 2002 21:12:24 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38901 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316342AbSHOBMY>; Wed, 14 Aug 2002 21:12:24 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200208150114.g7F1EcY25108@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.20-pre2-ac1
+To: eyal@eyal.emu.id.au (Eyal Lebedinsky)
+Date: Wed, 14 Aug 2002 21:14:38 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3D5AFDD6.3178894D@eyal.emu.id.au> from "Eyal Lebedinsky" at Aug 15, 2002 11:03:18 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 15 Aug 2002 02:10:29 +0100
-Message-Id: <1029373829.28240.16.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-14 at 23:34, Brian Pawlowski wrote:
-> But ACL support over the wire is an argument for V4 - and fine grained
-> authorization coupled to strong authentication makes for a flexible 
-> security package.
+> - mm/swap_state.c
+> 	Improper use of PAGE_BUG() macro
 
-ACL works in NFSv2 and nicely in NFSv3 - again the problems Linux has
-are the client failing to respect basic NFS rules of operation.
+Yep
 
+> - drivers/isdn/hisax/st5481.h
+> 	Usage of '...' in macro, not always compatible with prevailing
+> 	versions of gcc. We all know the story though... I just disabled
+> 	all the special macros for now
+
+I'll ifdef between the two versions again. I'm not using the old gcc on
+any boxes nowdays so I don't catch them

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbTAFO3B>; Mon, 6 Jan 2003 09:29:01 -0500
+	id <S266041AbTAFOnA>; Mon, 6 Jan 2003 09:43:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265589AbTAFO3B>; Mon, 6 Jan 2003 09:29:01 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:5564 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id <S265587AbTAFO3A>; Mon, 6 Jan 2003 09:29:00 -0500
-Subject: Why do some net drivers require __OPTIMIZE__?
-From: Alex Bennee <alex@braddahead.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S266546AbTAFOnA>; Mon, 6 Jan 2003 09:43:00 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:133
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266041AbTAFOnA>; Mon, 6 Jan 2003 09:43:00 -0500
+Subject: Re: Why do some net drivers require __OPTIMIZE__?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Alex Bennee <alex@braddahead.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1041863609.21044.11.camel@cambridge.braddahead>
+References: <1041863609.21044.11.camel@cambridge.braddahead>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8-3mdk 
-Date: 06 Jan 2003 14:33:29 +0000
-Message-Id: <1041863609.21044.11.camel@cambridge.braddahead>
+Organization: 
+Message-Id: <1041867367.17472.40.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 06 Jan 2003 15:36:07 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Does anybody know the history behind those lines? Do they serve any
+> purpose now or in the past? Should I be nervous about compiling the
+> kernel at a *lower* than normal optimization level? After all
+> optimizations are generally processor specific and shouldn't affect the
+> meaning of the C.
 
-I've been doing a bring up on an embedded kernel and to prevent gdb
-making me go google eyed I notched the optimization level down to -O0
-for the time being. This broke the natsemi network driver and I noticed
-this stanza appears in a few places:
-
-#if !defined(__OPTIMIZE__)
-#warning  You must compile this file with the correct options!
-#warning  See the last lines of the source file.
-#error You must compile this driver with "-O".
-#endif
-
-Despite the comments I couldn't see an explanation at the bottom of the
-source file and a quick google showed a few patches where this was
-removed but no explanation.
-
-Does anybody know the history behind those lines? Do they serve any
-purpose now or in the past? Should I be nervous about compiling the
-kernel at a *lower* than normal optimization level? After all
-optimizations are generally processor specific and shouldn't affect the
-meaning of the C.
-
--- 
-Alex Bennee
-Senior Hacker, Braddahead Ltd
-The above is probably my personal opinion and may not be that of my
-employer
+Some of our inline and asm blocks assume things like optimisation. Killing
+that check and adding -finline-functions ought to be enough to get what
+you expect.
 

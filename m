@@ -1,202 +1,169 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132864AbRAVSaU>; Mon, 22 Jan 2001 13:30:20 -0500
+	id <S133037AbRAVSfd>; Mon, 22 Jan 2001 13:35:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132966AbRAVSaA>; Mon, 22 Jan 2001 13:30:00 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6272 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132864AbRAVS3q>; Mon, 22 Jan 2001 13:29:46 -0500
-Date: Mon, 22 Jan 2001 13:29:05 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Larry McVoy <lm@bitmover.com>
-cc: Jonathan Earle <jearle@nortelnetworks.com>,
-        "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT?] Coding Style
-In-Reply-To: <20010122082254.D9530@work.bitmover.com>
-Message-ID: <Pine.LNX.3.95.1010122132454.2390A-100000@chaos.analogic.com>
+	id <S132981AbRAVSfW>; Mon, 22 Jan 2001 13:35:22 -0500
+Received: from datafoundation.com ([209.150.125.194]:29194 "EHLO
+	datafoundation.com") by vger.kernel.org with ESMTP
+	id <S132966AbRAVSfQ>; Mon, 22 Jan 2001 13:35:16 -0500
+Date: Mon, 22 Jan 2001 13:35:15 -0500 (EST)
+From: John Jasen <jjasen@datafoundation.com>
+To: linux-kernel@vger.kernel.org
+cc: linux-raid@vger.kernel.org
+Subject: PROBLEM: raid assembly on 2.4.0-2.4.1-pre9 fails
+Message-ID: <Pine.LNX.4.21.0101221257350.6716-100000@flash.datafoundation.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jan 2001, Larry McVoy wrote:
 
-> On Mon, Jan 22, 2001 at 11:04:50AM -0500, Jonathan Earle wrote:
-> > > -----Original Message-----
-> > > From: profmakx.fmp [mailto:profmakx.fmp@gmx.de]
-> > > 
-> > > So, every good programmer
-> > > should know where to put comments. And it is unnecessary to 
-> > > put comments to
-> > > explain what code does. One should see this as stated in the 
-> > > CodingStyle doc.
-> > > Ok, there are points where a comment is good, but for example 
-> > > at university
-> > > we are to comment on every single line of code ...
-> > 
-> > WRONG!!!
-> > 
-> > Not documenting your code is not a sign of good coding, but rather shows
-> > arrogance, laziness and contempt for "those who would dare tamper with your
-> > code after you've written it".  Document and comment your code thoroughly.
-> > Do it as you go along.  I was also taught to comment nearly every line - as
-> > part of the coding style used by a large, international company I worked for
-> > several years ago.  It brings the logic of the programmer into focus and
-> > makes code maintenance a whole lot easier.  It also helps one to remember
-> > the logic of your own code when you revisit it a year or more hence.
-> 
-> Please don't listen to this.  The only place you really want comments is
-> 
->     a) at the top of files, describing the point of the file;
->     b) at the top of functions, if the purpose of the function is not obvious;
->     c) in line, when the code is not obvious.
-> 
-> If you are writing code that requires a comment for every line, you are 
-> writing bad, obscure, unobvious code and no amount of commenting will fix
-> it.
-> 
-> The real reason to sparing in your comments is that code and comments are
-> not semantically bound to each other: the program doesn't stop working when
-> the comment becomes incorrect.  It's incredibly frustrating to read a comment,
-> believe you understand what is going on, only to find out that the comment
-> and the code no longer match.   
-> -- 
-> ---
-> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+[1.] One line summary of the problem:    
 
+cannot assemble md devices under 2.4.x, x=0,1-pre7,1-pre9
 
-Okay, I'll byte (sic)...
+[2.] Full description of the problem/report:
 
-If you are a good programmer, your code should work well and
-you will be writing code for new projects long before the product
-enters the in-production maintenance phase. This phase exists in
-real products during their lifetime. At this time, rather junior
-programmers will be required to add new capability or even fix
-bugs.
+System: API UP2000 motherboard, running generic 2.4.0 to 2.4.1-pre9
+kernel.
 
-Even excellent programmers generate bugs that are not discovered
-for a long time (perhaps ever). This occurs because not every code
-path gets tested so these bugs are not always found. For instance,
-the return value from a function that encounters hardware errors may
-not be correct because, during the entire development phase, the
-hardware never generated that specific error.
+kernel .config file can be
+found: http://userpages.umbc.edu/~jjasen1/config.241-p7.txt
 
-When maintaining code, the programmer may have never seen the
-code before. If it takes several weeks to find the function that
-is returning the wrong value, and if it takes several hours to
-correct the problem after the function is located, then the
-original writer did not complete his or her job correctly.
+error messages: <summarised> can be found:
 
-Comments should assume that the reader is expert in the language
-being used. No other assumptions produce useful documentation.
+http://userpages.umbc.edu/~jjasen1/boot-2.4.0-errs.txt and
+boot-2.4.1-p7-errs.txt
 
-There are many ways to document code. Not all of these ways involve
-comments. Examples are:
+[3.] Keywords:
+kernel, filesystem, raid, alpha
 
-(1)	MACROS:
+[4.] Kernel version:
 
-Lots of programmers don't use MACROS for documentation. However they
-are very useful. Suppose we have a complicated single-bit sequence
-necessary to communicate with a SEEPROM. If the main-line code does:
+2.4.0, 2.4.1-pre7, 2.4.1-pre9
 
-	WRITE_SEEPROM(parameter);
-	READ_SEEPROM(parameter);
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
+No Oops
 
-... then the code is very clear. The MACRO can be very complicated.
-When it is isolated in this manner, the code both for the MACRO and
-the functions that expand this MACRO are better documented than
-just laying code. 
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+none
 
-(2)	Descriptive names:
+[7.] Environment
+[7.1.] Software (add the output of the ver_linux script here)
+-- Versions installed: (if some fields are empty or looks
+-- unusual then possibly you have very old versions)
 
-I don't like these myself. Often programmers get too cute. You
-can look at the BusLogic code and see what I am talking about.
-Practically every variable and function name begins with "BusLogic".
+version of kernel is incorrect to report problem. System cannot mount
+drives under 2.4.0
 
-However, descriptive variable and function names do help document code.
-This, even though many get carried away with extremes.
+Linux sneaky 2.2.17-RAID-IDE-NFS #5 Tue Nov 7 18:18:22 EST 2000 alpha
+unknown
+Kernel modules         2.3.19
+Gnu C                  egcs-2.91.66
+Gnu Make               3.78.1
+Binutils               2.9.5.0.22
+Linux C Library        2.1.3
+Dynamic linker         ldd (GNU libc) 2.1.3
+Procps                 2.0.6
+Mount                  2.10m
+Net-tools              1.54
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         lockd sunrpc de4x5 st
 
-Most everybody will recognize:
+[7.2] CPU Info:
+[root@sneaky /root]# more /proc/cpuinfo 
+cpu                     : Alpha
+cpu model               : EV67
+cpu variation           : 7
+cpu revision            : 0
+cpu serial number       : 
+system type             : Nautilus
+system variation        : 0
+system revision         : 0
+system serial number    : 
+cycle frequency [Hz]    : 598802395 
+timer frequency [Hz]    : 1024.00
+page size [bytes]       : 8192
+phys. address bits      : 44
+max. addr. space #      : 255
+BogoMIPS                : 1191.18
+kernel unaligned acc    : 0 (pc=0,va=0)
+user unaligned acc      : 0 (pc=0,va=0)
+platform string         : SEC UP1100 598 MHz
+cpus detected           : 1
 
-	for (i=0; i< LIMIT; i++)
-              ;
+[7.5]
 
-We don't really need:
+[root@sneaky /root]# more /proc/mdstat
+Personalities : [linear] [raid0] [raid1] [raid5] 
+read_ahead 1024 sectors
+md0 : active raid5 hdd1[2] hdc1[1] hdb1[0] hda1[3] 1060096 blocks level 5,
+32k c
+hunk, algorithm 2 [3/3] [UUU]
+md1 : active raid5 hdd3[2] hdc3[1] hdb3[0] hda3[3] 4208896 blocks level 5,
+32k c
+hunk, algorithm 2 [3/3] [UUU]
+md2 : active raid5 hdd5[2] hdc5[1] hdb5[0] hda5[3] 4208768 blocks level 5,
+32k c
+hunk, algorithm 2 [3/3] [UUU]
+md3 : active raid5 hdd6[2] hdc6[1] hdb6[0] hda6[3] 4208768 blocks level 5,
+32k c
+hunk, algorithm 2 [3/3] [UUU]
+md4 : active raid5 hdd7[2] hdc7[1] hdb7[0] hda7[3] 1060096 blocks level 5,
+32k c
+hunk, algorithm 2 [3/3] [UUU]
+unused devices: <none>
 
-	for(SimpleIntegerCount=0; SimpleIntegerCount < OneLessThanTheArraySize;
-	    SimpleIntegerCount++)
-               ;
+cat /etc/raidtab:
 
-But, when you are writing complicated code, it is often useful to use
-descriptive names that uniquely define several otherwise similar routines.
-For instance:
+[root@sneaky /root]# more /etc/raidtab 
+raiddev /dev/md0
+        raid-level      5
+        nr-raid-disks   3
+        nr-spare-disks  1
+        persistent-superblock   1
+        parity-algorithm        left-symmetric
+        chunk-size      32
 
-	Write_error_log(data);
-	Append_error_log(data);
+        device  /dev/hdb1
+        raid-disk       0
+        device  /dev/hdc1
+        raid-disk       1
+        device  /dev/hdd1
+        raid-disk       2
+        device  /dev/hda1
+        spare-disk      0
 
-Again, some carry this to the extreme, they take a good idea and corrupt
-it, MicroSoftSyle, into:
+raiddev /dev/md1
+        raid-level      5
+        nr-raid-disks   3
+        nr-spare-disks  1
+        persistent-superblock   1
+        parity-algorithm        left-symmetric
+        chunk-size      32
 
-	WriteErrorLog(data);
-	AppendErrorLog(data);
+        device  /dev/hdb3
+        raid-disk       0
+        device  /dev/hdc3
+        raid-disk       1
+        device  /dev/hdd3
+        raid-disk       2
+        device  /dev/hda3
+        spare-disk      0
 
-(3)	Comments:
+... and so forth.
 
-Comments are very useful if they convey useful information. Many comments
-are not useful because they seem to exist only because somebody made a
-rule that said; "You have to comment your code...".
+[8.]
 
-	An example:
+I seem to recall seeing an error just like this in the archives, under
+-test5 or somesuch, but of course, can't find it now.
 
-	fprintf(stderr,"Memory allocation error\n");  /* No memory available */
-
-Generally, comments should tell what is being done. The code tells how it's
-being done.
-
-For instance:
-        value = 0;
-	write_csr(value)      /* Need to synchronize */
-	value |= SYNC;        /* This is really a 'start' bit */
-        write_csr(value);
- 
-
-(4)	Constants:
-
-Many constants are put into a header file or, worse, just scattered
-throughout the code. These constants may represent hardware bits or
-register contents that require some kind of explanation. Code that
-does "magic", because of some number, is not well documented.
-
-For instance:
-
-	if(status & 0x80)
-            do_something();
-
-This should read:
-
-	if(status & DATA_AVAILABLE)
-            do_something();
-
-In the second case, somebody took the time to figure out all the
-status bits and define them somewhere. Now you don't have to do this.
-
-Summing up, comments are only a small part of the total documentation
-story. It is probably possible to write documented code without a
-single comment. However, most of us are not quite that smart and
-require a few comments here and there. Also, comments help you get
-through Design Reviews, required if you write code that could impact
-public safety.
+-- John Jasen
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
 
 
 -

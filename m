@@ -1,29 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265347AbRFVG23>; Fri, 22 Jun 2001 02:28:29 -0400
+	id <S265350AbRFVGaU>; Fri, 22 Jun 2001 02:30:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265348AbRFVG2K>; Fri, 22 Jun 2001 02:28:10 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:53778 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S265347AbRFVG2D>;
-	Fri, 22 Jun 2001 02:28:03 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106220627.f5M6RSF415308@saturn.cs.uml.edu>
-Subject: Re: [VLAN] Should VLANs be devices or something else?
-To: spacey@lenin.nu (Peter C. Norton)
-Date: Fri, 22 Jun 2001 02:27:28 -0400 (EDT)
-Cc: steffann@nederland.net (Sander Steffann), vlan@Scry.WANfear.com,
-        linux-kernel@vger.kernel.org, Holger.Kiehl@dwd.de (Holger Kiehl),
-        davem@redhat.com (David S. Miller), buytenh@gnu.org (Lennert),
-        gleb@nbase.co.il (Gleb Natapov)
-In-Reply-To: <20010621231212.A20200@lenin.nu> from "Peter C. Norton" at Jun 21, 2001 11:12:12 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S265349AbRFVGaK>; Fri, 22 Jun 2001 02:30:10 -0400
+Received: from ip65.levi.spb.ru ([212.119.175.65]:56774 "EHLO
+	germes.levi.spb.ru") by vger.kernel.org with ESMTP
+	id <S265348AbRFVG3t>; Fri, 22 Jun 2001 02:29:49 -0400
+Message-ID: <3B32E5C5.2040401@levi.spb.ru>
+Date: Fri, 22 Jun 2001 10:29:25 +0400
+From: Anatoly Ivanov <avi@levi.spb.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.1+) Gecko/20010619
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Fabian Arias <dewback@vtr.net>
+CC: "Kissandrakis S. George" <kissand@phaistosnetworks.gr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 and gcc v3 final
+In-Reply-To: <Pine.LNX.4.21.0106212143320.9295-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Should VLANs be devices or some other thing?
+As you can see, this is just deprecation warning,
+i.e. you can use multi-string literals, but
+you'd better don't.
 
-What is good for PPP-over-Ethernet is good for VLANs,
-which are basically Ethernet-over-Ethernet.
+You can forget about these warnings and test ac17
+with gcc3.
+
+I hope that lk-developers would fix it one day.
+
+---
+avi
+
+Fabian Arias wrote:
+
+> I've just applied the "patch", but te warning still appears. Is this
+> somthing not to be worried about or is it something serious?
+> 
+> /usr/src/linux-2.4.5/include/asm/checksum.h:161:17: warning: multi-line
+> string literals are deprecated
+> 
+> I had to come back to 2.95 to test the ac17. Not so happy about it. :(
+> 
+> Please give me some directions.
+> 
+> On Wed, 20 Jun 2001, Anatoly Ivanov wrote:
+> 
+
+

@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266277AbUA2Ari (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 19:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266278AbUA2Ari
+	id S266275AbUA2Aqs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 19:46:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266276AbUA2Aqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 19:47:38 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:3480 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S266277AbUA2Arf
+	Wed, 28 Jan 2004 19:46:48 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:59543 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S266275AbUA2Aqq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 19:47:35 -0500
-Date: Wed, 28 Jan 2004 22:06:25 -0200 (BRST)
+	Wed, 28 Jan 2004 19:46:46 -0500
+Date: Wed, 28 Jan 2004 22:02:34 -0200 (BRST)
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 X-X-Sender: marcelo@logos.cnet
-To: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
 Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] PC300 update
-In-Reply-To: <20040128212115.A2027@infradead.org>
-Message-ID: <Pine.LNX.4.58L.0401282203170.2163@logos.cnet>
+In-Reply-To: <20040128214356.GA8999@kroah.com>
+Message-ID: <Pine.LNX.4.58L.0401282157530.4345@logos.cnet>
 References: <Pine.LNX.4.58L.0401281741120.2088@logos.cnet>
- <20040128212115.A2027@infradead.org>
+ <20040128214356.GA8999@kroah.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Cyclades-MailScanner-Information: Please contact the ISP for more information
@@ -28,26 +28,35 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi Greg!
 
-Hi Christoph!
+On Wed, 28 Jan 2004, Greg KH wrote:
 
-On Wed, 28 Jan 2004, Christoph Hellwig wrote:
-
+> On Wed, Jan 28, 2004 at 05:42:11PM -0200, Marcelo Tosatti wrote:
+> >
 > > - Mark pci_device_id list with __devinitdata
 >
-> This is bogus and can crash the kernel if you're unlucky.
+> Noooo!!!   I think we've finally audited all uses of this.  Do not do
+> this please, it is wrong for 2.6.
 
-Other wan drivers are doing the same:
+[root@yage wan]# pwd
+/root/linux-2.6.1/drivers/net/wan
+[root@yage wan]# grep __devexit_p *
+dscc4.c:  .remove = __devexit_p(dscc4_remove_one),
+farsync.c:  .remove = __devexit_p(fst_remove_one),
 
-[marcelo@logos wan]$ grep __devinitdata *
-farsync.c:static char *type_strings[] __devinitdata = {
-wanxl.c:static struct pci_device_id wanxl_pci_tbl[] __devinitdata = {
+So this ones are wrong too I assume?
 
-I believe a handful of others are using "__devinitdata". How can the
-kernel crash because of this? Who will try to touch the data?
+Mind explaining me what is the deal with __devexit_p() in 2.6?
 
 > > - Add #ifdef DEBUG around debug printk()
 >
-> What about dprintk or friends instead?
+> What's wrong with dev_dbg()?  It gives you a much better idea of which
+> device is spitting out the messages.
 
-Yes I will change to dev_dbg() as Greg suggested. Thanks!
+Indeed, dev_dbg() is fine. I will replace all #ifdef DEBUG entries in the
+driver with dev_dgb(...). Thanks for the hint.
+
+Linus, hold the patch :)
+
+

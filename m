@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265080AbSJWQGj>; Wed, 23 Oct 2002 12:06:39 -0400
+	id <S262692AbSJWQEm>; Wed, 23 Oct 2002 12:04:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265081AbSJWQGi>; Wed, 23 Oct 2002 12:06:38 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:59839 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265080AbSJWQGh>; Wed, 23 Oct 2002 12:06:37 -0400
-Subject: Re: [PATCHSET 22/25] add support for PC-9800 architecture (sound
-	alsa)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Osamu Tomita <tomita@cinet.co.jp>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <s5hbs5l17ku.wl@alsa2.suse.de>
-References: <20021019015653.A1642@precia.cinet.co.jp>
-	<s5hznt51ksm.wl@alsa2.suse.de> <3DB6C1BD.41DC80AC@cinet.co.jp> 
-	<s5hbs5l17ku.wl@alsa2.suse.de>
+	id <S262800AbSJWQEm>; Wed, 23 Oct 2002 12:04:42 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:8672 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262692AbSJWQEk>;
+	Wed, 23 Oct 2002 12:04:40 -0400
+Subject: Re: [PATCH] extended ptrace
+From: Paul Larson <plars@linuxtestproject.org>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Frank Cornelis <fcorneli@elis.rug.ac.be>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021023160144.GA11558@nevyn.them.org>
+References: <Pine.LNX.4.44.0210231656080.19811-100000@trappist.elis.rug.ac.be>
+	<1035387198.3447.39.camel@plars>  <20021023160144.GA11558@nevyn.them.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 23 Oct 2002 17:29:22 +0100
-Message-Id: <1035390562.4319.69.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 23 Oct 2002 11:00:13 -0500
+Message-Id: <1035388815.5646.42.camel@plars>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-23 at 16:46, Takashi Iwai wrote:
-> the question is, whether cs4232 module works on PC9800, or not.
-> i guess the control-port is not used on this card.  in such a case,
-> you can deactivate the control-port via module option (or even add
-> ifdef for the specific kernel config).
+On Wed, 2002-10-23 at 11:01, Daniel Jacobowitz wrote:
+> On Wed, Oct 23, 2002 at 10:33:17AM -0500, Paul Larson wrote:
+> > On Wed, 2002-10-23 at 10:01, Frank Cornelis wrote:
+> > > Hi,
+> > > 
+> > > A new extended ptrace patch is available at:
+> > > 	http://www.elis.rug.ac.be/~fcorneli/downloads/devel/exptrace-0.3.1.patch.gz
+> > Do you (or anyone else) have any good tests for this, or even ptrace in
+> > general?  I'm working on some ptrace tests for LTP, but if someone
+> > already has something to contribute it would save me some time. :)
+> 
+> GDB and gdbserver get a good range of it; just pick a couple of the
+> standard tests (to avoid problems with all the GDB bugs the testsuite
+> turns up :).  I have some more precise tests but they're for
+> features that haven't been accepted yet.
+Precise tests that can be automated and ran under our test harness are
+more along the lines of what I'm looking for.  If those features do go
+in, it might be nice to have them in LTP if you don't mind.
 
-In the longer run it may well be much cleaner to make pc98 a variable
-just like eisa, mca are. On a non pc98 box it might happen to be a
-constant 0 and optimised but that is a detail.
-
-Its much easier to follow
-
-	if(!pc98)
-		outb(a,b);
-
+Thanks,
+Paul Larson
 

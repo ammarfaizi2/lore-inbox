@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284587AbRLPLZr>; Sun, 16 Dec 2001 06:25:47 -0500
+	id <S284601AbRLPLmS>; Sun, 16 Dec 2001 06:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284586AbRLPLZ2>; Sun, 16 Dec 2001 06:25:28 -0500
-Received: from chmls16.mediaone.net ([24.147.1.151]:43174 "EHLO
-	chmls16.mediaone.net") by vger.kernel.org with ESMTP
-	id <S284584AbRLPLZZ>; Sun, 16 Dec 2001 06:25:25 -0500
-Subject: Re: Problems downgrading from Kernel 2.4.8 to 2.2.20
-From: jlm <jsado@mediaone.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200112151109.MAA02201@harpo.it.uu.se>
-In-Reply-To: <200112151109.MAA02201@harpo.it.uu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 16 Dec 2001 06:28:34 -0500
-Message-Id: <1008502115.246.0.camel@PC2>
-Mime-Version: 1.0
+	id <S284599AbRLPLmJ>; Sun, 16 Dec 2001 06:42:09 -0500
+Received: from [213.97.199.90] ([213.97.199.90]:6016 "HELO fargo")
+	by vger.kernel.org with SMTP id <S284596AbRLPLlx> convert rfc822-to-8bit;
+	Sun, 16 Dec 2001 06:41:53 -0500
+From: "David Gomez" <davidge@jazzfree.com>
+Date: Sun, 16 Dec 2001 12:41:11 +0100 (CET)
+X-X-Sender: <huma@fargo>
+To: Dave Jones <davej@suse.de>
+cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Copying to loop device hangs up everything
+In-Reply-To: <Pine.LNX.4.33.0112160458500.15956-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.33.0112161231570.650-100000@fargo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-12-15 at 06:09, Mikael Pettersson wrote:
-> On Sat, 15 Dec 2001 00:50:44 +0100, Matthias Andree wrote:
-> >> hda: lost interrupt
-> >
-> >That looks stranger. I'd suggest to try Andre's IDE patch from any
-> >kernel.org mirror, /pub/linux/kernel/people/hedrick, but it seems
-> >there's no 2.2.20 ide patch yet.
-> 
-> You can get my unofficial port of Hedrick's 2.2.19 IDE patch to 2.2.20
-> at http://www.csd.uu.se/~mikpe/linux/ide.2.2.20.05042001.patch.bz2
-Thanks! Your patch did the trick.
 
--- 
-MACINTOSH = Machine Always Crashes If Not The Operating System Hangs
-"Life would be so much easier if we could just look at the source code."
-- Dave Olson
+On Sun, 16 Dec 2001, Dave Jones wrote:
+
+> > I'm using kernel 2.4.17-rc1 and found what i think is a bug, maybe related
+> > to the loop device. This is the situation:
+>
+> Can you repeat it with this applied ?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc1aa1/00_loop-deadlock-1
+
+Thanks ;), this patch solves the problem and copying a lot of data to the
+loop device now doesn't hang the computer.
+
+Is this patch going to be applied to the stable kernel ? Marcelo ?
+
+
+
+David Gómez
+
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra
+
 

@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbTLWTvz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 14:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTLWTvz
+	id S262608AbTLWT62 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 14:58:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTLWT62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 14:51:55 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:45011 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S262131AbTLWTvy
+	Tue, 23 Dec 2003 14:58:28 -0500
+Received: from CPE-24-163-213-80.mn.rr.com ([24.163.213.80]:7814 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S262608AbTLWT60
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 14:51:54 -0500
-Subject: Found original libc-222 sources
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Tue, 23 Dec 2003 14:58:26 -0500
+Subject: Re: SCO's infringing files list
+From: Shawn <core@enodev.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031223185246.GV1343@mea-ext.zmailer.org>
+References: <Pine.LNX.4.58.0312221337010.6868@home.osdl.org>
+	 <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de>
+	 <3FE811E3.6010708@debian.org>
+	 <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch>
+	 <20031223160425.GB45620@gaz.sfgoth.com>
+	 <20031223163926.GC45620@gaz.sfgoth.com>
+	 <Pine.LNX.4.58.0312230914090.14184@home.osdl.org>
+	 <20031223124024.A30934@discworld.dyndns.org>
+	 <20031223185246.GV1343@mea-ext.zmailer.org>
 Content-Type: text/plain
-Message-Id: <1072209112.2947.70.camel@duergar>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 23 Dec 2003 14:51:53 -0500
 Content-Transfer-Encoding: 7bit
+Message-Id: <1072209500.13552.10.camel@www.enodev.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 13:58:21 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey guys,
+Why is everyone looking in FTP sites? Doesn't anyone have those old CDs
+with all the tsx-11/sunsite archives? I'm /sure/ someone has some in a
+box somewhere.
 
-Some good news, I found the original libc-222 sources lying around,
-looks like the real deal.  The user owning the files in the archive is
-hlu so looks to be untouched, latest modification dates in the archive
-are from late June 1992.  You can find it at:
+Is anyone from (or formerly from) cdrom.com (read|listen)ing?
 
-http://www.ccs.neu.edu/~stan/linux/libc-222.taz
-
-(In case anyone has forgotten .taz is .tgz file)
-
-Enjoy,
-
-Stan Bubrouski
-
+On Tue, 2003-12-23 at 12:52, Matti Aarnio wrote:
+> On Tue, Dec 23, 2003 at 12:40:24PM -0600, Charles Cazabon wrote:
+> > [...]
+> > > Can anybody find the actual libc _sources_? Not the kernel headers that
+> > > hjl mentions (those are the old ones from _before_ the change), but the
+> > > file "libc-2.2.2.tar.Z"?
+> > 
+> > Well, it's been recompressed with gzip, but it's here (among other places):
+> > ftp://ftp.uni-kassel.de/Mirrors/prep.ai.mit.edu/pub/gnu/glibc/glibc-2.2.2.tar.gz
+> 
+> Nope.  That is something entirely different -- and 9 years latter..
+> Nor can I find these bits in FUNET.FI's ancient archive branches.
+> 
+> > I haven't checked the original GNU/MIT site it was apparently mirrored from,
+> > but it might be there.
+> > 
+> > Charles
+> > -- 
+> > -----------------------------------------------------------------------
+> > Charles Cazabon                            <linux@discworld.dyndns.org>
+> > GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

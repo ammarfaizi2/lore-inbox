@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265297AbVBEIQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263857AbVBEIbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265297AbVBEIQd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 03:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265389AbVBEIQd
+	id S263857AbVBEIbh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 03:31:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbVBEIbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 03:16:33 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:8626 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S265297AbVBEIQW
+	Sat, 5 Feb 2005 03:31:37 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:45001 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263857AbVBEIb1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 03:16:22 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e47339105020418306a4c2c93@mail.gmail.com>
-References: <20050122134205.GA9354@wsc-gmbh.de>
-	 <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net>
-	 <9e47339105020321031ccaabb@mail.gmail.com> <420367CF.7060206@gmx.net>
-	 <20050204163019.GC1290@elf.ucw.cz>
-	 <9e4733910502040931955f5a6@mail.gmail.com>
-	 <1107569089.8575.35.camel@tyrosine>
-	 <9e4733910502041809738017a7@mail.gmail.com>
-	 <1107569842.8575.44.camel@tyrosine>
-	 <9e47339105020418306a4c2c93@mail.gmail.com>
-Date: Sat, 05 Feb 2005 08:15:35 +0000
-Message-Id: <1107591336.8575.51.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Re: [RFC] Reliable video POSTing on resume
-Content-Type: text/plain
+	Sat, 5 Feb 2005 03:31:27 -0500
+Message-ID: <4204845E.10606@free.fr>
+Date: Sat, 05 Feb 2005 09:31:26 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz
+Subject: Re: [patch] ns558 bug
+References: <4203D476.4040706@free.fr>	<20050205004311.GA7998@neo.rr.com> <20050204190614.6cfd68ce.akpm@osdl.org>
+In-Reply-To: <20050204190614.6cfd68ce.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-04 at 21:30 -0500, Jon Smirl wrote:
+Hi,
 
-> I suspect the problem in that case is a compressed VBIOS. Some laptops
-> compress the VBIOS and the system BIOS into a single ROM and then
-> expand them at power on. Sounds like this is not happening on resume.
-> To get around the problem copy the image from C000:0 before suspend to
-> a place in preserved RAM where wakeup.S can find it and then copy it
-> back to C000:0 on resume. To test for this checksum C000:0 before
-> suspend and after and see if it has changed.
+Andrew Morton wrote:
+> ambx1@neo.rr.com (Adam Belay) wrote:
+> 
+>>On Fri, Feb 04, 2005 at 09:00:54PM +0100, matthieu castet wrote:
+>> > Hi,
+>> > 
+>> > this patch is based on http://bugzilla.kernel.org/show_bug.cgi?id=2962 
+>> > patch from adam belay.
+>> > 
+>> > It solve a oops when pnp_register_driver(&ns558_pnp_driver) failed.
+>> > 
+>> > Please apply this patch.
+>> > 
+>> > Matthieu
+>>
+>> I remember writing a version of this patch a while ago.  The current behavior
+>> is broken because it shouldn't be considered a failure if the driver doesn't
+>> find any devices.
+Why ?
+If isa detection failed, the modules could not find any new isa devices.
+If the pnp detection find no device, the module is load.
+If it is the kernel modules behaviour, lot's of modules are broken...
 
-No, that's not what's happening. If you disassemble the code at
-c000:blah in a laptop, you'll often find that it jumps off to a
-completely different section of address space. During POST, that
-contains video BIOS. After POST, it may be something like USB boot
-support. Without reading it directly out of flash, it's not possible to
-recover that code.
+If you want that, why not simply alway "return 0" in the __init like it 
+is done in the bugzilla patch ?
 
-> You can always do a simple test. If a program like vbios.vm86 or
-> vbetool can reset the card, then there is no reason wakeup.S shouldn't
-> be able to do it too if the environment is set up correctly.
 
-These tools can cause machines to hang, even if run immediately after
-boot (and without X running). On other machines, things are less bad -
-they just switch the backlight off instead. On some machines (Thinkpads
-are quite good in this respect), they'll work nicely.
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
-
+Matthieu

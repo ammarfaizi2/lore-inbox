@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269252AbUH0IdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268215AbUH0Ici@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269252AbUH0IdK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 04:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUH0IdC
+	id S268215AbUH0Ici (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 04:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUH0I2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 04:33:02 -0400
-Received: from mx11.sac.fedex.com ([199.81.193.118]:23563 "EHLO
-	mx11.sac.fedex.com") by vger.kernel.org with ESMTP id S269252AbUH0Icr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 04:32:47 -0400
-Date: Fri, 27 Aug 2004 16:29:43 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Hans Reiser <reiser@namesys.com>
-cc: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rodrigo FGV <rodrigof@bifgv.com.br>
-Subject: Re: Reiser 4
-In-Reply-To: <412EEBE9.3000507@namesys.com>
-Message-ID: <Pine.LNX.4.61.0408271627100.5178@boston.corp.fedex.com>
-References: <006601c48bad$00c4b130$0700a8c0@ti10>
- <200408261408.46998.norberto+linux-kernel@bensa.ath.cx> <412EEBE9.3000507@namesys.com>
+	Fri, 27 Aug 2004 04:28:09 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:43978 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S269020AbUH0IZX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 04:25:23 -0400
+Message-ID: <412EEFF1.9080409@dgreaves.com>
+Date: Fri, 27 Aug 2004 09:25:21 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2004
- 04:32:39 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/27/2004
- 04:32:41 PM,
-	Serialize complete at 08/27/2004 04:32:41 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: POSIX_FADV_NOREUSE and O_STREAMING behavior in 2.6.7
+References: <412E2058.60302@rtlogic.com>  <412E2E0D.8040401@dgreaves.com> <1093547459.6106.57.camel@lade.trondhjem.org>
+In-Reply-To: <1093547459.6106.57.camel@lade.trondhjem.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trond Myklebust wrote:
 
-On Fri, 27 Aug 2004, Hans Reiser wrote:
-> zam is working on 4k stacks support.  Not sure why people care about it so 
-> much, but sometimes we do things to make users happy.....
+>På to , 26/08/2004 klokka 14:38, skreiv David Greaves:
+>  
+>
+>>David Rolenc wrote:
+>>
+>>    
+>>
+>>>I am trying to get O_STREAMING (Robert Love patch for 2.4) behavior in 
+>>>2.6 and just a glance at fadvise.c suggests that POSIX_FADV_NOREUSE is 
+>>>not implemented any differently than POSIX_FADV_WILLNEED. Am I missing 
+>>>something?  I want to read data from disk with readahead and drop the 
+>>>data from the page cache as soon as I am done with it. Do I have to 
+>>>call fadvise with POSIX_FADV_DONTNEED after every read?
+>>>      
+>>>
+>>And will this work over nfs?
+>>    
+>>
+>
+>What do you mean?
+>
+>The client will of course respect fadvise() if the generic VM code
+>supports it, but there is no NFS protocol support for this, so the
+>client is not able to communicate your fadvise call on to the server.
+>  
+>
+Perfect answer
+thank you
 
-Any chance to get an all.diff for vanilla 2.6.9-rc1  ?
+I want my nfs client to communicate this to my nfs server. Thus avoiding 
+my nfs server having a cache of useless video.
+I can see this becoming an important benefit for video distribution (an 
+area linux is likely to see more of)
 
+David
 
-Thanks,
-Jeff.

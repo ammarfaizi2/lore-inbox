@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285092AbRLFKPf>; Thu, 6 Dec 2001 05:15:35 -0500
+	id <S285096AbRLFKUZ>; Thu, 6 Dec 2001 05:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285096AbRLFKPZ>; Thu, 6 Dec 2001 05:15:25 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27403 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285092AbRLFKPU>; Thu, 6 Dec 2001 05:15:20 -0500
-Subject: Re: [patch] 2.4.16 for pointers to __devexit functions
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Thu, 6 Dec 2001 10:17:48 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse), davem@redhat.com (David S. Miller),
-        kaos@ocs.com.au, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C0F3D49.757F8AFD@mandrakesoft.com> from "Jeff Garzik" at Dec 06, 2001 04:41:29 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S285098AbRLFKUP>; Thu, 6 Dec 2001 05:20:15 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:49928 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S285096AbRLFKUB>; Thu, 6 Dec 2001 05:20:01 -0500
+Message-ID: <3C0F43D7.87B3948@evision-ventures.com>
+Date: Thu, 06 Dec 2001 11:09:27 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: Rik van Riel <riel@conectiva.com.br>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: /proc/sys/vm/(max|min)-readahead effect????
+In-Reply-To: <Pine.LNX.4.30.0112051924560.3073-100000@mustard.heime.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16BvbA-0001Cu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Doesn't work at all, or just doesn't work with the (current) minimum
-> > recommended compiler? We have to increase those minima at some point.
+Roy Sigurd Karlsbakk wrote:
 > 
-> akpm and others will yell :)
-> egcs-1.1.2 compiles an x86 kernel far faster than newer compilers...
+> > I suspect the per-device readahead for IDE is limiting the
+> > effect of vm_max_readahead ...
+> 
+> hm...
+> 
+> any way to avoid this? I mean... The readahead in vm is layered above the
+> actual device, and should therefore not be limited... Am I right? You
+> could do several device calls, and fake readahead, and probably get pretty
+> much out of it.
 
-I certainly don't intend to leave the magic egcs workarounds in the drivers
-I maintain for 2.5.
-
-Alan
+He means the hardware device read ahead, which can be changed by using
+hdparm -a 32 -A1 /dev/hda
+for example.
+The value of the read ahead one layer on top of it
+(read_ahead array) can't have *any* impact on performance.

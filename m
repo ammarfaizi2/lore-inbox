@@ -1,96 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265659AbUBPOaw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 09:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265667AbUBPOaw
+	id S265667AbUBPOfo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 09:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUBPOfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 09:30:52 -0500
-Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:49810 "EHLO
-	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265659AbUBPOat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 09:30:49 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [BENCHMARK] 2.6.3-rc2 v 2.6.3-rc3-mm1 kernbench
-Date: Tue, 17 Feb 2004 01:30:24 +1100
-User-Agent: KMail/1.6
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200402170000.00524.kernel@kolivas.org> <4030C38A.4050909@cyberone.com.au>
-In-Reply-To: <4030C38A.4050909@cyberone.com.au>
-MIME-Version: 1.0
+	Mon, 16 Feb 2004 09:35:44 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:39810 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265667AbUBPOfn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 09:35:43 -0500
+Date: Mon, 16 Feb 2004 15:36:17 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Emmeran Seehuber <rototor@rototor.de>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
+Message-ID: <20040216143617.GA959@ucw.cz>
+References: <200402112344.23378.rototor@rototor.de> <200402151425.15478.rototor@rototor.de> <200402151028.25284.dtor_core@ameritech.net> <200402161334.43583.rototor@rototor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402170130.24070.kernel@kolivas.org>
+In-Reply-To: <200402161334.43583.rototor@rototor.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2004 00:20, Nick Piggin wrote:
-> Con Kolivas wrote:
-> >-----BEGIN PGP SIGNED MESSAGE-----
-> >Hash: SHA1
+On Mon, Feb 16, 2004 at 01:34:43PM +0000, Emmeran Seehuber wrote:
+
+> On Sunday 15 February 2004 15:28, Dmitry Torokhov wrote:
+> [...]
 > >
-> >Here's some nice evidence of the sched domains' patch value:
-> >kernbench 0.20 running on an X440 8x1.5Ghz P4HT (2 node)
-> >
-> >Time is in seconds. Lower is better (fixed font table)
-> >
-> >Summary:
-> >Kernel:		2.6.3-rc2	2.6.3-rc3-mm1
-> >Half(-j8)	120.8		113.0
-> >Optimal(-j64)	81.6		79.3
-> >Max(-j)		82.9		80.3
-> >
-> >
-> >shorter summary:
-> >2.6.3-rc3-mm1 kicks butt
->
-> Thanks Con,
-> Results look pretty good. The half-load context switches are
-> increased - that is probably a result of active balancing.
-> And speaking of active balancing, it is not yet working across
-> nodes with the configuration you're on.
->
-> To get some idea of our worst case SMT performance (-j8), would
-> it be possible to do -j8 and -j64 runs with HT turned off?
+> > I see that the kernel correctly identifies both devices so I suspect there
+> > could be a problem with your setup. Could you also post your XF86Config
+> > and tell me the the options you are passing to GPM, please?
+> What I forgot to mention: cat /dev/input/mouse1 gives me some garbage as soon 
+> as I move on the trackpad. But cat /dev/input/mouse0 gives me nothing, so I 
+> don't think that this is a userspace configuration problem. The kernel seems 
+> to get no input from the PS/2 mouse at all.
 
-sure.
+Dmitry, this looks like either MUX or PassThrough problem.
 
-results.2.6.3-rc3-mm1 + SMT:
-Average Half Load Run:
-Elapsed Time 113.008
-User Time 742.786
-System Time 90.65
-Percent CPU 738
-Context Switches 28062.6
-Sleeps 24571.8
-
-Average Optimum Load Run:
-Elapsed Time 79.278
-User Time 1007.69
-System Time 107.388
-Percent CPU 1407
-Context Switches 33355
-Sleeps 32720
-
-
-2.6.3-rc3-mm1 no SMT:
-Average Half Load Run:
-Elapsed Time 133.51
-User Time 799.268
-System Time 92.784
-Percent CPU 669
-Context Switches 19340.8
-Sleeps 24427.4
-
-Average Optimum Load Run:
-Elapsed Time 81.486
-User Time 1006.37
-System Time 106.952
-Percent CPU 1366.8
-Context Switches 33939
-Sleeps 32453.4
-
-
-Con
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

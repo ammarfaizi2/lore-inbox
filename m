@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVBAW7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVBAXEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbVBAW7h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 17:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVBAW7h
+	id S262164AbVBAXEx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVBAXEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 17:59:37 -0500
-Received: from gate.crashing.org ([63.228.1.57]:7862 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262158AbVBAW7Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 17:59:16 -0500
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Brian King <brking@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk>
-References: <1105641991.4664.73.camel@localhost.localdomain>
-	 <20050113202354.GA67143@muc.de> <41ED27CD.7010207@us.ibm.com>
-	 <1106161249.3341.9.camel@localhost.localdomain>
-	 <41F7C6A1.9070102@us.ibm.com> <1106777405.5235.78.camel@gaston>
-	 <1106841228.14787.23.camel@localhost.localdomain>
-	 <41FA4DC2.4010305@us.ibm.com> <20050201072746.GA21236@kroah.com>
-	 <41FF9C78.2040100@us.ibm.com>
-	 <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 09:58:40 +1100
-Message-Id: <1107298720.5624.12.camel@gaston>
+	Tue, 1 Feb 2005 18:04:53 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:9653 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262164AbVBAXEe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:04:34 -0500
+Date: Tue, 1 Feb 2005 15:03:57 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050201230357.GH14274@atomide.com>
+References: <20050127212902.GF15274@atomide.com> <20050201110006.GA1338@elf.ucw.cz> <20050201204008.GD14274@atomide.com> <20050201212542.GA3691@openzaurus.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050201212542.GA3691@openzaurus.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 15:44 +0000, Matthew Wilcox wrote:
-
+* Pavel Machek <pavel@suse.cz> [050201 13:50]:
+> Hi!
 > 
-> > +void pci_unblock_user_cfg_access(struct pci_dev *dev)
-> > +{
-> > +	unsigned long flags;
-> > +
-> > +	spin_lock_irqsave(&pci_lock, flags);
-> > +	dev->block_ucfg_access = 0;
-> > +	spin_unlock_irqrestore(&pci_lock, flags);
-> > +}
+> > > I used your config advices from second mail, still it does not work as
+> > > expected: system gets "too sleepy". Like it takes a nap during boot
+> > > after "dyn-tick: Maximum ticks to skip limited to 1339", and key is
+> > > needed to make it continue boot. Then cursor stops blinking and
+> > > machine is hung at random intervals during use, key is enough to awake
+> > > it.
+> > 
+> > Hmmm, that sounds like the local APIC does not wake up the PIT
+> > interrupt properly after sleep. Hitting the keys causes the timer
+> > interrupt to get called, and that explains why it keeps running. But
+> > the timer ticks are not happening as they should for some reason.
+> > This should not happen (tm)...
 > 
-> If we've done a write to config space while the adapter was blocked,
-> shouldn't we replay those accesses at this point?
+> :-). Any ideas how to debug it? Previous version of patch seemed to work better...
 
-I think no. In fact, I would be ok returning errors on writes from
-userland. Need to do config space writes from userland is rare, must
-more than reads, and if whatever does it can't properly arbitrate with
-what's going on in the kernel, then it's broken.
+I don't think it's HPET timer, or CONFIG_SMP. It also looks like your
+local APIC timer is working.
 
-Ben.
+If you have a serial console, you can put one letter printks in the
+code. Can you check if you ever get to smp_apic_timer_interrupt()?
+That's where you should get to after the sleep, and that calls the
+PIT timer interrupt to get it going again. I'm thinking that you'll
+get to smp_apic_timer_interrupt(), but once therebut function
+dyn_tick->interrupt(0, NULL, regs) never gets called.
 
+It's OK to put printks to the timer code here, there's tons of 
+output only when the system is busy :)
 
+Also, can you post your .config again? And also please post output
+from:
+
+dmesg | grep -i "time\|tick\|apic"
+
+> > I've noticed that the only machine I have with ACPI C2/C3 support
+> > does not do anything in the C2/C3 loops, it just spins around and
+> > consumes more power than in C1 with hlt!
+> > 
+> > That's because we currently don't have any code to enable the C2/C3
+> > states in the southbridges on many Athlon boards. It's the same
+> > problem on my Crusoe laptop ALi 1533 chipset.
+> 
+> I do not think we should need any chipset-specific code. ACPI
+> is expected to solve it... Can you ask on acpi-devel?
+
+Yeah, I've been meaning to, I just subscribed to it yesterday.
+
+Tony

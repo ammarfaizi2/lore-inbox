@@ -1,178 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262437AbSJ2WqV>; Tue, 29 Oct 2002 17:46:21 -0500
+	id <S262452AbSJ2Wsj>; Tue, 29 Oct 2002 17:48:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262449AbSJ2WqV>; Tue, 29 Oct 2002 17:46:21 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:18692 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262437AbSJ2WqT>;
-	Tue, 29 Oct 2002 17:46:19 -0500
-Date: Wed, 30 Oct 2002 00:15:16 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp updates
-Message-ID: <20021029231516.GA146@elf.ucw.cz>
+	id <S262480AbSJ2Wsj>; Tue, 29 Oct 2002 17:48:39 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:52134 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262452AbSJ2Wsg>; Tue, 29 Oct 2002 17:48:36 -0500
+Date: Tue, 29 Oct 2002 23:54:20 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: bert hubert <ahu@ds9a.nl>
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021029225419.GA1463@admingilde.org>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	bert hubert <ahu@ds9a.nl>
+References: <3DBDCC02.6060100@netscape.com> <Pine.LNX.4.44.0210281606390.966-100000@blue1.dev.mcafeelabs.com> <20021029125904.GA6840@admingilde.org> <20021029151923.GA16263@outpost.ds9a.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
 Content-Disposition: inline
+In-Reply-To: <20021029151923.GA16263@outpost.ds9a.nl>
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-This uses "better" constraints that do not go through the register
-unneccessarily. Please apply,
-								Pavel
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- clean/arch/i386/kernel/suspend.c	2002-09-22 23:46:53.000000000 +0200
-+++ linux-swsusp/arch/i386/kernel/suspend.c	2002-10-13 20:19:43.000000000 +0200
-@@ -54,10 +54,10 @@
- 	/*
- 	 * descriptor tables
- 	 */
--	asm volatile ("sgdt (%0)" : "=m" (saved_context.gdt_limit));
--	asm volatile ("sidt (%0)" : "=m" (saved_context.idt_limit));
--	asm volatile ("sldt (%0)" : "=m" (saved_context.ldt));
--	asm volatile ("str (%0)"  : "=m" (saved_context.tr));
-+	asm volatile ("sgdt %0" : "=m" (saved_context.gdt_limit));
-+	asm volatile ("sidt %0" : "=m" (saved_context.idt_limit));
-+	asm volatile ("sldt %0" : "=m" (saved_context.ldt));
-+	asm volatile ("str %0"  : "=m" (saved_context.tr));
- 
- 	/*
- 	 * save the general registers.
-@@ -67,22 +67,22 @@
- 	 * It's really not necessary, and kinda fishy (check the assembly output),
- 	 * so it's avoided. 
- 	 */
--	asm volatile ("movl %%esp, (%0)" : "=m" (saved_context.esp));
--	asm volatile ("movl %%eax, (%0)" : "=m" (saved_context.eax));
--	asm volatile ("movl %%ebx, (%0)" : "=m" (saved_context.ebx));
--	asm volatile ("movl %%ecx, (%0)" : "=m" (saved_context.ecx));
--	asm volatile ("movl %%edx, (%0)" : "=m" (saved_context.edx));
--	asm volatile ("movl %%ebp, (%0)" : "=m" (saved_context.ebp));
--	asm volatile ("movl %%esi, (%0)" : "=m" (saved_context.esi));
--	asm volatile ("movl %%edi, (%0)" : "=m" (saved_context.edi));
--
-+	asm volatile ("movl %%esp, %0" : "=m" (saved_context.esp));
-+	asm volatile ("movl %%eax, %0" : "=m" (saved_context.eax));
-+	asm volatile ("movl %%ebx, %0" : "=m" (saved_context.ebx));
-+	asm volatile ("movl %%ecx, %0" : "=m" (saved_context.ecx));
-+	asm volatile ("movl %%edx, %0" : "=m" (saved_context.edx));
-+	asm volatile ("movl %%ebp, %0" : "=m" (saved_context.ebp));
-+	asm volatile ("movl %%esi, %0" : "=m" (saved_context.esi));
-+	asm volatile ("movl %%edi, %0" : "=m" (saved_context.edi));
-+	/* FIXME: Need to save XMM0..XMM15? */
- 	/*
- 	 * segment registers
- 	 */
--	asm volatile ("movw %%es, %0" : "=r" (saved_context.es));
--	asm volatile ("movw %%fs, %0" : "=r" (saved_context.fs));
--	asm volatile ("movw %%gs, %0" : "=r" (saved_context.gs));
--	asm volatile ("movw %%ss, %0" : "=r" (saved_context.ss));
-+	asm volatile ("movw %%es, %0" : "=m" (saved_context.es));
-+	asm volatile ("movw %%fs, %0" : "=m" (saved_context.fs));
-+	asm volatile ("movw %%gs, %0" : "=m" (saved_context.gs));
-+	asm volatile ("movw %%ss, %0" : "=m" (saved_context.ss));
- 
- 	/*
- 	 * control registers 
-@@ -95,7 +95,7 @@
- 	/*
- 	 * eflags
- 	 */
--	asm volatile ("pushfl ; popl (%0)" : "=m" (saved_context.eflags));
-+	asm volatile ("pushfl ; popl %0" : "=m" (saved_context.eflags));
- }
- 
- static void
-@@ -125,9 +125,7 @@
- 	/*
- 	 * first restore %ds, so we can access our data properly
- 	 */
--	asm volatile (".align 4");
--	asm volatile ("movw %0, %%ds" :: "r" ((u16)__KERNEL_DS));
--
-+	asm volatile ("movw %0, %%ds" :: "r" (__KERNEL_DS));
- 
- 	/*
- 	 * control registers
-@@ -136,7 +134,7 @@
- 	asm volatile ("movl %0, %%cr3" :: "r" (saved_context.cr3));
- 	asm volatile ("movl %0, %%cr2" :: "r" (saved_context.cr2));
- 	asm volatile ("movl %0, %%cr0" :: "r" (saved_context.cr0));
--	
-+
- 	/*
- 	 * segment registers
- 	 */
-@@ -167,9 +165,9 @@
- 	 * now restore the descriptor tables to their proper values
- 	 * ltr is done i fix_processor_context().
- 	 */
--	asm volatile ("lgdt (%0)" :: "m" (saved_context.gdt_limit));
--	asm volatile ("lidt (%0)" :: "m" (saved_context.idt_limit));
--	asm volatile ("lldt (%0)" :: "m" (saved_context.ldt));
-+	asm volatile ("lgdt %0" :: "m" (saved_context.gdt_limit));
-+	asm volatile ("lidt %0" :: "m" (saved_context.idt_limit));
-+	asm volatile ("lldt %0" :: "m" (saved_context.ldt));
- 
- 	fix_processor_context();
- 
---- clean/include/asm-i386/suspend.h	2002-07-23 10:40:05.000000000 +0200
-+++ linux-swsusp/include/asm-i386/suspend.h	2002-10-08 12:14:12.000000000 +0200
-@@ -15,22 +15,22 @@
- 
- /* image of the saved processor state */
- struct saved_context {
--	u32 eax, ebx, ecx, edx;
--	u32 esp, ebp, esi, edi;
--	u16 es, fs, gs, ss;
--	u32 cr0, cr2, cr3, cr4;
-+	unsigned long eax, ebx, ecx, edx;
-+	unsigned long esp, ebp, esi, edi;
-+  	u16 es, fs, gs, ss;
-+	unsigned long cr0, cr2, cr3, cr4;
- 	u16 gdt_pad;
- 	u16 gdt_limit;
--	u32 gdt_base;
-+	unsigned long gdt_base;
- 	u16 idt_pad;
- 	u16 idt_limit;
--	u32 idt_base;
-+	unsigned long idt_base;
- 	u16 ldt;
- 	u16 tss;
--	u32 tr;
--	u32 safety;
--	u32 return_address;
--	u32 eflags;
-+	unsigned long tr;
-+	unsigned long safety;
-+	unsigned long return_address;
-+	unsigned long eflags;
- } __attribute__((packed));
- 
- #define loaddebug(thread,register) \
-@@ -52,11 +52,11 @@
- static inline void acpi_save_register_state(unsigned long return_point)
- {
- 	saved_eip = return_point;
--	asm volatile ("movl %%esp,(%0)" : "=m" (saved_esp));
--	asm volatile ("movl %%ebp,(%0)" : "=m" (saved_ebp));
--	asm volatile ("movl %%ebx,(%0)" : "=m" (saved_ebx));
--	asm volatile ("movl %%edi,(%0)" : "=m" (saved_edi));
--	asm volatile ("movl %%esi,(%0)" : "=m" (saved_esi));
-+	asm volatile ("movl %%esp,%0" : "=m" (saved_esp));
-+	asm volatile ("movl %%ebp,%0" : "=m" (saved_ebp));
-+	asm volatile ("movl %%ebx,%0" : "=m" (saved_ebx));
-+	asm volatile ("movl %%edi,%0" : "=m" (saved_edi));
-+	asm volatile ("movl %%esi,%0" : "=m" (saved_esi));
- }
- 
- #define acpi_restore_register_state()  do {} while (0)
+hi :)
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+On Tue, Oct 29, 2002 at 04:19:23PM +0100, bert hubert wrote:
+> It is edge based instead of level based -
+seems i have to look closer at your papers/code
+
+what is the motivation to make it edge based?
+
+> > the unified event mechanism introduced in bsd is a good example imho.
+> > we should build something that is similar useful for applications.
+> Sounds 2.7-ish.=20
+difinitely.
+
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--ReaqsoxgOBHFXBhH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9vxGaj/Eaxd/oD7IRAmXpAJwMZ7Kc1XHCE+kfatHQJdwlngb8/QCeNSVT
+214fecw5+T70qNqyA0Hfocw=
+=zFIT
+-----END PGP SIGNATURE-----
+
+--ReaqsoxgOBHFXBhH--

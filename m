@@ -1,75 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272503AbTHPAek (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 20:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272505AbTHPAek
+	id S272512AbTHPAyX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 20:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272525AbTHPAyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 20:34:40 -0400
-Received: from mta5.mail.adelphia.net ([64.8.50.187]:40069 "EHLO
-	mta5.adelphia.net") by vger.kernel.org with ESMTP id S272503AbTHPAei
+	Fri, 15 Aug 2003 20:54:23 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:10882 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272512AbTHPAyW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 20:34:38 -0400
-Message-ID: <000a01c3638e$2c7a6330$6401a8c0@wa1hco>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: <herbert@13thfloor.at>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <01a201c35e65$0536ef60$ee52a450@theoden> <3F34D0EA.8040006@rogers.com> <20030813061546.GB24994@gamma.logic.tuwien.ac.at> <00ac01c36193$72c892a0$6401a8c0@wa1hco> <20030813123010.GA7274@www.13thfloor.at> <00bb01c36198$51cba650$6401a8c0@wa1hco> <20030813132429.GA7551@www.13thfloor.at> <009b01c362d5$13838b90$6401a8c0@wa1hco> <20030815030013.GA9587@www.13thfloor.at> <00a401c3632a$80dd2a20$6401a8c0@wa1hco> <20030815132619.GB3695@www.13thfloor.at>
-Subject: 2.6.0-test3 _still_ cannot mount root fs
-Date: Fri, 15 Aug 2003 20:34:37 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 15 Aug 2003 20:54:22 -0400
+Date: Sat, 16 Aug 2003 01:54:08 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       gaxt <gaxt@rogers.com>, Mike Galbraith <efault@gmx.de>
+Subject: Re: Scheduler activations (IIRC) question
+Message-ID: <20030816005408.GA21356@mail.jlokier.co.uk>
+References: <200308160149.29834.kernel@kolivas.org> <20030815230312.GD19707@mail.jlokier.co.uk> <20030815235431.GT1027@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030815235431.GT1027@matchmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Redhat's 2.4.20 will boot with root=/dev/hda3 pointing to an ext3
-filesystem, without an initrd, with the following message
+Mike Fedyk wrote:
+> On Sat, Aug 16, 2003 at 12:03:12AM +0100, Jamie Lokier wrote:
+> > I think it's been done before, under the name "scheduler activations",
+> > on some other kernel.
+> > 
+> 
+> Wouldn't futexes help with this?
 
-   ext2fs warning (device IDE0(3,3) )  ext2_read_super: mounting ext3
-filesystem as ext2
-   VFS: mounted root (ext2 filesystem) readonly
+Futexes are great for the waking up part, not so great for putting
+another task to sleep :)
 
-So I assumed that 2.6.0-test3 will also work with ext3 compiled as a module.
-I tried the various suggestions root=/dev/hda3, root=0303, root=03:03
-without any luck.
+I see two ways to use a futex.
 
-I then tested a suggestion that ext3 should get compiled in but get the same
-results
+   1. Active task changes a synchronisation word.
+   2. Active task FUTEX_WAKEs the shadow task before syscall.
+   3. Syscall.
+   4. Active task restores synchronisation word.
+      ..time passes..
+   5. Shadow task runs.
+   6. Looks at synchronisation word, which says "go back to sleep".
+   7. Shadow task sleeps with FUTEX_WAIT.
 
-> > > ============================================
-> > > Case 2: grub, no initrd, kernel=/vmlinux-2.6.0-test3 ro root=/dev/hda3
-> > >
-> > > ...stuff scrolled off the screen...
-> > > check >hda3<
-> > > check <hda3< (<31)
-> > > try_name() I
-> > > try_name() >hda3<,0
-> > > open > /dys/block/hda3/dev< = -1
-> > > fail
-> > > strtoul >3< -> 3
-> > > try_name() II
-> > > try_name hda < 3
-> > > open >/sys/block/hda/dev< = 0
-> > > read 0[32]=>3:0
-> > > 5^(4)
-> > > buf: >3:0<
-> > > mkdev(3,0) -> 768
-> > > open2 >/sys/block/hda/range< = 0
-> > > read2 0[32] => 764
-> > > < (3)
-> > > buf: >64<
-> > > strtoul >64< -> 64
-> > > name to dev_t() done
-> > > VFS: cannot open root dev "hda3" or hda3
+This isn't bad, except that a shadow task runs every time we do a
+potentially blocking system call from the active task, _or_ is often
+ready to run.
 
-Herbert's debug patch produced the same messages with ext3 compiled in.
+If it's just often ready to run, that's not a problem.  If it always
+runs immediately, that's two unnecessary context switches per system
+call; quite an overhead, and I might as well hand off system calls to
+helper threads in that case :)
 
-Any suggestions for what to try next?
+Next way is the same, except that control is always handed to the
+shadow task and the active task, when the system call is finished,
+queues the current state machine for the shadow task to pick it up and
+then sleeps.  Effectively the active and shadow tasks swap roles on
+each system call.
 
-jeff
+This may or may not be better, depending on whether we've reduced the
+average number of context switches to 1 or increased it to 1 :)
 
+It'd wreck the kernel scheduler's interactivity heuristics, too :):)
+
+The first futex method would be quite efficient if a variant of
+FUTEX_WAIT was clever enough not to need to be scheduled just to go
+back to sleep when the word has the "go back to sleep" value.
+
+Third way is just to use SIGCONT and SIGSTOP.  Not the fastest, but
+perhaps faster than the futex-induced context switches.  It'd need to
+be measured.
+
+None of these will work well if "wakee" tasks are able to run
+immediately after being woken, before "waker" tasks get a chance to
+either block or put the wakees back to sleep.
+
+-- Jamie

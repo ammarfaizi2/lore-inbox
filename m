@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264053AbRFNVen>; Thu, 14 Jun 2001 17:34:43 -0400
+	id <S264071AbRFNVgM>; Thu, 14 Jun 2001 17:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264072AbRFNVec>; Thu, 14 Jun 2001 17:34:32 -0400
-Received: from alpo.casc.com ([152.148.10.6]:38360 "EHLO alpo.casc.com")
-	by vger.kernel.org with ESMTP id <S264053AbRFNVeT>;
-	Thu, 14 Jun 2001 17:34:19 -0400
-From: John Stoffel <stoffel@casc.com>
+	id <S264080AbRFNVf4>; Thu, 14 Jun 2001 17:35:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:11956 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264071AbRFNVf2>;
+	Thu, 14 Jun 2001 17:35:28 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15145.11683.861734.853957@gargle.gargle.HOWL>
-Date: Thu, 14 Jun 2001 17:33:23 -0400
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: John Stoffel <stoffel@casc.com>, Roger Larsson <roger.larsson@norran.net>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.6-pre2, pre3 VM Behavior
-In-Reply-To: <Pine.LNX.4.33.0106141750260.28370-100000@duckman.distro.conectiva>
-In-Reply-To: <15145.8435.312548.682190@gargle.gargle.HOWL>
-	<Pine.LNX.4.33.0106141750260.28370-100000@duckman.distro.conectiva>
-X-Mailer: VM 6.92 under Emacs 20.6.1
+Message-ID: <15145.11801.823664.36512@pizda.ninka.net>
+Date: Thu, 14 Jun 2001 14:35:21 -0700 (PDT)
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Tom Gall <tom_gall@vnet.ibm.com>
+Subject: Re: Going beyond 256 PCI buses
+In-Reply-To: <20010614213021.3814@smtp.wanadoo.fr>
+In-Reply-To: <15145.6960.267459.725096@pizda.ninka.net>
+	<20010614213021.3814@smtp.wanadoo.fr>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Rik> There's another issue.  If dirty data is written out in small
-Rik> bunches, that means we have to write out the dirty data more
-Rik> often.
+Benjamin Herrenschmidt writes:
+ > I beleive there will always be need for some platform specific
+ > hacking at probe-time to handle those, but we can at least make
+ > the inx/outx functions/macros compatible with such a scheme,
+ > possibly by requesting an ioremap equivalent to be done so that
+ > we stop passing them real PIO addresses, but a cookie obtained
+ > in various platform specific ways.
 
-What do you consider a small bunch?  32k?  1Mb?  1% of buffer space?
-I don't see how delaying writes until the buffer is almost full really
-helps us.  As the buffer fills, the pressure to do writes should
-increase, so that we tend, over time, to empty the buffer.  
+The cookie can be encoded into the address itself.
 
-A buffer is just that, not persistent storage.  
+This is why readl() etc. take one arg, the address, not a billion
+other arguments like some systems do.
 
-And in the case given, we were not seeing slow degradation, we saw
-that the user ran into a wall (or inflection point in the response
-time vs load graph), which was pretty sharp.  We need to handle that
-more gracefully.  
-
-Rik> This in turn means extra disk seeks, which can horribly interfere
-Rik> with disk reads.
-
-True, but are we optomizing for reads or for writes here?  Shouldn't
-they really be equally weighted for priority?  And wouldn't the
-Elevator help handle this to a degree?
-
-Some areas to think about, at least for me.  And maybe it should be
-read and write pressure, not rate?  
-
- - low write rate, and a low read rate.
-   - Do seeks dominate our IO latency/throughput?
-
- - low read rate, higher write rate (ie buffers filling faster than
-   they are being written to disk)
-   - Do we care as much about reads in this case?  
-   - If the write is just a small, high intensity burst, we don't want
-     to go ape on writing out buffers to disk, but we do want to raise the
-     rate we do so in the background, no?
-
-- low write rate, high read rate.
-  - seems like we want to keep writing the buffers, but at a lower
-    rate. 
-
-Just some thoughts...
-
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548
+Later,
+David S. Miller
+davem@redhat.com

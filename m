@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276138AbRJHMtH>; Mon, 8 Oct 2001 08:49:07 -0400
+	id <S276824AbRJHMvh>; Mon, 8 Oct 2001 08:51:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276824AbRJHMs6>; Mon, 8 Oct 2001 08:48:58 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:39954 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S276138AbRJHMsv>; Mon, 8 Oct 2001 08:48:51 -0400
-Message-ID: <3BC1A062.6E953751@idb.hist.no>
-Date: Mon, 08 Oct 2001 14:47:30 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.11-pre2 i686)
-X-Accept-Language: no, en
+	id <S276872AbRJHMv1>; Mon, 8 Oct 2001 08:51:27 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:55682 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S276824AbRJHMvJ>; Mon, 8 Oct 2001 08:51:09 -0400
+Date: Mon, 8 Oct 2001 08:51:25 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ian Thompson <ithompso@stargateip.com>
+cc: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: RE: How can I jump to non-linux address space?
+In-Reply-To: <NFBBIBIEHMPDJNKCIKOBGEIOCAAA.ithompso@stargateip.com>
+Message-ID: <Pine.LNX.3.95.1011008083502.19610A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: low-latency patches
-In-Reply-To: <20011006010519.A749@draal.physics.wisc.edu> <3BBEA8CF.D2A4BAA8@zip.com.au> <20011006150024.C2625@mikef-linux.matchmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
->On Fri, Oct 05, 2001 at 11:46:39PM -0700, Andrew Morton wrote:
-> > But the next rank of applications - instrumentation, control systems,
-> > media production sytems, etc require 500-1000 usec latencies, and
-> > the group of people who require this is considerably smaller.  And their
-> > requirements are quite aggressive.  And maintaining that performance
-> > with either approach is a fair bit of work and impacts (by definition)
-> > the while kernel.  That's all an argument for keeping it offstream.
-> >
+On Thu, 4 Oct 2001, Ian Thompson wrote:
+
+> Hey Dick,
 > 
-> And exactly how is low latency going to hurt the majority?
+> Thanks for the help!  A couple more questions for you...
 > 
-> This reminds me of when 4GB on ia32 was enough, or 16 bit UIDs, or...
+> > You use ioremap() to create a virtual address from 0x1000. Then
+> > you copy the relocated code, currently in some array, to the relocated
+> > address (0x1000), using the cookie returned from ioremap().
+> 
+> How does this make the virtual address the same as the physical address?  Or
+> are addr's in the first page (or 1st MB?) automatically mapped to the same
+> address when you call ioremap()?  I printed out the __ioremap() addr's for
+> 0x1000 and 0x3000, and neither of the virt addr's were equal to the physical
+> ones.
+> 
 
-Low latency wobviously won't do damage by itself.  But Andrew Morton
-said it well: "And maintaining that performance
-with either approach is a fair bit of work and impacts (by definition)
-the whole kernel."
+[Snipped...]
+I was refering to Intel, not ARM hardware. You can look at the
+setup code in your architecture specific tree and see if you
+can figure it out. I have never even seen ARM hardware, much
+less used it so I can't help there.
 
-I.e. it is too much work to get right (and keep right).  The amount
-of developers is finite, their time can be better spent on other
-improvements.  All future improvement will be harder if we also have
-to _maintain_ extreme low latency.  This is not fix-it-once thing.
+FYI, what you get from ioremap() is not a number that will mean
+anything, even when it's mapped to the physical address. Often,
+on some kernel versions, just to prevent module writers from
+cheating, it is poisoned so it only works with the defined
+macros. Therefore, it is a "cookie", not something you can
+initialize a pointer with.
 
-Helge Hafting
+However, in Intel, for hacking only, the address that you can
+use to initialize a pointer with is the address you re-mapped,
+ORed with PAGE_OFFSET. If the address is below 1 megabyte,
+there is a 1:1 mapping of virtual to physical addresses in
+the Intel Linux kernel. This allows the page table to exist
+at an address that can be accessed from 32-bit linear-mode
+startup.
+
+This is useful if you want to access something physical. For instance
+if you want to find the physical address of bad memory. A user-mode
+memory checker can exercise memory until something failed. Then it
+can write some magic numbers on both sides of the failing address.
+
+A kernel module could then search for the magic numbers, returning
+the 32-bit linear offset of the bad memory. This is quicker than
+writing a module to scan all the PTEs, returning the translation
+offset.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

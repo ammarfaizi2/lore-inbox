@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317035AbSF1DCI>; Thu, 27 Jun 2002 23:02:08 -0400
+	id <S317037AbSF1DRB>; Thu, 27 Jun 2002 23:17:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317040AbSF1DCH>; Thu, 27 Jun 2002 23:02:07 -0400
-Received: from ns.suse.de ([213.95.15.193]:6415 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317035AbSF1DCG>;
-	Thu, 27 Jun 2002 23:02:06 -0400
-To: Bendi Vinaya Kumar <vbendi@cs.clemson.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Skbuff Trimming
-References: <Pine.GSO.4.44.0206271756540.727-100000@noisy.cs.clemson.edu.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Jun 2002 05:04:26 +0200
-In-Reply-To: Bendi Vinaya Kumar's message of "28 Jun 2002 00:16:41 +0200"
-Message-ID: <p73k7okm7d1.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S317040AbSF1DRA>; Thu, 27 Jun 2002 23:17:00 -0400
+Received: from [209.184.141.190] ([209.184.141.190]:36038 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S317037AbSF1DQ7>;
+	Thu, 27 Jun 2002 23:16:59 -0400
+Subject: Re: vm fixes for 2.4.19rc1
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20020627201413.GD1457@inspiron.ols.wavesec.org>
+References: <20020627201413.GD1457@inspiron.ols.wavesec.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 27 Jun 2002 22:19:14 -0500
+Message-Id: <1025234354.2087.10.camel@UberGeek>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bendi Vinaya Kumar <vbendi@cs.clemson.edu> writes:
+For something like DB work, would this patch be *too* aggressive on
+freeing memory/cache as to introduced increased latency there?
+Just curious, I'm all for using *any* good VM changes. 
 
-> But, it does not do the same on
-> "frag_list". Why?
+On Thu, 2002-06-27 at 15:14, Andrea Arcangeli wrote:
+> some fix for 2.4.19rc1 (btw, the lru_cache_del() in the LRU path is
+> needed in 2.5 too and it's also more efficient than the
+> page_cache_release, see ptrace freeing the anon pages with put_page(),
+> it will not pass through page_cache_release and it will trigger the
+> PageLRU check that __free_pages_ok isn't capable to handle in 2.5, I
+> will make a full vm update for 2.5 [in small pieces based on post-Andrew
+> split of the monolithic patch] in the next days anyways):
 
-frag_list is not a general purpose skbuff facility and is not used by
-most protocols and not directly supported by most of skbuff.c It is just 
-supported by some specific paths to enable lazy defragmenting. It is not
-an attempt to turn skbuffs into mbufs.
 
--Andi
 
+-- 
+Austin Gonyou <austin@digitalroadkill.net>

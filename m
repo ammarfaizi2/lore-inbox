@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265621AbRF1KNJ>; Thu, 28 Jun 2001 06:13:09 -0400
+	id <S265623AbRF1KUB>; Thu, 28 Jun 2001 06:20:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265622AbRF1KMs>; Thu, 28 Jun 2001 06:12:48 -0400
-Received: from [202.54.26.202] ([202.54.26.202]:25599 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S265621AbRF1KMi>;
-	Thu, 28 Jun 2001 06:12:38 -0400
+	id <S265626AbRF1KTu>; Thu, 28 Jun 2001 06:19:50 -0400
+Received: from [202.54.26.202] ([202.54.26.202]:14977 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S265623AbRF1KTk>;
+	Thu, 28 Jun 2001 06:19:40 -0400
 X-Lotus-FromDomain: HSS
 From: alad@hss.hns.com
 To: linux-kernel@vger.kernel.org
-Message-ID: <65256A79.00383EB6.00@sandesh.hss.hns.com>
-Date: Thu, 28 Jun 2001 15:31:21 +0530
-Subject: kernel memory leak: freeing pagetables in vmfree_area_pages in
-	 vmalloc.c
+Message-ID: <65256A79.0038FC3A.00@sandesh.hss.hns.com>
+Date: Thu, 28 Jun 2001 15:49:17 +0530
+Subject: Why we need LDT at all in 2.2 kernels ??
 Mime-Version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,21 +20,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
+Hi,
+     In 2.2 kernel do we really need its own LDT (not default_ldt) for every
+process (no mm sharing) ??
 
-I was talking about this leak 2 days back but my mail ot lost..
-----
+In what circumstances a process may need its own LDT ??
 
-we have in vfree -->
-vmfree_area_pages (calling) free_area_pmd (calling) free_area_pte (calling)
-free_page.
-The final free_page frees all the pages that are allocated to a memory region in
-vmalloc.
-Now where are we freeing pages that are allocated to page table themselves.
-For simplicity we can assume 2 level page tables (pgd == pmd)
-
-Regards
+--
 Amol
-
-
 
 

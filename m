@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbTJFHyM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 03:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTJFHyM
+	id S262782AbTJFIGs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 04:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbTJFIGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 03:54:12 -0400
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:56206 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S262789AbTJFHyI
+	Mon, 6 Oct 2003 04:06:48 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:13759 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262782AbTJFIGr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 03:54:08 -0400
-Date: Mon, 6 Oct 2003 08:53:59 +0100
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Devin Henderson <linux@devhen.com>, Pauli Borodulin <boro@fixel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: SiI3112 DMA? (2.6.0-test6)
-Message-ID: <20031006075359.GQ9052@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Devin Henderson <linux@devhen.com>,
-	Pauli Borodulin <boro@fixel.org>, linux-kernel@vger.kernel.org
-References: <3F80D5BC.4040004@devhen.com> <Pine.LNX.4.10.10310052225350.21746-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4ECF1u7dKBoUGhe3"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10310052225350.21746-100000@master.linux-ide.org>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
-User-Agent: Mutt/1.5.4i
+	Mon, 6 Oct 2003 04:06:47 -0400
+Message-ID: <3F81227C.40900@namesys.com>
+Date: Mon, 06 Oct 2003 12:06:20 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesse Pollard <jesse@cats-chateau.net>
+CC: John Lange <john.lange@bighostbox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Valdis.Kletnieks@vt.edu,
+       mcmanus@ducksong.com, jmorris@redhat.com
+Subject: Re: A new model for ports and kernel security?
+References: <Pine.LNX.4.44.0310011523510.14121-100000@thoron.boston.redhat.com> <1065059104.5142.133.camel@mars> <03100208222600.20948@tabby>
+In-Reply-To: <03100208222600.20948@tabby>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesse Pollard wrote:
 
---4ECF1u7dKBoUGhe3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>On Wednesday 01 October 2003 20:45, John Lange wrote:
+>  
+>
+>>A few people suggested various patches which implement a similar
+>>functionality to what I was suggesting and I thank them for that.
+>>
+>>I think this clearly demonstrates that there is a demand for such a
+>>feature.
+>>    
+>>
+>
+>Not really - that is why they have been external for several years.
+>  
+>
+I would hope that it is more because the grsecurity documentation 
+suggests it is still a work in progress.  Perhaps its author might 
+consider dividing his work up into smaller patches for Linus to consider.
 
-On Sun, Oct 05, 2003 at 10:29:40PM -0700, Andre Hedrick wrote:
-> 
-> I have a scheduled fix prepared for release and review by SiI monday
-> morning 9AM Pacific time.  Once it is cleared by SiI, it will be released
-> out to the masses.
-
-   That's good news. Thank you.
-
-> Will attempt to address the mod15b phy issues
-
-   mod15b phy? Me simple idiot. Me no understand. :)
-
-   Is that the PATA/SATA converter that the last poster mentioned? Or
-something else?
-
-   Hugo.
+The original poster was right that restricting ports below 1024 is an 
+unclean hack, and a poor substitute for a better permissions model.  
+Unfortunately it is an unclean hack in an area where it is difficult for 
+society to achieve the decision needed for change.
 
 -- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-       --- The early bird gets the worm,  but the second mouse ---       
-                            gets the cheese.                             
+Hans
 
---4ECF1u7dKBoUGhe3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/gR+WssJ7whwzWGARAg6JAJ9gXZm9LEJpFNemuch/kCxi0uCpGwCdGvv5
-1JErPqRbNFqCDK/cUkDX2ww=
-=iqDv
------END PGP SIGNATURE-----
-
---4ECF1u7dKBoUGhe3--

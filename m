@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135687AbRDXQFF>; Tue, 24 Apr 2001 12:05:05 -0400
+	id <S135692AbRDXQGy>; Tue, 24 Apr 2001 12:06:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135688AbRDXQEz>; Tue, 24 Apr 2001 12:04:55 -0400
-Received: from passat.ndh.net ([195.94.90.26]:60659 "EHLO passat.ndh.net")
-	by vger.kernel.org with ESMTP id <S135687AbRDXQEm>;
-	Tue, 24 Apr 2001 12:04:42 -0400
-Date: Tue, 24 Apr 2001 18:04:37 +0200
-From: Alex Riesen <a.riesen@traian.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-Message-ID: <20010424180437.A332@traian.de>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010425011132.H1245@zip.com.au> <E14s57p-0002LM-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14s57p-0002LM-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 24, 2001 at 04:53:10PM +0100
+	id <S135695AbRDXQGo>; Tue, 24 Apr 2001 12:06:44 -0400
+Received: from mx.ma.nma.ne.jp ([61.125.128.21]:4773 "HELO mx.ma.nma.ne.jp")
+	by vger.kernel.org with SMTP id <S135688AbRDXQGZ>;
+	Tue, 24 Apr 2001 12:06:25 -0400
+Message-ID: <3AE5A483.FCF3F99@ma.nma.ne.jp>
+Date: Wed, 25 Apr 2001 01:06:27 +0900
+From: Masaki Tsuji <jammasa@ma.nma.ne.jp>
+X-Mailer: Mozilla 4.75 [ja] (Windows NT 5.0; U)
+X-Accept-Language: ja
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Can't read SCSI TAPE
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 04:53:10PM +0100, Alan Cox wrote:
-> > 1. email -> sendmail
-> > 2. sendmail figures out what it has to do with it. turns out it's deliver
-> ...
-> 
-> > Now, in order for step 4 to be done safely, procmail should be running
-> > as the user it's meant to deliver the mail for. for this to happen
-> > sendmail needs to start it as that user in step 3 and to do that it
-> > needs extra privs, above and beyond that of a normal user.
-> 
-> 	email -> sendmail
-> 	sendmail 'its local' -> spool
-Isn't this a good thing to have spam filtered out before it will be
-written in spool?
+Dear sirs,
 
-Alex Riesen
+Although 'tar' can write to SCSI-TAPE, can't read from.
+'tar' reports ....
+
+......
+-rw-r--r-- root/root    xxxxx 2001-xx-xx 01:23 usr/bin/xxxxxx
+tar: Skipping to next file header                            <------"A"
+-rw-r--r-- root/root    xxxxx 2001-xx-xx 01:23 usr/bin/xxxxxxx
+......
+
+
+"A" means written data is wrong, doesn't it???
+
+
+Thanks for any help.
+
+------------------------------------------
+Detailed ->
+
+System...
+Kernel : 2.2.11 + raid0145-19990824-2.2.11.gz
+          or
+         2.2.11
+tar    : GNU tar 1.12
+mt     : mt-st v. 0.4
+glibc2 : glibc-2.0.7pre6
+
+Hardware...
+Mother   : Intel Celeron x2 (SMP)
+TAPE drv : SONY SDT-9000
+TAPE     : DDS1 DDS2 DDS3
+SCSI card: AHA-1542
+Cable    : SCSI-2 Hi-impeadance , length 0.5m
+------------------------------------------
+
+-- 
+Masaki Tsuji

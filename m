@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTK1UZw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 15:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTK1UZw
+	id S263441AbTK1Ugm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 15:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTK1Ugm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 15:25:52 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:22034 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263424AbTK1UZv (ORCPT
+	Fri, 28 Nov 2003 15:36:42 -0500
+Received: from slimnet.xs4all.nl ([194.109.194.192]:11454 "EHLO slimnas.slim")
+	by vger.kernel.org with ESMTP id S263441AbTK1Ugl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 15:25:51 -0500
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Adam Kropelin" <akropel1@rochester.rr.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Parallel build not working since -test6?
-Date: Fri, 28 Nov 2003 21:26:59 +0100
-User-Agent: KMail/1.5.4
-Cc: <sam@ravnborg.org>
-References: <02d801c3b474$e09e42a0$02c8a8c0@steinman>
-In-Reply-To: <02d801c3b474$e09e42a0$02c8a8c0@steinman>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 28 Nov 2003 15:36:41 -0500
+Subject: 2.6.0-t11: keyboard problems revisited
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1070051819.11312.16.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 28 Nov 2003 21:36:59 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311282126.59634.sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 November 2003 00:27, Adam Kropelin wrote:
-> Lately I've noticed my kernel compilations taking longer than usual.
-> Tonight I finally realized the cause... Parallel building (i.e. make -jN)
-> is no longer working for me. I traced it back and the last kernel it worked
-> in was -test5. It ceased working in -test6.
-It works for me, and for sure it works for most others. Otherwise I would
-have seen lot of complaints like yours.
-I recall one similar post, and the person in question used a homegrown
-script that caused the problems.
+While booting 2.6.0-t11 into textmode I found out there are still some
+problems with the keyboard code.
 
-Could you try to post:
-a) Exact command used when building the kernel.
-b) Output of kernel compile [first 100 lines] after a make clean
+On my laptop with PS/2 keyboard (Japanese layout) I can't use the key
+with the Yen on it (which also has the pipe). All other keys seem to
+work OK.
 
-This may give me a hint of what is wrong.
+On my PC with USB keyboard (Logitech iTouch) I can't use the "\" key
+properly so I can't type "ps -ef | grep blabla" which is not very
+helpful is you want to try to investigate problems.
 
-	Sam
+So there seems to be some kind of anti-pipe conspiracy here...;-)
+
+Jurgen
+ 
+
 

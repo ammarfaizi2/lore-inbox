@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278297AbRJSETh>; Fri, 19 Oct 2001 00:19:37 -0400
+	id <S278302AbRJSEZr>; Fri, 19 Oct 2001 00:25:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278298AbRJSET2>; Fri, 19 Oct 2001 00:19:28 -0400
-Received: from www.wen-online.de ([212.223.88.39]:50699 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S278297AbRJSETP>;
-	Fri, 19 Oct 2001 00:19:15 -0400
-Date: Fri, 19 Oct 2001 06:19:27 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-cc: Manfred Spraul <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch and Performance of larger pipes
-In-Reply-To: <E15uME1-0000Ht-00@bodnar42>
-Message-ID: <Pine.LNX.4.33.0110190609400.639-100000@mikeg.weiden.de>
+	id <S278304AbRJSEZh>; Fri, 19 Oct 2001 00:25:37 -0400
+Received: from toad.com ([140.174.2.1]:12552 "EHLO toad.com")
+	by vger.kernel.org with ESMTP id <S278302AbRJSEZZ>;
+	Fri, 19 Oct 2001 00:25:25 -0400
+Message-ID: <3BCFAB6F.15D345B7@mandrakesoft.com>
+Date: Fri, 19 Oct 2001 00:26:23 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Val Henson <val@nmt.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Yellowfin bug fix for Symbios cards
+In-Reply-To: <20011018210416.D17208@boardwalk> <3BCF9FDD.D6586538@mandrakesoft.com> <20011018215429.A18593@boardwalk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, Ryan Cumming wrote:
+Val Henson wrote:
+> Hm, good point.  I should figure out why read_eeprom isn't working and
+> fix that instead.  Maybe the driver should be changed to attempt to
+> read the MAC from the eeprom and then read from the registers if that
+> fails, instead of relying on flags.
 
-> On October 18, 2001 11:07, Manfred Spraul wrote:
-> > Could you test the attached singlecopy patches?
-> >
-> > with bw_pipe,
-> > * on UP, up to +100%.
->
-> Awesome! Although any improvement improvement in efficiency is a good thing,
-> I am curious as to what uses pipes besides gcc -pipe. UNIX domain sockets
-> (for local X11, for instance) aren't implemented as pipes, are they? What
-> sort of real world performance gains could I expect from this patch?
+Yeah.  There is at least one other driver (pcnet32?) that does something
+like this...
 
-If Manfred's patch helps gcc -pipe, then hopefully he'll submit it.
-(or maybe we should just kill the -pipe switch from the kernel tree;)
-In testing with a hefty parallel make, removing that switch produced
-a nice speedup.
+probe:
+	dev->dev_addr[] = read_eeprom();
+	if (!is_valid_ether_addr(dev->dev_addr))
+		{ read from card registers }
 
-	-Mike
-
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno

@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292851AbSCMJCc>; Wed, 13 Mar 2002 04:02:32 -0500
+	id <S292858AbSCMJNn>; Wed, 13 Mar 2002 04:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292848AbSCMJCM>; Wed, 13 Mar 2002 04:02:12 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:22780 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S292847AbSCMJCA> convert rfc822-to-8bit; Wed, 13 Mar 2002 04:02:00 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <ak@suse.de>
-CC: Brad Pepers <brad@linuxcanada.com>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (1003) - Registered Version
-Date: Wed, 13 Mar 2002 01:01:34 -0800
-In-Reply-To: <20020313092306.A5570@wotan.suse.de>
-Subject: Re: Multi-threading
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020313090150.AAA28331@shell.webmaster.com@whenever>
+	id <S292860AbSCMJNd>; Wed, 13 Mar 2002 04:13:33 -0500
+Received: from n13.sp.op.dlr.de ([129.247.25.4]:41131 "EHLO n13.sp.op.dlr.de")
+	by vger.kernel.org with ESMTP id <S292858AbSCMJNO>;
+	Wed, 13 Mar 2002 04:13:14 -0500
+Message-ID: <3C8F1801.6070107@dlr.de>
+Date: Wed, 13 Mar 2002 10:12:33 +0100
+From: Martin Wirth <Martin.Wirth@dlr.de>
+Reply-To: Martin.Wirth@dlr.de
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.4) Gecko/20011206 Netscape6/6.2.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > > > On Tue, 12 Mar 2002, Rusty Russell wrote:
+ > > > > > > > You've convinced me.
+ > > > > > Damn.  Because now I've been playing with a different approach.
+ > > > I don't think your current patch is very useful.
 
-On Wed, 13 Mar 2002 09:23:06 +0100, Andi Kleen wrote:
+ > I agree.  But your "Applied" EMail rushed me into posting it.
 
 
->>If it was in public view, whatever held it in public view would be
->> using it,
->>and hence its use count could not drop to zero.
+The normal way to use multithreading under UNIX is the pthread
+library. Here the condition variables are the equivalent to kernel
+wait queues. So I think to really implement a fast pthread lib based
+on futexes one needs some means to implement condition variables
+(with synchronous futex release to implement  pthread_cond_wait(..)!).
 
->That's not correct at least in the usual linux kernel pattern of using
->reference counts for objects. Hash tables don't hold reference counts,
->only users do. If you think about it a hash table or global list holding
->a reference count doesn't make too much sense.
+This could either be done with the exported waitqueue approach or a bit 
+easier (but less general) by associating a second hashed waitqueue with 
+each futex (maybe marked by the odd offset+1?). Then we would have two 
+additional variants of sys_futex (with parameters FUTEX_WAIT, 
+FUTEX_SIGNAL).
 
-	That's the way I've always done it and it has saved me a lot of heartache. A 
-use count of 'zero' means that it's really not used at all, and hence nothing 
-would have any way of finding it. Anything with a future interest in 
-something should 'use' it.
+The principle implementation is:
 
-	In any event, hash tables require locks themselves anyway. So if you find an 
-object in a hash table, you must be holding some lock when you find it, so 
-you can increment the use count under the protection of that lock. The trick 
-becomes the decrement operation, because ideally you'd prefer not to have to 
-lock the hash table again unless you have to remove the object.
+FUTEX_WAIT:
+    add_to_cond_queue
+    current->state=INTERRUPTIBLE
+    futex_up
+    schedule
+    remove_from_cond_queue
+    futex_down
 
-	I believe, however, that you are completely safe if you decrement the use 
-count atomically, and if it's zero, you grab the hash lock, confirm that the 
-use count is still zero, and then remove the object.
+FUTEX_SIGNAL
+    wake_up_all on cond_queue
 
-	Since the use count is always locked for the first time in any usage chain 
-with the hash lock held (lock it when you find it), an increment from zero to 
-one can only occur while the lock is held. So if you hold the lock, an 
-increment from zero to one cannot occur. No race.
 
-	DS
+Later we may also want FUTEX_SIGNAL_ONE and FUTEX_WAIT_TIMEOUT.
 
+The user space code for pthread_cond_wait then of course needs a 
+chaining of the protecting pthread_mutex and the futex used as condition 
+variable.
+
+
+Martin
 

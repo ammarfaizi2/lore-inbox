@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSFENTV>; Wed, 5 Jun 2002 09:19:21 -0400
+	id <S315417AbSFENZY>; Wed, 5 Jun 2002 09:25:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315417AbSFENTU>; Wed, 5 Jun 2002 09:19:20 -0400
-Received: from kiruna.synopsys.com ([204.176.20.18]:54160 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S315413AbSFENTU>; Wed, 5 Jun 2002 09:19:20 -0400
-Date: Wed, 5 Jun 2002 15:19:09 +0200
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, release 3.0 is available
-Message-ID: <20020605131909.GC29455@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020604091646.GB29455@riesen-pc.gr05.synopsys.com> <17931.1023231335@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315419AbSFENZX>; Wed, 5 Jun 2002 09:25:23 -0400
+Received: from [212.3.242.3] ([212.3.242.3]:2296 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id <S315417AbSFENZW>;
+	Wed, 5 Jun 2002 09:25:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre10-ac1
+Date: Wed, 5 Jun 2002 15:25:04 +0200
+User-Agent: KMail/1.4.1
+In-Reply-To: <200206050000.g5500vl24470@devserv.devel.redhat.com> <200206051501.13086.devilkin-lkml@blindguardian.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206051525.04983.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 08:55:35AM +1000, Keith Owens wrote:
-> On Tue, 4 Jun 2002 11:16:46 +0200, 
-> Alex Riesen <Alexander.Riesen@synopsys.com> wrote:
-> >Got this trying to compile 2.5.20 with Debian's gcc 2.95.4.
-> >Why it took the system-wide zlib.h?
-> >In file included from /export/home/riesen-pc0/riesen/compile/v2.5/fs/isofs/compress.c:38:
-> >include/linux/zlib.h:34: zconf.h: No such file or directory
-> 
-> In order to do separate source and object correctly, kbuild 2.5
-> enforces the rule that #include "" comes from the local directory,
-> #include <> comes from the include path.  include/linux/zlib.h
-> incorrectly does #include "zconf.h" instead of #include <linux/zconf.h>,
-> breaking the rules.
-> 
-> This was not detected by common-2.5.20-1 because the nostdinc check was
-> incomplete, common-2.5.20-2 does nostdinc correctly.  I avoid changing
-> the source code for kbuild 2.5, instead I workaround these incorrect
-> includes by adding extra_cflags() with FIXME comments to correct the
-> code later.  I will do a common-2.5.20-3 to workaround zlib.h, in the
-> meantime try this quick and dirty fix
+On Wednesday 05 June 2002 15:01, DevilKin wrote:
+> On Wednesday 05 June 2002 02:00, Alan Cox wrote:
+> > [+ indicates stuff that went to Marcelo, o stuff that has not,
+> >  * indicates stuff that is merged in mainstream now, X stuff that proved
+> >    bad and was dropped out]
+> >
+> > Linux 2.4.19pre10-ac1
+> > o	Merge with Linux 2.4.19-pre10
+> >
+> > Linux 2.4.19pre9-ac3
+> > o	Cpufreq updates			(Dominik Brodowski, Dave Jones0
+> >
+> > 	| Now includes some reverse engineered speedstep support
+>
+> Currently i get 'your processor is not supported' when activating this
+> speedstep stuff. Can I in any way help supplying values or smthing for
+> this? Or test code?
+>
+> I have a Mobile Pentium 2 @ 366mhz.
+>
 
-Sorry for delay. The patch fixed things, indeed.
-And i personally prefer the way you did it here
-much more to any workarounds.
+Nevermind - I looked at Intel's site and it seems that only P3 and higher 
+support speedstep.
 
-> --- 2.5.20-pristine/include/linux/zlib.h	Mon Apr 15 05:18:43 2002
-> +++ 2.5.20-kbuild-2.5/include/linux/zlib.h	Tue Jun  4 11:03:05 2002
-> @@ -31,7 +31,7 @@
->  #ifndef _ZLIB_H
->  #define _ZLIB_H
->  
-> -#include "zconf.h"
-> +#include <linux/zconf.h>
->  
->  #ifdef __cplusplus
->  extern "C" {
-> 
+(/me thwaps himself)
+
+DK
+-- 
+Slick's Three Laws of the Universe:
+	(1) Nothing in the known universe travels faster than a bad
+	    check.
+	(2) A quarter-ounce of chocolate = four pounds of fat.
+	(3) There are two types of dirt: the dark kind, which is
+	    attracted to light objects, and the light kind, which is
+	    attracted to dark objects.
+

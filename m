@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264033AbTH1PN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 11:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTH1PN6
+	id S264032AbTH1Paj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 11:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTH1Paj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 11:13:58 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:37030 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264033AbTH1PNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 11:13:55 -0400
-Subject: Re: [RFC] /proc/ide/hdx/settings with ide-default pseudo-driver is
-	a 2.6/2.7 show-stopper
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>
-In-Reply-To: <200308281646.16203.bzolnier@elka.pw.edu.pl>
-References: <200308281646.16203.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062083581.24982.21.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 28 Aug 2003 11:30:39 -0400
+Received: from postman1.arcor-online.net ([151.189.0.187]:31112 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S264032AbTH1Pah
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 11:30:37 -0400
+Date: Thu, 28 Aug 2003 17:29:34 +0200
+From: Juergen Quade <quade@hsnr.de>
+To: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
+       Werner Almesberger <wa@almesberger.net>
+Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
+Message-ID: <20030828152934.GA7924@hsnr.de>
+References: <20030827182149.GA23439@hsnr.de> <Pine.LNX.4.44.0308272259120.13148-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 28 Aug 2003 16:13:02 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308272259120.13148-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-08-28 at 15:46, Bartlomiej Zolnierkiewicz wrote:
-> Some background first: we need ide-default driver (set as a device driver
-> for all driver-less ide devices) mainly because we allow changing devices
-> settings through /proc/ide/hdX/settings and some of them (current_speed,
-> pio_mode) are processed via request queue (we are currently preallocating
-> gendisk and queue structs for all possible ide devices).  The next problem
-> is that ide-default doesn't register itself with ide and driverfs.
-> If it does it will "steal" devices meaned to be used by other drivers.
-
-Its also used to avoid special cases elsewhere.
-
-> If we want dynamic hwifs/devices, moving gendisks/queues allocation
-> to device drivers and ide integration with driverfs we need to:
+On Wed, Aug 27, 2003 at 11:16:52PM +0530, Nagendra Singh Tomar wrote:
+> Juergen,
+> 	The whole tasklet_kill function is a big confusion. It is a big 
+> misnomer as Werner rightly said. For non-recursive tasklets this  
+> function does not do anything. Its just an expensive "nop". If you simply 
+> call tasklet_schedule after tasklet_kill, it will execute as nothing had
+> happened. 
+> If we remove the line 
 > 
-> (a) kill /proc/ide/hdX/settings for driver-less devices and kill ide-default
+> clear_bit(TASKLET_STATE_SCHED, &t->state);
+> 
+> from tasklet_kill then tasklet_kill will have the desired effect of 
+> "killing" the tasklet, tasklet_schedule() after tasklet_kill in that case, 
+> will not call __tasklet_kill and hence it will not be queued to the CPU
+> queue and hence it will not run (desired effect).
 
-ide_default avoids a ton of driver specific special case code outside
-of /proc/ide/foo/settings too. It isnt that simple, and I added it
-originally to fix hundreds of weird little bugs and races. You also need
-it for handling hotplug of devices.
+Here we have it! In my opintion, the line
 
-I don't however think it needs to be any brighter than it is now. Driver
-ordering isnt important, Linus was pretty emphatic that he a) didn't
-care and b) wouldnt take patches to do any kind of rigid ordering when I
-asked him (and for hotplug its pretty obvious why)
+	clear_bit(TASKLET_STATE_SCHED, &t->state);
 
-As far as I can see you either
+is just a _BUG_. The programmer _wanted_ to write
 
-1. Set up the queues and /proc when you create a hwif
+	set_bit(TASKLET_STATE_SCHED, &t->state);
 
-or
+In this case the function tasklet_kill _makes sense_ (beside
+the problem of not working with recursive taskets)!
+It will mostly be called in the cleanup function of a module 
+and - yes - it would be useful.
 
-2. Provide a generic function for each driver to call that does this
-and/or undoes it. Since each driver needs the same code (default
-included).
+So in my opintion
+1. we should fix the bug (very easy)
+2. we should find some means to make it usable for recursive tasklets.
 
-
+	Juergen.

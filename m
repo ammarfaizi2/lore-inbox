@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbUCERVo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 12:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbUCERVo
+	id S262178AbUCERdU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 12:33:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbUCERdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 12:21:44 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:5617 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262668AbUCERVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 12:21:42 -0500
-Message-ID: <4048B720.4010403@nortelnetworks.com>
-Date: Fri, 05 Mar 2004 12:21:36 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Tom Rini <trini@kernel.crashing.org>
-Subject: Re: problem with cache flush routine for G5?
-References: <40479A50.9090605@nortelnetworks.com>	 <1078444268.5698.27.camel@gaston>  <4047CBB3.9050608@nortelnetworks.com>	 <1078452637.5700.45.camel@gaston>  <404812A2.70207@nortelnetworks.com> <1078465612.5704.52.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 5 Mar 2004 12:33:19 -0500
+Received: from hermes.dur.ac.uk ([129.234.4.9]:39161 "EHLO hermes.dur.ac.uk")
+	by vger.kernel.org with ESMTP id S262178AbUCERdS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 12:33:18 -0500
+Subject: Potential bug in fs/binfmt_elf.c?
+From: Mike Hearn <mike@navi.cx>
+Reply-To: mike@navi.cx
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1078508281.3065.33.camel@linux.littlegreen>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 05 Mar 2004 17:38:01 +0000
 Content-Transfer-Encoding: 7bit
+X-DurhamAcUk-MailScanner: Found to be clean, Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->>Assuming that I really did want to flush the whole cache, how would I go 
->>about doing that from userspace? 
->>
-> 
-> I don't think you can do it reliably, but again, that do not make
-> sense, so please check with those folks what's exactly going on.
+Hi,
 
-I've gotten some more information on what's going on.
+I believe there is a problem in fs/binfmt_elf.c, around line 700 (kernel
+2.6.1)
 
-We have a proprietary OS (originally written for custom hardware) that 
-is running on a thin emulation layer on top of linux.
+When mapping a nobits PT_LOAD segment with a memsize > filesize, the
+kernel calls set_brk (which in turns calls do_brk) to map and clear the
+area, but this discards access permissons on the mapping leading to rwx
+protection. This causes a load failure on systems where the VM cannot
+reserve swap space for the segment, unless overcommit is active (on many
+systems it's not on by default).
 
-This OS allows runtime patching of code.  After changing the 
-instruction(s), it then has to make sure that the icache doesn't contain 
-stale instructions.
+I don't know this code well, but it seems that this discarding of access
+permissions on the unlikely codepath is incorrect. I filed bug #2255 [1]
+on it.
 
-The original code was written for ppc hardware that had the ability to 
-flush the whole dcache and invalidate the whole icache, all at once, so 
-that's what they used.  The code doesn't track the address/size of what 
-was changed.  For our existing products, we are using the 74xx series, 
-and they've got hardware cache flush/invalidate as well, so we just kept 
-using that.  For the 970 however, that hardware mechanisms seem to be 
-absent, which started me on this whole path.
+Could somebody who understands the ELF loading code please check to see
+if this is a bug, and if so produce a patch? 
 
-After doing some digging in the 970fx specs, it seems that we may not 
-need to explicitly force a store of the L1 dcache at all.  According to 
-the docs, the L1 dcache is unconditionally store-through. Thus, for a 
-brute-force implementation we should be able to just invalidate the 
-whole icache, do the appropriate sync/isync, and it should pick up the 
-changed instructions from the L2 cache.  Do you see any problems with 
-this?  Do I actually still need the store?
+The ability to define a new (large) ELF section which isn't backed by
+swap space nor disk space and that will be mapped to a specific VMA
+range is needed by Wine to reserve the PE load area. 
 
-Of course, the proper fix is to change the code in the OS running on the 
-emulator to track the addresses that got changed and just do the minimal 
-work required.
+Currently the fact that the section is always mapped rwx despite being
+marked read-only in the binary prevents us from using this as a solution
+to the problems caused by exec-shield/prelink, meaning the only solution
+is to bootstrap the ELF interpreter ourselves from a statically linked
+binary. Clearly we'd rather not do that.
 
-Chris
+Thanks to pageexec@freemail.hu for bringing the matter to my attention.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Your assistance is appreciated,
+thanks -mike
+
+[1] http://bugzilla.kernel.org/show_bug.cgi?id=2255
 

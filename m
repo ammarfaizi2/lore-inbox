@@ -1,83 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283860AbRLITrS>; Sun, 9 Dec 2001 14:47:18 -0500
+	id <S283876AbRLITyS>; Sun, 9 Dec 2001 14:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283871AbRLITrI>; Sun, 9 Dec 2001 14:47:08 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:37900 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S283860AbRLITrC>; Sun, 9 Dec 2001 14:47:02 -0500
-Date: Sun, 9 Dec 2001 11:48:53 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <anton@samba.org>, <davej@suse.de>,
-        <marcelo@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.17-pre5
-In-Reply-To: <E16D6l9-00073R-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0112091122330.7268-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283902AbRLITyJ>; Sun, 9 Dec 2001 14:54:09 -0500
+Received: from [208.35.49.213] ([208.35.49.213]:6934 "EHLO smtp.vzavenue.net")
+	by vger.kernel.org with ESMTP id <S283876AbRLITyA>;
+	Sun, 9 Dec 2001 14:54:00 -0500
+Date: Mon, 10 Dec 2001 01:51:14 +0000
+From: Richard Todd <richardt@vzavenue.net>
+To: Christian Koenig <"ChristianK."@t-online.de>
+Cc: linux-kernel@vger.kernel.org, richardt@vzavenue.net
+Subject: Re: [PATCH] Making vmlinux Multiboot compliant and grub capable of loading modules at boot time. (1 Part)
+Message-ID: <20011210015114.A1003@localhost.localdomain>
+In-Reply-To: <16ChzA-1vH6GWC@fwd01.sul.t-online.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <16ChzA-1vH6GWC@fwd01.sul.t-online.com>; from "ChristianK."@t-online.de on Sat, Dec 08, 2001 at 02:59:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Dec 2001, Alan Cox wrote:
+On Sat, Dec 08, 2001 at 02:59:18PM +0100, Christian Koenig wrote:
+> The patch is for 2.4.14 Kernel Source, but it should patch well on other 
+> Versions (at least the module loader).
 
-> > Using the scheduler i'm working on and setting a trigger load level of 2,
-> > as soon as the idle is scheduled it'll go to grab the task waiting on the
-> > other cpu and it'll make it running.
->
-> That rapidly gets you thrashing around as I suspect you've found.
+It patched 2.5.1-pre8 cleanly, except for a makefile.  I'm running
+2.5.1-pre8 with this patch right now.
 
-Not really because i can make the same choices inside the idle code, out
-of he fast path, without slowing the currently running cpu ( the waker ).
+> I know that vmlinux isn't compressed and contains unused elf-sections.
 
+Just 'gzip -9 vmlinux'  Grub will uncompress it for you.
+This actually makes for a smaller file than bzImage (on
+my machine, anyway).  
 
-> I'm currently using the following rule in wake up
->
-> 	if(current->mm->runnable > 0)	/* One already running ? */
-> 		cpu = current->mm->last_cpu;
-> 	else
-> 		cpu = idle_cpu();
-> 	else
-> 		cpu = cpu_num[fast_fl1(runnable_set)]
->
-> that is
-> 	If we are running threads with this mm on a cpu throw them at the
-> 		same core
-> 	If there is an idle CPU use it
-> 	Take the mask of currently executing priority levels, find the last
-> 	set bit (lowest pri) being executed, and look up a cpu running at
-> 	that priority
->
-> Then the idle stealing code will do the rest of the balancing, but at least
-> it converges towards each mm living on one cpu core.
+Are the unused sections taking up space at runtime?
 
-I've done a lot of experiments balancing the cost of moving tasks with
-related tlb flushes and cache image trashing, with the cost of actually
-leaving a cpu idle for a given period of time.
-For example in a dual cpu the cost of leaving an idle cpu for more than
-40-50 ms is higher than immediately fill the idle with a stolen task (
-trigger rq length == 2 ).
-This picture should vary a lot with big SMP systems, that's why i'm
-seeking at a biased solution where it's easy to adjust the scheduler
-behavior based on the underlying architecture.
-For example, by leaving balancing decisions inside the idle code we'll
-have a bit more time to consider different moving costs/metrics than will
-be present for example in NUMA machines.
-By measuring the cost of moving with the cpu idle time we'll have a pretty
-good granularity and we could say, for example, that the tolerable cost of
-moving a task on a given architecture is 40 ms idle time.
-This means that if during 4 consecutive timer ticks ( on 100 HZ archs )
-the idle cpu has found an "unbalanced" system, it's allowed to steal a
-task to run on it.
-Or better, it's allowed to steal a task from a cpu set that has a
-"distance" <= 40 ms from its own set.
+> Tell me what you thing about it.
+It's a cool hack!  I like grub's module loading mechanism
+better than the initrd solution.
 
+Unfortunately, grub doesn't run on all supported platforms.
+And the multiboot specification isn't an accepted standard.
+(grub docs just read like it is.....)
 
-
-
-
-- Davide
-
-
+Richard Todd

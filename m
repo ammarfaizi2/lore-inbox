@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVDFV1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVDFV3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbVDFV1p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 17:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbVDFV1p
+	id S262336AbVDFV3V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 17:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVDFV3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 17:27:45 -0400
-Received: from fire.osdl.org ([65.172.181.4]:42149 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262333AbVDFV1m (ORCPT
+	Wed, 6 Apr 2005 17:29:20 -0400
+Received: from pat.uio.no ([129.240.130.16]:26355 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262336AbVDFV3F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 17:27:42 -0400
-Date: Wed, 6 Apr 2005 14:27:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: barryn@pobox.com, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>, mjg59@scrf.ucam.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-Id: <20050406142749.6065b836.akpm@osdl.org>
-In-Reply-To: <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net>
-References: <20050405000524.592fc125.akpm@osdl.org>
-	<20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net>
-	<20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net>
-	<20050405175600.644e2453.akpm@osdl.org>
-	<20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 6 Apr 2005 17:29:05 -0400
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make
+	sense
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050406160123.GH347@unthought.net>
+References: <20050406160123.GH347@unthought.net>
+Content-Type: text/plain
+Date: Wed, 06 Apr 2005 17:28:56 -0400
+Message-Id: <1112822936.13304.44.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.802, required 12,
+	autolearn=disabled, AWL 1.20, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Barry K. Nathan" <barryn@pobox.com> wrote:
->
-> Ok, I've narrowed the problem down to one patch. In 2.6.11-mm3, the
-> problem goes away if I remove this patch:
-> swsusp-enable-resume-from-initrd.patch
-
-That really helps, thanks.
-
-The patch looks fairly innocent.  I'll give up on this and cc the
-developers.
-
-> (Recap of the problem in case this gets forwarded: Resume is almost
-> instant without the apparently-guilty patch. With the patch, resume
-> takes almost half an hour.)
+on den 06.04.2005 Klokka 18:01 (+0200) skreiv Jakob Oestergaard:
+> What do I do?
 > 
-> BTW, there's another strange thing that's introduced by 2.6.11-rc2-mm1:
-> With that kernel, suspend is also ridiculously slow (speed is comparable
-> to the slow resume with the aforementioned patch). 2.6.11-rc2 does not
-> have that problem.
+> Performance sucks and the profiles do not make sense...
+> 
+> Any suggestions would be greatly appreciated,
 
-Does reverting swsusp-enable-resume-from-initrd.patch fix this also?
+A look at "nfsstat" might help, as might "netstat -s".
 
-> Also, with 2.6.12-rc2-mm1, this computer happens to hit the bug where
-> all the printk timestamps are 0000000.0000000 (don't take the # of
-> digits too literally). Probably unrelated, but I may as well mention it.
-> (System is an Athlon XP 2200+ with SiS chipset. I can't remember which
-> model of SiS chipset.)
+In particular, I suggest looking at the "retrans" counter in nfsstat.
 
-Yes, sorry.  Reverting
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm1/broken-out/sched-x86-sched_clock-to-use-tsc-on-config_hpet-or-config_numa-systems.patch
-will fix that one.
+When you say that TCP did not help, please note that if retrans is high,
+then using TCP with a large value for timeo (for instance -otimeo=600)
+is a good idea. It is IMHO a bug for the "mount" program to be setting
+default timeout values of less than 30 seconds when using TCP.
+
+Cheers,
+  Trond
+
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

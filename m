@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264366AbTKMQkb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 11:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTKMQkb
+	id S264341AbTKMQfy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 11:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTKMQfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 11:40:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47523 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264366AbTKMQk1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 11:40:27 -0500
-Date: Thu, 13 Nov 2003 08:40:16 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jochen Voss <voss@seehuhn.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
-In-Reply-To: <20031113112740.GA4719@seehuhn.de>
-Message-ID: <Pine.LNX.4.44.0311130836150.8093-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Nov 2003 11:35:54 -0500
+Received: from services3.virtu.nl ([217.114.97.6]:40601 "EHLO
+	services3.virtu.nl") by vger.kernel.org with ESMTP id S264341AbTKMQfw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 11:35:52 -0500
+Message-Id: <5.1.0.14.2.20031113171537.01ee82c8@services3.virtu.nl>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 13 Nov 2003 17:32:49 +0100
+To: linux-kernel@vger.kernel.org
+From: Remco van Mook <remco@virtu.nl>
+Subject: 2.4 odd behaviour of ramdisk + cramfs
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Virtu-MailScanner-VirusCheck: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 13 Nov 2003, Jochen Voss wrote:
-> 
->     smp_read_mpc(arch/i386/kernel/mpparse.c):
->       The argument mpc points to a 'struct mp_config_table',
->         which is filled with zero bytes (compare memory dump
->         below).
->       The 'if (memcmp(mpc->mpc_signature,MPC_SIGNATURE,4))' test
->         fails because of this and calls 'panic'.
->       The kernel never returns from the call to 'panic'.
-> 
-> Herbert Xu produced a patch, which converts the crash into an error
-> message, so the symptoms are cured for me.
+I am experiencing a problem when I try to run the following script:
 
-Ok. That panic is obviously crud from a lazy initial developer, and yes, 
-it's always silly (and very very wrong) to crash if you can just continue.
+#! /bin/sh
+cat /flash/modules-2.4.21 > /dev/ram1
+mount -t cramfs -o ro /dev/ram1 /lib/modules
 
-Can you send the (tested) patch over?
+Running it once causes the mount to fail with 'cramfs: wrong magic' - 
+running it twice will make mount succeed on the second try.
 
-> Now for my questions: As far as I can see it, the invalid
-> SMP mptable is a BIOS bug on my machine.  Do you think so,
-> too?  Or are there other possibilities?
+Oddly enough, repeating the 2 lines within the script doesn't work either.
 
-I think it's a Linux bug too, although I'll agree that it was triggered by 
-some really bad BIOS behaviour. I bet the laptop vendor doesn't care: they 
-probably depend on ACPI to set the thing up on Windows, and Windows is 
-likely to just ignore the MP table (properly) when it doesn't need it (or 
-when it is corrupt).
+The behaviour has been reproduced by several people with different 2.4 
+kernels.
 
-> Do you think it would be helpful to contact Toshiba (my
-> laptop's vendor) about this?
+As I need this to go into some boot scripts, I'd like this to work without 
+human intervention.
 
-I really think that the Linux behaviour i smore of a bug than the BIOS 
-behaviour. There's no excuse for panicing just because some signature 
-for a data block that we don't even strictly need isn't there.
+Any suggestions ?
 
-			Linus
+Remco van Mook
+
+Typical kernel config:
+2.4.21 unpatched kernel tree
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_CRAMFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
 

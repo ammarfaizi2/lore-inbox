@@ -1,175 +1,1074 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbUKGDBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbUKGDOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbUKGDBw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 22:01:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbUKGDBw
+	id S261526AbUKGDOn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 22:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUKGDOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 22:01:52 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:30896 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S261528AbUKGDBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 22:01:37 -0500
-Date: Sun, 7 Nov 2004 01:48:09 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
-Message-ID: <20041107004809.GI3851@dualathlon.random>
-References: <20041105200118.GA20321@logos.cnet> <200411051532.51150.jbarnes@sgi.com> <20041106012018.GT8229@dualathlon.random> <20041106100516.GA22514@logos.cnet> <20041106154415.GD3851@dualathlon.random> <20041106170925.GA23324@logos.cnet>
+	Sat, 6 Nov 2004 22:14:43 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54792 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261526AbUKGDNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 22:13:32 -0500
+Date: Sun, 7 Nov 2004 04:12:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: vojtech@suse.cz
+Cc: linux-input@atrey.karlin.mff.cuni.cz,
+       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small input cleanup
+Message-ID: <20041107031256.GD14308@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041106170925.GA23324@logos.cnet>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 03:09:25PM -0200, Marcelo Tosatti wrote:
-> Sure NUMA can and has to be special cased, as I answered Nick. 
-> 
-> "dont kill if we can allocate from other nodes", should be pretty simple.
+The patch below does the following cleanups under drivers/input/ :
+- make some needlessly global code static
+- remove the completely unused EXPORT_SYMBOL'ed function gameport_rescan
+- make the EXPORT_SYMBOL'ed function ps2_sendbyte static since it isn't
+  used outside the file where it's defined
 
-then how do you call the oom killer if some highmem page is still free
-but there's a GFP_KERNEL|__GFP_NOFAIL allocation failing and looping
-forever?
+Please review this patch.
 
-> If v2.6 is failing to return -ENOMEM to syscalls then its indeed screwed, 
-> but its not the same problem.
-> 
-> Have you done any tests on this respect?
+In case in-kernel users for the EXPORT_SYMBOL's I've removed are coming 
+soon, simply drop the corresponding parts of the patch.
 
-the only test I have are based on 2.6.5 and the box simply deadlock
-there, the oom killer is forbidden there if nr_swap_pages > 0. Not
-anymore in 2.6.9rc, however with 2.6.9 and more recent the oom killer is
-invoked too early.
 
-> So "not being able to make progress freeing pages" seems to be reliable
-> information on whether to trigger OOM. Note that reaching priority
-> 0 means we've tried VERY VERY hard already.
+diffstat output:
+ drivers/input/evbug.c               |    4 ++--
+ drivers/input/gameport/emu10k1-gp.c |    4 ++--
+ drivers/input/gameport/fm801-gp.c   |    4 ++--
+ drivers/input/gameport/gameport.c   |    7 -------
+ drivers/input/gameport/lightning.c  |    4 ++--
+ drivers/input/gameport/ns558.c      |    4 ++--
+ drivers/input/gameport/vortex.c     |    4 ++--
+ drivers/input/input.c               |    2 +-
+ drivers/input/joystick/a3d.c        |   10 +++++-----
+ drivers/input/joystick/adi.c        |    4 ++--
+ drivers/input/joystick/analog.c     |    6 +++---
+ drivers/input/joystick/cobra.c      |    4 ++--
+ drivers/input/joystick/db9.c        |    4 ++--
+ drivers/input/joystick/gamecon.c    |    4 ++--
+ drivers/input/joystick/gf2k.c       |    4 ++--
+ drivers/input/joystick/grip.c       |    4 ++--
+ drivers/input/joystick/guillemot.c  |    4 ++--
+ drivers/input/joystick/interact.c   |    4 ++--
+ drivers/input/joystick/magellan.c   |    4 ++--
+ drivers/input/joystick/sidewinder.c |    4 ++--
+ drivers/input/joystick/spaceball.c  |    4 ++--
+ drivers/input/joystick/spaceorb.c   |    4 ++--
+ drivers/input/joystick/stinger.c    |    4 ++--
+ drivers/input/joystick/tmdc.c       |    4 ++--
+ drivers/input/joystick/turbografx.c |    6 +++---
+ drivers/input/joystick/warrior.c    |    4 ++--
+ drivers/input/keyboard/atkbd.c      |    4 ++--
+ drivers/input/keyboard/lkkbd.c      |    4 ++--
+ drivers/input/keyboard/newtonkbd.c  |   12 ++++++------
+ drivers/input/keyboard/sunkbd.c     |    4 ++--
+ drivers/input/keyboard/xtkbd.c      |   12 ++++++------
+ drivers/input/misc/pcspkr.c         |    2 +-
+ drivers/input/misc/uinput.c         |    2 +-
+ drivers/input/mouse/alps.c          |    4 ++--
+ drivers/input/mouse/psmouse-base.c  |    4 ++--
+ drivers/input/mouse/sermouse.c      |    4 ++--
+ drivers/input/mouse/vsxxxaa.c       |    4 ++--
+ drivers/input/mousedev.c            |    2 +-
+ drivers/input/serio/ct82c710.c      |    4 ++--
+ drivers/input/serio/i8042.c         |   10 +++++-----
+ drivers/input/serio/libps2.c        |    3 +--
+ drivers/input/serio/parkbd.c        |    4 ++--
+ drivers/input/serio/serio.c         |    2 +-
+ drivers/input/serio/serio_raw.c     |    6 +++---
+ drivers/input/touchscreen/gunze.c   |    4 ++--
+ drivers/input/tsdev.c               |    2 +-
+ include/linux/gameport.h            |    1 -
+ include/linux/libps2.h              |    1 -
+ 48 files changed, 100 insertions(+), 110 deletions(-)
 
-yes, "not being able to make progress freeing pages" has always been the
-only reliable information in linux. The early 2.6 and some older 2.4
-deadlocked in corner cases (like mlock for example) at trying to guess
-the oom time by looking at a few stat numbers (nr_swap_pages for
-example).
 
-Though when we reach prio 0 clearly we didn't try hard enough if I'm
-getting spurious oom. It's also possible that the pages are being freed
-in other per-cpu queues and we lose visibility on them, so we do hard
-work and still we cannot allocate anything. Unfortunately I've never
-been able to reproduce the early oom kill here, so I could never figure
-out what's going on. and yes, I know there are patches floating around
-claiming they fixed it, but I'd like to hear positive feedback on those.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> > kswapd page freeing efforts are not very useful. kswapd is an helper,
-> > it's not the thing that can or should guarantee allocations to succeed.
-> 
-> Oh wait, kswapd job is to guarantee that allocations succeed. We used to 
+--- linux-2.6.10-rc1-mm3-full/drivers/input/evbug.c.old	2004-11-07 03:34:41.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/evbug.c	2004-11-07 03:35:01.000000000 +0100
+@@ -88,13 +88,13 @@
+ 	.id_table =	evbug_ids,
+ };
+ 
+-int __init evbug_init(void)
++static int __init evbug_init(void)
+ {
+ 	input_register_handler(&evbug_handler);
+ 	return 0;
+ }
+ 
+-void __exit evbug_exit(void)
++static void __exit evbug_exit(void)
+ {
+ 	input_unregister_handler(&evbug_handler);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/gameport/emu10k1-gp.c.old	2004-11-07 03:35:11.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/gameport/emu10k1-gp.c	2004-11-07 03:35:23.000000000 +0100
+@@ -118,12 +118,12 @@
+         .remove =       __devexit_p(emu_remove),
+ };
+ 
+-int __init emu_init(void)
++static int __init emu_init(void)
+ {
+ 	return pci_module_init(&emu_driver);
+ }
+ 
+-void __exit emu_exit(void)
++static void __exit emu_exit(void)
+ {
+ 	pci_unregister_driver(&emu_driver);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/gameport/fm801-gp.c.old	2004-11-07 03:35:52.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/gameport/fm801-gp.c	2004-11-07 03:36:05.000000000 +0100
+@@ -143,12 +143,12 @@
+ 	.remove =	__devexit_p(fm801_gp_remove),
+ };
+ 
+-int __init fm801_gp_init(void)
++static int __init fm801_gp_init(void)
+ {
+ 	return pci_module_init(&fm801_gp_driver);
+ }
+ 
+-void __exit fm801_gp_exit(void)
++static void __exit fm801_gp_exit(void)
+ {
+ 	pci_unregister_driver(&fm801_gp_driver);
+ }
+--- linux-2.6.10-rc1-mm3-full/include/linux/gameport.h.old	2004-11-07 03:36:50.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/include/linux/gameport.h	2004-11-07 03:36:59.000000000 +0100
+@@ -53,7 +53,6 @@
+ 
+ int gameport_open(struct gameport *gameport, struct gameport_dev *dev, int mode);
+ void gameport_close(struct gameport *gameport);
+-void gameport_rescan(struct gameport *gameport);
+ 
+ #if defined(CONFIG_GAMEPORT) || defined(CONFIG_GAMEPORT_MODULE)
+ void gameport_register_port(struct gameport *gameport);
+--- linux-2.6.10-rc1-mm3-full/drivers/input/gameport/gameport.c.old	2004-11-07 03:37:08.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/gameport/gameport.c	2004-11-07 03:37:18.000000000 +0100
+@@ -29,7 +29,6 @@
+ EXPORT_SYMBOL(gameport_unregister_device);
+ EXPORT_SYMBOL(gameport_open);
+ EXPORT_SYMBOL(gameport_close);
+-EXPORT_SYMBOL(gameport_rescan);
+ EXPORT_SYMBOL(gameport_cooked_read);
+ 
+ static LIST_HEAD(gameport_list);
+@@ -112,12 +111,6 @@
+         }
+ }
+ 
+-void gameport_rescan(struct gameport *gameport)
+-{
+-	gameport_close(gameport);
+-	gameport_find_dev(gameport);
+-}
+-
+ void gameport_register_port(struct gameport *gameport)
+ {
+ 	list_add_tail(&gameport->node, &gameport_list);
+--- linux-2.6.10-rc1-mm3-full/drivers/input/gameport/lightning.c.old	2004-11-07 03:37:40.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/gameport/lightning.c	2004-11-07 03:37:56.000000000 +0100
+@@ -53,13 +53,13 @@
+ MODULE_DESCRIPTION("PDPI Lightning 4 gamecard driver");
+ MODULE_LICENSE("GPL");
+ 
+-struct l4 {
++static struct l4 {
+ 	struct gameport gameport;
+ 	unsigned char port;
+ 	char phys[32];
+ } *l4_port[8];
+ 
+-char l4_name[] = "PDPI Lightning 4";
++static char l4_name[] = "PDPI Lightning 4";
+ 
+ /*
+  * l4_wait_ready() waits for the L4 to become ready.
+--- linux-2.6.10-rc1-mm3-full/drivers/input/gameport/ns558.c.old	2004-11-07 03:38:06.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/gameport/ns558.c	2004-11-07 03:38:23.000000000 +0100
+@@ -261,7 +261,7 @@
+ 
+ #endif
+ 
+-int __init ns558_init(void)
++static int __init ns558_init(void)
+ {
+ 	int i = 0;
+ 
+@@ -276,7 +276,7 @@
+ 	return list_empty(&ns558_list) ? -ENODEV : 0;
+ }
+ 
+-void __exit ns558_exit(void)
++static void __exit ns558_exit(void)
+ {
+ 	struct ns558 *port;
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/input/gameport/vortex.c.old	2004-11-07 03:38:32.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/gameport/vortex.c	2004-11-07 03:38:45.000000000 +0100
+@@ -172,12 +172,12 @@
+ 	.remove =	__devexit_p(vortex_remove),
+ };
+ 
+-int __init vortex_init(void)
++static int __init vortex_init(void)
+ {
+ 	return pci_module_init(&vortex_driver);
+ }
+ 
+-void __exit vortex_exit(void)
++static void __exit vortex_exit(void)
+ {
+ 	pci_unregister_driver(&vortex_driver);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/input.c.old	2004-11-07 03:39:00.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/input.c	2004-11-07 03:39:11.000000000 +0100
+@@ -50,7 +50,7 @@
+ 
+ #ifdef CONFIG_PROC_FS
+ static struct proc_dir_entry *proc_bus_input_dir;
+-DECLARE_WAIT_QUEUE_HEAD(input_devices_poll_wait);
++static DECLARE_WAIT_QUEUE_HEAD(input_devices_poll_wait);
+ static int input_devices_state;
+ #endif
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/a3d.c.old	2004-11-07 03:39:37.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/a3d.c	2004-11-07 03:40:22.000000000 +0100
+@@ -50,7 +50,7 @@
+ #define A3D_MODE_OEM		3	/* Panther OEM version */
+ #define A3D_MODE_PXL		4	/* Panther XL */
+ 
+-char *a3d_names[] = { NULL, "FP-Gaming Assassin 3D", "MadCatz Panther", "OEM Panther",
++static char *a3d_names[] = { NULL, "FP-Gaming Assassin 3D", "MadCatz Panther", "OEM Panther",
+ 			"MadCatz Panther XL", "MadCatz Panther XL w/ rudder" };
+ 
+ struct a3d {
+@@ -195,7 +195,7 @@
+  * call this more than 50 times a second, which would use too much CPU.
+  */
+ 
+-int a3d_adc_cooked_read(struct gameport *gameport, int *axes, int *buttons)
++static int a3d_adc_cooked_read(struct gameport *gameport, int *axes, int *buttons)
+ {
+ 	struct a3d *a3d = gameport->driver;
+ 	int i;
+@@ -210,7 +210,7 @@
+  * any but cooked data.
+  */
+ 
+-int a3d_adc_open(struct gameport *gameport, int mode)
++static int a3d_adc_open(struct gameport *gameport, int mode)
+ {
+ 	struct a3d *a3d = gameport->driver;
+ 	if (mode != GAMEPORT_MODE_COOKED)
+@@ -390,13 +390,13 @@
+ 	.disconnect =	a3d_disconnect,
+ };
+ 
+-int __init a3d_init(void)
++static int __init a3d_init(void)
+ {
+ 	gameport_register_device(&a3d_dev);
+ 	return 0;
+ }
+ 
+-void __exit a3d_exit(void)
++static void __exit a3d_exit(void)
+ {
+ 	gameport_unregister_device(&a3d_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/adi.c.old	2004-11-07 03:40:34.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/adi.c	2004-11-07 03:40:54.000000000 +0100
+@@ -549,13 +549,13 @@
+ 	.disconnect =	adi_disconnect,
+ };
+ 
+-int __init adi_init(void)
++static int __init adi_init(void)
+ {
+ 	gameport_register_device(&adi_dev);
+ 	return 0;
+ }
+ 
+-void __exit adi_exit(void)
++static void __exit adi_exit(void)
+ {
+ 	gameport_unregister_device(&adi_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/analog.c.old	2004-11-07 03:41:10.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/analog.c	2004-11-07 03:41:45.000000000 +0100
+@@ -696,7 +696,7 @@
+ 	int value;
+ };
+ 
+-struct analog_types analog_types[] = {
++static struct analog_types analog_types[] = {
+ 	{ "none",	0x00000000 },
+ 	{ "auto",	0x000000ff },
+ 	{ "2btn",	0x0000003f },
+@@ -746,14 +746,14 @@
+ 	.disconnect =	analog_disconnect,
+ };
+ 
+-int __init analog_init(void)
++static int __init analog_init(void)
+ {
+ 	analog_parse_options();
+ 	gameport_register_device(&analog_dev);
+ 	return 0;
+ }
+ 
+-void __exit analog_exit(void)
++static void __exit analog_exit(void)
+ {
+ 	gameport_unregister_device(&analog_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/cobra.c.old	2004-11-07 03:41:56.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/cobra.c	2004-11-07 03:42:08.000000000 +0100
+@@ -241,13 +241,13 @@
+ 	.disconnect =	cobra_disconnect,
+ };
+ 
+-int __init cobra_init(void)
++static int __init cobra_init(void)
+ {
+ 	gameport_register_device(&cobra_dev);
+ 	return 0;
+ }
+ 
+-void __exit cobra_exit(void)
++static void __exit cobra_exit(void)
+ {
+ 	gameport_unregister_device(&cobra_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/db9.c.old	2004-11-07 03:42:17.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/db9.c	2004-11-07 03:42:31.000000000 +0100
+@@ -619,7 +619,7 @@
+ 	return db9;
+ }
+ 
+-int __init db9_init(void)
++static int __init db9_init(void)
+ {
+ 	db9_base[0] = db9_probe(db9, db9_nargs);
+ 	db9_base[1] = db9_probe(db9_2, db9_nargs_2);
+@@ -631,7 +631,7 @@
+ 	return -ENODEV;
+ }
+ 
+-void __exit db9_exit(void)
++static void __exit db9_exit(void)
+ {
+ 	int i, j;
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/gamecon.c.old	2004-11-07 03:42:42.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/gamecon.c	2004-11-07 03:43:00.000000000 +0100
+@@ -665,7 +665,7 @@
+ 	return gc;
+ }
+ 
+-int __init gc_init(void)
++static int __init gc_init(void)
+ {
+ 	gc_base[0] = gc_probe(gc, gc_nargs);
+ 	gc_base[1] = gc_probe(gc_2, gc_nargs_2);
+@@ -677,7 +677,7 @@
+ 	return -ENODEV;
+ }
+ 
+-void __exit gc_exit(void)
++static void __exit gc_exit(void)
+ {
+ 	int i, j;
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/gf2k.c.old	2004-11-07 03:43:08.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/gf2k.c	2004-11-07 03:43:22.000000000 +0100
+@@ -351,13 +351,13 @@
+ 	.disconnect =	gf2k_disconnect,
+ };
+ 
+-int __init gf2k_init(void)
++static int __init gf2k_init(void)
+ {
+ 	gameport_register_device(&gf2k_dev);
+ 	return 0;
+ }
+ 
+-void __exit gf2k_exit(void)
++static void __exit gf2k_exit(void)
+ {
+ 	gameport_unregister_device(&gf2k_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/grip.c.old	2004-11-07 03:43:31.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/grip.c	2004-11-07 03:43:43.000000000 +0100
+@@ -414,13 +414,13 @@
+ 	.disconnect =	grip_disconnect,
+ };
+ 
+-int __init grip_init(void)
++static int __init grip_init(void)
+ {
+ 	gameport_register_device(&grip_dev);
+ 	return 0;
+ }
+ 
+-void __exit grip_exit(void)
++static void __exit grip_exit(void)
+ {
+ 	gameport_unregister_device(&grip_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/guillemot.c.old	2004-11-07 03:43:52.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/guillemot.c	2004-11-07 03:44:04.000000000 +0100
+@@ -271,13 +271,13 @@
+ 	.disconnect =	guillemot_disconnect,
+ };
+ 
+-int __init guillemot_init(void)
++static int __init guillemot_init(void)
+ {
+ 	gameport_register_device(&guillemot_dev);
+ 	return 0;
+ }
+ 
+-void __exit guillemot_exit(void)
++static void __exit guillemot_exit(void)
+ {
+ 	gameport_unregister_device(&guillemot_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/interact.c.old	2004-11-07 03:44:19.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/interact.c	2004-11-07 03:44:33.000000000 +0100
+@@ -299,13 +299,13 @@
+ 	.disconnect =	interact_disconnect,
+ };
+ 
+-int __init interact_init(void)
++static int __init interact_init(void)
+ {
+ 	gameport_register_device(&interact_dev);
+ 	return 0;
+ }
+ 
+-void __exit interact_exit(void)
++static void __exit interact_exit(void)
+ {
+ 	gameport_unregister_device(&interact_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/magellan.c.old	2004-11-07 03:44:43.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/magellan.c	2004-11-07 03:44:54.000000000 +0100
+@@ -216,13 +216,13 @@
+  * The functions for inserting/removing us as a module.
+  */
+ 
+-int __init magellan_init(void)
++static int __init magellan_init(void)
+ {
+ 	serio_register_driver(&magellan_drv);
+ 	return 0;
+ }
+ 
+-void __exit magellan_exit(void)
++static void __exit magellan_exit(void)
+ {
+ 	serio_unregister_driver(&magellan_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/sidewinder.c.old	2004-11-07 03:45:05.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/sidewinder.c	2004-11-07 03:45:20.000000000 +0100
+@@ -765,13 +765,13 @@
+ 	.disconnect =	sw_disconnect,
+ };
+ 
+-int __init sw_init(void)
++static int __init sw_init(void)
+ {
+ 	gameport_register_device(&sw_dev);
+ 	return 0;
+ }
+ 
+-void __exit sw_exit(void)
++static void __exit sw_exit(void)
+ {
+ 	gameport_unregister_device(&sw_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/spaceball.c.old	2004-11-07 03:45:38.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/spaceball.c	2004-11-07 03:45:55.000000000 +0100
+@@ -286,13 +286,13 @@
+  * The functions for inserting/removing us as a module.
+  */
+ 
+-int __init spaceball_init(void)
++static int __init spaceball_init(void)
+ {
+ 	serio_register_driver(&spaceball_drv);
+ 	return 0;
+ }
+ 
+-void __exit spaceball_exit(void)
++static void __exit spaceball_exit(void)
+ {
+ 	serio_unregister_driver(&spaceball_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/spaceorb.c.old	2004-11-07 03:46:04.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/spaceorb.c	2004-11-07 03:46:15.000000000 +0100
+@@ -230,13 +230,13 @@
+  * The functions for inserting/removing us as a module.
+  */
+ 
+-int __init spaceorb_init(void)
++static int __init spaceorb_init(void)
+ {
+ 	serio_register_driver(&spaceorb_drv);
+ 	return 0;
+ }
+ 
+-void __exit spaceorb_exit(void)
++static void __exit spaceorb_exit(void)
+ {
+ 	serio_unregister_driver(&spaceorb_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/stinger.c.old	2004-11-07 03:46:24.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/stinger.c	2004-11-07 03:46:38.000000000 +0100
+@@ -204,13 +204,13 @@
+  * The functions for inserting/removing us as a module.
+  */
+ 
+-int __init stinger_init(void)
++static int __init stinger_init(void)
+ {
+ 	serio_register_driver(&stinger_drv);
+ 	return 0;
+ }
+ 
+-void __exit stinger_exit(void)
++static void __exit stinger_exit(void)
+ {
+ 	serio_unregister_driver(&stinger_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/tmdc.c.old	2004-11-07 03:46:59.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/tmdc.c	2004-11-07 03:47:11.000000000 +0100
+@@ -367,13 +367,13 @@
+ 	.disconnect =	tmdc_disconnect,
+ };
+ 
+-int __init tmdc_init(void)
++static int __init tmdc_init(void)
+ {
+ 	gameport_register_device(&tmdc_dev);
+ 	return 0;
+ }
+ 
+-void __exit tmdc_exit(void)
++static void __exit tmdc_exit(void)
+ {
+ 	gameport_unregister_device(&tmdc_dev);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/turbografx.c.old	2004-11-07 03:47:20.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/turbografx.c	2004-11-07 03:47:42.000000000 +0100
+@@ -77,7 +77,7 @@
+ static int tgfx_buttons[] = { BTN_TRIGGER, BTN_THUMB, BTN_THUMB2, BTN_TOP, BTN_TOP2 };
+ static char *tgfx_name = "TurboGraFX Multisystem joystick";
+ 
+-struct tgfx {
++static struct tgfx {
+ 	struct pardevice *pd;
+ 	struct timer_list timer;
+ 	struct input_dev dev[7];
+@@ -229,7 +229,7 @@
+ 	return tgfx;
+ }
+ 
+-int __init tgfx_init(void)
++static int __init tgfx_init(void)
+ {
+ 	tgfx_base[0] = tgfx_probe(tgfx, tgfx_nargs);
+ 	tgfx_base[1] = tgfx_probe(tgfx_2, tgfx_nargs_2);
+@@ -241,7 +241,7 @@
+ 	return -ENODEV;
+ }
+ 
+-void __exit tgfx_exit(void)
++static void __exit tgfx_exit(void)
+ {
+ 	int i, j;
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/input/joystick/warrior.c.old	2004-11-07 03:47:52.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/joystick/warrior.c	2004-11-07 03:48:09.000000000 +0100
+@@ -216,13 +216,13 @@
+  * The functions for inserting/removing us as a module.
+  */
+ 
+-int __init warrior_init(void)
++static int __init warrior_init(void)
+ {
+ 	serio_register_driver(&warrior_drv);
+ 	return 0;
+ }
+ 
+-void __exit warrior_exit(void)
++static void __exit warrior_exit(void)
+ {
+ 	serio_unregister_driver(&warrior_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/atkbd.c.old	2004-11-07 03:48:25.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/atkbd.c	2004-11-07 03:48:38.000000000 +0100
+@@ -1096,13 +1096,13 @@
+ }
+ 
+ 
+-int __init atkbd_init(void)
++static int __init atkbd_init(void)
+ {
+ 	serio_register_driver(&atkbd_drv);
+ 	return 0;
+ }
+ 
+-void __exit atkbd_exit(void)
++static void __exit atkbd_exit(void)
+ {
+ 	serio_unregister_driver(&atkbd_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/lkkbd.c.old	2004-11-07 03:48:47.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/lkkbd.c	2004-11-07 03:48:59.000000000 +0100
+@@ -719,14 +719,14 @@
+ /*
+  * The functions for insering/removing us as a module.
+  */
+-int __init
++static int __init
+ lkkbd_init (void)
+ {
+ 	serio_register_driver(&lkkbd_drv);
+ 	return 0;
+ }
+ 
+-void __exit
++static void __exit
+ lkkbd_exit (void)
+ {
+ 	serio_unregister_driver(&lkkbd_drv);
+--- linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/newtonkbd.c.old	2004-11-07 03:49:44.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/newtonkbd.c	2004-11-07 03:50:38.000000000 +0100
+@@ -66,7 +66,7 @@
+ 	char phys[32];
+ };
+ 
+-irqreturn_t nkbd_interrupt(struct serio *serio,
++static irqreturn_t nkbd_interrupt(struct serio *serio,
+ 		unsigned char data, unsigned int flags, struct pt_regs *regs)
+ {
+ 	struct nkbd *nkbd = serio->private;
+@@ -84,7 +84,7 @@
+ 
+ }
+ 
+-void nkbd_connect(struct serio *serio, struct serio_driver *drv)
++static void nkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct nkbd *nkbd;
+ 	int i;
+@@ -133,7 +133,7 @@
+ 	printk(KERN_INFO "input: %s on %s\n", nkbd_name, serio->phys);
+ }
+ 
+-void nkbd_disconnect(struct serio *serio)
++static void nkbd_disconnect(struct serio *serio)
+ {
+ 	struct nkbd *nkbd = serio->private;
+ 	input_unregister_device(&nkbd->dev);
+@@ -141,7 +141,7 @@
+ 	kfree(nkbd);
+ }
+ 
+-struct serio_driver nkbd_drv = {
++static struct serio_driver nkbd_drv = {
+ 	.driver		= {
+ 		.name	= "newtonkbd",
+ 	},
+@@ -151,13 +151,13 @@
+ 	.disconnect	= nkbd_disconnect,
+ };
+ 
+-int __init nkbd_init(void)
++static int __init nkbd_init(void)
+ {
+ 	serio_register_driver(&nkbd_drv);
+ 	return 0;
+ }
+ 
+-void __exit nkbd_exit(void)
++static void __exit nkbd_exit(void)
+ {
+ 	serio_unregister_driver(&nkbd_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/sunkbd.c.old	2004-11-07 03:50:50.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/sunkbd.c	2004-11-07 03:51:07.000000000 +0100
+@@ -318,13 +318,13 @@
+  * The functions for insering/removing us as a module.
+  */
+ 
+-int __init sunkbd_init(void)
++static int __init sunkbd_init(void)
+ {
+ 	serio_register_driver(&sunkbd_drv);
+ 	return 0;
+ }
+ 
+-void __exit sunkbd_exit(void)
++static void __exit sunkbd_exit(void)
+ {
+ 	serio_unregister_driver(&sunkbd_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/xtkbd.c.old	2004-11-07 03:51:40.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/keyboard/xtkbd.c	2004-11-07 03:52:22.000000000 +0100
+@@ -65,7 +65,7 @@
+ 	char phys[32];
+ };
+ 
+-irqreturn_t xtkbd_interrupt(struct serio *serio,
++static irqreturn_t xtkbd_interrupt(struct serio *serio,
+ 	unsigned char data, unsigned int flags, struct pt_regs *regs)
+ {
+ 	struct xtkbd *xtkbd = serio->private;
+@@ -88,7 +88,7 @@
+ 	return IRQ_HANDLED;
+ }
+ 
+-void xtkbd_connect(struct serio *serio, struct serio_driver *drv)
++static void xtkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct xtkbd *xtkbd;
+ 	int i;
+@@ -138,7 +138,7 @@
+ 	printk(KERN_INFO "input: %s on %s\n", xtkbd_name, serio->phys);
+ }
+ 
+-void xtkbd_disconnect(struct serio *serio)
++static void xtkbd_disconnect(struct serio *serio)
+ {
+ 	struct xtkbd *xtkbd = serio->private;
+ 	input_unregister_device(&xtkbd->dev);
+@@ -146,7 +146,7 @@
+ 	kfree(xtkbd);
+ }
+ 
+-struct serio_driver xtkbd_drv = {
++static struct serio_driver xtkbd_drv = {
+ 	.driver		= {
+ 		.name	= "xtkbd",
+ 	},
+@@ -156,13 +156,13 @@
+ 	.disconnect	= xtkbd_disconnect,
+ };
+ 
+-int __init xtkbd_init(void)
++static int __init xtkbd_init(void)
+ {
+ 	serio_register_driver(&xtkbd_drv);
+ 	return 0;
+ }
+ 
+-void __exit xtkbd_exit(void)
++static void __exit xtkbd_exit(void)
+ {
+ 	serio_unregister_driver(&xtkbd_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/misc/pcspkr.c.old	2004-11-07 03:52:39.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/misc/pcspkr.c	2004-11-07 03:52:48.000000000 +0100
+@@ -27,7 +27,7 @@
+ static char pcspkr_phys[] = "isa0061/input0";
+ static struct input_dev pcspkr_dev;
+ 
+-spinlock_t i8253_beep_lock = SPIN_LOCK_UNLOCKED;
++static spinlock_t i8253_beep_lock = SPIN_LOCK_UNLOCKED;
+ 
+ static int pcspkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+ {
+--- linux-2.6.10-rc1-mm3-full/drivers/input/misc/uinput.c.old	2004-11-07 03:53:01.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/misc/uinput.c	2004-11-07 03:53:12.000000000 +0100
+@@ -396,7 +396,7 @@
+ 	return retval;
+ }
+ 
+-struct file_operations uinput_fops = {
++static struct file_operations uinput_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =		uinput_open,
+ 	.release =	uinput_close,
+--- linux-2.6.10-rc1-mm3-full/drivers/input/mouse/alps.c.old	2004-11-07 03:53:36.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/mouse/alps.c	2004-11-07 03:53:53.000000000 +0100
+@@ -30,7 +30,7 @@
+ #define ALPS_MODEL_GLIDEPOINT	1
+ #define ALPS_MODEL_DUALPOINT	2
+ 
+-struct alps_model_info {
++static struct alps_model_info {
+ 	unsigned char signature[3];
+ 	unsigned char model;
+ } alps_model_data[] = {
+@@ -187,7 +187,7 @@
+ 	return PSMOUSE_GOOD_DATA;
+ }
+ 
+-int alps_get_model(struct psmouse *psmouse)
++static int alps_get_model(struct psmouse *psmouse)
+ {
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 	unsigned char param[4];
+--- linux-2.6.10-rc1-mm3-full/drivers/input/mouse/psmouse-base.c.old	2004-11-07 03:54:03.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/mouse/psmouse-base.c	2004-11-07 03:54:16.000000000 +0100
+@@ -954,14 +954,14 @@
+ 	}
+ }
+ 
+-int __init psmouse_init(void)
++static int __init psmouse_init(void)
+ {
+ 	psmouse_parse_proto();
+ 	serio_register_driver(&psmouse_drv);
+ 	return 0;
+ }
+ 
+-void __exit psmouse_exit(void)
++static void __exit psmouse_exit(void)
+ {
+ 	serio_unregister_driver(&psmouse_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/mouse/sermouse.c.old	2004-11-07 03:54:24.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/mouse/sermouse.c	2004-11-07 03:54:35.000000000 +0100
+@@ -302,13 +302,13 @@
+ 	.disconnect	= sermouse_disconnect,
+ };
+ 
+-int __init sermouse_init(void)
++static int __init sermouse_init(void)
+ {
+ 	serio_register_driver(&sermouse_drv);
+ 	return 0;
+ }
+ 
+-void __exit sermouse_exit(void)
++static void __exit sermouse_exit(void)
+ {
+ 	serio_unregister_driver(&sermouse_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/mouse/vsxxxaa.c.old	2004-11-07 03:54:46.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/mouse/vsxxxaa.c	2004-11-07 03:54:59.000000000 +0100
+@@ -558,14 +558,14 @@
+ 	.disconnect	= vsxxxaa_disconnect,
+ };
+ 
+-int __init
++static int __init
+ vsxxxaa_init (void)
+ {
+ 	serio_register_driver(&vsxxxaa_drv);
+ 	return 0;
+ }
+ 
+-void __exit
++static void __exit
+ vsxxxaa_exit (void)
+ {
+ 	serio_unregister_driver(&vsxxxaa_drv);
+--- linux-2.6.10-rc1-mm3-full/drivers/input/mousedev.c.old	2004-11-07 03:55:11.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/mousedev.c	2004-11-07 03:55:22.000000000 +0100
+@@ -590,7 +590,7 @@
+ 	return 0;
+ }
+ 
+-struct file_operations mousedev_fops = {
++static struct file_operations mousedev_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.read =		mousedev_read,
+ 	.write =	mousedev_write,
+--- linux-2.6.10-rc1-mm3-full/drivers/input/serio/ct82c710.c.old	2004-11-07 03:55:31.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/serio/ct82c710.c	2004-11-07 03:55:56.000000000 +0100
+@@ -193,7 +193,7 @@
+ 	return serio;
+ }
+ 
+-int __init ct82c710_init(void)
++static int __init ct82c710_init(void)
+ {
+ 	if (ct82c710_probe())
+ 		return -ENODEV;
+@@ -215,7 +215,7 @@
+ 	return 0;
+ }
+ 
+-void __exit ct82c710_exit(void)
++static void __exit ct82c710_exit(void)
+ {
+ 	serio_unregister_port(ct82c710_port);
+ 	platform_device_unregister(ct82c710_device);
+--- linux-2.6.10-rc1-mm3-full/drivers/input/serio/i8042.c.old	2004-11-07 03:56:22.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/serio/i8042.c	2004-11-07 03:57:11.000000000 +0100
+@@ -77,7 +77,7 @@
+ 
+ #include "i8042.h"
+ 
+-spinlock_t i8042_lock = SPIN_LOCK_UNLOCKED;
++static spinlock_t i8042_lock = SPIN_LOCK_UNLOCKED;
+ 
+ struct i8042_values {
+ 	int irq;
+@@ -845,7 +845,7 @@
+ /*
+  * Reset the controller.
+  */
+-void i8042_controller_reset(void)
++static void i8042_controller_reset(void)
+ {
+ 	if (i8042_reset) {
+ 		unsigned char param;
+@@ -870,7 +870,7 @@
+  * able to talk to the hardware when rebooting.
+  */
+ 
+-void i8042_controller_cleanup(void)
++static void i8042_controller_cleanup(void)
+ {
+ 	int i;
+ 
+@@ -1073,7 +1073,7 @@
+ 	return serio;
+ }
+ 
+-int __init i8042_init(void)
++static int __init i8042_init(void)
+ {
+ 	int i;
+ 	int err;
+@@ -1125,7 +1125,7 @@
+ 	return 0;
+ }
+ 
+-void __exit i8042_exit(void)
++static void __exit i8042_exit(void)
+ {
+ 	int i;
+ 
+--- linux-2.6.10-rc1-mm3-full/include/linux/libps2.h.old	2004-11-07 03:57:35.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/include/linux/libps2.h	2004-11-07 03:57:44.000000000 +0100
+@@ -40,7 +40,6 @@
+ };
+ 
+ void ps2_init(struct ps2dev *ps2dev, struct serio *serio);
+-int ps2_sendbyte(struct ps2dev *ps2dev, unsigned char byte, int timeout);
+ int ps2_command(struct ps2dev *ps2dev, unsigned char *param, int command);
+ int ps2_schedule_command(struct ps2dev *ps2dev, unsigned char *param, int command);
+ int ps2_handle_ack(struct ps2dev *ps2dev, unsigned char data);
+--- linux-2.6.10-rc1-mm3-full/drivers/input/serio/libps2.c.old	2004-11-07 03:57:52.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/serio/libps2.c	2004-11-07 03:58:07.000000000 +0100
+@@ -28,7 +28,6 @@
+ MODULE_LICENSE("GPL");
+ 
+ EXPORT_SYMBOL(ps2_init);
+-EXPORT_SYMBOL(ps2_sendbyte);
+ EXPORT_SYMBOL(ps2_command);
+ EXPORT_SYMBOL(ps2_schedule_command);
+ EXPORT_SYMBOL(ps2_handle_ack);
+@@ -52,7 +51,7 @@
+  * ps2_sendbyte() can only be called from a process context
+  */
+ 
+-int ps2_sendbyte(struct ps2dev *ps2dev, unsigned char byte, int timeout)
++static int ps2_sendbyte(struct ps2dev *ps2dev, unsigned char byte, int timeout)
+ {
+ 	serio_pause_rx(ps2dev->serio);
+ 	ps2dev->nak = 1;
+--- linux-2.6.10-rc1-mm3-full/drivers/input/serio/parkbd.c.old	2004-11-07 03:58:19.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/serio/parkbd.c	2004-11-07 03:58:40.000000000 +0100
+@@ -167,7 +167,7 @@
+ 	return serio;
+ }
+ 
+-int __init parkbd_init(void)
++static int __init parkbd_init(void)
+ {
+ 	int err;
+ 
+@@ -191,7 +191,7 @@
+ 	return 0;
+ }
+ 
+-void __exit parkbd_exit(void)
++static void __exit parkbd_exit(void)
+ {
+ 	parport_release(parkbd_dev);
+ 	serio_unregister_port(parkbd_port);
+--- linux-2.6.10-rc1-mm3-full/drivers/input/serio/serio.c.old	2004-11-07 03:59:31.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/serio/serio.c	2004-11-07 03:59:41.000000000 +0100
+@@ -58,7 +58,7 @@
+ static LIST_HEAD(serio_driver_list);
+ static unsigned int serio_no;
+ 
+-struct bus_type serio_bus = {
++static struct bus_type serio_bus = {
+ 	.name =	"serio",
+ };
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/input/serio/serio_raw.c.old	2004-11-07 03:59:58.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/serio/serio_raw.c	2004-11-07 04:00:15.000000000 +0100
+@@ -235,7 +235,7 @@
+ 	return 0;
+ }
+ 
+-struct file_operations serio_raw_fops = {
++static struct file_operations serio_raw_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =		serio_raw_open,
+ 	.release =	serio_raw_release,
+@@ -375,13 +375,13 @@
+ 	.manual_bind	= 1,
+ };
+ 
+-int __init serio_raw_init(void)
++static int __init serio_raw_init(void)
+ {
+ 	serio_register_driver(&serio_raw_drv);
+ 	return 0;
+ }
+ 
+-void __exit serio_raw_exit(void)
++static void __exit serio_raw_exit(void)
+ {
+ 	serio_unregister_driver(&serio_raw_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/touchscreen/gunze.c.old	2004-11-07 04:00:24.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/touchscreen/gunze.c	2004-11-07 04:00:36.000000000 +0100
+@@ -172,13 +172,13 @@
+  * The functions for inserting/removing us as a module.
+  */
+ 
+-int __init gunze_init(void)
++static int __init gunze_init(void)
+ {
+ 	serio_register_driver(&gunze_drv);
+ 	return 0;
+ }
+ 
+-void __exit gunze_exit(void)
++static void __exit gunze_exit(void)
+ {
+ 	serio_unregister_driver(&gunze_drv);
+ }
+--- linux-2.6.10-rc1-mm3-full/drivers/input/tsdev.c.old	2004-11-07 04:00:51.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/input/tsdev.c	2004-11-07 04:00:59.000000000 +0100
+@@ -265,7 +265,7 @@
+ 	return retval;
+ }
+ 
+-struct file_operations tsdev_fops = {
++static struct file_operations tsdev_fops = {
+ 	.owner =	THIS_MODULE,
+ 	.open =		tsdev_open,
+ 	.release =	tsdev_release,
 
-kswapd is all but a guarantee. kswapd is a pure helper.
-
-> wait on kswapd before on v2.3 VM development - then we switched to 
-> task-goes-to-memory-reclaim for _performance_ reasons (parallelism).
-
-it wasn't parallelism.  The only way you could make it safe is that you
-create a message passing mechanism where you post a request to kswapd
-and kswapd wakes you up back. But that'd inefficient compared to current
-model where kswapd is an helper.
-
-Infact kswapd right now only hurts during heavy paging since it will
-prevent the freed pages to go into the right per-cpu queue. kswapd only
-hurts during paging, we should stop it as far as somebody is inside the
-critical section for a certain numa node.
-
-> My point here is, kswapd is the entity responsible for freeing pages. 
-
-it can't even know which is the per-cpu queue where it has to put the
-pages back.
-
-> The action of triggering OOM killer from inside a task context (whether 
-> its from the alloc_pages path or the fault path is irrelevant here) 
-> is WRONG because at the same time, kswapd, who is the main entity freeing 
-> pages, is also running the memory reclaim code - it might just have freed 
-> a bunch of pages but we have no way of knowing that from normal task context. 
-
-we definitely have a way of knowing, the fact the current code is buggy
-doesn't mean we don't have a way of knowing, 2.4 VM perfectly knows when
-kswapd did the right thing and helped. Though I agree kswapd generally
-hurts during paging and we'd better stop it to reduce the synchronous
-amount of work.
-
-the allocator must check if the levels are above pages.low before
-killing, if it doesn't do that it's broken, moving the oom killer in
-kswapd cannot fix this problem, because obviously then it'll be the task
-context that will have freed the additional pages instead of kswapd.
-
-The rule is to do:
-
-	paging
-	check the levels and kill
-
-If you just do paging and oom kill if paging has failed there's no way
-it can work. 2.6 is broken here, and that could be the reason of the oom
-kills too.
-
-There will be always a race condition even with the above, since the
-check for the levels and oom kill isn't an atomic operation and we don't
-block all other cpus in that path, but it's an insignificant window we
-don't have to worry about (only theoretical).
-
-But if you check the levels; paging; kill, like current 2.6, there is an
-huge window while we wait for I/O. After we finished the I/O the whole
-VM status may have changed and we may be full of free pages in the
-per-cpu queue and in the buddy as well. so we've to recheck the levels
-before killing anything. This is again why doing oom_kill inside the
-try_to_free_pages (or in kswapd anyways) is flawed.
-
-> > The rule is that if you want to allocate 1 page, you've to free the page
-> > yourself. Then if kswapd frees a page too, that's welcome. But keep also
-> > in mind kswapd may be running in another cpu, and it will put the pages
-> > back into the per-cpu queue of the other cpu. 
-> 
-> Exactly another reason for _NOT_ triggering the OOM killer from task context 
-> - pages which have been freed might be in the per-CPU queue (but a task
-> running on another CPU can't see them).
-> 
-> We should be flushing the per-cpu queues quite often under these circumstances. 
-
-we should never flush per-cpu pages, that'd hurt performance, per-cpu
-pages are lost memory. this is also why we must give up freeing memory
-only if everything else is not available, in 2.4 I had to stop after 50
-tries or so. We must keep going until all per-cpu queues are full,
-because if kswapd is in our way every other cpu may get the ram before
-us. This is why stopping kswapd would be beneficial while we're working
-on it, it'd probabilistically reduce the amount of synchronous work.
-
-> Why's that? blk_congestion_wait looks clean and correct to me - if the queue 
-> is full dont bother queueing more pages at this device.
-
-blk_contestion_wait is waiting on random I/O, it doesn't mean it's
-waiting on any substantial VM related paging (an O_DIRECT I/O would fool
-blk_congestion_wait), and if there's no I/O it just wakeup after a fixed
-random number of seconds.
-
-the VM should only throttle on locked pages or locked bh it can see,
-never on random I/O happening at the blkdev layer just because somebody
-is rolling some directio. Throttling on random I/O will lead to oom
-failures too and that's another bug in the 2.6 VM (and if it's not a
-bug, and we throttle elsewhere too, then it's simply useless and it
-should be replaced with a yield, if there's no I/O waiting there is a
-nosense, especially given that even if the oom killer triggers there
-won't be any additional ram to free, since the oom killer will generate
-free memory, not memory to free).
-
-> OK - so you seem to be agreeing with me that triggering OOM killer
-> from kswapd context is the correct thing to do now?
-
-I disagree about that sorry. not even try_to_free_pages should ever call
-the oom killer (unless you want to move the watermark checks from
-page_alloc.c to vmscan.c that would not be clean at all). Taking the
-decision on when to oom kill inside vmscan.c (like current 2.6 does)
-looks wrong to me.

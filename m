@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266445AbUFQNjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266491AbUFQNj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266445AbUFQNjM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 09:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266491AbUFQNjM
+	id S266491AbUFQNj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 09:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266492AbUFQNj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 09:39:12 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:49835 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266445AbUFQNjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 09:39:07 -0400
-Date: Thu, 17 Jun 2004 14:39:06 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Takao Indoh <indou.takao@soft.fujitsu.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4]Diskdump Update
-Message-ID: <20040617133906.GA32219@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Takao Indoh <indou.takao@soft.fujitsu.com>,
-	linux-kernel@vger.kernel.org
-References: <20040617124957.GA31392@infradead.org> <CCC4546DFE9D94indou.takao@soft.fujitsu.com>
+	Thu, 17 Jun 2004 09:39:27 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:20871 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266491AbUFQNjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 09:39:24 -0400
+Date: Thu, 17 Jun 2004 08:38:28 -0500
+From: Nathan Straz <nstraz@sgi.com>
+To: David Rees <drees@greenhydrant.com>
+Cc: Peter Wainwright <prw@ceiriog1.demon.co.uk>, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: Irix NFS servers, again :-)
+Message-ID: <20040617133828.GA20029@sgi.com>
+Mail-Followup-To: David Rees <drees@greenhydrant.com>,
+	Peter Wainwright <prw@ceiriog1.demon.co.uk>,
+	linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+References: <1087411925.30092.35.camel@ceiriog1.demon.co.uk> <40D163C8.30507@greenhydrant.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CCC4546DFE9D94indou.takao@soft.fujitsu.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <40D163C8.30507@greenhydrant.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 10:21:27PM +0900, Takao Indoh wrote:
-> On Thu, 17 Jun 2004 13:49:57 +0100, Christoph Hellwig wrote:
-> 
-> >my old comments for this are still valid, please add the actual dumping
-> >methods directly to scsi_host_template instead of a pointer to another
-> >method vector, 
-> 
-> I have already done in the latest patch.
+On Thu, Jun 17, 2004 at 02:26:32AM -0700, David Rees wrote:
+> Peter Wainwright wrote, On 6/16/2004 11:52 AM:
+> >I just upgraded one of my machines to Fedora Core 2, including
+> >kernel 2.6.5. I found myself bitten on the bum by a bug I thought
+> >had expired long ago, namely the Irix server readdir bug, or
+> >32/64-bit cookie problem.
+>
+> glibc.  I can't seem to reproduce it using `ls` which I remember being 
+> able to last time I had the problem so that would explain it.  What 
+> software showed the problem for you?
 
-Okay.  Looks like I looked at an older patch, sorry.
+You can see the different if you do `ls dir` and `ls dir/*`.  Typically
+the shell will use readdir and ls will use getdents, IIRC.  I was using
+the test case readdir01 from LTP.
 
-> 
-> diff -Nur linux-2.6.6.org/drivers/scsi/aic7xxx/aic7xxx_osm.c linux-2.6.6/drivers/scsi/aic7xxx/aic7xxx_osm.c
-> --- linux-2.6.6.org/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-06-04 21:22:20.000000000 +0900
-> +++ linux-2.6.6/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-06-16 19:34:16.000000000 +0900
-> @@ -774,6 +774,10 @@
->  static int	   ahc_linux_bus_reset(Scsi_Cmnd *);
->  static int	   ahc_linux_dev_reset(Scsi_Cmnd *);
->  static int	   ahc_linux_abort(Scsi_Cmnd *);
-> +#if defined(CONFIG_SCSI_DUMP) || defined(CONFIG_SCSI_DUMP_MODULE)
-> +static int	   ahc_linux_sanity_check(struct scsi_device *);
-> +static void	   ahc_linux_poll(struct scsi_device *);
-> +#endif
-
-I'd say implement these unconditionally, it's not _that_ much code..
-
-> >please make it not a module of it's own but part of the
-> >scsi code, 
-> 
-> Do you mean scsi_dump module should be merged with sd_mod.o or scsi_mod.o?
-
-scsi_mod.o.
-
-> I'll try sysfs attribute instead of this.
-
-Okay, thanks.  Or some other way to find by host/channel/target/lun using
-scsi_device_lookup.
+-- 
+Nate Straz                                              nstraz@sgi.com
+sgi, inc                                           http://www.sgi.com/
+Linux Test Project                                  http://ltp.sf.net/

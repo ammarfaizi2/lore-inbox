@@ -1,52 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262151AbVBQONM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVBQOVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262151AbVBQONM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 09:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVBQONL
+	id S262154AbVBQOVC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 09:21:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVBQOVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 09:13:11 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:10770 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262151AbVBQOMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 09:12:50 -0500
-Date: Thu, 17 Feb 2005 15:12:44 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, Olaf Kirch <okir@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 7/13] Encode and decode arbitrary XDR arrays
-Message-ID: <20050217141244.GF24808@stusta.de>
-References: <20050122203326.402087000@blunzn.suse.de> <20050122203619.570180000@blunzn.suse.de> <1108495038.10073.102.camel@lade.trondhjem.org>
+	Thu, 17 Feb 2005 09:21:02 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:11165 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S262154AbVBQOUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 09:20:52 -0500
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+From: Kenan Esau <kenan.esau@conan.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: harald.hoyer@redhat.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20050216213508.GD3001@ucw.cz>
+References: <20050211201013.GA6937@ucw.cz>
+	 <1108457880.2843.5.camel@localhost> <20050215134308.GE7250@ucw.cz>
+	 <1108578892.2994.2.camel@localhost>  <20050216213508.GD3001@ucw.cz>
+Content-Type: text/plain
+Date: Thu, 17 Feb 2005 15:19:53 +0100
+Message-Id: <1108649993.2994.18.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108495038.10073.102.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 02:17:18PM -0500, Trond Myklebust wrote:
+Am Mittwoch, den 16.02.2005, 22:35 +0100 schrieb Vojtech Pavlik:
+> On Wed, Feb 16, 2005 at 07:34:52PM +0100, Kenan Esau wrote:
 > 
-> net/sunrpc/xdr.c:1024:3: warning: mixing declarations and code
->...
-> Please don't use these gcc extensions in the kernel.
+> > > > +
+> > > > +        /* 
+> > > > +           Enable absolute output -- ps2_command fails always but if
+> > > > +           you leave this call out the touchsreen will never send
+> > > > +           absolute coordinates
+> > > > +        */ 
+> > > > +        param = 0x07;
+> > > > +        ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
+> > > 
+> > > Have you checked whether really the touchscreen sends a 0xfe error back,
+> > > or some other value, or timeout? i8042.debug=1 is your friend here.
+> > 
+> > Yes the answer is 0xfe. 
+> 
+> Would you be so kind to post the 'dmesg' log?
 
-Just for the record:
-This is not a gcc extension - this is C99 but not supported by
-gcc 2.95 (which is a supported compiler for kernel 2.6).
+Shure -- here you are...
 
-> Cheers,
->   Trond
+...
+input: LBPS/2 Fujitsu Lifebook TouchScreen on isa0060/serio1
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78488524]
+drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [78488524]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [78488532]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78488753]
+drivers/input/serio/i8042.c: ff -> i8042 (parameter) [78488753]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [78488759]
+drivers/input/serio/i8042.c: aa <- i8042 (interrupt, aux, 12) [78488822]
+drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [78488823]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489004]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [78489004]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [78489009]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489009]
+drivers/input/serio/i8042.c: 07 -> i8042 (parameter) [78489009]
+drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12) [78489014]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489014]
+drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [78489014]
+drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12) [78489018]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489216]
+drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [78489216]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [78489218]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489219]
+drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [78489219]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [78489223]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489223]
+drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [78489223]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [78489228]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [78489229]
+drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [78489229]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [78489233]
+drivers/input/serio/i8042.c: 20 <- i8042 (interrupt, kbd, 1) [78494505]
+drivers/input/serio/i8042.c: a0 <- i8042 (interrupt, kbd, 1) [78494603]
+drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, kbd, 1) [78494680]
+...
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

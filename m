@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279739AbRKAUY5>; Thu, 1 Nov 2001 15:24:57 -0500
+	id <S279741AbRKAU32>; Thu, 1 Nov 2001 15:29:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279746AbRKAUYr>; Thu, 1 Nov 2001 15:24:47 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:51594 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S279741AbRKAUYj>;
-	Thu, 1 Nov 2001 15:24:39 -0500
-Date: Thu, 01 Nov 2001 12:23:39 -0800 (PST)
-Message-Id: <20011101.122339.48529660.davem@redhat.com>
-To: haegar@sdinet.de
-Cc: Fernando_Netto@cmsoftware.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Is there a MAX TCP/UDP CONNECTIONS limit in Kernel?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.40.0111011931471.7334-100000@space.comunit.de>
-In-Reply-To: <70B75822B253D511AA910002440963EB1D8FD6@CMSERVICES>
-	<Pine.LNX.4.40.0111011931471.7334-100000@space.comunit.de>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S279743AbRKAU3H>; Thu, 1 Nov 2001 15:29:07 -0500
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:52639 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S279741AbRKAU2z>; Thu, 1 Nov 2001 15:28:55 -0500
+Date: Thu, 1 Nov 2001 20:28:46 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Tim Waugh <twaugh@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: driver initialisation order problem
+Message-ID: <20011101202846.E10819@flint.arm.linux.org.uk>
+In-Reply-To: <3BE15BF0.C6FB873C@mandrakesoft.com> <Pine.LNX.4.10.10111011014500.2293-100000@transvirtual.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10111011014500.2293-100000@transvirtual.com>; from jsimmons@transvirtual.com on Thu, Nov 01, 2001 at 10:33:22AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Sven Koch <haegar@sdinet.de>
-   Date: Thu, 1 Nov 2001 19:37:31 +0100 (CET)
-   
-   Outbound-connections are limited by the local portrange, changeable
-   in /proc/sys/net/ipv4/ip_local_port_range
-   (ran into this on one of my proxy servers, having thousands of connections
-   in the state CLOSING, TIME_WAIT and LAST_ACK - after
-   echo "1024 16383" >/proc/sys/net/ipv4/ip_local_port_range the box at
-   least stays working)
+On Thu, Nov 01, 2001 at 10:33:22AM -0800, James Simmons wrote:
+> /drivers/serial 	-> Yes I plan a rewrite of the serial layer.
 
-In current 2.4.14-preX, this is not true anymore.  It is limited
-by something approximating "local port range X number of unique
-destination IP addresses" because if the remote address is unique
-we allow multiple local port binds to occur on the same local port.
+Correction - I plan a major cleanup of the serial layer.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,121 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132860AbRDDRSp>; Wed, 4 Apr 2001 13:18:45 -0400
+	id <S132862AbRDDR34>; Wed, 4 Apr 2001 13:29:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132861AbRDDRSf>; Wed, 4 Apr 2001 13:18:35 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:14216 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S132860AbRDDRS2>;
-	Wed, 4 Apr 2001 13:18:28 -0400
-Importance: Normal
+	id <S132864AbRDDR3r>; Wed, 4 Apr 2001 13:29:47 -0400
+Received: from gateway.sequent.com ([192.148.1.10]:52743 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S132862AbRDDR3i>; Wed, 4 Apr 2001 13:29:38 -0400
+Date: Wed, 4 Apr 2001 10:27:21 -0700
+From: Mike Kravetz <mkravetz@sequent.com>
+To: Fabio Riccardi <fabio@chromium.com>
+Cc: Ingo Molnar <mingo@elte.hu>, frankeh@us.ibm.com,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: a quest for a better scheduler
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFD82F9D22.584E5FF7-ON85256A24.005DB7E0@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Wed, 4 Apr 2001 13:17:38 -0400
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.7 |March 21, 2001) at
- 04/04/2001 01:17:40 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Message-ID: <20010404102721.B1118@w-mikek2.sequent.com>
+In-Reply-To: <20010403121308.A1054@w-mikek2.sequent.com> <Pine.LNX.4.30.0104032024290.9285-100000@elte.hu> <20010403154314.E1054@w-mikek2.sequent.com> <3ACA683A.89D24DED@chromium.com> <20010403194700.A1024@w-mikek2.sequent.com> <3ACAA164.BDFF9B4C@chromium.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3ACAA164.BDFF9B4C@chromium.com>; from fabio@chromium.com on Tue, Apr 03, 2001 at 09:21:57PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 03, 2001 at 09:21:57PM -0700, Fabio Riccardi wrote:
+> I was actually suspecting that the extra lines in your patch were there for a
+> reason :)
+> 
+> A few questions:
+> 
+> What is the real impact of a (slight) change in scheduling semantics?
+> 
+> Under which situation one should notice a difference?
 
-Well put, this how we can eliminate searching all bins or lists and that's
-how we do it under.
-http://lse.sourceforge.net/scheduling/2.4.1-pre8-prioSched.
+I assume your questions are directed at the difference between local
+and global scheduling decisions.  As with most things the impact of
+these differences depends on workload.  Most multi-queue scheduler
+implementations make local scheduling decisions and depend on load
+balancing for system wide fairness.  Schedulers which make global
+decisions handle load balancing via their global policy.
 
-If you have a list per priority level, then you can even pick the first one
-you find if its on
-the same level. That's what I tried in a more recent implementation. Also
-combined that
-with using a bitmask to represent non-empty tasks.
+The HP multi-queue implementation you are using performs no load
+balancing.  Therefore, in a worst case situation you could have
+low priority tasks sharing one CPU while high priority tasks are
+sharing another.  To be fair, I have talked to the HP people and
+this scheduler was never intended to be a general purpose solution.
+Therefore, it makes little sense to comment its merits as such.
 
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+> As you state in your papers the global decision comes with a cost,
+> is it worth it?
 
+My primary motivation for attempting to perform the same global
+decisions as the current scheduler was so that meaningful comparisons
+could be made.  Also, by using the same global decision policy I
+was able to avoid the issue of load balancing.  In most multi-queue
+implementations, load balancing algorithms take considerable effort
+to get working in a reasonable well performing manner.
 
+> 
+> Could you make a port of your thing on recent kernels?
 
-Davide Libenzi <davidel@xmailserver.org>@ewok.dev.mycio.com on 04/04/2001
-12:12:54 PM
+There is a 2.4.2 patch on the web page.  I'll put out a 2.4.3 patch
+as soon as I get some time.
 
-Sent by:  davidel@ewok.dev.mycio.com
-
-
-To:   Ingo Molnar <mingo@elte.hu>
-cc:   Linus Torvalds <torvalds@transmeta.com>, Alan Cox
-      <alan@lxorguk.ukuu.org.uk>, Linux Kernel List
-      <linux-kernel@vger.kernel.org>, Hubertus Franke/Watson/IBM@IBMUS,
-      Mike Kravetz <mkravetz@sequent.com>, Fabio Riccardi
-      <fabio@chromium.com>
-Subject:  Re: a quest for a better scheduler
-
-
-
-
-On 04-Apr-2001 Ingo Molnar wrote:
->
-> On Tue, 3 Apr 2001, Fabio Riccardi wrote:
->
->> I've spent my afternoon running some benchmarks to see if MQ patches
->> would degrade performance in the "normal case".
->
-> no doubt priority-queue can run almost as fast as the current scheduler.
-> What i'm worried about is the restriction of the 'priority' of processes,
-> it cannot depend on previous processes (and other 'current state')
-> anymore.
->
-> to so we have two separate issues:
->
->#1: priority-queue: has the fundamental goodness() design limitation.
->
->#2: per-CPU-runqueues: changes semantics, makes scheduler less
->     effective due to nonglobal decisions.
->
-> about #1: while right now the prev->mm rule appears to be a tiny issue
-(it
-> might not affect performance significantly), but forbidding it by
-> hardcoding the assumption into data structures is a limitation of
-*future*
-> goodness() functions. Eg. with the possible emergence of CPU-level
-> threading and other, new multiprocessing technologies, this could be a
-> *big* mistake.
-
-This is not correct Ingo. I haven't seen the HP code but if You store
-processes
-in slots S :
-
-S = FS( goodness(p, p->processor, p->mm) )
-
-and You start scanning from the higher slots, as soon as you find a task
-with a
-goodness G' that is equal to the max goodness in slot You can choose that
-process to run.
-Again, if You haven't found such a goodness during the slot scan but You've
-found a task with a goodness G' :
-
-G' >= SG - DD
-
-where :
-
-SG = max slot goodness
-DD = SG(i) - SG(i - 1)
-
-You can select that task as the next to spin.
-This was the behaviour that was implemented in my scheduler patch about 2
-years
-ago.
-Beside this, I this that with such loads We've more serious problem to face
-with inside the kernel.
-
-
-
-- Davide
-
-
-
-
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center

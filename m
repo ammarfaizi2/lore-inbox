@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129860AbQK1ND3>; Tue, 28 Nov 2000 08:03:29 -0500
+        id <S130006AbQK1NIj>; Tue, 28 Nov 2000 08:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130006AbQK1NDJ>; Tue, 28 Nov 2000 08:03:09 -0500
-Received: from c008-h019.c008.sfo.cp.net ([209.228.14.208]:3722 "HELO
-        c008.sfo.cp.net") by vger.kernel.org with SMTP id <S129860AbQK1NDC>;
-        Tue, 28 Nov 2000 08:03:02 -0500
-X-Sent: 28 Nov 2000 12:32:54 GMT
-Message-ID: <3A23A5F4.CF20D52D@rouvier.net>
-Date: Tue, 28 Nov 2000 04:32:52 -0800
-From: Joe Rouvier <joe@rouvier.net>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+        id <S130774AbQK1NI3>; Tue, 28 Nov 2000 08:08:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23840 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S130006AbQK1NIU>; Tue, 28 Nov 2000 08:08:20 -0500
+Subject: Re: Dell 5000e APM (fixed!)
+To: s.torri@lancaster.ac.uk (Stephen Torri)
+Date: Tue, 28 Nov 2000 12:38:36 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.21.0011280840590.3537-100000@dyn545.dhcp.lancs.ac.uk> from "Stephen Torri" at Nov 28, 2000 08:43:01 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: reneb@cistron.nl, linux-kernel@vger.kernel.org
-Subject: Re: Trident sound does not work anymore!
-In-Reply-To: <slrn927896.59.reneb@orac.aais.nl> <3A2395DD.70674662@rouvier.net>
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E140k1u-0004SB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At least, that worked for me.  I had this same problem on 2.2.17 with my
-es1371 when I bought a new ASUS P3V4X motherboard.  If someone has a
-better solution I'd love to hear about it!
+> On the topic of APM, I have a supermicro P6DBE motherboard (SMP).
+> APM does not work because its not safe with SMP systems. What can I do to
+> get power management for this motherboard?
 
-Joe Rouvier wrote:
-> 
-> Try setting "PNP aware OS" (or something like that) to "NO" in your
-> BIOS.
-> 
-> Rene Blokland wrote:
-> >
-> > Hi there, as the subject says the trident sound does not work since
-> > 2.4.0-test9. this messages does dmesg:
-> > Trident 4DWave/SiS 7018/ALi 5451 PCI Audio, version 0.14.6, 12:36:52 Nov 20 2000
-> > trident: Trident 4DWave DX found at IO 0xd800, IRQ 0
-> > trident: unable to allocate irq 0
-> > any ideas?
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Run 2.4test and hope the vendor implements ACPI. In actualf act ona desktop
+you'll get a lot of the power saving from the hlt loop and the screen
+blanking
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

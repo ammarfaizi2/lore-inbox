@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130510AbQLJKLO>; Sun, 10 Dec 2000 05:11:14 -0500
+	id <S130374AbQLJKLi>; Sun, 10 Dec 2000 05:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130374AbQLJKLE>; Sun, 10 Dec 2000 05:11:04 -0500
-Received: from smtp3.libero.it ([193.70.192.53]:28849 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S129960AbQLJKKw>;
-	Sun, 10 Dec 2000 05:10:52 -0500
-Message-ID: <3A334F7C.3205A3DF@alsa-project.org>
-Date: Sun, 10 Dec 2000 10:40:12 +0100
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i586)
-X-Accept-Language: it, en
+	id <S130599AbQLJKLO>; Sun, 10 Dec 2000 05:11:14 -0500
+Received: from granch.com ([212.109.197.246]:50953 "EHLO granch.com")
+	by vger.kernel.org with ESMTP id <S129960AbQLJKLH>;
+	Sun, 10 Dec 2000 05:11:07 -0500
+Date: Sun, 10 Dec 2000 14:59:46 +0600 (NOVT)
+From: "Yaroslav S. Polyakov" <xenon@granch.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Yaroslav Polyakov <xenon@granch.ru>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/net/sbni.c irq release on failure
+In-Reply-To: <20001209174918.G859@conectiva.com.br>
+Message-ID: <Pine.BSF.4.21.0012101457450.10468-100000@granch.com>
 MIME-Version: 1.0
-To: Richard Henderson <rth@twiddle.net>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [2*PATCH] alpha I/O access and mb()
-In-Reply-To: <3A31F094.480AAAFB@alsa-project.org> <20001209161013.A30555@twiddle.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Henderson wrote:
+Hi!
+
+On Sat, 9 Dec 2000, Arnaldo Carvalho de Melo wrote:
+
+> Alan/Yaroslav,
 > 
-> On Sat, Dec 09, 2000 at 09:43:00AM +0100, Abramo Bagnara wrote:
-> > alpha-mb-2.4.diff add missing defines from core_t2.h for non generic
-> > kernel (against 2.4.0test11)
+> 	Please consider applying, a similar patch is already in 2.4.
+I want to release new version of sbni driver soon (after QA
+procedures). This new version will be ported to 2.4 kernel.
+this version already have your patch applied. Thanks! :)
+
+> - Arnaldo
 > 
-> These are not "missing".  They are intentionally not present
-> so that stuff will be done out of line.
+> --- linux-2.2.18-pre25/drivers/net/sbni.c	Sat Dec  9 15:08:17 2000
+> +++ linux-2.2.18-pre25.acme/drivers/net/sbni.c	Sat Dec  9 17:44:53 2000
+> @@ -456,6 +456,7 @@
+>  	if(dev->priv == NULL)
+>  	{
+>  		DP( printk("%s: cannot allocate memory\n", dev->name); )
+> +		free_irq(dev->irq, dev);
+>  		return -ENOMEM;
+>  	}
+>     
+> 
 
-And this would be the only core_*.h files where this intention is
-expressed?
+                                       .
+                            Si vis pacem, para bellum
+                          Granch ltd.  Security Analyst
 
-It's hard to believe, without you explain why ;-)
-
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
-
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project is            http://www.alsa-project.org
-sponsored by SuSE Linux    http://www.suse.com
-
-It sounds good!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,86 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbUKCAHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbUKCANT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbUKCAHj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 19:07:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbUKCADn
+	id S261166AbUKCANT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 19:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbUKBXu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 19:03:43 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:64428 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S262756AbUKCACm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 19:02:42 -0500
-Message-ID: <41882E8F.6040608@free.fr>
-Date: Wed, 03 Nov 2004 02:04:15 +0100
-From: Remi Colinet <remi.colinet@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Tue, 2 Nov 2004 18:50:56 -0500
+Received: from mail.dif.dk ([193.138.115.101]:20695 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262694AbUKBXpt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 18:45:49 -0500
+Date: Wed, 3 Nov 2004 00:54:30 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kill the last few warnings in binfmt_elf.c
+Message-ID: <Pine.LNX.4.61.0411030039310.3395@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6]
-References: <1099171567.1424.9.camel@krustophenia.net> <20041030233849.498fbb0f@mango.fruits.de> <20041031120721.GA19450@elte.hu> <20041031124828.GA22008@elte.hu> <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <41881B28.5010109@free.fr>
-In-Reply-To: <41881B28.5010109@free.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remi Colinet wrote:
 
-> Ingo Molnar wrote:
->
->> i've uploaded a fixed kernel (-V0.6.8) to :
->>
->> http://redhat.com/~mingo/realtime-preempt/ 
->> <http://redhat.com/%7Emingo/realtime-preempt/>
->>
+Hi Andrew,
 
-Without DEBUG_PAGE_ALLOC, the kernel (V0.6.9) is fairly stable.
-I can even feel the difference of latency under KDE, between the stock 
-kernel and V0.6.9. :-)
+Sorry to keep bugging you with this directly, but I'm still not aware of a 
+sepperate maintainer for this file.
 
-I like this patch.
 
-Remi
+I've send you 3 patches previously that kill a few warnings in 
+fs/binfmt_elf.c. The patch below includes those previous 3 and also adds a 
+fix for the last ones.
 
-> I have thousands of the following BUG with V0.6.9
->
-> Nov 2 23:10:14 tigre02 kernel: printk: 6553 messages suppressed.
-> Nov 2 23:10:14 tigre02 kernel: BUG: using smp_processor_id() in 
-> preemptible [00000001] code: udev/1159
-> Nov 2 23:10:14 tigre02 kernel: caller is store_stackinfo+0x5d/0xb0
-> Nov 2 23:10:14 tigre02 kernel: [<c0106503>] dump_stack+0x23/0x30 (20)
-> Nov 2 23:10:14 tigre02 kernel: [<c011f177>] smp_processor_id+0xb7/0xc0 
-> (32)
-> Nov 2 23:10:14 tigre02 kernel: [<c0159a5d>] store_stackinfo+0x5d/0xb0 
-> (28)
-> Nov 2 23:10:14 tigre02 kernel: [<c015b6ba>] 
-> cache_free_debugcheck+0x1aa/0x390 (52)
-> Nov 2 23:10:14 tigre02 kernel: [<c015c656>] kmem_cache_free+0x46/0xf0 
-> (32)
-> Nov 2 23:10:14 tigre02 kernel: [<c01731f1>] sys_open+0x81/0xb0 (32)
-> Nov 2 23:10:14 tigre02 kernel: [<c0105561>] 
-> sysenter_past_esp+0x52/0x71 (-8124)
-> Nov 2 23:10:14 tigre02 kernel: ---------------------------
-> Nov 2 23:10:14 tigre02 kernel: | preempt count: 00000002 ]
-> Nov 2 23:10:14 tigre02 kernel: | 2-level deep critical section nesting:
-> Nov 2 23:10:14 tigre02 kernel: ----------------------------------------
-> Nov 2 23:10:14 tigre02 kernel: .. [<c011f11f>] .... 
-> smp_processor_id+0x5f/0xc0
-> Nov 2 23:10:14 tigre02 kernel: .....[<c0159a5d>] .. ( <= 
-> store_stackinfo+0x5d/0xb0)
-> Nov 2 23:10:14 tigre02 kernel: .. [<c014083d>] .... 
-> print_traces+0x1d/0x60
-> Nov 2 23:10:14 tigre02 kernel: .....[<c0106503>] .. ( <= 
-> dump_stack+0x23/0x30)
+The patch does the following :
+
+- kill the unused result warning in fill_psinfo - yes, I know you consider 
+this a silly way to shut up gcc, so feel free to replace it with a dummy 
+assignment or (void) if you please - but at least this way is safe and 
+doesn't add an extra variable or anything. (this you've already recieved 
+as a sepperate patch)
+
+- kill the unused result warning in padzero and make padzero return the nr 
+of bytes not cleared and update callers of padzero to catch return of != 0 
+and act accordingly. (this you've already recieved as a sepperate patch)
+
+- kill the unused result warning in load_elf_binary and do proper error 
+handling. (this you've already recieved as a sepperate patch)
+
+- kill the unused result warning in create_elf_tables and update caller to 
+check for error condition. This is the new bit in this patch that you 
+haven't recieved in its current form before. I'm not 100% sure that
+send_sig(SIGKILL, current, 0);
+goto out_free_dentry;
+is the correct thing to do in the create_elf_tables caller if 
+create_elf_tables fails - I think it is, but having someone confirm it 
+would be nice.
+
+Patch has been compile tested and compiles without errors or warnings.
+Patch has been test booted and is in the kernel I'm currently running.
+Patch is created against 2.6.10-rc1-bk12
+
+Please review and consider for inclusion.
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -up linux-2.6.10-rc1-bk12-orig/fs/binfmt_elf.c linux-2.6.10-rc1-bk12/fs/binfmt_elf.c
+--- linux-2.6.10-rc1-bk12-orig/fs/binfmt_elf.c	2004-10-26 00:21:01.000000000 +0200
++++ linux-2.6.10-rc1-bk12/fs/binfmt_elf.c	2004-11-03 00:06:25.000000000 +0100
+@@ -103,15 +103,18 @@ static int set_brk(unsigned long start, 
+    be in memory */
+ 
+ 
+-static void padzero(unsigned long elf_bss)
++static int padzero(unsigned long elf_bss)
+ {
+ 	unsigned long nbyte;
++	int ret = 0;
+ 
+ 	nbyte = ELF_PAGEOFFSET(elf_bss);
+ 	if (nbyte) {
+ 		nbyte = ELF_MIN_ALIGN - nbyte;
+-		clear_user((void __user *) elf_bss, nbyte);
++		ret = clear_user((void __user *) elf_bss, nbyte);
+ 	}
++	
++	return ret;
+ }
+ 
+ /* Let's use some macros to make this stack manipulation a litle clearer */
+@@ -127,7 +130,7 @@ static void padzero(unsigned long elf_bs
+ #define STACK_ALLOC(sp, len) ({ sp -= len ; sp; })
+ #endif
+ 
+-static void
++static int
+ create_elf_tables(struct linux_binprm *bprm, struct elfhdr * exec,
+ 		int interp_aout, unsigned long load_addr,
+ 		unsigned long interp_load_addr)
+@@ -144,6 +147,7 @@ create_elf_tables(struct linux_binprm *b
+ 	elf_addr_t *elf_info;
+ 	int ei_index = 0;
+ 	struct task_struct *tsk = current;
++	int retval = 0;
+ 
+ 	/*
+ 	 * If this architecture has a platform capability string, copy it
+@@ -172,7 +176,10 @@ create_elf_tables(struct linux_binprm *b
+ 			STACK_ALLOC(p, ((current->pid % 64) << 7));
+ #endif
+ 		u_platform = (elf_addr_t __user *)STACK_ALLOC(p, len);
+-		__copy_to_user(u_platform, k_platform, len);
++		if (__copy_to_user(u_platform, k_platform, len)) {
++			retval = -EFAULT;
++			goto out;
++		}
+ 	}
+ 
+ 	/* Create the ELF interpreter info */
+@@ -252,7 +259,7 @@ create_elf_tables(struct linux_binprm *b
+ 		__put_user((elf_addr_t)p, argv++);
+ 		len = strnlen_user((void __user *)p, PAGE_SIZE*MAX_ARG_PAGES);
+ 		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
+-			return;
++			goto out_ok;
+ 		p += len;
+ 	}
+ 	__put_user(0, argv);
+@@ -262,7 +269,7 @@ create_elf_tables(struct linux_binprm *b
+ 		__put_user((elf_addr_t)p, envp++);
+ 		len = strnlen_user((void __user *)p, PAGE_SIZE*MAX_ARG_PAGES);
+ 		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
+-			return;
++			goto out_ok;
+ 		p += len;
+ 	}
+ 	__put_user(0, envp);
+@@ -270,7 +277,15 @@ create_elf_tables(struct linux_binprm *b
+ 
+ 	/* Put the elf_info on the stack in the right place.  */
+ 	sp = (elf_addr_t __user *)envp + 1;
+-	copy_to_user(sp, elf_info, ei_index * sizeof(elf_addr_t));
++	if (copy_to_user(sp, elf_info, ei_index * sizeof(elf_addr_t))) {
++		retval = -EFAULT;
++		goto out;
++	}
++
++out_ok:
++	retval = 0;
++out:
++	return retval;
+ }
+ 
+ #ifndef elf_map
+@@ -400,7 +415,10 @@ static unsigned long load_elf_interp(str
+ 	 * that there are zero-mapped pages up to and including the 
+ 	 * last bss page.
+ 	 */
+-	padzero(elf_bss);
++	if (padzero(elf_bss) != 0) {
++		error = -EFAULT;
++		goto out_close;
++	}
+ 	elf_bss = ELF_PAGESTART(elf_bss + ELF_MIN_ALIGN - 1);	/* What we have mapped so far */
+ 
+ 	/* Map the last of the bss segment */
+@@ -755,7 +773,11 @@ static int load_elf_binary(struct linux_
+ 				nbyte = ELF_MIN_ALIGN - nbyte;
+ 				if (nbyte > elf_brk - elf_bss)
+ 					nbyte = elf_brk - elf_bss;
+-				clear_user((void __user *) elf_bss + load_bias, nbyte);
++				if (clear_user((void __user *) elf_bss + load_bias, nbyte)) {
++					send_sig(SIGKILL, current, 0);
++					retval = -EFAULT;
++					goto out_free_dentry;
++				}
+ 			}
+ 		}
+ 
+@@ -837,7 +859,11 @@ static int load_elf_binary(struct linux_
+ 		send_sig(SIGKILL, current, 0);
+ 		goto out_free_dentry;
+ 	}
+-	padzero(elf_bss);
++	if (padzero(elf_bss) != 0) {
++		send_sig(SIGKILL, current, 0);
++		retval = -EFAULT;
++		goto out_free_dentry;
++	}
+ 
+ 	if (elf_interpreter) {
+ 		if (interpreter_type == INTERPRETER_AOUT)
+@@ -863,6 +889,7 @@ static int load_elf_binary(struct linux_
+ 	}
+ 
+ 	kfree(elf_phdata);
++	elf_phdata = NULL;
+ 
+ 	if (interpreter_type != INTERPRETER_AOUT)
+ 		sys_close(elf_exec_fileno);
+@@ -871,8 +898,11 @@ static int load_elf_binary(struct linux_
+ 
+ 	compute_creds(bprm);
+ 	current->flags &= ~PF_FORKNOEXEC;
+-	create_elf_tables(bprm, &loc->elf_ex, (interpreter_type == INTERPRETER_AOUT),
+-			load_addr, interp_load_addr);
++	if ((retval = create_elf_tables(bprm, &loc->elf_ex, (interpreter_type == INTERPRETER_AOUT),
++			load_addr, interp_load_addr)) != 0) {
++		send_sig(SIGKILL, current, 0);
++		goto out_free_dentry;
++	}
+ 	/* N.B. passed_fileno might not be initialized? */
+ 	if (interpreter_type == INTERPRETER_AOUT)
+ 		current->mm->arg_start += strlen(passed_fileno) + 1;
+@@ -1000,7 +1030,10 @@ static int load_elf_library(struct file 
+ 		goto out_free_ph;
+ 
+ 	elf_bss = elf_phdata->p_vaddr + elf_phdata->p_filesz;
+-	padzero(elf_bss);
++	if (padzero(elf_bss) != 0) {
++		error = -EFAULT;
++		goto out_free_ph;
++	}
+ 
+ 	len = ELF_PAGESTART(elf_phdata->p_filesz + elf_phdata->p_vaddr + ELF_MIN_ALIGN - 1);
+ 	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
+@@ -1215,7 +1248,7 @@ static void fill_psinfo(struct elf_prpsi
+ 	len = mm->arg_end - mm->arg_start;
+ 	if (len >= ELF_PRARGSZ)
+ 		len = ELF_PRARGSZ-1;
+-	copy_from_user(&psinfo->pr_psargs,
++	len -= copy_from_user(&psinfo->pr_psargs,
+ 		       (const char __user *)mm->arg_start, len);
+ 	for(i = 0; i < len; i++)
+ 		if (psinfo->pr_psargs[i] == 0)
 
 

@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVAOWYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbVAOW0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbVAOWYf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 17:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVAOWYe
+	id S262346AbVAOW0g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 17:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVAOW0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 17:24:34 -0500
-Received: from gate.crashing.org ([63.228.1.57]:52155 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262334AbVAOWYd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 17:24:33 -0500
-Subject: Re: [PATCH] PPC64 pmac hotplug cpu
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Linux PPC64 <linuxppc64-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0501122341410.23299@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0501122341410.23299@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Date: Sun, 16 Jan 2005 09:23:13 +1100
-Message-Id: <1105827794.27410.82.camel@gaston>
+	Sat, 15 Jan 2005 17:26:35 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:45719 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262346AbVAOWZi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 17:25:38 -0500
+Date: Sat, 15 Jan 2005 23:25:43 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: slab.c use of __get_user and sparse
+Message-ID: <20050115222543.GB8989@mars.ravnborg.org>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20050115213906.GA22486@mars.ravnborg.org> <20050115220151.GA16442@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050115220151.GA16442@wotan.suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-13 at 17:43 -0700, Zwane Mwaikambo wrote:
-> I found the following very handy for use as a reference platform when 
-> working on i386 hotplug cpu recently.
+On Sat, Jan 15, 2005 at 11:01:51PM +0100, Andi Kleen wrote:
+> > Based on the comment it is understood that suddenly this pointer points
+> > to userspace, because the module got unloaded.
+> > I wonder why we can rely on the same address now the module got unloaded -
+> > we may risk this virtual address is taken over by someone else?
 > 
-> It's been tested on a G5 system with a cpu going on/offline every second 
-> and make -j. I've also tried a number of config options to avoid compile 
-> breakage.
+> The address is not user space; you would be lying.
+Which is very bad - dropped slab.c for now.
 
-Hi !
-
-Looks good, but you could do even better :) I still want to look at the
-proper mecanism to flush the CPU cache on 970, but the idea here is to
-flush it, and put the CPU into a NAP loop (the 970 has no SLEEP mode)
-with the caches clean and MSR:EE off. We can later get it back with a
-soft reset.
-
-Ben.
-
+	Sam

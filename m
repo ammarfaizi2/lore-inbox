@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267030AbTBTXcX>; Thu, 20 Feb 2003 18:32:23 -0500
+	id <S265809AbTBTXfu>; Thu, 20 Feb 2003 18:35:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbTBTXcX>; Thu, 20 Feb 2003 18:32:23 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28429
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267030AbTBTXcV>; Thu, 20 Feb 2003 18:32:21 -0500
-Subject: [patch] task_prio() fix
-From: Robert Love <rml@tech9.net>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Content-Type: text/plain
+	id <S265894AbTBTXfu>; Thu, 20 Feb 2003 18:35:50 -0500
+Received: from B53d0.pppool.de ([213.7.83.208]:45735 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S265809AbTBTXft>; Thu, 20 Feb 2003 18:35:49 -0500
+Subject: Re: [Patch] Enable SSE for AMD Athlon (Thoroughbred) in 2.4.20
+From: Daniel Egger <degger@fhm.edu>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030220184525.GA23768@codemonkey.org.uk>
+References: <1045266292.12105.41.camel@sonja>
+	 <20030220184525.GA23768@codemonkey.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YyKjnEwObPyhtfO9I8W6"
 Organization: 
-Message-Id: <1045784559.781.26.camel@phantasy>
+Message-Id: <1045772262.5732.4.camel@sonja>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
-Date: 20 Feb 2003 18:42:40 -0500
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 20 Feb 2003 21:17:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like task_prio() should do:
 
-        int task_prio(task_t *p)
-        {
-        	return p->prio - MAX_RT_PRIO;
-        }
+--=-YyKjnEwObPyhtfO9I8W6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Instead of subtracting MAX_USER_RT_PRIO, since the maximum _user_ value
-has nothing to do with the maximum that may be stored.  The effect is if
-MAX_RT_PRIO != MAX_USER_RT_PRIO, then all priorities are skewed by
-(MAX_RT_PRIO - MAX_USER_RT_PRIO).
+Am Don, 2003-02-20 um 19.45 schrieb Dave Jones:
 
-Ingo, this looks trivial to me... but I swear it _used_ to work and this
-function has always been like this.  Comments?
+>  > A similar change for the just released Barton would also be nice but
+>  > I do not have the model number handy.
 
-Patch is against 2.5.62.
+> It's model 10. Somehow they skipped model 9.
 
-	Robert Love
+> if (c->x86_model >=3D 6 && c->x86_model <=3D 10) {
 
+> should do the right thing on all current models with SSE afaics..
 
- kernel/sched.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+I think so, too. The specific checks where just to be on the sure side....
 
+--=20
+Servus,
+       Daniel
 
-diff -urN linux-2.5.62/kernel/sched.c linux/kernel/sched.c
---- linux-2.5.62/kernel/sched.c	2003-02-20 18:30:08.232619488 -0500
-+++ linux/kernel/sched.c	2003-02-20 18:30:15.585501680 -0500
-@@ -1552,7 +1552,7 @@
-  */
- int task_prio(task_t *p)
- {
--	return p->prio - MAX_USER_RT_PRIO;
-+	return p->prio - MAX_RT_PRIO;
- }
- 
- /**
+--=-YyKjnEwObPyhtfO9I8W6
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQA+VTfmchlzsq9KoIYRAr6PAJ48SWh9VYPE0oTyG/87PWbG44ydpgCdEkCt
+y6RNTaR+/IAMddjoHmzhHeo=
+=QDZy
+-----END PGP SIGNATURE-----
+
+--=-YyKjnEwObPyhtfO9I8W6--
 

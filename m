@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265584AbUBPNum (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 08:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265535AbUBPNtt
+	id S265530AbUBPNom (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 08:44:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUBPNom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 08:49:49 -0500
-Received: from h24-69-6-69.gv.shawcable.net ([24.69.6.69]:34067 "HELO
-	h24-69-6-69.gv.shawcable.net") by vger.kernel.org with SMTP
-	id S265538AbUBPNqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 08:46:45 -0500
-Message-ID: <PBTOAKKZPGRBJSVPSCGGR@msn.com>
-From: "Emery Hogue" <john_Burns062@yahoo.com>
-Reply-To: "Emery Hogue" <john_Burns062@yahoo.com>
-To: linux-net@vger.kernel.org
-Subject: sugper viagrga prostitute duckling
-Date: Mon, 16 Feb 2004 06:39:40 -0700
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="--88779224605165526019"
-X-IP: 172.79.42.246
+	Mon, 16 Feb 2004 08:44:42 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:45268 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S265530AbUBPNol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 08:44:41 -0500
+Date: Mon, 16 Feb 2004 08:32:47 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Roland Mas <roland.mas@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOPS in 2.4.25-rc1 -- video1394
+Message-ID: <20040216133247.GB4691@phunnypharm.org>
+References: <873c9kebhw.fsf@mirexpress.internal.placard.fr.eu.org> <20040209175731.GN1042@phunnypharm.org> <873c9j3nm4.fsf@mirexpress.internal.placard.fr.eu.org> <87hdxrnxcr.fsf@mirexpress.internal.placard.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87hdxrnxcr.fsf@mirexpress.internal.placard.fr.eu.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----88779224605165526019
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+>   I still think the kernel shouldn't oops, but if I can find a
+> userspace fix, I won't mind that much :-)
 
-ONLY REAL SUPER VIAGDRA CALLED CIADLIS IS EFFECTIVE!
-Annual Sale: ONLY 
-$3 per dose
-Check out our website with disscounts and 
-get your fdree bonus pillls
-Shipped world wide!
+Yeah, the kernel definitely shoudln't oops, even if kino doesn't
+something wrong. It's probably doing something wrong, and the video1394
+driver just isn't doing the proper checks.
 
-http://fastactingpills.com/sv/?pid=3Devaph6163
-
-
-ghostlike coddington
-
-----88779224605165526019--
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

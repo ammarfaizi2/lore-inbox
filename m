@@ -1,154 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319381AbSH2Wfc>; Thu, 29 Aug 2002 18:35:32 -0400
+	id <S319504AbSH2WuQ>; Thu, 29 Aug 2002 18:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319380AbSH2VvZ>; Thu, 29 Aug 2002 17:51:25 -0400
-Received: from smtpout.mac.com ([204.179.120.88]:3320 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S319356AbSH2Vuz>;
-	Thu, 29 Aug 2002 17:50:55 -0400
-Message-Id: <200208292155.g7TLtI72021485@smtp-relay04-en1.mac.com>
-Date: Thu, 29 Aug 2002 21:56:27 +0200
-Mime-Version: 1.0 (Apple Message framework v482)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: [PATCH] 11/41 sound/oss/pas2_pcm.c - convert cli to spinlocks
-From: pwaechtler@mac.com
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-Cc: torvalds@transmeta.com
-X-Mailer: Apple Mail (2.482)
+	id <S319507AbSH2WuP>; Thu, 29 Aug 2002 18:50:15 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:6084 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S319504AbSH2WqT>;
+	Thu, 29 Aug 2002 18:46:19 -0400
+Date: Thu, 29 Aug 2002 15:49:01 -0700
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       irda-users@lists.sourceforge.net
+Subject: [PATCH 2.5] : ir255_nsc_speed-4.diff
+Message-ID: <20020829224900.GD14118@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- vanilla-2.5.32/sound/oss/pas2_pcm.c	Sat Apr 20 18:25:21 2002
-+++ linux-2.5-cli-oss/sound/oss/pas2_pcm.c	Thu Aug 15 14:35:07 2002
-@@ -16,6 +16,7 @@
-  */
- 
- #include <linux/init.h>
-+#include <linux/spinlock.h>
- #include "sound_config.h"
- 
- #include "pas2.h"
-@@ -44,6 +45,8 @@
- int             pas_audiodev = -1;
- static int      open_mode = 0;
- 
-+extern spinlock_t lock;
-+
- static int pcm_set_speed(int arg)
- {
- 	int foo, tmp;
-@@ -101,8 +104,7 @@
- 	pcm_filter = tmp;
- #endif
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lock, flags);
- 
- 	pas_write(tmp & ~(0x40 | 0x80), 0x0B8A);
- 	pas_write(0x00 | 0x30 | 0x04, 0x138B);
-@@ -110,7 +112,7 @@
- 	pas_write((foo >> 8) & 0xff, 0x1388);
- 	pas_write(tmp, 0x0B8A);
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock, flags);
- 
- 	return pcm_speed;
- }
-@@ -212,15 +214,14 @@
- 
- 	DEB(printk("pas2_pcm.c: static int pas_audio_open(int mode = %X)\n", mode));
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lock, flags);
- 	if (pcm_busy)
- 	{
--		restore_flags(flags);
-+		spin_unlock_irqrestore(&lock, flags);
- 		return -EBUSY;
- 	}
- 	pcm_busy = 1;
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock, flags);
- 
- 	if ((err = pas_set_intr(PAS_PCM_INTRBITS)) < 0)
- 		return err;
-@@ -238,15 +239,14 @@
- 
- 	DEB(printk("pas2_pcm.c: static void pas_audio_close(void)\n"));
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lock, flags);
- 
- 	pas_audio_reset(dev);
- 	pas_remove_intr(PAS_PCM_INTRBITS);
- 	pcm_mode = PCM_NON;
- 
- 	pcm_busy = 0;
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock, flags);
- }
- 
- static void pas_audio_output_block(int dev, unsigned long buf, int count,
-@@ -265,8 +265,7 @@
- 	    cnt == pcm_count)
- 		return;
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lock, flags);
- 
- 	pas_write(pas_read(0xF8A) & ~0x40,
- 		  0xF8A);
-@@ -293,7 +292,7 @@
- 
- 	pcm_mode = PCM_DAC;
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock, flags);
- }
- 
- static void pas_audio_start_input(int dev, unsigned long buf, int count,
-@@ -313,8 +312,7 @@
- 	    cnt == pcm_count)
- 		return;
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lock, flags);
- 
- 	/* DMAbuf_start_dma (dev, buf, count, DMA_MODE_READ); */
- 
-@@ -338,7 +336,7 @@
- 
- 	pcm_mode = PCM_ADC;
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock, flags);
- }
- 
- #ifndef NO_TRIGGER
-@@ -346,8 +344,7 @@
- {
- 	unsigned long   flags;
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lock, flags);
- 	state &= open_mode;
- 
- 	if (state & PCM_ENABLE_OUTPUT)
-@@ -357,7 +354,7 @@
- 	else
- 		pas_write(pas_read(0xF8A) & ~0x40, 0xF8A);
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock, flags);
- }
- #endif
- 
+ir255_nsc_speed-4.diff :
+----------------------
+	o [FEATURE] Cleanly change speed back to 9600bps
+	o [CORRECT] Change speed under spinlock/irq disabled
+	o [CORRECT] Make sure interrupt handlers don't mess irq mask
+	o [CORRECT] Don't change speed if we haven't fully finished to Tx
 
+
+diff -u -p linux/include/net/irda/nsc-ircc.d2.h linux/include/net/irda/nsc-ircc.h
+--- linux/include/net/irda/nsc-ircc.d2.h	Mon Jul 15 16:13:58 2002
++++ linux/include/net/irda/nsc-ircc.h	Mon Jul 15 16:18:55 2002
+@@ -253,6 +253,7 @@ struct nsc_ircc_cb {
+ 	
+ 	__u32 flags;               /* Interface flags */
+ 	__u32 new_speed;
++	int speed_cnt;		   /* Number of frames before speed change */
+ 	int index;                 /* Instance index */
+ 
+         struct pm_dev *dev;
+diff -u -p linux/drivers/net/irda/nsc-ircc.d2.c linux/drivers/net/irda/nsc-ircc.c
+--- linux/drivers/net/irda/nsc-ircc.d2.c	Mon Jul 15 15:42:50 2002
++++ linux/drivers/net/irda/nsc-ircc.c	Tue Jul 16 10:43:37 2002
+@@ -953,6 +953,7 @@ static void nsc_ircc_change_dongle_speed
+  *
+  *    Change the speed of the device
+  *
++ * This function *must* be called with irq off and spin-lock.
+  */
+ static void nsc_ircc_change_speed(struct nsc_ircc_cb *self, __u32 speed)
+ {
+@@ -1048,7 +1049,6 @@ static void nsc_ircc_change_speed(struct
+     	
+ 	/* Restore BSR */
+ 	outb(bank, iobase+BSR);
+-	netif_wake_queue(dev);
+ 	
+ }
+ 
+@@ -1074,20 +1074,30 @@ static int nsc_ircc_hard_xmit_sir(struct
+ 
+ 	netif_stop_queue(dev);
+ 		
++	/* Make sure tests *& speed change are atomic */
++	spin_lock_irqsave(&self->lock, flags);
++	
+ 	/* Check if we need to change the speed */
+ 	speed = irda_get_next_speed(skb);
+ 	if ((speed != self->io.speed) && (speed != -1)) {
+-		/* Check for empty frame */
++		/* Check for empty frame. */
+ 		if (!skb->len) {
+-			nsc_ircc_change_speed(self, speed); 
++			/* If we just sent a frame, we get called before
++			 * the last bytes get out (because of the SIR FIFO).
++			 * If this is the case, let interrupt handler change
++			 * the speed itself... Jean II */
++			if (self->io.direction == IO_RECV)
++				nsc_ircc_change_speed(self, speed); 
++			else
++				self->new_speed = speed;
++			spin_unlock_irqrestore(&self->lock, flags);
+ 			dev_kfree_skb(skb);
++			netif_wake_queue(dev);
+ 			return 0;
+ 		} else
+ 			self->new_speed = speed;
+ 	}
+ 
+-	spin_lock_irqsave(&self->lock, flags);
+-	
+ 	/* Save current bank */
+ 	bank = inb(iobase+BSR);
+ 	
+@@ -1126,20 +1136,34 @@ static int nsc_ircc_hard_xmit_fir(struct
+ 
+ 	netif_stop_queue(dev);
+ 	
++	/* Make sure tests *& speed change are atomic */
++	spin_lock_irqsave(&self->lock, flags);
++
+ 	/* Check if we need to change the speed */
+ 	speed = irda_get_next_speed(skb);
+ 	if ((speed != self->io.speed) && (speed != -1)) {
+-		/* Check for empty frame */
++		/* Check for empty frame. */
+ 		if (!skb->len) {
+-			nsc_ircc_change_speed(self, speed); 
++			/* If we are currently transmitting, defer to
++			 * interrupt handler. - Jean II */
++			if(self->tx_fifo.len == 0)
++				nsc_ircc_change_speed(self, speed); 
++			else {
++				self->new_speed = speed;
++				self->speed_cnt = self->tx_fifo.len;
++			}
++			spin_unlock_irqrestore(&self->lock, flags);
+ 			dev_kfree_skb(skb);
++			netif_wake_queue(dev);
+ 			return 0;
+-		} else
++		} else {
+ 			self->new_speed = speed;
++			/* Save the number of frames currently in the fifo
++			 * so that we know *when* to change the speed. */
++			self->speed_cnt = self->tx_fifo.len + 1;
++		}
+ 	}
+ 
+-	spin_lock_irqsave(&self->lock, flags);
+-
+ 	/* Save current bank */
+ 	bank = inb(iobase+BSR);
+ 
+@@ -1334,16 +1358,23 @@ static int nsc_ircc_dma_xmit_complete(st
+ 		self->stats.tx_packets++;
+ 	}
+ 
+-	/* Check if we need to change the speed */
+-	if (self->new_speed) {
+-		nsc_ircc_change_speed(self, self->new_speed);
+-		self->new_speed = 0;
+-	}
+-
+ 	/* Finished with this frame, so prepare for next */
+ 	self->tx_fifo.ptr++;
+ 	self->tx_fifo.len--;
+ 
++	/* Check if we need to change the speed.
++	 * Do it after self->tx_fifo.len--; to avoid races with
++	 * nsc_ircc_hard_xmit_fir().
++	 * We do it synchronous to the packets in the fifo, so that's
++	 * why we wait for the right frame to do it. - Jean II */
++	if ((self->new_speed) && (--self->speed_cnt == 0)) {
++		/* There seem to be some issue with corrupting the
++		 * frame just before a speed change. Workaround. Jean II */
++		udelay(100);
++		nsc_ircc_change_speed(self, self->new_speed);
++		self->new_speed = 0;
++	}
++
+ 	/* Any frames to be sent back-to-back? */
+ 	if (self->tx_fifo.len) {
+ 		nsc_ircc_dma_xmit(self, iobase);
+@@ -1634,7 +1665,12 @@ static void nsc_ircc_sir_interrupt(struc
+ 	}
+ 	/* Check if transmission has completed */
+ 	if (eir & EIR_TXEMP_EV) {
+-		/* Check if we need to change the speed? */
++		/* Turn around and get ready to receive some data */
++		self->io.direction = IO_RECV;
++		self->ier = IER_RXHDL_IE;
++		/* Check if we need to change the speed?
++		 * Need to be after self->io.direction to avoid race with
++		 * nsc_ircc_hard_xmit_sir() - Jean II */
+ 		if (self->new_speed) {
+ 			IRDA_DEBUG(2, __FUNCTION__ "(), Changing speed!\n");
+ 			nsc_ircc_change_speed(self, self->new_speed);
+@@ -1649,9 +1685,6 @@ static void nsc_ircc_sir_interrupt(struc
+ 				return;
+ 			}
+ 		}
+-		/* Turn around and get ready to receive some data */
+-		self->io.direction = IO_RECV;
+-		self->ier = IER_RXHDL_IE;
+ 	}
+ 
+ 	/* Rx FIFO threshold or timeout */

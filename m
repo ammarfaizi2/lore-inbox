@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265072AbUEKXsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265073AbUEKXvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265072AbUEKXsN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 19:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUEKXsL
+	id S265073AbUEKXvp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 19:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUEKXsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 19:48:11 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:32387 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S265060AbUEKXqb (ORCPT
+	Tue, 11 May 2004 19:48:43 -0400
+Received: from mail.kroah.org ([65.200.24.183]:11747 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265068AbUEKXpk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 19:46:31 -0400
-Date: Wed, 12 May 2004 00:46:30 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Valdis.Kletnieks@vt.edu
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dri-devel@lists.sf.net
-Subject: re: ioctls in drm.h
-In-Reply-To: <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.58.0405120045150.3826@skynet>
-References: <200405112211.i4BMBQDZ006167@hera.kernel.org> <20040511222245.GA25644@kroah.com>
-            <Pine.LNX.4.58.0405120018360.3826@skynet>
- <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 May 2004 19:45:40 -0400
+Date: Tue, 11 May 2004 16:00:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Todd Poynor <tpoynor@mvista.com>
+Cc: mochel@digitalimplant.org, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hotplug events for system suspend/resume
+Message-ID: <20040511230001.GA26569@kroah.com>
+References: <20040511010015.GA21831@dhcp193.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040511010015.GA21831@dhcp193.mvista.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > care to comment?
->
-> Is this a case where somebody is *really* including kernel headers in userspace
-> and we need to smack them, or are they using a copy that's been sanitized
-> (and possibly fixed)?
+On Mon, May 10, 2004 at 06:00:15PM -0700, Todd Poynor wrote:
+> Generate synchronous hotplug events for system suspend and resume
+> events, via the power subsystem.  Recent discussions have indicated
+> various methods for notification of these events are in use today; this
+> is an attempt to move these into the generic power subsystem.  The patch
+> relies on the "synchronous hotplug events via kobject" patch sent
+> previously.
 
-hmm drm.h is used by all drm users and it hasn't really been sanitised..
-we probably do need to look into what goes where.. are the rules for 32/64
-user/kernel ioctls written down anywhere?
+I still do not see the need for this.  As a user, you caused the
+suspend/resume event to happen, why get notified of it again?  :)
 
-Dave.
->
+Or am I missing something basic here?
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+thanks,
 
+greg k-h

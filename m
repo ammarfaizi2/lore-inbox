@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278215AbRJWUVM>; Tue, 23 Oct 2001 16:21:12 -0400
+	id <S278218AbRJWUfQ>; Tue, 23 Oct 2001 16:35:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278200AbRJWUVC>; Tue, 23 Oct 2001 16:21:02 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:52467 "EHLO
-	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S278222AbRJWUUt>; Tue, 23 Oct 2001 16:20:49 -0400
-Date: Tue, 23 Oct 2001 15:19:45 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Issue with max_threads (and other resources) and highmem
-Message-ID: <72940000.1003868385@baldur>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S278221AbRJWUfG>; Tue, 23 Oct 2001 16:35:06 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:26292 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S278218AbRJWUfA>;
+	Tue, 23 Oct 2001 16:35:00 -0400
+Message-ID: <3BD5D496.3FEA316@candelatech.com>
+Date: Tue, 23 Oct 2001 13:35:34 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        Tulip Mailing List <tulip@scyld.com>
+Subject: Small bug with ZYNX 4-Port NIC (Tulip driver)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Regarding the tulip driver that comes default with 2.4.13-pre5:
 
-I recently had pointed out to me that the default value for max_threads (ie
-the max number of tasks per system) doesn't work right on machines with
-lots of memory.
+There seems to be a problem with the ZYNX 4-port NIC.
+It auto-negotiates and brings it's link up, but it's
+advertise bits are set to (only) 10bt-FD.  If I force the
+bits to 10/100 FD/HD (all 4 set, in other words), then the
+NIC briefly reports this setting (while LINK is DOWN), but
+as soon as it completes it's autonegotiation, the advert
+bits are once again set to 10bt-FD.
 
-A quick examination of fork_init() shows that max_threads is supposed to be
-limited so its stack/task_struct takes no more than half of physical
-memory.  This calculation ignores the fact that task_structs must be
-allocated from the normal pool and not the highmem pool, which is a clear
-bug.  On a machine with enough physical memory it's possible for all of
-normal memory to be allocated to task_structs, which tends to make the
-machine die.  
-
-fork_init() gets its knowledge of physical memory passed in from
-start_kernel(), which sets it from mum_physpages.  This parameter is also
-passed to several other init functions.
-
-My question boils down to this...  Should we change start_kernel() to limit
-the physical memory size it passes to the init functions to not include
-high memory, or should we only do it for fork_init()?  What is the best way
-to do calculate this number?  I don't see any simple way in
-architecture-independent code to get the size of high memory vs normal
-memory.
-
-What's the best approach here?
+I do NOT see this problem on the D-LINK 4-port NIC or the
+EEPRO NICs I've been testing with....
 
 Thanks,
-Dave McCracken
+Ben
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

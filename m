@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316847AbSE3TjR>; Thu, 30 May 2002 15:39:17 -0400
+	id <S316836AbSE3Tu1>; Thu, 30 May 2002 15:50:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316848AbSE3TjQ>; Thu, 30 May 2002 15:39:16 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:57869 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316847AbSE3TjQ>; Thu, 30 May 2002 15:39:16 -0400
-Date: Thu, 30 May 2002 12:38:52 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Hannu Mallat <hmallat@cc.hut.fi>, Denis Oliver Kropp <dok@convergence.de>,
-        Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] Fbdev updates and fixes.
-Message-ID: <Pine.LNX.4.10.10205301227340.12679-100000@www.transvirtual.com>
+	id <S316851AbSE3Tu0>; Thu, 30 May 2002 15:50:26 -0400
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:24531 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S316836AbSE3TuZ>; Thu, 30 May 2002 15:50:25 -0400
+Date: Thu, 30 May 2002 21:50:26 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: tasklets
+In-Reply-To: <200205301948.VAA21563@loewe.cosy.sbg.ac.at>
+Message-ID: <Pine.GSO.4.05.10205302149300.9848-100000@mausmaki.cosy.sbg.ac.at>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi list,
 
-Here are several fixes and a few new ports. The drivers I ported over
-to the new api are: 
+can someone explain the notes in tqueue.h?
 
-1) 3DFX Voodoo3+ fbdev driver 
+it states:
 
-2) NeoMagic fbdev driver
+ * - Bottom halfs are called in the reverse order that they were linked into
+ *   the list.
 
-Please review these drivers. 
+but in queue_task it does a list_add_tail, which doesn't really explain the
+above. also __run_task_queue does essentially a list_for_each, and no
+list_for_each_prev.
 
------------------
-The fixes where for the anakin framebuffer and CLPS711X framebuffer.
+so i cannot see any reasons why the tasks in the list shouldn't work like a
+fifo.
 
+can someone give me a hint what's wrong with my thinking? :)
 
-/////////////////////////////////////////////////////////////////////
-The standard diff is at 
+thanks,
+	tm
 
-http://www.transvirtual.com/~jsimmons/fbdev.diff
-
-and the BK link is 
-
-http://fbdev.bkbits.net:8080/fbdev-2.5
-
-Thank you.
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
-
+-- 
+in some way i do, and in some way i don't.
 

@@ -1,67 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269009AbRG3QrO>; Mon, 30 Jul 2001 12:47:14 -0400
+	id <S269012AbRG3QzE>; Mon, 30 Jul 2001 12:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269007AbRG3QrE>; Mon, 30 Jul 2001 12:47:04 -0400
-Received: from [212.204.66.1] ([212.204.66.1]:57871 "EHLO myway.myway.de")
-	by vger.kernel.org with ESMTP id <S269008AbRG3Qqw>;
-	Mon, 30 Jul 2001 12:46:52 -0400
-Message-Id: <200107301646.SAA07105@myway.myway.de>
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Kurt Garloff" <garloff@suse.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Mon, 30 Jul 2001 18:47:00 +0200 (CDT)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
-In-Reply-To: <20010730154458.C4859@pckurt.casa-etp.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Subject: Re: VIA KT133A / athlon / MMX
+	id <S269013AbRG3Qyz>; Mon, 30 Jul 2001 12:54:55 -0400
+Received: from weta.f00f.org ([203.167.249.89]:25990 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269012AbRG3Qyu>;
+	Mon, 30 Jul 2001 12:54:50 -0400
+Date: Tue, 31 Jul 2001 04:55:27 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: christophe@weta.f00f.org, barb@weta.f00f.org
+Cc: Stuart MacDonald <stuartm@connecttech.com>, linux-kernel@vger.kernel.org
+Subject: Re: serial console and kernel 2.4
+Message-ID: <20010731045527.A5863@weta.f00f.org>
+In-Reply-To: <200107301520.f6UFKtT06867@localhost.localdomain> <20010730173702.C19605@pc8.lineo.fr> <035001c1190f$c6b46700$294b82ce@connecttech.com> <20010730182124.C20366@pc8.lineo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010730182124.C20366@pc8.lineo.fr>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi Kurt!
+On Mon, Jul 30, 2001 at 06:21:24PM +0200, christophe barb? wrote:
 
-On Mon, 30 Jul 2001 15:44:58 +0200, Kurt Garloff wrote:
+    Do you remember a related thread ? with a correct solution ?
 
-Just for reference: these are the values taken from my main machine
-(Epox EP8KTA2, VIA KT133) with the latest BIOS:
-
->> [54:6]=Probe Next Tag State T1	0=disable   1=enable
->Main suspect. (Should be 0)
-
-Set to 1 here.
-
->> [54:0]=Fast Write-to-Read	0=disable   1=enable
->Third candidate. (Should be 0)
-
-Set to 1 here.
-
->> [68:4]=DRAM Data Latch Delay	0=Latch     1=Delay latch
->Second candidate (Should be 1)
-
-Set to 1 here.
-
->> [68:2]=Burst Refresh(4 times)	0=disable   1=enable
->Fourth candidate (Should be 0?)
-
-Set to 0 here.
-
->> [6B:5]=Fast Read to Write t-a	0=disable   1=enable
->Should this one match 54:0 (third candidate)?
-
-Set to 0 here.
-
->> [6B:1]=Virtual Channel-DRAM	0=disable   1=enable
->Strange, why does this one differ between the configs.
-
-Set to 0 here.
-
-Unfortunately, this machine doesn't run Linux...
-
-Ciao,
-  Dani
+Upgrade init ?
 
 
+
+  --cw
+
+(Using 2.4.x all over the place with serial console and no magic patches)

@@ -1,50 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbUDLVKn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 17:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUDLVKm
+	id S263088AbUDLVVn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 17:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUDLVVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 17:10:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37052 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263126AbUDLVKf (ORCPT
+	Mon, 12 Apr 2004 17:21:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15043 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263088AbUDLVVl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 17:10:35 -0400
-Date: Mon, 12 Apr 2004 14:12:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: vrajesh@umich.edu, hugh@veritas.com, andrea@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
-Message-Id: <20040412141244.5e225cdf.akpm@osdl.org>
-In-Reply-To: <69200000.1081804458@flay>
-References: <Pine.LNX.4.44.0404122006050.10504-100000@localhost.localdomain>
-	<Pine.LNX.4.58.0404121531580.15512@red.engin.umich.edu>
-	<69200000.1081804458@flay>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 12 Apr 2004 17:21:41 -0400
+Date: Mon, 12 Apr 2004 14:21:31 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Michael Hunold <hunold@convergence.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems adding sysfs support to dvb subsystem
+Message-Id: <20040412142131.432c7686@dell_ss3.pdx.osdl.net>
+In-Reply-To: <407AFD5B.8010502@convergence.de>
+References: <407AFD5B.8010502@convergence.de>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> Turns out he'd turned the
-> locking in find_get_page from "spin_lock(&mapping->page_lock)" into
-> "spin_lock_irq(&mapping->tree_lock)",
+On Mon, 12 Apr 2004 22:34:35 +0200
+Michael Hunold <hunold@convergence.de> wrote:
 
-That's from the use-radix-tree-walks-for-writeback code.
-
-Use oprofile - it's NMI-based.
-
-> and I'm using readprofile, which
-> doesn't profile with irqs off, so it's not really disappeared, just hidden.
-> Not sure which sub-patch that comes from, and it turned out to be a bit of
-> a dead end, but whilst I'm there, I thought I'd point out this was contended,
-> and show the diffprofile with and without spinline for aa5:
+> Hello all,
 > 
->      22210  246777.8% find_trylock_page
->       2538    36.4% atomic_dec_and_lock
+> I'm currently trying to add proper sysfs support to the dvb subsystem, 
+> but I'm stuck because I don't know if I'm on the right way. 8-(
+> 
+>  From the docs and existing drivers I read so far I concluded that 
+> adding a new class via class_register(&dvb_class) is the way to go.
+> 
+> With this I get:
+> /sys/class/dvb/
+> 
+> Now there can be several dvb adapters present in the system, each of 
+> this adapter can have several "subsystems" (video decoder, audio 
+> decoder, frontend ("tuner"), ...)
 
-profiler brokenness, surely.  Almost nothing calls find_trylock_page(),
-unless Andrea has done something peculiar.  Use oprofile.
+The sysfs directory layout is a logical representation of the underlying
+data structures in the kernel.  Each directory (with exception of attribute
+groups) has a 1:1 relation ship with a kobject.
+
+
+> New adapters register themselves via dvb_register_adapter() and if this 
+> was succesfull, they register their subsystems via dvb_register_device().
+> 
+> What I'd like to have is something like this, so I can add attributes to 
+> the frontend for example:
+> /sys/class/dvb/adapter0/frontend0/
+
+Is there a dvb_adapter structure and a separate dvb_frontend
+structure?  Are you prepared to ref count and dynamically allocate both
+of them?
+
+> 
+> I wasn't able to find a driver that provides this simple "hierarchical" 
+> order, so I did some experiments with little luck.
+> 
+> Creating this hierarchical order manually (like for "devfs") didn't 
+> work, I get
+>  > find: /sys/class/dvb/adapter0/frontend0: No such file or directory
+> errors upon access:
+> 
+>  > sprintf((void*)&dvbdev->class_device.class_id, "adapter%d/%s%d", 
+> adap->num, dnames[type], id);
+>  > class_device_register(&dvbdev->class_device);
+> 
+> I then tried to find a way to first use class_device_register() with 
+> adapter0  (which works of course), and then with class_device_register() 
+> again with frontend0, but obviously I cannot connect these two 
+> instances, because adapter doesn't have a "struct device" where I can 
+> point the class_device.dev entry from frontend0 to... 8-(
+> 
+> I'd really appreciate if somebody could give me some design hints or 
+> point me to some documentation that would help me out.
+> 
+> Thanks!
+> Michael.
+> 
+
+You could use attribute groups if all you want to do is provide some
+logical breakout of attributes inside one kobject.  That is what I did
+to put the wireless and netstat elements in different directories for the
+network devices.
+
+Stephen Hemminger 		mailto:shemminger@osdl.org
+Open Source Development Lab	http://developer.osdl.org/shemminger

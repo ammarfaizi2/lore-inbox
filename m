@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272599AbRHaEVy>; Fri, 31 Aug 2001 00:21:54 -0400
+	id <S272604AbRHaEqc>; Fri, 31 Aug 2001 00:46:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272600AbRHaEVo>; Fri, 31 Aug 2001 00:21:44 -0400
-Received: from anime.net ([63.172.78.150]:41490 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S272598AbRHaEVa>;
-	Fri, 31 Aug 2001 00:21:30 -0400
-Date: Thu, 30 Aug 2001 21:20:16 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: David Hollister <david@digitalaudioresources.org>,
-        Jan Niehusmann <jan@gondor.com>, <linux-kernel@vger.kernel.org>,
-        <rgooch@atnf.csiro.au>
-Subject: Re: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <200108310334.f7V3YZm442148@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.30.0108302117150.16904-100000@anime.net>
+	id <S272605AbRHaEqW>; Fri, 31 Aug 2001 00:46:22 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:52945 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S272604AbRHaEqH>;
+	Fri, 31 Aug 2001 00:46:07 -0400
+Date: Fri, 31 Aug 2001 00:46:24 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Kevin P. Fleming" <kevin@labsysgrp.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same
+ mountpoint
+In-Reply-To: <001301c131d4$de9180f0$6caaa8c0@kevin>
+Message-ID: <Pine.GSO.4.21.0108310043320.11975-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Aug 2001, Albert D. Cahalan wrote:
-> Don't go blaming Linux when power supply upgrades sometimes
-> make this problem go away. You could also try one of the
-> recent SiS or ALi chipsets.
-> I just saw a reference (maybe www.tomshardware.com) to AMD's new
-> chips having trouble on VIA boards -- I'd guess that the Palimino
-> core can push the motherboard too hard without fancy Athlon code.
 
-So what happens when someone is able to duplicate the problem on say AMD
-760MP chipset with registered ECC PC2100 ram and 450W power supply?
 
-Not to say it has happened yet (I havent got my dual Tyan Tiger MP yet :-)
-but where would the finger start pointing then?
+On Thu, 30 Aug 2001, Kevin P. Fleming wrote:
 
--Dan
+> I was expecting it to be an error, but I'm not upset that it's not. Just
+> kind of weird to see five mounts with the exact same information in
+> /etc/mtab.
+> 
+> I can see why it would be useful to have multiple things mounted on the same
+> mountpoint, but is there any reason to allow the _same_ filesystem to be
+> mounted multiple times at the same mountpoint?
 
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+How do you tell if it's the same filesystem?  Frankly, I'd rather get rid of
+mounting several things at one mountpoint, different or not - that would
+make life much easier, but it means that we need to implement mount-traps
+to make autofs folks happy.  It _may_ be doable in 2.4, but I susupect that
+it will end up as 2.5 project.
 

@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261202AbREUMRZ>; Mon, 21 May 2001 08:17:25 -0400
+	id <S261165AbREUMQf>; Mon, 21 May 2001 08:16:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261219AbREUMRP>; Mon, 21 May 2001 08:17:15 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:26824 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261202AbREUMRI>; Mon, 21 May 2001 08:17:08 -0400
-Message-ID: <3B090645.9D54574F@uow.edu.au>
-Date: Mon, 21 May 2001 22:12:53 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-ac9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Vojta <vojta@ipex.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3c905C-TX [Fast Etherlink] problem ...
-In-Reply-To: <20010521090946.D769@ipex.cz> <3B08C15E.264AE074@uow.edu.au>,
-		<3B08C15E.264AE074@uow.edu.au> <20010521140443.C8397@ipex.cz>
+	id <S261202AbREUMQZ>; Mon, 21 May 2001 08:16:25 -0400
+Received: from t2.redhat.com ([199.183.24.243]:39928 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S261165AbREUMQK>; Mon, 21 May 2001 08:16:10 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <l03130304b72ea286711e@[192.168.239.105]> 
+In-Reply-To: <l03130304b72ea286711e@[192.168.239.105]>  <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com> <20010520111856.C3431@thyrsus.com> <15823.990372866@redhat.com> <20010520114411.A3600@thyrsus.com> <16267.990374170@redhat.com> <20010520131457.A3769@thyrsus.com> 
+To: Jonathan Morton <chromi@cyberspace.org>
+Cc: Helge Hafting <helgehaf@idb.hist.no>, esr@thyrsus.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Background to the argument about CML2 design philosophy 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 21 May 2001 13:15:23 +0100
+Message-ID: <18583.990447323@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Vojta wrote:
-> 
-> > This is a `transamit reclaim' error.  It is almost always
-> > caused by this host being in half-duplex mode, and another
-> > host on the network being in full-duplex mode.
-> 
-> Hi,
->   I tried to force this to be in fullduplex mode by options=0x204 (0x200 + 0x4)
-> and it works fine now.
 
-mm..  It _should_ autonegotiate.  Perhaps the device at
-the other end is old or not very good.
+chromi@cyberspace.org said:
+>  Having now briefly looked at the language constructs first-hand, I
+> can see two ways to go about this:
 
-> Please, can you send me some points to the documentation
-> where I can read more info about 'transamit reclaim' error and why this
-> happens, etc ...
+> 1) Have a HACKER symbol which unsuppresses the "unusual" options, and
+> suppresses the "generalised" ones 
 
-http://www.scyld.com/network/vortex.html is the official
-place.  It doesn't tell you much.
+> 2) Have a HACKERS submenu system which contains all the derivations
+> that could *possibly* be un-defaulted, and allow our intrepid hacker
+> to explicitly force each to a value or leave unset.
 
-vortex.txt has a pointer to 3com's documentation. Heavy
-going.
+I prefer the former, which is how it's already implemented in CML1.
 
-When the NIC is running in full-duplex mode it *assumes*
-that once (by default) 128 bytes of a frame have gone
-onto the wire, the remainder of the frame will be sent
-without any collisions.  This assumption allows it to reuse
-part on the on-board memory - it transfers more data from
-the host into the place where the currently-transmitting
-frame used to reside.
+But the discussion of this is entirely unrelated to the discussion of CML2, 
+and changes along these lines must not be forced into the kernel with the 
+CML2 patch.
 
-If another host then comes along and generates a collision
-this late into the frame, the NIC detects it but cannot
-back off and retransmit the frame as it would normally do.
-Because the frame's memory has been "reclaimed".  All it
-can do is raise an interrupt and complain.
+If ESR is going to sneak policy changes into the kernel with the CML2 
+mechanism patch, I'm sure we all have patches we'd like him to add to it 
+too, because we don't want to have to justify them on their own. :)
 
--
+--
+dwmw2
+
+

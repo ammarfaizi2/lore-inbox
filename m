@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268204AbUHYS3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268203AbUHYSaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268204AbUHYS3M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 14:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUHYS3M
+	id S268203AbUHYSaa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 14:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268224AbUHYSaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 14:29:12 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:687 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268197AbUHYS3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 14:29:01 -0400
-Message-ID: <412CDA68.7050702@namesys.com>
-Date: Wed, 25 Aug 2004 11:28:56 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <20040824202521.GA26705@lst.de> <412BA741.4060006@pobox.com> <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk> <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Aug 2004 14:30:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62701 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268203AbUHYS3z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 14:29:55 -0400
+Date: Wed, 25 Aug 2004 19:29:54 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Martin Mares <mj@ucw.cz>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040825182954.GG16196@parcelfarce.linux.theplanet.co.uk>
+References: <20040825174238.GA26714@kroah.com> <20040825180607.10858.qmail@web14930.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040825180607.10858.qmail@web14930.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I allowed myself to get talked out of a final top to bottom code audit, 
-and obviously that was a mistake.
+On Wed, Aug 25, 2004 at 11:06:06AM -0700, Jon Smirl wrote:
+> Final version, I hope, includes short decription and Signed-off-by at
+> top of patch.
 
-It will probably take about 6 weeks.  Apologies for wasting your time 
-before that was done.
++/**
++ * pci_remove_rom - disable the ROM and remove it's sysfs attribute
++ * @dev: pointer to pci device struct
++ * 
++ */
 
-Hans
+It's its, not it's, unless of course you mean it is, in which case it's
+it's not its.
 
+More helpfully, "its" is a pronoun like "his" or "hers".  "it's" is an
+abbreviation for "it is".
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+Also, this is a mistake:
 
->On Tue, Aug 24, 2004 at 09:53:44PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
->  
->
->>Feh.  That's far from the worst parts of the mess introduced by "hybrid"
->>crap - trivial sys_link(2) deadlocks triggerable by any user rate a bit
->>higher on the suckitude scale, IMO.
->>    
->>
->
->While we are at it - consider these hybrids vetoed until
->	a) sys_link()/sys_link() deadlock is fixed
->	b) sys_link()/sys_rename() deadlock is fixed
->	c) correctness proof of the locking scheme (in
->Documentation/filesystems/directory-locking) is updated to match the
->presense of the file/directory hybrids.
->
->Rationale: (a) and (b) - immediately exploitable by any user, (c) - "convince
->us that there's no more crap of that kind".  IMO a reasonable request, seeing
->that the first look at the patches in -mm4 had turned up two exploits in
->that area, despite the *YEARS* of warnings about potential trouble and need
->to be careful there (actually, I've given Hans too much credit and assumed
->that link/link never happens since nobody would be dumb enough to provide
->->link() method for non-directory inodes; turns out that somebody is dumb
->enough and link/link is as exploitable as link/rename).
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
++/**
++ * pci_remove_rom - disable the ROM and remove it's sysfs attribute
++ * @dev: pointer to pci device struct
++ *
++ */
++void 
++pci_cleanup_rom(struct pci_dev *pdev) 
 
+I'd like a little bit of description about the difference between
+pci_cleanup_rom and pci_remove_rom in the docbook, please.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

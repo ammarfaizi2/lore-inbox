@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263794AbSJ3EJ5>; Tue, 29 Oct 2002 23:09:57 -0500
+	id <S264683AbSJ3ENS>; Tue, 29 Oct 2002 23:13:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263899AbSJ3EJ5>; Tue, 29 Oct 2002 23:09:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61959 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263794AbSJ3EJ4>;
-	Tue, 29 Oct 2002 23:09:56 -0500
-Message-ID: <3DBF5CF6.3070103@pobox.com>
-Date: Tue, 29 Oct 2002 23:15:50 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S264684AbSJ3ENS>; Tue, 29 Oct 2002 23:13:18 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:27807 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264683AbSJ3ENR>; Tue, 29 Oct 2002 23:13:17 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 29 Oct 2002 20:29:11 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sys_epoll 0.14 ...
+In-Reply-To: <3DBF5C1C.5ACD296A@digeo.com>
+Message-ID: <Pine.LNX.4.44.0210292028170.1457-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCEMENT: Squashfs released (a highly compressed filesystem)
-References: <3DBF43ED.70001@lougher.demon.co.uk> <3DBF4DBA.8060005@rackable.com> <3DBF5756.2010702@lougher.demon.co.uk> <3DBF5A08.9090407@pobox.com> <20021029201110.A29661@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+On Tue, 29 Oct 2002, Andrew Morton wrote:
 
->>A r/w compressed filesystem would be darned useful too :)
->>    
->>
+> They are a reasonable addition to the list library.  They
+> should be implemented as:
 >
->mmap(2) is, err, hard.
+> /*
+>  * kernel-doc description goes here
+>  */
+> static inline struct list_head *list_first(struct list_head *list)
+> {
+> 	if (list_empty(list))
+> 		return NULL;
+> 	return list->next;
+> }
 >
-The underlying filesystem format can make things easier on you...  and 
-given that compressing inevitably requires some amount of data copying, 
-it's not terribly difficult.  I wouldn't claim NTFS is anything close to 
-well-designed, but supporting compression under Linux on NTFS is at 
-least feasible and shouldn't require tons of thought.  (I've looked at 
-it when dicking around with NTFS-TNG)
-
->  Not impossible, it means the file system has to 
->support both compressed and uncompressed files, but it's interesting.
->  
+> But it shouldn't be quietly snuck in as part of epoll.   Everyone in
+> the world uses list.h.
 >
-well, yeah... ;-)
+> Given that they are used in just a handful of places in epoll and nowhere
+> else in the kernel it is a little hard to justify adding them.
+>
+> Unless people leap out and say "I've always wanted one of them" it would
+> be best to redo epoll to use
+>
+> 	while (!list_empty(list)) {
+> 		item = list_entry(list, ...);
+> 		list_del(item->list);
+> 		...
+> 	}
+>
+> or one of the other eighty-seven list helpers which we already have.
 
-    Jeff
+Ok, let's drop them off ...
 
+
+
+- Davide
 
 

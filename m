@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272651AbRIPSLX>; Sun, 16 Sep 2001 14:11:23 -0400
+	id <S272656AbRIPSRD>; Sun, 16 Sep 2001 14:17:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272650AbRIPSLN>; Sun, 16 Sep 2001 14:11:13 -0400
-Received: from mx1.fuse.net ([216.68.2.90]:9379 "EHLO mta01.fuse.net")
-	by vger.kernel.org with ESMTP id <S272651AbRIPSK6>;
-	Sun, 16 Sep 2001 14:10:58 -0400
-Message-ID: <3BA4EB3C.4000407@fuse.net>
-Date: Sun, 16 Sep 2001 14:11:08 -0400
-From: Nathan <wfilardo@fuse.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010819
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Module version tags not created correctly.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S272659AbRIPSQy>; Sun, 16 Sep 2001 14:16:54 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:10765 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S272656AbRIPSQf>; Sun, 16 Sep 2001 14:16:35 -0400
+Date: Sun, 16 Sep 2001 20:16:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10pre7aa1
+Message-ID: <20010916201652.A1315@athlon.random>
+In-Reply-To: <20010916192316.A13248@athlon.random> <Pine.LNX.4.33L.0109161433530.9536-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0109161433530.9536-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sun, Sep 16, 2001 at 02:34:55PM -0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all.
+On Sun, Sep 16, 2001 at 02:34:55PM -0300, Rik van Riel wrote:
+> On Sun, 16 Sep 2001, Andrea Arcangeli wrote:
+> 
+> > However the issue with keventd and the fact we can get away with a
+> > single per-cpu counter increase in the scheduler fast path made us to
+> > think it's cleaner to just spend such cycle for each schedule rather
+> > than having yet another 8k per cpu wasted and longer taskslists (a
+> > local cpu increase is cheaper than a conditional jump).
+> 
+> So why don't we put the test+branch inside keventd ?
 
-Compiling 2.4.9-ac10 with the following relevant config options yields a 
-number of symbols incorrectly exported/defined.
+first keventd runs non RT, second it slowsdown keventd but I agree that
+would be a minor issue. The best approch to me seems the one I
+outlined in the last email (per-cpu sequence counter as only additional
+cost in schedule).
 
-CONFIG_MODVERSIONS=y
-CONFIG_MK7=y
-CONFIG_NETLINK=y
-CONFIG_NETFILTER=y
-    All netfliter options built as modules.
-[if any others would help, please ask]
-
-Yields the following entries in /proc/ksyms:
-
-0201b90 _mmx_memcpy_R__ver__mmx_memcpy
-c0201de0 mmx_clear_page_R__ver_mmx_clear_page
-c0201e30 mmx_copy_page_R__ver_mmx_copy_page
-c02494a8 jh_splice_lock_R__ver_jh_splice_lock
-c02494ac journal_oom_retry_R__ver_journal_oom_retry
-c01ff300 netlink_set_err_R__ver_netlink_set_err
-c01ff150 netlink_broadcast_R__ver_netlink_broadcast
-c01feed0 netlink_unicast_R__ver_netlink_unicast
-c01ff6f0 netlink_kernel_create_R__ver_netlink_kernel_create
-c01ff930 netlink_dump_start_R__ver_netlink_dump_start
-c01ffa10 netlink_ack_R__ver_netlink_ack
-c01d4cb0 nf_register_hook_R__ver_nf_register_hook
-c01d4d20 nf_unregister_hook_R__ver_nf_unregister_hook
-c01d4d60 nf_register_sockopt_R__ver_nf_register_sockopt
-c01d4e50 nf_unregister_sockopt_R__ver_nf_unregister_sockopt
-c01d53a0 nf_reinject_R__ver_nf_reinject
-c01d50a0 nf_register_queue_handler_R__ver_nf_register_queue_handler
-c01d5100 nf_unregister_queue_handler_R__ver_nf_unregister_queue_handler
-c01d5260 nf_hook_slow_R__ver_nf_hook_slow
-c02bf3a0 nf_hooks_R__ver_nf_hooks
-c01d4fc0 nf_setsockopt_R__ver_nf_setsockopt
-c01d4ff0 nf_getsockopt_R__ver_nf_getsockopt
-c02bfba0 ip_ct_attach_R__ver_ip_ct_attach
-
-The short-term fix I've used is to disable CONFIG_MODVERSIONS.
-
-The resulting kernel [make dep clean bzImage modules], by the by, loads 
-and runs fine, but insmod/modprobe/depmod fails for any module looking 
-for those handles, which includes, to my knowledge, all of netfilter and 
-nVIDIA's kernel module.  Haven't tried to make an exhaustive list, but 
-if one would help, I'd be glad to.
-
-System is a Debian unstable, updated roughly every day.  Modutils 
-version 2.4.8, genksyms installed and works everywhere else.
-
-Thanks in advance.
-Nathan
-
-
+Andrea

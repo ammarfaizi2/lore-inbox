@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135397AbRDMEnz>; Fri, 13 Apr 2001 00:43:55 -0400
+	id <S135399AbRDMEqF>; Fri, 13 Apr 2001 00:46:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135398AbRDMEnf>; Fri, 13 Apr 2001 00:43:35 -0400
-Received: from altus.drgw.net ([209.234.73.40]:2064 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S135397AbRDMEn2>;
-	Fri, 13 Apr 2001 00:43:28 -0400
-Date: Thu, 12 Apr 2001 23:42:19 -0500
-From: Troy Benjegerdes <hozer@drgw.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Torrey Hoffman <torrey.hoffman@myrio.com>, linux-kernel@vger.kernel.org
-Subject: natsemi.c still broken...
-Message-ID: <20010412234219.Z13920@altus.drgw.net>
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B59@mail0.myrio.com> <3AC22661.E69BE205@mandrakesoft.com> <20010411213236.P13920@altus.drgw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <20010411213236.P13920@altus.drgw.net>; from hozer@drgw.net on Wed, Apr 11, 2001 at 09:32:36PM -0500
+	id <S135401AbRDMEp4>; Fri, 13 Apr 2001 00:45:56 -0400
+Received: from tomts14.bellnexxia.net ([209.226.175.35]:41694 "EHLO
+	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S135399AbRDMEpp>; Fri, 13 Apr 2001 00:45:45 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Alexander Viro <viro@math.psu.edu>, Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [PATCH] Re: memory usage - dentry_cacheg
+Date: Fri, 13 Apr 2001 00:45:41 -0400
+X-Mailer: KMail [version 1.2]
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0104122154560.22287-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0104122154560.22287-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Message-Id: <01041300454100.06447@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 11, 2001 at 09:32:36PM -0500, Troy Benjegerdes wrote:
-> On Wed, Mar 28, 2001 at 12:58:57PM -0500, Jeff Garzik wrote:
-> > There are some improvements in the latest 2.4 test patch, 2.4.3-pre8.  I
-> > would be very interested in hearing feedback on that.  I finally got two
-> > test cards, FA311 and FA312, so I can work on it a bit too.
-> 
-> Okay, I finally got around to testing this on 2.4.4-pre1. for the 5 or so 
-> minutes I've been using it so far, it seems okay (I'm able to log in this 
-> time), and I'm running NetPIPE to check performance.
-> 
-> Perfomance isn't great (the peak bandwidth is 65 Mbps or so), but this
-> could be partially due to my switch or the other machine I'm testing it
-> with.
+On Thursday 12 April 2001 22:03, Alexander Viro wrote:
+> On Thu, 12 Apr 2001, Ed Tomlinson wrote:
+> > On Thursday 12 April 2001 11:12, Alexander Viro wrote:
+> > What prompted my patch was observing situations where the icache (and
+> > dcache too) got so big that they were applying artifical pressure to the
+> > page and buffer caches. I say artifical since checking the stats these
+> > caches showed over 95% of the entries unused.  At this point there is
+> > usually another 10% or so of objects allocated by the slab caches but not
+> > accounted for in the stats (not a problem they are accounted if the cache
+> > starts using them).
+>
+> "Unused" as in "->d_count==0"? That _is_ OK. Basically, you will have
+> positive ->d_count only on directories and currently opened files.
+> E.g. during compile in /usr/include/* you will have 3-5 file dentries
+> with ->d_count > 0 - ones that are opened _now_. It doesn't mean that
+> everything else rest is unused in any meaningful sense. Can be freed - yes,
+> but that's a different story.
+>
+> If you are talking about "unused" from the slab POV - _ouch_. Looks like
+> extremely bad fragmentation ;-/ It's surprising, and if that's thte case
+> I'd like to see more details.
 
-Okay, I've been running with 2.4.4-pre1 for awhile now, and although the
-driver does hang up on nfs traffic, it still has problems. After running
-for awhile, it seems to have dropouts of server hundred milliseconds where
-no packets go through. This is somewhat evident in interactive SSH
-sessions, and causes clients connecting to the squid proxy I am running on
-the machine to behave quite badly. (debian's 'apt' via the proxy is
-particulaly bad)
+>From the POV of dentry_stat.nr_unused.  From the slab POV, dentry_stat.nr_dentry
+always equals the number of objects used as reported in /proc/slabinfo.  If I
+could remember my stats from ages back I could take a stab at estimating the
+fragmentation...  From experience if you look at memory_pressure before and 
+after a shrink of the dcache you will usually see it decrease if there if
+there is more that 75% or so free reported by dentry_stat.nr_unused.  
 
--- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Shulz
+The inode cache is not as good.  With fewer inodes per page (slab) I 
+would expect that percentage to be lower.  Instead it usually has to be
+above 80% to get pages free...
+
+I am trying your change now.
+
+Ed Tomlinson
+

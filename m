@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265332AbUEUHqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265394AbUEUHvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265332AbUEUHqm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 03:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265419AbUEUHqm
+	id S265394AbUEUHvR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 03:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265426AbUEUHvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 03:46:42 -0400
-Received: from outmx010.isp.belgacom.be ([195.238.3.233]:705 "EHLO
-	outmx010.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S265332AbUEUHqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 03:46:40 -0400
-Subject: Re: [2.6.6-mm4-ff1] I/O context isolation
-From: FabF <Fabian.Frederick@skynet.be>
+	Fri, 21 May 2004 03:51:17 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:17621 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265394AbUEUHvP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 03:51:15 -0400
+Date: Fri, 21 May 2004 09:50:28 +0200
+From: Jens Axboe <axboe@suse.de>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: axboe@suse.de, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <40ADB20C.8090204@yahoo.com.au>
-References: <1085124268.8064.15.camel@bluerhyme.real3>
-	 <40ADB20C.8090204@yahoo.com.au>
-Content-Type: text/plain
-Message-Id: <1085125564.8071.23.camel@bluerhyme.real3>
+Cc: Andrew Morton <akpm@osdl.org>, alexeyk@mysql.com, linuxram@us.ibm.com,
+       peter@mysql.com, linux-kernel@vger.kernel.org
+Subject: Re: Random file I/O regressions in 2.6 [patch+results]
+Message-ID: <20040521075027.GN1952@suse.de>
+References: <200405022357.59415.alexeyk@mysql.com> <1084480888.22208.26.camel@dyn319386.beaverton.ibm.com> <1084815010.13559.3.camel@localhost.localdomain> <200405200506.03006.alexeyk@mysql.com> <20040520145902.27647dee.akpm@osdl.org> <20040520152305.3dbfa00b.akpm@osdl.org> <40ADB062.8050005@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 21 May 2004 09:46:04 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40ADB062.8050005@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-05-21 at 09:38, Nick Piggin wrote:
-> FabF wrote:
-> > Jens,
-> > 
-> > 	Here's ff1 patchset to have generic I/O context.
-> > ff1 : Export io context operations from blkdev/ll_rw_blk (ok)
-> > ff2 : Make io_context generic plateform by importing IO stuff from
-> > as_io.
-> > 
+On Fri, May 21 2004, Nick Piggin wrote:
+> Andrew Morton wrote:
 > 
-> Can I just ask why you want as_io_context in generic code?
-> It is currently nicely hidden away in as-iosched.c where
-> nobody else needs to ever see it.
-I do want I/O context to be generic not the whole as_io.
-That export should bring:
-	-All elevators to use io_context
-	-source tree to be more self-explanatory
-	-have a stronger elevator interface
+> >Open questions are:
+> >
+> >a) Why is 2.6 write coalescing so superior to 2.4?
+> >
+> >b) Why is 2.6 issuing more read requests, for less data?
+> >
+> >c) Why is Alexey seeing dissimilar results?
+> >
+> 
+> 
+> Interesting. I am not too familiar with 2.4's IO scheduler,
+> but 2.6's have pretty comprehensive merging systems. Could
+> that be helping, Jens? Or is 2.4 pretty equivalent?
 
-> 
-> > 	AFAICS, cfq_queue for instance could disappear when using io_context
-> > but I think elv_data should remain elevator side....
-> > I don't want to go in the wild here so if you've got suggestions, don't
-> > hesitate ;)
-> > 
-> 
-> cfq_queue is per-queue-per-process. io_context is just
-> per-process, so it isn't a trivial replacement.
-But I guess we can merge that stuff to have "a one way, one place" code
-rather than repeat code in all elv.
+2.4 will give up merging faster than 2.6, elevator_linus will stop
+looking for a merge point if the sequence drops to zero. 2.6 will always
+merge. So that could explain the fewer writes.
 
-Regards,
-FabF
+> What about things like maximum request size for 2.4 vs 2.6
+> for example? This is another thing that can have an impact,
+> especially for writes.
+
+I think that's pretty similar. Andrew didn't say what device he was
+testing on, but 2.4 ide defaults to max 64k where 2.6 defaults to 128k.
+
+> I'll take a guess at b, and say it could be as-iosched.c.
+> Another thing might be that 2.6 has smaller nr_requests than
+> 2.4, although you are unlikely to hid the read side limit
+> with only 16 threads if they are doing sync IO.
+
+Andrew, you did numbers for deadline previously as well, but no rq
+statistics there? As for nr_requests that's true, would be worth a shot
+to bump available requests in 2.6.
+
+-- 
+Jens Axboe
 

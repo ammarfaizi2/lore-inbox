@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280460AbRKJFJi>; Sat, 10 Nov 2001 00:09:38 -0500
+	id <S280462AbRKJFEh>; Sat, 10 Nov 2001 00:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280479AbRKJFJ1>; Sat, 10 Nov 2001 00:09:27 -0500
-Received: from ns.suse.de ([213.95.15.193]:29715 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280460AbRKJFJK>;
-	Sat, 10 Nov 2001 00:09:10 -0500
-Date: Sat, 10 Nov 2001 06:09:09 +0100
-From: Andi Kleen <ak@suse.de>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives?
-Message-ID: <20011110060909.A1015@wotan.suse.de>
-In-Reply-To: <p731yj8kgvw.fsf@amdsim2.suse.de> <20011109110532.B6822@krispykreme> <20011109064540.A13498@wotan.suse.de> <20011108.220444.95062095.davem@redhat.com> <20011109073946.A19373@wotan.suse.de> <20011110155603.B767@krispykreme>
+	id <S280460AbRKJFE1>; Sat, 10 Nov 2001 00:04:27 -0500
+Received: from ohiper1-207.apex.net ([209.250.47.222]:10506 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S280462AbRKJFEQ>; Sat, 10 Nov 2001 00:04:16 -0500
+Date: Fri, 9 Nov 2001 23:04:39 -0600
+From: Steven Walter <srwalter@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Cc: andrea@e-mind.com
+Subject: Insanely high "Cached" value
+Message-ID: <20011109230439.A13013@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	linux-kernel@vger.kernel.org, andrea@e-mind.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20011110155603.B767@krispykreme>; from anton@samba.org on Sat, Nov 10, 2001 at 03:56:03PM +1100
+User-Agent: Mutt/1.2.5i
+X-Uptime: 11:01pm  up 12 days,  5:38,  0 users,  load average: 1.30, 1.68, 1.52
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can see the average depth of the get_free_page hash is way too deep.
-> I agree there are a lot of pagecache pages (17GB in the gfp test and 21GB
-> in the vmalloc test), but we have to make use of the 32GB of RAM :)
+My system has been running a little over twelve days now, and I just
+noticed that the "Cached" value in both 'free' and /proc/meminfo is
+insanely high.  This wasn't the case the last time I checked, which was
+probably a day ago.
 
-Thanks for the information. I guess the fix for your case would be then
-to use the bootmem allocator for allocating the page table hash.
-It should have no problems with very large continuous tables, assuming
-you have the (physically continuous) memory.
+Just before checking it this time, I ran a "du -s *" in /usr, which
+generated a lot of I/O, as it to be expected.  Perhaps the large amount
+of I/O has uncovered a bug of some sort?
 
-Another possibility would be to switch to some tree/skiplist, but that's 
-probably too radical and may have other problems on smaller boxes.
-
--Andi
+This is kernel 2.4.13 (hopefully it's not something that's already been
+reported and fixed; I haven't seen it if is has) patched with ext3, kdb,
+lm_sensors, and the pre-empt patch.  Seems likely to be only a simple VM
+problem, however, and an asthetic one at that.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+Freedom is slavery. Ignorance is strength. War is peace.
+			-- George Orwell
+Those that would give up a necessary freedom for temporary safety
+deserver neither freedom nor safety.
+			-- Ben Franklin
+He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
+Well, who's mad now?
+			-- Montgomery C. Burns

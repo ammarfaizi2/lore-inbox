@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291565AbSBNM0c>; Thu, 14 Feb 2002 07:26:32 -0500
+	id <S291578AbSBNMZm>; Thu, 14 Feb 2002 07:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291608AbSBNM0X>; Thu, 14 Feb 2002 07:26:23 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:5127 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S291565AbSBNM0E>; Thu, 14 Feb 2002 07:26:04 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 14 Feb 2002 12:10:37 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>,
-        Benjamin LaHaise <bcrl@redhat.com>, Dave Jones <davej@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __free_pages_ok oops
-Message-ID: <20020214121037.A6194@bytesex.org>
-In-Reply-To: <Pine.LNX.4.21.0202131652050.20915-100000@freak.distro.conectiva> <Pine.LNX.4.21.0202141045250.1722-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0202141045250.1722-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.20i
+	id <S291565AbSBNMZh>; Thu, 14 Feb 2002 07:25:37 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:54801 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S291562AbSBNMZ1>; Thu, 14 Feb 2002 07:25:27 -0500
+From: wichert@cistron.nl (Wichert Akkerman)
+Subject: Re: RFC: /proc key naming consistency
+Date: 14 Feb 2002 13:25:24 +0100
+Organization: Cistron Internet Services
+Message-ID: <a4gabk$dpl$1@picard.cistron.nl>
+In-Reply-To: <Pine.LNX.4.33.0202141020140.5260-100000@dbsydn2001.aus.deuba.com> <a4ga1d$jov$1@ncc1701.cistron.net>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> However: that is the only unambiguous example I've seen, and you
-> may argue that his bttv 0.8 driver is not in the current 2.4 tree,
-> is experimental, and even wrong in that area (we now know it also
-> vfrees there).
+In article <a4ga1d$jov$1@ncc1701.cistron.net>,
+Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+>You could have /proc/sys/cpu/0/processor
+>               /proc/sys/cpu/0/vendor_id
+>               /proc/sys/cpu/0/family
+>
+>... and a /proc/sys/cpu/0/.table that when read produces
 
-I've recently changed the code to make it *not* call unmap_kiobuf/vfree
-from irq context.  Instead bttv 0.8.x doesn't allow you to close the
-device with DMA xfers in flight.  If you try this the release() fops
-handler will block until the transfer is done, then unmap_kiobuf from
-process context, then return.
+And then instead of using those names use standard MIB names and add
+symlinks for assigned OID numbers and we can do SNMP using netcat
+and a sh script.
 
-  Gerd
-
+Wichert.
 -- 
-#define	ENOCLUE 125 /* userland programmer induced race condition */
+  _________________________________________________________________
+ /       Nothing is fool-proof to a sufficiently talented fool     \
+| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+

@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbQLQR3F>; Sun, 17 Dec 2000 12:29:05 -0500
+	id <S129868AbQLQSad>; Sun, 17 Dec 2000 13:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbQLQR2z>; Sun, 17 Dec 2000 12:28:55 -0500
-Received: from m11.boston.juno.com ([63.211.172.74]:27109 "EHLO
-	m11.boston.juno.com") by vger.kernel.org with ESMTP
-	id <S129413AbQLQR2v>; Sun, 17 Dec 2000 12:28:51 -0500
-To: linux-kernel@vger.kernel.org
-Date: Sun, 17 Dec 2000 11:50:53 -0500
-Subject: test13-pre2, fpu_entry.c compile error
-Message-ID: <20001217.115100.-378371.1.fdavis112@juno.com>
-X-Mailer: Juno 5.0.15
+	id <S129939AbQLQSaX>; Sun, 17 Dec 2000 13:30:23 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:11427 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129868AbQLQSaO>; Sun, 17 Dec 2000 13:30:14 -0500
+Date: Sun, 17 Dec 2000 13:03:40 -0500 (EST)
+From: Scott Murray <scott@spiteful.org>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] making hdx=scsi work with modular SCSI support
+Message-ID: <Pine.LNX.4.30.0012171254050.18713-100000@godzilla.spiteful.org>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary=--__JNP_000_69ff.260d.4ade
-From: Frank Davis <fdavis112@juno.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format.  Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Andre,
 
-----__JNP_000_69ff.260d.4ade
-Content-Type: text/plain; charset=us-ascii  
-Content-Transfer-Encoding: 7bit
+While trying to get my CD-R drive working under test11, I discovered that
+the hdx=scsi kernel parameter is disabled unless both IDE-SCSI support and
+SCSI are compiled in statically.  That definitely wasn't the case in my
+configuration and I think it unlikely to be common.  The attached patch
+adds in the _MODULE definition checks and it should apply cleanly even in
+test13-pre2.  It's not overly pretty, though, so maybe you can come up
+with something better.
 
-Hello,
-  I haven't seen this posted yet, so I have included it below.
-Regards,
-Frank
+Scott
 
-fpu_entry.c: In function `math_emulate':
-fpu_entry.c:194: structure has no member named `segments'
-make[2]: *** [fpu_entry.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/arch/i386/math-emu'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/arch/i386/math-emu'
-make: *** [_dir_arch/i386/math-emu] Error 2
-----__JNP_000_69ff.260d.4ade
-Content-Type: text/html; charset=us-ascii  
-Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META content=3D"text/html; charset=3Dwindows-1252" http-equiv=3DContent-=
-Type>
-<META content=3D"MSHTML 5.00.2314.1000" name=3DGENERATOR></HEAD>
-<BODY bottomMargin=3D0 leftMargin=3D3 rightMargin=3D3 topMargin=3D0>
-<DIV>Hello,</DIV>
-<DIV>&nbsp; I&nbsp;haven't seen this posted yet, so I have included it=20
-below.</DIV>
-<DIV>Regards,</DIV>
-<DIV>Frank</DIV>
-<DIV><FONT face=3D"Courier New" size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3D"Courier New" size=3D2>fpu_entry.c: In function=20
-`math_emulate':<BR>fpu_entry.c:194: structure has no member named=20
-`segments'<BR>make[2]: *** [fpu_entry.o] Error 1<BR>make[2]: Leaving =
-directory=20
-`/usr/src/linux/arch/i386/math-emu'<BR>make[1]: *** [first_rule] Error=20
-2<BR>make[1]: Leaving directory `/usr/src/linux/arch/i386/math-emu'<BR>make=
-: ***=20
-[_dir_arch/i386/math-emu] Error 2<BR></DIV>
-<P></P></FONT></BODY></HTML>
+--- linux-2.4.0-test11/drivers/ide/ide.c	Mon Oct 16 15:58:51 2000
++++ linux-2.4.0-test11-dev/drivers/ide/ide.c	Wed Dec 13 23:59:37 2000
+@@ -2973,13 +2973,13 @@
+ 				drive->remap_0_to_1 = 2;
+ 				goto done;
+ 			case -14: /* "scsi" */
+-#if defined(CONFIG_BLK_DEV_IDESCSI) && defined(CONFIG_SCSI)
++#if (defined(CONFIG_BLK_DEV_IDESCSI) || defined(CONFIG_BLK_DEV_IDESCSI_MODULE)) && (defined(CONFIG_SCSI) || defined(CONFIG_SCSI_MODULE))
+ 				drive->scsi = 1;
+ 				goto done;
+ #else
+ 				drive->scsi = 0;
+ 				goto bad_option;
+-#endif /* defined(CONFIG_BLK_DEV_IDESCSI) && defined(CONFIG_SCSI) */
++#endif /* (CONFIG_BLK_DEV_IDESCSI || CONFIG_BLK_DEV_IDESCSI_MODULE) && (CONFIG_SCSI || CONFIG_SCSI_MODULE) */
+ 			case 3: /* cyl,head,sect */
+ 				drive->media	= ide_disk;
+ 				drive->cyl	= drive->bios_cyl  = vals[0];
 
-----__JNP_000_69ff.260d.4ade--
+
+-- 
+=============================================================================
+Scott Murray                                        email: scott@spiteful.org
+http://www.interlog.com/~scottm                       ICQ: 10602428
+-----------------------------------------------------------------------------
+     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

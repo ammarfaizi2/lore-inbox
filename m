@@ -1,61 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbUKHSL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbUKHSL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbUKHSL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUKHSLT
+	id S261155AbUKHSL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbUKHSK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 13:11:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41995 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261155AbUKHSHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 13:07:30 -0500
-Date: Mon, 8 Nov 2004 19:06:56 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] small IPMI cleanup
-Message-ID: <20041108180656.GA15077@stusta.de>
-References: <20041106222839.GS1295@stusta.de> <418FB0EA.90006@mvista.com>
+	Mon, 8 Nov 2004 13:10:59 -0500
+Received: from mail.001hosting.com.br ([200.186.45.36]:20870 "EHLO
+	001admin.com.br") by vger.kernel.org with ESMTP id S261152AbUKHSIP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 13:08:15 -0500
+X-Qmail-Scanner-Mail-From: mike@001admin.com.br via 001mail
+X-Qmail-Scanner: 1.23st (Clear:RC:0(200.146.76.38):SA:0(0.0/5.0):. Processed in 0.162877 secs Process 30635)
+Subject: RE: error on kern.log
+From: Mike Tesliuk <mike@001admin.com.br>
+To: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <2E314DE03538984BA5634F12115B3A4E01BC403D@email1.mitretek.org>
+References: <2E314DE03538984BA5634F12115B3A4E01BC403D@email1.mitretek.org>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1099937288.9491.49.camel@001linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <418FB0EA.90006@mvista.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 08 Nov 2004 16:08:08 -0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 11:46:18AM -0600, Corey Minyard wrote:
+right!! thanks!!!
 
-> Adrian,
 
-Hi Corey,
-
-> All these things are tools used by external modules that have not yet 
-> made it into the mainstream kernel.  Also, there are other users of 
-
-OK.
-
-> these functions that are perhaps not in the kernel yet (and perhaps 
-> never make it into the mainstream kernel).  Some of the statics do need 
-> to be cleaned up, though.
-
-Why shouldn't they make it into the mainstream kernel?
-
-> The IPMI driver was designed so that in-kernel users can use it as 
-> easily as userland users.  So these are important parts of the interface.
-
-For userland users, a global kernel function (even if EXPORT_SYMBOL'ed) 
-is useless.
-
-> -Corey
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Em Seg, 2004-11-08 às 15:33, Piszcz, Justin Michael escreveu:
+> This is a known bug, it has to do with your network card using TSO
+> (tcp-sementation-offload), hopefully, it will be fixed in 2.6.10.
+> 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1326.html
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/1684.html
+> 
+> 
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Mike Tesliuk
+> Sent: Monday, November 08, 2004 11:54 AM
+> To: kernel
+> Subject: error on kern.log
+> 
+> Hello for all!!!
+> 
+> I have a kernel messages like this every time: 
+> 
+> printk: 9 messages suppressed.
+> perl5.6.1: page allocation failure. order:3, mode:0x20
+> Call Trace:
+>  [<c01351c5>] __alloc_pages+0x2dd/0x2ec
+>  [<c01351f1>] __get_free_pages+0x1d/0x38
+>  [<c0137d5d>] cache_grow+0xc5/0x2f8
+>  [<c013815b>] cache_alloc_refill+0x1cb/0x214
+>  [<c0138468>] __kmalloc+0x60/0x7c
+>  [<c02eb2cc>] alloc_skb+0x3c/0xd8
+>  [<c0312ec5>] tcp_fragment+0x6d/0x2ac
+>  [<c0315291>] tcp_write_wakeup+0xd9/0x20c
+>  [<c03153d7>] tcp_send_probe0+0x13/0xfc
+>  [<c0315f16>] tcp_probe_timer+0xa2/0xac
+>  [<c03163be>] tcp_write_timer+0xae/0xe4
+>  [<c0316310>] tcp_write_timer+0x0/0xe4
+>  [<c0123075>] run_timer_softirq+0x129/0x15c
+>  [<c011f2bc>] do_softirq+0x6c/0xcc
+>  [<c01131d3>] smp_apic_timer_interrupt+0x13f/0x144
+>  [<c010afa2>] apic_timer_interrupt+0x1a/0x20
+> 
+> 
+> ( Im using a kernel 2.6.4 )
+> 
+> somebody can help me! i have this messages every time!!
+> 
+> what is this?
+> 
+> Thanks!!
+> 
+> Mike Tesliuk (from Brasil)
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

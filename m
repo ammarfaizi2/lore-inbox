@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265092AbTAJPwP>; Fri, 10 Jan 2003 10:52:15 -0500
+	id <S265201AbTAJPy5>; Fri, 10 Jan 2003 10:54:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265099AbTAJPwP>; Fri, 10 Jan 2003 10:52:15 -0500
-Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:20484
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S265092AbTAJPwO>; Fri, 10 Jan 2003 10:52:14 -0500
-Date: Fri, 10 Jan 2003 11:04:45 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.54][PATCH] SB16 convertation to new PnP layer.
-In-Reply-To: <73582123048.20030110111745@wr.miee.ru>
-Message-ID: <Pine.LNX.4.44.0301101104170.6588-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265211AbTAJPy5>; Fri, 10 Jan 2003 10:54:57 -0500
+Received: from holomorphy.com ([66.224.33.161]:13210 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265201AbTAJPy5>;
+	Fri, 10 Jan 2003 10:54:57 -0500
+Date: Fri, 10 Jan 2003 08:03:34 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>, daniel.ritz@alcatel.ch,
+       Robert Love <rml@tech9.net>
+Subject: Re: [PATCH 2.5] speedup kallsyms_lookup
+Message-ID: <20030110160334.GU23814@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hugh Dickins <hugh@veritas.com>, Daniel Ritz <daniel.ritz@gmx.ch>,
+	linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+	daniel.ritz@alcatel.ch, Robert Love <rml@tech9.net>
+References: <1042192419.1415.49.camel@cast2.alcatel.ch> <Pine.LNX.4.44.0301101428420.1292-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301101428420.1292-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 10, 2003 at 03:29:19PM +0000, Hugh Dickins wrote:
+> I hope I can leave this discussion to others: I just wanted to get
+> my symbols printing out right, and noticed the current stem compression
+> unnecessarily weak there; but I'm no expert on suitable algorithms.
 
-What was this patched against? It doesn't go in to 2.5.55 too many
-rejects.
+I can help some here but probably no more than you (in fact, you've
+spotted far more [> 0] issues with the current code than I).
 
-On Fri, 10 Jan 2003, Ruslan U. Zakirov wrote:
 
-> SS> Is this for ALSA or OSS? Right now I have this card on my P233MMX an AWE32
-> SS> EMU8000 w/ 2MB installed.
->
-> SS> It's using OSS under 2.4 right now and I'd like to try this. Does it work for
-> SS> OSS? I don't want to build the ALSA userland tools right now ;-)
->
-> SS> Shawn.
->
-> SS> -
-> SS> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> SS> the body of a message to majordomo@vger.kernel.org
-> SS> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> SS> Please read the FAQ at  http://www.tux.org/lkml/
-> It's only for 2.5.5x and ALSA.
-> And it does not bring any advantages and features in driver.
->             Ruslan.
->
->
->
+Basically, if you want fast string lookup of compressed stuff I can sit
+down with whiteboard etc. and fiddle around, but it sounds like from f's
+comments that this isn't really wanted.
 
+So the end-result of the discussion is, "What should really happen here?"
+and "What, if anything, do you want me to do?"
+
+
+Bill

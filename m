@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130559AbQKRAjS>; Fri, 17 Nov 2000 19:39:18 -0500
+	id <S130335AbQKRAro>; Fri, 17 Nov 2000 19:47:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130335AbQKRAjI>; Fri, 17 Nov 2000 19:39:08 -0500
-Received: from smtp-fwd.valinux.com ([198.186.202.196]:35600 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S130552AbQKRAjB>;
-	Fri, 17 Nov 2000 19:39:01 -0500
-Date: Fri, 17 Nov 2000 16:09:00 -0800
-From: "H . J . Lu" <hjl@valinux.com>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lseek/llseek allows the negative offset
-Message-ID: <20001117160900.A27010@valinux.com>
-In-Reply-To: <20001117155913.A26622@valinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001117155913.A26622@valinux.com>; from hjl@valinux.com on Fri, Nov 17, 2000 at 03:59:13PM -0800
+	id <S130552AbQKRAre>; Fri, 17 Nov 2000 19:47:34 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:31440 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S130335AbQKRArV>;
+	Fri, 17 Nov 2000 19:47:21 -0500
+Date: Sat, 18 Nov 2000 01:17:15 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011180017.BAA126953.aeb@aak.cwi.nl>
+To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com
+Subject: Re: BUG: isofs broken (2.2 and 2.4)
+Cc: aeb@veritas.com, emoenke@gwdg.de, eric@andante.org,
+        kobras@tat.physik.uni-tuebingen.de, koenig@tat.physik.uni-tuebingen.de,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2000 at 03:59:13PM -0800, H . J . Lu wrote:
-> # gcc x.c
-> # ./a.out
-> lseek on -100000: -100000
-> write: File too large
-> 
-> Should kernel allow negative offsets for lseek/llseek?
-> 
-> 
+>> I take it you'll also do the third part?
 
-Never mind. I was running the wrong kernel.
+> Are you talking about isofs_lookup_grandparent()?
 
-H.J.
+No, about isofs_read_inode.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

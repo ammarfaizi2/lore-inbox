@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUIAKWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUIAKZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbUIAKWP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 06:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUIAKWP
+	id S265808AbUIAKZK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 06:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUIAKZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 06:22:15 -0400
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:4017 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265795AbUIAKWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 06:22:02 -0400
-From: Stuart Young <cef-lkml@optusnet.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc1 : Weirdness after shutdown - ACPI or Suspend bug?
-Date: Wed, 1 Sep 2004 20:20:41 +1000
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409012020.42482.cef-lkml@optusnet.com.au>
+	Wed, 1 Sep 2004 06:25:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44167 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265808AbUIAKZD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 06:25:03 -0400
+Subject: Re: Embedded Linux :: How different is it?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: prasad@atc.tcs.co.in
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <51980.203.200.212.145.1094033022.squirrel@203.200.212.145>
+References: <51980.203.200.212.145.1094033022.squirrel@203.200.212.145>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aivQBqd299nonYaF4Rw/"
+Organization: Red Hat UK
+Message-Id: <1094034205.2947.6.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 01 Sep 2004 12:23:26 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, this one is weirding me out.
 
-Note that when using 2.6.8.1 all is fine. The following situation only happens 
-in 2.6.9-rc1 or later.
+--=-aivQBqd299nonYaF4Rw/
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-If I shutdown my laptop (ie: halt) it goes through the motions and everything 
-goes off. If the lid switch changes state AFTER powerdown, the laptop starts 
-up. Removing AC power, or with AC power connected and removing the battery 
-does not trigger this, just seemingly the lid switch. This works on lid close, 
-AND lid open.
+On Wed, 2004-09-01 at 12:03, prasad@atc.tcs.co.in wrote:
 
-I noticed it and thought my laptop was dying, and consequently made sure I 
-shut the lid before the machine actually powered off, and didn't correlate it 
-to 2.6.9-rc1. But when I was trying to compile 2.6.9-rc1-mm2 I had some 
-other issues (general weirdness), and decided to boot back to 2.6.8.1 in case 
-2.6.9-rc1 was at fault. When I shut down I noticed it didn't have 
-this behaviour, and went and did a little reboot test at random between 
-2.6.9-rc1 & 2.6.8.1 that showed this as consistent behaviour.
+> How different is a embedded linux kernel from the normal mainstream
+> one. e.g. I have seen linux run on a mobile phone. When i buy it, am
+> i not entitled to get the source-code???
 
-Note that once the laptop restarts, if I shut it down using the power switch 
-at the lilo prompt, the machine stays off, regardless of the lid switch 
-state.
+yes you absolutely are entitled to the full source code including
+"all the source code for all modules it contains, plus any
+associated interface definition files, plus the scripts used to
+control compilation and installation"
 
-Any ideas or suggestions? Going to start going back thru csets when I get a 
-chance if no one has an ideas.
+In fact the vendor of the phone is required to either ship the source
+with the phone (rare) or include a written offer to give you the source.
 
--- 
- Stuart Young (aka Cef)
- cef-lkml@optusnet.com.au is for LKML and related email only
+
+--=-aivQBqd299nonYaF4Rw/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBNaMdxULwo51rQBIRAspdAJ42/yjtiv56M6RIh3VTGkgDkAGYGgCeI+LE
+koGcd8bFyXWFs0zo13t0fsU=
+=UW1w
+-----END PGP SIGNATURE-----
+
+--=-aivQBqd299nonYaF4Rw/--
+

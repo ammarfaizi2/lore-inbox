@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129884AbRAIPof>; Tue, 9 Jan 2001 10:44:35 -0500
+	id <S130464AbRAIPpz>; Tue, 9 Jan 2001 10:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130464AbRAIPoZ>; Tue, 9 Jan 2001 10:44:25 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:27151 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129884AbRAIPoP>;
-	Tue, 9 Jan 2001 10:44:15 -0500
-Message-ID: <3A5B3114.FAC64E04@innominate.de>
-Date: Tue, 09 Jan 2001 16:41:08 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+	id <S130013AbRAIPpf>; Tue, 9 Jan 2001 10:45:35 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:56998 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129561AbRAIPpY>; Tue, 9 Jan 2001 10:45:24 -0500
+From: Christoph Rohland <cr@sap.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
         linux-kernel@vger.kernel.org
-Subject: Re: FS callback routines
-In-Reply-To: <200101091405.IAA24807@tomcat.admin.navo.hpc.mil>
+Subject: Re: VM subsystem bug in 2.4.0 ?
+In-Reply-To: <Pine.LNX.4.10.10101081003410.3750-100000@penguin.transmeta.com>
+	<Pine.LNX.4.21.0101081621590.21675-100000@duckman.distro.conectiva>
+	<20010109140932.E4284@redhat.com> <qwwhf387p4s.fsf@sap.com>
+	<20010109153119.G9321@redhat.com>
+Organisation: SAP LinuxLab
+Date: 09 Jan 2001 16:45:10 +0100
+In-Reply-To: "Stephen C. Tweedie"'s message of "Tue, 9 Jan 2001 15:31:19 +0000"
+Message-ID: <qwwd7dw7mrd.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
-> Daniel Phillips <phillips@innominate.de>:
-> > This may be the most significant new feature in 2.4.0, as it allows us
-> > to take a fundamentally different approach to many different problems.
-> > Three that come to mind: mail (get your mail instantly without polling);
-> > make (don't rely on timestamps to know when rebuilding is needed, don't
-> > scan huge directory trees on each build); locate (reindex only those
-> > directories that have changed, keep index database current).  As you
-> > noticed, there are many others.
-> > ...
+Hi Stephen,
+
+On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
+> On Tue, Jan 09, 2001 at 03:53:55PM +0100, Christoph Rohland wrote:
+>> It's worse: The issue we are talking about is SYSV IPC_LOCK.
 > 
-> It would also be very nice if the security of the feature could be
-> confirmed. The problem with SGI's implementation is that it becomes
-> possible to monitor files that you don't own, don't have access to,
-> or are not permitted to know even exist.
+> The issue is locked VA pages.  SysV is just one of the ways in which
+> it can happen: the solution has got to address both that and
+> mlock()/mlockall().
 
-To receive notification about events in a given directory you have to be
-able to open it.  Is this adequate for your needs?
+AFAIU mlock'ed pages would never get deactivated since the ptes do not
+get dropped.
 
-> For these reasons, we have disabled the feature.
+>> This is a per segment thing. A user can (un)lock a segment at any
+>> time. But we do not have the references to the vmas attached to the
+>> segemnts
+> 
+> Why not?  Won't the address space mmap* lists give you this?
 
-It's nice to have that option, isn't it? ;-)
+OK. We could go from shmid_kernel->file->dentry->inode->mapping 
+We had to scan all mappings for pages in the page tables and in the
+page cache. Doesn't look really nice :-(
 
---
-Daniel
+Greetings
+		Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

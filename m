@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbULNXHC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbULNXFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbULNXHC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 18:07:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbULNXFh
+	id S261751AbULNXFN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 18:05:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbULNXDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 18:05:37 -0500
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:37641
-	"EHLO mail.muru.com") by vger.kernel.org with ESMTP id S261748AbULNXFD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 18:05:03 -0500
-Date: Tue, 14 Dec 2004 15:04:48 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+	Tue, 14 Dec 2004 18:03:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43928 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261739AbULNXBk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 18:01:40 -0500
+Date: Tue, 14 Dec 2004 15:00:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@suse.de>,
+       Manfred Spraul <manfred@colorfullife.com>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic-hz
-Message-ID: <20041214230448.GC31226@atomide.com>
-References: <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <1102970039.1281.415.camel@cog.beaverton.ibm.com> <20041213204933.GA4693@elf.ucw.cz> <20041214013924.GB14617@atomide.com> <20041214093735.GA1063@elf.ucw.cz> <20041214211814.GA31226@atomide.com> <20041214220646.GC19218@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041214220646.GC19218@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
+       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
+In-Reply-To: <20041214222307.GB22043@elte.hu>
+Message-ID: <Pine.LNX.4.58.0412141450430.3279@ppc970.osdl.org>
+References: <41BA698E.8000603@mvista.com> <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com>
+ <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com>
+ <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com>
+ <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random>
+ <41BC1BF9.70701@colorfullife.com> <20041212121546.GM16322@dualathlon.random>
+ <1103060437.14699.27.camel@krustophenia.net> <20041214222307.GB22043@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek <pavel@suse.cz> [041214 14:07]:
-> Hi!
+
+
+On Tue, 14 Dec 2004, Ingo Molnar wrote:
 > 
-> > > > The patch in question is at:
-> > > > 
-> > > > http://linux-omap.bkbits.net:8080/main/user=tmlind/patch@1.2016.4.18?nav=!-|index.html|stats|!+|index.html|ChangeSet@-12w|cset@1.2016.4.18
-> > > 
-> > > Wow, that's basically 8 lines of code plus driver for new
-> > > hardware... Is it really that simple?
-> > 
-> > Yeah, the key things are reprogramming the timer in the idle loop
-> > based on next_timer_interrupt(), and calling timer_interrupt from
-> > other interrupts as well :)
-> > 
-> > Should we try a similar patch for x86/amd64? I'm not sure which timers
-> > to use though? One should be programmable length for the interrupt, 
-> > and the other continuous for the timekeeping.
-> 
-> Yes, it would certainly be interesting. 5% power savings, and no
-> singing capacitors, while keeping HZ=1000. Sounds good to me.
-> 
-> There are about 1000 timers available in PC, each having its own
-> quirks. CMOS clock should be able to generate 1024Hz periodic timer
-> (we currently do not use) and TSC we currently use for periodic timer
-> should be usable in single-shot mode.
+> indeed, there could be a connection, and it's certainly a fun race. The
+> proper fix is Manfred's suggestion: check whether the EIP is a kernel
+> text address, and if yes, whether it's a HLT instruction - and if yes
+> then increase EIP by 1.
 
-I guess you mean to use the CMOS clock for continuous timer, and TSC
-for periodic timer?
+You do it the wrong way, though. This is not safe:
 
-OK, I'll take a look at it later this week or over the weekend.
+	if (__kernel_text_address(regs->eip) && *(char *)regs->eip == 0xf4)
 
-Haven't looked at the x86 timer code for a while, but I think
-I'll set up a new clock where we can just register a timer update
-function and a periodic tick function. That way we can easily use 
-whatever hardware timers are available.
+does _entirely_ the wrong thing if CS is not the kernel CS. 
 
-Tony
+It can trigger with a regular use CS if you were to run the 4G:4G patches, 
+but more realistically, I think you can make ii trigger even with a 
+standard kernel by creating a local code segment in your LDT, and then 
+trying to confuse the kernel that way.
+
+Now, as long as the _only_ thing it does is increment the eip, the worst 
+that can happen is that it screws over the user program that must have 
+worked at this a bit, but the basic point is that you shouldn't do this. 
+In _theory_ you could confuse a real program that wasn't doing anything 
+bad.
+
+Checking for kernel CS also requires checking that it's not vm86 mode, 
+btw. So that's not just a "regs->xcs & 0xffff == __KERNEL_CS" either.
+
+But something like
+
+	static inline int kernel_mode(struct pt_regs *regs)
+	{
+		return !((regs->eflags & VM_MASK) | (regs->xcs & 3));
+	}
+
+should DTRT.
+
+Can you pls double-check my thinking, and test?
+
+			Linus

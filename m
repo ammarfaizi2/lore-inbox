@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318460AbSGSDhC>; Thu, 18 Jul 2002 23:37:02 -0400
+	id <S318456AbSGSDfq>; Thu, 18 Jul 2002 23:35:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318461AbSGSDhC>; Thu, 18 Jul 2002 23:37:02 -0400
-Received: from mta01ps.bigpond.com ([144.135.25.133]:7154 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S318460AbSGSDhB>; Thu, 18 Jul 2002 23:37:01 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Josh Litherland <fauxpas@temp123.org>, Greg KH <greg@kroah.com>
-Subject: Re: USB Keypad
-Date: Fri, 19 Jul 2002 13:36:02 +1000
-User-Agent: KMail/1.4.5
-Cc: linux-kernel@vger.kernel.org
-References: <20020719015232.GA20956@temp123.org> <20020719031000.GA18382@kroah.com> <20020719032008.GA22934@temp123.org>
-In-Reply-To: <20020719032008.GA22934@temp123.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200207191336.02403.bhards@bigpond.net.au>
+	id <S318457AbSGSDfq>; Thu, 18 Jul 2002 23:35:46 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:46086 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
+	id <S318456AbSGSDfp>; Thu, 18 Jul 2002 23:35:45 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: more thoughts on a new jail() system call
+Date: 19 Jul 2002 03:23:04 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <ah80mo$53t$1@abraham.cs.berkeley.edu>
+References: <ah7m2r$3cr$1@abraham.cs.berkeley.edu> <200207190306.g6J366956014@saturn.cs.uml.edu>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1027048984 5245 128.32.153.211 (19 Jul 2002 03:23:04 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 19 Jul 2002 03:23:04 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Jul 2002 13:20, Josh Litherland wrote:
-> On Thu, Jul 18, 2002 at 08:10:00PM -0700, Greg KH wrote:
-> > Should work just fine today.  What kind of problems do you have when you
-> > try to do it?
+Albert D. Cahalan wrote:
+>>> sys_olduname) - P
+>>
+>> I'd argue that this should be restricted, on general
+>> principles.  (General principle: A jailed process shouldn't
+>> be able to learn anything about the host it's running on.)
 >
-> Just not getting any events from the keypad.  When I load up evdev, and
-> cat the device I get the appropriate gibberish, so the device is
-> detected okay.  This is 2.4.18, if that makes a difference for the
-> purposes of this discussion.
-OK, evdev is on the userspace side of the input core (and USB is on the other).
-If evdev reports events (and you can decode them, if you are interested, using
-tools available from the linuxconsole CVS), then all is probably well with USB and
-the input core.
+>Learning this info is easy enough without a syscall.
+>You only cause trouble for legit usage.
 
-The obvious error would be not compiling in the input layer keyboard driver (or
-not loading the module, whatever). 
+Ok.  To be clear, I consider this minor and probably
+unimportant for security, hence just allowing this is
+probably reasonable.
 
-If that definately isn't wrong (like lsmod shows the module, or a normal USB
-keyboard works fine and the keypad doesn't), then we'll likely need the 
-HID descriptors. Probably easiest to get them from evdev using the evtest
-tool from linuxconsole CVS.
+That said, is it really true that you can learn the
+hostname and the like without a syscall?  How?
 
-Brad
+>No, sys_getcwd will return info based on your current root.
+>After chroot and all, your "/" is the top of your jail.
 
--- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+Ahh, I feel stupid for overlooking that.  You're
+absolutely right.  Thanks for the correction.

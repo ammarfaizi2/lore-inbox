@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSGBLbE>; Tue, 2 Jul 2002 07:31:04 -0400
+	id <S316750AbSGBLdZ>; Tue, 2 Jul 2002 07:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316739AbSGBLbD>; Tue, 2 Jul 2002 07:31:03 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:34951 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316728AbSGBLbC> convert rfc822-to-8bit;
-	Tue, 2 Jul 2002 07:31:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Helge Hafting <helgehaf@aitel.hist.no>,
-       Zwane Mwaikambo <zwane@mwaikambo.name>
-Subject: Re: lilo/raid?
-Date: Tue, 2 Jul 2002 13:33:36 +0200
-User-Agent: KMail/1.4.1
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207011758180.3104-100000@netfinity.realnet.co.sz> <3D216157.FC60B17E@aitel.hist.no>
-In-Reply-To: <3D216157.FC60B17E@aitel.hist.no>
+	id <S316753AbSGBLdY>; Tue, 2 Jul 2002 07:33:24 -0400
+Received: from skiathos.physics.auth.gr ([155.207.123.3]:17116 "EHLO
+	skiathos.physics.auth.gr") by vger.kernel.org with ESMTP
+	id <S316750AbSGBLdX>; Tue, 2 Jul 2002 07:33:23 -0400
+Date: Tue, 2 Jul 2002 14:35:33 +0300 (EET DST)
+From: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+To: Bongani <bonganilinux@mweb.co.za>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EXT3 errors
+In-Reply-To: <1025583346.3267.7.camel@localhost.localdomain>
+Message-ID: <Pine.GSO.4.21.0207021433140.1168-100000@skiathos.physics.auth.gr>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207021333.36435.roy@karlsbakk.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 July 2002 10:16, Helge Hafting wrote:
-> Zwane Mwaikambo wrote:
-> > On Mon, 1 Jul 2002, Roy Sigurd Karlsbakk wrote:
-> > > LABEL=/                 /                       ext3    defaults       
-> > > 1 1 /dev/md2                /tmp                    ext3    defaults   
-> > >     1 2 /dev/md3                /var                    jfs    
-> > > defaults        1 2 /dev/md4                /data                   jfs
-> > >     defaults        1 2 /dev/md1                swap                   
-> > > swap    defaults        0 0
-> >
-> > One small thing, you do know that you can interleave swap?
+On 2 Jul 2002, Bongani wrote:
+
+> On Mon, 2002-07-01 at 23:38, Andrew Morton wrote:
+> > Bongani wrote:
+> > > Jul  1 04:02:14 localhost kernel: EXT3-fs error (device ide0(3,70)):
+> > > ext3_new_block: Allocating block in system zone - block = 32802
+> > Your filesystem is wrecked.  Did you get some I/O errors?
 >
-> There are sometimes reasons not to do that.
-> Heavy swapping may be caused by attempts to cache
-> massive io on some fs.  
-<snip/>
+> I found these from the day before
+>
+> Jun 30 12:31:00 localhost kernel: hdb: dma_intr: status=0x51 {DriveReady
+> SeekComplete Error }
+> Jun 30 12:31:00 localhost kernel: hdb: dma_intr: error=0x84
+> {DriveStatusError BadCRC }
 
-I've seen it. 1GB of swap for caching heavy downloads (se earlier thread 'VM 
-fsckup' or somehting)
+Ah, so you hard disk is wrecked too...
 
-What is the reason of using swap for cache buffers?????
+See what badblocks -v on the damaged partition device has to say...
 
-roy
+-K.
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
 

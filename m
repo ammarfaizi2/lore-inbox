@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271711AbRIJU7N>; Mon, 10 Sep 2001 16:59:13 -0400
+	id <S271719AbRIJVEY>; Mon, 10 Sep 2001 17:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271717AbRIJU7E>; Mon, 10 Sep 2001 16:59:04 -0400
-Received: from ns1.uklinux.net ([212.1.130.11]:28420 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S271711AbRIJU6x>;
-	Mon, 10 Sep 2001 16:58:53 -0400
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Sun, 9 Sep 2001 12:48:29 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Josh McKinney <forming@home.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre5 (and gcc-3)
-In-Reply-To: <20010908230539.A4927@home.com>
-Message-ID: <Pine.LNX.4.21.0109091236220.6179-100000@pppg_penguin.linux.bogus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271718AbRIJVEO>; Mon, 10 Sep 2001 17:04:14 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:11494 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S271687AbRIJVEE>;
+	Mon, 10 Sep 2001 17:04:04 -0400
+Date: Mon, 10 Sep 2001 22:34:57 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: New SCSI subsystem in 2.4, and scsi idle patch
+Message-ID: <20010910223457.A690@pelks01.extern.uni-tuebingen.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0109101216030.14338-100000@frank.gwc.org.uk> <Pine.LNX.4.10.10109101007150.15736-100000@coffee.psychology.mcmaster.ca> <20010910093326.A30659@ferret.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.1.12i
+In-Reply-To: <20010910093326.A30659@ferret.dyndns.org>; from idalton@ferret.dyndns.org on Mon, Sep 10, 2001 at 09:33:26AM -0700
+From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Sep 2001, Josh McKinney wrote:
+On Mon, Sep 10, 2001 at 09:33:26AM -0700, idalton@ferret.dyndns.org wrote:
+> Noflushd can be useful in this case, though it needs a patch to
+> include/linux/kernel_stat.h in order to work with more than one
+> IDE disk. More information is at <http://noflushd.sourceforge.net>
 
-> Since I have gotten a decent amount of flame mail from my one-liner posted 
-> yesterday, I am just curious.  Has anyone really been able to successfully
-> compile their kernel with gcc-3*.  I did once or twice long before it was
-> released, but it dies on the same error everytime.
+Tweaking kernel_stat.h is no longer necessary if you're running recent ac.
+Alan merged a patch that exposes significantly more devices to /proc/stat.
+I haven't checked if it went into the 2.4.10 pres as well. Unfortunately, the
+patch also slightly changed the meaning of some of the entries so you'll
+need grab current noflushd-CVS to make it work on the second ide channel.
+Still, you might prefer that to patching the kernel. :)
 
-I had problems with pre-release versions, but gcc-3.0 works fine for
-me. I've got two boxes with K6s, this one running 2.4.6 (gcc-3) and the
-other was running various fairly recent kernels through to 2.4.8-pre3 
-compiled with gcc-3. I've seen strange errors with 2.4.7-ac5 (messages about
-loss of clock data, and trying to compile gcc-2.95.3 gave sig 11), but I'm 
-not ready to lay those at the compiler's door. (The test box has turned into
-a linux from scratch system using gcc-2.95.3, it will be a little while 
-before I get gcc-3 back up on it).
+Regards,
 
-Ken
+Daniel.
+
 -- 
-         If a six turned out to be nine, I don't mind.
-
-         Home page : http://www.kenmoffat.uklinux.net
-
-
+	GNU/Linux Audio Mechanics - http://www.glame.de
+	      Cutting Edge Office - http://www.c10a02.de
+	      GPG Key ID 89BF7E2B - http://www.keyserver.net

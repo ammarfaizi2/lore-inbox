@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbUKSWwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbUKSWuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUKSWwo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 17:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbUKSWud
+	id S261681AbUKSWuT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 17:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbUKSWsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 17:50:33 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42423 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261672AbUKSWtB (ORCPT
+	Fri, 19 Nov 2004 17:48:25 -0500
+Received: from gate.crashing.org ([63.228.1.57]:18575 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261671AbUKSWqx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 17:49:01 -0500
-Date: Fri, 19 Nov 2004 14:48:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Mathieu Segaud <matt@minas-morgul.org>,
-       Hotplug Devel <linux-hotplug-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 046 release
-Message-ID: <20041119224822.GA18211@kroah.com>
-References: <20041118224411.GA10876@kroah.com> <87sm76oz9z.fsf@barad-dur.crans.org> <1100875339.18701.3.camel@localhost.localdomain>
+	Fri, 19 Nov 2004 17:46:53 -0500
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: brking@us.ibm.com
+Cc: Greg KH <greg@kroah.com>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <419E72EF.4010100@us.ibm.com>
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
+	 <20041119213232.GB13259@kroah.com>  <419E72EF.4010100@us.ibm.com>
+Content-Type: text/plain
+Date: Sat, 20 Nov 2004 09:46:42 +1100
+Message-Id: <1100904402.3811.52.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100875339.18701.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 03:42:19PM +0100, Kay Sievers wrote:
-> On Fri, 2004-11-19 at 12:26 +0100, Mathieu Segaud wrote:
-> > seems like these changes broke something in rules applying to eth* devices.
-> > the rules put and still working with udev 045 have no effect, now....
-> > not so inconvenient now that I've got just one card in my box, but I guess
-> > it could be a show-stopper for laptop users.
-> > 
-> > My rules which can be found at the end of /etc/udev/rules.d/50-udev.rules are:
-> > 
-> > KERNEL="eth*", SYSFS{address}="00:10:5a:49:36:d8", NAME="external"
-> > KERNEL="eth*", SYSFS{address}="00:50:04:69:db:56", NAME="private"
-> > KERNEL="eth*", SYSFS{address}="00:0c:6e:e4:2c:81", NAME="dmz"
+On Fri, 2004-11-19 at 16:25 -0600, Brian King wrote:
+
+> I thought about that when writing up this patch, but decided against it.
+> I figured it was overkill and was going to make the patch more complicated
+> than it needed to be to solve the main problem I have seen, which is
+> userspace code, usually hotplug/coldplug scripts, reading config space
+> when an adapter is running BIST.
+
+How so ? Why would it be more complicated to do the workaround in
+drivers/pci/access.c macros instead and not touch all the wrappers ? It
+would actually make a much smaller patch...
+
+> If you think there are usages of the pci_bus_* functions in the
+> kernel after the adapter device driver gets loaded, from callers other
+> than adapter device drivers and userspace APIs, I would have to agree
+> with you. I was hoping to keep this patch as simple as possible.
 > 
-> This should fix it.
+> Having to protect the pci_bus_* functions requires a lookup in these
+> functions to find the pci_dev to get the saved_config_space, which
+> I was hoping to avoid.
+> 
+> Ben - do you have any concerns with this limitation for the use you have
+> for this set of APIs?
 
-Applied, thanks.
+If we ever endup rescanning the bus segment, indeed... I'd rather play
+safe, it's easy to move the blocking to the bus access functions and
+have the BIST function use the low level bus callbacks directly.
 
-greg k-h
+Ben.
+
+

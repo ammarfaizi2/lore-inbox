@@ -1,93 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283012AbRLHRzA>; Sat, 8 Dec 2001 12:55:00 -0500
+	id <S283442AbRLHSBq>; Sat, 8 Dec 2001 13:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283045AbRLHRyu>; Sat, 8 Dec 2001 12:54:50 -0500
-Received: from mail211.mail.bellsouth.net ([205.152.58.151]:34108 "EHLO
-	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S283012AbRLHRyd>; Sat, 8 Dec 2001 12:54:33 -0500
-Message-ID: <3C1253D3.75EAA26E@mandrakesoft.com>
-Date: Sat, 08 Dec 2001 12:54:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.13-12mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <3C110B3F.D94DDE62@zip.com.au> <9useu4$f4o$1@penguin.transmeta.com> <E16ClLY-000124-00@starship.berlin>
+	id <S283496AbRLHSBm>; Sat, 8 Dec 2001 13:01:42 -0500
+Received: from mout04.kundenserver.de ([195.20.224.89]:12064 "EHLO
+	mout04.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S283442AbRLHSBY>; Sat, 8 Dec 2001 13:01:24 -0500
+Date: Sat, 8 Dec 2001 18:38:32 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.15 and GNU 3.0.2
+Message-ID: <20011208173832.GA745@elfie.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <15362.34918.524256.760222@sinisa.nasamreza.org> <3C029E59.4040106@blue-labs.org> <15363.32056.147142.173419@sinisa.nasamreza.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <15363.32056.147142.173419@sinisa.nasamreza.org>
+User-Agent: Mutt/1.3.24-current-20011201i (Linux 2.4.17-pre6 i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Linus wrote:
-> > So "ext2_write_inode()" would basically become somehting like
-> >
-> >       struct ext2_inode *raw_inode = inode->u.ext2_i.i_raw_inode;
-> >       struct buffer_head *bh = inode->u.ext2_i.i_raw_bh;
-> >
-> >       /* Update the stuff we've brought into the generic part of the inode */
-> >       raw_inode->i_size = cpu_to_le32(inode->i_size);
-> >       ...
-> >       mark_buffer_dirty(bh);
-> >
-> > with part of the data already in the right place (ie the current
-> > "inode->u.ext2_i.i_data[block]" wouldn't exist, it would just exist as
-> > "raw_inode->i_block[block]" directly in the buffer block.
+On Tue Nov 27 2001, Sinisa Milivojevic wrote:
 
-note we do this for the superblock already, and it's pretty useful
+> > Out of five computers I build kernels for at home here, one of them has 
+> > an AMD K6II processor in it and that is the only one that I need to use 
+> > gcc 2.95.3 with.  The rest I use 3.0.x and they are quite stable.
 
+I have also two machines using AMD's K6
 
-> I'd then be able to write a trivial program that would eat inode+blocksize
-> worth of cache for each cached inode, by opening one file on each itable
-> block.
+ elfie:~ # cat /proc/cpuinfo
+ processor       : 0
+ vendor_id       : AuthenticAMD
+ cpu family      : 5
+ model           : 9
+ model name      : AMD-K6(tm) 3D+ Processor
+ stepping        : 1
+ cpu MHz         : 400.914
+ cache size      : 256 KB
+ fdiv_bug        : no
+ hlt_bug         : no
+ f00f_bug        : no
+ coma_bug        : no
+ fpu             : yes
+ fpu_exception   : yes
+ cpuid level     : 1
+ wp              : yes
+ flags           : fpu vme de pse tsc msr mce cx8 pge mmx syscall 3dnow k6_mtrr
+ bogomips        : 799.53
 
-you already have X overhead per inode cached... yes this would increase
-X but since there is typically more than one inode per block there is
-also sharing as well.  So inode+blocksize is not true.
+On one of them I compiled the kernel with
 
+ elfie:~ # gcc -v
+ Reading specs from /usr/local/gcc3/lib/gcc-lib/i586-pc-linux-gnu/3.1/specs
+ Configured with: /Src/gcc-20011203/configure --prefix=/usr/local/gcc3
+ Thread model: single
+ gcc version 3.1 20011203 (experimental)
 
-> I'd also regret losing the genericity that comes from the read_inode (unpack)
-> and update_inode (repack) abstraction.
-
-so what is write_inode... re-repack?  :)
-
-
-> Right now, I don't see any fields in
-> _info that aren't directly copied, but I expect there soon will be.
-
-i_data[] is copied, and that would be nice to directly access in
-inode->u.ext2_i.i_bh...
-
-Also in my ibu fs (you can look at it now in gkernel cvs) it uses a
-fixed inode size of 512 bytes, with file or extent data packed into that
-512 bytes after the fixed header ends.  Having the bh right there would
-be nice.  [note there shouldn't be aliasing problems related to that in
-ibu's case, because when data-in-inode is implemented readpage and
-writepage handle that case anyway]
-
-
-> An alternative approach: suppose we were to map the itable blocks with
-> smaller-than-blocksize granularity.  We could then fall back to smaller
-> transfers under cache pressure, eliminating much thrashing.
-
-in ibu fs the entire inode table[1] is accessing via the page cache. 
-ext2 could do this too.  If ext2's per-block-group inode table has
-padding at the end page calculations get a bit more annoying but it's
-still doable.
-
-	Jeff
-
-
-[1] ibu's inode table is a normal, potentially-fragmented file.  thus it
-is possibly broken up in chunks spread across the disk like ext2's block
-groups.
+and there were no problems yet (5 days up).
 
 -- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+# Heinz Diehl, 68259 Mannheim, Germany

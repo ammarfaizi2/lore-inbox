@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267856AbTAHMOO>; Wed, 8 Jan 2003 07:14:14 -0500
+	id <S267254AbTAHMB0>; Wed, 8 Jan 2003 07:01:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267857AbTAHMOO>; Wed, 8 Jan 2003 07:14:14 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:59397 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267856AbTAHMON>;
-	Wed, 8 Jan 2003 07:14:13 -0500
-Message-ID: <3E1C17E0.2080804@walrond.org>
-Date: Wed, 08 Jan 2003 12:21:52 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S267434AbTAHMB0>; Wed, 8 Jan 2003 07:01:26 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:22028 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S267254AbTAHMAd>;
+	Wed, 8 Jan 2003 07:00:33 -0500
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: OT Naming. was: Re: Why is Nvidia given GPL'd code to use in  closed source drivers?
+References: <200301081123.h08BNQiO000383@habitrail.home.fools-errant.com>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 08 Jan 2003 13:09:14 +0100
+In-Reply-To: Hacksaw's message of "Wed, 08 Jan 2003 06:23:26 -0500"
+Message-ID: <yw1xn0mbn8r9.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUILD PROBLEM - Linux 2.5 BK - smpboot.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing this error:
+Hacksaw <hacksaw@hacksaw.org> writes:
 
-   gcc -Wp,-MD,arch/i386/kernel/.smpboot.o.d -D__KERNEL__ -Iinclude 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium4 
--Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc 
--iwithprefix include    -DKBUILD_BASENAME=smpboot 
--DKBUILD_MODNAME=smpboot   -c -o arch/i386/kernel/smpboot.o 
-arch/i386/kernel/smpboot.c
-make -f scripts/Makefile.build obj=fs
-make -f scripts/Makefile.build obj=fs/autofs4
-arch/i386/kernel/smpboot.c:55:26:make -f scripts/Makefile.build obj=fs/devfs
-  mach_wakecpu.h: No such file or directory
-make -f scripts/Makefile.build obj=fs/devpts
-make -f scripts/Makefile.build obj=fs/exportfs
-make -f scripts/Makefile.build obj=fs/lockd
-arch/i386/kernel/smpboot.c: In function `smp_callin':
-arch/i386/kernel/smpboot.c:351: warning: implicit declaration of 
-function `wait_for_init_deassert'arch/i386/kernel/smpboot.c:400: 
-warning: implicit declaration of function `smp_callin_clear_local_apic'
-make -f scripts/Makefile.build obj=fs/nfs
-arch/i386/kernel/smpboot.c: In function `do_boot_cpu':
-arch/i386/kernel/smpboot.c:826: warning: implicit declaration of 
-function `store_NMI_vector'
-arch/i386/kernel/smpboot.c:831: `TRAMPOLINE_HIGH' undeclared (first use 
-in this function)
-arch/i386/kernel/smpboot.c:831: (Each undeclared identifier is reported 
-only once
-arch/i386/kernel/smpboot.c:831: for each function it appears in.)
-arch/i386/kernel/smpboot.c:833: `TRAMPOLINE_LOW' undeclared (first use 
-in this function)
-arch/i386/kernel/smpboot.c:839: warning: implicit declaration of 
-function `wakeup_secondary_cpu'
-arch/i386/kernel/smpboot.c:873: warning: implicit declaration of 
-function `inquire_remote_apic'
-arch/i386/kernel/smpboot.c: In function `smp_boot_cpus':
-arch/i386/kernel/smpboot.c:1048: `boot_cpu_apicid' undeclared (first use 
-in this function)
-make -f scripts/Makefile.build obj=fs/nfsd
-make -f scripts/Makefile.build obj=fs/partitions
-make -f scripts/Makefile.build obj=fs/proc
-make[1]: *** [arch/i386/kernel/smpboot.o] Error 1
-make: *** [arch/i386/kernel] Error 2
-make: *** Waiting for unfinished jobs....
+> >The "GNU/Linux" vs "Linux" argument is a political one, not a practical
+> >one, don't try to disguise it.
+> 
+> I used to agree with this, and as far as politics, I do. However, a
+> practical reason to call it GNU/Linux just occurred to me: the ABI.
+> 
+> Linux is a kernel. It runs on a variety of platforms. You certainly
+> must differentiate between a program for Linux on StrongARM and one
+> for Linux on x86. To use a kernel one makes calls into it via a
+> system call mechanism. In the case of the vast majority of Linux
+> installations, that is done via glibc.  Not for kicks is that 'g'
+> there.
+> 
+> A system with a linux kernel using a different API will likely have a 
+> different ABI for it's programs.
 
+The functions in glibc that you are referring to are specified by
+ANSI/ISO C and POSIX standards.  If a system doesn't comply to these
+it's broken.  Yes, I consider systems like MSWindows broken.  Well,
+there's VMS, of course.  I'll don't know what standards it follows.
+
+-- 
+Måns Rullgård
+mru@users.sf.net

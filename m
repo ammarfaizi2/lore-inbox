@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265239AbTFRQmW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 12:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbTFRQmV
+	id S265373AbTFRQpP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 12:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265374AbTFRQpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 12:42:21 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64673 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S265239AbTFRQmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 12:42:10 -0400
-Date: Wed, 18 Jun 2003 12:55:44 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: Anders Karlsson <anders@trudheim.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-Message-ID: <20030618125544.D14270@devserv.devel.redhat.com>
-Mail-Followup-To: Anders Karlsson <anders@trudheim.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <3EE66C86.8090708@free.fr> <Pine.LNX.4.55L.0306172019550.31986@freak.distro.conectiva> <1055913307.2436.27.camel@tor.trudheim.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1055913307.2436.27.camel@tor.trudheim.com>; from anders@trudheim.com on Wed, Jun 18, 2003 at 06:15:07AM +0100
+	Wed, 18 Jun 2003 12:45:10 -0400
+Received: from [65.39.167.210] ([65.39.167.210]:59013 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S265361AbTFRQo2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 12:44:28 -0400
+Date: Wed, 18 Jun 2003 12:55:18 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: James Simmons <jsimmons@infradead.org>
+cc: Grzegorz Jaskiewicz <gj@pointblue.com.pl>, Robert Love <rml@tech9.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.71 - random console corruption
+In-Reply-To: <Pine.LNX.4.44.0306181736390.24449-100000@phoenix.infradead.org>
+Message-ID: <Pine.LNX.4.44.0306181252100.10083-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Karlsson (anders@trudheim.com) said: 
-> How about the backported cpufreq patch from Bill Nottingham? Can that
-> one go in as well please? It is not a big patch as such and it is
-> working as far as I can tell. I have been running it since it was posted
-> on the list last week.
+On Wed, 18 Jun 2003, James Simmons wrote:
 
-It requires the more substantial generic cpufreq backport first. :)
+> Date: Wed, 18 Jun 2003 17:38:50 +0100 (BST)
+> From: James Simmons <jsimmons@infradead.org>
+> To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+> Cc: Gerhard Mack <gmack@innerfire.net>, Robert Love <rml@tech9.net>,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: Linux 2.5.71 - random console corruption
+>
+>
+> > > Interestingly enough it's not console switching that does it.. it's
+> > > scrolling also as I mentioned before it's not just with preempt enabled.
+> > >
+> > > I wonder if theres another problem somewhere?
+> > I've got simmilar problem with 2.5.72, sometimes keyboard stops to respond (in
+> > X windows). Mouse is usefull, all i have to do is restart Xwindows and
+> > everything is running well.
+>
+> So scrolling is the issue. Which console drivers are you using?
 
-Bill
+Scrolling and screen clearing. If the machine is loaded the screen may
+not clear all of the way.
+
+I have the following enabled:
+CONFIG_FB_ATY=y
+CONFIG_FB_ATY_CT=y
+
+I get this on starup:
+atyfb: using auxiliary register aperture
+atyfb: 3D RAGE IIC (AGP) [0x475a rev 0x7a] 8M SDRAM, 14.31818 MHz XTAL, 230 MHz
+
+If you need me to try anything just ask.
+
+	Gerhard
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267227AbSLEFbX>; Thu, 5 Dec 2002 00:31:23 -0500
+	id <S267228AbSLEFhM>; Thu, 5 Dec 2002 00:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267228AbSLEFbX>; Thu, 5 Dec 2002 00:31:23 -0500
-Received: from pandora.cantech.net.au ([203.26.6.29]:11282 "EHLO
-	pandora.cantech.net.au") by vger.kernel.org with ESMTP
-	id <S267227AbSLEFbW>; Thu, 5 Dec 2002 00:31:22 -0500
-Date: Thu, 5 Dec 2002 13:38:24 +0800 (WST)
-From: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.50 drivers/char/rio/rioctrl.c
-Message-ID: <Pine.LNX.4.44.0212051327020.14195-100000@thor.cantech.net.au>
+	id <S267229AbSLEFhM>; Thu, 5 Dec 2002 00:37:12 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:26348 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267228AbSLEFhL>; Thu, 5 Dec 2002 00:37:11 -0500
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation
+References: <200212042142.gB4LgfI04384@localhost.localdomain>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 05 Dec 2002 14:44:39 +0900
+In-Reply-To: <200212042142.gB4LgfI04384@localhost.localdomain>
+Message-ID: <buobs41rpdk.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
-	This patch continues the work started by Arnaldo Carvalho de Melo
-<acme@conectiva.com.br>.  It converts a couple of possible return EPERM to
-return -EPERM.  It also changes a generic return 1 to return -ENOMEM
+James Bottomley <James.Bottomley@steeleye.com> writes:
+> > Keep in mind that sometimes the actual _implementation_ is also highly
+> > PCI-specific -- that is, what works for PCI devices may not work for
+> > other devices and vice-versa.
+> 
+> that can all be taken care of in the platform implementation.
+> 
+> In general, the generic device already has enough information that the
+> platform implementation can be highly bus specific---and, of course,
+> once you know exactly what bus it's on, you can cast it to the bus
+> device if you want.
 
---------------------------------------------------------------------------------
-diff -X dontdiff -urN linux-2.5.50.clean/drivers/char/rio/rioctrl.c linux-2.5.50.rio/drivers/char/rio/rioctrl.c
---- linux-2.5.50.clean/drivers/char/rio/rioctrl.c	2002-12-04 17:50:09.000000000 +0800
-+++ linux-2.5.50.rio/drivers/char/rio/rioctrl.c	2002-12-05 11:08:44.000000000 +0800
-@@ -524,7 +524,7 @@
- 					else {
- 		 				rio_dprintk (RIO_DEBUG_CTRL, "p->RIOBindTab full! - Rta %x not added\n",
- 		  					(int) arg);
--		 				return 1;
-+		 				return -ENOMEM;
- 					}
- 					return 0;
- 				}
-@@ -1595,12 +1595,12 @@
- 			case RIO_NO_MESG:
- 				if ( su )
- 					 p->RIONoMessage = 1;
--				return su ? 0 : EPERM;
-+				return su ? 0 : -EPERM;
- 
- 			case RIO_MESG:
- 				if ( su )
- 					p->RIONoMessage = 0;
--				return su ? 0 : EPERM;
-+				return su ? 0 : -EPERM;
- 
- 			case RIO_WHAT_MESG:
- 				if ( copyout( (caddr_t)&p->RIONoMessage, (int)arg, 
---------------------------------------------------------------------------------
+I presume you mean something like (in an arch-specific file somewhere):
 
-Yours Tony
+void *dma_alloc_consistent (struct device *dev, size_t size,
+                            dma_addr_t *dma_handle,
+        		    enum dma_conformance_level level)
+{
+    if (dev->SOME_FIELD == SOME_CONSTANT)
+        return my_wierd_ass_pci_alloc_consistent ((struct pci_dev *)dev, ...);
+    else
+        return 0; /* or kmalloc(...); */
+}
 
-   Jan 22-25 2003           Linux.Conf.AU            http://linux.conf.au/
-		  The Australian Linux Technical Conference!
+?
 
+I did a bit of grovelling, but I'm still not quite sure what test I
+can do (i.e., what SOME_FIELD and SOME_CONSTANT should be, if it's
+really that simple).
+
+Ah well, as long as it's possible I guess I'll figure it out when the
+source hits the fan...
+
+-Miles
+-- 
+I have seen the enemy, and he is us.  -- Pogo

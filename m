@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279157AbRKFMz0>; Tue, 6 Nov 2001 07:55:26 -0500
+	id <S279170AbRKFMzq>; Tue, 6 Nov 2001 07:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279156AbRKFMzR>; Tue, 6 Nov 2001 07:55:17 -0500
-Received: from ns.caldera.de ([212.34.180.1]:34462 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S277782AbRKFMzC>;
-	Tue, 6 Nov 2001 07:55:02 -0500
-Date: Tue, 6 Nov 2001 13:54:06 +0100
-From: Marcus Meissner <Marcus.Meissner@caldera.de>
-To: deanna_bonds@adaptec.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH: dpt_i2o PCI devicetable
-Message-ID: <20011106135406.A2352@caldera.de>
+	id <S277782AbRKFMzh>; Tue, 6 Nov 2001 07:55:37 -0500
+Received: from gap.cco.caltech.edu ([131.215.139.43]:46248 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S279156AbRKFMzb> convert rfc822-to-8bit; Tue, 6 Nov 2001 07:55:31 -0500
+Message-Id: <sbe793a0.089@mail-01.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0
+Date: Tue, 06 Nov 2001 07:38:49 -0500
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <terje.eggestad@scali.no>, <amon@vnl.com>
+Cc: <weixl@caltech.edu>, <mlist-linux-kernel@nntp-server.caltech.edu>
+Subject: Re: How can I know the number of current users in the system?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Deanna, Alan,
+It depends whether you're looking for an idea of who's on, or you want a definitive count. The lattter is basically almost impossible. What if a logged-in user nohups two xterms to different X-servers, then logs out - how many people are logged in? I've spent a hell of a long time working on this on AIX for a certain German bank, and the bottom line is that it can't be done. What is 'logged on' anyway? Someone running bash or ksh, that's cool, but what about someone running /home/fred/myprog? Is it a shell?
 
-This adds PCI device table to dpt_i2o.c which allows automatic module loading
-for automatic module installers.
+Basically once Unix went beyond serial terminals connected to dumb serial ports, we lost the ability to track users.
 
-Unfortunately I don't have such a card, or I would have changed the code to
-use the table.
+Nik
 
-Ciao, Marcus
 
-Index: drivers/scsi/dpt_i2o.c
-===================================================================
-RCS file: /build/mm/work/repository/linux-mm/drivers/scsi/dpt_i2o.c,v
-retrieving revision 1.11
-diff -u -r1.11 dpt_i2o.c
---- drivers/scsi/dpt_i2o.c	2001/10/25 16:49:35	1.11
-+++ drivers/scsi/dpt_i2o.c	2001/11/06 11:22:02
-@@ -165,6 +165,13 @@
-  *============================================================================
-  */
- 
-+static struct pci_device_id dptids[] = {
-+	{ PCI_DPT_VENDOR_ID, PCI_DPT_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID,},
-+	{ PCI_DPT_VENDOR_ID, PCI_DPT_RAPTOR_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID,},
-+	{ 0, }
-+};
-+MODULE_DEVICE_TABLE(pci,dptids);
-+
- static int adpt_detect(Scsi_Host_Template* sht)
- {
- 	struct pci_dev *pDev = NULL;
+> Hmmm, you should be able to count the number of pty's and tty's.
+> Every logged in user is attached to some sort of getty
+> whose parent is the init task (1). That might be a basis for
+> a count.
+
+

@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264656AbRFYQCo>; Mon, 25 Jun 2001 12:02:44 -0400
+	id <S264674AbRFYQIO>; Mon, 25 Jun 2001 12:08:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264674AbRFYQCe>; Mon, 25 Jun 2001 12:02:34 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:44043 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S264656AbRFYQCU>; Mon, 25 Jun 2001 12:02:20 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-ac12 kernel oops
-In-Reply-To: <9h7mbt$p2b$1@ns1.clouddancer.com>
-In-Reply-To: <32526.993483712@ocs3.ocs-net> Your message of    "Mon, 25 Jun 2001 08:15:49 MST."    <20010625151549.7ED6F784D9@mail.clouddancer.com> <9h7mbt$p2b$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010625160219.84967784D9@mail.clouddancer.com>
-Date: Mon, 25 Jun 2001 09:02:19 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S264770AbRFYQIE>; Mon, 25 Jun 2001 12:08:04 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:57611 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264674AbRFYQHw>; Mon, 25 Jun 2001 12:07:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Tony Gale <gale@syntax.dera.gov.uk>
+Subject: Re: [UPDATE] Directory index for ext2
+Date: Mon, 25 Jun 2001 18:10:50 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Heusden@mail.bonn-fries.net, Folkert van <f.v.heusden@ftr.nl>,
+        linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+        Alexander Viro <viro@math.psu.edu>,
+        Andreas Dilger <adilger@turbolinux.com>
+In-Reply-To: <0105311813431J.06233@starship> <01062018584308.00439@starship> <993462395.9593.0.camel@syntax.dera.gov.uk>
+In-Reply-To: <993462395.9593.0.camel@syntax.dera.gov.uk>
+MIME-Version: 1.0
+Message-Id: <01062518105001.01008@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In clouddancer.list.kernel, you wrote:
+On Monday 25 June 2001 11:46, Tony Gale wrote:
+> After some testing, removing the grsecurity patch seems to have solved
+> the disappearing-free-space problem. Now just need to find out why.
 >
->On Mon, 25 Jun 2001 08:15:49 -0700 (PDT), 
->klink@clouddancer.com (Colonel) wrote:
->>ksymoops 2.4.1 on i686 2.4.5-ac12.  Options used
->>Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says c01aad00, System.map says c014cba0.  Ignoring ksyms_base entry
->>Why the symbol mismatch?
+> On 20 Jun 2001 18:58:43 +0200, Daniel Phillips wrote:
+> > On Wednesday 20 June 2001 16:59, Tony Gale wrote:
+> > > The main problem I have with this is that e2fsck doesn't know how to
+> > > deal with it - at least I haven't found a version that will. This makes
+> > > it rather difficult to use, especially for your root fs.
+> >
+> > Good, the file format isn't finalized, this is only recommended for use
+> > on a test partition.
 >
->The mismatch is caused by two variables called partition_name.  What
->does 'nm vmlinux | grep partition_name' show?  Probably one
-
-Can't run that, but : 
-
-grep "partition_name" System.map-2.4.5-ac12 
-00000000c014cba0 t partition_name
-00000000c01aad00 T partition_name
-
-
->partition_name at c01aad00 and another at c014cba0.  Both
->fs/partitions/msdos.c and drivers/md/md.c define that symbol, md
-
-and I have both in the kernel.
-
->exports its version.  A good reason why exported symbols should have
->unique names.
-
-Only the raid5 was active, the msdos stuff is a module for 'just in
-case'.  Something else triggered this, I've run raid for a long time
-without problems.
-
-
-
->>Why ignore /proc over the System.map?
+> It was a test partition, just happended to be a root one. AFAIAA, isn't
+> the fact that the file format may change irrelevant. You want people to
+> test this stuff or not? If it's not tested on a root fs then how do you
+> know there won't be any problems.
 >
->ksymoops has a hierarchy of trust.  System.map is more trustworthy than
->/proc/ksyms because ksyms changes, especially if you rebooted after the
->oops and before running ksymoops.
+> Sorry, but when someone reports a problem, and then you say, well don't
+> test it like that then, it is really not acceptable.
 
-Hmm, I would have thought that /proc was more up to date, because it
-would reflect changes.  No reboot, never even considered it (I've
-rescued too many junior sysadmins that think rebooting is _the_ answer).
+Sure, if your root partition is expendable, by all means go ahead.  Ted has 
+already offered to start the required changes to e2fsck, which reminds me, I 
+have to send the promised docs.  For now, just use normal fsck and it will 
+(in theory) turn the directory indexes back into normal file blocks, and have 
+no effect on inodes.  Lets take advantage of the opportunity to test that 
+feature.  The new improved e2fsck should be capable of re-adding the indexes, 
+so we'll get to test that too ;-)
 
+Lets continue this privately and see what's going on with your inode leak.
 
-
-
--- 
-"Or heck, let's just make the VM a _real_ Neural Network, that self
-trains itself to the load you put on the system. Hideously complex and
-evil?  Well, why not wire up that roach on the floor, eating that stale
-cheese doodle. It can't do any worse job on VM that some of the VM
-patches I've seen..."  -- Jason McMullan
-
-ditto
+--
+Daniel

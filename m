@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129825AbRAHQZD>; Mon, 8 Jan 2001 11:25:03 -0500
+	id <S129735AbRAHQrH>; Mon, 8 Jan 2001 11:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129819AbRAHQYn>; Mon, 8 Jan 2001 11:24:43 -0500
-Received: from marine.sonic.net ([208.201.224.37]:30525 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S129735AbRAHQYe>;
-	Mon, 8 Jan 2001 11:24:34 -0500
-X-envelope-info: <dhinds@sonic.net>
-Message-ID: <20010108082416.B32532@sonic.net>
-Date: Mon, 8 Jan 2001 08:24:16 -0800
-From: David Hinds <dhinds@sonic.net>
-To: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: Are PCI add-on Cardbus Readers supported by the 2.4.0 kernel?
-In-Reply-To: <3A596FAC.1020401@megapathdsl.net>
+	id <S130007AbRAHQq5>; Mon, 8 Jan 2001 11:46:57 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:10438 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129735AbRAHQqp>;
+	Mon, 8 Jan 2001 11:46:45 -0500
+Date: Mon, 8 Jan 2001 16:43:45 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: Re: ext3fs 0.0.5d and reiserfs 3.5.2x mutually exclusive
+Message-ID: <20010108164345.A2431@redhat.com>
+In-Reply-To: <20010104135044.A5097@emma1.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <3A596FAC.1020401@megapathdsl.net>; from Miles Lane on Sun, Jan 07, 2001 at 11:43:40PM -0800
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010104135044.A5097@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Thu, Jan 04, 2001 at 01:50:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2001 at 11:43:40PM -0800, Miles Lane wrote:
-> 
-> The specs mention Win98 support.  Hopefully that doesn't
-> mean this is some sort of "WinCardbus Reader" heap of junk.
-> 
-> Has anyone gotten this board or a similar one from
-> another manufacturer to work?
+Hi,
 
-Desktop cardbus readers generally all work fine under Linux.
+On Thu, Jan 04, 2001 at 01:50:44PM +0100, Matthias Andree wrote:
+> I just tried to patch ext3fs 0.0.5d on top of a 2.2.18 that already had
+> reiserfs 3.5.28 and failed, there are overlapping patches in fs/buffer.c
+> that I cannot resolve for lack of knowledge how buffer.c and journalling
+> are supposed to fit together.
+> 
+> I reported ext3fs and reiserfs incompatibilities quite some time ago.
 
--- Dave
+I know, and the answer is still the same: removing the extra debugging
+stuff and buffer.c code from the ext3 patches is on the todo list but
+is much lower priority than finishing off the tuning and user-space
+code for ext3-1.0.
+
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

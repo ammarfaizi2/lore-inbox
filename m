@@ -1,23 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277551AbRJVFm3>; Mon, 22 Oct 2001 01:42:29 -0400
+	id <S277550AbRJVFk7>; Mon, 22 Oct 2001 01:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277560AbRJVFmT>; Mon, 22 Oct 2001 01:42:19 -0400
-Received: from static24-72-34-179.reverse.accesscomm.ca ([24.72.34.179]:4242
+	id <S277551AbRJVFkt>; Mon, 22 Oct 2001 01:40:49 -0400
+Received: from static24-72-34-179.reverse.accesscomm.ca ([24.72.34.179]:14481
 	"HELO zed.dlitz.net") by vger.kernel.org with SMTP
-	id <S277551AbRJVFmD>; Mon, 22 Oct 2001 01:42:03 -0400
-Date: Sun, 21 Oct 2001 23:42:37 -0600
+	id <S277550AbRJVFkh>; Mon, 22 Oct 2001 01:40:37 -0400
+Date: Sun, 21 Oct 2001 23:41:10 -0600
 From: "Dwayne C. Litzenberger" <dlitz@dlitz.net>
-To: MichaelM <michail@manegakis.freeserve.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The new X-Kernel !
-Message-ID: <20011021234237.B4193@zed.dlitz.net>
-In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.12-ac5
+Message-ID: <20011021234110.A4193@zed.dlitz.net>
+In-Reply-To: <20011022004549.A32210@lightning.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lEGEL1/lMxI0MVQ2"
+	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
 Content-Disposition: inline
-In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
+In-Reply-To: <20011022004549.A32210@lightning.swansea.linux.org.uk>
 User-Agent: Mutt/1.3.22i
 X-Homepage: http://www.dlitz.net/
 X-Spam-Policy-URL: http://www.dlitz.net/go/spamoff.shtml
@@ -29,20 +28,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---lEGEL1/lMxI0MVQ2
+--vkogqOf2sHV7VnPd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Oct 20, 2001 at 10:30:00PM +0100, MichaelM wrote:
-[snippage]
+Alan, is this normal?
 
-Am I the only one who thought this was a smug joke?
+zed:~# cat /proc/sys/kernel/tainted
+1
+zed:~# echo "0" >/proc/sys/kernel/tainted
+zed:~# cat /proc/sys/kernel/tainted
+0
+zed:~#
 
 --=20
 Dwayne C. Litzenberger - dlitz@dlitz.net
 
---lEGEL1/lMxI0MVQ2
+--vkogqOf2sHV7VnPd
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
@@ -50,9 +53,9 @@ Content-Disposition: inline
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iEYEARECAAYFAjvTsc0ACgkQ+Zi22OJyw8PS7QCgmBCW2CClztMS+LbHY8XnSj/3
-nTMAoN4ibvYa1nup5ZVM3IYidNfRzACI
-=xSPU
+iEYEARECAAYFAjvTsXUACgkQ+Zi22OJyw8P3GACbBJwhN9ItosKJw6MDSqRqlhM2
+fHIAoJEwtiTEnkPNIql394Tb8ws75yVb
+=SBQ0
 -----END PGP SIGNATURE-----
 
---lEGEL1/lMxI0MVQ2--
+--vkogqOf2sHV7VnPd--

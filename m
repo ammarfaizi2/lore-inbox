@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132701AbRDQO4H>; Tue, 17 Apr 2001 10:56:07 -0400
+	id <S132700AbRDQPBg>; Tue, 17 Apr 2001 11:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132704AbRDQOzk>; Tue, 17 Apr 2001 10:55:40 -0400
-Received: from dentin.eaze.net ([216.228.128.151]:16646 "EHLO xirr.com")
-	by vger.kernel.org with ESMTP id <S132700AbRDQOyn>;
-	Tue, 17 Apr 2001 10:54:43 -0400
-Date: Tue, 17 Apr 2001 09:55:06 -0500 (CDT)
-From: SodaPop <soda@xirr.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Oscillations in disk write compaction, poor interactive performance
-In-Reply-To: <20010416152928.B40@(none)>
-Message-ID: <Pine.LNX.4.30.0104170950350.24360-100000@xirr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132699AbRDQPB1>; Tue, 17 Apr 2001 11:01:27 -0400
+Received: from ns.suse.de ([213.95.15.193]:9234 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132696AbRDQPBN>;
+	Tue, 17 Apr 2001 11:01:13 -0400
+Date: Tue, 17 Apr 2001 17:01:10 +0200
+From: Andi Kleen <ak@suse.de>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: Andi Kleen <ak@suse.de>, Eric Weigle <ehw@lanl.gov>,
+        Sampsa Ranta <sampsa@netsonic.fi>, linux-net@vger.kernel.org,
+        linux-kernel@vger.kernel.org, zebra@zebra.org
+Subject: Re: ARP responses broken!
+Message-ID: <20010417170110.A10430@gruyere.muc.suse.de>
+In-Reply-To: <20010417161919.A8842@gruyere.muc.suse.de> <Pine.LNX.4.21.0104171652360.9099-100000@tux.rsn.bth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0104171652360.9099-100000@tux.rsn.bth.se>; from gandalf@wlug.westbo.se on Tue, Apr 17, 2001 at 04:53:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Apr 2001, Pavel Machek wrote:
+On Tue, Apr 17, 2001 at 04:53:01PM +0200, Martin Josefsson wrote:
+> On Tue, 17 Apr 2001, Andi Kleen wrote:
+> 
+> > On Mon, Apr 16, 2001 at 03:26:19PM -0600, Eric Weigle wrote:
+> > > Hello-
+> > > 
+> > > This is a known 'feature' of the Linux kernel, and can help with load sharing
+> > > and fault tolerance. However, it can also cause problems (such as when one nic
+> > > in a multi-nic machine fails and you don't know right away).
+> > > 
+> > > There are three 'solutions' I know of:
+> > > 
+> > >   * In recent 2.2 kernels, it was possible to fix this by doing the following as
+> > 
+> > Or use arpfilter in even newer 2.2 kernels; which filters based on the routing
+> > table. "hidden" is quite a sledgehammer which often does more harm than good.
+> 
+> Does arpfilter exist in 2.4 kernels?
 
-> Hi!
->
-> > It also seems that in the 2.4 kernels, we can get into a sort of
-> > oscillation mode, where we can have long periods of disk activity
-> > where nothing can get done - the low points, where only 2-3 writes
-> > per second can occur, so completely screw up the interactive
-> > performance that you simply have to take your hands off the
-> > keyboard and go get coffee until the disk writes complete.  I know
-> > we get better performance overall this way, but it can be
-> > frustrating when this occurs in the middle of video capture.
->
-> I see oscilation even in 2.2.X case....
->
-> Can you try running while true; do sync; sleep 1; done? It should help.
->
-> If it helps, try playing with bdflush/kupdate or how is it called/ parameters.
->
-> --
-> Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-> details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
->
+Not yet, will be merged very soon. I can send you a patch if you need it urgently.
 
-The problem isn't that it oscillates, at least the oscillations shouldn't
-cause any problems - though we probably shouldn't see large scale
-oscillations like this anyway.
 
-The problem is that at the low point in the cycle, the machine is
-unusable.  It is utterly unresponsive until the writes complete, which can
-take a very long time (in the case of the ppc machine, several minutes!)
-Anything that does disk I/O will block for a long time - having 'ls' take
-two minutes is not a good thing.
-
-2.2 does not exhibit this behaviour.
-
-On the plus side, it appears that several other people are reporting this
-problem in 2.4, so I don't think I'm totally out to lunch.
-
--dennis T
-
+-Andi

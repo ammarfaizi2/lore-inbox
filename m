@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317992AbSFSUEH>; Wed, 19 Jun 2002 16:04:07 -0400
+	id <S317995AbSFSULG>; Wed, 19 Jun 2002 16:11:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317993AbSFSUEG>; Wed, 19 Jun 2002 16:04:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15631 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317992AbSFSUED>;
-	Wed, 19 Jun 2002 16:04:03 -0400
-Message-ID: <3D10E358.D82DB604@zip.com.au>
-Date: Wed, 19 Jun 2002 13:02:32 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: (2.5.23) buffer layer error at buffer.c:2326
-References: <Pine.LNX.4.44.0206192007210.1263-100000@netfinity.realnet.co.sz>
+	id <S317994AbSFSULF>; Wed, 19 Jun 2002 16:11:05 -0400
+Received: from pc-62-31-66-56-ed.blueyonder.co.uk ([62.31.66.56]:54405 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S317995AbSFSUK7>; Wed, 19 Jun 2002 16:10:59 -0400
+Date: Wed, 19 Jun 2002 21:10:51 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Christopher Li <chrisl@gnuchina.org>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+       DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
+Message-ID: <20020619211051.E5119@redhat.com>
+References: <20020619113734.D2658@redhat.com> <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain>; from chrisl@gnuchina.org on Wed, Jun 19, 2002 at 01:03:38PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+Hi,
+
+On Wed, Jun 19, 2002 at 01:03:38PM -0400, Christopher Li wrote:
+ 
+> On Wed, 19 Jun 2002, Stephen C. Tweedie wrote:
 > 
-> The ide drive holding the mounted filesystem dropped out of DMA and then
-> spewed the following a number of times. Anyone interested?
+> > Hi,
+> > 
+> > On Tue, Jun 18, 2002 at 06:18:49PM -0400, Alexander Viro wrote:
+> >  
+> > > IOW, making sure that empty blocks in the end of directory get freed
+> > > is a matter of 10-20 lines.  If you want such patch - just tell, it's
+> > > half an hour of work...
+> > 
+> > It's certainly easier at the tail, but with htree we may have
+> > genuinely enormous directories and being able to hole-punch arbitrary
+> > coalesced blocks could be a huge win.  Also, doing the coalescing
+> I would can contribute on that. I am thinking about it anyway.
+> Daniel might already has some code there.
 > 
->  buffer layer error at buffer.c:2326
+> I have a silly question, where is that ext3 CVS? Under sourcefourge
+> ext2/ext3 or gkernel?
 
-y'know, just this morning I was thinking it may be time to pull the
-debug code out of buffer.c.  Silly me.
+cvs -d :ext:FOO@cvs.gkernel.sourceforge.net:/cvsroot/gkernel co ext3
 
-So we had a non-uptodate buffer against an uptodate page.  Were
-there any other messages in the logs?  I'd have expected a
-"buffer IO error" to come out first?
+The branches being used are
 
-Looking at the code, it seems likely that you hit an I/O error
-on a write.  That will leave the page uptodate, but with PageError
-set.  And the buffer is marked not uptodate, which is silly, because the
-buffer _is_ uptodate.
+	cvs up -r ext3-1_0-branch	# HEAD of ext3 development
+	cvs up -r features-branch	# For htree, ACLs etc
 
-What this says is: I still need to get down and set up a fault simulator
-and make sure that we're doing all the right things when I/O errors occur.
+and there are a couple of other branches I use for tracking merges into
+Linus's and the -ac trees.  The htree stuff is all that's new in the
+features-branch right now.
 
-Does anyone have any opinions on what the kernel's behaviour should
-be in the presence of a write I/O error?  Our options appear to be:
-
-1: Just drop the data.  That's what we do now.
-
-2: Mark it dirty again, so it gets written indefinitely
-
-3: Mark the page dirty again, but also set PageError.  So we
-   attempt to write the same blocks a second time only.  Then
-   drop the data.
-
-4: (Just thought of this): mark the page PageError and PageDirty,
-   and unmap it from disk.  So when it gets written again, the
-   filesystem's get_block function will be called.  It can look at
-   PageError(bh_result->b_page) and say "hey, I need to find a
-   different set of blocks for this page".  The bad blocks will
-   just be leaked.
-
-   To back that up: if we get an IO error and the page is _already_
-   PageError, give up.  Mark it clean and lose the data.  This gives the
-   fs the option of clearing PageError inside get_block(), so it will end
-   up trying every block on the disk.
-
-   Pretty sneaky, I think.  But it only works for file data.  If the
-   blocks are for metadata, we're screwed..
-
--
+Cheers,
+ Stephen

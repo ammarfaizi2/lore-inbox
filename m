@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284807AbSABV24>; Wed, 2 Jan 2002 16:28:56 -0500
+	id <S284302AbSABV3O>; Wed, 2 Jan 2002 16:29:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284258AbSABV07>; Wed, 2 Jan 2002 16:26:59 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:4073 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S284304AbSABV02>; Wed, 2 Jan 2002 16:26:28 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: "ChristianK."@t-online.de (Christian Koenig)
-To: esr@thyrsus.com, Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S284795AbSABV3A>; Wed, 2 Jan 2002 16:29:00 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:41859
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S284304AbSABV1M>; Wed, 2 Jan 2002 16:27:12 -0500
+Date: Wed, 2 Jan 2002 16:13:47 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems?
-Date: Wed, 2 Jan 2002 22:28:04 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020102151539.A14925@thyrsus.com>
-In-Reply-To: <20020102151539.A14925@thyrsus.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <16Lstn-0eAVxAC@fwd07.sul.t-online.com>
+Message-ID: <20020102161347.A16223@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16LsU0-0005RB-00@the-village.bc.nu> <Pine.LNX.4.33.0201022200070.427-100000@Appserv.suse.de> <20020102162349.A957@apone.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020102162349.A957@apone.devel.redhat.com>; from notting@redhat.com on Wed, Jan 02, 2002 at 04:23:49PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bill Nottingham <notting@redhat.com>:
+> Dave Jones (davej@suse.de) said: 
+> > > You can make an educated guess. However it is at best an educated guess.
+> > > The DMI tables will tell you what PCI and ISA slots are present (but
+> > > tend to be unreliable on older boxes).
+> > 
+> > And newer ones. I've seen 'Full length ISA slot' reported on a laptop
+> > for eg.
+> 
+> I have an ia64 here that, according to dmidecode, has a
+> 32bit NUBUS slot in it. AFAIK, that's not the case. ;)
 
-On Wednesday 02 January 2002 21:15, Eric S. Raymond wrote:
-> Is there any way to safely probe a PCI motherboard to determine whether
-> or not it has ISA cards present, or ISA card slots?
->
-> Note: the question is *not* about a probe for whether the board has an ISA
-> bridge, but a probe for the presence of actual ISA cards (or slots).
->
-> (Yes, I'm working on a smart autoconfigurator.  It's a development of
-> Giacomo Catenazzi's code, but able to use the CML2 deduction engine.)
+I just downloaded and tested Arjan deVen's dmidecode.c program.
+That will do what I want, but it has the irritating problem that
+it requires root privileges for access to /dev/kmem.
 
-Nope, AFAIK even if the motherboard dosn't have ISA-Slots, the ISA-like 
-chipset (DMA/old IRQ/Timer) is still present because off compatiblity reasons.
+Is the DMI data available in /proc files anywhere?
 
-But if you only want to know if a specified IO-range is on an ISA-card you 
-could try to turn off the PCI-ISA brige, done this with Intel chipset before 
-(they call this power saveing mode).
+If not, should it be?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-MfG, Christian König.
+"Taking my gun away because I might shoot someone is like cutting my tongue
+out because I might yell `Fire!' in a crowded theater."
+        -- Peter Venetoklis

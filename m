@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbTILC5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 22:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbTILC5m
+	id S261239AbTILDDI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 23:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbTILDDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 22:57:42 -0400
-Received: from smtp1.globo.com ([200.208.9.168]:7611 "EHLO mail.globo.com")
-	by vger.kernel.org with ESMTP id S261498AbTILC5i convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 22:57:38 -0400
-From: Marcelo Penna Guerra <eu@marcelopenna.org>
-To: linux-kernel@vger.kernel.org
-Subject: SII SATA request size limit
-Date: Thu, 11 Sep 2003 23:57:06 -0300
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200309112357.41592.eu@marcelopenna.org>
+	Thu, 11 Sep 2003 23:03:08 -0400
+Received: from dp.samba.org ([66.70.73.150]:12480 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261239AbTILDDF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 23:03:05 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Jakub Jelinek <jakub@redhat.com>,
+       Dan Aloni <da-x@gmx.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       torvalds@transmeta.com
+Subject: Re: [BK PATCH] One strdup() to rule them all 
+In-reply-to: Your message of "Thu, 11 Sep 2003 18:22:23 +0200."
+             <20030911162223.GB3989@wohnheim.fh-wedel.de> 
+Date: Fri, 12 Sep 2003 11:57:20 +1000
+Message-Id: <20030912030305.6C1442C089@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In message <20030911162223.GB3989@wohnheim.fh-wedel.de> you write:
+> Andries, would you still object this function?
+> 
+> char *strdup(const char *s, int flags)
+> {
+> 	char *rv = kmalloc(strlen(s)+1, flags);
+> 	if (rv)
+> 		strcpy(rv, s);
+> 	return rv;
+> }
 
-Hi,
+No.  We've been here.  There are only around 50 users/potential users
+of such a thing in the kernel, and seven implementations, but Linus
+doesn't like it, so let's not waste more time on this please.
 
-In recent kernels, the siimage driver limits the max kb per request size to 15 
-(7.5kb). As I was having no problems with rqsize of 128 (64kb), I decided to 
-comment out this part of the code and my system is rock solid.
+Rusty.
 
-I'm not suggesting that it should be removed, as it probably is necessary on 
-other systems, but as the performance impact is huge (with 15 hdparm tests 
-show an average 26mb/s and with 128 it's 47mb/s), I think the user should be 
-warnned of this and there could be a option to set it to 128 in 2.6.x 
-kernels, so people can try to see if it's stable. I really don't beleive that 
-I have such an unique hardware configuration, so this should benefit other 
-people.
-
-Marcelo Penna Guerra
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/YTYjD/U0kdg4PFoRAhBnAJ0TyeJx5nrxzDS5Rib5AEWQHx4iSACeKcn8
-wg7cUhLobywfTCcPl8GqNCc=
-=VuVw
------END PGP SIGNATURE-----
+PS. kstrdrup is a better name since the args are different, a-la
+    kmalloc.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

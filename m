@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUHWPeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUHWPeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUHWPeG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 11:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbUHWPal
+	id S264791AbUHWPeF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 11:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUHWPbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 11:30:41 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:48612 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265224AbUHWPL1 (ORCPT
+	Mon, 23 Aug 2004 11:31:41 -0400
+Received: from imap.gmx.net ([213.165.64.20]:34502 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265098AbUHWP3U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 11:11:27 -0400
-Date: Mon, 23 Aug 2004 17:10:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: serialize access to ide device
-Message-ID: <20040823151005.GV2301@suse.de>
-References: <20040802131150.GR10496@suse.de> <200408211913.47982.bzolnier@elka.pw.edu.pl> <20040823121540.GN2301@suse.de> <200408231702.54426.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408231702.54426.bzolnier@elka.pw.edu.pl>
+	Mon, 23 Aug 2004 11:29:20 -0400
+Date: Mon, 23 Aug 2004 17:29:19 +0200 (MEST)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: arjanv@redhat.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: [PATCH] e1000 - Use vmalloc for data structures not shared
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <15654.1093274959@www31.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23 2004, Bartlomiej Zolnierkiewicz wrote:
-> On Monday 23 August 2004 14:15, Jens Axboe wrote:
-> > On Sat, Aug 21 2004, Bartlomiej Zolnierkiewicz wrote:
-> > > On Saturday 21 August 2004 18:21, Jens Axboe wrote:
-> > > > On Sat, Aug 21 2004, Bartlomiej Zolnierkiewicz wrote:
-> > > > > On Saturday 21 August 2004 12:32, Jens Axboe wrote:
-> > > > > > > What about adding new kind of REQ_SPECIAL request and converting
-> > > > > > > set_using_dma(), set_xfer_rate(), ..., to be callback functions
-> > > > > > > for this request?
-> > > > > > >
-> > > > > > > This should be a lot cleaner and will cover 100% cases.
-> > > > > >
-> > > > > > That will still only serialize per-channel. But yes, a lot cleaner.
-> > > > >
-> > > > > per hwgroup not per channel
-> > > > > (serializing per host device will be better but requires even more
-> > > > > work)
-> > > >
-> > > > Sorry yes hwgroup, that's what I meant. The case I worried about in my
-> > > > patch (and noted) is that it doesn't cover per-hwif and neither would a
-> > > > special request.
-> > >
-> > > I guess you meant 'per-host' because hwif == channel.
-> > >
-> > > [ You are of course right for about 'per-host' case. ]
-> >
-> > Yep, per host. So REQ_SPECIAL-like approach is cleaner, but doesn't
-> > cover more cases than a simple hwif pinning would anyways. You'd need
-> > some code to quisce the host in any case.
-> 
-> No, REQ_SPECIAL-like approach would serialize per ide_hwgroup_t and 
-> ide_hwgroup_t may serialize more then one ide_hwif_t.  See ide-probe.c.
+When you bring an e1000 interface up with a large MTU value (eg 3000 or
+9000), we were seeing allocation failures [1].
 
-I see, that would work. So you would need to doctor some message type
-system for these requests. Are you going to do this?
+Perhaps this is relevant here?
+
+--- [1]
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109006245518382&w=2
+
+---
+
+On Thu, 2004-07-29 at 18:01, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1807.39.3, 2004/07/29 12:01:46-04:00, ganesh.venkatesan@intel
+.com
+> 
+>  [PATCH] e1000 - Use vmalloc for data structures not shared
+
+eh why? You are aware that vmalloc'd datastructures are slower during
+use (due to TLB overhead) right ?
+These structures also don't look THAT big on first sight....
 
 -- 
-Jens Axboe
+Daniel J Blueman
+
+Supergünstige DSL-Tarife + WLAN-Router für 0,- EUR*
+Jetzt zu GMX wechseln und sparen http://www.gmx.net/de/go/dsl
 

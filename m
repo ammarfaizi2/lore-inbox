@@ -1,37 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVADOCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVADOF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbVADOCM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 09:02:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVADOCM
+	id S261180AbVADOF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 09:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVADOF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 09:02:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16614 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261637AbVADOCK (ORCPT
+	Tue, 4 Jan 2005 09:05:28 -0500
+Received: from www.linux4media.com ([213.133.97.116]:64732 "EHLO archimedis.tv")
+	by vger.kernel.org with ESMTP id S261180AbVADOF0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 09:02:10 -0500
-Date: Tue, 4 Jan 2005 09:01:47 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] periodically scan redzone entries and slab control
- structures
-In-Reply-To: <Pine.LNX.4.44.0501032223360.1865-100000@dbl.q-ag.de>
-Message-ID: <Pine.LNX.4.61.0501040900200.25392@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.44.0501032223360.1865-100000@dbl.q-ag.de>
+	Tue, 4 Jan 2005 09:05:26 -0500
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+Organization: LINUX4MEDIA GmbH
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.10-mm1: Keyboard doesn't work after reboot (but after cold start)
+Date: Tue, 4 Jan 2005 15:03:00 +0100
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501041503.00800.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jan 2005, Manfred Spraul wrote:
+On an Acer Aspire 1501LMi running in 32bit mode, the keyboard doesn't work at 
+all after a reboot (but works perfectly after a cold start).
 
-> The attached patch adds a periodic scan over all objects and checks for
-> wrong redzone data or corrupted bufctl lists.
-
-Awesome.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+I'm guessing it's an ACPI BIOS bug, but since it works with older kernels, we 
+must be doing something different these days.

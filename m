@@ -1,151 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275750AbRJFV7Z>; Sat, 6 Oct 2001 17:59:25 -0400
+	id <S275758AbRJFWAZ>; Sat, 6 Oct 2001 18:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275752AbRJFV7Q>; Sat, 6 Oct 2001 17:59:16 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3336 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275750AbRJFV7H>; Sat, 6 Oct 2001 17:59:07 -0400
-Date: Sat, 6 Oct 2001 14:59:04 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-cc: Simon Kirby <sim@netnation.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11pre4 swapping out all over the place
-In-Reply-To: <Pine.LNX.4.33.0110061948280.30116-100000@boris.prodako.se>
-Message-ID: <Pine.LNX.4.33.0110061457570.1454-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275754AbRJFWAP>; Sat, 6 Oct 2001 18:00:15 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:8950
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S275752AbRJFWAD>; Sat, 6 Oct 2001 18:00:03 -0400
+Date: Sat, 6 Oct 2001 15:00:24 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: low-latency patches
+Message-ID: <20011006150024.C2625@mikef-linux.matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011006010519.A749@draal.physics.wisc.edu> <3BBEA8CF.D2A4BAA8@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BBEA8CF.D2A4BAA8@zip.com.au>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 05, 2001 at 11:46:39PM -0700, Andrew Morton wrote:
+> Bob McElrath wrote:
+> > 2) Will either of these ever be merged into Linus' kernel (2.5?)
+> 
+> Controversial.  My vague feeling is that they shouldn't.  Here's
+> why:
+> 
+> The great majority of users and applications really only need
+> a mostly-better-than-ten-millisecond latency.  This gives good
+> responsiveness for user interfaces and media streaming.  This
+> can trivially be achieved with the current kernel via a thirty line
+> patch (which _should_ be applied to 2.4.x.  I need to get off my
+> butt).
+> 
+> But the next rank of applications - instrumentation, control systems,
+> media production sytems, etc require 500-1000 usec latencies, and
+> the group of people who require this is considerably smaller.  And their
+> requirements are quite aggressive.  And maintaining that performance
+> with either approach is a fair bit of work and impacts (by definition)
+> the while kernel.  That's all an argument for keeping it offstream.
+> 
 
-On Sat, 6 Oct 2001, Tobias Ringstrom wrote:
->
-> Sure, replacing try_to_free_pages() in 2.4.11-pre4 with the one in
-> 2.4.11-pre3 solves the problem.
+And exactly how is low latency going to hurt the majority?
 
-Ok, can you try this slightly more involved patch instead? It basically
-keeps the old try_to_free_pages() (it _looks_ different, but the logic is
-the same), but also should honour the OOM-killer.
+This reminds me of when 4GB on ia32 was enough, or 16 bit UIDs, or...
 
-		Linus
+Should those have been left out too just because the people who needed them
+were few?
 
------
-diff -u --recursive --new-file pre4/linux/mm/oom_kill.c linux/mm/oom_kill.c
---- pre4/linux/mm/oom_kill.c	Thu Oct  4 19:52:11 2001
-+++ linux/mm/oom_kill.c	Fri Oct  5 13:13:43 2001
-@@ -241,13 +241,12 @@
- 		return 0;
-
- 	/*
--	 * If the buffer and page cache (excluding swap cache) are over
-+	 * If the buffer and page cache (including swap cache) are over
- 	 * their (/proc tunable) minimum, we're still not OOM.  We test
- 	 * this to make sure we don't return OOM when the system simply
- 	 * has a hard time with the cache.
- 	 */
- 	cache_mem = atomic_read(&page_cache_size);
--	cache_mem -= swapper_space.nrpages;
- 	limit = 2;
- 	limit *= num_physpages / 100;
-
-diff -u --recursive --new-file pre4/linux/mm/page_alloc.c linux/mm/page_alloc.c
---- pre4/linux/mm/page_alloc.c	Thu Oct  4 19:52:11 2001
-+++ linux/mm/page_alloc.c	Sat Oct  6 14:54:59 2001
-@@ -357,6 +357,7 @@
-
- 	/* here we're in the low on memory slow path */
-
-+rebalance:
- 	if (current->flags & PF_MEMALLOC) {
- 		zone = zonelist->zones;
- 		for (;;) {
-@@ -371,48 +372,28 @@
- 		return NULL;
- 	}
-
-- rebalance:
- 	page = balance_classzone(classzone, gfp_mask, order, &freed);
- 	if (page)
- 		return page;
-
- 	zone = zonelist->zones;
--	if (likely(freed)) {
--		for (;;) {
--			zone_t *z = *(zone++);
--			if (!z)
--				break;
-+	for (;;) {
-+		zone_t *z = *(zone++);
-+		if (!z)
-+			break;
-
--			if (zone_free_pages(z, order) > z->pages_min) {
--				page = rmqueue(z, order);
--				if (page)
--					return page;
--			}
--		}
--		goto rebalance;
--	} else {
--		/*
--		 * Check that no other task is been killed meanwhile,
--		 * in such a case we can succeed the allocation.
--		 */
--		for (;;) {
--			zone_t *z = *(zone++);
--			if (!z)
--				break;
--
--			if (zone_free_pages(z, order) > z->pages_min) {
--				page = rmqueue(z, order);
--				if (page)
--					return page;
--			}
-+		if (zone_free_pages(z, order) > z->pages_min) {
-+			page = rmqueue(z, order);
-+			if (page)
-+				return page;
- 		}
--
--		goto rebalance;
- 	}
-
--	printk(KERN_NOTICE "__alloc_pages: %u-order allocation failed (gfp=0x%x/%i) from %p\n",
--	       order, gfp_mask, !!(current->flags & PF_MEMALLOC), __builtin_return_address(0));
--	return NULL;
-+	/* Yield for kswapd, and try again */
-+	current->policy |= SCHED_YIELD;
-+	__set_current_state(TASK_RUNNING);
-+	schedule();
-+	goto rebalance;
- }
-
- /*
-diff -u --recursive --new-file pre4/linux/mm/vmscan.c linux/mm/vmscan.c
---- pre4/linux/mm/vmscan.c	Thu Oct  4 19:52:11 2001
-+++ linux/mm/vmscan.c	Sat Oct  6 14:54:59 2001
-@@ -553,14 +556,16 @@
- int try_to_free_pages(zone_t * classzone, unsigned int gfp_mask, unsigned int order)
- {
- 	int ret = 0;
-+	int priority = DEF_PRIORITY;
- 	int nr_pages = SWAP_CLUSTER_MAX;
-
--	nr_pages = shrink_caches(DEF_PRIORITY, classzone, gfp_mask, nr_pages);
-+	do {
-+		nr_pages = shrink_caches(priority, classzone, gfp_mask, nr_pages);
-+		if (nr_pages <= 0)
-+			return 1;
-
--	if (nr_pages < SWAP_CLUSTER_MAX)
--		ret |= 1;
--
--	ret |= swap_out(DEF_PRIORITY, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
-+		ret |= swap_out(priority, classzone, gfp_mask, SWAP_CLUSTER_MAX << 2);
-+	} while (--priority);
-
- 	return ret;
- }
+If the requirements for manufacturing control, or audio processing, or etc
+will make my home box, or my server work better then why not include it?
 

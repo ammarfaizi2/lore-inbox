@@ -1,127 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbTILUJP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTILUJP
+	id S261913AbTILU0h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbTILU0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:09:15 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:47098 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S261885AbTILUJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:09:01 -0400
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Andi Kleen <ak@suse.de>
-Cc: bunk@fs.tum.de, jgarzik@pobox.com, ebiederm@xmission.com, akpm@osdl.org,
-       richard.brunner@amd.com, LKML <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <20030912213016.47a4e5de.ak@suse.de>
-References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
-	 <20030911012708.GD3134@wotan.suse.de>
-	 <20030910184414.7850be57.akpm@osdl.org>
-	 <20030911014716.GG3134@wotan.suse.de> <3F60837D.7000209@pobox.com>
-	 <20030911162634.64438c7d.ak@suse.de> <3F6087FC.7090508@pobox.com>
-	 <m1vfrxlxol.fsf@ebiederm.dsl.xmission.com>
-	 <20030912195606.24e73086.ak@suse.de> <3F62098F.9030300@pobox.com>
-	 <20030912182216.GK27368@fs.tum.de> <20030912202851.3529e7e7.ak@suse.de>
-	 <1063393505.3371.207.camel@workshop.saharacpt.lan>
-	 <20030912213016.47a4e5de.ak@suse.de>
-Content-Type: text/plain
-Message-Id: <1063396734.3371.226.camel@workshop.saharacpt.lan>
+	Fri, 12 Sep 2003 16:26:37 -0400
+Received: from mail3.cc.huji.ac.il ([132.64.1.21]:492 "EHLO
+	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S261913AbTILU0d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 16:26:33 -0400
+Date: Sat, 13 Sep 2003 02:29:09 +0300
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.0-test5-mm1
+Message-Id: <20030913022909.3a18f6fa.pacman@mscc.huji.ac.il>
+In-Reply-To: <20030912112436.03ba9dd1.akpm@osdl.org>
+References: <3F61C062.1080700@mscc.huji.ac.il>
+	<20030912112436.03ba9dd1.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 12 Sep 2003 21:58:55 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.Ft1Ivv69rt_SQx"
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.14; VAE: 6.21.0.1; VDF: 6.21.0.41; host: mail3.cc.huji.ac.il)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-12 at 21:30, Andi Kleen wrote:
-> On Fri, 12 Sep 2003 21:05:06 +0200
-> Martin Schlemmer <azarah@gentoo.org> wrote:
+--=.Ft1Ivv69rt_SQx
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> Ok, so how many instructions was added by this ?  Or is it
+Thank you, I have found the problem, my sound card is Ensoniq ES1371 so the module should be snd_ens1371 but I used to load by mistake snd_ens1370 so I got the OOPS all the time, I fixed the alsa-config and now all works.
+Liviu
+
+On Fri, 12 Sep 2003 11:24:36 -0700
+Andrew Morton <akpm@osdl.org> wrote:
+
+> Voicu Liviu <pacman@mscc.huji.ac.il> wrote:
+> >
+> > This happens after I load alsa modules on boot..............
+> > 
+> > <from_dmesg>
+> > 
+> > Freeing unused kernel memory: 308k freed
+> > Adding 313228k swap on /dev/hda6.  Priority:-1 extents:1
+> > PCI: Found IRQ 5 for device 0000:00:09.0
+> > PCI: Sharing IRQ 5 with 0000:00:04.2
+> > Unable to handle kernel paging request at virtual address ffffffef
 > 
-> None at all, Mr Inquisitor. It is all patched at early boot time.
 > 
-
-Thanks :P
-
-> > Ok, so maybe my opinion about X86_GENERIC is not as intended, but
-> > then IMHO, it should be 'fixed'.  I could not care less if my kernel
->
-> X86_GENERIC has nothing to do with all this. All it does is 
-> to always force the cache line padding to 128 byte. 
-> 
-
-Ok, thanks
-
+> diff -puN fs/sysfs/dir.c~sysfs-create_dir-oops-fix fs/sysfs/dir.c
+> --- 25/fs/sysfs/dir.c~sysfs-create_dir-oops-fix	Wed Sep 10 15:46:50 2003
+> +++ 25-akpm/fs/sysfs/dir.c	Wed Sep 10 15:46:50 2003
+> @@ -24,10 +24,11 @@ static int init_dir(struct inode * inode
+>  static struct dentry * 
+>  create_dir(struct kobject * k, struct dentry * p, const char * n)
+>  {
+> -	struct dentry * dentry;
+> +	struct dentry *dentry, *ret;
 >  
-> > I have long wondered if everything in arch/i386/kernel/cpu/ is
-> > really linked in 
-> 
-> It is (in MTRR drivers etc.), but the resulting overhead is small.
-> 
-> Really, when you want to save code size you should look elsewhere. All the 
-> CPU support code is pretty lean and in many cases is __init code anyways
-> (= is discarded after boot time) 
-> 
-> I can offer my old bloat-o-meter tool (ftp://ftp.firstfloor.org/pub/ak/perl/bloat-o-meter)
-
-
-I am not really bothered about code size, as I tried (?) to say.
-
+>  	down(&p->d_inode->i_sem);
+>  	dentry = sysfs_get_dentry(p,n);
+> +	ret = dentry;
+>  	if (!IS_ERR(dentry)) {
+>  		int error = sysfs_create(dentry,
+>  					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
+> @@ -36,11 +37,11 @@ create_dir(struct kobject * k, struct de
+>  			dentry->d_fsdata = k;
+>  			p->d_inode->i_nlink++;
+>  		} else
+> -			dentry = ERR_PTR(error);
+> +			ret = ERR_PTR(error);
+>  		dput(dentry);
+>  	}
+>  	up(&p->d_inode->i_sem);
+> -	return dentry;
+> +	return ret;
+>  }
 >  
-> > This is just me, but why then don't we then just drop the specific
-> > arch selection, and just have generics instead of pulling a sock
-> > over the user's eyes ?
+>  
 > 
-> It is doing a lot of optimizations for the specific CPU. For example
-> it tells gcc to compile for that CPU which can make a big difference (P4 prefers
-> very different code compared to P3 or Athlon). Or it sets the paddings correctly
-> for the CPU, which can make a very big difference in .text size. So when you
-> select CONFIG_MPENTIUM4 you will get a kernel that will perform optimally for P4.
+> _
 > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-> Then 2.6 added SSE1 prefetch support which made the P4 kernel not boot on
-> anything that didn't support SSE1 (like older Athlon before XP). I fixed
-> that then with dynamically patching the prefetches. The overhead at runtime
-> is zero because it is patched at boot, the .text overhead for the patch 
-> tables is minimal.
-> 
-
-Ok, thanks.
-
-> So basically the 2.6 alternative() stuff just restored the 2.4 de-facto situation 
-> in 2.6, and improved it slightly because the Athlon kernel also now works everywhere.
-> 
-> I think it's useful to keep kernels booting everywhere, it makes it a lot easier
-> to test a single kernel on multiple systems.
-> 
-
-Yes, given.  I just don't think most people know or look at it the
-same.  I for one usually just try not to add anything not needed
-at the cost of some minor speed regression, as things many times
-especially in a big project sometimes tends to get out of hand,
-as all those minor regressions added is one big regression.  I do
-however admit that I will be a bit out of my league trying to
-judge in this case, but it still would be interesting ....
-
-I however will not keep this up if you guys say its is fine.
-Two things however does still does bother:
-
-1)  What will it look like after being put through some benchmarks
-just to verify.  I may however just need to get to bed early for
-a change =)
-
-2)  Will it be that difficult to also patch it in at boot like
-the rest.  Once again it might just be paranoia from my side 8)
-
-
-Thanks for the more in depth info.
-
-Regards,
 
 -- 
-Martin Schlemmer
+Liviu Voicu
+Assistant Programmer and network support
+Computation Center, Mount Scopus
+Hebrew University of Jerusalem
+Tel: 972(2)-5881253
+E-mail: "Liviu Voicu"<pacman@mscc.huji.ac.il>
 
+/**
+ * cat /usr/src/linux/arch/i386/boot/bzImage > /dev/dsp
+ * ( and the voice of God will be heard! )
+ *
+ */
 
+Click here to see my GPG signature:
+----------------------------------
+	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
+
+--=.Ft1Ivv69rt_SQx
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/YlbJkj4I0Et8EMgRApK4AKCtJGHUj8mXqCPBq92jk5GRiWlYPwCgzJoB
+4TGcrXIKBZ/VTFZc6inQwd0=
+=Gs1a
+-----END PGP SIGNATURE-----
+
+--=.Ft1Ivv69rt_SQx--

@@ -1,51 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318897AbSG1D30>; Sat, 27 Jul 2002 23:29:26 -0400
+	id <S318899AbSG1Dga>; Sat, 27 Jul 2002 23:36:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318899AbSG1D30>; Sat, 27 Jul 2002 23:29:26 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:36543 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318897AbSG1D3Z>;
-	Sat, 27 Jul 2002 23:29:25 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] scheduler, migration startup fixes, 2.5.29 
-In-reply-to: Your message of "Sat, 27 Jul 2002 12:54:33 +0200."
-             <Pine.LNX.4.44.0207271254200.13591-100000@localhost.localdomain> 
-Date: Sun, 28 Jul 2002 13:16:01 +1000
-Message-Id: <20020728033359.5D6D0442E@lists.samba.org>
+	id <S318900AbSG1Dga>; Sat, 27 Jul 2002 23:36:30 -0400
+Received: from cambot.suite224.net ([209.176.64.2]:43528 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S318899AbSG1Dg3>;
+	Sat, 27 Jul 2002 23:36:29 -0400
+Message-ID: <001201c235e9$000d02e0$6ff583d0@pcs686>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: "Hans Reiser" <reiser@namesys.com>, "Daniel Mose" <imcol@unicyclist.com>
+Cc: "Jose Luis Domingo Lopez" <linux-kernel@24x7linux.org.gilby.com>,
+       <linux-kernel@vger.kernel.org>
+References: <20020726160742.GA951@ksu.edu> <20020726190520.GA3192@localhost> <3D41ADD3.9010509@namesys.com> <20020727220826.A31431@unicyclist.com> <3D434CD3.7010807@namesys.com>
+Subject: Re: How to start on new db-based FS?
+Date: Sat, 27 Jul 2002 23:43:54 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0207271254200.13591-100000@localhost.localdomain> you
- write:
-> 
-> the attached patch fixes the scheduler's migration thread startup bug that
-> got unearthed by Rusty's recent CPU-startup enhancements.
-> 
-> the fix is to let a startup-helper thread migrate the migration thread,
-> instead of the migration thread calling set_cpus_allowed() itself.  
-> Migrating a not running thread is a simple and robust thing, and needs no
-> cooperation from migration threads - thus the catch-22 problem of how to
-> migrate the migration threads is solved finally.
-> 
-> the patch is against Rusty's initcall fix/hack which calls
-> migration_init() before other CPUs are brought up - this ordering is
-> clearly the clean way of doing migration init. [the patch also fixes a UP
-> compiliation bug in Rusty's hack.]
-> 
-> tested on x86 SMP and UP.
+Hans,
 
-This is, AFAICT, overkill (the UP compilation fix appreciated though).
+I think Daniel is referring to filesystems in general, when he uses "root"
 
-When a new CPU comes up, there is a semaphore which is held through
-the notifier, so you can't have two CPUs come up at once.
+Matthew
+----- Original Message -----
+From: "Hans Reiser" <reiser@namesys.com>
+To: "Daniel Mose" <imcol@unicyclist.com>
+Cc: "Jose Luis Domingo Lopez" <linux-kernel@24x7linux.org.gilby.com>;
+<linux-kernel@vger.kernel.org>
+Sent: Saturday, July 27, 2002 9:45 PM
+Subject: Re: How to start on new db-based FS?
 
-Therefore, the new migration thread is either started on a completely
-active cpu (ie. there's a migration thread on that CPU to use), or
-it's already on the new cpu, in which case set_cpus_allowed is a noop.
 
-What am I missing?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> Daniel Mose wrote:
+>
+> >Hans Reiser wrote:
+> >
+> >
+> >>We would be happy to cooperate with persons interested in implementing
+> >>LDAP optimizing plugins for reiser4.
+> >>
+> >>
+> >
+> >I'm doing a scan on the web for disk storage layout documentation on
+> >different file systems. I have I think, downloaded just about all
+> >there is to download on www.namesys.com, but I fail to find anything
+> >that does describe the reiserfs storage layout in any detail.
+> >Is there such documentation available?
+> >I would be very happy for directions to it in this case.
+> >
+> >Reason? I want to know if the root file system that I my self is
+> >about to develop perhaps is already implemented to some extent in
+> >any existing root FS:s ?
+> >
+>
+> What is a root filesystem? (I am accustomed to the term as describing
+> what the OS uses for storing the semantic layer's root directory).
+>
+> >No need to re-invent the wheel. =)
+> >
+> >I now know for sure that neither the JFS or the XFS does work in the
+> >same ways as my drafts from reading their on disk storage scheemes.
+> >
+> >kind regards
+> >Daniel Mose.
+> >
+> >
+> >
+> >
+>
+>
+> --
+> Hans
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

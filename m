@@ -1,120 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUHSHMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUHSHQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUHSHMk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 03:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUHSHMk
+	id S262085AbUHSHQg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 03:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUHSHQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 03:12:40 -0400
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:39779 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261987AbUHSHMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 03:12:33 -0400
-Date: Thu, 19 Aug 2004 00:12:29 -0700
-To: linux-kernel@vger.kernel.org
-Subject: config language shortcomings in 2.4
-Message-ID: <20040819071229.GA7598@darjeeling.triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org
+	Thu, 19 Aug 2004 03:16:36 -0400
+Received: from ender.smtp.cz ([81.95.97.119]:58506 "EHLO out.smtp.cz")
+	by vger.kernel.org with ESMTP id S262085AbUHSHQc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 03:16:32 -0400
+Subject: Re: network regression using 2.6.8.x behind Cisco 1712
+From: =?iso-8859-2?Q?Ond=F8ej_Sur=FD?= <ondrej@sury.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1092849905.26056.17.camel@localhost.localdomain>
+References: <1092817247.5178.6.camel@ondrej.sury.org>
+	 <1092849905.26056.17.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-McZ160WfxTuibZB4nco8"
+Date: Thu, 19 Aug 2004 09:16:29 +0200
+Message-Id: <1092899789.5191.1.camel@ondrej.sury.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
-Content-Disposition: inline
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-User-Agent: Mutt/1.5.6+20040803i
-From: Joshua Kwan <joshk@triplehelix.org>
+X-Mailer: Evolution 1.5.93 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-McZ160WfxTuibZB4nco8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Wed, 2004-08-18 at 18:25 +0100, Alan Cox wrote:
+> On Mer, 2004-08-18 at 09:20, Ond=C5=99ej Sur=C3=BD wrote:
+> > It could be some bug in IOS, but it is triggered by some change between
+> > 2.6.7 and 2.6.8.  Any hints what should I try or where to look?
+> > I could try some -pre and -rc kernel to locate where this was
+> > introduced, but at least try to hint me which version should be
+> > considered, I am not so willing to compile all -preX and -rcX, but coul=
+d
+> > do that if neccessary to hunt this regression.
+>=20
+> echo "0" >/proc/sys/net/ipv4/tcp_window_scaling see if that helps.
 
-Recently the Debian kernel team has been discussing 2.4's configuration
-system. We have a patched tg3.c which removes the firmware and adds a
-dependency on CONFIG_FW_LOADER for cases where operation is impossible
-without the firmware.
+Yep, that helped.  Thanks a lot.
 
-Initially, we changed this:
+> If so then suspect something like the cisco or upstream router.
 
-dep_tristate 'Broadcom Tigon3 support' CONFIG_TIGON3 $CONFIG_PCI
+I will report this to my local Cisco support partner.
 
-to this:
-
-dep_tristate 'Broadcom Tigon3 support' CONFIG_TIGON3 $CONFIG_PCI $CONFIG_FW=
-_LOADER
-
-But this would still be selectable if CONFIG_FW_LOADER were not set at
-all. Selecting it would not enable CONFIG_FW_LOADER either.
-
-So, we tried this:
-
-if [ "$CONFIG_FW_LOADER" !=3D "n" -a "$CONFIG_EXPERIMENTAL" =3D "y" ]; then
-   dep_tristate 'Broadcom Tigon3 support' CONFIG_TIGON3 $CONFIG_PCI $CONFIG=
-_FW_LOADER
-fi
-
-and this STILL doesn't seem to work in the case that CONFIG_FW_LOADER
-isn't set but CONFIG_EXPERIMENTAL is y.
-
-Eventually we continued droning through the corner cases until reaching
-
-if [ "$CONFIG_EXPERIMENTAL" =3D "y" -a \
-     "$CONFIG_HOTPLUG" =3D "y" -a \
-     "$CONFIG_FW_LOADER" =3D "y" -o "$CONFIG_FW_LOADER" =3D "m" -a \
-     "$CONFIG_CRC32" =3D "y" -o "$CONFIG_CRC32" =3D "m" ]; then
-       dep_tristate 'Broadcom Tigon3 support' CONFIG_TIGON3 $CONFIG_PCI $CO=
-NFIG_FW_LOADER $CONFIG_CRC32
-fi
-
-which finally has the desired effect.
-
-But is there really no way to say
-
-config TIGON3
-       select FW_LOADER
-
-in 2.4?
-
-CONFIG_PCMCIA_ATMEL also suffers from this problem.
-
-Any ideas? Is it just that the old Configure scripts suck?
-
+O.
 --=20
-Joshua Kwan
+Ond=C5=99ej Sur=C3=BD <ondrej@sury.org>
 
---17pEHd4RhPHOinZp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--=-McZ160WfxTuibZB4nco8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
 
-iQIVAwUBQSRS3aOILr94RG8mAQIVsxAA7ByP6ig75m0Oa6kGnA9fISmFnuFONVyH
-5TyCPcvAWXlqf4EpUMumO5knO3bV+WZhwKPgEi+BrqZZcdMTTP4vkXELcK8N6mTz
-LQ7D8dZANpla52dxXzutZwrnfTkOjgl8ApGY/4a7AzMPLD6jCu0LCUA4kXSviHjX
-ue3bnJhup8+oy6TYOpV7GxbRs4D8RkFSyDSwrCS+i7pqkLB72v3FB/5KK0lZKcyi
-2QNnACCTJ93aXzcMp30eZN14xjQlMUcDR/OILvLMr49Wb8qu7DmGE6aQL8ZMwGbc
-viJuk608UmaB2MU3LUqCYsB9mcmDPsa7Zotx4dnXDM9fXM1uUfQ3JPmz0aPcnJES
-kG3Mpd7QKs55c4HXFE0o5m5QZYIf8LgB202Tk55injYFloK7qJmi2gyRYASFdnHl
-wOjbDLlYvocThyCM759F9TmuzHbuuoxc5NGpVS5o/AbufaCu6CSJIhtENmjbhEuu
-KEZi0p/bg2bq1k6TVYVKpxjcVF2Bx5ECI7gaRXUqFNmj3TEG54mOaN4fxOKfPyq2
-13o9uAy1W4i9ngSWK20G3VVxROfc8i37erz4U2A+6pQLHbXVHEa2H14TmI5BPNIg
-zuSkdfdw2Ue+C7gnQD8BaxrFZeNOR/PvkJWUN9GS+iSx1r8ZD2fHbJN3vDAxYrc/
-IHcu0G27j0c=
-=0qS2
+iD8DBQBBJFPM9OZqfMIN8nMRAv8XAKCHhCA6ymy0DE1EuA6kRZ8YloiMlACfRbIY
+WNB/MOZCzOrYJkhgSn/+crk=
+=50UK
 -----END PGP SIGNATURE-----
 
---17pEHd4RhPHOinZp--
+--=-McZ160WfxTuibZB4nco8--
+

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbUCPVn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 16:43:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUCPVmn
+	id S261718AbUCPVpB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 16:45:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUCPVpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 16:42:43 -0500
-Received: from hell.org.pl ([212.244.218.42]:8455 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S261725AbUCPVmf (ORCPT
+	Tue, 16 Mar 2004 16:45:00 -0500
+Received: from mail.tmr.com ([216.238.38.203]:39184 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261718AbUCPVo1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 16:42:35 -0500
-Date: Tue, 16 Mar 2004 22:42:39 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: johnstul@us.ibm.com, dtor_core@ameritech.net
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] X86_PM_TIMER: /proc/cpuinfo doesn't get updated
-Message-ID: <20040316214239.GA28289@hell.org.pl>
-Mail-Followup-To: johnstul@us.ibm.com, dtor_core@ameritech.net,
-	acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20040316182257.GA2734@dreamland.darkstar.lan> <20040316194805.GC20014@picchio.gall.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <20040316194805.GC20014@picchio.gall.it>
-User-Agent: Mutt/1.4.2i
+	Tue, 16 Mar 2004 16:44:27 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: lvm2 performance data with linux-2.6
+Date: 16 Mar 2004 21:42:48 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <c37sco$fko$1@gatekeeper.tmr.com>
+References: <200403081916.i28JGgE25794@mail.osdl.org> <4050E453.3010809@tmr.com> <20040311142515.A27177@osdlab.pdx.osdl.net>
+X-Trace: gatekeeper.tmr.com 1079473368 16024 192.168.12.62 (16 Mar 2004 21:42:48 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Daniele Venzano:
-> > I have a notebook with an Athlon-M CPU. I tried linux 2.6.4 with
-> > CONFIG_X86_PM_TIMER=y and I noticed that /proc/cpuinfo doesn't get
-> > updated when I switch frequency (via sysfs, using powernow-k7). The is
-> > issue seems cosmetic only, CPU frequency changes (watching
-> > temperature/battery life).
-> I can confirm, I'm seeing the same behavior. Please note that the
-> bogomips count gets updated, it's only the frequency that doesn't
-> change.
+In article <20040311142515.A27177@osdlab.pdx.osdl.net>,
+Mark Wong  <markw@osdl.org> wrote:
+| On Thu, Mar 11, 2004 at 05:12:35PM -0500, Bill Davidsen wrote:
 
-Same here with a P4-M, follow-up to John and Dmitry.
-Best regards,
+| > Here's one thought: look at the i/o rates on individual drives using 
+| > each stripe size. You *might* see that one size does far fewer seeks 
+| > than others, which is a secondary thing to optimize after throughput IMHO.
+| > 
+| > If you don't have a tool for this I can send you the latest diorate 
+| > which does stuff like this, io rate perdrive or per partition, something 
+| > I occasionally find revealing.
+| 
+| Yeah, please do send me a copy.  I'd be interested to see what that might 
+| turn up.  I've just been using iostat -x so far.
 
+Okay, I posted the pointer a few days ago to LKML, did you get a chance
+to try it? And if so, did it tell you anything?
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

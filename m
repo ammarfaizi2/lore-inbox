@@ -1,60 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130570AbRCFMMB>; Tue, 6 Mar 2001 07:12:01 -0500
+	id <S130529AbRCFMMB>; Tue, 6 Mar 2001 07:12:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130616AbRCFMLv>; Tue, 6 Mar 2001 07:11:51 -0500
-Received: from nas11-81.wms.club-internet.fr ([213.44.38.81]:64759 "EHLO
-	microsoft.com") by vger.kernel.org with ESMTP id <S130570AbRCFMLk>;
-	Tue, 6 Mar 2001 07:11:40 -0500
-Message-Id: <200103061210.NAA17114@microsoft.com>
+	id <S130570AbRCFMLw>; Tue, 6 Mar 2001 07:11:52 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55816 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130529AbRCFMLc>; Tue, 6 Mar 2001 07:11:32 -0500
 Subject: Re: kmalloc() alignment
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200103060831.JAA04492@cave.bitwizard.nl>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution (0.8/+cvs.2001.02.16.08.55 - Preview Release)
-Date: 06 Mar 2001 13:10:11 +0100
-Mime-Version: 1.0
+To: prumpf@mandrakesoft.com (Philipp Rumpf)
+Date: Tue, 6 Mar 2001 12:14:02 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kenn@linux.ie (Kenn Humborg),
+        linux-kernel@vger.kernel.org (Linux-Kernel)
+In-Reply-To: <20010306025931.A12655@mandrakesoft.mandrakesoft.com> from "Philipp Rumpf" at Mar 06, 2001 02:59:31 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14aGLt-0000ZB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 06 Mar 2001 09:31:01 +0100, Rogier Wolff a écrit :
+> > There are people who assume 16byte alignment guarantees. I dont think anyone
+> > has formally specified the guarantee beyond 4 bytes tho
 > 
-> > Followup to:  <20010306000652.A13992@excalibur.research.wombat.ie>
-> > By author:    Kenn Humborg <kenn@linux.ie>
-> > In newsgroup: linux.dev.kernel
-> > >
-> > > On Sun, Mar 04, 2001 at 11:41:12PM +0100, Manfred Spraul wrote:
-> > > > >
-> > > > > Does kmalloc() make any guarantees of the alignment of allocated 
-> > > > > blocks? Will the returned block always be 4-, 8- or 16-byte 
-> > > > > aligned, for example? 
-> > > > >
-> > > > 
-> > > > 4-byte alignment is guaranteed on 32-bit cpus, 8-byte alignment on
-> > > > 64-bit cpus.
-> > > 
-> > > So, to summarise (for 32-bit CPUs):
-> > > 
-> > > o  Alan Cox & Manfred Spraul say 4-byte alignment is guaranteed.
-> > > 
-> > > o  If you need larger alignment, you need to alloc a larger space,
-> > >    round as necessary, and keep the original pointer for kfree()
-> > > 
-> > > Maybe I'll just use get_free_pages, since it's a 64KB chunk that
-> > > I need (and it's only a once-off).
+> Userspace malloc is "suitably aligned for any kind of variable", so I think
+> expecting 8 bytes alignment (long long on 32-bit platforms) should be okay.
 > 
-> My old kmalloc would actually use n+10 bytes if you request n bytes.
-> As memory comes in pools of powers of two, if you request 64k, you
-> would acutaly use 128k of memory. If you use "get_free_pages", you'll
-> not have the overhead, and actually allocate the 64k you need. 
-> 
-> I'm not sure what the slab stuff does...
+> >From reading the code it seems as though we actually use L1_CACHE_BYTES,
+> and I think it might be a good idea to document the current behaviour (as
+> long as there's no good reason to change it ?)
 
-A properly initialised (i.e. default settings) 64k slab would put object
-descriptors outside the slab itself, and so use the expected number of
-pages for each 64k object, I believe.
-Small or non n*512 sized objects are a different story.
-
-Xav
-
+With slab poisoning I dont belive this is true

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284195AbRLFU1n>; Thu, 6 Dec 2001 15:27:43 -0500
+	id <S284182AbRLFUbX>; Thu, 6 Dec 2001 15:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284217AbRLFU12>; Thu, 6 Dec 2001 15:27:28 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:6663 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S284195AbRLFUZl>; Thu, 6 Dec 2001 15:25:41 -0500
-Date: Thu, 6 Dec 2001 12:36:45 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Mike Kravetz <kravetz@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler Cleanup
-In-Reply-To: <Pine.LNX.4.33.0112062301070.24309-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.40.0112061232310.1603-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284245AbRLFUbK>; Thu, 6 Dec 2001 15:31:10 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:33594 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S284244AbRLFUa6>; Thu, 6 Dec 2001 15:30:58 -0500
+Date: Thu, 6 Dec 2001 21:31:35 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17pre4aa1
+Message-ID: <20011206213135.Z6125@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Ingo Molnar wrote:
+Only in 2.4.17pre1aa1: 00_lvm-1.0.1-rc4-5.bz2
+Only in 2.4.17pre4aa1: 00_lvm-1.0.1-rc4-6.bz2
+Only in 2.4.17pre1aa1: 00_rwsem-fair-24
+Only in 2.4.17pre1aa1: 00_rwsem-fair-24-recursive-6
+Only in 2.4.17pre4aa1: 00_rwsem-fair-25
+Only in 2.4.17pre4aa1: 00_rwsem-fair-25-recursive-6
+Only in 2.4.17pre1aa1: 00_silent-stack-overflow-11
+Only in 2.4.17pre4aa1: 00_silent-stack-overflow-12
+Only in 2.4.17pre1aa1: 10_vm-18
+Only in 2.4.17pre4aa1: 10_vm-19
 
->
-> On Thu, 6 Dec 2001, Davide Libenzi wrote:
->
-> > What about decreasing counter by 1 for each sched_yield() call ?
->
-> we did that in earlier kernels - it's not really the right thing to do, as
-> calling yield() does not mean we are willing to give up a *timeslice*. It
-> only means that right now we are not able to proceed.
+	Rediffed.
 
-The old code was giving up the whole timeslice, that is a bit excessive.
-Having the counter decay patch + descreasing by 1 the counter you've the
-proper execution of non yielding tasks, while if you've only yielding
-tasks, who cares if they repidly give up the whole timeslice sequentially.
-The other, but more expensive solution is to have a side-counter
-accumulation where time slice subtracted to counter accumulates and are
-remerged at the proper time ( recalc loop ).
+Only in 2.4.17pre4aa1: 00_pci-dma_mask-1
 
+	Don't think you need GFP_DMA if the dma_mask of the device
+	is over 4G.
 
+Only in 2.4.17pre1aa1: 00_time_vs_gettimeofday-1
 
+	Merged in mainline.
 
-- Davide
+Only in 2.4.17pre1aa1: 60_tux-2.4.16-final-A3.bz2
+Only in 2.4.17pre4aa1: 60_tux-2.4.16-final-C9.bz2
 
+	Latest updates from Ingo at www.redhat.com/~mingo/.
 
+Andrea

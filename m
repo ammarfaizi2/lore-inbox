@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272424AbRIKMNi>; Tue, 11 Sep 2001 08:13:38 -0400
+	id <S272422AbRIKMMS>; Tue, 11 Sep 2001 08:12:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272423AbRIKMN2>; Tue, 11 Sep 2001 08:13:28 -0400
-Received: from [203.197.249.146] ([203.197.249.146]:51162 "EHLO
-	indica.wipsys.stph.net") by vger.kernel.org with ESMTP
-	id <S272424AbRIKMNP>; Tue, 11 Sep 2001 08:13:15 -0400
-Message-ID: <3B9E4E62.494FBAE4@wipro.com>
-Date: Tue, 11 Sep 2001 23:18:18 +0530
-From: "s.srinivas" <srinivas.surabhi@wipro.com>
-Reply-To: srinivas.surabhi@wipro.com
-X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.2.5-15 i586)
+	id <S272424AbRIKMMH>; Tue, 11 Sep 2001 08:12:07 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:5136 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S272422AbRIKMLt>; Tue, 11 Sep 2001 08:11:49 -0400
+Message-ID: <3B9DFF44.3D89368C@t-online.de>
+Date: Tue, 11 Sep 2001 14:10:44 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: how to see .so contents
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
+In-Reply-To: <200109102306.f8AN6iY21834@aslan.scsiguy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Justin T. Gibbs" schrieb:
+> 
+> >What about a kind of timer ?
+> 
+> The functions are run serially.  If I'm to wait, I must block
+> or risk having the machine powered off prior to completing my shutdown.
+> 
+> A coworker of mine playing with the MD code reminded me that
+> he had to change the priority of the MD notifier to make it work.
+> I believe that this is the correct fix as there are other SCSI
+> drivers that have shutdown hooks.
+> 
+> All HBA drivers currently use 0 (or the lowest) as their priority.
+> MD (line 3475 of drivers/md/md.c) uses 0 too.  Change it to INT_MAX
+> and MD will always get shutdown prior to any child devices it might
+> use.
 
-This is a multi-part message in MIME format.
+One question is still open on this case:
+Why does the Oops only occur if the "aic7xxx=verbose" is set ?
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+The above explanation is correct (AFAIK), but the kernel-oops should
+then happen on *every* reboot, not only if this verbose-parameter is
+set...or does the driver try to shutdown the drives and then write to
+the log "AIC7xxx shutdown successfull"...?...:-))
 
-hi all,
+Solong...
+Frank.
 
-    Its a silly question i tried with all my friends but of no use.
-Could any one tell me how to know the contents(modules) that
-are contained in any .so (shared objects) file.
-
-say for ex. for archive  file    ar  -t  .a file name     is used  .
-
-thank  u all in advance.
-
-regards
-srinivas
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-The Information contained and transmitted by this E-MAIL is proprietary to Wipro and/or its Customer and is intended 
-for use only by the individual or entity to which it is addressed, and may contain information that is privileged,
-confidential or exempt from disclosure under applicable law. If this is a forwarded message, the content of this
-E-MAIL may not have been sent with the authority of the Company. If you are not the intended recipient, an agent
-of the intended recipient or a  person responsible for delivering the information to the named recipient,  you are
-notified that any use, distribution, transmission, printing, copying or dissemination of this information in any way
-or in any manner is strictly prohibited. If you have received this communication in error, please delete this mail &
-notify us immediately at mailadmin@wipro.com
-
---------------InterScan_NT_MIME_Boundary--
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+Microsoft isn't the answer.
+Microsoft is the question, and the answer is NO.
+... -.-

@@ -1,25 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272522AbRIWSKn>; Sun, 23 Sep 2001 14:10:43 -0400
+	id <S272528AbRIWSMN>; Sun, 23 Sep 2001 14:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272528AbRIWSKf>; Sun, 23 Sep 2001 14:10:35 -0400
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:7442 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S272522AbRIWSK0>;
-	Sun, 23 Sep 2001 14:10:26 -0400
-Message-ID: <3BAE24F4.4489CC4A@nyc.rr.com>
-Date: Sun, 23 Sep 2001 14:07:48 -0400
-From: John Weber <weber@nyc.rr.com>
-Organization: My House
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-Newsgroups: linux.redhat
-To: linux-kernel@vger.kernel.org
-Subject: kernel pcmcia
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272540AbRIWSMD>; Sun, 23 Sep 2001 14:12:03 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:33201 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S272528AbRIWSLw>; Sun, 23 Sep 2001 14:11:52 -0400
+Date: Sun, 23 Sep 2001 14:12:18 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200109231812.f8NICIt20979@devserv.devel.redhat.com>
+To: zefram@fysh.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tty canonical mode: nicer erase behaviour
+In-Reply-To: <mailman.1001266380.13783.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1001266380.13783.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is cardmgr absolutely necessary?  I don't use modules, so I don't really
-understand what cardmgr does that can't be done by the kernel at boot.
+> Theoretically every program should be able to determine which erase
+> character to accept by looking at terminfo,
+
+Rubbish. Programs get their erase characters from termios(3).
+
+> One of the programs that exhibits the ^H/^? problem is the tty
+> line discipline in the Linux kernel.
+
+Read man pages for stty(1) and tset(1).
+
+-- Pete

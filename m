@@ -1,33 +1,151 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273509AbRIQHVi>; Mon, 17 Sep 2001 03:21:38 -0400
+	id <S273511AbRIQHZi>; Mon, 17 Sep 2001 03:25:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273507AbRIQHV2>; Mon, 17 Sep 2001 03:21:28 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:34309 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S273508AbRIQHVK>; Mon, 17 Sep 2001 03:21:10 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Mon, 17 Sep 2001 09:12:53 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.4.9: multiply mounting filesystem
-Message-ID: <3BA5BE90.29409.43AC7B@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
-X-Content-Conformance: HerringScan-0.9/Sophos-3.47+2.4+2.03.072+02 July 2001+64955@20010917.070651Z
+	id <S273508AbRIQHZ3>; Mon, 17 Sep 2001 03:25:29 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:46610 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S273507AbRIQHZT>; Mon, 17 Sep 2001 03:25:19 -0400
+Date: Mon, 17 Sep 2001 01:05:07 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Wietse Venema <wietse@porcupine.org>, netdev@oss.sgi.com,
+        "David S. Miller" <davem@redhat.com>
+Subject: 2.4.9 SIOCGIF* BSD4.4 compatibility patch, take #2 (restricted impact)
+Message-ID: <20010917010507.A17850@emma1.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+	Wietse Venema <wietse@porcupine.org>, netdev@oss.sgi.com,
+	"David S. Miller" <davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is the second edition of my SIOCGIF* compatibility patch, against
+Linux 2.4.9. In contrast to the first edition, it only does the "search
+passed-in address" logic for SIOCGIFADDR, DSTADDR, BRDADDR and NETMASK
+ioctls as suggested by Alexey Kuznetsov. It keeps the "only do this if
+we got AF_INET" property.
 
-yesterday I mounted a filesystem /dev/sda9 (resierfs) twice (first time 
-as /, second time as /mnt) by mistake. Neither kernel nor mount program 
-complained. I'm very much afraid this could corrupt the filesystem. Or 
-is Linux really smart enough to handle the case?  
+This patch allows the aforementioned ioctls to return the proper values
+for an interface that has multiple addresses with the same label, as
+configured by:
 
-Regards,
-Ulrich
-P.S. I'm not subscribed here.
+ip addr 192.168.0.1/24 dev eth0
+ip addr 172.16.15.14/16 dev eth0
 
+Note that SIOCGIFCONF returns all these IP aliases, which confuses
+applications that feed the data obtained from SIOCGIFCONF back into
+SIOCGIFNETMASK, but do not validate the address via SIOCGIFADDR.
+
+4.4BSD applications pass in the interface address alongside the
+interface name to select the alias.
+
+Remember, this patch falls back to interface-only match (return the
+"primary" address) if at least one of these conditions is true:
+
+- the address family is not AF_INET
+- no interface alias has the address passed in
+
+Linus, Alan, please apply.
+
+Alexey, David, Netdev list subscribers, this is for your reference. Feel
+free to comment.
+
+Wietse, this supersedes the first patch I sent which you may want to put
+in the contrib section somewhere.
+
+--- linux-2.4.9-f/net/ipv4/devinet.c.orig	Wed May 16 19:21:45 2001
++++ linux-2.4.9-f/net/ipv4/devinet.c	Mon Sep 17 00:39:41 2001
+@@ -20,6 +20,10 @@
+  *	Changes:
+  *	        Alexey Kuznetsov:	pa_* fields are replaced with ifaddr lists.
+  *		Cyrus Durgin:		updated for kmod
++ *		Matthias Andree:	in devinet_ioctl, compare label and 
++ *					address (4.4BSD alias style support),
++ *					fall back to comparing just the label
++ *					if no match found.
+  */
+ 
+ #include <linux/config.h>
+@@ -463,6 +467,7 @@
+ int devinet_ioctl(unsigned int cmd, void *arg)
+ {
+ 	struct ifreq ifr;
++	struct sockaddr_in sin_orig;
+ 	struct sockaddr_in *sin = (struct sockaddr_in *)&ifr.ifr_addr;
+ 	struct in_device *in_dev;
+ 	struct in_ifaddr **ifap = NULL;
+@@ -470,6 +475,7 @@
+ 	struct net_device *dev;
+ 	char *colon;
+ 	int ret = 0;
++	int tryaddrmatch = 0;
+ 
+ 	/*
+ 	 *	Fetch the caller's info block into kernel space
+@@ -479,6 +485,9 @@
+ 		return -EFAULT;
+ 	ifr.ifr_name[IFNAMSIZ-1] = 0;
+ 
++	/* save original address for comparison */
++	memcpy(&sin_orig, sin, sizeof(*sin));
++
+ 	colon = strchr(ifr.ifr_name, ':');
+ 	if (colon)
+ 		*colon = 0;
+@@ -496,6 +505,7 @@
+ 		   so that we do not impose a lock.
+ 		   One day we will be forced to put shlock here (I mean SMP)
+ 		 */
++		tryaddrmatch = (sin_orig.sin_family == AF_INET);
+ 		memset(sin, 0, sizeof(*sin));
+ 		sin->sin_family = AF_INET;
+ 		break;
+@@ -529,9 +539,29 @@
+ 		*colon = ':';
+ 
+ 	if ((in_dev=__in_dev_get(dev)) != NULL) {
+-		for (ifap=&in_dev->ifa_list; (ifa=*ifap) != NULL; ifap=&ifa->ifa_next)
+-			if (strcmp(ifr.ifr_name, ifa->ifa_label) == 0)
+-				break;
++		if (tryaddrmatch) {
++			/* Matthias Andree */
++			/* compare label and address (4.4BSD style) */
++			/* note: we only do this for a limited set of ioctls
++			   and only if the original address family was AF_INET.
++			   This is checked above. */
++			for (ifap=&in_dev->ifa_list; (ifa=*ifap) != NULL; ifap=&ifa->ifa_next) {
++				if ((strcmp(ifr.ifr_name, ifa->ifa_label) == 0)
++				    && (sin_orig.sin_addr.s_addr == ifa->ifa_address)) {
++					break; /* found */
++				} /* if */
++			} /* for */
++		} else { /* tryaddrmatch */
++			ifa = NULL;
++		} /* if (tryaddrmatch) */
++		/* we didn't get a match, maybe the application is
++		   4.3BSD-style and passed in junk so we fall back to 
++		   comparing just the label */
++		if (ifa == NULL) {
++			for (ifap=&in_dev->ifa_list; (ifa=*ifap) != NULL; ifap=&ifa->ifa_next)
++				if (strcmp(ifr.ifr_name, ifa->ifa_label) == 0)
++					break;
++		}
+ 	}
+ 
+ 	if (ifa == NULL && cmd != SIOCSIFADDR && cmd != SIOCSIFFLAGS) {
+
+-- 
+Matthias Andree
+
+"Those who give up essential liberties for temporary safety deserve
+neither liberty nor safety." - Benjamin Franklin

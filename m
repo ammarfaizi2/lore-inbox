@@ -1,120 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267317AbTGQSri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 14:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271538AbTGQSha
+	id S270056AbTGQSvd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 14:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269964AbTGQSvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 14:37:30 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:30108 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271530AbTGQSfQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 14:35:16 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 17 Jul 2003 20:47:05 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] drivers/media/video i2c drivers update
-Message-ID: <20030717184705.GA22220@bytesex.org>
+	Thu, 17 Jul 2003 14:51:33 -0400
+Received: from xs4all.vs19.net ([213.84.236.198]:62270 "EHLO spaans.vs19.net")
+	by vger.kernel.org with ESMTP id S269296AbTGQStz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 14:49:55 -0400
+Date: Thu, 17 Jul 2003 21:04:28 +0200
+From: Jasper Spaans <jasper@vs19.net>
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow unattended nfs3/krb5 mounts
+Message-ID: <20030717190428.GA4735@spaans.vs19.net>
+References: <20030715232605.A9418@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030715232605.A9418@google.com>
+Attach: /home/spaans/JasperSpaans.vcf
+Organization: http://www.insultant.nl/
+X-Copyright: Copyright 2003 C. Jasper Spaans - All Rights Reserved
+X-message-flag: Warning! The sender of this mail thinks you should use a more secure email client!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Tue, Jul 15, 2003 at 11:26:05PM -0700, Frank Cusack wrote:
+> The comment in nfs_get_root() basically describes the patch:
+> 
+>     Some authentication types (gss/krb5, most notably)
+>     are such that root won't be able to present a
+>     credential for GETATTR (ie, getroot()).
+[..]
+> Does this patch look reasonable?  It works in my environment, against
+> a netapp server (with the rpcsec_gss patch I provided earlier).
 
-This patch is a minor fix for two i2c modules -- it makes them catch
-kernel_thread() failures correctly.
+The way this patch was imported in bk-cvs causes a compile-time failure
+in fs/nfs/inode.c;
 
-Please apply,
+Below is the -what seems to me- obvious fix.
 
-  Gerd
+One comment though wrt this code: it seems both the spellings 'flavor' and
+'flavour' are used in this piece of code which is somewhat confusing. Should
+that be fixed?
 
-diff -u linux-2.6.0-test1/drivers/media/video/msp3400.c linux/drivers/media/video/msp3400.c
---- linux-2.6.0-test1/drivers/media/video/msp3400.c	2003-07-17 18:56:17.203335698 +0200
-+++ linux/drivers/media/video/msp3400.c	2003-07-17 19:13:34.355333457 +0200
-@@ -50,10 +50,6 @@
- #include <asm/semaphore.h>
- #include <asm/pgtable.h>
+Index: fs/nfs/inode.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/fs/nfs/inode.c,v
+retrieving revision 1.79
+diff -u -r1.79 inode.c
+--- CVS/fs/nfs/inode.c	17 Jul 2003 17:28:19 -0000	1.79
++++ linux-2.5/fs/nfs/inode.c	17 Jul 2003 17:40:29 -0000
+@@ -1441,7 +1441,7 @@
+ 	if ((server->idmap = nfs_idmap_new(server)) == NULL)
+ 		printk(KERN_WARNING "NFS: couldn't start IDmap\n");
  
--/* kernel_thread */
--#define __KERNEL_SYSCALLS__
--#include <linux/unistd.h>
--
- #include <media/audiochip.h>
- #include "msp3400.h"
- 
-@@ -1262,7 +1258,7 @@
- 	DECLARE_MUTEX_LOCKED(sem);
- 	struct msp3400c *msp;
-         struct i2c_client *c;
--	int i;
-+	int i, rc;
- 
-         client_template.adapter = adap;
-         client_template.addr = addr;
-@@ -1345,9 +1341,12 @@
- 
- 	/* startup control thread */
- 	msp->notify = &sem;
--	kernel_thread(msp->simple ? msp3410d_thread : msp3400c_thread,
--		      (void *)c, 0);
--	down(&sem);
-+	rc = kernel_thread(msp->simple ? msp3410d_thread : msp3400c_thread,
-+			   (void *)c, 0);
-+	if (rc < 0)
-+		printk(KERN_WARNING "msp34xx: kernel_thread() failed\n");
-+	else
-+		down(&sem);
- 	msp->notify = NULL;
- 	wake_up_interruptible(&msp->wq);
- 
-diff -u linux-2.6.0-test1/drivers/media/video/tda9887.c linux/drivers/media/video/tda9887.c
---- linux-2.6.0-test1/drivers/media/video/tda9887.c	2003-07-17 18:54:24.901678674 +0200
-+++ linux/drivers/media/video/tda9887.c	2003-07-17 19:13:34.360332620 +0200
-@@ -439,11 +439,9 @@
- };
- static struct i2c_client client_template =
- {
--	.flags  = I2C_CLIENT_ALLOW_USE,
--        .driver = &driver,
--        .dev	= {
--		.name	= "tda9887",
--	},
-+	I2C_DEVNAME("tda9887"),
-+	.flags     = I2C_CLIENT_ALLOW_USE,
-+        .driver    = &driver,
- };
- 
- static int tda9887_init_module(void)
-diff -u linux-2.6.0-test1/drivers/media/video/tvaudio.c linux/drivers/media/video/tvaudio.c
---- linux-2.6.0-test1/drivers/media/video/tvaudio.c	2003-07-17 18:55:30.490361140 +0200
-+++ linux/drivers/media/video/tvaudio.c	2003-07-17 19:13:34.368331282 +0200
-@@ -1420,6 +1420,7 @@
- {
- 	struct CHIPSTATE *chip;
- 	struct CHIPDESC  *desc;
-+	int rc;
- 
- 	chip = kmalloc(sizeof(*chip),GFP_KERNEL);
- 	if (!chip)
-@@ -1487,8 +1488,12 @@
- 		chip->wt.function = chip_thread_wake;
- 		chip->wt.data     = (unsigned long)chip;
- 		init_waitqueue_head(&chip->wq);
--		kernel_thread(chip_thread,(void *)chip,0);
--		down(&sem);
-+		rc = kernel_thread(chip_thread,(void *)chip,0);
-+		if (rc < 0)
-+			printk(KERN_WARNING "%s: kernel_thread() failed\n",
-+			       i2c_clientname(&chip->c));
-+		else
-+			down(&sem);
- 		chip->notify = NULL;
- 		wake_up_interruptible(&chip->wq);
- 	}
+-	err = nfs_sb_init(sb);
++	err = nfs_sb_init(sb, authflavour);
+ 	if (err == 0)
+ 		return 0;
+ 	rpciod_down();
 
+VrGr,
 -- 
-sigfault
+Jasper Spaans                 http://jsp.vs19.net/contact/

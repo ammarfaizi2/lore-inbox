@@ -1,172 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVCNIpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVCNI7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbVCNIpj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 03:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVCNIpi
+	id S262067AbVCNI7b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 03:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVCNI7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 03:45:38 -0500
-Received: from ozlabs.org ([203.10.76.45]:19593 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262066AbVCNIod (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 03:44:33 -0500
+	Mon, 14 Mar 2005 03:59:31 -0500
+Received: from stark.xeocode.com ([216.58.44.227]:20096 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S262067AbVCNI7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 03:59:17 -0500
+To: Greg Stark <gsstark@MIT.EDU>
+Cc: Greg Stark <gsstark@mit.edu>, Andrew Morton <akpm@osdl.org>,
+       s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org,
+       pmcfarland@downeast.net
+Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
+References: <87u0ng90mo.fsf@stark.xeocode.com>
+	<200503130152.52342.pmcfarland@downeast.net>
+	<874qff89ob.fsf@stark.xeocode.com>
+	<200503140103.55354.s0348365@sms.ed.ac.uk>
+	<87sm2y7uon.fsf@stark.xeocode.com>
+	<20050313200753.20411bdb.akpm@osdl.org>
+	<87br9m7s8h.fsf@stark.xeocode.com> <87zmx66b2b.fsf@stark.xeocode.com>
+In-Reply-To: <87zmx66b2b.fsf@stark.xeocode.com>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 14 Mar 2005 03:59:06 -0500
+Message-ID: <87u0nevc11.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16949.20257.750890.165845@cargo.ozlabs.ibm.com>
-Date: Mon, 14 Mar 2005 19:45:21 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: Arnd Bergmann <arnd@arndb.de>, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64 Make RTAS code usable on non-pSeries machines
-X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is from Arnd Bergmann <arndb@de.ibm.com>.
 
-RTAS is not actually pSeries specific, but some PPC64 code that relies
-on RTAS is currently protected by CONFIG_PPC_PSERIES.
-This introduces a generic configuration option PPC_RTAS that can be used
-by other subarchitectures as well. The existing option with the same
-name is renamed to the more specific RTAS_PROC.
+> Greg Stark <gsstark@MIT.EDU> writes:
+> 
+> > Andrew Morton <akpm@osdl.org> writes:
+> > 
+> > > Are you able to narrow it down to something more fine grained than "between
+> > > 2.6.6 and 2.6.9-rc1"?
+> > 
+> > Er, I suppose I would have to build some more kernels. Ugh. Is there a good
+> > place to start or do I have to just do a binary search?
 
-Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+Well, I built a slew of kernels but found it on the first reboot.
 
-diff -urN linux-2.5/arch/ppc64/Kconfig test/arch/ppc64/Kconfig
---- linux-2.5/arch/ppc64/Kconfig	2005-03-14 08:25:07.000000000 +1100
-+++ test/arch/ppc64/Kconfig	2005-03-14 19:31:22.000000000 +1100
-@@ -255,16 +255,21 @@
- 
- 
- config PPC_RTAS
--	bool "Proc interface to RTAS"
-+	bool
- 	depends on PPC_PSERIES
-+	default y
-+
-+config RTAS_PROC
-+	bool "Proc interface to RTAS"
-+	depends on PPC_RTAS
- 
- config RTAS_FLASH
- 	tristate "Firmware flash interface"
--	depends on PPC_RTAS
-+	depends on RTAS_PROC
- 
- config SCANLOG
- 	tristate "Scanlog dump interface"
--	depends on PPC_RTAS
-+	depends on RTAS_PROC && PPC_PSERIES
- 
- config LPARCFG
- 	tristate "LPAR Configuration Data"
-diff -urN linux-2.5/arch/ppc64/kernel/Makefile test/arch/ppc64/kernel/Makefile
---- linux-2.5/arch/ppc64/kernel/Makefile	2005-03-07 08:21:53.000000000 +1100
-+++ test/arch/ppc64/kernel/Makefile	2005-03-14 19:31:22.000000000 +1100
-@@ -39,7 +39,7 @@
- obj-$(CONFIG_RTAS_FLASH)	+= rtas_flash.o
- obj-$(CONFIG_SMP)		+= smp.o
- obj-$(CONFIG_MODULES)		+= module.o ppc_ksyms.o
--obj-$(CONFIG_PPC_RTAS)		+= rtas-proc.o
-+obj-$(CONFIG_RTAS_PROC)		+= rtas-proc.o
- obj-$(CONFIG_SCANLOG)		+= scanlog.o
- obj-$(CONFIG_VIOPATH)		+= viopath.o
- obj-$(CONFIG_LPARCFG)		+= lparcfg.o
-diff -urN linux-2.5/arch/ppc64/kernel/entry.S test/arch/ppc64/kernel/entry.S
---- linux-2.5/arch/ppc64/kernel/entry.S	2005-02-07 07:55:28.000000000 +1100
-+++ test/arch/ppc64/kernel/entry.S	2005-03-14 19:31:22.000000000 +1100
-@@ -616,7 +616,7 @@
- 	bl	.unrecoverable_exception
- 	b	unrecov_restore
- 
--#ifdef CONFIG_PPC_PSERIES
-+#ifdef CONFIG_PPC_RTAS
- /*
-  * On CHRP, the Run-Time Abstraction Services (RTAS) have to be
-  * called with the MMU off.
-@@ -753,7 +753,7 @@
- 	mtlr    r0
-         blr				/* return to caller */
- 
--#endif /* CONFIG_PPC_PSERIES */
-+#endif /* CONFIG_PPC_RTAS */
- 
- #ifdef CONFIG_PPC_MULTIPLATFORM
- 
-diff -urN linux-2.5/arch/ppc64/kernel/misc.S test/arch/ppc64/kernel/misc.S
---- linux-2.5/arch/ppc64/kernel/misc.S	2005-03-14 08:25:07.000000000 +1100
-+++ test/arch/ppc64/kernel/misc.S	2005-03-14 19:31:22.000000000 +1100
-@@ -680,7 +680,7 @@
- 	ld	r30,-16(r1)
- 	blr
- 
--#ifndef CONFIG_PPC_PSERIES	/* hack hack hack */
-+#ifdef CONFIG_PPC_RTAS /* hack hack hack */
- #define ppc_rtas	sys_ni_syscall
- #endif
- 
-diff -urN linux-2.5/arch/ppc64/kernel/prom.c test/arch/ppc64/kernel/prom.c
---- linux-2.5/arch/ppc64/kernel/prom.c	2005-03-10 09:14:12.000000000 +1100
-+++ test/arch/ppc64/kernel/prom.c	2005-03-14 19:31:22.000000000 +1100
-@@ -894,7 +894,7 @@
- 	if (get_flat_dt_prop(node, "linux,iommu-force-on", NULL) != NULL)
- 		iommu_force_on = 1;
- 
--#ifdef CONFIG_PPC_PSERIES
-+#ifdef CONFIG_PPC_RTAS
- 	/* To help early debugging via the front panel, we retreive a minimal
- 	 * set of RTAS infos now if available
- 	 */
-@@ -910,7 +910,7 @@
- 			rtas.size = *prop;
- 		}
- 	}
--#endif /* CONFIG_PPC_PSERIES */
-+#endif /* CONFIG_PPC_RTAS */
- 
- 	/* break now */
- 	return 1;
-diff -urN linux-2.5/arch/ppc64/kernel/rtc.c test/arch/ppc64/kernel/rtc.c
---- linux-2.5/arch/ppc64/kernel/rtc.c	2004-11-17 09:38:21.000000000 +1100
-+++ test/arch/ppc64/kernel/rtc.c	2005-03-14 19:31:22.000000000 +1100
-@@ -337,7 +337,7 @@
- }
- #endif
- 
--#ifdef CONFIG_PPC_PSERIES
-+#ifdef CONFIG_PPC_RTAS
- #define MAX_RTC_WAIT 5000	/* 5 sec */
- #define RTAS_CLOCK_BUSY (-2)
- void pSeries_get_boot_time(struct rtc_time *rtc_tm)
-diff -urN linux-2.5/arch/ppc64/kernel/setup.c test/arch/ppc64/kernel/setup.c
---- linux-2.5/arch/ppc64/kernel/setup.c	2005-03-07 08:21:53.000000000 +1100
-+++ test/arch/ppc64/kernel/setup.c	2005-03-14 19:31:22.000000000 +1100
-@@ -605,12 +605,12 @@
- 	 */
- 	initialize_cache_info();
- 
--#ifdef CONFIG_PPC_PSERIES
-+#ifdef CONFIG_PPC_RTAS
- 	/*
- 	 * Initialize RTAS if available
- 	 */
- 	rtas_initialize();
--#endif /* CONFIG_PPC_PSERIES */
-+#endif /* CONFIG_PPC_RTAS */
- 
- 	/*
- 	 * Check if we have an initrd provided via the device-tree
-diff -urN linux-2.5/arch/ppc64/oprofile/op_model_power4.c test/arch/ppc64/oprofile/op_model_power4.c
---- linux-2.5/arch/ppc64/oprofile/op_model_power4.c	2005-03-07 08:21:53.000000000 +1100
-+++ test/arch/ppc64/oprofile/op_model_power4.c	2005-03-14 19:31:22.000000000 +1100
-@@ -224,7 +224,7 @@
- 	if (mmcra & MMCRA_SIPR)
- 		return pc;
- 
--#ifdef CONFIG_PPC_PSERIES
-+#ifdef CONFIG_PPC_RTAS
- 	/* Were we in RTAS? */
- 	if (pc >= rtas.base && pc < (rtas.base + rtas.size))
- 		/* function descriptor madness */
+2.6.7 doesn't work.
+
+I compiled the 2.6.6 drivers for 2.6.10 but they give ENODEV when I load them.
+
+
+
+
+> 
+> 2.6.7:
+> 
+> <jdgaston@snoqualmie.dp.intel.com>
+> 	[PATCH] I2C: ICH6/6300ESB i2c support
+> 	
+> 	This patch adds DID support for ICH6 and 6300ESB to i2c-i801.c(SMBus).
+> 	In order to add this support I needed to patch pci_ids.h with the SMBus
+> 	DID's.  To keep things orginized I renumbered the ICH6 and ESB entries
+> 	in pci_ids.h.  I then patched the piix IDE and i810 audio drivers to
+> 	reflect the updated #define's.  I also removed an error from irq.c;
+> 	there was a reference to a 6300ESB DID that does not exist.
+> 
+> <jgarzik@redhat.com>
+> 	[sound/oss i810] pci id cleanups
+> 	
+> 	The driver defined its own PCI id constants.  Kill the majority,
+> 	which were redundant, and move the rest to include/linux/pci_ids.h.
+> 	
+> 	Also, move open-coded tests for "new ICH" audio chips to a single
+> 	helper function.  These tests were being patched with each new
+> 	ICH motherboard from Intel, resulting in each new PCI id being added
+> 	to several places in the driver.
+> 	
+> 	Note that, even though this should be a harmless patch, there
+> 	exists the remote possibility that I mis-matched some of the
+> 	PCI ids, as I only tested ICH5.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] fix wait queue race in drain_dac
+> 	
+> 	This particular one fixes a textbook race condition in drain_dac
+> 	that causes it to timeout when it shouldn't.
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] fix race
+> 	
+> 	This patch fixes the value of swptr in case of an underrun/overrun.
+> 	
+> 	Overruns/underruns probably won't occur at all when the driver is
+> 	fixed properly, but this doesn't hurt.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss] remove bogus CIV_TO_LVI
+> 	
+> 	This patch removes a pair of bogus LVI assignments.  The explanation in
+> 	the comment is wrong because the value of PCIB tells the hardware that
+> 	the DMA buffer can be processed even if LVI == CIV.
+> 	
+> 	Setting LVI to CIV + 1 causes overruns when with short writes
+> 	(something that vmware is very fond of).
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] clean up with macros
+> 	
+> 	This patch adds a number macros to clean up the code.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] fix partial DMA transfers
+> 	
+> 	This patch fixes a longstanding bug in this driver where partial fragments
+> 	are fed to the hardware.  Worse yet, those fragments are then extended
+> 	while the hardware is doing DMA transfers causing all sorts of problems.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] fix playback SETTRIGGER
+> 	
+> 	This patch fixes SETTRIGGER with playback so that the LVI is always
+> 	set and the DAC is always started.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] fix OSS fragments
+> 	
+> 	This patch makes userfragsize do what it's meant to do: do not start
+> 	DAC/ADC until a full fragment is available.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] remove divides on playback
+> 	
+> 	This patch removes a couple of divides on the playback path.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] fix drain_dac loop when signals_allowed==0
+> 	
+> 	This patch fixes another bug in the drain_dac wait loop when it is
+> 	called with signals_allowed == 0.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] fix reads/writes % 4 != 0
+> 	
+> 	This patch removes another bogus chunk of code that breaks when
+> 	the application does a partial write.
+> 	
+> 	In particular, a read/write of x bytes where x % 4 != 0 will loop forever.
+> 
+> <herbert@gondor.apana.org.au>
+> 	[sound/oss i810] fix deadlock in drain_dac
+> 	
+> 	This patch fixes a typo in a previous change that causes the driver
+> 	to deadlock under SMP.
+
+-- 
+greg
+

@@ -1,55 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268755AbTGIX5t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 19:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbTGIXyi
+	id S268587AbTGIXit (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 19:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268758AbTGIXhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 19:54:38 -0400
-Received: from rtichy.netro.cz ([213.235.180.210]:13563 "HELO 192.168.1.21")
-	by vger.kernel.org with SMTP id S268755AbTGIXyF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 19:54:05 -0400
-Message-ID: <03b501c34677$6a3fe250$401a71c3@izidor>
-From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
-To: <linux-kernel@vger.kernel.org>, <mru@users.sourceforge.net>
-References: <Pine.LNX.4.53.0307091413030.683@mx.homelinux.com> <027901c3461e$e023c670$401a71c3@izidor> <yw1xadbnx017.fsf@users.sourceforge.net> <20030709150852.GA11309@work.bitmover.com> <yw1x1xwzwwwk.fsf@users.sourceforge.net>
-Subject: Re: Promise SATA 150 TX2 plus
-Date: Thu, 10 Jul 2003 02:08:39 +0200
+	Wed, 9 Jul 2003 19:37:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:12416 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S268725AbTGIXgD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 19:36:03 -0400
+Date: Wed, 9 Jul 2003 19:51:01 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: modutils-2.3.15 'insmod'
+In-Reply-To: <bei5sq$9ba$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.53.0307091946070.878@chaos>
+References: <Pine.LNX.4.53.0307091119450.470@chaos> <jer84zln59.fsf@sykes.suse.de>
+ <bei5sq$9ba$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I don't need RAID and 3ware 8500 is real RAID card.
-Thanks for the answers
-    Milan Roubal
+On Wed, 9 Jul 2003, H. Peter Anvin wrote:
 
->> > Thanks for the answer, it has got PDC 20375, not
->> > 20376, but it changes nothing. As Alan mentioned
->> > here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105440080221319&w=2
->> > promise has got their own drivers. Have somebody seen
->> > this drivers really working? My card is not RAID,
->> > its only controller, I want only see the harddrives.
->>
->> Do yourself a favor, and get a Highpoint card instead.
+> Followup to:  <jer84zln59.fsf@sykes.suse.de>
+> By author:    Andreas Schwab <schwab@suse.de>
+> In newsgroup: linux.dev.kernel
+> >
+> > "Richard B. Johnson" <root@chaos.analogic.com> writes:
+> >
+> > |> It is likely that malloc(0) returning a valid pointer is a bug
+> > |> that has prevented this problem from being observed.
+> >
+> > It's not a bug, it's a behaviour explicitly allowed by the C standard.
+> >
 >
-> I can't speak to the highpoint card, I don't have one of those.  I do have
-> a 3ware 8500-4 which works great.  I believe that I had to use a later
-> kernel (2.4.20? .21?) to get it to work but it has been working
-flawlessly.
-> I'm using it in RAID 10 mode.
+> The bug is in xmalloc, meaning that it assumes that returning NULL is
+> always an error.  Presumably xmalloc should look *either* like:
+>
+> void *xmalloc(size_t s)
+> {
+> 	void *p = malloc(s);
+>
+> 	if ( !p && s )
+> 		barf();
+> 	else
+> 		return p;
+> }
+>
+> ... or ...
+>
+> void *xmalloc(size_t s)
+> {
+> 	void *p;
+>
+> 	/* Always return a valid allocation */
+> 	if ( s == 0 ) s = 1;
+> 	p = malloc(s);
+>
+> 	if ( !p )
+> 		barf();
+> 	else
+> 		return p;
+> }
 
-The 3ware does real RAID, right?  I think the OP didn't need that.
+You are correct that the bug is in xmalloc(). However, I think the
+true bug is that xmalloc() exists! Malloc should be called directly
+and any special cases for that specific call should be handled at
+that time.
 
--- 
-Måns Rullgård
-mru@users.sf.net
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

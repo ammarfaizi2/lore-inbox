@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265171AbUBELu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 06:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbUBELu0
+	id S264476AbUBEME4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 07:04:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264887AbUBEME4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 06:50:26 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:59268 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265171AbUBELuZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 06:50:25 -0500
-Message-ID: <40222D4B.6050608@cyberone.com.au>
-Date: Thu, 05 Feb 2004 22:47:23 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-References: <20040205014405.5a2cf529.akpm@osdl.org>
-In-Reply-To: <20040205014405.5a2cf529.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 5 Feb 2004 07:04:56 -0500
+Received: from med-gwia-02a.med.umich.edu ([141.214.93.150]:51995 "EHLO
+	med-gwia-02a.med.umich.edu") by vger.kernel.org with ESMTP
+	id S264476AbUBEMEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 07:04:52 -0500
+Message-Id: <s021eb13.042@med-gwia-02a.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
+Date: Thu, 05 Feb 2004 07:04:26 -0500
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <root@chaos.analogic.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: change kernel name
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Note the words 'after the compilation'.
+
+Nik
 
 
-Andrew Morton wrote:
+>>> "Richard B. Johnson" <root@chaos.analogic.com> 02/04/04 07:38AM
+>>>
+On Tue, 3 Feb 2004, Gaspar Bakos wrote:
 
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/
+> Hello,
 >
->
->- Merged some page reclaim fixes from Nick and Nikita.  These yield some
->  performance improvements in low memory and heavy paging situations.
->
->
+> I have the following question:
+> If I compile the kernel (2.4.*) and boot it in, then the
+kernel-release,
+> as shown by 'uname -r' will be the string that was in the
+EXTRAVERSION
+> string from the kernel Makefile.
+> Is there any way to change this 'identity' of the kernel after the
+> compilation?
+> Such as
+> changekernelname bzImage "newname"
 
-Nikita's vm-dont-rotate-active-list.patch still has this:
+Put anything you want in the structure, system_utsname, in your copy
+of
+linux-nn-nn/init/version.c.
 
-+/* dummy pages used to scan active lists */
-+static struct page scan_pages[MAX_NUMNODES][MAX_NR_ZONES];
-+
-
-Which probably needs its nodes and cachelines untangled.
-Maybe it doesn't - I really don't know.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org 
+More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+Please read the FAQ at  http://www.tux.org/lkml/

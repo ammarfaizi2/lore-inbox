@@ -1,75 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVCVTRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVCVTS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVCVTRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 14:17:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVCVTRJ
+	id S261675AbVCVTS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 14:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVCVTSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 14:17:09 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:31242 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261667AbVCVTRD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 14:17:03 -0500
-Date: Tue, 22 Mar 2005 20:17:02 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: 2.6.12-rc1-mm1: REISER4_FS <-> 4KSTACKS
-Message-ID: <20050322191702.GF1948@stusta.de>
-References: <20050321025159.1cabd62e.akpm@osdl.org> <20050322171340.GE1948@stusta.de> <20050322185605.GB27733@wohnheim.fh-wedel.de>
+	Tue, 22 Mar 2005 14:18:55 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:26759 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261675AbVCVTSN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 14:18:13 -0500
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+From: Ram <linuxram@us.ibm.com>
+To: johnpol@2ka.mipt.ru
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
+       Erich Focht <efocht@hpce.nec.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+In-Reply-To: <20050322222201.0fa25d34@zanzibar.2ka.mipt.ru>
+References: <1111050243.306.107.camel@frecb000711.frec.bull.fr>
+	 <200503170856.57893.jbarnes@engr.sgi.com>
+	 <20050318003857.4600af78@zanzibar.2ka.mipt.ru>
+	 <200503171405.55095.jbarnes@engr.sgi.com>
+	 <1111409303.8329.16.camel@frecb000711.frec.bull.fr>
+	 <1111438349.5860.27.camel@localhost>
+	 <1111475252.8465.23.camel@frecb000711.frec.bull.fr>
+	 <1111515979.5860.57.camel@localhost>
+	 <20050322222201.0fa25d34@zanzibar.2ka.mipt.ru>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1111519086.5860.80.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050322185605.GB27733@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 22 Mar 2005 11:18:07 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2005 at 07:56:05PM +0100, Jörn Engel wrote:
-> On Tue, 22 March 2005 18:13:40 +0100, Adrian Bunk wrote:
-> > 
-> > REISER4_FS is the only option with a dependency on !4KSTACKS which is 
-> > bad since 8 kB stacks on i386 won't stay forever.
-> > 
-> > Could fix the problems with 4 kB stacks?
-> > 
-> > Running
-> > 
-> >   make checkstacks | grep reiser4
-> > 
-> > inside te kernel sources after compiling gives you hints where problems 
-> > might come from.
+On Tue, 2005-03-22 at 11:22, Evgeniy Polyakov wrote:
+> On Tue, 22 Mar 2005 10:26:19 -0800
+> Ram <linuxram@us.ibm.com> wrote:
 > 
-> Actually, I've run the Big Ol' checkstack program on reiser4 once.
-> Without recursions, the code is well below 3k, but some of the
-> recursions look a bit daunting.  Here is the relevant output:
->...
->      404  jnode_flush
->...
->      460  rename_hashed
->...
->      224  coord_by_key
->...
+> > On Mon, 2005-03-21 at 23:07, Guillaume Thouvenin wrote:
+> > > On Mon, 2005-03-21 at 12:52 -0800, Ram wrote:
+> > > >      If a bunch of applications are listening for fork events, 
+> > > >      your patch allows any application to turn off the 
+> > > >      fork event notification?  Is this the right behavior?
+> > > 
+> > > Yes it is. The main management is done by application so, if several
+> > > applications are listening for fork events you need to choose which one
+> > > will turn off the fork connector. 
+> > > 
+> > > I want to keep this turn on/off mechanism simple but if it's needed I
+> > > can manage the variable "cn_fork_enable" as a counter. Thus the callback
+> > > could be something like:
+> > > 
+> > > static void cn_fork_callback(void *data)
+> > > {
+> > >   int start; 
+> > >   struct cn_msg *msg = (struct cn_msg *)data;
+> > > 
+> > >   if (cn_already_initialized && (msg->len == sizeof(cn_fork_enable))) {
+> > >     memcpy(&start, msg->data, sizeof(cn_fork_enable));
+> > >     if (start)
+> > >       cn_fork_enable++;
+> > >     else
+> > >       cn_fork_enable > 0 ? cn_fork_enable-- : 0;
+> > >   }
+> > > }
+> > 
+> > I think a better way is:
+> > 
+> >    Providing a different connector channel called the administrator 
+> >    channel which can be used only by a super-user, and gives you
+> >    the ability to switch on or off any connector channel including the
+> >    fork-connector channel.
+> 
+> Only super-user can bind netlink socket to multicast group.
 
-These would have been missed by the grep I suggested due to the missing 
-reiser4_ prefix.
+ok. I did not realize that.
 
->      208  locks_remove_flock
->...
+> 
+> >    For lack of better term I am using the word 'channel' to mean
+> >    something that carries events of particular type through the
+> >    connector-infrastructure.
+> 
+> I still do not see why it is needed.
+> Super-user can run ip command and turn network interface off
+> not waiting while apache or named exits or unbind.
+> 
+> In theory I can create some kind of userspace registration mechanism,
+> when userspace application reports it's pid to the connector, 
+> and then it sends data to the specified pids, but does not 
+> allow controlling from userspace.
+> But I really do not think it is a good idea to permit
+> non-priviledged userspace processes to know about deep
+> kernel internals through connector's messages.
 
-That seems to be a generic issue in fs/locks.c .
-It seems this is the "struct file_lock fl"?
+Yes. non-priviledged userspace processes should not know
+any deep kernel internals through connector events.
 
-> Jörn
+I think what I am driving at is, an application that is critically
+dependent on the fork-notification, suddenly stops receiving such
+notification because some other application has switched off the 
+service without its notice. 
 
-cu
-Adrian
+the reason I am concerned is I am planning to feed this fork-events
+to my in-kernel module. Side note: I would really like support for
+in-kernel listners through connector infrastructure.
 
--- 
+RP
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> 
+> > RP
+> > 
+> > 
+> > > 
+> > > 
+> > > What do you think about this implementation? 
+> > > 
+> > > Guillaume
+> > > 
+> 
+> 
+> 	Evgeniy Polyakov
+> 
+> Only failure makes us experts. -- Theo de Raadt
 

@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265328AbUFOGwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265339AbUFOHDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265328AbUFOGwo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 02:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265334AbUFOGwo
+	id S265339AbUFOHDS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 03:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbUFOHDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 02:52:44 -0400
-Received: from 201008118128.user.veloxzone.com.br ([201.8.118.128]:6663 "EHLO
-	speed04.mshome.net") by vger.kernel.org with ESMTP id S265328AbUFOGwm
+	Tue, 15 Jun 2004 03:03:18 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:41856 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265339AbUFOHDQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 02:52:42 -0400
-Date: Tue, 15 Jun 2004 01:56:52 -0300
-From: viaemail <csiten@yahoo.com>
-X-Mailer: The Bat! (v2.11.02) UNREG / CD5BF9353B3B7091
-Reply-To: viaemail <csiten@yahoo.com>
-Organization: viauno,Inc
-X-Priority: 3 (Normal)
-Message-ID: <1407929609.20040615015652@yahoo.com>
-To: vu <viauno@yahoo.com>
-Subject: =?ISO-8859-15?B?U3VhIGRpdmVyc+NvIGVzdGEgZGUgdm9sdGEgZW0gQmVsbyBIb3Jpem9u?=
-	=?ISO-8859-15?B?dGUuLi4=?=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	Tue, 15 Jun 2004 03:03:16 -0400
+Subject: Re: In-kernel Authentication Tokens (PAGs)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Blair Strang <bls@asterisk.co.nz>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <87smcxqqa2.fsf@asterisk.co.nz>
+References: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com>
+	 <1087080664.4683.8.camel@lade.trondhjem.org>
+	 <D822E85F-BCC8-11D8-888F-000393ACC76E@mac.com>
+	 <1087084736.4683.17.camel@lade.trondhjem.org>
+	 <DD67AB5E-BCCF-11D8-888F-000393ACC76E@mac.com>
+	 <87smcxqqa2.fsf@asterisk.co.nz>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1087282990.13680.13.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 15 Jun 2004 03:03:10 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VIAEMAIL-informativo
+På ty , 15/06/2004 klokka 02:38, skreiv Blair Strang:
 
-Visite em Belo Horizonte o ROYAL CLUB CAFE, uma casa de jogos via
-Internet por computadores, a ultima novidade em jogos e divertimentos.
-Clique e conheça mais:
-http://www.emailfirst.bravehost.com/rccpage1.htm
+> Surely the only logical reason to tag a process with extra security
+> information /in the kernel/ is because that information is going to be
+> used /by the kernel/.  I can't think of a good reason to put a
+> generalised keystore in the kernel.
 
+Here are three good reasons.
 
-................................................
-
-Este e-mail promocional foi enviado,por que voce inscreveu-se
-diretamente em nosso site da viaNet ou de nossos associados. Para
-cancelar futuros envios, por favor clique viauno@yahoo.com e envie.
-Para informacões sobre nossos serviços de comunicação via Internet,
-clique: http://www.viaemail.bravehost.com/index.htm
-
+ - You want the key lifetime to be the same as your process lifetime
+ - You want the key to be readable ONLY by that one process.
+ - The kernel wants to supports multiple security realms and mechanisms.
+Not everybody is happy with just kerberosV credentials, and we already
+have beta code for the SPKM mechanism in RPCSEC_GSS.
 
 
+As for the AFS PAG idea: it's already been shot down. See the
+linux-fsdevel thread I referred to earlier.
+
+Cheers,
+  Trond

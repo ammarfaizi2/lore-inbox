@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286711AbRLVIMy>; Sat, 22 Dec 2001 03:12:54 -0500
+	id <S286712AbRLVIOY>; Sat, 22 Dec 2001 03:14:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286712AbRLVIMo>; Sat, 22 Dec 2001 03:12:44 -0500
-Received: from ca-mnet244-12-43.monarch.net ([24.244.12.43]:61704 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S286711AbRLVIM2>;
-	Sat, 22 Dec 2001 03:12:28 -0500
+	id <S286713AbRLVIOH>; Sat, 22 Dec 2001 03:14:07 -0500
+Received: from femail34.sdc1.sfba.home.com ([24.254.60.24]:15353 "EHLO
+	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S286712AbRLVINq>; Sat, 22 Dec 2001 03:13:46 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, Dan Kegel <dkegel@ixiacom.com>
-Subject: Re: Linux 2.4.17
-Date: Sat, 22 Dec 2001 09:15:34 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0112211744080.7492-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0112211744080.7492-100000@freak.distro.conectiva>
+From: Rob Landley <landley@trommello.org>
+To: esr@thyrsus.com, David Garfield <garfield@irving.iisd.sra.com>
+Subject: Re: Configure.help editorial policy
+Date: Fri, 21 Dec 2001 19:12:13 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011220143247.A19377@thyrsus.com> <15395.33489.779730.767039@irving.iisd.sra.com> <20011221134034.B11147@thyrsus.com>
+In-Reply-To: <20011221134034.B11147@thyrsus.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16HhJg-0002Kz-00@starship.berlin>
+Message-Id: <20011222081345.ETGO12125.femail34.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 21, 2001 08:44 pm, Marcelo Tosatti wrote:
-> On Fri, 21 Dec 2001, Dan Kegel wrote:
-> 
-> > Marcelo wrote:
-> > 
-> > > Well, 
-> > > 
-> > > Here it is... 
-> > > 
-> > > 
-> > > final:
-> > > 
-> > > - Fix more loopback deadlocks                   (Andrea Arcangeli)
-> > > - Make Alpha with Nautilus chipset and
-> > >   Irongate chipset configuration compile
-> > >   correctly                                     (Michal Jaegermann)
-> > > 
-> > > rc2: 
-> > > 
-> > > - Fix potential oops with via-rhine             (Andrew Morton)
-> > > - sysvfs: mark inodes as bad in case of read 
-> > > ...
-> > 
-> > Um, what happened to the idea of 'no changes between the last
-> > release candidate and final'?
-> 
-> I haven't said that, did I? 
-> 
-> I said I would make -rc kernels which would not add any new _feature_.
+On Friday 21 December 2001 01:40 pm, Eric S. Raymond wrote:
+> David Garfield <garfield@irving.iisd.sra.com>:
+> > Eric S. Raymond writes:
 
-I'll weigh in on this one, basically a "me too".  The only changelog entry I 
-find unsettling is "Fix more loopback deadlocks" and all I have to say about 
-it is: remember what happened when Al fixed the iput bug.  I'm not suggesting 
-that there was no basic idiot testing - I'm practically certain you did some 
-yourself, but it would have been oh-so-nice to have an rc3 that lived for at 
-least a short time on the kernel list before going to final.
+> > Choice of kB vs KB vs KiB vs KKB could also be used in some places in
+> > the kernel.  For instance, /proc/meminfo currently shows "kB".
+>
+> What, and *encourage* non-uniform terminology?  No, I won't do that.
+> Better to have a single standard set of abbreviations, no matter how
+> ugly, than this.
 
-By the way, great job managing this first major point release (2.4.16 doesn't 
-really count ;-).
+ find . -name "*.?" | xargs grep MiB | wc
+     46 lines, half of which seem to live in "jedec_probe.c".
 
---
-Daniel
+ find . -name "*.?" | xargs grep -w MB | wc
+    302 lines.  And that's just upper case, whole word, not "MBs" or "Mb" or 
+any other fun little variation...
+
+ find . -name "*.?" | xargs grep -i MEGABYTE | wc
+     31 lines.
+
+ find . -name "*.?" | xargs grep -i MEBIBYTE | wc
+      1 line, and it's a comment saying it's NOT being used (along with one 
+of the MiB hits).
+
+If you're going with a uniform terminology argument, you should drop MiB 
+altogether.  Unless you want to submit a patch to the kernel to standardize 
+all the other occurences everywhere else? :)
+
+Rob

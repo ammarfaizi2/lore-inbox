@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264942AbTL2UQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 15:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbTL2UQ7
+	id S265143AbTL2UYu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 15:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265158AbTL2UYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 15:16:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:446 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264942AbTL2UPh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 15:15:37 -0500
-Date: Mon, 29 Dec 2003 12:15:16 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Phillips <phillips@arcor.de>
-cc: William Lee Irwin III <wli@holomorphy.com>, mfedyk@matchmail.com,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Anton Ertl <anton@mips.complang.tuwien.ac.at>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Subpages (was: Page Colouring)
-In-Reply-To: <200312291501.32541.phillips@arcor.de>
-Message-ID: <Pine.LNX.4.58.0312291214030.2113@home.osdl.org>
-References: <179fV-1iK-23@gated-at.bofh.it> <20031229025507.GT22443@holomorphy.com>
- <Pine.LNX.4.58.0312282000390.11299@home.osdl.org> <200312291501.32541.phillips@arcor.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Dec 2003 15:24:50 -0500
+Received: from CPE-24-163-214-136.mn.rr.com ([24.163.214.136]:6596 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S265143AbTL2UYq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 15:24:46 -0500
+Subject: Re: 2.6.0-mm2
+From: Shawn <core@enodev.com>
+To: Stef van der Made <svdmade@planet.nl>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FF08057.7010405@planet.nl>
+References: <20031229013223.75c531ed.akpm@osdl.org>
+	 <3FF08057.7010405@planet.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1072729484.8769.1.camel@www.enodev.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 29 Dec 2003 14:24:44 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Stef:
 
+Andrew has explained in the past that the -mm branch is not the official
+kernel branch. I don't know what's happening with what could be called
+2.6.0-pre*, and don't know if it exists anywhere but in Andrew's head.
 
-On Mon, 29 Dec 2003, Daniel Phillips wrote:
+On Mon, 2003-12-29 at 13:28, Stef van der Made wrote:
+> Dear Andrew,
 > 
-> I took a stab at implementing subpages some time ago in 2.4 and got it mostly 
-> working but not quite bootable.  I did find out roughly how invasive the 
-> patch is, which is: not very, unless I've overlooked something major.  I'll 
-> get busy on a 2.6 prototype, and of course I'll listen attentively for 
-> reasons why this plan won't work.
+> Is it possible to use the old schema of pre1, pre2 und so weiter 
+> releases so that we can use the incremental patch sets again.
+> 
+> Thanks,
+> 
+> Stef
 
-Ah, ok. I thought it was further along than that.
-
-If so, let's consider that possibility a more long-range plan - it is 
-independent of just making PAGE_CACHE_SIZE be bigger.
-
-		Linus

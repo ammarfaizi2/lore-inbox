@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284180AbSAGRkI>; Mon, 7 Jan 2002 12:40:08 -0500
+	id <S284182AbSAGRl6>; Mon, 7 Jan 2002 12:41:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284191AbSAGRjs>; Mon, 7 Jan 2002 12:39:48 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:14599 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S284186AbSAGRjr>;
-	Mon, 7 Jan 2002 12:39:47 -0500
-Date: Mon, 7 Jan 2002 18:39:37 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org
+	id <S284186AbSAGRli>; Mon, 7 Jan 2002 12:41:38 -0500
+Received: from [62.245.135.174] ([62.245.135.174]:47545 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S284182AbSAGRlh>;
+	Mon, 7 Jan 2002 12:41:37 -0500
+Message-ID: <3C39DDC9.29F29E68@TeraPort.de>
+Date: Mon, 07 Jan 2002 18:41:29 +0100
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Reply-To: m.knoblauch@TeraPort.de
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: vanl@megsinet.net
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-Id: <20020107183937.40625026.skraw@ithnet.com>
-In-Reply-To: <20020106153854.A10824@earthlink.net>
-In-Reply-To: <20020106153854.A10824@earthlink.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 01/07/2002 06:41:29 PM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 01/07/2002 06:41:36 PM,
+	Serialize complete at 01/07/2002 06:41:36 PM
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002 15:38:54 -0500
-rwhron@earthlink.net wrote:
+> Re: [2.4.17/18pre] VM and swap - it's really unusable
+> 
+> 
+> I did some tests with different VM-patches. I tested one ac-patch, too.
+> I detected the same as you described - but the memory-consumption and
+> the behaviour at all isn't better. If you want to, you can test another
+> patch, which worked best in my test. It's nearly as good as kernel
+> 2.2.x. Ask M.H.vanLeeuwen (vanl@megsinet.net) for his oom-patch to
+> kernel 2.4.17.
+> But beware: maybe this strategy doesn't fit to your applications. And
+> it's not for productive use.
+> I and some others surely too, would be interested in your experience
+> with this patch.
+> 
+Hi,
 
-> In the experiment above, it appears the rc2aa2 VM shinks slabs and 
-> page/buffer caches in a reasonable way when a process needs a lot
-> of memory.
+ so I took the M.H.vL vmscan.c patch for 2.4.17 and it is a definite
+winner for me. Sounds like 2.4.18 material.
 
-Hello Randy,
-
-can you please try The Same Thing while copying large files around in the
-background (lets say 100MB files) and re-comment.
-
-Thanks,
-Stephan
-
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

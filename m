@@ -1,46 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270453AbTHGTh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 15:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270458AbTHGTh5
+	id S270345AbTHGTkR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 15:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270469AbTHGTkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 15:37:57 -0400
-Received: from CS.ubishops.ca ([206.167.194.132]:4252 "EHLO cs.ubishops.ca")
-	by vger.kernel.org with ESMTP id S270453AbTHGThz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 15:37:55 -0400
-Message-ID: <3F32AA2B.20809@cs.ubishops.ca>
-Date: Thu, 07 Aug 2003 15:36:11 -0400
-From: Patrick McLean <pmclean@cs.ubishops.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030731
-X-Accept-Language: en-us, en
+	Thu, 7 Aug 2003 15:40:17 -0400
+Received: from host81-136-142-241.in-addr.btopenworld.com ([81.136.142.241]:9963
+	"EHLO mx.homelinux.com") by vger.kernel.org with ESMTP
+	id S270345AbTHGTkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 15:40:07 -0400
+Date: Thu, 7 Aug 2003 20:40:02 +0100 (BST)
+From: Mitch@0Bits.COM
+X-X-Sender: mitch@mx.homelinux.com
+Reply-To: Mitch@0Bits.COM
+To: Fridtjof Busse <fbusse@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-rc1
+Message-ID: <Pine.LNX.4.53.0308072035300.25633@mx.homelinux.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2-mm5 x86-64 link errors
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Hits: -0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get to play with an opteron for a bit, so I'm going to try 2.6 on it, 
-but test2-mm5 seems to compile fine, but when it goes to link it, it 
-gives these errors:
+> Well, I only see this with 2.4.22-pre/rc, so this is definitly not a
+> hardware-problem, it runs just fine with 2.4.21 at 9950 kB/s.
 
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-kernel/built-in.o(.text+0x359): In function `try_to_wake_up':
-: undefined reference to `sched_clock'
-kernel/built-in.o(.text+0x3b9): In function `try_to_wake_up':
-: undefined reference to `sched_clock'
-kernel/built-in.o(.text+0x1150): In function `load_balance':
-: undefined reference to `sched_clock'
-kernel/built-in.o(.text+0x1ae3): In function `schedule':
-: undefined reference to `sched_clock'
-kernel/built-in.o(.text+0x3a22): In function `move_task_away':
-: undefined reference to `sched_clock'
-kernel/built-in.o(.text+0x56cc): more undefined references to 
-`sched_clock' follow
-make: *** [.tmp_vmlinux1] Error 1
+Sounds exactly like the problem i was having. However the logical
+thought behind it was that it must be either 1) a hardware specific
+problem, or 2) a generic usb driver problem. Since only a handful
+of people seen the problem, then this logically leads one to the
+conclusion that our usb<->ide devices have some marginal timing
+issues that are being triggered with the new code.
+
+> And running my backup on USB 1.1 is not an option, way to slow.
+
+Well in my case i opted for the slow backup rather than the no backup
+if i wanted to move forward with the new kernels.
+
+Cheers
+Mitch
+
+-------- Original Message --------
+Subject: Re: Linux 2.4.22-rc1
+Date: Thu, 7 Aug 2003 17:45:06 +0200
+From: Fridtjof Busse <fbusse@gmx.de>
+To: linux-kernel@vger.kernel.org
+CC: Mitch@0Bits.COM
+References: <Pine.LNX.4.53.0308071119200.27424@mx.homelinux.com>
+<15050.1060270543@www56.gmx.net>
+
+* <Mitch@0Bits.COM>:
+> Not enough info.
+>
+> What usb controller do you have ? Which usb driver ?
+> ohci ? uhci ? ehci ? usb 2.0 ?
+
+nforce2 with the ehci-driver.
+
+> I reported this a long time ago on the usb lists, but
+> never got down to the bottom of the problem (my fault for
+> not following thru).
+
+I also reported this problem there, but didn't get a reply at all.
+
+> However if i disable the usb 2.0
+> driver (i.e. not loading the ehci driver) which my external
+> storage is connected to, then everything works fine - albeit
+> it much more slowly. Appears to be a timing issue on some
+> usb <-> ide controller chips since not everyone is seeing this.
+
+Well, I only see this with 2.4.22-pre/rc, so this is definitly not a
+hardware-problem, it runs just fine with 2.4.21 at 9950 kB/s.
+And running my backup on USB 1.1 is not an option, way to slow.
+
+-- 
+Fridtjof Busse
+panic("Lucy in the sky....");
+	2.2.16 /usr/src/linux/arch/sparc64/kernel/starfire.c
 

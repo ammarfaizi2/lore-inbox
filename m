@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVBDRjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbVBDRjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVBDRjT (ORCPT <rfc822;willy@w.ods.org>);
+	id S262574AbVBDRjT (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 4 Feb 2005 12:39:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263342AbVBDRfM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266121AbVBDRhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 12:35:12 -0500
-Received: from fsmlabs.com ([168.103.115.128]:22723 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S265191AbVBDRb4 (ORCPT
+	Fri, 4 Feb 2005 12:37:46 -0500
+Received: from alhya.freenux.org ([81.56.176.87]:37034 "EHLO moria.freenux.org")
+	by vger.kernel.org with ESMTP id S262848AbVBDRhU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 12:31:56 -0500
-Date: Fri, 4 Feb 2005 10:31:17 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Tony Lindgren <tony@atomide.com>
-cc: Pavel Machek <pavel@suse.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick, version 050127-1
-In-Reply-To: <20050204171805.GF22444@atomide.com>
-Message-ID: <Pine.LNX.4.61.0502041028460.2194@montezuma.fsmlabs.com>
-References: <20050201110006.GA1338@elf.ucw.cz> <20050201204008.GD14274@atomide.com>
- <20050201212542.GA3691@openzaurus.ucw.cz> <20050201230357.GH14274@atomide.com>
- <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com>
- <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com>
- <20050204051929.GO14325@atomide.com> <Pine.LNX.4.61.0502032329150.26742@montezuma.fsmlabs.com>
- <20050204171805.GF22444@atomide.com>
+	Fri, 4 Feb 2005 12:37:20 -0500
+Message-ID: <4203B2CA.9050609@kde.org>
+Date: Fri, 04 Feb 2005 18:37:14 +0100
+From: Mickael Marchand <marchand@kde.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050119)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Guillaume Chazarain <guichaz@yahoo.fr>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11-rc3 - BT848 no signal
+References: <Pine.LNX.4.58.0502021824310.2362@ppc970.osdl.org> <1107407987.2097.18.camel@lb.loomes.de> <87is5a0wxm.fsf@bytesex.org> <1107428571.2068.4.camel@lb.loomes.de> <20050203113022.GK10602@bytesex> <4202798B.7000802@kde.org> <42035211.9030603@yahoo.fr>
+In-Reply-To: <42035211.9030603@yahoo.fr>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005, Tony Lindgren wrote:
+that did it for me too :)
 
-> Yes, it's safer to keep the timer periodic, although it's
-> used for oneshot purposes for the skips. If the timer interrupt
-> got missed for some reason, the system would be able to recover when
-> it's in periodic mode.
-> 
-> And with some timers, we can do the reprogramming faster, as we just
-> need to load the new value.
-> 
-> I could not figure out how to disable the interrupts for PIT
-> when local APIC is used and the ticks to skip is longer than PIT
-> would allow. So I just changed the mode temporarily to disable it.
->
-> Does anybody know if there's a way to stop PIT interrupts while
-> keeping it in the periodic mode?
+seems Gerd Knorr already applied
 
-disable_irq(0) ?
+thanks
+
+Cheers,
+Mik
+
+Guillaume Chazarain wrote:
+> Mickael Marchand wrote:
+> 
+>> Hello,
+>>
+>> I am having the same kind of troubles (can't tune and mt_set_frequency 
+>> -121 errors) since 2.6.10 (it was working in 2.6.9) on amd64.
+>> this patch did not help sadely.
+> 
+> 
+> I have the same problem, but on x86, the attached patch fixed it for me.
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> --- linux-2.6.11-rc3/drivers/media/video/tda9887.c
+> +++ linux-2.6.11-rc3/drivers/media/video/tda9887.c
+> @@ -545,19 +553,21 @@
+>  	int rc;
+>  
+>  	memset(buf,0,sizeof(buf));
+> +	tda9887_set_tvnorm(t,buf);
+>  	buf[1] |= cOutputPort1Inactive;
+>  	buf[1] |= cOutputPort2Inactive;
+> -	tda9887_set_tvnorm(t,buf);
+>  	if (UNSET != t->pinnacle_id) {
+>  		tda9887_set_pinnacle(t,buf);
+>  	}
+>  	tda9887_set_config(t,buf);
+>  	tda9887_set_insmod(t,buf);
+>  
+> +#if 0
+>  	if (t->std & V4L2_STD_SECAM_L) {
+>  		/* secam fixup (FIXME: move this to tvnorms array?) */
+>  		buf[1] &= ~cOutputPort2Inactive;
+>  	}
+> +#endif
+>  
+>  	dprintk(PREFIX "writing: b=0x%02x c=0x%02x e=0x%02x\n",
+>  		buf[1],buf[2],buf[3]);
+

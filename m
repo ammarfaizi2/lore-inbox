@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVAOCbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbVAOCfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbVAOCbf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 21:31:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVAOCbe
+	id S262153AbVAOCfH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 21:35:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVAOCfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 21:31:34 -0500
-Received: from hera.kernel.org ([209.128.68.125]:45990 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262153AbVAOC34 (ORCPT
+	Fri, 14 Jan 2005 21:35:07 -0500
+Received: from hera.kernel.org ([209.128.68.125]:6823 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262153AbVAOCe6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 21:29:56 -0500
+	Fri, 14 Jan 2005 21:34:58 -0500
 To: linux-kernel@vger.kernel.org
 From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
-Date: Sat, 15 Jan 2005 02:29:35 +0000 (UTC)
+Subject: Re: short read from /dev/urandom
+Date: Sat, 15 Jan 2005 02:34:37 +0000 (UTC)
 Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <cs9v6f$3tj$1@terminus.zytor.com>
-References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet> <20050114205651.GE17263@kam.mff.cuni.cz> <Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
+Message-ID: <cs9vft$412$1@terminus.zytor.com>
+References: <41E7509E.4030802@redhat.com> <20050114191056.GB17481@thunk.org> <41E833F4.8090800@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1105756175 4020 127.0.0.1 (15 Jan 2005 02:29:35 GMT)
+X-Trace: terminus.zytor.com 1105756477 4131 127.0.0.1 (15 Jan 2005 02:34:37 GMT)
 X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sat, 15 Jan 2005 02:29:35 +0000 (UTC)
+NNTP-Posting-Date: Sat, 15 Jan 2005 02:34:37 +0000 (UTC)
 X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
-By author:    linux-os <linux-os@analogic.com>
+Followup to:  <41E833F4.8090800@redhat.com>
+By author:    Ulrich Drepper <drepper@redhat.com>
 In newsgroup: linux.dev.kernel
-> >
-> > Actually -mregparm=0 is not supposed to be even accepted by x86-64
-> > compiler (I've disabled the function attribute but apparently missed
-> > this one) and even if GCC produced valid code by miracle, you will get
-> > into trouble with hand written assembly.
 > 
-> Huh? That's the default for a 'C' compiler (not to pass parameters
-> in registers). The parameters are passed on the stack as the default!
-> The return values don't count. They are, by default passed in eax
-> or edx-eax pair for a long long.
+> The code in question comes from a crypto library which is in wide use 
+> (http://www.cryptopp.com) and it is using urandom under this assumption. 
+>   I fear there is quite a bit more code like this out there.  Changing 
+> the ABI after the fact is no good and dangerous in this case.
+> 
+> I know this is making the device special, but I really think the 
+> no-short-reads property should be perserved for urandom.
 > 
 
-Dear Wrongbot,
+Does *anything* have it, including files?
 
-It depends on the architecture ABI.  This is the case for the i386
-ABI, but definitely *NOT* for x86-64.
+I think read() always has the option of returning a short read on
+signal delivery.
+
+What urandom has is a no-block guarantee, i.e. the behaviour should be
+identical in the presense of the O_NONBLOCK flag, and select/poll
+should always indicate that data can be read.
 
 	-hpa

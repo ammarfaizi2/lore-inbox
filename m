@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131156AbQLKXz3>; Mon, 11 Dec 2000 18:55:29 -0500
+	id <S129345AbQLLACv>; Mon, 11 Dec 2000 19:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131205AbQLKXzT>; Mon, 11 Dec 2000 18:55:19 -0500
-Received: from smtp3.jp.psi.net ([154.33.63.113]:49170 "EHLO smtp3.jp.psi.net")
-	by vger.kernel.org with ESMTP id <S131156AbQLKXzJ>;
-	Mon, 11 Dec 2000 18:55:09 -0500
-From: "Rainer Mager" <rmager@vgkk.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Signal 11
-Date: Tue, 12 Dec 2000 08:24:00 +0900
-Message-ID: <NEBBJBCAFMMNIHGDLFKGKENMCIAA.rmager@vgkk.com>
+	id <S129908AbQLLACl>; Mon, 11 Dec 2000 19:02:41 -0500
+Received: from web216.mail.yahoo.com ([128.11.68.116]:15377 "HELO
+	web216.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129314AbQLLAC0>; Mon, 11 Dec 2000 19:02:26 -0500
+Message-ID: <20001211233159.12922.qmail@web216.mail.yahoo.com>
+Date: Mon, 11 Dec 2000 15:31:59 -0800 (PST)
+From: Jean Fekry Rizk <jeanfekry@yahoo.com>
+Subject: Re: Linking with kernel code (Makefile)
+To: David Feuer <David_Feuer@brown.edu>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <Pine.Linu.4.10.10012111426350.706-100000@mikeg.weiden.de>
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(This message contains a number of related replies.)
+Thanks for your advice,
 
-> From: Mike Galbraith [mailto:mikeg@wen-online.de]
-> Is init permanently running after you see a couple of these?
+I already know one way to accomodate shared memory between a user process
+and the kernel.
+This is done by making a character device which allocates memory in the
+kernel, then from the user appl, using the mmap function of the driver.
 
-No, that is, after 23 hours up time it has used only 6 seconds CPU time
-(according to top).
+I was only wondering why I could not link my code with the kernel, though
+they are compiled together, this means I should be able to use any
+function in the kernel files as long as I succeed to define it right
 
-That reminds me that I should repeat that my signal 11 problem has (so far)
-only caused X to die. The OS remains up and stable.
+So in my question X would be any application, Y would be linking my code
+with the kernel and Z would be to get more control over structures
+
+--- David Feuer <David_Feuer@brown.edu> wrote:
+> At 03:12 PM 12/10/2000 -0800, you wrote:
+> >Hi Kernel World,
+> >I'm new to linux-kernel developement, so I would appreciate any help.
+> >
+> >What I want to do:
+> >     create a shared memory segment between user space and kernel space
+> 
+> Generally, you can get the most useful help from linux-kernel if as well
+> as 
+> saying what you do you also say _why_.  So if you say you are developing
+> an 
+> application to do X, and you want to interact with the kernel in a
+> certain 
+> way Y because Z, then if Y is the correct way to accomplish X, people
+> will 
+> tell you how.  If, however, there is a better way, they will tell you
+> this 
+> instead.  Sorry, I don't know anything about the particular question you
+> 
+> posted, but if you want my own uneducated guess, I will guess that it's
+> not 
+> possible.
+> 
+> --
+> This message has been brought to you by the letter alpha and the number
+> pi.
+> Open Source: Think locally; act globally.
+> David Feuer
+> David_Feuer@brown.edu
+> 
 
 
-> From: davej@suse.de [mailto:davej@suse.de]
-> My troublesome box finally seems to be stable.[...]I disabled DRM
-> & AGPGart. With them both disabled, I get no problems at all.
-> No Sig11's, No Sig4's, No lockups.
->
-> This box has a Voodoo3 3000 AGP..
-
-I suppose I can try this too. My box has a Matrox G400. BTW, what is DRM?
-Direct Rendering something?
-
-
-> From: CMA [mailto:cma@mclink.it]
-> Did you already try to selectively disable L1 and L2 caches (if
-> your box has both) and see what happens?
-
-I'll look into this as well. Anyone have any pointers on how to do this? I
-have a Tyan Tiger 133 with Award BIOS if this helps/matters.
-
-Even if this setting does make a difference, what does this tell me/us? I
-don't consider running the box with disabled cache(s) a viable solution.
-
-
-
-Thanks all and keep those suggestions coming.
-
---Rainer
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

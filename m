@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSH1Qbf>; Wed, 28 Aug 2002 12:31:35 -0400
+	id <S315413AbSH1Qi1>; Wed, 28 Aug 2002 12:38:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSH1Qbf>; Wed, 28 Aug 2002 12:31:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5136 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312560AbSH1Qbe>;
-	Wed, 28 Aug 2002 12:31:34 -0400
-Message-ID: <3D6CFE97.DA554FA9@zip.com.au>
-Date: Wed, 28 Aug 2002 09:47:19 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Heinz Diehl <hd@cavy.de>
-CC: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: 2.5.32-mm1
-References: <3D6C500E.426B163A@zip.com.au> <20020828132748.GA7466@chiara.cavy.de>
-Content-Type: text/plain; charset=us-ascii
+	id <S315472AbSH1Qi1>; Wed, 28 Aug 2002 12:38:27 -0400
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:52493 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S315413AbSH1Qi0>;
+	Wed, 28 Aug 2002 12:38:26 -0400
+Subject: exporting symbols in kernel only when a module is compiled?
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 28 Aug 2002 12:39:50 -0400
+Message-Id: <1030552792.581.38.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heinz Diehl wrote:
-> 
-> ...
-> fs/fs.o(.text+0x5932): undefined reference to cpu_possible'
+Ok, I'm sure this isn't limited to tcp_hashinfo, but does it make sense
+to only export some symbols if "x" module is compiled into the kernel?  
 
-Bah.  Sorry about that.  cpu_possible() appears to be undefined
-for uniprocessor builds.
+For example with tcp_hashinfo, its only exported if ipv6 is compiled as
+a module.  So if one statically compiles in ipv6 or doesnt compile it at
+all, its not available to any other modules.  Is there a good reason for
+it here?  Are there other similiar situations with other symbols? 
+Should it be this way?  
 
-How about this?
+It's possible to get around with recompiling modules and System.map
+hackery, but should it be necessary?
 
---- 2.5.32/include/linux/smp.h~cpu_possible	Wed Aug 28 09:43:05 2002
-+++ 2.5.32-akpm/include/linux/smp.h	Wed Aug 28 09:44:00 2002
-@@ -108,6 +108,9 @@ static inline int register_cpu_notifier(
- static inline void unregister_cpu_notifier(struct notifier_block *nb)
- {
- }
-+
-+#define cpu_possible(cpu)	((cpu) == 0)
-+
- #endif /* !SMP */
- 
- #define get_cpu()		({ preempt_disable(); smp_processor_id(); })
---- 2.5.32/fs/buffer.c~cpu_possible	Wed Aug 28 09:43:09 2002
-+++ 2.5.32-akpm/fs/buffer.c	Wed Aug 28 09:44:17 2002
-@@ -22,6 +22,7 @@
- #include <linux/kernel.h>
- #include <linux/fs.h>
- #include <linux/mm.h>
-+#include <linux/smp.h>
- #include <linux/percpu.h>
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
+thanks,
 
-.
+shaya
+
+
+

@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVCaJk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVCaJdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVCaJk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 04:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVCaJkV
+	id S261262AbVCaJdF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 04:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVCaJaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 04:40:21 -0500
-Received: from queuerelay.edis.at ([81.223.48.9]:33664 "EHLO
-	queuelrelay.edis.at") by vger.kernel.org with ESMTP id S261241AbVCaJib
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 04:38:31 -0500
-Message-ID: <424BC4D5.90204@lawatsch.at>
-Date: Thu, 31 Mar 2005 11:37:25 +0200
-From: Philip Lawatsch <philip@lawatsch.at>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: AMD64 Machine hardlocks when using memset
-References: <3NTHD-8ih-1@gated-at.bofh.it>	<424B7ECD.6040905@shaw.ca>	<200503311025.56871.vda@ilport.com.ua> <20050331001513.3c4321a7.pj@engr.sgi.com>
-In-Reply-To: <20050331001513.3c4321a7.pj@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Mar 2005 04:30:14 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:35467 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261228AbVCaJQc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 04:16:32 -0500
+Date: Thu, 31 Mar 2005 11:16:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Frank Rowand <frowand@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] ppc RT: Realtime preempt support for PPC
+Message-ID: <20050331091614.GB22397@elte.hu>
+References: <422CCC1D.1050902@mvista.com> <20050316100914.GA16012@elte.hu> <423F691E.200@mvista.com> <424B542F.9090308@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424B542F.9090308@mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Denis wrote:
-> 
->>This reminds me on VIA northbridge problem when BIOS enabled
->>a feature which was experimental and turned out to be buggy.
-> 
-> 
-> You were close!
-> 
-> I changed my Memory Timing from 1T to 2T, and now it is as solid as a
-> rock.  It has been up 7 minutes as I type this, without a hiccup.
-> 
-> Notice this comment, at http://www.vr-zone.com.sg/?i=1641&p=1&s=0
-> 
->     Well as most Athlon 64 users know, 1T setting improves performance quite
->     significantly over 2T, but it is also very taxing on the memory and
->     quite a hit-and-miss when matching different memory with different
->     boards. From some users' feedback, the Asus A8N SLI can be a little
->     picky with 1T setting when overclocking, so results might be a little
->     better with other boards.
-> 
 
-I've now tried the most conservative settings available. The 32 bit
-kernel now hangs after about 150000 Iterations (compared to about 16000
-before) but the 64 bit kernel still hangs after about 5000.
+* Frank Rowand <frowand@mvista.com> wrote:
 
-After a ~12 hour memtest86 run memtest86 crashed (!), filling the
-console with some garbage characters and then hanging.
+> < more stuff deleted >
+> 
+> I'm working on the architecture support for realtime on PPC64 now. If 
+> the lock field of struct raw_rwlock_t is a long instead of int then 
+> /proc/meminfo shows MemFree decreasing from 485608 kB to 485352 kB.
+> 
+> Do you have a preference for lock to be long instead of int?
+> 
+> Do you know if any of the other 64 bit architectures would have an 
+> issue with int?
 
-This is driving me crazy.
+that would be nice to know. I have no preference, other than if possible 
+it should be unified, no #ifdefs or other conditionals.
 
-Imo memtest86 should not hang onless something screws up the memory area
-it is loaded into.
-
-I've also tried the newest beta bios for the board now, didnt change
-anything.
-
-kind regards Philip
+	Ingo

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265525AbTFMUZa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 16:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbTFMUZa
+	id S265522AbTFMUZG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 16:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265525AbTFMUZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 16:25:30 -0400
-Received: from quechua.inka.de ([193.197.184.2]:8400 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S265525AbTFMUZ1 (ORCPT
+	Fri, 13 Jun 2003 16:25:05 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:9635 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265522AbTFMUZC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 16:25:27 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Real multi-user linux
-In-Reply-To: <Pine.LNX.4.44.0306131713340.29353-100000@phoenix.infradead.org>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19QvKF-0008Hi-00@calista.inka.de>
-Date: Fri, 13 Jun 2003 22:39:07 +0200
+	Fri, 13 Jun 2003 16:25:02 -0400
+Date: Fri, 13 Jun 2003 22:38:46 +0200
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Peter Berg Larsen <pebl@math.ku.dk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+Message-ID: <20030613223846.A9080@ucw.cz>
+References: <20030613094435.B29859@ucw.cz> <Pine.LNX.4.44.0306132118540.29353-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0306132118540.29353-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Fri, Jun 13, 2003 at 09:25:09PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0306131713340.29353-100000@phoenix.infradead.org> you wrote:
->   As for the potential of this. Its large. With Gnome/KDE
-> and OpenOffice running for 3,4 or more people at the same
-> time out of one box will be a enormous cost reducer for 
-> any business.
+On Fri, Jun 13, 2003 at 09:25:09PM +0100, James Simmons wrote:
 
-Just out of curiosity. How much is this reduction for hardware? How many do
-you have to pay for a 3-place box compared to a 3-cheapthin-client+server
-solution? Especially if you consider the cabling limitations?
+> Just as a idea for API. How about ABS_AREA or REL_AREA instead of 
+> ABS_MISC. The idea is the pressure value returned should be about 
+> the same if one presses hard with one finger or softly with a whole 
+> hand.
 
-Greetings
-Bernd
+Huh? Force = Pressure x Area ... I think you're mixing up force and
+pressure here.
+
+> So to tell the difference between the two we can report the 
+> pressure and the area over which it acted. Say in virtual reality 
+> environment simulation poking a object hard with your finger would
+> have a very different effect than placing your hand lightly on the 
+> object even tho they might register about the same pressure.
+
 -- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Vojtech Pavlik
+SuSE Labs, SuSE CR

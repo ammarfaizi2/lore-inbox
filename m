@@ -1,413 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVAJF7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVAJFpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVAJF7t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 00:59:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVAJF4Q
+	id S262103AbVAJFpq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 00:45:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVAJFnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 00:56:16 -0500
-Received: from pool-151-203-193-191.bos.east.verizon.net ([151.203.193.191]:34564
+	Mon, 10 Jan 2005 00:43:52 -0500
+Received: from pool-151-203-193-191.bos.east.verizon.net ([151.203.193.191]:26372
 	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S262111AbVAJFO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 00:14:58 -0500
-Message-Id: <200501100736.j0A7a8PW005855@ccure.user-mode-linux.org>
+	id S262103AbVAJFO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 00:14:29 -0500
+Message-Id: <200501100735.j0A7ZsPW005815@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
 To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, cw@foof.org
-Subject: [PATCH 25/28] UML - Fix sys_call_table syntax
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 17/28] UML - use for_each_cpu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 10 Jan 2005 02:36:08 -0500
+Date: Mon, 10 Jan 2005 02:35:54 -0500
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Chris Wright - Fix the syntax of the sys_call_table initializers.
+Use for_each_cpu rather than iterating over processors by hand.
 
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: 2.6.10/arch/um/kernel/sys_call_table.c
+Index: linux-2.6.10/arch/um/kernel/irq.c
 ===================================================================
---- 2.6.10.orig/arch/um/kernel/sys_call_table.c	2005-01-07 23:24:31.000000000 -0500
-+++ 2.6.10/arch/um/kernel/sys_call_table.c	2005-01-07 23:36:18.000000000 -0500
-@@ -62,205 +62,205 @@
+--- linux-2.6.10.orig/arch/um/kernel/irq.c	2005-01-09 22:38:07.000000000 -0500
++++ linux-2.6.10/arch/um/kernel/irq.c	2005-01-09 22:38:17.000000000 -0500
+@@ -45,9 +45,8 @@
  
- syscall_handler_t *sys_call_table[] = {
- 	[ __NR_restart_syscall ] = (syscall_handler_t *) sys_restart_syscall,
--	[ __NR_exit ] (syscall_handler_t *) sys_exit,
--	[ __NR_fork ] (syscall_handler_t *) sys_fork,
-+	[ __NR_exit ] = (syscall_handler_t *) sys_exit,
-+	[ __NR_fork ] = (syscall_handler_t *) sys_fork,
- 	[ __NR_read ] = (syscall_handler_t *) sys_read,
- 	[ __NR_write ] = (syscall_handler_t *) sys_write,
+ 	if (i == 0) {
+ 		seq_printf(p, "           ");
+-		for (j=0; j<NR_CPUS; j++)
+-			if (cpu_online(j))
+-				seq_printf(p, "CPU%d       ",j);
++		for_each_cpu(j)
++			seq_printf(p, "CPU%d       ",j);
+ 		seq_putc(p, '\n');
+ 	}
  
- 	/* These three are declared differently in asm/unistd.h */
- 	[ __NR_open ] = (syscall_handler_t *) sys_open,
- 	[ __NR_close ] = (syscall_handler_t *) sys_close,
--	[ __NR_creat ] (syscall_handler_t *) sys_creat,
--	[ __NR_link ] (syscall_handler_t *) sys_link,
--	[ __NR_unlink ] (syscall_handler_t *) sys_unlink,
-+	[ __NR_creat ] = (syscall_handler_t *) sys_creat,
-+	[ __NR_link ] = (syscall_handler_t *) sys_link,
-+	[ __NR_unlink ] = (syscall_handler_t *) sys_unlink,
- 	[ __NR_execve ] = (syscall_handler_t *) sys_execve,
+@@ -60,9 +59,8 @@
+ #ifndef CONFIG_SMP
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+ #else
+-		for (j = 0; j < NR_CPUS; j++)
+-			if (cpu_online(j))
+-				seq_printf(p, "%10u ", kstat_cpu(j).irqs[i]);
++		for_each_cpu(j)
++			seq_printf(p, "%10u ", kstat_cpu(j).irqs[i]);
+ #endif
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
+ 		seq_printf(p, "  %s", action->name);
+Index: linux-2.6.10/arch/um/kernel/smp.c
+===================================================================
+--- linux-2.6.10.orig/arch/um/kernel/smp.c	2005-01-09 22:38:07.000000000 -0500
++++ linux-2.6.10/arch/um/kernel/smp.c	2005-01-09 22:38:17.000000000 -0500
+@@ -247,10 +247,8 @@
+ 	func = _func;
+ 	info = _info;
  
- 	/* declared differently in kern_util.h */
--	[ __NR_chdir ] (syscall_handler_t *) sys_chdir,
-+	[ __NR_chdir ] = (syscall_handler_t *) sys_chdir,
- 	[ __NR_time ] = um_time,
--	[ __NR_mknod ] (syscall_handler_t *) sys_mknod,
--	[ __NR_chmod ] (syscall_handler_t *) sys_chmod,
--	[ __NR_lchown ] (syscall_handler_t *) sys_lchown16,
-+	[ __NR_mknod ] = (syscall_handler_t *) sys_mknod,
-+	[ __NR_chmod ] = (syscall_handler_t *) sys_chmod,
-+	[ __NR_lchown ] = (syscall_handler_t *) sys_lchown16,
- 	[ __NR_lseek ] = (syscall_handler_t *) sys_lseek,
--	[ __NR_getpid ] (syscall_handler_t *) sys_getpid,
-+	[ __NR_getpid ] = (syscall_handler_t *) sys_getpid,
- 	[ __NR_mount ] = um_mount,
--	[ __NR_setuid ] (syscall_handler_t *) sys_setuid16,
--	[ __NR_getuid ] (syscall_handler_t *) sys_getuid16,
-- 	[ __NR_ptrace ] (syscall_handler_t *) sys_ptrace,
--	[ __NR_alarm ] (syscall_handler_t *) sys_alarm,
--	[ __NR_pause ] (syscall_handler_t *) sys_pause,
--	[ __NR_utime ] (syscall_handler_t *) sys_utime,
--	[ __NR_access ] (syscall_handler_t *) sys_access,
--	[ __NR_sync ] (syscall_handler_t *) sys_sync,
--	[ __NR_kill ] (syscall_handler_t *) sys_kill,
--	[ __NR_rename ] (syscall_handler_t *) sys_rename,
--	[ __NR_mkdir ] (syscall_handler_t *) sys_mkdir,
--	[ __NR_rmdir ] (syscall_handler_t *) sys_rmdir,
-+	[ __NR_setuid ] = (syscall_handler_t *) sys_setuid16,
-+	[ __NR_getuid ] = (syscall_handler_t *) sys_getuid16,
-+ 	[ __NR_ptrace ] = (syscall_handler_t *) sys_ptrace,
-+	[ __NR_alarm ] = (syscall_handler_t *) sys_alarm,
-+	[ __NR_pause ] = (syscall_handler_t *) sys_pause,
-+	[ __NR_utime ] = (syscall_handler_t *) sys_utime,
-+	[ __NR_access ] = (syscall_handler_t *) sys_access,
-+	[ __NR_sync ] = (syscall_handler_t *) sys_sync,
-+	[ __NR_kill ] = (syscall_handler_t *) sys_kill,
-+	[ __NR_rename ] = (syscall_handler_t *) sys_rename,
-+	[ __NR_mkdir ] = (syscall_handler_t *) sys_mkdir,
-+	[ __NR_rmdir ] = (syscall_handler_t *) sys_rmdir,
+-	for (i=0;i<NR_CPUS;i++)
+-		if((i != current_thread->cpu) &&
+-		   cpu_isset(i, cpu_online_map))
+-			os_write_file(cpu_data[i].ipi_pipe[1], "C", 1);
++	for_each_cpu(i)
++		os_write_file(cpu_data[i].ipi_pipe[1], "C", 1);
  
- 	/* Declared differently in asm/unistd.h */
- 	[ __NR_dup ] = (syscall_handler_t *) sys_dup,
--	[ __NR_pipe ] (syscall_handler_t *) sys_pipe,
--	[ __NR_times ] (syscall_handler_t *) sys_times,
--	[ __NR_brk ] (syscall_handler_t *) sys_brk,
--	[ __NR_setgid ] (syscall_handler_t *) sys_setgid16,
--	[ __NR_getgid ] (syscall_handler_t *) sys_getgid16,
--	[ __NR_geteuid ] (syscall_handler_t *) sys_geteuid16,
--	[ __NR_getegid ] (syscall_handler_t *) sys_getegid16,
--	[ __NR_acct ] (syscall_handler_t *) sys_acct,
--	[ __NR_umount2 ] (syscall_handler_t *) sys_umount,
--	[ __NR_ioctl ] (syscall_handler_t *) sys_ioctl,
--	[ __NR_fcntl ] (syscall_handler_t *) sys_fcntl,
--	[ __NR_setpgid ] (syscall_handler_t *) sys_setpgid,
--	[ __NR_umask ] (syscall_handler_t *) sys_umask,
--	[ __NR_chroot ] (syscall_handler_t *) sys_chroot,
--	[ __NR_ustat ] (syscall_handler_t *) sys_ustat,
--	[ __NR_dup2 ] (syscall_handler_t *) sys_dup2,
--	[ __NR_getppid ] (syscall_handler_t *) sys_getppid,
--	[ __NR_getpgrp ] (syscall_handler_t *) sys_getpgrp,
-+	[ __NR_pipe ] = (syscall_handler_t *) sys_pipe,
-+	[ __NR_times ] = (syscall_handler_t *) sys_times,
-+	[ __NR_brk ] = (syscall_handler_t *) sys_brk,
-+	[ __NR_setgid ] = (syscall_handler_t *) sys_setgid16,
-+	[ __NR_getgid ] = (syscall_handler_t *) sys_getgid16,
-+	[ __NR_geteuid ] = (syscall_handler_t *) sys_geteuid16,
-+	[ __NR_getegid ] = (syscall_handler_t *) sys_getegid16,
-+	[ __NR_acct ] = (syscall_handler_t *) sys_acct,
-+	[ __NR_umount2 ] = (syscall_handler_t *) sys_umount,
-+	[ __NR_ioctl ] = (syscall_handler_t *) sys_ioctl,
-+	[ __NR_fcntl ] = (syscall_handler_t *) sys_fcntl,
-+	[ __NR_setpgid ] = (syscall_handler_t *) sys_setpgid,
-+	[ __NR_umask ] = (syscall_handler_t *) sys_umask,
-+	[ __NR_chroot ] = (syscall_handler_t *) sys_chroot,
-+	[ __NR_ustat ] = (syscall_handler_t *) sys_ustat,
-+	[ __NR_dup2 ] = (syscall_handler_t *) sys_dup2,
-+	[ __NR_getppid ] = (syscall_handler_t *) sys_getppid,
-+	[ __NR_getpgrp ] = (syscall_handler_t *) sys_getpgrp,
- 	[ __NR_setsid ] = (syscall_handler_t *) sys_setsid,
--	[ __NR_setreuid ] (syscall_handler_t *) sys_setreuid16,
--	[ __NR_setregid ] (syscall_handler_t *) sys_setregid16,
--	[ __NR_sethostname ] (syscall_handler_t *) sys_sethostname,
--	[ __NR_setrlimit ] (syscall_handler_t *) sys_setrlimit,
--	[ __NR_getrlimit ] (syscall_handler_t *) sys_old_getrlimit,
--	[ __NR_getrusage ] (syscall_handler_t *) sys_getrusage,
--	[ __NR_gettimeofday ] (syscall_handler_t *) sys_gettimeofday,
--	[ __NR_settimeofday ] (syscall_handler_t *) sys_settimeofday,
--	[ __NR_getgroups ] (syscall_handler_t *) sys_getgroups16,
--	[ __NR_setgroups ] (syscall_handler_t *) sys_setgroups16,
--	[ __NR_symlink ] (syscall_handler_t *) sys_symlink,
--	[ __NR_readlink ] (syscall_handler_t *) sys_readlink,
--	[ __NR_uselib ] (syscall_handler_t *) sys_uselib,
-+	[ __NR_setreuid ] = (syscall_handler_t *) sys_setreuid16,
-+	[ __NR_setregid ] = (syscall_handler_t *) sys_setregid16,
-+	[ __NR_sethostname ] = (syscall_handler_t *) sys_sethostname,
-+	[ __NR_setrlimit ] = (syscall_handler_t *) sys_setrlimit,
-+	[ __NR_getrlimit ] = (syscall_handler_t *) sys_old_getrlimit,
-+	[ __NR_getrusage ] = (syscall_handler_t *) sys_getrusage,
-+	[ __NR_gettimeofday ] = (syscall_handler_t *) sys_gettimeofday,
-+	[ __NR_settimeofday ] = (syscall_handler_t *) sys_settimeofday,
-+	[ __NR_getgroups ] = (syscall_handler_t *) sys_getgroups16,
-+	[ __NR_setgroups ] = (syscall_handler_t *) sys_setgroups16,
-+	[ __NR_symlink ] = (syscall_handler_t *) sys_symlink,
-+	[ __NR_readlink ] = (syscall_handler_t *) sys_readlink,
-+	[ __NR_uselib ] = (syscall_handler_t *) sys_uselib,
- 	[ __NR_swapon ] = (syscall_handler_t *) sys_swapon,
--	[ __NR_reboot ] (syscall_handler_t *) sys_reboot,
--	[ __NR_munmap ] (syscall_handler_t *) sys_munmap,
--	[ __NR_truncate ] (syscall_handler_t *) sys_truncate,
--	[ __NR_ftruncate ] (syscall_handler_t *) sys_ftruncate,
--	[ __NR_fchmod ] (syscall_handler_t *) sys_fchmod,
--	[ __NR_fchown ] (syscall_handler_t *) sys_fchown16,
--	[ __NR_getpriority ] (syscall_handler_t *) sys_getpriority,
--	[ __NR_setpriority ] (syscall_handler_t *) sys_setpriority,
--	[ __NR_statfs ] (syscall_handler_t *) sys_statfs,
--	[ __NR_fstatfs ] (syscall_handler_t *) sys_fstatfs,
--	[ __NR_ioperm ] (syscall_handler_t *) sys_ni_syscall,
--	[ __NR_syslog ] (syscall_handler_t *) sys_syslog,
--	[ __NR_setitimer ] (syscall_handler_t *) sys_setitimer,
--	[ __NR_getitimer ] (syscall_handler_t *) sys_getitimer,
--	[ __NR_stat ] (syscall_handler_t *) sys_newstat,
--	[ __NR_lstat ] (syscall_handler_t *) sys_newlstat,
--	[ __NR_fstat ] (syscall_handler_t *) sys_newfstat,
--	[ __NR_vhangup ] (syscall_handler_t *) sys_vhangup,
-+	[ __NR_reboot ] = (syscall_handler_t *) sys_reboot,
-+	[ __NR_munmap ] = (syscall_handler_t *) sys_munmap,
-+	[ __NR_truncate ] = (syscall_handler_t *) sys_truncate,
-+	[ __NR_ftruncate ] = (syscall_handler_t *) sys_ftruncate,
-+	[ __NR_fchmod ] = (syscall_handler_t *) sys_fchmod,
-+	[ __NR_fchown ] = (syscall_handler_t *) sys_fchown16,
-+	[ __NR_getpriority ] = (syscall_handler_t *) sys_getpriority,
-+	[ __NR_setpriority ] = (syscall_handler_t *) sys_setpriority,
-+	[ __NR_statfs ] = (syscall_handler_t *) sys_statfs,
-+	[ __NR_fstatfs ] = (syscall_handler_t *) sys_fstatfs,
-+	[ __NR_ioperm ] = (syscall_handler_t *) sys_ni_syscall,
-+	[ __NR_syslog ] = (syscall_handler_t *) sys_syslog,
-+	[ __NR_setitimer ] = (syscall_handler_t *) sys_setitimer,
-+	[ __NR_getitimer ] = (syscall_handler_t *) sys_getitimer,
-+	[ __NR_stat ] = (syscall_handler_t *) sys_newstat,
-+	[ __NR_lstat ] = (syscall_handler_t *) sys_newlstat,
-+	[ __NR_fstat ] = (syscall_handler_t *) sys_newfstat,
-+	[ __NR_vhangup ] = (syscall_handler_t *) sys_vhangup,
- 	[ __NR_wait4 ] = (syscall_handler_t *) sys_wait4,
- 	[ __NR_swapoff ] = (syscall_handler_t *) sys_swapoff,
--	[ __NR_sysinfo ] (syscall_handler_t *) sys_sysinfo,
--	[ __NR_fsync ] (syscall_handler_t *) sys_fsync,
--	[ __NR_clone ] (syscall_handler_t *) sys_clone,
--	[ __NR_setdomainname ] (syscall_handler_t *) sys_setdomainname,
--	[ __NR_uname ] (syscall_handler_t *) sys_newuname,
--	[ __NR_adjtimex ] (syscall_handler_t *) sys_adjtimex,
--	[ __NR_mprotect ] (syscall_handler_t *) sys_mprotect,
--	[ __NR_create_module ] (syscall_handler_t *) sys_ni_syscall,
--	[ __NR_init_module ] (syscall_handler_t *) sys_init_module,
--	[ __NR_delete_module ] (syscall_handler_t *) sys_delete_module,
--	[ __NR_get_kernel_syms ] (syscall_handler_t *) sys_ni_syscall,
--	[ __NR_quotactl ] (syscall_handler_t *) sys_quotactl,
--	[ __NR_getpgid ] (syscall_handler_t *) sys_getpgid,
--	[ __NR_fchdir ] (syscall_handler_t *) sys_fchdir,
--	[ __NR_sysfs ] (syscall_handler_t *) sys_sysfs,
--	[ __NR_personality ] (syscall_handler_t *) sys_personality,
--	[ __NR_afs_syscall ] (syscall_handler_t *) sys_ni_syscall,
--	[ __NR_setfsuid ] (syscall_handler_t *) sys_setfsuid16,
--	[ __NR_setfsgid ] (syscall_handler_t *) sys_setfsgid16,
--	[ __NR_getdents ] (syscall_handler_t *) sys_getdents,
--	[ __NR_flock ] (syscall_handler_t *) sys_flock,
--	[ __NR_msync ] (syscall_handler_t *) sys_msync,
--	[ __NR_readv ] (syscall_handler_t *) sys_readv,
--	[ __NR_writev ] (syscall_handler_t *) sys_writev,
--	[ __NR_getsid ] (syscall_handler_t *) sys_getsid,
--	[ __NR_fdatasync ] (syscall_handler_t *) sys_fdatasync,
-+	[ __NR_sysinfo ] = (syscall_handler_t *) sys_sysinfo,
-+	[ __NR_fsync ] = (syscall_handler_t *) sys_fsync,
-+	[ __NR_clone ] = (syscall_handler_t *) sys_clone,
-+	[ __NR_setdomainname ] = (syscall_handler_t *) sys_setdomainname,
-+	[ __NR_uname ] = (syscall_handler_t *) sys_newuname,
-+	[ __NR_adjtimex ] = (syscall_handler_t *) sys_adjtimex,
-+	[ __NR_mprotect ] = (syscall_handler_t *) sys_mprotect,
-+	[ __NR_create_module ] = (syscall_handler_t *) sys_ni_syscall,
-+	[ __NR_init_module ] = (syscall_handler_t *) sys_init_module,
-+	[ __NR_delete_module ] = (syscall_handler_t *) sys_delete_module,
-+	[ __NR_get_kernel_syms ] = (syscall_handler_t *) sys_ni_syscall,
-+	[ __NR_quotactl ] = (syscall_handler_t *) sys_quotactl,
-+	[ __NR_getpgid ] = (syscall_handler_t *) sys_getpgid,
-+	[ __NR_fchdir ] = (syscall_handler_t *) sys_fchdir,
-+	[ __NR_sysfs ] = (syscall_handler_t *) sys_sysfs,
-+	[ __NR_personality ] = (syscall_handler_t *) sys_personality,
-+	[ __NR_afs_syscall ] = (syscall_handler_t *) sys_ni_syscall,
-+	[ __NR_setfsuid ] = (syscall_handler_t *) sys_setfsuid16,
-+	[ __NR_setfsgid ] = (syscall_handler_t *) sys_setfsgid16,
-+	[ __NR_getdents ] = (syscall_handler_t *) sys_getdents,
-+	[ __NR_flock ] = (syscall_handler_t *) sys_flock,
-+	[ __NR_msync ] = (syscall_handler_t *) sys_msync,
-+	[ __NR_readv ] = (syscall_handler_t *) sys_readv,
-+	[ __NR_writev ] = (syscall_handler_t *) sys_writev,
-+	[ __NR_getsid ] = (syscall_handler_t *) sys_getsid,
-+	[ __NR_fdatasync ] = (syscall_handler_t *) sys_fdatasync,
- 	[ __NR__sysctl ] = (syscall_handler_t *) sys_sysctl,
--	[ __NR_mlock ] (syscall_handler_t *) sys_mlock,
--	[ __NR_munlock ] (syscall_handler_t *) sys_munlock,
--	[ __NR_mlockall ] (syscall_handler_t *) sys_mlockall,
--	[ __NR_munlockall ] (syscall_handler_t *) sys_munlockall,
--	[ __NR_sched_setparam ] (syscall_handler_t *) sys_sched_setparam,
--	[ __NR_sched_getparam ] (syscall_handler_t *) sys_sched_getparam,
--	[ __NR_sched_setscheduler ] (syscall_handler_t *) sys_sched_setscheduler,
--	[ __NR_sched_getscheduler ] (syscall_handler_t *) sys_sched_getscheduler,
-+	[ __NR_mlock ] = (syscall_handler_t *) sys_mlock,
-+	[ __NR_munlock ] = (syscall_handler_t *) sys_munlock,
-+	[ __NR_mlockall ] = (syscall_handler_t *) sys_mlockall,
-+	[ __NR_munlockall ] = (syscall_handler_t *) sys_munlockall,
-+	[ __NR_sched_setparam ] = (syscall_handler_t *) sys_sched_setparam,
-+	[ __NR_sched_getparam ] = (syscall_handler_t *) sys_sched_getparam,
-+	[ __NR_sched_setscheduler ] = (syscall_handler_t *) sys_sched_setscheduler,
-+	[ __NR_sched_getscheduler ] = (syscall_handler_t *) sys_sched_getscheduler,
- 	[ __NR_sched_yield ] = (syscall_handler_t *) yield,
--	[ __NR_sched_get_priority_max ] (syscall_handler_t *) sys_sched_get_priority_max,
--	[ __NR_sched_get_priority_min ] (syscall_handler_t *) sys_sched_get_priority_min,
--	[ __NR_sched_rr_get_interval ] (syscall_handler_t *) sys_sched_rr_get_interval,
--	[ __NR_nanosleep ] (syscall_handler_t *) sys_nanosleep,
--	[ __NR_mremap ] (syscall_handler_t *) sys_mremap,
--	[ __NR_setresuid ] (syscall_handler_t *) sys_setresuid16,
--	[ __NR_getresuid ] (syscall_handler_t *) sys_getresuid16,
--	[ __NR_query_module ] (syscall_handler_t *) sys_ni_syscall,
--	[ __NR_poll ] (syscall_handler_t *) sys_poll,
-+	[ __NR_sched_get_priority_max ] = (syscall_handler_t *) sys_sched_get_priority_max,
-+	[ __NR_sched_get_priority_min ] = (syscall_handler_t *) sys_sched_get_priority_min,
-+	[ __NR_sched_rr_get_interval ] = (syscall_handler_t *) sys_sched_rr_get_interval,
-+	[ __NR_nanosleep ] = (syscall_handler_t *) sys_nanosleep,
-+	[ __NR_mremap ] = (syscall_handler_t *) sys_mremap,
-+	[ __NR_setresuid ] = (syscall_handler_t *) sys_setresuid16,
-+	[ __NR_getresuid ] = (syscall_handler_t *) sys_getresuid16,
-+	[ __NR_query_module ] = (syscall_handler_t *) sys_ni_syscall,
-+	[ __NR_poll ] = (syscall_handler_t *) sys_poll,
- 	[ __NR_nfsservctl ] = (syscall_handler_t *) NFSSERVCTL,
--	[ __NR_setresgid ] (syscall_handler_t *) sys_setresgid16,
--	[ __NR_getresgid ] (syscall_handler_t *) sys_getresgid16,
--	[ __NR_prctl ] (syscall_handler_t *) sys_prctl,
--	[ __NR_rt_sigreturn ] (syscall_handler_t *) sys_rt_sigreturn,
--	[ __NR_rt_sigaction ] (syscall_handler_t *) sys_rt_sigaction,
--	[ __NR_rt_sigprocmask ] (syscall_handler_t *) sys_rt_sigprocmask,
--	[ __NR_rt_sigpending ] (syscall_handler_t *) sys_rt_sigpending,
--	[ __NR_rt_sigtimedwait ] (syscall_handler_t *) sys_rt_sigtimedwait,
--	[ __NR_rt_sigqueueinfo ] (syscall_handler_t *) sys_rt_sigqueueinfo,
--	[ __NR_rt_sigsuspend ] (syscall_handler_t *) sys_rt_sigsuspend,
--	[ __NR_pread64 ] (syscall_handler_t *) sys_pread64,
--	[ __NR_pwrite64 ] (syscall_handler_t *) sys_pwrite64,
--	[ __NR_chown ] (syscall_handler_t *) sys_chown16,
--	[ __NR_getcwd ] (syscall_handler_t *) sys_getcwd,
--	[ __NR_capget ] (syscall_handler_t *) sys_capget,
--	[ __NR_capset ] (syscall_handler_t *) sys_capset,
--	[ __NR_sigaltstack ] (syscall_handler_t *) sys_sigaltstack,
--	[ __NR_sendfile ] (syscall_handler_t *) sys_sendfile,
--	[ __NR_getpmsg ] (syscall_handler_t *) sys_ni_syscall,
--	[ __NR_putpmsg ] (syscall_handler_t *) sys_ni_syscall,
--	[ __NR_vfork ] (syscall_handler_t *) sys_vfork,
--	[ __NR_getdents64 ] (syscall_handler_t *) sys_getdents64,
--	[ __NR_gettid ] (syscall_handler_t *) sys_gettid,
--	[ __NR_readahead ] (syscall_handler_t *) sys_readahead,
--	[ __NR_setxattr ] (syscall_handler_t *) sys_setxattr,
--	[ __NR_lsetxattr ] (syscall_handler_t *) sys_lsetxattr,
--	[ __NR_fsetxattr ] (syscall_handler_t *) sys_fsetxattr,
--	[ __NR_getxattr ] (syscall_handler_t *) sys_getxattr,
--	[ __NR_lgetxattr ] (syscall_handler_t *) sys_lgetxattr,
--	[ __NR_fgetxattr ] (syscall_handler_t *) sys_fgetxattr,
--	[ __NR_listxattr ] (syscall_handler_t *) sys_listxattr,
--	[ __NR_llistxattr ] (syscall_handler_t *) sys_llistxattr,
--	[ __NR_flistxattr ] (syscall_handler_t *) sys_flistxattr,
--	[ __NR_removexattr ] (syscall_handler_t *) sys_removexattr,
--	[ __NR_lremovexattr ] (syscall_handler_t *) sys_lremovexattr,
--	[ __NR_fremovexattr ] (syscall_handler_t *) sys_fremovexattr,
--	[ __NR_tkill ] (syscall_handler_t *) sys_tkill,
--	[ __NR_futex ] (syscall_handler_t *) sys_futex,
--	[ __NR_sched_setaffinity ] (syscall_handler_t *) sys_sched_setaffinity,
--	[ __NR_sched_getaffinity ] (syscall_handler_t *) sys_sched_getaffinity,
--	[ __NR_io_setup ] (syscall_handler_t *) sys_io_setup,
--	[ __NR_io_destroy ] (syscall_handler_t *) sys_io_destroy,
--	[ __NR_io_getevents ] (syscall_handler_t *) sys_io_getevents,
--	[ __NR_io_submit ] (syscall_handler_t *) sys_io_submit,
--	[ __NR_io_cancel ] (syscall_handler_t *) sys_io_cancel,
--	[ __NR_exit_group ] (syscall_handler_t *) sys_exit_group,
--	[ __NR_lookup_dcookie ] (syscall_handler_t *) sys_lookup_dcookie,
--	[ __NR_epoll_create ] (syscall_handler_t *) sys_epoll_create,
--	[ __NR_epoll_ctl ] (syscall_handler_t *) sys_epoll_ctl,
--	[ __NR_epoll_wait ] (syscall_handler_t *) sys_epoll_wait,
--        [ __NR_set_tid_address ] (syscall_handler_t *) sys_set_tid_address,
--	[ __NR_timer_create ] (syscall_handler_t *) sys_timer_create,
--	[ __NR_timer_settime ] (syscall_handler_t *) sys_timer_settime,
--	[ __NR_timer_gettime ] (syscall_handler_t *) sys_timer_gettime,
--	[ __NR_timer_getoverrun ] (syscall_handler_t *) sys_timer_getoverrun,
--	[ __NR_timer_delete ] (syscall_handler_t *) sys_timer_delete,
--	[ __NR_clock_settime ] (syscall_handler_t *) sys_clock_settime,
--	[ __NR_clock_gettime ] (syscall_handler_t *) sys_clock_gettime,
--	[ __NR_clock_getres ] (syscall_handler_t *) sys_clock_getres,
--	[ __NR_clock_nanosleep ] (syscall_handler_t *) sys_clock_nanosleep,
-+	[ __NR_setresgid ] = (syscall_handler_t *) sys_setresgid16,
-+	[ __NR_getresgid ] = (syscall_handler_t *) sys_getresgid16,
-+	[ __NR_prctl ] = (syscall_handler_t *) sys_prctl,
-+	[ __NR_rt_sigreturn ] = (syscall_handler_t *) sys_rt_sigreturn,
-+	[ __NR_rt_sigaction ] = (syscall_handler_t *) sys_rt_sigaction,
-+	[ __NR_rt_sigprocmask ] = (syscall_handler_t *) sys_rt_sigprocmask,
-+	[ __NR_rt_sigpending ] = (syscall_handler_t *) sys_rt_sigpending,
-+	[ __NR_rt_sigtimedwait ] = (syscall_handler_t *) sys_rt_sigtimedwait,
-+	[ __NR_rt_sigqueueinfo ] = (syscall_handler_t *) sys_rt_sigqueueinfo,
-+	[ __NR_rt_sigsuspend ] = (syscall_handler_t *) sys_rt_sigsuspend,
-+	[ __NR_pread64 ] = (syscall_handler_t *) sys_pread64,
-+	[ __NR_pwrite64 ] = (syscall_handler_t *) sys_pwrite64,
-+	[ __NR_chown ] = (syscall_handler_t *) sys_chown16,
-+	[ __NR_getcwd ] = (syscall_handler_t *) sys_getcwd,
-+	[ __NR_capget ] = (syscall_handler_t *) sys_capget,
-+	[ __NR_capset ] = (syscall_handler_t *) sys_capset,
-+	[ __NR_sigaltstack ] = (syscall_handler_t *) sys_sigaltstack,
-+	[ __NR_sendfile ] = (syscall_handler_t *) sys_sendfile,
-+	[ __NR_getpmsg ] = (syscall_handler_t *) sys_ni_syscall,
-+	[ __NR_putpmsg ] = (syscall_handler_t *) sys_ni_syscall,
-+	[ __NR_vfork ] = (syscall_handler_t *) sys_vfork,
-+	[ __NR_getdents64 ] = (syscall_handler_t *) sys_getdents64,
-+	[ __NR_gettid ] = (syscall_handler_t *) sys_gettid,
-+	[ __NR_readahead ] = (syscall_handler_t *) sys_readahead,
-+	[ __NR_setxattr ] = (syscall_handler_t *) sys_setxattr,
-+	[ __NR_lsetxattr ] = (syscall_handler_t *) sys_lsetxattr,
-+	[ __NR_fsetxattr ] = (syscall_handler_t *) sys_fsetxattr,
-+	[ __NR_getxattr ] = (syscall_handler_t *) sys_getxattr,
-+	[ __NR_lgetxattr ] = (syscall_handler_t *) sys_lgetxattr,
-+	[ __NR_fgetxattr ] = (syscall_handler_t *) sys_fgetxattr,
-+	[ __NR_listxattr ] = (syscall_handler_t *) sys_listxattr,
-+	[ __NR_llistxattr ] = (syscall_handler_t *) sys_llistxattr,
-+	[ __NR_flistxattr ] = (syscall_handler_t *) sys_flistxattr,
-+	[ __NR_removexattr ] = (syscall_handler_t *) sys_removexattr,
-+	[ __NR_lremovexattr ] = (syscall_handler_t *) sys_lremovexattr,
-+	[ __NR_fremovexattr ] = (syscall_handler_t *) sys_fremovexattr,
-+	[ __NR_tkill ] = (syscall_handler_t *) sys_tkill,
-+	[ __NR_futex ] = (syscall_handler_t *) sys_futex,
-+	[ __NR_sched_setaffinity ] = (syscall_handler_t *) sys_sched_setaffinity,
-+	[ __NR_sched_getaffinity ] = (syscall_handler_t *) sys_sched_getaffinity,
-+	[ __NR_io_setup ] = (syscall_handler_t *) sys_io_setup,
-+	[ __NR_io_destroy ] = (syscall_handler_t *) sys_io_destroy,
-+	[ __NR_io_getevents ] = (syscall_handler_t *) sys_io_getevents,
-+	[ __NR_io_submit ] = (syscall_handler_t *) sys_io_submit,
-+	[ __NR_io_cancel ] = (syscall_handler_t *) sys_io_cancel,
-+	[ __NR_exit_group ] = (syscall_handler_t *) sys_exit_group,
-+	[ __NR_lookup_dcookie ] = (syscall_handler_t *) sys_lookup_dcookie,
-+	[ __NR_epoll_create ] = (syscall_handler_t *) sys_epoll_create,
-+	[ __NR_epoll_ctl ] = (syscall_handler_t *) sys_epoll_ctl,
-+	[ __NR_epoll_wait ] = (syscall_handler_t *) sys_epoll_wait,
-+        [ __NR_set_tid_address ] = (syscall_handler_t *) sys_set_tid_address,
-+	[ __NR_timer_create ] = (syscall_handler_t *) sys_timer_create,
-+	[ __NR_timer_settime ] = (syscall_handler_t *) sys_timer_settime,
-+	[ __NR_timer_gettime ] = (syscall_handler_t *) sys_timer_gettime,
-+	[ __NR_timer_getoverrun ] = (syscall_handler_t *) sys_timer_getoverrun,
-+	[ __NR_timer_delete ] = (syscall_handler_t *) sys_timer_delete,
-+	[ __NR_clock_settime ] = (syscall_handler_t *) sys_clock_settime,
-+	[ __NR_clock_gettime ] = (syscall_handler_t *) sys_clock_gettime,
-+	[ __NR_clock_getres ] = (syscall_handler_t *) sys_clock_getres,
-+	[ __NR_clock_nanosleep ] = (syscall_handler_t *) sys_clock_nanosleep,
- 	[ __NR_statfs64 ] = (syscall_handler_t *) sys_statfs64,
- 	[ __NR_fstatfs64 ] = (syscall_handler_t *) sys_fstatfs64,
--	[ __NR_tgkill ] (syscall_handler_t *) sys_tgkill,
-+	[ __NR_tgkill ] = (syscall_handler_t *) sys_tgkill,
- 	[ __NR_utimes ] = (syscall_handler_t *) sys_utimes,
- 	[ __NR_fadvise64_64 ] = (syscall_handler_t *) sys_fadvise64_64,
- 	[ __NR_vserver ] = (syscall_handler_t *) sys_vserver,
+ 	while (atomic_read(&scf_started) != cpus)
+ 		barrier();
 

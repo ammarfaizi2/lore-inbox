@@ -1,35 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311735AbSCTQKE>; Wed, 20 Mar 2002 11:10:04 -0500
+	id <S311737AbSCTQLe>; Wed, 20 Mar 2002 11:11:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311737AbSCTQJy>; Wed, 20 Mar 2002 11:09:54 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:64750 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S311735AbSCTQJn>; Wed, 20 Mar 2002 11:09:43 -0500
-Date: Wed, 20 Mar 2002 17:09:32 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Andrew Morton <akpm@zip.com.au>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: aa-160-lru_release_check
-In-Reply-To: <3C980990.1C6B232A@zip.com.au>
-Message-ID: <Pine.NEB.4.44.0203201703450.3932-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311739AbSCTQLZ>; Wed, 20 Mar 2002 11:11:25 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:32395 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S311737AbSCTQLK>;
+	Wed, 20 Mar 2002 11:11:10 -0500
+Date: Wed, 20 Mar 2002 17:10:51 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ken Brownfield <ken@irridia.com>, m.knoblauch@TeraPort.de,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP (RH7.2)
+Message-ID: <20020320171051.A19871@ucw.cz>
+In-Reply-To: <20020319190211.B15811@asooo.flowerfire.com> <E16nUx8-0000w4-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, Andrew Morton wrote:
+On Wed, Mar 20, 2002 at 01:31:46AM +0000, Alan Cox wrote:
+> > We're seeing this with Tyan 2410s and Seagate drives.  I think Tyan just
+> > can't get DMA right.  Luckily we mainly lost docs or man pages before we
+> > disabled DMA, although losing the rpm database sucked.  MDMA2 seems okay
+> > but we haven't tested it long enough to form a lasting impression.
+> > I'm actually patching the ServerWorks driver to honor the CONFIG flag,
+> > since even with hdparm there is a narrow risk to the fs during the boot
+> > process before DMA is disabled.
+> 
+> I can confirm problems with serverworks OSB4 and UDMA. With UDMA and
+> a seagate disk you see 4 bytes repeat from one transfer into the next
+> shuffling all the data up 4 bytes (which since it includes inode and
+> metadata is *messy*). Current 2.4 has detect code that sometimes traps this
+> and panics to avoid fs death.
+> 
+> With MWDMA all was fine.
+> 
+> This was observed across a large number of boxes in a rendering farm so its
+> not a one off flawed box, and across two board vendors. I reported it to
+> serverworks who were interested but couldnt reproduce it in their lab.
 
->...
-> +		if (unlikely(in_interrupt()))
-> +			BUG();
->...
+It seems like Daniela Engert found this problem too:
 
-Is there a reason against intruducing BUG_ON in 2.4? It makes such things
-more readable.
+--------------------------------------------------------------------------------
+ Vendor
+ | Device
+ | | Revision                          ATA      ATAPI        ATA66  ATA133
+ | | | south/host bridge id          PIO  DMA  PIO  DMA  ATA33 | ATA100|   Docs
+ | | | | south/host bridge rev.     32bit  |  32bit  |     |   |   |   |  avail
+ | | | | |                            |    |    |    |     |   |   |   |    |   
+ v v v v v                            v    v    v    v     v   v   v   v    v   
 
-cu
-Adrian
+ 0x1166 ServerWorks
+   0x0211 OSB4                        x    x    ?    ?     x   -   -   -    x
+   0x0212 CSB5
+     < 0x92                           x    x    ?    ?     x   x   -   -    -
+    >= 0x92                           x    x    ?    ?     x   x   x   -    -
+
+ known bugs:
+   - OSB4: at least some chip revisions can't do Ultra DMA mode 1 and above
+   - CSB5: no host side cable type detection.
+
+--------------------------------------------------------------------------------
 
 
+-- 
+Vojtech Pavlik
+SuSE Labs

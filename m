@@ -1,117 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAAMcu>; Mon, 1 Jan 2001 07:32:50 -0500
+	id <S131324AbRAANSY>; Mon, 1 Jan 2001 08:18:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129792AbRAAMck>; Mon, 1 Jan 2001 07:32:40 -0500
-Received: from adsl-65-64-162-194.dsl.snantx.swbell.net ([65.64.162.194]:35851
-	"EHLO gearbox.exploits.org") by vger.kernel.org with ESMTP
-	id <S129562AbRAAMc2>; Mon, 1 Jan 2001 07:32:28 -0500
-Date: Mon, 01 Jan 2001 06:01:15 -0600
-From: Russell Kroll <rkroll@exploits.org>
-To: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
-Subject: [PATCH] 2.4.0-prerelease: radio card request_region fixes
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <3A50718B.mailOM11K4AFD@exploits.org>
-User-Agent: nail 9.23 11/15/00
+	id <S131515AbRAANSF>; Mon, 1 Jan 2001 08:18:05 -0500
+Received: from shiva.jussieu.fr ([134.157.0.129]:9734 "EHLO shiva.jussieu.fr")
+	by vger.kernel.org with ESMTP id <S131324AbRAANRz>;
+	Mon, 1 Jan 2001 08:17:55 -0500
+From: Roberto Di Cosmo <Roberto.Di-Cosmo@pps.jussieu.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14928.35348.19827.848973@localhost.localdomain>
+Date: Mon, 1 Jan 2001 14:45:56 +0100 (CET)
+To: linux-kernel@vger.kernel.org
+Subject: [e2compr PATCH]: announcing beta port to kernel 2.2.18
+X-Mailer: VM 6.72 under 21.1 (patch 9) "Canyonlands" XEmacs Lucid
+Reply-To: Roberto Di Cosmo <roberto@dicosmo.org>
+Cc: demolinux@demolinux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many of the radio card drivers got the request_region sense inverted and
-make a horrible mess on insmod.  I've tested the patches in this set for
-radio-aimslab and radio-aztech locally.  The others are "obviously
-correct" since they are the same core code.
+Dear mailing list members,
+     I am unable to join the maintainers/developers of the extended 2 
+compressed filesystem patch at e2compr-announce@opensource.captech.com,
+so I think you are the best available audience for this announce, and
+I hope some of the developers/maintainers of e2compr will be listening
+too.
 
---- drivers/media/radio/radio-aimslab.c.stock	Mon Jan  1 05:14:29 2001
-+++ drivers/media/radio/radio-aimslab.c	Mon Jan  1 05:14:35 2001
-@@ -338,7 +338,7 @@
- 		return -EINVAL;
- 	}
+I have uploaded at
+http://www.pps.jussieu.fr/~dicosmo/Linux/e2compr/e2compr-0.4.39-patch-2.2.18.bz2
+a minor modification of the e2compr-0.4.38 kernel patch, adapted to compile
+versus the latest 2.2.18 stable kernel. This was needed to allow us to upgrade
+to a more recent kernel version in the next DemoLinux (see www.demolinux.org).
  
--	if (request_region(io, 2, "rtrack")) 
-+	if (!request_region(io, 2, "rtrack")) 
- 	{
- 		printk(KERN_ERR "rtrack: port 0x%x already in use\n", io);
- 		return -EBUSY;
---- drivers/media/radio/radio-aztech.c.stock	Mon Jan  1 05:35:07 2001
-+++ drivers/media/radio/radio-aztech.c	Mon Jan  1 05:35:15 2001
-@@ -289,7 +289,7 @@
- 		return -EINVAL;
- 	}
+It seems to properly operate under reasonable charge for me,
+even if once in a while I get a sequence of errors
  
--	if (request_region(io, 2, "aztech")) 
-+	if (!request_region(io, 2, "aztech")) 
- 	{
- 		printk(KERN_ERR "aztech: port 0x%x already in use\n", io);
- 		return -EBUSY;
---- drivers/media/radio/radio-rtrack2.c.stock	Mon Jan  1 05:42:52 2001
-+++ drivers/media/radio/radio-rtrack2.c	Mon Jan  1 05:43:02 2001
-@@ -230,7 +230,7 @@
- 		printk(KERN_ERR "You must set an I/O address with io=0x20c or io=0x30c\n");
- 		return -EINVAL;
- 	}
--	if (request_region(io, 4, "rtrack2")) 
-+	if (!request_region(io, 4, "rtrack2")) 
- 	{
- 		printk(KERN_ERR "rtrack2: port 0x%x already in use\n", io);
- 		return -EBUSY;
---- drivers/media/radio/radio-sf16fmi.c.stock	Mon Jan  1 05:44:36 2001
-+++ drivers/media/radio/radio-sf16fmi.c	Mon Jan  1 05:44:43 2001
-@@ -291,7 +291,7 @@
- 		printk(KERN_ERR "You must set an I/O address with io=0x???\n");
- 		return -EINVAL;
- 	}
--	if (request_region(io, 2, "fmi")) 
-+	if (!request_region(io, 2, "fmi")) 
- 	{
- 		printk(KERN_ERR "fmi: port 0x%x already in use\n", io);
- 		return -EBUSY;
---- drivers/media/radio/radio-terratec.c.stock	Mon Jan  1 05:45:13 2001
-+++ drivers/media/radio/radio-terratec.c	Mon Jan  1 05:45:26 2001
-@@ -309,7 +309,7 @@
- 		printk(KERN_ERR "You must set an I/O address with io=0x???\n");
- 		return -EINVAL;
- 	}
--	if (request_region(io, 2, "terratec")) 
-+	if (!request_region(io, 2, "terratec")) 
- 	{
- 		printk(KERN_ERR "TerraTec: port 0x%x already in use\n", io);
- 		return -EBUSY;
---- drivers/media/radio/radio-trust.c.stock	Mon Jan  1 05:46:47 2001
-+++ drivers/media/radio/radio-trust.c	Mon Jan  1 05:46:51 2001
-@@ -300,7 +300,7 @@
- 		printk(KERN_ERR "You must set an I/O address with io=0x???\n");
- 		return -EINVAL;
- 	}
--	if(request_region(io, 2, "Trust FM Radio")) {
-+	if(!request_region(io, 2, "Trust FM Radio")) {
- 		printk(KERN_ERR "trust: port 0x%x already in use\n", io);
- 		return -EBUSY;
- 	}
---- drivers/media/radio/radio-typhoon.c.stock	Mon Jan  1 05:47:07 2001
-+++ drivers/media/radio/radio-typhoon.c	Mon Jan  1 05:47:15 2001
-@@ -350,7 +350,7 @@
+       Whoops: end_buffer_io_async: async io complete on unlocked page
  
- 	printk(KERN_INFO BANNER);
- 	io = typhoon_unit.iobase;
--	if (request_region(io, 8, "typhoon")) {
-+	if (!request_region(io, 8, "typhoon")) {
- 		printk(KERN_ERR "radio-typhoon: port 0x%x already in use\n",
- 		       typhoon_unit.iobase);
- 		return -EBUSY;
---- drivers/media/radio/radio-zoltrix.c.stock	Mon Jan  1 05:47:50 2001
-+++ drivers/media/radio/radio-zoltrix.c	Mon Jan  1 05:47:58 2001
-@@ -361,7 +361,7 @@
- 	}
+not necessarily when using ext2 compressed filesystems.
  
- 	zoltrix_radio.priv = &zoltrix_unit;
--	if (request_region(io, 2, "zoltrix")) {
-+	if (!request_region(io, 2, "zoltrix")) {
- 		printk(KERN_ERR "zoltrix: port 0x%x already in use\n", io);
- 		return -EBUSY;
- 	}
+Please feel free to use it (at your own risk), test it and report bugs
+to dicosmo@pps.jussieu.fr
+
+Notice, though, that I am not applying to become an official maintainer
+of the package: I just needed to spend some time to get it almost working
+and I wanted to give back the contribution to the community.
+
+Also, I am not currently subscribed to the kernel mailing list, so
+please contact me directly by e-mail, for any comments.
+
+Sincerely yours
+ 
+--Roberto Di Cosmo
+ 
+------------------------------------------------------------------
+Professeur
+PPS                      E-mail: dicosmo@pps.jussieu.fr
+Universite Paris VII     WWW  : http://www.pps.jussieu.fr/~dicosmo
+Case 7014                Tel  : ++33-(1)-44 27 86 55
+2, place Jussieu         Fax  : ++33-(1)-44 27 68 49
+F-75251 Paris Cedex 05
+FRANCE.                  MIME/NextMail accepted
+------------------------------------------------------------------
+Office location:
+ 
+Bureau 6C14 (6th floor)
+175, rue du Chevaleret, XIII
+Metro Chevaleret, ligne 6
+------------------------------------------------------------------                                 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

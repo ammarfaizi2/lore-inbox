@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271535AbRHPI4R>; Thu, 16 Aug 2001 04:56:17 -0400
+	id <S271529AbRHPIt4>; Thu, 16 Aug 2001 04:49:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271532AbRHPI4H>; Thu, 16 Aug 2001 04:56:07 -0400
-Received: from finch-post-12.mail.demon.net ([194.217.242.41]:23568 "EHLO
-	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S271531AbRHPIzv>; Thu, 16 Aug 2001 04:55:51 -0400
-Date: Thu, 16 Aug 2001 09:55:38 +0100 (BST)
-From: Steve Hill <steve@navaho.co.uk>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <125898493.997907155@[169.254.45.213]>
-Message-ID: <Pine.LNX.4.21.0108160938420.2107-100000@sorbus.navaho>
+	id <S271527AbRHPItr>; Thu, 16 Aug 2001 04:49:47 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:36105 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271534AbRHPItj>; Thu, 16 Aug 2001 04:49:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] alternative way of calculating inactive_target
+Date: Thu, 16 Aug 2001 10:55:32 +0200
+X-Mailer: KMail [version 1.3]
+Cc: <linux-mm@kvack.org>
+In-Reply-To: <200108160337.FAA11729@mailb.telia.com>
+In-Reply-To: <200108160337.FAA11729@mailb.telia.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010816084939Z16265-1231+1158@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Aug 2001, Alex Bligh - linux-kernel wrote:
+On August 16, 2001 05:33 am, Roger Larsson wrote:
+> Hi,
+> 
+> 1. Two things in this file, first an unrelated issue (but included in the patch)
+> global_target in free_shortage shouldn't it be freepages.low?
+> Traditionally freepages.high has been when to stop freeing pages.
+> 
+> 2. I have wondered about how inactive_target is calculated.
+> This is an alternative approach...
+> 
+> In this alternative approach I use two wrapping counters.
+> (memory_clock & memory_clock_rubberband)
+> 
+> memory_clock is incremented only when allocating pages (and it
+> is never decremented)
 
-> Some network drivers generate entropy on network interrupts, some
-> don't. Apparently this inconsistent state is the way people want
-> to keep it.
+Yes, exactly, did you read my mind?  Page units are the natural quantum
+of the time base for the whole mm.  When we clock all mm events according
+to the (__alloc_page << order) timebase then lots of memory spikes are
+magically transformed into smooth curves and it becomes immediately
+obvious how much scanning we need to do at each instant.  Now, warning,
+this is a major shift in viewpoint and I'll wager, unwelcome on this side
+of the 2.5 split.  I'd be happy to work with you doing a skunkworks-type
+proof-of-concept though.
 
-This is very bad I would think - if the main source of entropy data is the
-keybaord & mouse, there are a lot of servers out there with no keyboard
-and mouse plugged into them that must be really having problems getting
-enough data.
+> memory_clock_rubberband is calculated to be close to what
+> memory_clock should have been for MEMORY_CLOCK_WINDOW seconds
+> earlier, using current values and information about how long it was since it
+> was updated the last time. This makes it possible to recalculate the target
+> more often when pressure is high - and it simplifies kswapd too...
 
-I was originally using Cobalt's kernel, so I have my suspicions that they
-may have kludged the random number generator into working better with
-their hardware.
+I'll supply a cute, efficient filter that does what you're doing with the
+rubberband with a little stronger theoretical basis, as soon as I wake up
+again.  Or you can look for my earlier "Early flush with bandwidth
+estimation" post.  (Try to ignore the incorrect volatile handling please.)
 
-> If you want to add entropy on network interrupts, look for the line
-> in your driver which does a request_irq, and | in SA_SAMPLE_RANDOM
-> to the flags value.
+BTW, you left out an interesting detail: any performance measurements
+you've already done.
 
-I've just added that to the natsemi ethernet driver (used on the Cobalt
-Qube 3's) and the eepro100 driver (used on the Cobalt Raq 3/4) and it
-seems to have fixed the problem, thanks.  I can only assume that this is
-what Cobalt did to their own kernels in the first place...
-
-> I'd prefer a single /proc/ entry to turn entropy on from ALL network
-> devices for precisely the reason you state (SCSI means no IDE
-> entity either), even if its off by default for ALL network
-> devices for paranoia reasons, but there seems to be some religious
-> issue at play which means the state currently depends on which
-> brand of network card you have.
-
-Yes, this would be a very nice idea.
-
--- 
-
-- Steve Hill
-System Administrator         Email: steve@navaho.co.uk
-Navaho Technologies Ltd.       Tel: +44-870-7034015
-
-        ... Alcohol and calculus don't mix - Don't drink and derive! ...
-
-
+--
+Daniel

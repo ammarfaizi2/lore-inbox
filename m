@@ -1,61 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269815AbRHMFUu>; Mon, 13 Aug 2001 01:20:50 -0400
+	id <S269817AbRHMFZ7>; Mon, 13 Aug 2001 01:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269811AbRHMFUk>; Mon, 13 Aug 2001 01:20:40 -0400
-Received: from phnx1-blk2-hfc-0251-d1db10f1.rdc1.az.coxatwork.com ([209.219.16.241]:39305
-	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S269810AbRHMFUd>; Mon, 13 Aug 2001 01:20:33 -0400
-Message-ID: <028101c123b5$f3d50040$6baaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15Vvjz-0005k2-00@the-village.bc.nu>
-Subject: Re: Lost interrupt with HPT370
-Date: Sun, 12 Aug 2001 22:08:12 -0700
-Organization: LSG, Inc.
+	id <S269819AbRHMFZt>; Mon, 13 Aug 2001 01:25:49 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:38299 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S269817AbRHMFZj>;
+	Mon, 13 Aug 2001 01:25:39 -0400
+Message-ID: <3B7764DF.BF58692D@candelatech.com>
+Date: Sun, 12 Aug 2001 22:25:51 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Low-Cost IP TOS bit won't clear.
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have just tried an HPT-366 card with IC35L040VER07 drives (latest DeskStar
-41G ATA-100, although the card is only ATA-66) and could not get them to
-even let me create a filesystem without hard locking the machine. This was
-using 2.4.8-ac1 and 2.4.7-ac11. I wrote this off to motherboard/IDE card
-compatibility (or lack thereof), but could it still be an IDE driver issue?
+I'm doing some experimenting with setting the various values of
+the IP TOS byte.  First (as I already mentioned on the linux-net
+mailing list) the IPTOS_* values in netinet/ip.h do not seem
+correct, they should be shifted left by 2 bits each, if I understand
+correctly...
 
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Adam Huffman" <bloch@verdurin.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Sunday, August 12, 2001 6:57 AM
-Subject: Re: Lost interrupt with HPT370
+However, even if that is a bug, it is easily fixable in user space
+by just passing our own values to the setsockopt() method.
 
+There does seem to be a bug with setsockopt and/or IP itself.
+If I ever set the Cost TOS bit (0x80), then I cannot clear it,
+even by setting the TOS byte to zero.  If I do attempt to set
+the byte to zero, getsockopt shows that it was really set to 2.
 
-> > I get hde/hdg: lost interrupt messages when booting with 2.4.7/8.
-> >
-> > There are two IBM DTLA-307030 drives on the HPT370 interface (m/b is
-> > Abit KA7-100).
-> >
-> > 2.4.6-ac5 (which I had been using for quite a while) does not have this
-> > problem.
->
-> The fixes you need to run certain HPT cards with certain drives (HPT370
-> included) are not in the Linus tree. Its waiting Andre to submit the
-> relevant stuff on to Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
+(I'm beginning to think I should be using htonl or something
+ like that, but I don't think that explains the failure to set
+ to zero....)
 
+My method to set/get is:
+
+int BtbitsIpEndpoint::doSetTos() {
+   // Set IP ToS
+   if (dev_socket >= 0) {
+      int val = tos;
+      VLOG_DBG(VLOG << "Setting TOS to: " << val << endl);
+      if (setsockopt(dev_socket, SOL_IP, IP_TOS, (char*)&val, sizeof(int)) < 0) {
+         VLOG_ERR(VLOG << "ERROR:  tcp-start, setsockopt TOS:  " << strerror(errno) << endl);
+         return -1;
+      }//if
+      
+      int new_val = 0;
+      socklen_t slt = sizeof(int);
+      if (getsockopt(dev_socket, SOL_IP, IP_TOS, (void*)(&new_val), &slt) < 0) {
+         VLOG_ERR(VLOG << "ERROR:  tcp-start, getsockopt TOS:  " << strerror(errno) << endl);
+         return -1;
+      }//if
+      else {
+         if (val != new_val) {
+            VLOG_WRN(VLOG << "Didn't set TOS as desired, requested: " << tos << " current is: "
+                     << new_val << endl);
+            tos = new_val;
+            real_tos = new_val;
+         }
+      }
+   }
+   return 0;
+}//doSetTos
+
+Any ideas will be appreciated...
+
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

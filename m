@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281959AbRKZRvl>; Mon, 26 Nov 2001 12:51:41 -0500
+	id <S281968AbRKZRwL>; Mon, 26 Nov 2001 12:52:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281966AbRKZRvV>; Mon, 26 Nov 2001 12:51:21 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:13579 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S281959AbRKZRvQ>;
-	Mon, 26 Nov 2001 12:51:16 -0500
-Message-ID: <3C028113.4090305@epfl.ch>
-Date: Mon, 26 Nov 2001 18:51:15 +0100
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S281967AbRKZRwB>; Mon, 26 Nov 2001 12:52:01 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:37088 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S281966AbRKZRvn>;
+	Mon, 26 Nov 2001 12:51:43 -0500
+Date: Mon, 26 Nov 2001 20:49:27 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] Scalable page cache
+In-Reply-To: <87vgfxqwd3.fsf@fadata.bg>
+Message-ID: <Pine.LNX.4.33.0111262026120.15876-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: "Yom, Francis" <fyom@symmsys.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: AGPGART oops
-In-Reply-To: <29800F5ABF5EAC42998190CFF1846AA303C6A4@symlab0-srvr1.SYMMETRY.SYMMSYS.COM>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yom, Francis wrote:
 
-> Dear Nicolas,
-> 
-> Thanks for your quick reply!  I cannot run lspci :-/  There is a bug in
-> Debian that makes lcpci error out saying:
-> 
-> 	pcilib: Cannot open /proc/bus/pci/03/00.1
-> 	lspci: Unable to read 64 bytes of configuration space.
-> 
-> I don't know if there is a fix for it yet.
-> 
-> I'm running 2.4.14 on Debian on a Compaq Presario 2701T laptop.  It has
-> a Radeon M chipset.
-> 
+On 26 Nov 2001, Momchil Velikov wrote:
 
-Yikes... I think I saw this kind of bug report on linux-kernel recently 
-but I think it has been fixed now... maybe you should try to upgrade 
-your kernel to the latest (2.4.16) and see what it gives...
+> Yep.  Folks on #kernelnewbies told me about it, when there were only
+> changes to ``shrink_cache'' left.  So, I decided to funish mine ;)
 
-a+
--- 
-Nicolas Aspert      Signal Processing Laboratory (LTS)
-Swiss Federal Institute of Technology (EPFL)
+ok :) A search on Google for 'scalable pagecache' brings you straight to
+our patch. I've uploaded the patch against 2.4.16 as well:
 
+  http://redhat.com/~mingo/smp-pagecache-patches/pagecache-2.4.16-A1
+
+this is a (tested) port of the patch to the latest VM.
+
+> The tree is per mapping, not a single one.  Now, with 16GB cached in a
+> single mapping, it'd perform poorly, indeed (though probably not 20).
+
+some databases tend to keep all their stuff in big files. 16 GB ~== 2^22,
+thats why i thought 20 was a good approximation of the depth of the tree.
+
+And even with just a depth of 10 per mapping (files with a few megabytes
+of size - a totally mainstream thing), the cache footprint per lookup is
+still 320 bytes with 32 byte cacheline-size, which is way too big. With
+the hash table (page bucket hash table), the typical footprint for a
+lookup is just around 2 cachelines, and one of that is a more 'compressed'
+data structure.
+
+we really only use trees in cases where it's absolutely necessery. There
+mixture data structures of hashes and trees that are beneficial in some
+cases, but the pagecache is mostly a random-indexed thing, seldom do we
+want to scan adjacent pages. And even in that case, looking up the hash is
+very cheap.
+
+	Ingo
 

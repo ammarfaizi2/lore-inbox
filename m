@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbTKJOJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 09:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbTKJOJ2
+	id S263760AbTKJOQU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 09:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTKJOQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 09:09:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:57048 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263607AbTKJOJ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 09:09:27 -0500
-Date: Mon, 10 Nov 2003 15:09:27 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Simon Haynes <simon@baydel.com>
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Re: SFFDC and blksize_size
-Message-ID: <20031110140927.GE32637@suse.de>
-References: <37CC93E8710D@baydel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <37CC93E8710D@baydel.com>
+	Mon, 10 Nov 2003 09:16:20 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:42631 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263760AbTKJOQS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 09:16:18 -0500
+Message-ID: <3FAF9DAE.3070307@cyberone.com.au>
+Date: Tue, 11 Nov 2003 01:16:14 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [PATCH] cfq-prio #2
+References: <20031110140052.GC32637@suse.de>
+In-Reply-To: <20031110140052.GC32637@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 07 2003, Simon Haynes wrote:
+
+
+Jens Axboe wrote:
+
+>Hi,
+>
+>
+
+Hi Jens
+
+>@@ -1553,6 +1559,10 @@
+> 	struct io_context *ioc = get_io_context(gfp_mask);
 > 
-> I have been writing a block driver for SSFDC compliant SMC cards. This stuff 
-> allocates 16k blocks.  When I get requests the transfers are split into the 
-> size I specifty in the blksize_size{MAJOR] array. It sems that most things 
+> 	spin_lock_irq(q->queue_lock);
+>+
+>+	if (!elv_may_queue(q, rw))
+>+		goto out_lock;
+>+
+> 	if (rl->count[rw]+1 >= q->nr_requests) {
+> 		/*
+> 		 * The queue will fill after this allocation, so set it as
+>@@ -1566,15 +1576,12 @@
+> 		}
+> 	}
+> 
+>-	if (blk_queue_full(q, rw)
+>-			&& !ioc_batching(ioc) && !elv_may_queue(q, rw)) {
+>
 
-Sounds like a bad way to do it. It's much better to prevent builds of
-bigger requests than you can handle in one go. You don't mention what
-kernel you are using, but both 2.4 and 2.6 can do this for you.
+I know I hijacked elv_may_queue from you... any chance we could seperate
+these so our schedulers can live in peace? ;)
 
--- 
-Jens Axboe
+Maybe my version should be called elv_force_queue?
+
 

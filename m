@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314394AbSD0S70>; Sat, 27 Apr 2002 14:59:26 -0400
+	id <S314398AbSD0TAn>; Sat, 27 Apr 2002 15:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314403AbSD0S70>; Sat, 27 Apr 2002 14:59:26 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:12967 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S314394AbSD0S7X>; Sat, 27 Apr 2002 14:59:23 -0400
-Date: Sat, 27 Apr 2002 12:59:17 -0600
-Message-Id: <200204271859.g3RIxHo16889@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <20020422101750.D17613@work.bitmover.com>
+	id <S314403AbSD0TAm>; Sat, 27 Apr 2002 15:00:42 -0400
+Received: from CPE0f1029959677.cpe.net.cable.rogers.com ([24.100.146.229]:6409
+	"HELO luna.sol.icu.on.ca") by vger.kernel.org with SMTP
+	id <S314398AbSD0TAk>; Sat, 27 Apr 2002 15:00:40 -0400
+From: "Gordon Gray" <gord@icu.ca>
+To: <linux-kernel@vger.kernel.org>
+Subject: Motzilla crashes system
+Date: Sat, 27 Apr 2002 15:00:39 -0400
+Message-ID: <NABBKHMDBHEGCPLPEPAEIEIFEKAA.gord@icu.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy writes:
-> On Sun, Apr 21, 2002 at 06:21:27PM +0200, Daniel Phillips wrote:
-> > > It's not my call to make.
-> > 
-> > I know that.  I was wondering if *you personally* would have any objection.
-> 
-> Daniel, I won't be nagged into supporting your point of view, sorry.
-> I didn't even know that the doc was in the tree until you raised the
-> point.  I don't see a problem with it being in the tree and I do *not*
-> support your attempts to remove it.
-> 
-> You seem to think it has some great value to BitMover to have it in
-> the tree.  Sorry, that's not true.  It's true to some small extent, in
-> that it may reduce the number of support queries that we get related to
-> the kernel.  So we'd prefer it stayed in the tree.
-> 
-> Why don't you ask Jeff to stick in the doc saying something like
-> 
->     BitKeeper is not free software.  You may use it for free, subject
->     to the licensing rules (bk help bkl will display them), but it is
->     not open source.  If you feel strongly about 100% free software
->     tool chain, then don't use BitKeeper.  Linus has repeatedly stated
->     that he will continue to accept and produce traditional "diff -Nur"
->     style patches.  It is explicitly not a requirement that you use
->     BitKeeper to do kernel development, people may choose whatever tool
->     works best for them.
+Sorry to bug you folks, but I appear to have multiple problems, one of which
+sounds like a kernel problem.
 
-I've added two subsections to the FAQ about this, which I hope will
-avoid some future flamewars:
-http://www.tux.org/lkml/#s1-20
-http://www.tux.org/lkml/#s1-21
+I upgraded from RedHat 7.1 (2.2.19smp kernel) to redhat 7.2 (2.4.7-10smp).
+I had some Ximian red carpet enhancements, and after the upgrade (and after
+resolving some bios issues), I applied the upgrades recommended by ximian
+red carpet.
 
-				Regards,
+2 bugs have made themselves visible to me.  First, cron emails me every 10
+minutes telling me that /usr/lib/sa/sa1 1 1 "Cannot append to that file"
+(what ever that file is).
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+The second problem (and more disturbing), is that when I run Netscape (as a
+user, not as root) the entire system crashes (won't even answer to ping).
+When I re-boot, grub no longer load and I have to re-install grub from the
+distribution CD.  What is most troubling, is that everything in my /boot
+partition is write protected to all but root.  So how can a user application
+change anything in there?
+
+I realize I have probably not given you enough info, but I am not
+experienced enough to know what info would be useful, nor how to find much
+of anything.
+
+If I am directing this question to the wrong place, please accept my
+apologies, and just point me in the right direction.
+
+I thank you for any help you can offer.
+
+Gordon Gray.
+

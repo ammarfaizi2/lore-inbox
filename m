@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269755AbUINTsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269727AbUINTxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269755AbUINTsA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 15:48:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269628AbUINTph
+	id S269727AbUINTxf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 15:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269757AbUINTuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 15:45:37 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:46860 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S269494AbUINToG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 15:44:06 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: root@chaos.analogic.com, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: Kernel stack overflow on 2.6.9-rc2
-Date: Tue, 14 Sep 2004 22:43:55 +0300
-User-Agent: KMail/1.5.4
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, netdev@oss.sgi.com
-References: <200409141723.35009.vda@port.imtp.ilyichevsk.odessa.ua> <20040914163347.GE3197@schnapps.adilger.int> <Pine.LNX.4.53.0409141340540.4262@chaos>
-In-Reply-To: <Pine.LNX.4.53.0409141340540.4262@chaos>
+	Tue, 14 Sep 2004 15:50:50 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:25002 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S269367AbUINTss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 15:48:48 -0400
+Message-ID: <41474B15.8040302@nortelnetworks.com>
+Date: Tue, 14 Sep 2004 13:48:37 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: offtopic: how to break huge patch into smaller independent patches?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409142243.55949.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 September 2004 20:55, Richard B. Johnson wrote:
-> Has anybody ever explained why there is an attempt to
-> minimize the size of the kernel stack? Temporary data
-> allocation on the stack is FREE! The compiler just
-> adjusts offsets for data. Even dynamic data-allocation
-> takes only one instruction, (subl %reg, %esp).
 
-IIRC it is done in order to be able to support large number
-of threads on 32-bit machines and to avoid needing to do
-a order-1 allocation at fork().
---
-vda
+Its kind of offtopic, but I hoped that someone might have some pointers since 
+the kernel developers deal with so many patches.
 
+I've been given a massive kernel patch that makes a whole bunch of conceptually 
+independent changes.
+
+Does anyone have any advice on how to break it up into independent patches?
+
+
+Chris

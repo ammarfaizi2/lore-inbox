@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135940AbRD0JpH>; Fri, 27 Apr 2001 05:45:07 -0400
+	id <S136007AbRD0LJo>; Fri, 27 Apr 2001 07:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136001AbRD0Jo5>; Fri, 27 Apr 2001 05:44:57 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:43793 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S135998AbRD0Jor>; Fri, 27 Apr 2001 05:44:47 -0400
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Cc: William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <200103031114.MAA13672@cave.bitwizard.nl>
+	id <S136003AbRD0LJZ>; Fri, 27 Apr 2001 07:09:25 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:44299 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135942AbRD0LJN>; Fri, 27 Apr 2001 07:09:13 -0400
+To: Pavel Machek <pavel@suse.cz>
+Cc: Bill Crawford <billc@netcomuk.co.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Daniel Phillips <phillips@innominate.de>
+Subject: Re: Hashing and directories
+In-Reply-To: <3A959BFD.B18F833@netcomuk.co.uk> <20000101020213.D28@(none)>
 From: Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>
-Date: 08 Mar 2001 14:05:25 +0100
-In-Reply-To: R.E.Wolff@BitWizard.nl's message of "Sat, 3 Mar 2001 12:14:22 +0100 (MET)"
-Message-ID: <87elw8v2ay.fsf@mose.informatik.uni-tuebingen.de>
+Date: 08 Mar 2001 13:42:16 +0100
+In-Reply-To: Pavel Machek's message of "Sat, 1 Jan 2000 02:02:13 +0000"
+Message-ID: <87ofvcv3dj.fsf@mose.informatik.uni-tuebingen.de>
 User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Crater Lake)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Rogier Wolff <R.E.Wolff@BitWizard.nl> writes:
+>>>>> " " == Pavel Machek <pavel@suse.cz> writes:
 
-     > William T Wilson wrote:
-    >> On Fri, 2 Mar 2001 Matt_Domsch@Dell.com wrote:
-    >> 
-    >> > Linus has spoken, and 2.4.x now requires swap = 2x RAM.
-    >> 
-    >> I think I missed this.  What possible value does this have?
-    >> (Not even Sun, the original purveyors of the 2x RAM rule, need
-    >> this any more).
+     > Hi!
+    >> I was hoping to point out that in real life, most systems that
+    >> need to access large numbers of files are already designed to
+    >> do some kind of hashing, or at least to divide-and-conquer by
+    >> using multi-level directory structures.
 
-     > RAM is still about 100x more expensive than HD. So I always
-     > recommend you use about 2% of the money you spent on RAM to pay
-     > for the HD space to handle swap.
+     > Yes -- because their workaround kernel slowness.
 
-     > Actually the deal is: either use enough swap (about 2x RAM) or
-     > use none at all.
+     > I had to do this kind of hashing because kernel disliked 70000
+     > html files (copy of train time tables).
 
-I believe the 2xRAM rule comes from the OS's where ram was only buffer
-for the swap. So with 1xRAM you had a running system with 1xRAM
-memory, so nothing is gained by that much swap.
+     > BTW try rm * with 70000 files in directory -- command line will
+     > overflow.
 
-On Linux any swap adds to the memory pool, so 1xRAM would be
-equivalent to 2xRAM with the old old OS's.
+There are filesystems that use btrees (reiserfs) or hashing (affs) for
+directories.
 
-Generally I would say that you need so much swap that you mouse does
-not stop when its used. That usually means so much swap as you can
-read/write within 10-30 seconds when done continuous. If you need more
-swap the system becomes unuseable and performance goes realy down.
+That way you get a O(log(n)) or even O(1) access time for
+files. Saddly the hashtable for affs depends on the blocksize and
+linux AFAIK only allows far too small block sizes (512 byte) for affs.
+It was designed for floppies, so the lack of dynamically resizing hash
+tables is excused.
 
-But thats all just my liking. Some applications can use 10xRAM swap
-and still not stop the mouse from working, some applications do that
-with 100 MB swap. I would keep swap moderate (one 2GB partition should
-be enough for any normal system) and use swapfiles in case more is
-needed temporary.
+What also could be done is to keed directories sorted. Creating of
+files would cost O(N) time but a lookup could be done in
+O(log(log(n))) most of the time with reasonable name distribution.
+This could be done with ext2 without breaking any compatibility. One
+would need to convert (sort all directories) every time the FS was
+mounted RW by an older ext2, but otherwise nothing changes.
+
+Would you like to write support for this?
 
 MfG
         Goswin

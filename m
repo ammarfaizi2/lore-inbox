@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129247AbQKBTXh>; Thu, 2 Nov 2000 14:23:37 -0500
+	id <S129272AbQKBTYr>; Thu, 2 Nov 2000 14:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129376AbQKBTX1>; Thu, 2 Nov 2000 14:23:27 -0500
-Received: from ra.lineo.com ([204.246.147.10]:6051 "EHLO thor.lineo.com")
-	by vger.kernel.org with ESMTP id <S129247AbQKBTXR>;
-	Thu, 2 Nov 2000 14:23:17 -0500
-Message-ID: <3A01BDCD.FCBCFFF8@Rikers.org>
-Date: Thu, 02 Nov 2000 12:17:33 -0700
-From: Tim Riker <Tim@Rikers.org>
-Organization: Riker Family (http://rikers.org/)
+	id <S129307AbQKBTYh>; Thu, 2 Nov 2000 14:24:37 -0500
+Received: from site3.talontech.com ([208.179.68.88]:14926 "EHLO
+	site3.talontech.com") by vger.kernel.org with ESMTP
+	id <S129272AbQKBTYW>; Thu, 2 Nov 2000 14:24:22 -0500
+Message-ID: <3A01BF5A.30BC4B4@talontech.com>
+Date: Thu, 02 Nov 2000 11:24:10 -0800
+From: Ben Ford <bford@talontech.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux?
-In-Reply-To: <3A01B8BB.A17FE178@Rikers.org> <E13rPhi-0001ng-00@the-village.bc.nu> <20001102201836.A14409@gruyere.muc.suse.de>
-X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 11/02/2000
- 12:23:13 PM,
-	Serialize complete at 11/02/2000 12:23:13 PM
-Content-Transfer-Encoding: 7bit
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+In-Reply-To: <E13rPhi-0001ng-00@the-village.bc.nu> <3A01BB7D.B084B66@Rikers.org>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> On Thu, Nov 02, 2000 at 07:07:12PM +0000, Alan Cox wrote:
+Tim Riker wrote:
+
+> Alan Cox wrote:
+> >
 > > > 1. There are architectures where some other compiler may do better
 > > > optimizations than gcc. I will cite some examples here, no need to argue
 > >
 > > I think we only care about this when they become free software.
-> 
-> SGI's pro64 is free software and AFAIK is able to compile a kernel on IA64.
-> It is also not clear if gcc will ever produce good code on IA64.
-> 
-> -Andi
+>
+> This may be your belief, but I would not choose to enforce it on
+> everyone. Thank you for you opinion.
 
-A grand example I should have included. Thanx! Last I knew the status
-was that SGI had built the kernel with thier compiler, by adding gcc
-syntax into it, but had not reached the point where the kernel would
-run. Perhaps they have gotten past this. Since I'm no longer involved in
-the Trillian (read ia64 Linux Project) mailing lists or weekly phone
-calls I have been out of this loop for a month or so.
--- 
-Tim Riker - http://rikers.org/ - short SIGs! <g>
-All I need to know I could have learned in Kindergarten
-... if I'd just been paying attention.
+No need to be so flip about it.  I believe that most of us feel that way.
+
+
+-b
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbTKOUvE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 15:51:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTKOUvE
+	id S262069AbTKOVS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 16:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTKOVS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 15:51:04 -0500
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:48005 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S262086AbTKOUvC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 15:51:02 -0500
-Date: Sat, 15 Nov 2003 20:50:55 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@einstein.homenet
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Harald Welte <laforge@netfilter.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: seq_file and exporting dynamically allocated data
-In-Reply-To: <20031115201444.GO24159@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0311152045310.743-100000@einstein.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 15 Nov 2003 16:18:26 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:31239 "EHLO w.ods.org")
+	by vger.kernel.org with ESMTP id S262069AbTKOVSZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 16:18:25 -0500
+Date: Sat, 15 Nov 2003 22:18:18 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Xose Vazquez Perez <xose@wanadoo.es>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-pre5 bugs: depmod and Unresolved symbols
+Message-ID: <20031115211818.GD9634@alpha.home.local>
+References: <3FB57AE7.5000706@wanadoo.es> <Pine.LNX.4.44.0311151428080.10014-100000@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311151428080.10014-100000@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Nov 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> If you mean that read(2) can decide to return less than full user buffer even
-> though more data is available - tough, that's something userland *must* be
-> able to deal with.
+Hi,
 
-I think I now understand better what you mean. And that is not what I 
-meant. Yes, of course userspace must be able to deal with less data than 
-what it asked for. I agree.
+On Sat, Nov 15, 2003 at 02:29:16PM -0200, Marcelo Tosatti wrote:
+> 
+> On Sat, 15 Nov 2003, Xose Vazquez Perez wrote:
+> > http://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23pre6aa3/00_comx-driver-compile-1
+> > 
+> > 00_comx-driver-compile-1 first appeared in 2.4.19pre8aa2 - 258 bytes
+> > 
+> > 	Export proc_get_inode for kernel/drivers/net/wan/comx.o so
+> > 	it can link as a module, noticed by Eyal Lebedinsky.
+> 
+> I just applied this and Jeff Garzik pointed out that its wrong to export
+> proc_get_inode, and that comx should be fixed instead.
+> 
+> I reverted the change. 
 
-But I was referring to the complication on the kernel side, whereby if the 
-data (collectively, all the entries) is more than 1 page then ->stop() 
-must be called and a page returned to user and then the kernel must build 
-another page but all it knows is the integer 'offset'. Anything could have 
-happened to the list (task list in this case) since ->stop() routine 
-dropped the spinlock. So, it is not obvious from which position to 
-start building the data for the new page. 
+Christoph Hellwig once explained us why it was bad and basically what needed
+to be done in comx to make it link. But I think that nobody uses this driver
+nowadays or that its users blindly apply this patch. I myself once tried to
+fix it because of this annoyance (although I don't use it), and found myself
+duplicating lots of proc stuff so I concluded this was plain silly and that
+the comx driver will simply be disabled in my later kernels.
 
-Looking at mm/slab.c implementation I see that it just walks the integer 
-distance from the head of the list. Simple but not 100% correct, I think. 
-I.e. it can miss an entry if the list has changed between two read(2)s.
-
-Kind regards
-Tigran
+Cheers,
+Willy
 

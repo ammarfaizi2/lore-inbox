@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318721AbSIFPYm>; Fri, 6 Sep 2002 11:24:42 -0400
+	id <S318711AbSIFPWb>; Fri, 6 Sep 2002 11:22:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318735AbSIFPYm>; Fri, 6 Sep 2002 11:24:42 -0400
-Received: from 62-190-217-14.pdu.pipex.net ([62.190.217.14]:40452 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S318721AbSIFPYl>; Fri, 6 Sep 2002 11:24:41 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209061536.g86FaniW004326@darkstar.example.net>
+	id <S318714AbSIFPWb>; Fri, 6 Sep 2002 11:22:31 -0400
+Received: from windsormachine.com ([206.48.122.28]:57095 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S318711AbSIFPWb>; Fri, 6 Sep 2002 11:22:31 -0400
+Date: Fri, 6 Sep 2002 11:26:40 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: DevilKin <devilkin-lkml@blindguardian.org>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: ide drive dying?
-To: devilkin-lkml@blindguardian.org (DevilKin)
-Date: Fri, 6 Sep 2002 16:36:49 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200209061713.51387.devilkin-lkml@blindguardian.org> from "DevilKin" at Sep 06, 2002 05:13:51 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <200209061713.51387.devilkin-lkml@blindguardian.org>
+Message-ID: <Pine.LNX.4.33.0209061123550.30387-100000@router.windsormachine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've looked up these errors on the net, and as far as i can tell it means
-> that the drive has some bad sectors at the given addresses and that it will
-> probably die on me sooner or later.
-> 
-> Can someone either confirm this to me or tell me what to do to fix it?
-> 
-> The drive involved is an IBM-DTLA-307060, which has served me without
-> problems now for about 2 years.
+> The drive involved is an IBM-DTLA-307060, which has served me without problems
+> now for about 2 years.
 
-Have a look at:
+IBM DeathStar 75gxp.
 
-http://csl.cse.ucsc.edu/smart.shtml
+One of the worst hard drives ever made.  It's quite likely it's failed,
+and in fact, two years is pretty impressive out of one of these.
 
-there you will find software for interrogating and monitoring the S.M.A.R.T. data available from your drive.  It's a little late to start monitoring it, if the drive is already dying, but if, for example, it shows a lot of re-allocated sectors, or spin retries, you'll know something is wrong.
+Make backups immediately.  Run ibm's DFT tool, get the code to RMA this
+thing back to IBM.  Sell the replacement they send you to a sucker on
+eBAY, and buy yourself a new drive.  You can pickup 80 gig drives for
+around 80 bucks nowadays.  I used to recommend Maxtors, until they said
+they're cutting their warranty to one year from three.  I don't know what
+to use anymore.
 
-John.
+Mike
+

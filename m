@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbTGWJ3S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 05:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTGWJ3S
+	id S263062AbTGWJnW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 05:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTGWJnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 05:29:18 -0400
-Received: from mail.gmx.de ([213.165.64.20]:21155 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262872AbTGWJ3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 05:29:18 -0400
-Date: Wed, 23 Jul 2003 11:44:21 +0200
-From: Dominik Brugger <dominik83@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test1] ACPI slowdown
-Message-Id: <20030723114421.34eb7149.dominik83@gmx.net>
-In-Reply-To: <878yqpptez.fsf@deneb.enyo.de>
-References: <878yqpptez.fsf@deneb.enyo.de>
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jul 2003 05:43:22 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:49671 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S263062AbTGWJnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 05:43:21 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: a.marsman@aYniK.com (Aschwin Marsman), alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre7: are security issues solved?
+In-Reply-To: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.21-2-686-smp (i686))
+Message-Id: <E19fGMZ-0000Zm-00@gondolin.me.apana.org.au>
+Date: Wed, 23 Jul 2003 19:56:47 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jul 2003 09:57:08 +0200
-Florian Weimer <fw@deneb.enyo.de> wrote:
-
-> If I enable ACPI on my box (Athlon XP at 1.6 GHz, Epox EP-8KHa+
-> mainboard), it becomes very slow (so slow that it's unusable).
+Aschwin Marsman <a.marsman@aynik.com> wrote:
 > 
-> Is this a known issue?  Maybe the thermal limits are misconfigured,
-> and the CPU clock is throttled unnecessarily (if something like this
-> is supported at all).
+>> CAN-2003-0461: /proc/tty/driver/serial reveals the exact character counts
+>> for serial links. This could be used by a local attacker to infer password
+>> lengths and inter-keystroke timings during password entry.
 
-I use the same board with ACPI enabled, no slow down.
-The only problem I experience is that USB doesnt wakeup after resume from S3, reloading all of the related modules doesnt help, the port seems to be unpowered (usb optical mouse blinks for a few miliseconds after reloading uhci_hcd, maybe there is some little power left).
-
--Dominik Brugger
+What's the problem with exposing those counters? Are we going to restrict
+access to /proc/interrupts and network interface counters too?
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

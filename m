@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbUKPOhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbUKPOrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbUKPOhR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 09:37:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbUKPOes
+	id S261974AbUKPOrU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 09:47:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUKPOrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:34:48 -0500
-Received: from S010600c0f014b14a.ss.shawcable.net ([70.64.60.7]:2317 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP id S261974AbUKPOdk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:33:40 -0500
-Date: Tue, 16 Nov 2004 08:40:29 -0600
-From: Charles Cazabon <linux@discworld.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: GPL version, "at your option"?
-Message-ID: <20041116144029.GA6740@discworld.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1100614115.16127.16.camel@ghanima>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100614115.16127.16.camel@ghanima>
-User-Agent: Mutt/1.5.6i
+	Tue, 16 Nov 2004 09:47:20 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:44293 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261974AbUKPOrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 09:47:17 -0500
+Message-ID: <419A12DF.6010903@techsource.com>
+Date: Tue, 16 Nov 2004 09:46:55 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Roland Dreier <roland@topspin.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel Corp. 82801BA/BAM not supported by ALSA?
+References: <419914F9.7050509@techsource.com> <52is86lqur.fsf@topspin.com>	<41992C5C.9060201@techsource.com> <521xeulonk.fsf@topspin.com>
+In-Reply-To: <521xeulonk.fsf@topspin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fruhwirth Clemens <clemens@endorphin.org> wrote:
-> Standard template for GPL licensing:
+Roland Dreier wrote:
+> This is the audio device:
 > 
-> "This program is free software; you can redistribute it and/or modify it
-> under the terms of the GNU General Public License as published by the
-> Free Software Foundation; either version 2 of the License, or (at your
-> option) any later version."
-[snip]
+>     > 0000:00:1f.5 Class 0401: 8086:2445 (rev 04)
+> 
+> and it looks like sound/pci/intel8x0.c should support it:
+> 
+> static struct pci_device_id snd_intel8x0_ids[] = {
+> 	/* ... */
+> 	{ 0x8086, 0x2445, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },	/* 82801BA */
+> 
+> What happens when you load snd_intel8x0?
+> 
+>  - Roland
+> 
+> 
 
-That's only a recommendation by the FSF; many GPL-covered projects (including
-the kernel and my own) do not use it.
+I had compiled it directly in the kernel.  Does it not work unless it's 
+a module?
 
-The file COPYING in the kernel source says:
-
-  Also note that the only valid version of the GPL as far as the kernel
-  is concerned is _this_ particular version of the license (ie v2, not
-  v2.2 or v3.x or whatever), unless explicitly otherwise stated.
-  
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:     http://www.qcc.ca/~charlesc/software/
------------------------------------------------------------------------

@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbUDTPIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263129AbUDTPLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbUDTPIu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 11:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUDTPIt
+	id S263129AbUDTPLw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 11:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbUDTPLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 11:08:49 -0400
-Received: from mail.dsa-ac.de ([62.112.80.99]:4616 "EHLO k2.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S263101AbUDTPIs (ORCPT
+	Tue, 20 Apr 2004 11:11:52 -0400
+Received: from [144.51.25.10] ([144.51.25.10]:51872 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S263129AbUDTPLt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 11:08:48 -0400
-Date: Tue, 20 Apr 2004 17:08:45 +0200 (CEST)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [somewhat OT] binary modules agaaaain
-In-Reply-To: <200404201611.07832.bzolnier@elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.33.0404201705510.1869-100000@pcgl.dsa-ac.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Apr 2004 11:11:49 -0400
+Subject: [PATCH][SELINUX] Change context_to_sid handling for no-policy case
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1082473877.7481.37.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 20 Apr 2004 11:11:17 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
+This patch against 2.6.6-rc1-mm1 changes the behavior of
+security_context_to_sid in the no-policy case so that it simply accepts
+all contexts and maps them to the kernel SID rather than rejecting
+anything other than an initial SID.  The change avoids error conditions
+when using SELinux in permissive/no-policy mode, so that any file
+contexts left on disk from prior use of SELinux with a policy will not
+cause an error when they are looked up and userspace attempts to set
+contexts can succeed.  Please apply.
 
-> > A binary module is "considered good" if
->
-> This is a false assumption IMO no binary only modules can be "good".
+ security/selinux/ss/services.c |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
 
-I agree! That was just an idea to make Linux life easier __if__ it
-__must__ live with binary modules.
+diff -X /home/sds/dontdiff -ru linux-2.6.old/security/selinux/ss/services.c linux-2.6/security/selinux/ss/services.c
+--- linux-2.6.old/security/selinux/ss/services.c	2004-04-20 09:37:45.000000000 -0400
++++ linux-2.6/security/selinux/ss/services.c	2004-04-20 09:53:02.834624857 -0400
+@@ -456,9 +456,7 @@
+ 				goto out;
+ 			}
+ 		}
+-		printk(KERN_ERR "security_context_to_sid: called before "
+-		       "initial load_policy on unknown context %s\n", scontext);
+-		rc = -EINVAL;
++		*sid = SECINITSID_KERNEL;
+ 		goto out;
+ 	}
+ 	*sid = SECSID_NULL;
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

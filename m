@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTIWUOE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 16:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTIWUOE
+	id S263346AbTIWURI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 16:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbTIWUQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 16:14:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54663 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262050AbTIWUOA (ORCPT
+	Tue, 23 Sep 2003 16:16:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18826 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262188AbTIWUPa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 16:14:00 -0400
-Date: Tue, 23 Sep 2003 13:13:50 -0700
+	Tue, 23 Sep 2003 16:15:30 -0400
+Date: Tue, 23 Sep 2003 13:15:15 -0700
 From: Chris Wright <chrisw@osdl.org>
 To: David Yu Chen <dychen@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, alan@lxorguk.ukuu.org.uk
 Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
-Message-ID: <20030923131350.D20572@osdlab.pdx.osdl.net>
+Message-ID: <20030923131515.H20572@osdlab.pdx.osdl.net>
 References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,52 +25,49 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 * David Yu Chen (dychen@stanford.edu) wrote:
-> Leaks if devices == 0 ?  Error_end only frees mdevs if (devices > 0), 
-> but for mdevs=kmalloc(0), the slab allocator may still actually return memory
-> [FILE:  2.6.0-test5/drivers/usb/class/usb-midi.c]
-> [FUNC:  alloc_usb_midi_device]
-> [LINES: 1621-1772]
-> [VAR:   mdevs]
-> 1616:	devices = inDevs > outDevs ? inDevs : outDevs;
-> 1617:	devices = maxdevices > devices ? devices : maxdevices;
-> 1618:
-> 1619:	/* obtain space for device name (iProduct) if not known. */
-> 1620:	if ( ! u->deviceName ) {
+> [FILE:  2.6.0-test5/sound/oss/ymfpci.c]
 > START -->
-> 1621:		mdevs = (struct usb_mididev **)
-> 1622:			kmalloc(sizeof(struct usb_mididevs *)*devices
-> 1623:				+ sizeof(char) * 256, GFP_KERNEL);
-<snip>
+> 2530:	if ((codec = kmalloc(sizeof(ymfpci_t), GFP_KERNEL)) == NULL) {
+> 2531:		printk(KERN_ERR "ymfpci: no core\n");
+> 2532:		return -ENOMEM;
+> 2533:	}
+> 2534:	memset(codec, 0, sizeof(*codec));
+> 2535:
+>         ... DELETED 11 lines ...
+> 2547:		goto out_free;
+> 2548:	}
+> 2549:
+> 2550:	if ((codec->reg_area_virt = ioremap(base, 0x8000)) == NULL) {
+> 2551:		printk(KERN_ERR "ymfpci: unable to map registers\n");
 > GOTO -->
-> 1715:			goto error_end;
-<snip>
+> 2552:		goto out_release_region;
+> 2553:	}
+> 2554:
+> 2555:	pci_set_master(pcidev);
+> 2556:
+> 2557:	printk(KERN_INFO "ymfpci: %s at 0x%lx IRQ %d\n",
+>         ... DELETED 78 lines ...
+> 2636: out_release_region:
+> 2637:	release_mem_region(pci_resource_start(pcidev, 0), 0x8000);
+> 2638: out_free:
+> 2639:	if (codec->ac97_codec[0])
+> 2640:		ac97_release_codec(codec->ac97_codec[0]);
 > END -->
-> 1772:	return -ENOMEM;
-> [FILE:  2.6.0-test5/drivers/usb/class/usb-midi.c]
-> START -->
-> 1625:		mdevs = (struct usb_mididev **)
-> 1626:			kmalloc(sizeof(struct usb_mididevs *)*devices, GFP_KERNEL);
-<snip>
-> GOTO -->
-> 1715:			goto error_end;
-<snip>
-> END -->
-> 1772:	return -ENOMEM;
+> 2641:	return -ENODEV;
 
-Yes, these are bugs.  Patch below.  Greg, this look ok?
+Yes, this looks like a bug.  Patch below.  Alan, this look ok?
 
 thanks,
 -chris
 
-===== drivers/usb/class/usb-midi.c 1.22 vs edited =====
---- 1.22/drivers/usb/class/usb-midi.c	Tue Sep  2 11:40:27 2003
-+++ edited/drivers/usb/class/usb-midi.c	Tue Sep 23 11:36:03 2003
-@@ -1750,7 +1750,7 @@
- 	return 0;
+===== sound/oss/ymfpci.c 1.38 vs edited =====
+--- 1.38/sound/oss/ymfpci.c	Tue Aug 26 09:25:41 2003
++++ edited/sound/oss/ymfpci.c	Tue Sep 23 12:42:45 2003
+@@ -2638,6 +2638,7 @@
+  out_free:
+ 	if (codec->ac97_codec[0])
+ 		ac97_release_codec(codec->ac97_codec[0]);
++	kfree(codec);
+ 	return -ENODEV;
+ }
  
-  error_end:
--	if ( mdevs != NULL && devices > 0 ) {
-+	if ( mdevs != NULL ) {
- 		for ( i=0 ; i<devices ; i++ ) {
- 			if ( mdevs[i] != NULL ) {
- 				unregister_sound_midi( mdevs[i]->dev_midi );

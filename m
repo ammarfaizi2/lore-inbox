@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267190AbUHSS0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUHSS3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267190AbUHSS0l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 14:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267197AbUHSS0l
+	id S267186AbUHSS3J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 14:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267195AbUHSS3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 14:26:41 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:39376 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S267190AbUHSS0e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 14:26:34 -0400
-From: jmerkey@comcast.net
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Re: kallsyms 2.6.8 address ordering
-Date: Thu, 19 Aug 2004 18:26:31 +0000
-Message-Id: <081920041826.25654.4124F0D700037D32000064362200734748970A059D0A0306@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
-X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
+	Thu, 19 Aug 2004 14:29:09 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:39837 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267186AbUHSS3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 14:29:05 -0400
+Date: Thu, 19 Aug 2004 11:25:52 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>, davidm@hpl.hp.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernbench on 512p
+Message-ID: <253460000.1092939952@flay>
+In-Reply-To: <200408191237.16959.jbarnes@engr.sgi.com>
+References: <200408191216.33667.jbarnes@engr.sgi.com> <16676.54657.220755.148837@napali.hpl.hp.com> <200408191237.16959.jbarnes@engr.sgi.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes.
-
-What would be required?   Source code disclosure to a reviewer.  MDB is platform independent.  and patches in an alternate debugger interface in kdb_main.  In includes **NONE** of SGI's source code or Linux kernel source in the MDB core.  There is an open source section of the debugger with **ALL** modifications to kdb core files disclosed with the debugger modules.  The fact is, I don't even need kdb, but inlcuded it in a mode where folks who wanted to switch between the two debuggers could do so, since a lot of folks wanted to.  I do use the serial interface in kdb, which is the only portion.  I wrote MANOS with this debugger, and all the low level GDT, IDT, etc. hardware stuff is my own, is vastly superior to what's in kdb.   
-
-DRDOS owns the MDB debugger for Linux now and I maintain it for them -- that's it.  I am certain DRDOS would provide any counter-claims with **FACTS** to assertions we are using any of the kdb code improperly.
-
-Jeff
-
-
-> On Thu, Aug 19, 2004 at 06:10:25PM +0000, jmerkey@comcast.net wrote:
-> > kallsyms in 2.6.8 is presenting module symbol tables with out of order
-> > addresses in 2.6.X.  This makes maintaining a commercial kernel debugger
-> > for Linux 2.6 kernels nighmareish.
+> On Thursday, August 19, 2004 12:29 pm, David Mosberger wrote:
+>> >>>>> On Thu, 19 Aug 2004 12:16:33 -0400, Jesse Barnes
+>> >>>>> <jbarnes@engr.sgi.com> said:
+>> 
+>>   Jesse> It would be nice if the patch to show which lock is contended
+>>   Jesse> got included.
+>> 
+>> Why not use q-syscollect?  It will show you the caller of
+>> ia64_spinlock_contention, which is often just as good (or better ;-).
 > 
-> Can you prove this debugger doesn't violate SGI's copyrights on KDB?
+> Because it requires guile and guile SLIB, which I've never been able to setup 
+> properly on a RHEL3 based distro.  Care to rewrite the tools in C or 
+> something? ;)
+
+Does lockmeter not work for you? It's sitting in my tree still, and 
+Andrew's last time I looked.
+
+M.
+

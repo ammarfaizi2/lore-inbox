@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285435AbRLGJAr>; Fri, 7 Dec 2001 04:00:47 -0500
+	id <S285441AbRLGJHS>; Fri, 7 Dec 2001 04:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285438AbRLGJAh>; Fri, 7 Dec 2001 04:00:37 -0500
-Received: from pixar.pixar.com ([138.72.10.20]:2799 "EHLO pixar.pixar.com")
-	by vger.kernel.org with ESMTP id <S285435AbRLGJA3>;
-	Fri, 7 Dec 2001 04:00:29 -0500
-Date: Fri, 7 Dec 2001 01:00:19 -0800 (PST)
-From: Kiril Vidimce <vkire@pixar.com>
-To: Dan Maas <dmaas@dcine.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S285442AbRLGJHH>; Fri, 7 Dec 2001 04:07:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35592 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285441AbRLGJGz>; Fri, 7 Dec 2001 04:06:55 -0500
 Subject: Re: kernel: ldt allocation failed
-In-Reply-To: <098201c17ef0$44758d90$1a01a8c0@allyourbase>
-Message-ID: <Pine.LNX.4.21.0112070057480.20196-100000@tombigbee.pixar.com>
+To: vkire@pixar.com (Kiril Vidimce)
+Date: Fri, 7 Dec 2001 09:15:48 +0000 (GMT)
+Cc: dmaas@dcine.com (Dan Maas), linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.LNX.4.21.0112070057480.20196-100000@tombigbee.pixar.com> from "Kiril Vidimce" at Dec 07, 2001 01:00:19 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16CH6i-00059b-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Dec 2001, Dan Maas wrote:
-> > We suddenly started seeing freezing problems on a number of machines
-> > in the past couple of days. There is no pattern as far as I can tell.
-> > It has happened while running OpenGL apps, netscape, or even when not
-> > doing anything.
-> 
-> > Software:
-> >     - NVIDIA drivers 1.0-1541
-> 
-> Sorry, we do not have the source to NVIDIA's driver, so we cannot help you
-> debug this problem. Please contact NVIDIA support.
+> I don't see how one can magically tell that this is an NVIDIA problem. 
 
-I don't see how one can magically tell that this is an NVIDIA problem. 
-I am contacting NVIDIA at the same time and it's possible that the 
-problem is with their drivers. However, there is something going on 
-in the kernel and I imagine that even if the NVIDIA drivers are 
-triggering the problem, there are other modules/apps that can bring 
-about the same behavior.
+We don't know. But since we don't have their source and they have our
+source only they can tell you.
 
-KV
---
-  ___________________________________________________________________
-  Studio Tools                                        vkire@pixar.com
-  Pixar Animation Studios                        http://www.pixar.com/
+> in the kernel and I imagine that even if the NVIDIA drivers are 
+> triggering the problem, there are other modules/apps that can bring 
+> about the same behavior.
 
+Possibly, but you'll have to ask Nvidia to debug it for you. If you can
+reproduce a bug by 
+	-	removing the nvidia modules so they wont be loaded
+	-	hard booting the machine
+	-	triggering the bug without loading the nvidia drivers
+
+then please report it. If not, its between you and nvidia.

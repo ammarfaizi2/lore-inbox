@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266224AbTBXLQ4>; Mon, 24 Feb 2003 06:16:56 -0500
+	id <S266994AbTBXLXk>; Mon, 24 Feb 2003 06:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266640AbTBXLQ4>; Mon, 24 Feb 2003 06:16:56 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:33709 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S266224AbTBXLQz>;
-	Mon, 24 Feb 2003 06:16:55 -0500
-Date: Mon, 24 Feb 2003 12:26:19 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: procps-list@redhat.com, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <alexl@redhat.com>, <viro@math.psu.edu>
-Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
-In-Reply-To: <200302241112.h1OBCBX273068@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.44.0302241214290.22804-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266996AbTBXLXk>; Mon, 24 Feb 2003 06:23:40 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:37641 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266994AbTBXLXj>; Mon, 24 Feb 2003 06:23:39 -0500
+Date: Mon, 24 Feb 2003 11:33:50 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [ANN] NTFS 2.1.1a for kernel 2.4.20 released
+Message-ID: <20030224113350.A3452@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org,
+	linux-ntfs-dev@lists.sourceforge.net
+References: <Pine.SOL.3.96.1030224111049.22477D-100000@draco.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.SOL.3.96.1030224111049.22477D-100000@draco.cus.cam.ac.uk>; from aia21@cantab.net on Mon, Feb 24, 2003 at 11:12:39AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 24, 2003 at 11:12:39AM +0000, Anton Altaparmakov wrote:
+> NTFS 2.1.1a is now released for kernel 2.4.20. This fixes both the
+> reported hangs and improves the handling of compressed files so that the
+> warning message people keep reporting is now gone. (Note the hangs were
+> specific to the 2.4.x kernel ntfs versions. 2.5.x kernel ntfs versions
+> are not affected.)
 
-On Mon, 24 Feb 2003, Albert D. Cahalan wrote:
+This:
 
-> By grouping I mean something roughly like this:
-> 
-> PID TID
-> 123 123
-> 123 222
-> 444 444
-> 444 456
+@@ -8,6 +8,7 @@ enum km_type {
+        KM_USER0,
+	KM_USER1,
+	KM_BH_IRQ,
++       KM_BIO_IRQ,
+	KM_TYPE_NR
+};
 
-Albert, do you realize the simple fact that the procps enhancements we did
-change absolutely nothing for the 'ps m' case? All thread PIDs are still
-scanned and sorted.
+is bogus.  You should be using KM_BH_IRQ.
 
-And mind you, thread-directories do not change much in this area - the
-PIDs within the thread-directory will still be largely unsorted, and it
-will not make the reading & sorting of 20K threads any faster.
-
-> Anyway, to quote Linus:
-
-and to quote myself:
-
-> [...] i'd be the last one arguing against a tree-based approach to
-> thread groups. It's much easier to find threads belonging to a single
-> 'process' via /proc this way  [...]
-
-so i'm in full agreement with Linus. And here's an email of mine from more 
-than 7 months ago:
-
-> and yet another issue, what do you think about not listing every
-> CLONE_THREAD_GROUP thread in /proc, but to list them in the group
-> leader's directory - something like /proc/12345/threads/567/... This
-> will remove much of the runtime overhead of massively threaded
-> applications, where there are lots of native threads.
-
-so in fact _i_ came up with this whole issue 7 months ago. I just dont
-share many of _your_ largely bogus arguments that seem to miss the point.  
-Can we finally stop this storm in a teapot?
-
-	Ingo
-
+And btw, 2.4.21-pre now has ->alloc_inode and ->destroy_inode, use them :)

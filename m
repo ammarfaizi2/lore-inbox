@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262840AbVCXPz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbVCXP6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262840AbVCXPz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 10:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVCXPz7
+	id S263101AbVCXP6W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 10:58:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVCXP6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 10:55:59 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:62251 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S263103AbVCXPzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 10:55:23 -0500
-Message-ID: <4242E2E1.2060402@mesatop.com>
-Date: Thu, 24 Mar 2005 08:55:13 -0700
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Cole <elenstev@mesatop.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm2 (patch to fix build error In function `zft_init')
-References: <20050324044114.5aa5b166.akpm@osdl.org> <4242D820.8070801@mesatop.com>
-In-Reply-To: <4242D820.8070801@mesatop.com>
-Content-Type: multipart/mixed;
- boundary="------------020903060708060108050901"
-X-PMX-Version: 4.7.0.111621
+	Thu, 24 Mar 2005 10:58:21 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:64970 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262847AbVCXP6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 10:58:11 -0500
+Subject: Re: [PATCH 2.6.11] aoe [5/12]: don't try to free null bufpool
+From: Arjan van de Ven <arjan@infradead.org>
+To: ecashin@noserose.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1111677437.28285@geode.he.net>
+References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com>
+	 <1111677437.28285@geode.he.net>
+Content-Type: text/plain
+Date: Thu, 24 Mar 2005 16:58:04 +0100
+Message-Id: <1111679884.6290.93.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020903060708060108050901
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-03-24 at 07:17 -0800, ecashin@noserose.net wrote:
+> don't try to free null bufpool
 
-Steven Cole wrote:
-> I'm getting the following build error with 2.6.12-rc1-mm2:
-> 
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.init.text+0x4323): In function `zft_init':
-> : undefined reference to `class_device_creat'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
+in linux there is a "rule" that all memory free routines are supposed to
+also accept NULL as argument, so I think this patch is not needed (and
+even wrong)
 
-I glanced at the code, and this little patch fixes the problem:
-
-Steven
-
---------------020903060708060108050901
-Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
- name="patch-zftape-init-smallfix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-zftape-init-smallfix"
-
-Signed-off by: Steven Cole <elenstev@mesatop.com>
-
---- linux-2.6.12-rc1-mm2/drivers/char/ftape/zftape/zftape-init.c.orig	2005-03-24 08:43:30.000000000 -0700
-+++ linux-2.6.12-rc1-mm2/drivers/char/ftape/zftape/zftape-init.c	2005-03-24 08:43:56.000000000 -0700
-@@ -331,7 +331,7 @@
- 
- 	zft_class = class_create(THIS_MODULE, "zft");
- 	for (i = 0; i < 4; i++) {
--		class_device_creat(zft_class, MKDEV(QIC117_TAPE_MAJOR, i), NULL, "qft%i", i);
-+		class_device_create(zft_class, MKDEV(QIC117_TAPE_MAJOR, i), NULL, "qft%i", i);
- 		devfs_mk_cdev(MKDEV(QIC117_TAPE_MAJOR, i),
- 				S_IFCHR | S_IRUSR | S_IWUSR,
- 				"qft%i", i);
-
---------------020903060708060108050901--

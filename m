@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbUL2Noo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbUL2NzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbUL2Noo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 08:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUL2Noo
+	id S261348AbUL2NzR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 08:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUL2NzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 08:44:44 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:48667 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261345AbUL2Noa (ORCPT
+	Wed, 29 Dec 2004 08:55:16 -0500
+Received: from unthought.net ([212.97.129.88]:35019 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S261348AbUL2NzL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 08:44:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=okldJZ73ip0xWSH7ibjr0JzK+/dKjBdmCw28zkpQ0biqVFfulb5t/+Ak7HCH/kDw0YfleKphOr/X3agS/Ts6RzE7E8ey91ZulL29xz61e7Gx5b/bSnTHhxP4QvqWpdR6GJ1NUpz+tEaMFNrrDH2ne2h6DaRYWshz1PHdsdTMODc=
-Message-ID: <41D2B4B4.6090608@gmail.com>
-Date: Wed, 29 Dec 2004 14:44:20 +0100
-From: Mateusz Berezecki <mateuszb@gmail.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stefan Knoblich <stkn@gentoo.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: b44 ifconfig fails with ENOMEM
-References: <200412290557.29114.stkn@gentoo.org>
-In-Reply-To: <200412290557.29114.stkn@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Dec 2004 08:55:11 -0500
+Date: Wed, 29 Dec 2004 14:55:10 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: "Fao, Sean" <sean.fao@capitalgenomix.com>
+Cc: Vladimir Saveliev <vs@namesys.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Filesystem/kernel bug?
+Message-ID: <20041229135510.GQ347@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	"Fao, Sean" <sean.fao@capitalgenomix.com>,
+	Vladimir Saveliev <vs@namesys.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <41D02F54.8070107@capitalgenomix.com> <41D16500.9070903@capitalgenomix.com> <1104251242.3568.30.camel@tribesman.namesys.com> <41D2A8FC.7080604@capitalgenomix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D2A8FC.7080604@capitalgenomix.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Knoblich wrote:
-
->Hi,
->
->ifconfig eth0 192.168.1.2 up returns the following error message:
->
->laptop ~ # ifconfig eth0 192.168.1.2 up
->SIOCSIFFLAGS: Cannot allocate memory
->SIOCSIFFLAGS: Cannot allocate memory
->
->output of dmesg:
->
->ifconfig: page allocation failure. order:8, mode:0x21
-> [<c01382f2>] __alloc_pages+0x1d2/0x3a0
-> [<c01384df>] __get_free_pages+0x1f/0x40
-> [<c010923a>] dma_alloc_coherent+0xca/0x100
-> [<e00dec87>] b44_alloc_consistent+0xc7/0x1a0 [b44]
-> [<e00df1a1>] b44_open+0x21/0xd0 [b44]
-> [<c035e3ae>] schedule+0x2be/0x4e0
-> [<c02e0445>] dev_open+0x85/0xa0
-> [<c02e1953>] dev_change_flags+0x53/0x130
-> [<c031ec17>] devinet_ioctl+0x257/0x5b0
-> [<c0320f36>] inet_ioctl+0x66/0xb0
-> [<c02d76c9>] sock_ioctl+0xd9/0x2b0
-> [<c0162215>] sys_ioctl+0xd5/0x220
-> [<c0107417>] do_syscall_trace+0x47/0x90
-> [<c0102f43>] syscall_call+0x7/0xb
+On Wed, Dec 29, 2004 at 07:54:20AM -0500, Fao, Sean wrote:
+...
 > 
->there's plenty of free memory available:
->
->laptop ~ # free
->             total       used       free     shared    buffers     cached
->Mem:        506320     499728       6592          0      20036     274712
->-/+ buffers/cache:     204980     301340
->Swap:       987988       3144     984844
->
->unloading and reloading the module didn't help, only a reboot fixed it (after 
->~36hours uptime)
->  
->
-same problem here. i left my laptop on for a longer time and ifconfig 
-failed too
-kernel backtrace same as above. kernel looked like it didn't swap out 
-some memory.
-lots of swap free no phys mem free. i dont know if this helps.
-reloading the module didn't help too.
-if you want more info please let me know
+> Vladimir,
+> 
+> Thank you much for your response.  This is a production email server so 
+> I had to wait for an appropriate time to shut the system down.
+> 
+> Just a quick summary of what happened.  After rebooting the sever and 
+> booting from a CD, I ran reiserfsck, which found no corruption in the 
+> file system.  I then manually checked the directory structure and 
+> everything looked fine.  I'm not what was wrong, but a reboot apparently 
+> corrected whatever it was.
+
+I've seen this on ext3 and XFS as well.
+
+Both locally (ext3 and XFS) and NFS exported (XFS).
+
+About to try out 2.6.10 with CVS XFS and patches from the list - but
+somehow I doubt that the actual problem is in the filesystems.
+
+-- 
+
+ / jakob
+

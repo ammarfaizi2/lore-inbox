@@ -1,107 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVANRLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVANRNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbVANRLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 12:11:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVANRLP
+	id S262029AbVANRNx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 12:13:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVANRNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 12:11:15 -0500
-Received: from fire.osdl.org ([65.172.181.4]:43458 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262028AbVANRJd (ORCPT
+	Fri, 14 Jan 2005 12:13:40 -0500
+Received: from colin2.muc.de ([193.149.48.15]:34568 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262029AbVANRL1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 12:09:33 -0500
-Message-ID: <41E7F9DB.8070707@osdl.org>
-Date: Fri, 14 Jan 2005 08:56:59 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Reuben Farrelly <reuben-lkml@reub.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: Breakage with raid in 2.6.11-rc1-mm1 [Regression in mm]
-References: <6.2.0.14.2.20050114233439.01cbb8d8@tornado.reub.net> <20050114035852.3b5ff1a3.akpm@osdl.org> <6.2.0.14.2.20050115014139.01dab5e0@tornado.reub.net>
-In-Reply-To: <6.2.0.14.2.20050115014139.01dab5e0@tornado.reub.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jan 2005 12:11:27 -0500
+Date: 14 Jan 2005 18:11:24 +0100
+Date: Fri, 14 Jan 2005 18:11:24 +0100
+From: Andi Kleen <ak@muc.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+Message-ID: <20050114171124.GA23218@muc.de>
+References: <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com> <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com> <20050114043944.GB41559@muc.de> <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com> <20050114170140.GB4634@muc.de> <Pine.LNX.4.58.0501140906550.27552@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501140906550.27552@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly wrote:
-> At 12:58 a.m. 15/01/2005, Andrew Morton wrote:
+On Fri, Jan 14, 2005 at 09:08:54AM -0800, Christoph Lameter wrote:
+> On Fri, 14 Jan 2005, Andi Kleen wrote:
 > 
->> Reuben Farrelly <reuben-lkml@reub.net> wrote:
->> >
->> > Something seems to have broken with 2.6.11-rc1-mm1, which worked ok 
->> with
->> > 2.6.10-mm3.
->> >
->> > NET: Registered protocol family 17
->> > Starting balanced_irq
->> > BIOS EDD facility v0.16 2004-Jun-25, 2 devices found
->> > md: Autodetecting RAID arrays.
->> > md: autorun ...
->> > md: ... autorun DONE.
->> > VFS: Waiting 19sec for root device...
->> > VFS: Waiting 18sec for root device...
->> > VFS: Waiting 17sec for root device...
->> > VFS: Waiting 16sec for root device...
->> > VFS: Waiting 15sec for root device...
->> > VFS: Waiting 14sec for root device...
->> > VFS: Waiting 13sec for root device...
->> > VFS: Waiting 12sec for root device...
->> > VFS: Waiting 11sec for root device...
->> > VFS: Waiting 10sec for root device...
->> > VFS: Waiting 9sec for root device...
->> > VFS: Waiting 8sec for root device...
->> > VFS: Waiting 7sec for root device...
->> > VFS: Waiting 6sec for root device...
->> > VFS: Waiting 5sec for root device...
->> > VFS: Waiting 4sec for root device...
->> > VFS: Waiting 3sec for root device...
->> > VFS: Waiting 2sec for root device...
->> > VFS: Waiting 1sec for root device...
->> > VFS: Cannot open root device "md2" or unknown-block(0,0)
->> > Please append a correct "root=" boot option
->> > Kernel panic - not syncing: VFS: Unable to mount root fs on 
->> unknown-block(0,0)
->> >
->> > The system is running 5 RAID-1 partitions, and md2 is the root as per
->> > grub.conf.  Problem seems to be that raid autodetection finds no raid
->> > partitions :(
->> >
->> > The two ST380013AS SATA drives are detected earlier in the boot, so 
->> I don't
->> > think that's the problem..
->>
->> hm, the only raidy thing we have in there is the below.  Maybe you could
->> try reverting that?
->>
->>
->> --- 25/drivers/md/raid5.c~raid5-overlapping-read-hack   2005-01-09 
->> 22:20:40.211246912 -0800
->> +++ 25-akpm/drivers/md/raid5.c  2005-01-09 22:20:40.216246152 -0800
->> @@ -232,6 +232,7 @@ static struct stripe_head *__find_stripe
->>  }
->>
->>  static void unplug_slaves(mddev_t *mddev);
->> +static void raid5_unplug_device(request_queue_t *q);
->>
->>  static struct stripe_head *get_active_stripe(raid5_conf_t *conf, 
->> sector_t sector,
->>                                              int pd_idx, int noblock)
+> > > Looked at  arch/i386/lib/mmx.c. It avoids the mmx ops in an interrupt
+> > > context but the rest of the prep for mmx only saves the fpu state if its
+> > > in use. So that code would only be used rarely. The mmx 64 bit
+> > > instructions seem to be quite fast according to the manual. Double the
+> > > cycles than the 32 bit instructions on Pentium M (somewhat higher on Pentium 4).
+> >
+> > With all the other overhead (disabling exceptions, saving register etc.)
+> > will be likely slower. Also you would need fallback paths for CPUs
+> > without MMX but with PAE (like Ppro). You can benchmark
+> > it if you want, but I wouldn't be very optimistic.
 > 
-> 
-> Ok the breakage occurred somewhere between 2.6.10-mm3 (works) and 
-> 2.6.11-rc1 (doesn't work) ie wasn't introduced into the latest -mm 
-> patchset as I first thought.
-> 
-> Are there any other patches that might be worth a try backing out?
+> So the PentiumPro is a cpu with atomic 64 bit operations in a cmpxchg but
+> no instruction to do an atomic 64 bit store or load although the
+> architecture conceptually supports 64bit atomic stores and loads? Wild.
 
-Someone else reported that they had to back out this one:
-waiting-10s-before-mounting-root-filesystem.patch
+It can do 64bit x87 FP loads/stores. But I doubt that is what you're 
+looking for.
 
-Can you revert that one and let us know how it goes?
-
--- 
-~Randy
+-Andi

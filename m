@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbULUSFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbULUSIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbULUSFg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 13:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbULUSFg
+	id S261824AbULUSIy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 13:08:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbULUSIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 13:05:36 -0500
-Received: from gate.firmix.at ([80.109.18.208]:18914 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S261822AbULUSF2 (ORCPT
+	Tue, 21 Dec 2004 13:08:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:17656 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261824AbULUSIw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 13:05:28 -0500
-Subject: Re: Linux 2.6.9 and the GPL Buyout
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "Jeff V. Merkey" <jmerkey@gadugi.org>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <41C84B2B.4050408@gadugi.org>
-References: <20041220212723.GA8634@mail.gadugi.org>
-	 <1103578975.6142.45.camel@wookie-zd7>
-	 <20041220214748.GA8828@mail.gadugi.org>
-	 <1103621128.31663.6.camel@tara.firmix.at>  <41C84B2B.4050408@gadugi.org>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Tue, 21 Dec 2004 19:05:21 +0100
-Message-Id: <1103652322.9142.6.camel@gimli.at.home>
+	Tue, 21 Dec 2004 13:08:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=uj/vuZW5Vz541eaDBDR0ySWpEIbjr4hmTNG2BZUJ+K8Etx0ZcXy3gAMOmEmDORDpPGk4JFdajR4/QQP052eQIqTdrh6AExk8JwwYxMgtM072FOUZKv0b/hpvFHzufmZYJN4bwHoOdJ/htIL6pk5f8jCTMkFXskRIFfbm8PucxSQ=
+Message-ID: <1bdcbebf04122110087de9d976@mail.gmail.com>
+Date: Tue, 21 Dec 2004 11:08:51 -0700
+From: Chris Swanson <chrisjswanson@gmail.com>
+Reply-To: Chris Swanson <chrisjswanson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Make changes to read-only file system using RAM
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-21 at 09:11 -0700, Jeff V. Merkey wrote:
+Hi,
 
-> A copyright holder can re-release their code under any license they 
-> choose, even if
+    Has anyone seen any work done on a RAM based file system that
+stores only changes to what would otherwise have been a read-only file
+system?  For example, live Linux CD's rely on RAM file systems to
+store directories/files that must be modified, but the majority of the
+system is mounted read-only on the CD.  I was thinking it would be
+really nice if we could mount a read-only medium (like a CD) in
+read-write mode, and store only modifications in RAM.  This could give
+the illusion of a true read-write medium, and the RAM file system
+would just grow as more changes are made.
+    I have searched around a bit and found nothing like this. 
+Unfortunately, I have no kernel programming experience (although I'd
+love to learn).  I was wondering if anyone has tried something similar
+in the past.  Also, if anyone with more experience can see any reason
+why this is impossible or impractical, I would love to hear it, before
+I come to the same conclusion many months down the line.
 
-ACK. For a given piece of code this means all copyright holders (not
-just one).
-
-> they have released under GPL previously.  This is because GPL code 
-> really isn't free,
-
-No, this has nothing to do with it.
-
-> it's owned by the copyright holder.  And honestly, the way the GPL is 
-
-That holds for all written works - text, music, source code,
-paintings, ...
-
-> worded it
-> in fact affects an implied transfer of copyright ownership to whomeve 
-> receives it.
-
-Yes, and this is actually makes the GPL incompatible with Author's
-rights. However, you are allowed to transfer all rights of use of your
-works (which all the artist and programmers are doing) which is usually
-enough to satisfy the GPL. IANAL though (and this has not been tested in
-court AFAIK).
-And for the Linux kernel, Linus actually likes it that way AFAICT.
-
-> Truly free code isn't copyrighted by any individual, or is copyrighted 
-> by an organization
-> that uses a license that really is free.
-
-That depends on the definition of "free" (and the goals of the defining
-parties) and there are more than one - e.g. behind the GPL and BSD
-license are different interpretationms of "free".
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
-
-
+Thanks for your time,
+Chris

@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289211AbSBDWRp>; Mon, 4 Feb 2002 17:17:45 -0500
+	id <S289213AbSBDWUF>; Mon, 4 Feb 2002 17:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289212AbSBDWRf>; Mon, 4 Feb 2002 17:17:35 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18180 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S289211AbSBDWR0>; Mon, 4 Feb 2002 17:17:26 -0500
-Date: Mon, 4 Feb 2002 17:16:27 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
-In-Reply-To: <20020201100303.A14415@sistina.com>
-Message-ID: <Pine.LNX.3.96.1020204171446.31056B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289214AbSBDWT6>; Mon, 4 Feb 2002 17:19:58 -0500
+Received: from duba04h04-0.dplanet.ch ([212.35.36.38]:30732 "EHLO
+	duba04h04-0.dplanet.ch") by vger.kernel.org with ESMTP
+	id <S289213AbSBDWTw>; Mon, 4 Feb 2002 17:19:52 -0500
+Date: Mon, 4 Feb 2002 23:19:38 +0100
+From: Andreas Tscharner <starfire@dplanet.ch>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: New scheduler in 2.4. series?
+Message-Id: <20020204231938.18755478.starfire@dplanet.ch>
+Organization: No Such Penguin
+X-Mailer: Sylpheed version 0.7.0claws10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.RxwanV(yhxBOAC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Feb 2002, Heinz J . Mauelshagen wrote:
+--=.RxwanV(yhxBOAC
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> The LVM2 sofware no longer uses a particular driver which is just
-> usable for its own purpose.
-> It rather accesses a different, so-called 'device-mapper' driver, which
-> implements a generic volume management service for the Linux kernel by
-> supporting arbitray mappings of address ranges to underlying block devices.
-> Because this is a generic service rather than an application within the kernel,
-> it is open to be used by multiple LVM implementations (for eg. EVMS could be
-> ported to use it :-)
+Hello World,
+Hello Marcelo,
 
-Interesting concept, but something like the "smitZ" interface to RAID and
-sizing would be really nice to reduce training effort. Since IBM is
-pushing Linux, take this as a HINT.
+Is there any chance, that the new scheduler will be in the 2.4 series soon?
 
+Regards
+	Andreas
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Andreas Tscharner                                     starfire@dplanet.ch
+-------------------------------------------------------------------------
+"Programming today is a race between software engineers striving to build 
+bigger and better idiot-proof programs, and the Universe trying to produce
+bigger and better idiots. So far, the Universe is winning." -- Rich Cook 
+
+--=.RxwanV(yhxBOAC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8XwkEd6icl+PTsS8RAm4bAJsGnL/KNJPCXVkziX4GNNmlQIi1xgCgo8zX
+kt9RfqzERF+wisIo7EOiSsA=
+=uwLN
+-----END PGP SIGNATURE-----
+
+--=.RxwanV(yhxBOAC--
 

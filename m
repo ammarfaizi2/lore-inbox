@@ -1,50 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269633AbTGJWiz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 18:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266537AbTGJWiz
+	id S269641AbTGJWme (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 18:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269636AbTGJWlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 18:38:55 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:16512 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266526AbTGJWiu
+	Thu, 10 Jul 2003 18:41:35 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:24221 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S269635AbTGJWlV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 18:38:50 -0400
-Date: Thu, 10 Jul 2003 18:54:19 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Martin Sarsale <lists@runa.sytes.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 ck3 problem booting
-In-Reply-To: <20030710194051.55e9e41a.lists@runa.sytes.net>
-Message-ID: <Pine.LNX.4.53.0307101852100.4351@chaos>
-References: <20030710194051.55e9e41a.lists@runa.sytes.net>
+	Thu, 10 Jul 2003 18:41:21 -0400
+Date: Fri, 11 Jul 2003 00:55:33 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Chad Kitching <CKitching@powerlandcomputers.com>
+cc: Samuel Flory <sflory@rackable.com>, Steven Dake <sdake@mvista.com>,
+       <linux-kernel@vger.kernel.org>, <andre@linux-ide.org>
+Subject: RE: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21,
+ patchattached to fix
+In-Reply-To: <18DFD6B776308241A200853F3F83D507279B@pl6w2kex.lan.powerlandcomputers.com>
+Message-ID: <Pine.SOL.4.30.0307110011320.6781-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You probably compiled with a CPU type that you don't have.
-Many moons ago, you could get away with that, but now there
-are some pretty fatal opcodes that can get used if you claim
-you have an i686, but only have a Pentinum.
 
-On Thu, 10 Jul 2003, Martin Sarsale wrote:
+On Thu, 10 Jul 2003, Chad Kitching wrote:
 
-> Dear all:
->
-> I've downloaded 2.4.21 and patched it with con kolivas's patch v3 (patch-2.4.21-ck3.bz2). After compiling, the kernel doesn't boot:
->
-> first, it uncompresses linux kernel and after "Ok, booting the kernel" it hangs there forever.
-> Im an experienced linux user but I've no idea how to track the source of a problem at this boot stage.
->
-> I've compiled it with gcc version 3.3.1 20030626 (Debian prerelease) and Im sending you my config.
->
-> Thanks in advance
->
+> I don't know.  That seemed to have changed the option from merely
+> mystifying to down right confusing.  By that wording, does that feature
+> override it into being a plain IDE controller, or an IDE RAID controller?
+> The new name seems to imply the former, while the mentions
+> of ataraid suggest the latter.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Hmmm... you are right. Comment is still misleading in respect to RAID.
+
+ataraid driver is a _software_ RAID, just like Promise's binary driver.
+
+FastTracks have software RAID. There are few true hardware FastTrak
+RAID controllers with I2O interface but we probe for them properly in
+pdc202xx_new.c driver and don't use IDE driver for them.
+
+> Despite the grammatical errors, pdc202xx.c's comments perhaps describe it
+> better.
+> * Linux kernel will misunderstand FastTrak ATA-RAID series as Ultra
+> * IDE Controller, UNLESS you enable "CONFIG_PDC202XX_FORCE"
+> * That's you can use FastTrak ATA-RAID controllers as IDE controllers.
+
+It is quite opposite.
+
+> If this is true, may I suggest something more along the lines of:
+>
+> Ignore FastTrak BIOS and configure controller for RAID
+> CONFIG_PDC202XX_FORCE
+>   Forces the driver to use the ATA-RAID capabilities, overriding the
+>   BIOS configuration of the controller. Do not enable if you are
+>   using Promise's binary module.  This option is compatible with the
+>   ataraid driver.
+
+What about this:
+
+Ignore FastTrak BIOS
+CONFIG_PDC202XX_FORCE
+  Forces the driver to use FastTrak controller even if it was disabled
+  by BIOS for Promise software RAID driver.
+
+  Say Y if you do not use Promise's software RAID or
+        if you want to use ataraid driver.
+
+  Say N if you want to use Promise's binary module.
+
+> If the Linux driver has the same limitation in regards to using CD-ROM
+> drives on the controller while it's in RAID mode as the Windows drivers
+> do, it may be useful to mention the fact that the option is incompatible
+> with CD-ROM drives attached to the controller.
+
+It has. According to Andre it is doable but big pain,
+also Promise gives docs under NDA which makes it even harder.
+
+Please search lkml archive if you want know technical details.
+
+> Of course, maybe it means the complete opposite, and I'm reading everything
+> wrong, in which case, there are some comments you may want to fix, too.
+
+Comments in Promise driver need fixing.
+
+Thanks,
+--
+Bartlomiej
+
+> -----Original Message-----
+> From: Samuel Flory
+> Sent: July 10, 2003 4:11 PM
+> Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21,
+> patchattached to fix
+>
+>
+> Bartlomiej Zolnierkiewicz wrote:
+>
+> >Hi,
+> >
+> >Do you have "Special FastTrak Feature" enabled?
+>
+> Can we change the option to something that makes sense.  I get the
+> feeling no one understands what it does at 1st glance.  This is the 2nd
+> time I've seen a patch like this.
+
+
 

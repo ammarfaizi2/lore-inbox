@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261975AbREPPGA>; Wed, 16 May 2001 11:06:00 -0400
+	id <S261978AbREPPPA>; Wed, 16 May 2001 11:15:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261976AbREPPFu>; Wed, 16 May 2001 11:05:50 -0400
-Received: from web13703.mail.yahoo.com ([216.136.175.136]:22035 "HELO
-	web13703.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261975AbREPPFk>; Wed, 16 May 2001 11:05:40 -0400
-Message-ID: <20010516150538.20451.qmail@web13703.mail.yahoo.com>
-Date: Wed, 16 May 2001 08:05:38 -0700 (PDT)
-From: siva prasad <si_pras@yahoo.com>
-To: linux-kernel@vger.kernel.org
+	id <S261984AbREPPOu>; Wed, 16 May 2001 11:14:50 -0400
+Received: from comverse-in.com ([38.150.222.2]:57342 "EHLO
+	eagle.comverse-in.com") by vger.kernel.org with ESMTP
+	id <S261978AbREPPOd>; Wed, 16 May 2001 11:14:33 -0400
+Message-ID: <6B1DF6EEBA51D31182F200902740436802678ED2@mail-in.comverse-in.com>
+From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+To: "'Joachim Backes'" <backes@rhrk.uni-kl.de>
+Cc: LINUX Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: IRQ usage for PCI devices, Kernel 2.4.4
+Date: Wed, 16 May 2001 11:13:40 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the newbie question..
+If your PCI devices advertised they don't mind sharing the IRQs with each
+other, ignore it if they're really capable of it. Otherwise, you'll probably
+have to force one of the drivers and/or the bios to make them use separate
+ones.
 
-Is it true that the ipc calls like
-msgget(),shmget()...
-are  not really system calls?
-
-Cos in the file "asm/unistd.h" where the
-system calls are listed as __NR_xxx we dont find
-the appropriate listing for the ipc calls.
-What I guessed was that all the ipc calls are
-clubbed under the 'int ipc()' system call and this
-is well listed in the "asm/unistd.h" 
-
-Could some one explain why the ipc is implemented 
-this way rather that implementing them as individual 
-system calls as in UNIX.
-
-Or is it the same way in UNIX
-
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
+> -----Original Message-----
+> From: Joachim Backes [mailto:backes@rhrk.uni-kl.de]
+> Sent: Wednesday, May 16, 2001 1:46 AM
+> To: LINUX Kernel
+> Subject: IRQ usage for PCI devices, Kernel 2.4.4
+> 
+> 
+> Hi,
+> 
+> sometimes the following messages appear in /var/log/messages:
+> 
+>         May 13 14:24:41 sunny kernel: PCI: Found IRQ 10 for 
+> device 00:0e.0
+>         May 13 14:24:41 sunny kernel: PCI: The same IRQ used 
+> for device 00:0a.0
+> 
+> "0e" is my PCI sound card, and "0a" is my PCI ethernet card. 
+> The messages apppear in
+> the following environment: I send from another linux machine 
+> (per ssh) a command
+> wich plays some sound on my sound card, therefore the eth0 
+> event and the sound
+> event occur at almost the same time.
+> 
+> Question: Can I ignore these messages, or is there any buggy 
+> behaviour?
+> 
+> Regards
+> 
+> 
+> Joachim Backes
+> 
+> --
+> 
+> Joachim Backes <backes@rhrk.uni-kl.de>       | Univ. of Kaiserslautern
+> Computer Center, High Performance Computing  | Phone: 
+> +49-631-205-2438 
+> D-67653 Kaiserslautern, PO Box 3049, Germany | Fax:   
+> +49-631-205-3056 
+> ---------------------------------------------+------------------------
+> WWW: http://hlrwm.rhrk.uni-kl.de/home/staff/backes.html  
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

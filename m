@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266740AbUHCQwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266733AbUHCQwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266740AbUHCQwK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 12:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266733AbUHCQwK
+	id S266733AbUHCQwa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 12:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266731AbUHCQwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 12:52:10 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:27075 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S266731AbUHCQwG
+	Tue, 3 Aug 2004 12:52:30 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:16289 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S266737AbUHCQwZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 12:52:06 -0400
-Date: Tue, 3 Aug 2004 18:50:26 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       netdev@oss.sgi.com, brad@brad-x.com, shemminger@osdl.org
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe RLT-8139 related)
-Message-ID: <20040803185026.A10580@electric-eye.fr.zoreil.com>
-References: <20040803003515.A29885@electric-eye.fr.zoreil.com> <Pine.LNX.4.44.0408031523220.32102-100000@silmu.st.jyu.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Aug 2004 12:52:25 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] add missing watchdog COMPATIBLE_IOCTLs
+Date: Tue, 3 Aug 2004 18:51:38 +0200
+User-Agent: KMail/1.6.2
+Cc: akpm@osdl.org, Wim Van Sebroeck <wim@iguana.be>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0408031523220.32102-100000@silmu.st.jyu.fi>; from ptsjohol@cc.jyu.fi on Tue, Aug 03, 2004 at 03:32:15PM +0300
-X-Organisation: Land of Sunshine Inc.
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408031851.40923.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pasi Sjoholm <ptsjohol@cc.jyu.fi> :
-[...]
-> The first log file is with both patchs applied and the second one with one 
-> little change to rx8139_rx() to show if it even goes to through 
-> 
-> "        while (netif_running(dev) && received < budget
->                && (RTL_R8 (ChipCmd) & RxBufEmpty) == 0) {"-section.
-> 
-> This was the change which I made.. so you can see in the second log file 
-> that there won't be any of these messages after the driver has crashed. 
+The watchdog ioctl interface is defined correctly for 32 bit emulation,
+although WIOC_GETSUPPORT was not marked as such, for an unclear reason.
+WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT were added in may 2002 to the
+code but never to the ioctl list. This adds all three definitions.
 
-If you remove the "if (received > 0) {" test in r8139-10.patch and keep
-both patches applied, I assume you are back to a crash within 15min (instead
-of within 2min as suggested by the log), right ?
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
---
-Ueimor
+diff -u -r1.15 compat_ioctl.h
+--- ./include/linux/compat_ioctl.h	16 Jun 2004 14:34:50 -0000	1.15
++++ ./include/linux/compat_ioctl.h	3 Aug 2004 15:47:03 -0000
+@@ -593,12 +593,14 @@
+ COMPATIBLE_IOCTL(ATMMPC_CTRL)
+ COMPATIBLE_IOCTL(ATMMPC_DATA)
+ /* Big W */
+-/* WIOC_GETSUPPORT not yet implemented -E */
++COMPATIBLE_IOCTL(WDIOC_GETSUPPORT)
+ COMPATIBLE_IOCTL(WDIOC_GETSTATUS)
+ COMPATIBLE_IOCTL(WDIOC_GETBOOTSTATUS)
+ COMPATIBLE_IOCTL(WDIOC_GETTEMP)
+ COMPATIBLE_IOCTL(WDIOC_SETOPTIONS)
+ COMPATIBLE_IOCTL(WDIOC_KEEPALIVE)
++COMPATIBLE_IOCTL(WDIOC_SETTIMEOUT)
++COMPATIBLE_IOCTL(WDIOC_GETTIMEOUT)
+ /* Big R */
+ COMPATIBLE_IOCTL(RNDGETENTCNT)
+ COMPATIBLE_IOCTL(RNDADDTOENTCNT)

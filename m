@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129166AbQKNBMr>; Mon, 13 Nov 2000 20:12:47 -0500
+	id <S129567AbQKNBOH>; Mon, 13 Nov 2000 20:14:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129227AbQKNBMi>; Mon, 13 Nov 2000 20:12:38 -0500
-Received: from [204.244.205.25] ([204.244.205.25]:42096 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S129166AbQKNBM2>;
-	Mon, 13 Nov 2000 20:12:28 -0500
-From: Michael Peddemors <michael@linuxmagic.com>
-Organization: Wizard Internet Services
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
-        Szabolcs Szakacsits <szaka@f-secure.com>
-Subject: Re: [PATCH] Re: reliability of linux-vm subsystem
-Date: Mon, 13 Nov 2000 16:53:23 -0800
-X-Mailer: KMail [version 1.1.95.0]
-Content-Type: text/plain
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0011132116420.20626-100000@fs129-190.f-secure.com> <20001114004547.D12931@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20001114004547.D12931@arthur.ubicom.tudelft.nl>
+	id <S129588AbQKNBN5>; Mon, 13 Nov 2000 20:13:57 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:60420 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129567AbQKNBNj>;
+	Mon, 13 Nov 2000 20:13:39 -0500
+Message-ID: <3A108A97.579DD607@mandrakesoft.com>
+Date: Mon, 13 Nov 2000 19:43:03 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <0011131653231G.24220@mistress>
-Content-Transfer-Encoding: 8bit
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tulip oops
+In-Reply-To: <Pine.LNX.4.21.0011140111480.20014-100000@svea.tellus>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> up to the sysadmin to enforce the policy. For the home user it means
-> that the distribution providers have to set decent limits,
+Tobias Ringstrom wrote:
+> 
+> This patch makes tulip/eeprom.c more robust.
+> 
+> /Tobias
+> 
+> --- eeprom.c.orig       Mon Jun 19 22:42:39 2000
+> +++ eeprom.c    Tue Nov 14 01:19:19 2000
+> @@ -237,6 +237,7 @@
+>                         printk(KERN_INFO "%s:  Index #%d - Media %s (#%d) described "
+>                                    "by a %s (%d) block.\n",
+>                                    dev->name, i, medianame[leaf->media], leaf->media,
+> +                                  leaf->type >= ARRAY_SIZE(block_name) ? "UNKNOWN" :
+>                                    block_name[leaf->type], leaf->type);
+>                 }
+>                 if (new_advertise)
 
-What is decent today may not be with tommorows' newest softwares....
+Someone else already spotted that.
 
->  for enterprises it means that they have to hire a sysadmin.
+The patch is applied to the HEAD (a.k.a. devel a.k.a. unstable) branch
+of the tulip CVS repository at:  http://sourceforge.net/projects/tulip/
 
-That is one of the reasons that small businesses are afraid to go to Linux 
-now, because of the difficulty in finding skilled Linux sysadmins..
+It will be merged to the stable branch and 2.4.0-test11-preXX after some
+testing of this and some other changes...
 
-"At least with the 'XX' Os, all they need to do is hire someone that can 
-click buttons, either on the computer, or to the tech support line" is the 
-perception, and with Linux they are already worried enough that they have to 
-find a 'genius' to work on their systems fulltime..
-
-It would be nice if 'advanced administration' can be kept to the minimum, so 
-we can service MORE than one enterprise each :>
-
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-Unix Administration - WebSite Hosting
-Network Services - Programming
-Wizard Internet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604) 589-0037 Beautiful British Columbia, Canada
---------------------------------------------------------
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

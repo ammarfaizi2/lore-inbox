@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267876AbRGRN3N>; Wed, 18 Jul 2001 09:29:13 -0400
+	id <S267885AbRGRN2N>; Wed, 18 Jul 2001 09:28:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267880AbRGRN3D>; Wed, 18 Jul 2001 09:29:03 -0400
-Received: from mail-klh.telecentrum.de ([213.69.31.130]:51214 "EHLO
-	mail-klh.telecentrum.de") by vger.kernel.org with ESMTP
-	id <S267876AbRGRN2u>; Wed, 18 Jul 2001 09:28:50 -0400
-Message-ID: <3B55756E.F3947FD9@topit.de>
-Date: Wed, 18 Jul 2001 13:39:26 +0200
-From: Ronald Jeninga <rj@topit.de>
-Reply-To: rj@topit.de
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
+	id <S267882AbRGRN2E>; Wed, 18 Jul 2001 09:28:04 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49671 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S267876AbRGRN1r>;
+	Wed, 18 Jul 2001 09:27:47 -0400
+Date: Wed, 18 Jul 2001 10:27:48 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Inclusion of zoned inactive/free shortage patch 
+In-Reply-To: <Pine.LNX.4.33.0107172051500.1414-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0107181024270.27454-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: mdaljeet@in.ibm.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ppc Linux-2.4.2 not generating core dump for SIGSEGV and abort()
-In-Reply-To: <CA256A8D.0047BE63.00@d73mta01.au.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 17 Jul 2001, Linus Torvalds wrote:
 
-you should probably check your limits. Try
+> In that case, what's the argument for not just replacing the zone
+> parameter with
+>
+> 	/* If we have enough free pages in this zone, don't bother */
+> 	if (page->zone->nrpages > page->zone->high)
+> 		return;
 
-ulimit -a
+> Comments?
 
-you'll probably have a coresize of 0 (SuSE's default I believe)
-change it with
+Won't work.  If it did, it'd just bring us back to the
+pathetic situation we had in 2.3.51, but with the
+introduction of inactive_clean pages and an inactive
+target all this test would do is either preventing
+us from ever making the inactive target or from getting
+the eviction balancing between zones right (see 2.3.51).
 
-ulimit -c unlimited
+regards,
 
-(or some number, see also man ulimit).
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-This might help.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Ronald
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 
-
-
-mdaljeet@in.ibm.com wrote:
-> 
-> Hi all,
->      I am using Suse-linux-7.1 with default linux -ppc kernel on apple G4
-> machine.
-> SIGSEGV is never generating the core dump. though this signal is being
-> caught by the user process.
-> I also tried with "abort" call which should generate the core dump, but
-> this is also not working. The same program with abort call is generating
-> core dumps on other linux/unix platforms.
-> Can anybody tell me where is the problem?
-> 
-> Daljeet.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

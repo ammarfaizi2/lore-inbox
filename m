@@ -1,80 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSHGVeh>; Wed, 7 Aug 2002 17:34:37 -0400
+	id <S312558AbSHGVex>; Wed, 7 Aug 2002 17:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSHGVeh>; Wed, 7 Aug 2002 17:34:37 -0400
-Received: from waste.org ([209.173.204.2]:42723 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S313070AbSHGVeg>;
-	Wed, 7 Aug 2002 17:34:36 -0400
-Date: Wed, 7 Aug 2002 16:37:40 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Jesse Barnes <jbarnes@sgi.com>
-cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-       <jmacd@namesys.com>, <phillips@arcor.de>, <rml@tech9.net>
-Subject: Re: [PATCH] lock assertion macros for 2.5.30
-In-Reply-To: <20020807210855.GA27182@sgi.com>
-Message-ID: <Pine.LNX.4.44.0208071618290.16458-100000@waste.org>
+	id <S313087AbSHGVex>; Wed, 7 Aug 2002 17:34:53 -0400
+Received: from zeke.inet.com ([199.171.211.198]:46302 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S313070AbSHGVew>;
+	Wed, 7 Aug 2002 17:34:52 -0400
+Message-ID: <3D519357.7070904@inet.com>
+Date: Wed, 07 Aug 2002 16:38:31 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Idle curiosity: Acting as a SCSI target
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, Jesse Barnes wrote:
+Based on a conversation I had recently, my curiosity got piqued...
 
-> On Wed, Aug 07, 2002 at 06:02:19PM -0300, Rik van Riel wrote:
-> > On Wed, 7 Aug 2002, Jesse Barnes wrote:
-> >
-> > > +++ linux-2.5.30-lockassert/drivers/scsi/scsi.c Wed Aug  7 11:35:32 2002
-> > > @@ -262,7 +262,7 @@
-> >
-> > > +        MUST_NOT_HOLD(q->queue_lock);
-> >
-> > ...
-> >
-> > > +#if defined(CONFIG_DEBUG_SPINLOCK) && defined(CONFIG_SMP)
-> > > +#define MUST_HOLD(lock)			BUG_ON(!spin_is_locked(lock))
-> > > +#define MUST_NOT_HOLD(lock)		BUG_ON(spin_is_locked(lock))
-> >
-> > Please tell me the MUST_NOT_HOLD thing is a joke.
-> >
-> > What is to prevent another CPU in another code path
-> > from holding this spinlock when the code you've
-> > inserted the MUST_NOT_HOLD in is on its merry way
-> > not holding the lock ?
->
-> Nothing at all, but isn't that how the scsi ASSERT_LOCK(&lock, 0)
-> macro worked before?  I could just remove all those checks in the scsi
-> code I guess.
+I'm not really sure how to query google on this, and didn't turn up what 
+I was looking for because of that, so here's the random question:
 
-Who's to say that they actually worked? They look like crap to me.
+Is there a way to make a Linux machine with a scsi controller act like a 
+scsi device (is the correct term 'target'?) (such as a disk) using a 
+local block device as storage?
 
-> After I posted the last patch, a few people asked for MUST_NOT_HOLD so
-> I added it back in.  Do you think it's a bad idea?  See the last
-> thread if you're curious (Joshua's comments in particular):
-> http://marc.theaimsgroup.com/?t=102764009400001&r=1&w=2
+I'm not sure it would be of general use, but I can see uses in weird or 
+remote prototyping situations...
 
-Interesting. I'm still going to say that MUST_NOT_HOLD is wrong, at least
-in its current form/name.
+Like the subject says, just idle curiosity; I don't see having much use 
+for it, but I was intrigued by the idea.
 
-What MUST_HOLD is saying is "the current thread is holding this lock, go
-ahead, double check if you want". What MUST_NOT_HOLD says is "the current
-thread is not holding this lock, feel free to check". Right now the kernel
-doesn't record who grabbed a lock and the best it can do is check whether
-_anyone_ is holding the lock. In the first case, it can prove a negative
-if no one is holding the lock, in the second case it can't because it
-can't distiguish between the current task holding a lock and any other
-task holding a lock.
-
-If we want a MUST_NOT_RECURSE, we can do that, but it means adding cpu or
-current into the debugging version of spinlocks. I'd also add eip, so we
-can see where the lock was acquired last and dump that when we hit a
-conflict/deadlock.
-
-And if you interpret MUST_NOT_HOLD_LOCK to mean "no one is holding this
-lock" then you run into Rik's problem. Anyone who actually means this
-ought to be simply taking the lock, otherwise why would they care?
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

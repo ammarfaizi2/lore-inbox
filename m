@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVBWTLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVBWTSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVBWTLT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 14:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVBWTLT
+	id S261540AbVBWTSK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 14:18:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVBWTSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 14:11:19 -0500
-Received: from mail.tmr.com ([216.238.38.203]:45060 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261537AbVBWTLP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 14:11:15 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [BK] upgrade will be needed
-Date: Wed, 23 Feb 2005 14:15:59 -0500
-Organization: TMR Associates, Inc
-Message-ID: <421CD66F.90601@tmr.com>
-References: <4075.10.10.10.24.1108751663.squirrel@linux1><seanlkml@sympatico.ca> <20050218214555.1f71c2e4.aradorlinux@yahoo.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Trace: gatekeeper.tmr.com 1109185196 8215 192.168.12.100 (23 Feb 2005 18:59:56 GMT)
-X-Complaints-To: abuse@tmr.com
-Cc: Sean <seanlkml@sympatico.ca>, tytso@mit.edu, vonbrand@inf.utfsm.cl,
-       cfriesen@nortel.com, cs@tequila.co.jp, galibert@pobox.com,
-       kernel@crazytrain.com, linux-kernel@vger.kernel.org
-To: "d.c" <aradorlinux@yahoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-In-Reply-To: <20050218214555.1f71c2e4.aradorlinux@yahoo.es>
+	Wed, 23 Feb 2005 14:18:10 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:31223 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261540AbVBWTRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 14:17:31 -0500
+Date: Wed, 23 Feb 2005 19:16:51 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
+In-Reply-To: <1109182061.16201.6.camel@krustophenia.net>
+Message-ID: <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>
+References: <1109182061.16201.6.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-d.c wrote:
-> El Fri, 18 Feb 2005 13:34:23 -0500 (EST),
-> "Sean" <seanlkml@sympatico.ca> escribió:
+On Wed, 23 Feb 2005, Lee Revell wrote:
 > 
-> 
-> 
->>BK already feeds patches out at the head, surely if it's as powerful as
->>you think, it could feed a free SCM too for your non-bk friends in the
->>community.
-> 
-> 
-> Who cares, really?
-> 
-> 1) Linux was never supposed to have a "head", but -pre/-rc diff patches
-> 
-> 2) And more important, *nobody* works against "linus' bk head". Everyone who
->     is implementing something so intrusive that needs to keep track of the
->     "development head" developes again the _true_ "head" of the linux
->     kernel - akpm's tree.
+> Did something change recently in the VM that made copy_pte_range and
+> clear_page_range a lot more expensive?  I noticed a reference in the
+> "Page Table Iterators" thread to excessive overhead introduced by
+> aggressive page freeing.  That sure looks like what is going on in
+> trace2.  trace1 and trace3 look like big fork latencies associated with
+> copy_pte_range.
 
-If I wanted to develop something which would eventually go into 
-mainline, I certainly would do it against Linus' tree. There are many 
-things going on in -mm which might or might not require significant 
-changes in approach to work. I think -mm is a great place to try the 
-scheduler of the week, but unless some feature requires one of those, 
-it's easier to start from a known base.
+I'm just about to test this patch below: please give it a try: thanks...
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Ingo's patch to reduce scheduling latencies, by checking for lockbreak
+in copy_page_range, was in the -VP and -mm patchsets some months ago;
+but got preempted by the 4level rework, and not reinstated since.
+Restore it now in copy_pte_range - which mercifully makes it easier.
+
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.6.11-rc4-bk9/mm/memory.c	2005-02-21 11:32:19.000000000 +0000
++++ linux/mm/memory.c	2005-02-23 18:35:28.000000000 +0000
+@@ -328,6 +328,7 @@ static int copy_pte_range(struct mm_stru
+ 	pte_t *s, *d;
+ 	unsigned long vm_flags = vma->vm_flags;
+ 
++again:
+ 	d = dst_pte = pte_alloc_map(dst_mm, dst_pmd, addr);
+ 	if (!dst_pte)
+ 		return -ENOMEM;
+@@ -338,11 +339,22 @@ static int copy_pte_range(struct mm_stru
+ 		if (pte_none(*s))
+ 			continue;
+ 		copy_one_pte(dst_mm, src_mm, d, s, vm_flags, addr);
++		/*
++		 * We are holding two locks at this point - either of them
++		 * could generate latencies in another task on another CPU.
++		 */
++		if (need_resched() ||
++		    need_lockbreak(&src_mm->page_table_lock) ||
++		    need_lockbreak(&dst_mm->page_table_lock))
++			break;
+ 	}
+ 	pte_unmap_nested(src_pte);
+ 	pte_unmap(dst_pte);
+ 	spin_unlock(&src_mm->page_table_lock);
++
+ 	cond_resched_lock(&dst_mm->page_table_lock);
++	if (addr < end)
++		goto again;
+ 	return 0;
+ }
+ 

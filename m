@@ -1,131 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbULWWzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbULWW7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbULWWzu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 17:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbULWWyC
+	id S261347AbULWW7g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 17:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbULWWwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 17:54:02 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:25854 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261329AbULWWtz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 17:49:55 -0500
-Subject: [PATCH] VFS locking errors on max offset edge cases
-From: Bruce Allan <bwa@us.ibm.com>
-Reply-To: bwa@us.ibm.com
-To: matthew@wil.cx
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Content-Type: text/plain
-Organization: IBM, Corp.
-Message-Id: <1103842193.4702.77.camel@w-bwa3.beaverton.ibm.com>
+	Thu, 23 Dec 2004 17:52:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32416 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261331AbULWWuL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 17:50:11 -0500
+Date: Thu, 23 Dec 2004 14:54:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Robin Holt <holt@sgi.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AB-BA deadlock between uidhash_lock and tasklist_lock.
+Message-Id: <20041223145433.596db88c.akpm@osdl.org>
+In-Reply-To: <20041223173749.GA18887@lnx-holt.americas.sgi.com>
+References: <20041222220800.GB6213@lnx-holt.americas.sgi.com>
+	<20041223173749.GA18887@lnx-holt.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 23 Dec 2004 14:49:53 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A number of Connectathon (http://www.connectathon.org/nfstests.html)
-POSIX/fcntl() locking tests fail (even on local filesystems) at various
-edge cases (i.e. around maximum allowable offsets) on 64-bit
-architectures.
+Robin Holt <holt@sgi.com> wrote:
+>
+> We have uncovered a very difficult to trip AB-BA deadlock between the
+> uidhash_lock and tasklist_lock.
 
-The overflow tests in fs/compat.c were superfluous where they were
-located because if there was a conflicting lock, l_start and l_len would
-have been overwritten with the values owned by the conflicting lock; if
-no conflicting lock, sys_fcntl() would have returned any applicable
-error.  The tests are moved above the call to sys_fcntl() to capture
-overflow errors which would not have been caught by sys_fcntl(), eg.
-obvious overflow when _FILE_OFFSET_BITS == 32.
+yup.  I made some changes to your patch - please review.
 
-These tests also had a couple 'off by one' errors when comparing with
-the maximum allowable offset.
+- s/spin_lock_irqsave/spin_lock_irq/ in those places where local
+  interrupts are obviously always enabled.
 
-Patch created against 2.6.10-rc3, tested on ppc64 with both
-_FILE_OFFSET_BITS set to 32 and 64.
+- your second patch still missed find_user().
 
-Signed-off-by: Bruce Allan <bwa@us.ibm.com>
+- add comment.
 
-diff -Nurp -X dontdiff linux-2.6.10-rc3-vanilla/fs/compat.c
-linux-2.6.10-rc3/fs/compat.c
---- linux-2.6.10-rc3-vanilla/fs/compat.c	2004-12-23 11:52:50.642448274
--0800
-+++ linux-2.6.10-rc3/fs/compat.c	2004-12-23 12:00:54.113913369 -0800
-@@ -537,17 +537,19 @@ asmlinkage long compat_sys_fcntl64(unsig
- 		ret = get_compat_flock(&f, compat_ptr(arg));
- 		if (ret != 0)
- 			break;
-+		if ((cmd == F_GETLK) &&
-+		    ((f.l_start > COMPAT_OFF_T_MAX) ||
-+		     ((f.l_start + f.l_len - 1) > COMPAT_OFF_T_MAX))) {
-+				ret = -EOVERFLOW;
-+				break;
-+			}
-+		}
- 		old_fs = get_fs();
- 		set_fs(KERNEL_DS);
- 		ret = sys_fcntl(fd, cmd, (unsigned long)&f);
- 		set_fs(old_fs);
--		if (cmd == F_GETLK && ret == 0) {
--			if ((f.l_start >= COMPAT_OFF_T_MAX) ||
--			    ((f.l_start + f.l_len) > COMPAT_OFF_T_MAX))
--				ret = -EOVERFLOW;
--			if (ret == 0)
--				ret = put_compat_flock(&f, compat_ptr(arg));
--		}
-+		if (cmd == F_GETLK && ret == 0)
-+			ret = put_compat_flock(&f, compat_ptr(arg));
- 		break;
+
+--- 25/kernel/user.c~ab-ba-deadlock-between-uidhash_lock-and-tasklist_lock	Thu Dec 23 14:45:02 2004
++++ 25-akpm/kernel/user.c	Thu Dec 23 14:52:07 2004
+@@ -26,6 +26,14 @@
  
- 	case F_GETLK64:
-@@ -556,19 +558,21 @@ asmlinkage long compat_sys_fcntl64(unsig
- 		ret = get_compat_flock64(&f, compat_ptr(arg));
- 		if (ret != 0)
- 			break;
-+		if ((cmd == F_GETLK64) &&
-+		    ((f.l_start > COMPAT_LOFF_T_MAX) ||
-+		     ((f.l_start + f.l_len - 1) > COMPAT_LOFF_T_MAX))) {
-+				ret = -EOVERFLOW;
-+				break;
-+			}
-+		}
- 		old_fs = get_fs();
- 		set_fs(KERNEL_DS);
- 		ret = sys_fcntl(fd, (cmd == F_GETLK64) ? F_GETLK :
- 				((cmd == F_SETLK64) ? F_SETLK : F_SETLKW),
- 				(unsigned long)&f);
- 		set_fs(old_fs);
--		if (cmd == F_GETLK64 && ret == 0) {
--			if ((f.l_start >= COMPAT_LOFF_T_MAX) ||
--			    ((f.l_start + f.l_len) > COMPAT_LOFF_T_MAX))
--				ret = -EOVERFLOW;
--			if (ret == 0)
--				ret = put_compat_flock64(&f, compat_ptr(arg));
--		}
-+		if (cmd == F_GETLK64 && ret == 0)
-+			ret = put_compat_flock64(&f, compat_ptr(arg));
- 		break;
+ static kmem_cache_t *uid_cachep;
+ static struct list_head uidhash_table[UIDHASH_SZ];
++
++/*
++ * uidhash_lock is taken inside write_lock_irq(&tasklist_lock).  If a timer
++ * interrupt were to occur while we hold uidhash_lock, and that interrupt takes
++ * read_lock(&tasklist_lock) then we have an ab/ba deadlock scenario.  Hence
++ * uidhash_lock must always be taken in an ir-qsafe manner to hold off the
++ * timer interrupt.
++ */
+ static spinlock_t uidhash_lock = SPIN_LOCK_UNLOCKED;
  
- 	default:
-diff -Nurp -X dontdiff linux-2.6.10-rc3-vanilla/fs/locks.c
-linux-2.6.10-rc3/fs/locks.c
---- linux-2.6.10-rc3-vanilla/fs/locks.c	2004-12-23 11:52:50.902423742
--0800
-+++ linux-2.6.10-rc3/fs/locks.c	2004-12-23 12:02:35.268404863 -0800
-@@ -314,7 +314,8 @@ static int flock_to_posix_lock(struct fi
+ struct user_struct root_user = {
+@@ -81,15 +89,19 @@ static inline struct user_struct *uid_ha
+ struct user_struct *find_user(uid_t uid)
+ {
+ 	struct user_struct *ret;
++	unsigned long flags;
  
- 	/* POSIX-1996 leaves the case l->l_len < 0 undefined;
- 	   POSIX-2001 defines it. */
--	start += l->l_start;
-+	if ((start += l->l_start) < 0)
-+		return -EINVAL;
- 	end = start + l->l_len - 1;
- 	if (l->l_len < 0) {
- 		end = start - 1;
-
-
----
-Bruce Allan  <bwa@us.ibm.com>
-Software Engineer, Linux Technology Center
-IBM Corporation, Beaverton OR USA
+-	spin_lock(&uidhash_lock);
++	spin_lock_irqsave(&uidhash_lock, flags);
+ 	ret = uid_hash_find(uid, uidhashentry(uid));
+-	spin_unlock(&uidhash_lock);
++	spin_unlock_irqrestore(&uidhash_lock, flags);
+ 	return ret;
+ }
+ 
+ void free_uid(struct user_struct *up)
+ {
++	unsigned long flags;
++
++	local_irq_save(flags);
+ 	if (up && atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
+ 		uid_hash_remove(up);
+ 		key_put(up->uid_keyring);
+@@ -97,6 +109,7 @@ void free_uid(struct user_struct *up)
+ 		kmem_cache_free(uid_cachep, up);
+ 		spin_unlock(&uidhash_lock);
+ 	}
++	local_irq_restore(flags);
+ }
+ 
+ struct user_struct * alloc_uid(uid_t uid)
+@@ -104,9 +117,9 @@ struct user_struct * alloc_uid(uid_t uid
+ 	struct list_head *hashent = uidhashentry(uid);
+ 	struct user_struct *up;
+ 
+-	spin_lock(&uidhash_lock);
++	spin_lock_irq(&uidhash_lock);
+ 	up = uid_hash_find(uid, hashent);
+-	spin_unlock(&uidhash_lock);
++	spin_unlock_irq(&uidhash_lock);
+ 
+ 	if (!up) {
+ 		struct user_struct *new;
+@@ -132,7 +145,7 @@ struct user_struct * alloc_uid(uid_t uid
+ 		 * Before adding this, check whether we raced
+ 		 * on adding the same user already..
+ 		 */
+-		spin_lock(&uidhash_lock);
++		spin_lock_irq(&uidhash_lock);
+ 		up = uid_hash_find(uid, hashent);
+ 		if (up) {
+ 			key_put(new->uid_keyring);
+@@ -142,7 +155,7 @@ struct user_struct * alloc_uid(uid_t uid
+ 			uid_hash_insert(new, hashent);
+ 			up = new;
+ 		}
+-		spin_unlock(&uidhash_lock);
++		spin_unlock_irq(&uidhash_lock);
+ 
+ 	}
+ 	return up;
+@@ -178,9 +191,9 @@ static int __init uid_cache_init(void)
+ 		INIT_LIST_HEAD(uidhash_table + n);
+ 
+ 	/* Insert the root user immediately (init already runs as root) */
+-	spin_lock(&uidhash_lock);
++	spin_lock_irq(&uidhash_lock);
+ 	uid_hash_insert(&root_user, uidhashentry(0));
+-	spin_unlock(&uidhash_lock);
++	spin_unlock_irq(&uidhash_lock);
+ 
+ 	return 0;
+ }
+_
 

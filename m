@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288116AbSA3CrG>; Tue, 29 Jan 2002 21:47:06 -0500
+	id <S288112AbSA3Cp4>; Tue, 29 Jan 2002 21:45:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288114AbSA3Cq4>; Tue, 29 Jan 2002 21:46:56 -0500
-Received: from ns.suse.de ([213.95.15.193]:36624 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288113AbSA3Cqj>;
-	Tue, 29 Jan 2002 21:46:39 -0500
-Date: Wed, 30 Jan 2002 03:46:37 +0100
-From: Dave Jones <davej@suse.de>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S288109AbSA3Cpq>; Tue, 29 Jan 2002 21:45:46 -0500
+Received: from kaboom.dsl.xmission.com ([166.70.87.226]:6065 "EHLO
+	mail.oobleck.net") by vger.kernel.org with ESMTP id <S288089AbSA3Cpi>;
+	Tue, 29 Jan 2002 21:45:38 -0500
+Date: Tue, 29 Jan 2002 19:45:36 -0700 (MST)
+From: Chris Ricker <kaboom@gatech.edu>
+Reply-To: Chris Ricker <kaboom@gatech.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: World Domination Now! <linux-kernel@vger.kernel.org>
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130034637.J16379@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <200201290446.g0T4kZU31923@snark.thyrsus.com> <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain> <8Ho-eVfXw-B@khms.westfalen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <8Ho-eVfXw-B@khms.westfalen.de>; from kaih@khms.westfalen.de on Tue, Jan 29, 2002 at 09:51:00PM +0200
+In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0201291938530.26901-100000@verdande.oobleck.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 09:51:00PM +0200, Kai Henningsen wrote:
+On Tue, 29 Jan 2002, Linus Torvalds wrote:
 
- > >   - cleanliness
- > >   - concept
- > >   - timing
- > >   - testing
- > 
- > IIRC, the number 33 referred to esr's Configure.help patch. Which of these  
- > did he violate?
+> It might not be a bad idea to just make that "mention maintainer at the
+> top of the file" the common case.
 
- Timing.  Linus was busy focusing on the block layer.
+You snipped the part I was actually interested in.  Let me try again.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+We're agreed that the files themselves are the best indicator of where to
+route patches, and that MAINTAINERS isn't useful for much besides deciding
+who should get IPO offers ;-).  What I'm wondering is where I, as someone
+who is listed in some of the Documentation/* stuff as its maintainer, should
+be sending patches.  You want a hierarchy, and I think that's perfectly
+reasonable, but I have no idea who the layer of the hierarchy between me and
+you is....
+
+later,
+chris
+

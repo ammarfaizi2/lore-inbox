@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267790AbRGUTUI>; Sat, 21 Jul 2001 15:20:08 -0400
+	id <S267797AbRGUUEA>; Sat, 21 Jul 2001 16:04:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267792AbRGUTT6>; Sat, 21 Jul 2001 15:19:58 -0400
-Received: from L0190P28.dipool.highway.telekom.at ([62.46.87.188]:62337 "EHLO
-	mannix") by vger.kernel.org with ESMTP id <S267790AbRGUTTu>;
-	Sat, 21 Jul 2001 15:19:50 -0400
-Date: Sat, 21 Jul 2001 21:18:31 +0200
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, cw@f00f.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 64 bit scsi read/write
-Message-ID: <20010721211831.A9471@aon.at>
-In-Reply-To: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200107160108.f6G18fJ299454@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.18i
-From: Alexander Griesser <tuxx@aon.at>
+	id <S267798AbRGUUDu>; Sat, 21 Jul 2001 16:03:50 -0400
+Received: from jdi.jdimedia.nl ([212.204.192.51]:57298 "EHLO jdi.jdimedia.nl")
+	by vger.kernel.org with ESMTP id <S267797AbRGUUDd>;
+	Sat, 21 Jul 2001 16:03:33 -0400
+Date: Sat, 21 Jul 2001 22:03:15 +0200 (CEST)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+X-X-Sender: <igmar@jdi.jdimedia.nl>
+To: <linux-kernel@vger.kernel.org>
+cc: <hermes@gibson.dropbear.id.au>
+Subject: Dynalink L11C multicast
+Message-ID: <Pine.LNX.4.33.0107212155450.29008-100000@jdi.jdimedia.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, Jul 15, 2001 at 09:08:41PM -0400, you wrote:
-> > The only requirement here is that the checksum be correct.  And sure,
-> > that's not a hard guarantee because, on average, you will get a good
-> > checksum for bad data once every 4 billion power events that mess up
-> > the final superblock transfer.  Let me see, if that happens once a year,
-> In a tree-structured filesystem, checksums on everything would only
-> cost you space similar to the number of pointers you have. Whenever
-> a non-leaf node points to a child, it can hold a checksum for that
-> child as well.
-> This gives a very reliable way to spot filesystem errors, including
-> corrupt data blocks.
 
-Hmm, maybe this is crap, but:
-If the checksum-calculation for one node fails, wouldn't that mean, that
-the data in this node, is not to be trusted? therefore also the checksum
-of this node could be corrupted and so the node, 2 hops away, can't be
-validated with 100% certitude...
+Hi,
 
-regards, alexx
+Plugging in my Dynalink L11C (Prism2 card with manfid 0x0156, 0x0002)
+gives me :
+
+eth1: Error -110 setting multicast list
+eth1: Error -16 setting multicast list
+eth1: Error -16 setting multicast list
+
+According to the comment on line 3128 of orinoco.c, this is untested.
+David might want to look at this..
+
+
+	Igmar
+
 -- 
-|   .-.   | Alexander Griesser <tuxx@aon.at> -=- ICQ:63180135 |  .''`. |
-|   /v\   |  http://www.tuxx-home.at -=- Linux Version 2.4.7  | : :' : |
-| /(   )\ |  FAQ zu at.linux:  http://alfie.ist.org/LinuxFAQ  | `. `'  |
-|  ^^ ^^  `---------------------------------------------------´   `-   |
+
+Igmar Palsenberg
+JDI Media Solutions
+
+Boulevard Heuvelink 102
+6828 KT Arnhem
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+

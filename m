@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317836AbSHGLKF>; Wed, 7 Aug 2002 07:10:05 -0400
+	id <S317611AbSHGLHM>; Wed, 7 Aug 2002 07:07:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317898AbSHGLKF>; Wed, 7 Aug 2002 07:10:05 -0400
-Received: from cygnus-ext.enyo.de ([212.9.189.162]:38415 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id <S317836AbSHGLKD>;
-	Wed, 7 Aug 2002 07:10:03 -0400
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, gam3@acm.org
-Subject: Re: Problems with NFS exports
-References: <87eldchtr2.fsf@deneb.enyo.de> <87k7n3t3zm.fsf@deneb.enyo.de>
-	<15696.63765.38094.618742@notabene.cse.unsw.edu.au>
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
- linux-kernel@vger.kernel.org,  gam3@acm.org
-Date: Wed, 07 Aug 2002 13:13:38 +0200
-In-Reply-To: <15696.63765.38094.618742@notabene.cse.unsw.edu.au> (Neil
- Brown's message of "Wed, 7 Aug 2002 20:40:21 +1000")
-Message-ID: <8765ymsyzh.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
+	id <S317693AbSHGLHM>; Wed, 7 Aug 2002 07:07:12 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:19091 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S317611AbSHGLHM>; Wed, 7 Aug 2002 07:07:12 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200208071110.g77BAaH05474@devserv.devel.redhat.com>
+Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
+To: ak@suse.de (Andi Kleen)
+Date: Wed, 7 Aug 2002 07:10:36 -0400 (EDT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
+       alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020807130417.A19231@wotan.suse.de> from "Andi Kleen" at Aug 07, 2002 01:04:17 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@cse.unsw.edu.au> writes:
+> dep_bool .... $CONFIG_X86_32
+> 
+> Would that be acceptable for you?  (ok that would not cover ppc32 for 
+> example, but they may have other issues with the driver) 
 
-> Probably better documentation in exports.5 would be just as useful.
+dep_bool doesnt have negations, bracketing or or operations. Thats why
+CML1 can't handle it but CML2 probably could have
 
-Maybe.
+> They will discover it when they don't find a driver for an device and
+> can then find the disabled configuration and look into fixing it
+> (for someone able to fix the driver checking the configuration should
+> be trivial) 
 
-BTW, is it possible to export a directory tree under a different path,
-using the kernel NFS daemon?
+No they'll mail you asking where it has gone
 
-> And "BUSY" probably isn't correct ....
+> In my opinion it is just not acceptable when the enable the driver by
+> mistake or load the wrong module and it crashes.
 
-Why not? The ressource (the directory tree) is already being used, and
-therefore the export fails.
-
-> It would be possible to dis-ambiguate the ambiguity but it wouldn't be
-> very clean, and I really am not sure that it is worth the effort.
-
-Better error messages are always a good idea. :-)
+Thats a packaging issue for distributed prebuilt kernel trees. Also crashes
+are the only way you are going to find out what needs fixing, who wants to
+fix it and the like

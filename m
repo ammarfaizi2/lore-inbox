@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUJTAmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270236AbUJTAro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268036AbUJTAmK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 20:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270211AbUJTAjr
+	id S270236AbUJTAro (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270223AbUJTApC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 20:39:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:17588 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268036AbUJTATf convert rfc822-to-8bit
+	Tue, 19 Oct 2004 20:45:02 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62899 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266189AbUJTATZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 20:19:35 -0400
+	Tue, 19 Oct 2004 20:19:25 -0400
 Subject: Re: [PATCH] I2C update for 2.6.9
-In-Reply-To: <10982315034183@kroah.com>
+In-Reply-To: <10982315071393@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 19 Oct 2004 17:18:23 -0700
-Message-Id: <10982315032767@kroah.com>
+Date: Tue, 19 Oct 2004 17:18:27 -0700
+Message-Id: <1098231507961@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,235 +22,876 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1832.73.3, 2004/09/08 12:34:34-07:00, mhoffman@lightlink.com
+ChangeSet 1.2077, 2004/10/19 15:24:45-07:00, khali@linux-fr.org
 
-[PATCH] I2C/SMBus stub for driver testing
+[PATCH] I2C: lm87 driver ported to Linux 2.6
 
-* Greg KH <greg@kroah.com> [2004-08-24 16:44:32 -0700]:
-> > > Why not?  It looks useful to me.  Care to send me a patch adding
-> > > this to the main kernel tree?
+This is my port of the lm87 driver to Linux 2.6. It is based on the
+preliminary work of Jeff Oliver. I then significantly improved the code,
+added functionality, tested the whole thing on a real motherboard, fixed
+a couple remaining bugs, and here we are.
 
-* Mark M. Hoffman <mhoffman@lightlink.com> [2004-08-25 10:25:02 -0400]:
-> Later today, sure.
+I'll port a number of improvements and fixes back to the 2.4 version of
+the driver after lm_sensors 2.8.8 is released (i.e. soon).
 
-Well here it is, one day later because I really didn't want to do this
-with printk.  I spent some time looking around and relayfs seems like
-a good fit.  Do you think relayfs will ever get merged?  Meanwhile...
-
-* * * * *
-
-This patch, applied to 2.6.9-rc1, adds an I2C/SMBus test stub that is useful
-for developing sensors drivers.
-
-Signed-off-by: Mark M. Hoffman <mhoffman@lightlink.com>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- Documentation/i2c/i2c-stub    |   33 +++++++++++
- drivers/i2c/busses/Kconfig    |   13 ++++
- drivers/i2c/busses/Makefile   |    1 
- drivers/i2c/busses/i2c-stub.c |  125 ++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 172 insertions(+)
+ drivers/i2c/chips/Kconfig  |   11 
+ drivers/i2c/chips/Makefile |    1 
+ drivers/i2c/chips/lm87.c   |  814 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 826 insertions(+)
 
 
-diff -Nru a/Documentation/i2c/i2c-stub b/Documentation/i2c/i2c-stub
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/Documentation/i2c/i2c-stub	2004-10-19 16:55:52 -07:00
-@@ -0,0 +1,33 @@
-+MODULE: i2c-stub
-+
-+DESCRIPTION:
-+
-+This module is a very simple fake I2C/SMBus driver.  It implements three
-+types of SMBus commands: write quick, (r/w) byte data, and (r/w) word data.
-+
-+No hardware is needed nor associated with this module.  It will accept write
-+quick commands to all addresses; it will respond to the other commands (also
-+to all addresses) by reading from or writing to an array in memory.  It will
-+also spam the kernel logs for every command it handles.
-+
-+The typical use-case is like this:
-+	1. load this module
-+	2. use i2cset (from lm_sensors project) to pre-load some data
-+	3. load the target sensors chip driver module
-+	4. observe its behavior in the kernel log
-+
-+CAVEATS:
-+
-+There are independent arrays for byte/data and word/data commands.  Depending
-+on if/how a target driver mixes them, you'll need to be careful.
-+
-+If your target driver polls some byte or word waiting for it to change, the
-+stub could lock it up.  Use i2cset to unlock it.
-+
-+If the hardware for your driver has banked registers (e.g. Winbond sensors
-+chips) this module will not work well - although it could be extended to
-+support that pretty easily.
-+
-+If you spam it hard enough, printk can be lossy.  This module really wants
-+something like relayfs.
-+
-diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
---- a/drivers/i2c/busses/Kconfig	2004-10-19 16:55:52 -07:00
-+++ b/drivers/i2c/busses/Kconfig	2004-10-19 16:55:52 -07:00
-@@ -376,6 +376,19 @@
+diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
+--- a/drivers/i2c/chips/Kconfig	2004-10-19 16:53:32 -07:00
++++ b/drivers/i2c/chips/Kconfig	2004-10-19 16:53:32 -07:00
+@@ -169,6 +169,17 @@
  	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-sis96x.
+ 	  will be called lm85.
  
-+config I2C_STUB
-+	tristate "I2C/SMBus Test Stub"
-+	depends on I2C && EXPERIMENTAL && 'm'
-+	default 'n'
++config SENSORS_LM87
++	tristate "National Semiconductor LM87"
++	depends on I2C && EXPERIMENTAL
++	select I2C_SENSOR
 +	help
-+	  This module may be useful to developers of SMBus client drivers,
-+	  especially for certain kinds of sensor chips.
++	  If you say yes here you get support for National Semiconductor LM87
++	  sensor chips.
 +
-+	  If you do build this module, be sure to read the notes and warnings
-+	  in Documentation/i2c/i2c-stub.
++	  This driver can also be built as a module.  If so, the module
++	  will be called lm87.
 +
-+	  If you don't know what to do here, definitely say N.
-+
- config I2C_VIA
- 	tristate "VIA 82C586B"
- 	depends on I2C && PCI && EXPERIMENTAL
-diff -Nru a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
---- a/drivers/i2c/busses/Makefile	2004-10-19 16:55:52 -07:00
-+++ b/drivers/i2c/busses/Makefile	2004-10-19 16:55:52 -07:00
-@@ -30,6 +30,7 @@
- obj-$(CONFIG_I2C_SIS5595)	+= i2c-sis5595.o
- obj-$(CONFIG_I2C_SIS630)	+= i2c-sis630.o
- obj-$(CONFIG_I2C_SIS96X)	+= i2c-sis96x.o
-+obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
- obj-$(CONFIG_I2C_VIA)		+= i2c-via.o
- obj-$(CONFIG_I2C_VIAPRO)	+= i2c-viapro.o
- obj-$(CONFIG_I2C_VOODOO3)	+= i2c-voodoo3.o
-diff -Nru a/drivers/i2c/busses/i2c-stub.c b/drivers/i2c/busses/i2c-stub.c
+ config SENSORS_LM90
+ 	tristate "National Semiconductor LM90 and compatibles"
+ 	depends on I2C
+diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
+--- a/drivers/i2c/chips/Makefile	2004-10-19 16:53:32 -07:00
++++ b/drivers/i2c/chips/Makefile	2004-10-19 16:53:32 -07:00
+@@ -21,6 +21,7 @@
+ obj-$(CONFIG_SENSORS_LM80)	+= lm80.o
+ obj-$(CONFIG_SENSORS_LM83)	+= lm83.o
+ obj-$(CONFIG_SENSORS_LM85)	+= lm85.o
++obj-$(CONFIG_SENSORS_LM87)	+= lm87.o
+ obj-$(CONFIG_SENSORS_LM90)	+= lm90.o
+ obj-$(CONFIG_SENSORS_MAX1619)	+= max1619.o
+ obj-$(CONFIG_SENSORS_PCF8574)	+= pcf8574.o
+diff -Nru a/drivers/i2c/chips/lm87.c b/drivers/i2c/chips/lm87.c
 --- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/drivers/i2c/busses/i2c-stub.c	2004-10-19 16:55:52 -07:00
-@@ -0,0 +1,125 @@
++++ b/drivers/i2c/chips/lm87.c	2004-10-19 16:53:32 -07:00
+@@ -0,0 +1,814 @@
 +/*
-+    i2c-stub.c - Part of lm_sensors, Linux kernel modules for hardware
-+              monitoring
-+
-+    Copyright (c) 2004 Mark M. Hoffman <mhoffman@lightlink.com>
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+*/
-+
-+#define DEBUG 1
++ * lm87.c
++ *
++ * Copyright (C) 2000       Frodo Looijaard <frodol@dds.nl>
++ *                          Philip Edelbrock <phil@netroedge.com>
++ *                          Stephen Rousset <stephen.rousset@rocketlogix.com>
++ *                          Dan Eaton <dan.eaton@rocketlogix.com>
++ * Copyright (C) 2004       Jean Delvare <khali@linux-fr.org>
++ *
++ * Original port to Linux 2.6 by Jeff Oliver.
++ *
++ * The LM87 is a sensor chip made by National Semiconductor. It monitors up
++ * to 8 voltages (including its own power source), up to three temperatures
++ * (its own plus up to two external ones) and up to two fans. The default
++ * configuration is 6 voltages, two temperatures and two fans (see below).
++ * Voltages are scaled internally with ratios such that the nominal value of
++ * each voltage correspond to a register value of 192 (which means a
++ * resolution of about 0.5% of the nominal value). Temperature values are
++ * reported with a 1 deg resolution and a 3-4 deg accuracy. Complete
++ * datasheet can be obtained from National's website at:
++ *   http://www.national.com/pf/LM/LM87.html
++ *
++ * Some functions share pins, so not all functions are available at the same
++ * time. Which are depends on the hardware setup. This driver assumes that
++ * the BIOS configured the chip correctly. In that respect, it  differs from
++ * the original driver (from lm_sensors for Linux 2.4), which would force the
++ * LM87 to an arbitrary, compile-time chosen mode, regardless of the actual
++ * chipset wiring.
++ * For reference, here is the list of exclusive functions:
++ *  - in0+in5 (default) or temp3
++ *  - fan1 (default) or in6
++ *  - fan2 (default) or in7
++ *  - VID lines (default) or IRQ lines (not handled by this driver)
++ *
++ * The LM87 additionally features an analog output, supposedly usable to
++ * control the speed of a fan. All new chips use pulse width modulation
++ * instead. The LM87 is the only hardware monitoring chipset I know of
++ * which uses amplitude modulation. Be careful when using this feature.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
 +
 +#include <linux/config.h>
-+#include <linux/init.h>
 +#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
++#include <linux/init.h>
++#include <linux/slab.h>
 +#include <linux/i2c.h>
++#include <linux/i2c-sensor.h>
++#include <linux/i2c-vid.h>
 +
-+static u8  stub_bytes[256];
-+static u16 stub_words[256];
++/*
++ * Addresses to scan
++ * LM87 has three possible addresses: 0x2c, 0x2d and 0x2e.
++ */
 +
-+/* Return -1 on error. */
-+static s32 stub_xfer(struct i2c_adapter * adap, u16 addr, unsigned short flags,
-+	char read_write, u8 command, int size, union i2c_smbus_data * data)
-+{
-+	s32 ret;
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++static unsigned short normal_i2c_range[] = { 0x2c, 0x2e, I2C_CLIENT_END };
++static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
++static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
 +
-+	switch (size) {
++/*
++ * Insmod parameters
++ */
 +
-+	case I2C_SMBUS_QUICK:
-+		dev_dbg(&adap->dev, "smbus quick - addr 0x%02x\n", addr);
-+		ret = 0;
-+		break;
++SENSORS_INSMOD_1(lm87);
 +
-+	case I2C_SMBUS_BYTE_DATA:
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			stub_bytes[command] = data->byte;
-+			dev_dbg(&adap->dev, "smbus byte data - addr 0x%02x, "
-+					"wrote 0x%02x at 0x%02x.\n",
-+					addr, data->byte, command);
-+		} else {
-+			data->byte = stub_bytes[command];
-+			dev_dbg(&adap->dev, "smbus byte data - addr 0x%02x, "
-+					"read  0x%02x at 0x%02x.\n",
-+					addr, data->byte, command);
-+		}
++/*
++ * The LM87 registers
++ */
 +
-+		ret = 0;
-+		break;
++/* nr in 0..5 */
++#define LM87_REG_IN(nr)			(0x20 + (nr))
++#define LM87_REG_IN_MAX(nr)		(0x2B + (nr) * 2)
++#define LM87_REG_IN_MIN(nr)		(0x2C + (nr) * 2)
++/* nr in 0..1 */
++#define LM87_REG_AIN(nr)		(0x28 + (nr))
++#define LM87_REG_AIN_MIN(nr)		(0x1A + (nr))
++#define LM87_REG_AIN_MAX(nr)		(0x3B + (nr))
 +
-+	case I2C_SMBUS_WORD_DATA:
-+		if (read_write == I2C_SMBUS_WRITE) {
-+			stub_words[command] = data->word;
-+			dev_dbg(&adap->dev, "smbus word data - addr 0x%02x, "
-+					"wrote 0x%04x at 0x%02x.\n",
-+					addr, data->word, command);
-+		} else {
-+			data->word = stub_words[command];
-+			dev_dbg(&adap->dev, "smbus word data - addr 0x%02x, "
-+					"read  0x%04x at 0x%02x.\n",
-+					addr, data->word, command);
-+		}
++static u8 LM87_REG_TEMP[3] = { 0x27, 0x26, 0x20 };
++static u8 LM87_REG_TEMP_HIGH[3] = { 0x39, 0x37, 0x2B };
++static u8 LM87_REG_TEMP_LOW[3] = { 0x3A, 0x38, 0x2C };
 +
-+		ret = 0;
-+		break;
++#define LM87_REG_TEMP_HW_INT_LOCK	0x13
++#define LM87_REG_TEMP_HW_EXT_LOCK	0x14
++#define LM87_REG_TEMP_HW_INT		0x17
++#define LM87_REG_TEMP_HW_EXT		0x18
 +
-+	default:
-+		dev_dbg(&adap->dev, "Unsupported I2C/SMBus command\n");
-+		ret = -1;
-+		break;
-+	} /* switch (size) */
++/* nr in 0..1 */
++#define LM87_REG_FAN(nr)		(0x28 + (nr))
++#define LM87_REG_FAN_MIN(nr)		(0x3B + (nr))
++#define LM87_REG_AOUT			0x19
 +
-+	return ret;
-+}
++#define LM87_REG_CONFIG			0x40
++#define LM87_REG_CHANNEL_MODE		0x16
++#define LM87_REG_VID_FAN_DIV		0x47
++#define LM87_REG_VID4			0x49
 +
-+static u32 stub_func(struct i2c_adapter *adapter)
-+{
-+	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE_DATA |
-+		I2C_FUNC_SMBUS_WORD_DATA;
-+}
++#define LM87_REG_ALARMS1		0x41
++#define LM87_REG_ALARMS2		0x42
 +
-+static struct i2c_algorithm smbus_algorithm = {
-+	.name		= "Non-I2C SMBus adapter",
-+	.id		= I2C_ALGO_SMBUS,
-+	.functionality	= stub_func,
-+	.smbus_xfer	= stub_xfer,
-+};
++#define LM87_REG_COMPANY_ID		0x3E
++#define LM87_REG_REVISION		0x3F
 +
-+static struct i2c_adapter stub_adapter = {
++/*
++ * Conversions and various macros
++ * The LM87 uses signed 8-bit values for temperatures.
++ */
++
++#define IN_FROM_REG(reg,scale)	(((reg) * (scale) + 96) / 192)
++#define IN_TO_REG(val,scale)	((val) <= 0 ? 0 : \
++				 (val) * 192 >= (scale) * 255 ? 255 : \
++				 ((val) * 192 + (scale)/2) / (scale))
++
++#define TEMP_FROM_REG(reg)	((reg) * 1000)
++#define TEMP_TO_REG(val)	((val) <= -127500 ? -128 : \
++				 (val) >= 126500 ? 127 : \
++				 (((val) < 0 ? (val)-500 : (val)+500) / 1000))
++
++#define FAN_FROM_REG(reg,div)	((reg) == 255 || (reg) == 0 ? 0 : \
++				 1350000 + (reg)*(div) / 2) / ((reg)*(div))
++#define FAN_TO_REG(val,div)	((val)*(div) * 255 <= 1350000 ? 255 : \
++				 (1350000 + (val)*(div) / 2) / ((val)*(div)))
++
++#define FAN_DIV_FROM_REG(reg)	(1 << (reg))
++
++/* analog out is 9.80mV/LSB */
++#define AOUT_FROM_REG(reg)	(((reg) * 98 + 5) / 10)
++#define AOUT_TO_REG(val)	((val) <= 0 ? 0 : \
++				 (val) >= 2500 ? 255 : \
++				 ((val) * 10 + 49) / 98)
++
++/* nr in 0..1 */
++#define CHAN_NO_FAN(nr)		(1 << (nr))
++#define CHAN_TEMP3		(1 << 2)
++#define CHAN_VCC_5V		(1 << 3)
++#define CHAN_NO_VID		(1 << 8)
++
++/*
++ * Functions declaration
++ */
++
++static int lm87_attach_adapter(struct i2c_adapter *adapter);
++static int lm87_detect(struct i2c_adapter *adapter, int address, int kind);
++static void lm87_init_client(struct i2c_client *client);
++static int lm87_detach_client(struct i2c_client *client);
++static struct lm87_data *lm87_update_device(struct device *dev);
++
++/*
++ * Driver data (common to all clients)
++ */
++
++static struct i2c_driver lm87_driver = {
 +	.owner		= THIS_MODULE,
-+	.class		= I2C_CLASS_HWMON,
-+	.algo		= &smbus_algorithm,
-+	.name		= "SMBus stub driver",
++	.name		= "lm87",
++	.id		= I2C_DRIVERID_LM87,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= lm87_attach_adapter,
++	.detach_client	= lm87_detach_client,
 +};
 +
-+static int __init i2c_stub_init(void)
++/*
++ * Client data (each client gets its own)
++ */
++
++struct lm87_data {
++	struct i2c_client client;
++	struct semaphore update_lock;
++	char valid; /* zero until following fields are valid */
++	unsigned long last_updated; /* In jiffies */
++
++	u8 channel;		/* register value */
++
++	u8 in[8];		/* register value */
++	u8 in_max[8];		/* register value */
++	u8 in_min[8];		/* register value */
++	u16 in_scale[8];
++
++	s8 temp[3];		/* register value */
++	s8 temp_high[3];	/* register value */
++	s8 temp_low[3];		/* register value */
++	s8 temp_crit_int;	/* min of two register values */
++	s8 temp_crit_ext;	/* min of two register values */
++
++	u8 fan[2];		/* register value */
++	u8 fan_min[2];		/* register value */
++	u8 fan_div[2];		/* register value, shifted right */
++	u8 aout;		/* register value */
++
++	u16 alarms;		/* register values, combined */
++	u8 vid;			/* register values, combined */
++	u8 vrm;
++};
++
++/*
++ * Internal variables
++ */
++
++static int lm87_id;
++
++/*
++ * Sysfs stuff
++ */
++
++static inline int lm87_read_value(struct i2c_client *client, u8 reg)
 +{
-+	printk(KERN_INFO "i2c-stub loaded\n");
-+	return i2c_add_adapter(&stub_adapter);
++	return i2c_smbus_read_byte_data(client, reg);
 +}
 +
-+static void __exit i2c_stub_exit(void)
++static inline int lm87_write_value(struct i2c_client *client, u8 reg, u8 value)
 +{
-+	i2c_del_adapter(&stub_adapter);
++	return i2c_smbus_write_byte_data(client, reg, value);
 +}
 +
-+MODULE_AUTHOR("Mark M. Hoffman <mhoffman@lightlink.com>");
-+MODULE_DESCRIPTION("I2C stub driver");
++#define show_in(offset) \
++static ssize_t show_in##offset##_input(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%u\n", IN_FROM_REG(data->in[offset], \
++		       data->in_scale[offset])); \
++} \
++static ssize_t show_in##offset##_min(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_min[offset], \
++		       data->in_scale[offset])); \
++} \
++static ssize_t show_in##offset##_max(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%u\n", IN_FROM_REG(data->in_max[offset], \
++		       data->in_scale[offset])); \
++} \
++static DEVICE_ATTR(in##offset##_input, S_IRUGO, \
++		show_in##offset##_input, NULL);
++show_in(0);
++show_in(1);
++show_in(2);
++show_in(3);
++show_in(4);
++show_in(5);
++show_in(6);
++show_in(7);
++
++static void set_in_min(struct device *dev, const char *buf, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm87_data *data = i2c_get_clientdata(client);
++	long val = simple_strtol(buf, NULL, 10);
++	data->in_min[nr] = IN_TO_REG(val, data->in_scale[nr]);
++	lm87_write_value(client, nr<6 ? LM87_REG_IN_MIN(nr) :
++			 LM87_REG_AIN_MIN(nr-6), data->in_min[nr]);
++}
++
++static void set_in_max(struct device *dev, const char *buf, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm87_data *data = i2c_get_clientdata(client);
++	long val = simple_strtol(buf, NULL, 10);
++	data->in_max[nr] = IN_TO_REG(val, data->in_scale[nr]);
++	lm87_write_value(client, nr<6 ? LM87_REG_IN_MAX(nr) :
++			 LM87_REG_AIN_MAX(nr-6), data->in_max[nr]);
++}
++
++#define set_in(offset) \
++static ssize_t set_in##offset##_min(struct device *dev, \
++		const char *buf, size_t count) \
++{ \
++	set_in_min(dev, buf, offset); \
++	return count; \
++} \
++static ssize_t set_in##offset##_max(struct device *dev, \
++		const char *buf, size_t count) \
++{ \
++	set_in_max(dev, buf, offset); \
++	return count; \
++} \
++static DEVICE_ATTR(in##offset##_min, S_IRUGO | S_IWUSR, \
++		show_in##offset##_min, set_in##offset##_min); \
++static DEVICE_ATTR(in##offset##_max, S_IRUGO | S_IWUSR, \
++		show_in##offset##_max, set_in##offset##_max);
++set_in(0);
++set_in(1);
++set_in(2);
++set_in(3);
++set_in(4);
++set_in(5);
++set_in(6);
++set_in(7);
++
++#define show_temp(offset) \
++static ssize_t show_temp##offset##_input(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp[offset-1])); \
++} \
++static ssize_t show_temp##offset##_low(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_low[offset-1])); \
++} \
++static ssize_t show_temp##offset##_high(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_high[offset-1])); \
++}\
++static DEVICE_ATTR(temp##offset##_input, S_IRUGO, \
++		show_temp##offset##_input, NULL);
++show_temp(1);
++show_temp(2);
++show_temp(3);
++
++static void set_temp_low(struct device *dev, const char *buf, int nr)
++{
++    struct i2c_client *client = to_i2c_client(dev);
++    struct lm87_data *data = i2c_get_clientdata(client);
++    long val = simple_strtol(buf, NULL, 10);
++    data->temp_low[nr] = TEMP_TO_REG(val);
++    lm87_write_value(client, LM87_REG_TEMP_LOW[nr], data->temp_low[nr]);
++}
++
++static void set_temp_high(struct device *dev, const char *buf, int nr)
++{
++    struct i2c_client *client = to_i2c_client(dev);
++    struct lm87_data *data = i2c_get_clientdata(client);
++    long val = simple_strtol(buf, NULL, 10);
++    data->temp_high[nr] = TEMP_TO_REG(val);
++    lm87_write_value(client, LM87_REG_TEMP_HIGH[nr], data->temp_high[nr]);
++}
++
++#define set_temp(offset) \
++static ssize_t set_temp##offset##_low(struct device *dev, \
++		const char *buf, size_t count) \
++{ \
++	set_temp_low(dev, buf, offset-1); \
++	return count; \
++} \
++static ssize_t set_temp##offset##_high(struct device *dev, \
++		const char *buf, size_t count) \
++{ \
++	set_temp_high(dev, buf, offset-1); \
++	return count; \
++} \
++static DEVICE_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR, \
++		show_temp##offset##_high, set_temp##offset##_high); \
++static DEVICE_ATTR(temp##offset##_min, S_IRUGO | S_IWUSR, \
++		show_temp##offset##_low, set_temp##offset##_low);
++set_temp(1);
++set_temp(2);
++set_temp(3);
++
++static ssize_t show_temp_crit_int(struct device *dev, char *buf)
++{
++	struct lm87_data *data = lm87_update_device(dev);
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_crit_int));
++}
++
++static ssize_t show_temp_crit_ext(struct device *dev, char *buf)
++{
++	struct lm87_data *data = lm87_update_device(dev);
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_crit_ext));
++}
++
++static DEVICE_ATTR(temp1_crit, S_IRUGO, show_temp_crit_int, NULL);
++static DEVICE_ATTR(temp2_crit, S_IRUGO, show_temp_crit_ext, NULL);
++static DEVICE_ATTR(temp3_crit, S_IRUGO, show_temp_crit_ext, NULL);
++
++#define show_fan(offset) \
++static ssize_t show_fan##offset##_input(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%d\n", FAN_FROM_REG(data->fan[offset-1], \
++		       FAN_DIV_FROM_REG(data->fan_div[offset-1]))); \
++} \
++static ssize_t show_fan##offset##_min(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%d\n", FAN_FROM_REG(data->fan_min[offset-1], \
++		       FAN_DIV_FROM_REG(data->fan_div[offset-1]))); \
++} \
++static ssize_t show_fan##offset##_div(struct device *dev, char *buf) \
++{ \
++	struct lm87_data *data = lm87_update_device(dev); \
++	return sprintf(buf, "%d\n", FAN_DIV_FROM_REG(data->fan_div[offset-1])); \
++} \
++static DEVICE_ATTR(fan##offset##_input, S_IRUGO, \
++		show_fan##offset##_input, NULL);
++show_fan(1);
++show_fan(2);
++
++static void set_fan_min(struct device *dev, const char *buf, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm87_data *data = i2c_get_clientdata(client);
++	long val = simple_strtol(buf, NULL, 10);
++	data->fan_min[nr] = FAN_TO_REG(val,
++			    FAN_DIV_FROM_REG(data->fan_div[nr]));
++	lm87_write_value(client, LM87_REG_FAN_MIN(nr), data->fan_min[nr]);
++}
++
++/* Note: we save and restore the fan minimum here, because its value is
++   determined in part by the fan clock divider.  This follows the principle
++   of least suprise; the user doesn't expect the fan minimum to change just
++   because the divider changed. */
++static ssize_t set_fan_div(struct device *dev, const char *buf,
++		size_t count, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm87_data *data = i2c_get_clientdata(client);
++	long val = simple_strtol(buf, NULL, 10);
++	unsigned long min = FAN_FROM_REG(data->fan_min[nr],
++			    FAN_DIV_FROM_REG(data->fan_div[nr]));
++	u8 reg;
++
++	switch (val) {
++	case 1: data->fan_div[nr] = 0; break;
++	case 2: data->fan_div[nr] = 1; break;
++	case 4: data->fan_div[nr] = 2; break;
++	case 8: data->fan_div[nr] = 3; break;
++	default: return -EINVAL;
++	}
++
++	reg = lm87_read_value(client, LM87_REG_VID_FAN_DIV);
++	switch (nr) {
++	case 0:
++	    reg = (reg & 0xCF) | (data->fan_div[0] << 4);
++	    break;
++	case 1:
++	    reg = (reg & 0x3F) | (data->fan_div[1] << 6);
++	    break;
++	}
++	lm87_write_value(client, LM87_REG_VID_FAN_DIV, reg);
++
++	data->fan_min[nr] = FAN_TO_REG(min, val);
++	lm87_write_value(client, LM87_REG_FAN_MIN(nr),
++			 data->fan_min[nr]);
++	return count;
++}
++
++#define set_fan(offset) \
++static ssize_t set_fan##offset##_min(struct device *dev, const char *buf, \
++		size_t count) \
++{ \
++	set_fan_min(dev, buf, offset-1); \
++	return count; \
++} \
++static ssize_t set_fan##offset##_div(struct device *dev, const char *buf, \
++		size_t count) \
++{ \
++	return set_fan_div(dev, buf, count, offset-1); \
++} \
++static DEVICE_ATTR(fan##offset##_min, S_IRUGO | S_IWUSR, \
++		show_fan##offset##_min, set_fan##offset##_min); \
++static DEVICE_ATTR(fan##offset##_div, S_IRUGO | S_IWUSR, \
++		show_fan##offset##_div, set_fan##offset##_div);
++set_fan(1);
++set_fan(2);
++
++static ssize_t show_alarms(struct device *dev, char *buf)
++{
++	struct lm87_data *data = lm87_update_device(dev);
++	return sprintf(buf, "%d\n", data->alarms);
++}
++static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
++
++static ssize_t show_vid(struct device *dev, char *buf)
++{
++	struct lm87_data *data = lm87_update_device(dev);
++	return sprintf(buf, "%d\n", vid_from_reg(data->vid, data->vrm));
++}
++static DEVICE_ATTR(cpu0_vid, S_IRUGO, show_vid, NULL);
++
++static ssize_t show_vrm(struct device *dev, char *buf)
++{
++	struct lm87_data *data = lm87_update_device(dev);
++	return sprintf(buf, "%d\n", data->vrm);
++}
++static ssize_t set_vrm(struct device *dev, const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm87_data *data = i2c_get_clientdata(client);
++	data->vrm = simple_strtoul(buf, NULL, 10);
++	return count;
++}
++static DEVICE_ATTR(vrm, S_IRUGO | S_IWUSR, show_vrm, set_vrm);
++
++static ssize_t show_aout(struct device *dev, char *buf)
++{
++	struct lm87_data *data = lm87_update_device(dev);
++	return sprintf(buf, "%d\n", AOUT_FROM_REG(data->aout));
++}
++static ssize_t set_aout(struct device *dev, const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm87_data *data = i2c_get_clientdata(client);
++	long val = simple_strtol(buf, NULL, 10);
++	data->aout = AOUT_TO_REG(val);
++	lm87_write_value(client, LM87_REG_AOUT, data->aout);
++	return count;
++}
++static DEVICE_ATTR(aout_output, S_IRUGO | S_IWUSR, show_aout, set_aout);
++
++/*
++ * Real code
++ */
++
++static int lm87_attach_adapter(struct i2c_adapter *adapter)
++{
++	if (!(adapter->class & I2C_CLASS_HWMON))
++		return 0;
++	return i2c_detect(adapter, &addr_data, lm87_detect);
++}
++
++/*
++ * The following function does more than just detection. If detection
++ * succeeds, it also registers the new chip.
++ */
++static int lm87_detect(struct i2c_adapter *adapter, int address, int kind)
++{
++	struct i2c_client *new_client;
++	struct lm87_data *data;
++	int err = 0;
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
++		goto exit;
++
++	if (!(data = kmalloc(sizeof(struct lm87_data), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++	memset(data, 0, sizeof(struct lm87_data));
++
++	/* The common I2C client data is placed right before the
++	   LM87-specific data. */
++	new_client = &data->client;
++	i2c_set_clientdata(new_client, data);
++	new_client->addr = address;
++	new_client->adapter = adapter;
++	new_client->driver = &lm87_driver;
++	new_client->flags = 0;
++
++	/* Default to an LM87 if forced */
++	if (kind == 0)
++		kind = lm87;
++
++	/* Now, we do the remaining detection. */
++	if (kind < 0) {
++		u8 rev = lm87_read_value(new_client, LM87_REG_REVISION);
++
++		if (rev < 0x01 || rev > 0x08
++		 || (lm87_read_value(new_client, LM87_REG_CONFIG) & 0x80)
++		 || lm87_read_value(new_client, LM87_REG_COMPANY_ID) != 0x02) {
++			dev_dbg(&adapter->dev,
++				"LM87 detection failed at 0x%02x.\n",
++				address);
++			goto exit_free;
++		}
++	}
++
++	/* We can fill in the remaining client fields */
++	strlcpy(new_client->name, "lm87", I2C_NAME_SIZE);
++	new_client->id = lm87_id++;
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
++
++	/* Tell the I2C layer a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto exit_free;
++
++	/* Initialize the LM87 chip */
++	lm87_init_client(new_client);
++
++	data->in_scale[0] = 2500;
++	data->in_scale[1] = 2700;
++	data->in_scale[2] = (data->channel & CHAN_VCC_5V) ? 5000 : 3300;
++	data->in_scale[3] = 5000;
++	data->in_scale[4] = 12000;
++	data->in_scale[5] = 2700;
++	data->in_scale[6] = 1875;
++	data->in_scale[7] = 1875;
++
++	/* Register sysfs hooks */
++	device_create_file(&new_client->dev, &dev_attr_in1_input);
++	device_create_file(&new_client->dev, &dev_attr_in1_min);
++	device_create_file(&new_client->dev, &dev_attr_in1_max);
++	device_create_file(&new_client->dev, &dev_attr_in2_input);
++	device_create_file(&new_client->dev, &dev_attr_in2_min);
++	device_create_file(&new_client->dev, &dev_attr_in2_max);
++	device_create_file(&new_client->dev, &dev_attr_in3_input);
++	device_create_file(&new_client->dev, &dev_attr_in3_min);
++	device_create_file(&new_client->dev, &dev_attr_in3_max);
++	device_create_file(&new_client->dev, &dev_attr_in4_input);
++	device_create_file(&new_client->dev, &dev_attr_in4_min);
++	device_create_file(&new_client->dev, &dev_attr_in4_max);
++
++	if (data->channel & CHAN_NO_FAN(0)) {
++		device_create_file(&new_client->dev, &dev_attr_in6_input);
++		device_create_file(&new_client->dev, &dev_attr_in6_min);
++		device_create_file(&new_client->dev, &dev_attr_in6_max);
++	} else {
++		device_create_file(&new_client->dev, &dev_attr_fan1_input);
++		device_create_file(&new_client->dev, &dev_attr_fan1_min);
++		device_create_file(&new_client->dev, &dev_attr_fan1_div);
++	}
++	if (data->channel & CHAN_NO_FAN(1)) {
++		device_create_file(&new_client->dev, &dev_attr_in7_input);
++		device_create_file(&new_client->dev, &dev_attr_in7_min);
++		device_create_file(&new_client->dev, &dev_attr_in7_max);
++	} else {
++		device_create_file(&new_client->dev, &dev_attr_fan2_input);
++		device_create_file(&new_client->dev, &dev_attr_fan2_min);
++		device_create_file(&new_client->dev, &dev_attr_fan2_div);
++	}
++
++	device_create_file(&new_client->dev, &dev_attr_temp1_input);
++	device_create_file(&new_client->dev, &dev_attr_temp1_max);
++	device_create_file(&new_client->dev, &dev_attr_temp1_min);
++	device_create_file(&new_client->dev, &dev_attr_temp1_crit);
++	device_create_file(&new_client->dev, &dev_attr_temp2_input);
++	device_create_file(&new_client->dev, &dev_attr_temp2_max);
++	device_create_file(&new_client->dev, &dev_attr_temp2_min);
++	device_create_file(&new_client->dev, &dev_attr_temp2_crit);
++
++	if (data->channel & CHAN_TEMP3) {
++		device_create_file(&new_client->dev, &dev_attr_temp3_input);
++		device_create_file(&new_client->dev, &dev_attr_temp3_max);
++		device_create_file(&new_client->dev, &dev_attr_temp3_min);
++		device_create_file(&new_client->dev, &dev_attr_temp3_crit);
++	} else {
++		device_create_file(&new_client->dev, &dev_attr_in0_input);
++		device_create_file(&new_client->dev, &dev_attr_in0_min);
++		device_create_file(&new_client->dev, &dev_attr_in0_max);
++		device_create_file(&new_client->dev, &dev_attr_in5_input);
++		device_create_file(&new_client->dev, &dev_attr_in5_min);
++		device_create_file(&new_client->dev, &dev_attr_in5_max);
++	}
++
++	if (!(data->channel & CHAN_NO_VID)) {
++		device_create_file(&new_client->dev, &dev_attr_cpu0_vid);
++		device_create_file(&new_client->dev, &dev_attr_vrm);
++	}
++
++	device_create_file(&new_client->dev, &dev_attr_alarms);
++	device_create_file(&new_client->dev, &dev_attr_aout_output);
++
++	return 0;
++
++exit_free:
++	kfree(data);
++exit:
++	return err;
++}
++
++static void lm87_init_client(struct i2c_client *client)
++{
++	struct lm87_data *data = i2c_get_clientdata(client);
++	u8 config;
++
++	data->channel = lm87_read_value(client, LM87_REG_CHANNEL_MODE);
++	data->vrm = i2c_which_vrm();
++
++	config = lm87_read_value(client, LM87_REG_CONFIG);
++	if (!(config & 0x01)) {
++		int i;
++
++		/* Limits are left uninitialized after power-up */
++		for (i = 1; i < 6; i++) {
++			lm87_write_value(client, LM87_REG_IN_MIN(i), 0x00);
++			lm87_write_value(client, LM87_REG_IN_MAX(i), 0xFF);
++		}
++		for (i = 0; i < 2; i++) {
++			lm87_write_value(client, LM87_REG_TEMP_HIGH[i], 0x7F);
++			lm87_write_value(client, LM87_REG_TEMP_LOW[i], 0x00);
++			lm87_write_value(client, LM87_REG_AIN_MIN(i), 0x00);
++			lm87_write_value(client, LM87_REG_AIN_MAX(i), 0xFF);
++		}
++		if (data->channel & CHAN_TEMP3) {
++			lm87_write_value(client, LM87_REG_TEMP_HIGH[2], 0x7F);
++			lm87_write_value(client, LM87_REG_TEMP_LOW[2], 0x00);
++		} else {
++			lm87_write_value(client, LM87_REG_IN_MIN(0), 0x00);
++			lm87_write_value(client, LM87_REG_IN_MAX(0), 0xFF);
++		}
++	}
++	if ((config & 0x81) != 0x01) {
++		/* Start monitoring */
++		lm87_write_value(client, LM87_REG_CONFIG,
++				 (config & 0xF7) | 0x01);
++	}
++}
++
++static int lm87_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	if ((err = i2c_detach_client(client))) {
++		dev_err(&client->dev, "Client deregistration failed, "
++			"client not detached.\n");
++		return err;
++	}
++
++	kfree(i2c_get_clientdata(client));
++	return 0;
++}
++
++static struct lm87_data *lm87_update_device(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct lm87_data *data = i2c_get_clientdata(client);
++
++	down(&data->update_lock);
++
++	if (jiffies - data->last_updated > HZ
++	  || jiffies < data->last_updated
++	  || !data->valid) {
++		int i, j;
++
++		dev_dbg(&client->dev, "Updating data.\n");
++
++		i = (data->channel & CHAN_TEMP3) ? 1 : 0;
++		j = (data->channel & CHAN_TEMP3) ? 5 : 6;
++		for (; i < j; i++) {
++			data->in[i] = lm87_read_value(client,
++				      LM87_REG_IN(i));
++			data->in_min[i] = lm87_read_value(client,
++					  LM87_REG_IN_MIN(i));
++			data->in_max[i] = lm87_read_value(client,
++					  LM87_REG_IN_MAX(i));
++		}
++
++		for (i = 0; i < 2; i++) {
++			if (data->channel & CHAN_NO_FAN(i)) {
++				data->in[6+i] = lm87_read_value(client,
++						LM87_REG_AIN(i));
++				data->in_max[6+i] = lm87_read_value(client,
++						    LM87_REG_AIN_MAX(i));
++				data->in_min[6+i] = lm87_read_value(client,
++						    LM87_REG_AIN_MIN(i));
++
++			} else {
++				data->fan[i] = lm87_read_value(client,
++					       LM87_REG_FAN(i));
++				data->fan_min[i] = lm87_read_value(client,
++						   LM87_REG_FAN_MIN(i));
++			}
++		}
++
++		j = (data->channel & CHAN_TEMP3) ? 3 : 2;
++		for (i = 0 ; i < j; i++) {
++			data->temp[i] = lm87_read_value(client,
++					LM87_REG_TEMP[i]);
++			data->temp_high[i] = lm87_read_value(client,
++					     LM87_REG_TEMP_HIGH[i]);
++			data->temp_low[i] = lm87_read_value(client,
++					    LM87_REG_TEMP_LOW[i]);
++		}
++
++		i = lm87_read_value(client, LM87_REG_TEMP_HW_INT_LOCK);
++		j = lm87_read_value(client, LM87_REG_TEMP_HW_INT);
++		data->temp_crit_int = min(i, j);
++
++		i = lm87_read_value(client, LM87_REG_TEMP_HW_EXT_LOCK);
++		j = lm87_read_value(client, LM87_REG_TEMP_HW_EXT);
++		data->temp_crit_ext = min(i, j);
++
++		i = lm87_read_value(client, LM87_REG_VID_FAN_DIV);
++		data->fan_div[0] = (i >> 4) & 0x03;
++		data->fan_div[1] = (i >> 6) & 0x03;
++		data->vid = (i & 0x0F)
++			  | (lm87_read_value(client, LM87_REG_VID4) & 0x01)
++			     << 4;
++
++		data->alarms = lm87_read_value(client, LM87_REG_ALARMS1)
++			     | (lm87_read_value(client, LM87_REG_ALARMS2)
++				<< 8);
++		data->aout = lm87_read_value(client, LM87_REG_AOUT);
++
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++
++	return data;
++}
++
++static int __init sensors_lm87_init(void)
++{
++	return i2c_add_driver(&lm87_driver);
++}
++
++static void __exit sensors_lm87_exit(void)
++{
++	i2c_del_driver(&lm87_driver);
++}
++
++MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org> and others");
++MODULE_DESCRIPTION("LM87 driver");
 +MODULE_LICENSE("GPL");
 +
-+module_init(i2c_stub_init);
-+module_exit(i2c_stub_exit);
-+
++module_init(sensors_lm87_init);
++module_exit(sensors_lm87_exit);
 

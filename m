@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRACSQO>; Wed, 3 Jan 2001 13:16:14 -0500
+	id <S129859AbRACSQY>; Wed, 3 Jan 2001 13:16:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbRACSQE>; Wed, 3 Jan 2001 13:16:04 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:41488 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129857AbRACSP4>;
-	Wed, 3 Jan 2001 13:15:56 -0500
-Date: Wed, 3 Jan 2001 18:45:24 +0100
-From: Andi Kleen <ak@suse.de>
-To: Sourav Sen <sourav@csa.iisc.ernet.in>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: is eth header is not transmitted
-Message-ID: <20010103184524.A6896@gruyere.muc.suse.de>
-In-Reply-To: <Pine.SOL.3.96.1010103223330.7550A-100000@kohinoor.csa.iisc.ernet.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.3.96.1010103223330.7550A-100000@kohinoor.csa.iisc.ernet.in>; from sourav@csa.iisc.ernet.in on Wed, Jan 03, 2001 at 10:59:48PM +0530
+	id <S129860AbRACSQO>; Wed, 3 Jan 2001 13:16:14 -0500
+Received: from hood.tvd.be ([195.162.196.21]:6351 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S129859AbRACSQC>;
+	Wed, 3 Jan 2001 13:16:02 -0500
+Date: Wed, 3 Jan 2001 18:44:59 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-fbdev@vuser.vu.union.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [linux-fbdev] [PATCH] matroxfb as a module (PPC)
+In-Reply-To: <20010103091613.Q26653@opus.bloom.county>
+Message-ID: <Pine.LNX.4.05.10101031840410.611-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 10:59:48PM +0530, Sourav Sen wrote:
-> 
-> Hi,
-> 	In the function ip_build_xmit(), immediately after
-> sk_alloc_send_skb(), skb_reserve(skb, hh_len) is called. Now
-> skb_reserve(skb,len) only increment the data pointer and tail pointer by 
-> len amt.
-> 
-> 	Now in a particular hard_start_xmit() say for rtl8139, the data
-> transfer is taking place from skb->data :
-> 	outl(virt_to_bus(skb->data), ioaddr + TxAddr0 + entry*4)
-> 
-> So, I cannot understand, if transfer starts from data and not head, is
-> ethrnet header not transmitted? what I am missing? 
+On Wed, 3 Jan 2001, Tom Rini wrote:
+> Third, the nvram_read_byte needs to be protected by CONFIG_NVRAM.
 
-An skb_put() 
+I'd really like to move the nvram part to mac_fb_find_mode() in macmodes.c, so
+it will work automagically for all drivers on PowerMac.
 
+I'd also like to remove the `vmode' and `cmode' `video=' arguments, in favor of
+the archictecture-neutral `<xres>x<yres>[-<bpp>][@<refresh>]' and
+`<name>[-<bpp>][@<refresh>]' arguments (which already work on mac, BTW).
+You can already use `mac<vmode>' instead of `vmode:<vmode>'.
 
--Andi
+IMHO, the less PowerMac-specific code in _each_ driver, the better.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

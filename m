@@ -1,101 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267350AbTAWWTx>; Thu, 23 Jan 2003 17:19:53 -0500
+	id <S267365AbTAWWZt>; Thu, 23 Jan 2003 17:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267365AbTAWWTx>; Thu, 23 Jan 2003 17:19:53 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:27652 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id <S267350AbTAWWTw>; Thu, 23 Jan 2003 17:19:52 -0500
-Date: Thu, 23 Jan 2003 17:28:59 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@oddball.prodigy.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.5.59 oops unloading ipip module
-Message-ID: <Pine.LNX.4.44.0301231722540.1087-200000@oddball.prodigy.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-530062455-1043360939=:1087"
+	id <S267371AbTAWWZt>; Thu, 23 Jan 2003 17:25:49 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:62692 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267365AbTAWWZs>;
+	Thu, 23 Jan 2003 17:25:48 -0500
+Date: Thu, 23 Jan 2003 14:34:53 -0800
+From: Dave Olien <dmo@osdl.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, markw@osdl.org,
+       cliffw@osdl.org, maryedie@osdl.org, jenny@osdl.org
+Subject: Re: [BUG] BUG_ON in I/O scheduler, bugme # 288
+Message-ID: <20030123143453.A9072@acpi.pdx.osdl.net>
+References: <20030123135448.A8801@acpi.pdx.osdl.net> <20030123143824.4aae1efd.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030123143824.4aae1efd.akpm@digeo.com>; from akpm@digeo.com on Thu, Jan 23, 2003 at 02:38:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---8323328-530062455-1043360939=:1087
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Yup, that should be 2.5.59-mm2.  My typo.
 
-Stock kernel with a few minor compile errors fixed, is running the Ingo
-scheduler, and has been running well for several days other than the
-/dev/lp0 problems I've posted earlier. I loaded ipip and verified that it
-was loaded, decided not to make the test I was planning, and did "rmmod
-ipip" resulting in this oops.
+> > I've filed a bug on the OSDL bugme database.  You can read it at:
+> > 
+> > 	http://bugme.osdl.org/show_bug.cgi?id=288
+> 
+> The title is "2.5.59 and 2.5.50-mm2".  I assume it should be 2.5.59-mm2??
 
-Attached, I don't trust this version of pine.
-
--- 
-bill davidsen
-
---8323328-530062455-1043360939=:1087
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ipip.kso"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0301231722541.1087@oddball.prodigy.com>
-Content-Description: 
-Content-Disposition: attachment; filename="ipip.kso"
-
-a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjUuNTktMm5pLiAgT3B0aW9ucyB1
-c2VkDQogICAgIC1WIChkZWZhdWx0KQ0KICAgICAtayAvcHJvYy9rc3ltcyAo
-ZGVmYXVsdCkNCiAgICAgLWwgL3Byb2MvbW9kdWxlcyAoZGVmYXVsdCkNCiAg
-ICAgLW8gL2xpYi9tb2R1bGVzLzIuNS41OS0ybmkvIChkZWZhdWx0KQ0KICAg
-ICAtbSAvYm9vdC9TeXN0ZW0ubWFwLTIuNS41OS0ybmkgKGRlZmF1bHQpDQoN
-Cldhcm5pbmc6IFlvdSBkaWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmluZCBz
-eW1ib2wgaW5mb3JtYXRpb24uICBJIHdpbGwNCmFzc3VtZSB0aGF0IHRoZSBs
-b2cgbWF0Y2hlcyB0aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1
-bm5pbmcNCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0
-aW9ucyBhYm92ZSBmb3Igc3ltYm9sIHJlc29sdXRpb24uDQpJZiB0aGUgY3Vy
-cmVudCBrZXJuZWwgYW5kL29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRoZSBs
-b2csIHlvdSBjYW4gZ2V0DQptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxs
-aW5nIG1lIHRoZSBrZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZA0K
-bWFwLCBtb2R1bGVzLCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlu
-cyB0aGUgb3B0aW9ucy4NCg0KRXJyb3IgKHJlZ3VsYXJfZmlsZSk6IHJlYWRf
-a3N5bXMgc3RhdCAvcHJvYy9rc3ltcyBmYWlsZWQNCk5vIG1vZHVsZXMgaW4g
-a3N5bXMsIHNraXBwaW5nIG9iamVjdHMNCk5vIGtzeW1zLCBza2lwcGluZyBs
-c21vZA0KSmFuIDIzIDE3OjE2OjM1IG9kZGJhbGwga2VybmVsOiB3YXJuaW5n
-OiBwcm9jZXNzIGB1cGRhdGUnIHVzZWQgdGhlIG9ic29sZXRlIGJkZmx1c2gg
-c3lzdGVtIGNhbGwNCkphbiAyMyAxNzoxNjo0MCBvZGRiYWxsIGtlcm5lbDog
-d2FybmluZzogcHJvY2VzcyBgdXBkYXRlJyB1c2VkIHRoZSBvYnNvbGV0ZSBi
-ZGZsdXNoIHN5c3RlbSBjYWxsDQpKYW4gMjMgMTc6MTg6MjIgb2RkYmFsbCBr
-ZXJuZWw6IFVuYWJsZSB0byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBk
-ZXJlZmVyZW5jZSBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDAwMDANCkphbiAy
-MyAxNzoxODoyMiBvZGRiYWxsIGtlcm5lbDogMDAwMDAwMDANCkphbiAyMyAx
-NzoxODoyMiBvZGRiYWxsIGtlcm5lbDogKnBkZSA9IDAwMDAwMDAwDQpKYW4g
-MjMgMTc6MTg6MjIgb2RkYmFsbCBrZXJuZWw6IE9vcHM6IDAwMDANCkphbiAy
-MyAxNzoxODoyMiBvZGRiYWxsIGtlcm5lbDogQ1BVOiAgICAwDQpKYW4gMjMg
-MTc6MTg6MjIgb2RkYmFsbCBrZXJuZWw6IEVJUDogICAgMDA2MDpbPDAwMDAw
-MDAwPl0gICAgTm90IHRhaW50ZWQNClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5
-bW9vcHMgLXQgZWxmMzItaTM4NiAtYSBpMzg2DQpKYW4gMjMgMTc6MTg6MjIg
-b2RkYmFsbCBrZXJuZWw6IEVGTEFHUzogMDAwMTAyNDYNCkphbiAyMyAxNzox
-ODoyMiBvZGRiYWxsIGtlcm5lbDogZWF4OiBjM2VjY2QyMCAgIGVieDogYzY4
-NjIwYzAgICBlY3g6IGMwMmU3ZWM0ICAgZWR4OiBjNjg2MjBjMA0KSmFuIDIz
-IDE3OjE4OjIyIG9kZGJhbGwga2VybmVsOiBlc2k6IGMzY2U4MDAwICAgZWRp
-OiAwMDAwMDAwMCAgIGVicDogYzNjZTlmYmMgICBlc3A6IGMzY2U5ZjZjDQpK
-YW4gMjMgMTc6MTg6MjIgb2RkYmFsbCBrZXJuZWw6IGRzOiAwMDdiICAgZXM6
-IDAwN2IgICBzczogMDA2OA0KSmFuIDIzIDE3OjE4OjIyIG9kZGJhbGwga2Vy
-bmVsOiBTdGFjazogYzAxMjgwZjYgNzA2OTcwNjkgYzU1MmUzMDAgYzVlZGY2
-NDAgYzNjZTlmOWMgYzAxMzZmNDMgYzVlZGY2NDAgYzU1MmUzNjAgDQpKYW4g
-MjMgMTc6MTg6MjIgb2RkYmFsbCBrZXJuZWw6ICAgICAgICBjNTUyZWYyMCBj
-NWVkZjY0MCBjNWVkZjY2MCA0MDAxNDAwMCBjM2NlOWZiYyBjMDEzNmY4NSBj
-NWVkZjY0MCAwMDEzMDMwYyANCkphbiAyMyAxNzoxODoyMiBvZGRiYWxsIGtl
-cm5lbDogICAgICAgIDAwMDAwMDA0IGJmZmZmYTcwIDcwNjk3MDY5IDAwMDAw
-MDAwIGMzY2U4MDAwIGMwMTBhYjBiIGJmZmZmYTcwIDAwMDAwODgwIA0KSmFu
-IDIzIDE3OjE4OjIyIG9kZGJhbGwga2VybmVsOiAgWzxjMDEyODBmNj5dIHN5
-c19kZWxldGVfbW9kdWxlKzB4MTk2LzB4MWMwDQpKYW4gMjMgMTc6MTg6MjIg
-b2RkYmFsbCBrZXJuZWw6ICBbPGMwMTM2ZjQzPl0gZG9fbXVubWFwKzB4ZTMv
-MHhmMA0KSmFuIDIzIDE3OjE4OjIyIG9kZGJhbGwga2VybmVsOiAgWzxjMDEz
-NmY4NT5dIHN5c19tdW5tYXArMHgzNS8weDYwDQpKYW4gMjMgMTc6MTg6MjIg
-b2RkYmFsbCBrZXJuZWw6ICBbPGMwMTBhYjBiPl0gc3lzY2FsbF9jYWxsKzB4
-Ny8weGINCkphbiAyMyAxNzoxODoyMiBvZGRiYWxsIGtlcm5lbDogQ29kZTog
-IEJhZCBFSVAgdmFsdWUuDQoNCj4+RUlQOyAwMDAwMDAwMCBCZWZvcmUgZmly
-c3Qgc3ltYm9sDQoNCg0KMSB3YXJuaW5nIGFuZCAxIGVycm9yIGlzc3VlZC4g
-IFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4NCg==
---8323328-530062455-1043360939=:1087--
+My test system's down right now.  As soon as it comes up, I'll
+get onto reproducing it there.

@@ -1,86 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbTKXXnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 18:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbTKXXnr
+	id S261748AbTKXXpz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 18:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTKXXpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 18:43:47 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:27402 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S261724AbTKXXnl (ORCPT
+	Mon, 24 Nov 2003 18:45:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55749 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261752AbTKXXp1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 18:43:41 -0500
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
-Organization: none
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <Pine.LNX.4.58.0311241524310.1245@morpheus> <200311241736.23824.jlell@JakobLell.de> <Pine.LNX.4.53.0311241205500.18425@chaos> <20031124173527.GA1561@mail.shareable.org> <1069700224.459.60.camel@hosts> <Pine.LNX.4.58.0311241457330.575@death> <Pine.LNX.4.58.0311241524310.1245@morpheus> <Pine.LNX.4.58.0311241549110.758@death>
-From: dick.streefland@xs4all.nl (Dick Streefland)
-Subject: Re: aic7xxx loading oops in 2.6.0-test10
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <fc3.3fc2976d.2018a@altium.nl>
-Date: Mon, 24 Nov 2003 23:42:37 -0000
+	Mon, 24 Nov 2003 18:45:27 -0500
+Date: Mon, 24 Nov 2003 15:45:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bradley Chapman <kakadu_croc@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
+In-Reply-To: <Pine.LNX.4.58.0311241452550.15101@home.osdl.org>
+Message-ID: <Pine.LNX.4.58.0311241540550.1581@home.osdl.org>
+References: <20031124224514.56242.qmail@web40908.mail.yahoo.com>
+ <Pine.LNX.4.58.0311241452550.15101@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken Witherow <ken@krwtech.com> wrote:
-| On Mon, 24 Nov 2003, Burton Windle wrote:
-| 
-| > http://marc.theaimsgroup.com/?l=linux-scsi&m=106965748506343&w=2
-| >
-| > This one-liner fixed my hang-on-boot with my AIC7880.
-| 
-| This patch does indeed fix the hang for me
 
-I can confirm that. My 2.6.0-test10 kernel was hanging between the IDE
-and SCSI probes:
+On Mon, 24 Nov 2003, Linus Torvalds wrote:
+>
+> The PAGEFREE debug option works well for page allocations, but the slab
+> cache is not very amenable to it. For slab debugging, it would be
+> wonderful if somebody made a _truly_ debugging slab allocator that didn't
+> use the slab cache at all, but used the page allocator (and screw the fact
+> that you use too much memory ;) instead.
 
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide2: I/O resource 0x3EE-0x3EE not free.
-ide2: ports already in use, skipping probe
-hda: max request size: 128KiB
-hda: 25429824 sectors (13020 MB) w/418KiB Cache, CHS=25228/16/63, UDMA(33)
- hda: hda1 hda2 hda3 hda4
-hdb: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-PCI: Enabling device 0000:00:14.0 (0000 -> 0003)
-*** hang ***
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.35
-        <Adaptec aic7890/91 Ultra2 SCSI adapter>
-        aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
+Ok, this is quite possibly the ugliest patch I've ever made, but it might
+catch some of the "use-after-free" issues with slab.
 
-The patch fixes the hang, but causes another problem:
+IT WILL NOT WORK IN GENERAL! In particular, you'll need to have tons of
+memory free for this patch to work, since it basically scrapes off all the
+regular slab code, and replaces it with some really nasty crud. I was
+lazy. Whatever. It means that the slab memory balancing won't work etc,
+but maybe somebody else can integrate my quick hack better.
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.35
-        <Adaptec aic7890/91 Ultra2 SCSI adapter>
-        aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
+It boots for me, but I won't say anything beyond that (oh, do NOT enable
+slab debugging if you want to test this out - I pretty much guarantee it
+won't work with this hack. You should enable DEBUG_PAGEALLOC instead,
+and see if you get anything interesting out of that..).
 
-(scsi0:A:3): 10.000MB/s transfers (10.000MHz, offset 15)
-Badness in kobject_get at /work/kernel/linux-2.6.0-test10/lib/kobject.c:439
-Call Trace:
- [kobject_get+80/96] kobject_get+0x50/0x60
- [get_device+24/32] get_device+0x18/0x20
- [scsi_device_get+44/128] scsi_device_get+0x2c/0x80
- [__scsi_iterate_devices+75/128] __scsi_iterate_devices+0x4b/0x80
- [scsi_run_host_queues+23/80] scsi_run_host_queues+0x17/0x50
- [ahc_linux_release_simq+148/208] ahc_linux_release_simq+0x94/0xd0
- [ahc_linux_dv_thread+506/592] ahc_linux_dv_thread+0x1fa/0x250
- [ahc_linux_dv_thread+0/592] ahc_linux_dv_thread+0x0/0x250
- [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
+		Linus
 
-  Vendor: YAMAHA    Model: CRW6416S          Rev: 1.0b
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: ARCHIVE   Model: VIPER 150  21247  Rev: -005
-  Type:   Sequential-Access                  ANSI SCSI revision: 01
+-----
+--- 1.110/mm/slab.c	Tue Oct 21 22:10:10 2003
++++ edited/mm/slab.c	Mon Nov 24 15:34:23 2003
+@@ -1906,6 +1906,21 @@
 
-The following patch seems to fix this second problem:
+ static inline void * __cache_alloc (kmem_cache_t *cachep, int flags)
+ {
++#if 1
++	void *ptr = (void*)__get_free_pages(flags, cachep->gfporder);
++	if (ptr) {
++		struct page *page = virt_to_page(ptr);
++		SET_PAGE_CACHE(page, cachep);
++		SET_PAGE_SLAB(page, 0x01020304);
++		if (cachep->ctor) {
++			unsigned long ctor_flags = SLAB_CTOR_CONSTRUCTOR;
++			if (!(flags & __GFP_WAIT))
++				ctor_flags |= SLAB_CTOR_ATOMIC;
++			cachep->ctor(ptr, cachep, ctor_flags);
++		}
++	}
++	return ptr;
++#else
+ 	unsigned long save_flags;
+ 	void* objp;
+ 	struct array_cache *ac;
+@@ -1925,6 +1940,7 @@
+ 	local_irq_restore(save_flags);
+ 	objp = cache_alloc_debugcheck_after(cachep, flags, objp, __builtin_return_address(0));
+ 	return objp;
++#endif
+ }
 
-http://marc.theaimsgroup.com/?l=linux-scsi&m=106940008217622&w=2
+ /*
+@@ -2043,10 +2059,20 @@
+ static inline void __cache_free (kmem_cache_t *cachep, void* objp)
+ {
+ 	struct array_cache *ac = ac_data(cachep);
++
 
--- 
-Dick Streefland                    ////               De Bilt
-dick.streefland@xs4all.nl         (@ @)       The Netherlands
-------------------------------oOO--(_)--OOo------------------
+ 	check_irq_off();
+ 	objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
 
++#if 1
++	{
++		struct page *page = virt_to_page(objp);
++		int order = cachep->gfporder;
++		if (cachep->dtor)
++			cachep->dtor(objp, cachep, 0);
++		__free_pages(page, order);
++	}
++#else
+ 	if (likely(ac->avail < ac->limit)) {
+ 		STATS_INC_FREEHIT(cachep);
+ 		ac_entry(ac)[ac->avail++] = objp;
+@@ -2056,6 +2082,7 @@
+ 		cache_flusharray(cachep, ac);
+ 		ac_entry(ac)[ac->avail++] = objp;
+ 	}
++#endif
+ }
+
+ /**

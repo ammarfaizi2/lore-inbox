@@ -1,80 +1,155 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285248AbRLFWJh>; Thu, 6 Dec 2001 17:09:37 -0500
+	id <S285252AbRLFWPw>; Thu, 6 Dec 2001 17:15:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285249AbRLFWJ0>; Thu, 6 Dec 2001 17:09:26 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:44445 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S285248AbRLFWJU>;
-	Thu, 6 Dec 2001 17:09:20 -0500
-Date: Thu, 6 Dec 2001 17:09:19 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VIA acknowledges North Bridge bug (AKA Linux Kernel with Athlon
-In-Reply-To: <20011206104510.A32451@elektroni.ee.tut.fi>
-Message-ID: <Pine.LNX.4.30.0112061657150.22686-100000@rtlab.med.cornell.edu>
+	id <S285250AbRLFWPh>; Thu, 6 Dec 2001 17:15:37 -0500
+Received: from stat8.steeleye.com ([63.113.59.41]:23046 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S285251AbRLFWPS>; Thu, 6 Dec 2001 17:15:18 -0500
+Date: Thu, 6 Dec 2001 17:13:12 -0500 (EST)
+From: Paul Clements <kernel@steeleye.com>
+Reply-To: Paul.Clements@steeleye.com
+To: Pavel Machek <pavel@suse.cz>
+cc: Paul.Clements@steeleye.com, Edward Muller <emuller@learningpatterns.com>,
+        linux-kernel@vger.kernel.org, james.bottomley@steeleye.com
+Subject: [PATCH] Re: Current NBD 'stuff'
+In-Reply-To: <20011206130220.B49@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.10.10112061655190.17617-200000@clements.sc.steeleye.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="296485894-1626290488-1007676792=:17617"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Petri Kaukasoina wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> On Thu, Dec 06, 2001 at 12:41:36AM +0000, Alan Cox wrote:
-> > We already have one. The Linux folks saw the problem much earlier than
-> > windows people because our athlon optimised memory copies triggered it
-> > reliably on many boards.
->
-> The details were a bit different in that web page:
->
-> Linux looks for chip with id 1106:0305 (KT133) and clears only bit 7 of
-> register 55. The Windows driver checks for chips 1106:0305, 1106:3099,
-> 1106:3102, 1106:3112, and clears three bits: bits 5-7 of that register. In
-> addition, the web page tells that it's probably not right for 1106:3099
-> (KT266) because there it should be register 95.
->
-> Maybe this is not relevant: maybe all BIOSes for KT266 chipsets already set
-> the right values and maybe KT133 boards with problems only have bit 7 set,
-> not bits 5 and 6. (PCs here with KT133 already have all bits 5-7 zero in
-> reg. 55 and PCs with KT266 have bits 5-7 both in reg. 55 and 95 zero.)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--296485894-1626290488-1007676792=:17617
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Here is the webpage:
+Pavel,
 
-This patch detects the 0305, 3099, 3102, and 3112 (KT133x, KT266x, VT8662,
-and KLE133) *only*. On these chipsets, it will patch register 55 in the
-Northbridge, which will supposedly switch off a Memory Write Queue timer.
-In the KT133A datasheet, register 55 is "reserved". But - yikes! - in the
-KT266, the documented MWQ register is register 95, not 55. Register 55
-contains unrelated DDR timing adjustments and could actually be dangerous
-to program. For this reason, I do not recommend installing this driver on
-the KT266x chipsets until VIA examines this issue. For now, use WPCREDIT
-and set bits 5, 6, and 7 to zero in register 95 instead."
+Here is the patch against 2.4.16. Please consider for
+inclusion in 2.4 series kernel. We've been running this 
+code for several months now and it is working very well.
 
-----
 
-Clearly, we need to modify the via workaround patches to take into account
-the other via device id's (namely 3099, 3102, and 3112), and for each one
-change the appropriate register.  Either register 55 or in the case of the
-kt266x, register 95.  I am grepping through quirks.c right now and it
-seems this would be the correct file to modify.. any other suggestions on
-what file to modify?
+On Thu, 6 Dec 2001, Pavel Machek wrote:
 
-I am going to play with this right now myself using user-space tools and
-experiment to see if it solves my issues with my 33-node beowulf cluster
-(all nodes use the kt266) being very unstable.
+> Do not comment code by //. Kill if it you want to.
+> 
+> You added clean way to stop nbd. Good.
+> 
+> DO NOT USE ALL CAPITALS not even in printks().
+> 
+> Fix those and patch looks ike good idea for 2.5.
 
-Read again: I seriously believe that I am a person who is afflicted by
-this (or some other unknown) hardware bug as any linux kernel I try is
-relatively unstable (approx 5% per day chance of crash -- 13% chance if we
-turn on athlon optimizations)!  This means that in a few weeks, almost all
-of our beowulf nodes go down if left unattended!  And I KNOW it's not due
-to cpu temperature, wrong GCC version, or any other really obvious thing..
+OK, done. 
 
--Calin
+Thanks,
 
+--
+Paul Clements
+Paul.Clements@SteelEye.com
+
+--296485894-1626290488-1007676792=:17617
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nbd_2_4_16.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.10.10112061713120.17617@clements.sc.steeleye.com>
+Content-Description: nbd patch
+Content-Disposition: attachment; filename="nbd_2_4_16.diff"
+
+LS0tIGxpbnV4LTIuNC4xNi9kcml2ZXJzL2Jsb2NrL25iZC5jLm9yaWcJRnJp
+IE9jdCAyNiAxODozOTowMiAyMDAxDQorKysgbGludXgtMi40LjE2L2RyaXZl
+cnMvYmxvY2svbmJkLmMJVGh1IERlYyAgNiAxNzo1MDozMiAyMDAxDQpAQCAt
+MjQsNyArMjQsOSBAQA0KICAqIDAxLTMtMTEgTWFrZSBuYmQgd29yayB3aXRo
+IG5ldyBMaW51eCBibG9jayBsYXllciBjb2RlLiBJdCBub3cgc3VwcG9ydHMN
+CiAgKiAgIHBsdWdnaW5nIGxpa2UgYWxsIHRoZSBvdGhlciBibG9jayBkZXZp
+Y2VzLiBBbHNvIGFkZGVkIGluIE1TR19NT1JFIHRvDQogICogICByZWR1Y2Ug
+bnVtYmVyIG9mIHBhcnRpYWwgVENQIHNlZ21lbnRzIHNlbnQuIDxzdGV2ZUBj
+aHlnd3luLmNvbT4NCi0gKg0KKyAqIDAxLTEyLTA2IE1ha2UgbmJkIGNsZWFu
+bHkga2lsbGFibGU7IGZpeCBzb21lIGxvY2tpbmcgaXNzdWVzOyBhY2tub3ds
+ZWRnZQ0KKyAqICAgYW5kIGxvZyBuZXR3b3JrIGVycm9yczsgbWFrZSBkZWZh
+dWx0IGRldmljZSBzaXplIDJUQi4NCisgKiAgIDxKYW1lcy5Cb3R0b21sZXlA
+U3RlZWxFeWUuY29tPiA8UGF1bC5DbGVtZW50c0BTdGVlbEV5ZS5jb20+DQog
+ICogcG9zc2libGUgRklYTUU6IG1ha2Ugc2V0X3NvY2sgLyBzZXRfYmxrc2l6
+ZSAvIHNldF9zaXplIC8gZG9faXQgb25lIHN5c2NhbGwNCiAgKiB3aHkgbm90
+OiB3b3VsZCBuZWVkIHZlcmlmeV9hcmVhIGFuZCBmcmllbmRzLCB3b3VsZCBz
+aGFyZSB5ZXQgYW5vdGhlciANCiAgKiAgICAgICAgICBzdHJ1Y3R1cmUgd2l0
+aCB1c2VybGFuZA0KQEAgLTk0LDE4ICs5NiwxMCBAQA0KIAlpbnQgcmVzdWx0
+Ow0KIAlzdHJ1Y3QgbXNnaGRyIG1zZzsNCiAJc3RydWN0IGlvdmVjIGlvdjsN
+Ci0JdW5zaWduZWQgbG9uZyBmbGFnczsNCi0Jc2lnc2V0X3Qgb2xkc2V0Ow0K
+IA0KIAlvbGRmcyA9IGdldF9mcygpOw0KIAlzZXRfZnMoZ2V0X2RzKCkpOw0K
+IA0KLQlzcGluX2xvY2tfaXJxc2F2ZSgmY3VycmVudC0+c2lnbWFza19sb2Nr
+LCBmbGFncyk7DQotCW9sZHNldCA9IGN1cnJlbnQtPmJsb2NrZWQ7DQotCXNp
+Z2ZpbGxzZXQoJmN1cnJlbnQtPmJsb2NrZWQpOw0KLQlyZWNhbGNfc2lncGVu
+ZGluZyhjdXJyZW50KTsNCi0Jc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmY3Vy
+cmVudC0+c2lnbWFza19sb2NrLCBmbGFncyk7DQotDQogDQogCWRvIHsNCiAJ
+CXNvY2stPnNrLT5hbGxvY2F0aW9uID0gR0ZQX05PSU87DQpAQCAtMTI1LDYg
+KzExOSwxMiBAQA0KIAkJZWxzZQ0KIAkJCXJlc3VsdCA9IHNvY2tfcmVjdm1z
+Zyhzb2NrLCAmbXNnLCBzaXplLCAwKTsNCiANCisJCWlmKHNpZ25hbF9wZW5k
+aW5nKGN1cnJlbnQpKSB7DQorCQkJcHJpbnRrKEtFUk5fV0FSTklORyAiTkJE
+IGNhdWdodCBzaWduYWxcbiIpOw0KKwkJCXJlc3VsdCA9IC1FSU5UUjsNCisJ
+CQlicmVhazsNCisJCX0NCisNCiAJCWlmIChyZXN1bHQgPD0gMCkgew0KICNp
+ZmRlZiBQQVJBTk9JQQ0KIAkJCXByaW50ayhLRVJOX0VSUiAiTkJEOiAlcyAt
+IHNvY2s9JWxkIGF0IGJ1Zj0lbGQsIHNpemU9JWQgcmV0dXJuZWQgJWQuXG4i
+LA0KQEAgLTEzNiwxMSArMTM2LDYgQEANCiAJCWJ1ZiArPSByZXN1bHQ7DQog
+CX0gd2hpbGUgKHNpemUgPiAwKTsNCiANCi0Jc3Bpbl9sb2NrX2lycXNhdmUo
+JmN1cnJlbnQtPnNpZ21hc2tfbG9jaywgZmxhZ3MpOw0KLQljdXJyZW50LT5i
+bG9ja2VkID0gb2xkc2V0Ow0KLQlyZWNhbGNfc2lncGVuZGluZyhjdXJyZW50
+KTsNCi0Jc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmY3VycmVudC0+c2lnbWFz
+a19sb2NrLCBmbGFncyk7DQotDQogCXNldF9mcyhvbGRmcyk7DQogCXJldHVy
+biByZXN1bHQ7DQogfQ0KQEAgLTMzNiw4ICszMzEsMjcgQEANCiAJCXNwaW5f
+dW5sb2NrX2lycSgmaW9fcmVxdWVzdF9sb2NrKTsNCiANCiAJCWRvd24gKCZs
+by0+cXVldWVfbG9jayk7DQorCQlpZighbG8tPmZpbGUpIHsNCisJCQl1cCgm
+bG8tPnF1ZXVlX2xvY2spOw0KKwkJCXNwaW5fbG9ja19pcnEoJmlvX3JlcXVl
+c3RfbG9jayk7DQorCQkJcHJpbnRrKEtFUk5fRVJSICJOQkQ6IGZhaWwgYmV0
+d2VlbiBhY2NlcHQgYW5kIHNlbWFwaG9yZSwgZmlsZSBsb3N0XG4iKTsNCisJ
+CQlyZXEtPmVycm9ycysrOw0KKwkJCW5iZF9lbmRfcmVxdWVzdChyZXEpOw0K
+KwkJCWNvbnRpbnVlOw0KKwkJfQ0KKwkJDQogCQlsaXN0X2FkZCgmcmVxLT5x
+dWV1ZSwgJmxvLT5xdWV1ZV9oZWFkKTsNCiAJCW5iZF9zZW5kX3JlcShsby0+
+c29jaywgcmVxKTsJLyogV2h5IGRvZXMgdGhpcyBibG9jaz8gICAgICAgICAq
+Lw0KKwkJaWYocmVxLT5lcnJvcnMpIHsNCisJCQlwcmludGsoS0VSTl9FUlIg
+Ik5CRDogbmJkX3NlbmRfcmVxIGZhaWxlZFxuIik7DQorCQkJbGlzdF9kZWwo
+JnJlcS0+cXVldWUpOw0KKw0KKwkJCXVwKCZsby0+cXVldWVfbG9jayk7DQor
+CQkJc3Bpbl9sb2NrX2lycSgmaW9fcmVxdWVzdF9sb2NrKTsNCisJCQluYmRf
+ZW5kX3JlcXVlc3QocmVxKTsNCisNCisJCQljb250aW51ZTsNCisJCX0NCiAJ
+CXVwICgmbG8tPnF1ZXVlX2xvY2spOw0KIA0KIAkJc3Bpbl9sb2NrX2lycSgm
+aW9fcmVxdWVzdF9sb2NrKTsNCkBAIC0zODcsMTIgKzQwMSwxNCBAQA0KIAkJ
+CXByaW50ayhLRVJOX0VSUiAibmJkOiBTb21lIHJlcXVlc3RzIGFyZSBpbiBw
+cm9ncmVzcyAtPiBjYW4gbm90IHR1cm4gb2ZmLlxuIik7DQogCQkJcmV0dXJu
+IC1FQlVTWTsNCiAJCX0NCi0JCXVwKCZsby0+cXVldWVfbG9jayk7DQogCQlm
+aWxlID0gbG8tPmZpbGU7DQotCQlpZiAoIWZpbGUpDQorCQlpZiAoIWZpbGUp
+IHsNCisJCQl1cCgmbG8tPnF1ZXVlX2xvY2spOw0KIAkJCXJldHVybiAtRUlO
+VkFMOw0KKwkJfQ0KIAkJbG8tPmZpbGUgPSBOVUxMOw0KIAkJbG8tPnNvY2sg
+PSBOVUxMOw0KKwkJdXAoJmxvLT5xdWV1ZV9sb2NrKTsNCiAJCWZwdXQoZmls
+ZSk7DQogCQlyZXR1cm4gMDsNCiAJY2FzZSBOQkRfU0VUX1NPQ0s6DQpAQCAt
+NDMzLDkgKzQ0OSwyOSBAQA0KIAkJaWYgKCFsby0+ZmlsZSkNCiAJCQlyZXR1
+cm4gLUVJTlZBTDsNCiAJCW5iZF9kb19pdChsbyk7DQorCQkvKiBvbiByZXR1
+cm4gdGlkeSB1cCBpbiBjYXNlIHdlIGhhdmUgYSBzaWduYWwgKi8NCisJCXBy
+aW50ayhLRVJOX1dBUk5JTkcgIk5CRDogbmJkX2RvX2l0IHJldHVybmVkXG4i
+KTsNCisJCS8qIEZvcmNpYmx5IHNodXRkb3duIHRoZSBzb2NrZXQgY2F1c2lu
+ZyBhbGwgbGlzdGVuZXJzDQorCQkgKiB0byBlcnJvcg0KKwkJICoNCisJCSAq
+IEZJWE1FOiBUaGlzIGNvZGUgaXMgZHVwbGljYXRlZCBmcm9tIHN5c19zaHV0
+ZG93biwgYnV0DQorCQkgKiB0aGVyZSBzaG91bGQgYmUgYSBtb3JlIGdlbmVy
+aWMgaW50ZXJmYWNlIHJhdGhlciB0aGFuDQorCQkgKiBjYWxsaW5nIHNvY2tl
+dCBvcHMgZGlyZWN0bHkgaGVyZSAqLw0KKwkJbG8tPnNvY2stPm9wcy0+c2h1
+dGRvd24obG8tPnNvY2ssIDIpOw0KKwkJZG93bigmbG8tPnF1ZXVlX2xvY2sp
+Ow0KKwkJcHJpbnRrKEtFUk5fV0FSTklORyAiTkJEOiBsb2NrIGFjcXVpcmVk
+XG4iKTsNCisJCW5iZF9jbGVhcl9xdWUobG8pOw0KKwkJZmlsZSA9IGxvLT5m
+aWxlOw0KKwkJbG8tPmZpbGUgPSBOVUxMOw0KKwkJbG8tPnNvY2sgPSBOVUxM
+Ow0KKwkJdXAoJmxvLT5xdWV1ZV9sb2NrKTsNCisJCWlmKGZpbGUpDQorCQkJ
+ZnB1dChmaWxlKTsNCiAJCXJldHVybiBsby0+aGFyZGVycm9yOw0KIAljYXNl
+IE5CRF9DTEVBUl9RVUU6DQorCQlkb3duKCZsby0+cXVldWVfbG9jayk7DQog
+CQluYmRfY2xlYXJfcXVlKGxvKTsNCisJCXVwKCZsby0+cXVldWVfbG9jayk7
+DQogCQlyZXR1cm4gMDsNCiAjaWZkZWYgUEFSQU5PSUENCiAJY2FzZSBOQkRf
+UFJJTlRfREVCVUc6DQpAQCAtNTEyLDcgKzU0OCw3IEBADQogCQlpbml0X01V
+VEVYKCZuYmRfZGV2W2ldLnF1ZXVlX2xvY2spOw0KIAkJbmJkX2Jsa3NpemVz
+W2ldID0gMTAyNDsNCiAJCW5iZF9ibGtzaXplX2JpdHNbaV0gPSAxMDsNCi0J
+CW5iZF9ieXRlc2l6ZXNbaV0gPSAweDdmZmZmYzAwOyAvKiAyR0IgKi8NCisJ
+CW5iZF9ieXRlc2l6ZXNbaV0gPSAoKHU2NCkweDdmZmZmYzAwKSA8PCAxMDsg
+LyogMlRCICovDQogCQluYmRfc2l6ZXNbaV0gPSBuYmRfYnl0ZXNpemVzW2ld
+ID4+IEJMT0NLX1NJWkVfQklUUzsNCiAJCXJlZ2lzdGVyX2Rpc2soTlVMTCwg
+TUtERVYoTUFKT1JfTlIsaSksIDEsICZuYmRfZm9wcywNCiAJCQkJbmJkX2J5
+dGVzaXplc1tpXT4+OSk7DQo=
+--296485894-1626290488-1007676792=:17617--

@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVAWPoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVAWPtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVAWPoX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 10:44:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVAWPoX
+	id S261320AbVAWPtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 10:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVAWPtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 10:44:23 -0500
-Received: from innocence.nightwish.hu ([217.20.130.196]:2222 "EHLO
-	innocence.nightwish.hu") by vger.kernel.org with ESMTP
-	id S261316AbVAWPoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 10:44:20 -0500
-Subject: Re: the famous Tyan S2885 PCI IDE problem, additional experiences
-	[resolved]
-From: Pallai Roland <dap@mail.index.hu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1105913658.3155.56.camel@localhost.localdomain>
-References: <1105913658.3155.56.camel@localhost.localdomain>
-Content-Type: text/plain
+	Sun, 23 Jan 2005 10:49:09 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:10382 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261320AbVAWPtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 10:49:04 -0500
+Message-ID: <41F3C76E.7000904@acm.org>
+Date: Sun, 23 Jan 2005 09:49:02 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch to fix race between the NMI code and the CMOS clock
+References: <41F18A52.9040703@acm.org> <20050123001806.53140e54.akpm@osdl.org>
+In-Reply-To: <20050123001806.53140e54.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 23 Jan 2005 16:44:13 +0100
-Message-Id: <1106495054.3155.147.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
- I've upgraded from 2.6.9 to 2.6.11-rc1 and the problem has been gone!
+>Corey Minyard <minyard@acm.org> wrote:
+>  
+>
+>>This patch fixes a race between the CMOS clock setting and the NMI
+>> code.  The NMI code indiscriminatly sets index registers and values
+>> in the same place the CMOS clock is set.  If you are setting the
+>> CMOS clock and an NMI occurs, Bad values could be written to or
+>> read from the CMOS RAM, or the NMI operation might not occur
+>> correctly.
+>>
+>> Fixing this requires creating a special lock so the NMI code can
+>> know its CPU owns the lock an "do the right thing" in that case.
+>>    
+>>
+>
+>hm, tricky patch.  I can't see any holes in it.  The volatile variable is
+>awkward but should be OK on x86 and I can see the need for it.
+>  
+>
+It took some thought and I couldn't think of anything simpler.  I posted 
+in on lkml a little while ago, and some people tried but nobody else 
+found a simpler solution that worked with SMP.
 
+>There's a preposterous amount of inlining happening in this code.  Hence
+>your patch took the size of drivers/char/rtc.o from
+>
+>   text    data     bss     dec     hex filename
+>   3657     540       8    4205    106d drivers/char/rtc.o
+>to
+>   5419     540       8    5967    174f drivers/char/rtc.o
+>
+>Do you think you could take a look at uninlining everything sometime?
+>  
+>
+Certainly.  I'll try to have it sometime today.
 
-On Sun, 2005-01-16 at 23:14 +0100, Pallai Roland wrote:
->  I've read a thread about Tyan S2885 IDE problems
-> (http://www.ussg.iu.edu/hypermail/linux/kernel/0412.3/0457.html),
-> unfortunately I suffered from it too, but in a different hardware setup
-> and I noticed some more details about it, I hope this may help somehow.
-> 
->  My config is a Tyan Thunder K8W (S2885) dual Operon244 with 5 HighPoint
-> 1820 PCI-X sata controllers and 44/4 SATA/UATA drives, and I get daily
-> 2-3 messages like this, sometimes followed by a lockup:
-> 
-> Jan 12 09:16:45 EverDream kernel: IAL: COMPLETION ERROR, adapter 2, channel 5, flags=101
-> Jan 12 09:16:45 EverDream kernel: Retry on channel(5)
-> Jan 12 11:05:52 EverDream kernel: IAL: COMPLETION ERROR, adapter 1, channel 7, flags=101
-> Jan 12 11:05:52 EverDream kernel: IAL: COMPLETION ERROR, adapter 2, channel 7, flags=101
-> Jan 12 11:05:52 EverDream kernel: Retry on channel(7)
-> Jan 12 11:05:52 EverDream kernel: Retry on channel(7)
+Thanks,
 
-
---
- dap
-
+-Corey

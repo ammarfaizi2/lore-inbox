@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131477AbQLJU5M>; Sun, 10 Dec 2000 15:57:12 -0500
+	id <S132120AbQLIRUL>; Sat, 9 Dec 2000 12:20:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131611AbQLJU5C>; Sun, 10 Dec 2000 15:57:02 -0500
-Received: from www.lahn.de ([213.61.112.58]:34864 "EHLO serv02.lahn.de")
-	by vger.kernel.org with ESMTP id <S131477AbQLJU4x>;
-	Sun, 10 Dec 2000 15:56:53 -0500
-Date: Fri, 8 Dec 2000 07:16:03 +0100 (CET)
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Reply-To: pmhahn@titan.lahn.de
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: automount doesn't unmount
-Message-ID: <Pine.LNX.4.21.0012080704460.12565-100000@titan.lahn.de>
+	id <S132134AbQLIRUB>; Sat, 9 Dec 2000 12:20:01 -0500
+Received: from smtp2.free.fr ([212.27.32.6]:19204 "EHLO smtp2.free.fr")
+	by vger.kernel.org with ESMTP id <S132120AbQLIRTz>;
+	Sat, 9 Dec 2000 12:19:55 -0500
+To: Mark Sutton <mes@capelazo.com>
+Subject: Re: [Fwd: NTFS repair tools]
+Message-ID: <976380540.3a32627c184c3@imp.free.fr>
+Date: Sat, 09 Dec 2000 17:49:00 +0100 (MET)
+From: Willy Tarreau <wtarreau@free.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.10.10012082329290.27791-100000@lazo.capelazo.com>
+In-Reply-To: <Pine.GSO.4.10.10012082329290.27791-100000@lazo.capelazo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 213.228.21.42
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+One problem with warnings at compile time is that in many cases, administrators
+use kernels provided by friends or collegues that "know linux better than them".
+If an admin uses a kernel in which write support has been activated to mount
+an NTFS file system without providing any option, he will get it mount R/W
+without any warning, then may destroy it at the first mistake or so.
 
-I'm using the kernel automounter to mount several cdrom's and partitions
-on my smp-box. When the mount expires they aren't automatically
-unmounted.
-Forcing a 'kill -SIGUSR1 `pidof automount`' works for some devices, but
-others stay.
+perhaps we should add an option such as "force" to mount an NTFS r/w, and as
+suggested by JBG, print a KERN_EMERG message when attempting to mount it r/w
+without the "force" option.
 
-$ umount /auto/install 
-umount: /auto/install: device is busy
+we could also add a static counter which will make the first r/w mount always
+fail, to ensure people will read the message, and which would prevent people
+from mounting r/w from fstab.
 
-$ fuser -v /auto/install
-                     USER        PID ACCESS COMMAND
-/auto/install        root     kernel mount  /auto/install
+just my $0.02.
 
-$ lsof | grep /auto/install
-doesn't print anything
+BTW, I like the message about microsoft preventing from fixing the driver ;-)
 
-Is their a way to find out why the device is still busy?
-
-$ uname -a
-Linux titan 2.4.0-test11 #1 SMP Mon Nov 20 21:39:42 CET 2000 i686 unknown
-$ mount --version
-mount: mount-2.10q
-$ /usr/sbin/automount --version
-Linux automount version 3.1.7
-
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
-
+Cheers,
+Willy
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

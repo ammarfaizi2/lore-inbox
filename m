@@ -1,50 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVCKTGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVCKStv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVCKTGm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 14:06:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVCKTGN
+	id S261316AbVCKStv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVCKSmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 14:06:13 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:28033
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261322AbVCKSzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:55:06 -0500
-Date: Fri, 11 Mar 2005 10:51:36 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Patrick McHardy <kaber@trash.net>
-Cc: dtor_core@ameritech.net, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: Last night Linus bk - netfilter busted?
-Message-Id: <20050311105136.2a5e4ddc.davem@davemloft.net>
-In-Reply-To: <4231A498.4020101@trash.net>
-References: <200503110223.34461.dtor_core@ameritech.net>
-	<4231A498.4020101@trash.net>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 11 Mar 2005 13:42:46 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:1679 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261284AbVCKSS0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:18:26 -0500
+Date: Fri, 11 Mar 2005 10:18:16 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, kjhall@us.ibm.com
+Subject: [PATCH] char/tpm: use msleep(), clean-up timers, fix typo
+Message-ID: <20050311181816.GC2595@us.ibm.com>
+References: <20050310004115.GA32583@kroah.com> <1110415321526@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110415321526@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005 15:00:56 +0100
-Patrick McHardy <kaber@trash.net> wrote:
+Not sure what happened to the original mail, but I'm not seeing it
+yet...
 
-> Works fine here. You could try if reverting one of these two patches
-> helps (second one only if its a SMP box).
+On Wed, Mar 09, 2005 at 04:42:01PM -0800, Greg KH wrote:
+> ChangeSet 1.2035, 2005/03/09 10:12:19-08:00, kjhall@us.ibm.com
 > 
-> ChangeSet@1.2010, 2005-03-09 20:28:17-08:00, bdschuym@pandora.be
->    [NETFILTER]: Reduce call chain length in netfilter (take 2)
+> [PATCH] Add TPM hardware enablement driver
+> 
+> This patch is a device driver to enable new hardware.  The new hardware is
+> the TPM chip as described by specifications at
+> <http://www.trustedcomputinggroup.org>.  The TPM chip will enable you to
+> use hardware to securely store and protect your keys and personal data.
+> To use the chip according to the specification, you will need the Trusted
+> Software Stack (TSS) of which an implementation for Linux is available at:
+> <http://sourceforge.net/projects/trousers>.
 
-It's this change, I know it is, because Linus sees the same problem
-on his workstation.
+Here is a patch that removes all callers of schedule_timeout() as I
+previously mentioned:
 
-You wouldn't happen to be seeing this problem on a PPC box would
-you?  Since Linus's machine is a PPC machine too, that would support
-my theory that this could be a compiler issue on that platform.
+Description: The TPM driver unnecessarily uses timers when it simply
+needs to maintain a maximum delay via time_before(). msleep() is used
+instead of schedule_timeout() to guarantee the task delays as expected.
+While compile-testing, I found a typo in the driver, using tpm_chp
+instead of tpm_chip. Remove the now unused timer callback function and
+change TPM_TIMEOUT's units to milliseconds. Patch is compile-tested.
 
-Damn, wait, Patrick, I think I know what's happening.  The iptables
-IPT_* verdicts are dependant upon the NF_* values, and they don't
-cope with Bart's changes I bet.  Can you figure out what the exact
-error would be?  This kind of issue would explain the looping inside
-of ipt_do_table(), wouldn't it?
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+diff -urpN 2.6.11-v/drivers/char/tpm/tpm.c 2.6.11/drivers/char/tpm/tpm.c
+--- 2.6.11-v/drivers/char/tpm/tpm.c	2005-03-10 10:50:00.000000000 -0800
++++ 2.6.11/drivers/char/tpm/tpm.c	2005-03-10 11:00:50.000000000 -0800
+@@ -19,7 +19,7 @@
+  * 
+  * Note, the TPM chip is not interrupt driven (only polling)
+  * and can have very long timeouts (minutes!). Hence the unusual
+- * calls to schedule_timeout.
++ * calls to msleep.
+  *
+  */
+ 
+@@ -52,14 +52,6 @@ static void user_reader_timeout(unsigned
+ 	up(&chip->buffer_mutex);
+ }
+ 
+-void tpm_time_expired(unsigned long ptr)
+-{
+-	int *exp = (int *) ptr;
+-	*exp = 1;
+-}
+-
+-EXPORT_SYMBOL_GPL(tpm_time_expired);
+-
+ /*
+  * Initialize the LPC bus and enable the TPM ports
+  */
+@@ -135,6 +127,7 @@ static ssize_t tpm_transmit(struct tpm_c
+ 	ssize_t len;
+ 	u32 count;
+ 	__be32 *native_size;
++	unsigned long stop;
+ 
+ 	native_size = (__force __be32 *) (buf + 2);
+ 	count = be32_to_cpu(*native_size);
+@@ -155,28 +148,16 @@ static ssize_t tpm_transmit(struct tpm_c
+ 		return len;
+ 	}
+ 
+-	down(&chip->timer_manipulation_mutex);
+-	chip->time_expired = 0;
+-	init_timer(&chip->device_timer);
+-	chip->device_timer.function = tpm_time_expired;
+-	chip->device_timer.expires = jiffies + 2 * 60 * HZ;
+-	chip->device_timer.data = (unsigned long) &chip->time_expired;
+-	add_timer(&chip->device_timer);
+-	up(&chip->timer_manipulation_mutex);
+-
++	stop = jiffies + 2 * 60 * HZ;
+ 	do {
+ 		u8 status = inb(chip->vendor->base + 1);
+ 		if ((status & chip->vendor->req_complete_mask) ==
+ 		    chip->vendor->req_complete_val) {
+-			down(&chip->timer_manipulation_mutex);
+-			del_singleshot_timer_sync(&chip->device_timer);
+-			up(&chip->timer_manipulation_mutex);
+ 			goto out_recv;
+ 		}
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(TPM_TIMEOUT);
++		msleep(TPM_TIMEOUT); /* CHECK */
+ 		rmb();
+-	} while (!chip->time_expired);
++	} while (time_before(jiffies, stop));
+ 
+ 
+ 	chip->vendor->cancel(chip);
+@@ -219,7 +200,7 @@ static ssize_t show_pcrs(struct device *
+ 	int i, j, index, num_pcrs;
+ 	char *str = buf;
+ 
+-	struct tpm_chp *chip =
++	struct tpm_chip *chip =
+ 	    pci_get_drvdata(container_of(dev, struct pci_dev, dev));
+ 	if (chip == NULL)
+ 		return -ENODEV;
+@@ -450,10 +431,8 @@ ssize_t tpm_write(struct file * file, co
+ 
+ 	/* cannot perform a write until the read has cleared
+ 	   either via tpm_read or a user_read_timer timeout */
+-	while (atomic_read(&chip->data_pending) != 0) {
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(TPM_TIMEOUT);
+-	}
++	while (atomic_read(&chip->data_pending) != 0)
++		msleep(TPM_TIMEOUT);
+ 
+ 	down(&chip->buffer_mutex);
+ 
+diff -urpN 2.6.11-v/drivers/char/tpm/tpm.h 2.6.11/drivers/char/tpm/tpm.h
+--- 2.6.11-v/drivers/char/tpm/tpm.h	2005-03-10 10:50:00.000000000 -0800
++++ 2.6.11/drivers/char/tpm/tpm.h	2005-03-10 10:58:12.000000000 -0800
+@@ -24,7 +24,7 @@
+ #include <linux/delay.h>
+ #include <linux/miscdevice.h>
+ 
+-#define TPM_TIMEOUT msecs_to_jiffies(5)
++#define TPM_TIMEOUT	5	/* msecs */
+ 
+ /* TPM addresses */
+ #define	TPM_ADDR			0x4E
+@@ -77,7 +77,6 @@ static inline void tpm_write_index(int i
+ 	outb(value & 0xFF, TPM_DATA);
+ }
+ 
+-extern void tpm_time_expired(unsigned long);
+ extern int tpm_lpc_bus_init(struct pci_dev *, u16);
+ 
+ extern int tpm_register_hardware(struct pci_dev *,
+diff -urpN 2.6.11-v/drivers/char/tpm/tpm_nsc.c 2.6.11/drivers/char/tpm/tpm_nsc.c
+--- 2.6.11-v/drivers/char/tpm/tpm_nsc.c	2005-03-10 10:50:00.000000000 -0800
++++ 2.6.11/drivers/char/tpm/tpm_nsc.c	2005-03-10 10:56:54.000000000 -0800
+@@ -55,10 +55,7 @@
+  */
+ static int wait_for_stat(struct tpm_chip *chip, u8 mask, u8 val, u8 * data)
+ {
+-	int expired = 0;
+-	struct timer_list status_timer =
+-	    TIMER_INITIALIZER(tpm_time_expired, jiffies + 10 * HZ,
+-			      (unsigned long) &expired);
++	unsigned long stop;
+ 
+ 	/* status immediately available check */
+ 	*data = inb(chip->vendor->base + NSC_STATUS);
+@@ -66,17 +63,14 @@ static int wait_for_stat(struct tpm_chip
+ 		return 0;
+ 
+ 	/* wait for status */
+-	add_timer(&status_timer);
++	stop = jiffies + 10 * HZ;
+ 	do {
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(TPM_TIMEOUT);
++		msleep(TPM_TIMEOUT);
+ 		*data = inb(chip->vendor->base + 1);
+-		if ((*data & mask) == val) {
+-			del_singleshot_timer_sync(&status_timer);
++		if ((*data & mask) == val)
+ 			return 0;
+-		}
+ 	}
+-	while (!expired);
++	while (time_before(jiffies, stop));
+ 
+ 	return -EBUSY;
+ }
+@@ -84,10 +78,7 @@ static int wait_for_stat(struct tpm_chip
+ static int nsc_wait_for_ready(struct tpm_chip *chip)
+ {
+ 	int status;
+-	int expired = 0;
+-	struct timer_list status_timer =
+-	    TIMER_INITIALIZER(tpm_time_expired, jiffies + 100,
+-			      (unsigned long) &expired);
++	unsigned long stop;
+ 
+ 	/* status immediately available check */
+ 	status = inb(chip->vendor->base + NSC_STATUS);
+@@ -97,19 +88,16 @@ static int nsc_wait_for_ready(struct tpm
+ 		return 0;
+ 
+ 	/* wait for status */
+-	add_timer(&status_timer);
++	stop = jiffies + 100;
+ 	do {
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(TPM_TIMEOUT);
++		msleep(TPM_TIMEOUT);
+ 		status = inb(chip->vendor->base + NSC_STATUS);
+ 		if (status & NSC_STATUS_OBF)
+ 			status = inb(chip->vendor->base + NSC_DATA);
+-		if (status & NSC_STATUS_RDY) {
+-			del_singleshot_timer_sync(&status_timer);
++		if (status & NSC_STATUS_RDY)
+ 			return 0;
+-		}
+ 	}
+-	while (!expired);
++	while (time_before(jiffies, stop));
+ 
+ 	dev_info(&chip->pci_dev->dev, "wait for ready failed\n");
+ 	return -EBUSY;

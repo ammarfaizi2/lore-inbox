@@ -1,54 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264151AbTEWTVX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 15:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbTEWTVX
+	id S264152AbTEWT23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 15:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbTEWT23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 15:21:23 -0400
-Received: from mail0.ewetel.de ([212.6.122.10]:61825 "EHLO mail0.ewetel.de")
-	by vger.kernel.org with ESMTP id S264151AbTEWTVU (ORCPT
+	Fri, 23 May 2003 15:28:29 -0400
+Received: from ns.suse.de ([213.95.15.193]:62476 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264152AbTEWT21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 15:21:20 -0400
-Date: Fri, 23 May 2003 21:34:25 +0200 (CEST)
-From: Pascal Schmidt <der.eremit@email.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-rc3 link error: wolfson_init
-Message-ID: <Pine.LNX.4.44.0305232133130.7577-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Fri, 23 May 2003 15:28:27 -0400
+Date: Fri, 23 May 2003 21:41:31 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org,
+       rmk@arm.linux.org.uk, davidm@napali.hpl.hp.com, akpm@digeo.com
+Subject: Re: /proc/kcore - how to fix it
+Message-Id: <20030523214131.588b0645.ak@suse.de>
+In-Reply-To: <DD755978BA8283409FB0087C39132BD101B00E04@fmsmsx404.fm.intel.com>
+References: <DD755978BA8283409FB0087C39132BD101B00E04@fmsmsx404.fm.intel.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 23 May 2003 12:13:04 -0700
+"Luck, Tony" <tony.luck@intel.com> wrote:
 
-Got the following link error with a config that worked just fine
-for 2.4.21-rc2:
 
-ld -m elf_i386 -T /home/kernel/linux-2.4/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
-mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/parport/driver.o drivers/char/char.o 
-drivers/block/block.o drivers/misc/misc.o drivers/net/net.o 
-drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o 
-drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o 
-drivers/pci/driver.o drivers/video/video.o drivers/usb/usbdrv.o 
-drivers/media/media.o drivers/input/inputdrv.o \
-        net/network.o \
-        /home/kernel/linux-2.4/arch/i386/lib/lib.a 
-/home/kernel/linux-2.4/lib/lib.a 
-/home/kernel/linux-2.4/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/sound/sounddrivers.o(.data+0x210): undefined reference to 
-`wolfson_init05'
-drivers/sound/sounddrivers.o(.data+0x21c): undefined reference to 
-`wolfson_init11'
-make: *** [vmlinux] Error 1
+> Here's how it works.  The default code in fs/proc/kcore.c doesn't
+> set up any "elf_phdr" sections ... it is left to each architecture
+> to make appropriate calls to "kclist_add()" to specify a base
+> address and size for each piece of kernel virtual address space
+> that needs to be made accessible through /proc/kcore.  To get the
+> old functionality, you'll need two calls that look something like:
+> 
+>  kclist_add(&kcore_mem, __va(0),
+>              max_low_pfn * PAGE_SIZE);
+>  kclist_add(&kcore_vmem, (void *)VMALLOC_START,
+>              VMALLOC_END-VMALLOC_START);
 
--- 
-Ciao,
-Pascal
+Looks good to me.
 
+/dev/mem / dev/kmem has the same problem, it could use that too.
+
+> 
+> The first makes all of memory visible (__i386__, __mc68000__ and
+> __x86_64__ should use __va(PAGE_SIZE) to duplicate the original
+> lack of access to page 0).  The second provides a single map for
+> all "vmalloc" space (the code still searches the vmlist to see
+> what actually exists before accessing it).
+> 
+> Other blocks of kernel virtual space can be added as needed, and
+> removed again (with kclist_del()).  E.g. discontiguous memory
+
+Remove could get racy - /proc/kcore can sleep while accessing such
+a block. You would need a sleeping lock hold all the time.
+
+What would you need remove for?
+
+> The second piece of abstraction is the kc_vaddr_to_offset() and
+> kc_offset_to_vaddr() macros.  These provide mappings from kernel
+> virtual addresses to offsets in the virtual file that /proc/kcore
+> instantiates.  I hope they are sufficient to avoid negative offset
+> problems that plagued the old /proc/kcore.  Default versions are
+> provided for the old behaviour (mapping simply adds/subtracts
+> PAGE_OFFSET).  For ia64 I just need to use a different offset
+> as all kernel virtual allocations are in the high 37.5% of the
+> 64-bit virtual address space.
+
+I'm not sure it is a good idea from the interface standpoint, especially
+for /dev/kmem.  It would surely be confusing for the user. Yes, a few applications and even some kernel code has signedness problems, but I would
+better fix them instead of adding such a weird interface. 1:1 mapping would 
+be a lot cleaner. It should not be that bad because on i386 the kernel
+is also in negative space.
+
+[i still have some 2.4 patches to fix a few 64bit signedness problems in /proc,
+perhaps I should dust them off and port to 2.5]
+
+
+> But if you have interesting stuff scattered across *every* part of
+> the unsigned address range, then you won't be able to squeeze it all
+> into a signed file offset.
+
+The memory map on x86-64 is rather clean, that's no problem
+
+Thanks for doing this work,
+-Andi

@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130477AbQKBAyW>; Wed, 1 Nov 2000 19:54:22 -0500
+	id <S130641AbQKBA4W>; Wed, 1 Nov 2000 19:56:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130641AbQKBAyM>; Wed, 1 Nov 2000 19:54:12 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27692 "EHLO
+	id <S132023AbQKBA4M>; Wed, 1 Nov 2000 19:56:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29740 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130477AbQKBAx5>; Wed, 1 Nov 2000 19:53:57 -0500
+	id <S130641AbQKBA4E>; Wed, 1 Nov 2000 19:56:04 -0500
 Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-To: cort@fsmlabs.com (Cort Dougan)
-Date: Thu, 2 Nov 2000 00:54:32 +0000 (GMT)
-Cc: davem@redhat.com (David S. Miller), npsimons@fsmlabs.com, garloff@suse.de,
-        jamagallon@able.es, linux-kernel@vger.kernel.org
-In-Reply-To: <20001101170048.A4386@hq.fsmlabs.com> from "Cort Dougan" at Nov 01, 2000 05:00:48 PM
+To: npsimons@fsmlabs.com
+Date: Thu, 2 Nov 2000 00:56:40 +0000 (GMT)
+Cc: davem@redhat.com (David S. Miller), garloff@suse.de, jamagallon@able.es,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001101171158.A4708@fsmlabs.com> from "Nathan Paul Simons" at Nov 01, 2000 05:11:58 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13r8eI-00013g-00@the-village.bc.nu>
+Message-Id: <E13r8gM-00013x-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> } before on this list) and we didn't have time to implement and QA the
-> 
-> Oh, my.
+> 	So other distro's did it too.  Why did nobody complain till RedHat
+> did it?  Because no one else decided to use, as the default, a bleeding edge 
+> compiler that not only won't compile the kernel but won't even touch a lot of 
+> userspace code either.
 
-Doing the QA on a kernel change of compiler is a long hard process. It took
-until 2.2.17 to apparently get a 2.2 kernel solid with gcc 2.95.
+Actually the first people to do exactly that were Debian, who shipped a compiler
+that couldnt reliably build a kernel for the time period. Thats one of the
+reasons they put in gcc272. 
+
+Its good sense to tie large critical pieces of hard to validate code to the
+compiler. There is a reason you'll find any good software company maintains
+old releases in archives with the build environment to reproduce them exactly
+
 
 Alan
 

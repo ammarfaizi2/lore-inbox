@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbTD1BSG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 21:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTD1BSF
+	id S263011AbTD1BX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 21:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263111AbTD1BX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 21:18:05 -0400
-Received: from firenze.terenet.com.br ([200.255.3.10]:64703 "EHLO
-	firenze.terenet.com.br") by vger.kernel.org with ESMTP
-	id S262764AbTD1BSE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 21:18:04 -0400
-From: Rafael Costa dos Santos <rsantos@terenet.com.br>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 28 Apr 2003 22:29:40 -0300
-X-Priority: 3 (Normal)
-Reply-To: rafael@thinkfreak.com.br
-In-Reply-To: <Pine.BSO.4.44.0304272116510.23296-100000@kwalitee.nolab.conman.org>
-Message-Id: <5ZUT93A9SPLHQPB993UPJIOMSNYW3WVU.3eadd584@rafaelnote.ns1.lhost.com.br>
+	Sun, 27 Apr 2003 21:23:29 -0400
+Received: from twinlark.arctic.org ([168.75.98.6]:56527 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S263011AbTD1BX2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 21:23:28 -0400
+Date: Sun, 27 Apr 2003 18:35:41 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Mark Grosberg <mark@nolab.conman.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [RFD] Combined fork-exec syscall.
+In-Reply-To: <Pine.BSO.4.44.0304272036360.23296-100000@kwalitee.nolab.conman.org>
+Message-ID: <Pine.LNX.4.53.0304271831250.8792@twinlark.arctic.org>
+References: <Pine.BSO.4.44.0304272036360.23296-100000@kwalitee.nolab.conman.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-X-Mailer: Opera 6.05 build 1140
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If any help needed. Tell me. I would be glad to help.
+On Sun, 27 Apr 2003, Mark Grosberg wrote:
 
+> I would think on large, multi-user systems that are spawning processes all
+> day, this might improve performance if the shells on such a system were
+> patched.
 
-4/27/03 10:19:52 PM, Mark Grosberg <mark@nolab.conman.org> wrote:
+more relevant is a large multithreaded (or async model with many
+connections per thread/process) webserver spawning cgi.  otherwise you pay
+the costs of duplicating the mm and even if you use F_CLOEXEC (which has a
+cost-per-connection) you have to pay for scanning the open fds.
 
->
->
->On Mon, 28 Apr 2003, Rafael Costa dos Santos wrote:
->
->> Do you have some work done on this issue ?
->
->Nope. Was just thinking. To be honest, I stopped doing kernel development
->in the 2.0 days (but I keep up with LKML). This would be for 2.5 but
->could probably be backported to 2.4 without too much trouble.
->
->But tomorrow I may very well find myself out of a job (big surprise), and
->if so, I'll setup a Linux box (since I've mostly been using OpenBSD
->these days) and work on this (for i386 to begin with) if  there is enough
->interest.
->
->L8r,
->Mark G.
->
+if you look at such webservers they tend to have a separate process just
+for the purpose of spawning cgi/etc. and use some IPC to pass the data to
+the cgi spawner.
 
-
-
+-dean

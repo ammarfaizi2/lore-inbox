@@ -1,69 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262066AbREPUzM>; Wed, 16 May 2001 16:55:12 -0400
+	id <S262091AbREPU7c>; Wed, 16 May 2001 16:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262093AbREPUzC>; Wed, 16 May 2001 16:55:02 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:4256 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262091AbREPUyw>; Wed, 16 May 2001 16:54:52 -0400
-Date: Wed, 16 May 2001 14:54:36 -0600
-Message-Id: <200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <3B02DD79.7B840A5B@transmeta.com>
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
-	<200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
-	<3B02D6AB.E381D317@transmeta.com>
-	<200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca>
-	<3B02DD79.7B840A5B@transmeta.com>
+	id <S262093AbREPU7W>; Wed, 16 May 2001 16:59:22 -0400
+Received: from comverse-in.com ([38.150.222.2]:35971 "EHLO
+	eagle.comverse-in.com") by vger.kernel.org with ESMTP
+	id <S262091AbREPU7P>; Wed, 16 May 2001 16:59:15 -0400
+Message-ID: <6B1DF6EEBA51D31182F200902740436802678ED4@mail-in.comverse-in.com>
+From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+To: LINUX Kernel <linux-kernel@vger.kernel.org>
+Subject: ((struct pci_dev*)dev)->resource[...].start
+Date: Wed, 16 May 2001 16:58:29 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="koi8-r"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
-> Richard Gooch wrote:
-> > 
-> > H. Peter Anvin writes:
-> > > Richard Gooch wrote:
-> > > > Argh! What I wrote in text is what I meant to say. The code didn't
-> > > > match. No wonder people seemed to be missing the point. So the line of
-> > > > code I actually meant was:
-> > > >         if (strcmp (buffer + len - 3, "/cd") != 0) {
-> > >
-> > > This is still a really bad idea.  You don't want to tie this kind of
-> > > things to the name.
-> > 
-> > Why do you think it's a bad idea?
-> 
-> Because you are now, once again, tying two things that are
-> completely and utterly unrelated: device classification and device
-> name.  It breaks every time someone comes out with a new device
-> which is "kind of like an old device, but not really," like
-> CD-writers (which was kind-of-like WORM, kind-of-like CD-ROM) and
-> DVD (kind-of-like CD)...
+Can someone please confirm if my assumptions below are correct:
+1) Unless someone specifically tampered with my driver's device since the OS
+bootup, the mapping of the PCI base address registers to virtual memory will
+remain the same (just as seen in /proc/pci, and as reflected in <subj>)? If
+not, is there a way to freeze it for the time I want to access it?
 
-But all devices which export a CD-ROM interface will do so. So the
-device node that is associated with the CD-ROM driver will export
-CD-ROM semantics, and the trailing name will be "/cd".
+2) (Basically, the question is "Do I understand Documentation/IO-mapping.txt
+right?")
+PCI memory, whenever IO type or memory type, can not be dereferenced but
+should be accessed with readb() etc. On i386, PCI mem (memory type) can be
+accessed by direct pointer access, but this is not portable.
 
-Other interfaces a device exports, such as a CD-RW, appear as a
-different device node ("generic" for SCSI, because we have no CD-RW
-classification at this point).
-
-My scheme works already, and works reliably. Nothing had to be done to
-support the CD-ROM interface to CD-RW and DVD devices.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Kind regards,
+	Vassilii

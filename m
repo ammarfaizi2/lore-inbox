@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288667AbSANCTy>; Sun, 13 Jan 2002 21:19:54 -0500
+	id <S288671AbSANCWZ>; Sun, 13 Jan 2002 21:22:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288668AbSANCTj>; Sun, 13 Jan 2002 21:19:39 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:34062 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S288667AbSANCTQ>; Sun, 13 Jan 2002 21:19:16 -0500
-Date: Mon, 14 Jan 2002 13:19:25 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: cross-cpu balancing with the new scheduler
-Message-Id: <20020114131925.4fcbd127.rusty@rustcorp.com.au>
-In-Reply-To: <3C41BD74.28F6707A@colorfullife.com>
-In-Reply-To: <3C41BD74.28F6707A@colorfullife.com>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S288675AbSANCWT>; Sun, 13 Jan 2002 21:22:19 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:44297 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288671AbSANCVy>;
+	Sun, 13 Jan 2002 21:21:54 -0500
+Date: Mon, 14 Jan 2002 00:21:44 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 1-2-3 GB
+In-Reply-To: <a1sqd3$nc6$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0201140020260.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jan 2002 18:01:40 +0100
-Manfred Spraul <manfred@colorfullife.com> wrote:
+On 13 Jan 2002, H. Peter Anvin wrote:
 
-> Is it possible that the inter-cpu balancing is broken in 2.5.2-pre11?
-> 
-> eatcpu is a simple cpu hog ("for(;;);"). Dual CPU i386.
-> 
-> $nice -19 ./eatcpu&;
->  <wait>
-> $nice -19 ./eatcpu&;
->  <wait>
-> $./eatcpu&.
-> 
-> IMHO it should be
-> * both niced process run on one cpu.
-> * the non-niced process runs with a 100% timeslice.
-> 
-> But it's the other way around:
-> One niced process runs with 100%. The non-niced process with 50%, and
-> the second niced process with 50%.
+> By the way, expect user programs to fail due to lack of address space
+> if you only give them 1 GB of userspace.  At 1 GB of userspace there
+> is *no* address space which is compatible with the normal address
+> space map available to the user process.
+>
+> I would personally vote against including that particular option.
 
-This could be fixed by making "nr_running" closer to a "priority sum".
+It could be useful for machines where most activity happens
+inside the kernel, though. Think of TUX web or ftp servers
+or dedicated NFS servers.
 
-Ingo?
+regards,
 
-Rusty.
+Rik
 -- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315200AbSEIW7Y>; Thu, 9 May 2002 18:59:24 -0400
+	id <S315206AbSEIXAT>; Thu, 9 May 2002 19:00:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315206AbSEIW7X>; Thu, 9 May 2002 18:59:23 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17935 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315200AbSEIW7W>; Thu, 9 May 2002 18:59:22 -0400
-Subject: Re: PATCH & call for help: Marking ISA only drivers
-To: ak@muc.de (Andi Kleen)
-Date: Fri, 10 May 2002 00:18:21 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@muc.de (Andi Kleen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020510005007.B1327@averell> from "Andi Kleen" at May 10, 2002 12:50:07 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315208AbSEIXAS>; Thu, 9 May 2002 19:00:18 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:38663 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315206AbSEIXAQ>; Thu, 9 May 2002 19:00:16 -0400
+Message-ID: <3CDAFF7C.57A59FB8@linux-m68k.org>
+Date: Fri, 10 May 2002 01:00:12 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Andrea Arcangeli <andrea@suse.de>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+In-Reply-To: <Pine.LNX.4.21.0205062053050.32715-100000@serv> <E175qT7-00087g-00@starship> <3CDAF2D4.C7F20249@linux-m68k.org> <E175wJO-0008Lz-00@starship>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E175xAz-0004kH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > +if [ "$CONFIG_ISA" = "y" ]; then
-> > > +   dep_tristate 'Adaptec AHA152X/2825 support' CONFIG_SCSI_AHA152X $CONFIG_SCSI
-> > 
-> > 2825 is not ISA bus
+Hi,
+
+Daniel Phillips wrote:
+
+> On Friday 10 May 2002 00:06, Roman Zippel wrote:
+> > 1. My patch only modifies init code, I don't think it's really a problem
+> > if it's slightly slower.
 > 
-> What then ?
-
-Vesa local bus
-
-> But seems to be not 64bit safe and miss pci dma support (note the CONFIG_X86_64). 
-
-My fault
-
-> > > +if [ "$CONFIG_ISA" = "y" ]; then
-> > > +  dep_tristate 'Generic NCR5380/53c400 SCSI support' CONFIG_SCSI_GENERIC_NCR5380 $CONFIG_SCSI
-> > > +  if [ "$CONFIG_SCSI_GENERIC_NCR5380" != "n" ]; then
-> > 
-> > This is used in multiple non ISA situations.
+> But why be slower when we don't have to.  And why slow down *all* architectures?
 > 
-> Only on ancient motherboards (I remember having it on some really old EISA
-> machine) and non PC devices, no ? 
+> > 2. Above can now be written as "page = pfn_to_page(i +
+> > (bdata->node_boot_start >> PAGE_SHIFT))". Nice, isn't it? :)
+> 
+> page++ is nicer yet.
 
-On just about anything. If you have some old (or new) random weird box
-then so long as you know the address this works. NCR5380 macrocells are
-still being used I'm afraid to say, and attached to pretty much any bus
-people can find.
+Is memmap[i++] so much worse? Let me repeat, this is only executed once
+at boot!
 
-Alan
+> > Why do you want to introduce another abstraction?
+> 
+> The abstraction is already there.  I didn't create the logical space, I identified
+> it.
+
+And it's called virtual address space.
+
+>  There are places where the code is really manipulating logical addresses, not
+> physical addresses, and these are not explicitly identified.  This makes the code
+> cleaner and easier to read.
+
+_Please_ show me an example.
+
+> Look at drivers/char/mem.c, read_mem.  Clearly, the code is not dealing with
+> physical addresses.  Yet it starts off with virt_to_phys, and thereafter works
+> in zero-offset addresses.  Why?  Because it's clearer and more efficient to do
+> that.  The generic part of my nonlinear patch clarifies this usage by rewriting
+> it as virt_to_logical, which is really what's happening.
+
+Are we looking at the same code??? Where is that zero-offset thingie? It
+just works with virtual and physical addresses and needs to convert
+between them.
+
+> That's really what's happening in bootmem too.
+
+That also works with just physical and virtual addresses. What are you
+talking about???
+
+bye, Roman

@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbSLUScT>; Sat, 21 Dec 2002 13:32:19 -0500
+	id <S262901AbSLUSc5>; Sat, 21 Dec 2002 13:32:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262813AbSLUScT>; Sat, 21 Dec 2002 13:32:19 -0500
-Received: from dsl-213-023-066-023.arcor-ip.net ([213.23.66.23]:20620 "EHLO
-	neon.pearbough.net") by vger.kernel.org with ESMTP
-	id <S262812AbSLUScS>; Sat, 21 Dec 2002 13:32:18 -0500
-Date: Sat, 21 Dec 2002 19:39:04 +0100
-From: axel@pearbough.net
-To: linux-kernel@vger.kernel.org
-Cc: davej@codemonkey.org.uk
-Subject: Build error (2.5.52): undefined reference to `agp_generic_agp_3_0_enable'
-Message-ID: <20021221183904.GA18166@neon.pearbough.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: pearbough.net
+	id <S263039AbSLUSc5>; Sat, 21 Dec 2002 13:32:57 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:393 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S262901AbSLUScz>; Sat, 21 Dec 2002 13:32:55 -0500
+Date: Sat, 21 Dec 2002 19:34:10 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Grant Grundler <grundler@cup.hp.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       mj@ucw.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       turukawa@icc.melco.co.jp, ink@jurassic.park.msu.ru
+Subject: Re: PATCH 2.5.x disable BAR when sizing
+In-Reply-To: <Pine.LNX.4.44.0212201203340.2035-100000@home.transmeta.com>
+Message-ID: <Pine.GSO.3.96.1021221192335.7158A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 20 Dec 2002, Linus Torvalds wrote:
 
-Compilation of 2.5.52bk6 fails due to the following error :
+> > That's exactly the problem on ia64 - it does.
+> > Could this also be a problem on i386 that we just haven't noticed yet?
+> 
+> Unlikely. The IO-APIC on x86 is in that region, but it doesn't respond
+> from external sources, it's not actually on the PCI bus and only visible
+> from the CPU. And the CPU decodes that address internally and sends it on
+> the APIC bus and thus PCI devices simply do not matter for it.
 
-ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o
-arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o
-arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
-arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o
-fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o
-lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o
-arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-drivers/built-in.o: In function `via_kt400_enable':
-drivers/built-in.o(.init.text+0x4e4f): undefined reference to
-`agp_generic_agp_3_0_enable'
+ That's not true for the I/O APIC.  That's only true for the local APIC.
 
-Concerning config options:
+ The I/O APIC may be wired to the PCI-ISA bridge, specifically the APICCS#
+(chip select) line may be driven by that bridge when a PCI cycle targets
+the area assigned to the I/O APIC.  This is certainly the case for
+discrete implementations, like the i82371SB/AB (PCI-ISA bridge) + i82093AA
+(I/O APIC) pair, possibly for others, including later I/O APICs integrated
+into chipsets.  Obviously cycles from CPUs travel to the PCI-ISA bridge
+across the associated PCI bus.
 
-CONFIG_AGP=y
-# CONFIG_AGP3 is not set
-CONFIG_AGP_VIA=y
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-Best regards,
-Axel Siebenwirth

@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbTBPDOj>; Sat, 15 Feb 2003 22:14:39 -0500
+	id <S265736AbTBPD0a>; Sat, 15 Feb 2003 22:26:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbTBPDOj>; Sat, 15 Feb 2003 22:14:39 -0500
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:19605
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S265725AbTBPDOi>; Sat, 15 Feb 2003 22:14:38 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: David Ford <david+cert@blue-labs.org>, paul@laufernet.com
-Subject: Re: OSS Sound Blaster sb_card.c rewrite (PnP, module options, etc) - UPDATE
-Date: Sat, 15 Feb 2003 22:26:14 -0500
-User-Agent: KMail/1.6
-References: <Pine.LNX.4.44.0302130004470.247-100000@coredump.sh0n.net> <3E4E7328.1090807@blue-labs.org>
-In-Reply-To: <3E4E7328.1090807@blue-labs.org>
+	id <S265773AbTBPD0a>; Sat, 15 Feb 2003 22:26:30 -0500
+Received: from [24.206.178.254] ([24.206.178.254]:16515 "EHLO
+	mail.brianandsara.net") by vger.kernel.org with ESMTP
+	id <S265736AbTBPD03>; Sat, 15 Feb 2003 22:26:29 -0500
+From: Brian Jackson <brian@mdrx.com>
+To: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk,
+       brian@brianandsara.net
+Subject: 2.5 AGP for 2.4.21-pre4
+Date: Sat, 15 Feb 2003 21:35:22 -0600
+User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Disposition: inline
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200302152226.14112.spstarr@sh0n.net>
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.114.185.204] using ID <shawn.starr@rogers.com> at Sat, 15 Feb 2003 22:24:02 -0500
+Message-Id: <200302152135.22425.brian@mdrx.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, But you require Adam Belay's new PnP patches and an additional patch to 
-fix an oops problem ;-) 
+This is a poor attempt at a backport of the 2.5.61 AGP subsystem by someone 
+who doesn't know what he is doing and is in way over his head. That said, are 
+there any "brave" souls out there that want to try this out with an AGP3 card 
+and 2.4.21pre4. I compile/boot tested it with an old ati card, but I don't 
+have an AGP 3.0 card/MB to test it on. I got into X and ran glxgears using 
+this kernel(I am using it to finish writing this email)
 
-I think Adam will have those patches on lkml soon. If you can't find any of 
-the patches, I can send them. I'm testing the PnP bug fixes as we speak so 
-I'll do some sanity checking to see if they work right.
+http://www.mdrx.com/brian/2.4.21-pre4-2.5agp.diff.gz
 
-The sound blaster patches are from Paul and you can find them on lkml about 
-1-2 weeks ago.
+caveats:
+agp has to be built in to the kernel (no modules)
 
-Shawn.
+I did the following:
+copied the drivers/char/agp directory from 2.5.61
+copied include/asm-*/agp.h from 2.5.61
+copied include/linux/*agp.h from 2.5.61
+made some changes to drivers/char/agp/Makefile
+on line 619&635 of frontend.c changed remap_page_range to only have 4
+	arguments
+line 705 generic.c changed SetPageLocked -->SetPageReserved
+	(not sure if this is right, but Locked doesn't exist in 2.4 and I thought
+	Reserved might work -- Let me know if this should be something else)
+backend.c:241 & backend.c:263 commented references to 2.5 module stuff
+	(therefore this only safe to be built into the kernel for now, any ideas what
+	I should use here instead?)
+added some device id's to drivers/char/agp/agp.h from
+	2.5.61/include/linux/pci_ids.h
+uninclude gfp.h & linux/page-flags.h from amd-k7-agp.c
 
-On Saturday 15 February 2003 12:04 pm, David Ford wrote:
-> Are you using or in possession of a patch for sb16 and recent 2.5.xx
-> such as 2.5.61?
->
-> sound/isa/sb/sb16.c: In function `snd_sb16_isapnp':
-> sound/isa/sb/sb16.c:279: warning: implicit declaration of function
-> `isapnp_find_dev'
-> sound/isa/sb/sb16.c:279: warning: assignment makes pointer from integer
-> without a cast
-> sound/isa/sb/sb16.c:280: structure has no member named `active'
-> sound/isa/sb/sb16.c:293: structure has no member named `prepare'
-> sound/isa/sb/sb16.c:296: warning: implicit declaration of function
-> `isapnp_resource_change'
-> sound/isa/sb/sb16.c:307: structure has no member named `activate'
-> sound/isa/sb/sb16.c: In function `snd_sb16_deactivate':
-> sound/isa/sb/sb16.c:347: structure has no member named `deactivate'
-> sound/isa/sb/sb16.c: In function `alsa_card_sb16_init':
-> sound/isa/sb/sb16.c:632: warning: implicit declaration of function
-> `isapnp_probe_cards'
-> make[3]: *** [sound/isa/sb/sb16.o] Error 1
->
-> -d
->
-> Shawn Starr wrote:
-> >With Adam's new PnP changes, and the disabling of the OS PnP BIOS on the
-> >IBM. I can say that your sb_card.c/h changes (with some small
-> >modifications with the new PnP structure changes) works!
-> >
-> >I suppose, this weekend I could see if I can get the AWE itself detected
-> >on 2.5.60 now :-)
-> >
-> >Shawn.
+What else I need to do:
+change to old style module init stuff
+
+This is nowhere near suitable for production use, but I would like some people 
+that actually have AGP3 cards/MB's to try this out
+
+--Brian Jackson
+
+P.S. All criticism is welcome even flaming since I am in a decent mood right 
+now
+
+P.S.S. To Dave Jones -- I thought 2.5 had support for VIA chipsets & AGP3, but 
+I only saw config options for the 7205/7505
 

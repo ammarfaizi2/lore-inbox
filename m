@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263420AbTC2OKV>; Sat, 29 Mar 2003 09:10:21 -0500
+	id <S263421AbTC2OOD>; Sat, 29 Mar 2003 09:14:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263421AbTC2OKV>; Sat, 29 Mar 2003 09:10:21 -0500
-Received: from klesk.etc.utt.ro ([193.226.10.1]:5336 "EHLO klesk.etc.utt.ro")
-	by vger.kernel.org with ESMTP id <S263420AbTC2OKU>;
-	Sat, 29 Mar 2003 09:10:20 -0500
-From: Sony Calin <sony@etc.utt.ro>
-Message-ID: <44829.194.138.39.56.1048947941.squirrel@webmail.etc.utt.ro>
-Date: Sat, 29 Mar 2003 16:25:41 +0200 (EET)
-Subject: Compile error 2.5.66-mm1 (haven't tried with 2.5.66 vanilla)
-To: <akpm@zip.com.au>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.8)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S263423AbTC2OOD>; Sat, 29 Mar 2003 09:14:03 -0500
+Received: from home.wiggy.net ([213.84.101.140]:49858 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S263421AbTC2OOC>;
+	Sat, 29 Mar 2003 09:14:02 -0500
+Date: Sat, 29 Mar 2003 15:25:20 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: NIC renaming does not rename /proc/sys/net/ipv4 Was: Re: NICs trading places ?
+Message-ID: <20030329142519.GG2078@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030328221037.GB25846@suse.de.suse.lists.linux.kernel> <p73isu2zsmi.fsf@oldwotan.suse.de> <20030329121755.GA17169@outpost.ds9a.nl> <1048940960.2176.86.camel@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048940960.2176.86.camel@averell>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Previously Andi Kleen wrote:
+> Just rename at early boot before IP is set up.  That is what i usually
+> do - set up /etc/mactab and run it very early at boot.
 
-Compiling 2.5.66-mm1 gives me the following error
+How does that solve the problem of /proc/sys/net/*/conf/* not being
+renamed?
 
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
-init/mounts.o init/initramfs.o
-        ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o
-arch/i386/kernel/init_task.o   init/built-in.o --start-group 
-usr/built-in.o  arch/i386/kernel/built-in.o 
-arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o 
-kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
-security/built-in.o  crypto/built-in.o  lib/lib.a 
-arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o 
-arch/i386/pci/built-in.o  net/built-in.o --end-group  -o
-.tmp_vmlinux1
-sound/built-in.o: In function `cs4232_pnp_remove':
-sound/built-in.o(.text+0xaf51): undefined reference to `local symbols in
-discarded section .exit.text'
-make: *** [.tmp_vmlinux1] Error 1
+Another problem is that nameif only supports ethernet devices currently,
+making it an incomplete solution.
 
-Program versions and config are atached.
-
-Bye
-Calin
+Wichert.
 
 -- 
-# fortune
-fortune: write error on /dev/null - please empty the bit bucket
-
-
-
------------------------------------------
-This email was sent using SquirrelMail.
-   "Webmail for nuts!"
-http://squirrelmail.org/
-
-
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

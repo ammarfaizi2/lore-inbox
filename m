@@ -1,66 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbTL2NdV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 08:33:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTL2NdV
+	id S263510AbTL2NmA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 08:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTL2NmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 08:33:21 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:9345 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S263441AbTL2NdR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 08:33:17 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: "Guldo K" <guldo@tiscali.it>, linux-kernel@vger.kernel.org
-Subject: Re: speedtouch for 2.6.0
-Date: Mon, 29 Dec 2003 13:34:01 +0100
-User-Agent: KMail/1.5.4
-References: <16366.61517.501828.389749@gargle.gargle.HOWL>
-In-Reply-To: <16366.61517.501828.389749@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Dec 2003 08:42:00 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:18146 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S263510AbTL2Nl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 08:41:59 -0500
+Date: Mon, 29 Dec 2003 14:41:50 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Samuel Flory <sflory@rackable.com>
+Cc: Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
+Message-ID: <20031229134150.GB30794@louise.pinerecords.com>
+References: <20031228180424.GA16622@mail-infomine.ucr.edu> <3FEF8CFD.7060502@rackable.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312291334.01173.baldrick@free.fr>
+In-Reply-To: <3FEF8CFD.7060502@rackable.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guldo, I assume you are using the kernel mode
-driver (kernel module) and not the user mode driver
-(pppoa2, pppoa3).  For that you need to compile the
-kernel module.
+On Dec-28 2003, Sun, 18:10 -0800
+Samuel Flory <sflory@rackable.com> wrote:
 
-> I'm trying to get this usb adsl modem to work
-> with the latest stable kernel.
-> I searched for this on the ML archive, and realized
-> that the kernel module should be used.
-> But I can't understand one thing (at least...)
-> which consequences does the new alcatel module
-> driver have on getting this modem to work?
+> PS- Why not at least run software raid 5?  It takes far less cpu than 
+> you'd think, and can save your ass.
 
-It works the same as the module in 2.4.22 and later.
-This module was originally only available outside the
-kernel tree (it can be found for example in the
-speedbundle on http://linux-usb.sf.net/SpeedTouch).
-Now that it is in the kernel tree it is pointless to
-compile it in the speedbundle (and it doesn't work
-right now for 2.6 kernels).  Just turn it on in your
-kernel .config and recompile your kernel.
+Absolutely.  With eight low-cost IDE disks, you'd be nuts to go raid0
+or linear.
 
-> Does it override kernel setup described on
-> the speedbundle site, or not?
-
-Well, you still need to turn on ATM support etc,
-but there is no need to patch the kernel for example.
-
-> How should the kernel be compiled?
-
-With
-
-CONFIG_USB_SPEEDTOUCH=m
-
-at least.
-
-Ciao,
-
-Duncan.
+-- 
+Tomas Szepe <szepe@pinerecords.com>

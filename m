@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263709AbTENAHV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 20:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTENAHV
+	id S263732AbTENALS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 20:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbTENALS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 20:07:21 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27039
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263709AbTENAHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 20:07:20 -0400
-Subject: Re: [patch] 2.4 fix to allow vmalloc at interrupt time
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: mjacob@quaver.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052865254.1205.7.camel@dhcp22.swansea.linux.org.uk>
-References: <20030512225654.GA27358@cm.nu>
-	 <20030513140629.I83125@mailhost.quaver.net>
-	 <1052865254.1205.7.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
+	Tue, 13 May 2003 20:11:18 -0400
+Received: from pat.uio.no ([129.240.130.16]:44764 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263732AbTENALR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 20:11:17 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052868103.1206.28.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 May 2003 00:21:45 +0100
+Message-ID: <16065.35997.348432.385925@charged.uio.no>
+Date: Wed, 14 May 2003 02:23:57 +0200
+To: akpm@digeo.com, tytso@mit.edu
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] htree nfs fix
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-13 at 23:34, Alan Cox wrote:
-> On Maw, 2003-05-13 at 22:11, Matthew Jacob wrote:
-> > This fixes a buglet wrt doing vmalloc at interrupt time for 2.4.
-> > 
-> > get_vm_area should call kmalloc with GFP_ATOMIC- after all, it's
-> > set up to allow for an allocation failure. As best as I read
-> > the 2.4 code, the rest of the path through _kmem_cache_alloc
-> > should be safe.
-> 
-> You aren't allow to vmalloc in an IRQ. The kmalloc is the least of
-> your programs - you have to worry about the page table handling.
 
-problems even. 1am isnt the best time for posting ;)
+Get the facts right please: That rant was bullshit.
 
+  NFS tries as hard as it can to interpret the cookie as a bag of
+bits. It gets screwed in this by a VFS interface which treats the
+32-bit getdents() as having unsigned 32-bit cookies, and the 64-bit
+getdents64() as having signed 64-bit cookies.
+
+To make matters worse, glibc comes along and assumes it can use
+getdents64 as a substitute for getdents() without having to give any
+thought to the problem of cookies.
+
+
+If you're unhappy with the state of readdir, then fix the VFS/glibc.
+At the moment it is simply not possible to write a consistent readdir
+at the NFS level.
+
+Trond

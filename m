@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267330AbUIUGFQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267352AbUIUGgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267330AbUIUGFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 02:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267334AbUIUGFQ
+	id S267352AbUIUGgR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 02:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUIUGgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 02:05:16 -0400
-Received: from relay.pair.com ([209.68.1.20]:48657 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S267330AbUIUGFG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 02:05:06 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <414FC41B.7080102@kegel.com>
-Date: Mon, 20 Sep 2004 23:03:07 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.8 link failure for sparc32 (vmlinux.lds.s: No such file or directory)?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Sep 2004 02:36:17 -0400
+Received: from [195.167.234.212] ([195.167.234.212]:32666 "EHLO atchik.com")
+	by vger.kernel.org with ESMTP id S267352AbUIUGgO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 02:36:14 -0400
+Date: Tue, 21 Sep 2004 08:33:18 +0200
+From: Colin Leroy <colin@colino.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pmac: don't add =?ISO-8859-15?B?IrBDIg==?= suffix in
+ sys	for adt746x driver
+Message-ID: <20040921083318.1bdddd72@pirandello>
+In-Reply-To: <1095401127.5105.73.camel@gaston>
+References: <1095401127.5105.73.camel@gaston>
+X-Mailer: Sylpheed-Claws 0.9.12cvs102.2 (GTK+ 2.4.0; i686-redhat-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Atchik-MailScanner-Information: Please contact the ISP for more information
+X-Atchik-MailScanner: Found to be clean
+X-MailScanner-From: colin@colino.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to verify that I can build toolchains and compile
-and link kernels for a large set of CPU types using simple kernel config files.
-I'm also somewhat foolishly trying to do all this with gcc-3.4.2.
-So any problems I run into are a bit hard to pin down to
-compiler, kernel, or user error, since this is mostly new territory for me.
+On 17 Sep 2004 at 16h09, Benjamin Herrenschmidt wrote:
 
-Here's another issue.
-When I build 2.6.8 for sparc32, using the config file
-http://kegel.com/crosstool/crosstool-0.28-rc36/sparc.config ,
-I get a link error:
+Hi, 
 
-/opt/crosstool/sparc-unknown-linux-gnu/gcc-3.4.2-glibc-2.3.3/bin/sparc-unknown-linux-gnu-ld -m elf32_sparc  -T arch/sparc/kernel/vmlinux.lds.s arch/sparc/kernel/head.o arch/sparc/kernel/init_task.o  init/built-in.o --start-group 
-usr/built-in.o  arch/sparc/kernel/built-in.o  arch/sparc/mm/built-in.o  arch/sparc/math-emu/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a 
-arch/sparc/prom/lib.a  arch/sparc/lib/lib.a  lib/built-in.o  arch/sparc/prom/built-in.o  arch/sparc/lib/built-in.o  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group .tmp_kallsyms2.o arch/sparc/boot/btfix.o -o 
-arch/sparc/boot/image
-/opt/crosstool/sparc-unknown-linux-gnu/gcc-3.4.2-glibc-2.3.3/bin/sparc-unknown-linux-gnu-ld: cannot open linker script file arch/sparc/kernel/vmlinux.lds.s: No such file or directory
-make[1]: *** [arch/sparc/boot/image] Error 1
-make: *** [image] Error 2
+> The adt746x driver currently adds a "°C" suffix to temperatures
+> exposed via sysfs, and I don't like that. First, we all agree that any
+> other unit here makes no sense (do we ? do we ? yes of course :) and I
+> don't like having anything but numbers in there, and finally it's more
+> consistent with what the g5 driver does.
+> 
+> And finally, the _REAL_ reason is that this is not a low ASCII
+> character and so has nothing to do in the kernel sources or in /sys :)
 
-Anyone seen this?
-Thanks,
-Dan
+Fine with me!  (Patch may be broken too...)
 
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Colin Leroy <colin@colino.net>
+===== drivers/macintosh/therm_adt746x.c 1.4 vs edited =====
+--- 1.4/drivers/macintosh/therm_adt746x.c	2004-05-29 17:26:34 +10:00
++++ edited/drivers/macintosh/therm_adt746x.c	2004-09-17 15:59:59 +10:00
+@@ -417,11 +417,6 @@
+  * choice but implement a bunch of them...
+  *
+  */
+-#define BUILD_SHOW_FUNC_DEG(name, data)				\
+-static ssize_t show_##name(struct device *dev, char *buf)	\
+-{								\
+-	return sprintf(buf, "%d°C\n", data);			\
+-}
+ #define BUILD_SHOW_FUNC_INT(name, data)				\
+ static ssize_t show_##name(struct device *dev, char *buf)	\
+ {								\
+@@ -453,10 +448,10 @@
+ 	return n;						\
+ }
+ 
+-BUILD_SHOW_FUNC_DEG(cpu_temperature,	 (read_reg(thermostat, TEMP_REG[1])))
+-BUILD_SHOW_FUNC_DEG(gpu_temperature,	 (read_reg(thermostat, TEMP_REG[2])))
+-BUILD_SHOW_FUNC_DEG(cpu_limit,		 thermostat->limits[1])
+-BUILD_SHOW_FUNC_DEG(gpu_limit,		 thermostat->limits[2])
++BUILD_SHOW_FUNC_INT(cpu_temperature,	 (read_reg(thermostat, TEMP_REG[1])))
++BUILD_SHOW_FUNC_INT(gpu_temperature,	 (read_reg(thermostat, TEMP_REG[2])))
++BUILD_SHOW_FUNC_INT(cpu_limit,		 thermostat->limits[1])
++BUILD_SHOW_FUNC_INT(gpu_limit,		 thermostat->limits[2])
+ 
+ BUILD_SHOW_FUNC_INT(specified_fan_speed, fan_speed)
+ BUILD_SHOW_FUNC_INT(cpu_fan_speed,	 (read_fan_speed(thermostat, FAN_SPEED[0])))
 -- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change
+Colin

@@ -1,57 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbUAFJ1i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 04:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUAFJ1i
+	id S261606AbUAFJWm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 04:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbUAFJWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 04:27:38 -0500
-Received: from host33-138.pool80181.interbusiness.it ([80.181.138.33]:11780
-	"EHLO kratorius.ath.cx") by vger.kernel.org with ESMTP
-	id S261613AbUAFJ1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 04:27:37 -0500
-Date: Tue, 6 Jan 2004 10:26:56 +0100
-From: Giuliani Ivan <kratorius@lugbari.org>
+	Tue, 6 Jan 2004 04:22:42 -0500
+Received: from neveragain.de ([217.69.76.1]:23430 "EHLO hobbit.neveragain.de")
+	by vger.kernel.org with ESMTP id S261606AbUAFJWk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 04:22:40 -0500
+Date: Tue, 6 Jan 2004 10:22:36 +0100
+From: Martin Loschwitz <madkiss@madkiss.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1 affected?
-Message-Id: <20040106102656.7cd1e55b@malattia.net>
-In-Reply-To: <20040106063906.GB27889@unthought.net>
-References: <1073320318.21198.2.camel@midux>
-	<Pine.LNX.4.58.0401050840290.21265@home.osdl.org>
-	<1073326471.21338.21.camel@midux>
-	<Pine.LNX.4.58.0401051027430.2115@home.osdl.org>
-	<20040105193817.GA4366@lsc.hu>
-	<20040105224855.GC4987@louise.pinerecords.com>
-	<1073348624.1790.43.camel@louise3.void.org>
-	<20040106063906.GB27889@unthought.net>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: mremap() bug IMHO not in 2.2
+Message-ID: <20040106092236.GA1211@minerva.local.lan>
+References: <20040105145421.GC2247@rdlg.net> <Pine.LNX.4.58L.0401051323520.1188@logos.cnet> <20040105181053.6560e1e3.grundig@teleline.es> <20040105182607.GB2093@pasky.ji.cz> <20040105225508.GM2093@pasky.ji.cz> <Pine.LNX.4.58.0401051532510.5737@home.osdl.org> <200401052358.i05NwWIe010594@turing-police.cc.vt.edu> <Pine.LNX.4.58.0401051604550.5970@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401051604550.5970@home.osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jan 2004 07:39:06 +0100
-Jakob Oestergaard <jakob@unthought.net> wrote:
 
-> On Tue, Jan 06, 2004 at 01:23:44AM +0100, Bastiaan Spandaw wrote:
-> ...
-> > Not sure if this works or not.
-> > According to a slashdot comment this is proof of concept code.
-> > 
-> > http://linuxfromscratch.org/~devine/mremap_poc.c
-> 
-> A few tests, all on IA32, all as non-root user:
-> 
-> RedHat 5.2, (vanilla 2.0.39) = no effect
-> RedHat 6.2, (vanilla 2.4.18) = instant reboot
-> RedHat 7.2, (redhat 2.4.9-7) = instant reboot
-> Debian 2.2, (vanilla 2.2.19) = no effect
-> SuSE 7.3, (suse 2.4.10-4GB) = instant reboot
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On my 2.4.22 (slackware 9.1 default) and on my 2.6.0-test11 (vanilla) with IA32
-worked fine.
+On Mon, Jan 05, 2004 at 04:08:36PM -0800, Linus Torvalds wrote:
+>=20
+>=20
+> The only page that should matter is likely the one at 0xC0000000, where=
+=20
+> there can be extra complications from the fact that we use 4MB pages for=
+=20
+> the kernel, so when fork/exit tries to walk the page table, it would get=
+=20
+> bogus results.
+>=20
+This is right, the proof-of-concept exploit to be found on full-disclosure
+exactly uses that memory address.
 
--- 
-Ivan "kratorius" Giuliani  ::  PGP Public Key ID:
-http://kratorius.cjb.net   ::  0x840F429D @ keyserver.linux.it
-LUGBari Member             ::
+> Still, I'd expect that to lead to a triple fault (and thus a reboot)=20
+> rather than any elevation of privileges..
+>=20
+I agree with Linus. I tested the POC-exploit here on Linux 2.4.22-rc2
+and Linux 2.4.23 and everything it does is to simply reboot the box. As=20
+for Linux 2.6.0-test9, I get something like a hangup (the same sound is
+played again and again and only reset helps).
+
+I actually am not sure whether this should be called 'local privlige
+escalation' or rather 'possibility for Denial of Service attacks'.
+
+> Interesting, in any case. Good catch from whoever found it.
+>=20
+> 		Linus
+> -
+
+--=20
+  .''`.   Martin Loschwitz           Debian GNU/Linux developer
+ : :'  :  madkiss@madkiss.org        madkiss@debian.org
+ `. `'`   http://www.madkiss.org/    people.debian.org/~madkiss/
+   `-     Use Debian GNU/Linux 3.0!  See http://www.debian.org/
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/+n5cHPo+jNcUXjARAoaSAKCh5m2vMmct64D/KbfOFp+Tvow6RgCfRaEt
+e73+kuP1nc3tL5zXTOD6bGM=
+=BBxU
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311575AbSDKQfV>; Thu, 11 Apr 2002 12:35:21 -0400
+	id <S311960AbSDKQni>; Thu, 11 Apr 2002 12:43:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311879AbSDKQfU>; Thu, 11 Apr 2002 12:35:20 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:24327 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S311575AbSDKQfU>; Thu, 11 Apr 2002 12:35:20 -0400
-Message-Id: <200204111635.g3BGZCb02271@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: "Alexis S. L. Carvalho" <alexis@cecm.usp.br>
-cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
-Subject: Re: implementing soft-updates
+	id <S312255AbSDKQnh>; Thu, 11 Apr 2002 12:43:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12817 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311960AbSDKQnh>;
+	Thu, 11 Apr 2002 12:43:37 -0400
+Date: Thu, 11 Apr 2002 17:43:31 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux as a minicomputer ?
+Message-ID: <20020411164331.GR612@gallifrey>
+In-Reply-To: <20020411154601.GY17962@antefacto.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 11 Apr 2002 11:35:11 -0500
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.18 (i686)
+X-Uptime: 17:41:10 up 5 days, 21:17,  5 users,  load average: 1.74, 1.94, 1.98
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-support@steeleye.com said:
-> Does anyone know of any implementation of soft-updates over ext2? I'm
-> starting a project on this for grad school, and I'd like to know of
-> any previous (current?) efforts.
+* John P. Looney (john@antefacto.com) wrote:
+>  Sorry if this isn't the place for this question, but it's something that
+> came up in general office talk today.
+> 
+>  Many many moons ago, the GGI project promised us the ability to buy a
+> four-processor box, four PCI video cards, four USB mice & keyboards, and
+> let four people use that machine at once, with benefits all around.
 
-There was a previous attempt (now defunct, I believe) to implement a phase 
-tree approach for ext2.  While this is definitely not the same as the McKusik 
-soft update approach, the end goal of ensuring that the filesystem is 
-consistent at all times during operation is, so you may be able to salvage 
-something to help you from it.
+<snip>
 
-The person originally doing it was Daniel Phillips
+>  Are there any plans to bring this sort of functionality to Linux 2.6 ? As
+> I remember, some of the problems were that the GGI code was never going to
+> get into Linux proper, and enumeration of multiple keyboards and mice, but
+> I would have thought that was there a need, these problems would have been
+> fixed by now.
 
-http://people.nl.linux.org/~phillips/
+I'm not sure, but I don't think any code is needed if you run X.  Bung
+four USB mice, four USB keyboards in and four video cards.  Write a
+separate X config for each one specifying which PCI card should be used
+and which mouse/keyboard device should be used.  Now start an X server
+for each one.
 
-and he called the filesystem tux2.  There were also several papers he 
-presented, one to ALS 2000 which unfortunately has no surviving on-line copy.  
-Marc Merlin I believe has a copy of the presentation made to the Australian 
-Linux Conference in 2001:
+(Fun should form in the efforts to figure out which mouse is associated
+with which keyboard and with which video output).
 
-http://marc.merlins.org/linux/linux.conf.au_2001/Day2/Tux2.html
-
-And there are probably others dotted about the web if you look.
-
-James Bottomley
-
-
+Dave
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbTKSWyT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 17:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTKSWyT
+	id S264173AbTKSXBU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 18:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbTKSXBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 17:54:19 -0500
-Received: from user-0c8gj75.cable.mindspring.com ([24.136.76.229]:24205 "EHLO
-	BL4ST") by vger.kernel.org with ESMTP id S262745AbTKSWyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 17:54:18 -0500
-Date: Wed, 19 Nov 2003 14:54:25 -0800
-From: Eric Wong <eric@yhbt.net>
-To: linux-kernel@vger.kernel.org
-Subject: notes on 2.4 -> 2.6 upgrade with a Serial ATA root
-Message-ID: <20031119225425.GF24852@BL4ST>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Wed, 19 Nov 2003 18:01:20 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:27552
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id S264173AbTKSXBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 18:01:19 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A34046@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org,
+       "Dan Christian (E-mail)" <Daniel.A.Christian@NASA.gov>
+Subject: RE: Linux 2.4.23-rc2 [PATCH]
+Date: Wed, 19 Nov 2003 15:01:43 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When using the 2.4.22-xfs kernel (Knoppix -> Debian installation), our
-SATA root drive shows up as /dev/hdg, but under 2.6, it's now a SCSI
-device, /dev/sda.  It took us a while to figure out what was wrong until
-we finally got a serial line and were able to read the boot message
-outputs.
+Hi Marcelo,
 
-This is the error message we got originally _before_ we appended
-"root=/dev/sda3" to our command-line:
+There is still a chunk of the "ELAN versus ST16C654" bug in the generic
+serial driver. The previous attempt to patch it missed a spot. Please apply
+the following patch to fix the second spot the same way as the first was
+fixed (at line 845). This bug was the ELAN UART work-around that broke
+ST16C654 UART support. Let's finish it. 
 
-VFS: Cannot open root device "2203" or unknown-block(34,3)
-Please append a correct "root=" boot option
+Thanks,
+Ed Vance
 
-I have a feeling this will take a lot of SATA users by surprise, so
-hopefully it'll be documented from now on.
-
--- 
-Eric Wong                                        eric@yhbt.net
-Petta Technologies                         eric@petta-tech.com
+diff -Naur -X dontdiff.txt linux-2.4.23-rc2/drivers/char/serial.c
+linux-2.4.23-rc2-ml/drivers/char/serial.c
+--- linux-2.4.23-rc2/drivers/char/serial.c	Mon Aug 25 04:44:41 2003
++++ linux-2.4.23-rc2-ml/drivers/char/serial.c	Wed Nov 19 14:40:05 2003
+@@ -914,10 +914,15 @@
+ 		if (status & UART_LSR_DR)
+ 			receive_chars(info, &status, regs);
+ 		check_modem_status(info);
++#ifdef CONFIG_MELAN
+ 		if ((status & UART_LSR_THRE) ||
+ 		    /* For buggy ELAN processors */
+ 		    ((iir & UART_IIR_ID) == UART_IIR_THRI))
+ 			transmit_chars(info, 0);
++#else
++		if (status & UART_LSR_THRE)
++			transmit_chars(info, 0);
++#endif
+ 		if (pass_counter++ > RS_ISR_PASS_LIMIT) {
+ #if SERIAL_DEBUG_INTR
+ 			printk("rs_single loop break.\n");

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270062AbTGSS0c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 14:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270377AbTGSS0c
+	id S270451AbTGSSet (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 14:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270466AbTGSSet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 14:26:32 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:42763 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S270062AbTGSS0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 14:26:30 -0400
-Date: Sat, 19 Jul 2003 19:41:23 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Larry McVoy <lm@work.bitmover.com>, Ga?l Le Mignot <kilobug@freesurf.fr>,
-       Larry McVoy <lm@bitmover.com>,
-       Christian Reichert <c.reichert@resolution.de>,
-       John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
-       linux-kernel@vger.kernel.org, rms@gnu.org, Valdis.Kletnieks@vt.edu
-Subject: Re: [OT] HURD vs Linux/HURD
-Message-ID: <20030719194123.A16317@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Ga?l Le Mignot <kilobug@freesurf.fr>, Larry McVoy <lm@bitmover.com>,
-	Christian Reichert <c.reichert@resolution.de>,
-	John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
-	linux-kernel@vger.kernel.org, rms@gnu.org, Valdis.Kletnieks@vt.edu
-References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk> <1058626962.30424.6.camel@stargate> <plopm3lluu8mv0.fsf@drizzt.kilobug.org> <20030719172311.GA23246@work.bitmover.com> <plopm3he5i8l4h.fsf@drizzt.kilobug.org> <20030719181249.GA24197@work.bitmover.com>
+	Sat, 19 Jul 2003 14:34:49 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:65496 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S270451AbTGSSet
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 14:34:49 -0400
+Date: Sat, 19 Jul 2003 11:49:44 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper
+Message-ID: <20030719184944.GC24197@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0307181603340.21716-100000@chimarrao.boston.redhat.com> <1058560325.2662.31.camel@localhost> <20030719184246.GF7452@lug-owl.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030719181249.GA24197@work.bitmover.com>; from lm@bitmover.com on Sat, Jul 19, 2003 at 11:12:49AM -0700
+In-Reply-To: <20030719184246.GF7452@lug-owl.de>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0,
+	required 7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 11:12:49AM -0700, Larry McVoy wrote:
-> The microkernel part of any reasonable microkernel is tiny.
+On Sat, Jul 19, 2003 at 08:42:46PM +0200, Jan-Benedict Glaw wrote:
+> Have you ever used eg. cvsps with the BK->CVS gateway? I tried this and
+> failed because of 4 issues:
+> 
+> 	- I couldn't get the initial import patchset (2)
+> 	- I couldn't get two other patchsets
+> 	- One patchset added a file which already existed (11504)
 
-And who says Mach is a reasonable microkernel :)
-
+Work with Ben Collins on that.  I don't know what cvsps is so I can't
+help you there.  If you can figure out what is wrong with the tree and 
+explain what we should do to fix it, we'll give it a tree.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264772AbUEaUVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264773AbUEaUWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264772AbUEaUVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 16:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264773AbUEaUVz
+	id S264773AbUEaUWI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 16:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbUEaUWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 16:21:55 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10368 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264772AbUEaUVy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 16:21:54 -0400
-Date: Mon, 31 May 2004 21:29:12 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200405312029.i4VKTCZ0000596@81-2-122-30.bradfords.org.uk>
-To: Michael Brennan <mbrennan@ezrs.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <40BB88B5.8080300@ezrs.com>
-References: <40BB88B5.8080300@ezrs.com>
-Subject: Re: why swap at all?
+	Mon, 31 May 2004 16:22:08 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:11487 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264773AbUEaUWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 16:22:05 -0400
+Date: Mon, 31 May 2004 22:21:53 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: zippel@linux-m68k.org
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+       "Matthew J. Fanto" <mattjf@uncompiled.com>
+Subject: [2.6 patch] s/integer/int/ in kconfig-language.txt
+Message-ID: <20040531202153.GA25501@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The trivial documentation patch below was originally sent by Matthew J. 
+Fanto <mattjf@uncompiled.com> some months ago.
 
-Quote from Michael Brennan <mbrennan@ezrs.com>:
-> Hi!
-> I've recently started to follow this list.
-> I read the swap discussion here, and I was wondering about what Nick 
-> Pigging said about grepping the kernel tree.
-> 
-> Nick Piggin wrote:
->  > For example, I have 57MB swapped right now. It allows me to instantly
->  > grep the kernel tree. If I turned swap off, each grep would probably
->  > take 30 seconds.
-> 
-> Are the pages swapped to disk as a result of the grep run?
+Please apply
+Adrian
 
-I'm not really sure what the above was intended to demonstrate, but I assume
-that it was that having swap allowed the first grep to fill physical RAM with
-cache at the expense of swapping other processes, which were using physical
-RAM to disk.
 
-However, if 57 Mb of swap allows this, 57 Mb of extra physical RAM should also
-also allow the grep to be cached, without having to swap out anything.
-
-Hence my comment about it not being a magical property of swap space.
-
-John.
+--- linux-2.6.7-rc1-mm1-full/Documentation/kbuild/kconfig-language.txt.old	2004-05-31 22:19:09.000000000 +0200
++++ linux-2.6.7-rc1-mm1-full/Documentation/kbuild/kconfig-language.txt	2004-05-31 22:19:24.000000000 +0200
+@@ -48,7 +48,7 @@
+ A menu entry can have a number of attributes. Not all of them are
+ applicable everywhere (see syntax).
+ 
+-- type definition: "bool"/"tristate"/"string"/"hex"/"integer"
++- type definition: "bool"/"tristate"/"string"/"hex"/"int"
+   Every config option must have a type. There are only two basic types:
+   tristate and string, the other types are based on these two. The type
+   definition optionally accepts an input prompt, so these two examples

@@ -1,47 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130435AbRBLVXE>; Mon, 12 Feb 2001 16:23:04 -0500
+	id <S130613AbRBLVYY>; Mon, 12 Feb 2001 16:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130635AbRBLVWz>; Mon, 12 Feb 2001 16:22:55 -0500
-Received: from innerfire.net ([208.181.73.33]:21002 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S130435AbRBLVWk>;
-	Mon, 12 Feb 2001 16:22:40 -0500
-Date: Mon, 12 Feb 2001 13:24:10 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Mike Harrold <mharrold@cas.org>
-cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [LK] Re: lkml subject line
-In-Reply-To: <200102121717.MAA18139@mah21awu.cas.org>
-Message-ID: <Pine.LNX.4.10.10102121322530.13086-100000@innerfire.net>
+	id <S130570AbRBLVYE>; Mon, 12 Feb 2001 16:24:04 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:54535 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130868AbRBLVXw>; Mon, 12 Feb 2001 16:23:52 -0500
+Date: Mon, 12 Feb 2001 17:33:53 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hans Reiser <reiser@namesys.com>
+cc: Chris Mason <mason@suse.com>, Daniel Stone <daniel@kabuki.eyep.net>,
+        Chris Wedgwood <cw@f00f.org>, David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>,
+        Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+In-Reply-To: <3A884ABE.29F14A5D@namesys.com>
+Message-ID: <Pine.LNX.4.21.0102121733410.29670-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, Mike Harrold wrote:
 
-> > Those would all be your problems and I would suggest using a different account
-> > for mail then.
+On Mon, 12 Feb 2001, Hans Reiser wrote:
+
+> Marcelo Tosatti wrote:
+> > 
+> > On Sun, 11 Feb 2001, Chris Mason wrote:
+> > 
+> > >
+> > >
+> > > On Sunday, February 11, 2001 10:00:11 AM +0300 Hans Reiser
+> > > <reiser@namesys.com> wrote:
+> > >
+> > > > Daniel Stone wrote:
+> > > >>
+> > > >> On 11 Feb 2001 02:02:00 +1300, Chris Wedgwood wrote:
+> > > >> > On Thu, Feb 08, 2001 at 05:34:44PM +1100, Daniel Stone wrote:
+> > > >> >
+> > > >> >     I run Reiser on all but /boot, and it seems to enjoy corrupting my
+> > > >> >     mbox'es randomly.
+> > > >> >
+> > > >> > what kind of corruption are you seeing?
+> > > >>
+> > > >> Zeroed bytes.
+> > > >
+> > > > This sounds like the same bug as the syslog bug, please try to help Chris
+> > > > reproduce it.
+> > > >
+> > > > zam, if Chris can't reproduce it by Monday, please give it a try.
+> > > >
+> > >
+> > > I had a bunch of scripts running over the weekend to try and reproduce
+> > > this, but the results were ruined when a major storm killed the power (no,
+> > > still haven't gotten around to configuring my UPS to shut things down ;-).
+> > >
+> > > So, I'll try again.
+> > 
+> > Chris,
+> > 
+> > Do you know if the people reporting the corruption with reiserfs on
+> > 2.4 were using IDE drives with PIO mode and IDE multicount turned on?
+> > 
+> > If so, it may be caused by the problem fixed by Russell King on
+> > 2.4.2-pre2.
+> > 
+> > Without his fix, I was able to corrupt ext2 while using PIO+multicount
+> > very very easily.
 > 
-> Out of interest, how would that solve anything? So I use an ISP instead.
-> Then I have to download all my mail to home to read it. Talk about a
-> total waste of time.
-> 
-> It's hard enough tracking my mail as it is, let alone having to have another
-> account just to handle a certain mailing list.
-> 
+> Was the bug you describe also present in the 2.2.* series?  If not, then the
+> bugs are not the same.
 
-Put procmail on the other account .. make it modify the subject as you
-wish then forward the mail to your regular account. 
-
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+N.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266824AbUAXApj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 19:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbUAXApj
+	id S266830AbUAXAwK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 19:52:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbUAXAwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 19:45:39 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5898 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266824AbUAXApi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 19:45:38 -0500
-Date: Sat, 24 Jan 2004 00:45:30 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Arne Ahrend <aahrend@web.de>, Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: No hot_UN_plugging of PCMCIA network cards
-Message-ID: <20040124004530.B25466@flint.arm.linux.org.uk>
-Mail-Followup-To: Arne Ahrend <aahrend@web.de>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-References: <20040122210501.40800ea7.aahrend@web.de> <20040122213757.H23535@flint.arm.linux.org.uk> <20040123232025.4a128ead.aahrend@web.de>
+	Fri, 23 Jan 2004 19:52:09 -0500
+Received: from hell.org.pl ([212.244.218.42]:24083 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S266830AbUAXAvj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 19:51:39 -0500
+Date: Sat, 24 Jan 2004 01:51:44 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: linux-kernel@vger.kernel.org
+Cc: linux-xfs@oss.sgi.com
+Subject: Re: 2.6.2-rc1-mm2
+Message-ID: <20040124005144.GA30881@hell.org.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+References: <1h670-8J-5@gated-at.bofh.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040123232025.4a128ead.aahrend@web.de>; from aahrend@web.de on Fri, Jan 23, 2004 at 11:20:25PM +0100
+In-Reply-To: <1h670-8J-5@gated-at.bofh.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 23, 2004 at 11:20:25PM +0100, Arne Ahrend wrote:
-> > It works for me - with pcnet_cs.  Do you have ipv6 configured into the
-> > kernel?
-> 
-> No.
+Thus wrote Andrew Morton:
+> - There is a new debug check in here which drops a stack trace when a piece
+>   of code calls one of the sleep_on() functions without lock_kernel() held. 
+>   This is almost certainly a bug.  Please try to identify (from the trace)
+>   which subsystem is the culprit and copy its maintainer when reporting such
+>   traces.
 
-Argh, it seems that several patches which were in the netdrv experimental
-tree never got merged.
+#v+
+Linux version 2.6.2-rc1-mm2 (sziwan@nadir) (gcc version 3.3.2) #11 Fri Jan 23 22:45:18 CET 2004
+[...]
+Badness in interruptible_sleep_on at kernel/sched.c:2230
+Call Trace:
+ [<c011aa82>] interruptible_sleep_on+0xd1/0xd6
+ [<c011a784>] default_wake_function+0x0/0x12
+ [<c01df0b1>] pagebuf_daemon+0x0/0x230
+ [<c01df2c6>] pagebuf_daemon+0x215/0x230
+ [<c01df087>] pagebuf_daemon_wakeup+0x0/0x2a
+ [<c01df0b1>] pagebuf_daemon+0x0/0x230
+ [<c0109255>] kernel_thread_helper+0x5/0xb
 
-Jeff - what's the situation with the net driver experimental tree?
-Could the DEV_STALE_CONFIG patches from around December time be
-merged please?
+[...]
+XFS mounting filesystem hda5
+Badness in interruptible_sleep_on at kernel/sched.c:2230
+Call Trace:
+ [<c011aa82>] interruptible_sleep_on+0xd1/0xd6
+ [<c011a784>] default_wake_function+0x0/0x12
+ [<c01df2c6>] pagebuf_daemon+0x215/0x230
+ [<c01df087>] pagebuf_daemon_wakeup+0x0/0x2a
+ [<c01df0b1>] pagebuf_daemon+0x0/0x230
+ [<c0109255>] kernel_thread_helper+0x5/0xb
+
+Ending clean XFS mount for filesystem: hda5
+#v-
+
+[there was more of that, omitted]
+Best regards,
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

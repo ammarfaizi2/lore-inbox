@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbUDSWz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbUDSW4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbUDSWz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 18:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUDSWz3
+	id S261187AbUDSW4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 18:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUDSW4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 18:55:29 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:2481 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261156AbUDSWz1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 18:55:27 -0400
-Message-ID: <408458D5.5030208@yahoo.com.au>
-Date: Tue, 20 Apr 2004 08:55:17 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+	Mon, 19 Apr 2004 18:56:18 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:60689 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S261187AbUDSW4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 18:56:08 -0400
+Date: Mon, 19 Apr 2004 17:54:57 -0500
+From: Terence Ripperda <tripperda@nvidia.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org,
+       eich@suse.de
+Subject: Re: PAT support
+Message-ID: <20040419225456.GM632@hygelac>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+References: <20040417004217.GC72227@colin2.muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040417004217.GC72227@colin2.muc.de>
+User-Agent: Mutt/1.4i
 X-Accept-Language: en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: rusty@au1.ibm.com, Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: [lhcs-devel] Re: CPU Hotplug broken -mm5 onwards
-References: <20040418170613.GA21769@in.ibm.com> <408348B6.7020606@yahoo.com.au> <20040419125853.GB6835@in.ibm.com>
-In-Reply-To: <20040419125853.GB6835@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Operating-System: Linux hrothgar 2.6.4
+X-OriginalArrivalTime: 19 Apr 2004 22:54:59.0878 (UTC) FILETIME=[57BB1C60:01C42661]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> On Mon, Apr 19, 2004 at 01:34:14PM +1000, Nick Piggin wrote:
-> 
->>I think a rwsem might be a good idea anyway, because
->>sched_migrate_task can end up being called pretty often with
->>balance on exec and balance on clone. The semaphore could easily
->>place undue serialisation on that path.
-> 
-> 
-> I found that r/w sem does not help here ..It can still lead to deadlocks.
-> One example I hit is :
-> 
-> cpu_up takes write lock, sends out CPU_UP_PREPARE notification. As part
-> of it, many do kthread_create, which uses workqueue. The work function
-> is never processed because keventd would be blocked on a previous 
-> work function, waiting for hotplug sem in exec path.
-> 
-> So, as Rusty said, I think we really need to consider removing
-> lock_cpu_hotplug from sched_migrate_task. AFAICS that lock
-> was needed to prevent adding tasks to dead cpus. The same 
-> can be accomplished by removing lock_cpu_hotplug from sched_migrate_task
-> and adding a cpu_is_offline check in __migrate_task.
-> This will eliminate all the deadlocks I have been hitting.
-> 
+On Fri, Apr 16, 2004 at 05:42:17PM -0700, ak@muc.de wrote:
+> change_page_attr can change more than just caching attributes,
+> also read/write (e.g. slab debug uses it for that) 
 
-Yes this would be a better idea. Care to send Andrew a patch
-against -mm?
+ah, ok. sorry, missed that.
 
-> 
-> 
->>Can we arrange some of these checks to disappear when HOTPLUG_CPU
->>is not set? For example, make cpu_is_offline only valid to call for
->>CPUs that have been online sometime, and can evaluate to 0 if
->>HOTPLUG_CPU is not set?
-> 
-> 
-> I think this is already being done in include/linux/cpu.h
-> 
+> At least for the later adding another book keeping data structure
+> may be too expensive.
 
-Yes I see. I didn't realise the first one was under an ifdef :P
-Sorry.
+makes sense.
+
+> I think I prefer the do/undo model instead of push/pop.
+> That can work with cmaps too. PAGE_KERNEL means no cmap,
+> PAGE_KERNEL_WC and PAGE_KERNEL_NOCACHE get a cmap.
+
+but then what is the point of cmap? I would expect a mix of WC and UC mappings to be much less dangerous than a mix of WC/UC and WB. perhaps my mindset is wrong, but it seems allowing ioremap to request a cached mapping is important, and that if that mapping was followed by ioremap_nocached or ioremap_wrcomb, that these subsequent calls should fail.
+
+I did finish implementing your suggestion, that change_page_attr should consider PAGE_KERNEL as a call to cmap_release_range and anything else as a call to cmap_request_range. seemed to work ok, but I'm seeing the acpi table code doing a lot of ioremaps (cached) that are ignored, then iounmaps are causing cmap_release_range calls to complain about not finding the regions. of course in a final version, we'd cut out the debug output, but expecting lots of empty calls to cmap_release_range seems messy.
+
+what if there was a restore_page_attr(unsigned long address, unsigned long numpages) that assumed the pgprot was PAGE_KERNEL. change_page_attr knows to call cmap_request_range and restore_page_attr knows to call cmap_release_range. otherwise they do the same thing, restore_ just inherently uses PAGE_KERNEL for the caching type.
+
+> remove_vm_area() needs to just be split into some worker functions 
+> (__remove_vm_area et.al.)
+
+ok, easily done.
+
+Thanks,
+Terence

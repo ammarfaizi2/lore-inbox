@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312317AbSDPK6x>; Tue, 16 Apr 2002 06:58:53 -0400
+	id <S312332AbSDPLG7>; Tue, 16 Apr 2002 07:06:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312332AbSDPK6w>; Tue, 16 Apr 2002 06:58:52 -0400
-Received: from [129.27.43.9] ([129.27.43.9]:60395 "EHLO xarch.tu-graz.ac.at")
-	by vger.kernel.org with ESMTP id <S312317AbSDPK6w>;
-	Tue, 16 Apr 2002 06:58:52 -0400
-Date: Tue, 16 Apr 2002 12:39:07 +0200 (CEST)
-From: <mtopper@xarch.tu-graz.ac.at>
-To: support@suse.de
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: USB-Mouse-Bug in 2.4.16-8 ?
-In-Reply-To: <20020416102501.GG17043@suse.de>
-Message-ID: <Pine.LNX.4.21.0204161234520.5014-100000@xarch.tu-graz.ac.at>
+	id <S312334AbSDPLG6>; Tue, 16 Apr 2002 07:06:58 -0400
+Received: from pat.uio.no ([129.240.130.16]:61371 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S312332AbSDPLG5>;
+	Tue, 16 Apr 2002 07:06:57 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15548.1458.584095.149963@charged.uio.no>
+Date: Tue, 16 Apr 2002 13:06:26 +0200
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Sasi Peter <sape@iq.rulez.org>, linux-kernel@vger.kernel.org
+Subject: Re: NFS peformance patches
+In-Reply-To: <20020416003750.GZ23513@matchmail.com>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Mike Fedyk <mfedyk@matchmail.com> writes:
 
-Dear Mailing List, 
+     > On Mon, Apr 15, 2002 at 12:08:08PM +0200, Sasi Peter wrote:
+    >> Anybody keeping an eye on these?
+    >>
+    >> http://www.citi.umich.edu/projects/nfs-perf/patches/
+    >>
 
-I've discovered that even if I insmod (or modprobe) the proper USB modules
-for my 2.4.16 kernel, and if I use the USB mouse afterwards,
-"lsmod" reveals that the modules seem to be "(0) unused" - despite the USB
-mouse is in action!
+I'm in contact with Chuck Lever on a regular basis...
 
-Users of the 2.4.18-kernel affirmed same kernel behaviour.
-
-If I rmmod the USB modules, they subsequently allow to be removed from
-kernelspace, and the USB mouse cursor , ofcourse , stops instantly -
-despite he was just in use. 
-
-Is this a bug or a feature? :-)
-
-Yours, Alex
-
-
+Cheers,
+   Trond

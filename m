@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317062AbSEXBB0>; Thu, 23 May 2002 21:01:26 -0400
+	id <S317060AbSEXBB2>; Thu, 23 May 2002 21:01:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317061AbSEXBBZ>; Thu, 23 May 2002 21:01:25 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:9628 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317060AbSEXBBZ> convert rfc822-to-8bit; Thu, 23 May 2002 21:01:25 -0400
+	id <S317061AbSEXBB1>; Thu, 23 May 2002 21:01:27 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:47527 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317060AbSEXBB0> convert rfc822-to-8bit; Thu, 23 May 2002 21:01:26 -0400
 Content-Type: text/plain;
   charset="us-ascii"
 From: Marc-Christian Petersen <mcp@linux-systeme.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-preX and DRM Modules? Evil old!! why?
-Date: Fri, 24 May 2002 02:51:11 +0200
+Subject: 2.2.x and DRM Modules / AGPgart
+Date: Fri, 24 May 2002 03:01:11 +0200
 X-Mailer: KMail [version 1.4]
 Organization: Linux-Systeme GmbH
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200205240251.11689.mcp@linux-systeme.de>
+Message-Id: <200205240255.21249.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi there,
 
-please can anyone tell me why XFree DRM Modules aren't updated to the latest 
-version in 2.4.19-pre8 ? There is a new version out since January 2002. 
-2.4.19-preX still stucks on the old DRM engine and you have to manually 
-compile the according modules to use XFree 4.2.0, otherwise you won't get DRI 
-support.
+again this question to the 2.2. Kernel tree, why this kernels does not have 
+the new DRM Engine? Its out since January 2002.
 
-If there is any interest in this, i will send a patch applying clean on 
-2.4.19-pre8. With this you don't have to compile the extra package by hand 
-and you can use XFree 4.2.0 with DRI support by kernel modules.
+Another issue i've noticed is, if you want to load a drm module, you have to 
+load agpgart.o before, otherwise it won't load and even won't work. But if 
+you have a PCI Card, agpgart is superflous and will not load, so the DRM 
+Module cannot be loaded too.
 
-Alan has this patches in his tree a long time, also i have the patches in my 
-tree wolk, running fine.
+This works fine with 2.4 Kernel tree, but not with 2.2 Kernel tree. Actually 
+tested 2.2.21.
 
-So? apply or not apply, that's the question ;)
 
--- 
+insmod: /lib/modules/2.2.21/misc/r128.o: insmod r128 failed
+[drm:r128_init] *ERROR* Cannot initialize agpgart module.
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 203M
+agpgart: Detected an Intel i810 E, but could not find the secondary device.
+agpgart: no supported devices found.
+/lib/modules/2.2.21/misc/agpgart.o: init_module: Device or resource busy
+Hint: insmod errors can be caused by incorrect module parameters, including 
+invalid IO or IRQ parameters
+/lib/modules/2.2.21/misc/agpgart.o: insmod agpgart failed
+
+So, fully useless for PCI Cards.
+
 Kind regards,
 	Marc
 

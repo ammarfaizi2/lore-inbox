@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUIBHOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUIBHP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUIBHOE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 03:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUIBHOE
+	id S267653AbUIBHP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 03:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUIBHPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 03:14:04 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:5012 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267602AbUIBHOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 03:14:00 -0400
-Date: Thu, 2 Sep 2004 09:15:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q8
-Message-ID: <20040902071525.GA19925@elte.hu>
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <1094108653.11364.26.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094108653.11364.26.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 2 Sep 2004 03:15:15 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:10150 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267607AbUIBHPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 03:15:10 -0400
+Message-ID: <4136C876.5010806@namesys.com>
+Date: Thu, 02 Sep 2004 00:15:02 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+>
+>. Doing transactions on one file is 
+>only the beginning - you'll find people who want transactions across file 
+>boundaries etc.
+>  
+>
+Yup, that's what reiser4 is aiming at and where things get exciting for 
+version control systems and the like.  We are just missing the api code 
+for it at the moment, all the infrastructure is there, and the api is in 
+progress in sys_reiser4.
 
-> Here are traces of a 145, 190, and 217 usec latencies in
-> netif_receive_skb:
-> 
-> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace2.txt
-> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace3.txt
-> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-Q6#/var/www/2.6.9-rc1-Q6/trace4.txt
-
-these all seem to be single-packet processing latencies - it would be
-quite hard to make those codepaths preemptible.
-
-i'd suggest to turn off things like netfilter and ip_conntrack (and
-other optional networking features that show up in the trace), they can
-only increase latency:
-
- 00000001 0.016ms (+0.000ms): ip_rcv (netif_receive_skb)
- 00000001 0.019ms (+0.002ms): nf_hook_slow (ip_rcv)
- 00000002 0.019ms (+0.000ms): nf_iterate (nf_hook_slow)
- 00000002 0.021ms (+0.001ms): ip_conntrack_defrag (nf_iterate)
- 00000002 0.022ms (+0.000ms): ip_conntrack_in (nf_iterate)
- 00000002 0.022ms (+0.000ms): ip_ct_find_proto (ip_conntrack_in)
- 00000103 0.023ms (+0.000ms): __ip_ct_find_proto (ip_ct_find_proto)
- 00000102 0.024ms (+0.000ms): local_bh_enable (ip_ct_find_proto)
- 00000002 0.025ms (+0.001ms): tcp_error (ip_conntrack_in)
-
-	Ingo

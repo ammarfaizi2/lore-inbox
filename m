@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVBVM07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVBVM2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbVBVM07 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 07:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVBVM07
+	id S262298AbVBVM2p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 07:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVBVM2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 07:26:59 -0500
-Received: from pot.isti.cnr.it ([146.48.83.182]:13483 "EHLO pot.isti.cnr.it")
-	by vger.kernel.org with ESMTP id S262285AbVBVMZi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 07:25:38 -0500
-From: Francesco Potorti` <Potorti@isti.cnr.it>
-To: linux-kernel@vger.kernel.org
-Subject: martian source message is wrong?
-Organization: ISTI-CNR, via Moruzzi 1, I-56124 Pisa, +39-0503153058
-X-fingerprint: 4B02 6187 5C03 D6B1 2E31  7666 09DF 2DC9 BE21 6115
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E1D3Z6e-0008B3-00@pot.isti.cnr.it>
-Date: Tue, 22 Feb 2005 13:25:36 +0100
+	Tue, 22 Feb 2005 07:28:44 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:27652 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262293AbVBVM1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 07:27:21 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Anthony DiSante <theant@nodivisions.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups
+Date: Tue, 22 Feb 2005 14:26:58 +0200
+User-Agent: KMail/1.5.4
+References: <421A3414.2020508@nodivisions.com> <421B12DB.70603@aitel.hist.no> <421B14A8.3000501@nodivisions.com>
+In-Reply-To: <421B14A8.3000501@nodivisions.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502221426.58973.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.10, in net/ipv4/route.c, this message is printed:
+On Tuesday 22 February 2005 13:16, Anthony DiSante wrote:
+> Helge Hafting wrote:
+> > The infrastructure for that does not exist, so instead, the "killed" 
+> > process remains. Not all of it, but at least the memory pinned down by 
+> > the io request.  This overhead is typically small, and the overehad of 
+> > adding forced io abort to every driver might
+> > be larger than a handful of stuck processes.  It looks ugly, but perhaps 
+> > a ps flag that hides the ugly processes is enough.
+> 
+> I don't care about any overhead associated with stuck processes, nor do I 
+> care that they look ugly in the ps output.  What I care about is the fact 
+> that at least once a week on multiple systems with different hardware, some 
+> HW-related driver/process gets stuck, then immediately cascades its 
+> stuckness up to udevd or hald, and then I can't use any of my hardware 
+> anymore until I reboot.
 
-		printk(KERN_WARNING "martian source %u.%u.%u.%u from "
-			"%u.%u.%u.%u, on dev %s\n",
-			NIPQUAD(daddr), NIPQUAD(saddr), dev->name);
+This was discussed to death before. There will never be a "D-state" killer. Period.
 
-In my opinion, it should be:
+If you want to get rid of your stuck processes, you need to fix the bug
+or at least let lkml people know about it (this was already explained to you!).
+--
+vda
 
-!		printk(KERN_WARNING "martian source %u.%u.%u.%u to "
-			"%u.%u.%u.%u, on dev %s\n",
-!			NIPQUAD(saddr), NIPQUAD(daddr), dev->name);
-
-or, alternatively,
-
-!		printk(KERN_WARNING "martian source to %u.%u.%u.%u from "
-			"%u.%u.%u.%u, on dev %s\n",
-			NIPQUAD(daddr), NIPQUAD(saddr), dev->name);
-
-As it is written, it is not clear whether the martian source address is
-the first or the second one printed.
-
--- 
-Francesco Potortì (ricercatore)        Voice: +39 050 315 3058 (op.2111)
-ISTI - Area della ricerca CNR          Fax:   +39 050 313 8091
-via G. Moruzzi 1, I-56124 Pisa         Email: Potorti@isti.cnr.it
-Web: http://fly.isti.cnr.it/           Key:   fly.isti.cnr.it/public.key

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbTIXQdm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 12:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTIXQdm
+	id S261512AbTIXQpt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 12:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbTIXQps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 12:33:42 -0400
-Received: from lvs00-fl-n06.valueweb.net ([216.219.253.152]:34988 "EHLO
-	ams006.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S261480AbTIXQdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 12:33:41 -0400
-Message-ID: <3F71C712.9070503@coyotegulch.com>
-Date: Wed, 24 Sep 2003 12:32:18 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Minimizing the Kernel
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Sep 2003 12:45:48 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:29568 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261512AbTIXQps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 12:45:48 -0400
+Date: Wed, 24 Sep 2003 17:45:28 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309241645.h8OGjS9i000412@81-2-122-30.bradfords.org.uk>
+To: david.lang@digitalinsight.com, john@grabjohn.com
+Subject: Re: Horiffic SPAM
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org, rjohnson@analogic.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to created the smallest, fastest kernel that supports all the 
-necessary features of a given system.
+> if you want to block mail you need to have your MTA return a 500 series
+> error code when it gets a connection from that IP address, otherwise the
+> sending MTA will just retry later, resulting in the problem described.
 
-Obviously, the answer is very system dependent, requiring a keen 
-knowledge of the relationships between hardware and Linux components.
+Read my post again.
 
-Unless I'm missing something (always a possibility), the kernel 
-configurations do not provide a clear idea of component size. In other 
-words, if I include "burfulgunk port support" in my kernel build, I'd 
-like to have a rough idea of the component's size. I might not need to 
-support the "burfulgunk", especially if it's a large component (for, 
-say, a legacy port.)
+A lot of the simple SMTP engines embedded in viruses _don't_ retry on
+4xx error codes.  Real SMTP engines do.
 
-I'm well aware that code sizes differ between platforms; I'm looking for 
-general information, as a guideline to generating a small kernel.
+That flaw is what we are taking advantage of, to filter out the junk.
 
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-Software Invention for High-Performance Computing
+I.E. we tell everybody 'come back later'.  Genuine mail does, whilst
+junk mail often doesn't bother.
 
+John.

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264467AbSIWBZi>; Sun, 22 Sep 2002 21:25:38 -0400
+	id <S264674AbSIWBeh>; Sun, 22 Sep 2002 21:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264674AbSIWBZi>; Sun, 22 Sep 2002 21:25:38 -0400
-Received: from mailout6-1.nyroc.rr.com ([24.92.226.177]:3728 "EHLO
-	mailout6-0.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S264467AbSIWBZh>; Sun, 22 Sep 2002 21:25:37 -0400
-Subject: BIOS or kernel APM bug?
-From: James D Strandboge <jstrand1@rochester.rr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S264675AbSIWBeh>; Sun, 22 Sep 2002 21:34:37 -0400
+Received: from packet.digeo.com ([12.110.80.53]:62454 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264674AbSIWBeg>;
+	Sun, 22 Sep 2002 21:34:36 -0400
+Message-ID: <3D8E70D5.5C52985E@digeo.com>
+Date: Sun, 22 Sep 2002 18:39:33 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Levon <movement@marcelothewonderpenguin.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.38-mm1
+References: <3D8D5F2A.BC057FC4@digeo.com> <20020923004036.GA13921@www.kroptech.com> <3D8E6647.8B02E613@digeo.com> <20020923012557.GA69900@compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Sep 2002 21:31:02 -0400
-Message-Id: <1032744662.6912.69.camel@sirius.strandboge.cxm>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 23 Sep 2002 01:39:33.0603 (UTC) FILETIME=[1167BB30:01C262A2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently purchased a usb webcam and found that polling /proc/apm
-causes the webcam in xawtv to skip.  I can so this either by doing 'cat
-/proc/apm' or using the gnome battstat-applet.  Disabling the
-battstat-applet and not touching /proc/apm lets xawtv work fine.
+John Levon wrote:
+> 
+> On Sun, Sep 22, 2002 at 05:54:31PM -0700, Andrew Morton wrote:
+> 
+> > It found a bug.  Someone is calling kmem_cache_create() in an
+> > atomic region.
+> 
+> And kmem_cache_alloc() has jumped to the top of the profile (checked
+> with readprofile) in 2.3.38-linus.
+> 
 
-Polling /proc/apm also causes clock drift.
+Linus disabled the cpu-local caches if slab debugging is
+enabled.  This is because they were not being poisoned,
+and so SMP machines were not getting the full debug benefit
+of slab poisoning.
 
-I have a Dell Inspiron 8200 laptop (1.6Ghz Pentium 4).  Using kernel
-2.4.18 with rmap12h and preempt-kernel patch.
+If you disable kernel debugging (either in config, or locally
+in slab) then it should be fine.
 
-Jamie Strandboge
-
-
--- 
-Email:        jstrand1@rochester.rr.com
-GPG/PGP ID:   26384A3A
-Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
-
+Slab performance has always been sucky with debug enabled,
+so no real loss there.

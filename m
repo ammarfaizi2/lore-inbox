@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316712AbSGXDO1>; Tue, 23 Jul 2002 23:14:27 -0400
+	id <S316837AbSGXDsS>; Tue, 23 Jul 2002 23:48:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316797AbSGXDO1>; Tue, 23 Jul 2002 23:14:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3078 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316712AbSGXDO0>; Tue, 23 Jul 2002 23:14:26 -0400
-Date: Tue, 23 Jul 2002 20:18:30 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
-       george anzinger <george@mvista.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] irqlock patch -G3. [was Re: odd memory corruption
- in2.5.27?]
-In-Reply-To: <3D3E1B66.F17D8B9E@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0207232016410.6943-100000@home.transmeta.com>
+	id <S316831AbSGXDsS>; Tue, 23 Jul 2002 23:48:18 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.149]:50925 "EHLO
+	moutvdomng2.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S316837AbSGXDsS>; Tue, 23 Jul 2002 23:48:18 -0400
+Date: Tue, 23 Jul 2002 21:51:25 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Oliver Pitzeier <o.pitzeier@uptime.at>
+cc: "'Martin Brulisauer'" <bruli@uceb.org>, <thunder@ngforever.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: kbuild 2.5.26 - arch/alpha
+In-Reply-To: <003101c232a4$47b254d0$1211a8c0@pitzeier.priv.at>
+Message-ID: <Pine.LNX.4.44.0207232150530.3200-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Wed, 24 Jul 2002, Oliver Pitzeier wrote:
+> Have you ever ended this discussion??? I only mean
+> you two. Because I havn't found a reply from Thunder
+> to Martin...
 
-On Tue, 23 Jul 2002, Andrew Morton wrote:
->
-> And yet here we have a case where a spin_unlock() will
-> go and turn on local interrupts.  Only with CONFIG_PREEMPT,
-> and even then, extremely rarely.
+IIRC, no.
 
-I think that's just a bug, the same way it was a bug that preemtion would
-sometimes set tsk->state to TASK_RUNNING.
-
-I think Robert already sent a fix: make "preempt_schedule()" refuse to
-schedule if local interrupts are disabled.
-
-That, together with making it a warning (so that we can _fix_ places that
-have unbalanced irq/spinlock behaviour) shoul dbe fine. Eventually, if we
-think all places are fixed, we can remove the test from
-preempt_schedule().
-
-		Linus
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

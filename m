@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbRCACx6>; Wed, 28 Feb 2001 21:53:58 -0500
+	id <S129466AbRCADD6>; Wed, 28 Feb 2001 22:03:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129495AbRCACxs>; Wed, 28 Feb 2001 21:53:48 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:8693 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S129473AbRCACxf>; Wed, 28 Feb 2001 21:53:35 -0500
-Date: Wed, 28 Feb 2001 18:48:21 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] USB oops Linux 2.4.2ac6
-To: linux-kernel@vger.kernel.org
-Cc: linux-usb-devel@lists.sourceforge.net
-Message-id: <113501c0a1fa$1499e5e0$6800000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <E14XuMy-0004ZW-00@the-village.bc.nu>
- <3A9D4E46.C1660841@cypress.com>
-X-Priority: 3
+	id <S129468AbRCADDt>; Wed, 28 Feb 2001 22:03:49 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:26531 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129466AbRCADDh>; Wed, 28 Feb 2001 22:03:37 -0500
+Message-ID: <3A9DBAF2.87E7D005@coplanar.net>
+Date: Wed, 28 Feb 2001 21:58:58 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Collins, Tom" <Tom.Collins@Surgient.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dynamically altering code segments
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tbird-700 on MSI-6167 (Viper based) board.
-> from dmesg
-> -------------
-> usb.c: registered new driver usbdevfs
-> usb.c: registered new driver hub
-> usb-ohci.c: USB OHCI at membase 0xd3874000, IRQ 11
-> usb-ohci.c: usb-00:07.4, Advanced Micro Devices [AMD] AMD-756 [Viper]
-> USB
 
-Note that there's a chip erratum (#4 I think) on the AMD-756 that
-makes it handle lowspeed devices wrong ... AMD told me I'd need
-an NDA to learn their workaround, and I've not pursued it.  (Does
-anyone already know what kind of NDA they use?)
+"Collins, Tom" wrote:
 
-> --------------
-> If I boot with my mouse plugged in, or plug it in after the system
-> is up, I get an oops. 
-> While I was buildong the kernel I got a message from the kernel
-> --------
-> Feb 28 10:03:07 tedpc kernel: usb-ohci.c: bogus NDP=242 for OHCI
-> usb-00:07.4
-> Feb 28 10:03:07 tedpc kernel: usb-ohci.c: rereads as NDP=4
-> -----
+> Hi...
+>
+> This is my first post, so if this is off topic for this list, please
+direct
+> me
+> to another one that is more appropriate.  Thanks
+>
+> That said, I am wanting to dynamically modify the kernel in specific
+places
+> to
+> implement a custom kernel trace mechanism.  The general idea is that,
+when
+> the
+> "trace" is off, there are NOP instruction sequences at various places
+in the
+> kernel.  When the "trace" is turned on, those same NOPs are replaced
+by JMPs
+> to code that implements the trace (such as logging events, using the
+MSR and
+> PMC's etc..).
+>
+> This was a trick that was done in my old days of OS/2 performance
+tools
+> developement to get trace information from the running kernel.  In
+that
+> case,
+> we simply remapped the appropriate code segments to data segments (I
+think
+> back then it was called 'aliasing code segments') and used that
+segment to
+> make changes to the kernel code on the fly.
+>
+> Is it possible to do the same thing in Linux?
+>
 
-These are symptoms of that erratum.  Don't plug lowspeed devices
-(like, probably, your mouse) into the root hub ... something about
-that makes some of the registers read wrong.   Like telling you
-that you've got 242 downstream ports.  At least this time it was
-a clearly bogus value.
-
-Since the second register read was correct, I've sometimes thought
-maybe it'd work better if you just redefined readl() to do each read
-twice ... might be worth the experiment, since you have the hardware.
-
-> ----
-> kernel BUG at slab.c:1398!
-> ----
-
-Something went wrong ... :-)  Hard to say who without
-at least a stacktrace.
-
-- Dave
+the CS and DS segment descriptors already both map 0-4G, the DS being
+read-write.
+what you want is to change page protections, the system call mprotect()
+comes
+to mind.
 
 
 

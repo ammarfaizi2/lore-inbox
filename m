@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268071AbRIVMxA>; Sat, 22 Sep 2001 08:53:00 -0400
+	id <S269318AbRIVNCC>; Sat, 22 Sep 2001 09:02:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267196AbRIVMwu>; Sat, 22 Sep 2001 08:52:50 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:56543 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269641AbRIVMwd>;
-	Sat, 22 Sep 2001 08:52:33 -0400
-Date: Sat, 22 Sep 2001 08:52:57 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Chow <davidchow@rcn.com.hk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: vfs_symlink return NULL inode
-In-Reply-To: <3BAC320B.219B808F@rcn.com.hk>
-Message-ID: <Pine.GSO.4.21.0109220845230.11204-100000@weyl.math.psu.edu>
+	id <S269641AbRIVNBn>; Sat, 22 Sep 2001 09:01:43 -0400
+Received: from mailc.telia.com ([194.22.190.4]:3814 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S267196AbRIVNBl>;
+	Sat, 22 Sep 2001 09:01:41 -0400
+Message-Id: <200109221301.f8MD1n129687@mailc.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net>
+To: Robert Love <rml@tech9.net>, Andre Pang <ozone@algorithm.com.au>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: ksoftirqd? (Was: Re: [PATCH] Preemption Latency Measurement Tool)
+Date: Sat, 22 Sep 2001 14:56:58 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org, safemode@speakeasy.net,
+        Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl, ilsensine@inwind.it,
+        george@mvista.com
+In-Reply-To: <1000939458.3853.17.camel@phantasy> <1001131036.557760.4340.nullmailer@bozar.algorithm.com.au> <1001139027.1245.28.camel@phantasy>
+In-Reply-To: <1001139027.1245.28.camel@phantasy>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+We have a new kid on the block since we started thinking of a preemptive 
+kernel.
 
-On Sat, 22 Sep 2001, David Chow wrote:
+ksoftirqd...
 
-> Dear all,
-> 
-> I have one question from using vfs_symlink, is it usual after I called
-> vfs_symlink that will return a dentry with dentry->d_inode == NULL???
+Running with nice 19 (shouldn't it really be -19?)
+Or have a RT setting? (maybe not since one of the reasons for
+softirqd would be lost - would be scheduled in immediately)
+Can't a high prio or RT process be starved due to missing
+service (bh) after an interrupt?
 
-vfs_symlink() returns an integer, not dentry.
+This will not show up in latency profiling patches since
+the kernel does what is requested...
 
-> The link was sucessfully created but I receive a null inode pointer. 
-> When creating a symlink it should also create an inode. But according to
-> the documentation about VFS from Richard, the symlink call of
-> inode_operations, should self call d_instantiate() this also means it
-> should automatically create an inode pointer. This shouldn't be done by
-> the caller???? Any hints? the vfs_create works fine and return with a
-> proper inode number, why vfs_symlink doesn't? Thanks.
+Previously it was run directly after interrupt,
+before returning to the interrupted process...
 
-No, it doesn't.  vfs_create() returns 0 in case of success and small negative
-number in case of error.  Neither has any relation to inode numbers.
+See:
+  /usr/src/develop/linux/kernel/softirq.c
 
-dentry you've passed to it is modified - it gets non-NULL ->d_inode _if_
-operation succeeded.  Which is not guaranteed - depends on kind of filesystem,
-length of symlink body, permissions, etc.
+/RogerL
 
-So unless you tell what you are passing to vfs_symlink(), what does it
-return, etc. - there's nothing anyone could do.  We might be smart, by
-I'm not aware of anybody here being telepathic.
-
+-- 
+Roger Larsson
+Skellefteå
+Sweden

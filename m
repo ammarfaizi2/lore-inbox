@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267124AbSLDWZ1>; Wed, 4 Dec 2002 17:25:27 -0500
+	id <S267128AbSLDW12>; Wed, 4 Dec 2002 17:27:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267125AbSLDWZ1>; Wed, 4 Dec 2002 17:25:27 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:58098 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S267124AbSLDWZ0>;
-	Wed, 4 Dec 2002 17:25:26 -0500
-Message-ID: <3DEE822D.385D2664@mvista.com>
-Date: Wed, 04 Dec 2002 14:31:09 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S267130AbSLDW12>; Wed, 4 Dec 2002 17:27:28 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:11276 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S267128AbSLDW10>; Wed, 4 Dec 2002 17:27:26 -0500
+Date: Wed, 4 Dec 2002 20:34:27 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: "David S. Miller" <davem@redhat.com>
-CC: dan@debian.org, torvalds@transmeta.com, sfr@canb.auug.org.au,
-       linux-kernel@vger.kernel.org, anton@samba.org, ak@muc.de,
-       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
-       willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-References: <3DEE5DE1.762699E3@mvista.com>
-		<Pine.LNX.4.44.0212041203230.1676-100000@penguin.transmeta.com>
-		<20021204205609.GA29953@nevyn.them.org> <20021204.140954.89672437.davem@redhat.com>
+Cc: kiran@in.ibm.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       akpm@digeo.com, dipankar@in.ibm.com
+Subject: Re: [patch] Change Networking mibs to use kmalloc_percpu -- 1/3
+Message-ID: <20021204223427.GA23578@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, kiran@in.ibm.com,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@digeo.com,
+	dipankar@in.ibm.com
+References: <20021204180510.C17375@in.ibm.com> <20021204.090152.97851491.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021204.090152.97851491.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+Em Wed, Dec 04, 2002 at 09:01:52AM -0800, David S. Miller escreveu:
+>    From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+>    Date: Wed, 4 Dec 2002 18:05:10 +0530
 > 
->    From: Daniel Jacobowitz <dan@debian.org>
->    Date: Wed, 4 Dec 2002 15:56:09 -0500
-> 
->    Is the necessary information recoverable in
->    Alpha et al.?
-> 
-> No, and Sparc is the same.  It's kept in local registers
-> in the assembler of the trap return path.
+>    Here's a patchset to enable networking mibs to use kmalloc_percpu instead
+>    of the traditional padded NR_CPUS arrays.
+>    
+>    Advantages:
+>    1. Removes NR_CPUS bloat due to static definition
+>    2. Can support node local allocation
+>    3. Will work with modules
+>    
+> I totally support this work.  Once the kmalloc percpu bits hit
+> Linus's tree, just retransmit these diffs to me privately and
+> I'll put them into my net-2.5 tree.
 
-One solution would then appear to be that we need arch
-wrappers for nano_sleep and clock_nanosleep (when and if).  
+Cool stuff! I was planning to macroise this so that things like this would be
+possible without source impact but now its just there, keep it up :-)
 
-On the PARISC I did this (a long time ago in a far away
-place) by unwinding the stack to pick up the registers that
-were saved along the way.  Is this at all feasible?
-
-It might help to understand just what registers do_signal
-needs.  It doesn't need them all, I suspect.
-
-Yet another idea, do_signal does not actually call the user
-handler (the only case where it needs the regs) but sets up
-the stack to make it happen when the system call returns. 
-If there were a function that could be called to find out if
-a signal was going to be delivered, the right thing could be
-done in nano_sleep() and the actual do_signal call could
-come from the system call return path as it does now.
-
-Yes, I like that...
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+- Arnaldo

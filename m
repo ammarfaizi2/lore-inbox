@@ -1,58 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267806AbTBVARR>; Fri, 21 Feb 2003 19:17:17 -0500
+	id <S267810AbTBVA37>; Fri, 21 Feb 2003 19:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267807AbTBVARQ>; Fri, 21 Feb 2003 19:17:16 -0500
-Received: from holomorphy.com ([66.224.33.161]:55462 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267806AbTBVARQ>;
-	Fri, 21 Feb 2003 19:17:16 -0500
-Date: Fri, 21 Feb 2003 16:25:55 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Larry McVoy <lm@work.bitmover.com>, Hanna Linder <hannal@us.ibm.com>,
-       lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030222002555.GC10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
-	linux-kernel@vger.kernel.org
-References: <96700000.1045871294@w-hlinder> <20030222001618.GA19700@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030222001618.GA19700@work.bitmover.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267811AbTBVA37>; Fri, 21 Feb 2003 19:29:59 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:49386 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267810AbTBVA35>;
+	Fri, 21 Feb 2003 19:29:57 -0500
+Message-ID: <3E56C4FA.8010400@us.ibm.com>
+Date: Fri, 21 Feb 2003 16:31:54 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       Martin Bligh <mjbligh@us.ibm.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: [rfc][patch] clean up redundant code for alloc_pages
+Content-Type: multipart/mixed;
+ boundary="------------020000030803070307010401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 04:16:18PM -0800, Larry McVoy wrote:
-> Ben is right.  I think IBM and the other big iron companies would be
-> far better served looking at what they have done with running multiple
-> instances of Linux on one big machine, like the 390 work.  Figure out
-> how to use that model to scale up.  There is simply not a big enough
-> market to justify shoveling lots of scaling stuff in for huge machines
-> that only a handful of people can afford.  That's the same path which
-> has sunk all the workstation companies, they all have bloated OS's and
-> Linux runs circles around them.
+This is a multi-part message in MIME format.
+--------------020000030803070307010401
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Scalability done properly should not degrade performance on smaller
-machines, Pee Cees, or even microscopic organisms.
+Well, alloc_pages() and alloc_pages_node() look *REAAALY* similar.  This 
+is a really small patch to just shrink alloc_pages_node() a bit and 
+point alloc_page() and alloc_pages() at alloc_pages_node() with the 
+appropriate arguments.
 
+It is a pretty trivial change, just curious if there are any violent 
+objections to such a change.
 
-On Fri, Feb 21, 2003 at 04:16:18PM -0800, Larry McVoy wrote:
-> In terms of the money and in terms of installed seats, the small Linux
-> machines out number the 4 or more CPU SMP machines easily 10,000:1.
-> And with the embedded market being one of the few real money makers
-> for Linux, there will be huge pushback from those companies against
-> changes which increase memory footprint.
+[mcd@arrakis push]$ diffstat alloc_pages_cleanup-2.5.62.patch
+  gfp.h |   18 +++++-------------
+  1 files changed, 5 insertions(+), 13 deletions(-)
 
-There's quite a bit of commonality with large x86 highmem there, as
-the highmem crew is extremely concerned about the kernel's memory
-footprint and is looking to trim kernel memory overhead from every
-aspect of its operation they can. Reducing kernel memory footprint
-is a crucial part of scalability, in both scaling down to the low end
-and scaling up to highmem. =)
+Cheers!
 
+-Matt
 
--- wli
+--------------020000030803070307010401
+Content-Type: text/plain;
+ name="alloc_pages_cleanup-2.5.62.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="alloc_pages_cleanup-2.5.62.patch"
+
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.62-vanilla/include/linux/gfp.h linux-2.5.62-alloc_pages/include/linux/gfp.h
+--- linux-2.5.62-vanilla/include/linux/gfp.h	Mon Feb 17 14:56:09 2003
++++ linux-2.5.62-alloc_pages/include/linux/gfp.h	Fri Feb 21 16:15:59 2003
+@@ -49,24 +49,16 @@
+ extern struct page * FASTCALL(__alloc_pages(unsigned int, unsigned int, struct zonelist *));
+ static inline struct page * alloc_pages_node(int nid, unsigned int gfp_mask, unsigned int order)
+ {
+-	struct pglist_data *pgdat = NODE_DATA(nid);
+-	unsigned int idx = (gfp_mask & GFP_ZONEMASK);
+-
+ 	if (unlikely(order >= MAX_ORDER))
+ 		return NULL;
+-	return __alloc_pages(gfp_mask, order, pgdat->node_zonelists + idx);
+-}
+-static inline struct page * alloc_pages(unsigned int gfp_mask, unsigned int order)
+-{
+-	struct pglist_data *pgdat = NODE_DATA(numa_node_id());
+-	unsigned int idx = (gfp_mask & GFP_ZONEMASK);
+ 
+-	if (unlikely(order >= MAX_ORDER))
+-		return NULL;
+-	return __alloc_pages(gfp_mask, order, pgdat->node_zonelists + idx);
++	return __alloc_pages(gfp_mask, order, NODE_DATA(nid)->node_zonelists + (gfp_mask & GFP_ZONEMASK));
+ }
+ 
+-#define alloc_page(gfp_mask) alloc_pages(gfp_mask, 0)
++#define alloc_pages(gfp_mask, order) \
++		alloc_pages_node(numa_node_id(), gfp_mask, order)
++#define alloc_page(gfp_mask) \
++		alloc_pages_node(numa_node_id(), gfp_mask, 0)
+ 
+ extern unsigned long FASTCALL(__get_free_pages(unsigned int gfp_mask, unsigned int order));
+ extern unsigned long FASTCALL(get_zeroed_page(unsigned int gfp_mask));
+
+--------------020000030803070307010401--
+

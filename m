@@ -1,83 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262617AbTCZXEJ>; Wed, 26 Mar 2003 18:04:09 -0500
+	id <S262619AbTCZXLb>; Wed, 26 Mar 2003 18:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262619AbTCZXEI>; Wed, 26 Mar 2003 18:04:08 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:24502 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262617AbTCZXD5>; Wed, 26 Mar 2003 18:03:57 -0500
-Date: Wed, 26 Mar 2003 18:15:09 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: setfs[ug]id syscall return value and include/linux/security.h question
-Message-ID: <20030326181509.Q13397@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
+	id <S262620AbTCZXLb>; Wed, 26 Mar 2003 18:11:31 -0500
+Received: from sj-core-1.cisco.com ([171.71.177.237]:61611 "EHLO
+	sj-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S262619AbTCZXLa>; Wed, 26 Mar 2003 18:11:30 -0500
+Message-Id: <5.1.0.14.2.20030327101650.03161e00@mira-sjcm-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 27 Mar 2003 10:21:11 +1100
+To: Lars Marowsky-Bree <lmb@suse.de>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: [PATCH] ENBD for 2.5.64
+Cc: Matt Mackall <mpm@selenic.com>, Jeff Garzik <jgarzik@pobox.com>,
+       ptb@it.uc3m.es, Justin Cormack <justin@street-vision.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030326225617.GB13344@marowsky-bree.de>
+References: <5.1.0.14.2.20030327091616.03a2ce60@mira-sjcm-3.cisco.com>
+ <5.1.0.14.2.20030327091616.03a2ce60@mira-sjcm-3.cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Lars,
 
-Before include/linux/security.h was added, setfsuid/setfsgid always returned
-old_fsuid, no matter if the fsuid was actually changed or not.
-With the default security ops it seems to do the same, because both
-security_task_setuid and security_task_post_setuid return 0, but these are
-hooks which seem to return 0 on success, -errno on failure, so if some
-non-default security hook is installed and ever returns -errno
-in setfsuid/setfsgid, -errno will be returned from the syscall instead
-of the expected old_fsuid. This makes it hard to distinguish uids
-0xfffff001 .. 0xffffffff from errors of security hooks.
-Shouldn't sys_setfsuid/sys_setfsgid be changed:
+At 11:56 PM 26/03/2003 +0100, Lars Marowsky-Bree wrote:
+[..]
+>We do parse device specific information in order to auto-configure the md
+>multipath at setup time. After that, magic is on disk...
+>
+> > does one now need to add logic into the kernel to provide some multipathing
+> > for HDS disks?
+>
+>Topology discovery is user-space! It does not need to live in the kernel.
 
---- linux-2.5.66/kernel/sys.c.jj	Mon Mar 24 23:00:00 2003
-+++ linux-2.5.66/kernel/sys.c	Thu Mar 27 00:11:20 2003
-@@ -824,13 +824,11 @@ asmlinkage long sys_getresgid(gid_t *rgi
- asmlinkage long sys_setfsuid(uid_t uid)
- {
- 	int old_fsuid;
--	int retval;
--
--	retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
--	if (retval)
--		return retval;
- 
- 	old_fsuid = current->fsuid;
-+	if (security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS))
-+		return old_fsuid;
-+
- 	if (uid == current->uid || uid == current->euid ||
- 	    uid == current->suid || uid == current->fsuid || 
- 	    capable(CAP_SETUID))
-@@ -843,9 +841,7 @@ asmlinkage long sys_setfsuid(uid_t uid)
- 		current->fsuid = uid;
- 	}
- 
--	retval = security_task_post_setuid(old_fsuid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
--	if (retval)
--		return retval;
-+	security_task_post_setuid(old_fsuid, (uid_t)-1, (uid_t)-1, LSM_SETID_FS);
- 
- 	return old_fsuid;
- }
-@@ -856,13 +852,11 @@ asmlinkage long sys_setfsuid(uid_t uid)
- asmlinkage long sys_setfsgid(gid_t gid)
- {
- 	int old_fsgid;
--	int retval;
--
--	retval = security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_FS);
--	if (retval)
--		return retval;
- 
- 	old_fsgid = current->fsgid;
-+	if (security_task_setgid(gid, (gid_t)-1, (gid_t)-1, LSM_SETID_FS))
-+		return old_fsgid;
-+
- 	if (gid == current->gid || gid == current->egid ||
- 	    gid == current->sgid || gid == current->fsgid || 
- 	    capable(CAP_SETGID))
+i think we're agreeing on the same thing here!
 
-	Jakub
+yes, i believe topology discovery should only belong in userspace.
+i believe it should be in userspace for both (a) setup and (b) at 
+kernel-boot-time
+
+likewise, i believe policy of deciding what mix of i/o's to put down 
+different paths also belongs in userspace.
+this could take the form of a daemon that frequently looks up statistics 
+from the kernel (e.g. average latency per target), and uses that 
+information in conjunction with some 'policy' to tweak what paths are used.
+but i definitely don't think that the kernel should make any wide-ranging 
+decisions about multiple paths, except beyond something like "deviceA has 
+disappeared.  i know that deviceB is an alternate path, so will swing all 
+outstanding i/o plugged into A to B".
+
+
+cheers,
+
+lincoln.
+

@@ -1,60 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268226AbTALD4u>; Sat, 11 Jan 2003 22:56:50 -0500
+	id <S268218AbTALD6w>; Sat, 11 Jan 2003 22:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268228AbTALD4t>; Sat, 11 Jan 2003 22:56:49 -0500
-Received: from h80ad2641.async.vt.edu ([128.173.38.65]:22912 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S268226AbTALD4s>; Sat, 11 Jan 2003 22:56:48 -0500
-Message-Id: <200301120405.h0C45OLE030336@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI power off requires swsusp (was: Re: Power off a SMP Box) 
-In-Reply-To: Your message of "Sat, 11 Jan 2003 13:10:47 +0100."
-             <Pine.LNX.4.44.0301111301430.12267-100000@boris.prodako.se> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0301111301430.12267-100000@boris.prodako.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1017469036P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 11 Jan 2003 23:05:24 -0500
+	id <S268221AbTALD6w>; Sat, 11 Jan 2003 22:58:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29190 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268218AbTALD6g>; Sat, 11 Jan 2003 22:58:36 -0500
+Date: Sat, 11 Jan 2003 20:02:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Derek Atkins <warlord@MIT.EDU>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: Linus BK tree crashes with PANIC: INIT: segmentation violation
+In-Reply-To: <sjm1y3j3znw.fsf@kikki.mit.edu>
+Message-ID: <Pine.LNX.4.44.0301111953060.1401-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1017469036P
-Content-Type: text/plain; charset=us-ascii
 
-On Sat, 11 Jan 2003 13:10:47 +0100, Tobias Ringstrom said:
+On 11 Jan 2003, Derek Atkins wrote:
+> 
+> The 'String of oopses' was a red herring.  It was fixed sometime in early
+> January.  The PANIC: INIT: problem, however, is real, and was introduced
+> by the following ChangeSet on January 7:
+> 
+> D 1.972 03/01/07 10:08:55-08:00 torvalds@home.transmeta.com 15824 15815 2/0/1
+> P ChangeSet
+> C Move x86 signal handler return stub to the vsyscall page,
+> C and stop honoring the SA_RESTORER information.
+> C 
+> C This will prepare us for alternate signal handler returns.
 
-> I just disovered that in 2.5.56 (at least), ACPI power-off needs
-> CONFIG_ACPI_SLEEP which depends on CONFIG_SOFTWARE_SUSPEND.  This means
-> that without selecting software suspend, your machine cannot power off
-> using ACPI.  Why is it so?
+Interesting.
 
-Well.. I submitted  the Kconfig patch that makes it so.  However, I only did
-that because there's code inside the ACPI_SLEEP that references a variable over
-in SOFTWARE_SUSPEND.
+I was afraid that somebody would actually be _using_ the SA_RESTORER thing 
+for some totally private version of signal handler return, but I was 
+hoping that wouldn't be the case.
 
-A cleaner fix would probably be to move the variable someplace where it will
-exist even when SOFTWARE_SUSPEND isn't defined.
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
+SA_RESTORER was always a bit broken.. The functionality can trivially be
+restored (suggested untested patch appended), since it makes it very hard
+to improve on signal handling, since old binaries that use SA_RESTORER
+will force our hand.
 
+Oh, well. Can you verify whether this fixes it for you? And thanks for 
+hunting down the exact changeset.
 
---==_Exmh_1017469036P
-Content-Type: application/pgp-signature
+Btw, what version of "init" are you running? It would be interesting to 
+see what it actually does, and obviously none of the machines I have 
+around have that init.. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+		Linus
 
-iD8DBQE+IOmEcC3lWbTT17ARAmV9AJ9kT0X1DYunZOzNsDxqVI3Akc7JtgCgwHae
-RWNCs8F8T+POTkITtk9vdaI=
-=7GD3
------END PGP SIGNATURE-----
+----
+===== arch/i386/kernel/signal.c 1.25 vs edited =====
+--- 1.25/arch/i386/kernel/signal.c	Tue Jan  7 10:08:52 2003
++++ edited/arch/i386/kernel/signal.c	Sat Jan 11 19:59:57 2003
+@@ -350,6 +350,7 @@
+ static void setup_frame(int sig, struct k_sigaction *ka,
+ 			sigset_t *set, struct pt_regs * regs)
+ {
++	void *restorer;
+ 	struct sigframe *frame;
+ 	int err = 0;
+ 
+@@ -378,8 +379,12 @@
+ 	if (err)
+ 		goto give_sigsegv;
+ 
++	restorer = (void *) (fix_to_virt(FIX_VSYSCALL) + 32);
++	if (ka->sa.sa_flags & SA_RESTORER)
++		restorer = ka->sa.sa_restorer;
++
+ 	/* Set up to return from userspace.  */
+-	err |= __put_user(fix_to_virt(FIX_VSYSCALL) + 32, &frame->pretcode);
++	err |= __put_user(restorer, &frame->pretcode);
+ 	 
+ 	/*
+ 	 * This is popl %eax ; movl $,%eax ; int $0x80
+@@ -422,6 +427,7 @@
+ static void setup_rt_frame(int sig, struct k_sigaction *ka, siginfo_t *info,
+ 			   sigset_t *set, struct pt_regs * regs)
+ {
++	void *restorer;
+ 	struct rt_sigframe *frame;
+ 	int err = 0;
+ 
+@@ -456,7 +462,10 @@
+ 		goto give_sigsegv;
+ 
+ 	/* Set up to return from userspace.  */
+-	err |= __put_user(fix_to_virt(FIX_VSYSCALL) + 64, &frame->pretcode);
++	restorer = (void *) (fix_to_virt(FIX_VSYSCALL) + 64);
++	if (ka->sa.sa_flags & SA_RESTORER)
++		restorer = ka->sa.sa_restorer;
++	err |= __put_user(restorer, &frame->pretcode);
+ 	 
+ 	/*
+ 	 * This is movl $,%eax ; int $0x80
 
---==_Exmh_1017469036P--

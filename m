@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269509AbTHLKOl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 06:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269578AbTHLKOl
+	id S265591AbTHLKLv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 06:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269509AbTHLKLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 06:14:41 -0400
-Received: from vicar.dcs.qmul.ac.uk ([138.37.88.163]:27360 "EHLO
-	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP id S269509AbTHLKOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 06:14:39 -0400
-Date: Tue, 12 Aug 2003 11:14:29 +0100 (BST)
-From: mb <mb/lkml@dcs.qmul.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2-mm1, ext3 (external journal): nasty filesystem corruption
- under high load
-Message-ID: <Pine.LNX.4.56.0308121058230.2147@r2-pc.dcs.qmul.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
+	Tue, 12 Aug 2003 06:11:51 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:517 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265591AbTHLKLu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 06:11:50 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: gene.heskett@verizon.net, Christophe Saout <christophe@saout.de>,
+       Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: [2.6 patch] add an -Os config option
+Date: Tue, 12 Aug 2003 12:11:29 +0200
+User-Agent: KMail/1.5.3
+References: <20030811211145.GA569@fs.tum.de> <200308112319.43384.fsdeveloper@yahoo.de> <200308112129.48990.gene.heskett@verizon.net>
+In-Reply-To: <200308112129.48990.gene.heskett@verizon.net>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-uvscan-result: clean (19mWAi-0005xY-ST)
-X-Auth-User: jonquil.thebachchoir.org.uk
-X-uvscan-result: clean (19mWAo-0003Ki-Ep)
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200308121211.45406.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Admittedly I was being pathological, but I've got a new toy to play with!
-Our new server is a dual-Athlon, 1.5G RAM (the other .5 failed memtest) +
-about 6GB swap, with 15x70GB drives running under gdth.o with 12 as the
-RAID-5 set, and the journal on 2 as a RAID-1 pair. System on IDE for now.
+On Tuesday 12 August 2003 03:29, Gene Heskett wrote:
+> No, the quoted "significantly" version is the correct english useage
+> in this apparently present tense.
 
-It's currently running Red Hat "severn" + 2.6.0-test2-mm1 (with PREEMPT
-for now), and this particular stress test was attempting to build 
-2.6.0-test3-mm1 with the scary invocation "make -j". More info on request.
 
-I saw thousands of messages like:
-	cc1: page allocation failure. order:0, mode:0x20
-(where only the process names might change). I don't know how Bad this is.
+Thank you all for the correction.
+I'll now take my english-dictinoary to learn a bit. :)
 
-Amazingly I could still ssh in to the box and discover that its load had
-more than likely broken 1000. However, the compile started to complain
-bitterly about non-ASCII characters in source files, and indeed corruption
-did occur (random overwriting, it would appear).
 
-I have a couple more weeks I can play with this box before it has to go
-into production (running much older brains), and can do more tests if
-anyone thinks it might be useful.
+- -- 
+Regards Michael Buesch  [ http://www.8ung.at/tuxsoft ]
+Animals on this machine: some GNUs and Penguin 2.6.0-test3
 
-I would like to suggest the "make -j" test for those developers with
-enough memory (and fast enough swap).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Matt
+iD8DBQE/OL1eoxoigfggmSgRAjFMAJkB2JUMgOal+TPPNje5N4RbgxdViQCfZsEI
+PWSDjc5fyF+M1NpCV82hnhI=
+=OyMT
+-----END PGP SIGNATURE-----
+

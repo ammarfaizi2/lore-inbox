@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271298AbTHHNKv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 09:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271311AbTHHNKv
+	id S271333AbTHHNWD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 09:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271337AbTHHNWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 09:10:51 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:62372 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S271298AbTHHNKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 09:10:49 -0400
-From: Bernd Schubert <bernd-schubert@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21]: nbd ksymoops-report
-Date: Fri, 8 Aug 2003 15:10:47 +0200
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.10.10308071245130.13289-100000@clements.sc.steeleye.com> <3F328DB9.4EF38D9A@SteelEye.com> <3F32D1CD.CF8469A5@SteelEye.com>
-In-Reply-To: <3F32D1CD.CF8469A5@SteelEye.com>
+	Fri, 8 Aug 2003 09:22:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28327 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271333AbTHHNWB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 09:22:01 -0400
+Message-ID: <3F33A3EB.9030108@pobox.com>
+Date: Fri, 08 Aug 2003 09:21:47 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Mark Watts <m.watts@eris.qinetiq.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Innovision EIO DM-8301H/R SATA cards...
+References: <200308081408.16564.m.watts@eris.qinetiq.com>
+In-Reply-To: <200308081408.16564.m.watts@eris.qinetiq.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200308081510.47804.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 August 2003 00:25, you wrote:
-> Paul Clements wrote:
-> > Paul Clements wrote:
-> > > On Thu, 7 Aug 2003, Bernd Schubert wrote:
-> > > > every time when nbd-client disconnects a nbd-device the decoded oops
-> > > > from below will happen.
-> > > > This only happens after we upgraded from 2.4.20 to 2.4.21,
-> > > > so I guess the backported update from 2.5.50 causes this.
->
-> [snip]
->
-> > > Would you be willing to test a patch against 2.4.21?
-> >
-> > If you're willing to test the attached patch, I'd be grateful. Otherwise
-> > I'll test it in the next few days and forward on to Marcelo...
->
-> OK, the previous patch didn't quite do it. The attached should work (I
-> got a chance to test it, finally).
-
-Hello Paul,
-
-I just tested the patch and now 'nbd-client -d device' it works fine! When I'm 
-back at work I will update our nbd-clients to the new module. (Now that you 
-told me that 'kill -9 pid' even for the old module works, that won't be a 
-problem.
+Mark Watts wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> My local supplier has started doing some SATA cards....
+> 
+> http://www.ivmm.com/eio/products_sata_pci_host.html
+> 
+> 
+> The chip on the board i the screenshot looks vaguely like a Silicon Image chip 
+> - - am I correct in thinking that these are supported in linux?
 
 
-Thanks a lot,
-	Bernd
+If they are Silicon Image, yes, they are supported.
+
+	Jeff
+
+
+

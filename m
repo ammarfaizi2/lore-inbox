@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263790AbTE3Qan (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 12:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbTE3Qan
+	id S263805AbTE3Qdg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 12:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbTE3Qdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 12:30:43 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:51887 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263790AbTE3QaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 12:30:25 -0400
-Date: Fri, 30 May 2003 09:43:44 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm1
-Message-Id: <20030530094344.74a0e617.akpm@digeo.com>
-In-Reply-To: <12430000.1054309916@[10.10.2.4]>
-References: <20030527004255.5e32297b.akpm@digeo.com>
-	<1980000.1054189401@[10.10.2.4]>
-	<18080000.1054233607@[10.10.2.4]>
-	<20030529115237.33c9c09a.akpm@digeo.com>
-	<39810000.1054240214@[10.10.2.4]>
-	<20030529141405.4578b72c.akpm@digeo.com>
-	<12430000.1054309916@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 May 2003 16:43:44.0874 (UTC) FILETIME=[A28A7CA0:01C326CA]
+	Fri, 30 May 2003 12:33:35 -0400
+Received: from ip68-3-49-116.ph.ph.cox.net ([68.3.49.116]:43905 "EHLO
+	raq.home.iceblink.org") by vger.kernel.org with ESMTP
+	id S263805AbTE3Qde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 12:33:34 -0400
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Tomas Szepe <szepe@pinerecords.com>, kwijibo@zianet.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 21rc6 serverworks IDE blows even more than is usual :)
+References: <20030529114001.GD7217@louise.pinerecords.com> <20030529114001.GD7217@louise.pinerecords.com> <20030530121108.6a6a82de.skraw@ithnet.com>
+Message-ID: <oprpzvr4xuury4o7@lists.bilicki.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+From: Duncan Laurie <duncan@sun.com>
+MIME-Version: 1.0
+Date: Fri, 30 May 2003 09:51:30 -0700
+User-Agent: Opera7.11/Linux M2 build 406
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+On Fri, 30 May 2003 12:11:08 +0200, Stephan von Krawczynski <skraw@ithnet.com> wrote:
 >
-> Well, that just seems to make the box hang in SDET (actually, moving it
->  outside lock_kernel makes it hang in a similar way). Not sure it's 
->  *caused* by this ... it might just change timing enough to trigger it.
+> I don't know if this is in anyway interesting for you, but I got the same
+> chipset on an Asus board and been burning GBs of data onto DVDs with it and no
+> (ide) problem.
+>
 
-Yes, sorry.  Looks like you hit the filemap.c screwup.  The below should
-fix it.
+Its interesting to me.. It probably means my original diagnosis that this
+was a bad chip revision is unfounded and maybe it can be fixed with the
+right settings.  Could I get an lspci -xxx for devices 00:0f.0 and 00:0f.1
+from your box as well so I can cross-ref it with the broken ones?
 
-
---- 25/mm/filemap.c~generic_file_write-commit_write-fix	2003-05-30 04:01:19.000000000 -0700
-+++ 25-akpm/mm/filemap.c	2003-05-30 04:04:11.000000000 -0700
-@@ -1718,10 +1718,9 @@ generic_file_aio_write_nolock(struct kio
- 			copied = filemap_copy_from_user_iovec(page, offset,
- 						cur_iov, iov_base, bytes);
- 		flush_dcache_page(page);
-+		status = a_ops->commit_write(file, page, offset,
-+						offset + copied);
- 		if (likely(copied > 0)) {
--			status = a_ops->commit_write(file, page, offset,
--						     offset + copied);
--
- 			if (!status)
- 				status = copied;
- 
-
-_
+-duncan
 

@@ -1,49 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270293AbRHMQyr>; Mon, 13 Aug 2001 12:54:47 -0400
+	id <S270294AbRHMQ5H>; Mon, 13 Aug 2001 12:57:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270294AbRHMQyi>; Mon, 13 Aug 2001 12:54:38 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:63496 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S270293AbRHMQyT>;
-	Mon, 13 Aug 2001 12:54:19 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Francois Romieu <romieu@cogenit.fr>
-Date: Mon, 13 Aug 2001 18:53:19 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S270299AbRHMQ45>; Mon, 13 Aug 2001 12:56:57 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:35332 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S270294AbRHMQ4w> convert rfc822-to-8bit; Mon, 13 Aug 2001 12:56:52 -0400
+Date: Mon, 13 Aug 2001 18:54:26 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Justin Guyett <justin@soze.net>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Are we going too fast?
-CC: linux-kernel@vger.kernel.org, pf-kernel@mirkwood.net
-X-mailer: Pegasus Mail v3.40
-Message-ID: <7352142CD2@vcnet.vc.cvut.cz>
+In-Reply-To: <Pine.LNX.4.33.0108130327460.27721-100000@kobayashi.soze.net>
+Message-ID: <20010813175724.T666-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Aug 01 at 10:55, Francois Romieu wrote:
-> 
-> Try and send specific bug-reports to the maintainers. 
-> l-k archives may give you some light on issues with VIA chipsets.
-> 
-> I'm not convinced that gaining stability on a VIA + G400 + X + smp 
-> combo is an easy task anyway.
 
-VIA (694X) (Gigabyte 6VXD7), G450, XF4.0/XF4.1, SMP (2xPIII/833) works 
-fine if you
-(1) do not use matrox module from Matrox and
-(2) there is not PCI activity which targets G400 when X initialize
-    hardware (during start or console switch) and
-(3) it is highly unrecommended to use DRI (as it touches G400 hardware
-    even when X are not on foreground)
 
-If it is too limiting for you, look for another chipset. With i440BX
-you'll get at least 2x faster PCI->AGP transfers than with VIA: i440BX
-can handle 60MBps (32bpp full PAL) without any problems, while 694x has 
-problems with 30MBps (16bpp full PAL) (IDE disk accesses are visible
-as dropouts on picture).
+On Mon, 13 Aug 2001, Justin Guyett wrote:
 
-There is nothing Linux kernel can do for stability of such box.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+> On Mon, 13 Aug 2001, Gérard Roudier wrote:
+>
+> > You may want to elaborate on the ncr53c8xx problems (I maintain this
+> > driver). More generally, you must not ignore the thousands of bugs in the
+> > hardware you are using, but software developpers haven't access to all
+> > errata descriptions since hardware vendors donnot like to make this
+> > information freely available.
+>
+> I've got a quick unrelated question.
+>
+> Why not change the name (or at least the description) of sym53c8xx to
+> include the 53c1010 chips, which this driver seems to work on (and on a
+> SMP box, no less)?
+
+I have an SMP box and a C1010 chip. I like the 'way' this hardware
+combination 'seems' to work for me. :-)
+
+About the driver name, I have changed it to just 'sym' for the port to
+FreeBSD. Software modules are usually named using a short name under this
+O/S. At the time I did the port, LSI had bought SYMBIOS, but they seemed
+to want to keep with SYMBIOS name for the 53C8XX PCI-SCSI family.
+
+Then they (LSI) invented the 53C1010, called it LSI53C1010 and designed it
+in a way that made possible to use a single driver for the SYM53C8xx
+series (NCR+SYMBIOS) and this one.
+
+The current LSI53C10xx family consists in 2 different architectures that
+require 2 different software drivers:
+
+- [PCI host interface + SCSI Ultra-160 interface + SCSI scripts
+  processor] that are supported by the sym53c8xx driver, the
+  derivated 'sym' under FreeBSD and the latest SYM-2 (derived from sym)
+  that wants to be portable.
+
+- [PCI/X host interface + SCSI Ultra-320 interface + ARM based IO
+  processor] that requires a new driver. I heared that LSILOGIC want to
+  provide a driver for Linux. Note that the LSI FC controllers and those
+  ones should possibly share the same software drivers.
+
+Then, what better name for the sym53c8xx driver?
+
+- sym has been obsoleted by lsi.
+- sym53c8,10xx is confusing, given the 10xx family weirdness (see above).
+- lsi is too vague a name, given the numerous chips supplied by LSI.
+- siop (SCSI IO PROCESSOR) is already used and looks to me more vague
+  than all other names that have ever been used for an HBA driver.:)
+
+In my taste, sym53c8xx is still quite good name for the following reasons:
+
+1) It is the SYMBIOS company that made the greatest development for the
+   53C8XX family, in my opinion.
+2) The 53C10xx chips that can be driven by the sym* drivers use a 53C1010
+   core, even if then may be named 53C1000, etc..., for marketing reasons.
+3) All future 53C10xx HBAs will probably be based on PCI/X + U320 + ARM
+   and so will not be supported by sym* (same for SIOP, btw).
+
+Now, we could change everything that wants to describe this driver.
+Here is my current one (from sym-2 that also supports NCR53C8xx chips):
+
+ * Device driver for the SYMBIOS/LSILOGIC 53C8XX and 53C1010 family
+ * of PCI-SCSI IO processors.
+
+Just my 0.02 euro. :)
+
+  Gérard.
+

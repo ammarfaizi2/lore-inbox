@@ -1,137 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbTLHRWD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 12:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbTLHRWD
+	id S265030AbTLHRVt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 12:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbTLHRVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 12:22:03 -0500
-Received: from k-kdom.nishanet.com ([65.125.12.2]:64528 "EHLO
-	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S265053AbTLHRVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 12:21:55 -0500
-Message-ID: <3FD4B785.6010908@nishanet.com>
-Date: Mon, 08 Dec 2003 12:40:21 -0500
-From: Bob <recbo@nishanet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-References: <200312081321.06692.ross@datscreative.com.au> <1070883402.17639.115.camel@athlonxp.bradney.info>
-In-Reply-To: <1070883402.17639.115.camel@athlonxp.bradney.info>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Dec 2003 12:21:49 -0500
+Received: from holomorphy.com ([199.26.172.102]:59867 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265030AbTLHRVs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 12:21:48 -0500
+Date: Mon, 8 Dec 2003 09:21:45 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Matthew Kanar <mkanarlists@kanar.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP broken on Dell PowerEdge 4100/200 under 2.6.0-testxx?
+Message-ID: <20031208172145.GM14258@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Matthew Kanar <mkanarlists@kanar.net>, linux-kernel@vger.kernel.org
+References: <ZAwx-88m-3@gated-at.bofh.it> <ZAGd-8ma-5@gated-at.bofh.it> <ZAQ7-6X-13@gated-at.bofh.it> <ZAZB-pS-11@gated-at.bofh.it> <ZCoI-2oz-9@gated-at.bofh.it> <ZCyh-2Bv-1@gated-at.bofh.it> <ZCI5-2Pv-3@gated-at.bofh.it> <ZCIb-2Pv-11@gated-at.bofh.it> <3FD4AA11.6010806@kanar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FD4AA11.6010806@kanar.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're all trying to get acpi, apic, lapic, io-apic working
-when turned on in cmos/bios and kernel.
+On Mon, Dec 08, 2003 at 11:42:57AM -0500, Matthew Kanar wrote:
+> Here is one of my SMP systems (Dell-Dual P3), although noirqbalance 
+> doesn't seem to change things --
+> uname -nrvm:
+> k12.kanar.net 2.6.0-test11 #2 SMP Wed Dec 3 18:50:36 EST 2003 i686
+> _Without_ noirqbalance -
+> uptime:
+>  10:31:51  up 4 days, 15:07, 10 users,  load average: 0.00, 0.02, 0.00
 
-The three things that each alone have achieved stability
-on somebody's system here are 1) bios update 2) cpu
-disconnect off either in cmos if available or by athcool
-or kernel patch with same 3) timing delay patch
-
-For CPU disconnect you still need athcool or this one
-http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-disconnect-quirk.patch
-
-Both patches are for 2.6.0-test11 kernel.
-
-turn on ioapic edge timer--
-
-http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-apic.patch
+ACPI may be doing something strange (as usual). It looks like you somehow
+got slammed into fixed delivery mode.
 
 
-Other changes offer clues and expose symptoms but
-are not helpful or necessary after da fix is in. udma
-settings are a kludge of a error symptom, just aspirin.
-
-Other kludges are acpi off, local apic off in kernel,
-apic off in cmos/bios. These go away when the real
-problem is fixed.
-
--Bob
-
-Craig Bradney wrote:
-
->On Mon, 2003-12-08 at 04:21, Ross Dickson wrote:
->  
->
->>On Monday 08 of December 2003 04:08, Bob wrote: 
->> > >>Sounds great.. maybe you have come across something. Yes, the CPU 
->> > >>Disconnect function arrived in your BIOS in revision of 2003/03/27 
->> > >>"6.Adds"CPU Disconnect Function" to adjust C1 disconnects. The Chipset 
->> > >>does not support C2 disconnect; thus, disable C2 function." 
->> > >> 
->> > >>For me though.. Im on an ASUS A7N8X Deluxe v2 BIOS 1007. From what I can 
->> > >>see the CPU Disconnect isnt even in the Uber BIOS 1007 for this ASUS 
->> > >>that has been discussed. 
->> > >> 
->> > >>Craig 
->> > >
->> > >I don't have that in MSI K7N2 MCP2-T near the 
->> > >agp and fsb spread spectrum items or anywhere 
->> >> else. 
->>    
->>
->>>Use athcool: 
->>>        http://members.jcom.home.ne.jp/jacobi/linux/softwares.html#athcool
->>>or apply kernel patch (2.4 and 2.6 versions were posted already). 
->>>--bart 
->>>      
->>>
->>Please take a look at 
->>
->>Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
->>
->>in mailing list.
->>
->>I approached it from another angle regarding delaying the apic ack in local timer irq
->>and achieved stability. It would be good to have others try it. Ian Kumlien is also
->>reporting success so far.
->> 
->>    
->>
->
->Although I had long uptimes before.. and therefore might achieve them
->again fairly easily.. I'm now on 2 days 10 hours which has included a
->lot of compilation and a lot of idle time, and plenty of the hdpar and
->grep tests. I have used only the IRQ0 IO-APIC edge patch.
->
->Can someone please note all the patches for 2.6 that people have tried
->and what they achieve? Im starting to get a bit lost, given the fact
->that I'm running stable here with only 1 patch. (so far - this is where
->it crashes after I click Send I suppose ;) )
->
->-apic
->  
->
-   -local apic("lapic")
-
-   -acpi
-
-kernel local apic issue and acpi and apic go together,
-but turning off lapic first might achieve stability for
-some, updating bios will enable using all bios and
-linux apic, acpi, lapic, ioapic for some(me twice).
-
->-io-apic (IRQO set to XT-PIC incorrectly)
->
->-udma133?
->  
->
-udma133 may be a clue but I don't think anyone
-achieves stability one way or the other on that. I
-flogged every possible hdparm change and tried
-three brands of hd controller without every
-achieving stability, but once you're stable by
-using other means you can use 133 and unmask
-irq(not for siig sis?) and other hdparm opts.
-
->-cpu disconnect patch (missing bios option for ACPI Cx states)
->
->Craig
->  
->
-
-
+-- wli

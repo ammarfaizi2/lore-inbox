@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317480AbSFMGiQ>; Thu, 13 Jun 2002 02:38:16 -0400
+	id <S317483AbSFMHBM>; Thu, 13 Jun 2002 03:01:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317482AbSFMGiP>; Thu, 13 Jun 2002 02:38:15 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:4765 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S317480AbSFMGiO>;
-	Thu, 13 Jun 2002 02:38:14 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200206130638.XAA08477@csl.Stanford.EDU>
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-To: viro@math.psu.edu (Alexander Viro)
-Date: Wed, 12 Jun 2002 23:38:12 -0700 (PDT)
-Cc: bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org,
-        mc@cs.Stanford.EDU
-In-Reply-To: <Pine.GSO.4.21.0206121824140.16357-100000@weyl.math.psu.edu> from "Alexander Viro" at Jun 12, 2002 06:26:55 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S317484AbSFMHBM>; Thu, 13 Jun 2002 03:01:12 -0400
+Received: from adsl-63-205-245-1.dsl.snfc21.pacbell.net ([63.205.245.1]:32216
+	"EHLO amboise.dolphin") by vger.kernel.org with ESMTP
+	id <S317483AbSFMHBK> convert rfc822-to-8bit; Thu, 13 Jun 2002 03:01:10 -0400
+Date: Thu, 13 Jun 2002 00:00:39 -0700 (PDT)
+From: Francois Gouget <fgouget@free.fr>
+X-X-Sender: fgouget@amboise.dolphin
+To: Alexander Viro <viro@math.psu.edu>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+In-Reply-To: <Pine.GSO.4.21.0206130114350.18281-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.43.0206122352100.21739-100000@amboise.dolphin>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 12 Jun 2002, Benjamin LaHaise wrote:
-> 
-> > On Sun, Jun 09, 2002 at 08:56:30PM -0700, Dawson Engler wrote:
-> > > Here are 37 errors where variables >= 1024 bytes are allocated on a function's
-> > > stack.
-> > 
-> > Is it possible to get checker to determine the stack depth of a worst 
-> > case call chain (excluding interrupts)?  I've found that deep call chains 
-> > are far more likely to cause stack overflows than short and bounded paths.
-> 
-> Not realistic - we have a recursion through the ->follow_link(), and
-> a lot of stuff can be called from ->follow_link().  We _do_ have a
-> limit on depth of recursion here, but it won't be fun to deal with.
+On Thu, 13 Jun 2002, Alexander Viro wrote:
 
-You mean following function pointers is not realistic?  Actually the
-function pointers in linxu are pretty easy to deal with since, by
-and large, they are set by static structure initialization and not
-really fussed with afterwards.
+>
+>
+> On Thu, 13 Jun 2002, Stevie O wrote:
+>
+> > At 12:09 AM 6/13/2002 -0400, Alexander Viro wrote:
+> > >Vetoed.  Consider what happens if you rename such file, for one thing.
+> >
+> > I don't understand
+> > What do you mean, if I rename such a file?
+>
+> rename("foo.lnk", "foo");
+
+Let's not use .lnk as the extension, ok? It's an area that is still
+quite sensitive <g>
+
+So let's say that we use .!nk as the extension of our brand new symlink
+implementation (assuming using '!' is ok).
+
+Then here is how it would work:
+ * if the user creates a symlink called "foo", we create a file called
+"foo.!nk" on the underlying filesystem.
+ * opendir+readdir does not return "foo.!nk" but instead returns "foo"
+ * open("foo") opens the symlink, i.e. the VFS reads "foo.!nk"  and open
+the filename contained therein
+ * create("bar.!nk") is not allowed: on such a filesystem, you are not
+allowed to create any file ending with ".!nk"
+ * symlink(...,"...very long name") fails if the filename is too long
+for VFS to append ".!nk"
+ * etc.
+
+So there are definitely limitations but I believe it could work. I am
+not going to argue that it should be done though as I am happy enough
+with the current situation (and it's not like I have the time to work on
+it either).
+
+
+--
+Francois Gouget         fgouget@free.fr        http://fgouget.free.fr/
+                           La terre est une bêta...
 

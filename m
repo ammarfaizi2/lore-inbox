@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262994AbSJBGqw>; Wed, 2 Oct 2002 02:46:52 -0400
+	id <S262988AbSJBGmy>; Wed, 2 Oct 2002 02:42:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262997AbSJBGqw>; Wed, 2 Oct 2002 02:46:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:23170 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262994AbSJBGqu>;
-	Wed, 2 Oct 2002 02:46:50 -0400
-Date: Wed, 2 Oct 2002 08:51:58 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       peter@chubb.wattle.id.au
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-Message-ID: <20021002065158.GA3867@suse.de>
-References: <20021001221421.A7762@infradead.org> <Pine.LNX.4.33.0210011735100.4577-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0210011735100.4577-100000@penguin.transmeta.com>
+	id <S262990AbSJBGmy>; Wed, 2 Oct 2002 02:42:54 -0400
+Received: from as2-4-3.an.g.bonet.se ([194.236.34.191]:27307 "EHLO
+	zigo.dhs.org") by vger.kernel.org with ESMTP id <S262988AbSJBGmx>;
+	Wed, 2 Oct 2002 02:42:53 -0400
+Date: Wed, 2 Oct 2002 08:48:07 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dennis_Bj=F6rklund?= <db@zigo.dhs.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: input layer - activate keyboard
+In-Reply-To: <3D9A9015.2090503@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210020846280.10497-100000@zigo.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01 2002, Linus Torvalds wrote:
-> 
-> On Tue, 1 Oct 2002, Christoph Hellwig wrote:
-> > 
-> > What about the 64bit sector_t (aka >2TB blockdevice) patches. 
-> 
-> I think we should do both 64-bit sector_t and 32-bit dev_t, although both 
-> of them depend on how horrible the code ends up being. Example patches?
+On Tue, 1 Oct 2002, Dave Hansen wrote:
 
-Peter had patches for 64-bit sector_t, and they looked pretty nice.
-Definitely mergeable. Peter, do you have a recent version?
+> I have an "IBM Rapidaccess II" keyboard with a few miscellaneous keys 
+> in the top and center, with a few more CD-player type controls in the 
+> upper left.  You don't need an "activation code", just something to 
+> handle its funny scancodes.
+
+For the Rapid Access I you do need activation codes otherwise the keys 
+produce nothing.
+
+See http://www.win.tue.nl/~aeb/linux/kbd/scancodes-2.html#ss2.28
 
 -- 
-Jens Axboe
+/Dennis
 

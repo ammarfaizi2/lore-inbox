@@ -1,154 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUFIDXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265519AbUFIDfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265517AbUFIDXP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 23:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbUFIDXP
+	id S265519AbUFIDfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 23:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbUFIDfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 23:23:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61368 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265517AbUFIDXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 23:23:05 -0400
-Date: Tue, 8 Jun 2004 20:22:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Mason <mason@suse.com>
-Cc: mika.penttila@kolumbus.fi, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] writeback_inodes can race with unmount
-Message-Id: <20040608202217.0b7a6371.akpm@osdl.org>
-In-Reply-To: <1086744565.10973.192.camel@watt.suse.com>
-References: <1086722523.10973.157.camel@watt.suse.com>
-	<40C61A20.4000906@kolumbus.fi>
-	<1086725926.10973.161.camel@watt.suse.com>
-	<20040608145627.0191c026.akpm@osdl.org>
-	<1086744565.10973.192.camel@watt.suse.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Jun 2004 23:35:25 -0400
+Received: from web51807.mail.yahoo.com ([206.190.38.238]:27281 "HELO
+	web51807.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265519AbUFIDfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 23:35:13 -0400
+Message-ID: <20040609033513.76754.qmail@web51807.mail.yahoo.com>
+Date: Tue, 8 Jun 2004 20:35:13 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: slow down in 2.6 vs 2.4
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason <mason@suse.com> wrote:
->
-> On Tue, 2004-06-08 at 17:56, Andrew Morton wrote:
-> > Chris Mason <mason@suse.com> wrote:
-> 
-> > > > Why don't we have the same race in the sync() path as well? Moving the 
-> > > > locking to sync_sb_inodes() itself would fix it also.
-> > > 
-> > > In the sync() path we're already taking a read lock on s_umount sem. 
-> > > Moving the locking into sync_sb_inodes would be tricky, it is sometimes
-> > > called with the write lock on s_umount_sem held and sometimes with a
-> > > read lock.
-> > > 
-> > 
-> > Plus we'd be dead if we had to do the above.  If that read_trylock() fails
-> > the sync() will forget to sync stuff.
-> > 
-> > And, contra your description, we'll fail the trylock relatively frequently
-> > - when some other process is writing back this superblock.
-> 
-> The write lock is taken much less frequently.  Should be just on
-> mount/unmount no?
+Hello!
 
-OK.
+Over the last two days I have been struggling with
+understanding why 2.6.x kernel is slower than
+2.4.21/23 kernels.  I think I have a test case which
+demostrates this issue.
 
-> So, it looks like we get this:
-> 
-> CPU 0				CPU 1
-> writeback_inodes		generic_shutdown_super
-> sync_sb_inodes			
-> iget(inode)
-> spin_unlock(&inode_lock)
-> 				sop->put_super(sb)
-> iput(inode)
-> generic_delete_inode()
+I have downloaded gcc-3.4.0 and run with this config:
+--enable-languages=c,c++ --prefix=/usr/tmp/foo
 
-We really shouldn't have got to ->put_super() when there are still live
-inodes around.  I'd say that the problem lies on the umount path.  2.4
-might have the same problem, but it'll be much harder to hit.
+using gcc-3.2.3 and binutils-2.13.2.1, on IBM x335
+w/2x 2.8G Xeon w/8G RAM, no ht[bios killed], using
+local file system (XFS):
 
-Something like this?  If so, we should probably lock the inode in
-prune_icache() and remove iprune_sem.
+make times:
+
+2.4.21:
+323.68user 56.07system 6:35.77elapsed 95%CPU
+(0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (3138783major+3818347minor)pagefaults
+0swaps
+
+2.6.7-rc3-s63 (SPA scheduler):
+334.01user 69.86system 7:01.47elapsed 95%CPU
+(0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (13301major+6931745minor)pagefaults
+0swaps
+
+2.6.7-rc3:
+336.17user 68.41system 7:02.47elapsed 95%CPU
+(0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (13301major+6931745minor)pagefaults
+0swaps
+
+Machine:
+00:00.0 Host bridge: ServerWorks: Unknown device 0012
+(rev 13)
+00:00.1 Host bridge: ServerWorks: Unknown device 0012
+00:00.2 Host bridge: ServerWorks: Unknown device 0000
+00:01.0 VGA compatible controller: ATI Technologies
+Inc Rage XL (rev 27)
+00:0f.0 Host bridge: ServerWorks CSB5 South Bridge
+(rev 93)
+00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller
+(rev 93)
+00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB
+Controller (rev 05)
+00:0f.3 ISA bridge: ServerWorks: Unknown device 0225
+00:11.0 Host bridge: ServerWorks: Unknown device 0101
+(rev 03)
+00:11.2 Host bridge: ServerWorks: Unknown device 0101
+(rev 03)
+01:01.0 SCSI storage controller: Symbios Logic Inc.
+(formerly NCR): Unknown device 0030 (rev 07)
+01:02.0 Ethernet controller: Intel Corporation:
+Unknown device 100e (rev 02)
+02:01.0 Ethernet controller: BROADCOM Corporation:
+Unknown device 16a7 (rev 02)
+02:02.0 Ethernet controller: BROADCOM Corporation:
+Unknown device 16a7 (rev 02)
 
 
---- 25/fs/inode.c~a	2004-06-08 20:06:41.905455400 -0700
-+++ 25-akpm/fs/inode.c	2004-06-08 20:19:40.300121424 -0700
-@@ -294,10 +294,11 @@ static void dispose_list(struct list_hea
- /*
-  * Invalidate all inodes for a device.
-  */
--static int invalidate_list(struct list_head *head, struct super_block * sb, struct list_head * dispose)
-+static int invalidate_list(struct list_head *head, struct super_block *sb,
-+				struct list_head *dispose)
- {
- 	struct list_head *next;
--	int busy = 0, count = 0;
-+	int ret = 0, count = 0;
- 
- 	next = head->next;
- 	for (;;) {
-@@ -311,6 +312,17 @@ static int invalidate_list(struct list_h
- 		if (inode->i_sb != sb)
- 			continue;
- 		invalidate_inode_buffers(inode);
-+		if (inode->i_state & I_LOCK) {
-+			__iget(inode);
-+			inodes_stat.nr_unused -= count;
-+			count = 0;
-+			spin_unlock(&inode_lock);
-+			wait_on_inode(inode);
-+			iput(inode);
-+			ret = 2;
-+			spin_lock(&inode_lock);
-+			break;
-+		}
- 		if (!atomic_read(&inode->i_count)) {
- 			hlist_del_init(&inode->i_hash);
- 			list_move(&inode->i_list, dispose);
-@@ -318,11 +330,11 @@ static int invalidate_list(struct list_h
- 			count++;
- 			continue;
- 		}
--		busy = 1;
-+		ret = 1;
- 	}
- 	/* only unused inodes may be cached with i_count zero */
- 	inodes_stat.nr_unused -= count;
--	return busy;
-+	return ret;
- }
- 
- /*
-@@ -343,21 +355,23 @@ static int invalidate_list(struct list_h
-  */
- int invalidate_inodes(struct super_block * sb)
- {
--	int busy;
-+	int state;
- 	LIST_HEAD(throw_away);
- 
- 	down(&iprune_sem);
- 	spin_lock(&inode_lock);
--	busy = invalidate_list(&inode_in_use, sb, &throw_away);
--	busy |= invalidate_list(&inode_unused, sb, &throw_away);
--	busy |= invalidate_list(&sb->s_dirty, sb, &throw_away);
--	busy |= invalidate_list(&sb->s_io, sb, &throw_away);
-+	do {
-+		state = invalidate_list(&inode_in_use, sb, &throw_away);
-+		state |= invalidate_list(&inode_unused, sb, &throw_away);
-+		state |= invalidate_list(&sb->s_dirty, sb, &throw_away);
-+		state |= invalidate_list(&sb->s_io, sb, &throw_away);
-+	} while (state & 2);
- 	spin_unlock(&inode_lock);
- 
- 	dispose_list(&throw_away);
- 	up(&iprune_sem);
- 
--	return busy;
-+	return state;
- }
- 
- EXPORT_SYMBOL(invalidate_inodes);
-_
+Anything else needed? Is there something I can do to
+try and understand this issue?
 
+Thank you for your time.
+Phy
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Friends.  Fun.  Try the all-new Yahoo! Messenger.
+http://messenger.yahoo.com/ 

@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263175AbRFLULe>; Tue, 12 Jun 2001 16:11:34 -0400
+	id <S263212AbRFLUUe>; Tue, 12 Jun 2001 16:20:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263193AbRFLULO>; Tue, 12 Jun 2001 16:11:14 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:60233 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S263175AbRFLULG>;
-	Tue, 12 Jun 2001 16:11:06 -0400
-Message-ID: <20010612221050.A19449@win.tue.nl>
-Date: Tue, 12 Jun 2001 22:10:50 +0200
+	id <S263219AbRFLUUO>; Tue, 12 Jun 2001 16:20:14 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:65399 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S263212AbRFLUUE>;
+	Tue, 12 Jun 2001 16:20:04 -0400
+Message-ID: <20010612221948.B19449@win.tue.nl>
+Date: Tue, 12 Jun 2001 22:19:48 +0200
 From: Guest section DW <dwguest@win.tue.nl>
-To: Sergey Tursanov <__gsr@mail.ru>,
+To: Sergey Tursanov <__gsr@mail.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: PC keyboard rate/delay
-In-Reply-To: <19562259.20010612181949@mail.ru>
+In-Reply-To: <E159qcp-0001XE-00@the-village.bc.nu> <53176576.20010612212337@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <19562259.20010612181949@mail.ru>; from Sergey Tursanov on Tue, Jun 12, 2001 at 06:19:49PM +0400
+In-Reply-To: <53176576.20010612212337@mail.ru>; from Sergey Tursanov on Tue, Jun 12, 2001 at 09:23:37PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 12, 2001 at 06:19:49PM +0400, Sergey Tursanov wrote:
+On Tue, Jun 12, 2001 at 09:23:37PM +0400, Sergey Tursanov wrote:
+> AC> You must have been reading my mind. Yesterday I traced at least one X11
+> AC> hang down to the kernel and X server both frobbing with the port at the same
+> AC> time and crashing the microcontroller on my PC110.
+> 
+> I think it would be better to place all of kbd controller code
+> into the kernel instead of using various userspace programs
+> such as kbdrate. Otherwise why KDKBDREP was defined ?-)
 
-> In file include/linux/kd.h was declared KDKBDREP ioctl number
-> But in 2.4.x kernel there is only m68k version for that.
-> I wrote some code for implement this feature on x86 machines.
+KDKBDREP on m68k
+KIOCSRATE on sparc
+/dev/port on i386 etc.
 
-Yes, it is unfortunate that many ioctls are needlessly different
-between various architectures. But the utility kbdrate
-works on all architectures I have tried it on.
+Yes, we want to get rid of /dev/port.
 
-Andries

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316751AbSFUSwa>; Fri, 21 Jun 2002 14:52:30 -0400
+	id <S316753AbSFUSzX>; Fri, 21 Jun 2002 14:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316753AbSFUSwa>; Fri, 21 Jun 2002 14:52:30 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:61944 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316751AbSFUSw3>; Fri, 21 Jun 2002 14:52:29 -0400
-Date: Fri, 21 Jun 2002 14:52:30 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] (resend) credentials for 2.5.23
-Message-ID: <20020621145230.B1499@redhat.com>
-References: <20020619212909.A3468@redhat.com> <1024540235.917.127.camel@sinai> <20020620122858.B4674@redhat.com> <1024593066.922.149.camel@sinai> <shs4rfwx4uc.fsf@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <shs4rfwx4uc.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Fri, Jun 21, 2002 at 01:12:59PM +0200
+	id <S316755AbSFUSzW>; Fri, 21 Jun 2002 14:55:22 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:39950 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316753AbSFUSzW>; Fri, 21 Jun 2002 14:55:22 -0400
+Date: Fri, 21 Jun 2002 20:55:10 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Hayden James <hjames@stevens-tech.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: CML2
+In-Reply-To: <Pine.SGI.4.30.0206202040260.8750970-100000@attila.stevens-tech.edu>
+Message-ID: <Pine.LNX.4.44.0206212042550.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 21, 2002 at 01:12:59PM +0200, Trond Myklebust wrote:
->   Making the credentials a monolithic block like you appear to be
-> doing just doesn't make sense. If you look at the way things like
-> fsuid/fsgid/groups[] are used, you will see that almost all those that
-> filesystems that care are making their own private copies.
+Hi,
 
-I'm not looking at things from the filesystem's point of view, so 
-much as for threads and aio, where rlimits and identificantion needs 
-to be shared between contexts.
+On Thu, 20 Jun 2002, Hayden James wrote:
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+> Has it been decided not to put in CML2 into 2.5.x?  I haven't seen much
+> talk of it (besides the patch being taken out of kbuild 2.5 and ESR
+> dropping off the list).
+
+Due to the silence of him, we must assume that he has given up. CML2 has
+a few problems, which make it unlikely that it gets included as is.
+Anyway, not all hope is lost, I started my own configuration system some
+time ago, which will be less complex than CML2. It's only advancing a bit
+slowly currently, as I only have little time to work on it.
+
+bye, Roman
+

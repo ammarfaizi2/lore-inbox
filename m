@@ -1,85 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129225AbRBRTOf>; Sun, 18 Feb 2001 14:14:35 -0500
+	id <S129224AbRBRTRQ>; Sun, 18 Feb 2001 14:17:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129224AbRBRTO0>; Sun, 18 Feb 2001 14:14:26 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:56589 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S129613AbRBRTOP>; Sun, 18 Feb 2001 14:14:15 -0500
-Date: Sun, 18 Feb 2001 13:04:00 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: "Gregory S. Youngblood" <greg@tcscs.com>
-Cc: "Michael H. Warfield" <mhw@wittsend.com>, Ben Ford <ben@kalifornia.com>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux stifles innovation...
-Message-ID: <20010218130400.B13553@alcove.wittsend.com>
-Mail-Followup-To: "Gregory S. Youngblood" <greg@tcscs.com>,
-	"Michael H. Warfield" <mhw@wittsend.com>,
-	Ben Ford <ben@kalifornia.com>,
-	linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010218114230.B11903@alcove.wittsend.com> <Pine.LNX.4.30.0102181155550.10349-100000@ded-tscs.innovsoftd.com>
+	id <S129944AbRBRTRG>; Sun, 18 Feb 2001 14:17:06 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:8454 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129940AbRBRTRA>;
+	Sun, 18 Feb 2001 14:17:00 -0500
+Date: Sun, 18 Feb 2001 20:16:39 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, zzed@cyberdude.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PROBLEM] 2.4.1 can't mount ext2 CD-ROM
+Message-ID: <20010218201639.A6593@suse.de>
+In-Reply-To: <UTC200102181749.SAA171185.aeb@vlet.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <Pine.LNX.4.30.0102181155550.10349-100000@ded-tscs.innovsoftd.com>; from greg@tcscs.com on Sun, Feb 18, 2001 at 12:00:03PM -0600
+In-Reply-To: <UTC200102181749.SAA171185.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Sun, Feb 18, 2001 at 06:49:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 18, 2001 at 12:00:03PM -0600, Gregory S. Youngblood wrote:
-> On Sun, 18 Feb 2001, Michael H. Warfield wrote:
+On Sun, Feb 18 2001, Andries.Brouwer@cwi.nl wrote:
+> Someone has added
+>         /*
+>          * These are good guesses for the time being.
+>          */
+>         for (i = 0; i < sr_template.dev_max; i++) {
+>                 sr_blocksizes[i] = 2048;
+>                 sr_hardsizes[i] = 2048;
+>         }
+>         blksize_size[MAJOR_NR] = sr_blocksizes;
+>         hardsect_size[MAJOR_NR] = sr_hardsizes;
+> setting of hardsect_size to drivers/scsi/sr.c.
+> 
+> A value of hardsect_size[] means: this is the smallest size
+> the hardware can work with. It is therefore a serious mistake
+> just to come with "a good guess". This value is used only
 
-> > On Sat, Feb 17, 2001 at 09:15:08PM -0800, Ben Ford wrote:
-> > > >
-> > > > On the other hand, they make excellent mice.  The mouse wheel and
-> > > > the new optical mice are truly innovative and Microsoft should be
-> > > > commended for them.
-> > > >
-> > > The wheel was a nifty idea, but I've seen workstations 15 years old with
-> > > optical mice.  It wasn't MS's idea.
+You are defeating the entire purpose of having a hardware sector
+size independently from the software block size. And 2kB is a
+valid guess, apart from the drives that do 512 byte transfers too
+2kB is really the smallest transfer we can do.
 
-> > 	I think their "innovation" was not requiring the optical cross
-> > grid mouse pad common on Sun workstations over the years.  The Microsoft
-> > optical mouse uses variations in the surface characteristics of whatever
-> > it's on to perform it's function.  The old optical mice just used two
-> > different colors of LED's (red and IR) and a special pad.  This would
-> > actually have to scan and track the surface below it.  Don't know that
-> > I've seen anyone do that before.
+> to reject impossible sizes, and everywhere the kernel accepts 0
+> meaning "don't know".
 
-> I remember being at a computer show in Minneapolis where a small company
-> was showing off this mouse that worked on a variety of surfaces without a
-> ball. I'm trying to remember if the mouse was optical or used yet another
-> method of functioning -- I think it was optical, though I could be
-> mistaken. This was in 1992/1993.
+So put 0 and sure anyone can submit I/O on the size that they want.
+Now the driver has to support padding reads, or gathering data to do
+a complete block write. This is silly. Sr should support 512b transfers
+just fine, but only because I added the necessary _hacks_ to support
+it. sd doesn't right now for instance.
 
-	I think you are correct here.  I seem to recall mention of some
-of those earlier devices at the time of the Microsoft announcement.  I
-seem to also recall some of the reliability problem they had.  I believe
-they were extremely fussy about the surface they were on.
+In my oppinion we are always going to have hacks like this unless we
+add some generic support for < hardware submission of I/O. Simply
+ignoring this issue only makes it worse.
 
-> The point is, I really do not believe Microsoft made the "leap" to provide
-> opitcal mice without the need of the mousepad grid. Their "innovation" was
-> in marketing it on a wide scale though.
-
-	I would agree there.  They did something to improve the reliability
-on a wider variety of surface textures, though.  Is that innovation or
-merely getting a good idea, that's been around, to finally work?  Don't
-know.  I didn't find the idea itself particularly innovative.  The fact
-that they did get it to work reliable is something to be said.
-
-	The marketing is a given, of course.  Particularly in the face
-of the preception in some camps that this style of optical mouse was
-unreliable.
-
-> I could be mistaken - if so then let's give them their credit - but I have
-> a hard time believing it was their idea without some serious proof.
-
-	Agreed.
-
-	Mike
 -- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+Jens Axboe
 

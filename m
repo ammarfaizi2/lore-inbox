@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbTELTnl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 15:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTELTnk
+	id S262438AbTELTu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 15:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTELTu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 15:43:40 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:44237 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S262589AbTELTnj (ORCPT
+	Mon, 12 May 2003 15:50:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59277 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262438AbTELTuz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 15:43:39 -0400
-Date: Mon, 12 May 2003 21:54:18 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
-       mikpe@csd.uu.se,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] restore sysenter MSRs at resume
-Message-ID: <20030512195418.GA8943@elf.ucw.cz>
-References: <200305101641.h4AGfEVE002970@harpo.it.uu.se> <Pine.LNX.4.44.0305111158500.12955-100000@home.transmeta.com> <20030511190822.GA1181@atrey.karlin.mff.cuni.cz> <1052681292.1869.5.camel@laptop-linux> <20030512113017.GA25757@atrey.karlin.mff.cuni.cz> <1052768026.1865.0.camel@laptop-linux>
+	Mon, 12 May 2003 15:50:55 -0400
+Date: Mon, 12 May 2003 11:57:58 -0700 (PDT)
+Message-Id: <20030512.115758.39166911.davem@redhat.com>
+To: chas@cmf.nrl.navy.mil
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] make clip modular
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200305121933.h4CJXM511323@relax.cmf.nrl.navy.mil>
+References: <200305121933.h4CJXM511323@relax.cmf.nrl.navy.mil>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052768026.1865.0.camel@laptop-linux>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+   From: chas williams <chas@cmf.nrl.navy.mil>
+   Date: Mon, 12 May 2003 15:33:22 -0400
 
-> > > Ok. I haven't updated it for 2.5.69 version, but it doesn't look like
-> > > any changes are required. Here is the relevant part of the full swsusp
-> > > patch.
-> > 
-> > I guess it still needs to be updated for the driver model....
-> 
-> Yes,
-> 
-> No time here :> I'm busy with my real work and with work on 2.4 swsusp.
+   this patch lets one build clip as a module.
+   
+This doesn't work and is quite racey.
 
-Okay, I'll do it.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+   +			if (!atm_clip_ops || !try_module_get(atm_clip_ops->owner)) {
+
+Q: What prevents atm_clip_ops from going NULL between the
+   !atm_clip_ops test and the atm_clip_ops->owner dereference?
+
+A: Nothing.
+
+Therefore you have to protect these things some how, I would
+suggest using a semaphore, put it right next to atm_clip_ops
+and hold it around register, derferegister, and code sequence
+like this one trying to get a reference to it.
+
+The various ioctl hooks in net/socket.c are good models to
+work from.
+
+MPOA/LEC/MPC probably have nearly identical bugs and it would
+be great if you could fix them up too.

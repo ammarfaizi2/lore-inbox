@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278989AbRJVWUK>; Mon, 22 Oct 2001 18:20:10 -0400
+	id <S278985AbRJVWRA>; Mon, 22 Oct 2001 18:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278996AbRJVWTZ>; Mon, 22 Oct 2001 18:19:25 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43790 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S278989AbRJVWRm>; Mon, 22 Oct 2001 18:17:42 -0400
-Date: Mon, 22 Oct 2001 18:12:52 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
+	id <S278988AbRJVWQp>; Mon, 22 Oct 2001 18:16:45 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:7686 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S278982AbRJVWPq>; Mon, 22 Oct 2001 18:15:46 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Kilobug <kilobug@freesurf.fr>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] A nicer nice scheduling
-In-Reply-To: <Pine.LNX.4.10.10110221644570.25216-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.3.96.1011022175924.23660D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <86256AED.007A5093.00@smtpnotes.altec.com>
+Date: Mon, 22 Oct 2001 17:12:22 -0500
+Subject: Re: Linux 2.2.20pre10
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, Mark Hahn wrote:
 
-> > kernels. But such an aggressive nice does have a downside as given, it
-> > can result in a process in memory which doesn't get scheduled. 
-> 
-> why would it be "in memory"?  idle pages get reclaimed/swapped.
 
-In the long run that's true, but there's nothing to preferentially swap
-that page set, so they don't go away any faster than any other pages. If
-the idle process were another thing instead of just a low priority
-process, it could be treated in some special ways WRT memory management.
+Thank you.  That's a very kind and generous offer.  You might want to consult a
+French attorney, though, just to make certain there's no way they could make
+trouble for you under French law.
 
-We have two people actively working on VM, please let them comment on what
-could be done. I would think about swapping the idle process
-preferentially if it didn't get run for some realtime, and perhaps doing
-{something_else} fancy otherwise. At the rate the VM code is getting
-complex I expect to see standard deviation and FFTs in 2.5. Only half
-kidding, both VMs are working better with every refinement, complexity is
-not bad if it produces better results. I always thought per-process page
-fault rates would be useful, if some weighted attention to that would
-reduce the total system i/o rate.
+I really appreciate the fact that you're willing to help, but I wouldn't want
+you to risk getting into trouble on our behalf.
 
-Anyway, that was my thinking, if the load is high a true idle process
-could be treated as a special case, including running a small number of
-them instead of having a lot of low priority processes doing not much if
-too many were started. I can remember batch processing, and for real idle
-jobs that's not a bad thing.
+Wayne
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+
+
+Kilobug <kilobug@freesurf.fr> on 10/22/2001 04:52:43 PM
+
+To:   linux-kernel@vger.kernel.org
+cc:    (bcc: Wayne Brown/Corporate/Altec)
+
+Subject:  Re: Linux 2.2.20pre10
+
+
+
+Rik van Riel wrote:
+
+ >>I never said that Alan, or any particular individual, should
+ >>risk a lawsuit or jail.  I simply said that I hoped *someone
+ >>outside the US* (that is, someone not subject to US laws) would
+ >>make the information available.
+ >>
+ >
+ > If you publish to the US, you can be sued under US law.
+ >
+
+Ok, so mail me the security-related informations at
+kilobug@club-internet.fr, it's in France so you can, and I'll forward them.
+
+I don't plan to go to the US a day or another (I won't go to any country
+that use death penalty, for moral and political reasons), and so I don't
+fear their DMCA.
+
+--
+   ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
+Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
+
+"Software is like sex it's better when it's free.", Linus Torvalds
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
 

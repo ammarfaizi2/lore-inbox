@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318217AbSHSJrh>; Mon, 19 Aug 2002 05:47:37 -0400
+	id <S318218AbSHSJwH>; Mon, 19 Aug 2002 05:52:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318218AbSHSJrh>; Mon, 19 Aug 2002 05:47:37 -0400
-Received: from aurora.dnttm.ro ([193.226.98.1]:43535 "EHLO aurora.dnttm.ro")
-	by vger.kernel.org with ESMTP id <S318217AbSHSJrh>;
-	Mon, 19 Aug 2002 05:47:37 -0400
-Date: Mon, 19 Aug 2002 12:51:38 +0300 (EEST)
-From: Dan Borlovan <danb@dnttm.ro>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2.20 fwmark corruption?
-Message-ID: <Pine.LNX.4.33.0208191240270.15434-100000@aurora.dnttm.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.3.3(snapshot 20020312) (office.dnttm.ro)
+	id <S318220AbSHSJwH>; Mon, 19 Aug 2002 05:52:07 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:59021 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318218AbSHSJwG>;
+	Mon, 19 Aug 2002 05:52:06 -0400
+Date: Mon, 19 Aug 2002 11:54:16 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Adam J. Richter" <adam@yggdrasil.com>, aia21@cantab.net, axboe@suse.de,
+       B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       m.c.p@wolk-project.de, torvalds@transmeta.com
+Subject: Re: IDE?
+Message-ID: <20020819115416.A3533@ucw.cz>
+References: <200208171302.GAA07962@adam.yggdrasil.com> <20020817182638.GP9642@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020817182638.GP9642@clusterfs.com>; from adilger@clusterfs.com on Sat, Aug 17, 2002 at 12:26:38PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 17, 2002 at 12:26:38PM -0600, Andreas Dilger wrote:
+> On Aug 17, 2002  06:02 -0700, Adam J. Richter wrote:
+> > 	I just looked at the patch to switch to "2.4 forward port"
+> > version of drivers/ide.  If I got my shell commands right, Martin's
+> > tree is 8606 lines shorter than the 2.4 forward port.
+> > 
+> > 	2.4 forward port	49,205 lines
+> > 	Martin's version	40,599 lines
+> > 				------------
+> > 				 8,606 lines difference
+> > 
+> > 	It's often amazing how much cleaning up it takes to shrink
+> > code a little bit.  Shrinking the IDE tree this much is a lot of
+> > work to throw away.
+> > 
+> > 	In comparison, I think Niklaus Wirth's Modula-2 compiler for
+> > the Lilith machine was 5,000 lines.
+> > 
+> > 	Is the 2.5.31 IDE tree that buggy?  I would hope that stamping
+> > out bugs from Martin's tree would be less work than cleaning up
+> > the 2.4 version to that point again.
+> 
+> Why don't we just start with the now-discarded 2.5 IDE code as IDE-TNG?
+> If people want to develop/hack then they can use that, and if they
+> want to hack on other things they use the old code.  You just need to
+> make the two config options mutually exclusive until the drivers learn
+> to play well together (by being able to control separate drives/ctrlr).
 
-Hi,
+Well, because it might be easier to just start from scratch.
 
-In order to redirect traffic to a transparent proxy, I'm using ipchains to 
-set fwmark on packet, and an ip rule to throw those packets into an 
-alternate routing table. The simplified setup looks like this:
-
-- host R has 4 ethernet cards, eth0 .. eth3
-
-- on eth1 there are host G (the default gateway) and host P (the 
-transparent proxy)
-
-- ipchains takes all packets that a) have proto tcp, dport 80 b) do not
-have daddr on local networks and c) have a specified saddr - and sets
-fwmark to 1
-
-- routing table 1 contains only a default route with nexthost host P
-
-- the is an "ip rule add fwmark 1 table 1"
-
-The problem: couple of times a day I get entries in rt_cache that look
-like "from (some interface of) host R to some host in directly connected
-networks on eth0, eth2, eth3 via host P" - as if somehow those packets
-were marked and got caught by the ip rule. But they cannot be marked,
-because of the ipchains "daddr is not local" restriction (and remember
-this happens only from time to time)
-
-Changing the rule to something like "ip rule add from
-same_specific_saddr_as_in_ipchains fwmark 1 table 1", though this is
-redundant, makes the problem go away.
-
-So, is there any way packets that do not match the ipchains rule get 
-somehow from time to time a fwmark value of 1?
-
-Dan
 -- 
-Dan Borlovan <danb@dnttm.ro>
-System Administrator, Network Operation Center
-Dynamic Network Technologies - ASTRAL TELECOM
-Telefon: +40-256-204967  FAX: +40-256-220201
-
+Vojtech Pavlik
+SuSE Labs

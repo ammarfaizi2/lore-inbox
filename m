@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKOQbh>; Wed, 15 Nov 2000 11:31:37 -0500
+	id <S129788AbQKOQh2>; Wed, 15 Nov 2000 11:37:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129272AbQKOQb2>; Wed, 15 Nov 2000 11:31:28 -0500
-Received: from webserver.giki.edu.pk ([210.56.13.8]:47114 "EHLO
-	webserver.giki.edu.pk") by vger.kernel.org with ESMTP
-	id <S129091AbQKOQbQ>; Wed, 15 Nov 2000 11:31:16 -0500
-Message-ID: <00ba01c04def$821f8480$0f32a8c0@hostel5.giki.edu.pk>
-From: "Aamir Dogar" <u970001@giki.edu.pk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Newbie
-Date: Tue, 14 Nov 2000 09:01:03 +0500
-Organization: GIK Institute
+	id <S129439AbQKOQhT>; Wed, 15 Nov 2000 11:37:19 -0500
+Received: from prosun.first.gmd.de ([194.95.168.2]:28939 "EHLO
+	prosun.first.gmd.de") by vger.kernel.org with ESMTP
+	id <S129148AbQKOQhG>; Wed, 15 Nov 2000 11:37:06 -0500
+From: Andreas Osterburg <alanos@first.gmd.de>
+To: linux-kernel@vger.kernel.org
+Subject: Swapping over NFS in Linux 2.4?
+Date: Wed, 15 Nov 2000 16:38:49 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-Id: <00111517064807.29351@bar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi There,
+Hi,
 
-i am new to kernal development.
-i just need a good Kernal Programming-HowTo.
-could someone please let me know about this and about other useful info
-about kernal programming that can help me to start kernal programming.
+Because I set up a diskless Linux-workstation, I want to swap over NFS.
+For this purpose I found only patches for "older" Linux-versions (2.0, 2.1,
+2.2?).
+Does anyone know wheter there are patches for 2.4 or does anyone know
+another solution for this problem?
+Because of special hardware I can only use the latest Linux 2.3 (2.3.99*) and
+Linux 2.4
 
+Thank you,
 
-thanks in advance
-Aamir
-
+Andreas Osterburg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

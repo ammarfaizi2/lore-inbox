@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUIIXpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUIIXoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUIIXpN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUIIXpN
+	id S265234AbUIIXoq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267421AbUIIXmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:45:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33505 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267212AbUIIXlt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:41:49 -0400
-Date: Thu, 9 Sep 2004 16:41:44 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
-Message-ID: <20040909164144.F1924@build.pdx.osdl.net>
-References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909213813.GC10892@lkcl.net>
+	Thu, 9 Sep 2004 19:42:17 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:11150 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S263100AbUIIXkx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 19:40:53 -0400
+Date: Fri, 10 Sep 2004 01:40:50 +0200
+From: maks attems <janitor@sternwelten.at>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] compile fix 3c59x for eisa without pci
+Message-ID: <20040909234050.GK1927@stro.at>
+Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040909213813.GC10892@lkcl.net>; from lkcl@lkcl.net on Thu, Sep 09, 2004 at 10:38:13PM +0100
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Luke Kenneth Casson Leighton (lkcl@lkcl.net) wrote:
-> chris - for example, i notice that at the top of ipt_owner.c it says
-> "deals with local outgoing sockets".
-> 
-> so... does sk_buff _only_ contain a list of outgoing sockets?
+drivers/net/3c59x.c: In function `vortex_ioctl':
+drivers/net/3c59x.c:2916: warning: dereferencing `void *' pointer
+drivers/net/3c59x.c:2916: error: request for member `current_state' in something not a structure or union
+make[3]: *** [drivers/net/3c59x.o] Error 1
+make[2]: *** [drivers/net] Error 2
+make[1]: *** [drivers] Error 2
+make: *** [stamp-build] Error 2
 
-no, and in fact outgoing there's no question who's sending the packet,
-as it's still in process context.
+# CONFIG_PCI is not set
+CONFIG_EISA=y
 
-> iiiisss... there a different socket for incoming traffic that
-> someone is different from the list of sockets associated with
-> a task?
-> 
-> is the clue in what you say about "Incoming is in interrupt context"?
-> 
-> are the sockets in the interrupt context somehow different / special
-> such that they would never get to this code?
+compile fix below, quite an ugly addition of ifdefs.
+please tell me if better method exists.
 
-Depends on where the hooks are registered into netfilter whether you'll
-get the inbound stuff.  I'm assuming this part is ok.  Point is, the act
-of receiving a packet and queueing data to a socket does not happen in
-process context.  So you don't know who will be woken up to actually
-read data from that socket.  Your stuff should work for most cases.  But
-it's not fundamentally deterministic enough to call it really secure.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--- kernel-source-2.6.8/drivers/net/3c59x.c	2004-08-14 07:36:10.000000000 +0200
++++ b/drivers/net/3c59x.c	2004-09-10 01:29:14.000000000 +0200
+@@ -900,7 +900,9 @@ static void dump_tx_ring(struct net_devi
+ static void update_stats(long ioaddr, struct net_device *dev);
+ static struct net_device_stats *vortex_get_stats(struct net_device *dev);
+ static void set_rx_mode(struct net_device *dev);
++#ifdef CONFIG_PCI
+ static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
++#endif
+ static void vortex_tx_timeout(struct net_device *dev);
+ static void acpi_set_WOL(struct net_device *dev);
+ static struct ethtool_ops vortex_ethtool_ops;
+@@ -1468,7 +1470,9 @@ static int __devinit vortex_probe1(struc
+ 
+ 	dev->stop = vortex_close;
+ 	dev->get_stats = vortex_get_stats;
++#ifdef CONFIG_PCI
+ 	dev->do_ioctl = vortex_ioctl;
++#endif
+ 	dev->ethtool_ops = &vortex_ethtool_ops;
+ 	dev->set_multicast_list = set_rx_mode;
+ 	dev->tx_timeout = vortex_tx_timeout;
+@@ -2868,6 +2872,7 @@ static struct ethtool_ops vortex_ethtool
+ 	.get_drvinfo =		vortex_get_drvinfo,
+ };
+ 
++#ifdef CONFIG_PCI
+ static int vortex_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ {
+ 	struct vortex_private *vp = netdev_priv(dev);
+@@ -2925,6 +2930,7 @@ static int vortex_ioctl(struct net_devic
+ 
+ 	return err;
+ }
++#endif
+ 
+ 
+ /* Pre-Cyclone chips have no documented multicast filter, so the only
+

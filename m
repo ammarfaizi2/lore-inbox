@@ -1,54 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbTKZTeR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 14:34:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbTKZTeR
+	id S264283AbTKZTdh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 14:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbTKZTdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 14:34:17 -0500
-Received: from dsl-sj-66-219-74-27.broadviewnet.net ([66.219.74.27]:3715 "EHLO
-	server.perens.com") by vger.kernel.org with ESMTP id S264288AbTKZTeN
+	Wed, 26 Nov 2003 14:33:37 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:15489 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264283AbTKZTde
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 14:34:13 -0500
-Message-ID: <3FC50029.7030706@perens.com>
-Date: Wed, 26 Nov 2003 11:34:01 -0800
-From: Bruce Perens <bruce@perens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Posix says "undefined". Re: Signal left blocked after signal handler.
-References: <20031126173953.GA3534@perens.com> <Pine.LNX.4.58.0311260945030.1524@home.osdl.org> <3FC4ED5F.4090901@perens.com> <3FC4EF24.9040307@perens.com> <3FC4F248.8060307@perens.com> <Pine.LNX.4.58.0311261037370.1524@home.osdl.org> <3FC4F94F.6030801@perens.com> <Pine.LNX.4.58.0311261108350.1524@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0311261108350.1524@home.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Nov 2003 14:33:34 -0500
+Date: Wed, 26 Nov 2003 19:33:10 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG (non-kernel), can hurt developers.
+Message-ID: <20031126193310.GE14383@mail.shareable.org>
+References: <Pine.LNX.4.53.0311261153050.10929@chaos> <Pine.LNX.4.58.0311261021400.1524@home.osdl.org> <Pine.LNX.4.53.0311261344280.11326@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0311261344280.11326@chaos>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Richard B. Johnson wrote:
+> The actual problem in the production machine involves two absolutely
+> independent tasks that end up using the same shared 'C' runtime
+> library. There should be no interaction between them, none
+> whatsover. However, when they both execute rand(), they interact in
+> bad ways. This interraction occurs on random days at monthly
+> intervals.
 
-Posix says the behavior is undefined. See 
-http://www.opengroup.org/onlinepubs/007904975/functions/sigprocmask.html .
-I think it makes sense to leave the 2.6 behavior as it is.
+On Linux (unlike Windows), there is _no_ interaction between the
+libraries of different tasks.  Neither of them sees changes to the
+other's memory space.
 
-    Thanks
+If you are seeing a fault, then there might well be a bug, even a
+kernel bug, but your test program does not illustrate the same problem.
 
-    Bruce
+What is the "bad interaction" that you observed at monthly intervals?
+Also a SIGSEGV?
 
-Linus Torvalds wrote:
+> This is likely caused by the failure to use "-s" in the compilation
+> of a shared library function, fixed in subsequent releases.
 
-> I personally think it is "good taste" to actually set the SA_NODEFER flag
+No, this has nothing to do with it.  Unlike Windows and some embedded
+environments, Linux shared libraries do not have "shared writable data"
+sections.
 
-> if you know you depend on the behaviour, but if there are lots of existing
->
->applications that actually depend on the "forced punch-through" behaviour,
->then I'll obviously have to change the 2.6.x behaviour (a stable
->user-level ABI is a lot more important than my personal preferences).
->
->But if ElectricFence is the only thing that cares, I'd rather just EF
->added a SA_NODEFER..
->  
->
+> So, I allowed rand() to be "interrupted" just as it would be in a
+> context-switch. I simply used a signal handler, knowing quite well
+> that the "interrupt" could occur at any time. [...] What I brought
+> to light was a SIGSEGV that can occur when the shared-library rand()
+> function is "interrupted".
 
+You have made a mistake.  You program shows a different problem to the
+one which you noticed every month or so.
 
+Calling a function from a signal handler while it is being interrupted
+by that handler is _very_ different from tasks context switching.
+They are not similar at all!  (Yes, signals can be used to simulate
+context switches, but not like this!)
+
+Your code interrupts one call to rand() and calls rand() _within_
+the interrupt handler.  The inner call and outer call interfere, in a
+very similar way to calling it twice from two threads (note: threads
+not tasks).  The memory state becomes corrupted.
+
+This is _very_ different from two independent tasks context switching.
+Independent tasks do not share the same memory space, not even when
+they share the same libraries, so this type of corruption isn't
+possible.
+
+Summary: your monthly "bad interaction" is not illustrated in this
+test program.  It's a different problem.
+
+-- Jamie

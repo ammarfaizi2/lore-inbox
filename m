@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270927AbTG0SbR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 14:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270928AbTG0SbR
+	id S270928AbTG0Sqg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 14:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270930AbTG0Sqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 14:31:17 -0400
-Received: from oak.sktc.net ([64.71.97.14]:62957 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id S270927AbTG0SbQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 14:31:16 -0400
-Message-ID: <3F241DC0.7080408@sktc.net>
-Date: Sun, 27 Jul 2003 13:45:20 -0500
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Adrian Bunk <bunk@fs.tum.de>, "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: time for some drivers to be removed?
-References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain>	 <20030727153118.GP22218@fs.tum.de>  <3F23F6EB.7070502@sktc.net> <1059324018.13442.0.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1059324018.13442.0.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jul 2003 14:46:36 -0400
+Received: from dialpool-210-214-82-62.maa.sify.net ([210.214.82.62]:27264 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S270928AbTG0Sqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 14:46:36 -0400
+Date: Mon, 28 Jul 2003 00:32:57 +0530
+From: Balram Adlakha <b_adlakha@softhome.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test2 OSS emu10k1
+Message-ID: <20030727190257.GA2840@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> We've had one for years. Its CONFIG_OBSOLETE, its even used in 2.6test
+I cannot compile the emu10k1 module:
 
-I would disagree - OBSOLETE to me means just that - that module is 
-obsolete. Minix FS, OSS (as opposed to ALSA), and the old non-SCSI, 
-non-IDE HD interfaces would be OBSOLETE.
+sound/oss/emu10k1/hwaccess.c:182: redefinition of `emu10k1_writefn0_2'
+sound/oss/emu10k1/hwaccess.c:164: `emu10k1_writefn0_2' previously defined here
+make[3]: *** [sound/oss/emu10k1/hwaccess.o] Error 1
+make[2]: *** [sound/oss/emu10k1] Error 2
+make[1]: *** [sound/oss] Error 2
+make: *** [sound] Error 2
 
-Besides, I have seen cases where Firewire modules wouldn't build for 
-some period of time - would you deem them OBSOLETE?
 
+Everything else looks fine till now...

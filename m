@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265156AbTLZJ7N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 04:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265160AbTLZJ7N
+	id S265160AbTLZJ7i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 04:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbTLZJ7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 04:59:13 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:60833 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265156AbTLZJ7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 04:59:12 -0500
-Subject: Re: Page aging broken in 2.6
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: arjanv@redhat.com
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Rik van Riel <riel@surriel.com>
-In-Reply-To: <1072430500.5222.2.camel@laptop.fenrus.com>
-References: <1072423739.15458.62.camel@gaston>
-	 <20031225234023.20396cbc.akpm@osdl.org>
-	 <1072430500.5222.2.camel@laptop.fenrus.com>
-Content-Type: text/plain
-Message-Id: <1072432706.15477.66.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 26 Dec 2003 20:58:27 +1100
+	Fri, 26 Dec 2003 04:59:38 -0500
+Received: from sina187-156.sina.com.cn ([202.106.187.156]:61700 "HELO sina.com")
+	by vger.kernel.org with SMTP id S265160AbTLZJ7f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 04:59:35 -0500
+Date: Fri, 26 Dec 2003 17:59:05 +0800
+From: dlion <dlion2004@sina.com.cn>
+X-Mailer: The Bat! (v2.00)
+Reply-To: dlion2004@sina.com.cn
+X-Priority: 3 (Normal)
+Message-ID: <7624288781.20031226175905@sina.com.cn>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: filesystem bug?
+In-Reply-To: <3FDD7DFD.7020306@labs.fujitsu.com>
+References: <3FDD7DFD.7020306@labs.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-12-26 at 20:21, Arjan van de Ven wrote:
-> > > And we never flush the TLB entry. 
-> > > 
-> > > I don't know if x86 (or other archs really using page tables) will
-> > > actually set the referenced bit again in the PTE if it's already set
-> > > in the TLB, if not, then x86 needs a flush too.
-> > 
-> > x86 needs a flush_tlb_page(), yes.
-> 
-> it does? Are you 100% sure ?
-> 
-> Afaik x86 is very very slow in setting the A and D bits (like 2000 to
-> 3000 cycles) *because* it doesn't need a TLB flush....
+Hello Tsuchiya,
 
-How does this work ? If x86 always update those bits even when the
-TLB copy has them already set, then it will keep writing to the PTEs
-on every access... which I doubt it does ;) Or does it snoop accesses
-to the PTE to "catch" somebody clearing the bits ?
+Monday, December 15, 2003, 5:25:17 PM, you wrote:
 
-Ben.
+TY> Hi,
+
+TY> Ext2 and Ext3 filesystem go to inconsistent status by
+TY> simple test program on my system.
+
+TY> My test program is a script that extract a tar+gzip archive
+TY> twice and compare them, and remove one of the tree, and then
+TY> another extracting, and compare them again. A very simple test.
+
+I tried your script on ext2 and ext3 filesystem on a ramdisk. I got errors,
+too. It seems that this problem is unrelated to device driver or
+hardware.
+
+The mozilla tarball is too big for a ramdisk. I use a
+zhcon-0.2.1.tar.gz (4,991,350 bytes) instead.
+
+I only got one kind of error on ext2 filesystem. That is, the script
+ said the read-only directory zhcon-0.2.1 is missing, but it _is_ there.
+I used e2fsck to check the ramdisk and found no error.
+
+I got other errors on ext3 filesystem include:
+1. missing file
+2. corrupted file
+but when I used fsck.ext3 to check the ramdisk, the result was clean.
+
+My system is:
+CPU:  AMD Athlon XP 1800+
+RAM:  256M DDR333
+Chipset: VIA KT400A
+Linux Distribution: Fedora Core 1
+Linux Kernel: kernel-2.4.22-1.2115.nptl.athlon.rpm
+
+-- 
+Best regards,
+ dlion                            mailto:dlion2004_at_sina.com.cn
 
 

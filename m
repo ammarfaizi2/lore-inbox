@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292324AbSBUKfL>; Thu, 21 Feb 2002 05:35:11 -0500
+	id <S292325AbSBUKkV>; Thu, 21 Feb 2002 05:40:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292323AbSBUKfB>; Thu, 21 Feb 2002 05:35:01 -0500
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:60128 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S286179AbSBUKeu>; Thu, 21 Feb 2002 05:34:50 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: SA <super.aorta@ntlworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: Swap / thrashing / fatal crash
-Date: Thu, 21 Feb 2002 10:41:27 +0000
-X-Mailer: KMail [version 1.3.1]
+	id <S292323AbSBUKkK>; Thu, 21 Feb 2002 05:40:10 -0500
+Received: from 89dyn169.com21.casema.net ([62.234.20.169]:3300 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S286179AbSBUKj5>; Thu, 21 Feb 2002 05:39:57 -0500
+Message-Id: <200202211039.LAA21757@cave.bitwizard.nl>
+Subject: Re: misdetection of pentium2 - very strange
+In-Reply-To: <1014285431.3c74c477274c4@www.hoeg.home> from "peter@hoeg.com" at
+ "Feb 21, 2002 05:57:11 pm"
+To: peter@hoeg.com
+Date: Thu, 21 Feb 2002 11:39:53 +0100 (MET)
+CC: Jos Hulzink <josh@stack.nl>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020221103449.YCUZ22101.mta07-svc.ntlworld.com@there>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear list,
+peter@hoeg.com wrote:
+> > > prerelease)) #3 Thu Feb 21 19:21:37 SGT 2002
+> > > Initializing CPU#0
+> > > Detected 133.225 MHz processor.
+> > > Calibrating delay loop... 265.42 BogoMIPS
 
-Not that I can think anything can be done about this but--
+> > It seems your CPU is actually running at 133 MHz. If I am right, the
 
-My system went down after a memory leak (probably X) and a large application 
-caused the swap to run out.  It looked like as soon as the swap space became 
-critical kswapd thrashed around eating all CPU for ~ 10 minutes preventing me 
-from logging in as root to kill off either X or the large application- 
-eventually the system locked solid and power cycling was the only way to go.
-After ~ 20 hours uptime.
+> the compaq setup utility (bios setup program) reports a 333mhz with
+> a bus speed of 66, so if something makes it enter a low-power mode
+> it should be linux. but no apm/acpi support is compiled in/as
+> modules.
 
-There is no record in /var/log/messages-
+There has been a scam where the "133" in the BIOS was replaced by
+"333" and the resulting machines were sold as faster than they
+actually were... 
 
-I seem to recall that under k2.2.xx this sort of thing would end up with 
-something getting a signal -KILL rather than thrashing.
+You can count on it that with the above output, your CPU is running at
+133 when Linux boots. It could be that the CPU is put in "slow" mode
+if you run on the batteries. (Is it a laptop? I missed the beginning
+of this thread). 
 
-Maybe there should be a swap memory high water mark and kswapd should spot 
-thrashing resort to some fail-sfae behaviour  (maybe it does this already?) 
-and protect one virtual console or soemthing...
+			Roger. 
 
-In the mean time I will just keep a closer eye on things.
-
-mtt
-
-
-
-Information
-uname -a
-Linux trouble 2.4.7-10 #1 Thu Sep 6 16:46:36 EDT 2001 i686 unknown
-
-# on a fresh reboot
-cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  459632640 443174912 16457728     8192  4988928 88207360
-Swap: 945864704 13381632 932483072
-
-Size of "large application" 257Mb
-X appeared to have grown to 1Gb  (from top so this may not be accurate), but 
-it is impossible to say as the system was not responsive for that last 10 
-minutes before it locked.
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285668AbRLTASI>; Wed, 19 Dec 2001 19:18:08 -0500
+	id <S285677AbRLTAS6>; Wed, 19 Dec 2001 19:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285669AbRLTAR6>; Wed, 19 Dec 2001 19:17:58 -0500
-Received: from rcpt-expgw.biglobe.ne.jp ([210.147.6.216]:20369 "EHLO
-	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
-	id <S285668AbRLTARm>; Wed, 19 Dec 2001 19:17:42 -0500
-X-Biglobe-Sender: <k-suganuma@mvj.biglobe.ne.jp>
-Date: Wed, 19 Dec 2001 16:17:00 -0800
-From: Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [ANNOUNCE] HotPlug CPU patch against 2.5.0
-Cc: <linux-kernel@vger.kernel.org>, <large-discuss@lists.sourceforge.net>,
-        Heiko Carstens <Heiko.Carstens@de.ibm.com>,
-        Jason McMullan <jmcmullan@linuxcare.com>,
-        Anton Blanchard <antonb@au1.ibm.com>,
-        Greg Kroah-Hartman <ghartman@us.ibm.com>, <rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.33L2.0112181748040.20824-100000@dragon.pdx.osdl.net>
-In-Reply-To: <20011213132557.5B3E.K-SUGANUMA@mvj.biglobe.ne.jp> <Pine.LNX.4.33L2.0112181748040.20824-100000@dragon.pdx.osdl.net>
-Message-Id: <20011219160402.3D14.K-SUGANUMA@mvj.biglobe.ne.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.05
+	id <S285669AbRLTASj>; Wed, 19 Dec 2001 19:18:39 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:800 "EHLO
+	tsmtp3.ldap.isp") by vger.kernel.org with ESMTP id <S285689AbRLTASe>;
+	Wed, 19 Dec 2001 19:18:34 -0500
+Date: Thu, 20 Dec 2001 01:20:46 +0100
+From: Diego Calleja <grundig@teleline.es>
+To: linux-kernel@vger.kernel.org
+Cc: green@namesys.com, reiserfs-list@namesys.com
+Subject: Re: Reiserfs corruption on 2.4.17-rc1!
+Message-ID: <20011220012046.A1866@diego>
+In-Reply-To: <20011217025856.A1649@diego> <13425.1008580831@nova.botz.org> <20011218003359.A555@diego> <20011218125852.A1159@namesys.com> <20011218224848.C377@diego> <20011219095303.A11409@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20011219095303.A11409@namesys.com>; from green@namesys.com on Wed, Dec 19, 2001 at 07:53:03 +0100
+X-Mailer: Balsa 1.0.pre5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 19 Dec 2001 07:53:03 Oleg Drokin wrote:
+> Hello!
+> 
+> So why didn't you run reiserfsck --rebuild-tree then?
+I've done it, under 2.4.17-rc2, It seems it's solved (although I can't know
+what happened). reiserfsck -l -->
 
-As you mentioned, CPU online caused panic when MTRR was on
-on my system. I've only tested with no MTRR configuration. :-(
-I'll investigate the problem but I'm not sure I can find
-a resolution. (I know nothing about MTRR... )
-Does anybody have an idea for the problem?
+####### Pass 0 #######
+"r5" got 142629 hits
+####### Pass 1 #######
+####### Pass 2 #######
+####### Pass 3 #########
+name "rpc" in directory 2 4160 points to nowhere 4160 68722 - removed
+name "mtab" in directory 2 4160 points to nowhere 4160 68669 - removed
+name "t1lib" in directory 2 4160 points to nowhere 4160 64508 - removed
+name "hotplug" in directory 2 4160 points to nowhere 4160 63049 - removed
+name "serial.conf" in directory 2 4160 points to nowhere 4160 68673 -
+removed
+name "sprucesig" in directory 2 4160 points to nowhere 4160 68377 - removed
+dir 2 4160 has wrong sd_size 5792, has to be 5632
+dir 1 2 has wrong sd_size 480, has to be 512
+####### Pass 3a (lost+found pass) #########
 
-Thanks,
-Kimi
 
-On Tue, 18 Dec 2001 18:29:30 -0800 (PST)
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+Version 3.x.0K-pre13 (the last I found)
+It seems all is working correctly). I'll try to reproduce the bug, althouh
+I think it's no possible
 
-> Hi,
+Diego Calleja
 > 
-> I applied this patch to Linux 2.5.0 and tried to use it on
-> a 2-way x86 system with dual Intel Pentium III's (1 GHz).
-> Results:
->   echo 0 > /proc/sys/kernel/cpu/1/online
-> seems to work: "top" stops reporting about the second CPU.
+> Bye,
+>     Oleg
 > 
-> However,
->   echo 1 > /proc/sys/kernel/cpu/1/online
-> results in an Oops in set_mtrr_var_range_testing().
-> 
-> (same oops that I had encountered when I ported the 2.4.5
-> patch to 2.4.13)
-> 
-> Does this work for you?  I can connect a serial console to
-> it and provide you with a complete oops report if you want
-> that, and I'm available to help work on it.
-> 
-> In linux/arch/i386/kernel/mtrr.c, the functions
->   set_mtrr_var_range_testing() and
->   set_mtrr_fixed_testing()
-> need to have the "__init" removed from them, but this
-> doesn't fix the oops problem.
-> 
-> Thanks,
-> -- 
-> ~Randy
 
--- 
-Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
 

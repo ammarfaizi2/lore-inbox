@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263054AbSJBLr2>; Wed, 2 Oct 2002 07:47:28 -0400
+	id <S263065AbSJBLwY>; Wed, 2 Oct 2002 07:52:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263058AbSJBLr2>; Wed, 2 Oct 2002 07:47:28 -0400
-Received: from fep02.tuttopmi.it ([212.131.248.101]:39399 "EHLO
-	fep02-svc.flexmail.it") by vger.kernel.org with ESMTP
-	id <S263054AbSJBLr1> convert rfc822-to-8bit; Wed, 2 Oct 2002 07:47:27 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Frederik Nosi <fredi@e-salute.it>
-Reply-To: fredi@e-salute.it
-To: mec@shout.net
-Subject: 2.5.40: make menuconfig error
-Date: Wed, 2 Oct 2002 14:03:00 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210021403.00305.fredi@e-salute.it>
+	id <S263063AbSJBLwY>; Wed, 2 Oct 2002 07:52:24 -0400
+Received: from warrior.services.quay.plus.net ([212.159.14.227]:29923 "HELO
+	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S263065AbSJBLwX>; Wed, 2 Oct 2002 07:52:23 -0400
+Date: Wed, 2 Oct 2002 12:30:53 +0100
+From: Stig Brautaset <s.brautaset@wmin.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.40: menuconfig: no choice of keyboards
+Message-ID: <20021002113053.GA482@arwen.brautaset.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-KeyServer: wwwkeys.nl.pgp.net
+X-PGP/GnuPG-Key: 9336ADC1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC me because I'm not in the list
-Here it is:
+Nothing happens if I go to the "Input Device Support" section in
+menuconf, and pick "Keyboards"; I get no new options. Got around it by
+manually selecting a keyboard in .config to be able to test it further.
+Either I chose the wrong one, or it just doesn't build it anyway, 'cause 
+the machine would not respond on boot. 
 
+Does it have something to do with the menuconfig bug reported elsewhere?
+Here's mine, anyway:
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+/bin/sh ./scripts/Menuconfig arch/i386/config.in
+Using defaults found in .config
+Preparing scripts: functions,
+parsing........................................................................../scripts/Menuconfig:
+./MCmenu74: line 56: syntax error near unexpected token `fi'
+./scripts/Menuconfig: ./MCmenu74: line 56: `fi'
+...............done.
 
- Q> ./scripts/Menuconfig: MCmenu74: command not found
-
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
-
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
-
-
-Another strangeness: Some drivers do not build and finding the errors is 
-difficult because the error messages come only during linking. When I build 
-the kernel usually run this command:
-
-make (bzImage | modules) 2> /some/file .
-
-During compiling i haven't get any compile error, this seems as the linker 
-goes searching for files not compiled:
-
-ld: cannot open ircomm_tty.o: No such file or directory
-make[3]: *** [ircomm-tty.o] Error 1
-make[2]: *** [ircomm] Error 2
-make[1]: *** [irda] Error 2
-make: *** [net] Error 2
-
-
-Cheers,
-Frederik Nosi
-
+Stig
+-- 
+brautaset.org

@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267319AbSLKUQk>; Wed, 11 Dec 2002 15:16:40 -0500
+	id <S267293AbSLKUVS>; Wed, 11 Dec 2002 15:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267320AbSLKUQk>; Wed, 11 Dec 2002 15:16:40 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:48579
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267319AbSLKUQj>; Wed, 11 Dec 2002 15:16:39 -0500
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Daniel Egger <degger@fhm.edu>, Dave Jones <davej@codemonkey.org.uk>,
-       Joseph <jospehchan@yahoo.com.tw>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1021211134909.19397B-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1021211134909.19397B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 21:00:41 +0000
-Message-Id: <1039640441.18412.24.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267296AbSLKUVS>; Wed, 11 Dec 2002 15:21:18 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:30696 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267293AbSLKUVQ>; Wed, 11 Dec 2002 15:21:16 -0500
+Date: Wed, 11 Dec 2002 14:28:53 -0600 (CST)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Changes doc update.
+In-Reply-To: <20021211181337.GD2612@gtf.org>
+Message-ID: <Pine.LNX.4.44.0212111421190.28286-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 18:51, Bill Davidsen wrote:
-> Is this the CPU in the $200 "Lindows" PC Wal-Mart is selling? I was
-> thinking of one for a low volume router, and it looks as if there are two
-> VIA chips called C3 (or advertizers have hacked the specs).
+On Wed, 11 Dec 2002, Jeff Garzik wrote:
 
-It is. Its a nice CPU for appliances. FPU is nondescript, integer
-performance is sort of the same as an equivalently clocked celewrong for
-the current Ezra core at least. The older Samuel II core seems a little
-slower.
+> On Wed, Dec 11, 2002 at 06:07:19PM +0000, Dave Jones wrote:
+> > On Wed, Dec 11, 2002 at 12:58:10PM -0500, Jeff Garzik wrote:
+> >  > I think the coolest things (to me) of the new build system need to be
+> >  > noted too,
+> >  > 
+> >  > - "make" is now the preferred target; it does <arch-zimage> and modules.
+> >  > - "make -jN" is now the preferred parallel-make execution.  Do not
+> >  >   bother to provide "MAKE=xxx".
+> > 
+> > Yup. Added. Thanks.
+> > Something else that I've noticed (but not found documented) is that
+> > make dep seems to be automagickly done somewhen. An explicit make dep
+> > takes about a second, and doesn't seem to do much at all.
+> 
+> I would check with Kai on that... IIRC there _is_ a purpose to "make
+> dep", creating some file that's needed before the build process begins.
+> Maybe that's fixed now...
 
-There is also a subspecies that comes in at 500-600MHz and is designed
-for low power fanless operation (though with a decent sized heatsink the
-same is true for the 1GHz ones).
+There's really only one reason why "make dep" is still there, i.e. the 
+future of modversions isn't quite figured out yet. - When modversions was 
+still working, "make dep" did regenerate the versioning checksums, it was 
+run automatically the first time, but to rerun it, one had to manually do
+"make dep".
 
-If you think the Walmart PC is cool take a look at the EPIA board or see
-www.mini-itx.com. 60W for a complete PC
+Currently, it really isn't necessary to run "make dep" at all, but as I 
+said, it's not impossible that this changes again.
+
+When Rusty's plans w.r.t modversions work out, "make dep" should be 
+history by 2.6, though.
+
+Additional points to consider for davej's document:
+
+- Try "make KBUILD_VERBOSE=0 <whatever target". If you like it,
+  put KBUILD_VERBOSE=0 into your environment.
+- "make kernel/mm.o" will build the named file, provided a
+  corresponding source exists. This also works for (non-composite)
+  modules.
+
+--Kai
 

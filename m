@@ -1,81 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268121AbUIGOmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268141AbUIGOpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268121AbUIGOmB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268111AbUIGOjD
+	id S268141AbUIGOpU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUIGOng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:39:03 -0400
-Received: from 217-114-210-112.kunde.vdserver.de ([217.114.210.112]:47631 "EHLO
-	old-fsckful.ath.cx") by vger.kernel.org with ESMTP id S268121AbUIGOfR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:35:17 -0400
-Date: Tue, 7 Sep 2004 14:35:09 +0000
-To: Michal Ludvig <michal@logix.cz>
-Cc: Andreas Happe <andreashappe@flatline.ath.cx>,
-       James Morris <jmorris@redhat.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
-Message-ID: <20040907143509.GA30920@old-fsckful.ath.cx>
-References: <20040831175449.GA2946@final-judgement.ath.cx> <Xine.LNX.4.44.0409010043020.30561-100000@thoron.boston.redhat.com> <20040901082819.GA2489@final-judgement.ath.cx> <Pine.LNX.4.53.0409061847000.25698@maxipes.logix.cz>
+	Tue, 7 Sep 2004 10:43:36 -0400
+Received: from verein.lst.de ([213.95.11.210]:42905 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268111AbUIGOmH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 10:42:07 -0400
+Date: Tue, 7 Sep 2004 16:41:58 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove dead code and exports from signal.c
+Message-ID: <20040907144158.GA8717@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0409061847000.25698@maxipes.logix.cz>
-User-Agent: Mutt/1.5.6+20040523i
-From: crow@old-fsckful.ath.cx (Andreas Happe)
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 06, 2004 at 08:49:30PM +0200, Michal Ludvig wrote:
-> I really like the patch - I wanted to do quite the same so thanks that you
-> saved me some work ;-)
 
-thanks ;).
-
-> On Wed, 1 Sep 2004, Andreas Happe wrote:
-> > the attached patch creates a /sys/cryptoapi/<cipher-name>/ hierarchie
-
-BTW: the latest incarnation of the patch uses /sys/class/crypto/<cipher-name>.
-
-> I'd prefer to have the algorithms grouped by "type" ("cipher", "digest",
-> "compress")? Then the apps could easily see only the algos that thay are
-> interested in...
-
-jup, but the seqfile code in proc.c would get a lot more uglier. If we could
-drop proc.c this wouldn´t be a problem.
-
-> There could eventually be a separate crypto/sysfs.c, couldn't?
-
-check the patch ;). There's already a sysfs.c with the sysfs-centric
-stuff.
-
-> Few notes:
-> - - some algorithms allow only discrete set of keysizes (e.g. AES can do
-> 128b, 192b and 256b). Can we instead of min/max have a file 'keysize' with
-> either:
-> 	minsize-maxsize
-> or
-> 	size1,size2,size3
-> ?
-> 
-> - - ditto for blocksize?
-
-how would you implement this in the crypto_alg struture? The sysfs/procfs
-integration isn't that problem.
-
-> - - With the future support for hardware crypto accelerators it
-> might be possible to have more modules loaded providing the same
-> algorithm. They may have different priorities and one would be treated as
-> "default". Then I expect the syntax of 'module' file to change from a
-> simple module name to something like:
-> 	# modname:prio:type:whatever
-> 	aes:0:generic:
-> 	aes_i586:1:optimized:
-> 	padlock:2:hardware:default
-
-Isn't this against the "one value per file" - sysfs rule.
-
-> Michal Ludvig
-
-	--Andreas
+--- 1.252/include/linux/sched.h	2004-09-03 11:08:16 +02:00
++++ edited/include/linux/sched.h	2004-09-07 13:55:45 +02:00
+@@ -736,7 +736,6 @@
+ extern int force_sig_info(int, struct siginfo *, struct task_struct *);
+ extern int __kill_pg_info(int sig, struct siginfo *info, pid_t pgrp);
+ extern int kill_pg_info(int, struct siginfo *, pid_t);
+-extern int kill_sl_info(int, struct siginfo *, pid_t);
+ extern int kill_proc_info(int, struct siginfo *, pid_t);
+ extern void notify_parent(struct task_struct *, int);
+ extern void do_notify_parent(struct task_struct *, int);
+--- 1.132/kernel/signal.c	2004-09-02 11:48:04 +02:00
++++ edited/kernel/signal.c	2004-09-07 15:34:47 +02:00
+@@ -1137,36 +1137,6 @@
+ 	return retval;
+ }
+ 
+-/*
+- * kill_sl_info() sends a signal to the session leader: this is used
+- * to send SIGHUP to the controlling process of a terminal when
+- * the connection is lost.
+- */
+-
+-
+-int
+-kill_sl_info(int sig, struct siginfo *info, pid_t sid)
+-{
+-	int err, retval = -EINVAL;
+-	struct task_struct *p;
+-
+-	if (sid <= 0)
+-		goto out;
+-
+-	retval = -ESRCH;
+-	read_lock(&tasklist_lock);
+-	do_each_task_pid(sid, PIDTYPE_SID, p) {
+-		if (!p->signal->leader)
+-			continue;
+-		err = group_send_sig_info(sig, info, p);
+-		if (retval)
+-			retval = err;
+-	} while_each_task_pid(sid, PIDTYPE_SID, p);
+-	read_unlock(&tasklist_lock);
+-out:
+-	return retval;
+-}
+-
+ int
+ kill_proc_info(int sig, struct siginfo *info, pid_t pid)
+ {
+@@ -1303,12 +1273,6 @@
+ }
+ 
+ int
+-kill_sl(pid_t sess, int sig, int priv)
+-{
+-	return kill_sl_info(sig, (void *)(long)(priv != 0), sess);
+-}
+-
+-int
+ kill_proc(pid_t pid, int sig, int priv)
+ {
+ 	return kill_proc_info(sig, (void *)(long)(priv != 0), pid);
+@@ -1956,22 +1920,10 @@
+ EXPORT_SYMBOL(recalc_sigpending);
+ EXPORT_SYMBOL_GPL(dequeue_signal);
+ EXPORT_SYMBOL(flush_signals);
+-EXPORT_SYMBOL(force_sig);
+-EXPORT_SYMBOL(force_sig_info);
+ EXPORT_SYMBOL(kill_pg);
+-EXPORT_SYMBOL(kill_pg_info);
+ EXPORT_SYMBOL(kill_proc);
+-EXPORT_SYMBOL(kill_proc_info);
+-EXPORT_SYMBOL(kill_sl);
+-EXPORT_SYMBOL(kill_sl_info);
+-EXPORT_SYMBOL(notify_parent);
+ EXPORT_SYMBOL(send_sig);
+ EXPORT_SYMBOL(send_sig_info);
+-EXPORT_SYMBOL(send_group_sig_info);
+-EXPORT_SYMBOL(sigqueue_alloc);
+-EXPORT_SYMBOL(sigqueue_free);
+-EXPORT_SYMBOL(send_sigqueue);
+-EXPORT_SYMBOL(send_group_sigqueue);
+ EXPORT_SYMBOL(sigprocmask);
+ EXPORT_SYMBOL(block_all_signals);
+ EXPORT_SYMBOL(unblock_all_signals);

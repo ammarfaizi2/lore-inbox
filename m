@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVC0I5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVC0I6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVC0I5X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 03:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVC0I5X
+	id S261495AbVC0I6f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 03:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVC0I6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 03:57:23 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:36043 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261478AbVC0I5U (ORCPT
+	Sun, 27 Mar 2005 03:58:35 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:20679 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261480AbVC0I60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 03:57:20 -0500
-Date: Sun, 27 Mar 2005 10:57:13 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Aaron Gyes <floam@sh.nu>, linux-kernel@vger.kernel.org
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-In-Reply-To: <490243b66dc7c3f592df7a7d0769dcb7@mac.com>
-Message-ID: <Pine.LNX.4.61.0503271052130.22393@yvahk01.tjqt.qr>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 27 Mar 2005 03:58:26 -0500
+Date: Sun, 27 Mar 2005 10:58:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
+Message-ID: <20050327085814.GA23082@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <1111790009.23430.19.camel@mindpipe> <20050325223959.GA24800@elte.hu> <1111814065.24049.21.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111814065.24049.21.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW, to all you "But my drivers must be proprietary!" nerds out there,
-> take a look at 3ware, Adaptec, etc.  They have _great_ hardware and yet
-> they release all of their drivers under the GPL.  They get free updates
-> to new kernel APIs too!
 
-Well, it boils down to the full sourcecode. NVidia does only half.
-Other good examples besides 3ware are: VMware kernel modules and
-SUNWut/SRSS3 Linux Kernel modules.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Looks like there's only the GPU industry left that thinks somebody could 
-"mis"use the kmod to make them (:one company) inferior on the market.
+> Running for several days with PREEMPT_DESKTOP, on the Athlon XP the 
+> worst latency I am seeing is ~150 usecs!  But on the C3 its about 4ms:
 
+could you run a bit with tracing disabled (in the .config) on the C3?  
+(but wakeup timing still enabled) It may very well be tracing overhead 
+that makes those latencies that high.  Also, we'd thus have some hard 
+data on how much overhead tracing is in such a situation, on that CPU.
 
-Jan Engelhardt
--- 
-No TOFU for me, please.
+	Ingo

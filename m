@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUJZPyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbUJZP5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbUJZPyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 11:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUJZPyw
+	id S261260AbUJZP5H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbUJZP5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 11:54:52 -0400
-Received: from fbxmetz.linbox.com ([81.56.128.63]:42760 "EHLO xiii.metz")
-	by vger.kernel.org with ESMTP id S261235AbUJZPyu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 11:54:50 -0400
-Message-ID: <417E733C.2040204@linbox.com>
-Date: Tue, 26 Oct 2004 17:54:36 +0200
-From: Ludovic Drolez <ludovic.drolez@linbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en, fr
+	Tue, 26 Oct 2004 11:57:07 -0400
+Received: from web81306.mail.yahoo.com ([206.190.37.81]:40609 "HELO
+	web81306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261260AbUJZP4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 11:56:42 -0400
+Message-ID: <20041026155639.42445.qmail@web81306.mail.yahoo.com>
+Date: Tue, 26 Oct 2004 08:56:39 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
+To: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Stelian Pop <stelian@popies.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 bug: linux logo not displayed in vga16fb (bug found)
-References: <4178CB95.7000505@linbox.com>
-In-Reply-To: <4178CB95.7000505@linbox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ludovic Drolez wrote:
-> Hi !
+
+And I am breaking the thread yet again....
+
+Stelian pop wrote:
+> On Tue, Oct 26, 2004 at 11:28:02AM +0200, Stelian Pop wrote:
 > 
-> I used to have a nice vga boot logo with my 2.6.7 kernel, but with the 
-> 2.6.9, my
-> boot logo has disappeared (same .config)...
-> It seems to switch to VGA, and some space is reserved for the logo, but 
-> it is not displayed.
-> The logo appears with vesafb.
+> > > [1]
+> > > http://csociety-ftp.ecn.purdue.edu/pub/gentoo/distfiles/xorg-x11-
+> 6.8.0-patches-0.2.5.tar.bz2
+> > > Extract patches 9000, 9001 and 9002. Btw, these are not mine - I have
+> > > Not even tries them myself but I have read several success stories.
+> >
+> > Got them and trying to build the new drivers right now. Thanks !
+> 
+> Well, it kinda works, but there are still some rough edges (the kbd
+> driver maps all the unknown keys to KEY_UNKNOWN, making them all to
+> have the same keycode in X, making them unusable. After removing the
+> test it forwards the events ok).
+> 
+> There are also problems because my sonypi input device acts both like
+> a mouse and a keyboard, and the X event driver wants them to be separate.
+> 
+> Vojtech: should I generate two different input devices in my driver,
+> a mouse like and a keyboard like device, or should the userspace be
+> able to demultiplex the events ?
+> 
 
-I made a few diffs between my old working 2.6.7 kernel and the 2.6.9 and found 
-something interesting in fbmem.c:
+If you want jogdial to continue generating BTN_MIDDLE and BTN_WHEEL
+events then IMHO you should create 2 separate input devices - one
+for jogdial and the other for FN-keys.
 
----------------
-@@ -723,7 +419,7 @@
-         if (fb_logo.logo == NULL || info->state != FBINFO_STATE_RUNNING)
-                 return 0;
+On the other hand I am not sure if it is handy as a ponter device -
+I think scrolling is much more natural with the touchpad (but
+remember I don't have the hardware) and it may be more convenient
+to assign brand-new events to jogdial as well and then map it in
+userspace (X) into something different, like volume control. In
+this case you can continue having just one input device.
 
--       image.depth = fb_logo.depth;
-+       image.depth = 8;
-         image.data = fb_logo.logo->data;
-
-         if (fb_logo.needs_cmapreset)
----------------
-
-So, on my 2.6.9, I replaced the '8' by 'fb_logo.depth' and now the logo is 
-shown! (but the screen is still not cleared as before when the kernel boots).
-
-Where's the QA guy ? I want to see him now ! ;-)
-
-Cheers,
+Btw, you should probably drop conditional support for input layer
+and always compile it in.
 
 -- 
-Ludovic DROLEZ                              Linbox / Free&ALter Soft
-152 rue de Grigy - Technopole Metz 2000                   57070 METZ
-tel : 03 87 50 87 90                            fax : 03 87 75 19 26
+Dmitry
+

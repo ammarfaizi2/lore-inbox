@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbSLZJDd>; Thu, 26 Dec 2002 04:03:33 -0500
+	id <S262807AbSLZJF3>; Thu, 26 Dec 2002 04:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbSLZJDd>; Thu, 26 Dec 2002 04:03:33 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:21434 "EHLO
+	id <S262813AbSLZJFK>; Thu, 26 Dec 2002 04:05:10 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:60858 "EHLO
 	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S262796AbSLZJDb> convert rfc822-to-8bit; Thu, 26 Dec 2002 04:03:31 -0500
+	id <S262807AbSLZJEc> convert rfc822-to-8bit; Thu, 26 Dec 2002 04:04:32 -0500
 x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
 content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Subject: [BENCHMARK] TIObench results for kernel 2.5.53, latency reduces
-Date: Thu, 26 Dec 2002 10:19:35 +0530
-Message-ID: <94F20261551DC141B6B559DC49108672044248@blr-m3-msg.wipro.com>
+Date: Thu, 26 Dec 2002 12:10:25 +0530
+Message-ID: <94F20261551DC141B6B559DC4910867204427F@blr-m3-msg.wipro.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 Thread-Topic: [BENCHMARK] TIObench results for kernel 2.5.53, latency reduces
-Thread-Index: AcKsmjABXIY96/V1QHmxJGjDOCrbvA==
+Thread-Index: AcKsmjABXIY96/V1QHmxJGjDOCrbvAAD3KxA
 From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
 To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Dec 2002 04:49:36.0037 (UTC) FILETIME=[309D9550:01C2AC9A]
+X-OriginalArrivalTime: 26 Dec 2002 06:40:25.0895 (UTC) FILETIME=[AC3D6370:01C2ACA9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -85,4 +85,4 @@ Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency
 Aniruddha Marathe
 WIPRO Technologies, India
 aniruddha.marathe@wipro.com
-+91-80-5502001 to 2008 extn 5092 
++91-80-5502001 to 2008 extn 5092

@@ -1,68 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129632AbRAXUeY>; Wed, 24 Jan 2001 15:34:24 -0500
+	id <S129718AbRAXUhO>; Wed, 24 Jan 2001 15:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130748AbRAXUeE>; Wed, 24 Jan 2001 15:34:04 -0500
-Received: from colorfullife.com ([216.156.138.34]:23558 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S130407AbRAXUeB>;
-	Wed, 24 Jan 2001 15:34:01 -0500
-Message-ID: <3A6F3C4A.27E148E9@colorfullife.com>
-Date: Wed, 24 Jan 2001 21:34:18 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
+	id <S129742AbRAXUhE>; Wed, 24 Jan 2001 15:37:04 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:48280 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129718AbRAXUgu>;
+	Wed, 24 Jan 2001 15:36:50 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
-In-Reply-To: <200101242003.XAA21040@ms2.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14959.15438.827521.926281@pizda.ninka.net>
+Date: Wed, 24 Jan 2001 12:34:22 -0800 (PST)
+To: Leif Sawyer <lsawyer@gci.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error compiling for sparc64
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA31503515856@berkeley.gci.com>
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA31503515856@berkeley.gci.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, Linux is __very__ not right doing this. RFC requires to accept
-> ACK, URG and RST on any segment adjacent to window, even if window
-> is zero.
-> 
-Interesting: I checked the RFC 793 and came to the conclusion that Linux
-is correct. ("special allowance should be made to accept valid ACKs" not
-must be). Is there another RFC?
 
-Note that either segment length is > 0 or SEG.SEQ != RCV.NXT
+Wrong, your one-line fix may make it build correctly but it
+will not produce working quota 32-bit syscall code there.
 
-But I spotted a second problem, might be minor:
+Someone needs to fixup the conversion code, I don't have time to track
+the AC series (it actually duplicates a lot of networking stuff I just
+pushed to Linus and ended up in 2.4.1-pre10) which means it likely
+won't be fixed until Linus takes those quota code changes.
 
-Could you check what happened in line 2066 of this tcpdump?
+Please stick to 2.4.1-preX on sparc64, and if using 2.4.1-pre10 please
+apply this patch to get a clean build :-)
 
-in line 2064 static (2.2.18-pre17) ack'ed 1583721.
-in line 2066 dynamic (Solaris 7.0) sends data although the window is 0
-in line 2067 static complains, but now ack is 1583720
+Later,
+David S. Miller
+davem@redhat.com
 
-2060  16:31:42.879337 eth0 < dynamic.ih.lucent.com.39406 > static.8664:
-. 67580:67580(0) ack 1582261 win 1460 (DF)
-2061  16:31:42.907940 eth0 > static.8664 > dynamic.ih.lucent.com.39406:
-. 1583721:1583721(0) ack 67580 win 1460 (DF)
-2062  16:31:42.908620 eth0 < dynamic.ih.lucent.com.39406 > static.8664:
-. 67580:67581(1) ack 1583721 win 0 (DF)
-2063  16:31:43.098761 eth0 > static.8664 > dynamic.ih.lucent.com.39406:
-. 1583721:1583721(0) ack 67581 win 1460 (DF)
-2064  16:31:43.100993 eth0 < dynamic.ih.lucent.com.39406 > static.8664:
-P 67581:68456(875) ack 1583721 win 0 (DF)
-2065  16:31:43.101524 eth0 < dynamic.ih.lucent.com.39406 > static.8664:
-P 68456:69041(585) ack 1583721 win 0 (DF)
-2066  16:31:43.108759 eth0 > static.8664 > dynamic.ih.lucent.com.39406:
-. 1583720:1583720(0) ack 69041 win 0 (DF)
-2067  16:31:43.110623 eth0 < dynamic.ih.lucent.com.39406 > static.8664:
-P 69041:69628(587) ack 1583721 win 0 (DF)
-2068  16:31:43.110679 eth0 > static.8664 > dynamic.ih.lucent.com.39406:
-. 1583721:1583721(0) ack 69041 win 0 (DF)
-
-An off-by-one error somewhere in tcp_send_ack()?
-A second packet with the off-by-one ack number is send a few packets
-later, all other packets are correct.
---
-	Manfred
+--- ./arch/sparc/kernel/signal.c.~1~	Tue Nov 28 08:33:08 2000
++++ ./arch/sparc/kernel/signal.c	Wed Jan 24 10:06:14 2001
+@@ -28,9 +28,6 @@
+ 
+ #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
+ 
+-asmlinkage int sys_wait4(pid_t pid, unsigned long *stat_addr,
+-			 int options, unsigned long *ru);
+-
+ extern void fpsave(unsigned long *fpregs, unsigned long *fsr,
+ 		   void *fpqueue, unsigned long *fpqdepth);
+ extern void fpload(unsigned long *fpregs, unsigned long *fsr);
+--- ./arch/sparc/kernel/sys_sunos.c.~1~	Tue Nov 28 08:33:08 2000
++++ ./arch/sparc/kernel/sys_sunos.c	Wed Jan 24 10:06:21 2001
+@@ -834,7 +834,6 @@
+ }
+ 
+ /* So stupid... */
+-extern asmlinkage int sys_wait4(pid_t, unsigned int *, int, struct rusage *);
+ asmlinkage int sunos_wait4(pid_t pid, unsigned int *stat_addr, int options, struct rusage *ru)
+ {
+ 	int ret;
+--- ./arch/sparc64/kernel/signal.c.~1~	Tue Nov 28 08:33:08 2000
++++ ./arch/sparc64/kernel/signal.c	Wed Jan 24 10:05:52 2001
+@@ -31,9 +31,6 @@
+ 
+ #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
+ 
+-asmlinkage int sys_wait4(pid_t pid, unsigned long *stat_addr,
+-			 int options, unsigned long *ru);
+-
+ asmlinkage int do_signal(sigset_t *oldset, struct pt_regs * regs,
+ 			 unsigned long orig_o0, int ret_from_syscall);
+ 
+--- ./arch/sparc64/kernel/signal32.c.~1~	Tue Nov 28 08:33:08 2000
++++ ./arch/sparc64/kernel/signal32.c	Wed Jan 24 10:05:57 2001
+@@ -29,9 +29,6 @@
+ 
+ #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
+ 
+-asmlinkage int sys_wait4(pid_t pid, unsigned long *stat_addr,
+-			 int options, unsigned long *ru);
+-
+ asmlinkage int do_signal32(sigset_t *oldset, struct pt_regs *regs,
+ 			 unsigned long orig_o0, int ret_from_syscall);
+ 
+--- ./arch/sparc64/kernel/sys_sparc32.c.~1~	Wed Dec 13 08:34:55 2000
++++ ./arch/sparc64/kernel/sys_sparc32.c	Wed Jan 24 10:06:06 2001
+@@ -1794,9 +1794,6 @@
+ 	return err;
+ }
+ 
+-extern asmlinkage int sys_wait4(pid_t pid,unsigned int * stat_addr,
+-				int options, struct rusage * ru);
+-
+ asmlinkage int sys32_wait4(__kernel_pid_t32 pid, unsigned int *stat_addr, int options, struct rusage32 *ru)
+ {
+ 	if (!ru)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbTJUTph (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 15:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbTJUTph
+	id S263254AbTJUT4L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 15:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbTJUT4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 15:45:37 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:61596 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S263280AbTJUTpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 15:45:35 -0400
-Date: Tue, 21 Oct 2003 21:44:50 +0200
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test8-bk1 apm -s with synaptics won't work
-Message-ID: <20031021194449.GA2773@puettmann.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
+	Tue, 21 Oct 2003 15:56:11 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:56007 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263254AbTJUT4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 15:56:08 -0400
+Message-ID: <1066766155.a66ff46274f08@carlthompson.net>
+X-Priority: 3 (Normal)
+Date: Tue, 21 Oct 2003 12:55:55 -0700
+From: Carl Thompson <cet@carlthompson.net>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: arjanv@redhat.com, "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       Dominik Brodowski <linux@brodo.de>, linux-acpi <linux-acpi@intel.com>,
+       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] 3/3 Dynamic cpufreq governor and updates to
+	ACPIP-state driver
+References: <7F740D512C7C1046AB53446D3720017304B031@scsmsx402.sc.intel.com>
+In-Reply-To: <7F740D512C7C1046AB53446D3720017304B031@scsmsx402.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *1AC2R0-0000jL-00*T4Ukisn.c.g* (Puettmann.NeT, Germany)
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 192.168.0.174
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting "Nakajima, Jun" <jun.nakajima@intel.com>:
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> ...
+
+> It's about the frequency of the feedback loop. As we have much lower
+> latency with P-state transitions, the sampling time can be order of
+> millisecond (or shorter if meaningful). A userland daemon can have a
+> high-level policy (preferences, or set of parameters), but it cannot be
+> part of the real feedback loop. If we combine P-state transitions and
+> deeper C-state transitions, the situation is worse with a userland
+> daemon.
+
+You are making the assumption that a higher polling frequency (we'll say
+1ms) is in general better than a lower frequency (we'll say 1s).  I submit
+that it is not.
+
+If I hit a key on my keyboard and your high frequency loop increases CPU
+speed so that my word processor displays the letter 0.01s faster, is that
+really beneficial?  If a window renders in 0.2s seconds instead of 0.3s is
+that a difference I am going to notice?
+
+On the other hand, if I do a kernel compile and it is done 0.999s faster
+with the higher frequency loop, am I going to miss that second over such a
+long duration?  (In reality, the compile with the high-frequency loop would
+probably take longer unless it has near zero overhead).
+
+In my opinion it is wasteful to increase CPU speed unless there is a longer
+term need for it.
+
+> 	Jun
+
+Carl Thompson
 
 
-        hello,
-
-Thinkpad R40 2722-GDG/D=20
-Kernel: 2.6.0-test8-bk1
-
-on apm -s :
-
-
-psmouse.c: Failed to enable mouse on synaptics-pt/serio0
-
-After this message no apm -s or apm -S will work and=20
-on interrupt on touchpad will return :
-
-"Synaptics driver lost sync at 1st byte"
-
-
-        Ruben
-
-
---=20
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
-
---NzB8fVQJ5HfG6fxh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/lYyxgHHssbUmOEIRAumYAJ9h/OgCVlL2o7Tto920M52DfjDu3ACdEHO0
-NjqKEsP+xlOZ97TEXlkyLZ4=
-=kia9
------END PGP SIGNATURE-----
-
---NzB8fVQJ5HfG6fxh--

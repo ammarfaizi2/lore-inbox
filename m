@@ -1,86 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130442AbQKQUBB>; Fri, 17 Nov 2000 15:01:01 -0500
+	id <S129130AbQKQUZS>; Fri, 17 Nov 2000 15:25:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130502AbQKQUAw>; Fri, 17 Nov 2000 15:00:52 -0500
-Received: from 62-6-231-5.btconnect.com ([62.6.231.5]:49792 "EHLO
-	saturn.homenet") by vger.kernel.org with ESMTP id <S130442AbQKQUAb>;
-	Fri, 17 Nov 2000 15:00:31 -0500
-Date: Fri, 17 Nov 2000 19:20:04 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Cezary Kaliszyk <kaliszyk@pagi.pl>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: BUG with no HOTPLUG set.
-In-Reply-To: <Pine.Lnx.4.21.0011171951530.1303-100000@orka.wrzos>
-Message-ID: <Pine.LNX.4.21.0011171918300.1390-100000@saturn.homenet>
+	id <S129147AbQKQUZL>; Fri, 17 Nov 2000 15:25:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18191 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129130AbQKQUY4>;
+	Fri, 17 Nov 2000 15:24:56 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011171953.TAA01877@raistlin.arm.linux.org.uk>
+Subject: Re: VGA PCI IO port reservations
+To: root@chaos.analogic.com
+Date: Fri, 17 Nov 2000 19:52:59 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org,
+        mj@suse.cz
+In-Reply-To: <Pine.LNX.3.95.1001117125211.20635A-100000@chaos.analogic.com> from "Richard B. Johnson" at Nov 17, 2000 01:06:30 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Cezary Kaliszyk wrote:
+Richard B. Johnson writes:
+> The code necessary to find the lowest unaliased address looks like
+> this:
 
-> When I try to compile 2.4.0test11pre6 without HOTPLUG make says:
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
-> -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
-> -mpreferred-stack-boundary=2 -march=i686    -c -o dev.o dev.c
-> dev.c: In function `run_sbin_hotplug':
-> dev.c:2736: `hotplug_path' undeclared (first use in this function)
-> dev.c:2736: (Each undeclared identifier is reported only once
-> dev.c:2736: for each function it appears in.)
-> make[3]: *** [dev.o] Error 1
-> make[3]: Leaving directory `/usr/src/linux-2.4/net/core'
-> make[2]: *** [first_rule] Error 2
-> make[2]: Leaving directory `/usr/src/linux-2.4/net/core'
-> make[1]: *** [_subdir_core] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.4/net'
-> make: *** [_dir_net] Error 2
-> 
-> It looks like /net/core/dev.c should add functions like run_sbin_hotplug
-> only if CONFIG_HOTPLUG is set.
-
-no, not just there but also in init/main.c the patch below has been posted
-here ages ago and a similar one even earlier (so I was told, I didn't
-check).
-
-Regards,
-Tigran
-
-diff -urN -X dontdiff linux/init/main.c work/init/main.c
---- linux/init/main.c	Fri Nov 17 10:29:34 2000
-+++ work/init/main.c	Fri Nov 17 11:27:27 2000
-@@ -712,11 +712,13 @@
- 	init_pcmcia_ds();		/* Do this last */
- #endif
- 
-+#ifdef CONFIG_HOTPLUG
- 	/* do this after other 'do this last' stuff, because we want
- 	 * to minimize spurious executions of /sbin/hotplug
- 	 * during boot-up
- 	 */
- 	net_notifier_init();
-+#endif
- 
- 	/* Mount the root filesystem.. */
- 	mount_root();
-diff -urN -X dontdiff linux/net/core/dev.c work/net/core/dev.c
---- linux/net/core/dev.c	Fri Nov 17 10:29:34 2000
-+++ work/net/core/dev.c	Fri Nov 17 11:27:15 2000
-@@ -2704,6 +2704,7 @@
- 	return 0;
- }
- 
-+#ifdef CONFIG_HOTPLUG
- 
- /* Notify userspace when a netdevice event occurs,
-  * by running '/sbin/hotplug net' with certain
-@@ -2765,3 +2766,4 @@
- 		printk (KERN_WARNING "unable to register netdev notifier\n"
- 			KERN_WARNING "/sbin/hotplug will not be run.\n");
- }
-+#endif
-
+Any chance of providing something more readable?  I may be able to read
+some x86 asm, but I don't have the time to try to decode that lot.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVCWH5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVCWIAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVCWH5T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 02:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbVCWHzu
+	id S262861AbVCWIAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 03:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVCWH7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 02:55:50 -0500
-Received: from [218.1.67.73] ([218.1.67.73]:57248 "EHLO trust-mart.com")
-	by vger.kernel.org with ESMTP id S261483AbVCWHyp (ORCPT
+	Wed, 23 Mar 2005 02:59:45 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:57044 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261233AbVCWH7V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 02:54:45 -0500
-Message-ID: <034c01c52f7d$85843a20$d87f11ac@hv>
-From: "hv" <hv@trust-mart.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: memory size
-Date: Wed, 23 Mar 2005 15:54:19 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="gb2312";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.1289
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1289
+	Wed, 23 Mar 2005 02:59:21 -0500
+Date: Wed, 23 Mar 2005 08:58:54 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+Message-ID: <20050323075854.GA4348@elte.hu>
+References: <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050323071604.GA32712@elte.hu> <Pine.LNX.4.58.0503230251180.13140@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503230251180.13140@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,all:
-This is my memory status from "dmesg":
-Memory: 4673020k/5242880k available (1334k kernel code, 44532k reserved, 
-672k data, 156k init, 3800960k highmem)
 
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-But I found that available memory size is much less than physical memory 
-size.My server is Dell6650 with P4 Xeon*4 and 5G Ram.
-My kernel version is 2.6.12-rc1-mm1.Could any one tell my the reason?Thanks. 
+> > i think the 'migrate read-count' method is not adequate either, because
+> > all callbacks queued within an RCU read section must be called after the
+> > lock has been dropped - while with the migration method CPU#1 would be
+> > free to process callbacks queued in the RCU read section still active on
+> > CPU#2.
+> 
+> Although you can't disable preemption for the duration of the
+> rcu_readlock, what about pinning the process to a CPU while it has the
+> lock.  Would this help solve the migration issue?
 
+yes, but that's rather gross. PREEMPT_BKL was opposed by Linus precisely
+because it used such a method - once that was fixed, PREEMPT_BKL got
+accepted. It also limits the execution flow quite much. I'd rather not
+do it if there's any other method.
 
+	Ingo

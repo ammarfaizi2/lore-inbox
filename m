@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVCPW4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262853AbVCPW7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVCPW4h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 17:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVCPW4g
+	id S262853AbVCPW7L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 17:59:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVCPW7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 17:56:36 -0500
-Received: from fire.osdl.org ([65.172.181.4]:16868 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262846AbVCPWz6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 17:55:58 -0500
-Date: Wed, 16 Mar 2005 14:55:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: yuasa@hh.iij4u.or.jp, ralf@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch][resend] convert a remaining verify_area to access_ok
- (was: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok)
- (fwd)
-Message-Id: <20050316145524.18787569.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 16 Mar 2005 17:59:09 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:12435
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262852AbVCPW65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 17:58:57 -0500
+Date: Wed, 16 Mar 2005 14:53:43 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/ipv4/inetpeer.c: make a struct static
+Message-Id: <20050316145343.6e31ba6a.davem@davemloft.net>
+In-Reply-To: <20050315144408.GL3189@stusta.de>
+References: <20050315144408.GL3189@stusta.de>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
->
-> Around 2.6.11-mm1 Yoichi Yuasa found a user of verify_area that I had 
->  missed when converting everything to access_ok. The patch below still 
->  applies cleanly to 2.6.11-mm4.
->  Please apply (unless of course you already picked it up back then and 
->  have it in a queue somewhere :) .
+On Tue, 15 Mar 2005 15:44:08 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-That's tricky stuff you're playing with, so I'd prefer it came in via Ralf.
-However I can queue it up locally so it doesn't get forgotten.
+> This patch makes a needlessly global struct static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Ralf must have another two megabyte patch buffered up by now, btw?
+You need to also kill the externs in net/inetpeer.h
+
+Please fix this up and resubmit.
+
+Thanks Adrian.

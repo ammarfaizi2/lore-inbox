@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbTKQApm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 19:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTKQApm
+	id S263274AbTKQArH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 19:47:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTKQArH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 19:45:42 -0500
-Received: from aneto.able.es ([212.97.163.22]:28801 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S263258AbTKQApl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 19:45:41 -0500
-Date: Mon, 17 Nov 2003 01:45:39 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Lista Linux-BProc <bproc-users@lists.sourceforge.net>
-Subject: Reading libs fails through NFS
-Message-ID: <20031117004539.GA2155@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.15
+	Sun, 16 Nov 2003 19:47:07 -0500
+Received: from pcp02850536pcs.parkvl01.md.comcast.net ([68.85.218.116]:17929
+	"EHLO www.watkins-home.com") by vger.kernel.org with ESMTP
+	id S263262AbTKQArD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 19:47:03 -0500
+Message-Id: <200311170047.hAH0l2E15254@www.watkins-home.com>
+From: "Guy" <bugzilla@watkins-home.com>
+To: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Automatic Write Reallocation Enable, question?
+Date: Sun, 16 Nov 2003 19:46:59 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <20031114182927.GA8810@gtf.org>
+Thread-Index: AcOq3cGniUKd4RiHQMeswVTr26PpGgBxQqmw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+My hard disks support some programmable options.
 
-Anybody has any idea about why this fails:
+Automatic Write Reallocation Enable (AWRE):
+  On, drive automatically relocates bad blocks detected during write
+operations.  Off, drive creates Check Condition status with sense key of
+Medium Error if bad blocks are detected during write operations.
 
-    fd = open("/lib/libnss_files.so.2", O_RDONLY);
-    res = read(fd,buf,512);
+Automatic Read Reallocation Enable (ARRE):
+  On, drive automatically relocates bad blocks detected during read
+operations.  Off, drive creates Check Condition status with sense key of
+Medium Error if bad blocks are detected during read operations.
 
-/lib is NFS mounted:
+These options are both off.
 
-192.168.0.1:/lib on /lib type nfs (ro,noatime,nfsvers=3,nolock,addr=192.168.0.1)
+Would md be happier if these were on?  This would hide recoverable errors
+from md.
 
-and the read fails.
-The original code does a getprotobyname("tcp") (netpipe), that fails when it
-tries to read the same lib.
+Any opinions?
 
-The node boots via PXE, with a version of libnss_files.so.2 on the /lib present
-in the initrd, which is replaced by the mounted one.
+My disks are ST118202LC.
 
-TIA
+Thanks.
 
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.4.23-rc1-jam2 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))
+

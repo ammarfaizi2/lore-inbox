@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265077AbUF1Qq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265089AbUF1Qxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265077AbUF1Qq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 12:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265089AbUF1QqA
+	id S265089AbUF1Qxo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 12:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUF1Qxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 12:46:00 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:22189 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S265084AbUF1QpY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 12:45:24 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: drivers/block/ub.c
-Date: Mon, 28 Jun 2004 18:46:34 +0200
-User-Agent: KMail/1.6.2
-Cc: Alan Stern <stern@rowland.harvard.edu>, Pete Zaitcev <zaitcev@redhat.com>,
-       greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
-       tburke@redhat.com, linux-kernel@vger.kernel.org,
-       mdharm-usb@one-eyed-alien.net
-References: <Pine.LNX.4.44L0.0406281155140.1598-100000@ida.rowland.org> <40E045FE.1070104@pacbell.net>
-In-Reply-To: <40E045FE.1070104@pacbell.net>
-MIME-Version: 1.0
+	Mon, 28 Jun 2004 12:53:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9990 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265080AbUF1Qxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 12:53:30 -0400
+Date: Mon, 28 Jun 2004 17:53:25 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Coywolf Qi Hunt <coywolf@greatcn.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [BUG FIX] [PATCH] fork_init() max_low_pfn fixes potential OOM bug on big highmem machine
+Message-ID: <20040628175325.B9214@flint.arm.linux.org.uk>
+Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <40E03F71.8010902@greatcn.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406281846.34486.oliver@neukum.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40E03F71.8010902@greatcn.org>; from coywolf@greatcn.org on Mon, Jun 28, 2004 at 11:55:29PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 28. Juni 2004 18:23 schrieb David Brownell:
-> Alan Stern wrote:
-> > On Sun, 27 Jun 2004, Pete Zaitcev wrote:
-> > 
-> > 
-> >>Regardin #2 you say that ``that code isn't "very fresh and buggy", having
-> >>been in use with all USB-Storage devices for over a year and a half'' and
-> >>yet I observe that fairly serious fixes were applied just this week.
-> > 
-> > 
-> > I have to object to the reasoning here.  That same sort of argument could 
-> > be applied to almost any part of the Linux kernel.
+On Mon, Jun 28, 2004 at 11:55:29PM +0800, Coywolf Qi Hunt wrote:
+> <http://localhost/lxr/ident?i=start_kernel>Hello all,
 > 
-> I was also tempted to point out that the tone was objectionable.
-> The implication that only Pete and Havoc have useful standards
-> when it comes to code quality was ... offensive.  Looks like I
-> just gave into that temptation, eh?  :)
+> On machine with 16G(or 8G if 4k stacks) or more memory, high max_threads 
+> could let system run out of low memory.
+> This patch decides max_threads by the amount of low memory instead of 
+> the total physical memory.
+> Systems without high memory would not be affected.
 
-Deep down in the blackest parts of your soul do you really think
-differently about your own standards of quality ;-) ?
+This is wrong - max_low_pfn can be high on systems where physical RAM
+doesn't start at address 0.  Such is very common on ARM platforms,
+where RAM is located at 0xa0000000 or 0xc0000000 physical, which
+leads to any calculation based upon max_low_pfn to believe we have
+more than 3GB of RAM when we may only have 64MB or so.
 
-	Regards
-		Oliver
+I think we may need a num_lowpages for this...
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

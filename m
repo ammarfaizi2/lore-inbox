@@ -1,34 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264090AbUESHI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264082AbUESHEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264090AbUESHI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 03:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUESHI7
+	id S264082AbUESHEu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 03:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbUESHEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 03:08:59 -0400
-Received: from mail.kroah.org ([65.200.24.183]:38346 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264090AbUESHI6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 03:08:58 -0400
-Date: Tue, 18 May 2004 23:55:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       tziporet@mellanox.co.il
-Subject: Re: [PATCH] Add InfiniBand HCA IDs to pci_ids.h
-Message-ID: <20040519065503.GA16965@kroah.com>
-References: <52r7tjug7y.fsf@topspin.com> <20040518154604.GA3033@infradead.org> <52d651nvvd.fsf@topspin.com> <20040518235403.GB11042@kroah.com> <52ad05mcu2.fsf@topspin.com> <20040519033119.GB7196@kroah.com> <52fz9xko95.fsf_-_@topspin.com>
+	Wed, 19 May 2004 03:04:50 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:12930 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264082AbUESHEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 03:04:49 -0400
+Subject: pte_addr_t size reduction for 64 GB case?
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: riel@redhat.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1084941731.955.836.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52fz9xko95.fsf_-_@topspin.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 19 May 2004 00:42:11 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 18, 2004 at 09:57:26PM -0700, Roland Dreier wrote:
-> Add InfiniBand HCA IDs to pci_ids.h.
-> This will let me kill mthca_pci.h in the mthca driver.
+When handling 64 GB on i386, pte_addr_t really only
+needs 33 bits to find the PTE. It sure doesn't need
+the full 64 bits it is using.
 
-Applied, thanks.
+How about cheating a bit? If the pte_addr_t only had
+the high 32 bits of the 36-bit pointer, it would point
+to a pair of the 8-byte PTEs in a 16-byte chunk of RAM.
+Then simply examine the PTEs to see which one is the
+correct one.
 
-greg k-h
+

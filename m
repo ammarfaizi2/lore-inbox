@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317836AbSIJUNH>; Tue, 10 Sep 2002 16:13:07 -0400
+	id <S318035AbSIJUSf>; Tue, 10 Sep 2002 16:18:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317859AbSIJUNH>; Tue, 10 Sep 2002 16:13:07 -0400
-Received: from christpuncher.kingsmeadefarm.com ([209.216.78.83]:40621 "HELO
-	the-grudge.myip.org") by vger.kernel.org with SMTP
-	id <S317836AbSIJUNG>; Tue, 10 Sep 2002 16:13:06 -0400
-Message-ID: <1031689072.3d7e5370a83d2@webmail>
-Date: Tue, 10 Sep 2002 16:17:52 -0400
-From: Joe Kellner <jdk@kingsmeadefarm.com>
-To: John Alvord <jalvo@mbay.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-References: <p73wupuq34l.fsf@oldwotan.suse.de> <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel> <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel> <p73wupuq34l.fsf@oldwotan.suse.de> <20020909162050.B4781@q.mn.rr.com> <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net> <20020910142347.A5000@q.mn.rr.com> <92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com>
-In-Reply-To: <92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com>
+	id <S318058AbSIJUSf>; Tue, 10 Sep 2002 16:18:35 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38412
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318035AbSIJUSd>; Tue, 10 Sep 2002 16:18:33 -0400
+Date: Tue, 10 Sep 2002 13:21:32 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ookhoi <ookhoi@humilis.net>
+cc: jbradford@dial.pipex.com, Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ide drive dying?
+In-Reply-To: <20020910144841.S8460@humilis>
+Message-ID: <Pine.LNX.4.10.10209101320570.16589-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 192.168.1.7
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> So does Redhat/Suse/??? ship XFS yet?
+MaxLine II is Serial ATA coming in at 250GB per disk.
+
+
+On Tue, 10 Sep 2002, Ookhoi wrote:
+
+> jbradford@dial.pipex.com wrote (ao):
+> > I have *never* lost data to a Maxtor disk.  I have had IBM, Fujitsu,
+> > Western Digital, and DEC drives all fail on me before.
+> > 
+> > It's dissapointing that Maxtor are reducing their warranty from 3
+> > years to 1 year, but on the other hand, I've never needed it at all.
 > 
-> john
+> FWIW:
+> On http://www.maxtor.com/products/enterprise_apps/default.htm
+> they say 3 years limited warranty. 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-Mandrake has had XFS support in the default boot kernel since 8.0. AFAIK, Suse
-and  Slackware also have XFS capable kernels now too.
+Andre Hedrick
+LAD Storage Consulting Group
 
-
-
--------------------------------------------------
-sent via KingsMeade secure webmail http://www.kingsmeadefarm.com

@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286462AbSBCIWq>; Sun, 3 Feb 2002 03:22:46 -0500
+	id <S286687AbSBCIhg>; Sun, 3 Feb 2002 03:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286521AbSBCIWg>; Sun, 3 Feb 2002 03:22:36 -0500
-Received: from fes.whowhere.com ([209.185.123.154]:5590 "HELO mailcity.com")
-	by vger.kernel.org with SMTP id <S286462AbSBCIWS>;
-	Sun, 3 Feb 2002 03:22:18 -0500
-To: linux-kernel@vger.kernel.org
-Date: Sun, 03 Feb 2002 13:52:08 +0530
-From: "Alpha Beta" <abbashake007@lycos.com>
-Message-ID: <BNBIFONAELMBOAAA@mailcity.com>
-Mime-Version: 1.0
-Content-Language: en
-Reply-To: abbashake007@lycos.com
-X-Sent-Mail: off
-X-Mailer: MailCity Service
-Subject: Qn: kernel_thread() and init
-X-Priority: 3
-X-Sender-Ip: 203.197.98.3
-Organization: Lycos Mail  (http://mail.lycos.com:80)
+	id <S286647AbSBCIh1>; Sun, 3 Feb 2002 03:37:27 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55058 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286521AbSBCIhQ>;
+	Sun, 3 Feb 2002 03:37:16 -0500
+Message-ID: <3C5CF686.1145AE14@zip.com.au>
+Date: Sun, 03 Feb 2002 00:36:22 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dan Kegel <dank@kegel.com>
+CC: Vincent Sweeney <v.sweeney@barrysworld.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "coder-com@undernet.org" <coder-com@undernet.org>,
+        "Kevin L. Mitchell" <klmitch@mit.edu>
+Subject: Re: PROBLEM: high system usage / poor SMP network performance
+In-Reply-To: <3C56E327.69F8B70F@kegel.com> <001901c1a900$e2bc7420$0201010a@frodo> <3C58D50B.FD44524F@kegel.com> <001d01c1aa8e$2e067e60$0201010a@frodo> <3C5CEEED.E98D35B7@kegel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Language: en
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the code of 
-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
-in arch/i386/kernel/process.c
+Dan Kegel wrote:
+> 
+> Before I did any work, I'd measure CPU
+> usage under a simulated load of 2000 clients, just to verify that
+> poll() was indeed a bottleneck (ok, can't imagine it not being a
+> bottleneck, but it's nice to have a baseline to compare the improved
+> version against).
 
-as can be seen in the code here, a system call is made by trigerring the 0x80 interrupt.
-this function kernel_thread() is used to launch the init process during booting by
-start_kernel()	//in init/main.c
-But at that time, the process 0 which calls kernel_thread is executing in Kernel mode, so why should some process in kernel mode make a system call??
+I half-did this earlier in the week.  It seems that Vincent's
+machine is calling poll() maybe 100 times/second.  Each call
+is taking maybe 10 milliseconds, and is returning approximately
+one measly little packet.
 
+select and poll suck for thousands of fds.  Always did, always
+will.  Applications need to work around this.
 
-ANOTHER BIG DOUBT IS THAT process 0 executes in Kernel mode, it then creates the init process ( process 1)- this process according to BACH ends up running in User mode while process 0 runs in kernel mode.
-so why should then we have a kernel thread invoked for init when it is to run in User mode ??
+And the workaround is rather simple:
 
+	....
++	usleep(100000);
+	poll(...);
 
+This will add up to 0.1 seconds latency, but it means that
+the poll will gather activity on ten times as many fds,
+and that it will be called ten times less often, and that
+CPU load will fall by a factor of ten.
 
+This seems an appropriate hack for an IRC server.  I guess it
+could be souped up a bit:
 
-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
-{
-	long retval, d0;
+	usleep(nr_fds * 50);
 
-	__asm__ __volatile__(
-		"movl %%esp,%%esi\n\t"
-		"int $0x80\n\t"		/* Linux/i386 system call */
-		"cmpl %%esp,%%esi\n\t"	/* child or parent? */
-		"je 1f\n\t"		/* parent - jump */
-		/* Load the argument into eax, and push it.  That way, it does
-		 * not matter whether the called function is compiled with
-		 * -mregparm or not.  */
-		"movl %4,%%eax\n\t"
-		"pushl %%eax\n\t"		
-		"call *%5\n\t"		/* call fn */
-		"movl %3,%0\n\t"	/* exit */
-		"int $0x80\n"
-		"1:\t"
-		:"=&a" (retval), "=&S" (d0)
-		:"0" (__NR_clone), "i" (__NR_exit),
-		 "r" (arg), "r" (fn),
-		 "b" (flags | CLONE_VM)
-		: "memory");
-	return retval;
-}
-
-
-
+-

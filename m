@@ -1,90 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263491AbTLDTUb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 14:20:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLDTUb
+	id S263466AbTLDTY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 14:24:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTLDTY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 14:20:31 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:44713 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263491AbTLDTU2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 14:20:28 -0500
-Message-ID: <3FCF88D9.7080002@colorfullife.com>
-Date: Thu, 04 Dec 2003 20:19:53 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 4 Dec 2003 14:24:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7916 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263466AbTLDTYx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 14:24:53 -0500
+Date: Thu, 4 Dec 2003 19:24:52 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
 To: Linus Torvalds <torvalds@osdl.org>
-CC: pinotj@club-internet.fr, nathans@sgi.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-References: <mnet1.1070562461.26292.pinotj@club-internet.fr> <Pine.LNX.4.58.0312041035530.6638@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312041035530.6638@home.osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------070408020402040006090000"
+Cc: Kendall Bennett <KendallB@scitechsoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031204192452.GC10421@parcelfarce.linux.theplanet.co.uk>
+References: <3FCDE5CA.2543.3E4EE6AA@localhost> <Pine.LNX.4.58.0312031533530.2055@home.osdl.org> <Pine.LNX.4.58.0312031614000.2055@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312031614000.2055@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070408020402040006090000
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Dec 03, 2003 at 04:23:33PM -0800, Linus Torvalds wrote:
 
-Linus Torvalds wrote:
-
->Manfred, any ideas? What's different between 2.6.x and 2.4.x in slab?
->
->But it may also be that the bug is in some slab user - since my slab-
->translates-to-page-alloc hack always calls the slab constructor function
->on every allocation, and the destructor gets called immediately after the
->free, my debug version might hide some usage bugs.
->  
->
-The changes between 2.4 and 2.6 are huge, for both debug and non-debug. 
-Slab with debugging enabled now calls the destructors/constructor on 
-every alloc. If page debugging is enabled, then all objects larger than 
-128 bytes get their own page and are unmapped after kmem_cache_free(). 
-The bio structure is smaller than 128 bytes - that probably explains why 
-slab didn't catch the oopses that were mentioned in the other thread.
-Perhaps something like the attached patch could help to trigger the 
-oops: It increase the size of the bio structures, then they are handled 
-by slab debugging.
-If it oopses, then call ptrinfo() from the trap handler - it prints the 
-name of the cache and the caller of the last slab operation. And hexdump 
-the object (after ptrinfo mapped it), it contains a backtrace from the 
-kmem_cache_free call.
-
---
-    Manfred
-
---------------070408020402040006090000
-Content-Type: text/plain;
- name="patch-bio"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-bio"
-
---- 2.6/fs/bio.c	2003-10-25 20:43:54.000000000 +0200
-+++ build-2.6/fs/bio.c	2003-12-04 20:13:52.000000000 +0100
-@@ -798,7 +798,7 @@
+> Side note: historically, the Linux kernel module interfaces were really
+> quite weak, and only exported a few tens of entry-points, and really
+> mostly effectively only allowed character and block device drivers with
+> standard interfaces, and loadable filesystems.
+> 
+> So historically, the fact that you could load a module using nothing but
+> these standard interfaces tended to be a much stronger argument for not
+> being very tightly coupled with the kernel.
+> 
+> That has changed, and the kernel module interfaces we have today are MUCH
+> more extensive than they were back in '95 or so. These days modules are
+> used for pretty much everything, including stuff that is very much
+> "internal kernel" stuff and as a result the kind of historic "implied
+> barrier" part of modules really has weakened, and as a result there is not
+> avery strong argument for being an independent work from just the fact
+> that you're a module.
  
- 		size = bp->nr_vecs * sizeof(struct bio_vec);
- 
--		bp->slab = kmem_cache_create(bp->name, size, 0,
-+		bp->slab = kmem_cache_create(bp->name, max(128,size), 0,
- 						SLAB_HWCACHE_ALIGN, NULL, NULL);
- 		if (!bp->slab)
- 			panic("biovec: can't init slab cache\n");
-@@ -815,7 +815,7 @@
- 
- static int __init init_bio(void)
- {
--	bio_slab = kmem_cache_create("bio", sizeof(struct bio), 0,
-+	bio_slab = kmem_cache_create("bio", max(128U,sizeof(struct bio)), 0,
- 					SLAB_HWCACHE_ALIGN, NULL, NULL);
- 	if (!bio_slab)
- 		panic("bio: can't create slab cache\n");
+	FWIW, it would be very nice if somebody did hard and messy work and
+produced lists of in-tree modules using given symbols.  Ideally - automated
+that, but that won't be easy to do (quite a few are used only via inlined
+wrappers and in some cases - under an ifdef; many arch-specific exports
+are of that sort).
 
---------------070408020402040006090000--
+	Aside of "hey, nothing uses that at all" and "only core uses it"
+we'd get a bunch of "hmm, we really should've exported higher-level function
+instead" and "WTF does that lone driver use this function?".  I'd played
+with that for fs/* exports and so far results look interesting.  I'm using
+grep, but that's pretty much hopeless - we have literally thousands of
+exported symbols and any manual approach will break on that.
 
+	Some approximation might be obtained by building all modules and
+doing nm on them, with manual work for non-obvious cases.  I've done that
+on x86 (allmodconf + enabling whatever could be enabled, even if broken).
+Statistics is interesting, to put it mildly.
+
+	First of all, there are ~3600 symbols used by some in-tree drivers.
+~600 of them are have 10 users or more.  ~2000 have only one or two users.
+And we have ~7500 EXPORT_... in the tree.  Now, that number is inflated by
+duplicates between architectures (and other stats are deflated by incomplete
+coverage).  And yes, there are things that have every reason to be exported,
+but only a few modules care to use them.
+
+	However, it certainly looks like a large fraction of export list
+should go away.  Moreover, we probably should introduce
+EXPORT_FOR(symbol, module list)
+and use it for stuff like jbd poking very deep in buffer.c guts - deeper
+than anybody else.  Ditto for ipv6 / ipv4 interaction - they really have
+a special relationship and it makes no sense whatsoever to treat everything
+in TCPv4 guts that happens to be shared with TCPv6 as public export.  There's
+a lot of cases like that and I suspect that they cover ~50-60% of the in-tree
+imports.
+
+	Real interface is somewhere around 400-500 symbols and it can be
+split into several more or less compact parts.  Having more than an order
+of magnitude more than that, and having it as a big pile...  Not a good
+thing(tm), IMO.

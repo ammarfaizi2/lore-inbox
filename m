@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262195AbRE0UoB>; Sun, 27 May 2001 16:44:01 -0400
+	id <S262197AbRE0UoL>; Sun, 27 May 2001 16:44:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbRE0Unv>; Sun, 27 May 2001 16:43:51 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:835
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S262195AbRE0Une>; Sun, 27 May 2001 16:43:34 -0400
-Date: Sun, 27 May 2001 22:43:25 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: dag@brattli.net
-Cc: linux-irda@pasta.cs.uit.no, linux-kernel@vger.kernel.org
-Subject: [PATCH] add restore_flags to error path in irttp.c (245ac1)
-Message-ID: <20010527224325.Q857@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S262208AbRE0UoB>; Sun, 27 May 2001 16:44:01 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:28689 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262197AbRE0Unu>; Sun, 27 May 2001 16:43:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Edgar Toernig <froese@gmx.de>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
+Date: Sun, 27 May 2001 22:45:17 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org> <0105270036060Z.06233@starship> <3B1101ED.3BF181F6@gmx.de>
+In-Reply-To: <3B1101ED.3BF181F6@gmx.de>
+MIME-Version: 1.0
+Message-Id: <01052722451714.06233@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sunday 27 May 2001 15:32, Edgar Toernig wrote:
+> Daniel Phillips wrote:
+> > It won't, the open for "." is handled in the VFS, not the
+> > filesystem - it will open the directory.  (Without needing to be
+> > told it's a directory via O_DIRECTORY.)  If you do open("magicdev")
+> > you'll get the device, because that's handled by magicdevfs.
+>
+> You really mean that "magicdev" is a directory and:
+>
+> 	open("magicdev/.", O_RDONLY);
+> 	open("magicdev", O_RDONLY);
+>
+> would both succeed but open different objects?
 
-The following patch makes irttp_read_proc restore_flags()
-in error cases too. Applies against 245ac1.
+Yes, and:
 
+        open("magicdev/.", O_RDONLY | O_DIRECTORY);
+        open("magicdev", O_RDONLY | O_DIRECTORY);
 
---- linux-245-ac1-clean/net/irda/irttp.c	Sun May 27 22:15:34 2001
-+++ linux-245-ac1/net/irda/irttp.c	Sun May 27 22:37:59 2001
-@@ -1598,7 +1598,7 @@
- 	self = (struct tsap_cb *) hashbin_get_first(irttp->tsaps);
- 	while (self != NULL) {
- 		if (!self || self->magic != TTP_TSAP_MAGIC)
--			return len;
-+			break;
- 
- 		len += sprintf(buf+len, "TSAP %d, ", i++);
- 		len += sprintf(buf+len, "stsap_sel: %02x, ", 
+will both succeed and open the same object.
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+> > I'm not claiming there isn't breakage somewhere,
+>
+> you break UNIX fundamentals.  But I'm quite relieved now because I'm
+> pretty sure that something like that will never go into the kernel.
 
-Which is worse: Ignorance or Apathy?
-Who knows? Who cares?
+OK, I'll take that as "I couldn't find a piece of code that breaks, so 
+it's on to the legal issues".
+
+SUS doesn't seem to have a lot to say about this.  The nearest thing to 
+a ruling I found was "The special filename dot refers to the directory 
+specified by its predecessor".  Which is not the same thing as:
+
+   open("foo", O_RDONLY) == open ("foo/.", O_RDONLY)
+
+I don't know about POSIX (I don't have it: a pox on standards 
+organizations that don't make their standards freely available) but SUS 
+doesn't seem to forbid this.
+
+--
+Daniel

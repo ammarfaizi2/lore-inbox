@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292609AbSBVCwZ>; Thu, 21 Feb 2002 21:52:25 -0500
+	id <S291624AbSBVC4p>; Thu, 21 Feb 2002 21:56:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292613AbSBVCwP>; Thu, 21 Feb 2002 21:52:15 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:60945 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292609AbSBVCwI>;
-	Thu, 21 Feb 2002 21:52:08 -0500
-Date: Thu, 21 Feb 2002 23:51:47 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Antoni Bella <bella5@teleline.es>
-Cc: <linux-kernel@vger.kernel.org>, Mike Fedyk <mfedyk@matchmail.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: diff ?? [ linux-2.4.18-rc3 ]
-In-Reply-To: <20020222024325Z292585-889+4880@vger.kernel.org>
-Message-ID: <Pine.LNX.4.33L.0202212350300.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292556AbSBVC4f>; Thu, 21 Feb 2002 21:56:35 -0500
+Received: from ginsberg.uol.com.br ([200.231.206.26]:7372 "EHLO
+	ginsberg.uol.com.br") by vger.kernel.org with ESMTP
+	id <S291624AbSBVC4U>; Thu, 21 Feb 2002 21:56:20 -0500
+Date: Thu, 21 Feb 2002 23:55:34 -0300 (BRT)
+From: Cesar Suga <sartre@linuxbr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HPT366: DMA errors?
+In-Reply-To: <E16e5Zw-0000al-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0202212352001.222-100000@sartre.linuxbr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002, Antoni Bella wrote:
+On Fri, 22 Feb 2002, Alan Cox wrote:
 
->   I answer to the two, all the diffs is in the habit to linked with
-> the directory Linux not with version "pre" or "rc". I'm not suppose
-> any problem but I am thinking good notifying it.
+> > through these messages when using the *original* ATA cable (never touched
+> > before) or a replacement one:
 
-If you want a patch against the last "full" kernel,
-you need to download that patch, they are available
-in v2.4/testing/
+> > hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> > hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-You were looking in v2.4/testing/incr/ which has the
-incremental patches, don't be surprised you got what
-you downloaded ;)
+> CRC error -> cable/wiring problem. If you are using UDMA66/100 you must
+> have an 80pin cable. If you are using UDMA33 and can't pin it down then
+> an 80pin cable doesnt do any harm
 
-cheers,
+	Yes, I am using the 80pin cable. The BP6 board has the normal IDE
+controller and the HPT controller. The normal IDE controller which I said
+was the common 40pin one. The DMA66 cable, certainly, is the 80 pin.
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+	I cannot use the 80pin cable with the normal IDE for it does not
+fit. But I tried with two 80-pin cables.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+	Thanks,
+	Cesar Suga <sartre@linuxbr.com>
+
 

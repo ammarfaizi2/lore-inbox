@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276477AbRKOKYB>; Thu, 15 Nov 2001 05:24:01 -0500
+	id <S279462AbRKOKpG>; Thu, 15 Nov 2001 05:45:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278522AbRKOKXm>; Thu, 15 Nov 2001 05:23:42 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:11524 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S276477AbRKOKX0>;
-	Thu, 15 Nov 2001 05:23:26 -0500
-Date: Thu, 15 Nov 2001 11:23:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jonathan Lahr <lahr@us.ibm.com>
-Cc: lahr@eng2.beaverton.ibm.com, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] SCSI io_request_lock patch
-Message-ID: <20011115112300.S27010@suse.de>
-In-Reply-To: <20011112130902.B26302@us.ibm.com> <20011113092311.L786@suse.de> <20011113104210.L26302@us.ibm.com> <20011114091129.H17933@suse.de> <20011114105433.O26302@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011114105433.O26302@us.ibm.com>
+	id <S279884AbRKOKo4>; Thu, 15 Nov 2001 05:44:56 -0500
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:29082 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S279462AbRKOKom>; Thu, 15 Nov 2001 05:44:42 -0500
+Date: Thu, 15 Nov 2001 10:44:26 +0000 (GMT)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: <alastair@gurney>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [OT] Athlon SMP blues - SOLVED by gpm
+In-Reply-To: <E1646xi-00015T-00@gondolin.me.apana.org.au>
+Message-ID: <Pine.GSO.4.33.0111151041080.14971-100000@gurney>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14 2001, Jonathan Lahr wrote:
-> > It's absolutely worthless. Look, it ties in with the points I made
-> > below. You are exporting the merge functions for instance, and setting
-> > them in the queue. This will cause scsi_merge not to use it's own
-> > functions, broken.
-> 
-> As in the baseline, initialize_merge_fn overwrites these pointers:
->      q->back_merge_fn = scsi_back_merge_fn_;
->      q->front_merge_fn = scsi_front_merge_fn_;
->      q->merge_requests_fn = scsi_merge_requests_fn_;
+> > I installed Red Hat 7.2 and the machine boots fine, using SMP or UP
+> > kernels (Red Hat 2.4.9-7), but totally HANGS at the login prompt. Can't
+> > type, can't reboot, can't do anything. Single user mode _does_ let me
+> > in, however, and this is the only progress so far.
+>
+> Try plugging in a mouse or stop running gpm.
 
-I had forgotten I had #if 0 out the check for already set back_merge etc
-in scsi_merge -- however that's still beside the point. _Why_ are you
-exporting the ll_rw_blk functions and setting them just to have them
-overridden? Makes no sense.
+YES YES YES!!! This was it! After 24 hours of building 17 different
+kernels, checking out every inch of my hardware, and trying to build
+ramdisk images, it was the humble 'gpm' that caused my headaches!
+There's no mouse on the machine. Thanks very much indeed, and boy have I
+learned something now....
 
-Don't export the merge functions ever, define your own if you really
-need them. You don't, though.
+PS - thanks to all who sent in lots of ideas on this problem! It
+actually turns out the machine is *not* overheating at all. The 76C BIOS
+CPU temperature was erroneous, and in fact it's more like 42C now, which
+is perfectly healthy of course ;-)
 
-As I've mentioned before, go ahead with the make_request_fn replacement.
-That is indeed what it is there for.
+Cheers
+Alastair
 
--- 
-Jens Axboe
+o o o o o o o o o o o o o o o o o o o o o o o o o o o o
+Alastair Stevens           \ \
+MRC Biostatistics Unit      \ \___________ 01223 330383
+Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
 

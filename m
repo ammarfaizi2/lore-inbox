@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132128AbRC1Scq>; Wed, 28 Mar 2001 13:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132137AbRC1Scg>; Wed, 28 Mar 2001 13:32:36 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:44557 "EHLO mailout01.sul.t-online.com") by vger.kernel.org with ESMTP id <S132128AbRC1ScV>; Wed, 28 Mar 2001 13:32:21 -0500
-Message-ID: <3AC22E18.1DD50338@t-online.de>
-Date: Wed, 28 Mar 2001 20:31:52 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linas@linas.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: mouse problems in 2.4.2 -> lost byte
-References: <20010327204551.623181B7A5@backlot.linas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131626AbRC1TG3>; Wed, 28 Mar 2001 14:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132003AbRC1TGU>; Wed, 28 Mar 2001 14:06:20 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:5963 "EHLO tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP id <S131626AbRC1TGK>; Wed, 28 Mar 2001 14:06:10 -0500
+Date: Wed, 28 Mar 2001 13:05:25 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103281905.NAA41794@tomcat.admin.navo.hpc.mil>
+To: Oliver.Neukum@lrz.uni-muenchen.de, jesse@cats-chateau.net
+Subject: Re: Larger dev_t
+In-Reply-To: <01032820130006.01508@idun>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linas@linas.org wrote:
+Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>:
 > 
-> It's been rumoured that Gunther Mayer said:
-> >
-> > > I am experiencing debilitating intermittent mouse problems & was about
-> > ...
-> > > Symptoms:
-> > > After a long time of flawless operation (ranging from nearly a week to
-> > > as little as five minutes), the X11 pointer flies up to top-right corner,
-> >                                                           ^^^^^^^^^^^^^^^^
-> > > and mostly wants to stay there.  Moving the mouse causes a cascade of
-> > > spurious button-press events get generated.
-> >
-> > This is easily explained: some byte of the mouse protocol was lost.
+> > My suggestion would be to add a filesystem label (optional) to the
+> > homeblock of all filesystmes, then load that identifier into the
+> > /proc/partitions file. This would allow a search to locate the
+> > device parameters for any filesystem being mounted. If the label
+> > is unavailable, then it must be mounted manually or via the current
+> > structure. This would work for floppy/CD/DVD (although SCSI versions
+> > would have a relocation problem for these devices).
 > 
-> Bing!
-> 
-> That's it! This would also explain why gpm seems to work i.e. correctly
-> process the events, even when X11 can't.  I will take this up on the
-> Xf86 lists ...
-> 
-> > (Some mouse protocols are even designed to allow
-> >  easy resync/recovery by fixed bit patterns!)
-> 
-> This mouse seems to set every fourth byte to zero, which should allow
-> syncing ...
+> And what would you do if the names collide ?
 
-The fourth byte is propably the wheel or 5 button support, see
-http://www.microsoft.com/hwdev/input/5b_wheel.htm
-to get a hint about mouse protocol variations.
+refuse to mount - give the admin time to fix them in single user mode
+changing a volumn name only should not be prevented. How to fix... let
+the admin look in the /proc/partitions, take one (I'd pick the second
+one seen) and change its name. Mount the first using the devfs associated
+name and verify that the contents are what is expected. Mount the second
+and see what it should be. This situation should only occur via a dd copy
+of an entire volumn; the procedure on copying should include changing the
+copied volumn name... This is almost equivalent to having multiple mirror
+partitions, in which case a "mount the first seen" would be reasonable.
 
-Getting resync right is not as easy as detecting zero bytes. You
-should account for wild protocol variations in the world wide mouse
-population, too.
+> This might work for drives with unique identifiers in hardware, but for 
+> anything else it is a nice addition, but I wouldn't identify an essential 
+> partition that way. Furthermore you need to address removable media. There a 
+> way to specify a drive opposed to a filesystem or medium is needed.
+
+I didn't mean to say that there should be NO way to reach a specific drive.
+There should be a devfs entry that corresponds to the entries in the
+/proc/partitions list. This is what I think mount should do anyway.
+First search the /proc/partitions list for the volumn; then use the
+associated entry in devfs to actually do the mount. It's just a way
+to allow the reorganization of volume to device name mapping.
+
+I'm still thinking about how the root filesystem could be mounted during
+boot where devfs and /proc are not yet mounted.
+
+There should be a similar way to map removable media devices (even if it
+takes using device serial numbers) to fixed device names. That way a
+symbolic link could be created to point to the correct physical device:
+
+ie: I want my SCSI tape drive (serial number 06408-XXX) to be called "tape" 
+
+locate the serial number in /proc/scsi/scsi. use devfs name that
+corresponds to this device (scsi2/target 6/lun/00 or similar) and
+create a symbolic link for it. This does assume that the serial number or
+equivalent is available to be searched for. It also assumes that the
+devfs name can be derived from the entry in /proc/scsi/scsi (or where ever
+the specification ends up).
+
+Is this reasonable? Perhaps not for small systems, but when lots of dynamic
+devices are available it is needed
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

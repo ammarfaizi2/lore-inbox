@@ -1,217 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318159AbSGWR0U>; Tue, 23 Jul 2002 13:26:20 -0400
+	id <S318142AbSGWRZK>; Tue, 23 Jul 2002 13:25:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318158AbSGWR0U>; Tue, 23 Jul 2002 13:26:20 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:25949 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S318153AbSGWR0K>; Tue, 23 Jul 2002 13:26:10 -0400
-Date: Tue, 23 Jul 2002 18:29:22 +0100 (BST)
+	id <S318153AbSGWRZJ>; Tue, 23 Jul 2002 13:25:09 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:57932 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S318142AbSGWRZC>; Tue, 23 Jul 2002 13:25:02 -0400
+Date: Tue, 23 Jul 2002 18:28:10 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 cc: Robert Love <rml@tech9.net>, David Mosberger <davidm@hpl.hp.com>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] VM accounting 3/3 noreserve
+Subject: [PATCH] VM accounting 2/3 fixes
 In-Reply-To: <Pine.LNX.4.21.0207231823470.10982-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0207231828180.10982-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0207231827210.10982-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jul 2002, David Mosberger wrote:
-> Is there a good reason why the MAP_NORESERVE flag is ignored when
-> MAP_SHARED is specified?  (Hint: it's the call to vm_enough_memory()
-> in shmem_file_setup() that's causing MAP_NORESERVE to be ignored.)
+do_mmap_pgoff's (file == NULL) check was incorrect: it caused shared
+MAP_ANONYMOUS objects to be counted twice (again in shmem_file_setup),
+and again on fork(); whereas the equivalent shared /dev/zero objects
+were correctly counted.  Conversely, a private readonly file mapping
+was (correctly) not counted, but still not counted when mprotected to
+writable: replaced mprotect_fixup's "#ifdef COMPLETE_BOLLOCKS" block
+(rc3-ac3 patch to mprotect.c nothing but bloat: charged remains 0).
 
-David's right, if we support mmap MAP_NORESERVE, we should support
-it on shared anonymous objects: too bad that needs a few changes.
-do_mmap_pgoff pass VM_ACCOUNT (or not) down to shmem_file_setup,
-flag stored into shmem info, for use by shmem_delete_inode later.
-Also removed a harmless but pointless call to shmem_truncate.
+There's also a perfectly correct (flags & MAP_SHARED) test, not
+peculiar to -ac, that I changed to test (vm_flags & VM_SHARED):
+merely because do_mmap_pgoff is generally dealing with vm_flags
+rather than the input flags by that stage.
 
-MAP_NORESERVE handling remains odd: doesn't have its own VM_flag,
-so mprotect a private readonly MAP_NORESERVE mapping to writable
-and the reservation is then made/checked (see vmacct2 patch).
-I don't mind adding VM_NORESERVE to fix that later,
-if MAP_NORESERVE users think it necessary: David?
+Second of three patches, against 2.4.19-rc3-ac3 + vmacct1:
 
-Last of three patches, against 2.4.19-rc3-ac3 + vmacct1 + vmacct2.
-
-diff -urN vmacct2/include/linux/mm.h vmacct3/include/linux/mm.h
---- vmacct2/include/linux/mm.h	Tue Jul 23 15:33:34 2002
-+++ vmacct3/include/linux/mm.h	Tue Jul 23 16:26:16 2002
-@@ -513,7 +513,7 @@
+diff -urN vmacct1/Documentation/vm/overcommit-accounting vmacct2/Documentation/vm/overcommit-accounting
+--- vmacct1/Documentation/vm/overcommit-accounting	Tue Jul 23 15:33:22 2002
++++ vmacct2/Documentation/vm/overcommit-accounting	Tue Jul 23 16:11:10 2002
+@@ -40,12 +40,11 @@
  
- extern int fail_writepage(struct page *);
- struct page * shmem_nopage(struct vm_area_struct * vma, unsigned long address, int unused);
--struct file *shmem_file_setup(char * name, loff_t size);
-+struct file *shmem_file_setup(char * name, loff_t size, unsigned long flags);
- extern void shmem_lock(struct file * file, int lock);
- extern int shmem_zero_setup(struct vm_area_struct *);
+ For a file backed map
+ 	SHARED or READ only	-	0 cost (the file is the map not swap)
++	PRIVATE WRITABLE	-	size of mapping per instance
  
-diff -urN vmacct2/include/linux/shmem_fs.h vmacct3/include/linux/shmem_fs.h
---- vmacct2/include/linux/shmem_fs.h	Fri Dec 21 17:42:03 2001
-+++ vmacct3/include/linux/shmem_fs.h	Tue Jul 23 16:26:16 2002
-@@ -26,7 +26,7 @@
- 	swp_entry_t		i_direct[SHMEM_NR_DIRECT]; /* for the first blocks */
- 	void		      **i_indirect; /* indirect blocks */
- 	unsigned long		swapped;
--	int			locked;     /* into memory */
-+	unsigned long		flags;
- 	struct list_head	list;
- 	struct inode	       *inode;
- };
-diff -urN vmacct2/ipc/shm.c vmacct3/ipc/shm.c
---- vmacct2/ipc/shm.c	Tue Jul 23 15:48:24 2002
-+++ vmacct3/ipc/shm.c	Tue Jul 23 16:26:16 2002
-@@ -194,7 +194,7 @@
- 	if (!shp)
+-	WRITABLE SHARED		-	size of mapping per instance
+-
+-For a direct map
+-	SHARED or READ only	-	size of mapping
+-	PRIVATE WRITEABLE	-	size of mapping per instance
++For an anonymous or /dev/zero map
++	SHARED			-	size of mapping
++	PRIVATE			-	size of mapping per instance
+ 
+ Additional accounting
+ 	Pages made writable copies by mmap
+@@ -68,6 +67,3 @@
+ To Do
+ -----
+ o	Account ptrace pages (this is hard)
+-o	Disable MAP_NORESERVE in mode 2/3
+-o	Account for shared anonymous mappings properly
+-	- right now we account them per instance
+diff -urN vmacct1/kernel/fork.c vmacct2/kernel/fork.c
+--- vmacct1/kernel/fork.c	Tue Jul 23 15:33:34 2002
++++ vmacct2/kernel/fork.c	Tue Jul 23 16:11:10 2002
+@@ -174,9 +174,7 @@
+ 		if(mpnt->vm_flags & VM_DONTCOPY)
+ 			continue;
+ 	
+-		/* FIXME: shared writable map accounting should be one off */
+-		if(mpnt->vm_flags & VM_ACCOUNT)
+-		{
++		if(mpnt->vm_flags & VM_ACCOUNT) {
+ 			unsigned int len = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
+ 			if(!vm_enough_memory(len))
+ 				goto fail_nomem;
+diff -urN vmacct1/mm/mmap.c vmacct2/mm/mmap.c
+--- vmacct1/mm/mmap.c	Tue Jul 23 15:48:24 2002
++++ vmacct2/mm/mmap.c	Tue Jul 23 16:11:10 2002
+@@ -574,7 +574,7 @@
+ munmap_back:
+ 	vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
+ 	if (vma && vma->vm_start < addr + len) {
+-		if (do_munmap(mm, addr, len, 1))
++		if (do_munmap(mm, addr, len))
+ 			return -ENOMEM;
+ 		goto munmap_back;
+ 	}
+@@ -584,18 +584,14 @@
+ 	    > current->rlim[RLIMIT_AS].rlim_cur)
  		return -ENOMEM;
- 	sprintf (name, "SYSV%08x", key);
--	file = shmem_file_setup(name, size);
-+	file = shmem_file_setup(name, size, VM_ACCOUNT);
- 	error = PTR_ERR(file);
- 	if (IS_ERR(file))
- 		goto no_file;
-diff -urN vmacct2/mm/mmap.c vmacct3/mm/mmap.c
---- vmacct2/mm/mmap.c	Tue Jul 23 16:11:10 2002
-+++ vmacct3/mm/mmap.c	Tue Jul 23 16:26:16 2002
-@@ -585,7 +585,10 @@
- 		return -ENOMEM;
  
- 	if (!(flags & MAP_NORESERVE) || vm_accounts_strictly()) {
--		if ((vm_flags & (VM_SHARED|VM_WRITE)) == VM_WRITE) {
-+		if (vm_flags & VM_SHARED) {
-+			/* Check memory availability in shmem_file_setup? */
+-	if (vm_accounts_strictly())
+-		flags &= ~MAP_NORESERVE;
+-	
+-	/* Private writable mapping? Check memory availability.. */
+-
+-	if ((((vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE) || (file == NULL)) 
+- 		&& !(flags & MAP_NORESERVE))
+-	{
+-		charged = len >> PAGE_SHIFT;
+-		if(!vm_enough_memory(charged))
+-			return -ENOMEM;
+-		vm_flags |= VM_ACCOUNT;
++	if (!(flags & MAP_NORESERVE) || vm_accounts_strictly()) {
++		if ((vm_flags & (VM_SHARED|VM_WRITE)) == VM_WRITE) {
++			/* Private writable mapping: check memory availability */
++			charged = len >> PAGE_SHIFT;
++			if (!vm_enough_memory(charged))
++				return -ENOMEM;
 +			vm_flags |= VM_ACCOUNT;
-+		} else if (vm_flags & VM_WRITE) {
- 			/* Private writable mapping: check memory availability */
- 			charged = len >> PAGE_SHIFT;
- 			if (!vm_enough_memory(charged))
-@@ -639,6 +642,14 @@
++		}
+ 	}
+ 
+ 	/* Can we just expand an old anonymous mapping? */
+@@ -638,7 +634,7 @@
+ 		error = file->f_op->mmap(file, vma);
+ 		if (error)
+ 			goto unmap_and_free_vma;
+-	} else if (flags & MAP_SHARED) {
++	} else if (vm_flags & VM_SHARED) {
+ 		error = shmem_zero_setup(vma);
  		if (error)
  			goto free_vma;
+diff -urN vmacct1/mm/mprotect.c vmacct2/mm/mprotect.c
+--- vmacct1/mm/mprotect.c	Tue Jul 23 15:33:35 2002
++++ vmacct2/mm/mprotect.c	Tue Jul 23 16:11:10 2002
+@@ -265,25 +265,21 @@
+ 		return 0;
  	}
-+
-+	/* We set VM_ACCOUNT in a shared mapping's vm_flags, to inform
-+	 * shmem_zero_setup (perhaps called through /dev/zero's ->mmap)
-+	 * that memory reservation must be checked; but that reservation
-+	 * belongs to shared memory object, not to vma: so now clear it.
-+	 */
-+	if ((vm_flags & (VM_SHARED|VM_ACCOUNT)) == (VM_SHARED|VM_ACCOUNT))
-+		vma->vm_flags &= ~VM_ACCOUNT;
  
- 	/* Can addr have changed??
- 	 *
-diff -urN vmacct2/mm/shmem.c vmacct3/mm/shmem.c
---- vmacct2/mm/shmem.c	Tue Jul 23 15:33:35 2002
-+++ vmacct3/mm/shmem.c	Tue Jul 23 16:26:16 2002
-@@ -389,12 +389,14 @@
- static void shmem_delete_inode(struct inode * inode)
- {
- 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
-+	struct shmem_inode_info *info = SHMEM_I(inode);
- 
- 	if (inode->i_op->truncate == shmem_truncate) {
--		spin_lock (&shmem_ilock);
--		list_del (&SHMEM_I(inode)->list);
--		spin_unlock (&shmem_ilock);
--		vm_unacct_memory(VM_ACCT(inode->i_size));
-+		spin_lock(&shmem_ilock);
-+		list_del(&info->list);
-+		spin_unlock(&shmem_ilock);
-+		if (info->flags & VM_ACCOUNT)
-+			vm_unacct_memory(VM_ACCT(inode->i_size));
- 		inode->i_size = 0;
- 		shmem_truncate (inode);
+-#ifdef COMPLETE_BOLLOCKS
+ 	/*
+-	 *	If we take an anonymous mapped vma writable we
+-	 *	increase our commit (was one page per file now one page
+-	 *	per writable private instance)
+-	 *	FIXME: shared private mapping R/O versus R/W accounting
++	 * If we make a private mapping writable we increase our commit;
++	 * but (without finer accounting) cannot reduce our commit if we
++	 * make it unwritable again.
++	 *
++	 * FIXME? We haven't defined a VM_NORESERVE flag, so mprotecting
++	 * a MAP_NORESERVE private mapping to writable will now reserve.
+ 	 */
+-	if(vma->vm_file != NULL && 
+-	  ((vma->vm_flags & (VM_ACCOUNT|VM_SHARED)) == (VM_ACCOUNT|VM_SHARED)) && 
+-	  ((newflags & PROT_WRITE) != (vma->vm_flags & PROT_WRITE)))
+-	{
++	if ((newflags & VM_WRITE) &&
++	    !(vma->vm_flags & (VM_ACCOUNT|VM_WRITE|VM_SHARED))) {
+ 		charged = (end - start) >> PAGE_SHIFT;
+-		if(newflags & PROT_WRITE)
+-		{
+-			if(!vm_enough_memory(charged))
+-				return -ENOMEM;
+-		}
++		if (!vm_enough_memory(charged))
++			return -ENOMEM;
++		newflags |= VM_ACCOUNT;
  	}
-@@ -504,7 +506,7 @@
- 	index = page->index;
- 	inode = mapping->host;
- 	info = SHMEM_I(inode);
--	if (info->locked)
-+	if (info->flags & VM_LOCKED)
- 		return fail_writepage(page);
- getswap:
- 	swap = get_swap_page();
-@@ -711,9 +713,12 @@
- 	struct inode * inode = file->f_dentry->d_inode;
- 	struct shmem_inode_info * info = SHMEM_I(inode);
- 
--	down(&info->sem);
--	info->locked = lock;
--	up(&info->sem);
-+	spin_lock(&info->lock);
-+	if (lock)
-+		info->flags |= VM_LOCKED;
-+	else
-+		info->flags &= ~VM_LOCKED;
-+	spin_unlock(&info->lock);
+-#endif	
+ 	newprot = protection_map[newflags & 0xf];
+ 	if (start == vma->vm_start) {
+ 		if (end == vma->vm_end)
+@@ -294,17 +290,10 @@
+ 		error = mprotect_fixup_end(vma, pprev, start, newflags, newprot);
+ 	else
+ 		error = mprotect_fixup_middle(vma, pprev, start, end, newflags, newprot);
+-
+-	if (error)
+-	{
+-		if(newflags & PROT_WRITE)
+-			vm_unacct_memory(charged);
++	if (error) {
++		vm_unacct_memory(charged);
+ 		return error;
+ 	}
+-	/* Delayed accounting for reduction of memory use - done last to
+-	   avoid allocation races */
+-	if (charged && !(newflags & PROT_WRITE))
+-		vm_unacct_memory(charged);
+ 	change_protection(start, end, newprot);
+ 	return 0;
  }
- 
- static int shmem_mmap(struct file * file, struct vm_area_struct * vma)
-@@ -755,6 +760,7 @@
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 		info = SHMEM_I(inode);
- 		info->inode = inode;
-+		info->flags = VM_ACCOUNT;
- 		spin_lock_init (&info->lock);
- 		sema_init (&info->sem, 1);
- 		switch (mode & S_IFMT) {
-@@ -1600,7 +1606,7 @@
-  * @size: size to be set for the file
-  *
-  */
--struct file *shmem_file_setup(char * name, loff_t size)
-+struct file *shmem_file_setup(char * name, loff_t size, unsigned long flags)
- {
- 	int error;
- 	struct file *file;
-@@ -1611,7 +1617,7 @@
- 	if (size > SHMEM_MAX_BYTES)
- 		return ERR_PTR(-EINVAL);
- 
--	if (!vm_enough_memory(VM_ACCT(size)))
-+	if ((flags & VM_ACCOUNT) && !vm_enough_memory(VM_ACCT(size)))
- 		return ERR_PTR(-ENOMEM);
- 
- 	error = -ENOMEM;
-@@ -1633,14 +1639,14 @@
- 	if (!inode) 
- 		goto close_file;
- 
-+	SHMEM_I(inode)->flags &= flags;
- 	d_instantiate(dentry, inode);
--	dentry->d_inode->i_size = size;
--	shmem_truncate(inode);
-+	inode->i_size = size;
-+	inode->i_nlink = 0;	/* It is unlinked */
- 	file->f_vfsmnt = mntget(shm_mnt);
- 	file->f_dentry = dentry;
- 	file->f_op = &shmem_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
--	inode->i_nlink = 0;	/* It is unlinked */
- 	return(file);
- 
- close_file:
-@@ -1648,7 +1654,8 @@
- put_dentry:
- 	dput (dentry);
- put_memory:
--	vm_unacct_memory(VM_ACCT(size));
-+	if (flags & VM_ACCOUNT)
-+		vm_unacct_memory(VM_ACCT(size));
- 	return ERR_PTR(error);	
- }
- 
-@@ -1662,7 +1669,7 @@
- 	struct file *file;
- 	loff_t size = vma->vm_end - vma->vm_start;
- 	
--	file = shmem_file_setup("dev/zero", size);
-+	file = shmem_file_setup("dev/zero", size, vma->vm_flags);
- 	if (IS_ERR(file))
- 		return PTR_ERR(file);
- 
 

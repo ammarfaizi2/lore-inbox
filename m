@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319324AbSIFSpC>; Fri, 6 Sep 2002 14:45:02 -0400
+	id <S319320AbSIFSlU>; Fri, 6 Sep 2002 14:41:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319325AbSIFSpC>; Fri, 6 Sep 2002 14:45:02 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:9408 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S319324AbSIFSpB>; Fri, 6 Sep 2002 14:45:01 -0400
-Subject: Re: Radeon DRM lockup
-From: Nicholas <theunforgiven@attbi.com>
-To: Louis Garcia <louisg00@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-In-Reply-To: <1031286886.14374.9.camel@tiger>
-References: <1031286886.14374.9.camel@tiger>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Sep 2002 14:49:35 -0400
-Message-Id: <1031338175.510.0.camel@debian>
+	id <S319323AbSIFSlU>; Fri, 6 Sep 2002 14:41:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3719 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319320AbSIFSlS>;
+	Fri, 6 Sep 2002 14:41:18 -0400
+Date: Fri, 06 Sep 2002 11:38:29 -0700 (PDT)
+Message-Id: <20020906.113829.65591342.davem@redhat.com>
+To: manfred@colorfullife.com
+Cc: haveblue@us.ibm.com, hadi@cyberus.ca, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D78F55C.4020207@colorfullife.com>
+References: <3D78F55C.4020207@colorfullife.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-06 at 00:34, Louis Garcia wrote:
-> I'm experiencing many hard lockups when playing 3D games on my RH beta
-> system. I have a Radeon 7500 card and i850 chipset. Does the latest AC
-> kernels have more recent DRM code? How can I get the latest cvs code for
-> radeon cards?
-> 
-> --Lou
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+   From: Manfred Spraul <manfred@colorfullife.com>
+   Date: Fri, 06 Sep 2002 20:35:08 +0200
 
-Dude different setup i use ALI but my radeon 7500 locks up too when
-trying to do 3d (ANY 3d iincludoing glxgears) any solution ANYONE has
-would be greatly appreciated.
+   The second point was that interrupt mitigation must remain enabled, even 
+   with NAPI: the automatic mitigation doesn't work with process space 
+   limited loads (e.g. TCP: backlog queue is drained quickly, but the 
+   system is busy processing the prequeue or receive queue)
 
+Not true.  NAPI is in fact a %100 replacement for hw interrupt
+mitigation strategies.  The cpu usage elimination afforded by
+hw interrupt mitigation is also afforded by NAPI and even more
+so by NAPI.
+   
+See Jamal's paper.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

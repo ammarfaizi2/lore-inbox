@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVAVKiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbVAVKii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbVAVKiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 05:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVAVKiZ
+	id S262695AbVAVKii (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 05:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbVAVKih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 05:38:25 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:24594 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262694AbVAVKiX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 05:38:23 -0500
-Date: Sat, 22 Jan 2005 11:41:09 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] PCI: Kill duplicate definition of INTEL_82801DB_10
-Message-Id: <20050122114109.432463d8.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 22 Jan 2005 05:38:37 -0500
+Received: from zotz.mtu.ru ([195.34.34.227]:31499 "EHLO zotz.mtu.ru")
+	by vger.kernel.org with ESMTP id S262695AbVAVKif (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 05:38:35 -0500
+Reply-To: <zapravka_03@umail.ru>
+From: =?ISO-8859-1?Q?=20=22CEPB=E9C=E3EHTP?=.1O9~787O" <zapravka_03@umail.ru>"@mail.w.ods.org (MOCKBA)
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	1O9~787O
+				^-missing closing '"' in token
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	1O9~787O
+				^-missing closing '"' in token
+Subject: =?ISO-8859-1?Q?=20Pacxo=C4=CE=C9=CB=C9,?=  =?ISO-8859-1?Q?=20=DAa=D0pa=D7=CBa?=  =?ISO-8859-1?Q?=20=CB?=
+	=?ISO-8859-1?Q?ap=D4p=C9=C4=D6e=CA,?=  =?ISO-8859-1?Q?=20=C4oc=D4a=D7=CBa?=  =?ISO-8859-1?Q?=20=D0?=
+	=?ISO-8859-1?Q?o?= MOCKBE.  =?ISO-8859-1?Q?=20Ho=D7a=D1?=  =?ISO-8859-1?Q?=20=D5c=CC=D5=C7a?= -  =?ISO-8859-1?Q?=20=DA?=
+	=?ISO-8859-1?Q?a=D0pa=D7=CBa?=  =?ISO-8859-1?Q?=20=EB=D5=CFser=C1.?=
+Date: Sat, 22 Jan 2005 13:38:32 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1081
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1081
+Message-Id: <20050122103749.01CD557CD57@zotz.mtu.ru>
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+KAPTPéäöé, TOHEPù, úAðPABKA, äOCTABKA ðO MOCKBE.
+Í. TAçAHCKAñ:                     (O95) 74O~7552
+Í. ûOCCE üHTõúéACTOB:    (O95) 74O~755I
+çOPñþAñ ìéHéñ :               (O95) IO9~787O
+PEMOîô úAXBATA ðO îECKOìøKõ ìéCTOB - 5OO pÕÂ.
 
-I noticed that PCI_DEVICE_ID_INTEL_82801DB_10 is currently defined twice
-in linux-2.4.29/include/linux/pci_ids.h. The trivial patch below kills
-the second definition.
-
-Please apply,
-thanks:
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-
---- linux-2.4.29/include/linux/pci_ids.h.orig	2005-01-21 21:51:21.000000000 +0100
-+++ linux-2.4.29/include/linux/pci_ids.h	2005-01-22 11:33:41.000000000 +0100
-@@ -1937,7 +1937,6 @@
- #define PCI_DEVICE_ID_INTEL_82801EB_5	0x24d5
- #define PCI_DEVICE_ID_INTEL_82801EB_6	0x24d6
- #define PCI_DEVICE_ID_INTEL_82801EB_7	0x24d7
--#define PCI_DEVICE_ID_INTEL_82801DB_10	0x24ca
- #define PCI_DEVICE_ID_INTEL_82801EB_11	0x24db
- #define PCI_DEVICE_ID_INTEL_82801EB_13	0x24dd
- #define PCI_DEVICE_ID_INTEL_ESB_0	0x25a0
-
-
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+HOBAñ õCìõçA : úAðPABìñEM KYïSåRA FS-1000/1000+/1010/1020D/1050 (N)

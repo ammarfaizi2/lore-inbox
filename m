@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268094AbTAJBPu>; Thu, 9 Jan 2003 20:15:50 -0500
+	id <S268093AbTAJBZv>; Thu, 9 Jan 2003 20:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268096AbTAJBPu>; Thu, 9 Jan 2003 20:15:50 -0500
-Received: from fly.hiwaay.net ([216.180.54.1]:58377 "EHLO mail.hiwaay.net")
-	by vger.kernel.org with ESMTP id <S268094AbTAJBPt>;
-	Thu, 9 Jan 2003 20:15:49 -0500
-Date: Thu, 9 Jan 2003 19:24:32 -0600
-From: Chris Adams <cmadams@hiwaay.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: "Mother" == "computer-illiterate"
-Message-ID: <20030109192432.A485131@hiwaay.net>
-References: <fa.eembe5o.i4osri@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268100AbTAJBZv>; Thu, 9 Jan 2003 20:25:51 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:16357 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S268093AbTAJBZu>; Thu, 9 Jan 2003 20:25:50 -0500
+Date: Fri, 10 Jan 2003 14:34:15 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Valdis.Kletnieks@vt.edu, jlnance@unity.ncsu.edu
+cc: linux-kernel@vger.kernel.org
+Subject: Re: "Mother" == "computer-illiterate" 
+Message-ID: <1304590000.1042162455@localhost.localdomain>
+In-Reply-To: <200301092030.h09KUspQ009950@turing-police.cc.vt.edu>
+References: <20030109072043.GE26010@boardwalk>
+ <20030109194019.GH26010@boardwalk>           
+ <20030109202144.GA6434@ncsu.edu>
+ <200301092030.h09KUspQ009950@turing-police.cc.vt.edu>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1042153890.28469.21.camel@irongate.swansea.linux.org.uk>
-Organization: HiWAAY Internet Services
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, Alan Cox  <alan@lxorguk.ukuu.org.uk> said:
->and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
->who know what her networking related patent is on)
 
-That's HEDLEY!  Oh, but he doesn't have any patents.
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.
+
+--On Thursday, January 09, 2003 15:30:54 -0500 Valdis.Kletnieks@vt.edu 
+wrote:
+
+> On Thu, 09 Jan 2003 15:21:44 EST, jlnance@unity.ncsu.edu  said:
+>> On Thu, Jan 09, 2003 at 12:40:19PM -0700, Val Henson wrote:
+>>
+>> > P.S. For extra credit (but no ThinkGeek certificate) you can look up
+>> > the following women in computer science, some of whom are mothers:
+>> > Mary Baker, Margo Seltzer, Monica Lam, Ellen Spertus, Carla Ellis, and
+>> > Barbara Simons.
+>>
+>> Am I the first person to tell you you left off Ada Lovelace?  She was
+>> way ahead of her time.
+>
+> I think Ada Lovelace and Grace Hopper were left off as "too easy"....
+
+Sally Floyd and Allison Mankin?

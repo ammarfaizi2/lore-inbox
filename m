@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312207AbSCRGXI>; Mon, 18 Mar 2002 01:23:08 -0500
+	id <S312212AbSCRGfL>; Mon, 18 Mar 2002 01:35:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312208AbSCRGW6>; Mon, 18 Mar 2002 01:22:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:54459 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312207AbSCRGWq>;
-	Mon, 18 Mar 2002 01:22:46 -0500
-Date: Sun, 17 Mar 2002 22:19:23 -0800 (PST)
-Message-Id: <20020317.221923.118544685.davem@redhat.com>
-To: mfedyk@matchmail.com
-Cc: alan@lxorguk.ukuu.org.uk, davids@webmaster.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC2385 (MD5 signature in TCP packets) support
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020318050618.GC2254@matchmail.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S312213AbSCRGfC>; Mon, 18 Mar 2002 01:35:02 -0500
+Received: from rj.sgi.com ([204.94.215.100]:46566 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S312212AbSCRGep>;
+	Mon, 18 Mar 2002 01:34:45 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jason Li <jli@extremenetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EXPORT_SYMBOL doesn't work 
+In-Reply-To: Your message of "Sun, 17 Mar 2002 22:25:16 -0800."
+             <3C95884C.DCD11F6F@extremenetworks.com> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 18 Mar 2002 17:34:35 +1100
+Message-ID: <2643.1016433275@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Mike Fedyk <mfedyk@matchmail.com>
-   Date: Sun, 17 Mar 2002 21:06:18 -0800
-   
-   ... You'd have to use netfilter to mark the correct packets, then route on
-   that mark to the dummy interface.
-   
-   How is that more efficient?
-   
-You can bind sockets to specific devices under Linux, this does not
-require netfilter.
+On Sun, 17 Mar 2002 22:25:16 -0800, 
+Jason Li <jli@extremenetworks.com> wrote:
+>int (*fdbIoSwitchHook)(
+>                           unsigned long arg0,
+>                           unsigned long arg1,
+>                           unsigned long arg2)=NULL;
+>EXPORT_SYMBOL(fdbIoSwitchHook);
+>gcc -D__KERNEL__ -I/home/jli/cvs2/exos/linux/include -Wall
+>-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+>-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+>-march=i686    -c -o br_ioctl.o br_ioctl.c
+>br_ioctl.c:26: warning: type defaults to `int' in declaration of
+>`EXPORT_SYMBOL'
+
+#include <linux/module.h>
+
+Also add br_ioctl.o to export-objs in Makefile.
+

@@ -1,31 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287809AbSAAKgH>; Tue, 1 Jan 2002 05:36:07 -0500
+	id <S286238AbSAALBx>; Tue, 1 Jan 2002 06:01:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287807AbSAAKfw>; Tue, 1 Jan 2002 05:35:52 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12563 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287800AbSAAKfP>; Tue, 1 Jan 2002 05:35:15 -0500
-Subject: Re: Why would a valid DVD show zero files on Linux?
-To: bryce@obviously.com (Bryce Nesbitt)
-Date: Tue, 1 Jan 2002 10:46:01 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        Lionel.Bouton@free.fr (Lionel Bouton), Andries.Brouwer@cwi.nl
-In-Reply-To: <3C307464.2253E26@obviously.com> from "Bryce Nesbitt" at Dec 31, 2001 09:21:24 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LMQj-0008Hv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S287801AbSAALBp>; Tue, 1 Jan 2002 06:01:45 -0500
+Received: from ALyon-202-1-3-150.abo.wanadoo.fr ([217.128.237.150]:30118 "EHLO
+	alph") by vger.kernel.org with ESMTP id <S286238AbSAALBe>;
+	Tue, 1 Jan 2002 06:01:34 -0500
+Subject: Re: New tree started ;)
+From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C318DCE.8020105@drugphish.ch>
+In-Reply-To: <1009835143.7667.0.camel@ohdarn.net> 
+	<3C318DCE.8020105@drugphish.ch>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-vwzG4//9fPCQ/+uV3jPp"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 01 Jan 2002 12:01:49 +0100
+Message-Id: <1009882909.2559.76.camel@alph>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Understood.   However, why can't that combination "just work"?  Changing
-> /etc/fstab every time I switch between sticking in a CD-ROM and DVD-ROM is not cool.
-> Certainly that "other operating system" does not make me do that.
 
-man fstab
-man ln
+--=-vwzG4//9fPCQ/+uV3jPp
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Its not a hard problem to solve that one
+On Tue, 2002-01-01 at 11:22, Roberto Nibali wrote:
+> Hello Michael,
+>=20
+> Thanks for doing this. Could you tell me which criteria you have to
+> choose patches to go in? I see grsecurity in the to be merged queue
+> which is not likely to ever go into 2.4.x. It's more likely to be=20
+> converted to the LSM framework (parts of it if still needed) and then=20
+> integrated into 2.5.x.
+
+AFAICT, the grsecurity patch include the Solar Designer non executable
+patch. And AFAICT, this one won't be included in the main kernel tree.
+
+My point is that this patch is against previously taken decision. So why
+would it be included in such a tree ?
+
+[...]
+
+--=20
+Yoann Vandoorselaere
+http://www.prelude-ids.org
+
+--=-vwzG4//9fPCQ/+uV3jPp
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8MZcc4tfUv0C+vv8RAo9oAKC/lNDHn5T/mKzuavcEHddXckoaMgCeMa4S
+vWmSQ12fRhpLDl+7bwAyn9k=
+=QErN
+-----END PGP SIGNATURE-----
+
+--=-vwzG4//9fPCQ/+uV3jPp--
+

@@ -1,44 +1,92 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317717AbSFLPH5>; Wed, 12 Jun 2002 11:07:57 -0400
+	id <S317722AbSFLPU6>; Wed, 12 Jun 2002 11:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317718AbSFLPH4>; Wed, 12 Jun 2002 11:07:56 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:44721 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317717AbSFLPHy>; Wed, 12 Jun 2002 11:07:54 -0400
-Date: Wed, 12 Jun 2002 08:06:58 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Robert Love <rml@tech9.net>,
-        Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-        akpm@zip.com.au
-Subject: Re: [PATCH] CONFIG_NR_CPUS, redux
-Message-ID: <3215445436.1023869217@[10.10.2.3]>
-In-Reply-To: <1023820116.22156.271.camel@sinai>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S317723AbSFLPU5>; Wed, 12 Jun 2002 11:20:57 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:26069 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317722AbSFLPU4>; Wed, 12 Jun 2002 11:20:56 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] Futex Asynchronous Interface
+Date: Wed, 12 Jun 2002 10:19:22 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E17I0ji-0004xO-00@wagner.rustcorp.com.au> <3D071153.9020607@loewe-komp.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020612152042.27C463FE09@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ugh let's stop this thread now.  Two points:
-> 
-> 	(a) imo, the kernel should support out-of-the-box the maximum
-> 	    number of CPUs it can handle.  Be lucky we now have a
-> 	    configure option to change that.  But that does not matter..
-> 
-> 	(b) Right now it is 32.  Now you can change it... if you want
-> 	    to change the current behavior by _default_ why don't we
-> 	    suggest that _after_ this is accepted into 2.5?  I.e., one
-> 	    battle at a time.
+On Wednesday 12 June 2002 05:16 am, Peter Wächtler wrote:
+> Rusty Russell wrote:
+> > In message <Pine.LNX.4.44.0206110951380.2712-100000@home.transmeta.com>
+> > you wri
+> >
+> > te:
+> >>Rusty,
+> >> this makes no sense:
+> >>
+> >>D: This changes the implementation so that the waker actually unpins
+> >>D: the page.  This is preparation for the async interface, where the
+> >>D: process which registered interest is not in the kernel.
+> >>
+> >>Whazzup? The closing of the fd will unpin the page, the waker has no
+> >>reason to do so. It is very much against the linux philosophy (and a
+> >>design disaster anyway) to have the waker muck with the data structures
+> >> of anything waiting.
+> >
+> > Good catch: now the fd is a "one-shot" thing anyway, making close
+> > unpin the page makes more sense.  Tested patch below (against 2.5.21).
+> >
+> > FYI: I already violate this philosophy as I remove the waiter from the
+> > queue when I wake them: this allows them to tell that they were woken
+> > (waker does a list_del_init() on the waiting entry, so waiting knows
+> > if (list_empty()) I was woken).
+> >
+> > It would be more natural for the waiter to examine the futex value,
+> > and if it's still unchanged go back to sleep.  But this makes
+> > assumptions about what they're using the futex value for.  For
+> > example, we "PASS_THIS_DIRECTLY" value into the futex.  This requires
+> > that one (and ONLY one) process waiting actually wakes up.
+> >
+> > This is why coming up with a primitive which allowed us to build posix
+> > threads and fair queueing as well as "normal" unfair semantics took so
+> > damn long.
+>
+> What are the plans on how to deal with a waiter when the lock holder
+> dies abnormally?
+>
+> What about sending a signal (SIGTRAP or SIGLOST), returning -1 and
+> setting errno to a reasonable value (EIO?)
+>
+> I couldn't find anything in susv3
 
-Indeed. And before that gets changed, it would be necessary
-to change the bootstrap procedure not to crash if you have
-more than NR_CPUS cpus (as Andrew reported it did), but instead 
-to just not configure them ... much less troublesome.
+I thing this was decided some time ago that we won't deal with this situation.
+If we need to, the following needs to happen.
 
-M.
+A) we need to follow a protocol to register the PID/TID id within the lock.
+    Example of this is described in 
+	"Recoverable User-Level Mutual Exclusion" by Phiilip Bohannon
+            Proceedings of the 7th IEEE Symposium on Parallel and Distributed 
+            Systems, 1995.
 
+B) this again requires that some entity (kernel ?) knows about all locks, 
+whether waited on in the kernel or not.
+
+C) I believe we need a deamon that occasinally identifies dead locks.
+
+Is it worth all this trouble? Or do we need two versions of the ?
+
+The paper describes that for a Sun SS20/61 the safe spin locks obtained
+only 25% of the performance of spinlocks.
+
+
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUHUTYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267685AbUHUTZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267678AbUHUTYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 15:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267682AbUHUTYQ
+	id S267685AbUHUTZl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 15:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUHUTZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 15:24:16 -0400
-Received: from [138.15.108.3] ([138.15.108.3]:49123 "EHLO mailer.nec-labs.com")
-	by vger.kernel.org with ESMTP id S267678AbUHUTYO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 15:24:14 -0400
-Message-ID: <4127A15C.1010905@nec-labs.com>
-Date: Sat, 21 Aug 2004 15:24:12 -0400
-From: Lei Yang <leiyang@nec-labs.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Problems compiling kernel modules
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 21 Aug 2004 15:25:40 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:41614 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S267685AbUHUTZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 15:25:27 -0400
+Subject: Re: 2.6.8.1-mm3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20040821191417.GA3402@beaverton.ibm.com>
+References: <200408211838.i7LIcUdl025108@harpo.it.uu.se> 
+	<20040821191417.GA3402@beaverton.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Aug 2004 19:24:04.0190 (UTC) FILETIME=[6B935FE0:01C487B4]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 21 Aug 2004 15:24:56 -0400
+Message-Id: <1093116298.2092.388.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sat, 2004-08-21 at 15:14, Patrick Mansfield wrote:
+> Looks like it will be hit for any scsi removable media, the removable
+> media check in sd.c sd_media_changed() uses SCSI_IOCTL_TEST_UNIT_READY.
 
-I was trying to compile a kernel module with kbuild. The module 'test.c' 
-include a header file 'fred.h' and there is a "#include <stdio.h>" in 
-'fred.h'.
+Yes, I'm in two minds about this one.
 
-Makefile looks like:
+Either we could provide a helper routine to do it and convert all the
+internal uses over, or we could define a new ioctl that is correctly
+unique, something like
 
-------------------------------------------------------------------------
-ifneq ($(KERNELRELEASE),)
-obj-m       := test.o
+#define SCSI_TEST_UNIT_READY	_IOR('S', 8, int)
+or perhaps just 0x5388
 
-else
-KDIR        := /usr/src/linux
-PWD         := $(shell pwd)
+and convert the internal users over to it.
 
-default:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
-	
+Opinions?
 
-clean:
-	rm -f *.o *.ko *.mod.c *.mod.o \
-	.test.o.cmd .test.ko.cmd .test.mod.o.cmd
-	rm -rf .tmp_versions
-endif
+James
 
--------------------------------------------------------------------------
-But upon compiling, there would be errors like this:
-In file included from /home/lei/test.c:49:
-/home/lei/fred.h:4:19: stdio.h: No such file or directory
 
-and a lot of undeclared names follow which I assume is from stdio.h.
-
-Could anyone point out what's wrong here?
-
-TIA!
-
-Lei

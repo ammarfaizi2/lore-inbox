@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbRGNSJd>; Sat, 14 Jul 2001 14:09:33 -0400
+	id <S264632AbRGNSFC>; Sat, 14 Jul 2001 14:05:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264669AbRGNSJX>; Sat, 14 Jul 2001 14:09:23 -0400
-Received: from t2.redhat.com ([199.183.24.243]:1523 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S264644AbRGNSJQ>; Sat, 14 Jul 2001 14:09:16 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010715045842.B6963@weta.f00f.org> 
-In-Reply-To: <20010715045842.B6963@weta.f00f.org>  <20010715031815.D6722@weta.f00f.org> <200107141414.f6EEEjQ05792@ns.caldera.de> <17573.995129225@redhat.com> 
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Christoph Hellwig <hch@caldera.de>,
-        Gunther Mayer <Gunther.Mayer@t-online.de>, paul@paulbristow.net,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy) 
+	id <S264644AbRGNSEv>; Sat, 14 Jul 2001 14:04:51 -0400
+Received: from geos.coastside.net ([207.213.212.4]:51673 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S264632AbRGNSEh>; Sat, 14 Jul 2001 14:04:37 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 14 Jul 2001 19:09:13 +0100
-Message-ID: <19235.995134153@redhat.com>
+Message-Id: <p05100309b77639cfaced@[207.213.214.37]>
+In-Reply-To: <3B5083AE.71515696@mandrakesoft.com>
+In-Reply-To: <E15LTIY-0001Ul-00@the-village.bc.nu>
+ <3B5083AE.71515696@mandrakesoft.com>
+Date: Sat, 14 Jul 2001 11:04:27 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: __KERNEL__ removal
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 1:38 PM -0400 2001-07-14, Jeff Garzik wrote:
+>Alan Cox wrote:
+>>  Jeff Garzik wrote:
+>>  > it would be nice to remove __KERNEL__ from at least the i386
+>>  > kernel headers in 2.5, and I think it's a doable task...
+>>
+>>  That just generates work for the glibc folks when they are working 
+>>off copies
+>>  of kernel header snapshots as they need to
+>
+>It is a flag day change so it generates [a lot of] work once... it has
+>always been policy that userspace shouldn't be including kernel
+>headers.  uClibc and now dietlibc are following this policy.
+>
+>IMHO we have made an exception for glibc for long enough...
 
-cw@f00f.org said:
->  If it changes vmlinux by a single byte, I might agree.... all it does
-> is close off and older depricated API.
+I take it the policy JG is referring to applies to including any 
+kernel header files at all in userspace programs, and that __KERNEL__ 
+removal is a mere consequence of that policy.
 
-Why is the sane API deprecated in favour of the implementation-specific one?
+AC points out that syscall interfaces in glibc are a reasonable 
+exception to that policy.
 
-If we must standardise on a single header file to include, surely we should
-do it the other way round?
+What about a header like ethtool.h? Isn't its whole reason for 
+existing to provide a common ABI for ethtool.c and the various 
+drivers that support it?
 
-Index: include/linux/slab.h
-===================================================================
-RCS file: /inst/cvs/linux/include/linux/slab.h,v
-retrieving revision 1.1.1.1.2.12
-diff -u -r1.1.1.1.2.12 slab.h
---- include/linux/slab.h	2001/06/08 22:41:51	1.1.1.1.2.12
-+++ include/linux/slab.h	2001/07/14 18:08:37
-@@ -4,6 +4,10 @@
-  * (markhe@nextd.demon.co.uk)
-  */
- 
-+#ifndef _LINUX_MALLOC_H
-+#warning Please do not include linux/slab.h directly, use linux/malloc.h instead.
-+#endif
-+
- #if	!defined(_LINUX_SLAB_H)
- #define	_LINUX_SLAB_H
- 
+Likewise sockios.h, which ethtool (and no doubt many others) also 
+#includes. Unless you're going to encapsulate all possible ioctl 
+interfaces into libc, sockios.h (for example) provides a piece of the 
+ABI that's needed by the user code, not just by libc. Why would it 
+make sense to require retyping of this stuff?
 
-
---
-dwmw2
-
-
+If, on the other hand, the argument is that user-kernel ABI 
+definitions should be isolated in their own headers, and not mixed up 
+(hence __KERNEL__), that's a much more restricted argument. My 
+impression is that this is *not* the argument though; is it?
+-- 
+/Jonathan Lundell.

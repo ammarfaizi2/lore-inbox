@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTLLTTo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 14:19:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTLLTTo
+	id S261868AbTLLTiD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 14:38:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbTLLTiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 14:19:44 -0500
-Received: from imag.imag.fr ([129.88.30.1]:21936 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S261825AbTLLTTl (ORCPT
+	Fri, 12 Dec 2003 14:38:02 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:20733 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S261868AbTLLTht (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 14:19:41 -0500
-Date: Fri, 12 Dec 2003 20:16:06 +0100
-Mime-Version: 1.0 (Apple Message framework v482)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: PCI lib for 2.4
-From: =?ISO-8859-1?Q?Damien_Courouss=E9?= <damien.courousse@imag.fr>
-To: linux-kernel@vger.kernel.org
+	Fri, 12 Dec 2003 14:37:49 -0500
+Message-ID: <3FDA1AF7.8010604@pacbell.net>
+Date: Fri, 12 Dec 2003 11:45:59 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: Duncan Sands <baldrick@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+References: <Pine.LNX.4.44L0.0312121404110.677-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0312121404110.677-100000@ida.rowland.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <A2ABB06A-2CD7-11D8-8839-00039344321E@imag.fr>
-X-Mailer: Apple Mail (2.482)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Alan Stern wrote:
+> On Fri, 12 Dec 2003, David Brownell wrote:
+>>I'd split step 4 into "4a" (device descriptors) and "4b"
+>>(config descriptors) ... and then re-factor so 1..4a is
+>>the same code as normal khubd enumeration.  ...
+> 
+> Sure.  Although depending how you do it, step 3 might be different (reuse 
+> the old address vs. assign a new address).  Also the failure paths will be 
+> different.  But that could all be handled with proper refactoring.
 
-I'm a rookie in Linux development, and I have to develop a small driver 
-for a data-acquisition card on PCI port.
+That logic has always been a bit strange -- picking out the
+address _before_ it starts the reset/set_address/get_descriptor
+code.  Here's where that strangeness actually helps ... :)
 
-My problem is that my compiler does not recognize some functions such as 
-'pci_resource_start()', or 'pci_find_device()' ...
 
-I used option  'gcc [...] -lpci' in order to link with pci lib, but 
-that's not better. It seems that I have many different versions of the  
-pci.h file : /usr/src/linux2.4.18-14/include/linux/pci/h is much bigger 
-and much more complete, and more interesting (or it seems to be) than my 
-/usr/include/linux/pci.h one, or even /usr/include/driver/pci/pci.h one.
+>>That would also reduce the length of time the address0_sem
+>>is held,
+> 
+> 
+> It would?  How so?
 
-If I do a 'locate pci.a', and then a 'grep pci_resource 
-filed-returned-by-locate', I do not have anything. That could mean the 
-functions I look for do not exist in my lib.
+It would be dropped after the address is assigned (the bus
+no longer has an "address zero") ... rather than waiting
+until after the device was configured and all its interfaces
+were probed.  I think that's the issue Oliver alluded to in
+his followup to your comment.
 
-What do I have to do if I wan't to use the .../src/linux2.4.18... one?
+- Dave
 
-Thanks for any help.
-
-Please tell me if linux-kernel list does not directly concern my problem 
-or if there others that fit better.
-
-Damien
 

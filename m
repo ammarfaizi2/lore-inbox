@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261388AbRERSWb>; Fri, 18 May 2001 14:22:31 -0400
+	id <S261424AbRERS0v>; Fri, 18 May 2001 14:26:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261405AbRERSWV>; Fri, 18 May 2001 14:22:21 -0400
-Received: from mail.netscreen.com ([63.126.135.15]:25478 "EHLO
-	mail.netscreen.com") by vger.kernel.org with ESMTP
-	id <S261388AbRERSWL>; Fri, 18 May 2001 14:22:11 -0400
-Message-ID: <A33AEFDC2EC0D411851900D0B73EBEF766DCDC@NAPA>
-From: Hua Ji <hji@netscreen.com>
-To: linux-kernel@vger.kernel.org
-Subject: FW: About swapper_page_dir and processes' page directory
-Date: Fri, 18 May 2001 11:19:23 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261430AbRERS0l>; Fri, 18 May 2001 14:26:41 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:26633 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S261424AbRERS03>;
+	Fri, 18 May 2001 14:26:29 -0400
+Date: Fri, 18 May 2001 14:25:08 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Message-ID: <20010518142508.B16093@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010518123413.I14309@thyrsus.com> <E150o7n-0007PV-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E150o7n-0007PV-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 18, 2001 at 06:33:15PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Folks,
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> Do you really believe anyone would be dumb enough to delete them out of spite
+> or to further your political machinations if they could both handle the same
+> configuration language.
 
-Get a question today. Thanks in advance.
+That's a big "if" which I don't think is ever going to happen.  The
+CML1 and CML2 languages are nowhere near semantically equivalent.  I
+know them both intimately, and bridging the gap is a much harder
+problem than you seem prepared to realize.
 
-As we know, vmalloc and other memory allocation/de-allocation will
-change/update
-the swapper_page_dir maintain by the kernel. 
+They look closer together than they are, because you can superficially
+map individual features between them (CML2 derivations look like CML1
+defines, for example).  The big difference is subtler, and has to do with
+the difference between a control language and a constraint language.  As
+a result, there are things you can easily do in CML2 that you can't 
+practically speaking do in CML1.
 
-I am wondering when/how the kernel synchronzie the change to user level
-processes' page
-directory entries from the 768th to the 1023th.
+For CML1 and CML2 to handle the same language, we would either have
+to live with the CML1 language's limitations or retrofit the old tools
+to speak CML2 language.  The chance of the latter happening is, I think
+we can agree, effectively zero.
 
-Those entries get copied from swapper_page_dir when a user process get
-forked/created. Does the kernel
-frequently update this information every time when the swapper_page_dir get
-changed?
+I know you've talked about parsing CML1 into constraints with
+backtracking.  Maybe you're smart enough to do that.  I'm not.  I
+tried that route early on.  I predict that if you do, you'll
+experience a great deal of suffering, acquire a valuable education,
+and get no good result.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Regards,
-
-Mike
- 
+The common argument that crime is caused by poverty is a kind of
+slander on the poor.
+	-- H. L. Mencken

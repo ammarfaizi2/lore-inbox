@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVCLMll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVCLMnA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVCLMll (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 07:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVCLMll
+	id S261737AbVCLMnA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 07:43:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVCLMnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 07:41:41 -0500
-Received: from tornado.reub.net ([60.234.136.108]:65248 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S261454AbVCLMli (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 07:41:38 -0500
-Message-Id: <6.2.1.2.2.20050313011529.01c77168@tornado.reub.net>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.2
-Date: Sun, 13 Mar 2005 01:41:37 +1300
-To: Andrew Morton <akpm@osdl.org>
-From: Reuben Farrelly <reuben-lkml@reub.net>
-Subject: Re: 2.6.11-mm3
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050312034222.12a264c4.akpm@osdl.org>
-References: <20050312034222.12a264c4.akpm@osdl.org>
+	Sat, 12 Mar 2005 07:43:00 -0500
+Received: from adsl-166-231.38-151.net24.it ([151.38.231.166]:22282 "HELO
+	gateway.milesteg.arr") by vger.kernel.org with SMTP id S261737AbVCLMmZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 07:42:25 -0500
+Date: Sat, 12 Mar 2005 13:42:21 +0100
+From: Daniele Venzano <venza@brownhat.org>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       NetDev <netdev@oss.sgi.com>
+Subject: Maintainer change for the sis900 driver
+Message-ID: <20050312124221.GA2368@gateway.milesteg.arr>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	NetDev <netdev@oss.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:42 a.m. 13/03/2005, Andrew Morton wrote:
 
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm3/
->
->
->- A new version of the "acpi poweroff fix".  People who were having trouble
->   with ACPI poweroff, please test and report.
->
->- A very large update to the CFQ I/O scheduler.  Treat with caution, run
->   benchmarks.  Remember that the I/O scheduler can be selected on a per-disk
->   basis with
->
->         echo as > /sys/block/sda/queue/scheduler
->         echo deadline > /sys/block/sda/queue/scheduler
->         echo cfq > /sys/block/sda/queue/scheduler
->
->- video-for-linux update
+--Pd0ReVV5GZGQvF3a
+Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
+Content-Disposition: inline
 
 
-Ugh, NTFS is br0ken:
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-   CC [M]  fs/ntfs/attrib.o
-fs/ntfs/attrib.c: In function 'ntfs_attr_make_non_resident':
-fs/ntfs/attrib.c:1295: warning: implicit declaration of function 
-'ntfs_cluster_alloc'
-fs/ntfs/attrib.c:1296: error: 'DATA_ZONE' undeclared (first use in this 
-function)
-fs/ntfs/attrib.c:1296: error: (Each undeclared identifier is reported only once
-fs/ntfs/attrib.c:1296: error: for each function it appears in.)
-fs/ntfs/attrib.c:1296: warning: assignment makes pointer from integer 
-without a cast
-fs/ntfs/attrib.c:1435: warning: implicit declaration of function 
-'flush_dcache_mft_record_page'
-fs/ntfs/attrib.c:1436: warning: implicit declaration of function 
-'mark_mft_record_dirty'
-fs/ntfs/attrib.c:1443: warning: implicit declaration of function 
-'mark_page_accessed'
-fs/ntfs/attrib.c:1521: warning: implicit declaration of function 
-'ntfs_cluster_free_from_rl'
-make[2]: *** [fs/ntfs/attrib.o] Error 1
-make[1]: *** [fs/ntfs] Error 2
-make: *** [fs] Error 2
+The attached patch updates the sis900 record of MAINTAINERS file.
 
-Compile goes through to completion fine if I back out bk-ntfs.patch.
+Signed-off-by: Daniele Venzano <venza@brownhat.org>
 
-Using gcc-4, but this problem did not exist in -mm2.
+-- 
+-----------------------------
+Daniele Venzano
+Web: http://www.brownhat.org
 
-reuben
 
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sis900_maintainer.diff"
+
+--- a/MAINTAINERS	2005-03-12 11:40:46.000000000 +0100
++++ b/MAINTAINERS	2005-03-12 11:44:39.000000000 +0100
+@@ -2017,10 +2017,11 @@
+ S:	Maintained
+ 
+ SIS 900/7016 FAST ETHERNET DRIVER
+-P:	Ollie Lho
+-M:	ollie@sis.com.tw
++P:	Daniele Venzano
++M:	venza@brownhat.org
++W:	http://www.brownhat.org/sis900.html
+ L:	linux-net@vger.kernel.org
+-S:	Supported
++S:	Maintained
+ 
+ SIS FRAMEBUFFER DRIVER
+ P:	Thomas Winischhofer
+
+--6c2NcOVqGQ03X4Wi--
+
+--Pd0ReVV5GZGQvF3a
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCMuOt2rmHZCWzV+0RAtK3AJ9ksAjE51pz+JxA3hyZAhlbU+DcPACfSWeF
+Tj+GrgfJj/hVHHy84hTKAFQ=
+=+yWa
+-----END PGP SIGNATURE-----
+
+--Pd0ReVV5GZGQvF3a--

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317735AbSHMRs1>; Tue, 13 Aug 2002 13:48:27 -0400
+	id <S318995AbSHMRvo>; Tue, 13 Aug 2002 13:51:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318984AbSHMRs1>; Tue, 13 Aug 2002 13:48:27 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:51723 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317735AbSHMRs0>; Tue, 13 Aug 2002 13:48:26 -0400
-Date: Tue, 13 Aug 2002 18:52:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch 2/21] reduced locking in buffer.c
-Message-ID: <20020813185213.A17449@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@zip.com.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	lkml <linux-kernel@vger.kernel.org>,
-	"David S. Miller" <davem@redhat.com>
-References: <3D561473.40A53C0D@zip.com.au> <Pine.LNX.4.44.0208131032210.7411-100000@home.transmeta.com> <3D5947B7.EDE01C2E@zip.com.au>
-Mime-Version: 1.0
+	id <S318996AbSHMRvo>; Tue, 13 Aug 2002 13:51:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13326 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318995AbSHMRvW>;
+	Tue, 13 Aug 2002 13:51:22 -0400
+Message-ID: <3D594A68.88807CEE@zip.com.au>
+Date: Tue, 13 Aug 2002 11:05:28 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kwaitd, 2.5.31-A1
+References: <3D59436F.3DFAFA36@zip.com.au> <Pine.LNX.4.44.0208131928320.4369-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D5947B7.EDE01C2E@zip.com.au>; from akpm@zip.com.au on Tue, Aug 13, 2002 at 10:53:59AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 10:53:59AM -0700, Andrew Morton wrote:
-> I have discussed it with David - he said it's OK in 2.5, but
-> not in 2.4, and he has eyeballed the diff.
+Ingo Molnar wrote:
 > 
-> However there's another thing to think about:
+> On Tue, 13 Aug 2002, Andrew Morton wrote:
 > 
-> 	local_irq_disable();
-> 	atomic_inc();
+> > > the reaping of the thread is thus not done by the parent (or init), but by
+> > > per-CPU [kwaitd] kernel threads. The exiting thread queues itself always
+> > > to the CPU-local kwaitd queue, to maintain locality of reference and cheap
+> > > switching to kwaitd.
+> >
+> > I'd be inclined to agree with hch on that.  We have an awful lot of
+> > kernel threads nowadays, and keventd would fill the bill.
 > 
-> If the architecture implements atomic_inc with spinlocks, this will
-> schedule with interrupts off with CONFIG_PREEMPT=y, I expect.
-> 
-> I can fix that with a preempt_disable() in there, but ick.
+> i agree. What i did was i looked at the kernel-source as-is, and there was
+> no mechanism to do this properly so i took a different approach. Could
+> anyone send me per-CPU keventd patches? The thread-exit path is pretty
+> timing-critical, the current global keventd spinlock does not work.
 
-Is there a reason you can't just use brlocks?
+I think Arjan has them, or the AIO patch.
+
+> ...
+> > And a question: is it not possible to make the exitting task just go and
+> > reap itself?  If it's a matter of freeing the stack pages we could just
+> > add the page to a per-cpu deferred freeing list and reap it in page
+> > reclaim.
+> 
+> well, yes - but i dislike deferred freeing lists, it's always a problem
+> where to free the RAM for real. It didnt really work for bhs, it didnt
+> really work for other items either. And we have this nice lazy-TLB
+> mechanism for kernel threads so it's really a non-issue to use them.
+
+Well what we can do in there is to just have a one-deep percpu list.
+So the exitting task frees the previous thread's stack (if any)
+and inserts its own stack.  And that stack can be used in fork, of
+course.  Which gives some per-cpu LIFO stack allocation.
+
+It would mean that the thread would have to exit with preempt disabled,
+but AFAIK that's just a matter of fixing or deleting that debug warning.

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbTDYL6v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 07:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263892AbTDYL6v
+	id S263909AbTDYMC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 08:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTDYMCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 07:58:51 -0400
-Received: from [80.190.48.67] ([80.190.48.67]:7686 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263891AbTDYL6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 07:58:50 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: andersen@codepoet.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA and 2.4.x
-Date: Fri, 25 Apr 2003 14:10:31 +0200
-User-Agent: KMail/1.5.1
-References: <20030424212508.GI14661@codepoet.org> <200304251401.36430.m.c.p@wolk-project.de>
-In-Reply-To: <200304251401.36430.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 25 Apr 2003 08:02:25 -0400
+Received: from charentes.fr.clara.net ([212.43.194.76]:22287 "EHLO
+	charentes.fr.clara.net") by vger.kernel.org with ESMTP
+	id S263909AbTDYMCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 08:02:22 -0400
+Date: Fri, 25 Apr 2003 14:13:23 +0200
+From: Yves Colombani <yc@dash.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20: kbd/mouse problem (PS/2?)
+Message-Id: <20030425141323.30e03119.yc@dash.co.uk>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304251410.31701.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 April 2003 14:01, Marc-Christian Petersen wrote:
+Hello,
 
-Hi again,
+I am having trouble with keyboard and mouse using Linux 2.4.20:
+- the keyboard is a Logitech Internet Navigator and the mouse
+  is a Logitech MX300: both can be plugged to usb but I use PS2
+- the PC is a Dell 650 dual Xeon at 2.4Ghz with MPT SCSI controler
+- I compiled the kernel from the original source plus:
+  + update of the mpt driver (2.03.00)
+  + patch-o-matic to add support for PPTP (but modules of netfilter
+    are currently not loaded)
 
-> > I was crazy enough to take ALSA 0.9.2 and made it into a patch vs
-> > 2.4.x a week or two ago.  I just prefer to have ALSA be part of
-> > the kernel rather than needing to compile it seperately all the
-> > time.  The patch, along with various other things, is included as
-> > part of my 2.4.21-rc1-erik kernel:
-> Are you sure that this is 0.9.2 ALSA? I am afraid it is 0.9.0-rc6.
-this looks _very_ similar to the patch I had in WOLK4 some time ago and it was 
-0.9.0-rc6.
+During boot the machine reports:
+ keyboard: Timeout - AT keyboard not present?(00)
 
+but seems to start correctly.
+When I start X, the mouse does not work: to get it working I have to switch
+to another terminal (using ctrl-alt-F1) then back to the graphical environement.
+It seems that some initialisation is not performed correctly at this point
+(maybe from the X server side?). If I disable numlock before starting X, the
+mouse works.
 
-ciao, Marc
+Sometimes I get further 'keyboard: Timeout - AT keyboard not present?(XX)'
+with various values for XX (ed,f4,02,04).
+Finally I have 'lost' the keyboard a couple of times: when starting X or
+after a period of inactivity. In such cases, unplugging and reconnecting
+the keyboard fixes the problem (I am not sure this is something to do!).
+Today the machine crashed after I pressed 'numlock'.
+
+I noticed that someone reported a similar problem also on a Dell PC: could
+it be related to the BIOS on these machines?
+
+Thanks for your help,
+Yves.

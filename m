@@ -1,59 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTLBLP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 06:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTLBLP0
+	id S261799AbTLBLeH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 06:34:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTLBLeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 06:15:26 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:63906 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261893AbTLBLPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 06:15:23 -0500
-Message-Id: <200312021114.hB2BEtK25637@zeus.kernel.org>
-From: "Mr. Smith Ulu" <smithulu@netscape.net>
-To: linux-kernel@vger.kernel.org
-Reply-To: smithulu@zwallet.com
-Subject: Soliciting For Business Venture and Partnership. 
-Date: Tue, 02 Dec 2003 03:26:48 -0800
+	Tue, 2 Dec 2003 06:34:07 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:65448 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261799AbTLBLeC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 06:34:02 -0500
+Date: Tue, 2 Dec 2003 09:18:26 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Nathan Scott <nathans@sgi.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: XFS for 2.4
+In-Reply-To: <20031201221058.GA621@frodo>
+Message-ID: <Pine.LNX.4.44.0312020858320.13692-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="e6fbe19d-aa64-40f0-a4c2-7139fc0f1f55"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format
---e6fbe19d-aa64-40f0-a4c2-7139fc0f1f55
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-From: Mr. Smith Ulu.
-Telephone: 27-73-225-54-25
-Email: smithulu@zwallet.com
+On Tue, 2 Dec 2003, Nathan Scott wrote:
 
-Greetings,
+> On Mon, Dec 01, 2003 at 12:06:14PM -0200, Marcelo Tosatti wrote:
+> > On Mon, 1 Dec 2003, Nathan Scott wrote:
+> > 
+> > > Hi Marcelo,
+> > > 
+> > > Please do a
+> > > 
+> > > 	bk pull http://xfs.org:8090/linux-2.4+coreXFS
+> > > 
+> > > This will merge the core 2.4 kernel changes required for supporting
+> > > the XFS filesystem, as listed below.  If this all looks acceptable,
+> > > then please also pull the filesystem-specific code (fs/xfs/*)
+> > > 
+> > > 	bk pull http://xfs.org:8090/linux-2.4+justXFS
+> > 
+> > Nathan, 
+> > 
+> > I think XFS should be a 2.6 only feature.
+> > 
+> > 2.6 is already stable enough for people to use it. 
+> > 
+> 
+> Hi Marcelo,
+> 
+> Please reconsider -- the "core" kernel changes we need have existed
+> for three+ years outside of the mainline tree, and each is a small
+> and easily understood change that doesn't affect other filesystems.
+> There is also a VFS fix in there from Ethan Benson, as we discussed
+> during 2.4.23-pre, when you asked us to resend XFS for 2.4.24-pre!)
+> Everything there is a backport from 2.6 in some form, there should
+> be no surprises.
 
-I am a financial consultant based in port Elizabeth, South Africa I have a =
-client (a widow) she has USDM14, 000,000 with a private equity investment =
-trust company for safekeeping. And she is willing to offer you 30% of the =
-total fund if you can assist her transfer this fund to your country or any =
-bank of your wish. 
+Nathan,
 
-She wishes to invest in a stable economy. Her interest is in companies or a =
-private individual who has an experience in investment managements and =
-stability with potentials for rapid growth in long terms. My client is =
-interested in placing part of her fund in your company or any nice and sweet =
-able place where she can invest on, Or if your country bi-laws allows foreign =
-investment.
+I remember I have said to you "resend me XFS for 2.4.24-pre". A changed my 
+mind since then...
 
-You can contact me for more details via my e-mail address with your reference =
-or you can as well give me an urgent call.
+> Not having XFS in 2.4 is extremely disadvantageous for us XFS folks
+> (especially since every other journaled filesystem has been merged
+> now).  
 
-Yours faithfully,
+JFS did not touch generic code as I remember.
 
-Mr. Smith Ulu.
+> To our users it means some rescue disks simply don't support
+> XFS, meaning you can't mount filesystems when you _really_ need to,
+> etc, etc.  Its also always extra work for distributors to merge XFS
+> themselves, and hence a few just don't (and occasionally tell us
+> that they are waiting for you to merge it) - which means some users
+> don't even get the option of using XFS, despite our best efforts.
 
- N: B The fund is free from drug and laundering related offences and this =
-transaction need utmost confidentiality.  
---e6fbe19d-aa64-40f0-a4c2-7139fc0f1f55--
+Come one, it is not so hard to maintain a patch in a distros kernel.  
+
+Distros maintain hundreds of patches (even I did maintain hundreds of
+patches while maintaining Conectiva's RPM). One more patch is not that
+hard.
+
+> From discussions with distributors, a stable 2.6 distribution will
+> be many months after 2.6.0 is officially released, so these issues
+> are not going to go away anytime soon.
+
+Fine, so people who want XFS go compile 2.6.0 by hand. I'm using test11 on
+several boxes and its working very well.
+
+And 2.6 is much nicer than 2.4 anyway.
+
+> So, please merge XFS this time round - its actively developed, has
+> a large installed user base, and has been maintained outside of 2.4
+> for a long time.  We have waited patiently as each release goes by
+> for you to give us the nod, and have been knocked back on a number
+> of occasions while various other merges are being done.
+
+Also I'm not completly sure if the generic changes are fine and I dont
+like the XFS code in general.
+
 
 

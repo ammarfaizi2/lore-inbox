@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265777AbUFXWka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265801AbUFXWkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265777AbUFXWka (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 18:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUFXWeT
+	id S265801AbUFXWkb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 18:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUFXWd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 18:34:19 -0400
-Received: from mail.kroah.org ([65.200.24.183]:37558 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265783AbUFXVrY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 18:33:59 -0400
+Received: from mail.kroah.org ([65.200.24.183]:36790 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265777AbUFXVrY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 24 Jun 2004 17:47:24 -0400
-Date: Thu, 24 Jun 2004 14:34:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Backlight and LCD module patches [1]
-Message-ID: <20040624213452.GC2477@kroah.com>
-References: <20040617223514.2e129ce9.zap@homelink.ru> <20040617194739.GA15983@kroah.com> <20040618015504.661a50a9.zap@homelink.ru> <20040617220510.GA4122@kroah.com> <20040618095559.20763766.zap@homelink.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040618095559.20763766.zap@homelink.ru>
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.7
 User-Agent: Mutt/1.5.6i
+In-Reply-To: <10881135682230@kroah.com>
+Date: Thu, 24 Jun 2004 14:46:08 -0700
+Message-Id: <1088113568457@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 09:55:59AM +0400, Andrew Zabolotny wrote:
-> On Thu, 17 Jun 2004 15:05:10 -0700
-> Greg KH <greg@kroah.com> wrote:
-> > Then you need to have a way to corrispond those devices together,
-> > becides just a name.  Use the pointer that you have provided to link
-> > them together some way.
-> 
-> There's no place to stuff that pointer into, because the load order of the
-> framebuffer and lcd/backlight modules are not important (that's the reason for
-> the notification chain), and at the time l/b modules are loaded there can be
-> even no corresponding platform device (on my PDA for example, where platform
-> device is also registered from a module).
-> 
-> How about passing a pointer to struct dev, and a pointer to struct fbinfo to
-> every l/b driver and asking them if they are for this device or not?
+ChangeSet 1.1823.1.8, 2004/06/22 16:57:48-07:00, shemminger@osdl.org
 
-Ick, no.
+[PATCH] PCI: remove duplicate in pci_ids.h
 
-How about just having every l/b driver containing a pointer to the
-fbinfo that it is associated with?  Isn't there some way you can keep
-the pointer that you need around within the place that you need to use
-it from eventually?
+Get rid of duplicate entry, one is in the middle of the file with duplicate
+at the end
 
-thanks,
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-greg k-h
+
+ include/linux/pci_ids.h |    3 ---
+ 1 files changed, 3 deletions(-)
+
+
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	2004-06-24 13:50:01 -07:00
++++ b/include/linux/pci_ids.h	2004-06-24 13:50:01 -07:00
+@@ -2272,6 +2272,3 @@
+ #define PCI_DEVICE_ID_MICROGATE_SCC	0x0020
+ #define PCI_DEVICE_ID_MICROGATE_SCA	0x0030
+ #define PCI_DEVICE_ID_MICROGATE_USC2	0x0210
+-
+-#define PCI_VENDOR_ID_HINT		0x3388
+-#define PCI_DEVICE_ID_HINT_VXPROII_IDE	0x8013
+

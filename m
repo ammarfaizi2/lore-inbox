@@ -1,82 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbTENL0D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 07:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTENL0D
+	id S261842AbTENLg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 07:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTENLg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 07:26:03 -0400
-Received: from pgramoul.net2.nerim.net ([80.65.227.234]:65216 "EHLO
-	philou.aspic.com") by vger.kernel.org with ESMTP id S261500AbTENL0B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 07:26:01 -0400
-Date: Wed, 14 May 2003 13:38:48 +0200
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.68-mm2: Memory & swap issues ?
-Message-Id: <20030514133848.74b8736f.philippe.gramoulle@mmania.com>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.11claws141 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 14 May 2003 07:36:59 -0400
+Received: from nmail1.systems.pipex.net ([62.241.160.130]:38091 "EHLO
+	nmail1.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S261842AbTENLgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 07:36:48 -0400
+To: Steven Cole <elenstev@mesatop.com>
+Subject: Re: 2.6 must-fix list, v2
+Message-ID: <1052912961.3ec22d4114bd0@netmail.pipex.net>
+Date: Wed, 14 May 2003 12:49:21 +0100
+From: "Shaheed R. Haque" <srhaque@iee.org>
+Cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+References: <1050146434.3e97f68300fff@netmail.pipex.net>  <1050177383.3e986f67b7f68@netmail.pipex.net>  <1050177751.2291.468.camel@localhost>  <1050222609.3e992011e4f54@netmail.pipex.net>  <1050244136.733.3.camel@localhost>  <1052826556.3ec0dbbc1d993@netmail.pipex.net>  <20030513130257.78ab1a2e.akpm@digeo.com>  <1052865981.3ec175bd59bc9@netmail.pipex.net> <1052880133.21270.131.camel@spc>
+In-Reply-To: <1052880133.21270.131.camel@spc>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+User-Agent: PIPEX NetMail 2.2.0-pre13
+X-PIPEX-username: aozw65%dsl.pipex.com
+X-Originating-IP: 195.166.116.245
+X-Usage: Use of PIPEX NetMail is subject to the PIPEX Terms and Conditions of use
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+Quoting Steven Cole <elenstev@mesatop.com>:
 
-I just wanted to know if there had been some issues regarding memory and/or swap ?
+> Is this related or not to processor shielding used by RedHawk Linux?
+> Here is a link to their page:
+> 
+> http://www.ccur.com/realtime/sys_rdhwklnx.html
+> 
+> I saw a presentation by these guys over a year ago.  I'm not sure what
+> they're up to now.
 
-I've been running 2.5.68-mm2 for about 3 weeks now:
-
-$ uptime 
- 13:14:43 up 21 days,  2:02, 23 users,  load average: 2.23, 2.25, 2.26
-
-So far, my 600 Mb swap partition is almost full as shown on the following graphs:
-
-http://philou.org/2.5.68-mm2/graph.php.html
-
-dark yellow color is for _remaining_ swap memory.
-
-$ free
-
-             total       used       free     shared    buffers     cached
-Mem:        514452     485336      29116          0       7812      66664
--/+ buffers/cache:     410860     103592
-Swap:       618460     603320      15140
-
-$ cat /proc/meminfo
-
-MemTotal:       514452 kB
-MemFree:         20720 kB
-Buffers:          8200 kB
-Cached:          74148 kB
-SwapCached:      38488 kB
-Active:         412740 kB
-Inactive:        12824 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       514452 kB
-LowFree:         20720 kB
-SwapTotal:      618460 kB
-SwapFree:        15156 kB
-Dirty:            7228 kB
-Writeback:           0 kB
-Mapped:         337808 kB
-Slab:            57520 kB
-Committed_AS:  1023568 kB
-PageTables:       2804 kB
-VmallocTotal:   516040 kB
-VmallocUsed:      3308 kB
-VmallocChunk:   512688 kB
+Yes, if I correctly read the description of this feature, it seems to be the 
+same thing.
 
 
-Usage is typical desktop with many eterms, Opera, mozilla, Pan, Sylpheed , postfix, Enlightenement, xmms etc.. opened all the time.
-Hardware is DELL MT530 ( 1.5Ghz XEON SMP,512 Mo RAM, Debian Unstable , Dual heads with Nvidia opensource nv driver)
 
-Should i look into memory leaks with those programs instead ?
 
-Thanks,
-
-Philippe

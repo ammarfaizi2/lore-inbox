@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263521AbTDTDjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 23:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTDTDjZ
+	id S263522AbTDTEBe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 00:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTDTEBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 23:39:25 -0400
-Received: from mail.gmx.net ([213.165.64.20]:22042 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263521AbTDTDjY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 23:39:24 -0400
-Message-Id: <5.2.0.9.2.20030420054147.01fa78d0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Sun, 20 Apr 2003 05:55:50 +0200
-To: Nick Piggin <piggin@cyberone.com.au>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
-Cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E88024D.5000604@cyberone.com.au>
-References: <5.2.0.9.2.20030331085710.01aa6d30@pop.gmx.net>
- <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net>
- <20030330141404.GG917@suse.de>
- <3E8610EA.8080309@telia.com>
- <1048992365.13757.23.camel@localhost>
- <20030330141404.GG917@suse.de>
- <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net>
- <5.2.0.9.2.20030331085710.01aa6d30@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Sun, 20 Apr 2003 00:01:34 -0400
+Received: from corb.mc.mpls.visi.com ([208.42.156.1]:20660 "EHLO
+	corb.mc.mpls.visi.com") by vger.kernel.org with ESMTP
+	id S263522AbTDTEBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 00:01:33 -0400
+Subject: May be off topic: ioctl I_SETSIG S_INPUT setting not valid for a named
+ pipe?
+To: linux-kernel@vger.kernel.org
+Date: Sat, 19 Apr 2003 23:13:33 -0500 (CDT)
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20030420041333.56A8376CA2@isis.visi.com>
+From: jlb@visi.com (Joel L. Breazeale)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:54 PM 3/31/2003 +1000, Nick Piggin wrote:
+I have a set of programs which practically demonstrate the I_SETSIG ioctl
+command does not work with the S_INPUT constant for a named pipe.  The errno
+value returned by the ioctl call is 22.  Two kernel versions demonstrating
+this problem are 2.4.18-3 and 2.4.20-9.
 
+I have already sent the details of this problem, including the sample
+programs, in a message on 14 Apr 2003 with a subject of "PROBLEM: ioctl()
+I_SETSIG S_INPUT option fails on a FIFO" to this mailing list.  I would be
+glad to send to anyone upon request.
 
->Mike Galbraith wrote:
->
->>At 08:35 AM 3/31/2003 +0200, Jens Axboe wrote:
->>
->>>What drugs are you on? 2.5.65/66 is the worst interactive kernel I've
->>>ever used, it would be _embarassing_ to release a 2.6-test with such a
->>>rudimentary flaw in it. IOW, a big show stopper.
->>
->>
->>It's only horrible when you trigger the problems, otherwise it's wonderful.
->
->Heh heh, yeah the anticipatory io scheduler is like that too ;)
+Here are my questions:
 
-I gave 2.5.67-mm4 a go yesterday, and let it fsck my old 10gig ext3-ified 
-source partition (1k bs, 333k files).  MAJOR improvement over deadline for 
-this job.  With the deadline scheduler, it takes 30 minutes to fsck this 
-partition, and when pdflush starts it's dinky little writes, it sounds like 
-the heads are about to fly through the chassis.  The anticipatory scheduler 
-cuts fsck time in half, and the disk is no longer screams in (seek) 
-agony.  15 minutes still seems like ages when you're waiting, but it beats 
-the HECK out of 30 minutes :)  Nice work.
+  * Is the above ioctl deprecated for named pipes?
+  * Who is the maintainer of this functionality (who presonally is
+    willing to receive a problem report on this matter)?
 
-         -Mike 
+[I would greatly appreciate a personal e-mail on this subject as I may be
+dropping from this mailing list shortly due to volume and apparently lack
+of interest in this subject.]
 
+Thank you,
+Joel Breazeale

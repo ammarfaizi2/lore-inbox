@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277829AbRJLTld>; Fri, 12 Oct 2001 15:41:33 -0400
+	id <S277834AbRJLTqD>; Fri, 12 Oct 2001 15:46:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277832AbRJLTlQ>; Fri, 12 Oct 2001 15:41:16 -0400
-Received: from mailrelay2.inwind.it ([212.141.54.102]:55547 "EHLO
-	mailrelay2.inwind.it") by vger.kernel.org with ESMTP
-	id <S277829AbRJLTlE>; Fri, 12 Oct 2001 15:41:04 -0400
-Message-ID: <000d01c15356$6c2bfec0$0100a8c0@leopoldo>
-From: "Fabio" <fabio.adamo@inwind.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: BUG - Kernel 2.4.12 doesn't compile
-Date: Fri, 12 Oct 2001 21:44:26 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S277836AbRJLTpx>; Fri, 12 Oct 2001 15:45:53 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:63751 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S277834AbRJLTpq>; Fri, 12 Oct 2001 15:45:46 -0400
+Message-Id: <200110121945.f9CJjX0V019814@pincoya.inf.utfsm.cl>
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: crc32 cleanups 
+In-Reply-To: Message from Matt Domsch <Matt_Domsch@dell.com> 
+   of "Fri, 12 Oct 2001 14:11:23 EST." <Pine.LNX.4.33.0110121340140.17295-100000@lists.us.dell.com> 
+Date: Fri, 12 Oct 2001 15:45:32 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use a RH 7.1 ad trying to compile the kernel v. 2.4.12 i get the error you
-can see here:
+Matt Domsch <Matt_Domsch@dell.com> said:
+> In trying to get my EFI GUID Partition Table patch included into the stock
+> kernel, Andreas Dilger suggested it was time for some crc32 cleanup, as
+> the GPT patch added yet another copy of the common crc32 function.  So,
+> here's my first pass at it.  Comments welcome.
 
------------------------------------------------------
-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -DMODULE   -c -o
-share.o share.c
-gcc -D__KERNEL__ -I/usr/local/src/linux-2.4.12/include -Wall -Wstrict-protot
-ypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -DMODULE   -c -o
-ieee1284.o ieee1284.c
-gcc -D__KERNEL__ -I/usr/local/src/linux-2.4.12/include -Wall -Wstrict-protot
-ypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 -DMODULE   -c -o
-ieee1284_ops.o ieee1284_ops.c
-ieee1284_ops.c: In function `ecp_forward_to_reverse':
-ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this
-function)
-ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-ieee1284_ops.c:365: for each function it appears in.)
-ieee1284_ops.c: In function `ecp_reverse_to_forward':
-ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this
-function)
-make[2]: *** [ieee1284_ops.o] Error 1
-make[2]: Leaving directory `/usr/local/src/linux-2.4.12/drivers/parport'
-make[1]: *** [_modsubdir_parport] Error 2
-make[1]: Leaving directory `/usr/local/src/linux-2.4.12/drivers'
-make: *** [_mod_drivers] Error 2
-----------------------------------------------------
+[...]
 
-Thank you & goodbye.
+> This patch (appended below), makes include/linux/crc32.h and
+> lib/crc32.c.  It generates a table based on the commonly used polynomial
+> at init time provided a driver needs it.  It changes ether_crc_le() to use
+> this table.  It renames the commonly seen ether_crc() to be
+> ether_crc_be(), and puts it in crc32.h (allowing lots of copies to be
+> deleted).
 
-Fabio Adamo
-
-
+You could just place the functions (each with its table) into separate .c
+files, and place them in the library. The linker will then include them iff
+they are referenced somewhere. OTOH, they _are_ all over the place right
+now, so they could just be included unconditionally. Thinking of ways to
+set up to have them included in case only modules use them makes me
+shiver...
+-- 
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

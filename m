@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267455AbUIASNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUIASUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267455AbUIASNf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 14:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267421AbUIASMl
+	id S267388AbUIASUX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 14:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267408AbUIASUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 14:12:41 -0400
-Received: from ns.wan-wan.co.jp ([210.236.161.202]:21491 "HELO vger.kernel.org")
-	by vger.kernel.org with SMTP id S267359AbUIASJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 14:09:37 -0400
-To: <linux-kernel@vger.kernel.org>
-From: "Patrick" <taffy21khan@hotmail.com>
-Date: Wed, 01 Sep 2004 18:08:02 GMT
-Message-Id: <1094062082-24200@excite.com>
-Subject: Soma, Prozac, Valium. Discreet. No one needs to know.
-Content-Type: text/plain;
+	Wed, 1 Sep 2004 14:20:23 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:36624 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S267388AbUIASUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 14:20:20 -0400
+To: Chris Wright <chrisw@osdl.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
+X-Message-Flag: Warning: May contain useful information
+References: <20040901072245.GF13749@mellanox.co.il>
+	<20040901073218.GQ16297@parcelfarce.linux.theplanet.co.uk>
+	<52zn4a0ysg.fsf@topspin.com> <20040901110225.D1973@build.pdx.osdl.net>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 01 Sep 2004 11:12:46 -0700
+In-Reply-To: <20040901110225.D1973@build.pdx.osdl.net> (Chris Wright's
+ message of "Wed, 1 Sep 2004 11:02:25 -0700")
+Message-ID: <52656x26zl.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 01 Sep 2004 18:12:47.0016 (UTC) FILETIME=[48B9AA80:01C4904F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Save up to 80% on popular meds!
+    Chris> You forgot a driver specific filesystem which exposes
+    Chris> requests in a file per request type style.  Also, there's a
+    Chris> simple_transaction type of file which can allow you
+    Chris> send/recv data and should eliminate the need for tagging.
+    Chris> Example, look at nfsd fs (fs/nfsd/nfsctl.c).
 
-*** GREAT SPECIALS ***
+Thanks, I'll take a look at this.  How does one handle the 32-bit
+userspace / 64-bit kernel compat layer in this setup?
 
-Check it out: http://www.cpppo2.com/_85924943b9db73ac62baa654773c6a8e/41
-
-- No doctor visits or hassles
-- Quick delivery to your front door
-
-Visit us here: http://www.cpppo2.com/_85924943b9db73ac62baa654773c6a8e/41
-
-
-On medication long term?  
-Buy bulk through us and LITERALLY SAVE THOUSANDS!
-
-
-
-doug metallicasdfghjk moroni barry
-sherry memorynew e-mail moroni oranges new blowfish 
-denali angus angus 
-moomoo lulusupra jazz kathy
-blowfish hanna happyday 
-jared nimrodsuzuki frederic quest
-
-sundance milesresearch sally justin1 gibson jan rux 
+ - R.
 

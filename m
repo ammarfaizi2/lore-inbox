@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269990AbUIDB5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270012AbUIDB6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269990AbUIDB5x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 21:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270012AbUIDB5x
+	id S270012AbUIDB6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 21:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270014AbUIDB6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 21:57:53 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:56958 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269990AbUIDB5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 21:57:51 -0400
-Message-ID: <41392112.7030206@yahoo.com.au>
-Date: Sat, 04 Sep 2004 11:57:38 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
+	Fri, 3 Sep 2004 21:58:24 -0400
+Received: from mx1.magmacom.com ([206.191.0.217]:59578 "EHLO mx1.magmacom.com")
+	by vger.kernel.org with ESMTP id S270012AbUIDB6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 21:58:20 -0400
+Message-ID: <41392139.6010700@magma.ca>
+Date: Fri, 03 Sep 2004 21:58:17 -0400
+From: Nicholas Reilly <nreilly@magma.ca>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [sched] fix sched_domains hotplug bootstrap ordering vs. cpu_online_map
- issue
-References: <1094246465.1712.12.camel@mulgrave> <20040903145925.1e7aedd3.akpm@osdl.org> <20040903222212.GV3106@holomorphy.com> <20040903153434.15719192.akpm@osdl.org> <20040903224507.GX3106@holomorphy.com>
-In-Reply-To: <20040903224507.GX3106@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fix for NForce2 secondary IDE getting wrong IRQ
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> William Lee Irwin III <wli@holomorphy.com> wrote:
-> 
->>>This is the whole thing; the "other half" referred to a new hunk added to
->>>the patch (identical to this one) posted in its entirety.
-> 
-> 
-> On Fri, Sep 03, 2004 at 03:34:34PM -0700, Andrew Morton wrote:
-> 
->>ho-hum. changelog, please?
-> 
-> 
-> cpu_online_map is not set up at the time of sched domain initialization
-> when hotplug cpu paths are used for SMP booting. At this phase of
-> bootstrapping, cpu_possible_map can be used by the various
-> architectures using cpu hotplugging for SMP bootstrap, but the
-> manipulations of cpu_online_map done on behalf of NUMA architectures,
-> done indirectly via node_to_cpumask(), can't, because cpu_online_map
-> starts depopulated and hasn't yet been populated. On true NUMA
-> architectures this is a distinct cpumask_t from cpu_online_map and so
-> the unpatched code works on NUMA; on non-NUMA architectures the
-> definition of node_to_cpumask() this way breaks and would require an
-> invasive sweeping of users of node_to_cpumask() to change it to e.g.
-> cpu_possible_map, as cpu_possible_map is not suitable for use at
-> runtime as a substitute for cpu_online_map.
-> 
-> Signed-off-by: William Irwin <wli@holomorphy.com>
-> 
+I am not on the list so please cc me on replies.
 
-Yeah I guess this is probably the best thing to do for now.
+I have a Shuttle SN41G2 and the secondary IDE channel alternates between 
+IRQ 15 (correct) and IRQ 7 (causing failures accessing the DVD+-RW which 
+is master, no slave and also messing with the parallel port if it is 
+enabled) on each boot. This is running ACPI and APIC on 2.6.5, 2.6.7 and 
+2.6.8. dmesg, dmidecode and /proc/acpi/dsdt are all identical (apart 
+from dmesg printing of IRQ and errors it causes) regardless of whether 
+it decides to go on 7 or 15. It is now running the latest BIOS, earlier 
+BIOS did the same.
 
-Martin, I wonder if this patch fixes your z/VM problem?
+Comparing the amd74xx.c with piix.c suggests the following diff which 
+works for me. MAINTAINERS doesn't list anyone for this driver and the 
+file lists Vojtech Pavlik with no email address.
+
+Regards,
+Nick.
+
+diff -u drivers/ide/pci/amd74xx.c ~/ide/amd74xx.c
+--- drivers/ide/pci/amd74xx.c   2004-08-28 02:11:57.000000000 -0400
++++ /home/nreilly/ide/amd74xx.c 2004-09-03 21:21:30.000000000 -0400
+@@ -443,6 +443,10 @@
+                  hwif->autodma = 1;
+          hwif->drives[0].autodma = hwif->autodma;
+          hwif->drives[1].autodma = hwif->autodma;
++#ifndef CONFIG_IA64
++        if (!hwif->irq)
++                hwif->irq = hwif->channel ? 15 : 14;
++#endif /* CONFIG_IA64 */
+  }
+
+  #define DECLARE_AMD_DEV(name_str)                                      \

@@ -1,75 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbUKQT5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUKQTSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbUKQT5I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 14:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbUKQTyy
+	id S262476AbUKQTSi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 14:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbUKQTRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 14:54:54 -0500
-Received: from colino.net ([213.41.131.56]:15602 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262515AbUKQTwS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 14:52:18 -0500
-Date: Wed, 17 Nov 2004 20:51:48 +0100
-From: Colin Leroy <colin.lkml@colino.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Switch therm_adt746x to new module_param
-Message-ID: <20041117205148.23413d38.colin.lkml@colino.net>
-In-Reply-To: <419B9BDD.7030805@osdl.org>
-References: <20041117193416.52a86d03.colin.lkml@colino.net>
-	<419B9BDD.7030805@osdl.org>
-X-Mailer: Sylpheed-Claws 0.9.12cvs142.2 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
+	Wed, 17 Nov 2004 14:17:13 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:59806 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262423AbUKQTMv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 14:12:51 -0500
+Subject: Re: [patch] inotify: vfs_permission was replaced
+From: Robert Love <rml@novell.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20041117190850.GA11682@infradead.org>
+References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
+	 <1100714560.6280.7.camel@betsy.boston.ximian.com>
+	 <20041117190850.GA11682@infradead.org>
+Content-Type: text/plain
+Date: Wed, 17 Nov 2004 14:10:01 -0500
+Message-Id: <1100718601.4981.2.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Nov 2004 at 10h11, Randy.Dunlap wrote:
+On Wed, 2004-11-17 at 19:08 +0000, Christoph Hellwig wrote:
 
-Hi, 
+> And using either of them was/is totally bogus.  It's a helper for filesystems,
+> not a general API.
 
-> The last parameter here (64) is not an init. value nor a
-> suggested parameter value.
-> It's a permission for an entry in /sys (sysfs).
-> 0 means not visible there.
-> If it should be visible there, use something like
-> 0444 (read-only by anyone) or 0644 (read-write by root).
+Is there some specific reason you have a problem with its use?  It works
+quite nicely for what we need.
 
-Uh, thank you :)
-Updated patch follows:
+	Robert Love
 
-Signed-off-by: Colin Leroy <colin@colino.net>
---- a/drivers/macintosh/therm_adt746x.c	2004-11-17 19:26:16.908413504 +0100
-+++ b/drivers/macintosh/therm_adt746x.c	2004-11-17 19:28:01.193559752 +0100
-@@ -23,6 +23,8 @@
- #include <linux/smp_lock.h>
- #include <linux/wait.h>
- #include <linux/suspend.h>
-+#include <linux/kthread.h>
-+#include <linux/moduleparam.h>
- 
- #include <asm/prom.h>
- #include <asm/machdep.h>
-@@ -30,7 +32,6 @@
- #include <asm/system.h>
- #include <asm/sections.h>
- #include <asm/of_device.h>
--#include <linux/kthread.h>
- 
- #undef DEBUG
- 
-@@ -56,11 +57,11 @@
- 		   "Powerbook G4 Alu");
- MODULE_LICENSE("GPL");
- 
--MODULE_PARM(limit_adjust,"i");
-+module_param(limit_adjust, int, 0644);
- MODULE_PARM_DESC(limit_adjust,"Adjust maximum temperatures (50 cpu, 70 gpu) "
- 		 "by N degrees.");
- 
--MODULE_PARM(fan_speed,"i");
-+module_param(fan_speed, int, 0644);
- MODULE_PARM_DESC(fan_speed,"Specify starting fan speed (0-255) "
- 		 "(default 64)");
- 
+

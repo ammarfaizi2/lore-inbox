@@ -1,69 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314634AbSEFR6p>; Mon, 6 May 2002 13:58:45 -0400
+	id <S314633AbSEFSCM>; Mon, 6 May 2002 14:02:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314635AbSEFR6o>; Mon, 6 May 2002 13:58:44 -0400
-Received: from pD952A9B9.dip.t-dialin.net ([217.82.169.185]:20104 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S314634AbSEFR6n>; Mon, 6 May 2002 13:58:43 -0400
-Date: Mon, 6 May 2002 11:58:42 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: gzip vs. bzip2 (mainly de-)compression "benchmark"
-Message-ID: <Pine.LNX.4.44.0205061152480.19017-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314635AbSEFSCL>; Mon, 6 May 2002 14:02:11 -0400
+Received: from mailhost2.teleline.es ([195.235.113.141]:5446 "EHLO
+	tsmtp6.mail.isp") by vger.kernel.org with ESMTP id <S314633AbSEFSCK>;
+	Mon, 6 May 2002 14:02:10 -0400
+Date: Mon, 6 May 2002 20:05:06 +0200
+From: Diego Calleja <DiegoCG@teleline.es>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: war@starband.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux & X11 & IRQ Interrupts
+Message-Id: <20020506200506.128bd579.DiegoCG@teleline.es>
+In-Reply-To: <20020506164644.GC12128@louise.pinerecords.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 6 May 2002 18:46:44 +0200
+Tomas Szepe <szepe@pinerecords.com> escribió:
+> No matter how cheap it was, you should definitely return it and request
+> to be given a new one: Never underestimate any symptoms of dying hardware.
+> Last Christmas a big vendor here in .cz sold thousands of faulty cheap
+> power supplies -- majority of those blew up *all* of the connected
+> peripherals in a single 1-second flash (after a couple weeks in regular
+> use).
 
-gzipping, bzip2ing a solaris disk image from my old sparc64 under alpha
-(approx. 2 GiB) and relative load.
-This has been done for testing purposes for those fiddling around with the 
-kernel compression algorithms.
+Oh, I think it's no a problem, it has been working for about....3-4 years.
 
-# ls -l ; ls -lh
--rw-r--r--    1 root     root   2164082688 May  5 04:41 old-root
--rw-r--r--    1 root     root         2.0G May  5 04:41 old-root
 
-# time gzip -9n old-root
-9035.15user 119.40system 11:38:12elapsed 21%CPU
-(0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (166major+112minor)pagefaults 0swaps
-
-# ls -l ; ls -lh
--rw-r--r--    1 65534    65534   546148165 May  2 11:30 old-root.gz
--rw-r--r--    1 65534    65534        521M May  2 11:30 old-root.gz
-
-# time gzip -cd old-root.gz > /dev/null
-134.11user 66.22system 10:42.91elapsed 31%CPU
-(0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (102major+37minor)pagefaults 0swaps
-
-# time bzip2 -9z old-root
-(Unfortunately crashed shortly after completion when I modprobed khttpd and
-tried to make a connection. I can redo that if you are interested in the
-results, but I tell you it took some time... user was in the 11,000 I 
-remember.)
-
-# ls -l ; ls -lh
--rw-r--r--    1 root     root    496780930 May  5 04:41 old-root.bz2
--rw-r--r--    1 root     root         474M May  5 04:41 old-root.bz2
-
-# time bzip2 -cdk old-root.bz2 > /dev/null
-1010.44user 33.15system 58:12.14elapsed 29%CPU
-(0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (117major+914minor)pagefaults 0swaps
-
-Penguin: Linux 2.4.8 (didn't have time to compile the latest here) on an
-	 Alpha 300, 384 MiB RAM. Meanwhile someone was compiling Redhat
-	 Package Manager v4.1, later the Linux Kernel v2.4 repository.
-
-Regards,
-Thunder
--- 
-if (errno == ENOTAVAIL)
-    fprintf(stderr, "Error: Talking to Microsoft server!\n");
-
+> 
+> 
+> Tomas

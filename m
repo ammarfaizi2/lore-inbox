@@ -1,60 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265506AbSL3VsJ>; Mon, 30 Dec 2002 16:48:09 -0500
+	id <S267028AbSL3WAF>; Mon, 30 Dec 2002 17:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265787AbSL3VsJ>; Mon, 30 Dec 2002 16:48:09 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:44039 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S265506AbSL3VsI>; Mon, 30 Dec 2002 16:48:08 -0500
-Message-Id: <200212302156.gBULuRS04298@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-       james.bottomley@SteelEye.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rename CONFIG_VOYAGER to CONFIG_X86_VOYAGER 
-In-Reply-To: Message from Christoph Hellwig <hch@lst.de> 
-   of "Mon, 30 Dec 2002 22:44:56 +0100." <20021230224456.A20753@lst.de> 
+	id <S267036AbSL3WAF>; Mon, 30 Dec 2002 17:00:05 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20866
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267028AbSL3WAE>; Mon, 30 Dec 2002 17:00:04 -0500
+Subject: Re: [PATCH,RFC] fix o(1) handling of threads
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200212301645.50278.tomlins@cam.org>
+References: <200212301645.50278.tomlins@cam.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Dec 2002 22:50:08 +0000
+Message-Id: <1041288608.13956.173.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed ;
-	boundary="==_Exmh_-7401461440"
-Date: Mon, 30 Dec 2002 15:56:27 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart MIME message.
+Very interesting, but I'll note there are actually two groupings to
+solve - per user and per threadgroup. Also for small numbers of threads
+you don't want to punish a task and ruin its balancing across CPUs
 
---==_Exmh_-7401461440
-Content-Type: text/plain; charset=us-ascii
-
-Actually this one won't link because of an unmodified CONFIG_VOYAGER in 
-hw_irq.h
-
-However, I think this #if needs modifying according to the attached patch, 
-anyway.  I think it's obviously correct, but can someone with an APIC based 
-SMP system test this, please.
-
-James
-
-
---==_Exmh_-7401461440
-Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
-Content-Description: tmp.diff
-Content-Disposition: attachment; filename="tmp.diff"
-
-===== include/asm-i386/hw_irq.h 1.16 vs edited =====
---- 1.16/include/asm-i386/hw_irq.h	Sat Dec 28 11:12:01 2002
-+++ edited/include/asm-i386/hw_irq.h	Mon Dec 30 15:50:21 2002
-@@ -131,7 +131,7 @@
- 
- #endif /* CONFIG_PROFILING */
-  
--#if defined(CONFIG_SMP) && !defined(CONFIG_VOYAGER) /*more of this file should probably be ifdefed SMP */
-+#ifdef CONFIG_X86_IO_APIC /*more of this file should probably be ifdefed SMP */
- static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {
- 	if (IO_APIC_IRQ(i))
- 		send_IPI_self(IO_APIC_VECTOR(i));
-
---==_Exmh_-7401461440--
-
+Have you looked at the per user fair share stuff too ?
 

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbUCHPWT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 10:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbUCHPWT
+	id S262497AbUCHP1G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 10:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbUCHP1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 10:22:19 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:51124 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S262511AbUCHPWQ
+	Mon, 8 Mar 2004 10:27:06 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:23235 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262497AbUCHP06
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 10:22:16 -0500
-Date: Mon, 8 Mar 2004 08:22:14 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       george@mvista.com, pavel@ucw.cz
-Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
-Message-ID: <20040308152214.GE15065@smtp.west.cox.net>
-References: <200403081504.30840.amitkale@emsyssoft.com> <200403081619.16771.amitkale@emsyssoft.com> <20040308030722.01948c93.akpm@osdl.org> <200403081650.18641.amitkale@emsyssoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Mar 2004 10:26:58 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: covici@ccs.covici.com
+Subject: Re: shuttle an50r Motherboard and Linux
+Date: Mon, 8 Mar 2004 16:33:38 +0100
+User-Agent: KMail/1.5.3
+Cc: John Covici <covici@ccs.covici.com>, linux-kernel@vger.kernel.org
+References: <m3wu5w8aex.fsf@ccs.covici.com> <200403080151.28816.bzolnier@elka.pw.edu.pl> <16460.36222.191866.759421@ccs.covici.com>
+In-Reply-To: <16460.36222.191866.759421@ccs.covici.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200403081650.18641.amitkale@emsyssoft.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200403081633.38437.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 08, 2004 at 04:50:18PM +0530, Amit S. Kale wrote:
-> On Monday 08 Mar 2004 4:37 pm, Andrew Morton wrote:
-> > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
-[snip]
-> > >  If you consider it an absolutely must, we can do something so that the
-> > > dirty part is kept away and info threads almost always works.
-> >
-> > Yes, I'd consider `info threads' support a must-have.  I'm rather surprised
-> > that others do not?
-> 
-> Present threads support code changes calling convention of do_IRQ. Most 
-> believe that to be an absolute no.
+On Monday 08 of March 2004 16:13, John covici wrote:
+> OK, here are the relevant parts of the lspci -v -- I have been using
 
-I believe that George's version does something totally different, with
-some macros at compile time (and binutils support, I _think_) to not
-have to change do_IRQ.
+IDE interface is missed.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+> 2.4.22, but if it will make a difference I will try newer ones.
+
+2.4.x needs update of amd74xx.c driver.  2.6.x should be okay.
+
+Bartlomiej
+

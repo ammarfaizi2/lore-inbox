@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268488AbUHYCVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268576AbUHYCW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268488AbUHYCVl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 22:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUHYCVl
+	id S268576AbUHYCW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 22:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268531AbUHYCW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 22:21:41 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:45172 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268488AbUHYCUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 22:20:52 -0400
-Message-ID: <412BF780.3090508@yahoo.com.au>
-Date: Wed, 25 Aug 2004 12:20:48 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Serban Simu <serban@asperasoft.com>
-CC: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: page allocation failure & sk98lin
-References: <412AE018.8000207@asperasoft.com> <412AF360.60005@yahoo.com.au> <412BA4FC.2070505@asperasoft.com>
-In-Reply-To: <412BA4FC.2070505@asperasoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 24 Aug 2004 22:22:27 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:25790 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266376AbUHYCWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 22:22:22 -0400
+Subject: Re: NForce 2 support
+From: Lee Revell <rlrevell@joe-job.com>
+To: Dr NoName <spamacct11@yahoo.com>
+Cc: chakkerz_dev@optusnet.com.au, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040825020538.55821.qmail@web12306.mail.yahoo.com>
+References: <20040825020538.55821.qmail@web12306.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1093400541.5678.9.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 24 Aug 2004 22:22:22 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serban Simu wrote:
-> Thank you, Nick. Just wanted to mention that while I understand that we 
-> recover from this allocation failure (and also I don't mind the stack 
-> printouts), about 20% of my incoming network traffic (600-700 Mbps) 
-> seems to be dropped in the process.
-
-Yeah that is expected - so I guess it isn't exactly 'harmless' if
-performance is critical.
-
-> Does the memory manager have to 
-> spend a considerable amount of time to recover?
+On Tue, 2004-08-24 at 22:05, Dr NoName wrote:
+> > nforce 2 works sweet with the exception of sound
+> > which has been broken in 2.6.7 and 
+> > 2.6.8.1 causing system crashes. If you have a
+> > soundcard not to worry, if you are 
+> > gonna run onboard ... wait and see with 2.6.9 brings
 > 
-> I will have a look at the -mm fixes, thanks for the idea.
+> 
+> is that with the open source drivers or nvidia
+> proprietary ones? How do the two sets of drivers
+> compare?
 > 
 
-The relevant patch is this one which is now merged into 2.6.
+The open source sound drivers do not work as well as the binary ones. 
+SPDIF/AC3 does not work in the current ALSA driver and nvidia will not
+release the required documentation to get it working.  Worse, the
+binary-only driver is an OSS and not an ALSA driver!  Unbelievable.
 
-http://linux.bkbits.net:8080/linux-2.5/cset@412b8828ClkE2ZwNwGQ02aYoMwb7-A?nav=index.html|ChangeSet@-1d
+The network driver had to be reverse engineered.  Apparently nvidia
+engineers helped to get the gigabit support and some other features
+working, but only after people had to reverse engineer the basic
+functions.
 
-It would be nice if you can test that. It will give GFP_ATOMIC allocators
-a larger buffer between starting memory reclaim, and failing their allocations.
+Stick with VIA.  Nvidia is not Linux friendly.
 
-However if it is a production system and you can't test patches, Marcelo
-pointed out that you should be able to work around the problem by increasing
-/proc/sys/vm/min_free_kbytes. Then maybe you could try 2.6.9 with min_free_kbytes
-back to its default setting :)
+Lee
+

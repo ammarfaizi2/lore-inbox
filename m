@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbTJGJID (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 05:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTJGJID
+	id S261905AbTJGJZx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 05:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTJGJZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 05:08:03 -0400
-Received: from quechua.inka.de ([193.197.184.2]:42401 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261906AbTJGJIA (ORCPT
+	Tue, 7 Oct 2003 05:25:52 -0400
+Received: from [80.88.36.193] ([80.88.36.193]:3475 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261905AbTJGJZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 05:08:00 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: [RFC 0/6] Backing Store for sysfs
-Date: Tue, 07 Oct 2003 11:08:17 +0200
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
-Message-Id: <pan.2003.10.07.09.08.17.115017@dungeon.inka.de>
-References: <20031006085915.GE4220@in.ibm.com> <20031006160846.GA4125@us.ibm.com> <20031006173111.GA1788@in.ibm.com> <20031006173858.GA4403@kroah.com> <20031006180119.GC1788@in.ibm.com> <20031006180907.GA4611@kroah.com> <20031006183132.GD1788@in.ibm.com> <20031006183403.GA6274@kroah.com>
-To: linux-kernel@vger.kernel.org
+	Tue, 7 Oct 2003 05:25:52 -0400
+Date: Tue, 7 Oct 2003 11:25:38 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: pazke@donpac.ru
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] visws: fix 16 bit framebuffer mode
+In-Reply-To: <20031003080245.GB12930@pazke>
+Message-ID: <Pine.GSO.4.21.0310071123200.2345-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, not a 'find', we look up the kobject that was added, and its
-> attributes.  Doing a 'find' will emulate this for your tests, that's
-> all.
+On Fri, 3 Oct 2003 pazke@donpac.ru wrote:
+> attached patch (from Florian Boor) allows X to work on visws 
+> in 16 bit framebuffer mode.
 
-But coldplugging will more or less do a "find /sys" to get a list of
-all existing devices and add those to /dev. So expect a "find /sys" 
-to be run at least once in the early boot process. Coldplugging is
-not yet implemented, but it's possible to simulate it with a bit
-of shell scripting.
+Please also change the comment from `RGBA5551' to `ARGB1555' to match the code.
 
-Andreas
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

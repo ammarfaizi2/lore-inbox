@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265580AbUATRqG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 12:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbUATRqG
+	id S265633AbUATRxf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 12:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265635AbUATRxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 12:46:06 -0500
-Received: from ns.suse.de ([195.135.220.2]:21397 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265580AbUATRqE (ORCPT
+	Tue, 20 Jan 2004 12:53:34 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:23890 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S265633AbUATRxR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 12:46:04 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, cmp@synopsys.com, jlnance@unity.ncsu.edu
-Subject: Re: Awful NFS performance with attached test program
-References: <20040119211649.GA20200@ncsu.edu.suse.lists.linux.kernel>
-	<1074549226.1560.59.camel@nidelv.trondhjem.org.suse.lists.linux.kernel>
-	<20040120132803.GA2830@ncsu.edu.suse.lists.linux.kernel>
-	<1074607946.1871.37.camel@nidelv.trondhjem.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 20 Jan 2004 15:38:00 +0100
-In-Reply-To: <1074607946.1871.37.camel@nidelv.trondhjem.org.suse.lists.linux.kernel>
-Message-ID: <p73r7xu65yv.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 20 Jan 2004 12:53:17 -0500
+Message-ID: <400D6A5B.7090009@sgi.com>
+Date: Tue, 20 Jan 2004 11:50:19 -0600
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Christoph Hellwig <hch@infradead.org>
+CC: akpm@osdl.org, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix updates
+References: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com> <20040116144132.A24555@infradead.org>
+In-Reply-To: <20040116144132.A24555@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-> 
-> Oh. It's an x86_64? You didn't say originally, so I assumed an ia32. OK,
-> I believe my modified math above is correct.
-> 
-> If the your kernel was compiled using the default larger page size
-> (isn't that 16K?), then the explanation is simple: Linux generates
+Christoph Hellwig wrote:
 
-x86-64 uses 4K pages, just like i386.  It doesn't support bigger pages.
+>On Thu, Jan 15, 2004 at 03:54:37PM -0600, Pat Gefre wrote:
+>  
+>
+>>001-reorg.patch
+>>002-reorg1.patch
+>>    
+>>
+>
+>The IS_IOADDR() stuff in the accesor funcs in pcibr_reg.c is completly
+>bogus, please decide whether you want to pass a pointer to the pcibr_soft
+>or bridge_t to it instead of doing second-guessing.
+>
+>  
+>
 
--Andi
+Yes this probably looks a little odd. This was setup this way for TIO. 
+The macro in the TIO code checks to see
+if it is a 'soft' struct or bridge address AND what bridge type it is - 
+accessing different registers depending
+on TIO or not TIO (the 2 cases we have so far). We think this makes the 
+register access functions pretty flexible/generic.
+
+>Also while the pic.h changes look okay they will conflict with a patch
+>I'm about to send that adds common headers for the bridge/xbow/xwidget
+>register for mips and IA64.  Can you send me a version of pic.h with
+>those changes and the big endian ifdefs back in so I can just incorporate
+>the new version into my patch?
+>
+>  
+>
+
+OK - I'll look into getting this for you.
+
+>Also are all those access you abstract away different in TIOCP?  If not
+>please don't add the wrappers for them.
+>  
+>
+
+

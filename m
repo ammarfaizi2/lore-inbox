@@ -1,53 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272249AbRHWMt2>; Thu, 23 Aug 2001 08:49:28 -0400
+	id <S272250AbRHWMw2>; Thu, 23 Aug 2001 08:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272250AbRHWMtS>; Thu, 23 Aug 2001 08:49:18 -0400
-Received: from lightning.hereintown.net ([207.196.96.3]:32664 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S272249AbRHWMtH>; Thu, 23 Aug 2001 08:49:07 -0400
-Date: Thu, 23 Aug 2001 09:04:09 -0400 (EDT)
-From: Chris Meadors <clubneon@hereintown.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrew Morton <akpm@zip.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops after mounting ext3 on 2.4.8-ac9
-In-Reply-To: <E15ZfMa-0002Il-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.31.0108230857480.4431-100000@rc.priv.hereintown.net>
+	id <S272252AbRHWMwS>; Thu, 23 Aug 2001 08:52:18 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39174 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272250AbRHWMwN>; Thu, 23 Aug 2001 08:52:13 -0400
+Subject: Re: [patch] PCI64 + block zero-bounce highmem v11
+To: axboe@suse.de (Jens Axboe)
+Date: Thu, 23 Aug 2001 13:55:31 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel),
+        davem@redhat.com (David S. Miller), lse-tech@lists.sourceforge.net,
+        lnz@dandelion.com (Leonard N. Zubkoff), arjanv@redhat.com
+In-Reply-To: <20010823095324.Q604@suse.de> from "Jens Axboe" at Aug 23, 2001 09:53:24 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Zu1D-0003mT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Alan Cox wrote:
+> I'll include I2O highmem support in the next release -- haven't started
+> it yet, but it should be a breeze.
 
-> ac8 has further superblock updates, I wonder if those are what ticklets it.
->
-> Can you try 2.4.8ac7 with the 2.4.8ac8 drivers/usb and include/linux/usb*
-> changes ?
+It should be, however the amount of i2o firmware that gets 64bit right is
+unknown and I fear quite minimal.
 
-Okay I trimmed intermediate patch patch-2.4.8-ac7-ac8 down to just this:
-
-patching file drivers/usb/CDCEther.c
-patching file drivers/usb/Config.in
-patching file drivers/usb/Makefile
-patching file drivers/usb/catc.c
-patching file drivers/usb/hp5300.c
-patching file drivers/usb/hp5300.h
-patching file drivers/usb/hpusbscsi.c
-patching file drivers/usb/hpusbscsi.h
-patching file drivers/usb/kaweth.c
-patching file drivers/usb/pegasus.c
-patching file drivers/usb/usb.c
-patching file include/linux/usb.h
-
-> If Im right it wont oops
-
-Nope, it did oops.  Looks pretty much same too.
-
--Chris
--- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
-
+Alan

@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVCVCGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVCVCJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbVCVCGw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:06:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVCVCGe
+	id S262327AbVCVCJI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 21:09:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVCVCJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:06:34 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:20875 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262330AbVCVBfg
+	Mon, 21 Mar 2005 21:09:00 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:11915 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262327AbVCVBfR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:35:36 -0500
-Message-Id: <20050322013500.055204000@abc>
+	Mon, 21 Mar 2005 20:35:17 -0500
+Message-Id: <20050322013459.001083000@abc>
 References: <20050322013427.919515000@abc>
-Date: Tue, 22 Mar 2005 02:24:15 +0100
+Date: Tue, 22 Mar 2005 02:24:07 +0100
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christophe Lucas <c.lucas@ifrance.com>,
-       Domen Puncer <domen@coderock.org>
-Content-Disposition: inline; filename=dvb-janitor-pci-init.patch
+Cc: linux-kernel@vger.kernel.org
+Content-Disposition: inline; filename=dvb-saa7146-cleanup.patch
 X-SA-Exim-Connect-IP: 217.231.55.169
-Subject: [DVB patch 42/48] convert from pci_module_init to pci_register_driver
+Subject: [DVB patch 34/48] saa7146: remove duplicate setgpio
 X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From : http://kerneljanitors.org/TODO
-o convert from pci_module_init to pci_register_driver
+Remove duplicate setgpio (Kenneth Aafloy)
 
-Signed-off-by: Christophe Lucas <c.lucas@ifrance.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
- b2c2/skystar2.c |    2 +-
- bt8xx/bt878.c   |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ saa7146_core.c |   29 +++++------------------------
+ 1 files changed, 5 insertions(+), 24 deletions(-)
 
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/b2c2/skystar2.c
+Index: linux-2.6.12-rc1-mm1/drivers/media/common/saa7146_core.c
 ===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/b2c2/skystar2.c	2005-03-22 00:16:28.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/b2c2/skystar2.c	2005-03-22 00:28:10.000000000 +0100
-@@ -2629,7 +2629,7 @@ static struct pci_driver skystar2_pci_dr
+--- linux-2.6.12-rc1-mm1.orig/drivers/media/common/saa7146_core.c	2005-03-22 00:18:04.000000000 +0100
++++ linux-2.6.12-rc1-mm1/drivers/media/common/saa7146_core.c	2005-03-22 00:23:38.000000000 +0100
+@@ -46,21 +46,15 @@ static void dump_registers(struct saa714
+  * gpio and debi helper functions
+  ****************************************************************************/
  
- static int skystar2_init(void)
+-/* write "data" to the gpio-pin "pin" -- unused */
+-void saa7146_set_gpio(struct saa7146_dev *dev, u8 pin, u8 data)
++void saa7146_setgpio(struct saa7146_dev *dev, int port, u32 data)
  {
--	return pci_module_init(&skystar2_pci_driver);
-+	return pci_register_driver(&skystar2_pci_driver);
+ 	u32 value = 0;
+ 
+-	/* sanity check */
+-	if(pin > 3)
+-		return;
+-
+-	/* read old register contents */
+-	value = saa7146_read(dev, GPIO_CTRL );
+-
+-	value &= ~(0xff << (8*pin));
+-	value |= (data << (8*pin));
++	BUG_ON(port > 3);
+ 
++	value = saa7146_read(dev, GPIO_CTRL);
++	value &= ~(0xff << (8*port));
++	value |= (data << (8*port));
+ 	saa7146_write(dev, GPIO_CTRL, value);
  }
  
- static void skystar2_cleanup(void)
-Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/bt8xx/bt878.c
-===================================================================
---- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/bt8xx/bt878.c	2005-03-22 00:16:28.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/drivers/media/dvb/bt8xx/bt878.c	2005-03-22 00:28:10.000000000 +0100
-@@ -563,7 +563,7 @@ static int bt878_init_module(void)
- 	/* later we register inside of bt878_find_audio_dma()
- 	 * because we may want to ignore certain cards */
- 	bt878_pci_driver_registered = 1;
--	return pci_module_init(&bt878_pci_driver);
-+	return pci_register_driver(&bt878_pci_driver);
+@@ -236,19 +230,6 @@ int saa7146_pgtable_build_single(struct 
  }
  
- static void bt878_cleanup_module(void)
+ /********************************************************************************/
+-/* gpio functions */
+-
+-void saa7146_setgpio(struct saa7146_dev *dev, int port, u32 data)
+-{
+-	u32 val = 0;
+-
+-        val=saa7146_read(dev,GPIO_CTRL);
+-        val&=~(0xff << (8*(port)));
+-        val|=(data)<<(8*(port));
+-        saa7146_write(dev, GPIO_CTRL, val);
+-}
+-
+-/********************************************************************************/
+ /* interrupt handler */
+ static irqreturn_t interrupt_hw(int irq, void *dev_id, struct pt_regs *regs)
+ {
 
 --
 

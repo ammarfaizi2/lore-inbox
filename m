@@ -1,32 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263068AbTCYRPC>; Tue, 25 Mar 2003 12:15:02 -0500
+	id <S263056AbTCYRL7>; Tue, 25 Mar 2003 12:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263084AbTCYRPC>; Tue, 25 Mar 2003 12:15:02 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:14861 "EHLO
+	id <S263062AbTCYRL7>; Tue, 25 Mar 2003 12:11:59 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:12045 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263068AbTCYRPB>; Tue, 25 Mar 2003 12:15:01 -0500
-Date: Tue, 25 Mar 2003 17:26:10 +0000 (GMT)
+	id <S263056AbTCYRL6>; Tue, 25 Mar 2003 12:11:58 -0500
+Date: Tue, 25 Mar 2003 17:23:07 +0000 (GMT)
 From: James Simmons <jsimmons@infradead.org>
-To: Jan Dittmer <j.dittmer@portrix.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: problems with rivafb again
-In-Reply-To: <3E802909.7020200@portrix.net>
-Message-ID: <Pine.LNX.4.44.0303251723480.3789-100000@phoenix.infradead.org>
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.66 new fbcon oops while loading X / possible gcc bug?
+In-Reply-To: <20030325123126.GA10808@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.44.0303251722321.3789-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I'm getting plenty of those when switch from X (nv driver) to console 
-> (rivafb) since your latest code got merged in bk. Also, the console 
-> screen is really corrupted when switching back from X (sort of worked 
-> before) and the little penguin isn't drawn anymore at bootup time.
+> While loading X, I get this oops. The weird thing is that I don't use
+> framebuffer. I compiled with gcc 3.2.2 but the code generated looks weird.
+> Virgin gcc 3.2.2 on a pentium III.
 
-Do you have "UseFBdev" in your XF96Config file? You need to enable that 
-otherwise X and fbdev will conflict when setting the hardware. As for the 
-little penguin you need need to enable the Logo code in the video menu. 
-The logo code is also used by the SGI Newport driver.
-
+You don't use framebuffer? Can you send me your config. 
 

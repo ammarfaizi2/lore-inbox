@@ -1,35 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265153AbVBDOk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264730AbVBDOoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265153AbVBDOk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 09:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVBDOk6
+	id S264730AbVBDOoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 09:44:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264732AbVBDOoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 09:40:58 -0500
-Received: from mgr2.xmission.com ([198.60.22.202]:54739 "EHLO
-	mgr2.xmission.com") by vger.kernel.org with ESMTP id S265153AbVBDOkx
+	Fri, 4 Feb 2005 09:44:15 -0500
+Received: from smtp12.wanadoo.fr ([193.252.22.20]:4397 "EHLO smtp12.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S266384AbVBDOn0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 09:40:53 -0500
-Message-ID: <42038994.20401@xmission.com>
-Date: Fri, 04 Feb 2005 07:41:24 -0700
-From: maxer <maxer@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050109 Fedora/1.7.5-3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: SysKonnect sk98lin Gigabit lan missing in action from 2.6.10 on
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 166.70.55.125
-X-SA-Exim-Mail-From: maxer@xmission.com
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on mgr1.xmission.com)
+	Fri, 4 Feb 2005 09:43:26 -0500
+X-ME-UUID: 20050204144325687.A7EDD1C000B3@mwinf1202.wanadoo.fr
+Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI]
+	Samsung P35, S3, black screen (radeon))
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ncunningham@linuxmail.org, Pavel Machek <pavel@ucw.cz>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e47339105020321031ccaabb@mail.gmail.com>
+References: <20050122134205.GA9354@wsc-gmbh.de> <4201825B.2090703@gmx.net>
+	 <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net>
+	 <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz>
+	 <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net>
+	 <9e47339105020321031ccaabb@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 04 Feb 2005 15:40:57 +0100
+Message-Id: <1107528057.6191.128.camel@gonzales>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the status of sk98lin? Do we have to wait until Syskonnect gets 
-their act together
-and write a new driver for 2.6.10?
+Le vendredi 04 février 2005 à 00:03 -0500, Jon Smirl a écrit :
+> Doing this in user space lets you have two reset
+> programs, vm86 and emu86 for non-x86 machines.
 
-Their latest is Oct 2004 and not at all compatible with 2.6.10 and beyond.
+Perhaps only emu86 should be used, to have a well-debugged codepath on
+all archs (amd64, ppc, ...)
+As it's usermode, the code size is less of a problem.
 
-RaXeT
+	Xav
+
+

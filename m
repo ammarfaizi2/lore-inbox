@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290641AbSA3WDa>; Wed, 30 Jan 2002 17:03:30 -0500
+	id <S290648AbSA3WGW>; Wed, 30 Jan 2002 17:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290645AbSA3WDZ>; Wed, 30 Jan 2002 17:03:25 -0500
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:41449 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S290641AbSA3WDI>; Wed, 30 Jan 2002 17:03:08 -0500
-Message-ID: <3C586D98.5090900@nyc.rr.com>
-Date: Wed, 30 Jan 2002 17:03:04 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S290646AbSA3WEr>; Wed, 30 Jan 2002 17:04:47 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11273 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290645AbSA3WEA>; Wed, 30 Jan 2002 17:04:00 -0500
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.3 Link Error
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 22:02:51 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a39qib$eg3$1@penguin.transmeta.com>
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2B2F@ottonexc1.ottawa.loran.com>
+X-Trace: palladium.transmeta.com 1012428211 2552 127.0.0.1 (30 Jan 2002 22:03:31 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 30 Jan 2002 22:03:31 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-         -o vmlinux
-fs/fs.o: In function `cap_info_llseek':
-fs/fs.o(.text+0x4e1d1): undefined reference to `lock_kernel'
-fs/fs.o(.text+0x4e220): undefined reference to `unlock_kernel'
-fs/fs.o: In function `hdr_llseek':
-fs/fs.o(.text+0x4e858): undefined reference to `lock_kernel'
-fs/fs.o(.text+0x4e8b6): undefined reference to `unlock_kernel'
-make: *** [vmlinux] Error 1
+In article <B51F07F0080AD511AC4A0002A52CAB445B2B2F@ottonexc1.ottawa.loran.com>,
+Dana Lacoste  <dana.lacoste@peregrine.com> wrote:
+>
+>but if linus isn't going to accept changesets (only patches) anyways,
+>then i guess it really doesn't matter :)
 
+I'm not going to accept changesets if they require ordering, but one of
+the promises of bk is that I _could_ accept them eventually if the
+infrastructure is good enough.
+
+		Linus

@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263254AbUCNC2j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 21:28:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbUCNC2j
+	id S263256AbUCNC3X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 21:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbUCNC3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 21:28:39 -0500
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:49327 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S263254AbUCNC2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 21:28:35 -0500
-Message-ID: <4053C353.6040205@blueyonder.co.uk>
-Date: Sun, 14 Mar 2004 02:28:35 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA and 2.6.4?
-References: <4053C22B.2090200@blueyonder.co.uk>
-In-Reply-To: <4053C22B.2090200@blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Mar 2004 02:28:34.0285 (UTC) FILETIME=[0C6DB1D0:01C4096C]
+	Sat, 13 Mar 2004 21:29:23 -0500
+Received: from mail.kroah.org ([65.200.24.183]:39831 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263256AbUCNC2m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 21:28:42 -0500
+Date: Sat, 13 Mar 2004 18:28:07 -0800
+From: Greg KH <greg@kroah.com>
+To: "Woodruff, Robert J" <woody@co.intel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Timothy Miller <miller@techsource.com>, Rik van Riel <riel@redhat.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       "Woodruff, Robert J" <woody@jf.intel.com>, linux-kernel@vger.kernel.org,
+       "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>,
+       marcelo.tosatti@cyclades.com
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+Message-ID: <20040314022807.GA4868@kroah.com>
+References: <1AC79F16F5C5284499BB9591B33D6F000B6306@orsmsx408.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1AC79F16F5C5284499BB9591B33D6F000B6306@orsmsx408.jf.intel.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce wrote:
+On Sat, Mar 13, 2004 at 02:07:13PM -0800, Woodruff, Robert J wrote:
+> 
+> The Mellanox and Topspin folks along with some people from some of
+> the national labs are trying to start up a website called openib.org,
+> with data bases, email lists, etc. where people can submit code for
+> this "best of breed" stack and discuss it. As long as it is truly 
+> open, the linux community is allowed to participate, and the code
+> is evaluated on it's technical merits, rather than one companies
+> personal agenda, this forum might serve as a way for us to sort
+> through this without taking every issue to lkml. 
+> 
+> What are your thoughts on how we should proceed ? 
 
-> Adam Jones wrote:
-> >In a futile gesture against entropy, Sid Boyce wrote:
-> >>/ Max Valdez wrote:/
->
-> >>/ >Been using nvidia modules for quite a few 2.6.x kernels, most of 
-> them mmX. /
-> >>/ >without problems/
->
-> >I'm using it here with 2.6.4, no problems as yet.
->
-> >>/ Something strange happened, I shall try 2.6.4-mm1 shortly to see 
-> if it /
-> >>/ is still the same. I reckon though that I've suffered a filesystem /
-> >>/ corruption./
->
-> > A quick thought - have you got CONFIG_REGPARM enabled in the kernel
-> > config? If so, disable it and try again. (It's almost certain to
-> > cause crashes with binary modules.)
-> I haven't had CONFIG_REGPARM set in any of the kernels. 2.6.4-rc2-mm1 
-> was fine until after I first booted 2.6.4-mm1, then neither would work 
-> with nvidia. I also got some strange stuff happening, including 
-> checksum errors on the driver and I had to download it again from 
-> nvidia.com on two occasions, the first redownload reinstalled  once, 
-> then  chksum errors, the second redownload did the same as well as 
-> chksum segfaulting, since then it's been fine. See also the garbage I 
-> get out of vi in an earlier posting.
-> Regards
-> Sid.
->
-*** CORRECTION *** 2.6.4-rc2-mm1 is the one that caused the trouble as 
-stated in the first post. I'm yet to boot up 2.6.4-mm1.
-Some of the files in lost+found seem to be kde settings which I noticed 
-were missing and had to setup again.
-Regards
-Sid.
+I think you need to work with the openib.org people as they seem to
+have:
+	- working code with support for a number of different devices
+	- developers with extensive kernel programming experience
+	  working on cleaning up the code to fit properly into the
+	  kernel tree.
+	- their code showing up in at least one distro which will expose
+	  them to a much wider range of testing than Intel's project so
+	  far has had.
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+So it seems that you really need to work with them if you wish to get
+your code merged into theirs, as theirs already seems to be an almost
+complete solution...
 
+Good luck,
+
+greg k-h

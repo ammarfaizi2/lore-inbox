@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264075AbTEaACa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 20:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264080AbTEaACa
+	id S264080AbTEaAFe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 20:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264081AbTEaAFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 20:02:30 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19379 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264075AbTEaAC3 convert rfc822-to-8bit
+	Fri, 30 May 2003 20:05:34 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:49400 "EHLO
+	orion.mvista.com") by vger.kernel.org with ESMTP id S264080AbTEaAFd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 20:02:29 -0400
-Date: Fri, 30 May 2003 17:14:10 -0700 (PDT)
-Message-Id: <20030530.171410.104043496.davem@redhat.com>
-To: joern@wohnheim.fh-wedel.de
-Cc: jmorris@intercode.com.au, dwmw2@infradead.org,
-       matsunaga_kazuhisa@yahoo.co.jp, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030530174319.GA16687@wohnheim.fh-wedel.de>
-References: <20030530144959.GA4736@wohnheim.fh-wedel.de>
-	<Mutt.LNX.4.44.0305310101550.30969-100000@excalibur.intercode.com.au>
-	<20030530174319.GA16687@wohnheim.fh-wedel.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Fri, 30 May 2003 20:05:33 -0400
+Date: Fri, 30 May 2003 17:18:53 -0700
+From: Jun Sun <jsun@mvista.com>
+To: linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
+Cc: jsun@mvista.com
+Subject: Re: Properly implement flush_dcache_page in 2.4?  (Or is it possible?)
+Message-ID: <20030530171853.G1669@mvista.com>
+References: <20030530103254.B1669@mvista.com> <20030530190929.E9419@flint.arm.linux.org.uk> <20030530160002.D1669@mvista.com> <20030531001458.H9419@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030531001458.H9419@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sat, May 31, 2003 at 12:14:58AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jörn Engel <joern@wohnheim.fh-wedel.de>
-   Date: Fri, 30 May 2003 19:43:19 +0200
-   
-   What contention were you talking about? :)
+On Sat, May 31, 2003 at 12:14:58AM +0100, Russell King wrote:
+> > In addition, I am not sure if the vma struct will show up in the
+> > "shared" list _if_ the page is only mapped in one user process and
+> > in kernel (for example, those pages you obtain through get_user_pages()
+> > call).
+> 
+> If a mapping is using MAP_SHARED, my understanding is that the pages should
+> appear on the i_mmap_shared list.
+>
 
-Actually, your idea is interesting.  Are you going to use
-per-cpu workspaces?
+That is my understanding too.
+ 
+> I don't see a reason to worry about privately mapped pages on the i_mmap
+> list since they are private, and therefore shouldn't be updated with
+> modifications to other mappings, 
 
-I think the best scheme is 2 per-cpu workspaces, one for
-normal and one for softirq context.
+Actually there is, at least in 2.4.  Whenever kernel calls get_user_pages()
+it maps a user page into kernel virtual address space.  If kernel modifies
+that page, flush_dcache_page() needs to make sure any stale cache data
+at user virtual address is flush in order user to see kernel changes.
 
-No locking needed whatsoever.  I hope it can work :-)
+I have a test case at 
+
+	http://linux.junsun.net/test-programs
+
+(Note, sometimes even if you pass the test, you _may_ still have a wrong
+flush_dcache_page() implementation, because stale cache could be flushed 
+due to other execution sequences)
+
+I took a brief look of 2.5 code.  It seems this problem should still
+exist (of course, assuming the CPU has cache aliasing problem and the
+flush_dcache_page() is not properly implemented).  
+
+Actually in 2.5 you may fail the test even if you have a properly implemented
+flush_dcache_page().  It appears it lacks another flush_dcache_page()
+after the direct_IO is done.  I don't have a working 2.5 on MIPS.  Can't 
+verify that. 
+
+Jun

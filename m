@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274813AbRKMPhc>; Tue, 13 Nov 2001 10:37:32 -0500
+	id <S273213AbRKMPhv>; Tue, 13 Nov 2001 10:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273305AbRKMPhV>; Tue, 13 Nov 2001 10:37:21 -0500
-Received: from mamona.cetuc.puc-rio.br ([139.82.74.4]:28579 "EHLO
-	mamona.cetuc.puc-rio.br") by vger.kernel.org with ESMTP
-	id <S273213AbRKMPhO>; Tue, 13 Nov 2001 10:37:14 -0500
-Message-ID: <1353.139.82.28.36.1005665947.squirrel@mamona.cetuc.puc-rio.br>
-Date: Tue, 13 Nov 2001 13:39:07 -0200 (BRST)
-Subject: Re: /proc/<pidnumber>/stat hangs reading process
-From: "Marcelo Roberto Jimenez" <mroberto@cetuc.puc-rio.br>
-To: linux-kernel@vger.kernel.org, myrjola@lut.fi
-X-Mailer: SquirrelMail (version 1.0.6)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S273255AbRKMPhl>; Tue, 13 Nov 2001 10:37:41 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:7442 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S273213AbRKMPh3>; Tue, 13 Nov 2001 10:37:29 -0500
+Date: Tue, 13 Nov 2001 15:37:15 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: Linux 2.4.15-pre4 - merge with Alan
+Message-ID: <20011113153715.A21298@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0111121056260.1078-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111121056260.1078-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Nov 12, 2001 at 11:01:56AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mika,
+The pesky linux/irq.h include found its way back into drivers/char/vt.c
+again (maybe Alan didn't merge it).
 
-> Hello,
-> basically this posting is about the same problem as one I posted in 
-> September:
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0109.0/0764.html
-> 
-> It's essentially the same situation: I was running mozilla and it stopped
-> responding to any input. I tried to kill it with control-c, kill and
-> finally with kill -9, but none helped. When I tried to look at the output
-> of top and ps, the exactly same symptons appeared; those processes didn't
-> finish and can't be killed either. When I do strace ps the output ends 
-> at:
-> 
-> stat64("/proc/16515", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-> open("/proc/16515/stat", O_RDONLY)      = 7
-> read(7,
+linux/irq.h is not required by vt.c, and, since it includes asm/hw_irq.h
+which architectures many not provide, generic code should not be including
+this file in the first place.
 
-I'm having this problem too, for a long time. It's usually associated with big loads ( for my machine, of course, a PII-233 ). It has happened while opening lot's of pages with opera, but has also happened while compiling 3 kernels at the same time and playing a video with xine or aviplay.
+Here's a patch to fix this bogosity up:
 
-The behavior is the same: ps blocks, gtop blocks, killall blocks, anything that tries to get the process information blocks too.
+--- orig/drivers/char/vt.c	Thu Nov  8 17:47:59 2001
++++ linux/drivers/char/vt.c	Tue Nov 13 15:24:21 2001
+@@ -24,7 +24,6 @@
+ #include <linux/major.h>
+ #include <linux/fs.h>
+ #include <linux/console.h>
+-#include <linux/irq.h>
+ 
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
 
-The machine can be used as long as a program does not try to call the problematic function, whitch I wasn't able to trace down. 
-
-I haven't had this problem for a while, basically because I try not to stress these ``hanging'' applications anymore, so that I can work, but I'll try to see if I can reproduce the bug with the new VM.
-
-The problem is: what can we do, to investigate the problem, once ps starts to block? 
-
-Regards,
-
-Marcelo.
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266173AbSLSUPw>; Thu, 19 Dec 2002 15:15:52 -0500
+	id <S266101AbSLSUMP>; Thu, 19 Dec 2002 15:12:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266183AbSLSUPv>; Thu, 19 Dec 2002 15:15:51 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:63240 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266173AbSLSUPu>;
-	Thu, 19 Dec 2002 15:15:50 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212192032.gBJKWSpe002662@darkstar.example.net>
-Subject: Re: Dedicated kernel bug database
-To: davidsen@tmr.com (Bill Davidsen)
-Date: Thu, 19 Dec 2002 20:32:28 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1021219150117.29410B-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Dec 19, 2002 03:09:50 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266112AbSLSUMP>; Thu, 19 Dec 2002 15:12:15 -0500
+Received: from cable-212.76.255.184.coditel.net ([212.76.255.184]:4100 "EHLO
+	piglet.grunz.lu") by vger.kernel.org with ESMTP id <S266101AbSLSUMN>;
+	Thu, 19 Dec 2002 15:12:13 -0500
+Date: Thu, 19 Dec 2002 21:17:03 +0100 (CET)
+From: Michel Lanners <mlan@cpu.lu>
+Reply-To: mlan@cpu.lu
+Subject: Re: Patch(2.5.52): Add missing PCI ID's for nVidia IDE and PlanB frame grabber
+To: alan@lxorguk.ukuu.org.uk
+cc: adam@yggdrasil.com, mj@ucw.cz, axboe@suse.de, andre@linux-ide.org,
+       toe@unlserve.unl.edu, kraxel@bytesex.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1040259741.26882.0.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <E18P76a-00007a-00@piglet.grunz.lu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Following on from yesterday's discussion about there not being much
-> > interaction between the kernel Bugzilla and the developers, I began
-> > wondering whether Bugzilla might be a bit too generic to be suited to
-> > kernel development, and that maybe a system written from the ground up
-> > for reporting kernel bugs would be better?
-> > 
-> > I.E. I am prepared to write it myself, if people think it's
-> > worthwhile.
+On  19 Dec, this message from Alan Cox echoed through cyberspace:
+> On Wed, 2002-12-18 at 23:35, Adam J. Richter wrote:
+>> Hi Martin,
+>> 
+>> 	This patch adds two pci device id definitions needed to make
+>> a couple of drivers compile in 2.5.52:
+>> 
+>> 	drivers/ide/pci/nvidia.c needs PCI_DEVICE_IDE_NVIDIA_NFORCE_IDE
+>> 	drivers/media/video/planb.c needs PCI_DEVICE_IDE_APPLE_PLANB
+>> 
+>> 	If nobody complains, could you please forward these changes to
+>> Linus and confirm to me that you have done this (so I can have a
+>> better idea of what to do if they not appear in 2.5.53)?  Thanks in
+>> advance.
 > 
-> Hopefully you could make it more generic than just for kernel bugs.
+> The NVIDIA one is right, someoen removed it from Linus tree by accident
+> in 2.5.51 or so when adding other Nvidia bits.
 
-Well, my intention was to write it based around being used for kernel
-bugs, and let others modify it for their needs, (and presumably
-Bugzilla was based around being used for reporting bugs in a web
-browser).
+The PLANB one is right as well; it probably never was in there, but is
+indeed useful to the driver.
 
-> Ideally it would be nice to be able to have both an interactive submission
-> and a way to mail a version number and get back a questionare to fill in
-> and resubmit. This allows for a custom form for some versions, as well as
-> another mail back listing known bugs fixed in later versions, to avoid
-> reporting fixed bugs.
+Cheers
 
-Interesting - so the first stage in reporting a bug would be to select
-the latest 2.4 and 2.5 kernels that you've noticed it in, and get a
-list of known bugs fixed in those versions.  Also, if you'd selected
-the maintainer, (from an automatically generated list from the
-MAINTAINERS file), it could just search *their* changes in the changelog.
+Michel
 
-> I'm not sure if it would be possible to make a frontend to bugzilla, I'm
-> not thrilled with the whole thing, but I have no illusions of having
-> enough free time to tackle anything that large.
+-------------------------------------------------------------------------
+Michel Lanners                 |  " Read Philosophy.  Study Art.
+23, Rue Paul Henkes            |    Ask Questions.  Make Mistakes.
+L-1710 Luxembourg              |
+email   mlan@cpu.lu            |
+http://www.cpu.lu/~mlan        |                     Learn Always. "
 
-I'm prepared to have a go at it.  This _is_ my kind of area - most of
-my income this year has come from writing web-based database code :-).
-
-> Doing interesting things with little computers since 1979.
-
-Were you doing boring things with large computers before then?  :-)
-:-) :-).  Sorry, I'm being silly now :-).
-
-John.

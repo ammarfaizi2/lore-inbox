@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267467AbSLNHk1>; Sat, 14 Dec 2002 02:40:27 -0500
+	id <S267466AbSLNHiA>; Sat, 14 Dec 2002 02:38:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267497AbSLNHk1>; Sat, 14 Dec 2002 02:40:27 -0500
-Received: from mgr3.xmission.com ([198.60.22.203]:56139 "EHLO
-	mgr3.xmission.com") by vger.kernel.org with ESMTP
-	id <S267467AbSLNHk0>; Sat, 14 Dec 2002 02:40:26 -0500
-Message-ID: <3DFAE241.7060603@xmission.com>
-Date: Sat, 14 Dec 2002 00:48:17 -0700
-From: Frank Jacobberger <f1j1@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S267467AbSLNHh7>; Sat, 14 Dec 2002 02:37:59 -0500
+Received: from newglider.melbpc.org.au ([203.12.152.9]:53517 "EHLO
+	relay1.melbpc.org.au") by vger.kernel.org with ESMTP
+	id <S267466AbSLNHh7> convert rfc822-to-8bit; Sat, 14 Dec 2002 02:37:59 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bill Metzenthen <billm@melbpc.org.au>
+To: linux-kernel@vger.kernel.org
+Subject: Intel ICH4 ide not working for 2.4.19 and 2.4.20
+Date: Sat, 14 Dec 2002 18:48:41 +1100
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: ehci-hcd.o apparent load failure in 2.4.20-xx.. but
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212141848.41037.billm@melbpc.org.au>
+X-RAVMilter-Version: 8.3.4(snapshot 20020706) (relay1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Who maintains this driver?
+I have a machine with a Gigabyte 8IEX motherboard.  This MB uses an Intel 845E 
+chipset with an Intel ICH4.  I'm using a 2.4 GHz P4 with it, and 1 GByte of 
+memory.
 
-I'm getting an odd error when kernel boots that the ehci-hcd.o.gz can't 
-load..
+I have been using RedHat kernels, initially 2.4.18-14 from RedHat 8.0, which 
+works o.k.
 
-or if doing an insmod ehci-hcd I get:
+Then I tried some kernels from rawhide, first 2.4.19-0.pp18, then 
+2.4.19.pp.20, and finally 2.4.20-0.pp.3.  These all failed to identify 
+anything attached to the ide ports.
 
-insmod ehci-hcd
-Using /lib/modules/2.4.20-0.pp.7/kernel/drivers/usb/hcd/ehci-hcd.o.gz
-/lib/modules/2.4.20-0.pp.7/kernel/drivers/usb/hcd/ehci-hcd.o.gz: 
-init_module: No such device
+Finally, I grabbed a copy of the original 2.4.20 kernel sources, applied the 
+2.4.20-ac2 patches, and compiled these with a similar config to that used by 
+the RedHat kernels.  This failed in a similar way to the redhat kernels.
 
-Dmesg and everything else points to it loading:
+I don't have another machine hooked up to the serial port at the moment, but a 
+hand copied version of the on-screen messages leading up the point of failure 
+is:
 
-hcd.c: ehci-hcd @ 00:1d.7, Intel Corp. 82801DB USB EHCI Controller
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH4: IDE controller at PCI slot 00:1f.1
+PCI: Found IRQ 5 for device 00:1f.1
+ICH4: chipset revision 1
+ICH4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings: hdc:DMA, hdd:DMA
 
-and:
+There is a delay of a second or two here while the ide devices are failed to 
+be detected.  The boot process then continues until it fails because it 
+cannot open the root device.
 
-Doing an lspci bears this out:
+I've looked through the archives and there doesn't appear to be anyone else 
+with this particular problem.  Does anyone have an idea about what I should 
+do to fix my problem?
 
-00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 02)
+Bill
 
-No idea why the kernel is balking at boot and not logging this to kernel messages!
-
-Any ideas?
-
-Thanks,
-
-Frank
-
-
-
-
+ps: apologies for sending a subscribe message to the list in error.

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316213AbSHUP5g>; Wed, 21 Aug 2002 11:57:36 -0400
+	id <S318169AbSHUQCY>; Wed, 21 Aug 2002 12:02:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318169AbSHUP5g>; Wed, 21 Aug 2002 11:57:36 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:36335 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316213AbSHUP5f>; Wed, 21 Aug 2002 11:57:35 -0400
-Subject: Re: [patch] IPMI driver for Linux
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D63B612.8020706@acm.org>
-References: <3D63B612.8020706@acm.org>
-Content-Type: text/plain
+	id <S318355AbSHUQCX>; Wed, 21 Aug 2002 12:02:23 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:34541 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318169AbSHUQCW>;
+	Wed, 21 Aug 2002 12:02:22 -0400
+Date: Wed, 21 Aug 2002 09:04:01 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: "Feldman, Scott" <scott.feldman@intel.com>,
+       "'Troy Wilson'" <tcw@tempest.prismnet.com>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: linux-kernel@vger.kernel.org, tcw@prismnet.com
+Subject: RE: mdelay causes BUG, please use udelay
+Message-ID: <2544596606.1029920638@[10.10.2.3]>
+In-Reply-To: <288F9BF66CD9D5118DF400508B68C4460283E4AF@orsmsx113.jf.intel.com>
+References: <288F9BF66CD9D5118DF400508B68C4460283E4AF@orsmsx113.jf.intel.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Aug 2002 17:02:44 +0100
-Message-Id: <1029945764.26845.93.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-21 at 16:47, Corey Minyard wrote:
-> I have been working on an IPMI driver for Linux for MontaVista, and I 
-> think it's ready to see the light of day :-).  I would like to see this 
-> included in the mainstream kernel eventually.   You can get it at 
-> http://home.attbi.com/~minyard.  It should work on any kernel version, 
-> although you will have to fix up the Config.in and Makefile, and the 
-> Configure.help stuff may not work (it's currently in the 2.4 location).
+>> -    msec_delay(10);
+>> +    usec_delay(10000);
 > 
-> The web page has documentation on the driver, and documentation is 
-> included in the patch, too.  This is a fairly full-featured driver with 
-> a watchdog, panic event generation, full kernel and userland access to 
-> the driver, multi-user/multi-interface support, and emulators for other 
-> IPMI device drivers.
+> Jeff, 10000 seems on the border of what's OK.  If it's acceptable, 
+> then let's go for that.  Otherwise, we're going to have to chain 
+> several mod_timer callbacks together to do a controller reset.
 
-Comments in general.
+Whilst this sort of delay in interrupt context is undoubtedly bad
+any way we do it, I'd question the context a little more before we
+make a decision. This is called from e1000_reset_hw - are we likely
+to ever actually call this except under initialisation? If we just
+do it once on system boot, I'd say evil hacks (like this) are 
+acceptable. If we're going to do this under load, it definitely
+needs fixing.
 
-It touches user space with spinlocks held -> bad idea
-It doesnt check copy_*_user returns instead commenting that some other
-driver didnt so it wont - bad idea too
-It seems to be allocating a major - can you have > 1 ipmi per host, can
-it use misc devices, can it get one registered properly with lanana
+FWIW, this is heavily tested under Apache webserver load on a maxed 
+out 8 CPU system with at least 4 (8?) gigabit ethernet cards. Whilst
+undoubtedly ugly, it's better than what we have now, so might I 
+suggest that we do this for now until a real fix is forthcoming if
+we decide it's needed?
 
-Otherwise its way way way nicer than the hideous thing a certain chip
-vendor sent me.
+Martin.
 

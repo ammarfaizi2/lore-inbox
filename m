@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbUK2W4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbUK2XDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbUK2W4P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 17:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbUK2Wye
+	id S261866AbUK2XDt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 18:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbUK2XAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:54:34 -0500
-Received: from mail.dnm.gov.ar ([200.55.54.66]:7328 "EHLO mail.dnm.gov.ar")
-	by vger.kernel.org with ESMTP id S261850AbUK2Wtf (ORCPT
+	Mon, 29 Nov 2004 18:00:21 -0500
+Received: from smtp.e7even.com ([83.151.192.5]:55753 "HELO smtp.e7even.com")
+	by vger.kernel.org with SMTP id S261869AbUK2W7o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:49:35 -0500
-Message-ID: <41ABA80E.5040005@migraciones.gov.ar>
-Date: Mon, 29 Nov 2004 19:51:58 -0300
-From: Javier Villavicencio <javierv@migraciones.gov.ar>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041108)
+	Mon, 29 Nov 2004 17:59:44 -0500
+Message-ID: <41ABA9D3.7020602@st-andrews.ac.uk>
+Date: Mon, 29 Nov 2004 22:59:31 +0000
+From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: no entropy and no output at /dev/random  (quick question)
-References: <41A7EDA1.5000609@migraciones.gov.ar> <Pine.LNX.4.53.0411272019350.27610@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0411272019350.27610@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Christian Mayrhuber <christian.mayrhuber@gmx.net>,
+       reiserfs-list@namesys.com, Hans Reiser <reiser@namesys.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: file as a directory
+References: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
+In-Reply-To: <200411292120.iATLKZxE004233@laptop11.inf.utfsm.cl>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>I have a server that runs kernel 2.6.9, some web and monitoring
->>services, it's connected to two different networks with two different
->>network cards, and somehow a php developer discovered that /dev/random
->>wasn't giving any entropy to him (O_O) so i checked it out...
->>[...]
->>As you may see my only sources of entropy where the timer, eth0, eth1
->>and the DAC960.
-> 
-> 
-> I doubt that timer and eth* are a non-predictable source. As such, they should
-> not contribute to the entropy. Better is the keyboard and/or mouse. SSH traffic
-> is network traffic, and if you send it to a network card, you can expect an
-> interrupt at <time>... prdictable.
-> 
-> 
-> Jan Engelhardt
-Hmm you got it wrong, I'm saying that my only "interrupt generating 
-hardware" was NOT contributing to the entropy. I mean, the timer (OF 
-COURSE NOT) and the NICs (same) but why don't the DAC960???
+Horst von Brand wrote:
 
--- 
+>Now think about files with other formats, for instance the (in)famous
+>sendmail.cf, or less structured stuff like you find in /etc/init.d/, or
+>just Postgres databases (with fun stuff like permissions on records and
+>fields)... or just people groping in /etc/passwd wanting to find the whole
+>entry (not just one field), or perhaps look at the 15th character of the
+>entry for John Doe.
+>
+>This way lies utter madness (what format description should be applied to
+>what file this time around?). Plus shove all this garbage into the kernel?!
+>  
+>
 
-       Javier Villavicencio
-      Administrador/Consultor
-Direccion Nacional de Migraciones
-      Ministerio del Interior
-       Republica Argentina
+I was suggesting this idea mainly form XML files, where the tags define 
+the parts clearly.
+In addition, I was suggesting that some of the XPath syntax (normally 
+used for within-XML selection) could be extended above the file level 
+into the file system.
+The problems you mention are all related to non-XML file format issues, 
+which was only a minor comment in parenthesis in my original mail. I am 
+happy to do it only for XML to begin with (and if possible later see if 
+it can be done for SOME non-XML formats).  Peter

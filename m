@@ -1,61 +1,193 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310654AbSCMPRb>; Wed, 13 Mar 2002 10:17:31 -0500
+	id <S310657AbSCMPYm>; Wed, 13 Mar 2002 10:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310655AbSCMPRV>; Wed, 13 Mar 2002 10:17:21 -0500
-Received: from mail.spylog.com ([194.67.35.220]:11212 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S310654AbSCMPRH>;
-	Wed, 13 Mar 2002 10:17:07 -0500
-Date: Wed, 13 Mar 2002 18:17:35 +0300
-From: Peter Zaitsev <pz@spylog.ru>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Peter Zaitsev <pz@spylog.ru>
-Organization: SpyLOG
-X-Priority: 3 (Normal)
-Message-ID: <991739488742.20020313181735@spylog.ru>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re[3]: MMAP vs READ/WRITE
-In-Reply-To: <Pine.LNX.4.44L.0203131157210.2181-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.44L.0203131157210.2181-100000@imladris.surriel.com>
+	id <S310658AbSCMPYd>; Wed, 13 Mar 2002 10:24:33 -0500
+Received: from atchoum.office.be.wanadoo.com ([195.74.207.5]:53007 "HELO
+	Atchoum.lan.wanadoo.be") by vger.kernel.org with SMTP
+	id <S310657AbSCMPYO> convert rfc822-to-8bit; Wed, 13 Mar 2002 10:24:14 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [OOPS] In 2.4.17 __free_pages_ok
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.5762.3
+Date: Wed, 13 Mar 2002 16:24:20 +0100
+Message-ID: <92D340F1F4235A4EBC8A872482AE5372403F5D@exchange.lan.wanadoo.be>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [OOPS] In 2.4.17 __free_pages_ok
+Thread-Index: AcHKf6C1ctFDtAZ/T02AQnDcXiO1PQAAASawAAEdTLAAB4GS0A==
+From: =?iso-8859-1?Q?Fran=E7ois_Baligant_=28Wanadoo=29?= 
+	<francois.baligant@be.wanadoo.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Rik,
 
-Wednesday, March 13, 2002, 5:58:08 PM, you wrote:
+	After a closer look, Benjamin's pglru patch which is included
+	in rawhide 2.4.17-0.8 include a removal
+	of the patch below which is included in rawhide 2.4.7-0.8,
+	so I don't think it will be a solution at all.
 
+	I will now try a plain 2.4.19-pre3 kernel and see if things goes
+	better.
 
-RvR> That would be a bit premature since this part of the code
-RvR> hasn't been touched by -rmap ;)
+	However during this kernel compile, gcc crashs some time to time
+	with SIGSEGV. I don't know if Im hit by the bug again or if some
+	memory pages are corrupted (I haven't rebooted yet since this Oops)
 
-RvR> It is something that still needs fixing, though.
+	Anyone got an advice if I need to investigate the hardware side ?
 
-:)
+	Francois
 
-The most upsetting thing is the followings:
-
- 0  2  0 210736  19472   2000 733188 216   0  5068     2  382   340   4   2  94
- 0  2  0 210424  20108   1860 729596 219   0  4732     0  319   352   4   1  96
- 0  2  0 210216  19652   1616 727280 254   0  4718    10  313   298   3   4  93
- 1  1  0 209756  19988   1744 723940 285   0  4523    14  313   197   6   6  88
- 0  2  0 209700  20096   1904 722236 223   0  4485    15  307   265   7   5  88
-
-
- Note some pages coming up from swap.
-
- This is vmstat exactly corresponding to doing read via mmap. So it
- looks like current VM  preforms in come cases to swap out pages from
- mapped files rather then discarding them :(
-
- This of course reduces performance on sequential IO :(
+-----Original Message-----
+From: François Baligant (Wanadoo) 
+Sent: mercredi 13 mars 2002 12:43
+To: linux-kernel@vger.kernel.org
+Subject: RE: [OOPS] In 2.4.17 __free_pages_ok
 
 
 
--- 
-Best regards,
- Peter                            mailto:pz@spylog.ru
+	I just noticed I have this just before the Oops message,
+	maybe I can help to pinpoint where the problem lies.
 
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00300000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+memory.c:100: bad pmd 00100000.
+memory.c:100: bad pmd 00200000.
+
+-----Original Message-----
+From: François Baligant (Wanadoo) 
+Sent: mercredi 13 mars 2002 12:11
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] In 2.4.17 __free_pages_ok
+
+
+
+Hi,
+
+This is 2.4.17-0.18 from RedHat Rawhide on a very busy UP Intel Web server.
+
+I have done quite a bit of search and found a thread about something
+that look similar here:
+
+From: Hugh Dickins (hugh@veritas.com)
+Subject: Re: [PATCH] __free_pages_ok oops
+Newsgroups: linux.kernel
+
+Date: 2002-02-07 12:30:11 PST
+http://groups.google.com/groups?q=g:thl114668156d&hl=en&newwindow=1&selm=Pin
+e.LNX.4.21.0202071930320.1533-100000%40localhost.localdomain&rnum=33
+
+I checked in 2.4.18 and 2.4.19pre3, this particular patch didn't make it in.
+
+My question is:
+
+- Am I hit by the same bug ? If yes, Can I go with that particular patch ?
+
+kernel BUG at page_alloc.c:131!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c012f92a>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 00000020   ebx: c152fcf8   ecx: 00000001   edx: 00002183
+esi: 00000000   edi: c1000030   ebp: 00000000   esp: c7f8fde8
+ds: 0018   es: 0018   ss: 0018
+Process httpd (pid: 22189, stackpage=c7f8f000)
+Stack: c02987bb 00000083 c11545c0 c11545f8 c1038030 c02c3408 c1528d30
+c013445d
+       d6149890 00100000 c9f4d4f4 0000f000 17b5f005 c0122e8f c152fcf8
+00000010
+       00000000 4022e000 d48b5400 4012e000 00000000 4022e000 d48b5400
+00000000
+Call Trace: [<c013445d>] page_remove_rmap [kernel] 0x5d
+[<c0122e8f>] do_zap_page_range [kernel] 0x18f
+[<c012feac>] __alloc_pages_limit [kernel] 0x7c
+[<c0123370>] zap_page_range [kernel] 0x50
+[<c0125a9d>] exit_mmap [kernel] 0xbd
+[<c0114796>] mmput [kernel] 0x26
+[<c01189a3>] do_exit [kernel] 0xb3
+[<c011dcb3>] collect_signal [kernel] 0x93
+[<c011dd6d>] dequeue_signal [kernel] 0x6d
+[<c0106da4>] do_signal [kernel] 0x234
+[<c0106275>] restore_sigcontext [kernel] 0x115
+[<c0106359>] sys_sigreturn [kernel] 0xb9
+[<c0106f2c>] signal_return [kernel] 0x14
+Code: 0f 0b 5f 5d 0f b6 43 25 89 f1 c6 43 24 05 89 dd 83 63 18 eb
+
+>>EIP; c012f92a <__free_pages_ok+11a/310>   <=====
+Trace; c013445d <page_remove_rmap+5d/70>
+Trace; c0122e8f <do_zap_page_range+18f/250>
+Trace; c012feac <__alloc_pages_limit+7c/b0>
+Trace; c0123370 <zap_page_range+50/80>
+Trace; c0125a9d <exit_mmap+bd/130>
+Trace; c0114796 <mmput+26/50>
+Trace; c01189a3 <do_exit+b3/1f0>
+Trace; c011dcb3 <collect_signal+93/e0>
+Trace; c011dd6d <dequeue_signal+6d/b0>
+Trace; c0106da4 <do_signal+234/2a0>
+Trace; c0106275 <restore_sigcontext+115/140>
+Trace; c0106359 <sys_sigreturn+b9/f0>
+Trace; c0106f2c <signal_return+14/18>
+Code;  c012f92a <__free_pages_ok+11a/310>
+00000000 <_EIP>:
+Code;  c012f92a <__free_pages_ok+11a/310>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c012f92c <__free_pages_ok+11c/310>
+   2:   5f                        pop    %edi
+Code;  c012f92d <__free_pages_ok+11d/310>
+   3:   5d                        pop    %ebp
+Code;  c012f92e <__free_pages_ok+11e/310>
+   4:   0f b6 43 25               movzbl 0x25(%ebx),%eax
+Code;  c012f932 <__free_pages_ok+122/310>
+   8:   89 f1                     mov    %esi,%ecx
+Code;  c012f934 <__free_pages_ok+124/310>
+   a:   c6 43 24 05               movb   $0x5,0x24(%ebx)
+Code;  c012f938 <__free_pages_ok+128/310>
+   e:   89 dd                     mov    %ebx,%ebp
+Code;  c012f93a <__free_pages_ok+12a/310>
+  10:   83 63 18 eb               andl   $0xffffffeb,0x18(%ebx)
+
+regards,
+Francois
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVBQG0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVBQGds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVBQG0L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 01:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVBQGZ5
+	id S262236AbVBQGds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 01:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVBQGds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 01:25:57 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:36492 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262235AbVBQGZu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 01:25:50 -0500
-To: Mike Snitzer <snitzer@gmail.com>
+	Thu, 17 Feb 2005 01:33:48 -0500
+Received: from mail.tyan.com ([66.122.195.4]:1286 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S262236AbVBQGdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 01:33:45 -0500
+Message-ID: <3174569B9743D511922F00A0C94314230808598B@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@muc.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: dm perf scales poorly with 2.6.x kernel
-References: <170fa0d205021520083b24c1b6@mail.gmail.com>
-	<170fa0d20502161504f8db91b@mail.gmail.com>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 17 Feb 2005 07:25:48 +0100
-In-Reply-To: <170fa0d20502161504f8db91b@mail.gmail.com> (Mike Snitzer's
- message of "Wed, 16 Feb 2005 16:04:57 -0700")
-Message-ID: <m14qgb3doz.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Subject: interrupt 
+Date: Wed, 16 Feb 2005 22:47:07 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Snitzer <snitzer@gmail.com> writes:
->
-> Ultimately there appears to be a disproportionate increase in the DM
-> performance hit as the IO throughput capability of the underlying
-> block device increases (I'm obviously using a limited sampling so...).
->  But given the current results it is clear there will be a performance
-> hit associated with using DM; but having that hit be fixed as the
-> throughput scales would be ideal.
+Interrupts always go to CPU 11.
 
-You could do a oprofile run to see where to CPU time is going to
-and post the results.
+If dual core is diabled,  it always go to CPU5. It is OK on 32bit mode.
 
--Andi
+           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5
+CPU6       CPU7       CPU8       CPU9       CPU10       CPU11       CPU12
+CPU13       CPU14       CPU15       
+  0:        409          0          0          0          0          0
+0          0          0          0        229      37399          0
+0          0          0    IO-APIC-edge  timer
+  2:          0          0          0          0          0          0
+0          0          0          0          0          0          0
+0          0          0          XT-PIC  cascade
+  4:          0          0          0          0          0          0
+0          0          0          0          0       4915          0
+0          0          0    IO-APIC-edge  serial
+  8:          0          0          0          0          0          0
+0          0          0          0          0          0          0
+0          0          0    IO-APIC-edge  rtc
+ 14:          0          0          0          0          0          0
+0          0          0          0          0         10          0
+0          0          0    IO-APIC-edge  ide0
+ 19:          0          0          0          0          0          0
+0          0          0          0          0          0          0
+0          0          0   IO-APIC-level  ohci1394
+ 20:          0          0          0          0          0          0
+0          0          0          0          0          0          0
+0          0          0   IO-APIC-level  libata
+ 21:          0          0          0          0          0          0
+0          0          0          0          0          0          0
+0          0          0   IO-APIC-level  libata
+ 22:          0          0          0          0          0          0
+0          0          0          0          0          0          0
+0          0          0   IO-APIC-level  ohci_hcd
+ 23:          0          0          0          0          0          0
+0          0          0          0          0          0          0
+0          0          0   IO-APIC-level  ehci_hcd
+NMI:          1          0          0          0          0          0
+0          0          0          0          0          1          0
+0          0          0 
+LOC:      37688      37965      37965      37965      37965      37965
+37965      37965      37965      37965      37965      37446      37965
+37965      37965      37966 
+ERR:        447
+MIS:          0

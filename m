@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129933AbQLBLv0>; Sat, 2 Dec 2000 06:51:26 -0500
+	id <S129969AbQLBMcv>; Sat, 2 Dec 2000 07:32:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130272AbQLBLvQ>; Sat, 2 Dec 2000 06:51:16 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:3366 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S130216AbQLBLvF>; Sat, 2 Dec 2000 06:51:05 -0500
-Date: Sat, 2 Dec 2000 05:20:29 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Andries Brouwer <aeb@veritas.com>
-cc: Santiago Garcia Mantinan <manty@i.am>, linux-kernel@vger.kernel.org
-Subject: Re: why volatile on vgacon.c?
-In-Reply-To: <20001129185140.A12589@veritas.com>
-Message-ID: <Pine.LNX.3.96.1001202051946.27887H-100000@mandrakesoft.mandrakesoft.com>
+	id <S129953AbQLBMcm>; Sat, 2 Dec 2000 07:32:42 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:19982 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S129882AbQLBMcd>; Sat, 2 Dec 2000 07:32:33 -0500
+Date: Sat, 2 Dec 2000 12:01:41 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+In-Reply-To: <908q2g$1pf$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10012021201090.31306-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Andries Brouwer wrote:
-> On Wed, Nov 29, 2000 at 05:24:15PM +0100, Santiago Garcia Mantinan wrote:
-> > That was on 2.2 series, but since I moved it to 2.4 series I don't have that
-> > cga card found anymore. I have looked on the kernel code and followed it to
-> > the __init function in vgacon.c, more concretely this piece of code...
+On 1 Dec 2000, H. Peter Anvin wrote:
 
-> >         scr_writew(0xAA55, p);
-> >         scr_writew(0x55AA, p + 1);
-> >         if (scr_readw(p) != 0xAA55 || scr_readw(p + 1) != 0x55AA) {
+> > open("/dev/random", O_RDONLY)           = 3
+> > read(3, "q\321Nu\204\251^\234i\254\350\370\363\"\305\366R\2708V"..., 72) = 29
+> > close(3)                                = 0
+> >
+> > Have the semantics of the device changed, or is vpnd doing
+> > something wrong?
+>
+> vpnd is doing something wrong: it's assuming short reads won't happen.
+> /dev/random will block if there is NOTHING to be read; however, if
+> there are bytes to be read, it will return them even if it is less
+> than the user asked for.
 
-> > Well, the thing is that this code and the code in this function is almost
-> > the same in 2.4 as in 2.2, however reading returns the written values on 2.2
-> > and different ones (0xffff) on 2.4
+Ah, many thanks for the clarification.  I'll fix vpnd then.
 
-> Probably without the volatile the compiler optimizes the entire
-> if statement away because it very well knows that it just wrote
-> these values there.  With the volatile it has to check, and finds
-> that there is nothing there.
-
-hmmm.  That's why barriers exist, right?
-
-	Jeff
-
-
+Matthew.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

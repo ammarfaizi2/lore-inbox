@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268432AbTBNPgz>; Fri, 14 Feb 2003 10:36:55 -0500
+	id <S268449AbTBNPqJ>; Fri, 14 Feb 2003 10:46:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268437AbTBNPgy>; Fri, 14 Feb 2003 10:36:54 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:60094 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S268432AbTBNPgy>;
-	Fri, 14 Feb 2003 10:36:54 -0500
-Date: Fri, 14 Feb 2003 16:45:40 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+	id <S268451AbTBNPqJ>; Fri, 14 Feb 2003 10:46:09 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12416
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268449AbTBNPqI>; Fri, 14 Feb 2003 10:46:08 -0500
+Subject: Re: openbkweb-0.0
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Larry McVoy <lm@bitmover.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Lang <david.lang@digitalinsight.com>,
+Cc: David Lang <david.lang@digitalinsight.com>,
        "Matthew D. Pitts" <mpitts@suite224.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: openbkweb-0.0
 In-Reply-To: <20030214153039.GB3188@work.bitmover.com>
-Message-ID: <Pine.GSO.4.21.0302141642370.3517-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com>
+	 <1045233701.7958.14.camel@irongate.swansea.linux.org.uk>
+	 <20030214153039.GB3188@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045241763.1353.19.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 14 Feb 2003 16:56:03 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003, Larry McVoy wrote:
-> I'm more than a little disgusted by this thread and the attitude of some
-> in it.  It's all well and good to whine about the BK license, but before
-> you do, how about quantifying the amount of good it has done for the 
-> kernel development process over the last year?  All sorts of people have
-> pointed out that things are going a lot better, perhaps you want to take
-> that into consideration before you decide to yank this particular chain.
+On Fri, 2003-02-14 at 15:30, Larry McVoy wrote:
+> Second of all, all of those reverse engineering clauses are dependent on
+> you having a legal copy of the software, full stop.  You can't get a 
+> legal copy if what you want to do, now or in the future, is to reverse
+> engineer the software.  
 
-Indeed. Linus' patch-dropping-rate has declined a lot since he started using
-BK, making life easier for maintainers, and people started to write better
-changelogs, making lifer easier for whoever wants to follow kernel development.
+Go talk to an EU lawyer. These laws exist to stop people locking down
+formats and its one of the reasons you actually have things like
+open office
 
-Kudos, Larry!
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+All I want is to be able to review the 3c990 patch. Right now I can't
 

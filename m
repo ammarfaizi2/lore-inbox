@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266326AbUBLKfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 05:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266327AbUBLKfJ
+	id S266324AbUBLKkX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 05:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266330AbUBLKkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 05:35:09 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:62692 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S266326AbUBLKfG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 05:35:06 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: dmapool (was: Re: Linux 2.6.3-rc2)
-Date: 12 Feb 2004 11:25:09 +0100
-Organization: SuSE Labs, Berlin
-Message-ID: <87smhglhmi.fsf@bytesex.org>
-References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org> <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be> <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be> <20040210145558.A4684@infradead.org> <20040210162259.GA26620@kroah.com> <Pine.GSO.4.58.0402101727130.2261@waterleaf.sonytel.be> <20040210101437.1507af3b.davem@redhat.com> <Pine.GSO.4.58.0402121048550.7297@waterleaf.sonytel.be>
-NNTP-Posting-Host: localhost
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: bytesex.org 1076581509 5955 127.0.0.1 (12 Feb 2004 10:25:09 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Thu, 12 Feb 2004 05:40:22 -0500
+Received: from columba.eur.3com.com ([161.71.171.238]:44799 "EHLO
+	columba.eur.3com.com") by vger.kernel.org with ESMTP
+	id S266324AbUBLKkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 05:40:18 -0500
+Message-ID: <402B580E.3000404@jburgess.uklinux.net>
+Date: Thu, 12 Feb 2004 10:40:14 +0000
+From: Jon Burgess <lkml@jburgess.uklinux.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-gb, en-us, en
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: Jon Burgess <lkml@jburgess.uklinux.net>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interleaved
+ writes
+References: <Pine.LNX.4.44.0402111528140.23220-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0402111528140.23220-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> writes:
+Rik van Riel wrote:
 
-> Feel free to move the stubs to asm-generic/no-dma-mapping.h, if there are
-> enough users to warrant that.
+> Just for fun, could you also try measuring how long it takes
+> to read back the files in question ?
+>
+> Both individually and in parallel...
+>
+The original code did the read back as well, I stripped it out to make 
+the code smaller to post.
+It was the read back performance that I was most interested in. I found 
+that ext2/3 interleave all the blocks on the disk. With 2 stream the 
+read performance is 50%, 4 streams give 25% etc.
 
-Yes, please.  user-mode-linux needs this too.
+I have one really bad case where I record a TV stream at 500kByte/s + a 
+radio one at 25kByte/s. These blocks are interleaved on the disk and the 
+read performance of the radio stream is reduced by the data ratio, i.e. 
+1:20, so I get a miserable read performance of ~ 1MB/s.
 
-  Gerd
+I found that ext2, ext3 and Reiserfs behave similarly. XFS and JFS 
+appear to coalesce the data blocks during the write phase and can read 
+the data back at near maximum performance.
 
--- 
-"... und auch das ganze Wochenende oll" -- Wetterbericht auf RadioEins
+    Jon
+

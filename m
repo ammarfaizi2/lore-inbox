@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289124AbSBEGvx>; Tue, 5 Feb 2002 01:51:53 -0500
+	id <S289201AbSBEHBl>; Tue, 5 Feb 2002 02:01:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289185AbSBEGvl>; Tue, 5 Feb 2002 01:51:41 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:43524 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289124AbSBEGvc>;
-	Tue, 5 Feb 2002 01:51:32 -0500
-Date: Mon, 4 Feb 2002 22:49:12 -0800
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Patrick Mochel <mochel@osdl.org>, Dave Jones <davej@suse.de>,
-        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driverfs support for USB - take 2
-Message-ID: <20020205064912.GA31487@kroah.com>
-In-Reply-To: <Pine.LNX.4.33.0201291711560.800-100000@segfault.osdlab.org> <08cf01c1a933$f45ac460$6800000a@brownell.org> <20020130040908.GA23261@kroah.com> <0a1501c1a9c9$bdf427e0$6800000a@brownell.org> <20020202001804.GC10313@kroah.com> <0e9101c1ac1d$b18b25c0$6800000a@brownell.org>
-Mime-Version: 1.0
+	id <S289230AbSBEHBb>; Tue, 5 Feb 2002 02:01:31 -0500
+Received: from [217.7.28.131] ([217.7.28.131]:60430 "EHLO inetgate.hob.de")
+	by vger.kernel.org with ESMTP id <S289201AbSBEHB0>;
+	Tue, 5 Feb 2002 02:01:26 -0500
+Message-ID: <3C5F80F2.54AF98E3@hob.de>
+Date: Tue, 05 Feb 2002 07:51:30 +0100
+From: Christian Hildner <christian.hildner@hob.de>
+Organization: hob electronic
+X-Mailer: Mozilla 4.78 [de]C-CCK-MCD DT  (WinNT; U)
+X-Accept-Language: de
+MIME-Version: 1.0
+To: Jes Sorensen <jes@sunsite.dk>
+Cc: davidm@hpl.hp.com, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-ia64] kmalloc() size-limitation
+In-Reply-To: <3C3D6A89.27EAA4C7@hob.de> <15421.61910.163437.45726@napali.hpl.hp.com> <3C3ED5E7.8BA479B7@hob.de> <15423.5404.65155.924018@napali.hpl.hp.com> <3C43D6EC.74B4EC85@hob.de> <d31yg1lzgm.fsf@lxplus052.cern.ch>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0e9101c1ac1d$b18b25c0$6800000a@brownell.org>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 08 Jan 2002 04:42:49 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02, 2002 at 11:13:26AM -0800, David Brownell wrote:
-> > No, I'll say that we need to stay one physical device per device in the
-> > tree. 
-> 
-> But we aren't that way today.  Examples:
+Jes Sorensen schrieb:
 
-<snip>
+> Christian Hildner <christian.hildner@hob.de> writes:
+>
+> > David,
+> >
+> > you proposed me to use alloc_pages() instead of kmalloc() in order
+> > to get memory bigger than the 128K limit of the kmalloc() call. But
+> > even driver-developers don't want to handle with the page struct
+> > unless this is unavoidable. Which are the disadvantages of
+> > increasing the size limit of kmalloc() to 256K, 512K or 1M since
+> > machines are getting bigger and 64Bit machines break with current
+> > memory limitations?
+>
+> Because drivers needs to work on all architectures and relying on
+> different hahavior from kmalloc() is bad.
+>
+> Jes
 
-Ok, you're right.  We want to tell the drivers to shut down (remember,
-the original goal of driverfs was for power management), so all drivers
-that attach to a device need to be shown.
+Jes,
 
-I'll play with the code some more and make this kind of change.
+sorry for being unclear. I mean from increasing the kmalloc() size-limit
+all platforms would benefit.
 
-> >     If you want to do an interface tree, let's put that in usbfs,
-> > where it belongs :)
-> 
-> Ah, but changing usbfs is impractical at this point since lots of
-> userspace programs rely on it not changing.  Which is why I
-> was pointing this out in the context of driverfs, which can still
-> be improved in such ways ... "usbdevfs" was always advertised
-> as "preliminary", anyway! :)
+Christian
 
-Heh, I took the "preliminary" tag off of it a short while ago, as so
-many different userspace programs were using it.  Maybe usbfs2? :)
+PS: David, I am looking forward getting your book. You are doing a great
+job.
 
-Seriously, I've had some ideas of a different way to implement the
-functionality of usbfs, possibly without all of the ioctl calls, but I
-have not had the time to experiment with it...
-
-thanks,
-
-greg k-h

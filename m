@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbTEMPte (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 11:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbTEMPte
+	id S261355AbTEMPxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbTEMPxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 11:49:34 -0400
-Received: from imhotep.hursley.ibm.com ([194.196.110.14]:43898 "EHLO
-	tor.trudheim.com") by vger.kernel.org with ESMTP id S261704AbTEMPt2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 11:49:28 -0400
-Subject: Re: kernel BUG at inode.c:562!
-From: Anders Karlsson <anders@trudheim.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030513124135.GA28238@namesys.com>
-References: <1052823517.5022.3.camel@tor.trudheim.com>
-	 <20030513124135.GA28238@namesys.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-p7ZFOgWxlcnpL/gXMCJD"
-Organization: Trudheim Technology Limited
-Message-Id: <1052841728.5349.40.camel@tor.trudheim.com>
+	Tue, 13 May 2003 11:53:21 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30619
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261355AbTEMPwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 11:52:05 -0400
+Subject: Re: 2.6 must-fix list, v2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <shsy91aonlt.fsf@charged.uio.no>
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+	 <20030512155511.21fb1652.akpm@digeo.com>
+	 <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk>
+	 <shsy91aonlt.fsf@charged.uio.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052838378.463.41.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
-Date: 13 May 2003 17:02:08 +0100
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 May 2003 16:06:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2003-05-13 at 16:47, Trond Myklebust wrote:
+> The most serious non-NFSv4 problem I believe is the fact that IODirect
+> for NFS needs to be completed. I need to bug Chuck about that.
+> 
+> I also need to look over the VFS file locking changes to see if
+> anything has broken lockd.
+> 
+> any more?
 
---=-p7ZFOgWxlcnpL/gXMCJD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2003-05-13 at 13:41, Oleg Drokin wrote:
-> Hello!
-
-[snip]
-
-> Hm, can you please try to reproduce without vmware modules ever being loa=
-ded?
-
-I have stopped VMware and prevented it from starting again. I have
-without problem built 30+ rpms and subsequently cleaned up the BUILD
-directory. Not a single problem. I will however carry on testing.
-
-I will also notify VMware about a potential problem with their product.
-They have been helpful before.
-
-Regards,
-
-/Anders
-
-
---=-p7ZFOgWxlcnpL/gXMCJD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA+wRcALYywqksgYBoRAmoJAKDGrxJsj+59xKkFqV7RmeIyQ3vnMACgiBxv
-V/ODBzG+qDl/esm4HuzNkJI=
-=oaZj
------END PGP SIGNATURE-----
-
---=-p7ZFOgWxlcnpL/gXMCJD--
+Are all of Steve's fixes for the NFS client from 2.4 propogated into 2.5 
+now then ?
 

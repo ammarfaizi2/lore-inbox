@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293549AbSBZJJl>; Tue, 26 Feb 2002 04:09:41 -0500
+	id <S293547AbSBZJQm>; Tue, 26 Feb 2002 04:16:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293550AbSBZJJb>; Tue, 26 Feb 2002 04:09:31 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:5638 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S293549AbSBZJJM>; Tue, 26 Feb 2002 04:09:12 -0500
-Date: Tue, 26 Feb 2002 10:09:06 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18
-Message-ID: <20020226090906.GA9245@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020225233230.GB11786@merlin.emma.line.org> <Pine.LNX.3.96.1020226000221.20055B-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S293550AbSBZJQc>; Tue, 26 Feb 2002 04:16:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43788 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293547AbSBZJQa>; Tue, 26 Feb 2002 04:16:30 -0500
+Subject: Re: Submissions for 2.4.19-pre [x86 Syscall Optimizations (Alexander Khripin)]
+To: me@ohdarn.net (Michael Cohen)
+Date: Tue, 26 Feb 2002 09:31:09 +0000 (GMT)
+Cc: rml@tech9.net (Robert Love), alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+In-Reply-To: <20020225222653.5d1a1d27.me@ohdarn.net> from "Michael Cohen" at Feb 25, 2002 10:26:53 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020226000221.20055B-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16fdwz-0008SJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Bill Davidsen wrote:
-
-> On Tue, 26 Feb 2002, Matthias Andree wrote:
+> > Eh?  The patch doesn't do anything but move movl ops around.  I suspect
+> > the intention may to eliminate datapath stalls, which may be a fine
+> > micro-optimization, but I think we need some numbers first ...
 > 
-> > I'd think that running a script to "upgrade" 2.4.N-rcM to 2.4.N by just
-> > unpacking that latest rc tarball, editing the Makefile and tarring
-> > things up again, should be safe enough, and if it doesn't allow for
-> > operator interference, especially so. 
-> 
-> Seems to me:
-> - clean EXTRAVERSION
-> - make new diff
+> UNIXbench numbers on the way :)
 
-Correct, I forgot about this item -- but it's a longer distance, from
-2.4.N-1 to 2.4.N. Thank you.
-
-> - make tar (one please)
-> - make tar.gz from tar
-> - compress tar to tar.bz2
+Remember to get them with more than one vendor and family of processors.
+Quite a lot of proposed micro-optimisations turn out to be pessimisations
+except for the processor of the original proposer 8(

@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265657AbUBBQpx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 11:45:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbUBBQpw
+	id S265694AbUBBRCS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 12:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265710AbUBBRCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 11:45:52 -0500
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:40321 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265657AbUBBQpu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 11:45:50 -0500
-Message-Id: <200402021645.i12Gjdqx003484@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6 input drivers FAQ 
-In-Reply-To: Your message of "Sun, 01 Feb 2004 13:23:37 EST."
-             <200402011323.37900.gene.heskett@verizon.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040201100644.GA2201@ucw.cz> <20040201163136.GF11391@triplehelix.org>
-            <200402011323.37900.gene.heskett@verizon.net>
+	Mon, 2 Feb 2004 12:02:18 -0500
+Received: from marcoport.ecogen.unibo.it ([137.204.175.100]:10385 "EHLO
+	crono.olimpo.ddts.net") by vger.kernel.org with ESMTP
+	id S265694AbUBBRCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 12:02:17 -0500
+Date: Mon, 2 Feb 2004 18:01:25 +0100
+From: Marco Giordani <marco@bononia.it>
+To: Hugang <hugang@soulinfo.com>
+Cc: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: swsusp2 on ppc [Re: Software Suspend 2.0]
+Message-ID: <20040202170125.GA5245@cs.unibo.it>
+Mail-Followup-To: Hugang <hugang@soulinfo.com>,
+	swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_786267518P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Feb 2004 11:45:39 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040201150827.2858bf9b@localhost>
+X-Operating-System: Debian GNU/Linux unstable
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_786267518P
-Content-Type: text/plain; charset=us-ascii
+On Sun, Feb 01, 2004 at 03:08:27PM +0800, Hugang wrote:
+> Here is the ppc swsusp2 update patch for 2.6.1 + rc6 + 2.0, please
+> apply.
 
-On Sun, 01 Feb 2004 13:23:37 EST, Gene Heskett <gene.heskett@verizon.net>  said:
+It doesn't work for me. During "write cache" phase, at 75% of the
+progress bar, my powerbook powers off the LCD backlight and it seems
+locked... at this point I can only power off the system...  Any idea?
 
-> In years past, the mouse double-click for a single click syndrome was 
-> caused by the pushbutton switch in the mouse becoming unsoldered, as 
-> in a microscopic crack in the solder you had to use a strong glass to 
-> see around the switches pin in the puddle of solder.  Holding the 
-> switch solidly against the board and resoldering fixed it right up.
+BTW, I cannot compile your patch with highmem support. It will be very
+useful for me...
 
-Wow.  What are the chances of that happening to two different 
-Microsoft Trackball Opticals, purchased at different times, but failing
-at the same time? (I have one that stays with the docking station in
-the one office space I use, and another that travels with me to the
-other office space, or home, or plane, or whatever)...
+I've also tried the benh's pmdisk patch and it works fine but it lacks
+highmem support too.
 
---==_Exmh_786267518P
-Content-Type: application/pgp-signature
+TIA,
+Marco
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAHn6ycC3lWbTT17ARAlvOAKCP/jC/f6iiuH3+OdcQl2STVjXY8gCffhwN
-7pkqV+oViFFrIDde6i5jhTY=
-=t3W0
------END PGP SIGNATURE-----
-
---==_Exmh_786267518P--
+-- 
+  Marco Giordani <giordani@cs.unibo.it> - GnuPGid 0x229B1BE8/1024
+  Key fingerprint = F1C8 CD45 210D 6C19 A5FD  A864 FA01 3E5C 229B 1BE8

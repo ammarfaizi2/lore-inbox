@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTEMDCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 23:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbTEMDBZ
+	id S261860AbTEMD2C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 23:28:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbTEMD2C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 23:01:25 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:17650 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S263177AbTEMDAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 23:00:22 -0400
-Date: Mon, 12 May 2003 20:12:12 -0700
-From: Chris Wright <chris@wirex.com>
-To: linux-kernel@vger.kernel.org, hch@infradead.org, gregkh@kroah.com,
-       linux-security-module@wirex.com
-Cc: matthew@wil.cx
-Subject: Re: [PATCH] Early init for security modules
-Message-ID: <20030512201212.R19432@figure1.int.wirex.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, hch@infradead.org,
-	gregkh@kroah.com, linux-security-module@wirex.com, matthew@wil.cx
-References: <20030512200309.C20068@figure1.int.wirex.com>
+	Mon, 12 May 2003 23:28:02 -0400
+Received: from granite.he.net ([216.218.226.66]:46860 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S261860AbTEMD2B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 23:28:01 -0400
+Date: Mon, 12 May 2003 20:41:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: re-scanning the PCI bus after boot for configurable device...
+Message-ID: <20030513034147.GA5938@kroah.com>
+References: <Pine.LNX.4.53.0305130225240.20908@skynet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030512200309.C20068@figure1.int.wirex.com>; from chris@wirex.com on Mon, May 12, 2003 at 08:03:09PM -0700
+In-Reply-To: <Pine.LNX.4.53.0305130225240.20908@skynet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Wright (chris@wirex.com) wrote:
-> As discussed before, here is a simple patch to allow for early
-> initialization of security modules when compiled statically into the
-> kernel.  The standard do_initcalls is too late for complete coverage of
-> all filesystems and threads for example.  If this looks OK, I'd like to
-> push it on to Linus.  Patch is against 2.5.69-bk.  It is tested on i386,
-> and various arch maintainers are copied on relevant bits of patch.
+On Tue, May 13, 2003 at 02:29:33AM +0100, Dave Airlie wrote:
+> 
+> hi,
+> 	I've got a PCI card that has an FPGA on it which I want to program
+> at run time, and then load a device driver for depending on what I've
+> loaded in to the FPGA,
+> 
+> The FPGA is downloaded via JTAG so that is all fine, but if I boot Linux,
+> download over the JTAG, how can I get Linux to see the device? can I use
+> the hotplugging support or do I still need to do more work? I know the
+> hotplug allows for PCMCIA and CompactPCI to add devices after boot, but
+> this is plain PCI but the device won't be there until the system is
+> running,
 
-This is just the arch specific linker bits for the early initialization
-for security modules patch.  Does this look sane for this arch?
+I've posted a driver to the linux-hotplug-devel mailing list a year or
+so ago that might help you out with this.  On module load it rescans the
+PCI address space, adding or removind devices that are new or now gone.
+This will probably do what you want.
 
---- 1.13/arch/parisc/vmlinux.lds.S	Wed Apr  2 00:42:56 2003
-+++ edited/arch/parisc/vmlinux.lds.S	Mon May 12 16:16:59 2003
-@@ -80,6 +80,9 @@
-   __con_initcall_start = .;
-   .con_initcall.init : { *(.con_initcall.init) }
-   __con_initcall_end = .;
-+  __security_initcall_start = .;
-+  .security_initcall.init : { *(.security_initcall.init) }
-+  __security_initcall_end = .;
-   . = ALIGN(4096);
-   __initramfs_start = .;
-   .init.ramfs : { *(.init.ramfs) }
+I didn't write the driver, and it's probably very out of date by now,
+but it's something for you to start with if you are interested.
+
+Good luck,
+
+greg k-h

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbTENFVK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 01:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTENFVJ
+	id S261741AbTENFUK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 01:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTENFUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 01:21:09 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:9487 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261788AbTENFVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 01:21:02 -0400
-Date: Wed, 14 May 2003 06:33:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Nathan Neulinger <nneul@umr.edu>
-Cc: David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support only
-Message-ID: <20030514063345.A517@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nathan Neulinger <nneul@umr.edu>,
-	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <8943.1052843591@warthog.warthog> <20030513213759.A9244@infradead.org> <1052864839.20037.2.camel@nneul-laptop>
+	Wed, 14 May 2003 01:20:10 -0400
+Received: from angband.namesys.com ([212.16.7.85]:49294 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S261741AbTENFUI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 01:20:08 -0400
+Date: Wed, 14 May 2003 09:32:50 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: jdike@karaya.com, roland@redhat.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: build problems on architectures where FIXADDR_* stuff is not constant
+Message-ID: <20030514053250.GA27433@namesys.com>
+References: <20030513122329.GA31609@namesys.com> <20030513134620.3dafeaf3.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1052864839.20037.2.camel@nneul-laptop>; from nneul@umr.edu on Tue, May 13, 2003 at 05:27:20PM -0500
+In-Reply-To: <20030513134620.3dafeaf3.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[openafs-devel dropped from the Cc-list due to stupid subscriber only policy]
+Hello!
 
-On Tue, May 13, 2003 at 05:27:20PM -0500, Nathan Neulinger wrote:
-> > > +static kmem_cache_t *vfs_token_cache;
-> > > +static kmem_cache_t *vfs_pag_cache;
-> > 
-> > How many of those will be around for a typical AFS client?  I have the vague
-> > feeling the slabs are overkill..
-> 
-> What's a "typical client"?
+On Tue, May 13, 2003 at 01:46:20PM -0700, Andrew Morton wrote:
+> >    Since there are architectures where FIXADDR_* stuff is not constant (e.g. UML),
+> > ...
+> > +			fixmap_vma.vm_start = FIXADDR_START;
+> > +			fixmap_vma.vm_end = FIXADDR_TOP;
+> > +			fixmap_vma.vm_page_prot = PAGE_READONLY;
+> >  			pgd = pgd_offset_k(pg);
+> >  			if (!pgd)
+> >  				return i ? : -EFAULT;
+> That's modifying static storage which other, unrelated processes or CPUs
+> may be playing with.
 
-The case we wan to optimize for.  The question here is whether we really want
-a separate slab or whether it makes more senze to just use the new kmalloc
-slab (usually power of two sized).  
+Ah, stupid me. Missed the "static" thing :(
+
+Bye,
+    Oleg

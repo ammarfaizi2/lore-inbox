@@ -1,62 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132868AbRDQVaY>; Tue, 17 Apr 2001 17:30:24 -0400
+	id <S132870AbRDQV3e>; Tue, 17 Apr 2001 17:29:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132871AbRDQVaV>; Tue, 17 Apr 2001 17:30:21 -0400
-Received: from ns.caldera.de ([212.34.180.1]:31501 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S132868AbRDQV3a>;
-	Tue, 17 Apr 2001 17:29:30 -0400
-Date: Tue, 17 Apr 2001 23:29:23 +0200
-Message-Id: <200104172129.XAA14514@ns.caldera.de>
-From: hch@caldera.de (Christoph Hellwig)
-To: andrea@suse.de (Andrea Arcangeli)
-Cc: linux-kernel@vger.kernel.org, dhowells@astarte.free-online.co.uk
-Subject: Re: generic rwsem [Re: Alpha "process table hang"]
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010417224933.E31982@athlon.random>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S132869AbRDQV3Z>; Tue, 17 Apr 2001 17:29:25 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:60676 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S132868AbRDQV3M>;
+	Tue, 17 Apr 2001 17:29:12 -0400
+Message-ID: <20010417232614.A4377@bug.ucw.cz>
+Date: Tue, 17 Apr 2001 23:26:15 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: i386 cleanups
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+Hi!
 
-In article <20010417224933.E31982@athlon.random> you wrote:
-> I didn't exported rwsem.c if CONFIG_RWSEM_GENERIC is set to n as suggested
-> by Christoph yet because the old code couldn't be buggy and it's not obvious to
-> me that the other way around is correct (Christoph are you sure we can export an
-> object file that is not even compiled/generated? If answer is yes the export
-> mechanism must be smart enough to discard that file if not present but I'm not
-> sure if that's the case ;)
+These are tiny cleanups you might like. sizes are "logically"
+long. No, it does not matter on i386.
 
-Yes! All the objects in export-objs only get additional depencies in
-Rules.make - but if they do not get compiled at all that depencies won't
-matter either.  All other makefile work this way, btw.
+processor.h makes INIT_TSS look much more readable. [Please tell me
+applied or rejected]
 
-In my first mail I forgot that the makefile can be optimized even
-further, the hunk should look like this:
-(NOTE: the patch is handwritten, no apply gurantee)
+							Pavel
 
-diff -urN 2.4.4pre3/lib/Makefile rwsem/lib/Makefile
---- 2.4.4pre3/lib/Makefile      Sat Apr 14 15:21:29 2001
-+++ rwsem/lib/Makefile  Tue Apr 17 21:58:57 2001
-@@ -10,10 +10,12 @@
-
- export-objs := cmdline.o rwsem.o
-
--obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o rwsem.o
-+obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o
-
- ifneq ($(CONFIG_HAVE_DEC_LOCK),y)
-   obj-y += dec_and_lock.o
- endif
-
-+obj-$(CONFIG_GENERIC_RWSEM)	+= rwsem.o
-+
- include $(TOPDIR)/Rules.make
-
-
-
-	Christoph
+Index: include/asm-i386/posix_types.h
+===================================================================
+RCS file: /home/cvs/Repository/linux/include/asm-i386/posix_types.h,v
+retrieving revision 1.1.1.1
+diff -u -u -r1.1.1.1 posix_types.h
+--- include/asm-i386/posix_types.h	2000/09/04 16:50:33	1.1.1.1
++++ include/asm-i386/posix_types.h	2001/02/13 13:49:18
+@@ -16,9 +16,9 @@
+ typedef unsigned short	__kernel_ipc_pid_t;
+ typedef unsigned short	__kernel_uid_t;
+ typedef unsigned short	__kernel_gid_t;
+-typedef unsigned int	__kernel_size_t;
+-typedef int		__kernel_ssize_t;
+-typedef int		__kernel_ptrdiff_t;
++typedef unsigned long	__kernel_size_t;
++typedef long		__kernel_ssize_t;
++typedef long		__kernel_ptrdiff_t;
+ typedef long		__kernel_time_t;
+ typedef long		__kernel_suseconds_t;
+ typedef long		__kernel_clock_t;
+Index: include/asm-i386/processor.h
+===================================================================
+RCS file: /home/cvs/Repository/linux/include/asm-i386/processor.h,v
+retrieving revision 1.2
+diff -u -u -r1.2 processor.h
+--- include/asm-i386/processor.h	2000/09/12 21:27:18	1.2
++++ include/asm-i386/processor.h	2001/02/13 13:49:22
+@@ -365,19 +365,11 @@
+ { &init_mm, 0, 0, NULL, PAGE_SHARED, VM_READ | VM_WRITE | VM_EXEC, 1, NULL, NULL }
+ 
+ #define INIT_TSS  {						\
+-	0,0, /* back_link, __blh */				\
+-	sizeof(init_stack) + (long) &init_stack, /* esp0 */	\
+-	__KERNEL_DS, 0, /* ss0 */				\
+-	0,0,0,0,0,0, /* stack1, stack2 */			\
+-	0, /* cr3 */						\
+-	0,0, /* eip,eflags */					\
+-	0,0,0,0, /* eax,ecx,edx,ebx */				\
+-	0,0,0,0, /* esp,ebp,esi,edi */				\
+-	0,0,0,0,0,0, /* es,cs,ss */				\
+-	0,0,0,0,0,0, /* ds,fs,gs */				\
+-	__LDT(0),0, /* ldt */					\
+-	0, INVALID_IO_BITMAP_OFFSET, /* tace, bitmap */		\
+-	{~0, } /* ioperm */					\
++	esp0: sizeof(init_stack) + (long) &init_stack,		\
++	ss0: __KERNEL_DS,					\
++	ldt: __LDT(0),						\
++	bitmap: INVALID_IO_BITMAP_OFFSET,			\
++	ioperm: {~0, }						\
+ }
+ 
+ #define start_thread(regs, new_eip, new_esp) do {		\
+ 
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,92 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286545AbRLUJPb>; Fri, 21 Dec 2001 04:15:31 -0500
+	id <S286530AbRLUJOl>; Fri, 21 Dec 2001 04:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286532AbRLUJPM>; Fri, 21 Dec 2001 04:15:12 -0500
-Received: from holomorphy.com ([216.36.33.161]:31104 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S286344AbRLUJPJ>;
-	Fri, 21 Dec 2001 04:15:09 -0500
-Date: Fri, 21 Dec 2001 01:14:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] MAX_MP_BUSSES increase
-Message-ID: <20011221011453.A766@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011220235648.A1663@averell> <Pine.LNX.4.33.0112211113570.2196-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S286581AbRLUJOb>; Fri, 21 Dec 2001 04:14:31 -0500
+Received: from ns0.dhm-systems.de ([195.126.154.163]:35855 "EHLO
+	ns0.dhm-systems.de") by vger.kernel.org with ESMTP
+	id <S286569AbRLUJOS>; Fri, 21 Dec 2001 04:14:18 -0500
+Message-ID: <3C22FD46.11CC921A@web-systems.net>
+Date: Fri, 21 Dec 2001 10:13:42 +0100
+From: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
+Reply-To: Ado.Arnolds@dhm-systems.de
+Organization: DHM GmbH & Co. KG
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: de, en, fr, ru
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, alan@lxorguk.ukuu.org.uk
+CC: linux-kernel@vger.kernel.org, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        hylafax-users@hylafax.org, hylafax-devel@hylafax.org
+Subject: Re: sx driver, DCD-HylaFAX problem solved
+In-Reply-To: <200112210008.BAA20609@cave.bitwizard.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0112211113570.2196-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Dec 21, 2001 at 11:31:10AM +0100
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Before trying to divorce the issues, I'd like to thank James for the
-moral support. =)
+Rogier Wolff wrote:
+> 
+...
+> Please Email Marcello, Linus and linux-kernel with this patch, and
+> state that you are submitting this patch on my request for inclusion
+> in the standard kernel.
+> 
+>                         Roger.
 
-On Fri, Dec 21, 2001 at 11:31:10AM +0100, Ingo Molnar wrote:
-> yes, the current bootmem is a pretty effective linear allocator - you can
-> even allocate 1 byte chunks without any space loss - and it's also a
-> pretty simple allocator. During boot-time we allocate linearly in 99% of
-> the cases. The only chance for some very minor loss is when the linear
-> 'point of allocation' reaches a physical discontinuity and a bigger
-> allocation has to skip over that point. For every such skipover (which
-> skipover never happens with typical PCs, and it happens once with PCs that
-> have lots of RAM) the 'loss' of RAM due to granularity is 2 KB. Plus
-> deallocation can introduce fragmentation, the average cost for one
-> fragment is 2KB. Almost no code frees bootmem (apart from the final
-> freeing of bootmem), so this effect just does not happen on my box.
+Hi Marcelo, hi Linus, hi Alan,
 
-The page coalescing algorithm in the stock bootmem is designed only to
-handle allocations in linear sequences. Which is probably the important
-case. The extra generality in my code is something I'd like to call a bonus.
+I'm sending you this patch to the specialix sx driver on the request
+of Roger E. Wolf. It fixes a long outstanding problem with hangup when
+a DCD change is detected by the driver. The CLOCAL in c_cflag was
+ignored. The problem shows up in connection with HylaFAX and gettys.
 
-On Fri, Dec 21, 2001 at 11:31:10AM +0100, Ingo Molnar wrote:
-> a tree structure will not avoid this 'skipping' loss either, in the
-> majority of cases. (the basic reason for skipping is the need for a bigger
-> chunk of RAM, and tree structure wont solve this.)
+Please insert this patch into the next available kernel releases.
+The patch is to linux-2.4.16, but this section of the sx driver
+didn't change at least since 2.2.19.
 
-Essentially memory savings during boot-time reservations are minor if
-present at all. They are seen, though. And your point here holds.
+Thanks a lot for your attention.
 
-On Fri, Dec 21, 2001 at 11:31:10AM +0100, Ingo Molnar wrote:
-> So i'm very doubtful about some of wli's claims about the RAM savings the
-> tree changes bring - the 200 KB cited is i'd say physically impossible.
-> The best-case would be 4 KB saved. And a tree data structure increases
-> complexity significantly. (we had enough bugs in the current form of
-> bootmem already.)
+Ado
 
-> I'd very much like if wli clarified this point - he knows his code, he
-> should know the exact effect. In fact he should know the exact RAM
-> allocation difference on his own box, with and without the tree-structure
-> patch. It seems that this 'tree structure saves 200 KB' misinformation has
-> stuck in people's mind to a certain degree. William?
+-------------------------------------------------------------------------
 
-200KB sounds extreme to me, and I don't recall mentioning that specific
-number. The highest I've heard on i386 is 2MB, which was reported, but
-almost implausible. ACPI on IA64 makes very heavy use of bootmem
-allocations, which is where much larger space savings are seen, although
-once again, compared to the total amount of system memory, it's very minor.
-And I recall 3MB on IA64 Lion systems, though as I've been waiting for
-feedback (even of this kind), I've not done tests there in a few weeks.
+--- linux/drivers/char/sx.c.~1~	Fri Nov  9 23:01:21 2001
++++ linux/drivers/char/sx.c	Thu Dec 20 17:22:53 2001
+@@ -1160,7 +1160,8 @@
+ 				/* DCD went UP */
+ 				if( (~(port->gs.flags & ASYNC_NORMAL_ACTIVE) || 
+ 						 ~(port->gs.flags & ASYNC_CALLOUT_ACTIVE)) &&
+-						(sx_read_channel_byte(port, hi_hstat) != HS_IDLE_CLOSED)) {
++						(sx_read_channel_byte(port, hi_hstat) != HS_IDLE_CLOSED) &&
++						!(port->gs.tty->termios->c_cflag & CLOCAL) ) {
+ 					/* Are we blocking in open?*/
+ 					sx_dprintk (SX_DEBUG_MODEMSIGNALS, "DCD active, unblocking
+open\n");
+ 					wake_up_interruptible(&port->gs.open_wait);
+@@ -1170,7 +1171,8 @@
+ 			} else {
+ 				/* DCD went down! */
+ 				if (!((port->gs.flags & ASYNC_CALLOUT_ACTIVE) &&
+-				      (port->gs.flags & ASYNC_CALLOUT_NOHUP))) {
++				      (port->gs.flags & ASYNC_CALLOUT_NOHUP)) &&
++				    !(port->gs.tty->termios->c_cflag & CLOCAL) ) {
+ 					sx_dprintk (SX_DEBUG_MODEMSIGNALS, "DCD dropped. hanging
+up....\n");
+ 					tty_hangup (port->gs.tty);
+ 				} else {
 
-More than 4KB is seen. On i386 I have personally seen up to 12KB, and
-see 8KB on my i386 machine at home without variation.
-
-Essentially you have pointed out an error on my part, which is reporting
-back a fairly implausible result that was reported to me without filtering
-it for sanity.
-
-On the other hand, I'm unclear on what tree-based bootmem has to do with
-MAX_MP_BUSSES. Shall we take it to another thread? I'm interested in
-discussing more about the tradeoffs involved with extent-based
-representations of physical memory and where I can actively work to
-simplify the interface to boot-time memory reservation, by whatever means.
-
-And this has nothing to do with PCI busses.
-
-Cheers,
-Bill
+-- 
+------------------------------------------------------------------------
+  Heinz-Ado Arnolds                        Ado.Arnolds@web-systems.net
+  Websystems GmbH                              +49 2234 1840-0 (voice)
+  Max-Planck-Strasse 2, 50858 Koeln, Germany   +49 2234 1840-40  (fax)

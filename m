@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263654AbVBCRz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263658AbVBCSkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263654AbVBCRz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 12:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVBCRzF
+	id S263658AbVBCSkl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 13:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbVBCSkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 12:55:05 -0500
-Received: from mail.kroah.org ([69.55.234.183]:4008 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263431AbVBCRlQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 12:41:16 -0500
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Reduce it87 i2c address range
-In-Reply-To: <11074523383338@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 3 Feb 2005 09:38:58 -0800
-Message-Id: <11074523383635@kroah.com>
+	Thu, 3 Feb 2005 13:40:20 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:55657 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263658AbVBCSjg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 13:39:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TIvlHRm6HOJBdpPDgTG8LSqFCWXmVx4FuMhXp+Zfd2zQ3RidFPypXqq0VZ5OZ83QLOkrYTiUNcmLvzPO2pbIYiEJ4scc2s+lG1khvxiBHcrsL95ZWDV/HtooIM6XQb4K2+dLZITq4bUuk1ON51uEjBUBTptd81C3hhm+S9NaJvQ=
+Message-ID: <58cb370e050203103952e1cd22@mail.gmail.com>
+Date: Thu, 3 Feb 2005 19:39:19 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 21/29] ide: Merge do_rw_taskfile() and flagged_taskfile().
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20050202030603.GF1187@htj.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
+References: <20050202024017.GA621@htj.dyndns.org>
+	 <20050202030603.GF1187@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2044, 2005/02/03 00:29:54-08:00, khali@linux-fr.org
+On Wed, 2 Feb 2005 12:06:03 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> > 21_ide_do_taskfile.patch
+> >
+> >       Merged do_rw_taskfile() and flagged_taskfile() into
+> >       do_taskfile().  During the merge, the following changes took
+> >       place.
+> >       1. flagged taskfile now honors HOB feature register.
+> >          (do_rw_taskfile() did write to HOB feature.)
+> >       2. No do_rw_taskfile() HIHI check on select register.  Except
+> >          for the DEV bit, all bits are honored.
+> >       3. Uses taskfile->data_phase to determine if dma trasfer is
+> >          requested.  (do_rw_taskfile() directly switched on
+> >          taskfile->command for all dma commands)
+> 
+> Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-[PATCH] I2C: Reduce it87 i2c address range
+do_rw_taskfile() is going to be used by fs requests once
+__ide_do_rw_disk() is converted to taskfile transport.
 
-IT87xxF chips were never seen at any other I2C address than the default
-(0x2d) so I think that we could safely reduce the range of addresses the
-it87 drivers accepts. Currently it accepts 0x20-0x2f, I believe that
-0x28-0x2f would already be more than sufficient.
-
-(In theory, any address is possible, so whatever range we choose is
-arbitrary anyway.)
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/i2c/chips/it87.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
-
-
-diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c	2005-02-03 09:35:02 -08:00
-+++ b/drivers/i2c/chips/it87.c	2005-02-03 09:35:02 -08:00
-@@ -2,8 +2,8 @@
-     it87.c - Part of lm_sensors, Linux kernel modules for hardware
-              monitoring.
- 
--    Supports: IT8705F  Super I/O chip w/LPC interface
--              IT8712F  Super I/O chip w/LPC interface & SMbus
-+    Supports: IT8705F  Super I/O chip w/LPC interface & SMBus
-+              IT8712F  Super I/O chip w/LPC interface & SMBus
-               Sis950   A clone of the IT8705F
- 
-     Copyright (C) 2001 Chris Gauthron <chrisg@0-in.com> 
-@@ -42,10 +42,8 @@
- 
- 
- /* Addresses to scan */
--static unsigned short normal_i2c[] = { 0x20, 0x21, 0x22, 0x23, 0x24,
--					0x25, 0x26, 0x27, 0x28, 0x29,
--					0x2a, 0x2b, 0x2c, 0x2d, 0x2e,
--					0x2f, I2C_CLIENT_END };
-+static unsigned short normal_i2c[] = { 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d,
-+					0x2e, 0x2f, I2C_CLIENT_END };
- static unsigned int normal_isa[] = { 0x0290, I2C_CLIENT_ISA_END };
- 
- /* Insmod parameters */
-
+I don't think that do_rw_taskfile() and flagged_taskfile() merge
+is a good thing as it adds unnecessary overhead for hot path
+(fs requests).

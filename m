@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274996AbTHLCtH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 22:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274991AbTHLCtH
+	id S275017AbTHLC4O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 22:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275019AbTHLC4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 22:49:07 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:55569 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S274990AbTHLCtE (ORCPT
+	Mon, 11 Aug 2003 22:56:14 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:37394 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S275017AbTHLC4N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 22:49:04 -0400
-Date: Tue, 12 Aug 2003 04:49:01 +0200
+	Mon, 11 Aug 2003 22:56:13 -0400
+Date: Tue, 12 Aug 2003 04:56:10 +0200
 From: Andries Brouwer <aebr@win.tue.nl>
-To: Jeff Woods <kazrak+kernel@cesmail.net>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-scsi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops in sd_shutdown
-Message-ID: <20030812044901.A1650@pclin040.win.tue.nl>
-References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <20030812002844.B1353@pclin040.win.tue.nl> <5.2.1.1.0.20030811180413.01a67dc0@no.incoming.mail>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2 of 2 - Allow O_EXCL on a block device to claim exclusive use.
+Message-ID: <20030812045610.B1650@pclin040.win.tue.nl>
+References: <E19m2XN-0002BU-00@notabene> <20030811082231.A20077@infradead.org> <16184.18284.969212.342794@gargle.gargle.HOWL>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <5.2.1.1.0.20030811180413.01a67dc0@no.incoming.mail>; from kazrak+kernel@cesmail.net on Mon, Aug 11, 2003 at 06:13:50PM -0700
+In-Reply-To: <16184.18284.969212.342794@gargle.gargle.HOWL>; from neilb@cse.unsw.edu.au on Tue, Aug 12, 2003 at 11:48:28AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 06:13:50PM -0700, Jeff Woods wrote:
+On Tue, Aug 12, 2003 at 11:48:28AM +1000, Neil Brown wrote:
 
-> Looking only at the above code snippet, I'd suggest something more like:
+> My first attempt at this did claim before openning.
+> However that didn't work.
+> Some aspects of the bdev that are needed for claiming are not
+> initialised before it is first opened.  In particular, bd_contains,
+> gets set up by do_open.
 
-> +       if (!sdp || 
+Size and structure of partitions are entirely independent of whether
+someone has opened them. Thus, the corresponding bookkeeping must
+not be in struct block_device, which exists only when the device
+is open, but in struct gendisk or so (and only there).
 
-
-This is not meaningful.
-
-A general kind of convention is that a pointer will be NULL either
-by mistake, when it is uninitialized, or on purpose, when no object
-is present or no action (other than the default) needs to be performed.
-
-But that general idea is broken by container_of(), which just subtracts
-a constant. So, one should check before subtracting that the pointer
-is non-NULL. Checking afterwards is meaningless.
+It is a design mistake to have such stuff in struct block device.
 

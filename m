@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271011AbRIEFWF>; Wed, 5 Sep 2001 01:22:05 -0400
+	id <S271708AbRIEF4v>; Wed, 5 Sep 2001 01:56:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271138AbRIEFV4>; Wed, 5 Sep 2001 01:21:56 -0400
-Received: from equinox.unr.edu ([134.197.1.2]:52102 "EHLO equinox.unr.edu")
-	by vger.kernel.org with ESMTP id <S271011AbRIEFVj>;
-	Wed, 5 Sep 2001 01:21:39 -0400
-From: Eric Olson <ejolson@unr.edu>
-Message-Id: <200109050521.WAA26155@equinox.unr.edu>
-Subject: Re: Athlon doesn't like Athlon optimisation?
-To: linux-kernel@vger.kernel.org
-Date: Tue, 4 Sep 2001 22:21:58 -0700 (PDT)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S271712AbRIEF4l>; Wed, 5 Sep 2001 01:56:41 -0400
+Received: from vitelus.com ([64.81.243.207]:784 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S271708AbRIEF42>;
+	Wed, 5 Sep 2001 01:56:28 -0400
+Date: Tue, 4 Sep 2001 22:56:38 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac6
+Message-ID: <20010904225638.B9241@vitelus.com>
+In-Reply-To: <17870.999661846@kao2.melbourne.sgi.com> <NOEJJDACGOHCKNCOGFOMOEBEDLAA.davids@webmaster.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEBEDLAA.davids@webmaster.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 04, 2001 at 10:16:15PM -0700, David Schwartz wrote:
+> 	Yes, but even if the module is GPL'd, the module could still cost $1,000
+> and you're not entitled to the source if you didn't buy the module. If what
+> you want is "source code is available to the general public", then that can
+> be true or false for both GPL'd and non-GPL'd modules.
 
-Robert Redelmeier told me he has written a version of his burnMMX which 
-uses K7 MMX 3DNow streaming cache bypass load/store instruction sequences
-similar to what is used in linux/arch/i386/lib/mmx.c
+WTF.
 
-He asked me to publicise that anyone who wanted to test it could contact
-him though email.  His email address is available from the burnCPU website
-	http://users.ev1.net/~redelm/
-The program is 168 lines of assembler and compiles for Windows or Linux.  
-It runs until it detects an error.  
-
-It would be particularly interesting if someone with a problematic KT133A 
-based motherboard would test it and report back.
-
-All the best, -Eric
+You understand that the GPL would allow the reporter to include the
+module source, right? It also doesn't really matter if it doesn't come
+with source because someone using the binary has a legal right to ask
+for source.

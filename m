@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280027AbRJ3RAf>; Tue, 30 Oct 2001 12:00:35 -0500
+	id <S280034AbRJ3RAP>; Tue, 30 Oct 2001 12:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280023AbRJ3RAP>; Tue, 30 Oct 2001 12:00:15 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:19728 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S280030AbRJ3RAH>; Tue, 30 Oct 2001 12:00:07 -0500
-Date: Tue, 30 Oct 2001 18:00:23 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: please revert bogus patch to vmscan.c
-Message-ID: <20011030180023.L1340@athlon.random>
-In-Reply-To: <20011030162008.G1340@athlon.random> <Pine.LNX.4.33L.0110301324410.2963-100000@imladris.surriel.com> <20011030165119.I1340@athlon.random> <20011030113410.A29266@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011030113410.A29266@redhat.com>; from bcrl@redhat.com on Tue, Oct 30, 2001 at 11:34:10AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S280023AbRJ3RAF>; Tue, 30 Oct 2001 12:00:05 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:1178 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S280030AbRJ3RAC>; Tue, 30 Oct 2001 12:00:02 -0500
+Message-ID: <3BDEDC50.3070605@antefacto.com>
+Date: Tue, 30 Oct 2001 16:58:56 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Audun Jan Myrhol <audun@q-free.com>
+CC: linux-kernel@vger.kernel.org, ras2@tant.com
+Subject: Re: Problem with SanDisk Compact Flash disks on IDE with kernel 2.4.x
+In-Reply-To: <3BDED5D5.7C985134@q-free.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 11:34:10AM -0500, Benjamin LaHaise wrote:
-> I'm contending is that the Real World difference between the correct 
-> version of the optimization will have no significant performance effects 
-> compared to the incorrect version that you and davem are so gleefully 
-> advocating.  This means not running through "bullshit" benchmarks that 
-> test one and only one thing, but running apps that actually put memory 
-> pressure on the system (Oracle does so quite nicely using a filesystem 
-> without O_DIRECT) which in turn causes page scanning (aka the clearing 
-> of the referenced bit which is *THE* code that is being contested) but 
-> should not cause swap out.  To me, this is just part of the methodology 
-> of being thorough in testing the effects of changes to the VM subsystem.
+You've been bitten by this "feature" also.
+Note it's been in the list many times. See:
+http://www.cs.helsinki.fi/linux/linux-kernel/2001-12/0405.html
 
-There should be no relevant pagetable scanning during those tests, and
-the few bits that can get unmapped have lots of time to get mapped in
-again from the cache with a minor fault, IMHO there's no way such tlb
-flush removal can make a difference in a DBMS workload on a sanely setup
-machine, I'm amazed you think it can make a difference.
+In summary you need the following kernel parameter:
+hdb=flash (I know your hdb is NOT flash but this is
+consistent with this "feature").
 
-Andrea
+BTW testing with 2.2.18, hdb would silently be ignored.
+Kernel panic is well probably more consistent with this
+"feature".
+
+Any progress/more info on why this "feature" is required?
+
+Padraig.
+
+Audun Jan Myrhol wrote:
+
+> I have a lot of problems when trying to use a SanDisk Compact Flash
+> card with an IDE adapter as an IDE disk on kernel 2.4.x.
+> The Compact Flash disks may be used perfectly with the old age MSDOS
+> 6.2 either alone or with a normal IDE disk on the same controller. It
+> is also possible to use the Compact Flash with success with kernel
+> 2.2.14 and 2.2.16.
+> 
+> When used with kernel 2.4.x (tried 2,5,7,12,13, various compile
+> options) I have so far found it impossible to get the Compact Flash
+> working together with a standard IDE disk on the same controller. A
+> typical scenario is: Standard IDE disk as hda full system installed,
+> the CF with IDE adapter as hdb (empty/unformatted/dos formatted /ext2
+> formatted, tried "everything"). The boot sequence is normal until LILO
+> attempts to mount VFS. Then no disk is accessible on the IDE bus, and
+> I get kernel panic. Identical sympthoms are seen when using an IDE
+> FlashDrive from SanDisk.
+> 
+> I have installed a stripped down system based on kernel 2.2.14 on one
+> CF disk as hda, that works, with or without a normal IDE disk as hdb.
+> If I change the kernel on that CF to 2.4.13 and removes the hdb IDE
+> disk, the kernel is able to mount VFS and complete normal boot.
+> 
+> Any ideas for fix / workaround, I haven't found anything in the
+> archives?
+> 
+> System info:
+> 
+> CPU card: Aaeon 6890B with Celeron and 440BX chipset. 
+> SanDisk 64 MB Compact Flash card: SDCFB-64 or
+> SanDisk 96 MB Flash Drive (IDE interface) : SD25B-96
+> 
+> Audun Myrhol
+> R&D engineer
+
+

@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUHGR6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUHGSAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263971AbUHGR6g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 13:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUHGR6f
+	id S264113AbUHGSAk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 14:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUHGSAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 13:58:35 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13486 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263971AbUHGR6Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 13:58:25 -0400
-Date: Sat, 7 Aug 2004 10:57:29 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: mbligh@aracnet.com, alex.williamson@hp.com, haveblue@us.ibm.com,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: [PATCH] cleanup ACPI numa warnings
-Message-Id: <20040807105729.6adea633.pj@sgi.com>
-In-Reply-To: <20040805205059.3fb67b71.rddunlap@osdl.org>
-References: <1091738798.22406.9.camel@tdi>
-	<1091739702.31490.245.camel@nighthawk>
-	<1091741142.22406.28.camel@tdi>
-	<249150000.1091763309@[10.10.2.4]>
-	<20040805205059.3fb67b71.rddunlap@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 7 Aug 2004 14:00:40 -0400
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:34785 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S264002AbUHGSAT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 14:00:19 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Michael Guterl <mguterl@gmail.com>
+Subject: Re: [linux-usb-devel] Re: USB troubles in rc2
+Date: Sat, 7 Aug 2004 10:51:23 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-usb-devel@lists.sourceforge.net,
+       "Luis Miguel =?utf-8?q?Garc=FD?= Mancebo" <ktech@wanadoo.es>,
+       Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       akpm@osdl.org
+References: <200408022100.54850.ktech@wanadoo.es> <200408050834.27452.david-b@pacbell.net> <944a03770408051005614aa25e@mail.gmail.com>
+In-Reply-To: <944a03770408051005614aa25e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408071051.23047.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And there's nothing in CodingStyle that agrees with you that I could find.
+On Thursday 05 August 2004 10:05, Michael Guterl wrote:
+> Thanks for the reply David, but where exactly does this leave me and
+> the others experiencing this problem?  Is there any more information I
+> can provide that might help?  Any possible solutions, patches, etc?
 
->From the file Documentation/SubmittingPatches:
+It leaves you (and others) with the problem partially isolated, so that
+someone with time to track it down will have that much less work to do.
 
-        3) 'static inline' is better than a macro
+The most effective solutions involve someone who has the problem
+actually stepping up and debugging the whole thing, then providing
+a patch fixing the problem.
 
-        Static inline functions are greatly preferred over macros.
-        They provide type safety, have no length limitations, no formatting
-        limitations, and under gcc they are as cheap as macros.
+A second-best would be collaboration between someone who has
+the time (not me!) and someone who has the problem (you?) to
+remotely debug the problem.
 
-        Macros should only be used for cases where a static inline is clearly
-        suboptimal [there a few, isolated cases of this in fast paths],
-        or where it is impossible to use a static inline function [such as
-        string-izing].
+A third-best would be for someone (you?) to find out exactly which patch
+caused the problem -- a binary search of the USB patches, luckily it's
+made easier by the fact that it could only be a change in HID, usbcore,
+or some HCD.  (And most likely IMO it's usbcore.)  Then that patch can
+either be further debugged, or reverted.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+- Dave
+
+
+> On Thu, 5 Aug 2004 08:34:27 -0700, David Brownell <david-b@pacbell.net> 
+wrote:
+> > ....
+> > 
+> > The dmesg output shows this is a HID failure.  It's likely connected
+> > with some changes in the unlink logic, since that's what returns
+> > the "-ENOENT" status.  The usb_kill_urb() changes added a new
+> > URB state as I recall, maybe that's part of the issue here... since
+> > that routine replaced the previous "synchronous unlink" logic.
+> > 
+> > - Dave
+> > 
+> >
+> 

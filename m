@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUGaTpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUGaTur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUGaTpB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 15:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUGaTpB
+	id S261451AbUGaTur (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 15:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUGaTur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 15:45:01 -0400
-Received: from mail.euroweb.hu ([193.226.220.4]:6794 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S261375AbUGaTo7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 15:44:59 -0400
-To: aebr@win.tue.nl
-CC: smfrench@austin.rr.com, rddunlap@osdl.org, linux-kernel@vger.kernel.org
-In-reply-to: <20040731191155.GB5479@pclin040.win.tue.nl> (message from Andries
-	Brouwer on Sat, 31 Jul 2004 21:11:55 +0200)
-Subject: Re: uid of user who mounts
-References: <1091239509.3894.11.camel@smfhome.smfdom> <20040730190825.7a447429.rddunlap@osdl.org> <1091244841.2742.8.camel@smfhome1.smfdom> <E1BqqGd-0004fX-00@dorka.pomaz.szeredi.hu> <1091287308.2337.6.camel@smfhome.smfdom> <20040731191155.GB5479@pclin040.win.tue.nl>
-Message-Id: <E1Bqzlr-0004sf-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 31 Jul 2004 21:43:55 +0200
+	Sat, 31 Jul 2004 15:50:47 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:1234 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261451AbUGaTuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 15:50:46 -0400
+Date: Sat, 31 Jul 2004 15:54:23 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.8-rc2-mm1
+In-Reply-To: <20040731114714.37359c2d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0407311519490.4095@montezuma.fsmlabs.com>
+References: <20040728020444.4dca7e23.akpm@osdl.org>
+ <Pine.LNX.4.58.0407311230330.4095@montezuma.fsmlabs.com>
+ <20040731114714.37359c2d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 31 Jul 2004, Andrew Morton wrote:
 
-> This discussion sounds as if you do think that this is somehow
-> kernel-related.  But it is not. Mount is suid and does certain
-> things in a certain way.
+> Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+> >
+> > Ingo i believe you have a patch for this, could you push it to Andrew?
+>
+> I suspect Ingo's patch will be livelockable under some circumstances.
+> I suspect mine is too, only less so.
+>
+> > I reckon it's provoked by CONFIG_PREEMPT.
+>
+> This should fix.
 
-OK.  That doesn't mean, that adding user=UID to the mount options in
-/proc/mounts isn't a good idea.  It is, since that would make it
-possible to get rid of /etc/mtab, which causes problems for example if
-private namespaces are used.
-
-
-
-Miklos
-
+Thanks that took care of it.

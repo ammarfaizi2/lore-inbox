@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266563AbUBESxa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 13:53:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUBESxa
+	id S266512AbUBETC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 14:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266515AbUBETC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 13:53:30 -0500
-Received: from 194.149.109.108.adsl.nextra.cz ([194.149.109.108]:24459 "EHLO
-	gate2.perex.cz") by vger.kernel.org with ESMTP id S266563AbUBESx1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 13:53:27 -0500
-Date: Thu, 5 Feb 2004 19:53:45 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ALSA 1.0.2c
-In-Reply-To: <40228BB0.9020606@gmx.de>
-Message-ID: <Pine.LNX.4.58.0402051952550.1864@pnote.perex-int.cz>
-References: <Pine.LNX.4.58.0402051838460.1864@pnote.perex-int.cz>
- <40228BB0.9020606@gmx.de>
+	Thu, 5 Feb 2004 14:02:28 -0500
+Received: from [202.56.230.211] ([202.56.230.211]:63184 "HELO Welcome to
+	Touchtelindia.net ESMTP") by vger.kernel.org with SMTP
+	id S266512AbUBETAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 14:00:22 -0500
+Message-ID: <3852-220042451909950@rajan>
+X-Priority: 1
+From: "" <sus@touchtelindia.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Your Permission Please
+Date: Fri, 6 Feb 2004 00:30:09 +0530
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Feb 2004, Prakash K. Cheemplavam wrote:
+Hello !
+Your name and/or email address was included on one or 
+more lists that I purchased from suppliers of leads. The 
+people on the lists were identified as individuals who 
+are SERIOUSLY interested in and agreeable to receiving information 
+on business opportunities on the Internet by email. 
+Experience has shown me that many people on these lists 
+have not given their permission to be included and are 
+not interested in receiving such information. 
 
-> Jaroslav Kysela wrote:
-> > Linus, please do a
-> > 
-> >   bk pull http://linux-sound.bkbits.net/linux-sound
-> > 
-> > The GNU patch is available at:
-> > 
-> >   ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2004-02-05.patch.gz
-> 
-> Doesn't build for me:
-> 
->    LD      sound/parisc/built-in.o
->    CC      sound/pci/intel8x0.o
-> sound/pci/intel8x0.c: In function `alsa_card_intel8x0_setup':
-> sound/pci/intel8x0.c:2817: error: Syntaxfehler before "get_option"
-> sound/pci/intel8x0.c:2824: error: Syntaxfehler before ')' token
-> make[2]: *** [sound/pci/intel8x0.o] Fehler 1
-> make[1]: *** [sound/pci] Fehler 2
-> make: *** [sound] Fehler 2
+The purpose of this email is to confirm that you in fact 
+would like to receive information related to Work From
+Home Business Opportunities and to request your 
+permission to be included on an opt in business 
+opportunity mailing list that I am building. 
 
-Obvious copy bug:
+If you would like to be included on my list and receive information 
+related to home business opportunities, just send 
+send a blank email with 'SUBSCRIBE'in the Subject Line.You do not have
+to put anything in the message body 
+unless you so desire. You will receive an email with the subject, 
+"......... HOME-BIZNETWORK NEWS" 
 
-Index: intel8x0.c
-===================================================================
-RCS file: /cvsroot/alsa/alsa-kernel/pci/intel8x0.c,v
-retrieving revision 1.112
-retrieving revision 1.113
-diff -u -r1.112 -r1.113
---- intel8x0.c	5 Feb 2004 13:28:42 -0000	1.112
-+++ intel8x0.c	5 Feb 2004 18:48:04 -0000	1.113
-@@ -2813,7 +2813,7 @@
- 	(void)(get_option(&str,&enable[nr_dev]) == 2 &&
- 	       get_option(&str,&index[nr_dev]) == 2 &&
- 	       get_id(&str,&id[nr_dev]) == 2 &&
--	       get_option(&str,&ac97_clock[nr_dev]) == 2
-+	       get_option(&str,&ac97_clock[nr_dev]) == 2 &&
- 	       get_option(&str,&ac97_quirk[nr_dev]) == 2
- #ifdef SUPPORT_MIDI
- 	       && get_option(&str,&mpu_port[nr_dev]) == 2
+If you wish to remove yourself or ban your email address from further 
+receiving emails from our system,  send blank a email with 'REMOVE' in
+the Subject line. 
+Please do not alter the subject line in any way. 
 
-						Jaroslav
+Sincerely, 
+Rajan Sethi
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs

@@ -1,70 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263208AbREaU1x>; Thu, 31 May 2001 16:27:53 -0400
+	id <S263212AbREaUdD>; Thu, 31 May 2001 16:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263209AbREaU1n>; Thu, 31 May 2001 16:27:43 -0400
-Received: from smtp9.xs4all.nl ([194.109.127.135]:45270 "EHLO smtp9.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S263208AbREaU12>;
-	Thu, 31 May 2001 16:27:28 -0400
-From: thunder7@xs4all.nl
-Date: Thu, 31 May 2001 22:27:08 +0200
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lkml]Re: [lkml]Re: interrupt problem with MPS 1.4 / not with MPS 1.1 ?
-Message-ID: <20010531222708.A8295@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <3B16A7E3.1BD600F3@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3B16A7E3.1BD600F3@colorfullife.com>; from manfred@colorfullife.com on Thu, May 31, 2001 at 10:21:55PM +0200
+	id <S263209AbREaUcn>; Thu, 31 May 2001 16:32:43 -0400
+Received: from cs6625192-102.austin.rr.com ([66.25.192.102]:9992 "EHLO
+	mail1.cirrus.com") by vger.kernel.org with ESMTP id <S263221AbREaUcc>;
+	Thu, 31 May 2001 16:32:32 -0400
+Message-ID: <973C11FE0E3ED41183B200508BC7774C0124F2D7@csexchange.crystal.cirrus.com>
+From: "Woller, Thomas" <twoller@crystal.cirrus.com>
+To: "'Rik van Riel'" <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: RE: no sound with CS4281 card
+Date: Thu, 31 May 2001 15:33:19 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 31, 2001 at 10:21:55PM +0200, Manfred Spraul wrote:
-> > 
-> > I know that with MPS 1.4, the USB controller finds itself at an 
-> > unshared interrupt 19. I can't reboot at the moment to check. 
-> >
-> lspci -vxxx -s 00:07.0
-> 
-> the APIC sits in the southbridge.
-> the low 2 bits of offset 0x58 must be set [route USB IRQ to APIC], and 
-> 
-> lspci -vx -s 00:07.2
-> 
-> offset 0x3C must be set to 3 [19 & 15]
-> 
-> There was some discussion about the same problem with the sound part of
-> the southbridge.
-> 
-> What are the current values of these registers?
-> 
-current, as in MPS 1.1:
+I'll send the latest driver that I have via separate email.  Toshiba refuses
+to supply equipment, and there are some design issues with Toshiba laptops.
+I recently sent a driver to another Toshiba owner and he had good luck with
+the latest driver. I have never seen any Toshiba laptop not generate sound
+with any cs4281 driver at any time ( :) ), but that certainly doesn't rule
+out the 2.4.5-ac2 not working on a Toshiba 1755.  I am pulling the 2.4.5-ac6
+source now and will try on a 4281 ref card.  
+mpg123 the only app not working?
+Thanks for the input
+tom
 
+ -----Original Message-----
+From: 	Rik van Riel [mailto:riel@conectiva.com.br] 
+Sent:	Thursday, May 31, 2001 1:15 PM
+To:	linux-kernel@vger.kernel.org
+Cc:	twoller@crystal.cirrus.com
+Subject:	no sound with CS4281 card
 
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-	Subsystem: ABIT Computer Corp.: Unknown device 0000
-	Flags: bus master, stepping, medium devsel, latency 0
-	Capabilities: [c0] Power Management version 2
-50: 02 76 04 00 00 f0 ab 50 1f 06 ff 08 00 00 00 00
+Hi,
 
-I'd say the lower 2 bits at 0x58 are set.
+my notebook (Toshiba 1755) comes with CS4281 built-in,
+with all 2.4 kernels I tried this sound card doesn't
+generate any sound, or interrupts for that matter.
 
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
-	Subsystem: Unknown device 0925:1234
-	Flags: bus master, medium devsel, latency 32, IRQ 5
-	I/O ports at a000 [size=32]
-	Capabilities: [80] Power Management version 2
-30: 00 00 00 00 80 00 00 00 00 00 00 00 05 04 00 00
+The driver detects the card fine, but doesn't seem to
+be able to do anything with it, on 2.4.5-ac2:
 
-0x3X is at 5, not at 3.
+==== /proc/pci ====
+  Bus  0, device   8, function  0:
+    Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI Audio (rev
+1).
+      IRQ 5.
+      Master Capable.  Latency=64.  Min Gnt=4.Max Lat=24.
+      Non-prefetchable 32 bit memory at 0xfc010000 [0xfc010fff].
+      Non-prefetchable 32 bit memory at 0xfc000000 [0xfc00ffff].
 
-Greetings,
-Jurriaan
--- 
-Endora is where we are, and you need to know that describing this place is
-like dancing to no music.
-	Peter Hedges - What's eating Gilbert Grape
-GNU/Linux 2.4.5-ac4 SMP/ReiserFS 2x1402 bogomips load av: 0.02 0.01 0.00
+==== dmesg ====
+cs4281: version v1.13.32 time 15:54:07 May 29 2001
+PCI: Enabling device 00:08.0 (0000 -> 0002)
+PCI: Found IRQ 5 for device 00:08.0
+
+==== /proc/interrupts ====
+  5:          0          XT-PIC  Crystal CS4281
+
+(after trying to play music with mpg123 about 20 times)
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)

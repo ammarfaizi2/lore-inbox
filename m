@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136833AbREITGk>; Wed, 9 May 2001 15:06:40 -0400
+	id <S135283AbREITI5>; Wed, 9 May 2001 15:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136828AbREITGU>; Wed, 9 May 2001 15:06:20 -0400
-Received: from ns-inetext.inet.com ([199.171.211.140]:38327 "EHLO
-	ns-inetext.inet.com") by vger.kernel.org with ESMTP
-	id <S136830AbREITGR>; Wed, 9 May 2001 15:06:17 -0400
-Message-ID: <3AF99522.C3DC59B@inet.com>
-Date: Wed, 09 May 2001 14:06:10 -0500
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
+	id <S135266AbREITIs>; Wed, 9 May 2001 15:08:48 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7948 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130900AbREITIk>; Wed, 9 May 2001 15:08:40 -0400
+Subject: Re: Nasty Requirements for non-GPL Linux Kernel Modules?
+To: lm@bitmover.com (Larry McVoy)
+Date: Wed, 9 May 2001 20:11:51 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), scott@CS.Princeton.EDU,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010509114816.K14127@work.bitmover.com> from "Larry McVoy" at May 09, 2001 11:48:16 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: standard queue implementation?
-In-Reply-To: <3AF96062.19528A86@inet.com> <3AF98697.44437FEB@mvista.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14xZNJ-00033f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
+>     and can be reasonably considered independent and separate works in
+>     themselves, then this License, and its terms, do not apply to those
+>     sections when you distribute them as separate works. 
 > 
-> Eli Carter wrote:
-> >
-> > All,
-> >
-> > I did a quick look in include/linux for a standard implementation of an
-> > array-based circular queue, but I didn't see one.
-> >
-> > I was thinking something that could be declared, allocated, and then
-> > used with an addq and a removeq.  A deallocator would also be good.
-> >
-> > Is there such a beast in the kernel?  If not, it seems that having
-> > something like this would reduce the potential for bugs.
-> >
-> > Thoughts?
-> >
-> Are you possibly looking for include/linux/list.h ?
-> 
-> Routines to build and manager doubly linked circular lists.
+> For example, suppose I ship you a tarball that has the source & binaries
+> for both a GPLed program and a non GPLed helper program in it - does the
+> non GPLed program become GPLed?  I tend to doubt it and so do the lawyers.
 
-I've seen that, but no.  I want a queue of pointers, and the queue
-can/should be of fixed length.  (I don't want to deal with
-allocating/deallocating nodes for this... I just need something simple.)
+The counter example is the Objective C compiler. There the helper was not usable
+without the GPL compiler so was not a 'seperate work'
 
-For now, I'll just write my own, but I may try submitting it as a
-"kernel library" type thing later on.
+> Note that I'm not a lawyer, so my opinion on this is just that,
+> my opinion.  I have spent a fair amount of time and money trying to
 
-Thanks,
+Ditto but I spent favours not $15K chunks 8)
 
-Eli
------------------------.   No wonder we didn't get this right first time
-Eli Carter             |      through. It's not really all that horribly 
-eli.carter(at)inet.com `- complicated, but the _details_ kill you. Linus
+> you stand, it'll cost you around $15K and that, in my opinion, is fine.
+> If it isn't worth $15K to protect your code then it is worth so little to
+> you that there really is no good reason not to just GPL it from the start.
+
+Smart advice.
+

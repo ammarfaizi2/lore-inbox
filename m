@@ -1,94 +1,216 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbTGLGY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 02:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267733AbTGLGY4
+	id S264709AbTGLGXL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 02:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbTGLGXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 02:24:56 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:38596
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S266807AbTGLGYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 02:24:52 -0400
-Message-ID: <3F0FACFF.3020403@redhat.com>
-Date: Fri, 11 Jul 2003 23:38:55 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030710 Thunderbird/0.1a
-X-Accept-Language: en-us, en
+	Sat, 12 Jul 2003 02:23:11 -0400
+Received: from fc.capaccess.org ([151.200.199.53]:31496 "EHLO fc.capaccess.org")
+	by vger.kernel.org with ESMTP id S264709AbTGLGW6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 02:22:58 -0400
+Message-id: <fc.0010c7b2009622990010c7b200962299.96229b@capaccess.org>
+Date: Sat, 12 Jul 2003 02:39:39 -0400
+Subject: Nothin ackshully asquealin juss yet, 'cept the sow.
+To: linux-kernel@vger.kernel.org, linux-assembly@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@capaccess.org>
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: utimes/futimes/lutimes syscalls
-References: <3F0F9B0C.10604@redhat.com>	<3F0F9E9A.9050502@redhat.com> <16143.41797.797147.206845@napali.hpl.hp.com>
-In-Reply-To: <16143.41797.797147.206845@napali.hpl.hp.com>
-X-Enigmail-Version: 0.80.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------090503010206040803070801"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090503010206040803070801
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Not even at the level shown yet:
+        hook the IRQups into the 8086 intvec table @ 0.
+        write pure rmode bottom-ends for very frequent events.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+sow goes in bootup-init control flow, IRQup and FINT go where subroutines
+go.
 
-David Mosberger wrote:
+Totally untested, but compembles OK.........
 
-> Do you have this backwards?  ia64 has utimes(), but not utime().  The
-> same should be true for Alpha.
+.....................................................................
+/Ha3sm/code/legmeg/sow
+# Piglet factory, 16 teats on a side
 
-Yes, it was meant to say "why not for archs *other than* ...".
+L sow
 
-I attach the x86 version of the change.
+########
+###### event-promote-to-pmode stuff
 
-- --
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+### fill the sty with IRQups for each IRQ
 
-iD8DBQE/D6z/2ijCOnn/RHQRAl8uAKClUPu1rNyaND4F90tZB1+y9+IfAgCfcs49
-ihs1EesN3+egIbHHdE00H2c=
-=HK+M
------END PGP SIGNATURE-----
+ szIRQup=$((endIRQup-IRQup))
 
---------------090503010206040803070801
-Content-Type: text/plain;
- name="d-kernel-utimes"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="d-kernel-utimes"
+= 16 to D
+= $IRQup to SI
+= $sty to DI
 
---- linux-2.5/arch/i386/kernel/entry.S-old	2003-07-07 15:56:22.000000000 -0700
-+++ linux-2.5/arch/i386/kernel/entry.S	2003-07-11 22:46:02.000000000 -0700
-@@ -876,6 +876,7 @@ ENTRY(sys_call_table)
-  	.long sys_clock_nanosleep
- 	.long sys_statfs64
- 	.long sys_fstatfs64	
--	.long sys_tgkill
-+	.long sys_tgkill	/* 270 */
-+	.long sys_utimes
-  
- nr_syscalls=(.-sys_call_table)/4
---- linux-2.5/include/asm-i386/unistd.h-old	2003-07-07 15:56:22.000000000 -0700
-+++ linux-2.5/include/asm-i386/unistd.h	2003-07-11 22:45:21.000000000 -0700
-@@ -276,8 +276,9 @@
- #define __NR_statfs64		268
- #define __NR_fstatfs64		269
- #define __NR_tgkill		270
-+#define __NR_utimes		271
- 
--#define NR_syscalls 271
-+#define NR_syscalls 272
- 
- /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
- 
+increasing
+L piglet
+        = $szIRQup to C
+          copies bytes
+        1- D
+when not zero                   piglet
 
---------------090503010206040803070801--
+### set submit numbers in each instantiation of IRQup
+
+pigoffset=$((pigname-IRQup-1))
+
+= 16 to C
+= 0x20 to D
+= $((sty+pigoffset)) to DI
+
+L nextpiglet
+        = D to byte @ DI
+        1+ D
+        + $szIRQup to DI
+when C-1                        nextpiglet
+
+
+
+########-----------------------------------------------------------------
+############# copy legacy intvecs to ~0x3000
+# Not imperative, but good info to not lose.
+
+zero SI
+= $legvec to DI
+= 0x100 to C
+copies
+
+
+
+########~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+########### fake-INTs-from-pmode init
+
+FINTsz=$((FINT-endFINT))
+
+= 16 to D
+= $FINT to SI
+= $wallow to DI
+
+increasing
+L squealer
+        = $FINTsz to C
+          copies bytes
+        1- D
+when not zero                   squealer
+
+
+#######=============================================================
+####  get the IRQ legvec offset:segs and garnish the FINTs with them
+# After copying the legvecs.
+
+FINToffset=$((eartag-FINT-4))
+
+= 16 to C
+= $((legvec+64)) to SI                  # INT 0x10
+= $((wallow+FINToffset)) to DI
+
+L nexstrip
+        = @ SI to A
+        = A to @ DI
+        + 4 to SI
+        + $FINTsize to DI
+when C-1                        nexstrip
+
+
+##### +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+## declare individual FINTnum call addresses in compembly state
+
+FINT10=$((wallow+(FINTsz*0)))
+FINT11=$((wallow+(FINTsz*1)))
+FINT12=$((wallow+(FINTsz*2)))
+FINT13=$((wallow+(FINTsz*3)))
+FINT14=$((wallow+(FINTsz*4)))
+FINT15=$((wallow+(FINTsz*5)))
+FINT16=$((wallow+(FINTsz*6)))
+FINT17=$((wallow+(FINTsz*7)))
+FINT18=$((wallow+(FINTsz*8)))
+FINT19=$((wallow+(FINTsz*9)))
+FINT1a=$((wallow+(FINTsz*10)))
+FINT1b=$((wallow+(FINTsz*11)))
+FINT1c=$((wallow+(FINTsz*12)))
+FINT1d=$((wallow+(FINTsz*13)))
+FINT1e=$((wallow+(FINTsz*14)))
+FINT1f=$((wallow+(FINTsz*15)))
+
+# so it's e.g.    call $FINT10   for vidBIOS from pmode.
+
+#   Nyuk nyuk nyuk.
+
+
+...................................................................
+/Ha3sm/code/legmeg/FINT
+
+        L FINT
+                push DS
+                        otheroperandsize; push A
+                        zero A
+                        = A to CR0
+cell=2
+                                pull A
+                                pushflags
+                                ab   0xea
+                                aq   0                  ; L eartag
+                        loadmachinestatusdual 1
+                        ab 0xea
+                        ad  ring0CS
+                        ad  0x10        ; L ring0CS
+cell=4
+                pull DS
+        return ; L endFINT
+
+
+
+
+# Fakin' Bacon.
+# Presume an rmode-useable pmode effective [E]IP, SP, and effective DS
+#       offset of 0.
+# core regs, flags and ES clobberable by BIOS
+
+        ## indented for various state changes.
+                ## LMSW will not switch back to Real Address Mode.
+                # using it saves push/pull A
+                # For a fancier (paged) OS use CR0 and push/pull A
+
+
+....................................................................
+/Ha3sm/code/legmeg/IRQup
+
+cell=2
+        L IRQup
+                push DS
+                push ES
+                        loadmachinestatusdual 1
+                        ab   0xea
+                        ad   $ring0cs   0x10 ; L ring0cs
+cell=4
+                        push A
+                                = 0x18 to A
+                                = A to DS
+                                = A to ES
+                        pull A
+                        submit 0 ;                      L pigname
+                        otheroperandsize ; push A
+                                zero A
+                                = A  to CR0
+cell=2
+                        pull A
+                pull ES
+                pull DS
+        return  ; L endIRQup
+cell=4
+
+
+
+/////////////////////////////
+
+The osimplay word for disable-interrupts is nosurprises. From what I can
+see at this point FINTs and IRQups don't need it.
+
+call FINT10    etc. is for ring 0 only, possibly prepped with small pmode
+segments.
+
+Rick Hohensee
 

@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135377AbRBETH2>; Mon, 5 Feb 2001 14:07:28 -0500
+	id <S133066AbRBETG6>; Mon, 5 Feb 2001 14:06:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135493AbRBETHU>; Mon, 5 Feb 2001 14:07:20 -0500
-Received: from mail.valinux.com ([198.186.202.175]:42257 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S135377AbRBETHD>;
-	Mon, 5 Feb 2001 14:07:03 -0500
-Message-ID: <3A7EF9CF.8C5EE1C@valinux.com>
-Date: Mon, 05 Feb 2001 11:06:55 -0800
-From: Samuel Flory <sflory@valinux.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre11-va1.7smp i686)
-X-Accept-Language: en
+	id <S135377AbRBETGs>; Mon, 5 Feb 2001 14:06:48 -0500
+Received: from vulcan.datanet.hu ([194.149.0.156]:43891 "EHLO relay.datanet.hu")
+	by vger.kernel.org with ESMTP id <S133066AbRBETGe>;
+	Mon, 5 Feb 2001 14:06:34 -0500
+From: "Bakonyi Ferenc" <fero@drama.obuda.kando.hu>
+Organization: Datakart Geodzia KFT.
+To: Louis Garcia <louisg00@bellsouth.net>
+Date: Mon, 5 Feb 2001 20:06:14 +0100
 MIME-Version: 1.0
-To: Dirk Mueller <dmuell@gmx.net>
-CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-list] NFS and reiserfs
-In-Reply-To: <3A7E40D1.DBCC16E9@cpgen.cpg.com.au> <20010205124808.A18579@rotes20.wohnheim.uni-kl.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: nvidia fb 0.9.0 (0.9.2?)
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <3A7EF830.50805@bellsouth.net>
+X-mailer: Pegasus Mail for Win32 (v3.01d)
+Message-Id: <E14Pqy4-0002vA-00@aleph0.datakart.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dirk Mueller wrote:
-> 
-> On Mon, 05 Feb 2001, Grahame Jordan wrote:
-> 
-> > Should I convert all of my NFS filesystems to ext2 or is there another
-> > option?
-> 
-> If you use kernel 2.4.x: there are patches for NFS support.
-> 
 
-  You can also try the rpms below.  They seem to work for me, but your
-results may vary.  If you really want to be able to gracefully recover
-you need to force sync on all of your exports.
+Louis Garcia <louisg00@bellsouth.net> wrote:
 
-http://ftp.valinux.com/pub/people/flory/2.4.1/
+> I'm using XFree86-4.0.1 with the nv driver. You are right, it's ver 
+> 0.9.2 for the fb.
+>
+> Where can I get the patch? Should I upgrade to XFree86-4.0.2?
 
+Not yet, we have to write that patch first... :) I'll grab an XFree 
+source soon.
+Please test other color depths too: 15bpp and 32bpp.
 
-The patch is here:
-ftp://ftp.namesys.com/pub/reiserfs-for-2.4/linux-2.4.0-reiserfs-3.6.25-nfs.diff
+Thanks!
+	Ferenc
 
--- 
-Solving people's computer problems always
-requires more hardware be given to you.
-(The Second Rule of Hardware Acquisition)
-Samuel J. Flory  <sam@valinux.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

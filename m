@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbULLVRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbULLVQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbULLVRY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 16:17:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbULLVQv
+	id S262139AbULLVQc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 16:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbULLVQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 16:16:51 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:56303 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262129AbULLVO4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 16:14:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=N1a1IuR07PI+eNoSs2raZHf/ZZp1svg6yD6hlsQCYZy/jhZ6/ysy5emh8JIl1V/6frGy0n7IKGrTkiTQ7k7eDNAPEIfXGTmUF4k+4c1rKbPTIrzbt28hgKtFwyTKtFQHdsDofD2KsRSGKVOuNkcmXZEoRUsnyZiR/4hYON2XTMg=
-Message-ID: <3fff1a7104121213141303e0bb@mail.gmail.com>
-Date: Sun, 12 Dec 2004 23:14:55 +0200
-From: Patrick <nawtyness@gmail.com>
-Reply-To: Patrick <nawtyness@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Unknown Issue.
+	Sun, 12 Dec 2004 16:16:31 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61190 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262133AbULLVPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 16:15:16 -0500
+Date: Sun, 12 Dec 2004 22:15:06 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/socket.c: make a function static
+Message-ID: <20041212211506.GY22324@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+The patch below makes a needlessly global function static.
 
-I've got a computer running gentoo, on a clean install where i've got
-an odd problem :
 
-after a while, the computer refuses to spawn processes anymore : 
+diffstat output:
+ include/linux/net.h |    4 ----
+ net/socket.c        |    5 +++--
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
--/bin/bash: /bin/ps: Input/output error
--/bin/bash: /usr/bin/w: Input/output error
--/bin/bash: /bin/df: Input/output error
--/bin/bash: /bin/mount: Input/output error
 
-It happen's randomly, i've tried everything from changing the computer
-from running software raid ( scsi ) to running a hardware solution and
-reinstalling, I've run the memory through memtest as well as i've
-remounted the drives and i've tested the ram to make sure it was
-properly mounted.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-The only thing running on this box is mysql, which runs perfectly at
-7500 q/s ( running super smack ) now, i'm not sure if this is a linux
-kernel thing, or a gentoo thing, or a hardware thing.
+--- linux-2.6.10-rc2-mm4-full/include/linux/net.h.old	2004-12-12 19:03:55.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/linux/net.h	2004-12-12 19:04:01.000000000 +0100
+@@ -187,10 +187,6 @@
+ 				  size_t len);
+ extern int	     sock_recvmsg(struct socket *sock, struct msghdr *msg,
+ 				  size_t size, int flags);
+-extern int	     sock_readv_writev(int type, struct inode *inode,
+-				       struct file *file,
+-				       const struct iovec *iov, long count,
+-				       size_t size);
+ extern int 	     sock_map_fd(struct socket *sock);
+ extern struct socket *sockfd_lookup(int fd, int *err);
+ #define		     sockfd_put(sock) fput(sock->file)
+--- linux-2.6.10-rc2-mm4-full/net/socket.c.old	2004-12-12 19:04:08.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/net/socket.c	2004-12-12 19:04:46.000000000 +0100
+@@ -736,8 +736,9 @@
+ 	return sock->ops->sendpage(sock, page, offset, size, flags);
+ }
+ 
+-int sock_readv_writev(int type, struct inode * inode, struct file * file,
+-		      const struct iovec * iov, long count, size_t size)
++static int sock_readv_writev(int type, struct inode * inode,
++			     struct file * file, const struct iovec * iov,
++			     long count, size_t size)
+ {
+ 	struct msghdr msg;
+ 	struct socket *sock;
 
-I've checked and i'm not running out of file descriptors ( by looking
-in /proc/sys/fs/file-nr ) and i've increased the ammount in (
-/proc/sys/fs/file-max ( if i member correctly ) ) by adding a 0 after
-the end of the value thus increasing it alot.
-
-It's running XFS on the root partition with a single partition, dual
-xeon 2.66 with hyperthreading enabled, dual intel gbe and a adaptec
-2120S AACraid card. Dual 36gb 10krpm scsi drives in raid1.
-
-Does anyone have any ideas on what i can do, what i can test, if it's
-hardware ? software ?
-
-guys ? 
-
-P
-
--- 
-</N>
-
-------
-In the beginning, there was nothing. And God said, 'Let there be
-Light.' And there was still nothing, but you could see a bit better.

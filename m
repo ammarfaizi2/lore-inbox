@@ -1,72 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267191AbUFZQyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266322AbUFZRHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267191AbUFZQyk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 12:54:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUFZQyk
+	id S266322AbUFZRHz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 13:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267192AbUFZRHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 12:54:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30099 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267191AbUFZQy2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 12:54:28 -0400
-Date: Sat, 26 Jun 2004 09:54:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix the cpumask rewrite
-In-Reply-To: <1088268405.1942.25.camel@mulgrave>
-Message-ID: <Pine.LNX.4.58.0406260948070.14449@ppc970.osdl.org>
-References: <1088266111.1943.15.camel@mulgrave>  <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
- <1088268405.1942.25.camel@mulgrave>
+	Sat, 26 Jun 2004 13:07:55 -0400
+Received: from smtp811.mail.ukl.yahoo.com ([217.12.12.201]:37484 "HELO
+	smtp811.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S266322AbUFZRHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 13:07:51 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Reply-To: s0348365@sms.ed.ac.uk
+Organization: University of Edinburgh
+To: linux-kernel@vger.kernel.org
+Subject: Assuming someone else called the IRQ
+Date: Sat, 26 Jun 2004 18:08:31 +0100
+User-Agent: KMail/1.6.52
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406261808.31860.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Every kernel in the 2.6 serious so far has exhibited the same problem; after 
+some time of running my desktop system, I get:
 
-On Sat, 26 Jun 2004, James Bottomley wrote:
->
-> On Sat, 2004-06-26 at 11:32, Linus Torvalds wrote:
-> > Why not? The thing is, the bitmap operators are supposed to work on 
-> > volatile data, ie people are literally using them for things like
-> > 
-> > 	while (test_bit(TASKLET_STATE_SCHED, &t->state));
-> > 
-> > and the thing is supposed to work.
-> 
-> Well, I agree it's supposed to work, what I don't agree about is that
-> generic code gets to designate critical data as volatile.
+Assuming someone else called the IRQ
 
-I agree in the sense that I don't think the _data_ should be volatile.
+Spamming to the kernel log. Any idea what's causing this or how I can work out 
+which driver has the bug? (I suspect yenta_socket, it didn't happen prior to 
+me buying a PCI -> PCMCIA cardbus adaptor).
 
-But I think the functions to access various pieces of data should be able 
-to take volatiles without warning.
+[alistair] 18:04 [~] uname -r
+2.6.7
 
-See the difference? Same way "memcpy()" takes a "const" argument for the 
-source. That doesn't mean that the source _has_ to be const, it just means 
-that it won't complain if it is.
+[alistair] 18:06 [~] cat /proc/interrupts
+           CPU0
+  0:  250894252          XT-PIC  timer
+  1:     176607    IO-APIC-edge  i8042
+  8:          1    IO-APIC-edge  rtc
+  9:          0   IO-APIC-level  acpi
+ 14:     154556    IO-APIC-edge  ide0
+ 15:    1427469    IO-APIC-edge  ide1
+ 16:          4   IO-APIC-level  bttv0
+ 17:    1050146   IO-APIC-level  ide2, ide3
+ 18:    1397064   IO-APIC-level  EMU10K1
+ 19:    8748235   IO-APIC-level  ohci1394, yenta, eth0
+ 20:          2   IO-APIC-level  ehci_hcd
+ 21:          3   IO-APIC-level  ohci_hcd, ohci1394
+ 22:    1218068   IO-APIC-level  ohci_hcd
+NMI:          0
+LOC:  250913490
+ERR:          1
+MIS:       3996
 
-And the same is true of "volatile" for the bitop functions. They are 
-volatile not because they require the data to be volatile, but because 
-they have at least traditionally been used for various cases, _including_ 
-volatile.
+Although I have an nvidia video card in the system, the module was not loaded 
+and X was not started, so I find it unlikely that this could be to blame. The 
+video card would share IRQ 19 as well, if the driver was loaded.
 
-Now, we could say that we don't do that any more, and decide that the 
-regular bitop functions really cannot be used on volatile stuff. But 
-that's a BIG decision. And it's certainly not a decision that parisc 
-users should make.
+[alistair] 18:06 [~] uptime
+ 18:07:35 up 2 days, 21:41,  2 users,  load average: 0.13, 0.35, 0.26
 
-> Our current set bit functions are *coded* to operate on volatile data,
-> we just don't use the volatile keyword to persuade gcc to generate
-> better code.
+Any suggestions would be very helpful.
 
-Well, at least judging by your "test_bit()", the function literally is 
-_not_ coded to work with volatile data.
+-- 
+Cheers,
+Alistair.
 
-If the above loop had been a real case, gcc on parisc would have optimized 
-it away, and done the wrong thing.
-
-		Linus
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/AI Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

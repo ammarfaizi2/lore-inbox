@@ -1,37 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310507AbSCLJgw>; Tue, 12 Mar 2002 04:36:52 -0500
+	id <S310527AbSCLJjc>; Tue, 12 Mar 2002 04:39:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310531AbSCLJgm>; Tue, 12 Mar 2002 04:36:42 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:48392 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S310521AbSCLJgg>; Tue, 12 Mar 2002 04:36:36 -0500
-Message-ID: <3C8DCBD9.D6A3A1E9@aitel.hist.no>
-Date: Tue, 12 Mar 2002 10:35:21 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.5-dj3 i686)
-X-Accept-Language: no, en, en
+	id <S310532AbSCLJjW>; Tue, 12 Mar 2002 04:39:22 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:25569 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S310527AbSCLJjE>;
+	Tue, 12 Mar 2002 04:39:04 -0500
+Date: Tue, 12 Mar 2002 10:38:30 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Dave Jones <davej@suse.de>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH] soft accels.
+In-Reply-To: <Pine.LNX.4.10.10203111620340.32670-100000@www.transvirtual.com>
+Message-ID: <Pine.GSO.4.21.0203121020400.23527-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <20020308231405.CADDC3FE06@smtp.linux.ibm.com> <Pine.LNX.4.33.0203081532550.4421-100000@penguin.transmeta.com> <a6bjgl$a0j$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" wrote:
+On Mon, 11 Mar 2002, James Simmons wrote:
+> This code provides software accels to replace all the fbcon-cfb* stuff.
+> Gradually the fbdev drivers can be ported over to it. It is against
+> 2.5.5-dj3. Please apply the patch.
 
-> 
-> Okay, I'll say it and be impopular...
-> 
-> Perhaps it's time to drop i386 support?
-> 
-Wouldn't it be better to just separate it out?  I.e. make i386
-an arch of its own, while most pc people use a "486 and up" arch?
+I'm still wondering whether it's a good idea to assume all color values (e.g.
+fb_fillrect.color) are palette indices. This means you cannot draw a rectangle
+with an arbitrary color using cfb_fillrect().
 
-The few who actually want 386 code won't loose it, and other developers
-won't have to bother with 386 issues.  Then drop the 386 arch when it
-dies from lack of maintenance...
+Furthermore this means that fillrect() and imageblit() (the color image case)
+expect different formats: the former expects a palette index, the latter
+expects the native frame buffer format (cfr. your comments in the code below).
 
-Helge Hafting
+The 17-entry (16 colors + 1 XOR mask) pseudo palette is actually something
+related to the console, so I would not handle it in the low level drawing
+routines, but in the frame buffer console layer. Of course the pseudo palette
+still has to be initialized by the frame buffer device, since that is the part
+that knows about the mapping from console palette indices to native pixel
+values. This also means you'll have a pseudo palette for all modes, including
+pseudocolor[*].
+
+What do you think?
+
+[*] Or set pseudo_palette to NULL, and use
+
+      pixval = pseudo_palette ? pseudo_palette[idx] : idx;
+      
+    and
+
+      xormask = pseudo_palette ? pseudo_palette[16] : 15;
+
+> diff -urN -X /home/jsimmons/dontdiff linux-2.5.5-dj3/drivers/video/cfbimgblt.c linux/drivers/video/cfbimgblt.c
+> --- linux-2.5.5-dj3/drivers/video/cfbimgblt.c	Wed Dec 31 16:00:00 1969
+> +++ linux/drivers/video/cfbimgblt.c	Mon Mar 11 14:29:37 2002
+
+  [...]
+
+> + *    This function copys a image from system memory to video memory. The
+> + *  image can be a bitmap where each 0 represents the background color and
+> + *  each 1 represents the foreground color. Great for font handling. It can
+> + *  also be a color image. This is determined by image_depth. The color image
+> + *  must be laid out exactly in the same format as the framebuffer. Yes I know
+> + *  their are cards with hardware that coverts images of various depths to the
+> + *  framebuffer depth. But not every card has this. All images must be rounded
+> + *  up to the nearest byte. For example a bitmap 12 bits wide must be two 
+> + *  bytes width. 
+
+Color images are not yet implemented?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

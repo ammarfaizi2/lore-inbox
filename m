@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbUEOJOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUEOJwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbUEOJOq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 05:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUEOJOq
+	id S261610AbUEOJwO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 05:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUEOJwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 05:14:46 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:23482 "EHLO slimnas.slim")
-	by vger.kernel.org with ESMTP id S261416AbUEOJOo (ORCPT
+	Sat, 15 May 2004 05:52:14 -0400
+Received: from zork.zork.net ([64.81.246.102]:61111 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261610AbUEOJwN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 05:14:44 -0400
-Subject: Re: ACPI problems with 2.6.6
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200405150401.44686.dj@david-web.co.uk>
-References: <200405150401.44686.dj@david-web.co.uk>
-Content-Type: text/plain
-Message-Id: <1084612906.29632.5.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 15 May 2004 11:21:47 +0200
-Content-Transfer-Encoding: 7bit
+	Sat, 15 May 2004 05:52:13 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: davej@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: i810 AGP fails to initialise (was Re: 2.6.6-mm2)
+References: <20040513032736.40651f8e.akpm@osdl.org>
+	<6usme4v66s.fsf@zork.zork.net> <20040513135308.GA2622@redhat.com>
+	<20040513155841.6022e7b0.ak@suse.de> <6ulljwtoge.fsf@zork.zork.net>
+	<20040513174110.5b397d84.ak@suse.de> <6u8yfvsbd4.fsf@zork.zork.net>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, davej@redhat.com,  akpm@osdl.org, 
+ linux-kernel@vger.kernel.org
+Date: Sat, 15 May 2004 10:52:09 +0100
+In-Reply-To: <6u8yfvsbd4.fsf@zork.zork.net> (Sean Neakums's message of "Fri,
+ 14 May 2004 08:42:47 +0100")
+Message-ID: <6uk6zeow52.fsf@zork.zork.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-05-15 at 05:01, David Johnson wrote:
-> Hi,
-> 
-> I've got some serious strangeness being caused by ACPI on 2.6.6.
-> 
-> 2.6.3 works perfectly on the same machine. I don't use any acpi option on the 
-> kernel command line so it's just using the default options.
-> 
-> The first problem is that a strange device appears as eth0:
-> 
-> eth0      Link encap:UNSPEC  HWaddr 
-> 00-90-F5-00-00-22-91-25-00-00-00-00-00-00-00-00
->           BROADCAST MULTICAST  MTU:1500  Metric:1
->           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:1000
->           RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-> 
-> It seems to be some incarnation of the real ethernet adaptor, but even when I 
-> manually configure it it is unable to actually talk to the network.
-> I can configure the real ethernet adaptor (8139too) as eth1 with no problems.
-> 
-> Also, for some reason the loopback device is not added to the routing table 
-> which in turn causes a stack more problems.
-> Lots of other stuff also doesn't work including X.
-> 
-> But if I boot 2.6.3 or set acpi=off for 2.6.6 everything works perfectly. The 
-> same problems exist in 2.6.5 but I haven't tried 2.6.4.
-> 
-> I've attached my dmesg and .config - let me know what else is needed.
-> 
-> Thanks,
-> David.
-This is not a ACPI problem. Here's the culprit:
+Sean Neakums <sneakums@zork.net> writes:
 
-CONFIG_IEEE1394_ETH1394=m
+> Andi Kleen <ak@suse.de> writes:
+>
+>> Sean, can you double check that when you compile the AGP driver as module
+>> that the 7124 PCI ID appears in modinfo intel-agp ? 
+>> And does the module also refuse to load ? 
+>
+> I rebuilt with agpgart, intel-agp and i810 as modules, modprobed them,
+> and it works.
 
-The IEEE1394 ethernet module is loaded and is now eth0. Tell tail sings
-are the long MAC address and the Link encap. which is set to
-unspecified.
-
-Jurgen
-
+I just realised that I probably forgot to reapply the patch before
+doing this test.  Will check Monday.  Sorry about this.
 

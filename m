@@ -1,126 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVCAVXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVCAV2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbVCAVXq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 16:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVCAVVo
+	id S262043AbVCAV2U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 16:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVCAV2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 16:21:44 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:5221 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S262043AbVCAVS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 16:18:28 -0500
-Date: Tue, 1 Mar 2005 16:18:28 -0500
-From: Jeffrey Mahoney <jeffm@suse.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: [PATCH 3/3] openfirmware: implements hotplug for macio devices
-Message-ID: <20050301211828.GD16465@locomotive.unixthugs.org>
+	Tue, 1 Mar 2005 16:28:20 -0500
+Received: from mail.kroah.org ([69.55.234.183]:51672 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262043AbVCAVZY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 16:25:24 -0500
+Date: Tue, 1 Mar 2005 13:24:35 -0800
+From: Greg KH <greg@kroah.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Corey Minyard <minyard@acm.org>, Sergey Vlasov <vsu@altlinux.ru>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New operation for kref to help avoid locks
+Message-ID: <20050301212435.GA24531@kroah.com>
+References: <42209BFD.8020908@acm.org> <20050226232026.5c12d5b0.vsu@altlinux.ru> <4220F6C8.4020002@acm.org> <20050301201528.GA23484@kroah.com> <1109710964.6293.166.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-7.111.19-smp (i686)
-X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
-X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1109710964.6293.166.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the hotplug routine for generating hotplug events when
-devices are seen on the macio bus. It uses the attributed created by the
-sysfs nodes to generate the hotplug environment vars for userspace.
+On Tue, Mar 01, 2005 at 10:02:43PM +0100, Arjan van de Ven wrote:
+> On Tue, 2005-03-01 at 12:15 -0800, Greg KH wrote:
+> > On Sat, Feb 26, 2005 at 04:23:04PM -0600, Corey Minyard wrote:
+> > > Add a routine to kref that allows the kref_put() routine to be
+> > > unserialized even when the get routine attempts to kref_get()
+> > > an object without first holding a valid reference to it.  This is
+> > > useful in situations where this happens multiple times without
+> > > freeing the object, as it will avoid having to do a lock/semaphore
+> > > except on the final kref_put().
+> > > 
+> > > This also adds some kref documentation to the Documentation
+> > > directory.
+> > 
+> > I like the first part of the documentation, that's nice.
+> > 
+> > But I don't like the new kref_get_with_check() function that you
+> > implemented.  If you look in the -mm tree, kref_put() now returns if
+> > this was the last put on the reference count or not, to help with lists
+> > of objects with a kref in it.
+> > 
+> > Perhaps you can use that to implement what you need instead?
+> 
+> note that I'm not convinced the "lockless" implementation actually is
+> faster. It still uses an atomic variable, which is just as expensive as
+> taking a lock normally...
 
-In order for hotplug to work with macio devices, patches to module-init-tools
-and hotplug must be applied. Those patches are available at:
+I have never stated it would be "faster" that I know of, and you still
+need a lock to protect some of the paths.  But that is documented in my
+2004 ols paper about kref.
 
-ftp://ftp.suse.com/pub/people/jeffm/linux/macio-hotplug/
+thanks,
 
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
-
-diff -rupN -X dontdiff linux-2.6.8/drivers/macintosh/macio_asic.c linux-2.6.8.devel/drivers/macintosh/macio_asic.c
---- linux-2.6.8/drivers/macintosh/macio_asic.c	2004-08-14 01:36:45.000000000 -0400
-+++ linux-2.6.8.devel/drivers/macintosh/macio_asic.c	2004-09-16 17:12:37.242920008 -0400
-@@ -126,11 +126,77 @@ static int macio_device_resume(struct de
- 	return 0;
- }
- 
-+static int macio_hotplug (struct device *dev, char **envp, int num_envp,
-+                          char *buffer, int buffer_size)
-+{
-+	struct macio_dev * macio_dev;
-+	struct of_device * of;
-+	char *scratch, *compat;
-+	int i = 0;
-+	int length = 0;
-+	int cplen, seen = 0;
-+
-+	if (!dev)
-+		return -ENODEV;
-+
-+	macio_dev = to_macio_device(dev);
-+	if (!macio_dev)
-+		return -ENODEV;
-+
-+	of = &macio_dev->ofdev;
-+	scratch = buffer;
-+
-+	/* stuff we want to pass to /sbin/hotplug */
-+	envp[i++] = scratch;
-+	length += scnprintf (scratch, buffer_size - length, "OF_NAME=%s",
-+	                     of->node->name);
-+	if ((buffer_size - length <= 0) || (i >= num_envp))
-+		return -ENOMEM;
-+	++length;
-+	scratch += length;
-+
-+	envp[i++] = scratch;
-+	length += scnprintf (scratch, buffer_size - length, "OF_TYPE=%s",
-+	                     of->node->type);
-+	if ((buffer_size - length <= 0) || (i >= num_envp))
-+		return -ENOMEM;
-+	++length;
-+	scratch += length;
-+
-+	envp[i++] = scratch;
-+	length += scnprintf (scratch, buffer_size - length,
-+	                     "OF_COMPATIBLE=");
-+	if ((buffer_size - length <= 0) || (i >= num_envp))
-+		return -ENOMEM;
-+	++length;
-+	scratch += length;
-+
-+	compat = (char *) get_property(of->node, "compatible", &cplen);
-+	while (compat && cplen > 0) {
-+		int l;
-+		length += scnprintf (scratch, buffer_size - length,
-+		                     "%s%s", seen ? "," : "", compat);
-+		if ((buffer_size - length <= 0) || (i >= num_envp))
-+			return -ENOMEM;
-+		length++;
-+		scratch += length;
-+		l = strlen (compat) + 1;
-+		compat += l;
-+		cplen -= l;
-+		seen++;
-+	}
-+
-+	envp[i] = NULL;
-+
-+	return 0;
-+
-+}
- extern struct device_attribute macio_dev_attrs[];
- 
- struct bus_type macio_bus_type = {
-        .name	= "macio",
-        .match	= macio_bus_match,
-+       .hotplug = macio_hotplug,
-        .suspend	= macio_device_suspend,
-        .resume	= macio_device_resume,
-        .dev_attrs = macio_dev_attrs,
- };
- 
- static int __init macio_bus_driver_init(void)
--- 
-Jeff Mahoney
-SuSE Labs
+greg k-h

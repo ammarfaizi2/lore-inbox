@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264594AbUAAWZY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 17:25:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265394AbUAAWZY
+	id S261774AbUAAWyd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 17:54:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUAAWyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 17:25:24 -0500
-Received: from smtp.vnoc.murphx.net ([217.148.32.26]:21487 "HELO
-	smtp.vnoc.murphx.net") by vger.kernel.org with SMTP id S264594AbUAAWWl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 17:22:41 -0500
-Message-ID: <3FF49DDA.5030003@gadsdon.giointernet.co.uk>
-Date: Thu, 01 Jan 2004 22:23:22 +0000
-From: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031215
-X-Accept-Language: en-gb, en, en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1-mm1 - ieee1394 broken again?
-References: <3FF2EFF3.6010001@gadsdon.giointernet.co.uk> <20031231115442.24df8501.akpm@osdl.org>
-In-Reply-To: <20031231115442.24df8501.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jan 2004 17:54:33 -0500
+Received: from dp.samba.org ([66.70.73.150]:12754 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261774AbUAAWy2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 17:54:28 -0500
+Date: Fri, 2 Jan 2004 09:45:27 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Christophe Saout <christophe@saout.de>
+Cc: Andrew Morton <akpm@osdl.org>, joneskoo@derbian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: swapper: page allocation failure. order:3, mode:0x20
+Message-ID: <20040101224527.GP28023@krispykreme>
+References: <20040101093553.GA24788@derbian.org> <20040101101541.GJ28023@krispykreme> <20040101022553.2be5f043.akpm@osdl.org> <20040101130147.GM28023@krispykreme> <1072994888.6532.3.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072994888.6532.3.camel@leto.cs.pocnet.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.  That fixed the problem.
 
-Andrew Morton wrote:
+> > How does this look?
+> > [...]
+> > +	static unsigned long toks = 10*5*HZ;
+> > +	static unsigned long last_msg; 
+> > +	static int missed;
+> 
+> This would mean that all users of printk_ratelimit share this. If
+> printk_ratelimit is bombed by one user other perhaps important messages
+> are also suppressed.
 
-> 
-> 
-> aargh, sorry.  You need to revert
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1-rc1/2.6.1-rc1-mm1/broken-out/sysfs-add-vc-class.patch
-> 
-> This is the totally weird tty oops which Greg and I have been starting
-> at bemusedly for a few days.
-> 
-> 
-> 
+printk_ratelimit is only to be used for things which we can afford to 
+lose (eg our VM debugging messages). Don't use it on anything important :)
 
--- 
-..................................
-Robert Gadsdon
-..................................
-
+Anton

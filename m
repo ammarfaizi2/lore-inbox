@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280538AbRKBDgJ>; Thu, 1 Nov 2001 22:36:09 -0500
+	id <S280537AbRKBDfi>; Thu, 1 Nov 2001 22:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280539AbRKBDf7>; Thu, 1 Nov 2001 22:35:59 -0500
-Received: from quechua.inka.de ([212.227.14.2]:30810 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S280538AbRKBDfp>;
-	Thu, 1 Nov 2001 22:35:45 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
+	id <S280538AbRKBDf3>; Thu, 1 Nov 2001 22:35:29 -0500
+Received: from dsl-213-023-038-228.arcor-ip.net ([213.23.38.228]:59149 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S280537AbRKBDfV>;
+	Thu, 1 Nov 2001 22:35:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: unnumbered interfaces?
-In-Reply-To: <200111011522.QAA22531@zhadum.sara.nl>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
-Message-Id: <E15zV7P-0003pM-00@calista.inka.de>
-Date: Fri, 02 Nov 2001 04:35:43 +0100
+Subject: Ext2 directory index, updated
+Date: Fri, 2 Nov 2001 04:36:25 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15zV86-0000o4-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200111011522.QAA22531@zhadum.sara.nl> you wrote:
->> I'm trying to understand unnumbered interfaces.  From 
->> searching the web, they seem to be point-to-point links 
->> that do not have IP numbers (hence the name). 
+Here is the htree directory index patch for ext2, updated to 2.4.13.  
+***N.B.: still for use on test partitions only.***
 
-It is Cisco Speak. In Linux you simply give the Interface an IP Address of
-an exisiting Interface, and then you have an "unnumbered" interface. It
-simply means it does not add an additional address.
+I ran it through some basic tests, up to half a million files/directory, 
+without problems.  There are still a few minor warts to clean up, including 
+still not having settled on a final-final hash function, although it looks 
+likely that it's going to end up being dx_hack_hash, with a more respectable 
+name.
 
-Routing in modern operating systems is so easy and natural with interface
-and host routes, dont worry about cisco legacy.
+I'm not 100% sure I've handled kmap/highmem correctly, and I haven't checked 
+that yet.
 
-Greetings
-Bernd
+This patch is just a snapshot of my work-in-progress.  There will be an 
+update in another day or so, and a to-do list.  There are a few extra hash 
+functions in the code from various sources, including reiserfs and bitkeeper, 
+which I'll remove in the next update.  Those who find this kind of thing 
+interesting may find these... interesting.
+
+The patch is available at:
+
+  http://nl.linux.org/~phillips/htree/ext2.index-2.4.13
+
+To apply:
+
+  cd /your/source/tree
+  patch -p0 <this.patch
+
+--
+Daniel

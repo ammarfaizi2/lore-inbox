@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264186AbTGRWbc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 18:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271893AbTGRWab
+	id S271909AbTGRWg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 18:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271903AbTGRWfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 18:30:31 -0400
-Received: from u194-119-236-131.dialup.planetinternet.be ([194.119.236.131]:13572
-	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP id S271859AbTGRW1r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 18:27:47 -0400
-Message-Id: <200307182239.h6IMdhM6008840@jebril.pi.be>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test1 + matroxfb = unuusable VC
-Date: Sat, 19 Jul 2003 00:39:43 +0200
-From: "Michel Eyckmans (MCE)" <mce@pi.be>
+	Fri, 18 Jul 2003 18:35:43 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:61963 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S270373AbTGRWdi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 18:33:38 -0400
+Date: Sat, 19 Jul 2003 00:48:33 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Michael Still <mikal@stillhq.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Sam Ravnborg <sam@ravnborg.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: [PATCH] docbook: Added support for generating man files
+Message-ID: <20030719004833.A3174@pclin040.win.tue.nl>
+References: <1058565240.19558.91.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0307190828070.1829-100000@diskbox.stillhq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0307190828070.1829-100000@diskbox.stillhq.com>; from mikal@stillhq.com on Sat, Jul 19, 2003 at 08:36:27AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 19, 2003 at 08:36:27AM +1000, Michael Still wrote:
 
-Greetz,
+> > IS there any chance it could incorporate the GPL by a slightly smaller
+> > reference or even a link for the HTML one, it looks great except that
+> > 90% of the manual page is a GPL each time 8)
 
-I'm using (or rather: trying to use) matroxfb on 2.6.0-test1 (2.5.72 had 
-the same problems) and am seeing the following:
+> Well, the only part which comes from this patch is:
+> ... Michael Still (mikal\@stillhq.com) ...
+> ... This documentation was generated with kernel version $ARGV[2]. ...
+> I can shorten this if people would like.
 
- - The initial boot console works fine, but all other consoles have 
-   scrolling problems. The area to the right of any scrolled text is 
-   most often coloured white, whereas it should be black. When using vi, 
-   it's even worse: white rectangles all over the place.
+Commenting on the man page (nroff) version:
 
- - Right after switching from X to a text console, the fill color is not
-   white, but sort of a folded ghost image of part of my X display;
+Please put the mikal\@stillhq.com in a comment.
+Please leave the kernel version.
 
- - Scrolling is not continuous: keep <enter> pushed down, and every so 
-   often a jump of about 1/3 of the hight of the screen occurs, combined
-   with a few lines that do use the correct black background;
+> The GPL bit people have commented on is actually extracted from the front
+> matter of the SGML file being converted inside
+> <legalnotice></legalnotice>. Therefore, if the SGML kerneldoc output we
+> already have includes the GPL, then so does the man page. I have not
+> imposed new license conditions on the documentation.
+> 
+> If people are comfortable with dropping the legal notice, or perhaps 
+> inserting a line saying "refer to file X for the license on this 
+> documentation", then I'll do that and send a new patch.
 
- - Backspacing only works when the cursor is positioned at the end of the 
-   command line. Anywhere else the positions to the right of the cursor 
-   are not repainted.
+Please put all legalities in comments - behind .\" we do not have to read
+them, but they are there if anyone cares.
 
-I'm using these settings: video=matroxfb:vesa:0x11A,fh:92k,fv:160"
-
-  MCE
+Andries
 

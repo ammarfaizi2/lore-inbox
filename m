@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261529AbTADVAR>; Sat, 4 Jan 2003 16:00:17 -0500
+	id <S261495AbTADVDy>; Sat, 4 Jan 2003 16:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbTADVAQ>; Sat, 4 Jan 2003 16:00:16 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:29712 "EHLO
+	id <S261518AbTADVDy>; Sat, 4 Jan 2003 16:03:54 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:33552 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261529AbTADVAN>; Sat, 4 Jan 2003 16:00:13 -0500
-Date: Sat, 4 Jan 2003 21:08:43 +0000 (GMT)
+	id <S261495AbTADVDx>; Sat, 4 Jan 2003 16:03:53 -0500
+Date: Sat, 4 Jan 2003 21:12:24 +0000 (GMT)
 From: James Simmons <jsimmons@infradead.org>
-To: Jurriaan <thunder7@xs4all.nl>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
 cc: Antonino Daplas <adaplas@pol.net>,
        Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH][FBDEV]: fb_putcs() and fb_setfont() methods
-In-Reply-To: <20030104140058.GA10918@middle.of.nowhere>
-Message-ID: <Pine.LNX.4.44.0301042107390.24903-100000@phoenix.infradead.org>
+In-Reply-To: <20030104204131.GD1319@ppc.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.44.0301042109340.24903-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > Attached is a patch against 2.5.54 in an attempt to add putcs() and
-> > setfont() methods for fbdev drivers that require them:
-> > 
-> And those drivers would be the matrox framebuffer drivers, for example?
-> 
-> That would be really great!
+> I'll be happier with character coordinates for text mode. 
 
-I'm porting this driver to the new api. I'm alomst finished with the 
-nvidia driver. Once I'm done on that the matrox driver is next. Sorry it 
-is taking so long but I have alot of drivers to deal with.
+Yuck!! Using fbcon for text modes is just bloat. For hardware text mode it 
+is much better to write a nice small console driver like newport_con.c
+
+> could decide on case-by-case basis whether it will use its own code or 
+> generic without touching pointer (without modifying potentially constant
+> fb_ops structure common to all fbdev instances).
+
+The patch was rejected. I working on your driver. I can throw in a text 
+mode driver as well. 
 

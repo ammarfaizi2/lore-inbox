@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbULMUxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbULMTnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbULMUxz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 15:53:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbULMUui
+	id S262315AbULMTnt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 14:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbULMTk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 15:50:38 -0500
-Received: from gprs215-194.eurotel.cz ([160.218.215.194]:12161 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261156AbULMUt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 15:49:56 -0500
-Date: Mon, 13 Dec 2004 21:49:33 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic-hz
-Message-ID: <20041213204933.GA4693@elf.ucw.cz>
-References: <41BCD5F3.80401@kolivas.org> <20041212234331.GO16322@dualathlon.random> <cone.1102897095.171542.10669.502@pc.kolivas.org> <20041213002751.GP16322@dualathlon.random> <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com> <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <1102970039.1281.415.camel@cog.beaverton.ibm.com>
+	Mon, 13 Dec 2004 14:40:57 -0500
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:12736 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S261468AbULMS4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 13:56:00 -0500
+Subject: Re: [openib-general] [PATCH][v3][17/21] Add IPoIB
+	(IP-over-InfiniBand) driver
+From: Tom Duffy <tduffy@sun.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, openib-general@openib.org
+In-Reply-To: <52mzwi58zj.fsf@topspin.com>
+References: <20041213109.JT1ejUdkRIUXbWOm@topspin.com>
+	 <1102963464.9258.11.camel@duffman>  <52mzwi58zj.fsf@topspin.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Yk6Oa+xZH+Icmf/OE6Jd"
+Date: Mon, 13 Dec 2004 10:54:29 -0800
+Message-Id: <1102964069.9258.20.camel@duffman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102970039.1281.415.camel@cog.beaverton.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > But that does not matter, right? Yes, one-shot timer will not fire
-> > > > exactly at right place, but as long as you are reading TSC and basing
-> > > > next shot on current time, error should not accumulate.
-> > > 
-> > > As said in the rest of the message, the error (or some other error)
-> > > accumulates heavily today in the tick-loss compensation/adjustment
-> > > algorithm in arch/i386/kernel/timers/timer_tsc.c, so I'm sceptical
-> > > about
-> > 
-> > I do not see how it should accumulate. Lets have working TSC. You want
-> > to emulate fixed-period timer with single-shot timer.
-> 
-> Its caused by the fact that we don't use the the TSC to accumulate time.
-> We are instead interpolating between timer ticks and the TSC, where
+--=-Yk6Oa+xZH+Icmf/OE6Jd
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes, it was supposed to be simple, so that Andrea understands that
-there's nothing inherently broken with single-shot timers.
+On Mon, 2004-12-13 at 10:49 -0800, Roland Dreier wrote:
+>     Tom> Is there a reason why you put this in in an earlier patch and
+>     Tom> then take it out later?
+>=20
+> I guess the reasons are stupidity and bad patch scripts...
+>=20
+> Doesn't hurt for now, will be fixed in future versions.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Speaking of nits, there are also some formatting issues with the
+Makefiles that changes in the later patches...
+
+But, the end result is you get the "correct" formatting if you apply all
+the patches.
+
+-tduffy
+
+--=-Yk6Oa+xZH+Icmf/OE6Jd
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBveVkdY502zjzwbwRAkGbAJ9Y7nYIijNZSAB28LyYyB6UeuopUgCgokCn
+V7J0vqX7XrxA2MFpGbBVJ2g=
+=xZFZ
+-----END PGP SIGNATURE-----
+
+--=-Yk6Oa+xZH+Icmf/OE6Jd--

@@ -1,36 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261283AbSIWSGM>; Mon, 23 Sep 2002 14:06:12 -0400
+	id <S261309AbSIWSQw>; Mon, 23 Sep 2002 14:16:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261276AbSIWSFL>; Mon, 23 Sep 2002 14:05:11 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:6016 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261274AbSIWSFJ>;
-	Mon, 23 Sep 2002 14:05:09 -0400
-Date: Sun, 22 Sep 2002 00:38:37 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH] LTT for 2.5.37 2/9: Trace driver
-Message-ID: <20020922003837.A35@toy.ucw.cz>
-References: <3D8CFD45.EA05DD5E@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3D8CFD45.EA05DD5E@opersys.com>; from karim@opersys.com on Sat, Sep 21, 2002 at 07:14:13PM -0400
+	id <S261310AbSIWSQw>; Mon, 23 Sep 2002 14:16:52 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:64171 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S261309AbSIWSQu>; Mon, 23 Sep 2002 14:16:50 -0400
+Date: Mon, 23 Sep 2002 14:22:01 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: UP IO-APIC
+Message-ID: <Pine.GSO.4.33.0209231419230.11624-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Would someone kindly remove that from the configuration possibilities?  It
+doesn't work -- and hasn't worked for, what, a year.
 
-> +/*  Driver */
-> +static int		sMajorNumber;		/* Major number of the tracer */
-> +static int		sOpenCount;		/* Number of times device is open */
-> +/*  Locking */
-
-Why *s*OpenCount? Some creeping infection by hungarian notation?
-
-									Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+--Ricky
 

@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264119AbUFPQHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264101AbUFPQHC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264119AbUFPQHa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 12:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264117AbUFPQHa
+	id S264101AbUFPQHC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 12:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUFPQHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 12:07:30 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:55963 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264113AbUFPQHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 12:07:20 -0400
-Date: Wed, 16 Jun 2004 17:07:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Option to run cache reap in thread mode
-Message-ID: <20040616160714.GA14413@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dimitri Sivanich <sivanich@sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <20040616142413.GA5588@sgi.com> <20040616152934.GA13527@infradead.org> <20040616160355.GA5963@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040616160355.GA5963@sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 16 Jun 2004 12:07:02 -0400
+Received: from pat.uio.no ([129.240.130.16]:52126 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264101AbUFPQFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 12:05:45 -0400
+To: linux-kernel@vger.kernel.org
+Cc: viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] atime on devices
+X-Draft-From: ("fa.linux.kernel" 488302)
+References: <fa.j3j5n9a.12n2f8g@ifi.uio.no> <fa.gbo3vfu.1e429hc@ifi.uio.no>
+From: Sturle Sunde <sturle.sunde@usit.uio.no>
+Organization: Universitetets senter for informasjonsteknologi
+Date: Wed, 16 Jun 2004 17:30:34 +0200
+In-Reply-To: <fa.gbo3vfu.1e429hc@ifi.uio.no> (Jan-Benedict Glaw's message of "Wed, 16 Jun 2004 13:15:50 GMT")
+Message-ID: <riqpt7z8qqt.fsf@maggie.uio.no>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 11:03:55AM -0500, Dimitri Sivanich wrote:
-> On Wed, Jun 16, 2004 at 04:29:34PM +0100, Christoph Hellwig wrote:
-> > YAKT, sigh..  I don't quite understand what you mean with a "holdoff" so
-> > maybe you could explain what problem you see?  You don't like cache_reap
-> > beeing called from timer context?
-> 
-> The issue(s) I'm attempting to solve is to achieve more deterministic interrupt
-> response times on CPU's that have been designated for use as such.  By setting
-> cache_reap to run as a kthread, the cpu is only unavailable during the time
-> that irq's are disabled.  By doing this on a cpu that's been restricted from
-> running most other processes, I have been able to achieve much more
-> deterministic interrupt response times.
-> 
-> So yes, I don't want cache_reap to be called from timer context when I've
-> configured a CPU as such.
+Jan-Benedict Glaw <jbglaw@lug-owl.de> writes:
+> On Wed, 2004-06-09 16:20:17 +0200, Sturle Sunde <sturle.sunde@usit.uio.no>
+> wrote in message <riqhdtkke3i.fsf@maggie.uio.no>:
+>> Some software use access times on device files to check if there is
+>> mouse or keyboard activity on the console.  This used to work in old
+>> kernels, or perhaps it was old hardware, but not any more.  Google
+>> didn't find any other portable ways of checking for mouse or keyboard
+>> activity without accessing the X11 display.
+> open() /dev/input/evdev* and select() on them?
 
-Well, if you want deterministic interrupt latencies you should go for a realtime OS.
-I know Linux is the big thing in the industry, but you're really better off looking
-for a small Hard RT OS.  From the OpenSource world eCOS or RTEMS come to mind.  Or even
-rtlinux/rtai if you want to run a full linux kernel as idle task.
+Requires root privileges, and you can't see how long the device was
+idle before you did select.
 
+-- 
+Sturle
+~~~~~

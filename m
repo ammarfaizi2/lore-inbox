@@ -1,128 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262942AbTJNV31 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 17:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbTJNV31
+	id S262033AbTJNVjY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 17:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTJNVjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 17:29:27 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:10161 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S262942AbTJNV3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 17:29:24 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: len.brown@intel.com
-Subject: [PATCH][2.4] fix "pci=noacpi" boot option
-Date: Tue, 14 Oct 2003 23:28:58 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org
+	Tue, 14 Oct 2003 17:39:24 -0400
+Received: from sea2-dav3.sea2.hotmail.com ([207.68.164.107]:17937 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262108AbTJNVjS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 17:39:18 -0400
+X-Originating-IP: [12.145.34.101]
+X-Originating-Email: [san_madhav@hotmail.com]
+From: "sankar" <san_madhav@hotmail.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       <linux-kernel@vger.kernel.org>
+References: <A20D5638D741DD4DBAAB80A95012C0AED78649@orsmsx409.jf.intel.com>
+Subject: Re: Question on atomic_inc/dec
+Date: Tue, 14 Oct 2003 14:34:55 -0700
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_bqGj/9JDIm2jPp1";
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310142328.59083.schlicht@uni-mannheim.de>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <Sea2-DAV3c098V4p7Jl00002e3e@hotmail.com>
+X-OriginalArrivalTime: 14 Oct 2003 21:39:13.0680 (UTC) FILETIME=[9C535900:01C3929B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thx for the reply...
+The definition for atomic_inc() used to be there in asm/atomic.h on redhat
+versions 7.2..
+But on redhat ver 9.0 asm/atomic.h does not have the definition for
+atomic_inc().
+Is it moved to anyother file on redhat 9.0??
 
---Boundary-03=_bqGj/9JDIm2jPp1
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_aqGj/N2hMuYpb7z"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Pls reply...
+----- Original Message -----
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "sankar" <san_madhav@hotmail.com>; <linux-kernel@vger.kernel.org>
+Sent: Tuesday, October 14, 2003 2:17 PM
+Subject: RE: Question on atomic_inc/dec
 
---Boundary-01=_aqGj/N2hMuYpb7z
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi Len,
+> From: sankar
+>
+> Hi,
+> I have a question concerning the macro atomic_inc on REDHAT 9.0. I had
+used
+> atomic_inc on REDHAT 7.2 earlier. I installed redhat 9.0 and tried to run
+my
+> old code on this. I got the error saying atomic_inc not declared.
+>
+> I tried to search the header file in which this is defined but with
+failure.
 
-some time ago I sent a patch which fixed problems with the "pci=3Dnoacpi" b=
-oot=20
-option of the 2.5.xx linux-kernel. It got applied to the 2.5 kernel tree bu=
-t=20
-I missed to create a similar fix for the 2.4 tree which seems to have the=20
-same issue.
+Seems you were using a kernel definition of a function (this
+normally happens only because it was out there by mistake,
+or because you had __KERNEL__ #defined).
 
-Now I've seen reports of people having problems with the "pci=3Dnoacpi" boo=
-t=20
-option with current 2.4.xx kernel versions, too. So I ported my old patch t=
-o=20
-2.4.22-bk34, tested it and attached it to this mail. You may consider pushi=
-ng=20
-it to Marcelo.
+It will be in include/asm/atomic.h; however, it is not wise to
+use directly the kernel stuff unless you are coding kernel stuff.
 
-Kind regards,
-  Thomas
+You can always strip them, of course :)
 
---Boundary-01=_aqGj/N2hMuYpb7z
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="fix_pci_noacpi.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="fix_pci_noacpi.diff"
-
-=2D-- linux-2.4.22-bk34/arch/i386/kernel/acpi.c.orig	Tue Oct 14 20:50:18 20=
-03
-+++ linux-2.4.22-bk34/arch/i386/kernel/acpi.c	Tue Oct 14 20:53:45 2003
-@@ -58,6 +58,7 @@
-=20
- #ifdef CONFIG_ACPI_BOOT
- extern int acpi_disabled;
-+extern int acpi_irq;
- extern int acpi_ht;
-=20
- enum acpi_irq_model_id		acpi_irq_model;
-@@ -415,7 +416,7 @@
- 	 * If MPS is present, it will handle them,
- 	 * otherwise the system will stay in PIC mode
- 	 */
-=2D	if (acpi_disabled) {
-+	if (acpi_disabled || !acpi_irq) {
- 		return 1;
- 	}
-=20
-=2D-- linux-2.4.22-bk34/arch/i386/kernel/setup.c.orig	Tue Oct 14 20:50:25 2=
-003
-+++ linux-2.4.22-bk34/arch/i386/kernel/setup.c	Tue Oct 14 20:57:34 2003
-@@ -184,6 +184,7 @@
- EXPORT_SYMBOL(acpi_disabled);
-=20
- #ifdef	CONFIG_ACPI_BOOT
-+	int acpi_irq __initdata =3D 1; 	/* enable IRQ */
- 	int acpi_ht __initdata =3D 1; 	/* enable HT */
- #endif
-=20
-@@ -848,6 +849,11 @@
- 		else if (!memcmp(from, "acpi=3Dht", 7)) {=20
- 			acpi_ht =3D 1;=20
- 			if (!acpi_force) acpi_disabled =3D 1;=20
-+		}=20
-+
-+		/* "pci=3Dnoacpi" disables ACPI interrupt routing */
-+		else if (!memcmp(from, "pci=3Dnoacpi", 10)) {=20
-+			acpi_irq =3D 0;=20
- 		}=20
-=20
-                 /* disable IO-APIC */
-
---Boundary-01=_aqGj/N2hMuYpb7z--
-
---Boundary-03=_bqGj/9JDIm2jPp1
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/jGqbYAiN+WRIZzQRAmtaAJ9WYGP5cONJPqohR68ms0FzHW3hAQCeJGv6
-H6lLaljQB3dt8f3GNfvWJTk=
-=E4CR
------END PGP SIGNATURE-----
-
---Boundary-03=_bqGj/9JDIm2jPp1--
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

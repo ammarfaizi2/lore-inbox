@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261936AbSJNQKu>; Mon, 14 Oct 2002 12:10:50 -0400
+	id <S261908AbSJNQJg>; Mon, 14 Oct 2002 12:09:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261945AbSJNQKt>; Mon, 14 Oct 2002 12:10:49 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:31502 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261936AbSJNQKs>; Mon, 14 Oct 2002 12:10:48 -0400
-Date: Mon, 14 Oct 2002 17:16:39 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Michael Clark <michael@metaparadigm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
+	id <S261911AbSJNQJg>; Mon, 14 Oct 2002 12:09:36 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:54166 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261908AbSJNQJf>; Mon, 14 Oct 2002 12:09:35 -0400
+Date: Mon, 14 Oct 2002 14:15:02 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Shawn <core@enodev.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Michael Clark <michael@metaparadigm.com>,
+       Mark Peloquin <markpeloquin@hotmail.com>,
+       <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>,
+       <evms-devel@lists.sourceforge.net>
 Subject: Re: [Evms-devel] Re: Linux v2.5.42
-Message-ID: <20021014171639.C19897@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Michael Clark <michael@metaparadigm.com>,
-	Mark Peloquin <markpeloquin@hotmail.com>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-	evms-devel@lists.sourceforge.net
-References: <Pine.GSO.4.21.0210131243480.9247-100000@steklov.math.psu.edu> <3DA9B05F.8000600@metaparadigm.com> <20021014044355.GQ3045@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021014044355.GQ3045@clusterfs.com>; from adilger@clusterfs.com on Sun, Oct 13, 2002 at 10:43:55PM -0600
+In-Reply-To: <20021014092048.A27417@q.mn.rr.com>
+Message-ID: <Pine.LNX.4.44L.0210141414330.22993-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 13, 2002 at 10:43:55PM -0600, Andreas Dilger wrote:
-> I never did get a clear understanding why Christoph wants access to
-> "intermediate" block devices from EVMS, except for the ioctl issue.
+On Mon, 14 Oct 2002, Shawn wrote:
 
-It's not really the userspace access that matters (it comes for free
-when doing it properly) but more that I want to avoid duplicating
-kernel-internal data structures and code.  Just look at ldev_mgr.c
-in the evms source code and see how much simpler it would get if we
-merged struct evms_logical_node (and it's members) into struct gendisk and
-struct block_device - sure that's not a trivial task, but it'll pay
-out in the long term.
+> Having said all that, given that your premises are true regarding the
+> code design problems you have with EVMS, you have a valid point about
+> including it in mainline. The question is, is this good enough to ignore
+> having a logical device management system?!?
 
-> It's like "ls -l" showing you each and every block that makes up a file,
-> or "ps aux"
+You're acting like EVMS was the only logical volume manager out there.
 
-It's more like ps aux showing you all threads of a multithreaded
-process.  Yes, people have turned it off now, but you really want
-to be able to see it without doing hacks.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

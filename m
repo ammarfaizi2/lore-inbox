@@ -1,56 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271915AbRIDJCK>; Tue, 4 Sep 2001 05:02:10 -0400
+	id <S271916AbRIDJKX>; Tue, 4 Sep 2001 05:10:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271916AbRIDJB7>; Tue, 4 Sep 2001 05:01:59 -0400
-Received: from picard.auto.tuwien.ac.at ([128.130.12.4]:46234 "EHLO
-	picard.auto.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S271915AbRIDJBm>; Tue, 4 Sep 2001 05:01:42 -0400
-Date: Tue, 4 Sep 2001 11:02:01 +0200 (CEST)
-From: Heinz Deinhart <heinz@auto.tuwien.ac.at>
-To: <linux-kernel@vger.kernel.org>
-Subject: Some experiences with the Athlon optimisation problem
-Message-ID: <Pine.LNX.4.33.0109041055250.25091-100000@xenon.auto.tuwien.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271917AbRIDJKN>; Tue, 4 Sep 2001 05:10:13 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:54279 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S271916AbRIDJKA>; Tue, 4 Sep 2001 05:10:00 -0400
+Date: Tue, 4 Sep 2001 12:09:34 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <6412704327.20010904120934@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+A test program.
+min2 performs a very strict checking.
+min3 gives you full control, but checks for too small target type.
+Do anybody see any flaws? Any improvements?
+For compiler folks: Why GCC compiles ...f(1);f(1);f(1)... to
+...
+        pushl $1
+        call f
+        addl $32,%esp  <-- My grandma optimizes better
+        addl $-12,%esp <-- ?
+        pushl $1
+        call f
+        addl $16,%esp  <-- ?
+        addl $-12,%esp <-- ?
+...
+--------------------------------------------------------------------
+#include <stdio.h>
 
-i might have found some interesting informations regarding the Athlon
-optimisation problems. I have two different Athlon versions, the
-older one seems to work very table, the newer one crashes always
-during system startup.  Both chips where running in exactly the same
-machine. (the older one is a 1.133Ghz the newer one a 1.2Ghz.)
+#define min2(a,b) ({ \
+    typeof(a) __a = (a); \
+    typeof(b) __b = (b); \
+    if( sizeof(a) != sizeof(b) ) BUG(); \
+    if( ~(typeof(a))0 > 0 && ~(typeof(b))0 < 0) BUG(); \
+    if( ~(typeof(a))0 < 0 && ~(typeof(b))0 > 0) BUG(); \
+    (__a < __b) ? __a : __b; \
+    })
 
-I tried 2.4.9, 2.4.9-ac6 and 2.4.3, not difference. The system is a
-MSI-K7A Turbo with KT133A from VIA, 256MB PC133 RAM. I have 8 of the
-new ones, and all of them do not work.
+#define min3(type,a,b) ({ \
+    type __a = (a); \
+    type __b = (b); \
+    if( sizeof(a) > sizeof(type) ) BUG(); \
+    if( sizeof(b) > sizeof(type) ) BUG(); \
+    (__a < __b) ? __a : __b; \
+    })
 
-Because the same system is stable with one kind of Athlons and does
-not work with the other, couldn't this mean those Athlons are buggy ?
+#define BUG() printf("BUG at %i\n",__LINE__)
+#define llong long long
 
-Of course all troubles vanish when i turn off Athlon optimisation. But
-this probably doesnt kill the problem.
+// Uncomment {} for compile, comment for gcc -S -O2 optimizer test
+void f(int v);
+// void f(int v) {}
 
-The old Athlon reads:
-	A1133AMS3C
-	AVIA 0115TPAW
-	95262550081
+int main() {
+    signed char  sc=1; unsigned char  uc=1;
+    signed short ss=1; unsigned short us=1;
+    signed int   si=1; unsigned int   ui=1;
+    signed long  sl=1; unsigned long  ul=1;
+    signed llong su=1; unsigned llong uu=1;
 
-The new (non working) one:
-	A1200AMS3C
-	AXIA 0121RPDW
-	95987660990
+    f(min2(sc,sc)); // not a BUG
+    f(min2(sc,uc)); // not a BUG: (typeof(x))0 first expanded to signed int
+    f(1); // optimizer test: all the mins must be optimized to 
+    f(1); // f(1) so do gcc -S -O2 and inspect .s file
+    f(min2(ss,ss)); // not a BUG
+    f(min2(ss,us)); // not a BUG: (typeof(x))0 first expanded to signed int
+    f(min2(si,si)); // not a BUG
+    f(min2(si,ui)); // BUG: signedness mismatch
+    f(min2(sl,sl)); // not a BUG
+    f(min2(sl,ul)); // BUG: signedness mismatch
+    f(min2(su,su)); // not a BUG
+    f(min2(su,uu)); // BUG: signedness mismatch
+    f(min2(sc,ss)); // BUG: size mismatch
+    f(min3(unsigned char, sc,uc)); // not a BUG
+    f(min3(int,           sc,ss)); // not a BUG
+    f(min3(unsigned llong,ss,uu)); // not a BUG
+    f(min3(unsigned long, ss,uu)); // BUG: target type is too small
+    
+    return 0;
+}
+-------------------------------------------------------------
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
 
-I hope this is somehow useful.
-
-ciao,
-heinz
-
--- 
-Heinz Deinhart <heinz@auto.tuwien.ac.at>
-+43 1 58801-18321
-Technische Universitaet Wien, Dept. E183/1
 

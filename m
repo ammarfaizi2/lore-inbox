@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291885AbSBNUun>; Thu, 14 Feb 2002 15:50:43 -0500
+	id <S291882AbSBNUxF>; Thu, 14 Feb 2002 15:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291882AbSBNUue>; Thu, 14 Feb 2002 15:50:34 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:47120 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S291885AbSBNUu1>;
-	Thu, 14 Feb 2002 15:50:27 -0500
-Date: Thu, 14 Feb 2002 20:05:36 +0100
+	id <S291906AbSBNUwQ>; Thu, 14 Feb 2002 15:52:16 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:57872 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S291882AbSBNUus>;
+	Thu, 14 Feb 2002 15:50:48 -0500
+Date: Thu, 14 Feb 2002 09:27:54 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marco Colombo <marco@esi.it>, linux-kernel@vger.kernel.org
-Subject: Re: Quick question on Software RAID support.
-Message-ID: <20020214190536.GA160@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.44.0202131109270.21300-100000@Megathlon.ESI> <E16axOE-0004zX-00@the-village.bc.nu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, dalecki@evision-ventures.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
+Message-ID: <20020214092753.A37@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0202131043230.13632-100000@home.transmeta.com> <3C6AA01A.51517C48@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16axOE-0004zX-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3C6AA01A.51517C48@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Feb 13, 2002 at 12:19:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > I had a raid1 IDE system, and it was continuosly raising hard errors on
-> > hdc (the disk was dead, non just some bad blocks): the net result was that
-> > it was unusable - too slow, too busy on IDE errors (a lot of them - even
-> > syslog wasn't happy).
-> 
-> Don't try and do "hot pluggable" IDE raid it really doesn't work out. With
-> scsi the impact of a sulking drive is minimal unless you get unlucky
-> (I have here a failed SCSI SCA drive that hangs the entire bus merely by
-> being present - I use it to terrify HA people 8))
+> As an experiment a couple months ago, I got most of the PCI net drivers
+> down to ~200-300 lines of C code apiece, by factoring out common code
+> patterns into M4 macros.  "m4 netdrivers.m4 epic100.tmpl > epic100.c"
 
-I could imagine scenario when disk would set itself on fire...
+This is slightly extreme, right?
 
-...which was reason why disks in sun4/330 were separate by steel so
-fire in disks would not damage mainboard ;-).
-									Pavel
+But I'd like to see resulting epic100.tmpl ;-).
+								Pavel
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

@@ -1,134 +1,570 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263581AbTDCWOC 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 17:14:02 -0500
+	id S263587AbTDCWPY 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 17:15:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263587AbTDCWOC 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 17:14:02 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:28052 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263581AbTDCWN5 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 17:13:57 -0500
-Date: Thu, 3 Apr 2003 14:24:41 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.66-mm3] New page_convert_anon
-Message-Id: <20030403142441.4a8a713e.akpm@digeo.com>
-In-Reply-To: <75590000.1049407939@baldur.austin.ibm.com>
-References: <61050000.1049405305@baldur.austin.ibm.com>
-	<20030403135522.254e700c.akpm@digeo.com>
-	<75590000.1049407939@baldur.austin.ibm.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Apr 2003 22:25:21.0291 (UTC) FILETIME=[E9CFC5B0:01C2FA2F]
+	id S263562AbTDCWPX 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 17:15:23 -0500
+Received: from dsl254-126-114.nyc1.dsl.speakeasy.net ([216.254.126.114]:51615
+	"EHLO Chumak.ny.ranok.com") by vger.kernel.org with ESMTP
+	id S263587AbTDCWOo 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 17:14:44 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.66-bk9] : undefined reference to `i2c_detect'
+MIME-Version: 1.0 (mime-construct 1.8)
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <E191DBZ-0004ac-00@Maya.ny.ranok.com>
+From: Vagn Scott <vagn@ranok.com>
+Date: Thu, 03 Apr 2003 17:27:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> wrote:
->
-> How does this patch look?
+config is below
+Thu Apr  3 14:07:18 EST 2003
+2.5.66
+patch-2.5.66-bk9.bz2
+(please CC: me, as I'm not on the list)
+--------------------------------
 
-It's more conventional to lock the page in the caller.  And we forgot the
-whole reason for locking it: to keep truncate away.  We need to check that
-the page is still on the address_space after the page lock has been acquired.
+ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o
+arch/i386/kernel/init_task.o   init/built-in.o --start-group
+usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
+arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o
+fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o
+lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o
+arch/i386/pci/built-in.o  arch/i386/oprofile/built-in.o  net/built-in.o
+--end-group  -o .tmp_vmlinux1
+drivers/built-in.o(.text+0x14de1d): In function `lm75_attach_adapter':
+: undefined reference to `i2c_detect'
+drivers/built-in.o(.text+0x14e29d): In function `via686a_attach_adapter':
+: undefined reference to `i2c_detect'
+make[1]: *** [.tmp_vmlinux1] Error 1
+make[1]: Leaving directory `/u1/kernel-test-bk/2.5.66/linux-2.5.66'
+make: *** [recompile] Error 2
+[8] Maya:/boot/kernel/test/2.5.66-bk $=20
 
-This applies on top of your first.
+--------------------------------
+grep -v '^#' linux/.config | uniq
+CONFIG_X86=3Dy
+CONFIG_MMU=3Dy
+CONFIG_UID16=3Dy
+CONFIG_GENERIC_ISA_DMA=3Dy
 
- 25-akpm/mm/filemap.c |    3 +++
- 25-akpm/mm/fremap.c  |    5 ++++-
- 25-akpm/mm/rmap.c    |   27 ++++++++++++++++++---------
- 3 files changed, 25 insertions(+), 10 deletions(-)
+CONFIG_EXPERIMENTAL=3Dy
 
-diff -puN mm/filemap.c~page_convert_anon-lock_page mm/filemap.c
---- 25/mm/filemap.c~page_convert_anon-lock_page	Thu Apr  3 14:20:40 2003
-+++ 25-akpm/mm/filemap.c	Thu Apr  3 14:20:40 2003
-@@ -64,6 +64,9 @@
-  *  ->mmap_sem
-  *    ->i_shared_sem		(various places)
-  *
-+ *  ->lock_page
-+ *    ->i_shared_sem		(page_convert_anon)
-+ *
-  *  ->inode_lock
-  *    ->sb_lock			(fs/fs-writeback.c)
-  *    ->mapping->page_lock	(__sync_single_inode)
-diff -puN mm/rmap.c~page_convert_anon-lock_page mm/rmap.c
---- 25/mm/rmap.c~page_convert_anon-lock_page	Thu Apr  3 14:20:40 2003
-+++ 25-akpm/mm/rmap.c	Thu Apr  3 14:22:17 2003
-@@ -764,21 +764,29 @@ out:
-  * Find all the mappings for an object-based page and convert them
-  * to 'anonymous', ie create a pte_chain and store all the pte pointers there.
-  *
-- * This function takes the address_space->i_shared_sem, sets the PageAnon flag, then
-- * sets the mm->page_table_lock for each vma and calls page_add_rmap.  This means
-- * there is a period when PageAnon is set, but still has some mappings with no
-- * pte_chain entry.  This is in fact safe, since page_remove_rmap will simply not
-- * find it.  try_to_unmap might erroneously return success, but kswapd will correctly
-- * see that there are still users of the page and send it around again.
-+ * This function takes the address_space->i_shared_sem, sets the PageAnon flag,
-+ * then sets the mm->page_table_lock for each vma and calls page_add_rmap. This
-+ * means there is a period when PageAnon is set, but still has some mappings
-+ * with no pte_chain entry.  This is in fact safe, since page_remove_rmap will
-+ * simply not find it.  try_to_unmap might erroneously return success, but it
-+ * will never be called because the page_convert_anon() caller has locked the
-+ * page.
-+ *
-+ * page_referenced() may fail to scan all the appropriate pte's and may return
-+ * an inaccurate result.  This is so rare that it does not matter.
-  */
- int page_convert_anon(struct page *page)
- {
--	struct address_space *mapping = page->mapping;
-+	struct address_space *mapping;
- 	struct vm_area_struct *vma;
- 	struct pte_chain *pte_chain = NULL;
- 	pte_t *pte;
- 	int err = 0;
- 
-+	mapping = page->mapping;
-+	if (mapping == NULL)
-+		goto out;		/* truncate won the lock_page() race */
-+
- 	down(&mapping->i_shared_sem);
- 	pte_chain_lock(page);
- 	SetPageLocked(page);
-@@ -801,8 +809,8 @@ int page_convert_anon(struct page *page)
- 	page->pte.mapcount = 0;
- 
- 	/*
--	 * Now that the page is marked as anon, unlock it.  page_add_rmap will lock
--	 * it as necessary.
-+	 * Now that the page is marked as anon, unlock it.  page_add_rmap will
-+	 * lock it as necessary.
- 	 */
- 	pte_chain_unlock(page);
- 
-@@ -849,6 +857,7 @@ out_unlock:
- 	pte_chain_free(pte_chain);
- 	ClearPageLocked(page);
- 	up(&mapping->i_shared_sem);
-+out:
- 	return err;
- }
- 
-diff -puN mm/fremap.c~page_convert_anon-lock_page mm/fremap.c
---- 25/mm/fremap.c~page_convert_anon-lock_page	Thu Apr  3 14:20:40 2003
-+++ 25-akpm/mm/fremap.c	Thu Apr  3 14:20:40 2003
-@@ -73,7 +73,10 @@ int install_page(struct mm_struct *mm, s
- 	pgidx += vma->vm_pgoff;
- 	pgidx >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
- 	if (!PageAnon(page) && (page->index != pgidx)) {
--		if (page_convert_anon(page) < 0)
-+		lock_page(page);
-+		err = page_convert_anon(page);
-+		unlock_page(page);
-+		if (err < 0)
- 			goto err_free;
- 	}
- 
+CONFIG_SWAP=3Dy
+CONFIG_SYSVIPC=3Dy
+CONFIG_BSD_PROCESS_ACCT=3Dy
+CONFIG_SYSCTL=3Dy
+CONFIG_LOG_BUF_SHIFT=3D15
 
-_
+CONFIG_MODULES=3Dy
+CONFIG_MODULE_UNLOAD=3Dy
+CONFIG_MODULE_FORCE_UNLOAD=3Dy
+CONFIG_OBSOLETE_MODPARM=3Dy
+CONFIG_MODVERSIONS=3Dy
+CONFIG_KMOD=3Dy
+
+CONFIG_X86_PC=3Dy
+CONFIG_MK7=3Dy
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_XADD=3Dy
+CONFIG_X86_L1_CACHE_SHIFT=3D6
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+CONFIG_X86_USE_3DNOW=3Dy
+CONFIG_HUGETLB_PAGE=3Dy
+CONFIG_SMP=3Dy
+CONFIG_PREEMPT=3Dy
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_X86_IO_APIC=3Dy
+CONFIG_NR_CPUS=3D32
+CONFIG_X86_TSC=3Dy
+CONFIG_X86_MCE=3Dy
+CONFIG_X86_MCE_NONFATAL=3Dy
+CONFIG_X86_MSR=3Dy
+CONFIG_X86_CPUID=3Dy
+CONFIG_EDD=3Dy
+CONFIG_HIGHMEM4G=3Dy
+CONFIG_HIGHMEM=3Dy
+CONFIG_HIGHPTE=3Dy
+CONFIG_MTRR=3Dy
+CONFIG_HAVE_DEC_LOCK=3Dy
+
+CONFIG_PM=3Dy
+CONFIG_SOFTWARE_SUSPEND=3Dy
+
+CONFIG_ACPI=3Dy
+CONFIG_ACPI_BOOT=3Dy
+CONFIG_ACPI_SLEEP=3Dy
+CONFIG_ACPI_SLEEP_PROC_FS=3Dy
+CONFIG_ACPI_AC=3Dy
+CONFIG_ACPI_BATTERY=3Dy
+CONFIG_ACPI_BUTTON=3Dy
+CONFIG_ACPI_FAN=3Dy
+CONFIG_ACPI_PROCESSOR=3Dy
+CONFIG_ACPI_THERMAL=3Dy
+CONFIG_ACPI_TOSHIBA=3Dy
+CONFIG_ACPI_DEBUG=3Dy
+CONFIG_ACPI_BUS=3Dy
+CONFIG_ACPI_INTERPRETER=3Dy
+CONFIG_ACPI_EC=3Dy
+CONFIG_ACPI_POWER=3Dy
+CONFIG_ACPI_PCI=3Dy
+CONFIG_ACPI_SYSTEM=3Dy
+CONFIG_APM=3Dy
+CONFIG_APM_RTC_IS_GMT=3Dy
+
+CONFIG_CPU_FREQ=3Dy
+CONFIG_CPU_FREQ_TABLE=3Dy
+
+CONFIG_X86_POWERNOW_K6=3Dy
+
+CONFIG_PCI=3Dy
+CONFIG_PCI_GOANY=3Dy
+CONFIG_PCI_BIOS=3Dy
+CONFIG_PCI_DIRECT=3Dy
+CONFIG_PCI_LEGACY_PROC=3Dy
+CONFIG_PCI_NAMES=3Dy
+CONFIG_ISA=3Dy
+CONFIG_HOTPLUG=3Dy
+
+CONFIG_PCMCIA_PROBE=3Dy
+
+CONFIG_KCORE_ELF=3Dy
+CONFIG_BINFMT_AOUT=3Dy
+CONFIG_BINFMT_ELF=3Dy
+CONFIG_BINFMT_MISC=3Dy
+
+CONFIG_PARPORT=3Dy
+CONFIG_PARPORT_PC=3Dy
+CONFIG_PARPORT_PC_CML1=3Dy
+CONFIG_PARPORT_PC_FIFO=3Dy
+CONFIG_PARPORT_PC_SUPERIO=3Dy
+CONFIG_PARPORT_1284=3Dy
+
+CONFIG_PNP=3Dy
+CONFIG_PNP_NAMES=3Dy
+CONFIG_PNP_DEBUG=3Dy
+
+CONFIG_ISAPNP=3Dy
+CONFIG_PNPBIOS=3Dy
+
+CONFIG_BLK_DEV_FD=3Dy
+CONFIG_BLK_CPQ_DA=3Dy
+CONFIG_BLK_CPQ_CISS_DA=3Dy
+CONFIG_CISS_SCSI_TAPE=3Dy
+CONFIG_BLK_DEV_LOOP=3Dy
+CONFIG_BLK_DEV_NBD=3Dy
+CONFIG_BLK_DEV_RAM=3Dy
+CONFIG_BLK_DEV_RAM_SIZE=3D4096
+CONFIG_BLK_DEV_INITRD=3Dy
+CONFIG_LBD=3Dy
+
+CONFIG_IDE=3Dy
+
+CONFIG_BLK_DEV_IDE=3Dy
+
+CONFIG_BLK_DEV_IDEDISK=3Dy
+CONFIG_IDEDISK_MULTI_MODE=3Dy
+CONFIG_IDEDISK_STROKE=3Dy
+CONFIG_BLK_DEV_IDECD=3Dy
+CONFIG_BLK_DEV_IDESCSI=3Dy
+CONFIG_IDE_TASK_IOCTL=3Dy
+
+CONFIG_BLK_DEV_IDEPCI=3Dy
+CONFIG_BLK_DEV_GENERIC=3Dy
+CONFIG_IDEPCI_SHARE_IRQ=3Dy
+CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
+CONFIG_BLK_DEV_IDE_TCQ=3Dy
+CONFIG_BLK_DEV_IDE_TCQ_DEFAULT=3Dy
+CONFIG_BLK_DEV_IDE_TCQ_DEPTH=3D8
+CONFIG_IDEDMA_PCI_AUTO=3Dy
+CONFIG_BLK_DEV_IDEDMA=3Dy
+CONFIG_BLK_DEV_ADMA=3Dy
+CONFIG_BLK_DEV_PIIX=3Dy
+CONFIG_BLK_DEV_PDC202XX_OLD=3Dy
+CONFIG_BLK_DEV_PDC202XX_NEW=3Dy
+CONFIG_PDC202XX_FORCE=3Dy
+CONFIG_BLK_DEV_VIA82CXXX=3Dy
+CONFIG_IDEDMA_AUTO=3Dy
+CONFIG_BLK_DEV_PDC202XX=3Dy
+CONFIG_BLK_DEV_IDE_MODES=3Dy
+
+CONFIG_SCSI=3Dy
+
+CONFIG_BLK_DEV_SD=3Dy
+CONFIG_CHR_DEV_ST=3Dy
+CONFIG_BLK_DEV_SR=3Dy
+CONFIG_BLK_DEV_SR_VENDOR=3Dy
+CONFIG_CHR_DEV_SG=3Dy
+
+CONFIG_SCSI_REPORT_LUNS=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+CONFIG_SCSI_LOGGING=3Dy
+
+CONFIG_SCSI_SYM53C8XX_2=3Dy
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=3D1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=3D16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=3D64
+
+CONFIG_MD=3Dy
+CONFIG_BLK_DEV_MD=3Dy
+CONFIG_MD_LINEAR=3Dy
+CONFIG_MD_RAID0=3Dy
+CONFIG_MD_RAID1=3Dy
+CONFIG_MD_RAID5=3Dy
+CONFIG_MD_MULTIPATH=3Dy
+CONFIG_BLK_DEV_DM=3Dy
+
+CONFIG_IEEE1394=3Dy
+
+CONFIG_IEEE1394_VERBOSEDEBUG=3Dy
+CONFIG_IEEE1394_OUI_DB=3Dy
+
+CONFIG_IEEE1394_OHCI1394=3Dy
+
+CONFIG_IEEE1394_VIDEO1394=3Dy
+CONFIG_IEEE1394_SBP2=3Dy
+CONFIG_IEEE1394_SBP2_PHYS_DMA=3Dy
+CONFIG_IEEE1394_ETH1394=3Dy
+CONFIG_IEEE1394_DV1394=3Dy
+CONFIG_IEEE1394_RAWIO=3Dy
+CONFIG_IEEE1394_CMP=3Dy
+CONFIG_IEEE1394_AMDTP=3Dy
+
+CONFIG_I2O=3Dy
+CONFIG_I2O_PCI=3Dy
+CONFIG_I2O_BLOCK=3Dy
+CONFIG_I2O_SCSI=3Dy
+CONFIG_I2O_PROC=3Dy
+
+CONFIG_NET=3Dy
+
+CONFIG_PACKET=3Dy
+CONFIG_PACKET_MMAP=3Dy
+CONFIG_NETLINK_DEV=3Dy
+CONFIG_NETFILTER=3Dy
+CONFIG_UNIX=3Dy
+CONFIG_NET_KEY=3Dy
+CONFIG_INET=3Dy
+CONFIG_INET_ECN=3Dy
+CONFIG_SYN_COOKIES=3Dy
+CONFIG_INET_AH=3Dy
+CONFIG_INET_ESP=3Dy
+
+CONFIG_IP_NF_IPTABLES=3Dm
+CONFIG_IP_NF_MATCH_LIMIT=3Dm
+CONFIG_IP_NF_MATCH_MAC=3Dm
+CONFIG_IP_NF_MATCH_PKTTYPE=3Dm
+CONFIG_IP_NF_MATCH_MARK=3Dm
+CONFIG_IP_NF_MATCH_MULTIPORT=3Dm
+CONFIG_IP_NF_MATCH_TOS=3Dm
+CONFIG_IP_NF_MATCH_ECN=3Dm
+CONFIG_IP_NF_MATCH_DSCP=3Dm
+CONFIG_IP_NF_MATCH_AH_ESP=3Dm
+CONFIG_IP_NF_MATCH_LENGTH=3Dm
+CONFIG_IP_NF_MATCH_TTL=3Dm
+CONFIG_IP_NF_MATCH_TCPMSS=3Dm
+CONFIG_IP_NF_MATCH_UNCLEAN=3Dm
+CONFIG_IP_NF_MATCH_OWNER=3Dm
+CONFIG_IP_NF_FILTER=3Dm
+CONFIG_IP_NF_TARGET_REJECT=3Dm
+CONFIG_IP_NF_TARGET_MIRROR=3Dm
+CONFIG_IP_NF_NAT_NEEDED=3Dy
+CONFIG_IP_NF_COMPAT_IPCHAINS=3Dy
+CONFIG_XFRM_USER=3Dy
+
+CONFIG_IPV6_SCTP__=3Dy
+CONFIG_IP_SCTP=3Dm
+CONFIG_NET_HW_FLOWCONTROL=3Dy
+
+CONFIG_NETDEVICES=3Dy
+
+CONFIG_DUMMY=3Dy
+
+CONFIG_NET_ETHERNET=3Dy
+CONFIG_MII=3Dy
+
+CONFIG_NET_ISA=3Dy
+CONFIG_EEXPRESS_PRO=3Dy
+CONFIG_NET_PCI=3Dy
+CONFIG_AMD8111_ETH=3Dy
+CONFIG_EEPRO100=3Dy
+CONFIG_8139CP=3Dy
+CONFIG_8139TOO=3Dy
+CONFIG_8139TOO_8129=3Dy
+CONFIG_SIS900=3Dy
+
+CONFIG_PLIP=3Dm
+CONFIG_PPP=3Dy
+CONFIG_PPP_ASYNC=3Dy
+CONFIG_PPP_DEFLATE=3Dy
+CONFIG_PPP_BSDCOMP=3Dy
+CONFIG_PPPOE=3Dm
+CONFIG_SLIP=3Dy
+CONFIG_SLIP_COMPRESSED=3Dy
+CONFIG_SLIP_SMART=3Dy
+CONFIG_SLIP_MODE_SLIP6=3Dy
+
+CONFIG_INPUT=3Dy
+
+CONFIG_INPUT_MOUSEDEV=3Dy
+CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=3D1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=3D768
+CONFIG_INPUT_EVDEV=3Dy
+
+CONFIG_SOUND_GAMEPORT=3Dy
+CONFIG_SERIO=3Dy
+CONFIG_SERIO_I8042=3Dy
+CONFIG_SERIO_SERPORT=3Dy
+
+CONFIG_INPUT_KEYBOARD=3Dy
+CONFIG_KEYBOARD_ATKBD=3Dy
+CONFIG_KEYBOARD_XTKBD=3Dy
+CONFIG_INPUT_MOUSE=3Dy
+CONFIG_MOUSE_PS2=3Dy
+CONFIG_MOUSE_SERIAL=3Dy
+
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_HW_CONSOLE=3Dy
+
+CONFIG_SERIAL_8250=3Dy
+CONFIG_SERIAL_8250_EXTENDED=3Dy
+CONFIG_SERIAL_8250_SHARE_IRQ=3Dy
+CONFIG_SERIAL_8250_DETECT_IRQ=3Dy
+
+CONFIG_SERIAL_CORE=3Dy
+CONFIG_UNIX98_PTYS=3Dy
+CONFIG_UNIX98_PTY_COUNT=3D256
+CONFIG_PRINTER=3Dy
+
+CONFIG_I2C=3Dy
+
+CONFIG_I2C_ISA=3Dy
+
+CONFIG_SENSORS_LM75=3Dy
+CONFIG_SENSORS_VIA686A=3Dy
+CONFIG_I2C_SENSOR=3Dm
+
+CONFIG_IPMI_HANDLER=3Dy
+CONFIG_IPMI_PANIC_EVENT=3Dy
+CONFIG_IPMI_DEVICE_INTERFACE=3Dy
+CONFIG_IPMI_KCS=3Dy
+CONFIG_IPMI_WATCHDOG=3Dy
+
+CONFIG_HW_RANDOM=3Dy
+
+CONFIG_AGP=3Dy
+CONFIG_AGP3=3Dy
+CONFIG_AGP_VIA=3Dy
+CONFIG_AGP_I7505=3Dy
+CONFIG_DRM=3Dy
+CONFIG_DRM_MGA=3Dy
+
+CONFIG_VIDEO_DEV=3Dy
+
+CONFIG_RADIO_CADET=3Dy
+CONFIG_RADIO_RTRACK=3Dy
+CONFIG_RADIO_RTRACK_PORT=3D0x20f
+CONFIG_RADIO_RTRACK2=3Dy
+CONFIG_RADIO_RTRACK2_PORT=3D0x30c
+CONFIG_RADIO_AZTECH=3Dy
+CONFIG_RADIO_AZTECH_PORT=3D0x350
+CONFIG_RADIO_GEMTEK=3Dy
+CONFIG_RADIO_GEMTEK_PORT=3D0x34c
+CONFIG_RADIO_GEMTEK_PCI=3Dy
+CONFIG_RADIO_MAXIRADIO=3Dy
+CONFIG_RADIO_MAESTRO=3Dy
+CONFIG_RADIO_SF16FMI=3Dy
+CONFIG_RADIO_TERRATEC=3Dy
+CONFIG_RADIO_TERRATEC_PORT=3D0x590
+CONFIG_RADIO_TRUST=3Dy
+CONFIG_RADIO_TRUST_PORT=3D0x350
+CONFIG_RADIO_ZOLTRIX=3Dy
+CONFIG_RADIO_ZOLTRIX_PORT=3D0x20c
+
+CONFIG_EXT2_FS=3Dy
+CONFIG_EXT3_FS=3Dy
+CONFIG_EXT3_FS_XATTR=3Dy
+CONFIG_JBD=3Dy
+CONFIG_JBD_DEBUG=3Dy
+CONFIG_FS_MBCACHE=3Dy
+CONFIG_REISERFS_FS=3Dy
+CONFIG_REISERFS_PROC_INFO=3Dy
+CONFIG_JFS_FS=3Dy
+CONFIG_JFS_STATISTICS=3Dy
+CONFIG_XFS_FS=3Dy
+CONFIG_MINIX_FS=3Dy
+CONFIG_ROMFS_FS=3Dy
+CONFIG_QUOTA=3Dy
+CONFIG_QUOTACTL=3Dy
+
+CONFIG_ISO9660_FS=3Dy
+CONFIG_JOLIET=3Dy
+CONFIG_ZISOFS=3Dy
+CONFIG_ZISOFS_FS=3Dy
+CONFIG_UDF_FS=3Dy
+
+CONFIG_FAT_FS=3Dy
+CONFIG_MSDOS_FS=3Dy
+CONFIG_VFAT_FS=3Dy
+
+CONFIG_PROC_FS=3Dy
+CONFIG_DEVPTS_FS=3Dy
+CONFIG_TMPFS=3Dy
+CONFIG_HUGETLBFS=3Dy
+CONFIG_RAMFS=3Dy
+
+CONFIG_CRAMFS=3Dy
+
+CONFIG_NFS_FS=3Dy
+CONFIG_NFS_V3=3Dy
+CONFIG_NFS_V4=3Dy
+CONFIG_NFSD=3Dy
+CONFIG_NFSD_V3=3Dy
+CONFIG_NFSD_V4=3Dy
+CONFIG_NFSD_TCP=3Dy
+CONFIG_LOCKD=3Dy
+CONFIG_LOCKD_V4=3Dy
+CONFIG_EXPORTFS=3Dy
+CONFIG_SUNRPC=3Dy
+CONFIG_SUNRPC_GSS=3Dy
+CONFIG_RPCSEC_GSS_KRB5=3Dy
+CONFIG_SMB_FS=3Dy
+CONFIG_SMB_NLS_DEFAULT=3Dy
+CONFIG_SMB_NLS_REMOTE=3D"cp437"
+CONFIG_CIFS=3Dy
+CONFIG_CODA_FS=3Dy
+CONFIG_INTERMEZZO_FS=3Dy
+
+CONFIG_PARTITION_ADVANCED=3Dy
+CONFIG_MSDOS_PARTITION=3Dy
+CONFIG_LDM_PARTITION=3Dy
+CONFIG_SMB_NLS=3Dy
+CONFIG_NLS=3Dy
+
+CONFIG_NLS_DEFAULT=3D"iso8859-1"
+CONFIG_NLS_CODEPAGE_437=3Dy
+CONFIG_NLS_CODEPAGE_855=3Dy
+CONFIG_NLS_CODEPAGE_865=3Dy
+CONFIG_NLS_CODEPAGE_866=3Dy
+CONFIG_NLS_ISO8859_1=3Dy
+CONFIG_NLS_ISO8859_2=3Dy
+CONFIG_NLS_ISO8859_5=3Dy
+CONFIG_NLS_ISO8859_14=3Dy
+CONFIG_NLS_ISO8859_15=3Dy
+CONFIG_NLS_KOI8_R=3Dy
+CONFIG_NLS_KOI8_U=3Dy
+CONFIG_NLS_UTF8=3Dy
+
+CONFIG_FB=3Dy
+CONFIG_FB_VESA=3Dy
+CONFIG_VIDEO_SELECT=3Dy
+
+CONFIG_VGA_CONSOLE=3Dy
+CONFIG_DUMMY_CONSOLE=3Dy
+
+CONFIG_LOGO=3Dy
+CONFIG_LOGO_LINUX_CLUT224=3Dy
+
+CONFIG_SOUND=3Dm
+
+CONFIG_SND=3Dm
+CONFIG_SND_SEQUENCER=3Dm
+CONFIG_SND_SEQ_DUMMY=3Dm
+CONFIG_SND_OSSEMUL=3Dy
+CONFIG_SND_MIXER_OSS=3Dm
+CONFIG_SND_PCM_OSS=3Dm
+CONFIG_SND_SEQUENCER_OSS=3Dy
+CONFIG_SND_VERBOSE_PRINTK=3Dy
+CONFIG_SND_DEBUG=3Dy
+CONFIG_SND_DEBUG_MEMORY=3Dy
+CONFIG_SND_DEBUG_DETECT=3Dy
+
+CONFIG_SND_VIRMIDI=3Dm
+
+CONFIG_SND_EMU10K1=3Dm
+CONFIG_SND_YMFPCI=3Dm
+CONFIG_SND_INTEL8X0=3Dm
+CONFIG_SND_VIA82XX=3Dm
+
+CONFIG_SND_USB_AUDIO=3Dm
+
+CONFIG_USB=3Dm
+CONFIG_USB_DEBUG=3Dy
+
+CONFIG_USB_DEVICEFS=3Dy
+
+CONFIG_USB_EHCI_HCD=3Dm
+CONFIG_USB_UHCI_HCD=3Dm
+
+CONFIG_USB_AUDIO=3Dm
+CONFIG_USB_MIDI=3Dm
+CONFIG_USB_PRINTER=3Dm
+CONFIG_USB_STORAGE=3Dm
+CONFIG_USB_STORAGE_DEBUG=3Dy
+CONFIG_USB_STORAGE_FREECOM=3Dy
+
+CONFIG_USB_HID=3Dm
+CONFIG_USB_HIDINPUT=3Dy
+CONFIG_HID_FF=3Dy
+CONFIG_HID_PID=3Dy
+CONFIG_LOGITECH_FF=3Dy
+CONFIG_USB_HIDDEV=3Dy
+
+CONFIG_USB_SCANNER=3Dm
+CONFIG_USB_HPUSBSCSI=3Dm
+
+CONFIG_USB_SERIAL=3Dm
+CONFIG_USB_SERIAL_GENERIC=3Dy
+CONFIG_USB_SERIAL_VISOR=3Dm
+
+CONFIG_PROFILING=3Dy
+CONFIG_OPROFILE=3Dy
+
+CONFIG_KALLSYMS=3Dy
+CONFIG_DEBUG_SPINLOCK_SLEEP=3Dy
+CONFIG_FRAME_POINTER=3Dy
+CONFIG_X86_EXTRA_IRQS=3Dy
+CONFIG_X86_FIND_SMP_CONFIG=3Dy
+CONFIG_X86_MPPARSE=3Dy
+
+CONFIG_SECURITY=3Dy
+CONFIG_SECURITY_CAPABILITIES=3Dy
+
+CONFIG_CRYPTO=3Dy
+CONFIG_CRYPTO_HMAC=3Dy
+CONFIG_CRYPTO_MD4=3Dy
+CONFIG_CRYPTO_MD5=3Dy
+CONFIG_CRYPTO_SHA1=3Dy
+CONFIG_CRYPTO_SHA256=3Dy
+CONFIG_CRYPTO_SHA512=3Dy
+CONFIG_CRYPTO_DES=3Dy
+CONFIG_CRYPTO_BLOWFISH=3Dy
+CONFIG_CRYPTO_TWOFISH=3Dy
+CONFIG_CRYPTO_SERPENT=3Dy
+CONFIG_CRYPTO_AES=3Dy
+CONFIG_CRYPTO_DEFLATE=3Dy
+CONFIG_CRYPTO_TEST=3Dy
+
+CONFIG_ZLIB_INFLATE=3Dy
+CONFIG_ZLIB_DEFLATE=3Dy
+CONFIG_X86_SMP=3Dy
+CONFIG_X86_HT=3Dy
+CONFIG_X86_BIOS_REBOOT=3Dy
+CONFIG_X86_TRAMPOLINE=3Dy
+
+--=20
+         _~|__
+   >@   (vagn(     /
+    \`-ooooooooo-'/
+  ^^^^^^^^^^^^^^^^^^^^
 

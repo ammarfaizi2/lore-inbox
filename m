@@ -1,107 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265096AbTAJN3v>; Fri, 10 Jan 2003 08:29:51 -0500
+	id <S265058AbTAJNYg>; Fri, 10 Jan 2003 08:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbTAJN3v>; Fri, 10 Jan 2003 08:29:51 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:10758 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S265096AbTAJN3t>; Fri, 10 Jan 2003 08:29:49 -0500
-Date: Fri, 10 Jan 2003 16:35:03 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Grant Grundler <grundler@cup.hp.com>, Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
-Message-ID: <20030110163503.A4486@jurassic.park.msu.ru>
-References: <20030110021904.A15863@localhost.park.msu.ru> <Pine.LNX.4.44.0301091531260.1506-100000@penguin.transmeta.com>
+	id <S265051AbTAJNYg>; Fri, 10 Jan 2003 08:24:36 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17810
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265058AbTAJNYf>; Fri, 10 Jan 2003 08:24:35 -0500
+Subject: Re: [PATCH]Re: spin_locks without smp.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030110130446.GR23814@holomorphy.com>
+References: <Pine.LNX.4.51.0301101238560.6124@dns.toxicfilms.tv>
+	 <20030110114546.GN23814@holomorphy.com>
+	 <20030110114855.GO23814@holomorphy.com>
+	 <Pine.LNX.4.51.0301101308410.25610@dns.toxicfilms.tv>
+	 <1042204846.28469.75.camel@irongate.swansea.linux.org.uk>
+	 <20030110130446.GR23814@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042208362.28469.103.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0301091531260.1506-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jan 09, 2003 at 03:35:32PM -0800
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Jan 2003 14:19:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 03:35:32PM -0800, Linus Torvalds wrote:
+On Fri, 2003-01-10 at 13:04, William Lee Irwin III wrote:
+> Okay, what I'm getting here is that the UP case already has preempt
+> disabled b/c the locks are taken in IRQ context?
+
+The tx/timeout path isnt always in IRQ context. It may have pre-empt
+disabled I'm just playing safe
+
+> The thing I don't get is how the spinlock bits cause horrendous
+> timing issues on UP that are different from SMP, esp. b/c they are
+> #ifdef'd elsewhere to do nothing but inc/dec preempt_count elsewhere.
+> There's a bit of "how did it happen" missing in my mind at least
+
+Take a look at 8390.c for the whole how to do it SMP thing. That took
+2 months to debug. For junk like the eexpress I've taken the attitude
+that people who stick on in an SMP box deserve what tkey get. OTOH
+lots of old single cpu boxes ues them and with the ifdef stuff in they
+are perfectly usable cards for firewalls, linux terminal server recycled
+PC's in schools and so forth.
+
+> > 	preempt_disable()
+> > 	disable_irq()
+> > #ifdef CONFIG_SMP
+> > 	spin_lock_...
+> > #endif
 > 
-> On Fri, 10 Jan 2003, Ivan Kokshaysky wrote:
-> > 
-> > PCI-PCI, PCI-ISA bridges - probably, but not host bridges. On x86 they
-> > often have quite a few BARs, like AGP window, AGP MMIO, power management
-> > etc., which we cannot ignore.
-> 
-> Oh, but we _can_ ignore it.
-> 
-> All those things are stuff that if the kernel doesn't use them, the kernel 
-> doesn't even need to know they are there. 
+> Hmm, the part I'm missing here is why folding the preempt_disable()
+> into the spin_lock() is wrong. Or is it the implicit local_irq_save()
+> that's the (massive performance) problem?
 
-It does - even if we don't use it, this stuff occupies regions in the bus
-address space. If we ignore it we'll end up with incomplete resource
-tree and pci_assign_resource() won't work anymore. Especially with AGP
-aperture window, which tends to be large (32-128M), we'd have very good
-chances to allocate a new resource (either by hotplug drivers or just
-working around BIOS allocation bugs) in the middle of this window. Ouch.
+Its the implicit irqsave we need to avoid
 
-> Sure, if we support AGP, we need to see the aperture size etc, but then 
-> we'd have the AGP driver just do the "pci_enable_dev()" thing to work it 
-> out.
-> 
-> The only real reason to worry about BAR sizing is really to do resource
-> discovery in order to make sure that out bridges have sufficiently big
-> windows for the IO regions. Agreed?
+> I'm tied up with 64GB at the moment so my wetware cpu cycles are really
+> totally unavailable for this. =(
 
-Yes, and as Grant already pointed out, to deal with overlapping (or just
-incorrectly allocated) regions.
+Commiserations. I suspect the ethernet stuff is easier.
 
-> And that should be a non-issue especially on a host bridge, since we 
-> almost certainly don't want to reprogram the bridge windows there anyway.
+Alan
 
-[Hmm, on alpha we're doing that for years. :-)]
-But even if we don't reprogram the bridge, we need to know about the
-ranges that it decodes as we don't want to step on them accidentally.
-
-> So I'd like to make the _default_ be to probe the minimal possible, 
-> _especially_ for host bridges. Then, the PCI quirks could be used to 
-> expand on that default.
-
-I agree in general. Reasonable probing policy certainly is a good thing.
-"Don't probe by default" would work wonderfully for PCI and ISA bridges -
-I've yet to see one with normal BARs.
-I'm just afraid that with the default "don't probe northbridges" we'll end
-up with a lot more quirks than with "probe by default".
-
-In either case, all of this can be trivially implemented on the top of
-that patch. I'd suggest another pci_dev bit - "force_probe", to override
-default policy:
-
-static inline int default_probing_policy(struct pci_dev *dev)
-{
-	switch (dev->class >> 8) {
-	case PCI_CLASS_BRIDGE_ISA:
-	case PCI_CLASS_BRIDGE_EISA:
-	case PCI_CLASS_BRIDGE_PCI:
-		return 0;	/* Don't probe */
-	case PCI_CLASS_BRIDGE_HOST:
-		return ???
-	default:
-		return 1;	/* Do probe */
-	}
-}
-
-static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
-{
-	...
-
-	if (dev->skip_probe ||
-	    (!dev->force_probe && !default_probing_policy(dev)))
-		return;
-
-	/* Disable I/O & memory decoding while we size the BARs. */
-	pci_read_config_word(dev, PCI_COMMAND, &cmd);
-	...
-
-Ivan.

@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130820AbRD3SSi>; Mon, 30 Apr 2001 14:18:38 -0400
+	id <S135222AbRD3SSi>; Mon, 30 Apr 2001 14:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132801AbRD3SS0>; Mon, 30 Apr 2001 14:18:26 -0400
-Received: from adsl-63-203-203-138.dsl.snfc21.pacbell.net ([63.203.203.138]:18190
-	"EHLO michael.channeldot.com") by vger.kernel.org with ESMTP
-	id <S135263AbRD3SQ6>; Mon, 30 Apr 2001 14:16:58 -0400
-Date: Mon, 30 Apr 2001 11:29:06 -0700 (PDT)
-From: Michael Shiloh <mshiloh@mediabolic.com>
-To: linux-kernel@vger.kernel.org
-Subject: DMA support in cs5530 IDE driver? (repost)
-Message-ID: <Pine.LNX.4.21.0104301124210.32533-100000@michael.channeldot.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130820AbRD3SSY>; Mon, 30 Apr 2001 14:18:24 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:9032 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135222AbRD3SQ5>; Mon, 30 Apr 2001 14:16:57 -0400
+Date: Mon, 30 Apr 2001 20:15:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19 locks up on SMP
+Message-ID: <20010430201547.G19620@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0104281402090.2487-100000@age.cs.columbia.edu> <E14uHtt-0008KA-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E14uHtt-0008KA-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 30, 2001 at 06:55:54PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Apr 30, 2001 at 06:55:54PM +0100, Alan Cox wrote:
+> A couple. It looks lik the VM changes may have upset something (based on
+> reports saying it began at that point). Can you see if 2.2.19pre stuff is
+> stable ?
 
-My apologies if you've seen this already. I sent this
-out last week but have not seen any replies; perhaps
-no one has any suggestions, but perhaps it didn't go
-out properly for some reason.
+I also have reports but related to the network driver updates. So I
+suggest to try again with 2.2.19 but with the drivers/net/* of 2.2.18.
 
----------- ................. ----------
-
-Can anyone report success or failure with enabling DMA for
-the CS5530 IDE driver? I can get my system to crash or at
-least hang pretty reliably by using hdparm to turn on DMA
-while reading an MPEG-2 movie from my hard disk drive.
-
-I don't think the movie playing is the relevent part; 
-rather that it is heavily using the disk and driver.
-
-The hard disk drive is the only rotating drive on the 
-system.
-
-Hardware: GCT Allwell set top box 
-CPU: National Geode 266MHz GXM  
-IDE controller: CS5530 Geode companion chip
-Linux: 2.4.3
-Disk: IBM Deskstar, 46.1 GByte
-
-Any comments or suggestions appreciated
-
-Thanks,
-Michael
-
+Andrea

@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbUKLW2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbUKLWcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbUKLW2A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 17:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbUKLW2A
+	id S262643AbUKLWcI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 17:32:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbUKLWcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 17:28:00 -0500
-Received: from waste.org ([209.173.204.2]:62393 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262647AbUKLW1q (ORCPT
+	Fri, 12 Nov 2004 17:32:08 -0500
+Received: from colo.lackof.org ([198.49.126.79]:33231 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262643AbUKLWcB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 17:27:46 -0500
-Date: Fri, 12 Nov 2004 14:27:11 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] include ordering breaks sysrq on 8250 serial
-Message-ID: <20041112222710.GD8040@waste.org>
+	Fri, 12 Nov 2004 17:32:01 -0500
+Date: Fri, 12 Nov 2004 15:31:59 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Michael Chan <mchan@broadcom.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, greg@kroah.com,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+Subject: Re: [PATCH] pci-mmconfig fix for 2.6.9
+Message-ID: <20041112223159.GC8828@colo.lackof.org>
+References: <B1508D50A0692F42B217C22C02D84972020F3C9D@NT-IRVA-0741.brcm.ad.broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <B1508D50A0692F42B217C22C02D84972020F3C9D@NT-IRVA-0741.brcm.ad.broadcom.com>
 User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has been pestering me for a couple days, finally dug into it:
+On Fri, Nov 12, 2004 at 01:49:18PM -0800, Michael Chan wrote:
+> I disagree with your interpretations of the ECN.
 
-serial_8250.h was including serial_core.h before SUPPORT_SYSRQ was
-getting set up. I suspect this problem exists elsewhere. Tested
-against latest bk snapshot.
+Yeah -  I think the alternatives suggested in the new Implementation
+Note are confusing and distracting from the actual definitions
+and declarations in the previous parts of the spec. The Implementation
+Note is NOT the spec. It's just advisory.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+The ECN starts out by defining two classes of systems:
 
-Index: l-bk20/drivers/serial/8250.c
-===================================================================
---- l-bk20.orig/drivers/serial/8250.c	Fri Nov 12 13:03:25 2004
-+++ l-bk20/drivers/serial/8250.c	Fri Nov 12 14:19:04 2004
-@@ -20,6 +20,11 @@
-  *  membase is an 'ioremapped' cookie.
-  */
- #include <linux/config.h>
-+
-+#if defined(CONFIG_SERIAL_8250_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
-+#define SUPPORT_SYSRQ
-+#endif
-+
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/tty.h>
-@@ -37,10 +42,6 @@
- #include <asm/io.h>
- #include <asm/irq.h>
- 
--#if defined(CONFIG_SERIAL_8250_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
--#define SUPPORT_SYSRQ
--#endif
--
- #include <linux/serial_core.h>
- #include "8250.h"
- 
+| Make the Enhanced Configuration Access Mechanism required for
+| PC-compatible platforms, but optional for platforms based on other
+| processor/system architectures where firmware abstractions are
+| provided for the configuration space access (e.g., DIG64 compliant systems).
+
+The last phrase "where firmware abstractions" is the key bit.
 
 
--- 
-Mathematics is the supreme nostalgia of our time.
+> 2. mmconfig implementation must provide a method for software to
+> guarantee that the config access has completed before software execution
+> continues.
+
+Agreed.
+
+>  In Implementation Note, it provides some examples on how to
+> do this. One example is to make mmconfig non-posted. But there are other
+> examples.
+
+Yes, but the patch only modifies code for arches which use
+direct access to generate the mmconfig cycles. I believe the
+posted write examples are for systems which provide "an architected
+firmware interface". I'm pretty sure "software" in this context
+refers to the "firmware" (e.g. SAL). This spec wasn't written exclusively
+for OS dorks like us.
+
+> In short, I believe mmconfig is allowed to be posted or non-posted. If
+> it is posted, there must be a method to allow software to flush it.
+
+Yes. Agreed.
+But existing direct access methods must implement non-postable writes
+to be compliant.
+
+E.g. the second paragraph of the Implementation Note:
+| In those cases in which the software must know that a posted
+| transaction is completed by the completer, ...
+
+IMHO, "In those cases" refers to the second class of systems.
+i386 and x86_64 are (still) in the first class of "legacy" systems.
+
+hth,
+grant

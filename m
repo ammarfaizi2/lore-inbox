@@ -1,52 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbUCVGl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 01:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUCVGl7
+	id S261790AbUCVGlw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 01:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUCVGlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 01:41:59 -0500
-Received: from holomorphy.com ([207.189.100.168]:5775 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261791AbUCVGl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 01:41:56 -0500
-Date: Sun, 21 Mar 2004 22:36:31 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: rmk@arm.linux.org.uk, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040322063631.GE2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	rmk@arm.linux.org.uk, Andrew Morton <akpm@osdl.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-	torvalds@osdl.org
-References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320121345.2a80e6a0.akpm@osdl.org> <20040320205053.GJ2045@holomorphy.com> <20040320222639.K6726@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040320222639.K6726@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 22 Mar 2004 01:41:51 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:57286 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261790AbUCVGls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 01:41:48 -0500
+Date: Mon, 22 Mar 2004 01:41:53 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, olh@suse.de
+Subject: [PATCH][2.6-mm] defer free_initmem() if we have no /init
+Message-ID: <Pine.LNX.4.58.0403220132060.28727@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 10:26:39PM +0000, Russell King wrote:
-> I'm no longer planning on this.  In fact, I see a future where I tell
-> people who want to use sound on ARM to go screw themselves because
-> there doesn't seem to be an acceptable solution to this problem.
-> Of course, this will lead to dirty hacks by many people who *REQUIRE*
-> sound to work, but I guess we just don't care about that.
-> (Yes, I'm pissed off over this issue.)
+In the absence of /init and other nice boot goodies, we fall through to
+prepare_namespace() so we shall require initmem to complete boot.
 
-I was really hoping I could help make things work for everyone
-because they are not working for everyone now.
+Freeing 1nunedlketo lamdlo y:r3elkpfgeeg
+equest at virtual address c06c22a0
+ printing eip:
+c06c22a0
+*pde = 00757027
+Oops: 0000 [#1]
+PREEMPT SMP DEBUG_PAGEALLOC
+CPU:    1
+EIP:    0060:[<c06c22a0>]    Not tainted VLI
+EFLAGS: 00010213   (2.6.5-rc2-mm1)
+EIP is at prepare_namespace+0x0/0xd0
+eax: 00000002   ebx: 00000000   ecx: c060b2c0   edx: c060b300
+esi: 00000001   edi: 00000000   ebp: dff8ffec   esp: dff8ffd4
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 1, threadinfo=dff8f000 task=dff1fa50)
+Stack: c0103235 00000000 00000000 0000007b c0103170 00000000 00000000 c01051f5
+       00000000 00000000 00000000
+Call Trace:
+ [<c0103235>] init+0xc5/0x190
+ [<c0103170>] init+0x0/0x190
+ [<c01051f5>] kernel_thread_helper+0x5/0x10
 
-Unfortunately, now I also see a future without working sound drivers on
-ARM and several others. I'm sorry. I tried, but I've completely run out
-of ideas (hell, most of them weren't even mine to begin with, so that
-goes back to even before I gave up) and thus far every possible method
-of fixing this has been shot down.
+Code:  Bad EIP value.
+ <0>Kernel panic: Attempted to kill init!
 
-... and here I thought fixing drivers was the Right Thing to Do (TM).
+Index: linux-2.6.5-rc2-mm1/init/main.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.5-rc2-mm1/init/main.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 main.c
+--- linux-2.6.5-rc2-mm1/init/main.c	21 Mar 2004 17:02:18 -0000	1.1.1.1
++++ linux-2.6.5-rc2-mm1/init/main.c	21 Mar 2004 20:54:19 -0000
+@@ -586,8 +586,8 @@ static int free_initmem_on_exec_helper(v
+ 	char c;
 
+ 	sys_close(fd[1]);
+-	sys_read(fd[0], &c, 1);
+-	free_initmem();
++	if (sys_read(fd[0], &c, 1) > 0)
++		free_initmem();
+ 	return 0;
+ }
 
--- wli
+@@ -596,7 +596,7 @@ static void free_initmem_on_exec(void)
+ 	int fd[2];
+
+ 	do_pipe(fd);
+-       kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
++	kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
+
+ 	sys_dup2(fd[1], 255);   /* to get it out of the way */
+ 	sys_close(fd[0]);
+@@ -643,6 +643,7 @@ static int init(void * unused)
+ 	run_init_process("/init");
+
+ 	prepare_namespace();
++	free_initmem();
+
+ 	if (sys_open("/dev/console", O_RDWR, 0) < 0)
+ 		printk("Warning: unable to open an initial console.\n");

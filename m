@@ -1,62 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129624AbQKQLkS>; Fri, 17 Nov 2000 06:40:18 -0500
+	id <S131937AbQKQLou>; Fri, 17 Nov 2000 06:44:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132060AbQKQLkI>; Fri, 17 Nov 2000 06:40:08 -0500
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:40163 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S129624AbQKQLjw> convert rfc822-to-8bit; Fri, 17 Nov 2000 06:39:52 -0500
-From: schwidefsky@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrea Arcangeli <andrea@suse.de>, mingo@chiara.elte.hu,
-        linux-kernel@vger.kernel.org
-Message-ID: <C125699A.003D4D6A.00@d12mta07.de.ibm.com>
-Date: Fri, 17 Nov 2000 11:41:58 +0100
-Subject: Re: Memory management bug
-Mime-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: 8BIT
+	id <S131967AbQKQLok>; Fri, 17 Nov 2000 06:44:40 -0500
+Received: from tonib-gw-old.customer.0rbitel.net ([195.24.39.218]:11012 "HELO
+	gateway.izba.bg") by vger.kernel.org with SMTP id <S131937AbQKQLo0>;
+	Fri, 17 Nov 2000 06:44:26 -0500
+Date: Fri, 17 Nov 2000 13:14:33 +0200 (EET)
+From: Vasil Kolev <lnxkrnl@mail.ludost.net>
+To: linux-kernel@vger.kernel.org
+Subject: __alloc_pages: 2-order allocation failed.
+Message-ID: <Pine.LNX.4.10.10011171310110.4185-100000@doom.bastun.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
->>
->> If they absolutely needs 4 pages for pmd pagetables due hardware
-constraints
->> I'd recommend to use _four_ hardware pages for each softpage, not two.
->
->Yes.
->
->However, it definitely is an issue of making trade-offs. Most 64-bit MMU
->models tend to have some flexibility in how you set up the page tables,
->and it may be possible to just move bits around too (ie making both the
->pmd and the pgd twice as large, and getting the expansion of 4 by doing
->two expand-by-two's, for example, if the hardware has support for doing
->things like that).
-
-Unluckly we don't have any flexibility. The segment index (pmd) has 11
-bits,
-pointers are 8 byte. That makes 16K segment table. I have understood that
-this is a problem if the system is really low on memory. But low on memory
-does mean low on real memory + swap space, doesn't it ? The system has
-enough swap space but it isn't using any of it when the BUG hits. I think
-the "if (!order)" statements before the "goto try_again" in __alloc_pages
-have something to do with it. To test this assumption I removed the ifs and
-
-I didn't see any "__alloc_pages: %lu-order allocation failed." message
-before I hit yet another BUG in swap_state.c:60.
-Whats the reasoning behind these ifs ?
-
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
+  Hello,
+This error ( $subj) started appearing today on my machine when I started
+experimenting with ircd. I wrote small program that makes many connections
+to the server,to see how much it can support. I increased the maximum
+number of file descriptors, and after 520 connectons, syslogd printed sth.
+about too many orphaned sockets... I then checked the source, saw that
+this is because the lower value in /proc/sys/net/ipv4/tcp_mem, and
+increased it 4 times... it then ran with 720 connectons and all the tcp
+stopped working, and started printing $subj... I increased the values 4
+more times, and it ran to 824 connections. I'm using linux-2.4.0test10, on
+Celeron/300 with 192 MB ram. Suggestions?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

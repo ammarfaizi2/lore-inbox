@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268578AbUIPRzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUIPR7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268578AbUIPRzz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 13:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUIPRyf
+	id S268368AbUIPR7g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUIPR6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:54:35 -0400
-Received: from zmamail05.zma.compaq.com ([161.114.64.105]:21520 "EHLO
-	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S268502AbUIPRvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 13:51:45 -0400
-Message-ID: <4149D4C2.5070907@hp.com>
-Date: Thu, 16 Sep 2004 14:00:34 -0400
-From: Robert Picco <Robert.Picco@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Thu, 16 Sep 2004 13:58:36 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:35781 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268270AbUIPR6M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 13:58:12 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Jedi/Sector One <j@pureftpd.org>
+Subject: Re: 2.6.9-rc2-mm1
+Date: Thu, 16 Sep 2004 14:57:59 -0300
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20040916024020.0c88586d.akpm@osdl.org> <200409161345.56131.norberto+linux-kernel@bensa.ath.cx> <20040916173732.GA31672@c9x.org>
+In-Reply-To: <20040916173732.GA31672@c9x.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Christoph Lameter <clameter@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       venkatesh.pallipadi@intel.com
-Subject: Re: device driver for the SGI system clock, mmtimer
-References: <200409161003.39258.bjorn.helgaas@hp.com>	 <200409160909.12840.jbarnes@engr.sgi.com> <1095349940.22739.34.camel@localhost.localdomain>
-In-Reply-To: <1095349940.22739.34.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409161458.00031.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Jedi/Sector One wrote:
+> On Thu, Sep 16, 2004 at 01:45:55PM -0300, Norberto Bensa wrote:
+> > Andrew Morton wrote:
+> > > +tune-vmalloc-size.patch
+> >
+> > This one of course breaks nvidia's binary driver; so nvidia users should
+> > do a "patch -Rp1" to revert it.
+>
+> http://00f.net/blogs/index.php/2004/09/16/nvidia_kernel_module_and_linux_2_
+>6_9_rc2
 
->On Iau, 2004-09-16 at 17:09, Jesse Barnes wrote:
->  
->
->>I think Christoph already looked at that.  And HPET doesn't provide mmap 
->>functionality, does it?  I.e. allow a userspace program to dereference the 
->>counter register directly?
->>    
->>
->
->It can do but that assumes nothing else is mapped into the same page
->that would be harmful or reveal information that should not be revealed
->etc..
->
->  
->
-HPET driver does provide mmap for user programs. 
+Thanks. Actually, that was going to be my next fix, but ATM I'm trying to get 
+a work done for my CS class.
 
-I agree with caution of other device registers in the same page. 
+Best regards,
+Norberto

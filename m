@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbUDJMTm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 08:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUDJMTm
+	id S262019AbUDJNXj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 09:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUDJNXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 08:19:42 -0400
-Received: from viefep16-int.chello.at ([213.46.255.17]:15129 "EHLO
-	viefep16-int.chello.at") by vger.kernel.org with ESMTP
-	id S262008AbUDJMTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 08:19:41 -0400
-Date: Sat, 10 Apr 2004 14:21:46 +0200
-From: Dub Spencer <dub@lazy.shacknet.nu>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: linuxbugs@nvidia.com
-Subject: Re: 2.6.5 hangs when burning cdrom while watching tv
-Message-ID: <20040410122146.GA2427@lazy.shacknet.nu>
-References: <20040410105136.GA2177@lazy.shacknet.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Apr 2004 09:23:39 -0400
+Received: from dial-4024.zgora.dialog.net.pl ([81.168.236.184]:4 "EHLO
+	linuxfocus.org") by vger.kernel.org with ESMTP id S262019AbUDJNXh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 09:23:37 -0400
+From: Mariusz =?iso-8859-2?q?Koz=B3owski?= <sp3fxc@linuxfocus.org>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: odd clock thing...
+Date: Sat, 10 Apr 2004 15:26:10 +0200
+User-Agent: KMail/1.6.1
+References: <200404062004.22292.sp3fxc@linuxfocus.org> <1081363155.5408.455.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1081363155.5408.455.camel@cog.beaverton.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040410105136.GA2177@lazy.shacknet.nu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404101526.10695.sp3fxc@linuxfocus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 10, 2004 at 12:51:36PM +0200, Dub Spencer wrote:
-> hello,
-> 
-> when motv is running (bttv module, overlay mode) and then burning a cd
-> at higher speeds, the system stops: ie. shift led on keyboard no longer
-> lights.  when burning at lower speeds (10x for cdrw) the system only
-> hung, when starting mozilla firebird (aka heavy application).
+Dnia ¶ro 7. kwietnia 2004 20:39, napisa³e¶:
+> Very odd. I looked at the dmesg you sent me and it looks like you're
+> using the ACPI PM timesource. There is an open bug (link below) against
+> it and I'm not sure if we're dealing with odd hardware or some other
+> side effect is causing the issue.
+>
+> If you disable cpufreq does it go away? You might want to try disabling
+> the ACPI PM timer code (under the Power Management->ACPI menu) and see
+> if that resolves it.
+>
+> For more details, check this bug:
+> http://bugme.osdl.org/show_bug.cgi?id=2375
 
-tried the same with xfree (4.3) "nv" driver, no dri, no nvidia module
-loaded, and can no longer reproduce. excuse the noise. nvidia's turn.
+Hi John,
 
-dub
+	I did what you told me to do. I disabled ACPI PM time source. There is a 
+significant change. The system clock is running still too fast but it is a 
+very small difference. After 24 hours the difference is 2 minutes ahead. I 
+don't know what to think about it. Is it precise enough or should I do some 
+more tests. As far as I remember the system clock on this machine was runnig 
+perfectly fine so that even after one week it was still in sync with other 
+electronic clocks I have. I think I'll try to disable CPUfreq and see if it 
+helps. 
+
+Thanks for helping out,
+
+	Mariusz

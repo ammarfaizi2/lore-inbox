@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268205AbRGWLn0>; Mon, 23 Jul 2001 07:43:26 -0400
+	id <S268206AbRGWMEB>; Mon, 23 Jul 2001 08:04:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268204AbRGWLnQ>; Mon, 23 Jul 2001 07:43:16 -0400
-Received: from wit.mht.bme.hu ([152.66.80.190]:55198 "HELO wit.wit.mht.bme.hu")
-	by vger.kernel.org with SMTP id <S268205AbRGWLnC>;
-	Mon, 23 Jul 2001 07:43:02 -0400
-Date: Mon, 23 Jul 2001 13:43:01 +0200 (CEST)
-From: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
-To: linux-kernel@vger.kernel.org
-Subject: Manipulating routing table
-Message-ID: <Pine.LNX.4.02.10107231335010.8996-100000@wit.wit.mht.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268207AbRGWMDv>; Mon, 23 Jul 2001 08:03:51 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:13828 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S268206AbRGWMDc>; Mon, 23 Jul 2001 08:03:32 -0400
+Date: Mon, 23 Jul 2001 16:03:31 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Alignment of dev_addr[] field in the struct net_device
+Message-ID: <20010723160331.A583@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+Increase of MAX_ADDR_LEN to 8 broke that...
 
-I'd like to access and modify the kernel routing table from a kernel
-module. (v2.4.6)
-The symbol ip_rt_ioctl is exported, but there is a copy_from_user(...)
-call in fib_frontend.c line 302. I think it fails when I call it from
-the module.
+Ivan.
 
-So, how can I modify the routing table from a module ?
-
-Best regards,
-Ferenc
-
+--- 2.4.7/include/linux/netdevice.h	Mon Jul 23 12:40:26 2001
++++ linux/include/linux/netdevice.h	Mon Jul 23 14:58:03 2001
+@@ -298,8 +298,8 @@ struct net_device
+ 
+ 	/* Interface address info. */
+ 	unsigned char		broadcast[MAX_ADDR_LEN];	/* hw bcast add	*/
+-	unsigned char		pad;		/* make dev_addr aligned to 8 bytes */
+-	unsigned char		dev_addr[MAX_ADDR_LEN];	/* hw address	*/
++	unsigned char		dev_addr[MAX_ADDR_LEN] __attribute__((aligned(8)));
++						/* hw address, aligned to 8 bytes */
+ 	unsigned char		addr_len;	/* hardware address length	*/
+ 
+ 	struct dev_mc_list	*mc_list;	/* Multicast mac addresses	*/

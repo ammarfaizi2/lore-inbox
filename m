@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318723AbSHAMpa>; Thu, 1 Aug 2002 08:45:30 -0400
+	id <S318947AbSHAM3K>; Thu, 1 Aug 2002 08:29:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318729AbSHAMpa>; Thu, 1 Aug 2002 08:45:30 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:781 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S318723AbSHAMp3>;
-	Thu, 1 Aug 2002 08:45:29 -0400
-Date: Thu, 1 Aug 2002 14:48:36 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Willy TARREAU <willy@w.ods.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19-rc5
-Message-ID: <20020801124836.GA186@pcw.home.local>
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva> <20020801113205.GA9532@pcw.home.local> <1028210044.15022.12.camel@irongate.swansea.linux.org.uk>
+	id <S318946AbSHAM3J>; Thu, 1 Aug 2002 08:29:09 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:59630 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318947AbSHAM3I>; Thu, 1 Aug 2002 08:29:08 -0400
+Subject: Re: Funding GPL projects or funding the GPL?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Schwartz <davids@webmaster.com>
+Cc: davidsen@tmr.com, Alexander Viro <viro@math.psu.edu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020801093211.AAA7559@shell.webmaster.com@whenever>
+References: <20020801093211.AAA7559@shell.webmaster.com@whenever>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 01 Aug 2002 14:48:01 +0100
+Message-Id: <1028209681.15022.9.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028210044.15022.12.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 02:54:04PM +0100, Alan Cox wrote:
-> On Thu, 2002-08-01 at 12:32, Willy TARREAU wrote:
-> > Hi Marcello,
-> > 
-> > This is just a cleanup for the network devices configuration.
-> > Basically, the TOSHIBA TC35815 configuration entry appears
-> > just between DECchip Tulip, and the 2 Tulip-specific config lines
-> > which are indented so we could think that they are related to
-> > the TC35815 instead of the Tulip.
-> 
-> This is true, but the fix wants tweaking - the file is supposed to bein
-> basically Alphabetical order. Can you move the toshiba one down instead
-> ?
+On Thu, 2002-08-01 at 10:32, David Schwartz wrote:
+> 	No matter how many proofs you have or how good they are, I won't believe it 
+> because this fails the giggle test. Here's a simple counter-proof. I want to 
+> write an SQL server from scratch. I create two teams, one with $50,000 and 
+> one with $5,000,000. You can honestly tell me that it's equally like that 
+> either team will produce a higher quality SQL server?
 
-OK, in this case it goes just before VIA rhine. (BTW, [P]CI NE2000 is before
-[N]ovell, but I assume we're talking about [N]E2000).
+Intuition is misleading. It mostly depends which of the teams has the
+good engineers and smart management. The .com bust is just one example
+of that.
 
-Marcelo, please ignore my previous patch in favor of this one.
+> 	This reminds me of the proofs that supposedly showed that locking up 
+> convicted criminals for longer didn't lower the crime rate. Are we honestly 
+> supposed to believe that otherwise honest people commit more crimes to make 
+> up the difference?
 
-Cheers,
-Willy
+In some cases yes. There are a whole variety of well understood reasons
+why this occurs - probability of capture not length of capture is the
+deterrent. Most criminals won't reoffend after a short or long sentence
+(and there is little evidence that length of sentence decreases the
+probability of reoffence. In addition there is a category of crime (that
+involving a dispute between two parties) where one person being sent to
+jail causes their entire family and relations to become 'criminals'. 
 
---- linux-2.4.19-rc5/drivers/net/Config.in.orig	Thu Aug  1 14:43:09 2002
-+++ linux-2.4.19-rc5/drivers/net/Config.in	Thu Aug  1 14:44:29 2002
-@@ -163,7 +163,6 @@
-       dep_tristate '    Apricot Xen-II on board Ethernet' CONFIG_APRICOT $CONFIG_ISA
-       dep_tristate '    CS89x0 support' CONFIG_CS89x0 $CONFIG_ISA
-       dep_tristate '    DECchip Tulip (dc21x4x) PCI support' CONFIG_TULIP $CONFIG_PCI
--      dep_tristate '    TOSHIBA TC35815 Ethernet support' CONFIG_TC35815 $CONFIG_PCI
-       if [ "$CONFIG_TULIP" = "y" -o "$CONFIG_TULIP" = "m" ]; then
-          dep_bool '      New bus configuration (EXPERIMENTAL)' CONFIG_TULIP_MWI $CONFIG_EXPERIMENTAL
-          bool '      Use PCI shared mem for NIC registers' CONFIG_TULIP_MMIO
-@@ -195,6 +194,7 @@
-       if [ "$CONFIG_PCI" = "y" -o "$CONFIG_EISA" = "y" ]; then
-          tristate '    TI ThunderLAN support' CONFIG_TLAN
-       fi
-+      dep_tristate '    TOSHIBA TC35815 Ethernet support' CONFIG_TC35815 $CONFIG_PCI
-       dep_tristate '    VIA Rhine support' CONFIG_VIA_RHINE $CONFIG_PCI
-       dep_mbool '      Use MMIO instead of PIO (EXPERIMENTAL)' CONFIG_VIA_RHINE_MMIO $CONFIG_VIA_RHINE $CONFIG_EXPERIMENTAL
-       dep_tristate '    Winbond W89c840 Ethernet support' CONFIG_WINBOND_840 $CONFIG_PCI
+I don't however see the relationship between the two, other than both
+being demonstrations that you must do the actual science and statistics
+before you rely on intuition.
 

@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVCIVKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVCIVQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVCIVKr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:10:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVCIVHw
+	id S261577AbVCIVQx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVCIVQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:07:52 -0500
-Received: from waste.org ([216.27.176.166]:20190 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261650AbVCIVGi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:06:38 -0500
-Date: Wed, 9 Mar 2005 13:06:31 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050309210631.GY3163@waste.org>
-References: <20050309083923.GA20461@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050309083923.GA20461@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 9 Mar 2005 16:16:10 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:32132 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262166AbVCIVNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:13:41 -0500
+Message-ID: <422F59A3.9010209@grupopie.com>
+Date: Wed, 09 Mar 2005 20:16:35 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: inconsistent kallsyms data [2.6.11-mm2]
+References: <20050308033846.0c4f8245.akpm@osdl.org> <20050308192900.GA16882@isilmar.linta.de> <20050308123554.669dd725.akpm@osdl.org> <20050308204521.GA17969@isilmar.linta.de> <422EF2B0.7070304@grupopie.com>
+In-Reply-To: <422EF2B0.7070304@grupopie.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 12:39:23AM -0800, Greg KH wrote:
-> And to further test this whole -stable system, I've released 2.6.11.2.
-> It contains one patch, which is already in the -bk tree, and came from
-> the security team (hence the lack of the longer review cycle).
-> 
-> It's available now in the normal kernel.org places:
-> 	kernel.org/pub/linux/kernel/v2.6/patch-2.6.11.2.gz
-> which is a patch against the 2.6.11.1 release.
+Paulo Marques wrote:
+> [...]
+> Can you send me privately a tar.bz2 containing your .config, 
+> .tmp_kallsyms1.S and .tmp_kallsyms2.S so I can try to figure out what's 
+> going on?
 
-Argh! @*#$&!!&! 
+Ok, after some investigation into the files I was able to find out the 
+problem.
 
-> If consensus arrives
-> that this patch should be against the 2.6.11 tree, it will be done that
-> way in the future.
+scripts/kallsyms.c uses a subset of the symbol table to optimize the 
+tokens to use to compress the symbols. It does this because using the 
+complete set of symbols would be much slower without a significant gain 
+in compression.
 
-Consensus arrived back when 2.6.8.1 came out.
+For some reason, in the files sent by Dominik, two aliased symbols 
+change places from the first to the second step of the kallsyms build 
+process (__sched_text_start, __down).
 
-Please, folks, there are automated tools that "know" about kernel
-release numbering and so on. Said tools broke with 2.6.11.1 because it
-wasn't in the same place that 2.6.8.1 was and now this breaks with all
-precedent by being an interdiff along a branch.
+Because of this, the subset used for optimization is different and so 
+are the tokens selected, producing a 2 byte difference in the total size 
+of the compressed symbol names :P
 
-Fixing it in the future is too #*$%* late because you've now turned it
-into a special case.
+So I must change the sampling algorithm in a way that is robust to 
+symbol position changes.
+
+A simple and robust way is to do the sampling on a list of symbols 
+sorted by symbol name. This way, even if the symbol positions that are 
+given to scripts/kallsyms change, the symbols sampled will be the same.
+
+I'll do the patch to do this and send it ASAP.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

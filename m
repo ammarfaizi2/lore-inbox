@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261469AbSIWVk2>; Mon, 23 Sep 2002 17:40:28 -0400
+	id <S261440AbSIWWOQ>; Mon, 23 Sep 2002 18:14:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261470AbSIWVk1>; Mon, 23 Sep 2002 17:40:27 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:52961 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261469AbSIWVkI>;
-	Mon, 23 Sep 2002 17:40:08 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S261461AbSIWWOQ>; Mon, 23 Sep 2002 18:14:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41234 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261440AbSIWWOP>;
+	Mon, 23 Sep 2002 18:14:15 -0400
+Message-ID: <3D8F934F.7000606@mandrakesoft.com>
+Date: Mon, 23 Sep 2002 18:18:55 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: Konstantin Kletschke <konsti@ludenkalle.de>, linux-kernel@vger.kernel.org
+Subject: Re: Quick aic7xxx bug hunt...
+References: <20020923180017.GA16270@sexmachine.doom> <2539730816.1032808544@aslan.btc.adaptec.com> <3D8F874B.3070301@mandrakesoft.com> <2640410816.1032818062@aslan.btc.adaptec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15759.35689.846139.896614@napali.hpl.hp.com>
-Date: Mon, 23 Sep 2002 14:45:13 -0700
-To: Daniel Phillips <phillips@arcor.de>
-Cc: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, dmo@osdl.org, axboe@suse.de,
-       _deepfire@mail.ru, linux-kernel@vger.kernel.org
-Subject: Re: DAC960 in 2.5.38, with new changes
-In-Reply-To: <E17tawV-0003cu-00@starship>
-References: <15759.26918.381273.951266@napali.hpl.hp.com>
-	<E17tanS-0003cl-00@starship>
-	<15759.35002.179075.973994@napali.hpl.hp.com>
-	<E17tawV-0003cu-00@starship>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 23 Sep 2002 23:40:35 +0200, Daniel Phillips <phillips@arcor.de> said:
+Justin T. Gibbs wrote:
+> I somewhat doubt that any CPU would hold onto a posted write for 200us
+> since you are not guaranteed that a read will occur quickly and you want
+> those write buffers to be availble for other clients, but regardless, the
+> code has not been as you describe since November of last year.
 
-  Daniel> Firm maybe.  The current driver does not attempt to do that
-  Daniel> on ia32, and you're saying it should?  In that case should
-  Daniel> the driver not have #define DAC_64, or similar?
 
-I haven't looked at the complete driver, but yes, it probably needs to
-have a #define DAC or its runtime-equivalent.
+Great, I stand corrected.  Looks like 2.5 code is ancient then?
 
-	--david
+comments on the 2.4 code:
+* the 1000us delay in ahc_reset needs to be turned into a sleep, instead 
+all paths to that function [AFAICS] can sleep.  likewise for the huge 
+delay in ahc_acquire_seeprom.
+
+* 400ms worst case udelay() is in ahc_clear_critical_section is kinda 
+annoying [but I suppose it can be lived with, if the average is a lot 
+less than that :)]
+
+* the delay in ahc_init should be replaced with a sleep
+
+* PCI posting?  (aic7xxx_core.c, line 1322, the last statement in the 
+function...)
+
+                 ahc_outb(ahc, CLRINT, CLRSCSIINT);
+
+I'll look it over some more later.
+

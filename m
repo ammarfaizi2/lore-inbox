@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263151AbTJaJ1t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 04:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTJaJ1t
+	id S263131AbTJaJrp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 04:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTJaJro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 04:27:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:65507 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263151AbTJaJ1s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 04:27:48 -0500
-Date: Fri, 31 Oct 2003 01:29:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ahuisman@cistron.nl, linux-kernel@vger.kernel.org, nuno.silva@vgertech.com
-Subject: Re: READAHEAD
-Message-Id: <20031031012946.3adedc14.akpm@osdl.org>
-In-Reply-To: <20031031012846.48fa233c.akpm@osdl.org>
-References: <bnrdqi$uho$1@news.cistron.nl>
-	<20031030134407.0c97c86e.akpm@osdl.org>
-	<3FA25377.3050207@cistron.nl>
-	<20031031012846.48fa233c.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 31 Oct 2003 04:47:44 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:5127 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263131AbTJaJrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 04:47:43 -0500
+Date: Fri, 31 Oct 2003 09:47:42 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Kurt Garloff <garloff@suse.de>,
+       Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       linux-kernel@vger.kernel.org, Matthias Andree <matthias.andree@gmx.de>
+Subject: Re: [PATCH] Re: AMD 53c974 SCSI driver in 2.6
+Message-ID: <20031031094742.B14820@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Kurt Garloff <garloff@suse.de>,
+	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+	linux-kernel@vger.kernel.org,
+	Matthias Andree <matthias.andree@gmx.de>
+References: <Pine.LNX.4.44.0310262035270.3346-100000@poirot.grange> <Pine.LNX.4.44.0310302221400.5533-100000@poirot.grange> <20031030235204.GF2716@tpkurt.garloff.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031030235204.GF2716@tpkurt.garloff.de>; from garloff@suse.de on Fri, Oct 31, 2003 at 12:52:04AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Please, just use time, cat, dd, etc.
-> 
->  	mount /dev/xxx /mnt/yyy
->  	dd if=/dev/zero of=/mnt/yyy/x bs=1M count=1024
->  	umount /dev/xxx
->  	mount /dev/xxx /mnt/yyy
->  	time cat /mnt/yyy/x > /dev/null
+On Fri, Oct 31, 2003 at 12:52:04AM +0100, Kurt Garloff wrote:
+> Interested in taking tmscsim as well?
+> I promised to port it, and I will, but it won't happen during the next 
+> ten days :-(
 
-And you can do the same against /dev/hdaN if you have a scratch
-partition; that would be interesting.
+Any reason why we'd keep both drivers?  Given that there's not much ressources
+for fixing drivers for older hardware I'd rather see us not keeping multiple
+drivers for the same hardware.
+

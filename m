@@ -1,106 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbUB2HwH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 02:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbUB2HwH
+	id S262005AbUB2HwN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 02:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUB2HwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 02:52:07 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:20913 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262004AbUB2HwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 02:52:13 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:47310 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262005AbUB2HwB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 29 Feb 2004 02:52:01 -0500
-Message-ID: <40419A1C.5070103@helsinki.fi>
-Date: Sun, 29 Feb 2004 09:51:56 +0200
-From: Kliment Yanev <Kliment.Yanev@helsinki.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040222
+Message-ID: <40419A15.8030108@matchmail.com>
+Date: Sat, 28 Feb 2004 23:51:49 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Nokia c110 driver
-References: <40408852.8040608@helsinki.fi> <20040228104105.5a699d32.rddunlap@osdl.org>
-In-Reply-To: <20040228104105.5a699d32.rddunlap@osdl.org>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+CC: greg@kroah.com, jamagallon@able.es, PrakashKC@gmx.de, akpm@osdl.org
+Subject: Re: 2.6.3-mm4
+References: <20040225185536.57b56716.akpm@osdl.org>	<403E82D8.3030209@gmx.de>	<20040225185536.57b56716.akpm@osdl.org>	<20040227001115.GA2627@werewolf.able.es>	<20040227004602.GB15075@kroah.com>	<1077870909.403f013dd04b6@imp.gcu.info>	<403F898A.2000801@matchmail.com> <20040227205922.6405eff7.khali@linux-fr.org>
+In-Reply-To: <20040227205922.6405eff7.khali@linux-fr.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Jean Delvare wrote:
+>>You have to be kidding me.  Are you saying that with your patches to 
+>>libsensors it won't support 2.6.3 style sensor sysfs names?
+> 
+> 
+> Yes I am.  This isn't a fundamentally new problem.  Each Linux 2.6 has
+> had its matching libsensors version that was not backward compatible
+> (with earlier 2.6 kernels; it's still fully compatible with 2.4).
+> 
+> Keeping newer versions of libsensors compatible with all early 2.6
+> kernel versions would make it incredibly more complex, with no
+> significant benefit IMHO.
+> 
+> The facts are that the sysfs interface to i2c chips is just stabilizing.
+> Greg's original naming scheme had many drawbacks (also we can't blame
+> him for that, since nobody objected before me), as I have been
+> explaining in a previous post on LKML. Also, many chip drivers did not
+> comply with it in early 2.6 kernels, and new chip drivers wouldn't fit
+> in it anyway.
+> 
+> The new interface is required if we want to write a chip-independant
+> libsensors someday. I estimate that this is worth breaking the
+> compatibility. The impacted kernels (later 2.5 and earlier 2.6) will
+> obviously not be used anymore within a short time anyway.
+> 
+> I invite you to read my original post here:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=107715308608606
+> 
+> I explain the problems of the current interface and my goals with the
+> new one. If you can think of a better solution to the problem, please
+> speak up.
 
+Working from the premise that there is a current (old-style with mostly 
+chip dependent code), libsensors has 2.4 /proc support, and each 
+specific release supports one of 2.6.[0123]...
 
+I'm glad I'm not the maintainer of libsensors for a distribution.  Since 
+you have effectively pushed the compatibility work to them.  Just think 
+of angry customer complaints about this. :(
 
-Randy.Dunlap wrote:
-| All those errors should go away if you build the module correctly.
-| Please read Documentation/kbuild/m*.txt or see LWN.net article
-| on building modules:
-|   http://lwn.net/Articles/21823/
+Since there is going to be an effective libsensors-new library with chip 
+independent code, I suggest you put the compat code into the old library.
 
-Okay, using a kbuild makefile I still get tons of errors, though most of
-the original ones are gone:
-
-make -C /lib/modules/2.6.3-rc2-mm1/build
-SUBDIRS=/home/kliment/Desktop/nokia_c110/src modules
-make[1]: Entering directory `/usr/src/linux-2.6.3-rc2-mm1'
-*** Warning: Overriding SUBDIRS on the command line can cause
-***          inconsistencies
-make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
-~  CHK     include/asm-i386/asm_offsets.h
-~  CC [M]  /home/kliment/Desktop/nokia_c110/src/dmodule.o
-In file included from /home/kliment/Desktop/nokia_c110/src/nokia_info.h:89,
-~                 from /home/kliment/Desktop/nokia_c110/src/dmodule.c:35:
-/home/kliment/Desktop/nokia_c110/src/nokia_priv.h:43:1: warning: "HZ"
-redefined
-In file included from include/linux/sched.h:4,
-~                 from include/linux/module.h:10,
-~                 from /home/kliment/Desktop/nokia_c110/src/nokia_info.h:42,
-~                 from /home/kliment/Desktop/nokia_c110/src/dmodule.c:35:
-include/asm/param.h:5:1: warning: this is the location of the previous
-definition
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:57: warning: static
-declaration for `cs_error' follows non-static
-/home/kliment/Desktop/nokia_c110/src/dmodule.c: In function `cs_error':
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:61: warning: implicit
-declaration of function `CardServices'
-/home/kliment/Desktop/nokia_c110/src/dmodule.c: In function `d_init_module':
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:115: warning: implicit
-declaration of function `register_pcmcia_driver'
-/home/kliment/Desktop/nokia_c110/src/dmodule.c: In function
-`d_cleanup_module':
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:124: warning: implicit
-declaration of function `unregister_pccard_driver'
-/home/kliment/Desktop/nokia_c110/src/dmodule.c: In function
-`d_driver_attach':
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:182: error: structure has
-no member named `release'
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:183: error: structure has
-no member named `release'
-/home/kliment/Desktop/nokia_c110/src/dmodule.c: In function
-`d_driver_event':
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:401: error: structure has
-no member named `release'
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:402: error: structure has
-no member named `release'
-/home/kliment/Desktop/nokia_c110/src/dmodule.c:407: error: structure has
-no member named `bus'
-make[2]: *** [/home/kliment/Desktop/nokia_c110/src/dmodule.o] Error 1
-make[1]: *** [/home/kliment/Desktop/nokia_c110/src] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.6.3-rc2-mm1'
-make: *** [default] Error 2
-
-
-Other than the param.h error, all the errors related to kernel headers
-are gone now. Thank you for the suggestion. However, what do I do next?
-I got the pci-pcmcia converter working btw. It needed its base address
-entered manually as well as irq scanning disabled and it would hang the
-machine otherwise...Therefore I can test this now if it compiles.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFAQZocrPQTyNB9u9YRAtx8AKCBm+p8mSJYSDq0BO5kojTVkSTkKQCgoY+a
-lR6FZayR6upvyBNtLnahoUo=
-=WsqF
------END PGP SIGNATURE-----
+Mike

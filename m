@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbSBITzc>; Sat, 9 Feb 2002 14:55:32 -0500
+	id <S286521AbSBIT5x>; Sat, 9 Feb 2002 14:57:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286161AbSBITzS>; Sat, 9 Feb 2002 14:55:18 -0500
-Received: from pD950EABC.dip.t-dialin.net ([217.80.234.188]:1926 "EHLO
-	oenone.homelinux.org") by vger.kernel.org with ESMTP
-	id <S286179AbSBITyF>; Sat, 9 Feb 2002 14:54:05 -0500
-Message-Id: <200202092053.g19Kre705325@oenone.homelinux.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.org>
-To: Gerd Knorr <kraxel@bytesex.org>,
-        Kernel List <linux-kernel@vger.kernel.org>,
-        video4linux list <video4linux-list@redhat.com>
-Subject: Re: [PATCH/RFC] videodev.[ch] redesign
-Date: Sat, 9 Feb 2002 21:53:17 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020209194602.A23061@bytesex.org>
-In-Reply-To: <20020209194602.A23061@bytesex.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S285424AbSBIT5o>; Sat, 9 Feb 2002 14:57:44 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:33950 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S286521AbSBIT5j>;
+	Sat, 9 Feb 2002 14:57:39 -0500
+Date: Sat, 9 Feb 2002 20:57:34 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: "Peter H. R?egg" <pruegg@eproduction.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with mke2fs on huge RAID-partition
+Message-ID: <20020209205734.A17825@fafner.intra.cogenit.fr>
+In-Reply-To: <3C640C90.E71E3F70@eproduction.ch> <E16ZFbD-0004TM-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16ZFbD-0004TM-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 08, 2002 at 06:18:15PM +0000
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 February 2002 19:46, Gerd Knorr wrote:
->   Hi,
->
+Alan Cox <alan@lxorguk.ukuu.org.uk> :
+[...]
+> The limit is about 1Tb currently. You are hitting something else, perhaps
+> a driver or VM problem ?
 
-> The patch below does part one of the plan -- for 2.4.x kernels.  It adds
-> the fops pointer to struct video_device and makes video_open use it if
-> available, so both old + new style drivers will work.
->
-> It also provides a ioctl wrapper function which handles copying the
-> ioctl args from/to userspace, so we have this at one place can drop all
-> the copy_from/to_user calls within the v4l device driver ioctl handlers.
+Promise driver + 2.4.17, see:
+Message-ID: <20020108003953.A16356@fafner.intra.cogenit.fr>
+Message-ID: <20020119230852.A18674@se1.cogenit.fr>
 
-That is a large improvement.
-But you don't include a lock against reentry, which is bad.
+                 | Intel | Promise
+-----------------+-------+--------
+raid1 creation   |  fast |  fast
+dd of=filesystem |  fast |  slow (*)
 
-> Comments?
+mkfs doesn't behaves too badly but it did when I first tried to raid1 the 
+whole disks.
 
-Could you make a helper for open like for ioctl ?
-And please don't use a pointer to the device descriptor
-in the file structure. It makes live for USB devices much harder.
+Raid1 is software only.
+As soon as a filesystem on the promise adapter comes into play, writes maxes 
+out at 2,5Mo/s. The previous machine (old PA2012 motherboard) with 8 times 
+less memory was able to stand 4~5Mo/s with vanilla broken kernel.
+Now it's running 2.4.18-pre3-ac2 but the behavior is the same with vanilla
+pre, vanilla + akpm ll, +ide patches. Feel free to ask if you want a test on a
+specific version. I have dedicated a partition on each disk for testing.
 
-	Regards
-		Oliver
+-- 
+Ueimor

@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130247AbRCCDQQ>; Fri, 2 Mar 2001 22:16:16 -0500
+	id <S130236AbRCCDQg>; Fri, 2 Mar 2001 22:16:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130241AbRCCDQG>; Fri, 2 Mar 2001 22:16:06 -0500
-Received: from [211.100.92.132] ([211.100.92.132]:35590 "HELO lustre.us.mvd")
-	by vger.kernel.org with SMTP id <S130239AbRCCDPx>;
-	Fri, 2 Mar 2001 22:15:53 -0500
-Date: Thu, 1 Mar 2001 14:38:32 -0800 (PST)
-From: "Peter J. Braam" <braam@mountainviewdata.com>
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [Announce] SnapFS Snapshot File System alpha release
-Message-ID: <Pine.LNX.4.21.0103011437310.3231-100000@lustre.us.mvd>
+	id <S130240AbRCCDQ0>; Fri, 2 Mar 2001 22:16:26 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:34575 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S130239AbRCCDQO>; Fri, 2 Mar 2001 22:16:14 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jasmeet Sidhu <jsidhu@arraycomm.com>
+Date: Sat, 3 Mar 2001 14:15:45 +1100 (EST)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15008.25057.125077.93516@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org (Linux Kernel)
+Subject: Re: Linux 2.4.2-ac5 IDE Software Raid(ata/100) Problem..Kernel
+  Oops?
+In-Reply-To: message from Jasmeet Sidhu on Friday March 2
+In-Reply-To: <5.0.2.1.2.20010302135432.00af8ae0@pop.arraycomm.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SnapFS - Snapshot File System
+On Friday March 2, jsidhu@arraycomm.com wrote:
+> 1. Problem description
+> 2. Machine details
+> 	a) Hardware
+> 	b) Software
+> 3. System log during the incident
+> 
+> 1. Problem Description:
+> 
+snip
+> Mar  2 13:44:38 bertha kernel: Unable to handle kernel NULL pointer 
+> dereference at virtual address 00000038
+> Mar  2 13:44:38 bertha kernel:  printing eip:
+> Mar  2 13:44:38 bertha kernel: c01ed5ee
+> Mar  2 13:44:38 bertha kernel: *pde = 00000000
+> Mar  2 13:44:38 bertha kernel: Oops: 0000
+> Mar  2 13:44:38 bertha kernel: CPU:    0
+> Mar  2 13:44:38 bertha kernel: EIP:    0010:[raid5_diskop+910/1520]
+snip
+> 		Using Linux Kernel 2.4.2-ac5
 
-Release:  alpha1
-Requires: Linux 2.2.18 or later, Ext3 and EA. 
-WWW site: http://www.mountainviewdata.com/technology/snapfs
+Fixed in 2.4.2-ac6
 
-Mountain View Data, Inc is announcing the first release of SnapFS.
-SnapFS is a file system enhancement of Ext3 to bring fully featured
-snapshots to Linux.  (You can use SnapFS with Ext2 but there is no
-file system recovery tool.)
-
-Making a snapshot of a file system allows the file and directory
-layout at particular points in time to remain available read only.
-This is done through careful management of multiple versions of
-inodes.  SnapFS manages modifications to files and versions of files
-at the block level to avoid space and CPU overhead.  Our white papers
-describe the design in more detail.  Snapshots are made almost
-instantaneously and typical usage is to make a snapshot before a
-backup or major system administration.
-
-SnapFS allows dynamic creation and removal of snapshots, and can roll
-back a file system to a snapshot.  SnapFS comes with utilities that
-can find incremental backup data extremely fast and SnapFS manages
-disk block layout in such a way that LAN free backup programs can take
-advantage of it.
-
-SnapFS relies on Ext3 for recovery and on the Extended Attribute
-package for storing versioning information.
-
-The current release is usable, but has some known and likely some
-unknown bugs.  Please backup your file systems before playing with
-SnapFS and play at your own risk.
-
-SnapFS is provided under the GPL.  Mountain View Data plans to release
-additional configuration and management tools for SnapFS as commercial
-products.
-
-Acknowledgements: Stephen Tweedie has been instrumental in providing a
-journal interface that supports filtering file systems like InterMezzo
-and SnapFS.  Andreas Dilger wrote the first version of the Ext2 snap
-api, and Andreas Gruenbacher has helped us with extended attribute
-code.  Others are helping us with possible ports to 2.4, ReiserFS, XFS
-and JFS.
-
-SnapFS is being developed by Mountain View Data. It was designed and
-partially written by Peter Braam.  The development is led by Harrison
-Xing <harrison@mountainviewdata.com> and Eric Mei
-<ericm@mountainviewdata.com> in the Beijing office of Mountain View
-Data.  William Wei <william.wei@mountainviewdata.com> has helped with
-initial QA.  Michael Gao and Thomas Corley have helped with the WWW
-site and documentation.  Brian Murrell packaged SnapFS for a demo at
-LinuxWorld.
-
-
-
--- 
-
+NeilBrown

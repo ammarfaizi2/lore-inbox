@@ -1,35 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268524AbUIPSDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268270AbUIPSKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268524AbUIPSDq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 14:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268590AbUIPRlN
+	id S268270AbUIPSKF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 14:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268162AbUIPSKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:41:13 -0400
-Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:39952 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S268410AbUIPRhe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 13:37:34 -0400
-Date: Thu, 16 Sep 2004 19:37:10 +0200
-From: Jedi/Sector One <j@pureftpd.org>
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm1
-Message-ID: <20040916173732.GA31672@c9x.org>
-References: <20040916024020.0c88586d.akpm@osdl.org> <200409161345.56131.norberto+linux-kernel@bensa.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409161345.56131.norberto+linux-kernel@bensa.ath.cx>
-X-Operating-System: OpenBSD - http://www.openbsd.org/
-User-Agent: Mutt/1.5.6i
+	Thu, 16 Sep 2004 14:10:05 -0400
+Received: from zmamail04.zma.compaq.com ([161.114.64.104]:6667 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S268535AbUIPSI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 14:08:58 -0400
+Message-ID: <4149D8C6.1060407@hp.com>
+Date: Thu, 16 Sep 2004 14:17:42 -0400
+From: Robert Picco <Robert.Picco@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Christoph Lameter <clameter@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       venkatesh.pallipadi@intel.com
+Subject: Re: device driver for the SGI system clock, mmtimer
+References: <200409161003.39258.bjorn.helgaas@hp.com> <200409160909.12840.jbarnes@engr.sgi.com> <1095349940.22739.34.camel@localhost.localdomain> <200409161007.37015.jbarnes@engr.sgi.com>
+In-Reply-To: <200409161007.37015.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 01:45:55PM -0300, Norberto Bensa wrote:
-> Andrew Morton wrote:
-> > +tune-vmalloc-size.patch
-> 
-> This one of course breaks nvidia's binary driver; so nvidia users should do a 
-> "patch -Rp1" to revert it.
+Jesse Barnes wrote:
 
-http://00f.net/blogs/index.php/2004/09/16/nvidia_kernel_module_and_linux_2_6_9_rc2
+>On Thursday, September 16, 2004 8:52 am, Alan Cox wrote:
+>  
+>
+>>On Iau, 2004-09-16 at 17:09, Jesse Barnes wrote:
+>>    
+>>
+>>>I think Christoph already looked at that.  And HPET doesn't provide mmap
+>>>functionality, does it?  I.e. allow a userspace program to dereference
+>>>the counter register directly?
+>>>      
+>>>
+>>It can do but that assumes nothing else is mapped into the same page
+>>that would be harmful or reveal information that should not be revealed
+>>etc..
+>>    
+>>
+>
+>And what about the register layout?  mmtimer makes sure that the register is 
+>on a page by itself before it allows the mmap, and only exports the counter 
+>register itself.  Can hpet do that?
+>
+>Jesse
+>
+>  
+>
+The hpet driver checks that the mapping is page aligned.  It's up to the 
+platform to provide this alignment.  It's also dependent on the platform 
+for what resides in the page.  Also the configured page size could 
+impact what is within the page.

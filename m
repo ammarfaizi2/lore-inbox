@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317454AbSGEOfE>; Fri, 5 Jul 2002 10:35:04 -0400
+	id <S317462AbSGEOgu>; Fri, 5 Jul 2002 10:36:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317462AbSGEOfE>; Fri, 5 Jul 2002 10:35:04 -0400
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:31702 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S317454AbSGEOfD>;
-	Fri, 5 Jul 2002 10:35:03 -0400
-Subject: Re: prevent breaking a chroot() jail?
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <ag48ui$fb5$1@ncc1701.cistron.net>
-References: <1025877004.11004.59.camel@zaphod> 
-	<ag48ui$fb5$1@ncc1701.cistron.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 05 Jul 2002 10:37:26 -0400
-Message-Id: <1025879850.11004.75.camel@zaphod>
-Mime-Version: 1.0
+	id <S317463AbSGEOgt>; Fri, 5 Jul 2002 10:36:49 -0400
+Received: from realimage.realnet.co.sz ([196.28.7.3]:39574 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317462AbSGEOgr>; Fri, 5 Jul 2002 10:36:47 -0400
+Date: Fri, 5 Jul 2002 16:07:15 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrey Nekrasov <andy@spylog.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre10aa4 & Intel EtherExpress driver "e100".
+In-Reply-To: <20020705100830.GX1227@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0207051601040.29523-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-05 at 10:02, Miquel van Smoorenburg wrote:
-> In article <1025877004.11004.59.camel@zaphod>,
-> Shaya Potter  <spotter@cs.columbia.edu> wrote:
-> >I'm trying to develop a way to ensure that one can't break out of a
-> >chroot() jail, even as root.  I'm willing to change the way the syscalls
-> >work (most likely only for a subset of processes, i.e. processes that
-> >are run in the jail end up getting a marker which is passed down to all
-> >their children that causes the syscalls to behave differently).
-> >What should I be aware of?  I figure devices (no need to run mknod in
-> >this jail) and chroot (as per man page), is there any other way of
-> >breaking the chroot jail (at a syscall level or otherwise)?
-> 
-> int main()
-> {
-> 	chdir("/");
-> 	mkdir("foo");
-> 	chroot("foo");
-> 	chdir("../../../../../../..");
-> 	chroot(".");
-> 	execl("/bin/sh", "sh", NULL);
-> }
-> 
-> Run as root and you're out of the chroot jail. This is because
-> chroot() doesn't chdir() to the new root, so after a chroot() in
-> the chroot jail you're suddenly out of it.
+Hi Andrea, Audrey,
 
-yes, that's what the man page says.  Is that the only hole? i.e. if one
-changed the semantics of chroot() to also do a chdir() to the new root,
-would that be fixed? (not arguing on changing this for everything, just
-for something specific)
+On Fri, 5 Jul 2002, Andrea Arcangeli wrote:
 
-thanks,
+> On Fri, Jun 21, 2002 at 11:31:40AM +0400, Andrey Nekrasov wrote:
+> > Hello.
+> > 
+> > 1. My hardware:
+> > 
+> > M/B Intel STL2:
+> > 	- ServerWorks ServerSet III LE chipset).
+> >   - Integrated on-board Intel EtherExpress PRO100+ 10/100mbit PCI controller
+> >     (Intel 82559)
 
-shaya
+Do we have the same hardware?
+
+OEM ID: INTEL    Product ID: STL2         APIC at: 0xFEE00000
+
+00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
+00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
+00:02.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC 215IIC  [Mach64 GT IIC] (rev 7a)
+00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 50)
+00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
+01:04.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+01:04.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+01:0b.0 RAID bus controller: IBM Netfinity ServeRAID controller
+
+Linux version 2.4.19-rc1-aa1-zm1 (zwane@lserver.waterford.sz) (gcc version 
+2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #6 SMP Mon Jul 1 14:07:40 SAST 
+2002
+
+> Can you confirm rc1aa1 works again? in next -aa I'll upgrade again to
+> the 2.0.30-k release using another patch to see if it still malfunction
+> for you.
+
+I've got that machine on a couple of days uptime serving 4G+ a day via 
+that network card. All good so far.
+
+Cheers,
+	Zwane Mwaikambo
+-- 
+http://function.linuxpower.ca
+		
 

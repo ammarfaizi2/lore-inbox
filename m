@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130775AbRCFNnA>; Tue, 6 Mar 2001 08:43:00 -0500
+	id <S130781AbRCFN4y>; Tue, 6 Mar 2001 08:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130779AbRCFNml>; Tue, 6 Mar 2001 08:42:41 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:11019 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130775AbRCFNmj>;
-	Tue, 6 Mar 2001 08:42:39 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Alexander Viro <viro@math.psu.edu>
-Date: Tue, 6 Mar 2001 14:41:47 MET-1
+	id <S130784AbRCFN4n>; Tue, 6 Mar 2001 08:56:43 -0500
+Received: from nic-31-c31-100.mn.mediaone.net ([24.31.31.100]:34688 "EHLO
+	nic-31-c31-100.mn.mediaone.net") by vger.kernel.org with ESMTP
+	id <S130781AbRCFN4e>; Tue, 6 Mar 2001 08:56:34 -0500
+Date: Tue, 6 Mar 2001 07:56:31 -0600 (CST)
+From: "Scott M. Hoffman" <scott@mediaone.net>
+X-X-Sender: <scott@nic-31-c31-100.mn.mediaone.net>
+Reply-To: <scott1021@mediaone.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.2-ac12
+In-Reply-To: <E14aHXp-0000gN-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.32.0103060751230.4166-100000@nic-31-c31-100.mn.mediaone.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: d_add on negative dentry?
-CC: linux-kernel@vger.kernel.org, urban@teststation.com
-X-mailer: Pegasus Mail v3.40
-Message-ID: <1492C65485C@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Mar 01 at 18:08, Alexander Viro wrote:
-> On Tue, 6 Mar 2001, Urban Widmark wrote:
-> 
-> > 
-> > Is it valid to call d_add on a negative dentry?
-> > (or on a dentry that is already linked in d_hash, but all negative
-> >  dentries are, right?)
-> 
-> Not all of them. It _is_ legal to do d_add() on a negative dentry.
-> Doing that for hashed dentries is a bug. Use d_instantiate() instead.
->                             Cheers,
->                                 Al
-> 
-> PS: as for the patch, better make it
->     d_instantiate(...);
->     if (!hashed)
->         d_rehash(...);
 
-It could explain why I'm getting once a month CPU spinning in d_lookup()
-because of some circular list is no more one circle... 
-Many thanks, I'll apply it to ncpfs ASAP.
-                                        Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+On Tue, 6 Mar 2001, Alan Cox wrote:
+
+> >  I have not had problems with 2.4.2, just tried 2.4.2-ac12.  About the IDE
+> > stage it just reboots.
+>
+> Does ac11 also reboot like that. -ac is currently testing versions of the new
+> VIA IDE driver so knowing if the latest update did that would be very
+> useful
+>
+ I won't be able to try ac11 until late tonight as that is my home PC that
+has the VIA chips.  I'll let you know
+ Also, these patches should be applied to 2.4.2, right? I'm using a 2.4.1
+tree patched to 2.4.2, then applied ac12.
+
+Scott Hoffman
+

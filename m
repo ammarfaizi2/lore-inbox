@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVBCB6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVBCB6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbVBCB6l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 20:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVBCBx2
+	id S262376AbVBCB6f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 20:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbVBCB5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 20:53:28 -0500
-Received: from waste.org ([216.27.176.166]:24261 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262308AbVBCBw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 20:52:56 -0500
-Date: Wed, 2 Feb 2005 17:52:36 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Clemens Fruhwirth <clemens@endorphin.org>, dm-crypt@saout.de,
-       Alasdair G Kergon <agk@redhat.com>
-Subject: Re: dm-crypt crypt_status reports key?
-Message-ID: <20050203015236.GO2493@waste.org>
-References: <20050202211916.GJ2493@waste.org> <1107394381.10497.16.camel@server.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107394381.10497.16.camel@server.cs.pocnet.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 2 Feb 2005 20:57:36 -0500
+Received: from 207-105-1-25.zarak.com ([207.105.1.25]:37156 "HELO
+	iceberg.Adtech-Inc.COM") by vger.kernel.org with SMTP
+	id S262706AbVBCB47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 20:56:59 -0500
+Message-ID: <42018498.6030305@spirentcom.com>
+Date: Wed, 02 Feb 2005 17:55:36 -0800
+From: "Mark F. Haigh" <Mark.Haigh@spirentcom.com>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4.29] sym53c8xx.c - Add ULL suffix to fix warning
+Content-Type: multipart/mixed;
+ boundary="------------080608090808010303070402"
+X-OriginalArrivalTime: 03 Feb 2005 01:56:48.0084 (UTC) FILETIME=[9EE90140:01C50993]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 03, 2005 at 02:33:01AM +0100, Christophe Saout wrote:
-> Am Mittwoch, den 02.02.2005, 13:19 -0800 schrieb Matt Mackall:
-> 
-> > From looking at the dm_crypt code, it appears that it can be
-> > interrogated to report the current key. Some quick testing shows:
-> > 
-> > # dmsetup table /dev/mapper/volume1
-> > 0 2000000 crypt aes-plain 0123456789abcdef0123456789abcdef 0 7:0 0
-> > 
-> > Obviously, root can in principle recover this password from the
-> > running kernel but it seems silly to make it so easy.
-> 
-> I already tried that. It took me about five minutes using a shell, dd
-> and hexdump to get the key out of the running kernel...
+This is a multi-part message in MIME format.
+--------------080608090808010303070402
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Indeed.
 
-> Yes, the reason is that the device-mapper supports on-the-fly
-> modifications of the device. cryptsetup has a command to resize the
-> mapping for example. It can do that without asking for the password
-> again. Features like this are the reason I'm doing this. Userspace tools
-> should be able to assume that they can use the result of a table status
-> command to create a new table with this information.
+Noticed that in drivers/scsi/sym53c8xx.c:
 
-Hmm, interesting. A password per resize is not terribly onerous though.
+sym53c8xx.c:13185: warning: integer constant is too large for "long" type
 
-> An alternativ would be to use some form of handle to point to the key
-> after it has been given to the kernel. But that would require some more
-> infrastructure.
+Since we're not dealing with C99 (yet), this 64 bit integer constant
+needs to be suffixed with ULL.  Patch included.
 
-There's been some talk about such infrastructure already. I believe
-some pieces of it may already be in place.
 
-> BTW: The setkey command also seems to return the keys in use for IPSEC
-> connections.
+Mark F. Haigh
+Mark.Haigh@spirentcom.com
 
-While possibly suboptimal, this won't surprise anyone. But dmsetup has
-no mention of security in its manpage and doesn't show keys in typical
-LVM usage. So people might reasonably assume that data from dmsetup
-tables is not secret.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+--------------080608090808010303070402
+Content-Type: text/plain;
+ name="sym53c8xx-patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sym53c8xx-patch"
+
+--- drivers/scsi/sym53c8xx.c.orig	2005-02-02 14:35:52.981929312 -0800
++++ drivers/scsi/sym53c8xx.c	2005-02-02 14:38:38.496767232 -0800
+@@ -13182,7 +13182,7 @@
+ 	** descriptors.
+ 	*/
+ 	if (chip && (chip->features & FE_DAC)) {
+-		if (pci_set_dma_mask(pdev, (u64) 0xffffffffff))
++		if (pci_set_dma_mask(pdev, (u64) 0xffffffffffULL))
+ 			chip->features &= ~FE_DAC_IN_USE;
+ 		else
+ 			chip->features |= FE_DAC_IN_USE;
+
+
+--------------080608090808010303070402--

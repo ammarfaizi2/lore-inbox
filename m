@@ -1,124 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263154AbTCLLio>; Wed, 12 Mar 2003 06:38:44 -0500
+	id <S263156AbTCLLrf>; Wed, 12 Mar 2003 06:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263157AbTCLLio>; Wed, 12 Mar 2003 06:38:44 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:41404 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S263154AbTCLLim>;
-	Wed, 12 Mar 2003 06:38:42 -0500
-Date: Wed, 12 Mar 2003 12:49:14 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Osamu Tomita <tomita@cinet.co.jp>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (16/20) SCSI
-In-Reply-To: <20030309043403.GQ1231@yuzuki.cinet.co.jp>
-Message-ID: <Pine.GSO.4.21.0303121239380.7675-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263158AbTCLLrf>; Wed, 12 Mar 2003 06:47:35 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:2725 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S263156AbTCLLre>; Wed, 12 Mar 2003 06:47:34 -0500
+Date: Wed, 12 Mar 2003 11:55:47 -0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [patch 3/3] add Via Nehemiah ("xstore") rng support
+Message-ID: <20030312125542.GA4284@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Theodore Ts'o <tytso@mit.edu>
+References: <3E6EA909.9020200@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E6EA909.9020200@pobox.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Mar 2003, Osamu Tomita wrote:
-> This is the patch to support NEC PC-9800 subarchitecture
-> against 2.5.64-ac3. (16/20)
-> 
-> SCSI host adapter support.
->  - BIOS parameter change for PC98.
->  - Add pc980155 driver for old PC98.
->  - wd33c93.h register address size to int, because PC-9801-55 mapped 0xcc0.
-> 
-> Regards,
-> Osamu Tomita
-> 
-> diff -Nru linux/drivers/scsi/wd33c93.h linux98/drivers/scsi/wd33c93.h
-> --- linux/drivers/scsi/wd33c93.h	2002-10-12 13:21:35.000000000 +0900
-> +++ linux98/drivers/scsi/wd33c93.h	2002-10-12 14:18:53.000000000 +0900
-> @@ -186,8 +186,13 @@
->  
->     /* This is what the 3393 chip looks like to us */
->  typedef struct {
-> +#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-> +   volatile unsigned int   *SASR;
-> +   volatile unsigned int   *SCMD;
+On Tue, Mar 11, 2003 at 10:27:05PM -0500, Jeff Garzik wrote:
 
-Since you want to do ordinary ISA/PCI I/O on SASR and SCMD, I think you want to
-get rid of the pointers and put the plain I/O port numbers there:
+ > Review from x86 experts is especially appreciated here, as I am from an 
+ > x86 expert myself.
 
-    unsigned long SASR;
-    unsigned long SCMD;
+only minor niggles.
 
-> +#else
->     volatile unsigned char  *SASR;
->     volatile unsigned char  *SCMD;
-> +#endif
+ > diff -Nru a/drivers/char/Kconfig b/drivers/char/Kconfig
+ > --- a/drivers/char/Kconfig	Tue Mar 11 21:37:50 2003
+ > +++ b/drivers/char/Kconfig	Tue Mar 11 21:37:50 2003
+ > @@ -710,7 +710,7 @@
+ >  	  If you're not sure, say N.
+ >  
+ >  config HW_RANDOM
+ > -	tristate "Intel/AMD H/W Random Number Generator support"
+ > +	tristate "Intel/AMD/Via H/W Random Number Generator support"
 
-M68k and MIPS use pointers because they do MMIO.
+s/Via/VIA/
 
-Then the following can go away:
+ > diff -Nru a/drivers/char/hw_random.c b/drivers/char/hw_random.c
+ > --- a/drivers/char/hw_random.c	Tue Mar 11 21:37:50 2003
+ > +++ b/drivers/char/hw_random.c	Tue Mar 11 21:37:50 2003
+ > @@ -1,5 +1,5 @@
+ >  /*
+ > - 	Hardware driver for the Intel/AMD Random Number Generators (RNG)
+ > + 	Hardware driver for the Intel/AMD/Via Random Number Generators (RNG)
 
-> +static unsigned int  SASR;
-> +static unsigned int  SCMD;
-> +static wd33c93_regs regs = {&SASR, &SCMD};
+Ditto
 
-And you store the I/O ports here:
+ > +	rdmsr(MSR_VIA_RNG, lo, hi);
+ > +	if ((lo & VIA_RNG_ENABLE) == 0) {
+ > +		printk(KERN_ERR PFX "cannot enable Via C3 RNG, aborting\n");
 
-    static wd33c93_regs regs;
+Ditto.
 
-> +	for (i = 0; i < nr_base_ios; i++) {
-> +		base_io = base_ios[i];
-> +		SASR = REG_ADDRST;
-> +		SCMD = REG_CONTRL;
+ 
+ > +#define cpu_has_xstore		boot_cpu_has(X86_FEATURE_XSTORE)
+ 
+Do we want to do this check only on VIA CPUs I wonder.
+As a vendor specific extension, I'd be inclined to do that.
 
-      regs.SASR = REG_ADDRST;
-      regs.SCMD = REG_CONTRL;
+Niggles aside, looks good! Can't test it though, as my current
+Nehemiah is pre-production, and seems to have a broken RNG.
 
-> +static int pc980155_abort(Scsi_Cmnd *cmd)
-> +{
-> +	if (wd33c93_abort(cmd) == SCSI_ABORT_SUCCESS)
-> +		return SUCCESS;
-> +
-> +	return FAILED;
-> +}
-
-The abort handler is generic. Hence it can be moved to wd33c93.c, so the other
-wd33c93 drivers (my main interest :-) can use it.
-
-> +static int pc980155_bus_reset(Scsi_Cmnd *cmd)
-> +{
-> +	struct WD33C93_hostdata *hostdata
-> +		= (struct WD33C93_hostdata *)cmd->device->host->hostdata;
-> +
-> +	pc980155_int_disable(hostdata->regs);
-> +	pc980155_assert_bus_reset(hostdata->regs);
-> +	udelay(50);
-> +	pc980155_negate_bus_reset(hostdata->regs);
-> +	(void) inb(*hostdata->regs.SASR);
-> +	(void) read_pc980155(hostdata->regs, WD_SCSI_STATUS);
-> +	pc980155_int_enable(hostdata->regs);
-> +	wd33c93_reset(cmd, 0);
-> +	return SUCCESS;
-> +}
-
-Is there a generic (wd33c93) way to do this?
-
-> +static int pc980155_host_reset(Scsi_Cmnd *cmd)
-> +{
-> +	wd33c93_reset(cmd, 0);
-> +	return SUCCESS;
-> +}
-
-The host reset handler is generic, too.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+		Dave
 

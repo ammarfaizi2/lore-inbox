@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287633AbSACFut>; Thu, 3 Jan 2002 00:50:49 -0500
+	id <S288200AbSACFxt>; Thu, 3 Jan 2002 00:53:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288200AbSACFuj>; Thu, 3 Jan 2002 00:50:39 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:59396 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S287633AbSACFuY>; Thu, 3 Jan 2002 00:50:24 -0500
-Message-ID: <3C33F01E.EC95DD82@zip.com.au>
-Date: Wed, 02 Jan 2002 21:46:06 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S288210AbSACFxj>; Thu, 3 Jan 2002 00:53:39 -0500
+Received: from dsl-213-023-043-254.arcor-ip.net ([213.23.43.254]:47368 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288200AbSACFxW>;
+	Thu, 3 Jan 2002 00:53:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@zip.com.au>
+Subject: Re: ISA slot detection on PCI systems?
+Date: Thu, 3 Jan 2002 06:55:11 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@thyrsus.com>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020102211038.C21788@thyrsus.com> <3C33EC64.8E505D54@zip.com.au> <3C33EF61.169E20AF@mandrakesoft.com>
+In-Reply-To: <3C33EF61.169E20AF@mandrakesoft.com>
 MIME-Version: 1.0
-To: kees <kees@schoen.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] solves freeze due to serial comm. on SMP
-In-Reply-To: <Pine.LNX.4.33.0201022257001.12316-200000@schoen3.schoen.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16M0qO-00012V-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kees wrote:
+On January 3, 2002 06:42 am, Jeff Garzik wrote:
+> Andrew Morton wrote:
+> > 
+> > Dave Jones wrote:
+> > >
+> > > o  Aunt Tilley.
+> > >    Vendors already ship an array of kernels which should make it
+> > >    unnecessary for her to have to build a kernel.
+> > >
+> > 
+> > There is a clear advantage to kernel developers in making things as
+> > easy as possible for Aunt Tilley to use our latest output.
+> > 
+> > If the difficulty of installing the latest kernel prevents her from
+> > doing that, she loses.  And so do we, because we don't get to know
+> > if we've fixed her problem.
+> > 
+> > If Eric can get the entire download-config-build-install process
+> > down to a single mouse click, he'll have done us all a great service.
 > 
-> Hi,
-> 
-> In the beginning of last year I reported a solid freeze problem with Linux
-> when I moved from UP to SMP. Some bughunting especially with kdb an hints
-> from AM I was able to nail it down to some SMP unsafe irq table handling
-> in serial.c.
-> I submitted the attached patch to Ted but that never made it to the
-> kernel. It _really_ solved the problem as I had a crash sometimes within
-> 15 minutes and after applying it I reached uptimes over 100 days.
-> 
+> OTOH if dumbing down the kernel config costs kernel developers
+> productivity and increases the noise-to-signal ratio on lkml, it's a
+> disservice...
 
-It looks like somebody has already had a go at fixing this in current
-kernels - the restore_flags() has been moved to the end of
-shutdown().  (It's not a complete fix, because request_irq() can
-schedule).
+Have you tried Eric's config code lately?  It's getting *really nice*.  The 
+'search' feature alone makes it worth it, and the intelligent tree 
+organization, and the consistency rules, and...
 
-Are you able to test 2.4.17?
+I'm now configging 2.4.17 with Eric-config, other trees with good-old-config, 
+and I can tell you which one I prefer.
+
+--
+Daniel

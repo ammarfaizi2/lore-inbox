@@ -1,222 +1,249 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272123AbTHNBYT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 21:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272127AbTHNBYS
+	id S272074AbTHNBYE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 21:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272127AbTHNBYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 21:24:18 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:51876 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S272123AbTHNBYB
+	Wed, 13 Aug 2003 21:24:04 -0400
+Received: from mta07ps.bigpond.com ([144.135.25.132]:40425 "EHLO
+	mta07ps.bigpond.com") by vger.kernel.org with ESMTP id S272074AbTHNBX5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 21:24:01 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andries Brouwer <aebr@win.tue.nl>
-Subject: [PATCH] ide: limit drive capacity to 137GB if host doesn't support LBA48
-Date: Thu, 14 Aug 2003 03:24:45 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308140324.45524.bzolnier@elka.pw.edu.pl>
+	Wed, 13 Aug 2003 21:23:57 -0400
+Date: Thu, 14 Aug 2003 11:23:18 +1000
+From: Michael Still <mikal@stillhq.com>
+Subject: [PATCH] Docbook: Make mandocs output more terse
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, linus@osdl.org
+Message-id: <Pine.LNX.4.44.0308140950260.17489-100000@diskbox.stillhq.com>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+Hello.
 
-I think this simple patch is sufficient.
+This patch takes into account requests from various LKML members for the 
+mandocs output to be more terse. Information about the copyright, and 
+formatting of the man page is moved into a comment at the start of the 
+groff output.
 
-Block layer shouldn't issue request for sectors > capacity so
-there is no need to add additional checks to __do_rw_disk().
+Sample output can be found at:
+  http://www.stillhq.com/linux/mandocs/2.6.0-test3-bk1/
 
---bartlomiej
+Here's the patch:
 
-ide: limit drive capacity to 137GB if host doesn't support LBA48
-
-Noticed by Andries.Brouwer@cwi.nl.
-
-Also:
-- kill probe_lba_addressing() wrapper
-- rename hwif->addressing to hwif->no_lba48
-
-
- drivers/ide/ide-disk.c         |   26 ++++++++++++++++++--------
- drivers/ide/ide-probe.c        |    2 +-
- drivers/ide/ide.c              |    2 +-
- drivers/ide/legacy/pdc4030.c   |    2 +-
- drivers/ide/pci/alim15x3.c     |    2 +-
- drivers/ide/pci/pdc202xx_old.c |    2 +-
- drivers/ide/pci/siimage.c      |    2 +-
- drivers/ide/pci/trm290.c       |    2 +-
- include/linux/ide.h            |    2 +-
- 9 files changed, 26 insertions(+), 16 deletions(-)
-
-diff -puN drivers/ide/ide.c~ide-disk-no-lba48-fix drivers/ide/ide.c
---- linux-2.6.0-test2-bk7/drivers/ide/ide.c~ide-disk-no-lba48-fix	2003-08-14 02:47:38.877667440 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/ide.c	2003-08-14 02:47:57.257873224 +0200
-@@ -904,7 +904,7 @@ void ide_unregister (unsigned int index)
+diff -Nur linux-2.6.0-test3-bk1/scripts/makeman linux-2.6.0-test3-bk1-terseman-001/scripts/makeman
+--- linux-2.6.0-test3-bk1/scripts/makeman	2003-08-12 14:35:41.000000000 +1000
++++ linux-2.6.0-test3-bk1-terseman-001/scripts/makeman	2003-08-13 10:24:10.000000000 +1000
+@@ -12,7 +12,7 @@
+ ##             $3 -- the filename which contained the sgmldoc output
+ ##                     (I need this so I know which manpages to convert)
  
- 	hwif->mmio			= old_hwif.mmio;
- 	hwif->rqsize			= old_hwif.rqsize;
--	hwif->addressing		= old_hwif.addressing;
-+	hwif->no_lba48			= old_hwif.no_lba48;
- #ifndef CONFIG_BLK_DEV_IDECS
- 	hwif->irq			= old_hwif.irq;
- #endif /* CONFIG_BLK_DEV_IDECS */
-diff -puN drivers/ide/ide-disk.c~ide-disk-no-lba48-fix drivers/ide/ide-disk.c
---- linux-2.6.0-test2-bk7/drivers/ide/ide-disk.c~ide-disk-no-lba48-fix	2003-08-14 02:32:50.571710472 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/ide-disk.c	2003-08-14 03:03:02.895195424 +0200
-@@ -1445,11 +1445,17 @@ static int set_using_tcq(ide_drive_t *dr
- }
- #endif
+-my($LISTING);
++my($LISTING, $GENERATED, $INPUT, $OUTPUT, $front, $mode, $filename);
  
--static int probe_lba_addressing (ide_drive_t *drive, int arg)
-+/*
-+ * drive->addressing:
-+ *	0: 28-bit
-+ *	1: 48-bit
-+ *	2: 48-bit capable doing 28-bit
-+ */
-+static int set_lba_addressing(ide_drive_t *drive, int arg)
- {
- 	drive->addressing =  0;
+ if($ARGV[0] eq ""){
+   die "Usage: makeman [convert | install] <dir> <file>\n";
+@@ -32,8 +32,121 @@
+     s/typedef //;
  
--	if (HWIF(drive)->addressing)
-+	if (HWIF(drive)->no_lba48)
- 		return 0;
- 
- 	if (!idedisk_supports_lba48(drive->id))
-@@ -1458,11 +1464,6 @@ static int probe_lba_addressing (ide_dri
- 	return 0;
- }
- 
--static int set_lba_addressing (ide_drive_t *drive, int arg)
--{
--	return probe_lba_addressing(drive, arg);
--}
--
- static void idedisk_add_settings(ide_drive_t *drive)
- {
- 	struct hd_driveid *id = drive->id;
-@@ -1578,7 +1579,7 @@ static void idedisk_setup (ide_drive_t *
- 		}
- 	}
- 
--	(void) probe_lba_addressing(drive, 1);
-+	(void)set_lba_addressing(drive, 1);
- 
- 	if (drive->addressing == 1) {
- 		ide_hwif_t *hwif = HWIF(drive);
-@@ -1617,6 +1618,15 @@ static void idedisk_setup (ide_drive_t *
- 	/* calculate drive capacity, and select LBA if possible */
- 	init_idedisk_capacity (drive);
- 
-+	/* limit drive capacity to 137GB if LBA48 cannot be used */
-+	if (drive->addressing == 0 && drive->capacity64 > 1ULL << 28) {
-+		printk("%s: cannot use LBA48 - full capacity "
-+		       "%llu sectors (%llu MB)\n",
-+		       drive->name,
-+		       drive->capacity64, sectors_to_MB(drive->capacity64));
-+		drive->capacity64 = 1ULL << 28;
+     chomp;
+-    print "Processing $_\n";
+-    system("cd $ARGV[1]; docbook2man $_.sgml; gzip -f $_.9\n");
++    $filename = $_;
++    print "Processing $filename\n";
++
++    # Open the input file to extract the front matter, generate the man page,
++    # and open it, and the rearrange everything until it is happy
++    open INPUT, "< $ARGV[1]/$filename.sgml";
++    $front = "";
++    $mode = 0;
++    while(<INPUT>){
++      if(/.*ENDFRONTTAG.*/){
++	$mode = 0;
++      }
++
++      if($mode > 0){
++	s/<!-- //;
++	s/ -->//;
++	s/<bookinfo>//;
++	s/<\/bookinfo>//;
++	s/<docinfo>//;
++	s<\/docinfo>//;
++	s/^[ \t]*//;
++      }
++
++      if($mode == 2){
++	if(/<para>/){
++	}
++	elsif(/<\/para>/){
++	  $front = "$front.\\\" \n";
++	}
++	elsif(/<\/legalnotice>/){
++	  $mode = 1;
++	}
++	elsif(/^[ \t]*$/){
++	}
++	else{
++	  $front = "$front.\\\"     $_";
++	}
++      }
++
++      if($mode == 1){
++	if(/<title>(.*)<\/title>/){
++	  $front = "$front.\\\" This documentation was generated from the book titled \"$1\", which is part of the Linux kernel source.\n.\\\" \n";
++	}
++	elsif(/<legalnotice>/){
++	  $front = "$front.\\\" This documentation comes with the following legal notice:\n.\\\" \n";
++	  $mode = 2;
 +	}
 +
- 	/*
- 	 * if possible, give fdisk access to more of the drive,
- 	 * by correcting bios_cyls:
-diff -puN drivers/ide/ide-probe.c~ide-disk-no-lba48-fix drivers/ide/ide-probe.c
---- linux-2.6.0-test2-bk7/drivers/ide/ide-probe.c~ide-disk-no-lba48-fix	2003-08-14 02:48:07.696286344 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/ide-probe.c	2003-08-14 02:48:15.649077336 +0200
-@@ -930,7 +930,7 @@ static int ide_init_queue(ide_drive_t *d
- 	blk_queue_segment_boundary(q, 0xffff);
++	elsif(/<author>/){
++	  $front = "$front.\\\" Documentation by: ";
++	}
++	elsif(/<firstname>(.*)<\/firstname>/){
++	  $front = "$front$1 ";
++	}
++	elsif(/<surname>(.*)<\/surname>/){
++	  $front = "$front$1 ";
++	}
++	elsif(/<email>(.*)<\/email>/){
++	  $front = "$front($1)";
++	}
++	elsif(/\/author>/){
++	  $front = "$front\n";
++	}
++
++	elsif(/<copyright>/){
++	  $front = "$front.\\\" Documentation copyright: ";
++	}
++	elsif(/<holder>(.*)<\/holder>/){
++	  $front = "$front$1 ";
++	}
++	elsif(/<year>(.*)<\/year>/){
++	  $front = "$front$1 ";
++	}
++	elsif(/\/copyright>/){
++	  $front = "$front\n";
++	}
++
++	elsif(/^[ \t]*$/
++	      || /<affiliation>/
++	      || /<\/affiliation>/
++	      || /<address>/
++	      || /<\/address>/
++	      || /<authorgroup>/
++	      || /<\/authorgroup>/
++	      || /<\/legalnotice>/
++              || /<date>/
++              || /<\/date>/
++              || /<edition>/
++              || /<\/edition>/){
++	}
++	else{
++	  print "Unknown tag in manpage conversion: $_";
++	  }
++      }
++
++      if(/.*BEGINFRONTTAG.*/){
++	$mode = 1;
++      }
++    }
++    close INPUT;
++
++    system("cd $ARGV[1]; docbook2man $filename.sgml; mv $filename.9 /tmp/$$.9\n");
++    open GENERATED, "< /tmp/$$.9";
++    open OUTPUT, "> $ARGV[1]/$filename.9";
++
++    print OUTPUT "$front";
++    print OUTPUT ".\\\" For comments on the formatting of this manpage, please contact Michael Still <mikal\@stillhq.com>\n\n";
++    while(<GENERATED>){
++      print OUTPUT "$_";
++    }
++    close OUTPUT;
++    close GENERATED;
++
++    system("gzip -f $ARGV[1]/$filename.9\n");
++    unlink("/tmp/$filename.9");
+   }
+ }
+ elsif($ARGV[0] eq "install"){
+diff -Nur linux-2.6.0-test3-bk1/scripts/split-man linux-2.6.0-test3-bk1-terseman-001/scripts/split-man
+--- linux-2.6.0-test3-bk1/scripts/split-man	2003-08-12 14:35:41.000000000 +1000
++++ linux-2.6.0-test3-bk1-terseman-001/scripts/split-man	2003-08-13 10:24:16.000000000 +1000
+@@ -35,7 +35,7 @@
+ $front = "";
+ while(<SGML>){
+   # Starting modes
+-  if(/<legalnotice>/){
++  if(/<bookinfo>/ || /<docinfo>/){
+     $mode = 1;
+   }
+   elsif(/<refentry>/){
+@@ -49,16 +49,24 @@
+     $filename =~ s/typedef //;
  
- 	if (!hwif->rqsize)
--		hwif->rqsize = hwif->addressing ? 256 : 65536;
-+		hwif->rqsize = hwif->no_lba48 ? 256 : 65536;
- 	if (hwif->rqsize < max_sectors)
- 		max_sectors = hwif->rqsize;
- 	blk_queue_max_sectors(q, max_sectors);
-diff -puN drivers/ide/legacy/pdc4030.c~ide-disk-no-lba48-fix drivers/ide/legacy/pdc4030.c
---- linux-2.6.0-test2-bk7/drivers/ide/legacy/pdc4030.c~ide-disk-no-lba48-fix	2003-08-14 02:46:06.325737472 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/legacy/pdc4030.c	2003-08-14 02:46:21.465435888 +0200
-@@ -227,7 +227,7 @@ int __init setup_pdc4030(ide_hwif_t *hwi
- 	hwif2->mate	= hwif;
- 	hwif2->channel	= 1;
- 	hwif->rqsize	= hwif2->rqsize = 127;
--	hwif->addressing = hwif2->addressing = 1;
-+	hwif->no_lba48 = hwif2->no_lba48 = 1;
- 	hwif->selectproc = hwif2->selectproc = &promise_selectproc;
- 	hwif->serialized = hwif2->serialized = 1;
- 	/* DC4030 hosted drives need their own identify... */
-diff -puN drivers/ide/pci/alim15x3.c~ide-disk-no-lba48-fix drivers/ide/pci/alim15x3.c
---- linux-2.6.0-test2-bk7/drivers/ide/pci/alim15x3.c~ide-disk-no-lba48-fix	2003-08-14 02:44:37.468245864 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/pci/alim15x3.c	2003-08-14 02:44:57.401215592 +0200
-@@ -745,7 +745,7 @@ static void __init init_hwif_common_ali1
- 	hwif->speedproc = &ali15x3_tune_chipset;
+     print "Found manpage for $filename\n";
+-    open REF, "> $ARGV[1]/$filename.sgml" or
++    open REF, "> $ARGV[1]/$filename.sgml" or 
+       die "Couldn't open output file \"$ARGV[1]/$filename.sgml\": $!\n";
+-    print REF "<!DOCTYPE refentry PUBLIC \"-//Davenport//DTD DocBook V3.0//EN\">\n\n";
+-    print REF "$refdata";
++    print REF <<EOF;
++<!DOCTYPE refentry PUBLIC "-//Davenport//DTD DocBook V3.0//EN">
++
++<!-- BEGINFRONTTAG: The following is front matter for the parent book -->
++$front
++<!-- ENDFRONTTAG: End front matter -->
++
++$refdata
++EOF
+     $refdata = "";
+   }
  
- 	/* Don't use LBA48 on ALi devices before rev 0xC5 */
--	hwif->addressing = (m5229_revision <= 0xC4) ? 1 : 0;
-+	hwif->no_lba48 = (m5229_revision <= 0xC4) ? 1 : 0;
+   # Extraction
+   if($mode == 1){
+-    $front = "$front$_";
++    chomp $_;
++    $front = "$front<!-- $_ -->\n";
+   }
+   elsif($mode == 2){
+     $refdata = "$refdata$_";
+@@ -69,16 +77,8 @@
+       print REF "<manvolnum>9</manvolnum>\n";
+     }
+     if(/<\/refentry>/){
+-      $front =~ s/<legalnotice>//;
+-      $front =~ s/<\/legalnotice>//;
+       print REF <<EOF;
+ <refsect1><title>About this document</title>
+-$front
+-<para>
+-If you have comments on the formatting of this manpage, then please contact
+-Michael Still (mikal\@stillhq.com).
+-</para>
+-
+ <para>
+ This documentation was generated with kernel version $ARGV[2].
+ </para>
+@@ -98,13 +98,13 @@
+   }
  
- 	if (!hwif->dma_base) {
- 		hwif->drives[0].autotune = 1;
-diff -puN drivers/ide/pci/pdc202xx_old.c~ide-disk-no-lba48-fix drivers/ide/pci/pdc202xx_old.c
---- linux-2.6.0-test2-bk7/drivers/ide/pci/pdc202xx_old.c~ide-disk-no-lba48-fix	2003-08-14 02:45:30.043253248 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/pci/pdc202xx_old.c	2003-08-14 02:45:49.325321928 +0200
-@@ -750,7 +750,7 @@ static void __init init_hwif_pdc202xx (i
- 	hwif->quirkproc = &pdc202xx_quirkproc;
+   # Ending modes
+-  if(/<\/legalnotice>/){
++  if(/<\/bookinfo>/ || /<\/docinfo>/){
+     $mode = 0;
+   }
+   elsif(/<\/refentry>/){
+     $mode = 0;
+     close REF;
+-  }
++  }	
+ }
  
- 	if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
--		hwif->addressing = (hwif->channel) ? 0 : 1;
-+		hwif->no_lba48 = (hwif->channel) ? 0 : 1;
- 
- 	if (hwif->pci_dev->device != PCI_DEVICE_ID_PROMISE_20246) {
- 		hwif->busproc   = &pdc202xx_tristate;
-diff -puN drivers/ide/pci/siimage.c~ide-disk-no-lba48-fix drivers/ide/pci/siimage.c
---- linux-2.6.0-test2-bk7/drivers/ide/pci/siimage.c~ide-disk-no-lba48-fix	2003-08-14 02:45:06.437841816 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/pci/siimage.c	2003-08-14 02:45:20.050772336 +0200
-@@ -724,7 +724,7 @@ static void __init init_mmio_iops_siimag
- 	}
- 
- #ifdef SIIMAGE_BUFFERED_TASKFILE
--        hwif->addressing = 1;
-+	hwif->no_lba48 = 1;
- #endif /* SIIMAGE_BUFFERED_TASKFILE */
- 	hwif->irq			= hw.irq;
- 	hwif->hwif_data			= pci_get_drvdata(hwif->pci_dev);
-diff -puN drivers/ide/pci/trm290.c~ide-disk-no-lba48-fix drivers/ide/pci/trm290.c
---- linux-2.6.0-test2-bk7/drivers/ide/pci/trm290.c~ide-disk-no-lba48-fix	2003-08-14 02:44:11.963123232 +0200
-+++ linux-2.6.0-test2-bk7-root/drivers/ide/pci/trm290.c	2003-08-14 02:44:28.650586352 +0200
-@@ -309,7 +309,7 @@ void __init init_hwif_trm290 (ide_hwif_t
- 	u8 reg = 0;
- 	struct pci_dev *dev = hwif->pci_dev;
- 
--	hwif->addressing = 1;
-+	hwif->no_lba48 = 1;
- 	hwif->chipset = ide_trm290;
- 	cfgbase = pci_resource_start(dev, 4);
- 	if ((dev->class & 5) && cfgbase) {
-diff -puN include/linux/ide.h~ide-disk-no-lba48-fix include/linux/ide.h
---- linux-2.6.0-test2-bk7/include/linux/ide.h~ide-disk-no-lba48-fix	2003-08-14 02:48:24.553723624 +0200
-+++ linux-2.6.0-test2-bk7-root/include/linux/ide.h	2003-08-14 02:59:59.076140168 +0200
-@@ -1007,7 +1007,6 @@ typedef struct hwif_s {
- 
- 	int		mmio;		/* hosts iomio (0), mmio (1) or custom (2) select */
- 	int		rqsize;		/* max sectors per request */
--	int		addressing;	/* hosts addressing */
- 	int		irq;		/* our irq number */
- 	int		initializing;	/* set while initializing self */
- 
-@@ -1036,6 +1035,7 @@ typedef struct hwif_s {
- 	unsigned	reset      : 1;	/* reset after probe */
- 	unsigned	autodma    : 1;	/* auto-attempt using DMA at boot */
- 	unsigned	udma_four  : 1;	/* 1=ATA-66 capable, 0=default */
-+	unsigned	no_lba48   : 1; /* 1 = cannot do LBA48 */
- 	unsigned	no_dsc     : 1;	/* 0 default, 1 dsc_overlap disabled */
- 	unsigned	auto_poll  : 1; /* supports nop auto-poll */
- 
+ # And make sure we don't process this unnessesarily
 
-_
+
 

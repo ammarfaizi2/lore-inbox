@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267545AbTAQPuR>; Fri, 17 Jan 2003 10:50:17 -0500
+	id <S267566AbTAQP7p>; Fri, 17 Jan 2003 10:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267546AbTAQPuR>; Fri, 17 Jan 2003 10:50:17 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:5388 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267545AbTAQPuQ>; Fri, 17 Jan 2003 10:50:16 -0500
-Date: Fri, 17 Jan 2003 15:59:11 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-cc: "Paulo Andre'" <fscked@netvisao.pt>,
-       Alessandro Suardi <alessandro.suardi@oracle.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: radeonfb almost there.. but not quite! :)
-In-Reply-To: <200301171646.43206.arnd@bergmann-dalldorf.de>
-Message-ID: <Pine.LNX.4.44.0301171558530.24931-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267569AbTAQP7p>; Fri, 17 Jan 2003 10:59:45 -0500
+Received: from stingr.net ([212.193.32.15]:35084 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S267566AbTAQP7o>;
+	Fri, 17 Jan 2003 10:59:44 -0500
+Date: Fri, 17 Jan 2003 19:08:40 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: eepro100 - 802.1q - mtu size
+Message-ID: <20030117160840.GR12676@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030117145357.GA1139@paradigm.rfc822.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20030117145357.GA1139@paradigm.rfc822.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Replying to Florian Lohoff:
+> Why is this patch not integerated yet ?
 
-Could you disable it and see if everything works then.
+Because newer and better e100 driver, which accepts tagged frames and
+handles it properly, already in the tree
 
-> On Friday 17 January 2003 16:31, Paulo Andre' wrote:
-> 
-> > Do you have CONFIG_DRM=y ?
-> 
-> Yes:
-> [drm] AGP 0.99 on Unknown @ 0xd0000000 256MB
-> [drm] Initialized radeon 1.6.0 20020828 on minor 0
-> 
-> 	Arnd <><
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+-- 
+Paul P 'Stingray' Komkoff Jr /// (icq)23200764 /// (http)stingr.net
+ This message represents the official view of the voices in my head

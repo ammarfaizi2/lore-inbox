@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262791AbRE3NsJ>; Wed, 30 May 2001 09:48:09 -0400
+	id <S262793AbRE3Nw3>; Wed, 30 May 2001 09:52:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262809AbRE3Nrt>; Wed, 30 May 2001 09:47:49 -0400
-Received: from [216.221.199.130] ([216.221.199.130]:33035 "HELO mail.oeone.com")
-	by vger.kernel.org with SMTP id <S262791AbRE3Nrn>;
-	Wed, 30 May 2001 09:47:43 -0400
-Message-ID: <3B14FAC0.6010901@oeone.com>
-Date: Wed, 30 May 2001 09:50:56 -0400
-From: Masoud Sharbiani <masouds@oeone.com>
-Organization: OEone Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; rv:0.9) Gecko/20010516
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nico Schottelius <nicos@pcsystems.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ PATCH ]: disable pcspeaker kernel: 2.4.2 - 2.4.5
-In-Reply-To: <Pine.LNX.4.33.0105301414080.6313-200000@localhost.localdomain> <3B14ECF7.937C2A8@pcsystems.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262779AbRE3NwT>; Wed, 30 May 2001 09:52:19 -0400
+Received: from lpce023.lss.emc.com ([168.159.62.23]:13572 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262793AbRE3NwH>; Wed, 30 May 2001 09:52:07 -0400
+Date: Wed, 30 May 2001 09:38:07 -0400
+Message-Id: <200105301338.f4UDc7N00601@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
+Subject: [PATCH] devfs v177 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+  Hi, all. Version 177 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-> And what about the code from kernel/sys.c ?
-> The version you provided doesn't take care of what's
-> the default value of pcspeaker. This would make it
-> undefined, which is not really good.
+This is against 2.4.5. Highlights of this release:
 
+- Updated README from master HTML file
 
-Since the variable is global in kernel/sysctl.c (and not kernel/sys.c),
-and globals are set to zero when linking by GCC. (am I wrong?).
-cheers,
+- Documentation cleanups
 
-Masoud
+- Ensure <devfs_generate_path> terminates string for root entry
+  Thanks to Tim Jansen <tim@tjansen.de>
 
+- Exported <devfs_get_name> to modules
 
+- Make <devfs_mk_symlink> send events to devfsd
 
+- Cleaned up option processing in <devfs_setup>
 
+- Fixed bugs in handling symlinks: could leak or cause Oops
 
+- Cleaned up directory handling by separating fops
+  Thanks to Alexander Viro <viro@math.psu.edu>
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315344AbSEBSim>; Thu, 2 May 2002 14:38:42 -0400
+	id <S315347AbSEBSlf>; Thu, 2 May 2002 14:41:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315346AbSEBSik>; Thu, 2 May 2002 14:38:40 -0400
-Received: from mail.sonytel.be ([193.74.243.200]:48603 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S315344AbSEBSig>;
-	Thu, 2 May 2002 14:38:36 -0400
-Date: Thu, 2 May 2002 20:38:26 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Nick Ciesinski <ciesinskna26@uww.edu>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: i860 Chipset and Hyper-Threading Processors
-In-Reply-To: <000701c1f1f6$aa0074d0$1cde928c@UW3RYG00Y7HQGM>
-Message-ID: <Pine.GSO.4.21.0205022037270.27986-100000@vervain.sonytel.be>
+	id <S315348AbSEBSle>; Thu, 2 May 2002 14:41:34 -0400
+Received: from dsl-213-023-038-046.arcor-ip.net ([213.23.38.46]:39072 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315347AbSEBSlc>;
+	Thu, 2 May 2002 14:41:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: discontiguous memory platforms
+Date: Thu, 2 May 2002 20:39:52 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>, Ralf Baechle <ralf@uni-koblenz.de>,
+        Russell King <rmk@arm.linux.org.uk>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0205022032280.27986-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E173LUk-00027L-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 May 2002, Nick Ciesinski wrote:
-> We recently received a machine with the Intel 860 chipset that has 2
+On Thursday 02 May 2002 20:35, Geert Uytterhoeven wrote:
+> On Thu, 2 May 2002, Roman Zippel wrote:
+> > On Thu, 2 May 2002, Andrea Arcangeli wrote:
+> > > What I
+> > > care about is not to clobber the common code with additional overlapping
+> > > common code abstractions.
+> > 
+> > Just to throw in an alternative: On m68k we map currently everything
+> > together into a single virtual area. This means the virtual<->physical
+> > conversion is a bit more expensive and mem_map is simply indexed by the
+> > the virtual address.
+> > It works nicely, it just needs two small patches in the initializition
+> > code, which aren't integrated yet. I think it's very close to what Daniel
+> > wants, only that the logical and virtual address are identical.
+> 
+> I also want to add that the order (by address) of the virtual chunk is not
+> necessarily the same as the order (by address) of the physical chunks.
+> 
+> So it's perfect possible to put the kernel in the second physical chunk, in
+> which case the first physical chunk (with a lower physical address) ends up in
+> the virtual list behind the first physical chunk.
+> 
+> IIRC (/me no Linux mm whizard), the above reason was the main reason why the
+> current zone system doesn't work well for m68k boxes (mainly talking about
+> Amiga).
 
-Oh no, don't tell me we now have _two_ meanings for i860: the old RISC and a
-new system chipset for Pentium IV?
+Config_nonlinear will handle this situation without difficulty.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- 
+Daniel

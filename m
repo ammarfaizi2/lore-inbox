@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310206AbSEALXZ>; Wed, 1 May 2002 07:23:25 -0400
+	id <S310654AbSEALd2>; Wed, 1 May 2002 07:33:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310224AbSEALXY>; Wed, 1 May 2002 07:23:24 -0400
-Received: from heavymos.kumin.ne.jp ([61.114.158.133]:34823 "HELO
-	emerald.kumin.ne.jp") by vger.kernel.org with SMTP
-	id <S310206AbSEALXX>; Wed, 1 May 2002 07:23:23 -0400
-Message-Id: <200205011123.AA00059@prism.kumin.ne.jp>
-From: Seiichi Nakashima <nakasima@kumin.ne.jp>
-Date: Wed, 01 May 2002 20:23:11 +0900
-To: linux-kernel@vger.kernel.org
-Cc: nakasei@fa.mdis.co.jp
-Subject: 2.5.12 compile error ( e100, Alternate Intel driver )
-MIME-Version: 1.0
-X-Mailer: AL-Mail32 Version 1.12
+	id <S310666AbSEALd1>; Wed, 1 May 2002 07:33:27 -0400
+Received: from ns.suse.de ([213.95.15.193]:14602 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310654AbSEALd0>;
+	Wed, 1 May 2002 07:33:26 -0400
+Date: Wed, 1 May 2002 13:33:25 +0200
+From: Dave Jones <davej@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] TRIVIAL 2.5.12 WP security warning
+Message-ID: <20020501133325.G29327@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <E172oSp-0007ot-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, May 01, 2002 at 05:23:47PM +1000, Rusty Russell wrote:
+ > Pavel Machek <pavel@ucw.cz>: Warn users about machines with non-working WP bit:
+ >   Hi!
+ >   
+ >   This might be good idea, as those machines are not safe for multiuser
+ >   systems.
+ >   
+ > -		printk("No.\n");
+ > +		printk("No (that's security hole).\n");
+ >  #ifdef CONFIG_X86_WP_WORKS_OK
 
-I compile 2.5.12 without framebuffer console and boot up fine.
-First I use EtherExpressPro/100 support ( e100, Altrenate Intel driver ),
-but compile error occured. this driver is default.
-I change EtherExpressPro/100 support ( eepro100, original Becker driver ),
-then compile and boot up fine.
+Maybe be a little more explicit in the wording ?
 
-=== compile error EtherExpressPro/100 support ( e100, Altrenate Intel driver ) ===
+"No. This system is insecure in a multiuser environment.\n" perhaps ?
 
-io_apic.c:221: warning: `move' defined but not used
-drivers/net/net.o: In function `e100_diag_config_loopback':
-drivers/net/net.o(.text+0x52ff): undefined reference to `e100_phy_reset'
-make: *** [vmlinux] Error 1
-
---------------------------------
-  Seiichi Nakashima
-  Email   nakasima@kumin.ne.jp
---------------------------------
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

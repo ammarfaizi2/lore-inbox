@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbTL2Q6m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 11:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTL2Q6m
+	id S263702AbTL2Qzp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 11:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbTL2Qzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 11:58:42 -0500
-Received: from util.ext.ti.com ([192.91.75.135]:34506 "EHLO util.ext.ti.com")
-	by vger.kernel.org with ESMTP id S263772AbTL2Q6e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 11:58:34 -0500
-From: "Sirotkin, Alexander" <demiurg@ti.com>
+	Mon, 29 Dec 2003 11:55:45 -0500
+Received: from viefep16-int.chello.at ([213.46.255.17]:14939 "EHLO
+	viefep16-int.chello.at") by vger.kernel.org with ESMTP
+	id S263702AbTL2Qzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 11:55:41 -0500
+From: Andreas Theofilu <andreas.theofilu@chello.at>
+Subject: Re: 2.6.0 + logitech wheel mouse optical usb
 To: linux-kernel@vger.kernel.org
-X-Accept-Language: en-us, en
-Message-ID: <3FF05C27.5030706@ti.com>
-Date: Mon, 29 Dec 2003 18:53:59 +0200
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+Date: Mon, 29 Dec 2003 17:55:42 +0100
+References: <1888o-1In-15@gated-at.bofh.it>
+Organization: Theos Soft
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Subject: network driver that uses skb destructor
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20031229165543.214021E000@chello062178157104.9.14.vie.surfer.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to write a network driver that uses DMA and manages it's 
-own memory.
+dju` wrote:
 
-The most common approach (in RX) seem to be to allocate the memory for 
-DMA transfer using dev_alloc_skb(), get the HW DMA engine to transfer 
-the packet into this skb buffer and later free it using dev_kfree_skb().
+> Hello,
+> 
+> I've tested 2.6.0 and I found something weird with my mouse (which used
+> to work well with 2.4).
+> 
+> Clicking on the mouse buttons does nothing for about 15% of the clicks
+> (using the wheel has this behaviour too) for the first hour of uptime.
+> 
+> After an hour uptime, this behaviour seems to disappear and clicks and
+> wheels do the things expected.
+> 
+> Tested on the console with gpm: same thing.
 
-For various reasons (mainly to support legacy source code) I would like 
-to allocate and free the buffer using my own functions. Theoretically, I 
-could get away by using skb->destructor.
-
-When I receive a packet I could allocate a zero length skb, point 
-skb->data to my (already allocated) buffer which contains the packet and 
-register the skb->destructor callback. Later, when this skb would be 
-freed my destructor callback would be called and it would return the 
-buffer to driver's pool.
-
-It seems to me that it should work, but I'm a little bit cautions 
-because I could not find a single network driver (in 2.4 kernel) that 
-uses such an approach and I'm not extremely eager to be the first one to 
-try.
-
-Anybody tried to implement similar approach ?
-Any thoughts why this would (or would not) work ?
-
-Thanks a lot.
+I do have this same problem here with a "Dexxa wireless optical mouse"
+connected to the PS/2 port. But here the problem comes and goes radomly.
+However. It is fully reproduceable after playing a video file with mplayer.
 
 -- 
-Alexander Sirotkin
-SW Engineer
-
-Texas Instruments
-Broadband Communications Israel (BCIL)
-Tel:  +972-9-9706587
-________________________________________________________________________
-"Those who do not understand Unix are condemned to reinvent it, poorly."
-      -- Henry Spencer 
-
+Andreas Theofilu
+http://www.TheosSoft.net
+E-Mail: andreas at TheosSoft dot net

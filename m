@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261362AbTCaCKo>; Sun, 30 Mar 2003 21:10:44 -0500
+	id <S261367AbTCaCU1>; Sun, 30 Mar 2003 21:20:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261366AbTCaCKo>; Sun, 30 Mar 2003 21:10:44 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:32164 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261362AbTCaCKn>; Sun, 30 Mar 2003 21:10:43 -0500
-Date: Sun, 30 Mar 2003 21:22:01 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: akpm@digeo.com, Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Wrong comment due to pte_file()
-Message-ID: <20030330212201.A4155@devserv.devel.redhat.com>
+	id <S261373AbTCaCU1>; Sun, 30 Mar 2003 21:20:27 -0500
+Received: from main.gmane.org ([80.91.224.249]:14052 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S261367AbTCaCU0>;
+	Sun, 30 Mar 2003 21:20:26 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: John Goerzen <jgoerzen@complete.org>
+Subject: Re: Kernel compile error with 2.5.66
+Date: Sun, 30 Mar 2003 20:30:30 -0600
+Organization: Complete.Org
+Message-ID: <873cl4fet5.fsf@complete.org>
+References: <87brztwwaa.fsf@complete.org> <B76E0B36-624D-11D7-9043-00039346F142@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Complaints-To: usenet@complete.org
+User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2
+Cancel-Lock: sha1:2Rb9+G2vIl8ET7kvfFXzQ4zRqdY=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The comment above other bit tests says "if pte_present is true",
-but the pte_file is backwards. A classic case of code changing
-from under comments. How about abolishing all comments? :-)
+Stewart Smith <stewartsmith@mac.com> writes:
 
-diff -urN -X dontdiff linux-2.5.66/include/asm-i386/pgtable.h linux-2.5.66-sparc/include/asm-i386/pgtable.h
---- linux-2.5.66/include/asm-i386/pgtable.h	2003-03-24 14:01:14.000000000 -0800
-+++ linux-2.5.66-sparc/include/asm-i386/pgtable.h	2003-03-30 16:35:04.000000000 -0800
-@@ -188,6 +188,10 @@
- static inline int pte_dirty(pte_t pte)		{ return (pte).pte_low & _PAGE_DIRTY; }
- static inline int pte_young(pte_t pte)		{ return (pte).pte_low & _PAGE_ACCESSED; }
- static inline int pte_write(pte_t pte)		{ return (pte).pte_low & _PAGE_RW; }
-+
-+/*
-+ * The following only works if pte_present() is not true.
-+ */
- static inline int pte_file(pte_t pte)		{ return (pte).pte_low & _PAGE_FILE; }
- 
- static inline pte_t pte_rdprotect(pte_t pte)	{ (pte).pte_low &= ~_PAGE_USER; return pte; }
+> Yeap, I'm getting this too. There seems to be a whole bunch of changes
+> in include/asm-ppc64/pgtable.h that aren't in
+> include/asm-ppc/pgtable.h
+
+I should say that after my post, I tried out the linuxppc-2.5 2.5.66
+tree at http://www.penguinppc.org/dev/kernel.shtml, and it did not
+have this problem.
+
+However, I could not get it to compile for numerous other reasons:
+
+ * If PnP BIOS is enabled, it fails to compile the x86 assembler.
+
+ * All Modules fail to load due to some sort of missing symbol (sorry, I
+   didn't take notes) Q_MODULE or something maybe.
+
+ * A non-module-enabled kernel fails to build, complaining of a
+   missing isa_virt_to_bus symbol.  And that happened even after I
+   enabled the unnecessary ISA support.
+
+ * hdparm causes a kernel oops and apparent lockup (again, I didn't
+   take notes, I was just trying to make the darn thing boot)
+
+In short, 2.5 on PowerPC does not seem to be in a very good state
+right now.
+
+-- John
+

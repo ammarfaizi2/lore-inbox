@@ -1,220 +1,334 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUENC1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264762AbUENC1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264373AbUENC1S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 22:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUENC1S
+	id S264762AbUENC1m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 22:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264976AbUENC1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 22:27:18 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:41606 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264373AbUENC1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 22:27:04 -0400
-Message-ID: <40A42892.5040802@yahoo.com.au>
-Date: Fri, 14 May 2004 12:01:54 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Thu, 13 May 2004 22:27:42 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:33212 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S264762AbUENC1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 22:27:19 -0400
+Message-ID: <40A42E8E.4030603@myrealbox.com>
+Date: Thu, 13 May 2004 19:27:26 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][RFC] truncate vs add_to_page_cache race
-Content-Type: multipart/mixed;
- boundary="------------050109030006010700070304"
+To: Chris Wright <chrisw@osdl.org>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] capabilites, take 2
+References: <200405131308.40477.luto@myrealbox.com> <20040513182010.L21045@build.pdx.osdl.net>
+In-Reply-To: <20040513182010.L21045@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050109030006010700070304
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Chris Wright wrote:
 
-Hi,
-I think there is a race between truncate and do_generic_mapping_read.
+> * Andy Lutomirski (luto@myrealbox.com) wrote:
+> 
+>>Implement optional working capability support.  Try to avoid giving Andrew
+>>a heart attack. ;)
+> 
+> 
+> I think it still needs more work.  Default behavoiur is changed, like
+> Inheritble is full rather than clear, setpcap is enabled, etc.  ...
 
-do_generic_mapping_read()
-{
-	check i_size -> ok
-no_cached_page:
-	allocate a page
-	add_to_page_cache
-	readpage
-}
+In cap_bprm_apply_creds_compat:
 
-And what can happen is truncate gets to the file after i_size is
-checked and before the page is added to the page cache.
++	} else if (!fixed_init) {
++		/* This is not strictly correct, as it gives linuxrc more
++		 * permissions than it used to have.  It was the only way I
++		 * could think of to keep the resulting disaster contained,
++		 * though.
++		 */
++		current->cap_effective = CAP_OLD_INIT_EFF_SET;
++		current->cap_inheritable = CAP_OLD_INIT_INH_SET;
++		fixed_init = 1;
 
-I asked Hugh about this because a quick search showed he was the
-last one to make a noise about this kind of thing. He wasn't up
-to speed with the current code, but agreed it looks fishy.
+So that it gets changed back.  Otherwise linuxrc ran without permissions
+and my drives never got mounted.  Yah, it's ugly -- I'm open to
+suggestions to avoid this.
 
-OK, I made a debug patch to printk and schedule_timeout in this
-race window so I can easily truncate the file. When this happens,
-it turns out that the readpage thinks it is reading a hole and
-fills the page with zeros -> invalid result?
+ > ... Also,
+> why do you change from Posix the way exec() updates capabilities?  Sure,
+> there is no filesystem bits present, so this changes the calculation,
+> but I'm not convinced it's as secure this way.  At least with newcaps=0.
 
-I have attached a patch which uses i_lock to close this race
-AFAIKS. Lightly tested only. I can't experimentally verify
-that it closes the race because I have not been able to reproduce
-it without changing the code.
+I'm not convinced that Posix's version makes any sense.  Also, there are
+apparently a number of drafts around which disagree on what the right
+rules are.  (My copy, for example, matches the old rules exactly, but
+the old rules caused the sendmail problem.)  And, under Posix, what does
+the inheritable mask mean, anyway?
 
-Comments? Too ugly? Have I've missed something?
+Also, I don't find the posix rules to be useful (why is there an
+inheritable mask if all it does is to cause caps to be dropped on
+exec, when the user could just manually drop them?).
 
---------------050109030006010700070304
-Content-Type: text/x-patch;
- name="truncate-vs-add_to_page_cache.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="truncate-vs-add_to_page_cache.patch"
+> 
+> I believe we can get something functional with fewer changes, hence
+> easier to understand the ramifications.  In a nutshell, I'm still not
+> comfortable with this.
 
- linux-2.6-npiggin/mm/filemap.c |   39 +++++++++++++++++++++++++++------------
- linux-2.6-npiggin/mm/memory.c  |    9 +++++++++
- linux-2.6-npiggin/mm/nommu.c   |    8 ++++++++
- mm/readahead.c                 |    0 
- 4 files changed, 44 insertions(+), 12 deletions(-)
+I'll play with it, but I think this is the shortest patch I've come up
+with.  I'll admit that touching this stuff scares me too, but I'd rather
+redo it that try and patch it over again.
 
-diff -puN mm/filemap.c~truncate-vs-add_to_page_cache mm/filemap.c
---- linux-2.6/mm/filemap.c~truncate-vs-add_to_page_cache	2004-05-14 11:16:03.000000000 +1000
-+++ linux-2.6-npiggin/mm/filemap.c	2004-05-14 11:55:46.000000000 +1000
-@@ -78,6 +78,9 @@
-  *  ->i_sem
-  *    ->i_alloc_sem             (various)
-  *
-+ *  ->i_lock			(do_generic_mapping_read)
-+ *    ->mapping->tree_lock	(add_to_page_cache)
-+ *
-  *  ->inode_lock
-  *    ->sb_lock			(fs/fs-writeback.c)
-  *    ->mapping->tree_lock	(__sync_single_inode)
-@@ -649,8 +652,9 @@ void do_generic_mapping_read(struct addr
- 			     read_actor_t actor)
- {
- 	struct inode *inode = mapping->host;
--	unsigned long index, offset;
-+	unsigned long index, end_index, offset;
- 	struct page *cached_page;
-+	loff_t isize;
- 	int error;
- 	struct file_ra_state ra = *_ra;
- 
-@@ -658,26 +662,28 @@ void do_generic_mapping_read(struct addr
- 	index = *ppos >> PAGE_CACHE_SHIFT;
- 	offset = *ppos & ~PAGE_CACHE_MASK;
- 
-+	isize = i_size_read(inode);
-+	end_index = isize >> PAGE_CACHE_SHIFT;
-+	if (index > end_index)
-+		goto out;
-+
- 	for (;;) {
- 		struct page *page;
--		unsigned long end_index, nr, ret;
--		loff_t isize = i_size_read(inode);
-+		unsigned long nr, ret;
- 
--		end_index = isize >> PAGE_CACHE_SHIFT;
--			
--		if (index > end_index)
--			break;
-+		cond_resched();
-+
-+		/* Establish the number of bytes to read from this page */
- 		nr = PAGE_CACHE_SIZE;
- 		if (index == end_index) {
- 			nr = isize & ~PAGE_CACHE_MASK;
- 			if (nr <= offset)
- 				break;
- 		}
-+		nr = nr - offset;
- 
--		cond_resched();
- 		page_cache_readahead(mapping, &ra, filp, index);
- 
--		nr = nr - offset;
- find_page:
- 		page = find_get_page(mapping, index);
- 		if (unlikely(page == NULL)) {
-@@ -721,9 +727,6 @@ page_ok:
- 		break;
- 
- page_not_up_to_date:
--		if (PageUptodate(page))
--			goto page_ok;
--
- 		/* Get exclusive access to the page ... */
- 		lock_page(page);
- 
-@@ -770,8 +773,19 @@ no_cached_page:
- 				break;
- 			}
- 		}
-+
-+		/* Take the i_lock to protect against a concurrent truncate */
-+		spin_lock(&inode->i_lock);
-+		isize = i_size_read(inode);
-+		end_index = isize >> PAGE_CACHE_SHIFT;
-+		if (index > end_index) {
-+			spin_unlock(&inode->i_lock);
-+			goto out;
-+		}
- 		error = add_to_page_cache_lru(cached_page, mapping,
- 						index, GFP_KERNEL);
-+		spin_unlock(&inode->i_lock);
-+
- 		if (error) {
- 			if (error == -EEXIST)
- 				goto find_page;
-@@ -783,6 +797,7 @@ no_cached_page:
- 		goto readpage;
- 	}
- 
-+out:
- 	*_ra = ra;
- 
- 	*ppos = ((loff_t) index << PAGE_CACHE_SHIFT) + offset;
-diff -puN mm/memory.c~truncate-vs-add_to_page_cache mm/memory.c
---- linux-2.6/mm/memory.c~truncate-vs-add_to_page_cache	2004-05-14 11:18:26.000000000 +1000
-+++ linux-2.6-npiggin/mm/memory.c	2004-05-14 11:31:27.000000000 +1000
-@@ -1222,7 +1222,16 @@ int vmtruncate(struct inode * inode, lof
- 
- 	if (inode->i_size < offset)
- 		goto do_expand;
-+	
-+	/*
-+	 * Need i_lock to serialise against a concurrent reader adding a new
-+	 * page to the pagecache. See mm/filemap.c.
-+	 *
-+	 * This isn't needed if i_size is being expanded.
-+	 */
-+	spin_lock(&inode->i_lock);
- 	i_size_write(inode, offset);
-+	spin_unlock(&inode->i_lock);
- 	unmap_mapping_range(mapping, offset + PAGE_SIZE - 1, 0, 1);
- 	truncate_inode_pages(mapping, offset);
- 	goto out_truncate;
-diff -puN mm/nommu.c~truncate-vs-add_to_page_cache mm/nommu.c
---- linux-2.6/mm/nommu.c~truncate-vs-add_to_page_cache	2004-05-14 11:18:29.000000000 +1000
-+++ linux-2.6-npiggin/mm/nommu.c	2004-05-14 11:31:55.000000000 +1000
-@@ -48,7 +48,15 @@ int vmtruncate(struct inode *inode, loff
- 
- 	if (inode->i_size < offset)
- 		goto do_expand;
-+	/*
-+	 * Need i_lock to serialise against a concurrent reader adding a new
-+	 * page to the pagecache. See mm/filemap.c.
-+	 *
-+	 * This isn't needed if i_size is being expanded.
-+	 */
-+	spin_lock(&inode->i_lock);
- 	i_size_write(inode, offset);
-+	spin_unlock(&inode->i_lock);
- 
- 	truncate_inode_pages(mapping, offset);
- 	goto out_truncate;
-diff -puN mm/readahead.c~truncate-vs-add_to_page_cache mm/readahead.c
+> 
+> Also, it breaks my tests which try to drop privs and keep caps across
+> execve() which is really the only issue we're trying to solve ATM.
 
-_
+Can you send me a sample of what breaks?  I do:
 
---------------050109030006010700070304--
+[root@luto tmp]# cap -c = ls /home/andy
+ls: /home/andy: Permission denied
+[root@luto tmp]# echo test >foo
+[root@luto tmp]# chmod 700 foo
+[root@luto tmp]# su andy -c 'cat foo'
+cat: foo: Permission denied
+[root@luto tmp]# cap -c '= cap_dac_read_search=eip' -u andy cat foo
+test
+[root@luto tmp]# cap -c '= cap_dac_read_search=eip' -u andy bash
+[andy@luto tmp]$ whoami
+andy
+[andy@luto tmp]$ dumpcap
+         Real        Eff
+User    500         500
+Group   500         500
+
+Caps: = cap_dac_read_search+eip
+[andy@luto tmp]$ cat foo
+test
+
+Which looks exactly right to me.
+(cap and dumpcap live at www.stanford.edu/~luto/cap/)
+
+>>--- linux-2.6.6-mm2/fs/exec.c~caps	2004-05-13 11:42:26.000000000 -0700
+>>+++ linux-2.6.6-mm2/fs/exec.c	2004-05-13 12:15:20.000000000 -0700
+>>@@ -882,8 +882,10 @@
+>> 
+>> 	if(!(bprm->file->f_vfsmnt->mnt_flags & MNT_NOSUID)) {
+>> 		/* Set-uid? */
+>>-		if (mode & S_ISUID)
+>>+		if (mode & S_ISUID) {
+>> 			bprm->e_uid = inode->i_uid;
+>>+			bprm->secflags |= BINPRM_SEC_SETUID;
+>>+		}
+>> 
+>> 		/* Set-gid? */
+>> 		/*
+>>@@ -891,10 +893,19 @@
+>> 		 * is a candidate for mandatory locking, not a setgid
+>> 		 * executable.
+>> 		 */
+>>-		if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP))
+>>+		if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP)) {
+>> 			bprm->e_gid = inode->i_gid;
+>>+			bprm->secflags |= BINPRM_SEC_SETGID;
+>>+		}
+>> 	}
+>> 
+>>+	/* Pretend we have VFS capabilities */
+>>+	cap_set_full(bprm->cap_inheritable);
+> 
+> 
+> This looks sketchy.
+
+My concept of 'inheritable' is that caps that are _not_ inheritable
+may never be gained by this task or its children.  So a process
+should normally have all caps inheritable.
+
+> 
+> 
+>>+	if((bprm->secflags & BINPRM_SEC_SETUID) && bprm->e_uid == 0)
+> 
+> 
+> CodingStyle:  add space after keyword 'if'
+
+Fixed.
+
+> 	if ((...))
+> 
+> 
+>>+		cap_set_full(bprm->cap_permitted);
+>>+	else
+>>+		cap_clear(bprm->cap_permitted);
+>>+
+>> 	/* fill in binprm security blob */
+>> 	retval = security_bprm_set(bprm);
+>> 	if (retval)
+>>@@ -1089,6 +1100,7 @@
+>> 	bprm.loader = 0;
+>> 	bprm.exec = 0;
+>> 	bprm.security = NULL;
+>>+	bprm.secflags = 0;
+>> 	bprm.mm = mm_alloc();
+>> 	retval = -ENOMEM;
+>> 	if (!bprm.mm)
+>>--- linux-2.6.6-mm2/security/commoncap.c~caps	2004-05-13 11:42:26.000000000 -0700
+>>+++ linux-2.6.6-mm2/security/commoncap.c	2004-05-13 12:59:32.934690092 -0700
+>>@@ -24,6 +24,11 @@
+>> #include <linux/xattr.h>
+>> #include <linux/hugetlb.h>
+>> 
+>>+int newcaps = 0;
+> 
+> 
+> make this:
+>   static int newcaps;
+
+Fixed.
+
+> 
+> 
+>>+
+>>+module_param(newcaps, int, 444);
+>>+MODULE_PARM_DESC(newcaps, "Set newcaps=1 to enable experimental capabilities");
+>>+
+>> int cap_capable (struct task_struct *tsk, int cap)
+>> {
+>> 	/* Derived from include/linux/sched.h:capable. */
+>>@@ -36,6 +41,11 @@
+>> int cap_ptrace (struct task_struct *parent, struct task_struct *child)
+>> {
+>> 	/* Derived from arch/i386/kernel/ptrace.c:sys_ptrace. */
+>>+	/* CAP_SYS_PTRACE still can't bypass inheritable restrictions */
+>>+	if (newcaps &&
+>>+	    !cap_issubset (child->cap_inheritable, current->cap_inheritable))
+>>+		return -EPERM;
+> 
+> 
+> Why no capable() override?  In fact, is this check really necessary?
+
+If task A has less inheritable caps than B, then A is somehow less trusted
+and has no business tracing B.
+
+A concrete example: a system runs with very restricted inheritable caps
+on all processes except for a magic daemon.  The magic daemon holds on
+to CAP_SYS_ADMIN to umount everything at shutdown.  If the rest of the
+system gets rooted, it still shouldn't be possible to trace the daemon.
+(Yes, this is currently not workable -- I plan to add a sysctl that sets
+what inheritable caps a task must have for setuid to work.  The blanket
+requirement that _all_ must be present is to avoid bugs in which a
+setuid program assumes it will be fully privileged.)
+
+> 
+> 
+>>+
+>> 	if (!cap_issubset (child->cap_permitted, current->cap_permitted) &&
+>> 	    !capable (CAP_SYS_PTRACE))
+>> 		return -EPERM;
+>>@@ -76,6 +86,11 @@
+>> 		return -EPERM;
+>> 	}
+>> 
+>>+	/* verify the _new_Permitted_ is a subset of the _new_Inheritable_ */
+>>+	if (newcaps && !cap_issubset (*permitted, *inheritable)) {
+>>+		return -EPERM;
+>>+	}
+>>+
+>> 	return 0;
+>> }
+>> 
+>>@@ -89,6 +104,8 @@
+>> 
+>> int cap_bprm_set_security (struct linux_binprm *bprm)
+>> {
+>>+	if (newcaps) return 0;
+> 
+> 
+> CodingStyle:
+> 	if (newcaps)
+> 		return 0;
+
+Fixed.
+
+> 
+> 
+>>+
+>> 	/* Copied from fs/exec.c:prepare_binprm. */
+>> 
+>> 	/* We don't have VFS support for capabilities yet */
+>>@@ -115,10 +132,11 @@
+>> 	return 0;
+>> }
+>> 
+>>-void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+>>+static void cap_bprm_apply_creds_compat (struct linux_binprm *bprm, int unsafe)
+>> {
+>>-	/* Derived from fs/exec.c:compute_creds. */
+>>+	/* This function will hopefully die in 2.7. */
+>> 	kernel_cap_t new_permitted, working;
+>>+	static int fixed_init = 0;
+>> 
+>> 	new_permitted = cap_intersect (bprm->cap_permitted, cap_bset);
+>> 	working = cap_intersect (bprm->cap_inheritable,
+>>@@ -151,6 +169,15 @@
+>> 		current->cap_permitted = new_permitted;
+>> 		current->cap_effective =
+>> 		    cap_intersect (new_permitted, bprm->cap_effective);
+>>+	} else if (!fixed_init) {
+>>+		/* This is not strictly correct, as it gives linuxrc more
+>>+		 * permissions than it used to have.  It was the only way I
+>>+		 * could think of to keep the resulting disaster contained,
+>>+		 * though.
+>>+		 */
+>>+		current->cap_effective = CAP_OLD_INIT_EFF_SET;
+>>+		current->cap_inheritable = CAP_OLD_INIT_INH_SET;
+>>+		fixed_init = 1;
+> 
+> 
+> Hrm...
+
+Yup.  It sucks.  I didn't want to touch the system startup code, though,
+and this is the closest LSM comes.  It's too bad there's no LSM hook to do
+this right (although I suppose I could add one, but that would break
+capabilities as a module).
+
+Speaking of which, this is a genuine problem if commoncap is a module
+and newcaps=0 -- this code will probably never run.  Does it matter?
+
+
+[lots of patch snipped]
+
+>>--- linux-2.6.6-mm2/include/linux/init_task.h~caps	2004-05-13 11:42:26.000000000 -0700
+>>+++ linux-2.6.6-mm2/include/linux/init_task.h	2004-05-13 11:42:51.000000000 -0700
+>>@@ -92,8 +92,8 @@
+>> 		.function	= it_real_fn				\
+>> 	},								\
+>> 	.group_info	= &init_groups,					\
+>>-	.cap_effective	= CAP_INIT_EFF_SET,				\
+>>-	.cap_inheritable = CAP_INIT_INH_SET,				\
+>>+	.cap_effective	= CAP_FULL_SET,				\
+>>+	.cap_inheritable = CAP_FULL_SET,				\
+> 
+> 
+> This was made unconditional.  And how are you convinced it's safe?
+
+Same as above.  But even if it were really unconditional (instead
+of just sort-of unconditional), I still think it's safe, because
+(in newcaps=0 mode) only root can get CAP_SETPCAP.  Root
+could always just insert a module to enable it.  So granting it
+costs nothing.
+
+On the other hand, safety is good, and I can't see any way in the
+old system for anything to get CAP_SETPCAP.  I'll send in a new
+patch that just disables CAP_SETPCAP when newcaps=0.
+
+
+> 
+> 
+>> 	.cap_permitted	= CAP_FULL_SET,					\
+>> 	.keep_capabilities = 0,						\
+>> 	.rlim		= INIT_RLIMITS,					\
+> 
+> 
+> 
+> thanks,
+> -chris
+
+
+Thanks,
+Andy

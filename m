@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268061AbTBWLkD>; Sun, 23 Feb 2003 06:40:03 -0500
+	id <S268127AbTBWLuG>; Sun, 23 Feb 2003 06:50:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268123AbTBWLkD>; Sun, 23 Feb 2003 06:40:03 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:38916 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S268061AbTBWLkC>; Sun, 23 Feb 2003 06:40:02 -0500
-Date: Sun, 23 Feb 2003 11:50:12 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: alan@redhat.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Toshiba keyboard workaroun
-Message-ID: <20030223115012.A17127@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pavel Machek <pavel@ucw.cz>, alan@redhat.com,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20030218211940.GA1048@elf.ucw.cz>
+	id <S268135AbTBWLuG>; Sun, 23 Feb 2003 06:50:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8206 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268127AbTBWLuF>; Sun, 23 Feb 2003 06:50:05 -0500
+Date: Sun, 23 Feb 2003 12:00:11 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia: add socket_offset for multiple pci_sockets, correct suspend&resume
+Message-ID: <20030223120011.A14488@flint.arm.linux.org.uk>
+Mail-Followup-To: Dominik Brodowski <linux@brodo.de>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <20030223090608.GA11747@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030218211940.GA1048@elf.ucw.cz>; from pavel@ucw.cz on Tue, Feb 18, 2003 at 10:19:40PM +0100
+In-Reply-To: <20030223090608.GA11747@brodo.de>; from linux@brodo.de on Sun, Feb 23, 2003 at 10:06:08AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 10:19:40PM +0100, Pavel Machek wrote:
-> +        /*
-> +         * Fix for Toshiba Satellites. Toshiba's like to repeat 
-> +	 * "key down" event for A in combinations like shift-A.
-> +	 * Thanx to Andrei Pitis <pink@roedu.net>.
-> +         */
-> +        static int prev_scancode = 0;
-> +        static int stop_jiffies = 0;
+On Sun, Feb 23, 2003 at 10:06:08AM +0100, Dominik Brodowski wrote:
+> diff -ruN linux-original/drivers/pcmcia/cs.c linux/drivers/pcmcia/cs.c
+> --- linux-original/drivers/pcmcia/cs.c	2003-02-23 10:04:03.000000000 +0100
+> +++ linux/drivers/pcmcia/cs.c	2003-02-23 10:04:25.000000000 +0100
+> @@ -337,13 +337,14 @@
+>  		return -ENOMEM;
+>  	memset(s_info, 0, cls_d->nsock * sizeof(socket_info_t));
+>  
+> +	cls_d->s_info = s_info;
 > +
-> +        /* new scancode, trigger delay */
-> +        if (keycode != prev_scancode) 	       stop_jiffies = jiffies;
-> +        else if (jiffies - stop_jiffies >= 10) stop_jiffies = 0;
-> +        else {
-> +	    printk( "Keyboard glitch detected, ignoring keypress\n" );
-> +            return;
-> +	}
-> +        prev_scancode = keycode;
-> +
+>  	/* socket initialization */
+>  	for (i = 0; i < cls_d->nsock; i++) {
+>  		socket_info_t *s = &s_info[i];
+>  
+> -		cls_d->s_info[i] = s;
+>  		s->ss_entry = cls_d->ops;
+> -		s->sock = i;
+> +		s->sock = i + cls_d->sock_offset;
+>  
+>  		/* base address = 0, map = 0 */
+>  		s->cis_mem.flags = 0;
 
-That codingstyle is not acceptable.  Please reformat to match
-Documentation/CodingStyle.  Also there are macros for jiffie overflow
-handling you might want to use, see include/linux/jiffies.h
+I think you missed changing:
 
+                s->ss_entry->inquire_socket(i, &s->cap);
+
+to:
+
+                s->ss_entry->inquire_socket(s->sock, &s->cap);
+
+otherwise both sockets end up pointing at the same cb_dev.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269838AbUJHL2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269846AbUJHLfC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269838AbUJHL2l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 07:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269839AbUJHL02
+	id S269846AbUJHLfC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 07:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269864AbUJHLeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:26:28 -0400
-Received: from holomorphy.com ([207.189.100.168]:11734 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269838AbUJHLZK (ORCPT
+	Fri, 8 Oct 2004 07:34:00 -0400
+Received: from open.hands.com ([195.224.53.39]:7625 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S269863AbUJHL0K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:25:10 -0400
-Date: Fri, 8 Oct 2004 04:24:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jaakko Hyv?tti <jaakko@hyvatti.iki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm2
-Message-ID: <20041008112455.GH9106@holomorphy.com>
-References: <20040922131210.6c08b94c.akpm@osdl.org> <Pine.LNX.4.58.0410021038060.25679@gyre.weather.fi> <20041002004938.175203ba.akpm@osdl.org>
+	Fri, 8 Oct 2004 07:26:10 -0400
+Date: Fri, 8 Oct 2004 12:37:10 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+       lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
+       Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
+Message-ID: <20041008113710.GC5551@lkcl.net>
+Mail-Followup-To: Stephen Smalley <sds@epoch.ncsc.mil>,
+	Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+	lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
+	Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
+	linux-net@vger.kernel.org
+References: <200410070542.i975gkHV031259@turing-police.cc.vt.edu> <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil> <20041008093154.GA5089@lkcl.net> <1097234322.16641.3.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041002004938.175203ba.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1097234322.16641.3.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaakko Hyv?tti <jaakko@hyvatti.iki.fi> wrote:
->> Forgive me for asking a question that probably enough research would
->> answer, but which exact patch of those listed does fix this problem?  I
->> cannot find the right one myself, and I would like to just address this
->> problem that has haunted me at least since 2.6.6, I guess.  Or is the fix
->> too interdependent with other changes?
+On Fri, Oct 08, 2004 at 07:18:42AM -0400, Stephen Smalley wrote:
+> On Fri, 2004-10-08 at 05:31, Luke Kenneth Casson Leighton wrote:
+> >  an alternative possible solution is to get the packet _out_ from
+> >  the interrupt context and have the aux pid comm exe information added.
+> 
+> No, the network permission checks are intentionally layered to match the
+> network protocol implementation.  There is a process-to-socket check
+> performed in process context when the data is received from the socket
+> by an actual process, but there is also the socket-to-netif/node/port
+> check performed in softirq context when the packet is received on the
+> socket from the network.
+ 
+ ah.  oh well!
 
-On Sat, Oct 02, 2004 at 12:49:38AM -0700, Andrew Morton wrote:
-> It was wait_on_bit-must-loop.patch.
-> But that simply fixes a bug which was introduced into an earlier
-> 2.6.9-rcX-mmY kernel.  The bug is certainly not present in any Linus
-> kernel, nor in any 2.6.6/7/8 kernel.
-> So you're seeing something different.  Please send a full report.
-
-Well, for the record, it's that otherwise one would have to honor the
-invariant of no spurious wakeups, which e.g. jbd does not. There
-actually was API forethought put into timeouts, but jbd uses a timer
-and wake_up_process() instead of schedule_timeout(), and is nontrivial
-to convert. It was also anticipated that e.g. other users may trip up.
-
-
--- wli

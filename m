@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S292021AbSCDGx3>; Mon, 4 Mar 2002 01:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S292005AbSCDGxT>; Mon, 4 Mar 2002 01:53:19 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:29180 "EHLO zeus.kernel.org") by vger.kernel.org with ESMTP id <S291970AbSCDGxE>; Mon, 4 Mar 2002 01:53:04 -0500
-Reply-To: <sexi_mandi@hotmail.com>
-Message-ID: <018c33b21d8e$8684b3d6$8cc37ec8@sclnue>
-From: <sexi_mandi@hotmail.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S291989AbSCDGxj>; Mon, 4 Mar 2002 01:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S292027AbSCDGxa>; Mon, 4 Mar 2002 01:53:30 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:31484 "EHLO zeus.kernel.org") by vger.kernel.org with ESMTP id <S291979AbSCDGxL>; Mon, 4 Mar 2002 01:53:11 -0500
+Reply-To: <mandi@yahoo.com>
+Message-ID: <013d01d04e6a$7378a3c2$6ac14ed2@mytvqw>
+From: <mandi@yahoo.com>
 To: Hey!@zeus.kernel.org
 Subject: Best Adult Webcam Chats! Attention!
-Date: Sun, 03 Mar 2002 22:49:26 +0800
+Date: Sun, 03 Mar 2002 22:52:50 +0800
 MiME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: The Bat! (v1.52f) Business
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
 Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -27,5 +27,5 @@ It is all here: http://www.%61%64%64%69ct%69%76e%73e%78.com
 P.S. You don't have to have web camera.
 Credit card needed for age verification. 100% FREE
 
-2447qHPU4-438kuOr5237GZfh6-58l27
+1813Ljl6
 

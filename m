@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318886AbSICTzv>; Tue, 3 Sep 2002 15:55:51 -0400
+	id <S318887AbSICT7m>; Tue, 3 Sep 2002 15:59:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318887AbSICTzv>; Tue, 3 Sep 2002 15:55:51 -0400
-Received: from dsl-213-023-043-116.arcor-ip.net ([213.23.43.116]:25238 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318886AbSICTzu>;
-	Tue, 3 Sep 2002 15:55:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: Large block device patch, part 1 of 9
-Date: Tue, 3 Sep 2002 22:02:38 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S318894AbSICT7m>; Tue, 3 Sep 2002 15:59:42 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:42480 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S318887AbSICT7l>; Tue, 3 Sep 2002 15:59:41 -0400
+Date: Tue, 3 Sep 2002 16:04:14 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Daniel Phillips <phillips@arcor.de>
 Cc: Neil Brown <neilb@cse.unsw.edu.au>, Pavel Machek <pavel@suse.cz>,
        Peter Chubb <peter@chubb.wattle.id.au>, torvalds@transmeta.com,
        linux-kernel@vger.kernel.org
-References: <15717.52317.654149.636236@wombat.chubb.wattle.id.au> <E17mJZh-0005jw-00@starship> <20020903155045.J21268@redhat.com>
-In-Reply-To: <20020903155045.J21268@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17mJsl-0005k6-00@starship>
+Subject: Re: Large block device patch, part 1 of 9
+Message-ID: <20020903160414.K21268@redhat.com>
+References: <15717.52317.654149.636236@wombat.chubb.wattle.id.au> <E17mJZh-0005jw-00@starship> <20020903155045.J21268@redhat.com> <E17mJsl-0005k6-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17mJsl-0005k6-00@starship>; from phillips@arcor.de on Tue, Sep 03, 2002 at 10:02:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 September 2002 21:50, Benjamin LaHaise wrote:
-> On Tue, Sep 03, 2002 at 09:42:56PM +0200, Daniel Phillips wrote:
-> > and I expect it will be this time too.  It's just a printk!  Who cares if it
-> > wastes a few bytes.  It's even conceivable that if we use this idiom heavily
-> > enough, some gcc boffin will take the time to optimize away the useless
-> > conversions.
+On Tue, Sep 03, 2002 at 10:02:38PM +0200, Daniel Phillips wrote:
+> If you must have a clever macro:
 > 
-> The issue of casting was never successfully treated by any of the approaches 
-> that were presented, except by Neil's llsect() function.  It's shorter than 
-> (long long)sect and has type safety, so let's just use it.
+>    #define lli(foo) (long long int) (foo)
+>    #define llu(foo) (long long unsigned) (foo)
+> 
+> The %lli/%llu have to be there in the format string (modulo as-yet-uninvented
+> printk hackery) so the cast might as well be there as well.
 
-If you must have a clever macro:
+Do you not read the messages in a thread before posting?
 
-   #define lli(foo) (long long int) (foo)
-   #define llu(foo) (long long unsigned) (foo)
+	static inline long long llsect(sector_t sect) { return sect; }
 
-The %lli/%llu have to be there in the format string (modulo as-yet-uninvented
-printk hackery) so the cast might as well be there as well.
+was the suggestion.
 
+		-ben
 -- 
-Daniel
+"You will be reincarnated as a toad; and you will be much happier."

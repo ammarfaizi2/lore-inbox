@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264484AbTKNViX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 16:38:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTKNViW
+	id S264482AbTKNVqt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 16:46:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264470AbTKNVqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 16:38:22 -0500
-Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:55170
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264484AbTKNViV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 16:38:21 -0500
-Date: Fri, 14 Nov 2003 16:37:24 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test9-mm3
-In-Reply-To: <103290000.1068847073@flay>
-Message-ID: <Pine.LNX.4.53.0311141635290.27998@montezuma.fsmlabs.com>
-References: <20031112233002.436f5d0c.akpm@osdl.org> <3210000.1068786449@[10.10.2.4]>
- <Pine.LNX.4.53.0311141555130.27998@montezuma.fsmlabs.com> <103290000.1068847073@flay>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Nov 2003 16:46:48 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:55021 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S264468AbTKNVqq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 16:46:46 -0500
+Date: Fri, 14 Nov 2003 15:44:23 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [RFCI] How best to partition MD/raid devices in 2.6
+Message-ID: <20031114154423.A5587@lists.us.dell.com>
+References: <16308.18387.142415.469027@notabene.cse.unsw.edu.au> <1068787304.4157.8.camel@localhost> <16308.26754.867801.131463@notabene.cse.unsw.edu.au> <20031114101647.GJ32211@marowsky-bree.de> <20031114182927.GA8810@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031114182927.GA8810@gtf.org>; from jgarzik@pobox.com on Fri, Nov 14, 2003 at 01:29:27PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Nov 2003, Martin J. Bligh wrote:
-
-> >> > - Several ext2 and ext3 allocator fixes.  These need serious testing on big
-> >> >   SMP.
-> >> 
-> >> Survives kernbench and SDET on ext2 at least on 16-way. I'll try ext3
-> >> later.
-> > 
-> > It's actually triple faulting my laptop (K6 family=5 model=8 step=12) when 
-> > i have CONFIG_X86_4G enabled and try and run X11. The same kernel is fine 
-> > on all my other test boxes. Any hints?
+> This brings up a tangent point...  partitions on top of RAID are a new
+> thing, which means that one has the chance to define the partition
+> format.
 > 
-> Linus had some debug thing for triple faults, a few months ago, IIRC ...
-> probably in the archives somewhere ...
+> And I kinda like EFI partition format, a lot better than the other
+> common ones...
 
-It should all be in the kernel right now; arch/i386/kernel/doublefault.c 
-but i think i may be a bit low on luck =)
+Any reason why the current partition-mapping code couldn't be extended
+to handle partition detection on a generic block device (which is what
+MD presents I think) instead of a struct gendisk?  Then it wouldn't
+matter which scheme someone wanted to use - any scheme provided for in
+the kernel (or userspace if partx were extended) could be used.
+
+I'm partial to the EFI format too, but wouldn't want to write that
+code a second time, once for normal disks, and once for md.
+
+Thanks,
+Matt
+
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

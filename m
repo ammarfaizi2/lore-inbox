@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266144AbSKLCuQ>; Mon, 11 Nov 2002 21:50:16 -0500
+	id <S266125AbSKLCqz>; Mon, 11 Nov 2002 21:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266146AbSKLCuQ>; Mon, 11 Nov 2002 21:50:16 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:17406 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S266144AbSKLCuP>; Mon, 11 Nov 2002 21:50:15 -0500
-Message-ID: <3DD06E49.8080309@snapgear.com>
-Date: Tue, 12 Nov 2002 12:58:17 +1000
-From: gerg@snapgear.com
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S266135AbSKLCqz>; Mon, 11 Nov 2002 21:46:55 -0500
+Received: from mail.myrio.com ([63.109.146.2]:30452 "HELO mail.myrio.com")
+	by vger.kernel.org with SMTP id <S266125AbSKLCqy>;
+	Mon, 11 Nov 2002 21:46:54 -0500
+Subject: pc_keyb.c #define kbd_controller_present()
+From: Nat Ersoz <nat.ersoz@myrio.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.47-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Nov 2002 18:53:17 -0800
+Message-Id: <1037069597.23521.46.camel@ersoz.et.myrio.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 12 Nov 2002 02:53:38.0315 (UTC) FILETIME=[B35075B0:01C289F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+1. We have a hardware platform which do not have a PS/2 style keyboard
+controller.  When the kernel boots we get the following message, printed
+many times over:
 
-Hi All,
+"pc_keyb: controller jammed 0xFF"
 
-The patch is getting quite small now. Only a handful of
-things outstanding, and a couple of new things to go in.
+2. In the file linx/drivers/char/pc_keyb.c, the following lines are
+present (lines 72-74 for kernel version 2.4.20-pre10)
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.47-uc0.patch.gz
+#ifndef kbd_controller_present
+#define kbd_controller_present()        1
+#endif
 
-Change log:
-1. patch up to 2.5.47                (me)
-2. cleanup of kernel/fork.c          (Christoph Hellwig)
-3. merge m68knommu entry.S           (me)
-4. merge coldfire vector code        (me)
-5. v850 tweaks                       (Miles Bader)
+By changing kbd_controller_present() to '0' instead of '1', we no longer
+the the "jammed" message and a 15-20 second reduction in boot time.
 
-I haven't bothered with subsection patches this time, I don't
-think they are any help now. I will break this up into small
-patches and send to Linus...
+3. It would be nice if there were a .config file parameter that was the
+moral equivalent of CONFIG_PSMOUSE for the keyboard, like say
+CONFIG_PSKEYBD so that the keyboard could be disabled as easily as the
+mouse.
 
-Regards
-Greg
+4. We try to maintain different linux/.config files for each hardware
+platform.  This works well, except in this case of the keyboard.  In
+this case we have to maintain a hardware specific patch.
 
+Is it possible to get a new .config file symbol for the keyboard similar
+to the mouse?  It would be very helpful to us.
 
+Thanks,
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+Nat
+nat.ersoz@myrio.com
 
-
-
-
-
+PS - please post responses to my email as well as the LKML.  Thanks.
 
 
 

@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310654AbSDUC3H>; Sat, 20 Apr 2002 22:29:07 -0400
+	id <S311025AbSDUCbS>; Sat, 20 Apr 2002 22:31:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310666AbSDUC3G>; Sat, 20 Apr 2002 22:29:06 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:39952 "EHLO
+	id <S311121AbSDUCbR>; Sat, 20 Apr 2002 22:31:17 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:45584 "EHLO
 	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S310654AbSDUC3G>; Sat, 20 Apr 2002 22:29:06 -0400
-Date: Sun, 21 Apr 2002 03:36:33 +0100
+	id <S311025AbSDUCbQ>; Sat, 20 Apr 2002 22:31:16 -0400
+Date: Sun, 21 Apr 2002 03:38:43 +0100
 From: Ian Molton <spyro@armlinux.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: torvalds@transmeta.com, garzik@havoc.gtf.org, linux-kernel@vger.kernel.org
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Cc: phillips@bonn-fries.net, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-Id: <20020421033633.02245aa2.spyro@armlinux.org>
-In-Reply-To: <E16ybVt-0000UV-00@starship>
+Message-Id: <20020421033843.2557fa8c.spyro@armlinux.org>
+In-Reply-To: <20020420115416.B617@havoc.gtf.org>
 Reply-To: spyro@armlinux.org
 Organization: The dragon roost
 X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
@@ -22,11 +23,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips Awoke this dragon, who will now respond:
+Jeff Garzik Awoke this dragon, who will now respond:
 
-> A steady slide toward proprietary tools and behind-the-scenes development
->  in cathedral-style is an issue.
+> It's also really, really, low class to not even CC me in your attempt
+> to remove the documentation I wrote from the kernel tree
 
-Whilst Im not sure I agree that bitkeeper is going to push things 'behind
-the scenes' (its a source management tool, not the source itself), I do
-think the basic point being made here has some merit. Think about it...
+>  Rot in hell, closed mind.
+
+You know, I blasted Andre H for using words that were nicer than that. And
+to think you are working where he left off. worrying.
+
+And its /well known/ that you read here. I think not CCing is not a heinous
+offense in this case.

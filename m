@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbUDCUSw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 15:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbUDCUSv
+	id S261925AbUDCUVN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 15:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbUDCUVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 15:18:51 -0500
-Received: from mx01.cybersurf.com ([209.197.145.104]:39389 "EHLO
-	mx01.cybersurf.com") by vger.kernel.org with ESMTP id S261925AbUDCUSs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 15:18:48 -0500
-Subject: Re: [RFC, PATCH] netlink based mq_notify(SIGEV_THREAD)
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       Michal Wronski <wrona@mat.uni.torun.pl>,
-       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-In-Reply-To: <406F13A1.4030201@colorfullife.com>
-References: <406F13A1.4030201@colorfullife.com>
-Content-Type: text/plain
-Organization: jamalopolis
-Message-Id: <1081023487.2037.19.camel@jzny.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 03 Apr 2004 15:18:07 -0500
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Apr 2004 15:21:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21946 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261925AbUDCUVJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 15:21:09 -0500
+Date: Sat, 3 Apr 2004 15:21:03 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Kurt Garloff <garloff@suse.de>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: oom-killer adjustments
+In-Reply-To: <20040403195440.GB3169@tpkurt.garloff.de>
+Message-ID: <Pine.LNX.4.44.0404031520350.30015-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 3 Apr 2004, Kurt Garloff wrote:
+> On Sat, Apr 03, 2004 at 01:12:07PM -0500, Rik van Riel wrote:
+> > Shouldn't such an adjustment be inherited at fork time,
+> > if we decide we want it in the kernel ?
+> 
+> It is inherited. Why do you think it's not?
 
-On Sat, 2004-04-03 at 14:42, Manfred Spraul wrote:
-> mq_notify(SIGEV_THREAD) must be implemented in user space. If an event 
-> is triggered, the kernel must send a notification to user space, and 
-> then glibc must create the thread with the requested attributes for the 
-> notification callback.
+Oh duh, dup_task_struct() copies everything in 2.6.
 
-I am ignorant about SIGEV_THREAD but from what i gathered above: 
+ISTR 2.2 or 2.4 was slightly different, copying
+(some?) things by hand...
 
-- something (from user space??) attempts to create a thread in the
-kernel
-- the kernel sends notification to user space when said thread is
-created or done doing something it was asked
-- something (in glibc/userspace??) is signalled by the kernel to do
-something with the result
-
-Is the above correct?
-
->  The current implementation in Andrew's -mm tree 
-> uses single shot file descriptor - it works, but it's resource hungry.
-
-Essentially you attempt to open only a single fd via netlink as opposed
-to open/close behavior you are alluding to, is that correct? 
-then all events are unicast to this fd. I am assuming you dont need to
-have more than one listener to these events? example, could one process
-create such a event which multiple processes may be interested in?
-
-> Attached is a new proposal:
-> - split netlink_unicast into separate substeps
-> - use an AF_NETLINK socket for the message queue notification
-
-I am trying to frob why you mucked around with AF_NETLINK; maybe your
-response will shed some light.
-
-cheers,
-jamal
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

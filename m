@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136025AbRDVKpt>; Sun, 22 Apr 2001 06:45:49 -0400
+	id <S136031AbRDVKqo>; Sun, 22 Apr 2001 06:46:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136026AbRDVKpf>; Sun, 22 Apr 2001 06:45:35 -0400
-Received: from [213.166.15.20] ([213.166.15.20]:7442 "EHLO
-	mailth4.byworkwise.com") by vger.kernel.org with ESMTP
-	id <S136025AbRDVKp2>; Sun, 22 Apr 2001 06:45:28 -0400
-Message-ID: <3AE2B634.51F4BB2E@FreeNet.co.uk>
-Date: Sun, 22 Apr 2001 11:45:08 +0100
-From: Sid Boyce <sidb@FreeNet.co.uk>
-Reply-To: sidb@FreeNet.co.uk
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre4 i686)
+	id <S136030AbRDVKqf>; Sun, 22 Apr 2001 06:46:35 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:8504 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S136026AbRDVKqQ>; Sun, 22 Apr 2001 06:46:16 -0400
+Message-ID: <3AE2A7B9.10401@kalifornia.com>
+Date: Sun, 22 Apr 2001 02:43:21 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.8.1+) Gecko/20010420
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: 2.4.4-pre7 and 2.4.3-ac12 compile failure
-Content-Type: text/plain; charset=us-ascii
+To: CML2 <linux-kernel@vger.kernel.org>
+Subject: Re: Request for comment -- a better attribution system
+In-Reply-To: <200104220147.f3M1l2v126874@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	In the same area for both, I think both failures were the same. I tried
-pre7 and now ac12 with the following results.
+Albert D. Cahalan wrote:
 
-make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-        drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
-drivers
-/net/net.o drivers/media/media.o  drivers/char/agp/agp.o
-drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
-drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o
-drivers/pcmcia/pcmcia.o drivers/net/pcmcia/pcmcia_net.o
-drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o \
-        net/network.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
-/usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-/usr/src/linux/lib/lib.a(rwsem.o): In function `rwsem_down_read_failed':
-rwsem.o(.text+0x8d): undefined reference to `__builtin_expect'
-/usr/src/linux/lib/lib.a(rwsem.o): In function
-`rwsem_down_write_failed':
-rwsem.o(.text+0x1f5): undefined reference to `__builtin_expect'
-/usr/src/linux/lib/lib.a(rwsem.o): In function `rwsem_up_read_wake':
-rwsem.o(.text+0x314): undefined reference to `__builtin_expect'
-/usr/src/linux/lib/lib.a(rwsem.o): In function `rwsem_up_write_wake':
-rwsem.o(.text+0x3fb): undefined reference to `__builtin_expect'
-make: *** [vmlinux] Error 1
+>>>>	Find . -name "*Some-Name*" -type f -print | xargs grep 'Some-Info'
+>>>>	Hate answering with just one line of credible info , But .
+>>>>
+>>>The above would grep every file. It takes 1 minute and 9.5 seconds.
+>>>So the distributed maintainer information does not scale well at all.
+>>>
+>>No it doesn't.  It allows you to search for files of a specific naming
+>>pattern and greps those.  So if you needed to know the maintainers of all
+>>the config.in files, you say:
+>>
+>>find . -name "*onfig.in" -type f -print | xargs grep 'P: '
+>>
+>
+>That was an easy problem, and try it to see all the bad matches!
+>This would be more normal:
+>
+>find . -type f | xargs egrep -i8 '^[^A-Z]*[A-Z]: .*(net|ip|tcp|eth|ppp)'
+>
+>That is not a nice and easy command for most people, and if it
+>isn't exactly right you just wasted over a minute.
+>
 
-Regards
+Eric *has* offered to write tools to simplify this.  I would guess that 
+it would be something like:
+
+kgrep [-t description] [-p person] [-m mailto] [-l mailing-list] [-w 
+webpage] [-c config symbol] [-d date] [-s status]
+
+-b
+
 -- 
-Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
-Linux only shop.. Tel. 44-121 422 0375
+Three things are certain:
+Death, taxes, and lost data
+Guess which has occurred.
+- - - - - - - - - - - - - - - - - - - -
+Patched Micro$oft servers are secure today . . . but tomorrow is another story!
+
+
+

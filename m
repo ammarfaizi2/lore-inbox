@@ -1,27 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286255AbRLJNFi>; Mon, 10 Dec 2001 08:05:38 -0500
+	id <S286254AbRLJM75>; Mon, 10 Dec 2001 07:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286256AbRLJNF3>; Mon, 10 Dec 2001 08:05:29 -0500
-Received: from pa147.antoniuk.sdi.tpnet.pl ([213.25.59.147]:3200 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S286255AbRLJNFW>; Mon, 10 Dec 2001 08:05:22 -0500
-Date: Mon, 10 Dec 2001 14:05:03 +0100
-From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jpopl@interia.pl>
-To: linux-kernel@vger.kernel.org
-Subject: mcrypt hanged my 2.4.16
-Message-ID: <20011210140503.A568@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S286255AbRLJM7r>; Mon, 10 Dec 2001 07:59:47 -0500
+Received: from trappist.elis.rug.ac.be ([157.193.67.1]:3304 "EHLO
+	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
+	id <S286254AbRLJM7m>; Mon, 10 Dec 2001 07:59:42 -0500
+Date: Mon, 10 Dec 2001 13:59:33 +0100 (CET)
+From: Frank Cornelis <fcorneli@elis.rug.ac.be>
+To: Sarita N <sarita_navuluru@rediffmail.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: KERNEL SYSTEM CALLS DEFINITIONS
+In-Reply-To: <20011209225143.30988.qmail@mailweb22.rediffmail.com>
+Message-ID: <Pine.LNX.4.33.0112101358190.12402-100000@trappist.elis.rug.ac.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use kernel 2.4.16 with ext2 partitions. I wanted to crypt big (1.4GB) file
-with mcrypt. It was long work, so I leaved my room. When I was back - system
-was hanged with message like "invalid operation (...) process: mcrypt".
-I don't know if it has something in common with kernel version, but why I could
-hang system as a user? (mcrypt is not +s)
-I will run mcrypt again, and if system hangs I will try to rewrite full
-message.
+
+> I have to build a tool in C that would caputure the system calls and 
+> signals between a user application and the operating system.  
+
+See 'man ptrace' for the ptrace system call which does it all for you.
+
+Frank.
+

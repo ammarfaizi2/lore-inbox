@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277230AbRKABLo>; Wed, 31 Oct 2001 20:11:44 -0500
+	id <S277228AbRKABKE>; Wed, 31 Oct 2001 20:10:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277262AbRKABLZ>; Wed, 31 Oct 2001 20:11:25 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:11749 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S277230AbRKABLS>;
-	Wed, 31 Oct 2001 20:11:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrea Arcangeli <andrea@suse.de>, Ben Smith <ben@google.com>
-Subject: Re: Google's mm problem - not reproduced on 2.4.13
-Date: Thu, 1 Nov 2001 01:19:15 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
-In-Reply-To: <E15yzlQ-00021P-00@starship.berlin> <E15z28m-0000vb-00@starship.berlin> <20011031214540.D1291@athlon.random>
-In-Reply-To: <20011031214540.D1291@athlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15z5Zm-000067-00@starship.berlin>
+	id <S277229AbRKABJp>; Wed, 31 Oct 2001 20:09:45 -0500
+Received: from a1as05-p109.stg.tli.de ([195.252.187.109]:27273 "EHLO
+	dea.linux-mips.net") by vger.kernel.org with ESMTP
+	id <S277228AbRKABJn>; Wed, 31 Oct 2001 20:09:43 -0500
+Date: Thu, 1 Nov 2001 02:06:32 +0100
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Green <greeen@iii.org.tw>
+Cc: LinuxEmbeddedMailList <linux-embedded@waste.org>,
+        LinuxKernelMailList <linux-kernel@vger.kernel.org>,
+        MipsMailList <linux-mips@fnet.fr>, linux-mips@oss.sgi.com
+Subject: Re: Discontinuous memory!!
+Message-ID: <20011101020632.A5076@dea.linux-mips.net>
+In-Reply-To: <00c701c1612b$4c133620$4c0c5c8c@trd.iii.org.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00c701c1612b$4c133620$4c0c5c8c@trd.iii.org.tw>; from greeen@iii.org.tw on Tue, Oct 30, 2001 at 06:11:43PM +0800
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 31, 2001 09:45 pm, Andrea Arcangeli wrote:
-> On Wed, Oct 31, 2001 at 09:39:12PM +0100, Daniel Phillips wrote:
-> > On October 31, 2001 07:06 pm, Daniel Phillips wrote:
-> > > I just tried your test program with 2.4.13, 2 Gig, and it ran without 
-> > > problems.  Could you try that over there and see if you get the same 
-result?
-> > > If it does run, the next move would be to check with 3.5 Gig.
-> > 
-> > Ben reports that his test with 2 Gig memory runs fine, as it does for me, 
-but 
-> > that it locks up tight with 3.5 Gig, requiring power cycle.  Since I only 
-> > have 2 Gig here I can't reproduce that (yet).
+On Tue, Oct 30, 2001 at 06:11:43PM +0800, Green wrote:
+
+> I am porting Linux to R3912. 
 > 
-> are you sure it isn't an oom condition.
+> There are two memory block on my target board. 
+> 
+> One is 16MB                  from 0x8000 0000 to 0x8100 0000.
+> 
+> The other one is 16MB   from 0x8200 0000 to 0x8300 0000.
+> 
+> But I found kernel just managed the first memory block.
+> 
+> How could I modify the kernel to support 32MB discontinuous memory?
+> 
+> Now I am trying to add entries to page table.
+> It will halt at decompressing ramdisk.
+> 
+> Has anyone resolve this kind of problem before?
 
-The way the test code works is, it keeps mlocking more blocks of memory until 
-one of the mlocks fails, and then it does the rest of its work with that many 
-blocks of memory.  It's hard to see how we could get a legitimate oom with 
-that strategy.
+The kernel support this type of memory architecture if you enable
+CONFIG_DISCONTIGMEM.  One machine which uses this feature is the Origin,
+grep in arch/mips64 for CONFIG_DISCONTIGMEM.  There are also several
+ARM system using it.
 
-> can you reproduce on
-> 2.4.14pre5aa1? mainline (at least before pre6) could deadlock with too
-> much mlocked memory.
+As support for CONFIG_DISCONTIGMEM is less than perfect you should check
+if your system allows for reconfiguration of memory as a single physically
+contiguous chunk.
 
-OK, he tried it with pre5aa1:
+Don't use add_memory_region() in this case; that code only works well
+for small holes in memory address space.  Your holes are fairly large
+so memory management would waste about 2mb if you would not use
+CONFIG_DISCONTIGMEM.
 
-ben> My test application gets killed (I believe by the oom handler). dmesg
-ben> complains about a lot of 0-order allocation failures. For this test,
-ben> I'm running with 2.4.14pre5aa1, 3.5gb of RAM, 2 PIII 1Ghz.
-
-*Just in case* it's oom-related I've asked Ben to try it with one less than 
-the maximum number of memory blocks he can allocate.
-
-If it does turn out to be oom, it's still a bug, right?
-
---
-Daniel
+  Ralf

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbTEMGAD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 02:00:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTEMGAD
+	id S263078AbTEMGFA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 02:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTEMGFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 02:00:03 -0400
-Received: from [195.95.38.160] ([195.95.38.160]:54513 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id S263011AbTEMGAC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 02:00:02 -0400
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       Torrey Hoffman <thoffman@arnor.net>
-Subject: Re: [2.420] Unexplained repeatable Oops
-Date: Tue, 13 May 2003 08:12:37 +0200
-User-Agent: KMail/1.5.1
-References: <200305112052.51938.devilkin-lkml@blindguardian.org> <200305130740.45250.devilkin-lkml@blindguardian.org> <200305131549.13371.kernel@kolivas.org>
-In-Reply-To: <200305131549.13371.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Tue, 13 May 2003 02:05:00 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:57070 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S263078AbTEMGE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 02:04:59 -0400
+Date: Mon, 12 May 2003 23:16:55 -0700
+From: Chris Wright <chris@wirex.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org, greg@kroah.com,
+       linux-security-module@wirex.com
+Subject: Re: [PATCH] Early init for security modules
+Message-ID: <20030512231655.B21486@figure1.int.wirex.com>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+	hch@infradead.org, greg@kroah.com, linux-security-module@wirex.com
+References: <20030512200309.C20068@figure1.int.wirex.com> <20030512201518.X19432@figure1.int.wirex.com> <20030513050336.GA10596@Wotan.suse.de> <20030512222000.A21486@figure1.int.wirex.com> <20030513052832.GF10596@Wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305130812.42741.devilkin-lkml@blindguardian.org>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030513052832.GF10596@Wotan.suse.de>; from ak@suse.de on Tue, May 13, 2003 at 07:28:33AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+* Andi Kleen (ak@suse.de) wrote:
+> On Mon, May 12, 2003 at 10:20:00PM -0700, Chris Wright wrote:
+> > 
+> > This is too late.  Those are just for order in do_initcalls() which is
+> > well after some kernel threads have been created and filesystems have been
+> > mounted, etc.  This patch allows statically linked modules to catch
+> > the creation of such kernel objects and give them all consistent labels.
+> 
+> I would give them a generic name then in case someone else needs that too, 
+> like "early_initcalls" 
 
-On Tuesday 13 May 2003 07:49, Con Kolivas wrote:
->
-> mprime will pick up more subtle things than cpuburn will. It's not purely a
-> temperature of the cpu issue. It may be the bus.
-> Try underclocking your bus/cpu. I run a P3 933 (133x7) at 868 (124x7) and
-> all problems go away. The same cpu works fine overclocked on a different
-> motherboard.
+I orginally thought it would be nice to make it generic, but it's
+location is somewhat specific to the security hooks.  It seems there is
+easily tension between conflicting needs, should be earlier...should be
+later, so I made it specific.  Is there currently a need?
 
-IC.
-
-Little question though: any idea what actually _would_ happen if it were an 
-agp card problem? As far as I know (and can relate to previous problems) this 
-usually causes a blank screen, or distorted video - but not crashes where X 
-segfaults back to the console, or where the entire system goes hanging...
-
-Jan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+wIzXpuyeqyCEh60RAjSKAJwM35Hj7Vna8/hKBF8rEl6/2mNh/ACfZ1qS
-VNLUSF7228WI/fNVoizGvZs=
-=JKid
------END PGP SIGNATURE-----
-
+thanks,
+chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,84 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261407AbTCOGyp>; Sat, 15 Mar 2003 01:54:45 -0500
+	id <S261312AbTCOHg6>; Sat, 15 Mar 2003 02:36:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261410AbTCOGyp>; Sat, 15 Mar 2003 01:54:45 -0500
-Received: from holomorphy.com ([66.224.33.161]:41936 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261407AbTCOGyo>;
-	Sat, 15 Mar 2003 01:54:44 -0500
-Date: Fri, 14 Mar 2003 23:05:11 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: bzzz@tmi.comex.ru, adilger@clusterfs.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] concurrent block allocation for ext2 against 2.5.64
-Message-ID: <20030315070511.GQ20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, bzzz@tmi.comex.ru,
-	adilger@clusterfs.com, linux-kernel@vger.kernel.org,
-	ext2-devel@lists.sourceforge.net
-References: <m3el5bmyrf.fsf@lexa.home.net> <20030313015840.1df1593c.akpm@digeo.com> <m3of4fgjob.fsf@lexa.home.net> <20030313165641.H12806@schatzie.adilger.int> <m38yvixvlz.fsf@lexa.home.net> <20030315043744.GM1399@holomorphy.com> <20030314205455.49f834c2.akpm@digeo.com> <20030315054910.GN20188@holomorphy.com> <20030315062025.GP20188@holomorphy.com> <20030314224413.6a1fc39c.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030314224413.6a1fc39c.akpm@digeo.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id <S261313AbTCOHg5>; Sat, 15 Mar 2003 02:36:57 -0500
+Received: from pop018pub.verizon.net ([206.46.170.212]:48863 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S261312AbTCOHgz>; Sat, 15 Mar 2003 02:36:55 -0500
+Message-ID: <3E72DA14.6F6C41BD@verizon.net>
+Date: Fri, 14 Mar 2003 23:45:24 -0800
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.59 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+CC: viro@math.psu.edu
+Subject: [PATCH] typos only
+Content-Type: multipart/mixed;
+ boundary="------------BBA076EEB25DAB265D117505"
+X-Authentication-Info: Submitted using SMTP AUTH at pop018.verizon.net from [4.64.238.61] at Sat, 15 Mar 2003 01:47:39 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> Looks like dbench doesn't scale. It needs to learn how to spread itself
->> across disks if it's not to saturate a device queue while at the same
->> time generating enough cpu load to saturate cpus.
+This is a multi-part message in MIME format.
+--------------BBA076EEB25DAB265D117505
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 14, 2003 at 10:44:13PM -0800, Andrew Morton wrote:
-> Nope.  What we're trying to measure here is pure in-memory lock contention,
-> locked bus traffic, context switches, etc, etc.  To do that we need to get
-> the IO system out of the picture.
-> One way to do that is to increase /proc/sys/vm/dirty_ratio and
-> dirty_background_ratio to 70% or so.  You can still hit IO wait if someone
-> tries to truncate a file which pdflush is writing out, so increase
-> dirty_expire_centisecs and dirty_writeback_centisecs to 1000000000 or so...
-> Then, on the second run, when all the required metadata blocks are in
-> pagecache you should be able to get an IO-free run.
+Hi,
 
-Oh, sorry, I did increase dirty_ratio and dirty_background_ratio to 99,
-I forgot about dirty_writeback_centisecs though, I'll re-run with that.
+Please apply to 2.5.64-current.
+No code changes; still builds OK.
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> Is there a better (publicable/open/whatever) benchmark?
+Thanks,
+~Randy
+--------------BBA076EEB25DAB265D117505
+Content-Type: text/plain; charset=us-ascii;
+ name="seqfile_typos.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="seqfile_typos.patch"
 
-On Fri, Mar 14, 2003 at 10:44:13PM -0800, Andrew Morton wrote:
-> I have lots of little testlets which can be mixed and matched.  RAM-only
-> dbench will do for the while.  It is showing things.
-> 
-
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> dbench 128:
->> Throughput 161.237 MB/sec 128 procs
->> dbench 128 2>& 1  143.85s user 3311.10s system 1219% cpu 4:43.27 total
->> vma      samples  %-age       symbol name
->> c0106ff4 9134179  33.7261     default_idle
->> c01dc3b0 5570229  20.5669     __copy_to_user_ll
->> c01dc418 1773600  6.54865     __copy_from_user_ll
->> c0119058 731524   2.701       try_to_wake_up
->> c0108140 686952   2.53643     .text.lock.semaphore
->> c011a1bc 489415   1.80706     schedule
->> c0119dac 485196   1.79149     scheduler_tick
->> c011fadc 448048   1.65433     profile_hook
->> c0119860 356065   1.3147      load_balance
->> c0107d0c 267333   0.987072    __down
->> c011c4ff 249627   0.921696    .text.lock.sched
-
-On Fri, Mar 14, 2003 at 10:44:13PM -0800, Andrew Morton wrote:
-> The wakeup and .text.lock.semaphore load indicates that there is a lot
-> of contention for a semaphore somewhere.  Still.
-> I'm not sure which one.  It shouldn't be a directory semaphore.  Might be
-> lock_super() in the inode allocator, but that seems unlikely.
-
-I'm going to have to break out tools to decipher which one this is.
-hlinder forward-ported lockmeter so I'll throw that in the mix.
+patch_name:	seqfile_typos.patch
+patch_version:	2003-03-14.23:25:36
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	correct typos only;
+		(discovered during code review for seq_file_howto)
+product:	Linux
+product_versions: linux-2.5.64
+maintainer:	viro@math.psu.edu
+diffstat:	=
+ fs/seq_file.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
--- wli
+diff -Naur ./fs/seq_file.c%SEQ ./fs/seq_file.c
+--- ./fs/seq_file.c%SEQ	Tue Mar  4 19:29:31 2003
++++ ./fs/seq_file.c	Fri Mar 14 23:22:12 2003
+@@ -1,7 +1,7 @@
+ /*
+  * linux/fs/seq_file.c
+  *
+- * helper functions for making syntetic files from sequences of records.
++ * helper functions for making synthetic files from sequences of records.
+  * initial implementation -- AV, Oct 2001.
+  */
+ 
+@@ -215,7 +215,7 @@
+ 				while ((retval=traverse(m, offset)) == -EAGAIN)
+ 					;
+ 				if (retval) {
+-					/* with extreme perjudice... */
++					/* with extreme prejudice... */
+ 					file->f_pos = 0;
+ 					m->index = 0;
+ 					m->count = 0;
+
+--------------BBA076EEB25DAB265D117505--
+

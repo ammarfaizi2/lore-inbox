@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290184AbSALAWf>; Fri, 11 Jan 2002 19:22:35 -0500
+	id <S290186AbSALA1e>; Fri, 11 Jan 2002 19:27:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290185AbSALAWY>; Fri, 11 Jan 2002 19:22:24 -0500
-Received: from mail5.mx.voyager.net ([216.93.66.204]:36359 "EHLO
-	mail5.mx.voyager.net") by vger.kernel.org with ESMTP
-	id <S290182AbSALAWI>; Fri, 11 Jan 2002 19:22:08 -0500
-Message-ID: <3C3F81C8.9744C16A@megsinet.net>
-Date: Fri, 11 Jan 2002 18:22:32 -0600
-From: "M.H.VanLeeuwen" <vanl@megsinet.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i586)
-X-Accept-Language: en
+	id <S290185AbSALA1S>; Fri, 11 Jan 2002 19:27:18 -0500
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:54198 "EHLO
+	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S290183AbSALA06>; Fri, 11 Jan 2002 19:26:58 -0500
+Message-ID: <3C3F8377.8010603@wanadoo.fr>
+Date: Sat, 12 Jan 2002 01:29:43 +0100
+From: eddantes@wanadoo.fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - Taming OOM killer, 2.4.17-rc1
-In-Reply-To: <20011212094246.O4801@athlon.random> <3C1AB4B4.A24A0A5@megsinet.net> <200201112113.g0BLDFE24964@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: multipart/mixed;
- boundary="------------44B4B49D7F7E9B591209EA49"
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+CC: Daniel Phillips <phillips@bonn-fries.net>, Dan Kegel <dank@kegel.com>,
+        "Timothy D. Witham" <wookie@osdl.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stp@osdl.org
+Subject: Re: Regression testing of 2.4.x before release?
+In-Reply-To: <Pine.LNX.4.33.0201111600560.19843-100000@shell1.aracnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------44B4B49D7F7E9B591209EA49
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Denis,
+M. Edward (Ed) Borasky wrote:
 
-This patch was a feeble attempt at fixing a real VM problem by masking what was
-really going on.
+[snip]
 
-There are many "better" solution than this old patch
+> One particular application for which gcc 3.x *and* gcc 2.96.x are
+> seriously deficient, at least on Intel/AMD 32-bit systems, is the
+> high-performance linear algebra library Atlas. As a result, *my* default
+> for compiling numerical applications is the Atlas-recommended one,
+> 2.95.3. For the kernel, I use whatever the Red Hat 7.2 default is.
+> 
 
-AA has a great VM patch
-Rik has an rmap patch that looks promising
+Mmhh... Just remember gcc 2.96.x is NOT a regular gcc release, you can 
+check at:
+http://www.gnu.org/software/gcc/releases.html
+AFAIK, it is a RH-hacked pre-3.0, which is probably not the best thing 
+to use for anything.
 
-and my latest "simple" fix is attached for 2.4.17 but should apply to 2.4.18-pre
+The 3.x series are know to generate pretty slow code, anyway. So I bet 
+your experience is pretty normal. I still stick with 2.95.[34] for x86 
+kernel compile, although I'm using 3.0 for all purposes on Hitashi SH, 
+as only gcc>=3.0 correctly supports the sh4.
 
-Thanks for looking at this old one though.
-
-Martin
-
-BTW: w/ this patch you no longer need to Tame the OOM killer
---------------44B4B49D7F7E9B591209EA49
-Content-Type: application/octet-stream;
- name="vmscan.patch.2.4.17.d"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="vmscan.patch.2.4.17.d"
-
-LS0tIGxpbnV4LnZpcmdpbi9tbS92bXNjYW4uYwlNb24gRGVjIDMxIDEyOjQ2OjI1IDIwMDEK
-KysrIGxpbnV4L21tL3Ztc2Nhbi5jCUZyaSBKYW4gMTEgMTg6MDM6MDUgMjAwMgpAQCAtMzk0
-LDkgKzM5NCw5IEBACiAJCWlmIChQYWdlRGlydHkocGFnZSkgJiYgaXNfcGFnZV9jYWNoZV9m
-cmVlYWJsZShwYWdlKSAmJiBwYWdlLT5tYXBwaW5nKSB7CiAJCQkvKgogCQkJICogSXQgaXMg
-bm90IGNyaXRpY2FsIGhlcmUgdG8gd3JpdGUgaXQgb25seSBpZgotCQkJICogdGhlIHBhZ2Ug
-aXMgdW5tYXBwZWQgYmVhdXNlIGFueSBkaXJlY3Qgd3JpdGVyCisJCQkgKiB0aGUgcGFnZSBp
-cyB1bm1hcHBlZCBiZWNhdXNlIGFueSBkaXJlY3Qgd3JpdGVyCiAJCQkgKiBsaWtlIE9fRElS
-RUNUIHdvdWxkIHNldCB0aGUgUEdfZGlydHkgYml0ZmxhZwotCQkJICogb24gdGhlIHBoaXNp
-Y2FsIHBhZ2UgYWZ0ZXIgaGF2aW5nIHN1Y2Nlc3NmdWxseQorCQkJICogb24gdGhlIHBoeXNp
-Y2FsIHBhZ2UgYWZ0ZXIgaGF2aW5nIHN1Y2Nlc3NmdWxseQogCQkJICogcGlubmVkIGl0IGFu
-ZCBhZnRlciB0aGUgSS9PIHRvIHRoZSBwYWdlIGlzIGZpbmlzaGVkLAogCQkJICogc28gdGhl
-IGRpcmVjdCB3cml0ZXMgdG8gdGhlIHBhZ2UgY2Fubm90IGdldCBsb3N0LgogCQkJICovCkBA
-IC00ODAsMTEgKzQ4MCwxNCBAQAogCiAJCQkvKgogCQkJICogQWxlcnQhIFdlJ3ZlIGZvdW5k
-IHRvbyBtYW55IG1hcHBlZCBwYWdlcyBvbiB0aGUKLQkJCSAqIGluYWN0aXZlIGxpc3QsIHNv
-IHdlIHN0YXJ0IHN3YXBwaW5nIG91dCBub3chCisJCQkgKiBpbmFjdGl2ZSBsaXN0LgorCQkJ
-ICogTW92ZSByZWZlcmVuY2VkIHBhZ2VzIHRvIHRoZSBhY3RpdmUgbGlzdC4KIAkJCSAqLwot
-CQkJc3Bpbl91bmxvY2soJnBhZ2VtYXBfbHJ1X2xvY2spOwotCQkJc3dhcF9vdXQocHJpb3Jp
-dHksIGdmcF9tYXNrLCBjbGFzc3pvbmUpOwotCQkJcmV0dXJuIG5yX3BhZ2VzOworCQkJaWYg
-KFBhZ2VSZWZlcmVuY2VkKHBhZ2UpICYmICFQYWdlTG9ja2VkKHBhZ2UpKSB7CisJCQkJZGVs
-X3BhZ2VfZnJvbV9pbmFjdGl2ZV9saXN0KHBhZ2UpOworCQkJCWFkZF9wYWdlX3RvX2FjdGl2
-ZV9saXN0KHBhZ2UpOworCQkJfQorCQkJY29udGludWU7CiAJCX0KIAogCQkvKgpAQCAtNTIx
-LDYgKzUyNCw5IEBACiAJfQogCXNwaW5fdW5sb2NrKCZwYWdlbWFwX2xydV9sb2NrKTsKIAor
-CWlmIChtYXhfbWFwcGVkIDw9IDAgJiYgKG5yX3BhZ2VzID4gMCB8fCBwcmlvcml0eSA8IERF
-Rl9QUklPUklUWSkpCisJCXN3YXBfb3V0KHByaW9yaXR5LCBnZnBfbWFzaywgY2xhc3N6b25l
-KTsKKwogCXJldHVybiBucl9wYWdlczsKIH0KIAo=
---------------44B4B49D7F7E9B591209EA49--
+/dantes
 

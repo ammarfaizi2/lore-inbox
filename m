@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262692AbTIQI0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 04:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbTIQI0Q
+	id S262712AbTIQIuc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 04:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbTIQIuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 04:26:16 -0400
-Received: from moutvdom.kundenserver.de ([212.227.126.251]:31174 "EHLO
-	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262692AbTIQI0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 04:26:13 -0400
-Date: Wed, 17 Sep 2003 10:26:08 +0200 (MEST)
-From: Armin Schindler <mac@melware.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: <info@melware.de>, <kkeil@suse.de>, <isdn4linux@listserv.isdn4linux.de>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6: ISDN_DIVAS link error: multiple "errno"
-In-Reply-To: <20030916175653.GD17690@fs.tum.de>
-Message-ID: <Pine.LNX.4.31.0309171025070.19072-100000@phoenix.one.melware.de>
-Organization: Cytronics & Melware
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Sep 2003 04:50:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15829 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262712AbTIQIub (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 04:50:31 -0400
+Date: Wed, 17 Sep 2003 01:51:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Daniel Engelschalt" <daniel.engelschalt@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5: Unable to handle kernel paging request
+Message-Id: <20030917015113.0a47c88e.akpm@osdl.org>
+In-Reply-To: <31985.1063787066@www40.gmx.net>
+References: <31985.1063787066@www40.gmx.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+"Daniel Engelschalt" <daniel.engelschalt@gmx.net> wrote:
+>
+> using 2.6.0-test5 vanilla i get the following:
+> 
+>  Sep 17 09:04:05 A405a kernel: Unable to handle kernel paging request at virtual address 080000b0
 
-thanks for pointing out. I will create a patch.
+bitflip while freeing a negative dentry.
 
-Armin
+> model name      : AMD Athlon(tm) Processor
+> stepping        : 2
+> cpu MHz         : 807.511
 
+Your computer is old, and tired.
 
-On Tue, 16 Sep 2003, Adrian Bunk wrote:
-
-> I got the following link error in 2.6.0-test5-mm2 (it desn't seem to be
-> specific to -mm) with CONFIG_ISDN_DIVAS=y :
->
-> <--  snip  -->
->
-> ...
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.bss+0x123d60): multiple definition of `errno'
-> lib/lib.a(errno.o)(.bss+0x0): first defined here
->
-> <--  snip  -->
->
->
-> drivers/isdn/hardware/eicon/divasmain.c has a non-static variable errno
-> (on a first sight it doesn't seem to be really used) that conflicts
-> with the variable in lib/errno.c .
->
-> cu
-> Adrian
->
-> --
->
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
->
-
+Try running memtest86 for 12 hours.

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIPlZ>; Tue, 9 Jan 2001 10:41:25 -0500
+	id <S130388AbRAIPlf>; Tue, 9 Jan 2001 10:41:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130388AbRAIPlP>; Tue, 9 Jan 2001 10:41:15 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:16396 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131134AbRAIPlI>;
-	Tue, 9 Jan 2001 10:41:08 -0500
-Date: Tue, 9 Jan 2001 16:40:46 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Stephen Frost <sfrost@snowman.net>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>, <hch@caldera.de>,
-        <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+	id <S131575AbRAIPlZ>; Tue, 9 Jan 2001 10:41:25 -0500
+Received: from kanga.kvack.org ([216.129.200.3]:30218 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id <S131153AbRAIPlL>;
+	Tue, 9 Jan 2001 10:41:11 -0500
+Date: Tue, 9 Jan 2001 10:38:30 -0500 (EST)
+From: "Benjamin C.R. LaHaise" <blah@kvack.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, Christoph Hellwig <hch@caldera.de>,
+        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
+        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
 Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <20010109102525.Q26953@ns>
-Message-ID: <Pine.LNX.4.30.0101091638130.4491-100000@e2>
+In-Reply-To: <Pine.LNX.4.30.0101091547520.4491-100000@e2>
+Message-ID: <Pine.LNX.3.96.1010109103229.5051A-100000@kanga.kvack.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 9 Jan 2001, Ingo Molnar wrote:
 
-On Tue, 9 Jan 2001, Stephen Frost wrote:
+> 
+> On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
+> 
+> > > please study the networking portions of the zerocopy patch and you'll see
+> > > why this is not desirable. An alloc_kiovec()/free_kiovec() is exactly the
+> > > thing we cannot afford in a sendfile() operation. sendfile() is
+> > > lightweight, the setup times of kiovecs are not.
+> > >
+> > Right.  However, kiobufs can be kept around for as long as you want
+> > and can be reused easily, and even if allocating and freeing them is
+> > more work than you want, populating an existing kiobuf is _very_
+> > cheap.
+> 
+> we do have SLAB [which essentially caches structures, on a per-CPU basis]
+> which i did take into account, but still, initializing a 600+ byte kiovec
+> is probably more work than the rest of sending a packet! I mean i'd love
+> to eliminate the 200+ bytes skb initialization as well, it shows up.
 
-> 	Now, the interesting bit here is that the processes can grow to be
-> pretty large (200M+, up as high as 500M, higher if we let it ;) ) and what
-> happens with MOSIX is that entire processes get sent over the wire to
-> other machines for work.  MOSIX will also attempt to rebalance the load on
-> all of the machines in the cluster and whatnot so it can often be moving
-> processes back and forth.
+Do the math again: for transmitting a single page in a kiobuf only 64
+bytes needs to be initialized.  If map_array is moved to the end of the
+structure, that's all contiguous data and is a single cacheline.
 
-then you'll love the zerocopy patch :-) Just use sendfile() or specify
-MSG_NOCOPY to sendmsg(), and you'll see effective memory-to-card
-DMA-and-checksumming on cards that support it.
+What you're completely ignoring is that sendpages is lacking a huge amount
+of functionality that is *needed*.  I can't implement clean async io on
+top of sendpages -- it'll require keeping 1 task around per outstanding
+io, which is exactly the bottleneck we're trying to work around.
 
-the discussion with Stephen is about various device-to-device schemes.
-(which Mosix i dont think wants to use. Mosix wants to use memory to
-device zero-copy, right?)
+> The fact that we're using single-page interfaces doesnt preclude us from
+> having nicely clustered requests, this is what IO-plugging is about!
 
-	Ingo
+It does waste a significant amount of CPU cycles trying to reassemble io
+requests and is not deterministic.  Unplugging the io queue is a real pain
+with async io.
+
+		-ben
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,85 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbUKVUYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbUKVU0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbUKVUYL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 15:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbUKVUYL
+	id S262492AbUKVU0V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 15:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbUKVU0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 15:24:11 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:10479 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262519AbUKVUWV (ORCPT
+	Mon, 22 Nov 2004 15:26:20 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:57756 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262492AbUKVUZn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 15:22:21 -0500
-Date: Mon, 22 Nov 2004 14:21:45 -0600
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: gjwucherpfennig@gmx.net, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: Kernel thoughts of a Linux user
-Message-ID: <20041122202144.GA12858@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <200411221454.iAMEs1t02247@freya.yggdrasil.com>
+	Mon, 22 Nov 2004 15:25:43 -0500
+Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0411221116480.20993@ppc970.osdl.org>
+References: <20041115152721.U14339@build.pdx.osdl.net>
+	 <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net>
+	 <1100941324.987.238.camel@d845pe>
+	 <Pine.LNX.4.58.0411200831560.20993@ppc970.osdl.org>
+	 <1101150469.20006.46.camel@d845pe>
+	 <Pine.LNX.4.58.0411221116480.20993@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1101155077.20006.110.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411221454.iAMEs1t02247@freya.yggdrasil.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 22 Nov 2004 15:24:38 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 10:54:01PM +0800, Adam J. Richter wrote:
-> I wrote:
-> >        Please correct me if I am wrong, but, as far as I can tell,
-> >in 2.6.10-rc2-bk6, a struct dentry is held for each node in the sysfs
-> >tree at all times.  I infer this from noticing that sysfs_drop_dentry
-> >and sysfs_hash_and_remove in fs/sysfs/inode.c only seem to be called
-> >on operations to delete a node.  If I've missed something and the dentry
-> >structures are all or mostly released, I would love to be corrected about
-> >it as that would be really good news to me.
-> 
+On Mon, 2004-11-22 at 14:23, Linus Torvalds wrote:
 
-The new code doesnot pin the leaf nodes but still pins (by having an extra 
-ref count will creation) the non-leaf nodes or directory dentry and inode. 
-The non-directory (leaf nodes) dentry and inodes are freed as per the normal 
-VFS/dcache cache eviction policies. Dentries not in use, will be pruned under 
-memory pressure and eventually evict inodes also.
 
-> 	I should correct myself, although this correction suggests
-> that sysfs currently uses slightly _more_ memory than I previously
-> thought in the case of my computer (1100 directories and 2305
-> non-directories in sysfs).
-> 
-> 	In 2.6.10-rc2-bk6, it looks like sysfs releases the dname
-> structures as well in the case of a file (attribute) or symlink,
-> but keeps these structures *and* a struct inode for every directory
-> (kobject).  So, it looks like the non-swappable memory usage of my
-> /sys is actually about 900kB.
-> 
-> 			directories		non-directories
-> 	dentry		144			0
-> 	inode		344			0
-> 	sysfs_dirent	36			36
-> 
-> 	Bytes per:	524			36
-> 	#of nodes:	1100			2305
-> 	Subtotal:	576,400			82,980
-> 
-> 	Total:		659,380 bytes
-> 
-> 
-> 	Perhaps the code that allows non-directories in sysfs to free
-> their inode and dname structures will in the future be extended to allow
-> directories do so also, which would reduce that total to 122kB.
+> To me, firmware is not
+> something cool to be used. It's a necessary evil, and it should be
+> avoided and mistrusted as far as humanly possible, because it is
+> always buggy, and we can't fix the bugs in it.
 
-Extending this to directories introduces lots of race conditions in 
-maintaining the coherancy between VFS dentry tree and sysfs_dirent
-based tree. It could be doable but not without complications.
+Mistrusting firmware is why I disabled all the links, some system
+firmware didn't leave them in a self-consistent state.
 
-Thanks
-Maneesh
+Re: liking ACPI
+Consider it a love/hate thing;-)
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Austin
-email: maneesh@in.ibm.com
-Phone: 1-512-838-1896 Fax: 
-T/L : 6781896
+> > The damn good reason is that doing otherwise breaks systems.
+> 
+> And not doing it breaks systems.
+
+I'm not aware (yet) of any systems where disabling all the links (which
+we've been doing since June, BTW) and clearing the entire ELCR, and then
+re-enabling them both only as we use them causes a failure.
+
+> This is why I don't trust firmware. It's always buggy.
+
+I'm with you on that one.
+
+-Len
+
+

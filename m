@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbUKHSFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbUKHSHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbUKHSFW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:05:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbUKHSDH
+	id S261163AbUKHSHB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:07:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbUKHRFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 13:03:07 -0500
-Received: from host94.200-117-131.telecom.net.ar ([200.117.131.94]:216 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S261791AbUKHSAB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 13:00:01 -0500
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.21
-Date: Mon, 8 Nov 2004 14:59:59 -0300
-User-Agent: KMail/1.7.1
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>
-References: <20041020094508.GA29080@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu>
-In-Reply-To: <20041108165718.GA7741@elte.hu>
+	Mon, 8 Nov 2004 12:05:13 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:42493 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261922AbUKHQQT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 11:16:19 -0500
+Date: Mon, 8 Nov 2004 17:16:10 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: bk-commits: diff -p?
+In-Reply-To: <1099929091.4542.83.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.GSO.4.61.0411081715450.4130@waterleaf.sonytel.be>
+References: <Pine.LNX.4.61.0411080940310.27771@anakin>
+ <1099929091.4542.83.camel@hades.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411081500.00444.norberto+linux-kernel@bensa.ath.cx>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ingo,
+On Mon, 8 Nov 2004, David Woodhouse wrote:
+> On Mon, 2004-11-08 at 09:41 +0100, Geert Uytterhoeven wrote:
+> > Would it be possible to enable the `-p' option (Show which C function each
+> > change is in) of diff for all patches sent to the bk-commits-* mailing lists?
+> 
+> I did consider that but 'bk diffs -up' gives a context diff, not a
+> unified diff.
 
-Ingo Molnar wrote:
-> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc1-mm3-V
->0.7.21
+So it's a `regression' of bk diffs vs. GNU diff?
 
-Unfortunately, it seems corrupted.
+Gr{oetje,eeting}s,
 
-Regards,
-Norberto
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

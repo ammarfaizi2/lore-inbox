@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRAYPth>; Thu, 25 Jan 2001 10:49:37 -0500
+	id <S130887AbRAYP5A>; Thu, 25 Jan 2001 10:57:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129169AbRAYPt1>; Thu, 25 Jan 2001 10:49:27 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:49125 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S129051AbRAYPtS>;
-	Thu, 25 Jan 2001 10:49:18 -0500
-Importance: Normal
-Subject: question about kernel upgrade and UDF DVD
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
-Message-ID: <OFC0FC8A59.B0AE1098-ON852569DF.0054C35D@somers.hqregion.ibm.com>
-From: "Jie Zhou" <jiezhou@us.ibm.com>
-Date: Thu, 25 Jan 2001 10:49:06 -0500
-X-MIMETrack: Serialize by Router on D02ML231/02/M/IBM(Release 5.0.6 |December 14, 2000) at
- 01/25/2001 10:49:11 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S130933AbRAYP4k>; Thu, 25 Jan 2001 10:56:40 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:23023 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S130887AbRAYP4g>; Thu, 25 Jan 2001 10:56:36 -0500
+Date: Thu, 25 Jan 2001 09:56:32 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20010125151655.V11607@redhat.com>
+In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> 
+	<20010123165117Z131182-221+34@kanga.kvack.org> ; from ttabi@interactivesi.com on Tue, Jan 23, 2001 at 10:53:51AM -0600
+Subject: Re: ioremap_nocache problem?
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Message-Id: <20010125155638Z130887-18594+1345@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am now using Red Hat 6.2, whose kernel is 2.2.14, and gcc version is
-egcs-2.91.66. Now I want to upgrade the kernel to
-2.3.18. In the Documentation/Changes , it's said that I need to have gcc
-2.7.2.3, can i just use my current gcc without any
-change?
+** Reply to message from "Stephen C. Tweedie" <sct@redhat.com> on Thu, 25 Jan
+2001 15:16:55 +0000
 
-Another requirement is about the Linux C Library on my computer. But the
-command ls -l /lib/libc* doesn't show any information
 
-Another weird thing is when I tried to see what version of Procinfo and
-automount that I have, I got
- "command not found"  erro for both of them.
+> ioremap*() is only supposed to be used on IO regions or reserved
+> pages.  If you haven't marked the pages as reserved, then iounmap will
+> do the wrong thing, so it's up to you to reserve the pages.
 
-Finally, for the NFS, its requirement is version 2.2beta40, but I have
-0.1.6, how can I upgrade it?
+Au contraire!
 
-BTW, Is there any one who's already got the UDF format DVD installed on
-your Linux system?
+I mark the page as reserved when I ioremap() it.  However, if I leave it marked
+reserved, then iounmap() will not unmap it.  If I mark it "unreserved" (i.e.
+reset the reserved bit), then iounmap will unmap it, but it will decrement the
+page counter to -1 and the whole system will crash soon thereafter.
 
-Thanks. And happy lunar new year to everyone!
--Jie
+I've been asking about this problem for months, but no one has bothered to help
+me out.
 
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

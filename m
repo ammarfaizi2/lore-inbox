@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311434AbSCZNJT>; Tue, 26 Mar 2002 08:09:19 -0500
+	id <S311692AbSCZNRa>; Tue, 26 Mar 2002 08:17:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311569AbSCZNJJ>; Tue, 26 Mar 2002 08:09:09 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:14884 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S311434AbSCZNIu>; Tue, 26 Mar 2002 08:08:50 -0500
-Message-ID: <3CA072A5.2030605@ngforever.de>
-Date: Tue, 26 Mar 2002 06:07:49 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9) Gecko/20020313
+	id <S311602AbSCZNRU>; Tue, 26 Mar 2002 08:17:20 -0500
+Received: from ip212-226-163-33.adsl.kpnqwest.fi ([212.226.163.33]:36790 "HELO
+	mail.ftlight.net") by vger.kernel.org with SMTP id <S311692AbSCZNRM>;
+	Tue, 26 Mar 2002 08:17:12 -0500
+Message-ID: <3CA074D5.5080902@ftlight.net>
+Date: Tue, 26 Mar 2002 15:17:09 +0200
+From: Mattias Nordstrom <matta@ftlight.net>
+Organization: ftlight.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020310
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Stevie O <stevie@qrpff.net>
-CC: "David S. Miller" <davem@redhat.com>, mdrobnak@optonline.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: More observations regarding IPv6 on PPC platform.
-In-Reply-To: <3C9FAA3A.8000701@optonline.net> <3C9FC110.8010100@ngforever.de> <20020325.163739.40148174.davem@redhat.com> <5.1.0.14.2.20020326015650.0258f490@whisper.qrpff.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Asus A7V133 BIOS Update fixed kernel crash
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stevie O wrote:
-> or ifconfig eth +promisc?
-Seems I been a little uneasy about it...
-However, we're expecting any answer from that guy.
-(At least I am)
+Hi,
+I just thought I should share this with the kernel developer community. 
+When I was running my system (AMD Athlon XP 1700+ with Asus A7V133-C) 
+with the default BIOS on the motherboard (1007) I experienced several 
+problems when trying to run programs. Most of them either Segfaulted or 
+caused a bus error. The crashes where usually related to situations 
+where a program tried to display an animation or a video. Sometimes the 
+system completely froze. I tried to compile the kernel with all kinds of 
+different options, tried with and without athlon optimization but 
+nothing seemed to work. I thought it might have been related to the 
+"Athlon/AGP bug", but the solutions to fix the bug did not work for my 
+system.
 
-Regards,
-Thunder
+Then one day I happened to check Asus homepage and found a BIOS update 
+for my motherboard. I flashed my BIOS with the new software (1008) and 
+now I haven't had any problems. The BIOS came out 8.3.2002, so it's 
+quite new. Anyone happen to know what changes where made in the new BIOS 
+which solved my problem?
+
 -- 
-Thunder from the hill.
-Citizen of our universe.
+Mattias Nordström
+matta@ftlight.net
+-www.ftlight.net-
+
 

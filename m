@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318688AbSHAJm6>; Thu, 1 Aug 2002 05:42:58 -0400
+	id <S318693AbSHAJnr>; Thu, 1 Aug 2002 05:43:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318687AbSHAJl5>; Thu, 1 Aug 2002 05:41:57 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:14596 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318688AbSHAJjs>; Thu, 1 Aug 2002 05:39:48 -0400
-Message-ID: <3D484C0F.3070609@evision.ag>
-Date: Wed, 31 Jul 2002 22:43:59 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S318697AbSHAJnC>; Thu, 1 Aug 2002 05:43:02 -0400
+Received: from h249n1fls32o848.telia.com ([213.66.33.249]:44541 "EHLO
+	erland.stk.mvista.com") by vger.kernel.org with ESMTP
+	id <S318689AbSHAJmb>; Thu, 1 Aug 2002 05:42:31 -0400
+Message-Id: <200208010944.g719ioV04827@erland.stk.mvista.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Erland Hedman <erland.hedman@mvista.com>
+Reply-To: erland.hedman@mvista.com
+Organization: MontaVista Software (Nordic)
+To: linux-kernel@vger.kernel.org
+Subject: APM Console blanking not complete ?
+Date: Thu, 1 Aug 2002 11:44:50 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: martin@dalecki.de, linux-kernel@vger.kernel.org
-Subject: Re: cli/sti removal from linux-2.5.29/drivers/ide?
-References: <200207310746.AAA07831@adam.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote:
-> I wrote:
-> 
->>       I'd be intersted in knowing what one of those other problems
->>is.  Otherwise, I don't understand why I can't eliminate the "lock
->>group" stuff.
-> 
-> 
-> 	Nevermind.  I see that the "lock group" code is used
-> to implement the "serialize" IDE option.
 
-Yes. I was a bit lazy in explaining this. (Deliberately
-asking you for a disaster experiment.) Call me evil :-).
+Hi,
 
+With a 2.4.18 kernel running on a Dell Inspiron 8000 I have the BIOS APM 
+console blanking working properly for both the VT consoles as well as in X, 
+but only when the laptop's internal keyboard and mouse is used. After having 
+browsed the kernel source I guess that this blanking, turning off the power 
+to the laptop backlight, is handled by the APM features in the BIOS 
+independent of the Linux kernel.
 
+The problem is that when I use an external mice, in this case a wireless 
+track ball connected to an USB port some distance from the laptop, a touch of 
+that mice does not turn on the laptop backlight again as I first took for 
+granted. It works in windows 2k  ;-(
 
+By adding a timer routine to drivers/input/mousedev.c (inspired by console.c) 
+I managed to "fix" my particular problem by implicitly  call the 
+apm_console_blank()  (apm.c) via the console_blank_hook used by console.c and 
+do the display blanking  timimg independent of the BIOS settings.
+
+This is a fix however, and does not address the problem in a general way and 
+I guess that USB a keyboard and possible other external devices will face the 
+same problem. In addition it does not sync with any BIOS settings of the 
+blanking time, nor does this  fix reset the timer if the laptops mouse or 
+keyboard is touched.
+
+So my question here (if my observations are valid) is if there are interest 
+to address this issue and/or if there is any work in progress for future 
+releases.
+
+PS. The question is not related to DPMS, nor  to the VT console's blanking 
+controlled by setterm. DS.
+
+Please CC me at erland.hedman@telia.com
+-- 
+
+Best Regards,
+Erland Hedman

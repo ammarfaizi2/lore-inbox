@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264549AbUAFPiV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 10:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264553AbUAFPhr
+	id S264507AbUAFPsv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 10:48:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbUAFPsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 10:37:47 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:37594 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S264549AbUAFPhj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 10:37:39 -0500
-Date: Tue, 6 Jan 2004 08:37:37 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
-Message-ID: <20040106153737.GJ2415@stop.crashing.org>
-References: <20031224212022.GN4023@stop.crashing.org> <Pine.GSO.4.44.0401061353370.28417-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0401061353370.28417-100000@math.ut.ee>
-User-Agent: Mutt/1.5.4i
+	Tue, 6 Jan 2004 10:48:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41410 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264507AbUAFPsu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 10:48:50 -0500
+Date: Tue, 6 Jan 2004 07:48:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@colin2.muc.de>
+cc: Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
+       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
+In-Reply-To: <20040106153706.GA63471@colin2.muc.de>
+Message-ID: <Pine.LNX.4.58.0401060744240.2653@home.osdl.org>
+References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org>
+ <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de>
+ <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de>
+ <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de>
+ <Pine.LNX.4.58.0401060726450.2653@home.osdl.org> <20040106153706.GA63471@colin2.muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 02:00:20PM +0200, Meelis Roos wrote:
 
-> > > >  			if (getprop(dev_handle, "reg", mem_info,
-> > > > -						sizeof(mem_info) != 8))
-> > > > +						sizeof(mem_info) != 8)) {
+
+On Tue, 6 Jan 2004, Andi Kleen wrote:
 > 
-> > 	if ((n = getprop(dev_handle, "reg", mem_info, sizeof(mem_info))
-> > 	!= 8) {
-> 
-> I tried it (applied it by hand and fixed parens) and it did not print n
-> and found the right RAM size with todays BK (2.4.24-pre3 by Makefile). I
-> was confused but did read the patch 3 times. Now I see it - one closing
-> parenthesis was in the wrong place. Seems you have fixed it in 2.4 tree
-> already since it's ok in BK.
-> 
-> So 2.4 is OK again on my Motorola Powerstack II Pro4000 (prep, no
-> residual, OF present). Thanks! dmesg now tells
-> Memory BAT mapping: BAT2=64Mb, BAT3=0Mb, residual: 0Mb
-> Total memory = 64MB; using 128kB for hash table (at c0240000)
-> 
-> 2.6 probably needs the same fix (current 2.6 is not OK).
+> Anyways, I already implemented reservation for the aperture for the K8
+> driver some time ago. And it's in your tree. But it doesn't help for 
+> finding IO holes because there could be other unmarked hardware lurking
+> there ... Or worse there is just no free space below 4GB.
 
-I hope to get this fixed in 2.6.2 (2.6 lacks the add OF back to PReP
-bits, and the patch is kinda big).
+The "unmarked hardware" is why we have PCI quirks. Look at 
+drivers/pci/quirks.c, and notice how many of the quirks are all about 
+quirk_io_region().  Exactly because there isn't any way for the BIOS to 
+tell us about these things on the IO side.
 
-> Additionally, 2.6 still has the problem with hard hang (no sysrq) when I
-> do ifconfig eth0 up (21140 driven by tulip or de4x5). I have heard other
-> people have the same problem - 21140 and 3com on powerstack and some
-> NIC with tulip driver on another arch (alpha?).
+(Actually, there is: PnP-BIOS calls are supposed to give us that
+information. However, not only are the BIOSes buggy and don't give a
+complete list _anyway_, anybody who uses the PnP-BIOS is much more likely
+to just get a kernel oops when the BIOS is buggy and assumes that only
+Windows will call it. So I strongly suggest you not _ever_ use pnp unless
+you absolutely have to).
 
-I forget, have you tried KGDB?  I've got patches for it on PReP up at
-http://stop.crashing.org:16080/~trini
+The same quirks could be done on the MMIO side for northbridges.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+			Linus

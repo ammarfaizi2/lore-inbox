@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263774AbTJ0Xni (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 18:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbTJ0Xnh
+	id S263772AbTJ0XpT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 18:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbTJ0XpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 18:43:37 -0500
-Received: from mail.kroah.org ([65.200.24.183]:24005 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263774AbTJ0Xnf (ORCPT
+	Mon, 27 Oct 2003 18:45:19 -0500
+Received: from users.ccur.com ([208.248.32.211]:44451 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S263772AbTJ0Xo6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 18:43:35 -0500
-Date: Mon, 27 Oct 2003 15:39:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Mark Bellon <mbellon@mvista.com>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
-Message-ID: <20031027233934.GA3408@kroah.com>
-References: <Pine.LNX.4.44.0310271343170.13116-100000@cherise> <3F9DA5A6.3020008@mvista.com>
+	Mon, 27 Oct 2003 18:44:58 -0500
+Date: Mon, 27 Oct 2003 18:44:47 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: gettimeofday resolution seriously degraded in test9
+Message-ID: <20031027234447.GA7417@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F9DA5A6.3020008@mvista.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 27, 2003 at 04:09:26PM -0700, Mark Bellon wrote:
-> The uSDE was built in response to a set of telco and embedded community 
-> requirements. We found it difficult to express our ideas. Everyone 
-> wanted to see code and documentation. Here is the code and the initial 
-> documentation. This is a starting point...
-> 
-> >If not, are you planning on merging your efforts with udev in the future?
-> >
-> It is to everyone's advantage to converge on an implementation of 
-> enumeration that meets all of the requirements.
+[ 2nd posting, the first seems to have been lost ]
 
-What are your requirements, and why does udev not meet them?  Is there
-some major disagreement between what udev does, and what you want to do?
-If so, what?
+Linus,
+ This bit of -test9 code reduces the resolution of gettimeofday(2) from
+1 microsecond to 1 millisecond whenever a negative time adjustment is
+in progress.  This seriously damages efforts to measure time intervals
+accurately with gettimeofday.  Please consider backing it out.
 
-udev has been out in the world since April, any reason for not helping
-out with the existing project instead of going off and starting your
-own?  It's not that I mind competing projects, it's just that I don't
-see your reasoning as to why there needs to be two different ones.
+Joe
 
-thanks,
 
-greg k-h
+diff -Nura linux-2.6.0-test8/arch/i386/kernel/time.c linux-2.6.0-test9/arch/i386/kernel/time.c
+--- linux-2.6.0-test8/arch/i386/kernel/time.c	2003-10-17 17:43:11.000000000 -0400
++++ linux-2.6.0-test9/arch/i386/kernel/time.c	2003-10-25 14:43:37.000000000 -0400
+@@ -104,6 +104,15 @@
+ 		lost = jiffies - wall_jiffies;
+ 		if (lost)
+ 			usec += lost * (1000000 / HZ);
++
++		/*
++		 * If time_adjust is negative then NTP is slowing the clock
++		 * so make sure not to go into next possible interval.
++		 * Better to lose some accuracy than have time go backwards..
++		 */
++		if (unlikely(time_adjust < 0) && usec > tickadj)
++			usec = tickadj;
++
+ 		sec = xtime.tv_sec;
+ 		usec += (xtime.tv_nsec / 1000);
+ 	} while (read_seqretry(&xtime_lock, seq));
+
+
+

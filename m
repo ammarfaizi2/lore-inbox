@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbTKLLEE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 06:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTKLLEE
+	id S262040AbTKLLEy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 06:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTKLLEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 06:04:04 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:55713 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S262009AbTKLLD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 06:03:59 -0500
-From: Ian Wienand <ianw@gelato.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 12 Nov 2003 22:03:56 +1100
-Cc: benh@kernel.crashing.org
-Subject: [PATCH] Fix compliation with iBook (750FX) 2.6.0-test9
-Message-ID: <20031112110356.GA11929@cse.unsw.EDU.AU>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UlVJffcvxoiEqYs2"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Wed, 12 Nov 2003 06:04:54 -0500
+Received: from calisto.ae.poznan.pl ([150.254.37.3]:2232 "EHLO
+	calisto.ae.poznan.pl") by vger.kernel.org with ESMTP
+	id S262040AbTKLLEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 06:04:51 -0500
+Date: Wed, 12 Nov 2003 12:04:43 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6: value 0x37ffffff truncated to 0x37ffffff
+In-Reply-To: <Pine.LNX.4.51.0311121029450.30917@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.51.0311121153370.26386@dns.toxicfilms.tv>
+References: <Pine.LNX.4.51.0311071628470.5963@dns.toxicfilms.tv>
+ <200311080142.45003.rob@landley.net> <20031108171858.GA6489@hh.idb.hist.no>
+ <Pine.LNX.4.51.0311121029450.30917@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Rating: 0 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > I have seen this for along time with debian testing, on intel.
+> > I use gcc 3.3.2,
+> > binutils: 2.14.90.0.6-5
+> Sorry for the delay.
+> The same here as for gcc and binutils.
+> I will try compiling with gcc 2.95.4.
+I did the recompile on 2.6.0test9-bk16 and haven't seen that message now
+both with gcc 2.95 and 3.3.2
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It is gone.
 
-Hi,
+> Regards,
+> Maciej
+Maciej
 
-This change
+[... this is schizofrenic :-) ...]
 
-http://ppc.bkbits.net:8080/linuxppc-2.5-benh/cset@1.1213?nav=index.html
-
-gave me an error 
-
-Error: unsupported relocation against SPRN_HID2
-
-Google tells me this was hit in 2.4 as well when some changes were made.
-Attached patch makes it work for me.
-
--i
-ianw@gelato.unsw.edu.au
-http://www.gelato.unsw.edu.au
-
-
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ppc-reg.h.diff"
-
-===== include/asm-ppc/reg.h 1.8 vs edited =====
---- 1.8/include/asm-ppc/reg.h	Thu Oct 30 14:25:31 2003
-+++ edited/include/asm-ppc/reg.h	Wed Nov 12 21:55:26 2003
-@@ -177,6 +177,7 @@
- #define HID0_NOPTI	(1<<0)		/* No-op dcbt and dcbst instr. */
- 
- #define SPRN_HID1	0x3F1		/* Hardware Implementation Register 1 */
-+#define SPRN_HID2	0x3F8		/* Hardware Implementation Register 2 */
- #define HID1_EMCP	(1<<31)		/* 7450 Machine Check Pin Enable */
- #define HID1_PC0	(1<<16)		/* 7450 PLL_CFG[0] */
- #define HID1_PC1	(1<<15)		/* 7450 PLL_CFG[1] */
-
---UlVJffcvxoiEqYs2--

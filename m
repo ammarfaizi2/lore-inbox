@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUDLXsS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 19:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUDLXsS
+	id S263174AbUDLXxe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 19:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbUDLXxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 19:48:18 -0400
-Received: from mail.kroah.org ([65.200.24.183]:7353 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263173AbUDLXsP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 19:48:15 -0400
-Date: Mon, 12 Apr 2004 16:36:32 -0700
-From: Greg KH <greg@kroah.com>
-To: Kronos <kronos@kronoz.cjb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] New ID for ftdi_sio
-Message-ID: <20040412233632.GA27334@kroah.com>
-References: <20040408165123.GA11376@dreamland.darkstar.lan> <20040409191450.GB17546@kroah.com> <20040410154107.GA3983@dreamland.darkstar.lan>
-Mime-Version: 1.0
+	Mon, 12 Apr 2004 19:53:34 -0400
+Received: from web11304.mail.yahoo.com ([216.136.131.207]:42768 "HELO
+	web11304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263174AbUDLXxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 19:53:32 -0400
+Message-ID: <20040412235322.99636.qmail@web11304.mail.yahoo.com>
+Date: Mon, 12 Apr 2004 16:53:22 -0700 (PDT)
+From: Alex Deucher <agd5f@yahoo.com>
+Subject: S3 virge/Savage question
+To: linux-kernel@vger.kernel.org
+Cc: linux-fbdev-devel@lists.sourceforge.net
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040410154107.GA3983@dreamland.darkstar.lan>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 10, 2004 at 05:41:07PM +0200, Kronos wrote:
-> Il Fri, Apr 09, 2004 at 12:14:50PM -0700, Greg KH ha scritto: 
-> > On Thu, Apr 08, 2004 at 06:51:23PM +0200, Kronos wrote:
-> > > Hi,
-> > > I have an USB contactless reader which uses a FTDI chip. It works well with the
-> > > current ftdi_sio driver, it's just a matter of adding an ID:
-> > 
-> > Ick, this patch doesn't apply due to all of the recent ids being added
-> > to this driver.  Can you re-diff it against the latest -mm tree and
-> > resend it to me?
-> 
-> Here it is:
+Sorry this is off topic, but I'm at a loss at the moment and I'm hoping
+someone here can help me.  I'm trying to add dualhead support (duoview)
+to the xfree86/XORG savage and virge drivers for savage mx/ix and virge
+mx.  I don't have databooks, but I found some incomplete info on the
+virge mx and I've figured out how it's supposed to work for the most
+part.  I can program both dot clocks and set the mode on both crtcs,
+but I can't get the second crtc to actually display anything. when I
+drive an output with crtc2, the attached device just goes into
+powersave mode.  I'm guessing there must be an additonal "screen off"
+bit or crtc2 enable bit I'm missing.  Is sr1 bit 5 (screen off) global,
+or specific to crtc1? Also both dot clocks work so that doesn't seem to
+be the issue.
 
-Looks good, thanks.  I've applied this to my trees and will send it off
-in the next round of updates.
+CRTC  DCLK  Output      Result
+---------------------------------------
+crtc1 dclk1 FP/CRT/Both Works
+crtc1 dclk2 FP/CRT/Both Works
+crtc2 dclk1 FP/CRT/Both No signal
+crtc2 dclk2 FP/CRT/Both No signal 
 
-greg k-h
+Additional info about how duoview works (what I've been able to figure
+out):
+http://www.botchco.com/alex/new-savage/savage/DUOVIEW.txt
+Current status of my savage duoview code:
+http://www.botchco.com/alex/new-savage/html/
+Any help would be much appreciated. Please cc: me directly as I'm not
+on linux-kernel.
+
+Thanks,
+
+Alex Deucher
+http://dri.sourceforge.net/cgi-bin/moin.cgi/AlexDeucher
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

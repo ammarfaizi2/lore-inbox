@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268417AbTGNIwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 04:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268462AbTGNIwW
+	id S268559AbTGNIyc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 04:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268552AbTGNIww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 04:52:22 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:32971 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S268417AbTGNIwT (ORCPT
+	Mon, 14 Jul 2003 04:52:52 -0400
+Received: from mail.gmx.de ([213.165.64.20]:59028 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268476AbTGNIwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 04:52:19 -0400
-Date: Mon, 14 Jul 2003 11:07:01 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Paul Nasrat <pauln@truemesh.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030714090701.GA31049@ucw.cz>
-References: <20030711140219.GB16433@suse.de> <20030711150220.GG28359@raq465.uk2net.com>
+	Mon, 14 Jul 2003 04:52:46 -0400
+Message-Id: <5.2.1.1.2.20030714101440.01bd1740@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Mon, 14 Jul 2003 11:11:45 +0200
+To: Jamie Lokier <jamie@shareable.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy
+  ...
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030714072449.GE24031@mail.jlokier.co.uk>
+References: <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
+ <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com>
+ <5.2.1.1.2.20030714063443.01bcc5f0@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030711150220.GG28359@raq465.uk2net.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 04:02:21PM +0100, Paul Nasrat wrote:
-> On Fri, Jul 11, 2003 at 03:02:19PM +0100, Dave Jones wrote:
->  
-> > Known gotchas.
-> > ~~~~~~~~~~~~~~
-> > Certain known bugs are being reported over and over. Here are the
-> > workarounds.
-> > - Blank screen after decompressing kernel?
-> >   Make sure your .config has
-> >   CONFIG_INPUT=y, CONFIG_VT=y, CONFIG_VGA_CONSOLE=y and CONFIG_VT_CONSOLE=y
-> >   A lot of people have discovered that taking their .config from 2.4 and
-> >   running make oldconfig to pick up new options leads to problems, notably
-> >   with CONFIG_VT not being set.
-> 
-> You might want to mention the synaptics touchpad driver/event for
-> XFree86, as I'm sure that will be a FAQ amongst laptop users
-> 
-> http://w1.894.telia.com/~u89404340/touchpad/
+At 08:24 AM 7/14/2003 +0100, Jamie Lokier wrote:
+>Mike Galbraith wrote:
+> > I also had some sound skips due to inheritance.  If I activate
+> > xmms's gl visualization under load, it inherits SCHED_SOFTRR, says
+> > "oink" in a very deep voice, and other xmms threads expire.  Maybe
+> > tasks shouldn't inherit SCHED_SOFTRR?
+>
+>That's likely a bug in xmms - it shouldn't be passing the normal
+>SCHED_RR state to the gl visualizer.
 
-Yes, please, this is very much needed.
+If I set xmms SCHED_RR, it does drop it for the visualizer.  (I promptly 
+re-set it to test the X oddness) I presume it's stumbling over the policy.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+         -Mike 
+

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130031AbQLNFDi>; Thu, 14 Dec 2000 00:03:38 -0500
+	id <S129977AbQLNFJi>; Thu, 14 Dec 2000 00:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129977AbQLNFD1>; Thu, 14 Dec 2000 00:03:27 -0500
-Received: from www.wen-online.de ([212.223.88.39]:61198 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129921AbQLNFDJ>;
-	Thu, 14 Dec 2000 00:03:09 -0500
-Date: Thu, 14 Dec 2000 05:32:39 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: swapoff/on leak test12-pre7
-In-Reply-To: <Pine.Linu.4.10.10012091822230.602-100000@mikeg.weiden.de>
-Message-ID: <Pine.Linu.4.10.10012140525140.1022-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130685AbQLNFJ2>; Thu, 14 Dec 2000 00:09:28 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:42625 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129977AbQLNFJO>;
+	Thu, 14 Dec 2000 00:09:14 -0500
+Date: Wed, 13 Dec 2000 20:22:48 -0800
+Message-Id: <200012140422.UAA10340@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: gibbs@scsiguy.com
+CC: shirsch@adelphia.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200012140356.eBE3u8s42047@aslan.scsiguy.com> (gibbs@scsiguy.com)
+Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released
+In-Reply-To: <200012140356.eBE3u8s42047@aslan.scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2000, Mike Galbraith wrote:
+   Date: 	Wed, 13 Dec 2000 20:56:08 -0700
+   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 
-> Hi,
-> 
-> Stumbled over a small leak.. and some funny looking numbers.
+   None-the-less, it seems to me that spamming the kernel namespace
+   with "current" in at least the way that the 2.2 kernels do (does
+   this occur in later kernels?) should be corrected.
 
-Numbers aren't funny looking.. bad eyeballs.
+Justin, "current" is a pointer to the current thread executing on the
+current processor under Linux.  It has existed since day one of the
+Linux kernel and probably will exist till the end of it's life.
 
-> while true; do swapoff -a; swapon -a; done
+I'm sure the BSD kernel has some similar bogosity :-)
 
-<snip vmstat of leak>
-
-Leak is because the page allocated in swapon has buffers.  Since
-it's not on any list, they never get scrubbed off and the page is
-leaked.  (I killed it here with try_to_free_buffers().. works)
-
-	-Mike
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

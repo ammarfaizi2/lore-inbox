@@ -1,37 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbUDHA04 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 20:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUDHA0z
+	id S261474AbUDHAd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 20:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263919AbUDHAd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 20:26:55 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:9421
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261389AbUDHA02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 20:26:28 -0400
-Date: Thu, 8 Apr 2004 02:26:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, mbligh@aracnet.com, colpatch@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: NUMA API for Linux
-Message-ID: <20040408002626.GZ26888@dualathlon.random>
-References: <1081373058.9061.16.camel@arrakis> <20040407145130.4b1bdf3e.akpm@osdl.org> <5840000.1081377504@flay> <20040408003809.01fc979e.ak@suse.de> <20040407155225.14936e8a.akpm@osdl.org> <20040408013522.294f0322.ak@suse.de> <20040407165639.2198b215.akpm@osdl.org> <20040408021448.0dbaa80f.ak@suse.de>
+	Wed, 7 Apr 2004 20:33:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24535 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261474AbUDHAdz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 20:33:55 -0400
+Date: Wed, 7 Apr 2004 17:32:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: jeremy@sgi.com, jbarnes@sgi.com, davidm@hpl.hp.com,
+       trini@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-mm2 (build error in arch/ia64/kernel/setup.c)
+Message-Id: <20040407173258.30ada354.akpm@osdl.org>
+In-Reply-To: <1081381848.10944.67.camel@bach>
+References: <20040406223321.704682ed.akpm@osdl.org>
+	<20040407090845.GA790466@sgi.com>
+	<20040407105832.39547a4e.akpm@osdl.org>
+	<1081381848.10944.67.camel@bach>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040408021448.0dbaa80f.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 08, 2004 at 02:14:48AM +0200, Andi Kleen wrote:
-> Eliminate the RB color field or use rb_next() instead of vm_next. First 
-> alternative is cheaper.
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+> On Thu, 2004-04-08 at 03:58, Andrew Morton wrote:
+>  > diff -puN arch/ia64/kernel/setup.c~early-param-rusty-ia64-fix arch/ia64/kernel/setup.c
+>  > --- 25/arch/ia64/kernel/setup.c~early-param-rusty-ia64-fix	Wed Apr  7 10:56:36 2004
+>  > +++ 25-akpm/arch/ia64/kernel/setup.c	Wed Apr  7 10:56:54 2004
+>  > @@ -360,7 +360,7 @@ setup_arch (void)
+>  >  	/* enable IA-64 Machine Check Abort Handling */
+>  >  	ia64_mca_init();
+>  >  
+>  > -	platform_setup(cmdline_p);
+>  > +	platform_setup(saved_command_line);
+>  >  	paging_init();
+>  >  }
+>  >  
+> 
+>  More widespread fix (not tested).
 
-with eliminate I assume you mean to reuse a bit in the vma for that
-(like vma->vm_flags), somewhere the color bit info is needed to make the
-rebalanacing in mmap quick but to still guarantee the max height <= 2 *
-min height.
+Guys, these patches have been causing pain for two weeks.  They have thus
+far required at least twelve bugfixes and I have every expectation that it
+will take weeks in Linus's tree to identify and fix all the as-yet
+undiscovered bugs.  They are taking way too much time which could otherwise
+be spent on all the other broken stuff people like to send me.
+
+So I've dropped them all.  They're at
+http://www.zip.com.au/~akpm/linux/patches/early-param/.  That includes this
+most recent patch of Rusty's.
+
+

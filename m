@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262464AbSKMVPa>; Wed, 13 Nov 2002 16:15:30 -0500
+	id <S263991AbSKMVId>; Wed, 13 Nov 2002 16:08:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262790AbSKMVPa>; Wed, 13 Nov 2002 16:15:30 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:49578 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262464AbSKMVOm>; Wed, 13 Nov 2002 16:14:42 -0500
-Subject: Re: FW: i386 Linux kernel DoS (clarification)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Leif Sawyer <lsawyer@gci.com>,
+	id <S264610AbSKMVIc>; Wed, 13 Nov 2002 16:08:32 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:58890 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S263991AbSKMVHx>;
+	Wed, 13 Nov 2002 16:07:53 -0500
+Message-ID: <3DD2C0BE.80002@domdv.de>
+Date: Wed, 13 Nov 2002 22:14:38 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Bill Davidsen <davidsen@tmr.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021113211318.GA1962@vana>
-References: <76C6E114FA8@vcnet.vc.cvut.cz>
-	<1037221814.12445.126.camel@irongate.swansea.linux.org.uk> 
-	<20021113211318.GA1962@vana>
-Content-Type: text/plain
+Subject: Re: make distclean and make dep??
+References: <Pine.LNX.4.44.0211131417480.32544-100000@oddball.prodigy.com> <20021113205844.GB2822@mars.ravnborg.org>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Nov 2002 21:47:07 +0000
-Message-Id: <1037224027.12445.154.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-13 at 21:13, Petr Vandrovec wrote:
-> This fixes it for me. I'll have to look at ia32 manual at home, why I
-> must do pushl %eax & popfl, as NT should be already cleared by
-> do_debug(). I probably miss something obvious, but I do not think that
-> adding these three instructions into lcall7/27 fastpath is acceptable.
+Sam Ravnborg wrote:
+> On Wed, Nov 13, 2002 at 02:32:27PM -0500, Bill Davidsen wrote:
+>>Also noted, somewhere between 2.5.45 and 2.5.46 distclean vanished from 
+>>"make help." It's really useful to have distclean work to build patched 
+>>kernels for distribution, hopefully this is an oversight and not a new 
+>>policy.
+> 
+> Since they are equal I removed the help for the less used version.
 
-I dont think you can avoid it without ceasing to be clever. The problem
-is Linus or someone pulled a nifty track so that we do an lcall in and
-an iret.
-
-lcall doesnt clear NT
-iret when it sees NT is set performs a task switch to the link field in
-the current TSS. 
-
+Not so nice. /me e.g. is used to distclean, never used mrproper and 
+distclean is a standard target in most projects, so people are probably 
+more used to distclean than mrproper which is kernel specific.
+The thing to point this out is that if the help is removed the target 
+will presumably be removed sooner or later, too.
 

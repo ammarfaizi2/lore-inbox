@@ -1,87 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271208AbTGWSjL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 14:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271209AbTGWSjK
+	id S271206AbTGWSjm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271209AbTGWSjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 14:39:10 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:53254 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271208AbTGWSiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 14:38:51 -0400
-Date: Wed, 23 Jul 2003 19:53:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [bernie@develer.com: Kernel 2.6 size increase]
-Message-ID: <20030723195355.A27597@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+	Wed, 23 Jul 2003 14:39:16 -0400
+Received: from holomorphy.com ([66.224.33.161]:61607 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S271206AbTGWShx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 14:37:53 -0400
+Date: Wed, 23 Jul 2003 11:54:16 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1-wli-1 compile fail
+Message-ID: <20030723185416.GX15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030721213428.GU15452@holomorphy.com> <Pine.LNX.3.96.1030723132550.20210G-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1030723132550.20210G-100000@gatekeeper.tmr.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think this is not only of interest fir the uClinux folks..
+On Wed, Jul 23, 2003 at 01:29:43PM -0400, Bill Davidsen wrote:
+> Actually it was 1A, I was just looking to see if there was a wli release
+> there, since the responsiveness has been so good. Far better than mine
+> taking two days to check the version and get back to you.
+> Since it's not released, don't worry too much, test1-ac2 has been stable
+> enough for some testing, and it's not overly slow even on the tiny machine
+> I'm using for test. I'll try again when/if you release, or you can try
+> with the config I attached to the original.
 
------ Forwarded message from Bernardo Innocenti <bernie@develer.com> -----
-
-Date:	Wed, 23 Jul 2003 20:46:46 +0200
-From:	Bernardo Innocenti <bernie@develer.com>
-Subject: Kernel 2.6 size increase
-To:	uClinux development list <uclinux-dev@uclinux.org>
-Cc:	linux-kernel@vger.kernel.org
-
-Hello,
-
-code bloat can be very harmful on embedded targets, but it's
-generally inconvenient for any platform. I've measured the
-code increase between 2.4.21 and 2.6.0-test1 on a small
-kernel configuration for ColdFire:
-
-   text    data     bss     dec     hex filename
- 640564   39152  134260  813976   c6b98 linux-2.4.x/linux
- 845924   51204   78896  976024   ee498 linux-2.5.x/vmlinux
-
-I could provide the exact .config file for both kernels to
-anybody interested. They are almost the same: no filesystems
-except JFFS2, IPv4 and a bunch of small drivers. I have no
-SMP, security, futexes, modules and anything else not
-strictly needed to execute processes.
-
-I've made a linker map file and compared the size of single
-subsystems. These are the the major contributors to the
-size increase:
-
-  kernel/   +27KB
-  mm/       +14KB
-  fs/       +47KB
-  drivers/  +35KB
-  net/      +64KB
-
-I've digged into net/ with nm -S --size-sort. It seems that
-the major increase is caused by net/xfrm/. Could this module
-be made optional?
-
-In fs/, almost all modules have got 30-40% bigger, therefore
-bloat is probably caused by inlines and macros getting more
-complex.
-
-Block drivers and MTD have generally become smaller. Character
-devices are responsable for most of the size increase in drivers/.
-
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+I'm tied up with OLS stuff atm but I should be able to pound down something
+by tonight or so.
 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+-- wli

@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTJABBv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 21:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbTJABBv
+	id S261772AbTI3WaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 18:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTI3WaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 21:01:51 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:20102 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261861AbTJABBu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 21:01:50 -0400
-Date: Wed, 1 Oct 2003 02:01:25 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Klaus Dittrich <kladit@t-online.de>,
-       linux mailing-list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, "Hu, Boris" <boris.hu@intel.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: 2.6.0-test6 oops futex"
-Message-ID: <20031001010125.GB32209@mail.shareable.org>
-References: <20030930084853.GD26649@mail.jlokier.co.uk> <Pine.LNX.4.44.0309302141220.4388-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309302141220.4388-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Sep 2003 18:30:15 -0400
+Received: from gaia.cela.pl ([213.134.162.11]:49929 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261772AbTI3WaJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 18:30:09 -0400
+Date: Wed, 1 Oct 2003 00:27:49 +0200 (CEST)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Andrew Morton <akpm@osdl.org>, Arun Sharma <arun.sharma@intel.com>,
+       <linux-kernel@vger.kernel.org>, <kevin.tian@intel.com>,
+       Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH] incorrect use of sizeof() in ioctl definitions
+In-Reply-To: <20030930223531.B10154@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0310010022320.20935-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> I can't quite make the flaw I do see, fit the facts Klaus sees.
+> > Matthew's conversion mainly converted things to size_t, but from the looks
+> > of it, __u32* is the right thing to use in this case, I think?
 > 
-> Consider unqueue_me on one cpu racing against this->key = key2 in
-> futex_requeue on another.  unqueue_me finds the right bh to lock
-> from q->key, but futex_requeue is shifting q->key beneath it.
-> Although futex_requeue holds both the relevant spinlocks, during
-> reassignment of key an irrelevant hashqueue may get calculated
-> and locked instead.
-> 
-> Whether or not this is relevant to Klaus' oops, it does need to be
-> fixed, doesn't it?  And your new key_refs version even more exposed?
-> I'm giving up on it, but expect you or Rusty will be ingenious enough
-> to rescue the split locks somehow.
+> sizeof(__u32*) may not be sizeof(sizeof(__u32*)), so this would be an API
+> change...  Therefore, all these wrong entries need to change to size_t
+> (preferably with the real type following inside a comment so we don't
+> loose useful information.)
 
-Superb analysis!
+I hit this bug a while back - most often it's for 4byte sized objects 
+(ints or pointers) on x86 arch (don't know about others).  Unfortunately 
+there was a case where it was for an 8 and was wrongly declared via sizeof 
+and thus 4.  I'd suggest moving all to single sizeof's and where this 
+causes API changes to implement bogus/extra declarations which could then 
+possibly be faded out with time.  However currently the glibc kernel 
+headers are also similarly screwed.  Obviously this would bloat the kernel 
+a little, OTOH for x86 arch I only noticed one case where it didn't end up 
+the same whether thru double or single sizeof.  Perhaps we could be lucky 
+and have almost as much luck on other archs?
 
-It does indeed explain Klaus' oops.  unqueue_me() and futex_poll()
-hash using &q->key outside any spinlocks, so if there's a concurrent
-futex_requeue() the hash can be corrupt.  Result: wrong lock taken;
-list manipulation races in test6, not in test5.  (Provided Klaus has
-SMP or pre-empt).
+MaZe.
 
-Solutions are to call hash_futex() inside the lock, or store the
-hash result inside futex_q, and read it inside the lock.
-
-You're right, the key_refs version is more exposed, but because of the
-change to futux_requeue logic rather than anything to do with key_refs.
-
-> (Oh, while you're there, be nice to fix nr_requeue 0.)
-
-Logically, zero num in FUTEX_QUEUE shouldn't wake anything either, but
-it's understood that at least one is always woken.  It's a bit of a
-wart I agree, but I'll go along with Ulrich's view.
-
-Thanks,
--- Jamie

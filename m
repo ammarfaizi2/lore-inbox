@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUHNXBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUHNXJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUHNXBk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 19:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUHNXBk
+	id S266137AbUHNXJP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 19:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266287AbUHNXJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 19:01:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62145 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266275AbUHNXA5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 19:00:57 -0400
-Date: Sat, 14 Aug 2004 16:00:55 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] small simplification for two SECURITY dependencies
-Message-ID: <20040814160055.B1924@build.pdx.osdl.net>
+	Sat, 14 Aug 2004 19:09:15 -0400
+Received: from fmr99.intel.com ([192.55.52.32]:38278 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S266137AbUHNXJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 19:09:14 -0400
+Subject: [BKPATCH] ACPI for 2.6
+From: Len Brown <len.brown@intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@sgi.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092524935.5028.304.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 14 Aug 2004 19:08:56 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd suggest the patch below to let the SECURITY_CAPABILITIES and 
-SECURITY_ROOTPLUG dependencies look a bit more simple.
+Hi Linus, please do a 
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.8
 
-===== security/Kconfig 1.7 vs edited =====
---- 1.7/security/Kconfig	2003-07-17 02:38:01 -07:00
-+++ edited/security/Kconfig	2004-08-13 11:32:20 -07:00
-@@ -26,14 +26,14 @@
- 
- config SECURITY_CAPABILITIES
- 	tristate "Default Linux Capabilities"
--	depends on SECURITY!=n
-+	depends on SECURITY
- 	help
- 	  This enables the "default" Linux capabilities functionality.
- 	  If you are unsure how to answer this question, answer Y.
- 
- config SECURITY_ROOTPLUG
- 	tristate "Root Plug Support"
--	depends on USB && SECURITY!=n
-+	depends on USB && SECURITY
- 	help
- 	  This is a sample LSM module that should only be used as such.
- 	  It prevents any programs running with egid == 0 if a specific
+thanks,
+-Len
+
+ps. a plain patch is also available here:
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.8/acpi-20040715-2.6.8.diff.gz
+
+This will update the following files:
+
+ include/asm-ia64/acpi.h |    1 +
+ init/main.c             |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+through these ChangeSets:
+
+<len.brown@intel.com> (04/08/14 1.1731.1.31)
+   [ACPI] ia64 build fix
+   Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+
+<len.brown@intel.com> (04/08/14 1.1731.1.30)
+   fix main.c build warning
+
+
+
+

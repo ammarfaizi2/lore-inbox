@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270201AbRHGXOk>; Tue, 7 Aug 2001 19:14:40 -0400
+	id <S270205AbRHGXQ7>; Tue, 7 Aug 2001 19:16:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270200AbRHGXOa>; Tue, 7 Aug 2001 19:14:30 -0400
-Received: from armitage.toyota.com ([63.87.74.3]:50701 "EHLO
-	armitage.toyota.com") by vger.kernel.org with ESMTP
-	id <S270201AbRHGXOT>; Tue, 7 Aug 2001 19:14:19 -0400
-Message-ID: <3B70764D.E90F96B6@lexus.com>
-Date: Tue, 07 Aug 2001 16:14:21 -0700
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-pre3 i686)
-X-Accept-Language: en
+	id <S270212AbRHGXQk>; Tue, 7 Aug 2001 19:16:40 -0400
+Received: from anime.net ([63.172.78.150]:55311 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S270205AbRHGXQV>;
+	Tue, 7 Aug 2001 19:16:21 -0400
+Date: Tue, 7 Aug 2001 16:16:20 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: =?ISO-8859-1?Q?=D8ystein?= Haare <oyhaare@online.no>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Via chipset
+In-Reply-To: <997225828.10528.4.camel@eagle>
+Message-ID: <Pine.LNX.4.30.0108071614540.8468-100000@anime.net>
 MIME-Version: 1.0
-To: Noel Koethe <noel@koethe.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x IP aliase max eth0:16 (16 aliases), where to change?
-In-Reply-To: <Pine.LNX.4.21.0108072238160.20904-100000@data.wipol.uni-bonn.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Noel Koethe wrote:
+On 8 Aug 2001, Øystein Haare wrote:
+> I'm planning on getting a new workstation, and I kinda want an AMD
+> system. But it seems that most (all?) motherboards for the amd cpu's use
+> VIA chipsets, and some people have experienced problems with via
+> chipsets and linux.
+> Have these problems been fixed, or are they still present?
 
-> Hello,
->
-> The maximum aliases I can configure with a 2.4.x kernel is 16, right?
+It seems more dependent on the motherboard design than strictly the
+chipset itself. For example the MSI K7T-Pro2A is a known good quantity (in
+fact for me, it is the single most stable motherboard I have ever used and
+that includes intel boards).
 
-er... I would expect you could do thousands....
-It's really a matter of how much RAM and CPU
-you have -
+> would I be better off getting a P4 system?
 
-> Where I can change this? I want to use more aliases.
-> linux/Documentation/networking/alias.txt tells nothing about this limit
-> and how to change it.
+Nope
 
-I haven't seen any such limit - heck, I had over 200
-ethernet aliases on a 2.0.x slackware box back in 1996 -
-
-cu
-
-jjs
-
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291332AbSBMEBj>; Tue, 12 Feb 2002 23:01:39 -0500
+	id <S291339AbSBMEDT>; Tue, 12 Feb 2002 23:03:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291335AbSBMEBa>; Tue, 12 Feb 2002 23:01:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45071 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291332AbSBMEBN>;
-	Tue, 12 Feb 2002 23:01:13 -0500
-Message-ID: <3C69E506.5DBE50A@mandrakesoft.com>
-Date: Tue, 12 Feb 2002 23:01:10 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
+	id <S291340AbSBMEDJ>; Tue, 12 Feb 2002 23:03:09 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30215 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S291339AbSBMECy>; Tue, 12 Feb 2002 23:02:54 -0500
+Date: Tue, 12 Feb 2002 23:01:53 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Erik Andersen <andersen@codepoet.org>
+cc: Ro0tSiEgE <ro0tsiege@bjstuff.com>, linux-kernel@vger.kernel.org
+Subject: Re: Stable Kernel
+In-Reply-To: <20020213015054.GA11021@codepoet.org>
+Message-ID: <Pine.LNX.3.96.1020212225429.8017D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sys_sync livelock fix
-In-Reply-To: <Pine.LNX.3.96.1020212224341.8017C-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+On Tue, 12 Feb 2002, Erik Andersen wrote:
+
+> On Tue Feb 12, 2002 at 07:33:23PM -0600, Ro0tSiEgE wrote:
+> > What is the most stable/secure kernel version at this point?
 > 
-> Alan and/or Linus:
-> 
->   Am I misreading this or is the Linux implementation of sync() based on
-> making the shutdown scripts pause until disk i/o is done? Because I don't
-> think commercial unices work that way, I think they work as SuS
-> specifies. More reason to rethink this in 2.4 as well as 2.5 and get the
-> possible live lock out of the kernel.
+> 2.0.39
 
+One of the links between my fingers and the list is 2.0.33, but I would
+not install anything but 2.4 on a new install. I get uptimes in the 200+
+day range with 2.4 and far better performance and networking.
 
-
-I don't think SuSv2 can be any more clear than:
-
-> The writing, although scheduled, is not necessarily complete
-> upon return from sync().
-
-Quoting from http://www.opengroup.org/onlinepubs/007908799/xsh/sync.html
-
-As I mentioned in the other message, IMHO we need some way to introduce
-a global system I/O barrier, and then wait for all I/O scheduled before
-that barrier to complete.  My suggestion for naming was the "checkpoint"
-system call.
-
-	Jeff
-
+Note that I agree on what's most stable, but if the question is what
+should I install, 2.4.xx is the choice. 2.4.13-ac was very stable, but I'm
+sure 2.4.17-ac2 will be as well. Alan actually runs his kernels, so they
+will compile and run.
 
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

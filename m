@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266883AbUH0SUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266849AbUH0S04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266883AbUH0SUj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 14:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUH0SUj
+	id S266849AbUH0S04 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 14:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266897AbUH0S04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 14:20:39 -0400
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:38313 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id S266876AbUH0SUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 14:20:32 -0400
-Message-ID: <412F7B6D.6010305@pobox.com>
-Date: Fri, 27 Aug 2004 14:20:29 -0400
-From: Will Dyson <will_dyson@pobox.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
-X-Accept-Language: en-us, en
+	Fri, 27 Aug 2004 14:26:56 -0400
+Received: from amsfep19-int.chello.nl ([213.46.243.20]:36406 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266849AbUH0S0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 14:26:54 -0400
+Date: Fri, 27 Aug 2004 20:26:50 +0200 (CEST)
+From: Wouter Van Hemel <wouter@pair.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: Summarizing the PWC driver questions/answers
+In-Reply-To: <1093625925.14552.16180.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.61.0408271949250.731@senta.theria.org>
+References: <20040827162613.GB32244@kroah.com>
+ <1093625925.14552.16180.camel@hades.cambridge.redhat.com>
+PGP: 0B B4 BC 28 53 62 FE 94  6A 57 EE B8 A6 E2 1B E4  (0xAA5412F0)
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <20040824202521.GA26705@lst.de>	<412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <412E10A2.1020801@pobox.com> <412EEC07.30707@namesys.com>
-In-Reply-To: <412EEC07.30707@namesys.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> Will Dyson wrote:
->>
->> In the original BeOS, they solved the problem by having the filesystem 
->> driver itself take a text query string and parse it, returning a list 
->> of inodes that match. The whole business of parsing a query string in 
->> the kernel (let alone in the filesystem driver) has always seemed ugly 
->> to me. 
-> 
-> Why?
+On Fri, 27 Aug 2004, David Woodhouse wrote:
 
-Hmm. Trying to explain aesthetic judgments is always fun, but I'll try.
+> Again, that is intentional. People are free to go use BSD if the GPL is
+> not compatible with their desires. Or Windows, perhaps.
+>
+> People seem to be whining that Linux is released under the GPL instead
+> of a BSD licence. Perhaps the users concerned should be gently
+> encouraged to go elsewhere?
+>
 
-String parsing bloats the kernel with code that will be called rarely, 
-and doing it inside the filesystem module makes for duplicate code if 
-more than one filesystem does it. But a good common parser routine (or a 
-kernel api that takes a pre-compiled parse tree) would reduce the bad taste.
+Very constructive. If you would use this zealotry energy in getting 
+results from Philips, we might not be here arguing. I get the feeling some 
+seem to think of the removal of this popular driver as a *contribution* to 
+Linux. This attitude contributes nothing to Linux. If you don't like a 
+partially binary driver, then I suggest you, too, contact Philips instead 
+of turning on your own users and contributors, or fighting with driver 
+maintainers that simply can't change the world to fit your wishes. We are 
+all in this mess, we all want good working drivers, preferably opensource.
 
-The real objection I have is that it puts the kernel in the position of 
-doing more work than it has to for the system to operate correctly and 
-efficiently. The user wants to know what files match a certain set of 
-criteria. The filesystem provides special features which can greatly 
-accelerate some searches. Does it make more sense to move the 
-functionality of /usr/bin/find into the kernel, or to export the index 
-information so that an enhanced version of find can make use of it?
+If the opensource principle really is that important to you, I invite you 
+to send an email to Philips like the rest of us. And not attack people for 
+wanting to have their hardware in a working state, or turning this into a 
+BSD vs. GPL discussion.
 
-I don't think having find in the kernel would be worth the cost or 
-complexity.
+Here: http://www.philips.com/
 
-However, now that I've had to think about it while writing the above, it 
-occurs to me that if we wanted to offer something like the beos's live 
-queries, doing it in the kernel might be the way to go.
+Thanks in advance!
 
-For the 99.9% of people who were not beos users back in the day, the 
-"live query" was a way to register a query string with the kernel, so 
-that you got notifications when the list of files matching the query 
-changed. It was pretty cool, but this is really just blue-skying since I 
-am not stepping up to write such a beast any time soon.
-
->> However, the best alternative I've come up with is to simply export 
->> the index data as a special file (perhaps in sysfs?) and have 
->> userspace responsible for searching the index.
-> 
-> That is the best implementation suggestion I've heard for splitting the 
-> filesystem into two parts, one in user space and one in kernel, but I 
-> still don't trust it to work well.
-
-Why not? And if it really splits the filesystem into two parts depends 
-on which of the two following statements you agree with more:
-
-"Fast searching is a feature of the filesystem"
-"Maintaining indexes is a feature of the filesystem"
-
-
-PS.
-The file-as-directory attribute/stream/whatever model is a much better 
-fit for befs's internals than the xattr api. If the kernel supported it, 
-I would enable support for it in befs.
-
--- 
-Will Dyson
-"Back off man, I'm a scientist!" -Dr. Peter Venkman

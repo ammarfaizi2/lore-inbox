@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287573AbSANQT5>; Mon, 14 Jan 2002 11:19:57 -0500
+	id <S287487AbSANQVR>; Mon, 14 Jan 2002 11:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287612AbSANQTr>; Mon, 14 Jan 2002 11:19:47 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:2319 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S287573AbSANQTa>; Mon, 14 Jan 2002 11:19:30 -0500
-Date: Mon, 14 Jan 2002 17:19:04 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <yodaiken@fsmlabs.com>,
+	id <S287612AbSANQU7>; Mon, 14 Jan 2002 11:20:59 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:6151 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S287487AbSANQUv>;
+	Mon, 14 Jan 2002 11:20:51 -0500
+Date: Mon, 14 Jan 2002 09:18:01 -0700
+From: yodaiken@fsmlabs.com
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: yodaiken@fsmlabs.com, Momchil Velikov <velco@fadata.bg>,
         Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        <linux-kernel@vger.kernel.org>
+        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.4.33L.0201141216520.32617-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0201141709000.29792-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020114091801.A23139@hq.fsmlabs.com>
+In-Reply-To: <20020114064548.D22065@hq.fsmlabs.com> <Pine.LNX.4.33.0201141541140.29505-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.33.0201141541140.29505-100000@serv>; from zippel@linux-m68k.org on Mon, Jan 14, 2002 at 03:56:05PM +0100
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 14, 2002 at 03:56:05PM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Mon, 14 Jan 2002 yodaiken@fsmlabs.com wrote:
+> 
+> > is going to be an enormously important issue.  However, once you add SCHED_FIFO in the
+> > current scheme, this becomes more complex. And with preempt, you cannot even offer the
+> > assurance that once a process gets the cpu it will make _any_ advance at all.
+> 
+> I'm not sure if I understand you correctly, but how is this related to
+> preempt?
 
-On Mon, 14 Jan 2002, Rik van Riel wrote:
-
-> Without preemption task C would not have been preempted and it would
-> have released the lock much sooner, meaning task A could have gotten
-> the resource earlier.
-
-Define "much sooner", nobody disputes that low priority tasks can be
-delayed, that's actually the purpose of both patches.
-
-> Using the low latency patch we'd insert some smart code into the
-> algorithm so task A also releases the lock before rescheduling.
-
-Could you please show me that "smart code"?
-
-> Before you say this thing never happens in practice, I ran into
-> this thing in real life with the SCHED_IDLE patch. In fact, this
-> problem was so severe it convinced me to abandon SCHED_IDLE ;))
-
-SCHED_IDLE is something completely different than preeempt. Rik, do I
-really have to explain the difference?
-
-bye, Roman
-
+It's pretty subtle. If there is no preempt, processes don't get preempted.
+If there is preempt, they can be preempted. Amazing isn't it? 

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262278AbRERIcE>; Fri, 18 May 2001 04:32:04 -0400
+	id <S262281AbRERIvi>; Fri, 18 May 2001 04:51:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262279AbRERIb5>; Fri, 18 May 2001 04:31:57 -0400
-Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:44476 "EHLO
-	ronald.bitfreak.net") by vger.kernel.org with ESMTP
-	id <S262278AbRERIbm>; Fri, 18 May 2001 04:31:42 -0400
-Subject: Re: Linux scalability?
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: "reiser.angus" <reiser.angus@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <990173560.6346.0.camel@adslgw>
-In-Reply-To: <Pine.LNX.4.33.0105180914560.29042-100000@iq.rulez.org> 
-	<990173560.6346.0.camel@adslgw>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 18 May 2001 10:30:58 +0200
-Message-Id: <990174686.12881.18.camel@tux.bitfreak.net>
+	id <S262282AbRERIv3>; Fri, 18 May 2001 04:51:29 -0400
+Received: from maila.telia.com ([194.22.194.231]:25564 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S262281AbRERIvV>;
+	Fri, 18 May 2001 04:51:21 -0400
+Date: Fri, 18 May 2001 10:51:51 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <anedah-9@sm.luth.se>
+To: David Balazic <david.balazic@uni-mb.si>
+Cc: alan@lxorguk.ukuu.org.uk,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.4-ac10
+Message-ID: <20010518105150.C1150@sm.luth.se>
+Mail-Followup-To: David Balazic <david.balazic@uni-mb.si>,
+	alan@lxorguk.ukuu.org.uk,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B04D96B.FCDA69E9@uni-mb.si>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3B04D96B.FCDA69E9@uni-mb.si>; from david.balazic@uni-mb.si on Fri, May 18, 2001 at 10:12:27AM +0200
+X-Unexpected-Header: The Spanish Inquisition
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 May 2001 10:12:34 +0200, reiser.angus wrote:
-> > However, taking a closer look, it turns out, that the above statement
-> > holds true only for 1 and 2 processor machines. Scalability already
-> > suffers at 4 processors, and at 8 processors, TUX 2.0 (7500) gets beaten
-> > by IIS 5.0 (8001), and these were measured on the same kind of box!
-> not really the same box
-> look at the disk subsystem
-> 7 x 9GB 10KRPM Drives and 1 x 18GB 15KRPM (html+log & os) for Win2000
-> 5 x 9GB 10KRPM Drives (html+log+os) for TUX 2.0
-> 
-> this is sufficient for a such difference
+David Balazic <david.balazic@uni-mb.si> wrote:
 
-I read an article about TUX in the dutch C'T a few months ago (nov/dec
-2000, I think) - the real difference (according to the article) was the
-2.2.x kernel used in TUX. Look at the stats of the website, they used
-Redhat 7.0 as base, with kernel 2.2.16. In the C'T, they also used a
-2.4-test kernel for TUX, and this one didn't have these "scalibility
-problems". The problem seemed to be SMP problems with systems with more
-than two cpus in the 2.2.x-based kernel series. 2.4.x kernels didn't
-seem to have this problem.
+> What old old binutils ?
+> Isn't there a clear requirement for a minimum binutils version in
+> Documentation/Changes ( or maybe it is README ... ) ?
 
-And as far as I know, TUX with 2.4.x kernel was faster than win2k on all
-SMP-combinations.
+Yes there is. From the Changes file:
 
---
-Ronald
+o  binutils               2.9.1.0.25              # ld -v
+-- 
 
+André Dahlqvist <anedah-9@sm.luth.se>

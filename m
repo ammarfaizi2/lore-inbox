@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbUDIVF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 17:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUDIVF6
+	id S261764AbUDIVJX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 17:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUDIVJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 17:05:58 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:18610 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261748AbUDIVF5
+	Fri, 9 Apr 2004 17:09:23 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:56471 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261764AbUDIVJV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 17:05:57 -0400
-Message-ID: <4077101A.7050303@us.ibm.com>
-Date: Fri, 09 Apr 2004 16:05:30 -0500
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	Fri, 9 Apr 2004 17:09:21 -0400
+X-Authenticated: #20450766
+Date: Fri, 9 Apr 2004 23:00:46 +0200 (CEST)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Christian Roessner <info@roessner-net.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: AM53C974 driver missing in 2.6.5
+In-Reply-To: <200404091807.48179.info@roessner-net.com>
+Message-ID: <Pine.LNX.4.44.0404092252300.4445-100000@poirot.grange>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [PATCH] call_usermodehelper hang
-References: <4072F2B7.2070605@us.ibm.com> <20040406172903.186dd5f1.akpm@osdl.org> <20040407061146.GA10413@kroah.com> <407487A6.8020904@us.ibm.com> <20040408224713.GD15125@kroah.com> <40770AD0.4000402@us.ibm.com> <20040409205344.GA5236@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=koi8-r
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Fri, Apr 09, 2004 at 03:42:56PM -0500, Brian King wrote:
-> 
->>Would you prefer a fix in call_usermodehelper itself? It could certainly
->>be argued that calling call_usermodehelper with wait=0 should be allowed
->>even when holding locks. Although, fixing it here is less obvious to me
->>how to do because of the arguments to call_usermodehelper. I would imagine
->>it would consist of creating a kernel_thread to preserve the caller's stack.
-> 
-> 
-> Yes, I think call_usermodehelper should be changed to create a new
-> kernel thread for every call.  That would solve this problem, and any
-> future races that might happen.  Care to work on that?
+Hi
 
-I'll give it a shot.
+On Fri, 9 Apr 2004, Christian Roessner wrote:
 
--Brian
+> I found at Google that the AM53C974 was removed since 2.6.0. My problem is:
+> This driver is the only one that ever worked (2.4 kernels) for my TEAC CD
+> writer. The tmscsim doesn´t do its job and that has nothing to do with the
+> latency thing with SCSI-2.
+>
+> Is there a chance you could put the AM53C974 back in the kernel? Otherwise I
+> will not be able to burn CDs under linux anymore :-(
+
+It is, of course, preferred to fix the tmscsim driver to work for you too.
+If you describe your problem precisely, we could try solving it. There was
+a discussion around 2.6.0 on the linux-scsi mailing list whether or not to
+keep the AM53C974 driver, and it was decided not to, since the tmscsim
+should completely replace it. However, I did write a simple patch that
+allowed to compile and use AM53C974 under 2.6. I sent it to LKML on
+30.10.03 with the subject "[PATCH] Re: AMD 53c974 SCSI driver in 2.6".
+However, again, it would be preferred to improve tmscsim.
+
+You might want to move this discussion to linux-scsi
+(linux-scsi@vger.kernel.org).
+
+Guennadi
+---
+Guennadi Liakhovetski
 
 
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+
 

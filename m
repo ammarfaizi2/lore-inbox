@@ -1,114 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268170AbUIWQoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268156AbUIWQpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268170AbUIWQoI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268135AbUIWQmF
+	id S268156AbUIWQpB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUIWQoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:42:05 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:19691 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S268019AbUIWQkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:40:40 -0400
-Date: Fri, 24 Sep 2004 01:36:42 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-To: anil.s.keshavamurthy@intel.com
-Cc: len.brown@intel.com, acpi-devel@lists.sourceforge.net,
-       lhns-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: [PATCH][4/4] Add NUMA node handling to the container driver
-Message-Id: <20040924013642.00003b08.tokunaga.keiich@jp.fujitsu.com>
-In-Reply-To: <20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com>
-References: <20040920092520.A14208@unix-os.sc.intel.com>
-	<20040920094719.H14208@unix-os.sc.intel.com>
-	<20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.3.0; Win32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 23 Sep 2004 12:44:46 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:17635 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S268159AbUIWQmP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 12:42:15 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Jan Dittmer <jdittmer@ppp0.net>
+Subject: Re: Is there a user space pci rescan method?
+Date: Thu, 23 Sep 2004 18:49:11 +0200
+User-Agent: KMail/1.7
+References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <20040923002649.GA28259@kroah.com> <4152E606.3070609@ppp0.net>
+In-Reply-To: <4152E606.3070609@ppp0.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409231849.11597@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Dittmer wrote:
+> Greg KH wrote:
+> > On Thu, Sep 23, 2004 at 01:58:32AM +0200, Jan Dittmer wrote:
+> >>Dave Aubin wrote:
+> >>>Hi,
+> >>>
+> >>>  I know very little about hotplug, but does make sense.
+> >>>How do you motivate a hotplug insertion event?  Or should
+> >>>I just go read the /docs on hotplugging?  Any help is
+> >>>Appreciated:)
+> >>
+> >>There is a "fake" hotplug driver which works for normal pci. But last
+> >>time I looked at it, it did only support hot disabling, not hot enabling
+> >>- but this surely can be fixed.
+> >
+> > Yes, hot "enabling" has been left for someone to add to the driver, if
+> > you read the comments in it :)
 
-Name: container_for_numa.patch
-Status: Tested on 2.6.9-rc2
-Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Description:
-Add NUMA node handling to the container driver.
+Hot enabling works for month in dummyphp...
 
-Thanks,
-Keiichiro Tokunaga
----
+> I read them and started playing around with this driver. So echoing 0 in
+>  /sys/bus/pci/slots/*/power disables the pci device. The problem I see
+> is, that the tree with the device is disappearing. So how am I supposed
+> to re-enable the device. I've no real hotplug hardware to play with, so
+> I'm bound to reading the source code in drivers/pci/hotplug and testing
+> with fakephp. I found your utility pcihpview (v0.5) which searches for
+> /sys/bus/pci/hotplug_slots. But grepping the kernel tree doesn't show
+> any mentioning of it - so I suppose it is outdated.
+> Is there anywhere a current article (or Documentation/pci_hotplug.txt)
+> about the state of PCI hotplug and how this is supposed to work?
 
- linux-2.6.9-rc2-fix-kei/drivers/acpi/container.c |   11 +++++++++++
- linux-2.6.9-rc2-fix-kei/include/acpi/container.h |   15 ++++++++++++++-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+Just search the archive of pcihpd-discuss@lists.sourceforge.net for dummyphp, 
+this is the version that works. I'll rediff it soon and hope Greg will accept 
+it this time.
 
-diff -puN drivers/acpi/container.c~container_for_numa drivers/acpi/container.c
---- linux-2.6.9-rc2-fix/drivers/acpi/container.c~container_for_numa	2004-09-24 00:45:56.781826629 +0900
-+++ linux-2.6.9-rc2-fix-kei/drivers/acpi/container.c	2004-09-24 01:38:09.774323452 +0900
-@@ -104,6 +104,8 @@ acpi_container_add(struct acpi_device *d
- 	container = kmalloc(sizeof(struct acpi_container), GFP_KERNEL);
- 	if(!container)
- 		return_VALUE(-ENOMEM);
-+
-+	container_numa_init(device->handle);
- 	
- 	memset(container, 0, sizeof(struct acpi_container));
- 	container->handle = device->handle;
-@@ -123,6 +125,14 @@ acpi_container_remove(struct acpi_device
- {
- 	acpi_status		status = AE_OK;
- 	struct acpi_container	*pc = NULL;
-+	if (type == ACPI_BUS_REMOVAL_EJECT) {
-+		if (!device->flags.ejectable)
-+			return(-EINVAL);
-+
-+		container_numa_remove(device->handle);
-+	}
-+
-+	container_numa_detach_data(device->handle);
- 	pc = (struct acpi_container*) acpi_driver_data(device);
- 
- 	if (pc)
-@@ -198,6 +208,7 @@ container_device_add(struct acpi_device 
- 	if (acpi_bus_add(device, pdev, handle, ACPI_BUS_TYPE_DEVICE)) {
- 		return_VALUE(-ENODEV);
- 	}
-+	container_numa_add((*device)->handle);
- 
- 	result = acpi_bus_scan(*device);
- 
-diff -puN include/acpi/container.h~container_for_numa include/acpi/container.h
---- linux-2.6.9-rc2-fix/include/acpi/container.h~container_for_numa	2004-09-24 00:45:56.783779765 +0900
-+++ linux-2.6.9-rc2-fix-kei/include/acpi/container.h	2004-09-24 00:45:56.786709469 +0900
-@@ -2,12 +2,25 @@
- #define __ACPI_CONTAINER_H
- 
- #include <linux/kernel.h>
--
- struct acpi_container {
- 	acpi_handle handle;
- 	unsigned long sun;
- 	int state;
- };
- 
-+#ifdef CONFIG_ACPI_NUMA
-+#include <acpi/numa.h>
-+#define container_numa_init(handle)	acpi_numa_node_init(handle)
-+#define container_numa_add(handle)	acpi_numa_node_add(handle)
-+#define container_numa_remove(handle)	acpi_numa_node_remove(handle)
-+#define container_numa_detach_data(handle) acpi_numa_node_data_detach(handle)
-+#define is_numa_node(handle) is_numa_node_device(acpi_handle handle)
-+#else
-+#define container_numa_init(handle)
-+#define container_numa_add(handle)
-+#define container_numa_remove(handle)
-+#define container_numa_detach_data(handle)
-+#define is_numa_node(handle) (0)
-+#endif
- #endif /* __ACPI_CONTAINER_H */
- 
+Message-Id to search for: <200403120947.13046@bilbo.math.uni-mannheim.de>
 
-_
+Eike

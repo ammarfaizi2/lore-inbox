@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130709AbQJaV5d>; Tue, 31 Oct 2000 16:57:33 -0500
+	id <S130707AbQJaV5n>; Tue, 31 Oct 2000 16:57:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130708AbQJaV5N>; Tue, 31 Oct 2000 16:57:13 -0500
-Received: from k2.llnl.gov ([134.9.1.1]:53665 "EHLO k2.llnl.gov")
-	by vger.kernel.org with ESMTP id <S130502AbQJaV4k>;
-	Tue, 31 Oct 2000 16:56:40 -0500
-Message-ID: <39FEF93D.2AB63201@scs.ch>
-Date: Tue, 31 Oct 2000 08:54:21 -0800
-From: Reto Baettig <baettig@scs.ch>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
+	id <S130708AbQJaV5d>; Tue, 31 Oct 2000 16:57:33 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:1035 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130707AbQJaV5O>; Tue, 31 Oct 2000 16:57:14 -0500
+Message-ID: <39FF3F52.3847ACC6@timpanogas.org>
+Date: Tue, 31 Oct 2000 14:53:22 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Rik van Riel <riel@conectiva.com.br>
-CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+CC: Reto Baettig <baettig@scs.ch>, linux-kernel@vger.kernel.org
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
 In-Reply-To: <Pine.LNX.4.21.0010311943260.1190-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
@@ -21,23 +22,7 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik
 
-Is there any documentation about the Tux zero-copy implementation so
-that I don't have to read half of the 2.4 kernel sources before having a
-clue? 
-
-Are the kernel changes going to be in the mainstream kernel?
-
-Does Tux implement a new interface so that a userspace app can do
-zero-copy stuff with the network?
-
-Sorry for the newbie questions, but it's really hard to find information
-about Tux (other than the holy source code, of course ;-)
-
-TIA
-
-Reto
 
 Rik van Riel wrote:
 > 
@@ -59,6 +44,15 @@ Rik van Riel wrote:
 > 
 > Oh, and I haven't found a bunch of printers yet that are
 > fast enough to beat the printserving record ;))
+
+You got me on this one.  I would also agree that NPDS is the worst piece
+of crap ever written.  
+
+:-)
+
+Jeff
+
+
 >   *runs like hell*
 > 
 > cheers,

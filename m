@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317430AbSFROg1>; Tue, 18 Jun 2002 10:36:27 -0400
+	id <S317431AbSFROif>; Tue, 18 Jun 2002 10:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317431AbSFROg0>; Tue, 18 Jun 2002 10:36:26 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:36309 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317430AbSFROgZ>; Tue, 18 Jun 2002 10:36:25 -0400
-Date: Tue, 18 Jun 2002 09:36:17 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "Hans E. Kristiansen" <hans@tropic.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.22 problems with compile.h
-In-Reply-To: <009401c216b4$22458160$252ca8c0@sdfg>
-Message-ID: <Pine.LNX.4.44.0206180931410.5695-100000@chaos.physics.uiowa.edu>
+	id <S317432AbSFROie>; Tue, 18 Jun 2002 10:38:34 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:26630 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317431AbSFROie> convert rfc822-to-8bit; Tue, 18 Jun 2002 10:38:34 -0400
+Message-ID: <3D0F45E7.3050605@evision-ventures.com>
+Date: Tue, 18 Jun 2002 16:38:31 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Garet Cammer <arcolin@arcoide.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Need IDE Taskfile Access
+References: <004701c216cf$efd1ca60$8201a8c0@arcoi0s17j2t0x>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, Hans E. Kristiansen wrote:
+U¿ytkownik Garet Cammer napisa³:
+> For some time now we have been writing user applications that send ATAPI 
+> commands to the IDE bus to initialize and configure our hardware RAID 1 
+> controllers. This has been working well, thanks to Andre's patch that 
+> gave us taskfile access through the ioctl API. We were counting on it to 
+> be a permanent part of the 2.5/2.6 kernel, since there is a lot of 
+> hardware in the field using these apps.
+> Imagine our surprise when we discovered that taskfile access was being 
+> abandoned completely!
+> Although we understand that the kernel may need to filter some commands, 
+> why can't applications access at least the Smart commands? Help!
+> Regards,
+> Garet Cammer
+> Software Development
+> Arco Computer Products
+> (954) 925-2688
 
-> >From a clean install, I can compile, but I get an error with compile.h (Do
-> not know how to make compile.h). If I compile again, I get a working kernel
-> (bzImage), "depmod -ae -F xx " works like a charm. But, when I reboot with
-> the new kernel, I can not load any modules. None, they all have symbol
-> problems.
+ATAPI is no problem. You can use the whole SCSI layer on top of
+ide-scsi.
 
-Seems that I screwed up that version a bit ;( 
 
-For now, don't use something like "make dep clean bzImage", but rather
-"make clean; make dep bzImage" - it'll work again in the next release,
-though.
 
-Modversions also have bugs, though I can't see how they lead to the effect 
-you describe. Anyway, try changing CONFIG_MODVERSIONS to off for now,
-again, it should work again in the next release.
-
-Let me know of further problems ;)
-
---Kai
 
 

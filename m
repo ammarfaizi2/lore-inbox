@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318044AbSHVXIY>; Thu, 22 Aug 2002 19:08:24 -0400
+	id <S318016AbSHVXGs>; Thu, 22 Aug 2002 19:06:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318059AbSHVXIY>; Thu, 22 Aug 2002 19:08:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30994 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318044AbSHVXIX>;
-	Thu, 22 Aug 2002 19:08:23 -0400
-Message-ID: <3D656FDC.8040008@mandrakesoft.com>
-Date: Thu, 22 Aug 2002 19:12:28 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andre Hedrick <andre@linux-ide.org>,
-       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Padraig Brady'" <padraig.brady@corvil.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-flash device and hard disk on same controller
-References: <Pine.LNX.4.10.10208201452210.3867-100000@master.linux-ide.org>	<3D62BC10.3060201@mandrakesoft.com>	<3D62C2A3.4070701@mandrakesoft.com> <m1sn17pici.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318018AbSHVXGs>; Thu, 22 Aug 2002 19:06:48 -0400
+Received: from adsl-64-175-242-3.dsl.sntc01.pacbell.net ([64.175.242.3]:992
+	"HELO laura.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S318016AbSHVXGr>; Thu, 22 Aug 2002 19:06:47 -0400
+From: brian@worldcontrol.com
+Date: Thu, 22 Aug 2002 16:10:34 -0700
+To: linux-kernel@vger.kernel.org
+Subject: 3Ware ok 2.4.19, dies 2.4.19-ac4
+Message-ID: <20020822231034.GA4538@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> I don't see any checking for the ATA bsy flag before you start sending
-> commands.  I have seen the current IDE code fail too many times if I
-> boot to fast, because of a lack of this one simple test.  So I don't
-> see how this could be considered a proper probe.
+I upgraded a machine with a 3ware RAID controller running 2.2.20 to 
+2.4.19-ac1.  The next day it lay dead.  On the screen was a
+message about 3ware: AEN overflow.
 
+I upgraded to 2.4.19-ac4.  24 hours later the same message was on
+the screen.
 
-There is no ATA bsy flag check at only one point, and that is before 
-EXECUTE DEVICE DIAGNOSTIC is issued.  The idea with this command is that 
-it pretty much stomps up and down the ATA bus, trouncing ongoing 
-activity in the process.
+I downgraded to 2.4.19 and have had 7 days of uptime.
 
-	Jeff
+The load on the machine is very constant.
 
+I've can't say I've done enough testing to confirm that its an ac
+issue.  Just something I came across.
 
-
+-- 
+Brian Litzinger

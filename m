@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbUDKF6V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 01:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUDKF6V
+	id S262253AbUDKGUu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 02:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUDKGUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 01:58:21 -0400
-Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:5163
-	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
-	id S262272AbUDKF6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 01:58:19 -0400
-thread-index: AcQfilREosVlG4lITMygxvL69uEFDQ==
-X-Sieve: Server Sieve 2.2
-Subject: Re: want to clarify powerpc assembly conventions in head.Sand	entry.S
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: <Administrator@vger.kernel.org>
-Cc: "linuxppc-dev list" <linuxppc-dev@lists.linuxppc.org>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>
-Message-ID: <000001c41f8a$54474000$d100000a@sbs2003.local>
-In-Reply-To: <4078D42C.1020608@nortelnetworks.com>
-References: <4077A542.8030108@nortelnetworks.com> <1081591559.25144.174.camel@gaston>  <4078D42C.1020608@nortelnetworks.com>
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sun, 11 Apr 2004 02:20:50 -0400
+Received: from CPE-203-51-35-15.nsw.bigpond.net.au ([203.51.35.15]:56829 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S262253AbUDKGUs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 02:20:48 -0400
+Message-ID: <4078E3BA.8040707@eyal.emu.id.au>
+Date: Sun, 11 Apr 2004 16:20:42 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 11 Apr 2004 07:00:45 +0100
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.26-rc2
+References: <20040406004251.GA24918@logos.cnet>
+In-Reply-To: <20040406004251.GA24918@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
-X-Loop: linuxppc-dev@lists.linuxppc.org
-Envelope-to: paul@sumlocktest.fsnet.co.uk
-Content-Class: urn:content-classes:message
-X-me-spamlevel: not-spam
-Importance: normal
-X-me-spamrating: 2.971760
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-OriginalArrivalTime: 11 Apr 2004 06:00:45.0343 (UTC) FILETIME=[544BFAF0:01C41F8A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti wrote:
+> Hi,
+> 
+> Here goes the second release candidate. It contains an ACPI update,
+> networking updates, IDE updates, XFS update, etc.
 
-> You knew this was coming...  What's special about syscalls?  There's the
-> r3 thing, but other than that...
+Building the (binary) nvidia driver I got this warning:
 
-The whole codepath is a bit different, there's the syscall trace,
-we can avoid saving much more registers are syscalls are function
-calls and so can clobber the non volatiles, etc...
+In file included from /lib/modules/2.4.26-rc2/build/include/linux/vmalloc.h:8,
+                  from nv-linux.h:62,
+                  from os-interface.c:26:
+/lib/modules/2.4.26-rc2/build/include/linux/highmem.h: In function `bh_kmap':
+/lib/modules/2.4.26-rc2/build/include/linux/highmem.h:20: warning: pointer of type `void *' used in arithmetic
 
-> Thanks for your help with this stuff.  As I've been slowly wrapping my
-> head around it I've been continuously wishing for some kind of design
-> rules document describing the various paths through the assembly code,
-> along with register conventions and such.  I eventually did find the
-> conventions linked off the penguinppc website, but it was not obvious
-> from just reading the code or the ppc stuff in the Documentation directory.
->
-> Chris
+Looking there I see:
+
+static inline char *bh_kmap(struct buffer_head *bh)
+{
+         return kmap(bh->b_page) + bh_offset(bh);
+}
+
+And in /usr/include/linux/highmem.h I see:
+
+static inline void *kmap(struct page *page) { return page_address(page); }
+
+So we really are doing 'void *' math, which is not right. Maybe a cast is
+called for in bh_kmap(), like:
+	return (char *)kmap(bh->b_page) + bh_offset(bh);
+
 --
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-
-** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
-
-
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

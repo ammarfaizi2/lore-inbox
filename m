@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266935AbRGHRQ7>; Sun, 8 Jul 2001 13:16:59 -0400
+	id <S264849AbRGHRS7>; Sun, 8 Jul 2001 13:18:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbRGHRQt>; Sun, 8 Jul 2001 13:16:49 -0400
-Received: from www.wen-online.de ([212.223.88.39]:3332 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S264849AbRGHRQh>;
-	Sun, 8 Jul 2001 13:16:37 -0400
-Date: Sun, 8 Jul 2001 19:15:40 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <Pine.LNX.4.33L.0107081241280.22014-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0107081856590.318-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265051AbRGHRSt>; Sun, 8 Jul 2001 13:18:49 -0400
+Received: from metastasis.f00f.org ([203.167.249.89]:19842 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S264849AbRGHRSg>;
+	Sun, 8 Jul 2001 13:18:36 -0400
+Date: Mon, 9 Jul 2001 05:18:25 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Dave Jones <davej@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vibol Hou <vhou@khmer.cc>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Machine check exception? (2.4.6+SMP+VIA)
+Message-ID: <20010709051825.D28809@weta.f00f.org>
+In-Reply-To: <Pine.LNX.4.30.0107081907440.28660-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0107081907440.28660-100000@Appserv.suse.de>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jul 2001, Rik van Riel wrote:
+On Sun, Jul 08, 2001 at 07:09:11PM +0200, Dave Jones wrote:
 
-> On Sun, 8 Jul 2001, Mike Galbraith wrote:
->
-> > is very oom with no disk activity.  It _looks_ (xmm and vmstat) like
-> > it just ran out of cleanable dirty pages.  With or without swap,
->
-> ... Bingo.  You hit the infamous __wait_on_buffer / ___wait_on_page
-> bug. I've seen this for quite a while now on our quad xeon test
-> machine, with some kernel versions it can be reproduced in minutes,
-> with others it won't trigger at all.
->
-> And after a recompile it's usually gone ...
->
-> I hope there is somebody out there who can RELIABLY trigger
-> this bug, so we have a chance of tracking it down.
+    There is no K7 specific implementation. It's the same as the Intel
+    MSRs.
 
-Well, my box seems to think I'm a somebody.  If it changes it's mind,
-I'll let you know.  I'll throw whatever rocks I can find at it to get
-it all angry and confused.  You sneak up behind it and do the stake and
-mallot number.
+Ah thanks, missed that.
 
-tar -rvf /dev/null /usr/local (10 gig of.. mess) with X/KDE running
-seems 100% repeatable here.
 
-'scuse me while I go recompile again and hope it just goes away ;-)
-
-	-Mike
-
+  --cw

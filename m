@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131602AbRCOBeE>; Wed, 14 Mar 2001 20:34:04 -0500
+	id <S131603AbRCOBwo>; Wed, 14 Mar 2001 20:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131609AbRCOBdp>; Wed, 14 Mar 2001 20:33:45 -0500
-Received: from [210.164.203.132] ([210.164.203.132]:48650 "EHLO
+	id <S131612AbRCOBwe>; Wed, 14 Mar 2001 20:52:34 -0500
+Received: from [210.164.203.132] ([210.164.203.132]:65290 "EHLO
 	neptune.soft-net.co.jp") by vger.kernel.org with ESMTP
-	id <S131602AbRCOBdn>; Wed, 14 Mar 2001 20:33:43 -0500
-Message-ID: <004801c0acef$bfa13bf0$0f01a8c0@ndiamond5w2k>
+	id <S131603AbRCOBwX>; Wed, 14 Mar 2001 20:52:23 -0500
+Message-ID: <005d01c0acf2$65287ff0$0f01a8c0@ndiamond5w2k>
 From: "SN_Diamond" <Norman.Diamond@soft-net.co.jp>
 To: <linux-kernel@vger.kernel.org>
-Subject: Kernel bug in 2.4.2
-Date: Thu, 15 Mar 2001 10:31:23 +0900
+Subject: Kernel bug in 2.4.2 (TYPO CORRECTED)
+Date: Thu, 15 Mar 2001 10:50:30 +0900
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-2022-jp"
@@ -22,6 +22,13 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Re-sending with correction to typographical error.
+The version number for the modutils rpm (2.4.2-1)
+matches the version number for the kernel non-rpm (2.4.2).
+Sorry if the typo in my previous message might have led to
+an incorrect diagnosis.
+
+
 Kernel 2.4.2 on a uniprocessor Pentium-MMX.
 Kernel PCMCIA 3.1.22 is built-in.
 PCMCIA 3.1.24 package is added.
@@ -32,7 +39,7 @@ must have thought that the network interface was still active.
 
 Base distribution is Red Hat 7J (default language Japanese).
 Update rpms were applied for gcc 2.96-69, glibc 2.2-12,
-modutils 2.4.1-1, and ksymoops 2.4.0-3.
+modutils 2.4.2-1, and ksymoops 2.4.0-3.
 The kernel and PCMCIA packages, mentioned at the beginning of
 this message, were not from rpms.
 

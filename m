@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283245AbRLCXqT>; Mon, 3 Dec 2001 18:46:19 -0500
+	id <S280832AbRLDDkS>; Mon, 3 Dec 2001 22:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282165AbRLCXjA>; Mon, 3 Dec 2001 18:39:00 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62461 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S284940AbRLCSmN>; Mon, 3 Dec 2001 13:42:13 -0500
-Date: Mon, 3 Dec 2001 13:42:12 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: <mingo@devserv.devel.redhat.com>
-To: Brian McEntire <brianm@fsg1.nws.noaa.gov>
-cc: <linux-kernel@vger.kernel.org>, <systems@clifford.nws.noaa.gov>
-Subject: Re: PROBLEM: system hangs on dual 1GHz PIII system with 2.4.13-ac8
-In-Reply-To: <Pine.LNX.4.33.0112031336100.25875-100000@fsg1.nws.noaa.gov>
-Message-ID: <Pine.LNX.4.33.0112031340220.28071-100000@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282093AbRLDDiv>; Mon, 3 Dec 2001 22:38:51 -0500
+Received: from bitmover.com ([192.132.92.2]:21209 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S281932AbRLDDiQ>;
+	Mon, 3 Dec 2001 22:38:16 -0500
+Date: Mon, 3 Dec 2001 19:38:15 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Message-ID: <20011203193815.A7439@work.bitmover.com>
+Mail-Followup-To: hps@intermeta.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20011130181415.C19152@work.bitmover.com> <200112012305.fB1N5xf1020409@sleipnir.valparaiso.cl> <20011202122940.B2622@work.bitmover.com> <9uh084$ome$1@forge.intermeta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <9uh084$ome$1@forge.intermeta.de>; from mailgate@hometree.net on Mon, Dec 03, 2001 at 11:01:24PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 03, 2001 at 11:01:24PM +0000, Henning P. Schmiedehausen wrote:
+> Larry McVoy <lm@bitmover.com> writes:
+> 
+> >then 4->8, etc.  By your logic, someone should be sitting down and saying
+> >here is how you get to 128.  Other than myself, noone is doing that and
+> >I'm not really a Linux kernel hack, so I don't count.  
+> 
+> "No one that you know". I'm always surprised that you're able to speak
+> with such confidence. There may be lots of things going on that don't
+> daily report to you.
 
-On Mon, 3 Dec 2001, Brian McEntire wrote:
-
-> I can't boot kernels except for -ac patched kernels (because I have
-> ext3 file systems that I converted during the 7.1 -> 7.2 upgrade.)
-
-the 2.4.16 kernel includes ext3fs support, so you can try 2.4.17-pre2 as 
-well.
-
-> Where can I get the 2.4.17-2 kernel or RPM?
-
-the patch is in Marcelo's directory:
-
- http://www.kernel.org/pub/linux/kernel/people/marcelo/2.4/testing/patch-2.4.17-pre2.bz2
-
-apply it to a vanilla 2.4.16 tree.
-
-	Ingo
-
+Right you are, but...  There is also piles of information that I absorb
+on a daily basis, and I'm always willing to be educated.  For example,
+you could educate me about all those 128 processor Linux boxes in the
+world and fill in a hole in my knowledge.  I'm listening...
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267589AbSLMBuY>; Thu, 12 Dec 2002 20:50:24 -0500
+	id <S267591AbSLMBxk>; Thu, 12 Dec 2002 20:53:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267590AbSLMBuY>; Thu, 12 Dec 2002 20:50:24 -0500
-Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:16 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S267589AbSLMBuX>; Thu, 12 Dec 2002 20:50:23 -0500
-Message-ID: <3DF93D89.3000704@ixiacom.com>
-Date: Thu, 12 Dec 2002 17:53:13 -0800
-From: Dan Kegel <dkegel@ixiacom.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+	id <S267596AbSLMBxk>; Thu, 12 Dec 2002 20:53:40 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:36834 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267591AbSLMBxj>; Thu, 12 Dec 2002 20:53:39 -0500
+Message-ID: <3DF93F2A.6090600@us.ibm.com>
+Date: Thu, 12 Dec 2002 18:00:10 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: procps 2.x vs. procps 3.x
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [ANNOUNCE] kexec-tools-1.8
+References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>	<m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp>	<m1isz39rrw.fsf@frodo.biederman.org> <1037148514.13280.97.camel@andyp>	<m1k7jb3flo.fsf_-_@frodo.biederman.org>	<m1el9j2zwb.fsf@frodo.biederman.org>	<m11y5j2r9t.fsf_-_@frodo.biederman.org>	<m1r8d1xcap.fsf_-_@frodo.biederman.org> <3DEC1758.8030302@us.ibm.com> <m18yz7y2qh.fsf@frodo.biederman.org>
+In-Reply-To: <m18yz7y2qh.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote in message "[ANNOUNCE] procps 3.1.3":
-> This release includes user selection in top, the sysctl -e
-> option needed to support the Red Hat 8.0 boot scripts, and
-> the use of /proc/*/wchan on recent 2.5.xx kernels.
-> 
-> For those of you still upgrading from procps 2.0.xx releases,
-> you can expect:
- > ...
-> There's a procps-feedback@lists.sf.net mailing list you can
-> use for feature requests, bug reports, and so on. Use it!
+I got around to trying it on a NUMA-Q again.  It makes it well into 
+the kernel this time.  I've been getting some strange CPU numbering 
+problems, but that was happening to a lesser extent before I threw 
+kexec in there.
 
-and
+Right now it's dying in the memory allocator, but that is probably 
+just something that didn't get initialized right, or some cross-quad 
+memory that isn't set up right.
 
-Robert Love wrote in message "[announce] procps 2.0.11":
-> Rik and I are pleased to announce version 2.0.11 of procps, the package
-> that contains ps, top, free, vmstat, etc.
-> 
-> Newer versions of procps are required for 2.5 kernels.
- > ...
-> 
-> Procps discussion, bugs, and patches are welcome at:
-> 	procps-list@redhat.com
-
-Which one should distributions use?
-Or is that a matter of taste?
-
-- Dan
-
-
-
-
-
+I would really like to see this go into 2.5.  The fact that it gets 
+this far on something as exotic as a NUMA-Q is a tribute to its 
+maturity.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

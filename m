@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVCXVO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVCXVRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVCXVO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 16:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVCXVO4
+	id S261516AbVCXVRm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 16:17:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVCXVRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 16:14:56 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:40561 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261405AbVCXVOw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 16:14:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=eqbLwz2/u4k3PYBhKvpD+r7EPMYuMq/99mecD6WzZ53y1c/YgRyh3LfuJ1OLXiA4B5ErqakSNe3BfEqSNySflZ4soXlSpuzljInIkepk+JEWCjPErA1GWtUkANzEu5nLXhN3xrjVQ9ytdjkFp2RgxX+CVY7zk8wUJERMR0g5XE4=
-Message-ID: <d120d50005032413145adaa283@mail.gmail.com>
-Date: Thu, 24 Mar 2005 16:14:52 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Andy Isaacson <adi@hexapodia.org>
-Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Cc: Stefan Seyfried <seife@suse.de>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050324202040.GC9005@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de>
-	 <20050324181059.GA18490@hexapodia.org>
-	 <d120d500050324111826335f67@mail.gmail.com>
-	 <20050324202040.GC9005@hexapodia.org>
+	Thu, 24 Mar 2005 16:17:42 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:57550 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261516AbVCXVRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 16:17:12 -0500
+Message-Id: <200503242116.j2OLGwg07920@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, "'Andrew Morton'" <akpm@osdl.org>
+Subject: RE: re-inline sched functions
+Date: Thu, 24 Mar 2005 13:16:58 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcUmHSnA1AaWf6w4SiCCPMSE/Sx0OgAS0ADQApN2z8A=
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Mar 2005 12:20:40 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
-> On Thu, Mar 24, 2005 at 02:18:40PM -0500, Dmitry Torokhov wrote:
-> > On Thu, 24 Mar 2005 10:10:59 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
-> > > So I added i8042.noaux to my kernel command line, rebooted, insmodded
-> > > intel_agp, started X, and verified no touchpad action.  Then I
-> > > suspended, and it worked fine.  After restart, I suspended again - also
-> > > fine.
-> > >
-> > > So I think that fixed it.  But no touchpad is a bit annoying. :)
-> >
-> > Try adding i8042.nomux instead of i8042.noaux, it should keep your
-> > touchpad in working condition. Please let me know if it still wiorks.
-> 
-> With nomux the touchpad works again, but suspend blocks in the same
-> place as without nomux.
-> 
-> (How can I verify that "nomux" was accepted?  It shows up on the "Kernel
-> command line" but there's no other mention of it in dmesg.)
-> 
+Ingo Molnar wrote on Friday, March 11, 2005 1:32 AM
+> > -static unsigned int task_timeslice(task_t *p)
+> > +static inline unsigned int task_timeslice(task_t *p)
+>
+> the patch looks good except this one - could you try to undo it and
+> re-measure? task_timeslice() is not used in any true fastpath, if it
+> makes any difference then the performance difference must be some other
+> artifact.
 
-Ignore my babbling, I just noticed in your dmesg that your KBC does
-not support MUX mode to begin with.
+Chen, Kenneth W wrote on Friday, March 11, 2005 10:40 AM
+> OK, I'll re-measure. Yeah, I agree that this function is not in the fastpath.
 
--- 
-Dmitry
+Ingo is right, re-measured on our benchmark setup and did not see any
+difference whether task_timeslice is inlined or not.  So if people want
+to take inline keyword out for that function, we won't complain :-)
+
+

@@ -1,33 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVCQSqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbVCQS5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVCQSqR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 13:46:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVCQSqR
+	id S262396AbVCQS5N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 13:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVCQS5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 13:46:17 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:59546 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262393AbVCQSqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 13:46:16 -0500
-Date: Thu, 17 Mar 2005 10:46:01 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Jens Langner <Jens.Langner@light-speed.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11.4 1/1] fs: new filesystem implementation VXEXT1.0
-Message-ID: <20050317184601.GA15228@taniwha.stupidest.org>
-References: <42399F54.1010108@light-speed.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42399F54.1010108@light-speed.de>
+	Thu, 17 Mar 2005 13:57:13 -0500
+Received: from oceanite.ens-lyon.fr ([140.77.1.22]:20089 "EHLO
+	oceanite.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261190AbVCQS5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 13:57:10 -0500
+Message-ID: <4239D302.50606@ens-lyon.org>
+Date: Thu, 17 Mar 2005 19:57:06 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Dave Airlie <airlied@gmail.com>
+Cc: Bernhard Rosenkraenzer <bero@arklinux.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm3 - DRM/i915 broken
+References: <20050312034222.12a264c4.akpm@osdl.org> <42360820.702@ens-lyon.org>	 <200503142330.42556.bero@arklinux.org> <423616CF.6060204@ens-lyon.org> <21d7e99705031601363f27296@mail.gmail.com>
+In-Reply-To: <21d7e99705031601363f27296@mail.gmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 17, 2005 at 04:16:36PM +0100, Jens Langner wrote:
+Dave Airlie a écrit :
+>>DRM/i915 does not work on my Dell Dimension 3000 (i865 chipset).
+>>It's the first -mm kernel I try on this box. I don't whether previous -mm
+>>worked or not. Anyway, 2.6.11 works great.
+> 
+> This is more than likely caused by the multi-bridge AGP stuff in -bk3
+> .. if you could test 2.6.11-bk2 and then -bk3 and see if it breaks
+> there.. if not there can you test the -bk6 -bk7 transition...
 
-> The VXEXT filesystem is more or less a FAT16 based filesystem which
-> was slightly modified by Wind River to allow the storage of more
-> than 2GB data on a partition, as well as storing filenames with a
-> maximum of 40 characters length.
+The break is between bk2 and bk3.
+Let me know if you want me to try some patches.
 
-Can this not then be folded into the existing vfat filesystem?
+Regards,
+Brice

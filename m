@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264193AbTKSXaa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 18:30:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264194AbTKSXaa
+	id S262522AbTKSXZj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 18:25:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbTKSXZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 18:30:30 -0500
-Received: from mailhost.NMT.EDU ([129.138.4.52]:25529 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id S264193AbTKSXa2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 18:30:28 -0500
-Date: Wed, 19 Nov 2003 16:30:00 -0700
-From: Adam Radford <adam@nmt.edu>
-Message-Id: <200311192330.hAJNU0cV005517@speare5-1-13.nmt.edu>
-To: marcelo.tosatti@cyclades.com, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.23-rc3 fix scsi disk targets over 1TB to not EIO
+	Wed, 19 Nov 2003 18:25:39 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:17058 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S262522AbTKSXZj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 18:25:39 -0500
+Date: Wed, 19 Nov 2003 15:25:38 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Cc: hpa@zytor.com
+Subject: BK2CVS tree is back
+Message-ID: <20031119232538.GA10922@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org, hpa@zytor.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -Naur linux-2.4.23-rc2/drivers/scsi/sd.c linux-2.4.23-rc3/drivers/scsi/sd.c
---- linux-2.4.23-rc2/drivers/scsi/sd.c	Mon Aug 25 04:44:42 2003
-+++ linux-2.4.23-rc3/drivers/scsi/sd.c	Wed Nov 19 15:15:38 2003
-@@ -294,7 +294,8 @@
- 
- static int sd_init_command(Scsi_Cmnd * SCpnt)
- {
--	int dev, block, this_count;
-+	int dev, this_count;
-+	unsigned long block;
- 	struct hd_struct *ppnt;
- 	Scsi_Disk *dpnt;
- #if CONFIG_SCSI_LOGGING
+I just updated the copy on master.kernel.org and I'll be updating that 
+directly from now, nightly, at about 3am PST.  It will probably take a 
+couple of days before I have the bugs worked out but there is a fresh 
+up to date copy there now.
+
+Thanks to HPA for fixing my account and other admin help.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

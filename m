@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279015AbRJVWjW>; Mon, 22 Oct 2001 18:39:22 -0400
+	id <S279033AbRJVWmk>; Mon, 22 Oct 2001 18:42:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279029AbRJVWiz>; Mon, 22 Oct 2001 18:38:55 -0400
-Received: from [212.34.128.4] ([212.34.128.4]:59938 "EHLO mailer.ran.es")
-	by vger.kernel.org with ESMTP id <S279025AbRJVWhI>;
-	Mon, 22 Oct 2001 18:37:08 -0400
-Date: Tue, 23 Oct 2001 00:37:41 +0200
-From: victor <ixnay@infonegocio.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: victor <ixnay@infonegocio.com>
-X-Priority: 3 (Normal)
-Message-ID: <31693841270.20011023003741@infonegocio.com>
-To: Sam Varshavchik <mrsam@courier-mta.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re[2]: Linux 2.2.20pre10
-In-Reply-To: <Pine.LNX.4.33.0110221812380.14008-100000@ny.email-scan.com>
-In-Reply-To: <Pine.LNX.4.33.0110221812380.14008-100000@ny.email-scan.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S279029AbRJVWmc>; Mon, 22 Oct 2001 18:42:32 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48513 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279034AbRJVWjQ>;
+	Mon, 22 Oct 2001 18:39:16 -0400
+Date: Mon, 22 Oct 2001 15:39:47 -0700 (PDT)
+Message-Id: <20011022.153947.48529984.davem@redhat.com>
+To: sten@blinkenlights.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: INIT_MMAP on sparc64
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.40-blink.0110230044400.20416-100000@deepthought.blinkenlights.nl>
+In-Reply-To: <20011022.152800.59654230.davem@redhat.com>
+	<Pine.LNX.4.40-blink.0110230044400.20416-100000@deepthought.blinkenlights.nl>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Sten <sten@blinkenlights.nl>
+   Date: Tue, 23 Oct 2001 00:50:42 +0200 (CEST)
 
-Tuesday, October 23, 2001, 12:15:24 AM, you wrote:
+   Well the thing is that I like todo evil things,
+   like connecting sgi flatpanels to creator3d's, using
+   non sun blessed ( aka sub 1000$ ) ethernet cards or
+   sticking in wierd raid cards.
+   
+   Which is why I like linux ;)
+   
+   Having source is great because I can break it,
+   and maybe learn something in the process.
 
-SV> On Mon, 22 Oct 2001, PinkFreud wrote:
+All of this is irrelevant to going over the 3.5MB mark,
+I contend that your machine simply does not need it no matter
+what obscure stuff you stick into it :-)
 
->> Why not take that a step further?  It would seem to me that your
->> insane interpretation of that insane law would mean that unix and it's
->> derivatives (Linux, anyone?) would be illegal to use as well
+Turn off the PCI device names, that is usually what eats up a
+lot of space and lspci provides the same info anyways...
 
-SV> Only partially correct.  Linux will certainly be illegal under SSSCA.
-could something be illegal if you created 10 years before the law :??
-or it could be illegal if you continue developing it :?
-do you realy thing linux will be declare illegal and Linus will be
-under this law if IBM, SGI, HP, COMPAQ and so many other computer
-giants are developing for linux and linux is so popular, i dont think
-that nobody could stop it
-"It would seem to me that your
-insane interpretation of that insane law would mean that unix and it's
-derivatives"
-if i read well SGI(irix) HP(HP-UX) SUN (SOLARIS & SUNos)
-COMPAQ(True64, VMS) would crash
-because unix is ilegal.... i dont think so
-SV>  
-SV> Read it.  UNIX is not.  And there's nothing insane about it.  That's what
-SV> the proposed bill says.
-
->> Please don't tell me you woke up this morning and had a sudden attack of
->> conscience that you were violating US law.  You've posted such changes
-i am a european citizen, i only wait to see if europe dont adopt that
-law :/
-
-SV> Perhaps a sudden realization, would be more like it.
-
-
-
-
-
-Best regards,
- victor                            mailto:ixnay@infonegocio.com
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

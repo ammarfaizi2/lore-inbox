@@ -1,100 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262120AbSI3OIK>; Mon, 30 Sep 2002 10:08:10 -0400
+	id <S262112AbSI3N60>; Mon, 30 Sep 2002 09:58:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262090AbSI3NoG>; Mon, 30 Sep 2002 09:44:06 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:37070 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S262068AbSI3Nnl> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:43:41 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.39 s390 (8/26): xpram driver.
-Date: Mon, 30 Sep 2002 14:53:44 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209301453.44582.schwidefsky@de.ibm.com>
+	id <S262095AbSI3NzZ>; Mon, 30 Sep 2002 09:55:25 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:17373 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262065AbSI3NqM>;
+	Mon, 30 Sep 2002 09:46:12 -0400
+Date: Mon, 30 Sep 2002 15:51:30 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 oopses at boot in ide_toggle_bounce
+Message-ID: <20020930135130.GG3867@suse.de>
+References: <UTC200209211211.g8LCBcW16848.aeb@smtp.cwi.nl> <20020923074142.GB15479@suse.de> <20020923100134.GA16260@win.tue.nl> <20020923100219.GG25682@suse.de> <20020930015948.GA18680@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020930015948.GA18680@win.tue.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove reference to xpram_release. Correct calls to bi_end_io and bio_io_error.
+On Mon, Sep 30 2002, Andries Brouwer wrote:
+> On Mon, Sep 23, 2002 at 12:04:24PM +0200, Jens Axboe wrote:
+> > > On Mon, Sep 23 2002, Andries Brouwer wrote:
+> 
+> > > > It no longer sees my disks on an HPT366,
+> 
+> > > Can you send me the kernel boot log
+> >
+> > Ah hang on, please boot with this patch from Ivan.
+> 
+> Patch makes no difference.
+> 
+> Situation:
+>  no special kernel boot parameters concerning these disks,
+>  no hdparm used
+>  no CONFIG_BLK_DEV_HPT366
+> 
+> For 2.5.33:
+> 
+> HPT366: IDE controller on PCI bus 00 dev 48
+> HPT366: detected chipset, but driver not compiled in!
+> HPT366: chipset revision 1
+> HPT366: not 100%% native mode: will probe irqs later
+>     ide2: BM-DMA at 0x9c00-0x9c07, BIOS settings: hde:pio, hdf:pio
+> HPT366: IDE controller on PCI bus 00 dev 49
+> HPT366: chipset revision 1
+> HPT366: not 100%% native mode: will probe irqs later
+>     ide3: BM-DMA at 0xa800-0xa807, BIOS settings: hdg:pio, hdh:pio
+> 
+> For 2.5.38:
+> The string HPT does not occur in the boot log.
+> 
+> For 2.5.38 with CONFIG_BLK_DEV_HPT366:
+>  all OK at first sight, the disks mount, have not tried to stress them
+>  warnings in boot.log:
+> 
+> HPT366: chipset revision 1
+> HPT366: not 100%% native mode: will probe irqs later
+>     ide2: BM-DMA at 0x9c00-0x9c07, BIOS settings: hde:DMA, hdf:DMA
+> hde: Maxtor 93652U8, ATA DISK drive
+> hdf: Maxtor 96147H6, ATA DISK drive
+> hde: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+> hde: set_drive_speed_status: error=0x04 { DriveStatusError }
+> hdf: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+> hdf: set_drive_speed_status: error=0x04 { DriveStatusError }
+> 
+> Funny that 2.5.33 reports "BIOS settings: hde:pio, hdf:pio"
+> while 2.5.38 says "BIOS settings: hde:DMA, hdf:DMA".
+> 
+> Long ago I would get (sporadic) disk errors and fs corruption with
+> CONFIG_BLK_DEV_HPT366, while all worked without. Today
+> CONFIG_BLK_DEV_HPT366 is required, but apart from the messages quoted
+> I have not seen any error messages or problems. Everything works.
+> 
+> Precisely the same holds for 2.5.39.
 
-diff -urN linux-2.5.39/drivers/s390/block/xpram.c linux-2.5.39-s390/drivers/s390/block/xpram.c
---- linux-2.5.39/drivers/s390/block/xpram.c	Fri Sep 27 23:50:26 2002
-+++ linux-2.5.39-s390/drivers/s390/block/xpram.c	Mon Sep 30 13:31:58 2002
-@@ -15,7 +15,6 @@
-  *   Device specific file operations
-  *        xpram_iotcl
-  *        xpram_open
-- *        xpram_release
-  *
-  * "ad-hoc" partitioning:
-  *    the expanded memory can be partitioned among several devices 
-@@ -36,6 +35,7 @@
- #include <linux/blkpg.h>
- #include <linux/hdreg.h>  /* HDIO_GETGEO */
- #include <linux/device.h>
-+#include <linux/bio.h>
- #include <asm/uaccess.h>
- 
- #define XPRAM_NAME	"xpram"
-@@ -60,7 +60,7 @@
- static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
- static int xpram_sizes[XPRAM_MAX_DEVS];
- static struct gendisk xpram_disks[XPRAM_MAX_DEVS];
--static char xpram_names[XPRAM_MAX_DEV][8];
-+static char xpram_names[XPRAM_MAX_DEVS][8];
- static unsigned long xpram_pages;
- static int xpram_devs;
- static devfs_handle_t xpram_devfs_handle;
-@@ -313,10 +313,12 @@
- 		}
- 	}
- 	set_bit(BIO_UPTODATE, &bio->bi_flags);
--	bio->bi_end_io(bio);
-+	bytes = bio->bi_size;
-+	bio->bi_size = 0;
-+	bio->bi_end_io(bio, bytes, 0);
- 	return 0;
- fail:
--	bio_io_error(bio);
-+	bio_io_error(bio, bio->bi_size);
- 	return 0;
- }
- 
-@@ -330,7 +332,6 @@
- 	return 0;
- }
- 
--
- static int xpram_ioctl (struct inode *inode, struct file *filp,
- 		 unsigned int cmd, unsigned long arg)
- {
-@@ -339,7 +340,7 @@
- 	int idx = minor(inode->i_rdev);
- 	if (idx >= xpram_devs)
- 		return -ENODEV;
--	if (cmd != HDIO_GETGEO)
-+ 	if (cmd != HDIO_GETGEO)
- 		return -EINVAL;
- 	/*
- 	 * get geometry: we have to fake one...  trim the size to a
-@@ -356,14 +357,12 @@
- 	put_user(4, &geo->start);
- 	return 0;
- }
--}
- 
- static struct block_device_operations xpram_devops =
- {
- 	owner:   THIS_MODULE,
- 	ioctl:   xpram_ioctl,
- 	open:    xpram_open,
--	release: xpram_release,
- };
- 
- /*
+Does it work in 2.4.20-pre-ac?
+
+-- 
+Jens Axboe
 

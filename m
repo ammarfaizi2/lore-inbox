@@ -1,41 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268070AbUIPNeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUIPNd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268070AbUIPNeK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 09:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268065AbUIPNeJ
+	id S268066AbUIPNd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 09:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268079AbUIPNd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 09:34:09 -0400
-Received: from cantor.suse.de ([195.135.220.2]:29361 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268074AbUIPNdJ (ORCPT
+	Thu, 16 Sep 2004 09:33:57 -0400
+Received: from mproxy.gmail.com ([216.239.56.251]:39468 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268066AbUIPNbS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 09:33:09 -0400
-Date: Thu, 16 Sep 2004 15:33:01 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Lincoln Dale <ltd@cisco.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, paul@clubi.ie,
-       netdev@oss.sgi.com, leonid.grossman@s2io.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The ultimate TOE design
-Message-ID: <20040916133301.GA15562@wotan.suse.de>
-References: <20040915141346.5c5e5377.davem@davemloft.net> <4148991B.9050200@pobox.com> <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org> <1095275660.20569.0.camel@localhost.localdomain> <4148A90F.80003@pobox.com> <20040915140123.14185ede.davem@davemloft.net> <20040915210818.GA22649@havoc.gtf.org> <20040915141346.5c5e5377.davem@davemloft.net> <5.1.0.14.2.20040916192213.04240008@171.71.163.14> <1095337159.22739.7.camel@localhost.localdomain>
+	Thu, 16 Sep 2004 09:31:18 -0400
+Message-ID: <21d7e99704091606315a4cc51a@mail.gmail.com>
+Date: Thu, 16 Sep 2004 23:31:15 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Dave Airlie <airlied@linux.ie>
+Subject: Re: [BK pull] [DRM] latest DRM patches..
+Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0409161226180.17566@skynet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095337159.22739.7.camel@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0409161226180.17566@skynet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 01:19:21PM +0100, Alan Cox wrote:
-> On Iau, 2004-09-16 at 10:29, Lincoln Dale wrote:
-> > . . . this ignore the realities of power restrictions of PCI today . . .
-> > sure, one could create a PCI card that takes a power-connector, but that 
-> > don't scale so well either . . .
+I've just added another changeset to use __set_current_state after
+Alan suggested it as the proper construct to use in the DRM...
+
+Dave.
+
+
+On Thu, 16 Sep 2004 12:27:52 +0100 (IST), Dave Airlie <airlied@linux.ie> wrote:
 > 
-> At 1Ghz the Athlon Geode NX draws about 6W. Thats less than my SCSI
-
-Are you sure that's worst case, not average? Worst case is usually
-much worse on a big CPU like an Athlon, but the power supply 
-has to be sized for it. 
-
--Andi
+> Hi Linus,
+> 
+> Please do a
+> 
+>         bk pull bk://drm.bkbits.net/drm-2.6
+> 
+> This will include the latest DRM changes and will update the following files:
+> 
+>  drivers/char/drm/drm_drv.h      |   11 +++++++----
+>  drivers/char/drm/drm_os_linux.h |    4 ++--
+>  drivers/char/drm/drm_scatter.h  |    2 +-
+>  drivers/char/drm/i830_irq.c     |    4 ++--
+>  4 files changed, 12 insertions(+), 9 deletions(-)
+> 
+> through these ChangeSets:
+> 
+> <airlied@starflyer.(none)> (04/09/16 1.1904)
+>    drm: use set_current_state instead of direct assignment
+> 
+>    Suggested-by: Nishanth Aravamudan <nacc@us.ibm.com>
+>    Approved-by: Dave Airlie <airlied@linux.ie>
+> 
+> <airlied@starflyer.(none)> (04/09/16 1.1903)
+>    drm: add pci_enable_device
+> 
+>    Add pci_enable_device for any PCI device we want to use.
+> 
+>    From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+>    Approved-by: David Airlie <airlied@linux.ie>
+> 
+> <airlied@starflyer.(none)> (04/09/16 1.1902)
+>    drm: fix bug introduced in the macro removal
+> 
+>    This caused issues with a PCI radeon card.
+> 
+>    From: Jon Smirl
+>    Approved-by: Dave Airlie <airlied@linux.ie>
+> 
+> diff -Nru a/drivers/char/drm/drm_drv.h b/drivers/char/drm/drm_drv.h
+> --- a/drivers/char/drm/drm_drv.h        Thu Sep 16 21:24:25 2004
+> +++ b/drivers/char/drm/drm_drv.h        Thu Sep 16 21:24:25 2004
+> @@ -480,6 +480,9 @@
+>         if (DRM(numdevs) >= MAX_DEVICES)
+>                 return -ENODEV;
+> 
+> +       if ((retcode=pci_enable_device(pdev)))
+> +               return retcode;
+> +
+>         dev = &(DRM(device)[DRM(numdevs)]);
+> 
+>         memset( (void *)dev, 0, sizeof(*dev) );
+> @@ -785,7 +788,7 @@
+> 
+>                 add_wait_queue( &dev->lock.lock_queue, &entry );
+>                 for (;;) {
+> -                       current->state = TASK_INTERRUPTIBLE;
+> +                       set_current_state(TASK_INTERRUPTIBLE);
+>                         if ( !dev->lock.hw_lock ) {
+>                                 /* Device has been unregistered */
+>                                 retcode = -EINTR;
+> @@ -805,7 +808,7 @@
+>                                 break;
+>                         }
+>                 }
+> -               current->state = TASK_RUNNING;
+> +               set_current_state(TASK_RUNNING);
+>                 remove_wait_queue( &dev->lock.lock_queue, &entry );
+>                 if( !retcode ) {
+>                         if (dev->fn_tbl.release)
+> @@ -985,7 +988,7 @@
+> 
+>         add_wait_queue( &dev->lock.lock_queue, &entry );
+>         for (;;) {
+> -               current->state = TASK_INTERRUPTIBLE;
+> +               set_current_state(TASK_INTERRUPTIBLE);
+>                 if ( !dev->lock.hw_lock ) {
+>                         /* Device has been unregistered */
+>                         ret = -EINTR;
+> @@ -1006,7 +1009,7 @@
+>                         break;
+>                 }
+>         }
+> -       current->state = TASK_RUNNING;
+> +       set_current_state(TASK_RUNNING);
+>         remove_wait_queue( &dev->lock.lock_queue, &entry );
+> 
+>         sigemptyset( &dev->sigmask );
+> diff -Nru a/drivers/char/drm/drm_os_linux.h b/drivers/char/drm/drm_os_linux.h
+> --- a/drivers/char/drm/drm_os_linux.h   Thu Sep 16 21:24:25 2004
+> +++ b/drivers/char/drm/drm_os_linux.h   Thu Sep 16 21:24:25 2004
+> @@ -134,7 +134,7 @@
+>         add_wait_queue(&(queue), &entry);                       \
+>                                                                 \
+>         for (;;) {                                              \
+> -               current->state = TASK_INTERRUPTIBLE;            \
+> +               set_current_state(TASK_INTERRUPTIBLE);          \
+>                 if (condition)                                  \
+>                         break;                                  \
+>                 if (time_after_eq(jiffies, end)) {              \
+> @@ -147,7 +147,7 @@
+>                         break;                                  \
+>                 }                                               \
+>         }                                                       \
+> -       current->state = TASK_RUNNING;                          \
+> +       set_current_state(TASK_RUNNING);                                \
+>         remove_wait_queue(&(queue), &entry);                    \
+>  } while (0)
+> 
+> diff -Nru a/drivers/char/drm/drm_scatter.h b/drivers/char/drm/drm_scatter.h
+> --- a/drivers/char/drm/drm_scatter.h    Thu Sep 16 21:24:25 2004
+> +++ b/drivers/char/drm/drm_scatter.h    Thu Sep 16 21:24:25 2004
+> @@ -73,7 +73,7 @@
+> 
+>         DRM_DEBUG( "%s\n", __FUNCTION__ );
+> 
+> -       if (drm_core_check_feature(dev, DRIVER_SG))
+> +       if (!drm_core_check_feature(dev, DRIVER_SG))
+>                 return -EINVAL;
+> 
+>         if ( dev->sg )
+> diff -Nru a/drivers/char/drm/i830_irq.c b/drivers/char/drm/i830_irq.c
+> --- a/drivers/char/drm/i830_irq.c       Thu Sep 16 21:24:25 2004
+> +++ b/drivers/char/drm/i830_irq.c       Thu Sep 16 21:24:25 2004
+> @@ -92,7 +92,7 @@
+>         add_wait_queue(&dev_priv->irq_queue, &entry);
+> 
+>         for (;;) {
+> -               current->state = TASK_INTERRUPTIBLE;
+> +               set_current_state(TASK_INTERRUPTIBLE);
+>                 if (atomic_read(&dev_priv->irq_received) >= irq_nr)
+>                    break;
+>                 if((signed)(end - jiffies) <= 0) {
+> @@ -112,7 +112,7 @@
+>                 }
+>         }
+> 
+> -       current->state = TASK_RUNNING;
+> +       set_current_state(TASK_RUNNING);
+>         remove_wait_queue(&dev_priv->irq_queue, &entry);
+>         return ret;
+>  }
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316490AbSEUCa4>; Mon, 20 May 2002 22:30:56 -0400
+	id <S316491AbSEUCm0>; Mon, 20 May 2002 22:42:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316491AbSEUCa4>; Mon, 20 May 2002 22:30:56 -0400
-Received: from pool-151-201-226-101.pitt.east.verizon.net ([151.201.226.101]:8064
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id <S316490AbSEUCaz>; Mon, 20 May 2002 22:30:55 -0400
-Date: Mon, 20 May 2002 22:31:26 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Dan Kegel <dkegel@ixiacom.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Status of compiling 2.4 with gcc3.1?
-Message-ID: <20020520223125.A629@marta>
-Mail-Followup-To: Kurt Wall <kwall>, Dan Kegel <dkegel@ixiacom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3CE960BC.5858E63@ixiacom.com>
+	id <S316492AbSEUCmZ>; Mon, 20 May 2002 22:42:25 -0400
+Received: from ns0.auctionwatch.com ([66.7.130.2]:47373 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S316491AbSEUCmZ>; Mon, 20 May 2002 22:42:25 -0400
+Date: Mon, 20 May 2002 19:42:25 -0700
+From: Petro <petro@auctionwatch.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Just an offer
+Message-ID: <20020521024225.GG20766@auctionwatch.com>
+In-Reply-To: <20020517122946.18213.qmail@bilmuh.ege.edu.tr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scribbling feverishly on May 20, Dan Kegel managed to emit:
-> How far from wise is it to compile the 2.4.19-prex
-> kernel with gcc3.1?  Is there a list of known issues?
-> Only report of trouble I've seen so far is
-> http://groups.google.com/groups?selm=linux.kernel.5.1.0.14.2.20020515015506.02749780%40pop.cus.cam.ac.uk
-> and that's just a compile-time fatal error building ntfs.
+On Fri, May 17, 2002 at 12:29:46PM -0000, Halil Demirezen wrote:
+> 
+> I wonder if there is a way of making the kernel decide whether it can boot 
+> successfully or not. For example, lets think of that i am compiling an 
+> update kernel not on the local machine but on any other pc using telnet or 
+> ssh emulators. And eventually it is time to reboot the machine and and run 
+> on the new kernel. However there has been an error during the compiling. - 
+> such as misconfiguration. Normally the machine will not boot and halt. So, 
+> is not there any way to reboot itself from the previous kernel after some 
+> time that it realizes it cannot boot properly. Maybe there is such a way. 
+> But, if not, this is an imaginary. Because i usually see these kind of 
+> problems ;)
 
-I'm running 2.4.18 built with GCC 3.1 and having no trouble that
-I've seen.
+    (1) Serial console is your buddy. 
 
-Kurt
+    (2) Remote power switches save your butt: 
+    http://www.apc.com/resource/include/techspec_index.cfm?base_sku=
+    AP9211&language=en&LOCAL.APCCountryCode=us
+
+    There is only so much software can do. 
+    
+
 -- 
-For large values of one, one equals two, for small values of two.
+My last cigarette was roughly 28 days, 17 hours, 11 minutes ago.
+YHBW

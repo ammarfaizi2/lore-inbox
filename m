@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261323AbSIZM62>; Thu, 26 Sep 2002 08:58:28 -0400
+	id <S262512AbSIZMzs>; Thu, 26 Sep 2002 08:55:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261413AbSIZM62>; Thu, 26 Sep 2002 08:58:28 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:65298 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S261323AbSIZM61>; Thu, 26 Sep 2002 08:58:27 -0400
-Message-Id: <200209261258.g8QCwpp04301@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Marco Schwarz <marco.schwarz@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Serious Problems with diskless clients
-Date: Thu, 26 Sep 2002 15:53:08 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <20020926095957.GC42048@niksula.cs.hut.fi> <3489.1033036000@www51.gmx.net>
-In-Reply-To: <3489.1033036000@www51.gmx.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S262513AbSIZMzs>; Thu, 26 Sep 2002 08:55:48 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:59535 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262512AbSIZMzs>;
+	Thu, 26 Sep 2002 08:55:48 -0400
+Date: Thu, 26 Sep 2002 18:35:58 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+Message-ID: <20020926183558.D18906@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3D92BE07.B6CDFE54@digeo.com> <20020926175445.B18906@in.ibm.com> <20020926122909.GN3530@holomorphy.com> <20020926181052.C18906@in.ibm.com> <20020926124244.GO3530@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020926124244.GO3530@holomorphy.com>; from wli@holomorphy.com on Thu, Sep 26, 2002 at 05:42:44AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 September 2002 08:26, Marco Schwarz wrote:
-> Hi all,
->
-> my diskless clients have some severe problems on one of my servers.
-> Sometimes (right now most of the time) everything just hangs at the same
-> place when starting up the kernel. Here are the last messages I get (right
-> before this IP-Config is running and looks OK):
->
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0
-> ds: no socket drivers loaded !
-> Looking up port of RPC 100003/2 on 192.168.0.235
-> portmap: server 192.168.0.235 mot responding, timed out !
+On Thu, Sep 26, 2002 at 05:42:44AM -0700, William Lee Irwin III wrote:
+> This is only aggravated by cacheline bouncing on SMP. The reductions
+> of system cpu time will doubtless be beneficial for all.
 
-Hook another box to the same network segment and run
-ping or mtr to 192.168.0.235 and to the booting box.
-Maybe your net drops packets or otherwise misbehaves.
+On SMP, I would have thought that only sharing the fd table
+while cloning tasks (CLONE_FILES) affects performance by bouncing the rwlock
+cache line. Are there a lot of common workloads where this happens ?
 
-BTW, 2.4.10 is way too old. 
-I don't see "mot responding, timed out !" in 2.4.19
-source, rather "not responding, timed out".
---
-vda
+Anyway the files_struct_rcu patch for 2.5.38 is up at
+http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=112473
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,142 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318014AbSIJTLg>; Tue, 10 Sep 2002 15:11:36 -0400
+	id <S318032AbSIJTMW>; Tue, 10 Sep 2002 15:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318032AbSIJTLg>; Tue, 10 Sep 2002 15:11:36 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:27140 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S318014AbSIJTLe>;
-	Tue, 10 Sep 2002 15:11:34 -0400
-Date: Tue, 10 Sep 2002 21:15:44 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] undo 2.5.34 ftape damage
-Message-ID: <20020910211544.B2197@mars.ravnborg.org>
-Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-References: <15742.2206.709234.102259@kim.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15742.2206.709234.102259@kim.it.uu.se>; from mikpe@csd.uu.se on Tue, Sep 10, 2002 at 04:58:38PM +0200
+	id <S318033AbSIJTMV>; Tue, 10 Sep 2002 15:12:21 -0400
+Received: from pop.gmx.net ([213.165.64.20]:49696 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S318032AbSIJTMN> convert rfc822-to-8bit;
+	Tue, 10 Sep 2002 15:12:13 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@gmx.net>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] [PATCH] Linux-2.5.34-mcp1
+Date: Tue, 10 Sep 2002 21:10:52 +0200
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209102044.57514.m.c.p@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 10, 2002 at 04:58:38PM +0200, Mikael Pettersson wrote:
-> In the 2.5.33->2.5.34 step someone removed "export-objs" from
-> drivers/char/ftape/lowlevel/Makefile, which makes it impossible to build
-> ftape as a module since is _does_ have a number of EXPORT_SYMBOL's.
-> 
-> The patch below reverts that change. Linus, please apply.
+Hi there,
 
-The reason for this error to pop up is the usage of the FT_KSYM macro
-in ftape_syms.c.
-That exist solely for backwards compatibility for kernel 2.1.18 and older.
-Better clean it up as follows.
-Compiled, not tested.
+since v2.5.25 the devel kernel series didn't boot for me. I've tested each new 
+version but without success. Saw "Loading Linux..." and after that, a blank 
+screen, even sysrq was non-working, even Serial Console didn't give me _any_ 
+output. I was really afraid, since I was not able to find that problem, that 
+future 2.5.xx kernels won't boot for me also, BUT fortunately v2.5.34 boots 
+again for me :-) and is working fine so far and I am really impressed how 
+v2.5 goes ahead :-)
 
-	Sam
+Therefor I decided to make a really small patch available for vanilla v2.5.34 
+kernel which includes the following:
 
-===== drivers/char/ftape/lowlevel/ftape_syms.c 1.1 vs edited =====
---- 1.1/drivers/char/ftape/lowlevel/ftape_syms.c	Tue Feb  5 18:40:05 2002
-+++ edited/drivers/char/ftape/lowlevel/ftape_syms.c	Tue Sep 10 21:14:26 2002
-@@ -42,62 +42,48 @@
- #include "../lowlevel/ftape-buffer.h"
- #include "../lowlevel/ftape-format.h"
- 
--#if LINUX_VERSION_CODE >= KERNEL_VER(2,1,18)
--# define FT_KSYM(sym) EXPORT_SYMBOL(sym);
--#else
--# define FT_KSYM(sym) X(sym),
--#endif
--
--#if LINUX_VERSION_CODE < KERNEL_VER(2,1,18)
--struct symbol_table ftape_symbol_table = {
--#include <linux/symtab_begin.h>
--#endif
- /* bad sector handling from ftape-bsm.c */
--FT_KSYM(ftape_get_bad_sector_entry)
--FT_KSYM(ftape_find_end_of_bsm_list)
-+EXPORT_SYMBOL(ftape_get_bad_sector_entry);
-+EXPORT_SYMBOL(ftape_find_end_of_bsm_list);
- /* from ftape-rw.c */
--FT_KSYM(ftape_set_state)
-+EXPORT_SYMBOL(ftape_set_state);
- /* from ftape-ctl.c */
--FT_KSYM(ftape_seek_to_bot)
--FT_KSYM(ftape_seek_to_eot)
--FT_KSYM(ftape_abort_operation)
--FT_KSYM(ftape_get_status)
--FT_KSYM(ftape_enable)
--FT_KSYM(ftape_disable)
--FT_KSYM(ftape_mmap)
--FT_KSYM(ftape_calibrate_data_rate)
-+EXPORT_SYMBOL(ftape_seek_to_bot);
-+EXPORT_SYMBOL(ftape_seek_to_eot);
-+EXPORT_SYMBOL(ftape_abort_operation);
-+EXPORT_SYMBOL(ftape_get_status);
-+EXPORT_SYMBOL(ftape_enable);
-+EXPORT_SYMBOL(ftape_disable);
-+EXPORT_SYMBOL(ftape_mmap);
-+EXPORT_SYMBOL(ftape_calibrate_data_rate);
- /* from ftape-io.c */
--FT_KSYM(ftape_reset_drive)
--FT_KSYM(ftape_command)
--FT_KSYM(ftape_parameter)
--FT_KSYM(ftape_ready_wait)
--FT_KSYM(ftape_report_operation)
--FT_KSYM(ftape_report_error)
-+EXPORT_SYMBOL(ftape_reset_drive);
-+EXPORT_SYMBOL(ftape_command);
-+EXPORT_SYMBOL(ftape_parameter);
-+EXPORT_SYMBOL(ftape_ready_wait);
-+EXPORT_SYMBOL(ftape_report_operation);
-+EXPORT_SYMBOL(ftape_report_error);
- /* from ftape-read.c */
--FT_KSYM(ftape_read_segment_fraction)
--FT_KSYM(ftape_zap_read_buffers)
--FT_KSYM(ftape_read_header_segment)
--FT_KSYM(ftape_decode_header_segment)
-+EXPORT_SYMBOL(ftape_read_segment_fraction);
-+EXPORT_SYMBOL(ftape_zap_read_buffers);
-+EXPORT_SYMBOL(ftape_read_header_segment);
-+EXPORT_SYMBOL(ftape_decode_header_segment);
- /* from ftape-write.c */
--FT_KSYM(ftape_write_segment)
--FT_KSYM(ftape_start_writing)
--FT_KSYM(ftape_loop_until_writes_done)
-+EXPORT_SYMBOL(ftape_write_segment);
-+EXPORT_SYMBOL(ftape_start_writing);
-+EXPORT_SYMBOL(ftape_loop_until_writes_done);
- /* from ftape-buffer.h */
--FT_KSYM(ftape_set_nr_buffers)
-+EXPORT_SYMBOL(ftape_set_nr_buffers);
- /* from ftape-format.h */
--FT_KSYM(ftape_format_track)
--FT_KSYM(ftape_format_status)
--FT_KSYM(ftape_verify_segment)
-+EXPORT_SYMBOL(ftape_format_track);
-+EXPORT_SYMBOL(ftape_format_status);
-+EXPORT_SYMBOL(ftape_verify_segment);
- /* from tracing.c */
- #ifndef CONFIG_FT_NO_TRACE_AT_ALL
--FT_KSYM(ftape_tracing)
--FT_KSYM(ftape_function_nest_level)
--FT_KSYM(ftape_trace_call)
--FT_KSYM(ftape_trace_exit)
--FT_KSYM(ftape_trace_log)
--#endif
--/* end of ksym table */
--#if LINUX_VERSION_CODE < KERNEL_VER(2,1,18)
--#include <linux/symtab_end.h>
--};
-+EXPORT_SYMBOL(ftape_tracing);
-+EXPORT_SYMBOL(ftape_function_nest_level);
-+EXPORT_SYMBOL(ftape_trace_call);
-+EXPORT_SYMBOL(ftape_trace_exit);
-+EXPORT_SYMBOL(ftape_trace_log);
- #endif
-+
+ o   2.5.34-mm1                                (Andrew Morton)
+ o   aty128 Framebuffer fixes                  (Paul Mackerras)
+ o   ftape damage fix                          (Mikael Pettersson)
+ o   devfs fix                                 (Alexander Viro)
+ o   do_syslog__down_try lock lockup           (Ingo Molnar)
+ o   floppy driver init/exit fixes             (Mikael Pettersson)
+ o   pcibios_fixup_irqs-static                 (Adam J. Richter)
+ o   some tuning                               (me)
+     - OPEN_MAX 1024
+     - NR_FILE 65536
+     - NR_RESERVED_FILES 128
+     - TCP_KEEPALIVE_TIME (5*60*HZ)
+     - int sysctl_local_port_range[2] = { 1024, 9999 };
+ o   ext3 version information fix              (me)
+ o   ALSA v0.9.0rc3                            (ALSA Team)
+ o   XFS + KDB (2.5.33-20020908-cvs)           (SGI)
+
+
+I hope you need this a bit and find it usefull as I do.
+
+Feedback welcome :)
+
+
+md5sums:
+--------
+fab4908b8b864fc36072d6f00ff64519 *linux-2.5.34-mcp1.patch.bz2
+123067907208ee27eb93a04560667012 *linux-2.5.34-mcp1.patch.gz
+
+URL:
+----
+http://prdownloads.sf.net/wolk/linux-2.5.34-mcp1.patch.bz2?download
+http://prdownloads.sf.net/wolk/linux-2.5.34-mcp1.patch.gz?download
+
+
+
+Thanks goes out to all the great developers who made this possible !!
+
+
+-- 
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.
+
 

@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbULVSrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbULVStm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbULVSrt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 13:47:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbULVSrt
+	id S262011AbULVStm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 13:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbULVStl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 13:47:49 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:57610 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262000AbULVSrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 13:47:47 -0500
-Date: Wed, 22 Dec 2004 19:47:42 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com, vandrove@vc.cvut.cz
-Subject: Re: [PATCH] [CAN-2004-1144] Fix int 0x80 hole in 2.4 x86-64 linux kernels
-Message-ID: <20041222184742.GN17946@alpha.home.local>
-References: <20041222175818.GA3363@wotan.suse.de> <20041222182048.GM17946@alpha.home.local> <20041222182313.GB3363@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041222182313.GB3363@wotan.suse.de>
-User-Agent: Mutt/1.4i
+	Wed, 22 Dec 2004 13:49:41 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:26105 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262011AbULVStf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 13:49:35 -0500
+Message-ID: <41C9C1C7.6030405@comcast.net>
+Date: Wed, 22 Dec 2004 13:49:43 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: on-access events?
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 22, 2004 at 07:23:13PM +0100, Andi Kleen wrote:
-> > (...)
-> > >  	sti
-> > > +	movl %eax,%eax	
-> > >  	pushq %rax
-> > 
-> > Although I don't know about x86_64 assembly, I know x86 and I wonder
-> > how this patch would do anything. I would personnaly have written something
-> > more like :
-> 
-> An 32bit write in long mode clears the upper 32bits of the register.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ok, thanks for this quick precision, it wasn't obvious at first glance.
+What kinds of on-access event driving is there for Linux?  I'm looking
+at Dazuko[1] right now, but not sure about what else is out there.  I'm
+sure I've seen several; is there anything in the kernel?
 
-> See the x86-64 architecture manuals for more details.
+These things would be good for ClamAV[2] and for systems similar to the
+Zero-install system[3], although 0install uses its own stuff.
 
-Oh, I did a long time ago, when the athlon64 was only an emulator which ran
-under linux, but I forgot all the details since then.
+[1] http://www.dazuko.org
+[2] http://clamav.net
+[3] http://0install.net
 
-Thanks,
-Willy
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBycHGhDd4aOud5P8RAkStAJ48rOi/baorTNBuOEsHLi6a9b6GBwCeNELX
+LNbZej0QoF2gy93qB9mem2I=
+=i9c7
+-----END PGP SIGNATURE-----

@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265083AbUAOWQF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 17:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbUAOWQA
+	id S263625AbUAOWGB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 17:06:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUAOWGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 17:16:00 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:36580 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262683AbUAOWPy (ORCPT
+	Thu, 15 Jan 2004 17:06:00 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:52497 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S263625AbUAOWFr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 17:15:54 -0500
-Date: Thu, 15 Jan 2004 14:16:40 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, jeremy@sgi.com
-Subject: Re: [PATCH] readX_relaxed interface
-Message-ID: <20040115221640.GA11283@cup.hp.com>
-References: <20040115204913.GA8172@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040115204913.GA8172@sgi.com>
-User-Agent: Mutt/1.5.4i
+	Thu, 15 Jan 2004 17:05:47 -0500
+Date: Thu, 15 Jan 2004 22:55:25 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: David Brownell <david-b@pacbell.net>
+cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [2.6 patch] improce USB Gadget Kconfig
+In-Reply-To: <3FF0F6F5.10409@pacbell.net>
+Message-ID: <Pine.LNX.4.58.0401152200330.2530@serv>
+References: <20031123172356.GB16828@fs.tum.de> <3FF0F6F5.10409@pacbell.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Content-ID: <Pine.LNX.4.58.0401152200332.2530@serv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 12:49:13PM -0800, Jesse Barnes wrote:
-> Based on the PIO ordering disucssion, I've come up with the following
-> patch.  It has the potential to help any platform that has seperate PIO
-> and DMA channels, and allows them to be reorderd wrt each other.
+Hi,
 
-This is only significant for DMA writes (inbound) vs. PIO Read returns.
-The ZX1 platforms have reordering enabled for outbound DMA (vs PIO
-writes) since last summer.
+On Mon, 29 Dec 2003, David Brownell wrote:
 
-Outside the context of PCI-X Relaxed Ordering, this violates PCI
-ordering rules. Any patches to drivers *using* the new readb()
-variants in effect work around this violation. I"m ok with that - just
-want it to be clear.
+> How about using this approach instead?   It simplifies the kconfig
+> for the gadget drivers by providing a boolean "which hardware"
+> symbol, so gadget drivers don't need to make their own.  The symbol
+> that's synthetic is the one needed only by the Makefile.
 
-PCI-X support will need a different interface
-(eg pcix_enable_relaxed_ordering()) to support
-it's form of "Relaxed Ordering".
+There are some strange things in there.
+choice values can also be tristate symbols, so you wouldn't need the
+separate defines, unless you really always want to compile only a single
+controller (even as module).
+The "default m if USB_GADGET = m" looks weird, if I understand them
+correctly this should just be "depends on USB_GADGET", e.g.
 
-> Some
-> SGI MIPS platforms, as well as the SGI Altix (aka sn2) platform behave
-> this way, and will thus benefit from this patch.
-> 
-> It adds a new PIO read routine for PIOs that don't have to be ordered
-> wrt DMA on the system.
-> 
-> If it looks ok, I'll add in macros for the other arches and send it out
-> for inclusion.
+config USB_NET2280
+	tristate
+	depends on USB_GADGET
+	default USB_GADGET_NET2280
 
-It looks ok to me.
+this would also fix the menu structure and the drivers menu would appear
+below the gadget option.
+I'm also not sure about USB_PXA2XX_SMALL, as it also can be written as:
 
-thanks,
-grant
+config USB_PXA2XX_SMALL
+	depends on USB_PXA2XX = y
+	default USB_ZERO = y || USB_ETH = y || USB_G_SERIAL
+
+is this really intended?
+
+The dependency "USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX || USB_SA1100
+|| USB_GOKU" can be basically reduced to "USB_GADGET".
+
+> Roman, this seems to trigger some kind of xconfig/menuconfig bug,
+> since I can go down the list of hardware options (net2280, goku,
+> dummy -- three, not the single one Adrian was working with) and
+> each deselects the previous selection ... but then it's impossible
+> to turn off the dummy, and select real hardware.
+
+I can't reproduce this, it works fine here.
+
+bye, Roman

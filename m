@@ -1,77 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311825AbSCNWLX>; Thu, 14 Mar 2002 17:11:23 -0500
+	id <S311824AbSCNWLN>; Thu, 14 Mar 2002 17:11:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311826AbSCNWLO>; Thu, 14 Mar 2002 17:11:14 -0500
-Received: from [206.40.202.198] ([206.40.202.198]:11162 "EHLO
-	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
-	id <S311825AbSCNWKz>; Thu, 14 Mar 2002 17:10:55 -0500
-Date: Thu, 14 Mar 2002 14:06:32 -0800 (PST)
-From: John Heil <kerndev@sc-software.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IO delay, port 0x80, and BIOS POST codes
-In-Reply-To: <a6r6ck$8ia$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0203141403561.1286-100000@scsoftware.sc-software.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311826AbSCNWLD>; Thu, 14 Mar 2002 17:11:03 -0500
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:38562
+	"EHLO mail.soze.net") by vger.kernel.org with ESMTP
+	id <S311824AbSCNWKt>; Thu, 14 Mar 2002 17:10:49 -0500
+Date: Thu, 14 Mar 2002 22:10:44 +0000
+From: Justin Guyett <justin@soze.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.7-pre1 fix for api-caused ipmr.c compile failure
+Message-ID: <20020314221044.GB17566@kobayashi.soze.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Organization: People for the Ethical Treatment of Email
+X-Message-Flag: This message may contain privileged information
+X-PGP-Fingerprint: 9AE2 9FC3 D98B 9AE2 EE83  15CC 9C7D 1925 4568 5243
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Mar 2002, H. Peter Anvin wrote:
+missed in some api change...
 
-> Date: 14 Mar 2002 13:57:40 -0800
-> From: H. Peter Anvin <hpa@zytor.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: IO delay, port 0x80, and BIOS POST codes
->
-> Followup to:  <Pine.LNX.4.33.0203141318130.9855-100000@penguin.transmeta.com>
-> By author:    Linus Torvalds <torvalds@transmeta.com>
-> In newsgroup: linux.dev.kernel
-> >
-> > Port ED is fine for a BIOS, which (by definition) knows what the
-> > motherboard devices are, and thus knows that ED cannot be used by
-> > anything.
-> >
-> > But it _is_ an unused port, and that's exactly the kind of thing that
-> > might be used sometime in the future. Remember the port 22/23 brouhaha
-> > with Cyrix using it for their stuff, and later Intel getting into the fray
-> > too?
-> >
-> > So the fact that ED works doesn't mean that _stays_ working.
-> >
->
-> It is, in fact, broken on several systems -- I tried ED in SYSLINUX
-> for a while, and it broke things for people.
+--- linux-2.5.6/net/ipv4/ipmr.c.orig	Thu Mar 14 22:04:28 2002
++++ linux-2.5.6/net/ipv4/ipmr.c	Thu Mar 14 22:03:54 2002
+@@ -855,7 +855,7 @@
+ 	switch(optname)
+ 	{
+ 		case MRT_INIT:
+-			if(sk->type!=SOCK_RAW || sk->num!=IPPROTO_IGMP)
++			if(sk->type!=SOCK_RAW || inet_sk(sk)->num!=IPPROTO_IGMP)
+ 				return -EOPNOTSUPP;
+ 			if(optlen!=sizeof(int))
+ 				return -ENOPROTOOPT;
 
-It does work on many, in fact, we used on a Crusoe based platform
-as well as the other x86s
-
-Let's make it a configurable kernel debug/hacking option else
-we have the added burden of chasing down a common address.
-
-Johnh
-
->
-> 	-hpa
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--
------------------------------------------------------------------
-John Heil
-South Coast Software
-Custom systems software for UNIX and IBM MVS mainframes
-1-714-774-6952
-johnhscs@sc-software.com
-http://www.sc-software.com
------------------------------------------------------------------
-
+-- 
+Nature has made up her mind that  |  None learned the art of archery
+what cannot defend itself shall   |  from me who did not make me, in the
+not be defended. --Ralph Emerson  |  end, the target.  --Saadi of Shiraz

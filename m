@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261456AbSJMIKt>; Sun, 13 Oct 2002 04:10:49 -0400
+	id <S261457AbSJMIOx>; Sun, 13 Oct 2002 04:14:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261457AbSJMIKt>; Sun, 13 Oct 2002 04:10:49 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:53635 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id <S261456AbSJMIKt>; Sun, 13 Oct 2002 04:10:49 -0400
-From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-To: "'David S. Miller'" <davem@redhat.com>
-Cc: <robm@fastmail.fm>, <hahn@physics.mcmaster.ca>,
-       <linux-kernel@vger.kernel.org>, <jhoward@fastmail.fm>
-Subject: RE: Strange load spikes on 2.4.19 kernel
-Date: Sun, 13 Oct 2002 03:16:30 -0500
-Message-ID: <000e01c27290$dd0b5640$7443f4d1@joe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S261460AbSJMIOx>; Sun, 13 Oct 2002 04:14:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7053 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261457AbSJMIOw>;
+	Sun, 13 Oct 2002 04:14:52 -0400
+Date: Sun, 13 Oct 2002 01:13:44 -0700 (PDT)
+Message-Id: <20021013.011344.58438240.davem@redhat.com>
+To: wagnerjd@prodigy.net
+Cc: robm@fastmail.fm, hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org,
+       jhoward@fastmail.fm
+Subject: Re: Strange load spikes on 2.4.19 kernel
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <000e01c27290$dd0b5640$7443f4d1@joe>
+References: <20021013.005005.41948345.davem@redhat.com>
+	<000e01c27290$dd0b5640$7443f4d1@joe>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <20021013.005005.41948345.davem@redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> But there is no fundamental reason for that, we just haven't
->>> gotten around to threading that bit yet.
+   From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+   Date: Sun, 13 Oct 2002 03:16:30 -0500
+
+   "SMP locking primitives"? Tell me what that is again?  Oh yeah!  That's
+   when the kernel basically gives SMP a timeout and behaves as if there
+   was only one processor.
    
->> Oh yes there is.  What if an allocation of blocks and/or
->> inodes is preempted?  Another thread could attempt to
->> allocate the same set of blocks and/or inodes.
+   So in effect, I was right.  File processes really do use one and only
+   one processor.
    
-> That's why we protect the allocation with SMP locking
-> primitives which under Linux prevent preemption.
+Not true.  While a block is being allocated on mounted filesystem X
+on one cpu, a TCP packet can be being processed on another processor and
+a block can be allocated on mounted filesystem Y on another processor.
 
-"SMP locking primitives"? Tell me what that is again?  Oh yeah!  That's
-when the kernel basically gives SMP a timeout and behaves as if there
-was only one processor.
+Actually, it can even be threaded to the point where block allocations
+on the same filesystem can occur in parallel as long as it is being
+done for different block groups.
 
-So in effect, I was right.  File processes really do use one and only
-one processor.
-
-> This isn't rocket science....
-
-I agree.  I totally agree.
-
+So in effect, you're not so right.

@@ -1,53 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbTE2VZP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 17:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTE2VZO
+	id S262884AbTE2VY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 17:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbTE2VYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 17:25:14 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:16328 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262912AbTE2VZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 17:25:12 -0400
-Date: Thu, 29 May 2003 14:38:20 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: davem@redhat.com, ak@suse.de, peloquin@austin.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Nightly regression runs against current bk tree
-Message-Id: <20030529143820.164d0f7e.rddunlap@osdl.org>
-In-Reply-To: <20030529212929.GA11309@wotan.suse.de>
-References: <3ED66C83.8070608@austin.ibm.com.suse.lists.linux.kernel>
-	<p73smqx791m.fsf@oldwotan.suse.de>
-	<20030529.142515.08325314.davem@redhat.com>
-	<20030529212929.GA11309@wotan.suse.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 29 May 2003 17:24:55 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:52999 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262884AbTE2VYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 17:24:53 -0400
+Date: Thu, 29 May 2003 14:35:36 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "John Stoffel" <stoffel@lucent.com>
+Cc: Thomas.Downing@ipc.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm2
+Message-Id: <20030529143536.438b14a0.akpm@digeo.com>
+In-Reply-To: <16086.31229.258838.80234@gargle.gargle.HOWL>
+References: <170EBA504C3AD511A3FE00508BB89A920221E5FF@exnanycmbx4.ipc.com>
+	<20030529103628.54d1e4a0.akpm@digeo.com>
+	<16086.31229.258838.80234@gargle.gargle.HOWL>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 May 2003 21:38:11.0385 (UTC) FILETIME=[9A306290:01C3262A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 May 2003 23:29:29 +0200 Andi Kleen <ak@suse.de> wrote:
+"John Stoffel" <stoffel@lucent.com> wrote:
+>
+> 
+> Does 2.5.70-mm2 include the RAID1 patch posted by Niel?
 
-| On Thu, May 29, 2003 at 02:25:15PM -0700, David S. Miller wrote:
-| >    From: Andi Kleen <ak@suse.de>
-| >    Date: 29 May 2003 23:11:17 +0200
-| >    
-| >    David, what do you think?
-| >    
-| > Would it have a single poster?
-| 
-| OSDL, Mark's IBM team and possible LTP ?
-| 
-| I assume there will be more once the list exists; automated regression 
-| tests seem to be currently in fashion.
+No.  It seems that it didn't work right.
 
-If DaveM doesn't want to do it, I think that we can do it.
-(I say without checking.... :)
+Zwane had a different fix, but afaik nobody has tried it out.  Apart from
+Zwane of course.  And that was against raid0.
 
---
-~Randy
+
+Zwane's RAID0 patch
+
+
+diff -puN drivers/md/raid0.c~zwane-raid-double-free-fix drivers/md/raid0.c
+--- 25/drivers/md/raid0.c~zwane-raid-double-free-fix	Thu May 29 14:32:02 2003
++++ 25-akpm/drivers/md/raid0.c	Thu May 29 14:32:02 2003
+@@ -85,10 +85,8 @@ static int create_strip_zones (mddev_t *
+ 	conf->devlist = kmalloc(sizeof(mdk_rdev_t*)*
+ 				conf->nr_strip_zones*mddev->raid_disks,
+ 				GFP_KERNEL);
+-	if (!conf->devlist) {
+-		kfree(conf);
++	if (!conf->devlist)
+ 		return 1;
+-	}
+ 
+ 	memset(conf->strip_zone, 0,sizeof(struct strip_zone)*
+ 				   conf->nr_strip_zones);
+@@ -194,7 +192,6 @@ static int create_strip_zones (mddev_t *
+ 	return 0;
+  abort:
+ 	kfree(conf->devlist);
+-	kfree(conf->strip_zone);
+ 	return 1;
+ }
+ 
+
+
+Neil's RAID1 patch
+
+diff -puN drivers/md/raid1.c~neilb-raid1-double-free-fix drivers/md/raid1.c
+--- 25/drivers/md/raid1.c~neilb-raid1-double-free-fix	Thu May 29 14:34:23 2003
++++ 25-akpm/drivers/md/raid1.c	Thu May 29 14:34:23 2003
+@@ -137,7 +137,7 @@ static void put_all_bios(conf_t *conf, r
+ 			BUG();
+ 		bio_put(r1_bio->read_bio);
+ 		r1_bio->read_bio = NULL;
+-	}
++	} else
+ 	for (i = 0; i < conf->raid_disks; i++) {
+ 		struct bio **bio = r1_bio->write_bios + i;
+ 		if (*bio) {
+
+
+

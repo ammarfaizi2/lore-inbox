@@ -1,74 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266584AbUGPQ7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUGPQ76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266584AbUGPQ7E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 12:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUGPQ7E
+	id S266585AbUGPQ76 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 12:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266586AbUGPQ76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 12:59:04 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:42699 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266584AbUGPQ7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 12:59:00 -0400
-Subject: pty master close and SIGHUP
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: aebr@win.tue.nl
+	Fri, 16 Jul 2004 12:59:58 -0400
+Received: from mx1.magmacom.com ([206.191.0.217]:52648 "EHLO mx1.magmacom.com")
+	by vger.kernel.org with ESMTP id S266585AbUGPQ7v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 12:59:51 -0400
+Subject: Re: No Subject
+From: Jesse Stockall <stockall@magma.ca>
+To: Hermann Gottschalk <hg@ostc.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040716165405.GA24117@ostc.de>
+References: <20040716165405.GA24117@ostc.de>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1089988282.1231.378.camel@cube>
+Message-Id: <1089997167.8872.95.camel@homer.blizzard.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 Jul 2004 10:31:22 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 16 Jul 2004 12:59:27 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Something is wrong with the kernel, or maybe with this:
-http://www.win.tue.nl/~aeb/linux/lk/lk-12.html#ss10.3.4
+On Fri, 2004-07-16 at 12:54, Hermann Gottschalk wrote:
+> unsubscribe
 
-As I recall, the SIGHUP is sent by the kernel itself when 
-the master is closed or the session leader dies. I think
-there is a credentials problem in the kernel now, with the
-signal being sent as if the master-side process or session
-leader had sent it. I do indeed find a check_kill_permission()
-call that ought not be made AFAIK. The TTY code makes an
-effort to force the SIGHUP, but this gets ignored. Maybe
-some "cleanup" tried to share common code?
+Please follow the instructions at the bottom of every message.
 
-Here's an example. First, I start an xterm. Then in that
-xterm, I use "su -" to become root and I start "top".
-The processes now look like this:
+Jesse
 
-$ ps -p 7204 -t pts/25 -o euid,ruid,tty,sess,pgrp,ppid,pid,tpgid,stat,pcpu,comm
- EUID  RUID TT        SESS  PGRP  PPID   PID TPGID STAT %CPU COMMAND
- 1000  1000 ?         7196  7204     1  7204    -1 S     0.0 xterm  
- 1000  1000 pts/25    7205  7205  7204  7205  7218 Ss    0.0 bash   
-    0     0 pts/25    7205  7213  7205  7213  7218 S     0.0 bash   
-    0     0 pts/25    7205  7218  7213  7218  7218 S+    1.3 top
-
-As you can see, the session leader is bash #7204 and top
-is the sole process in the foreground process group.
-
-Now I close the xterm. It dies. The session leader also dies.
-This should then cause all processes in the foreground process
-group to get SIGHUP. If top gets SIGHUP, it shuts down. This
-all works great normally, but see what happens when top is
-running as root:
-
-$ ps -p 7204 -s 7205 -o euid,ruid,tty,sess,pgrp,ppid,pid,tpgid,stat,pcpu,comm
- EUID  RUID TT        SESS  PGRP  PPID   PID TPGID STAT %CPU COMMAND
-    0     0 ?         7205  7213     1  7213    -1 S     0.0 bash
-    0     0 ?         7205  7218  7213  7218    -1 R    51.4 top
-
-The SIGHUP is never delivered.
-
-Now I know it isn't really clean to let top spin calling select()
-when the tty goes away, but SIGHUP should take care of that.
-Where is my SIGHUP?
-
-I recall the rules being even looser traditionally, pretty much
-allowing you to send signals (at least some of them) to anything
-on your tty or in your session. Was there a SysV/BSD/POSIX
-disagreement over this?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 

@@ -1,368 +1,769 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265665AbTGDD4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 23:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265762AbTGDD4p
+	id S265762AbTGDEIu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 00:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265763AbTGDEIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 23:56:45 -0400
-Received: from holomorphy.com ([66.224.33.161]:51910 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265665AbTGDD4i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 23:56:38 -0400
-Date: Thu, 3 Jul 2003 21:10:48 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rik van Riel <riel@redhat.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Mel Gorman <mel@csn.ul.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030704041048.GO20413@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030703125839.GZ23578@dualathlon.random> <Pine.LNX.4.44.0307030904260.16582-100000@chimarrao.boston.redhat.com> <20030703185341.GJ20413@holomorphy.com> <20030703192750.GM23578@dualathlon.random> <20030703201607.GK20413@holomorphy.com> <20030704004000.GQ23578@dualathlon.random> <20030704014624.GN20413@holomorphy.com> <20030704023414.GV23578@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030704023414.GV23578@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Fri, 4 Jul 2003 00:08:50 -0400
+Received: from mail01.mel.vnet.net.au ([203.89.200.41]:62463 "EHLO
+	mail01.mel.vnet.net.au") by vger.kernel.org with ESMTP
+	id S265762AbTGDEIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 00:08:34 -0400
+Message-ID: <3F04FFD0.2060404@vtown.com.au>
+Date: Fri, 04 Jul 2003 14:17:20 +1000
+From: Daniel Cavanagh <nofsk@vtown.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: bsd disklabel and swap
+Content-Type: multipart/mixed;
+ boundary="------------020206020803000201050102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> What minor faults? remap_file_pages() does pagecache lookups and
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> with minor faults I meant the data in cache, and you calling
-> remap_file_pages to make it visible to the app. with minor faults I
-> meant only the cpu cost of the remap_file_pages operation, without the
-> need of hitting on the disk with ->readpage.
-
-Well, those aren't minor faults. That's prefaulting.
-
-
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> Space _does_ matter. Everywhere. All the time. And it's not just
->> virtualspace this time. Throw away space, and you go into page or
->> pagetable replacement.
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> So you admit you're wrong and that your usage is only meant to save
-> ram and that given enough ram your usage of remap_file_pages only wastes
-> cpu? Note that I given as strong assumption the non-interest in saving
-> ram. You're now saying that the benefit of your usage is to save ram.
-> Sure it will save ram.
-
-That was its explicit purpose for 32-bit and it's usable for that
-same purpose on 64-bit. You're citing the precise scenario where
-remap_file_pages() is used on 32-bit!
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> But if your object is to save ram you're still wrong, it's an order of
-> magnitude more efficient to use shm and to load your scattered data with
-> aio + O_DIRECT/rawio to do the I/O, so you will also be able to
-> trivially use largepages and other things w/o messing the pagecache with
-> larepage knowledge, and furthmore without ever needing a tlb flush or a
-> pte mangling (pte mangling assuming you don't use largepages, pmd
-> mangling if you user largepages).
-> So your usage of remap_file_pages is worthless always.
-
-Incorrect. First, the above scenario is precisely where databases are
-using remap_file_pages() on 32-bit. Second, the above circumvents the
-pagecache and on machines with limited resources incurs swap overhead
-as opposed to the data cache being reclaimable via simple VM writeback.
-Third, it requires an application to perform its own writeback, which
-is a transparency deficit in the above API's (though for database
-engines it's fine as they would very much like to be aware of such
-things and to more or less have the entire machine dedicated to them).
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> In short:
-> 1) if you want to save space it's the wrong design since it's an order of
-> magnitude slower of using direct-io on shared memory (with all the advantage
-> that it provides in terms of largepages and tlb preservation)
-
-I already countered this argument in the earlier post, even before
-you made it.
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> 2) you don't need to save space then you'd better not waste time with
-> remap_file_pages and mmap the file linearly (my whole argument for all
-> my previous emails) And if something if you go to rewrite the app to
-> coalesce the VM side, you'd better coalesce the I/O side instead, then
-> the vm side will be free with the linear mapping with huge performance
-> advantages thanks to the locality knowledge (much more significant than
-> whatever remap_file_pages improvement, especially for the I/O side with
-> the major faults that will for sure happen at least once during startup,
-> often the disks are much bigger than ram). Of course the linear mapping
-> also involves trusting the OS paging meachanism to unmap pages
-> efficiently, while you do it by hand, and the OS can be much smarter
-> and efficient than duplicating VM management algorithms in every
-> userspace app using remap_file_pages. The OS will only unmap the
-> overflowing pages of data. the only requirement is to have ram >=
-> sizeofdisk >> 12 (this wouldn't even be a requirement with Rik's
-> pmd reclaim).
-
-That's quite some limitation!
-
-At any rate, as unimpressed as I was with the other arguments, this
-really fails to impress me as you're directly arguing for enforcing
-one of the resource scalability limitation remap_file_pages() lifts.
-
-
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> Filesystems don't use mmap() to simulate access to the B-trees, they
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> One of the reasons I did the blkdev in pagecache in 2.4 is that the
-> partd developer asked me to use a _linear_ mmap to make the VM
-> management an order of magnitude more efficient for parsing the fs.
-> Otherwise he never knows how much ram it can allocate and during boot
-> the ram may be limited. mmap solves this completely leaving the decision
-> to the VM and it basically gives no limit in how low memory a system can
-> be to run parted.
-
-There's nothing wrong with linearly mapping something when it
-doesn't present a problem (e.g. pagetable space out the wazoo).
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> Your saying that the in-kernel fs don't use mmap is a red-herring, of
-> course I know about that but it's totally unrelated to my point. The
-> only reason they do it is for the major faults (they can't care less if
-> they get the data through a linear mapping or a bh or a bio or a
-> pagecache entry). But of course if you add some locality the vm side
-> will be better to with mmap. I mean, there are worse problems than the
-> vm side if you costsantly seek all over the place.
+This is a multi-part message in MIME format.
+--------------020206020803000201050102
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+hi
+
+i'm having a problem with a bsd disklabel and swap.
+my /dev/hda disk look like this
+
+partition 1: fat
+partition 2: ext2
+partition 3: openbsd
+
+it is a standard bsd disklabel with a as root and b as swap. this means 
+that /dev/hda6 should be the swap partition. but "swapon /dev/hda6" 
+prints "swapon: /dev/hda6: Invalid argument". it also prints that for 
+any other valid partition. if i put this in /etc/fstab, on boot the 
+kernel will print "Unable to find swap-space signature" before swapon 
+prints the above message. but if i use /dev/hda3 instead, swapon will 
+accept it and add a 512Mb swap, which is the correct size. but it 
+appears that rather than writing at the start of the swap it starts 
+writing at the start of the openbsd partition so my root partition is 
+being corrupted. have i screwed or have you guys screwed up?
+
+im running slackware 9 (2.4.20) with a recompiled kernel. my .config is 
+attached if you need it.
+
+thanks, daniel
+
+ps: please cc any replies.
+
+--------------020206020803000201050102
+Content-Type: text/plain;
+ name=".config"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename=".config"
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+CONFIG_MK6=y
+# CONFIG_MK7 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_MCE=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_HIGHMEM is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+# CONFIG_X86_UP_APIC is not set
+# CONFIG_X86_UP_IOAPIC is not set
+# CONFIG_X86_TSC_DISABLE is not set
+CONFIG_X86_TSC=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_ISA is not set
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+# CONFIG_HOTPLUG is not set
+# CONFIG_PCMCIA is not set
+# CONFIG_HOTPLUG_PCI is not set
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+# CONFIG_BINFMT_AOUT is not set
+CONFIG_BINFMT_ELF=y
+# CONFIG_BINFMT_MISC is not set
+CONFIG_PM=y
+CONFIG_ACPI=y
+# CONFIG_ACPI_DEBUG is not set
+CONFIG_ACPI_BUSMGR=y
+CONFIG_ACPI_SYS=y
+CONFIG_ACPI_CPU=y
+# CONFIG_ACPI_BUTTON is not set
+# CONFIG_ACPI_AC is not set
+# CONFIG_ACPI_EC is not set
+# CONFIG_ACPI_CMBATT is not set
+# CONFIG_ACPI_THERMAL is not set
+# CONFIG_APM is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+# CONFIG_PARPORT_SERIAL is not set
+# CONFIG_PARPORT_PC_FIFO is not set
+# CONFIG_PARPORT_PC_SUPERIO is not set
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_GSC is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+# CONFIG_PARPORT_1284 is not set
+
+#
+# Plug and Play configuration
+#
+# CONFIG_PNP is not set
+# CONFIG_ISAPNP is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_CISS_SCSI_TAPE is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_NBD is not set
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_BLK_DEV_INITRD is not set
+# CONFIG_BLK_STATS is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+# CONFIG_NETLINK_DEV is not set
+# CONFIG_NETFILTER is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+
+#
+# Appletalk devices
+#
+# CONFIG_DEV_APPLETALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+# CONFIG_PHONE_IXJ_PCMCIA is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_AEC62XX_TUNING is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_AMD74XX_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CMD680 is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_PIIX_TUNING is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+CONFIG_BLK_DEV_SIS5513=y
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+
+#
+# SCSI support
+#
+# CONFIG_SCSI is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_BOOT is not set
+# CONFIG_FUSION_ISENSE is not set
+# CONFIG_FUSION_CTL is not set
+# CONFIG_FUSION_LAN is not set
+
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_LAN is not set
+# CONFIG_I2O_SCSI is not set
+# CONFIG_I2O_PROC is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=y
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_ETHERTAP is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+# CONFIG_NET_ETHERNET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_MYRI_SBUS is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+CONFIG_PPP=y
+# CONFIG_PPP_MULTILINK is not set
+# CONFIG_PPP_FILTER is not set
+CONFIG_PPP_ASYNC=y
+# CONFIG_PPP_SYNC_TTY is not set
+# CONFIG_PPP_DEFLATE is not set
+# CONFIG_PPP_BSDCOMP is not set
+# CONFIG_PPPOE is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Input core support
+#
+# CONFIG_INPUT is not set
+# CONFIG_INPUT_KEYBDEV is not set
+# CONFIG_INPUT_MOUSEDEV is not set
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=512
+CONFIG_PRINTER=m
+# CONFIG_LP_CONSOLE is not set
+# CONFIG_PPDEV is not set
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+# CONFIG_82C710_MOUSE is not set
+# CONFIG_PC110_PAD is not set
+# CONFIG_MK712_MOUSE is not set
+
+#
+# Joysticks
+#
+# CONFIG_INPUT_GAMEPORT is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# Watchdog Cards
+#
+CONFIG_WATCHDOG=y
+# CONFIG_WATCHDOG_NOWAYOUT is not set
+CONFIG_ACQUIRE_WDT=m
+CONFIG_ADVANTECH_WDT=m
+CONFIG_ALIM7101_WDT=m
+CONFIG_SC520_WDT=m
+CONFIG_PCWATCHDOG=m
+CONFIG_EUROTECH_WDT=m
+CONFIG_IB700_WDT=m
+CONFIG_WAFER_WDT=m
+CONFIG_I810_TCO=m
+CONFIG_MIXCOMWD=m
+CONFIG_60XX_WDT=m
+CONFIG_SC1200_WDT=m
+CONFIG_SOFT_WATCHDOG=m
+CONFIG_W83877F_WDT=m
+CONFIG_WDT=m
+CONFIG_WDTPCI=m
+CONFIG_WDT_501=y
+CONFIG_WDT_501_FAN=y
+CONFIG_MACHZ_WDT=m
+CONFIG_AMD7XX_TCO=m
+# CONFIG_AMD_RNG is not set
+# CONFIG_INTEL_RNG is not set
+# CONFIG_AMD_PM768 is not set
+# CONFIG_NVRAM is not set
+# CONFIG_RTC is not set
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+# CONFIG_MWAVE is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BEFS_DEBUG is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EXT3_FS is not set
+# CONFIG_JBD is not set
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+# CONFIG_UMSDOS_FS is not set
+CONFIG_VFAT_FS=y
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_JFFS2_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_TMPFS is not set
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+# CONFIG_JFS_FS is not set
+# CONFIG_JFS_DEBUG is not set
+# CONFIG_JFS_STATISTICS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_UDF_FS is not set
+# CONFIG_UDF_RW is not set
+CONFIG_UFS_FS=y
+CONFIG_UFS_FS_WRITE=y
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+# CONFIG_INTERMEZZO_FS is not set
+# CONFIG_NFS_FS is not set
+# CONFIG_NFS_V3 is not set
+# CONFIG_ROOT_NFS is not set
+# CONFIG_NFSD is not set
+# CONFIG_NFSD_V3 is not set
+# CONFIG_NFSD_TCP is not set
+# CONFIG_SUNRPC is not set
+# CONFIG_LOCKD is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+CONFIG_ZISOFS_FS=y
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+# CONFIG_ACORN_PARTITION is not set
+# CONFIG_OSF_PARTITION is not set
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+# CONFIG_MAC_PARTITION is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+# CONFIG_MINIX_SUBPARTITION is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+# CONFIG_LDM_PARTITION is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+# CONFIG_EFI_PARTITION is not set
+# CONFIG_SMB_NLS is not set
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+CONFIG_NLS_CODEPAGE_932=y
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+CONFIG_NLS_ISO8859_1=y
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+CONFIG_NLS_UTF8=y
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_VIDEO_SELECT is not set
+# CONFIG_MDA_CONSOLE is not set
+
+#
+# Frame-buffer support
+#
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=y
+# CONFIG_SOUND_ALI5455 is not set
+# CONFIG_SOUND_BT878 is not set
+# CONFIG_SOUND_CMPCI is not set
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_MIDI_EMU10K1 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+CONFIG_SOUND_ESSSOLO1=y
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_MAESTRO3 is not set
+# CONFIG_SOUND_FORTE is not set
+# CONFIG_SOUND_ICH is not set
+# CONFIG_SOUND_RME96XX is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+# CONFIG_SOUND_VIA82CXXX is not set
+# CONFIG_MIDI_VIA82CXXX is not set
+# CONFIG_SOUND_OSS is not set
+# CONFIG_SOUND_TVMIXER is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_DEBUG_KERNEL is not set
+
+#
+# Library routines
+#
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
+
+--------------020206020803000201050102--
 
-What on earth? Virtual locality is exactly what remap_file_pages()
-restores to otherwise sparse access. Also c.f. the prior post as to
-maintaining a large enough cache so as not to be seek-bound. If your
-cache isn't getting a decent number of hits, you're dead with or
-without remap_file_pages(); it can only save you from the contents of
-it not being file offset contiguous. And it has to be that much
-better of a cache for not being so.
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> And if you always seek reproducibly in the same places scattered
-> everywhere, then you can fix it on the design application side likely.
-
-That's fine. If you really get that many seeks, you need to fix it.
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> And anyways the linear mapping will always be faster than
-> remap_file_pages, as worse you need pagetable reclaim if you can't live
-> with ram >= btreesize >> 12. And if you really want to save pagetable
-> ram you must use shm + aio/o_direct, remap_file_pages is worthless.
-
-A linear mapping will be dog slow if an entire pagetable page must be
-reconstituted for each minor fault and a minor fault is taken on a
-large proportion of accesses (due to the pagetables needing to be GC'd
-and page replacement evicting what could otherwise be used as cache),
-which is effectively what you're proposing.
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> The only reason remap_file_pages exists is to have a window on the
-> SHM!!!! On the 64bit this makes no sense at all. It would make no sense
-> at all to take a window on the shm.
-
-It was what motivated its creation. It is more generally useful and
-doesn't smack of a brutal database hack, which is why I don't find it
-as distasteful as DSHM etc. from other kernels.
-
-
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> Also, mmap()/munmap() do not have equivalent costs to remap_file_pages();
->> they do not instantiate ptes like remap_file_pages() and hence accesses
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> mlock istantiate ptes like remap_file_pages.
-
-If you're going to do tit for tat at least read the rest of the
-paragraph.
-
-
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> incur minor faults. So it also addresses minor fault costs. There is no
->> API not requiring privileges that speculatively populates ptes of a
->> mapping and would prevent minor faults like remap_file_pages().
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> minor faults means nothing, the minor faults happens the first time only
-> and the first time you've the major fault too. It happens to you that
-> minor faults matters becaue you go mess the vm of the task with
-> remap_file_pages.
-
-This is incorrect. Minor faults are large overheads, especially when
-they require pagetable pages to be instantiated. They are every bit as
-expensive as interrupts (modulo drivers doing real device access there)
-or int $0x80 -based system calls.
-
-
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> Another advantage of the remap_file_pages() approach is that the
->> virtual arena can be made somewhat smaller than the actual pagecache,
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> it's all senseless you've to use shm if you don't want to incour into
-> the huge penalty of the pte mangling and tlb flushing.
-
-It is a time/space tradeoff. When the amount of virtualspace (and hence
-pagetable space) required to map it linearly mandates mapping it
-nonlinearly instead, it is called for. So have it there and just do it.
-
-
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> In principle, there are other ways to do these things in some cases,
->> e.g. O_DIRECT. It's not truly an adequate substitute, of course, since
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> the coherency has to be handled anyways, reads are never a problem for
-> coherency, writes are a problem regardless. if a write happens under you
-> in the file where the btree is stored you'll have fun w/ or w/o
-> O_DIRECT.
-
-The coherency handling == the app has to do its own writeback. It is a
-feature that since it's pagecache-coherent it automates that task for
-the application. Other niceties are that it doesn't require tmpfs to
-be mounted, doesn't bang against tmpfs resource limits with respect to
-size, when paged out it's paged out to backing store, and so on.
-
-
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> not only is the app then forced to deal with on-disk coherency, the
->> mappings aren't shared with pagecache (i.e. evictable via mere writeback)
->> and the cost of io is incurred for each miss of the process' cache of
->> the on-disk data.
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> the only difference is that if memory goes low you will need swap space
-> if you don't want to run out of ram. No other difference. The
-> remap_file_pages approch would be able to be paged out to disk rather
-> than to swap. This is absolutely the only difference and given the
-> advantage that shm provides (no need of tlb flushes and trivially
-> utilization of largepages) there's no way you can claim remap_file_pages
-> superior to shm + o_DIRECT/rawio also given you always need aio anyways
-> and there's no way to deal with aio with remap_file_pages.
-
-It is a significant advantage. It's also trivial to write an aio
-remap_file_pages() opcode. I've actually been muttering about doing so
-for weeks and the specific application I've not been getting the time
-to write wants it (along with pagecache coherency).
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> In short:
-> 1) remap_file_pages will never take anything but shm as argument and as
->    such it is only useful in two cases:
-> 	a) 32bit with shmfs files larger than virtual address space of the task
-> 	b) emulators (they need to map the stuff at fixed offsets
->            hardcoded into the asm, so they can't use a linear mapping)
-
-I'm with you on everything except shm; in fact, shm can never be used
-directly with it (only through tmpfs) as it requires fd's to operate.
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> 2) if you've to access data efficiently you've two ways in 64bit archs:
-> 	a) trust the kernel and go with linear mapping, kernel
-> 	   will do paging and everything for you with hopefully the
-> 	   smartest algorithm efficiently in the background, it knows
-> 	   what you don't need and with Rik's proposal it can even
-> 	   discard null pmds
-> 	   this way you let all the kernel heuristics to do their
-> 	   work, they know nothing about the semantics of the data
-> 	   so it's all best effort. This is the best design for
-> 	   misc apps that doesn't need to be super tuned.
-
-Linear mappings have their uses. What kernel heuristics are these?
-I know of none that would be affected or "fooled" by its use.
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> 	b) you choose not to trust the kernel and to build your own
-> 	   view on the files, so you use shm + aio + rawio/O_DIRECT
-> 	   so you get largepages w/o messing the fs, and you never
-> 	   flush the tlb or mangle pagetables, this will always be
-> 	   faster than remap_file_pages
-> 	   disavantage is that if you need to swap the shm you will
-> 	   fall into the swap space
-
-This is a valid thing to do, especially for database engines. It's
-not for everything, of course, especially things that don't want to
-take over the entire machine.
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> 	   however when you fall into 2b (and not 2a) you basically are
-> 	   at a level of optimization where you want to takeover the machine
-> 	   enterely so usually no swap is needed and you can't use
-> 	   remap_file_pages or mmap anyways since you need aio and
-> 	   largepages and no tlb flushes etc..
-> normal apps should take 2a
-> big irons running on millions of installations should take 2b
-
-Why is it inappropriate for normal apps that aren't going to take over
-the entire machine to be space-efficient with respect to pagetables?
-
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> that was my basic assumption to make everything simpler, and to make
-> obvious that remap_file_pages can only hurt performance in that case.
-> Anyways it doesn't matter, it's still the fastest even when you start to
-> care about space, and remap_file_pages makes no sense if run on a
-> regular filesystem.
-
-Well, first off, given its mechanics, the only way it functions at all
-is on regular filesystems. Second, time is not the only metric of
-performance. Third, the other suggestions essentially put the operations
-required for performing the tasks forever out of the reach of ordinary
-applications and so limit their functionality.
-
-One of the big reasons I want it to be generally useful is because it's
-going to require some effort to cope with in the VM internals no matter
-what. And that effort is close to 99% wasted counting userbase-wise if
-the only thing that can use it is Oracle (not to cast aspersions; it's
-generally worthwhile to help Oracle out in various ways).
-
-
-On Thu, Jul 03, 2003 at 06:46:24PM -0700, William Lee Irwin III wrote:
->> Sorry, this line of argument is specious.
-
-On Fri, Jul 04, 2003 at 04:34:14AM +0200, Andrea Arcangeli wrote:
-> It's so strightforward that it's incidentally how all applications are
-> coded today and in no way remap_file_pages can give any performance or
-> space advantage (except for mapping the shm that can't be mapped all at
-> the same time in 32bit systems)
-
-Well, the conclusion isn't effectively supported by the evidence.
-
-It's clear it does what it does, has its various features, and has its
-uses.
-
-On 64-bit, if you need to mmap() something that you would bog the box 
-down with pagetables when doing it, it's how apps can cooperate and not
-fill up RAM with redundant and useless garbage (pagetables with only
-one pte a piece set in them). On 32-bit, it's how you can get at many
-pieces of something simultaneously at all. We've already got it, let's
-not castrate it before it ever ships. Heck, I could have written the
-fixups for truncate() in the time it took to write all these messages.
-
-How about this: I fix up truncate() and whatever else cares, and all
-this hassle ends right then?
-
-The opponents of the thing seem to be vastly overestimating its impact
-on the VM AFAICT.
-
-
--- wli

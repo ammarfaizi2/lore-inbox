@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbUBYVmL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 16:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUBYVla
+	id S261607AbUBYVjj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 16:39:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbUBYViB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 16:41:30 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:44005 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S261604AbUBYVjA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 16:39:00 -0500
-Date: Wed, 25 Feb 2004 15:38:21 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>, "Mukker, Atul" <Atulm@lsil.com>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Paul Wagland'" <paul@wagland.net>, Matthew Wilcox <willy@debian.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: Re: [SUBJECT CHANGE]: megaraid unified driver version 2.20.0.0-al pha1
-Message-ID: <20040225153821.C14838@lists.us.dell.com>
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC3E7@exa-atlanta.se.lsil.com> <20040225204441.A9291@infradead.org>
+	Wed, 25 Feb 2004 16:38:01 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:9941 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S261608AbUBYVg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 16:36:56 -0500
+Date: Wed, 25 Feb 2004 22:36:48 +0100
+From: Christophe Saout <christophe@saout.de>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: cryptoapi highmem bug
+Message-ID: <20040225213647.GB6587@leto.cs.pocnet.net>
+References: <1077663682.6493.1.camel@leto.cs.pocnet.net> <20040225043209.GA1179@certainkey.com> <20040224220030.13160197.akpm@osdl.org> <20040225153126.GA7395@leto.cs.pocnet.net> <20040225155121.GA7148@leto.cs.pocnet.net> <20040225154453.GB4218@certainkey.com> <20040225181540.GB8983@leto.cs.pocnet.net> <20040225201216.GA6799@certainkey.com> <20040225203920.GA1816@leto.cs.pocnet.net> <20040225204651.GA7140@certainkey.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040225204441.A9291@infradead.org>; from hch@infradead.org on Wed, Feb 25, 2004 at 08:44:41PM +0000
+In-Reply-To: <20040225204651.GA7140@certainkey.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 08:44:41PM +0000, 'Christoph Hellwig' wrote:
-> On Wed, Feb 25, 2004 at 03:38:48PM -0500, Mukker, Atul wrote:
-> > > of their own, e.g. mptraid
-> > Although, this simplifies the development and maintenance effort, having a
-> > single driver to drive both controllers or two independent drivers is not
-> > always our decision. Most often, it would be Dell's preference. 
+On Wed, Feb 25, 2004 at 03:46:51PM -0500, Jean-Luc Cooke wrote:
+
+> > >  Can we do this?
+> > 
+> > It's very non-trivial. Think about journalling filesystems, write
+> > ordering and atomicity. If the system crashes between two write
+> > operations we must be able to still correctly read the data. And
+> > write to these "crypto info blocks" should be done in a ways that
+> > doesn't kill performance. Do you have a proposal?
 > 
-> Well, I think the people at Dell should get down from their fucking crackpipe
-> then.  (Matt, did you hear that?  please stop this kind of marketing driven
-> junk, thanks)
+> I see.  From a security point of view, no.  OMACs need to be updated after
+> the data is updated to keep integrity checks passing.
 
-Yes, I'll try to figure out where this request came from, if from
-anyone at Dell.  My guess is it's related to other operating systems,
-over which I have no control, but isn't relevant to Linux.
+Yes. But if the machine doesn't get to update the OMAC but the data has
+already been written you must be able to still read the data somehow.
 
-In general, I tend to fight exactly the opposite - people wanting
-drivers split out for "new technology" - say, PCI Express, when the
-driver<->firmware API hasn't changed, which is just wrong again.
+> IVs need to be updated before the data is updated or plaintext is leaked.
 
-If it's got a different driver<->firmware API, then it needs a new
-driver.  If it's the same API, then it should be the same driver.
+Hmm? What could be done: The IV "sequence number" is incremented by one
+every time a sector gets written. The IV sequence numbers get written
+to the info block later (after a timeout, memory pressure and we to
+free some space in the cache or if the sequence has gone too far). When
+we read and the OMAC doesn't match we can try to increase the IV
+several times until it matches. Still the problem with the OMAC
+atomicity...
 
-FWIW, I'm out of the office for the next couple weeks with a new baby,
-thus limited sleep and access to people, but I'll discover what I
-can, and will take the heat internally for saying "split the driver"
-if in fact you've got two different APIs, as I suspect you do.
+> (IV + data + OMAC can be written to device at once).
 
-Thanks,
-Matt
+You can't guarantee that anything gets written at once. You can only
+make sure that something has been written. Or that something gets
+written before something else (using barriers, but I don't know if that
+is stable, it has never been used on bio level yet).
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+> I assume then that IVs and OMACs will not be stored in the same read-chunk as
+> the data then?  Bummer if this is the case.
+
+Well, we can't store it in the same sector because all 512 bytes are
+already used data.
+
+We could store less than 512 bytes in a sector but that would mean
+splitting up data on a sub-sector level. That means we have to read
+some sectors with untouched data (the first and the last), update
+the data and write several sectors. But then we can't even guarantee
+that sectors are atomicically written as seen by the filesystem.
+This is... yuck.

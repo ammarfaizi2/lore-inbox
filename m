@@ -1,60 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264020AbUDFVK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 17:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264009AbUDFVIF
+	id S264017AbUDFVR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 17:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264003AbUDFVR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 17:08:05 -0400
-Received: from fed1rmmtao10.west.cox.net ([68.230.241.29]:20934 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S264021AbUDFVFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 17:05:01 -0400
-Date: Tue, 6 Apr 2004 14:04:59 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: ganzinger@mvista.com
-Cc: kgdb-bugreport@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-Subject: Re: [KGDB] Make kgdb get in sync with it's I/O drivers for the breakpoint
-Message-ID: <20040406210459.GC31152@smtp.west.cox.net>
-References: <20040405233058.GV31152@smtp.west.cox.net> <40731A02.8090303@mvista.com>
-Mime-Version: 1.0
+	Tue, 6 Apr 2004 17:17:27 -0400
+Received: from web40514.mail.yahoo.com ([66.218.78.131]:23556 "HELO
+	web40514.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264017AbUDFVP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 17:15:56 -0400
+Message-ID: <20040406211550.30263.qmail@web40514.mail.yahoo.com>
+Date: Tue, 6 Apr 2004 14:15:50 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge 
+To: root@chaos.analogic.com
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0404061437020.8186@chaos>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40731A02.8090303@mvista.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 01:58:42PM -0700, George Anzinger wrote:
 
-> Tom Rini wrote:
-> >Hello.  The following interdiff, vs current kgdb-2 CVS makes kgdb core
-> >and I/O drivers get in sync in order to cause a breakpoint.  This kills
-> >off the init/main.c change, and makes way for doing things much earlier,
-> >if other support exists.  What would be left, tangentally, is some sort
-> >of queue to register with, so we can handle the case of KGDBOE on a
-> >pcmcia card.  George? Amit? Comments ?
+--- "Richard B. Johnson" <root@chaos.analogic.com>
+wrote:
+> On Tue, 6 Apr 2004, Sergiy Lozovsky wrote:
 > 
-> Well a simple but dumb way is to poll using the timer list, i.e. set up a 
-> timer at the first entry were things "might" work and if the driver is not 
-> yet, do a timer to come back in 1 tick, and keep doing it for each tick 
-> until it is available.  This puts it all on the kgdb side.
+> Let me get this right. You learned LISP right?
+
+25 years ago.
+
+> Now you think it's the only way to go. There is
+> a name for this, where one starts to identify
+> with his captors... It's called the Stockholm
+> Syndrome, named after four Swedes bound in bank-
+> vault for six days became attached to their captors.
+
+Last time I used LISP (except of the project we
+discuss) was 18 years ago (on IBM mainframes). So your
+conclusion doesn't sound right :-)
+
+I never used any LISP on PC prior to VXE project.
+
+> LISP is just a TOOL and a poor one, at that. There
+> are many tools available under Unix/Linux and, if
+> you don't like what's available, you can readily
+> make your own. Once you learn new tools, the
+> Stockholm
+> Syndrome will go away although you'll probably
+> always
+> like the first tool you learned to use. I like DDT,
+> myself.
 > 
-> The other way is with a call back list which would be managed by common OE 
-> code. This would put most of the code in that area.  I tend to like call 
->  back lists that one registers for by passing in a structure which contains 
-> a "list_head" member.  That way there is no memory allocation on either 
-> end.  The manager, on a register call, just puts the new structure in its 
-> call back list.  The struct would have the list_head member and a function 
-> member, and the function would be called with the struct address as its 
-> only parameter.  This allows for an expanded struct if more complex info is 
-> needed.
+> Nobody who has a clue would suggest LISP inside a
+> kernel.
+> When I first read this, I was sure it was an
+> April-fool
+> joke, although somewhat cruel, kinda like; "what to
+> do
+> with a dead cat..."
 
-Setting aside this problem for a minute (since what I posted does get
-the job done, just not 100% clean), what do you think about the rest of
-the changes?
+So, you still didn't say a word why it was a bad
+choice. Can you share your thought on that?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+I didn't just pick up LISP - I EXPLAINED my reasons.
+if you missed my explanation here is a short summary.
+
+1. I needed solution to implement some procedural
+functionality within the kernel. This functionality
+should be expressed with some high level language
+(shorter development time and more compact source
+code). This functionality should be
+loadable/unloadable to the kernel.
+
+2. Size of the interpreter should be minimal.
+
+3. Kind of real time - no ordinary garbage collector.
+And automatic memory management at the same time.
+
+4. Easiest syntax possible - so interpreter would be
+compact. Simpler - the better :-) I don't like
+complicated things :-)
+
+5. Well known. So there would be people around who
+already know this language and expectations are clear.
+And there are books around about this language.
+
+6. Ability to handle/represent complex data
+structures.
+
+7. Errors/bugs in loadable functions should not cause
+trouble for other tasks and kernel itself. (To the
+extent possible for sure).
+
+8. It should be universal (general purpose) language
+which gives ability to make any manipulations with
+numbers, strings, bits and data structures. So I would
+be sure that functionality I want to express is not
+limited by the language.
+
+That's why particular LISP interpreter was chosen.
+It's wrong to say that just language was chosen. I
+would never start work of fitting Common Lisp into the
+kernel. Particular general purpose language
+interpreter was chosen.
+
+Serge.
+
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.24 on an i686 machine
+> (797.90 BogoMips).
+>             Note 96.31% of all statistics are
+> fiction.
+> 
+> 
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

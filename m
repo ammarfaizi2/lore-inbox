@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbTKCGGf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 01:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTKCGGf
+	id S261929AbTKCG3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 01:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbTKCG3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 01:06:35 -0500
-Received: from acasun.eckerd.edu ([198.187.211.2]:59037 "EHLO eckerd.edu")
-	by vger.kernel.org with ESMTP id S261925AbTKCGGe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 01:06:34 -0500
-Message-ID: <3FA5F065.8040401@eckerd.edu>
-Date: Mon, 03 Nov 2003 01:06:29 -0500
-From: "Stephen R. Bordeleau" <bordelsr@eckerd.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gulu gulu <rgshi2002@yahoo.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux on SGI O2
-References: <20031102120740.13306.qmail@web80702.mail.yahoo.com>
-In-Reply-To: <20031102120740.13306.qmail@web80702.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 3 Nov 2003 01:29:24 -0500
+Received: from gemini.yars.free.net ([193.233.48.66]:42745 "EHLO
+	gemini.netis.ru") by vger.kernel.org with ESMTP id S261929AbTKCG3X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 01:29:23 -0500
+Date: Mon, 3 Nov 2003 09:29:06 +0300
+From: "Alexander V. Lukyanov" <lav@netis.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test9: success report
+Message-ID: <20031103062906.GA5396@swing.yars.free.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact NETIS Telecom for more information (+7 0852 797709)
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.7, required 5,
+	AWL 0.00, BAYES_30 -0.93, USER_AGENT_MUTT -2.80)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have a small cluster over at my college which I had a hand in setting 
-up. It's a bit of a pain to do but kinda neat in a geeky way. Check out 
-www.linux-mips.org
+Hi!
 
-Cheers,
-Steve
+I write to report success of 2.6.0-test9 on a heavy loaded (2m hits a day)
+proxy server running squid.
 
-gulu gulu wrote:
+It worked 3 days under load without a glitch.
 
->Hallo all,
->
->   can anyone tell me if linux already supports SGI
->O2.
->I have 2 SGIs. It will be pity to leave them there.
->
->
->    Thanks.
->
->__________________________________________________________________
->
->Gesendet von Yahoo! Mail - http://mail.yahoo.de
->Logos und Klingeltöne fürs Handy bei http://sms.yahoo.de
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+Some notes:
 
+	1. ATA TCQ does not work here, I had to disable it. Turning it on
+	   later leads to instant data corruption.
+	2. Nice value seems to be more significant in 2.6 than in 2.4, but
+	   I think it is good.
 
+My config:
+	P4 1.80GHz, 640MB ram, 2x40MB ibm ide disks (IC35L040AVVN07-0).
+	ext3 filesystems.
+
+-- 
+   Alexander.                      | http://www.yars.free.net/~lav/  

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266585AbUBDW3i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 17:29:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266621AbUBDW3i
+	id S263909AbUBDWzi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 17:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266623AbUBDWzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 17:29:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33002 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266585AbUBDW3a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 17:29:30 -0500
-Date: Wed, 4 Feb 2004 22:29:21 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Steve Kenton <skenton@ou.edu>
-Cc: rth@twiddle.net, rmk@arm.linux.org.uk, spyro@f2s.com, bjornw@axis.com,
-       ysato@users.sourceforge.jp, Linux Kernel <linux-kernel@vger.kernel.org>,
-       davidm@hpl.hp.com, jes@trained-monkey.org, ralf@gnu.org, matthew@wil.cx,
-       paulus@samba.org, schwidefsky@de.ibm.com, gniibe@m17n.org,
-       wesolows@foobazco.org, davem@redhat.com, jdike@karaya.com,
-       uclinux-v850@lsi.nec.co.jp, ak@suse.de
-Subject: Re: 2.6.2 make defconfig for all arches give 171 "trying to assign nonexistent symbol" errors
-Message-ID: <20040204222921.GA24334@parcelfarce.linux.theplanet.co.uk>
-References: <40216DEE.6040306@ou.edu>
+	Wed, 4 Feb 2004 17:55:36 -0500
+Received: from codepoet.org ([166.70.99.138]:29152 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S263909AbUBDWze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 17:55:34 -0500
+Date: Wed, 4 Feb 2004 15:45:05 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Current state of DVD/CD Packet Writing?
+Message-ID: <20040204224505.GA29073@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org, linux-kernel@vger.kernel.org
+References: <20040204223200.GF19256@digitasaru.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40216DEE.6040306@ou.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040204223200.GF19256@digitasaru.net>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 04:10:54PM -0600, Steve Kenton wrote:
-> 2.6.2 make defconfig for all arches give 171 "trying to assign nonexistent 
-> symbol" errors
-> total in 13 different arches, up from 143 in 2.6.1.
+On Wed Feb 04, 2004 at 04:32:02PM -0600, Joseph Pingenot wrote:
+> Hi!
+> 
+> I was poking around looking for information on CD or DVD Packet Writing,
+>   and came across http://packet-cd.sourceforge.net.  It looks like it's
+>   inactive atm.
+> Have these patches been absorbed into the vanilla 2.6 kernels (I recall
+>   UDF write in the kernel config).  If not, where is current development
+>   at?  Where can I find more information?
 
-why does this matter?  if you want to work on Kconfig stuff, I have some
-things you can do that will actually help ;-)
+There is lots of stuff at http://dyson.kristenscatbeds.com/
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTDYNqn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 09:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbTDYNqn
+	id S263171AbTDYNv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 09:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTDYNv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 09:46:43 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60033 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263152AbTDYNqm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 09:46:42 -0400
-Date: Fri, 25 Apr 2003 15:58:29 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alexander Atanasov <alex@ssi.bg>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC/PATCH] IDE Power Management try 1
-Message-ID: <20030425135829.GM1012@suse.de>
-References: <1051271538.15078.27.camel@gaston> <Pine.SOL.4.30.0304251414430.12558-100000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0304251414430.12558-100000@mion.elka.pw.edu.pl>
+	Fri, 25 Apr 2003 09:51:26 -0400
+Received: from windsormachine.com ([206.48.122.28]:64525 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S263171AbTDYNvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 09:51:25 -0400
+Date: Fri, 25 Apr 2003 10:03:31 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: John Bradford <john@grabjohn.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+In-Reply-To: <200304242138.h3OLc824000522@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.33.0304251002260.13312-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 25 2003, Bartlomiej Zolnierkiewicz wrote:
-> 
-> On 25 Apr 2003, Benjamin Herrenschmidt wrote:
-> 
-> > > If you add REQ_DRIVE_INTERNAL, and kill the other ones I mentioned, fine
-> > > with me then.
-> > >
-> > > 	rq->flags & REQ_DRIVE_INTERNAL
-> > > 		rq->cmd[0] == PM
-> > > 			pm stuf
-> > > 		rq->cmd[0] = taskfile
-> > > 			taskfile
-> > >
-> > > etc. Make sense?
-> >
-> > As I just wrote, I'd rather go the whole way then and break up flags
-> > (which is a very bad name btw) into req_type & req_subtype, though
-> > that would mean a bit of driver fixing....
-> >
-> > Ben.
-> 
-> req_type & req_subtype makes sense,
-> but it is future since driver work is needed
 
-100% agree. It's way too late to change that now. Besides, there's still
-plenty of space in there, especially if the IDE bits are collapsed into
-one.
 
--- 
-Jens Axboe
+On Thu, 24 Apr 2003, John Bradford wrote:
+
+> > > We could always consider wiring everything up with discrete logic.
+> > > Anyone got any spare 74138's?
+> >
+> > I need 1 billion of them please, and I need the overclockable ones :)
+>
+> Why not just buy one of those 100-in-1 electronics kits from your
+> local electonics hobbyist store, and make your very own wire wrap CPU?
+
+They don't usually come with the needed 70W .01 ohm resistor you'd need
+to completely emulate a modern cpu.
+
+Mike
 

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261582AbSKXTEQ>; Sun, 24 Nov 2002 14:04:16 -0500
+	id <S261587AbSKXTJt>; Sun, 24 Nov 2002 14:09:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261587AbSKXTEQ>; Sun, 24 Nov 2002 14:04:16 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:10632 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S261582AbSKXTEQ>; Sun, 24 Nov 2002 14:04:16 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 24 Nov 2002 11:12:16 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Felix von Leitner <felix-kerel@fefe.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll_wait conflicts with man page
-In-Reply-To: <Pine.LNX.4.50.0211240956500.7401-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.50.0211241106450.7401-100000@blue1.dev.mcafeelabs.com>
-References: <20021124174635.GB16255@codeblau.de>
- <Pine.LNX.4.50.0211240956500.7401-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261593AbSKXTJt>; Sun, 24 Nov 2002 14:09:49 -0500
+Received: from ppp-1-24.lond-a-4.access.uk.tiscali.com ([80.225.221.24]:43012
+	"EHLO caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261587AbSKXTJt>; Sun, 24 Nov 2002 14:09:49 -0500
+Date: Sun, 24 Nov 2002 18:07:20 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Kronos <kronos@kronoz.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.49] Serial registered twice
+Message-ID: <20021124180720.A30521@flint.arm.linux.org.uk>
+Mail-Followup-To: Kronos <kronos@kronoz.cjb.net>,
+	linux-kernel@vger.kernel.org
+References: <20021124153842.GA586@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021124153842.GA586@dreamland.darkstar.lan>; from kronos@kronoz.cjb.net on Sun, Nov 24, 2002 at 04:38:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Nov 2002, Davide Libenzi wrote:
+On Sun, Nov 24, 2002 at 04:38:42PM +0100, Kronos wrote:
+> In my bootlog I see this:
+> 
+> Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing enabled
+> tts/0 at I/O 0x3f8 (irq = 4) is a 16550A
+> tts/1 at I/O 0x2f8 (irq = 3) is a 16550A
+> pnp: the driver 'serial' has been registered
+> pnp: pnp: match found with the PnP device '00:0c' and the driver 'serial'
+> devfs_register(tts/0): could not append to parent, err: -17
+> tts/0 at I/O 0x3f8 (irq = 4) is a 16550A
+> pnp: pnp: match found with the PnP device '00:10' and the driver 'serial'
+> devfs_register(tts/1): could not append to parent, err: -17
+> tts/1 at I/O 0x2f8 (irq = 3) is a 16550A
 
-> On Sun, 24 Nov 2002, Felix von Leitner wrote:
->
-> > I just implemented epoll_create, epoll_ctl and epoll_wait for the diet
-> > libc and found that epoll_wait in 2.5.59 does not expect struct
-> > epoll_event* as second argument but actually struct pollfd*.
->
-> Man pages are currently under review/editing and the definitive ones
-> should be ready for the next week.
+Indeed.  Although it is harmless, it isn't what the average user
+expects.  I could tweak the serial layer to refuse to re-initialise
+an already initalised port.
 
-Since I received many emails about the kernel not exposing the final
-interface that is currently documented, and since Linus did not merge my
-latest bits, I prepared a patch that will align the kernel to the latest
-API :
+However, the devfs_regsiter problem is one that needs solving.
 
-http://www.xmailserver.org/linux-patches/sys_epoll-2.5.49-0.58.diff
-
-The latest API is documented here :
-
-http://www.xmailserver.org/linux-patches/epoll.txt
-http://www.xmailserver.org/linux-patches/epoll.4
-http://www.xmailserver.org/linux-patches/epoll_create.txt
-http://www.xmailserver.org/linux-patches/epoll_create.2
-http://www.xmailserver.org/linux-patches/epoll_ctl.txt
-http://www.xmailserver.org/linux-patches/epoll_ctl.2
-http://www.xmailserver.org/linux-patches/epoll_wait.txt
-http://www.xmailserver.org/linux-patches/epoll_wait.2
-
-A few bits inside the man pages might change ( epoll.4 maybe heavily ) but
-the API should be pretty much fixed right now. An access library is
-available here :
-
-http://www.xmailserver.org/linux-patches/epoll-lib-0.3.tar.gz
-
-
-
-
-- Davide
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

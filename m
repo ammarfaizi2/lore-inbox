@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315591AbSECIEX>; Fri, 3 May 2002 04:04:23 -0400
+	id <S315589AbSECIGA>; Fri, 3 May 2002 04:06:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315592AbSECIEX>; Fri, 3 May 2002 04:04:23 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:64430 "HELO
+	id <S315590AbSECIF7>; Fri, 3 May 2002 04:05:59 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:59055 "HELO
 	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S315591AbSECIEW>; Fri, 3 May 2002 04:04:22 -0400
-Date: Fri, 3 May 2002 09:43:40 +0200 (SAST)
+	id <S315589AbSECIF5>; Fri, 3 May 2002 04:05:57 -0400
+Date: Fri, 3 May 2002 09:45:20 +0200 (SAST)
 From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] [2.5.12] test_bit fixes
-Message-ID: <Pine.LNX.4.44.0205030940480.12156-100000@netfinity.realnet.co.sz>
+To: Treeve Jelbert <treeve01@pi.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG - linux-2.5.13/arch/i386/kernel - bluesmoke.c
+In-Reply-To: <200205030959.52486.treeve01@pi.be>
+Message-ID: <Pine.LNX.4.44.0205030944180.12156-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/i386/kernel/microcode.c
-arch/i386/kernel/msr.c
+On Fri, 3 May 2002, Treeve Jelbert wrote:
 
-Now i just need to wade through the alsa ones...
+> gcc -D__KERNEL__ -I/usr/src/linux-2.5.13/include -Wall -Wstrict-prototypes 
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+> -pipe -mpreferred-stack-boundary=2 -march=athlon    
+> -DKBUILD_BASENAME=bluesmoke  -c -o bluesmoke.o bluesmoke.c
+> bluesmoke.c: In function `intel_thermal_interrupt':
+> bluesmoke.c:36: warning: implicit declaration of function `ack_APIC_irq'
+> bluesmoke.c: In function `intel_init_thermal':
+> bluesmoke.c:92: warning: implicit declaration of function `apic_read'
+> bluesmoke.c:104: warning: implicit declaration of function `apic_write_around'
 
---- linux-2.5/arch/i386/kernel/microcode.c.orig	Thu May  2 21:05:23 2002
-+++ linux-2.5/arch/i386/kernel/microcode.c	Thu May  2 21:37:26 2002
-@@ -211,7 +211,7 @@
- 	req->err = 1; /* assume update will fail on this cpu */
- 
- 	if (c->x86_vendor != X86_VENDOR_INTEL || c->x86 < 6 ||
--		test_bit(X86_FEATURE_IA64, &c->x86_capability)){
-+		test_bit(X86_FEATURE_IA64, c->x86_capability)){
- 		printk(KERN_ERR "microcode: CPU%d not a capable Intel processor\n", cpu_num);
- 		return;
- 	}
---- linux-2.5/arch/i386/kernel/msr.c.orig	Thu May  2 20:54:32 2002
-+++ linux-2.5/arch/i386/kernel/msr.c	Thu May  2 21:37:18 2002
-@@ -236,7 +236,7 @@
-   
-   if ( !(cpu_online_map & (1UL << cpu)) )
-     return -ENXIO;		/* No such CPU */
--  if ( !test_bit(X86_FEATURE_MSR, &c->x86_capability) )
-+  if ( !test_bit(X86_FEATURE_MSR, c->x86_capability) )
-     return -EIO;		/* MSR not supported */
-   
-   return 0;
+You need CONFIG_X86_LOCAL_APIC, a proper fix is currently in 2.5-dj 
+pending a merge.
 
+Thanks,
+	Zwane
 -- 
 http://function.linuxpower.ca
+		
 

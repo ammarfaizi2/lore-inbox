@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268003AbTBWAen>; Sat, 22 Feb 2003 19:34:43 -0500
+	id <S267997AbTBWAvN>; Sat, 22 Feb 2003 19:51:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268004AbTBWAen>; Sat, 22 Feb 2003 19:34:43 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:59400 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S268003AbTBWAem>; Sat, 22 Feb 2003 19:34:42 -0500
-Date: Sun, 23 Feb 2003 09:44:42 +0900 (JST)
-Message-Id: <20030223.094442.107718872.yoshfuji@linux-ipv6.org>
-To: davem@redhat.com
-Cc: kazunori@miyazawa.org, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi@linux-ipv6.org, kunihiro@ipinfusion.com
-Subject: Re: [PATCH] IPv6 IPSEC support
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20030222.154753.133994666.davem@redhat.com>
-References: <20030222.031326.103246837.davem@redhat.com>
-	<20030222.214935.134101784.yoshfuji@linux-ipv6.org>
-	<20030222.154753.133994666.davem@redhat.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S268001AbTBWAvM>; Sat, 22 Feb 2003 19:51:12 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:37846 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267997AbTBWAvM>; Sat, 22 Feb 2003 19:51:12 -0500
+Date: Sat, 22 Feb 2003 16:50:36 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <316510000.1045961436@flay>
+In-Reply-To: <20030222221820.GI10401@holomorphy.com>
+References: <96700000.1045871294@w-hlinder>
+ <20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay>
+ <20030222024721.GA1489@work.bitmover.com> <14450000.1045888349@[10.10.2.4]>
+ <20030222050514.GA3148@work.bitmover.com> <19870000.1045895965@[10.10.2.4]>
+ <20030222083810.GA4170@gtf.org> <20030222221820.GI10401@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030222.154753.133994666.davem@redhat.com> (at Sat, 22 Feb 2003 15:47:53 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
+> On Sat, Feb 22, 2003 at 03:38:10AM -0500, Jeff Garzik wrote:
+>> ia32 big iron.  sigh.  I think that's so unfortunately in a number
+>> of ways, but the main reason, of course, is that highmem is evil :)
 
-> One example, xfrm_lookup() gets this xfrm_afinfo pointer, and it can
-> use it to learn how to compare addresses.  The xfrm_afinfo pointer
-> is also passed to xfrm_bundle_create() which uses it to learn how
-> to lookup tunnel routes.
-> 
-> A small net/ipv6/xfrm_ipv6.c module is created, which registers
-> a xfrm_afinfo structure to the generic xfrm engine, it teaches
-> how to do these operations for AF_INET6 xfrm objects.
-> 
-> Do you think this can work?
+One phrase ... "price:performance ratio". That's all it's about.
+The only thing that will kill 32-bit big iron is the availability of 
+cheap 64 bit chips. It's a free-market economy.
 
-I suppose so.  We'll try to work on it.
+It's ugly to program, but it's cheap, and it works.
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+M.
+

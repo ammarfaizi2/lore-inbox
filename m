@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266142AbUGOIDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266138AbUGOICe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266142AbUGOIDT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 04:03:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266146AbUGOIDS
+	id S266138AbUGOICe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 04:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUGOIC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 04:03:18 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:31738 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266142AbUGOIDD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 04:03:03 -0400
-Date: Thu, 15 Jul 2004 13:32:04 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com
-Subject: Re: [RFC] Refcounting of objects part of a lockfree collection
-Message-ID: <20040715080204.GC1312@obelix.in.ibm.com>
-References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714070700.GA12579@kroah.com> <20040714085758.GA4165@obelix.in.ibm.com> <20040714170800.GC4636@kroah.com>
+	Thu, 15 Jul 2004 04:02:26 -0400
+Received: from moutng.kundenserver.de ([212.227.126.191]:23550 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S266138AbUGOICN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 04:02:13 -0400
+To: =?iso-8859-1?Q?William_Lee_Irwin_III?= <wli@holomorphy.com>
+Subject: =?iso-8859-1?Q?Re:_[PATCH]_was:_[RFC]_removal_of_sync_in_panic?=
+From: <linux-kernel@borntraeger.net>
+Cc: <linux-kernel@borntraeger.net>, <linux-kernel@vger.kernel.org>,
+       =?iso-8859-1?Q?Andrew_Morton?= <akpm@osdl.org>, <lmb@suse.de>
+Message-Id: <5636222$108987797940f637db66fab3.01183982@config19.schlund.de>
+X-Binford: 6100 (more power)
+X-Originating-From: 5636222
+X-Mailer: Webmail
+X-Routing: DE
+Content-Type: text/plain; charset=US-ASCII
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040714170800.GC4636@kroah.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Date: Thu, 15 Jul 2004 10:00:01 +0200
+X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.146
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 14, 2004 at 10:08:00AM -0700, Greg KH wrote:
-> > ...
-> > Close, but not the same.  I just had a quick look at krefs.
-> > Actually, this refrerence count infrastructure I am proposing is not for 
-> > traditional refcounting.
-> 
-> But you are advertising it as such by calling it a refcount_t and
-> putting it in a file called refcount.h.
 
-The naming is bad, I agree. But as Dipankar pointed out earlier, there
-was no kref when I did this.  We (Dipankar and myslef) had a discussion
-and decided:
-1. I will make a patch to shrink kref and feed it to Greg
-2. Add new set kref api for lockfree refcounting --
-	kref_lf_xxx.  (kref_lf_get, kref_lf_get_rcu etc.,)
-3. Change the fd lookup patch to use kref_lf_xxx api
+William Lee Irwin III <wli@holomorphy.com> schrieb am 15.07.2004,
+09:27:34:
+> William Lee Irwin III  schrieb am 15.07.2004, 
+> >> I've seen SMP boxen run interrupt handlers for ages after 
+> >> panicking, but I never thought much of it.
 
-Does that sound ok?
+> > I have seen more than just interupt handlers.I was able to log in  > > via ssh. After typing dmesg I saw 2 panics and the system was
+> > still up.
 
-Thanks,
-Kiran
+> Jesus fscking H. Christ wtf is going on here?
+
+It was a 4 cpu box. 2 cpus have been busy trying to sync. Therefore, 2
+cpus were still able to do some work including ssh and bash. That was
+the reason why I proposed to remove sync out of panic.

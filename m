@@ -1,67 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTEVWLq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 18:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263361AbTEVWLq
+	id S263339AbTEVWPR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 18:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbTEVWPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 18:11:46 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:47840 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S263355AbTEVWLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 18:11:44 -0400
-Date: Thu, 22 May 2003 23:24:48 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-kernel@vger.kernel.org
-Subject: IDE 2.5.69 possible bogosity...
-Message-Id: <20030522232448.21d7ee2f.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 May 2003 18:15:17 -0400
+Received: from jma24.plus.com ([212.159.46.210]:10176 "EHLO lion")
+	by vger.kernel.org with ESMTP id S263339AbTEVWPO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 18:15:14 -0400
+From: "John Appleby" <john@dnsworld.co.uk>
+To: "'linux kernel'" <linux-kernel@vger.kernel.org>
+Subject: Root device problems on arm26
+Date: Thu, 22 May 2003 23:32:55 +0100
+Message-ID: <434747C01D5AC443809D5FC5405011315690@bobcat.unickz.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <434747C01D5AC443809D5FC54050113104ABC4@bobcat.unickz.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi,
 
-Im wondering if this is correct. is the test for initializing in the
-second for loop correct?
+I'm busy hacking into the arm26 port (Archimedes, A5k) in 2.5.69 and
+I've hit a brick wall. I have fixed support for initrd, fdd and hdd on
+the A5k (amongst other things), but I can't get any of them to boot into
+a root fs.
 
-Im building an IDE driver into my kernel that calls ide_register_hw()
-twice to register its primary and secondary ports, but only the
-secondary port is recognised. the first fails, since the test in the
-first for loop fails and so does the second, so it then 'unregisters'
-it, despite never having been registered. somehow, this puts my drive
-INTO the hwif array, so the secondary interface registers OK, passing
-the other tests.
+If I try booting into root=/dev/hda1 (which contains a valid FS that I
+can boot with a 2.0.31 kernel), I get the following:
 
-a hack that allowed the primary interface to register was to register it
-twice, but that sucks.
+{snip}
+Floppy drive(s): fd0 is 1.44M, fd1 is 1.44M
+FDC 0 is an 8272A
+RAMDISK driver initializer; 16 RAM disks of 4096K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 50MHz system buss speed for PIO modes; override with
+idebus=xx
+hda: Conner Peripherals 120MB - CP30104H, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 11
+hda: task_no_data-intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data-intr: status=0x54 { DriveStatusError }
+ hda: hda1 hda2
+Console: switching to colour frame buffer device 80x60
+i2c /dev entries driver module version 2.7.0 (200221208)
+Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)
 
-int ide_register_hw (hw_regs_t *hw, ide_hwif_t **hwifp)
-{
-        int index, retry = 1;
-        ide_hwif_t *hwif;
+If I try booting into initrd (no arguments), I get same with the
+following at the end:
 
-        do {
-                for (index = 0; index < MAX_HWIFS; ++index) {
-                        hwif = &ide_hwifs[index];
-                        if (hwif->hw.io_ports[IDE_DATA_OFFSET] ==
-hw->io_ports[IDE_DATA_OFFSET])
-                                goto found;
-                }
-                for (index = 0; index < MAX_HWIFS; ++index) {
-                        hwif = &ide_hwifs[index];
+VFS: Insert root floppy disk to be loaded into RAM disk and press ENTER
+VFS: Insert root floppy and press ENTER
+Kernel panic: VFS: Unable to mount root fs on fd0
 
-*** is the test for initialising (not the !initialising one) here ok?
-***
+A point to note is that the machine then can't read its disks in RISC-OS
+until it has been switched off. Hard reset does nothing. Also, the hda:
+hda1 hda2 line doesn't contain a partition type label (it's DOS), which
+strikes me as odd. I do have DOS partition support compiled in.
+Overriding with idebus=25 makes no difference by the way.
 
-                    if ((!hwif->present && !hwif->mate && !initializing)
-||
-                        (!hwif->hw.io_ports[IDE_DATA_OFFSET] &&
-initializing))
-                                goto found;
-                }
-                for (index = 0; index < MAX_HWIFS; index++)
-                        ide_unregister(index);
-        } while (retry--);
+I really don't have a clue where this problem could be caused... does
+anyone have any pointers for me?
+
+Regards,
+
+John
+
+

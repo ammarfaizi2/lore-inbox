@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbUKWMtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbUKWMuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbUKWMtD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 07:49:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbUKWMtD
+	id S261207AbUKWMuj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 07:50:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbUKWMui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 07:49:03 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:60870 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261191AbUKWMs4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 07:48:56 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Stupid question
-Date: Tue, 23 Nov 2004 07:48:55 -0500
-User-Agent: KMail/1.7
-References: <200411212045.51606.gene.heskett@verizon.net> <87653wydi7.fsf@amaterasu.srvr.nix> <41A32ABC.1090000@draigBrady.com>
-In-Reply-To: <41A32ABC.1090000@draigBrady.com>
+	Tue, 23 Nov 2004 07:50:38 -0500
+Received: from web41411.mail.yahoo.com ([66.218.93.77]:13707 "HELO
+	web41411.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261207AbUKWMu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 07:50:26 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=1QPlzeeGcWIws7qhze1T+lh+CnvX9ti1Jakw09uFbR3KBRDDVnZhPwxbrtTXe28sFSB8rfWLEUAiM0qLqwqs+YKrfdX8JksUFzf42O56eHewkRHx+QQR5Z1Yj5dbK4GiDGjavhQfBRI0XlaXfGMotxOmergf2v4NW98733yMEFQ=  ;
+Message-ID: <20041123125021.69735.qmail@web41411.mail.yahoo.com>
+Date: Tue, 23 Nov 2004 04:50:20 -0800 (PST)
+From: cranium2003 <cranium2003@yahoo.com>
+Subject: using skbuff in kernel module
+To: netfilter devel <netfilter-devel@lists.samba.org>
+Cc: kernerl mail <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200411230748.55252.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.10.220] at Tue, 23 Nov 2004 06:48:55 -0600
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 November 2004 07:19, P@draigBrady.com wrote:
->Nix wrote:
->> On 23 Nov 2004, Gene Heskett yowled:
->>>On Monday 22 November 2004 09:32, P@draigBrady.com wrote:
->>>>Gene Heskett wrote:
->>>>>Greetings;
->>>>>
->>>>>Silly Q of the day probably, but what do I set in a Makefile for
->>>>>the -march=option for building on a 233 mhz Pentium 2?
->>>>
->>>>http://www.pixelbeat.org/scripts/gcccpuopt
->>>
->>>Thanks very much.  Obviously someone else needed to scratch this
->>> itch too.  This should produce the correct results when running
->>> on the target machine.  Here, it produces this:
->>>[root@coyote CIO-DIO96]# sh ../gcccpuopt
->>> -march=athlon-xp -mfpmath=sse -msse -mmmx -m3dnow
->>
->> ... which is peculiar, as -mmmx -msse is redundant, as is -mmmx
->> -m3dnow, and all three of those flags are the end are implied by
->> -march=athlon-xp anyway.
->>
->> (-mfpmath=sse *is* useful on non-64-bit platforms, though.)
->
->I added those in so that they were explicit.
->They do no harm. I had a version that didn't print
->these redundant options but got many requests
->about whether they were needed. You can't win.
->
->Pádraig.
+Hello,
+         I want to add new header between IP and
+ETHERNET layer. I want to ask can it be done using
+netfilter hooks? 
+         Can skb functions (skb_reserve, skb_push
+,skb_pull)be allowed to use in kernel module so that i
+can add at NF_IP_LOCAL_OUT and pull my own header at
+NF_IP_LOCAL_IN?
 
-I've heard that expression before :-)
+regards,
+cranium
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.29% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Meet the all-new My Yahoo! - Try it today! 
+http://my.yahoo.com 
+ 
+

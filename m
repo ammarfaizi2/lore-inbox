@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263458AbVCEAns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbVCEA5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263458AbVCEAns (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbVCEAkQ
+	id S263154AbVCEA5B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:57:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263111AbVCEAx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:40:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:1671 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263435AbVCEAGN (ORCPT
+	Fri, 4 Mar 2005 19:53:26 -0500
+Received: from fire.osdl.org ([65.172.181.4]:13769 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263485AbVCEAqF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:06:13 -0500
-Date: Fri, 4 Mar 2005 16:06:04 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, chrisw@osdl.org
-Subject: Re: Linux 2.6.11.1
-Message-ID: <20050305000604.GA3355@kroah.com>
-References: <20050304175302.GA29289@kroah.com> <20050304124431.676fd7cf.akpm@osdl.org> <20050304205842.GA32232@kroah.com> <20050304131537.7039ca10.akpm@osdl.org> <Pine.LNX.4.58.0503041353050.11349@ppc970.osdl.org> <20050304135933.3a325efc.akpm@osdl.org> <20050304220518.GC1201@kroah.com> <20050304143614.203278fd.akpm@osdl.org>
+	Fri, 4 Mar 2005 19:46:05 -0500
+Date: Fri, 4 Mar 2005 16:45:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.11-mm1 "nobh" support for ext3 writeback mode
+Message-Id: <20050304164553.29811e8f.akpm@osdl.org>
+In-Reply-To: <1109982557.7236.65.camel@dyn318077bld.beaverton.ibm.com>
+References: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>
+	<20050304162331.4a7dfdb8.akpm@osdl.org>
+	<1109982557.7236.65.camel@dyn318077bld.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050304143614.203278fd.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 02:36:14PM -0800, Andrew Morton wrote:
-> But we end up with a cset in the permanent kernel history which simply
-> should not have been there.
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> > What's all this doing?  (It needs comments please - it's very unobvious).
+> 
+> All its trying to do is - to make sure the page is uptodate so that
+> it can zero out the portion thats needed. 
 
-Is this really a big deal?
+OK.
 
-thanks,
+> I can do getblock() and ll_rw_block(READ) instead. I was
+> trying to re-use the code and mpage_readpage() drops the lock.
+> What do you think ?
 
-greg k-h
+Can you just call ->prepare_write, as nobh_truncate_page() does?  That'll
+cause a nested transaction, but that's legal.

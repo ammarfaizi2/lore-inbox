@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVAaXxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVAaXwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVAaXxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:53:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVAaXwn
+	id S261455AbVAaXwf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVAaXvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:52:43 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1542 "HELO
+	Mon, 31 Jan 2005 18:51:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:262 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261456AbVAaXm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:42:26 -0500
-Date: Tue, 1 Feb 2005 00:42:18 +0100
+	id S261455AbVAaXmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 18:42:18 -0500
+Date: Tue, 1 Feb 2005 00:42:16 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: mikulas@artax.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/hpfs/: make some code static
-Message-ID: <20050131234218.GO21437@stusta.de>
+Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/hfs/: misc cleanups
+Message-ID: <20050131234214.GN21437@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,192 +22,275 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+This patch contains the following cleanups:
+- make needlessly global code static
+- super.c: remove the unused global variable hfs_version
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- fs/hpfs/alloc.c   |    4 +++-
- fs/hpfs/dentry.c  |    6 +++---
- fs/hpfs/dnode.c   |   14 ++++++++------
- fs/hpfs/hpfs_fn.h |    4 ----
- fs/hpfs/inode.c   |    2 +-
- fs/hpfs/name.c    |    4 ++--
- fs/hpfs/super.c   |    6 +++---
- 7 files changed, 20 insertions(+), 20 deletions(-)
+ fs/hfs/brec.c    |   10 +++++++---
+ fs/hfs/btree.h   |    3 ---
+ fs/hfs/catalog.c |    2 +-
+ fs/hfs/dir.c     |   20 ++++++++++----------
+ fs/hfs/extent.c  |    4 ++--
+ fs/hfs/hfs_fs.h  |   10 ----------
+ fs/hfs/inode.c   |   13 ++++++++-----
+ fs/hfs/super.c   |    4 +---
+ 8 files changed, 29 insertions(+), 37 deletions(-)
 
 This patch was already sent on:
 - 7 Jan 2005
 
---- linux-2.6.10-mm2-full/fs/hpfs/hpfs_fn.h.old	2005-01-07 00:49:31.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hpfs/hpfs_fn.h	2005-01-07 00:52:55.000000000 +0100
-@@ -202,7 +202,6 @@
+--- linux-2.6.10-mm2-full/fs/hfs/btree.h.old	2005-01-07 00:09:58.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/hfs/btree.h	2005-01-07 00:11:29.000000000 +0100
+@@ -111,9 +111,6 @@
+ extern u16 hfs_brec_keylen(struct hfs_bnode *, u16);
+ extern int hfs_brec_insert(struct hfs_find_data *, void *, int);
+ extern int hfs_brec_remove(struct hfs_find_data *);
+-extern struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *);
+-extern int hfs_brec_update_parent(struct hfs_find_data *);
+-extern int hfs_btree_inc_height(struct hfs_btree *);
  
- int hpfs_chk_sectors(struct super_block *, secno, int, char *);
- secno hpfs_alloc_sector(struct super_block *, secno, unsigned, int, int);
--int hpfs_alloc_if_possible_nolock(struct super_block *, secno);
- int hpfs_alloc_if_possible(struct super_block *, secno);
- void hpfs_free_sectors(struct super_block *, secno, unsigned);
- int hpfs_check_free_dnodes(struct super_block *, int);
-@@ -247,8 +246,6 @@
- void hpfs_add_pos(struct inode *, loff_t *);
- void hpfs_del_pos(struct inode *, loff_t *);
- struct hpfs_dirent *hpfs_add_de(struct super_block *, struct dnode *, unsigned char *, unsigned, secno);
--void hpfs_delete_de(struct super_block *, struct dnode *, struct hpfs_dirent *);
--int hpfs_add_to_dnode(struct inode *, dnode_secno, unsigned char *, unsigned, struct hpfs_dirent *, dnode_secno);
- int hpfs_add_dirent(struct inode *, unsigned char *, unsigned, struct hpfs_dirent *, int);
- int hpfs_remove_dirent(struct inode *, dnode_secno, struct hpfs_dirent *, struct quad_buffer_head *, int);
- void hpfs_count_dnodes(struct super_block *, dnode_secno, int *, int *, int *);
-@@ -276,7 +273,6 @@
+ /* bfind.c */
+ extern int hfs_find_init(struct hfs_btree *, struct hfs_find_data *);
+--- linux-2.6.10-mm2-full/fs/hfs/brec.c.old	2005-01-07 00:10:19.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/hfs/brec.c	2005-01-07 00:11:49.000000000 +0100
+@@ -10,6 +10,10 @@
  
- void hpfs_init_inode(struct inode *);
- void hpfs_read_inode(struct inode *);
--void hpfs_write_inode_ea(struct inode *, struct fnode *);
- void hpfs_write_inode(struct inode *);
- void hpfs_write_inode_nolock(struct inode *);
- int hpfs_notify_change(struct dentry *, struct iattr *);
---- linux-2.6.10-mm2-full/fs/hpfs/alloc.c.old	2005-01-07 00:49:42.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hpfs/alloc.c	2005-01-07 00:50:06.000000000 +0100
-@@ -8,6 +8,8 @@
+ #include "btree.h"
  
- #include "hpfs_fn.h"
- 
-+static int hpfs_alloc_if_possible_nolock(struct super_block *s, secno sec);
++static struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *fd);
++static int hfs_brec_update_parent(struct hfs_find_data *fd);
++static int hfs_btree_inc_height(struct hfs_btree *tree);
 +
- /*
-  * Check if a sector is allocated in bitmap
-  * This is really slow. Turned on only if chk==2
-@@ -243,7 +245,7 @@
- 
- /* Alloc sector if it's free */
- 
--int hpfs_alloc_if_possible_nolock(struct super_block *s, secno sec)
-+static int hpfs_alloc_if_possible_nolock(struct super_block *s, secno sec)
+ /* Get the length and offset of the given record in the given node */
+ u16 hfs_brec_lenoff(struct hfs_bnode *node, u16 rec, u16 *off)
  {
- 	struct quad_buffer_head qbh;
- 	unsigned *bmp;
---- linux-2.6.10-mm2-full/fs/hpfs/dentry.c.old	2005-01-07 00:50:19.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hpfs/dentry.c	2005-01-07 00:50:57.000000000 +0100
-@@ -12,7 +12,7 @@
-  * Note: the dentry argument is the parent dentry.
-  */
- 
--int hpfs_hash_dentry(struct dentry *dentry, struct qstr *qstr)
-+static int hpfs_hash_dentry(struct dentry *dentry, struct qstr *qstr)
- {
- 	unsigned long	 hash;
- 	int		 i;
-@@ -34,7 +34,7 @@
+@@ -211,7 +215,7 @@
  	return 0;
  }
  
--int hpfs_compare_dentry(struct dentry *dentry, struct qstr *a, struct qstr *b)
-+static int hpfs_compare_dentry(struct dentry *dentry, struct qstr *a, struct qstr *b)
+-struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *fd)
++static struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *fd)
  {
- 	unsigned al=a->len;
- 	unsigned bl=b->len;
-@@ -49,7 +49,7 @@
+ 	struct hfs_btree *tree;
+ 	struct hfs_bnode *node, *new_node;
+@@ -320,7 +324,7 @@
+ 	return new_node;
+ }
+ 
+-int hfs_brec_update_parent(struct hfs_find_data *fd)
++static int hfs_brec_update_parent(struct hfs_find_data *fd)
+ {
+ 	struct hfs_btree *tree;
+ 	struct hfs_bnode *node, *new_node, *parent;
+@@ -418,7 +422,7 @@
  	return 0;
  }
  
--struct dentry_operations hpfs_dentry_operations = {
-+static struct dentry_operations hpfs_dentry_operations = {
- 	.d_hash		= hpfs_hash_dentry,
- 	.d_compare	= hpfs_compare_dentry,
- };
---- linux-2.6.10-mm2-full/fs/hpfs/dnode.c.old	2005-01-07 00:51:23.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hpfs/dnode.c	2005-01-07 00:52:44.000000000 +0100
-@@ -78,7 +78,7 @@
- 	return;
- }
- 
--void hpfs_pos_subst(loff_t *p, loff_t f, loff_t t)
-+static void hpfs_pos_subst(loff_t *p, loff_t f, loff_t t)
+-int hfs_btree_inc_height(struct hfs_btree *tree)
++static int hfs_btree_inc_height(struct hfs_btree *tree)
  {
- 	if (*p == f) *p = t;
- }
-@@ -88,7 +88,7 @@
- 	if ((*p & ~0x3f) == (f & ~0x3f)) *p = (t & ~0x3f) | (*p & 0x3f);
- }*/
- 
--void hpfs_pos_ins(loff_t *p, loff_t d, loff_t c)
-+static void hpfs_pos_ins(loff_t *p, loff_t d, loff_t c)
- {
- 	if ((*p & ~0x3f) == (d & ~0x3f) && (*p & 0x3f) >= (d & 0x3f)) {
- 		int n = (*p & 0x3f) + c;
-@@ -97,7 +97,7 @@
+ 	struct hfs_bnode *node, *new_node;
+ 	struct hfs_bnode_desc node_desc;
+--- linux-2.6.10-mm2-full/fs/hfs/catalog.c.old	2005-01-07 00:12:05.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/hfs/catalog.c	2005-01-07 00:12:13.000000000 +0100
+@@ -33,7 +33,7 @@
  	}
  }
  
--void hpfs_pos_del(loff_t *p, loff_t d, loff_t c)
-+static void hpfs_pos_del(loff_t *p, loff_t d, loff_t c)
+-int hfs_cat_build_record(hfs_cat_rec *rec, u32 cnid, struct inode *inode)
++static int hfs_cat_build_record(hfs_cat_rec *rec, u32 cnid, struct inode *inode)
  {
- 	if ((*p & ~0x3f) == (d & ~0x3f) && (*p & 0x3f) >= (d & 0x3f)) {
- 		int n = (*p & 0x3f) - c;
-@@ -189,7 +189,8 @@
+ 	__be32 mtime = hfs_mtime();
  
- /* Delete dirent and don't care about its subtree */
- 
--void hpfs_delete_de(struct super_block *s, struct dnode *d, struct hpfs_dirent *de)
-+static void hpfs_delete_de(struct super_block *s, struct dnode *d,
-+			   struct hpfs_dirent *de)
+--- linux-2.6.10-mm2-full/fs/hfs/dir.c.old	2005-01-07 00:12:28.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/hfs/dir.c	2005-01-07 00:14:20.000000000 +0100
+@@ -17,8 +17,8 @@
+ /*
+  * hfs_lookup()
+  */
+-struct dentry *hfs_lookup(struct inode *dir, struct dentry *dentry,
+-			  struct nameidata *nd)
++static struct dentry *hfs_lookup(struct inode *dir, struct dentry *dentry,
++				 struct nameidata *nd)
  {
- 	if (de->last) {
- 		hpfs_error(s, "attempt to delete last dirent in dnode %08x", d->self);
-@@ -221,8 +222,9 @@
- 
- /* Add an entry to dnode and do dnode splitting if required */
- 
--int hpfs_add_to_dnode(struct inode *i, dnode_secno dno, unsigned char *name, unsigned namelen,
--		      struct hpfs_dirent *new_de, dnode_secno down_ptr)
-+static int hpfs_add_to_dnode(struct inode *i, dnode_secno dno,
-+			     unsigned char *name, unsigned namelen,
-+			     struct hpfs_dirent *new_de, dnode_secno down_ptr)
+ 	hfs_cat_rec rec;
+ 	struct hfs_find_data fd;
+@@ -51,7 +51,7 @@
+ /*
+  * hfs_readdir
+  */
+-int hfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
++static int hfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
  {
- 	struct quad_buffer_head qbh, qbh1, qbh2;
- 	struct dnode *d, *ad, *rd, *nd = NULL;
---- linux-2.6.10-mm2-full/fs/hpfs/inode.c.old	2005-01-07 00:53:03.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hpfs/inode.c	2005-01-07 00:53:08.000000000 +0100
-@@ -141,7 +141,7 @@
- 	brelse(bh);
+ 	struct inode *inode = filp->f_dentry->d_inode;
+ 	struct super_block *sb = inode->i_sb;
+@@ -177,8 +177,8 @@
+  * a directory and return a corresponding inode, given the inode for
+  * the directory and the name (and its length) of the new file.
+  */
+-int hfs_create(struct inode *dir, struct dentry *dentry, int mode,
+-	       struct nameidata *nd)
++static int hfs_create(struct inode *dir, struct dentry *dentry, int mode,
++		      struct nameidata *nd)
+ {
+ 	struct inode *inode;
+ 	int res;
+@@ -207,7 +207,7 @@
+  * in a directory, given the inode for the parent directory and the
+  * name (and its length) of the new directory.
+  */
+-int hfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
++static int hfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+ {
+ 	struct inode *inode;
+ 	int res;
+@@ -236,7 +236,7 @@
+  * file, given the inode for the parent directory and the name
+  * (and its length) of the existing file.
+  */
+-int hfs_unlink(struct inode *dir, struct dentry *dentry)
++static int hfs_unlink(struct inode *dir, struct dentry *dentry)
+ {
+ 	struct inode *inode;
+ 	int res;
+@@ -262,7 +262,7 @@
+  * directory, given the inode for the parent directory and the name
+  * (and its length) of the existing directory.
+  */
+-int hfs_rmdir(struct inode *dir, struct dentry *dentry)
++static int hfs_rmdir(struct inode *dir, struct dentry *dentry)
+ {
+ 	struct inode *inode;
+ 	int res;
+@@ -291,8 +291,8 @@
+  * new file/directory.
+  * XXX: how do you handle must_be dir?
+  */
+-int hfs_rename(struct inode *old_dir, struct dentry *old_dentry,
+-	       struct inode *new_dir, struct dentry *new_dentry)
++static int hfs_rename(struct inode *old_dir, struct dentry *old_dentry,
++		      struct inode *new_dir, struct dentry *new_dentry)
+ {
+ 	int res;
+ 
+--- linux-2.6.10-mm2-full/fs/hfs/extent.c.old	2005-01-07 00:14:37.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/hfs/extent.c	2005-01-07 00:14:45.000000000 +0100
+@@ -231,8 +231,8 @@
+ 	return -EIO;
  }
  
--void hpfs_write_inode_ea(struct inode *i, struct fnode *fnode)
-+static void hpfs_write_inode_ea(struct inode *i, struct fnode *fnode)
+-int hfs_free_extents(struct super_block *sb, struct hfs_extent *extent,
+-		     u16 offset, u16 block_nr)
++static int hfs_free_extents(struct super_block *sb, struct hfs_extent *extent,
++			    u16 offset, u16 block_nr)
  {
- 	struct hpfs_inode_info *hpfs_inode = hpfs_i(i);
- 	/*if (fnode->acl_size_l || fnode->acl_size_s) {
---- linux-2.6.10-mm2-full/fs/hpfs/name.c.old	2005-01-07 00:53:26.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hpfs/name.c	2005-01-07 00:53:43.000000000 +0100
-@@ -8,12 +8,12 @@
+ 	u16 count, start;
+ 	int i;
+--- linux-2.6.10-mm2-full/fs/hfs/hfs_fs.h.old	2005-01-07 00:15:07.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/hfs/hfs_fs.h	2005-01-07 00:32:19.000000000 +0100
+@@ -174,12 +174,6 @@
+ extern struct file_operations hfs_dir_operations;
+ extern struct inode_operations hfs_dir_inode_operations;
  
- #include "hpfs_fn.h"
+-extern int hfs_mkdir(struct inode *, struct dentry *, int);
+-extern int hfs_unlink(struct inode *, struct dentry *);
+-extern int hfs_rmdir(struct inode *, struct dentry *);
+-extern int hfs_rename(struct inode *, struct dentry *,
+-		      struct inode *, struct dentry *);
+-
+ /* extent.c */
+ extern int hfs_ext_keycmp(const btree_key *, const btree_key *);
+ extern int hfs_free_fork(struct super_block *, struct hfs_cat_file *, int);
+@@ -187,10 +181,6 @@
+ extern int hfs_extend_file(struct inode *);
+ extern void hfs_file_truncate(struct inode *);
  
--char *text_postfix[]={
-+static char *text_postfix[]={
- ".ASM", ".BAS", ".BAT", ".C", ".CC", ".CFG", ".CMD", ".CON", ".CPP", ".DEF",
- ".DOC", ".DPR", ".ERX", ".H", ".HPP", ".HTM", ".HTML", ".JAVA", ".LOG", ".PAS",
- ".RC", ".TEX", ".TXT", ".Y", ""};
+-/* file.c */
+-extern struct inode_operations hfs_file_inode_operations;
+-extern struct file_operations hfs_file_operations;
+-
+ extern int hfs_get_block(struct inode *, sector_t, struct buffer_head *, int);
  
--char *text_prefix[]={
-+static char *text_prefix[]={
- "AUTOEXEC.", "CHANGES", "COPYING", "CONFIG.", "CREDITS", "FAQ", "FILE_ID.DIZ",
- "MAKEFILE", "READ.ME", "README", "TERMCAP", ""};
+ /* inode.c */
+--- linux-2.6.10-mm2-full/fs/hfs/inode.c.old	2005-01-07 00:15:24.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/hfs/inode.c	2005-01-07 00:27:23.000000000 +0100
+@@ -18,6 +18,9 @@
+ #include "hfs_fs.h"
+ #include "btree.h"
  
---- linux-2.6.10-mm2-full/fs/hpfs/super.c.old	2005-01-07 00:53:57.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hpfs/super.c	2005-01-07 00:54:15.000000000 +0100
-@@ -246,9 +246,9 @@
- 	{Opt_err, NULL},
++static struct file_operations hfs_file_operations;
++static struct inode_operations hfs_file_inode_operations;
++
+ /*================ Variable-like macros ================*/
+ 
+ #define HFS_VALID_MODE_BITS  (S_IFREG | S_IFDIR | S_IRWXUGO)
+@@ -43,7 +46,7 @@
+ 	return generic_block_bmap(mapping, block, hfs_get_block);
+ }
+ 
+-int hfs_releasepage(struct page *page, int mask)
++static int hfs_releasepage(struct page *page, int mask)
+ {
+ 	struct inode *inode = page->mapping->host;
+ 	struct super_block *sb = inode->i_sb;
+@@ -259,7 +262,7 @@
+ 	hfs_cat_rec *rec;
  };
  
--int parse_opts(char *opts, uid_t *uid, gid_t *gid, umode_t *umask,
--	       int *lowercase, int *conv, int *eas, int *chk, int *errs,
--	       int *chkdsk, int *timeshift)
-+static int parse_opts(char *opts, uid_t *uid, gid_t *gid, umode_t *umask,
-+		      int *lowercase, int *conv, int *eas, int *chk, int *errs,
-+		      int *chkdsk, int *timeshift)
+-int hfs_test_inode(struct inode *inode, void *data)
++static int hfs_test_inode(struct inode *inode, void *data)
  {
- 	char *p;
- 	int option;
+ 	struct hfs_iget_data *idata = data;
+ 	hfs_cat_rec *rec;
+@@ -279,7 +282,7 @@
+ /*
+  * hfs_read_inode
+  */
+-int hfs_read_inode(struct inode *inode, void *data)
++static int hfs_read_inode(struct inode *inode, void *data)
+ {
+ 	struct hfs_iget_data *idata = data;
+ 	struct hfs_sb_info *hsb = HFS_SB(inode->i_sb);
+@@ -611,7 +614,7 @@
+ }
+ 
+ 
+-struct file_operations hfs_file_operations = {
++static struct file_operations hfs_file_operations = {
+ 	.llseek		= generic_file_llseek,
+ 	.read		= generic_file_read,
+ 	.write		= generic_file_write,
+@@ -622,7 +625,7 @@
+ 	.release	= hfs_file_release,
+ };
+ 
+-struct inode_operations hfs_file_inode_operations = {
++static struct inode_operations hfs_file_inode_operations = {
+ 	.lookup		= hfs_file_lookup,
+ 	.truncate	= hfs_file_truncate,
+ 	.setattr	= hfs_inode_setattr,
+--- linux-2.6.10-mm2-full/fs/hfs/super.c.old	2005-01-07 00:27:35.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/hfs/super.c	2005-01-07 00:27:55.000000000 +0100
+@@ -21,8 +21,6 @@
+ #include "hfs_fs.h"
+ #include "btree.h"
+ 
+-const char hfs_version[]="0.96";
+-
+ static kmem_cache_t *hfs_inode_cachep;
+ 
+ MODULE_LICENSE("GPL");
+@@ -92,7 +90,7 @@
+ 	return 0;
+ }
+ 
+-int hfs_remount(struct super_block *sb, int *flags, char *data)
++static int hfs_remount(struct super_block *sb, int *flags, char *data)
+ {
+ 	*flags |= MS_NODIRATIME;
+ 	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY))
 

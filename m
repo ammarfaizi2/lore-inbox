@@ -1,57 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264742AbSJUG2t>; Mon, 21 Oct 2002 02:28:49 -0400
+	id <S264745AbSJUGbc>; Mon, 21 Oct 2002 02:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbSJUG2t>; Mon, 21 Oct 2002 02:28:49 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:29587 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S264742AbSJUG2s>;
-	Mon, 21 Oct 2002 02:28:48 -0400
-Date: Mon, 21 Oct 2002 08:34:54 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfsd/sunrpc boot on reboot in 2.5.44
-Message-ID: <20021021063454.GA5898@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-References: <20021020173142.GA26384@outpost.ds9a.nl> <15795.29666.121485.737045@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15795.29666.121485.737045@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.3.28i
+	id <S264749AbSJUGbb>; Mon, 21 Oct 2002 02:31:31 -0400
+Received: from [80.66.10.42] ([80.66.10.42]:29149 "EHLO
+	woodstock.orga-systems.de") by vger.kernel.org with ESMTP
+	id <S264745AbSJUGba>; Mon, 21 Oct 2002 02:31:30 -0400
+Message-ID: <3DB3A112.1060003@orga.com>
+Date: Mon, 21 Oct 2002 08:39:14 +0200
+From: =?ISO-8859-1?Q?Gerrit_Bruchh=E4user?= <gbruchhaeuser@orga.com>
+Organization: ORGA Kartensysteme GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.1) Gecko/20020826
+X-Accept-Language: de, en-us
+MIME-Version: 1.0
+To: Sean Estabrooks <seanlkml@rogers.com>
+CC: linux-kernel@vger.kernel.org, landley@trommello.org, alan@redhat.com,
+       ankry@green.mif.pg.gda.pl, torvalds@transmeta.com
+Subject: Re: bootsect.S and magic address 0x78
+References: <3DAFDC88.2010009@orga.com> <0d8c01c276a6$67cf9020$370a0a0a@slappy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 01:26:26PM +1000, Neil Brown wrote:
+Hello Sean,
 
-> > By the way, can anybody tell me how to convert this:
-> > Oct 20 19:21:32 hubert kernel:  [<c8831060>] auth_domain_drop+0x50/0x60 [sunrpc]
-> > 
-> > To a line in auth_domain_drop()?
-> 
->  gdb sunrpc.o
->  disassemble auth_domain_drop
-> 
->  stare at assembler listing, stare at source code....
+thank you very much - you realy helped me a lot. I wrote to the top 
+because this question had been already posted many times. See for 
+instances: http://www.leto.net/mail/linuxasm/2001/msg00538.html
 
-I also found this to work:
+If this is ok for you then I would like to copy+paste your answer to all 
+these postings I crossed.
 
-touch sunrpc.c
-make
-[ observe how sunrpc.o gets compiled ]
-[ add a -g to the commandline ]
-gdb sunrpc.o
-l *(auth_domain_drop+0x50)
+Many thanks and cheers!
 
-"A #kernelnewbies discovery".
+Gerrit
 
-Thanks for the switch patch! Will check if it helps.
 
-Regards,
+Sean Estabrooks schrieb:
 
-bert hubert
+>>Hello Linus,
+>>
+>>
+>>Can you tell me where this magic address 0x78 in arch/i386/bootsect.S
+>>refers to? I mean, is this somewhere specified?
+>>
+>>Many thanks and cheers from germany.
+>>
+>>Gerrit
+>>    
+>>
+>
+>  
+>
+>>Hello Linus,
+>>
+>>
+>>Can you tell me where this magic address 0x78 in arch/i386/bootsect.S
+>>refers to? I mean, is this somewhere specified?
+>>
+>>    
+>>
+>
+>Hope you'll settle for an answer from a simple lkml lurker and not the top
+>gun.
+>
+>The address 0x78 points to the floppy disk drive parameter table
+>described here:  http://www.xs4all.nl/~matrix/fdd_pt.html
+>
+>A list of all the low memory ROM BIOS vectors and addresses can be
+>found here:  http://www.cybertrails.com/~fys/rombios.htm
+>
+>Cheers,
+>Sean
+>
+>
+>  
+>
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+
+

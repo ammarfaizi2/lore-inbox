@@ -1,37 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280326AbRJaRXn>; Wed, 31 Oct 2001 12:23:43 -0500
+	id <S280321AbRJaRXo>; Wed, 31 Oct 2001 12:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280329AbRJaRX0>; Wed, 31 Oct 2001 12:23:26 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:47232 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S280321AbRJaRXL>; Wed, 31 Oct 2001 12:23:11 -0500
-Date: Wed, 31 Oct 2001 09:23:42 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Status of IDE Hot Swap?
-Message-ID: <Pine.LNX.4.33.0110310902540.23449-100000@mf1.private>
+	id <S280330AbRJaRXd>; Wed, 31 Oct 2001 12:23:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15889 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280326AbRJaRXY>; Wed, 31 Oct 2001 12:23:24 -0500
+Subject: Re: which cpu?
+To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
+Date: Wed, 31 Oct 2001 17:30:21 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0110311817390.27835-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Oct 31, 2001 06:17:53 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15yzC1-0004Os-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> do you know if it's got an fpu?
 
-Hello,
-
-What is the current status of IDE Hot Swap, in terms of any necessary
-kernel support?  As far as I can see, this was last discussed here in
-March, when Andre Hedrick indicated he had some preliminary, unreleased
-code to do this.
-
-The hardware I am thinking of would be a run-of-the-mill ATA/100
-controller, a run-of-the-mill ATA/100 drive, and a hot swap bay such as
-the Promise SuperSwap (http://www.promise.com/PDF/sswapds.pdf) or the
-RyAim KF-21-IPF (http://www.ryaim.com/products/accessory/kf21.htm).  One
-possible application would be using an IDE drive as a removable backup
-device (allowing off-site storage).
-
-Cheers, Wayne
-
-
+I do. But you could download the spec sheet too 

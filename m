@@ -1,90 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267274AbTGLJzA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 05:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbTGLJzA
+	id S270005AbTGLJ6j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 05:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270006AbTGLJ6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 05:55:00 -0400
-Received: from mx.laposte.net ([213.30.181.11]:26780 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S267274AbTGLJy6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 05:54:58 -0400
-Subject: MCE exception advice
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-88UIjt2TGOzUB9Pq0ntt"
-Organization: Adresse personnelle
-Message-Id: <1058004581.6808.10.camel@rousalka.dyndns.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 12 Jul 2003 12:09:41 +0200
+	Sat, 12 Jul 2003 05:58:39 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:59404 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S270005AbTGLJ6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 05:58:35 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: devfs@oss.sgi.com
+Subject: [PATCH][2.5.75] devfsd hangs on restart - is_devfsd_or_child() problem
+Date: Sat, 12 Jul 2003 14:11:41 +0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, Thierry Vignaud <tvignaud@mandrakesoft.com>,
+       Andrew Morton <akpm@osdl.org>
+References: <200307112247.12646.arvidjaar@mail.ru>
+In-Reply-To: <200307112247.12646.arvidjaar@mail.ru>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_d79D/ejDfe6Z1Wd"
+Message-Id: <200307121411.41131.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-88UIjt2TGOzUB9Pq0ntt
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+--Boundary-00=_d79D/ejDfe6Z1Wd
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-[ Please CC me on answers since I'm not on the list ]
+On Friday 11 July 2003 22:47, Andrey Borzenkov wrote:
+> I cannot believe it is so fragile ...
+>
+> is_devfsd_or_child() simplemindedly checks for pgrp:
+>
+> static int is_devfsd_or_child (struct fs_info *fs_info)
+> {
+>     if (current == fs_info->devfsd_task) return (TRUE);
+>     if (current->pgrp == fs_info->devfsd_pgrp) return (TRUE);
+>     return (FALSE);
+> }   /*  End Function is_devfsd_or_child  */
+>
 
-Hi,
+Andrew, one more for your collection :)
 
-	I've been getting MCE's repeatedly today when trying to compile
-2.5.75-bk1 on 2.5.75-bk1 (obviously I didn't have them yesterday when I
-build my first 2.5.75-bk1 kernel on a 2.4 kernel).
+The code that did proper check existed in 2.4 and was removed in 2.5 for 
+whatever reason. The patch restores it slightly modified as below.
 
-	The MCE is always the same (I think) and reads like this :
+2.4 code looks somewhat unclean in that
 
-CPU 0: Machine Check Exception: 0000000000000004
-Bank 0: b600000000000135 at 000000000b99b9f0
-Kernel panic: CPU context corrupt
+- it traverses task list without lock. 
+- is starts from current->real_parent but nothing prevents current be 
+init_task itself. This hung for me on 2.5 during boot. May be 2.4 does 
+something differently.
 
-	Which when decoded with parsemce gives :
+Comments?
 
-[nim@rousalka parse]$ ./parse -i < mce
-CPU 0
-Status: (4) Machine Check in progress.
-Restart IP invalid.
-parsebank(0): b600000000000135 @ b99b9f0
-        External tag parity error
-        CPU state corrupt. Restart not possible
-        Address in addr register valid
-        Error enabled in control register
-        Error not corrected.
-        Memory heirarchy error
-        Request: Generic error
-        Transaction type : Data
-        Memory/IO : Reserved
+regards
 
-	I'd like to have some advice on what to do next. Is this a 2.5 bug ? An
-hardware problem only triggered in 2.5 because it exercises the harware
-in a different way ? Should I change something in the system ? If so,
-should I change memory, cpu, psu, something else ?
+-andrey
 
-	I don't usually build 2.5 on 2.5, but again yesterday was very hot and
-hardware might have suffered (the best case cooling can not do much with
-room temperature =3D 30+ =B0C)
+This is trivially reproduced under 2.5 by using devfsd.conf lines
 
-	Any hint will be welcome - this is my first mce encounter.
+LOOKUP  ^foo$   EXECUTE /home/bor/tmp/devfsd/handler /dev/bar
+LOOKUP  ^bar$   EXECUTE /home/bor/tmp/devfsd/handler /dev/foo
 
-Regards,
+and handler like
 
---=20
-Nicolas Mailhot
+-------- cut here ----------
+#include <unistd.h>
 
---=-88UIjt2TGOzUB9Pq0ntt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+int
+main(int argc, char **argv, char **envp)
+{
+        if (argc <= 1)
+                return 0;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+        setpgrp();
+        return access(argv[1], R_OK);
+}
+-------- cut here ----------
 
-iD8DBQA/D95kI2bVKDsp8g0RAgJkAKCO9LhVaqnZ4FFi1dWbSMTnwmVppgCgqs22
-6CUh4iJSYwXUQEpIEG7GEhQ=
-=jQVv
------END PGP SIGNATURE-----
+and doing ls /dev/foo
+--Boundary-00=_d79D/ejDfe6Z1Wd
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="2.5.75-is_devfsd_or_child.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="2.5.75-is_devfsd_or_child.patch"
 
---=-88UIjt2TGOzUB9Pq0ntt--
+--- linux-2.5.75-smp/fs/devfs/base.c.devfsd_child	2003-07-11 19:41:46.000000000 +0400
++++ linux-2.5.75-smp/fs/devfs/base.c	2003-07-12 13:51:49.000000000 +0400
+@@ -676,6 +676,7 @@
+ #include <linux/smp.h>
+ #include <linux/version.h>
+ #include <linux/rwsem.h>
++#include <linux/sched.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+@@ -1325,8 +1326,20 @@ static void free_dentry (struct devfs_en
+ 
+ static int is_devfsd_or_child (struct fs_info *fs_info)
+ {
+-    if (current == fs_info->devfsd_task) return (TRUE);
+-    if (current->pgrp == fs_info->devfsd_pgrp) return (TRUE);
++    struct task_struct *p = current;
++
++    if (p == fs_info->devfsd_task) return (TRUE);
++    if (p->pgrp == fs_info->devfsd_pgrp) return (TRUE);
++    read_lock(&tasklist_lock);
++    for ( ; p != &init_task; p = p->real_parent)
++    {
++	if (p == fs_info->devfsd_task)
++	{
++	    read_unlock (&tasklist_lock);
++	    return (TRUE);
++	}
++    }
++    read_unlock (&tasklist_lock);
+     return (FALSE);
+ }   /*  End Function is_devfsd_or_child  */
+ 
+
+--Boundary-00=_d79D/ejDfe6Z1Wd--
 

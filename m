@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbUJaCoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbUJaCrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbUJaCoi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 22:44:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUJaCoh
+	id S261479AbUJaCrh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 22:47:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUJaCrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 22:44:37 -0400
-Received: from smtpout.mac.com ([17.250.248.89]:54219 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261481AbUJaCoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 22:44:22 -0400
-In-Reply-To: <31064.65.208.227.246.1099168970.squirrel@www.lrsehosting.com>
-References: <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <41828707.3050803@hispalinux.es> <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com> <4182923D.5040500@hispalinux.es> <40231.65.208.227.246.1099077274.squirrel@www.lrsehosting.com> <2540F67A-2A31-11D9-857E-000393ACC76E@mac.com> <31064.65.208.227.246.1099168970.squirrel@www.lrsehosting.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <BC0CDBA6-2AE6-11D9-857E-000393ACC76E@mac.com>
+	Sat, 30 Oct 2004 22:47:37 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:29346 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261479AbUJaCra
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 22:47:30 -0400
+Message-ID: <41845241.2090104@verizon.net>
+Date: Sat, 30 Oct 2004 22:47:29 -0400
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Z Smith <plinius@comcast.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>	 <20041030222720.GA22753@hockin.org>	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua> <1099176319.25194.10.camel@localhost.localdomain> <41843E10.1040800@comcast.net>
+In-Reply-To: <41843E10.1040800@comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: James Bruce <bruce@andrew.cmu.edu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: BK kernel workflow
-Date: Sat, 30 Oct 2004 22:44:06 -0400
-To: Scott Lockwood <lkml@www.lrsehosting.com>
-X-Mailer: Apple Mail (2.619)
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [209.158.211.53] at Sat, 30 Oct 2004 21:47:29 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 30, 2004, at 16:42, Scott Lockwood wrote:
-> Now read:
->
-> http://www.freedom-to-tinker.com/doc/2004/bnetd_30sep.pdf
+Z Smith wrote:
+> Alan Cox wrote:
+> 
+>> So if the desktop stuff is annoying you join gnome-love or whatever the
+>> kde equivalent is 8)
+> 
+> 
+> Or join me in my effort to limit bloat. Why use an X server
+> that uses 15-30 megs of RAM when you can use FBUI which is 25 kilobytes
+> of code with very minimal kmallocing?
+> 
+> home.comcast.net/~plinius/fbui.html
+> 
+> Zack Smith
+> Bloat Liberation Front
+> 
 
-I stand corrected.  I am familiar with the bnetd case but I was not
-aware that it had been decided.  However, I _do_ have a copy of
-bnetd on my HDD that I do not distribute.  I use it to host a server
-for my LAN parties on the basis that I can do whatever I want
-(excepting distribution) with the stuff that I own (IE: the bits on the
-CD.  If Vivendi feels like suing me because I have a copy of stuff
-they never had copyright on in the first place which I may or may
-not be using, then they can go ahead and call my lawyer.  The
-bnetd staff may have been distributing stuff they aren't allowed
-to due to license infringement, but I have a right to circumvent
-my _own_ damn computer in any way I please.
+Because some of us use remote X clients on big iron with an X server on your 
+desktop.  IIRC (been a long time since my CAD classes), a whole bunch of FEA and 
+CAE/CAD applications worked this way.
 
-Cheers,
-Kyle Moffett
+There is a lot more flexibility inherent in user-space compared to kernel-space. 
+You can use PAM, Kerberos, and a whole host of other security devices that would 
+be difficult to implement efficiently in kernel-space.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Dude, that's a cool hack, but just about everything you did could be done with 
+svgalib and the input core interface.  The advantage to svgalib is that if that 
+interface dies, you can recover the machine pretty easily, whereas kernel panics 
+are a bit more disruptive.
 
+Still - it would be a nifty add-on for POS terminals, etc., just not the kind of 
+thing I'd expect to see in the kernel anytime soon.  Once 2.7 is started, see if 
+people are more receptive.  Take the time to flesh it out, get some more people on 
+board, see if Sourceforge will host the project, and lose the advertising campaign 
+- that's not likely to win any friends or supporters around here.
 
+I don't mean to be harsh, but c'mon - "Bloat Liberation Front" - err... okaaay...
+
+Good luck,
+
+Jim

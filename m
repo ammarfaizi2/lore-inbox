@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315096AbSEHUTJ>; Wed, 8 May 2002 16:19:09 -0400
+	id <S315101AbSEHUUg>; Wed, 8 May 2002 16:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315101AbSEHUTI>; Wed, 8 May 2002 16:19:08 -0400
-Received: from heffalump.fnal.gov ([131.225.9.20]:30566 "EHLO fnal.gov")
-	by vger.kernel.org with ESMTP id <S315096AbSEHUTH>;
-	Wed, 8 May 2002 16:19:07 -0400
-Date: Wed, 08 May 2002 15:19:03 -0500
-From: Dan Yocum <yocum@fnal.gov>
-Subject: ns83820 bug.  [was Re: Poor NFS client performance on 2.4.18?]
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <3CD98837.16B32F84@fnal.gov>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13SGI_XFS_1.0.2 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <3CC86BDC.C8784EA2@fnal.gov> <shsu1pyppnz.fsf@charged.uio.no>
- <3CD6FE1E.A20384D@fnal.gov> <E174zP0-0007N9-00@charged.uio.no>
- <3CD7F385.BAA3870B@fnal.gov> <3CD7F8A2.24DF8433@fnal.gov>
+	id <S315111AbSEHUUf>; Wed, 8 May 2002 16:20:35 -0400
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:3302 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S315101AbSEHUUe>; Wed, 8 May 2002 16:20:34 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Andre Hedrick <andre@linux-ide.org>,
+        Bjorn Wesen <bjorn.wesen@axis.com>, Paul Mackerras <paulus@samba.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] IDE 58
+Date: Wed, 8 May 2002 21:49:31 +0200
+Message-Id: <20020508194931.25660@smtp.wanadoo.fr>
+In-Reply-To: <E175Y6N-0002Jj-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond, et al.
+>
+>Please push it higher level than that. Load the taskfile as a set in
+>each method. Remember its 1 potentially paired instruction to do an MMIO
+>write, its a whole mess of synchronziation and stalls to do a function 
+>pointer.
 
-You're right, it's a driver (ns83820) issue.  Strange that it only shows up
-when trying to execute an app that's mounted via NFS, but, whatever. 
-Running apps from the the NFS volumes with the eepro100 adapter that's on
-the machine works fine with the updated NFS_all patch applied.
+I though about that, but what about corner cases where only a single
+register can be accessed ? (typically alt status). Provide specific
+routines ? Also, how does the extended addressing works ? by writing
+several times to the cyl registers ? That would have to be dealt with
+as well in each host driver then.
 
-Thanks, again,
-Dan
+>> address at all (that is kill the array of port addresses) but
+>> just pass the taskfile_in/out functions the register number
+>> (cyl_hi, cyl_lo, select, ....) as a nice symbolic constant,
+>> and let the channel specific implementation figure it out.
+>
+>Pass  dev->taskfile_load() a struct at least for the common paths. Make the
+>PIO block transfers also single callbacks for each block not word.
 
+Right. We could go the darwin (apple) way and have taskfile_load/store
+functions doing the entire registers controlled by a bitmask of which
+registers has to be touched. it has a cost (testing each bit and
+conditionally branching, which can suck hard) but probably less than
+an indirect function call which isn't predictable.
 
-Dan Yocum wrote:
-> 
-> Dan Yocum wrote:
-> >
-> > Trond Myklebust wrote:
-> > >
-> > > On Tuesday 7. May 2002 00:05, Dan Yocum wrote:
-> > > > Trond,
-> > > >
-> > > > OK, so backing out the rpc_tweaks dif fixed the performance problem,
-> > > > however, seems to have introduced another problem that appears to be
-> > > > stemming from the seekdir.dif.  Attempting to run an app from an IRIX
-> > > > client (that has the 32bitclients option set) freezes the NFS volume - one
-> > > > can't access it from the Linux side, anymore.
-> > > >
-> > > > You can read and write to the NFS volume *before* trying to run something
-> > > > from there, but not after.
-> > > >
-> > > > Ideas?
-> > >
-> > > That smells like another network driver bug. Have you tcpdumped the traffic
-> > > between client and server?
-> >
-> > Ah, that may be the case - the problem also exists with a Linux server as
-> > well... let me check, and I'll let you know.
-> 
-> I take that back - it's only hanging on the Linux server when the IRIX
-> server is already hung.
+Ben.
 
-
--- 
-Dan Yocum
-Sloan Digital Sky Survey, Fermilab  630.840.6509
-yocum@fnal.gov, http://www.sdss.org
-SDSS.  Mapping the Universe.

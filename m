@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293443AbSBZFeG>; Tue, 26 Feb 2002 00:34:06 -0500
+	id <S293526AbSBZFxy>; Tue, 26 Feb 2002 00:53:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293521AbSBZFd4>; Tue, 26 Feb 2002 00:33:56 -0500
-Received: from perth.fpcc.net ([207.174.142.141]:26150 "EHLO perth.fpcc.net")
-	by vger.kernel.org with ESMTP id <S293443AbSBZFdk>;
-	Tue, 26 Feb 2002 00:33:40 -0500
-Message-Id: <200202260533.WAA30955@perth.fpcc.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Peter Hutnick <peter@fpcc.net>
-To: John Jasen <jjasen1@umbc.edu>
-Subject: Re: wvlan_cs in limbo?
-Date: Mon, 25 Feb 2002 22:31:29 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SGI.4.31L.02.0202252302120.5307822-100000@irix2.gl.umbc.edu>
-In-Reply-To: <Pine.SGI.4.31L.02.0202252302120.5307822-100000@irix2.gl.umbc.edu>
+	id <S293524AbSBZFxp>; Tue, 26 Feb 2002 00:53:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2573 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293522AbSBZFxa>; Tue, 26 Feb 2002 00:53:30 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: ext3 and undeletion
+Date: 25 Feb 2002 21:53:08 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a5f7s4$2o1$1@cesium.transmeta.com>
+In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase> <20020225172048.GV20060@matchmail.com> <02022518330103.01161@grumpersII>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 February 2002 09:03 pm, John Jasen wrote:
-> On Mon, 25 Feb 2002, Peter Hutnick wrote:
-> > I can't figure out which end is up with wvlan_cs.  Not in the kernel yet
-> > . . . but pcmcia-cs package is not for use with 2.4.
-> >
-> > Could someone give me a hint?
+Followup to:  <02022518330103.01161@grumpersII>
+By author:    Tom Rauschenbach <tom@rauschenbach.mv.com>
+In newsgroup: linux.dev.kernel
 >
-> I don't understand why you think that pcmcia-cs is not for use in 2.4. I
-> use it on my laptop, which was just recently moved to 2.4.17.
+> On Monday 25 February 2002 12:20, Mike Fedyk wrote:
+> > On Mon, Feb 25, 2002 at 12:06:29PM -0500, Dan Maas wrote:
+> > > > but I don't want a Netware filesystem running on Linux, I
+> > > > want a *native* Linux filesystem (i.e. ext3) that has the
+> > > > ability to queue deleted files should I configure it to.
+> > >
+> > > Rather than implementing this in the filesystem itself, I'd first try
+> > > writing a libc shim that overrides unlink(). You could copy files to
+> > > safety, or do anything else you want, before they actually get deleted...
+> >
+> > Yep, more portable.
+> 
+> But it only works if everything get linked with the new library.
+> 
 
-Because linux/Documentation/wavelan.txt says:
+What's a lot worse is that the kernel cannot chose to garbage-collect
+it.  One reason to put undelete in the kernel is that that files in
+limbo can be reclaimed as the disk space is needed for other users,
+and you don't risk getting ENOSPC due to the disk being full with
+ghosts.
 
-   "wvlan_cs" driver (Wavelan IEEE, GPL)
-   -----------------
-           o Config :      Not yet in kernel
-           o Location :    Pcmcia package 3.1.10+
-           o on-line doc : http://www.fasta.fh-dortmund.de/users/andy/wvlan/
-
-and that page (@fasta.fh-dortmund.de) says:
-
-   Download:Kernel 2.0.x / 2.1.x / 2.2.x:
-    WaveLAN/IEEE Linux driver v1.0.4 (included in pcmcia-cs-3.1.15): 
-   pcmcia-cs-3.1.15.tar.gz
-    Linux wireless tools v19 (kernel 2.2.13 and earlier):
-   wireless_tools.19.tar.gz
-    Linux wireless tools v20 (kernel 2.2.14 and later):
-   wireless_tools.20.tar.gz
- 
-   Kernel 2.3.x
-    Note that kernel 2.3.x support is currently experimental.
-    WaveLAN/IEEE Linux driver v1.0.4 (patch for kernel 2.3.50):
-   linux-2.3.50-wvlan.patch.gz
-    PCMCIA subsystem v3.1.15: pcmcia-cs-3.1.15.tar.gz
-    Linux wireless tools v20: wireless_tools.20.tar.gz
- 
-and
-
-   Since the linux kernel 2.4.x contains its own WaveLAN/IEEE 802.11 driver,
-   this standalone driver is depreciated. Try David Hinds pcmcia package
-   and/or the linux kernel driver (orinoco_cs).
-
-   and orinoco_cs from 2.4.17 doesn't work, but wvlan_cs that came with my RH 
-   kernel does.
-
-but, I checked out the actual pcmcia-cs page, and it looks like I have to 
-abandon my working PCMCIA stuff, is that right?
-
-I'm open to suggestions.  Off list, if you don't mind, being as how I'm off 
-topic now.
-
--Peter
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

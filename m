@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbTLGU6s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 15:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264516AbTLGU5m
+	id S264551AbTLGVGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 16:06:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264558AbTLGVCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 15:57:42 -0500
-Received: from amsfep19-int.chello.nl ([213.46.243.20]:44092 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264527AbTLGUzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:55:37 -0500
-Date: Sun, 7 Dec 2003 21:51:23 +0100
-Message-Id: <200312072051.hB7KpNBt000723@callisto.of.borg>
+	Sun, 7 Dec 2003 16:02:47 -0500
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:53319 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264557AbTLGVAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 16:00:35 -0500
+Date: Sun, 7 Dec 2003 21:51:28 +0100
+Message-Id: <200312072051.hB7KpSZ8000765@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 132] Macfb setup
+Subject: [PATCH 139] Mac extern
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Macfb: Update setup routine (from Matthias Urlichs in 2.6.0)
+Mac: Use common header files instead of explicit extern declaration
 
---- linux-2.4.23/drivers/video/macfb.c	Fri Sep 13 10:16:48 2002
-+++ linux-m68k-2.4.23/drivers/video/macfb.c	Mon Oct 20 21:50:01 2003
-@@ -839,7 +839,7 @@
- 	fb_set_cmap:	macfb_set_cmap,
- };
+--- linux-2.4.23/arch/m68k/mac/mac_ksyms.c	2003-11-12 16:47:03.000000000 +0100
++++ linux-m68k-2.4.23/arch/m68k/mac/mac_ksyms.c	2003-10-23 16:41:23.000000000 +0200
+@@ -1,9 +1,7 @@
+ #include <linux/module.h>
+-#include <asm/ptrace.h>
+-#include <asm/traps.h>
+-
+-/* Says whether we're using A/UX interrupts or not */
+-extern int via_alt_mapping;
++#include <linux/types.h>
++#include <asm/mac_via.h>
++#include <asm/macintosh.h>
  
--void __init macfb_setup(char *options, int *ints)
-+void __init macfb_setup(char *options)
- {
- 	char *this_opt;
- 	
+ EXPORT_SYMBOL(via_alt_mapping);
+ EXPORT_SYMBOL(macintosh_config);
 
 Gr{oetje,eeting}s,
 

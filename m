@@ -1,30 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265453AbSJSBmX>; Fri, 18 Oct 2002 21:42:23 -0400
+	id <S265463AbSJSBu2>; Fri, 18 Oct 2002 21:50:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265454AbSJSBmX>; Fri, 18 Oct 2002 21:42:23 -0400
-Received: from beta.bandnet.com.br ([200.195.133.131]:44816 "EHLO
-	beta.bandnet.com.br") by vger.kernel.org with ESMTP
-	id <S265453AbSJSBmW>; Fri, 18 Oct 2002 21:42:22 -0400
-Message-ID: <000d01c27710$c3a75260$cddea7c8@bsb.virtua.com.br>
-From: "Breno" <breno_silva@bandnet.com.br>
-To: "Kernel List" <linux-kernel@vger.kernel.org>
-Subject: Exploit for the Kernel
-Date: Fri, 18 Oct 2002 22:42:12 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+	id <S265464AbSJSBu2>; Fri, 18 Oct 2002 21:50:28 -0400
+Received: from thunk.org ([140.239.227.29]:2518 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S265463AbSJSBu0>;
+	Fri, 18 Oct 2002 21:50:26 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Ext2/3 forward compatibility: inode size
+From: tytso@mit.edu
+Phone: (781) 391-3464
+Message-Id: <E182iqp-000160-00@think.thunk.org>
+Date: Fri, 18 Oct 2002 21:56:27 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://online.securityfocus.com/archive/1/295855/2002-10-15/2002-10-21/1 
+
+This patch allows forward compatibility with future filesystems which
+are dynamically grown by using an alternate algorithm for storing the
+block group descriptors.  It's also a bit more efficient, in that it
+uses just a little bit less disk space.  Currently, the ext2 filesystem
+format requires either relocating the inode table, or reserving space in
+before doing the on-line resize.  The new scheme, which is documented in
+"Planned Extensions to the Ext2/3 Filesystem", by Stephen Tweedie and I (see:
+http://www.usenix.org/publications/library/proceedings/usenix02/tech/freenix/tso.html)
+
+						- Ted
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.817   -> 1.818  
+#	include/linux/ext2_fs.h	1.14    -> 1.15   
+#	include/linux/ext3_fs.h	1.14    -> 1.15   
+#	     fs/ext2/super.c	1.34    -> 1.35   
+#	     fs/ext3/super.c	1.36    -> 1.37   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/18	tytso@snap.thunk.org	1.818
+# Ext2/3 forward compatibility: on-line resizing
+# 
+# This patch allows forward compatibility with future filesystems which
+# are dynamically grown by using an alternate algorithm for storing
+# the block group descriptors.  This is also a more efficient way of
+# storing the descriptors.
+# --------------------------------------------
+#
+diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
+--- a/fs/ext2/super.c	Fri Oct 18 20:52:07 2002
++++ b/fs/ext2/super.c	Fri Oct 18 20:52:07 2002
+@@ -514,12 +514,29 @@
+ 	return res;
+ }
+ 
++static unsigned long descriptor_loc(struct super_block *sb,
++				    unsigned long logic_sb_block,
++				    int nr)
++{
++	struct ext2_sb_info *sbi = EXT2_SB(sb);
++	unsigned long bg, first_data_block, first_meta_bg;
++	
++	first_data_block = le32_to_cpu(sbi->s_es->s_first_data_block);
++	first_meta_bg = le32_to_cpu(sbi->s_es->s_first_meta_bg);
++
++	if (!EXT2_HAS_INCOMPAT_FEATURE(sb, EXT2_FEATURE_INCOMPAT_META_BG) ||
++	    nr < first_meta_bg)
++		return (logic_sb_block + nr + 1);
++	bg = sbi->s_desc_per_block * nr;
++	return (first_data_block + 1 + (bg * sbi->s_blocks_per_group));
++}
++
+ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct buffer_head * bh;
+ 	struct ext2_sb_info * sbi;
+ 	struct ext2_super_block * es;
+-	unsigned long sb_block = 1;
++	unsigned long block, sb_block = 1;
+ 	unsigned long logic_sb_block = get_sb_block(&data);
+ 	unsigned long offset = 0;
+ 	unsigned long def_mount_opts;
+@@ -735,7 +752,8 @@
+ 		goto failed_mount;
+ 	}
+ 	for (i = 0; i < db_count; i++) {
+-		sbi->s_group_desc[i] = sb_bread(sb, logic_sb_block + i + 1);
++		block = descriptor_loc(sb, logic_sb_block, i);
++		sbi->s_group_desc[i] = sb_bread(sb, block);
+ 		if (!sbi->s_group_desc[i]) {
+ 			for (j = 0; j < i; j++)
+ 				brelse (sbi->s_group_desc[j]);
+diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
+--- a/fs/ext3/super.c	Fri Oct 18 20:52:07 2002
++++ b/fs/ext3/super.c	Fri Oct 18 20:52:07 2002
+@@ -971,6 +971,23 @@
+ 	return res;
+ }
+ 
++static unsigned long descriptor_loc(struct super_block *sb,
++				    unsigned long logic_sb_block,
++				    int nr)
++{
++	struct ext3_sb_info *sbi = EXT3_SB(sb);
++	unsigned long bg, first_data_block, first_meta_bg;
++	
++	first_data_block = le32_to_cpu(sbi->s_es->s_first_data_block);
++	first_meta_bg = le32_to_cpu(sbi->s_es->s_first_meta_bg);
++
++	if (!EXT3_HAS_INCOMPAT_FEATURE(sb, EXT3_FEATURE_INCOMPAT_META_BG) ||
++	    nr < first_meta_bg)
++		return (logic_sb_block + nr + 1);
++	bg = sbi->s_desc_per_block * nr;
++	return (first_data_block + 1 + (bg * sbi->s_blocks_per_group));
++}
++
+ 
+ static int ext3_fill_super (struct super_block *sb, void *data, int silent)
+ {
+@@ -978,7 +995,7 @@
+ 	struct ext3_super_block *es = 0;
+ 	struct ext3_sb_info *sbi;
+ 	unsigned long sb_block = get_sb_block(&data);
+-	unsigned long logic_sb_block = 1;
++	unsigned long block, logic_sb_block = 1;
+ 	unsigned long offset = 0;
+ 	unsigned long journal_inum = 0;
+ 	unsigned long def_mount_opts;
+@@ -1204,7 +1221,8 @@
+ 		goto failed_mount;
+ 	}
+ 	for (i = 0; i < db_count; i++) {
+-		sbi->s_group_desc[i] = sb_bread(sb, logic_sb_block + i + 1);
++		block = descriptor_loc(sb, logic_sb_block, i);
++		sbi->s_group_desc[i] = sb_bread(sb, block);
+ 		if (!sbi->s_group_desc[i]) {
+ 			printk (KERN_ERR "EXT3-fs: "
+ 				"can't read group descriptor %d\n", i);
+diff -Nru a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
+--- a/include/linux/ext2_fs.h	Fri Oct 18 20:52:07 2002
++++ b/include/linux/ext2_fs.h	Fri Oct 18 20:52:07 2002
+@@ -399,7 +399,8 @@
+ 	__u8	s_reserved_char_pad;
+ 	__u16	s_reserved_word_pad;
+ 	__u32	s_default_mount_opts;
+-	__u32	s_reserved[191];	/* Padding to the end of the block */
++ 	__u32	s_first_meta_bg; 	/* First metablock block group */
++	__u32	s_reserved[190];	/* Padding to the end of the block */
+ };
+ 
+ /*
+@@ -462,10 +463,12 @@
+ #define EXT2_FEATURE_INCOMPAT_FILETYPE		0x0002
+ #define EXT3_FEATURE_INCOMPAT_RECOVER		0x0004
+ #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008
++#define EXT2_FEATURE_INCOMPAT_META_BG		0x0010
+ #define EXT2_FEATURE_INCOMPAT_ANY		0xffffffff
+ 
+ #define EXT2_FEATURE_COMPAT_SUPP	EXT2_FEATURE_COMPAT_EXT_ATTR
+-#define EXT2_FEATURE_INCOMPAT_SUPP	EXT2_FEATURE_INCOMPAT_FILETYPE
++#define EXT2_FEATURE_INCOMPAT_SUPP	(EXT2_FEATURE_INCOMPAT_FILETYPE| \
++					 EXT2_FEATURE_INCOMPAT_META_BG)
+ #define EXT2_FEATURE_RO_COMPAT_SUPP	(EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER| \
+ 					 EXT2_FEATURE_RO_COMPAT_LARGE_FILE| \
+ 					 EXT2_FEATURE_RO_COMPAT_BTREE_DIR)
+diff -Nru a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
+--- a/include/linux/ext3_fs.h	Fri Oct 18 20:52:07 2002
++++ b/include/linux/ext3_fs.h	Fri Oct 18 20:52:07 2002
+@@ -427,7 +427,8 @@
+ 	__u8	s_reserved_char_pad;
+ 	__u16	s_reserved_word_pad;
+ 	__u32	s_default_mount_opts;
+-	__u32	s_reserved[191];	/* Padding to the end of the block */
++	__u32	s_first_meta_bg; 	/* First metablock block group */
++	__u32	s_reserved[190];	/* Padding to the end of the block */
+ };
+ 
+ #ifdef __KERNEL__
+@@ -506,10 +507,12 @@
+ #define EXT3_FEATURE_INCOMPAT_FILETYPE		0x0002
+ #define EXT3_FEATURE_INCOMPAT_RECOVER		0x0004 /* Needs recovery */
+ #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008 /* Journal device */
++#define EXT3_FEATURE_INCOMPAT_META_BG		0x0010
+ 
+ #define EXT3_FEATURE_COMPAT_SUPP	EXT2_FEATURE_COMPAT_EXT_ATTR
+ #define EXT3_FEATURE_INCOMPAT_SUPP	(EXT3_FEATURE_INCOMPAT_FILETYPE| \
+-					 EXT3_FEATURE_INCOMPAT_RECOVER)
++					 EXT3_FEATURE_INCOMPAT_RECOVER| \
++					 EXT3_FEATURE_INCOMPAT_META_BG)
+ #define EXT3_FEATURE_RO_COMPAT_SUPP	(EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER| \
+ 					 EXT3_FEATURE_RO_COMPAT_LARGE_FILE| \
+ 					 EXT3_FEATURE_RO_COMPAT_BTREE_DIR)
 
 
-
-Breno
-
+-------------------------------------------------------
+This sf.net email is sponsored by:
+Access Your PC Securely with GoToMyPC. Try Free Now
+https://www.gotomypc.com/s/OSND/DD
+_______________________________________________
+Ext2-devel mailing list
+Ext2-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/ext2-devel

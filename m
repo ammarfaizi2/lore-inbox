@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130895AbRAWMpw>; Tue, 23 Jan 2001 07:45:52 -0500
+	id <S130552AbRAWMpW>; Tue, 23 Jan 2001 07:45:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131136AbRAWMpt>; Tue, 23 Jan 2001 07:45:49 -0500
-Received: from 213-120-138-151.btconnect.com ([213.120.138.151]:33796 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S130895AbRAWMpb>;
-	Tue, 23 Jan 2001 07:45:31 -0500
-Date: Tue, 23 Jan 2001 12:47:59 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre8/10 klogd taking 100% of CPU time -- bug?
-In-Reply-To: <m3y9w2a2d8.fsf@giants.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0101231245140.916-100000@penguin.homenet>
+	id <S130895AbRAWMpN>; Tue, 23 Jan 2001 07:45:13 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:62344 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130552AbRAWMpA>; Tue, 23 Jan 2001 07:45:00 -0500
+Message-ID: <3A6D7E95.C86BF650@uow.edu.au>
+Date: Tue, 23 Jan 2001 23:52:37 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
+Subject: Re: [OT?] Coding Style
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com>,
+		<28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com> <20010122082254.D9530@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jan 2001, Chmouel Boudjnah wrote:
-
-> Andrew Morton <andrewm@uow.edu.au> writes:
+Larry McVoy wrote:
 > 
-> > As far as the klogd problem is concerned, see
-> > 
-> > 	http://www.uwsg.iu.edu/hypermail/linux/kernel/0101.1/1053.html
-> > 
-> > for a probable solution.
+> Please don't listen to this.  The only place you really want comments is
 > 
-> it look like it fixes the problem for me, thanks.
-> 
+>     a) at the top of files, describing the point of the file;
+>     b) at the top of functions, if the purpose of the function is not obvious;
+>     c) in line, when the code is not obvious.
 
-Yes, it works, but one should NOT forget to rename /sbin/syslogd ->
-syslogd.old and klogd likewise because the new versions install themselves
-into /usr/sbin and so without renaming the old versions will be picked up.
-Also, one needs to edit /etc/rc.d/init.d/syslog. This is very similar to
-what one has to do if he wants to use NFSv3 client/server and latest
-nfsutils on Red Hat systems (they are broken by default)
+One other _very_ useful place: in header files.  This is a place where
+a comment-per-line is appropriate.
 
-Regards,
-Tigran
+For example, include/linux/fs.h.  Shame about `struct inode' though.
 
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

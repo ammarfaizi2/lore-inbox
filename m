@@ -1,54 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbUCRX4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 18:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263367AbUCRXzb
+	id S263349AbUCSAAm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 19:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbUCRX6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 18:55:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60636 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263349AbUCRXwx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 18:52:53 -0500
-Date: Thu, 18 Mar 2004 23:52:50 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-       Greg KH <greg@kroah.com>, David Mosberger <davidm@hpl.hp.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: [3/3] claim PCI resources on ia64
-Message-ID: <20040318235250.GK25059@parcelfarce.linux.theplanet.co.uk>
-References: <20040318235024.GH25059@parcelfarce.linux.theplanet.co.uk>
+	Thu, 18 Mar 2004 18:58:03 -0500
+Received: from rrcs-central-24-123-144-118.biz.rr.com ([24.123.144.118]:32338
+	"EHLO zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
+	id S263334AbUCRXz1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 18:55:27 -0500
+Subject: Re: CONFIG_PREEMPT and server workloads
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, mjy@geizhals.at,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040318153731.GG2246@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at>
+	 <20040318060358.GC29530@dualathlon.random>
+	 <20040318015004.227fddfb.akpm@osdl.org>
+	 <1079623222.4167.52.camel@localhost.localdomain>
+	 <20040318153731.GG2246@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1079654070.3758.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040318235024.GH25059@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 18 Mar 2004 18:54:30 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-03-18 at 10:37, Andrea Arcangeli wrote:
+> On Thu, Mar 18, 2004 at 10:20:23AM -0500, Tom Sightler wrote:
+> > Well, I reported an issue on my laptop several weeks ago where network
+> > activity via my aironet wireless adapter would use 60-70% of the CPU but
+> > only when PREEMPT was enabled.  Looking back over the list I see other
+> 
+> sounds like a preempt bug triggering in a softirq, or maybe an SMP bug
+> triggering in UP.
+> 
+> I certainly agree with Andrew that preempt cannot cause a 60/70%
+> slowdown with a network card at least (if you do nothing but spinlocking
+> in a loop then it's possible a 60/70% slowdown instead but the system
+> time that a wifi card should take is nothing compared to the idle/user
+> time).
 
-Call pci_claim_resources() so we can see what PCI resources are being used.
+Actually, I managed to get two bugs mixed together, my system had a
+problem with PREEMPT and ACPI but this certainly seems to be fixed in
+the current kernels, at least in 2.6.3-mm2 (my current everyday kernel)
+and 2.6.5-rc1-mm2 (just a quick test tonight).  Somehow the combination
+of PREEMPT and any little applet that used ACPI (battery monitor) would
+use a lot of CPU, then using the aironet adapter caused the CPU to
+spike.  Turning off either PREEMPT or ACPI would get rid of the
+problem.  I forgot about the ACPI part being in the mix.
 
-Index: arch/ia64/pci/pci.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/arch/ia64/pci/pci.c,v
-retrieving revision 1.7
-diff -u -p -r1.7 pci.c
---- a/arch/ia64/pci/pci.c	16 Mar 2004 15:39:51 -0000	1.7
-+++ b/arch/ia64/pci/pci.c	18 Mar 2004 23:40:52 -0000
-@@ -367,6 +366,7 @@ pcibios_fixup_device_resources (struct p
- 				dev->resource[i].end   += window->offset;
- 			}
- 		}
-+		pci_claim_resource(dev, i);
- 	}
- }
- 
+I still think the aironet driver acts strange, but I'm not really sure
+how to describe it.  In 2.6.3-mm2 which I transfer a file top will show
+60% of the cpu time in 'irq' whatever that means.  It seems vmstat still
+calls this idle.  Perhaps I'm interpreting those numbers wrong.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+When I enable preempt on the same system my network performance with the
+aironet driver drops tremendously, probably by 75%, and the rest of the
+systems seems to crawl.  Somehow without preempt this isn't a problem,
+even though it shows 60% of the time in 'irq' the rest of the system
+feels responsive.  What would be the proper way to track down this type
+of problem?
+
+I'm having more problems with 2.6.5-rc1-mm2 and the aironet card.  It
+seems to preform poorly no matter if preempt is on or off.  I'm still
+looking into that.  I don't think the drivers has changed significantly
+between the two version so I'm hoping I just made a mistake.
+
+Later,
+Tom
+
+

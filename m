@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSEUL5Z>; Tue, 21 May 2002 07:57:25 -0400
+	id <S313087AbSEUMFP>; Tue, 21 May 2002 08:05:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313505AbSEUL5Y>; Tue, 21 May 2002 07:57:24 -0400
-Received: from khazad-dum.debian.net ([200.196.10.6]:8326 "EHLO
-	khazad-dum.debian.net") by vger.kernel.org with ESMTP
-	id <S313477AbSEUL5Y>; Tue, 21 May 2002 07:57:24 -0400
-Date: Tue, 21 May 2002 08:57:23 -0300
+	id <S313120AbSEUMFO>; Tue, 21 May 2002 08:05:14 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:9957 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S313087AbSEUMFN>;
+	Tue, 21 May 2002 08:05:13 -0400
+Date: Tue, 21 May 2002 14:05:13 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
 To: linux-kernel@vger.kernel.org
-Cc: Antti Salmela <asalmela@iki.fi>
-Subject: Re: ext3 assertion failure and oops, 2.4.18
-Message-ID: <20020521085723.A32143@khazad-dum>
-In-Reply-To: <20020521114244.GA29043@otitsun.oulu.fi>
+Subject: patch to compil sym53c416 under 2.5.x
+Message-ID: <20020521120513.GA20389@ulima.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
-X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-From: hmh@rcm.org.br (Henrique de Moraes Holschuh)
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.99i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 May 2002, Antti Salmela wrote:
-> I can reliably reproduce an assertion failure and oops in ext3 by simply
-> restarting cyrus21, if directories used by cyrus have +j flag set with
-> chattr. Filesystem was mounted with default journalling mode data=orderded,
-> kernels tested were 2.4.18 and 2.4.19-pre3-ac4. Recent -pre or -ac kernels
-> wouldn't compile with my .config.
+Hello,
 
-I can atest to this, too. 2.4.18 stock, if I use the +j flag, the kernel
-will oops with the exact same assertion failure.  The access pattern is that
-of Sleepycat DB3 doing a database snapshot in a subdirectory of the
-directory with the +j attribute set.
+since a few kernel, I try to compil without success, so as for 2.5.17
+still with the same problem, here a quick fix:
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+--- sym53c416.c~	2002-01-31 18:07:05.000000000 +0100
++++ sym53c416.c	2002-05-21 11:00:08.000000000 +0200
+@@ -449,7 +449,7 @@
+ 					sglist = current_command->request_buffer;
+ 					while(sgcount--)
+ 					{
+-						tot_trans += sym53c416_write(base, sglist->address, sglist->length);
++						tot_trans += sym53c416_write(base, sglist->dma_address, sglist->length); 						sglist++;
+ 					}
+ 				}
+@@ -475,7 +475,7 @@
+ 					sglist = current_command->request_buffer;
+ 					while(sgcount--)
+ 					{
+-						tot_trans += sym53c416_read(base, sglist->address, sglist->length);
++						tot_trans += sym53c416_read(base, sglist->dma_address, sglist->length);
+ 						sglist++;
+ 					}
+ 				}
+
+I use gcc 3.1 for compil.
+I hope it's good to post to this list as I am not subscribed...
+
+Thanks you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

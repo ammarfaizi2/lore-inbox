@@ -1,92 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbUA0SBH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 13:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbUA0SBH
+	id S261606AbUA0R46 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 12:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUA0R46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 13:01:07 -0500
-Received: from smtp.infonegocio.com ([213.4.129.150]:36572 "EHLO
-	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S262015AbUA0SBC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 13:01:02 -0500
-From: Xan <DXpublica@telefonica.net>
-Reply-To: DXpublica@telefonica.net
-To: Kiko Piris <kernel@pirispons.net>
-Subject: Re: [2.6.1] fbdev console: can't load vga=791 and yes vga=ask!
-Date: Tue, 27 Jan 2004 18:59:03 +0100
-User-Agent: KMail/1.5.4
-Cc: Zack Winkles <winkie@linuxfromscratch.org>, linux-kernel@vger.kernel.org
-References: <200401270153.12568.DXpublica@telefonica.net> <200401271324.33883.DXpublica@telefonica.net> <20040127131922.GA20659@pirispons.net>
-In-Reply-To: <20040127131922.GA20659@pirispons.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401271859.03309.DXpublica@telefonica.net>
+	Tue, 27 Jan 2004 12:56:58 -0500
+Received: from main.gmane.org ([80.91.224.249]:45213 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261606AbUA0R44 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 12:56:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: GPL license and linux kernel modifications
+Date: Tue, 27 Jan 2004 18:56:53 +0100
+Message-ID: <yw1xoespz34q.fsf@kth.se>
+References: <E1AlW2F-000N9k-00.bansh21-mail-ru@f13.mail.ru> <401692E2.7010800@backtobasicsmgmt.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:EFSEg9egs85oUMFpo0d72OzKXbk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimarts 27 Gener 2004 14:19, en/na Kiko Piris (<Kiko Piris 
-<kernel@pirispons.net>>) va escriure:
+"Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com> writes:
 
-> On 27/01/2004 at 13:24, Xan wrote:
-> > Sorry. My graphics cards is ATI Radeon 9200.
+> Bansh wrote:
 >
-> Same graphics card here [1]. _Almost_ same problem:
+>> special exception, the source code distributed need not include
+>> anything that is normally distributed (in either source or binary
+>> form) with the major components (compiler, kernel, and so on) of the
+>> operating system on which the executable runs, unless that component
+>> itself accompanies the executable.
+>> ----------- cut COPYING -----------
+>> It gives the possibility to not distribute compiler and other
+>> preprocessing tools.
+>> It looks like one can make a preprocessor or even one's own
+>> compiler (with one's syntax) which will be used for kernel
+>> building. But it's not required to distribute this compiler. So I
+>> can distribute linux kernel source code modified this way but no
+>> one will be able to build it. Is it ok?
 >
-> I booted 2.6.1 with vga=795. It booted fine.
+> Only if those "compiler and other preprocessing tools" are normally
+> distributed with the O/S the executable runs on. If you create your
+> own compiler, and it's not "normally distributed", then you can't
+> publish source code in that language under the GPL without making the
+> compiler available as well.
 
-I did _not_ booted fine. I tried if with vga=795 it booted fine as you and the 
-same result as 791 obtained: black screen until X window appears. When I 
-switch to pty, black screen or color (and deformed) puzzle of X window 
-contain.
+Yes, you can, at least if you own the source code in question.  It
+becomes more unclear when you take someone else's GPL'd code and
+modify it to only work with your private compiler.
 
->
-> In 2.6.2-rc[12] I get a blank screen booting with that vga parameter.
->
-> With 2.6.1 if I tried to use radeonfb, system just booted with a vga
-> console and no fbdevice was available. If I try to use radeonfb in
-> 2.6.2-rc[12] it only works with 640x480 resolution (any other resolution
-> results in an unsupported frequency on my monitor, system boots fine,
-> tough).
->
-> _Plus_, if I try to change the resolution (with fbset) on my radeonfb
-> console, it changes; but when I switch to another tty, the monitor gets
-> an unsupported frequency again and the only way to restore the image is
-> to blindly set the resolution again to 640x480 with fbset.
->
-> Relevant part of config follws:
->
-> $ cat /boot/config-2.6.2-rc2 | grep ^CONFIG | egrep -i "fb|radeon|console"
-> CONFIG_VT_CONSOLE=y
-> CONFIG_HW_CONSOLE=y
-> CONFIG_DRM_RADEON=m
-> CONFIG_FB=y
-> CONFIG_FB_VESA=y
-> CONFIG_FB_RADEON=y
-> CONFIG_VGA_CONSOLE=y
-> CONFIG_DUMMY_CONSOLE=y
-> CONFIG_FRAMEBUFFER_CONSOLE=y
-> CONFIG_PCI_CONSOLE=y
->
-
-I put the same in console and I obtain the same as you.
-It's rare thing: I could promise that I compiled 2.6.0 with the same 
-configuration and it worked.
-
-We have to download 2.6.0 and try....
-
-> This output is exactly the same for 2.6.1, 2.6.2-rc1 and 2.6.2-rc2.
->
-> Please, let me know if I can provide any additional information.
->
-> Thanks in advance.
->
-
-Can you explain me what means 791, 795, ... and what number belongs to 
-1024x768 and 16 colors, and if 800x600 and 256?...
-
-Thank you very much,
-Xan.
+-- 
+Måns Rullgård
+mru@kth.se
 

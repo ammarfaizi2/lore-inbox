@@ -1,81 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbTENPJv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 11:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTENPJv
+	id S262431AbTENPH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 11:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTENPH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 11:09:51 -0400
-Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:6930 "EHLO
-	babylon.d2dc.net") by vger.kernel.org with ESMTP id S262444AbTENPJr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 11:09:47 -0400
-Date: Wed, 14 May 2003 11:22:32 -0400
-From: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
-Message-ID: <20030514152232.GA1079@babylon.d2dc.net>
-Mail-Followup-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.51.0305132143570.19932@dns.toxicfilms.tv> <20030514134704.GA1062@babylon.d2dc.net> <Pine.LNX.4.51.0305141611130.22227@dns.toxicfilms.tv>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.51.0305141611130.22227@dns.toxicfilms.tv>
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
-User-Agent: Mutt/1.5.4i
+	Wed, 14 May 2003 11:07:27 -0400
+Received: from corky.net ([212.150.53.130]:9124 "EHLO marcellos.corky.net")
+	by vger.kernel.org with ESMTP id S262431AbTENPHY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 11:07:24 -0400
+Date: Wed, 14 May 2003 18:20:06 +0300 (IDT)
+From: Yoav Weiss <ml-lkml@unpatched.org>
+X-X-Sender: yoavw@marcellos.corky.net
+To: Ahmed Masud <masud@googgun.com>
+Cc: Yoav Weiss <ml-lkml@unpatched.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
+In-Reply-To: <Pine.LNX.4.33.0305141002500.10993-100000@marauder.googgun.com>
+Message-ID: <Pine.LNX.4.44.0305141814410.12748-100000@marcellos.corky.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Do you see more options ?
+> > Anyway, it should probably be policy controlled.
+>
+> These are all very good options, ofcourse things get hairy don't they :)
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Certainly.  Option 3 certainly doesn't have to be implemented in the first
+version :)
+In fact, the first version could ignore the core dump issue and setrlimit
+will be used to avoid core dumps of sensitive processes.  In the future,
+it can be handled more gracefully.
 
-On Wed, May 14, 2003 at 04:13:15PM +0200, Maciej Soltysiak wrote:
-> > I'm seeing it too, only with recent kernels.
-> Exactly like me.
-> Someone suggested Bartlomiej Zolnierkiewicz's patch.
-> Try this on for size. I haven't tested it yet, but please give it a shot.
+> Perhaps in the beginning either 1, 2 and 4 as per a system wide dump
+> policy. May be even a setrlimit extension and use that as a jump point to
+> make a per user policy?
 
-It seems to be in -mm4 and -mm5 as well, and after rebooting to -mm5
-=66rom -mm3 I have not seen it, however the box has only been up 2 hours,
-so we will know for sure when it happens again, or in a few days?
+Makes sense.  Only when 3 is implemented, a special /proc interface is
+required.  For everything else, setrlimit will suffice.
 
-Thanks.
->=20
-> Regards,
-> Maciej
+>
+> Cheers,
+>
+> Ahmed.
+>
 
---=20
-	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
+Bye,
+	Yoav
 
-}>No.  I just point out to troublemakers that I have an English degree,
-}>which means that I am allowed to make changes to the English language.
-}>(What _else_ could it possibly be for?)
-}Wow; in that case, my physics degree is *WAY* more useful than I
-}had thought.
-This just proves how useless a computer science degree is:  there is hardly
-any useful science involved at all.  I want my computer black magic degree!
-	-- Victoria Swann, Jonathan Dursi, and D. Joseph Creighton on ASR
-
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+wl84RFMAi+ZaeAERAq7oAKD4PCGOWhoeYx6sJqTEEOJ7qNu2QgCdFOYj
-dVGOnUWAK73gX/u3xbCV2Hc=
-=LUi1
------END PGP SIGNATURE-----
-
---cNdxnHkX5QqsyA0e--

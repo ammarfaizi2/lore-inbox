@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268965AbRG0UoQ>; Fri, 27 Jul 2001 16:44:16 -0400
+	id <S268967AbRG0UqG>; Fri, 27 Jul 2001 16:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268963AbRG0UoH>; Fri, 27 Jul 2001 16:44:07 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:9228 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S268962AbRG0Unx> convert rfc822-to-8bit; Fri, 27 Jul 2001 16:43:53 -0400
-Date: Fri, 27 Jul 2001 22:41:31 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI Tape corruption - update
-In-Reply-To: <Pine.LNX.4.05.10107270943580.620-100000@callisto.of.borg>
-Message-ID: <20010727221848.F1554-100000@gerard>
+	id <S268963AbRG0Up4>; Fri, 27 Jul 2001 16:45:56 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:269 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268962AbRG0Upl>; Fri, 27 Jul 2001 16:45:41 -0400
+Subject: Re: Strange remount behaviour with ext3-2.4-0.9.4
+To: michal@harddata.com (Michal Jaegermann)
+Date: Fri, 27 Jul 2001 21:46:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010727143952.A14248@mail.harddata.com> from "Michal Jaegermann" at Jul 27, 2001 02:39:52 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15QEVd-0006UJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+> Regardless of possible weirdness in a "smart" behaviour of 'mount' what
+> one exactly buys running a journaling file system on a _read only_
+> partition?  fsck times will be the same (unless you crashed when
+> installing new software :-).
 
+Several things:
 
-On Fri, 27 Jul 2001, Geert Uytterhoeven wrote:
+1.	The simple case of remounting an fs read-only is easy, since no
+	writes means no journal
 
-> On Fri, 20 Jul 2001, Gérard Roudier wrote:
-> > On Fri, 20 Jul 2001, Geert Uytterhoeven wrote:
-> > > The problem is indeed introduced by the changes to the Sym53c8xx in 2.2.18-pre1.
-> > > I managed to find some intermediate versions in the 2.3.x series, and here are the
-> > > results:
-> > >   - sym53c8xx-1.3g (from BK linuxppc_2_2): OK
-> > >   - sym53c8xx-1.5e: crash in SCSI interrupt during driver init
-> > >   - sym53c8xx-1.5f: lock up during driver init
-> > >   - sym53c8xx-1.5g: random 32-byte error bursts when writing to tape
-> >
-> > That's an interesting result. But 1.5g - 1.3g diffs are probably very
-> > large. Patches available from ftp.tux.org should allow to resurrect
-> > driver versions 1.4, 1.5, 1.5a, 1.5b, 1.5c, 1.5d.
-> >
-> > ftp://ftp.tux.org/pub/roudier/drivers/linux/sym53c8xx/README
-> >
-> > You may, for example, apply incremental patches that address kernel 2.2.5
-> > to a fresh kernel 2.2.5 tree and extract driver files accordingly.
->
-> Thanks!
->
-> With some small modifications, I made 1.5a to work fine. No error burst. So the
-> problem is introduced between 1.5a and 1.5g.
+2.	The software suspend case is horrible. Right now mixing a
+	journalling fs and swsuspend tends to cause disk corruption because
+	journalling fs's write to disk when told to mount read only
 
-Fine! But diffs between 1.5a and 1.5g are still large. :(
-Results with 1.5c would have divided the diffs by about 2. :(
+3.	Failed drives. Here the journalling mount overrides the read only
+	request and the machine locks up preventing data recovery except
+	by copying the whole 80Gb disk image to another disk
 
-> Unfortunately my DDS-1 drive seems to have died for real after this test :-(
-> I don't know yet whether I will replace it with a new tape drive or with a
-> CD-RW. Which means I may never find out which change caused the problem...
+	Been there, it sucks
 
-I expect the problem to pong again to me. For now, I plan to look into the
-1.5g-1.5a source diffs and inspect each change. But as I will be in
-vacation for the next two weeks, I will not be able to work on this
-problem immediately.
+4.	Snapshots. Making read only snapshots can be very useful, and there
+	you want the replay of the log to be into the page cache but not
+	written back to physical media until its marked read-write
 
-> I assume other people suffer from the same error burst problem, but they never
-> notice until they really want to restore data. Me myself only notived it by
-> accident, too.
-
-Thanks for your testings and results.
-
-Regards,
-  Gérard.
+Alan
 

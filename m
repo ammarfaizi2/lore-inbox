@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272045AbRHVQTD>; Wed, 22 Aug 2001 12:19:03 -0400
+	id <S272044AbRHVQRo>; Wed, 22 Aug 2001 12:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272047AbRHVQSx>; Wed, 22 Aug 2001 12:18:53 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:6827 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272045AbRHVQSi>;
-	Wed, 22 Aug 2001 12:18:38 -0400
-Date: Wed, 22 Aug 2001 09:18:44 -0700 (PDT)
-Message-Id: <20010822.091844.107697331.davem@redhat.com>
-To: tavy@igreconline.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bug in sendto() causes OOPS when using RAW sockets
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200108221607.f7MG7a501809@www.igreconline.com>
-In-Reply-To: <200108221607.f7MG7a501809@www.igreconline.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272046AbRHVQRd>; Wed, 22 Aug 2001 12:17:33 -0400
+Received: from beppo.feral.com ([192.67.166.79]:60943 "EHLO beppo.feral.com")
+	by vger.kernel.org with ESMTP id <S272045AbRHVQRV>;
+	Wed, 22 Aug 2001 12:17:21 -0400
+Date: Wed, 22 Aug 2001 09:17:07 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: <mjacob@feral.com>
+To: Jes Sorensen <jes@sunsite.dk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ricky Beam <jfbeam@bluetopia.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Qlogic/FC firmware
+In-Reply-To: <20010822084231.H2189-100000@wonky.feral.com>
+Message-ID: <20010822091212.M2189-100000@wonky.feral.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Octavian Cerna" <tavy@igreconline.com>
-   Date: Wed, 22 Aug 2001 19:07:36 +0300
-    
-   I attached a small patch to fix this issue, a C program for testing the
-   problem and my OOPS log.
-    
-Thanks, I've applied your fix to my tree.
 
-Later,
-David S. Miller
-davem@redhat.com
+> We could ask them where it is.
+
+I've asked their tech support folks about where and how big in flash the RISC
+code is for all their cards. I have other people I can ask too. Let's see if
+they're helpful or open about it.
+
+I'm not as sensitive to the bloat issues as I should be- I suppose because I
+tend to see all of USB as bloat myself :).. I tend to think that the generic
+shipping kernel case should have all of the firmware images there to download
+from the driver.
+
+That said, it *would* be nice to give people some tools to strip things down
+if they really want, out of a 2GB system, a couple hundred kbytes back that
+can the be gobbled up by something really hungry for it like a memory leak in
+X or Matzohilla or something :-)....
+
+-matt
+
+

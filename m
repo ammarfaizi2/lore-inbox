@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262200AbSI1QvU>; Sat, 28 Sep 2002 12:51:20 -0400
+	id <S262232AbSI1RAK>; Sat, 28 Sep 2002 13:00:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262210AbSI1QvU>; Sat, 28 Sep 2002 12:51:20 -0400
-Received: from pop.gmx.net ([213.165.64.20]:39933 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262200AbSI1QvU>;
-	Sat, 28 Sep 2002 12:51:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Axel <Axel.Zeuner@gmx.de>
-Reply-To: Axel.Zeuner@gmx.de
-To: linux-kernel@vger.kernel.org, phil-list@redhat.com
-Subject: 2.5.39: Signal delivery to thread groups: Bug or feature
-Date: Sat, 28 Sep 2002 19:14:26 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S262251AbSI1RAK>; Sat, 28 Sep 2002 13:00:10 -0400
+Received: from packet.digeo.com ([12.110.80.53]:22682 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262232AbSI1RAJ>;
+	Sat, 28 Sep 2002 13:00:09 -0400
+Message-ID: <3D95E14D.9134405C@digeo.com>
+Date: Sat, 28 Sep 2002 10:05:17 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020928165120Z262200-8740+2744@vger.kernel.org>
+To: John Levon <movement@marcelothewonderpenguin.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Sleeping function called from illegal context...
+References: <20020927233044.GA14234@kroah.com> <1033174290.23958.17.camel@phantasy> <20020928145418.GB50842@compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Sep 2002 17:05:17.0947 (UTC) FILETIME=[387AC4B0:01C26711]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
-I played a little bit with the new clone flags and wrote a small test 
-program using two threads: The first (initial) thread blocks all signals. The 
-second thread is created with all signals blocked and inherits the signal 
-mask of the initial thread. It unblocks SIGINT and calls sys_rt_sigtimedwait 
-with the remaining signal mask. Therefore it waits for all signals with 
-exception of SIGINT. In the kernel this yields to an empty signal mask for 
-this thread during the sigwait. No signal handler is installed by the 
-process. Now an external SIGINT is delivered to the whole process: The 
-signal delivery code decides to send this signal directly to the initial thread 
-because no user handler is installed and the signal mask for this thread 
-blocks the signal. The second thread never receives the SIGINT.
+John Levon wrote:
+> 
+> On Fri, Sep 27, 2002 at 08:51:30PM -0400, Robert Love wrote:
+> 
+> > Note this has nothing to do with kernel preemption.  IDE explicitly
+> > sleeps while purposely holding a lock.
+> >
+> > It is just we do not have the ability to measure atomicity w/o
+> > preemption enabled - e.g. the debugging only works when it is enabled.
+> 
+> Would it be particularly difficult to separate this debug tool from the
+> feature ? Surely we could make it so that CONFIG_PREEMPT depends on
+> CONFIG_MIGHT_SLEEP or whatever, and just adds the actual ability to
+> reschedule.
 
-Reason:
-The main signal dispatching function send_sig_info in kernel/signal.c 
-requires at the moment an installed signal handler for delivery of signals 
-to members of the thread group.
+We need a standalone CONFIG_MIGHT_SLEEP.  I sinfully hooked it
+to CONFIG_DEBUG_KERNEL (it's not obvious why CONFIG_DEBUG_KERNEL
+exists actually).
 
-Therefore NPTL/NPT must install signal handlers for all signals 
-during startup to allow signal delivery to other threads and must restore
-these default handlers to SIG_DFL after first delivery and raise
-the signal to create the correct exit code.
-IMHO, the current signal system is not a clean solution (yet), but of course
-much better than the ugly signal forwarding required by the thread group 
-leader only working as signal thread in 2.4.X. 
+So yes, you could make CONFIG_MIGHT_SLEEP mutually exclusive
+with CONFIG_OPROFILE. But that would make people look at you
+suspiciously.
 
-Axel
+> I have a bit of a problem with __might_sleep because I call sleepable
+> stuff holding a spinlock (yes, it is justified, and yes, it is safe
+> afaics, at least with PREEMPT=n)
 
-
-
+I'm looking at you suspiciously.  How come?

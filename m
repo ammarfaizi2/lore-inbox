@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263684AbUDQFuq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 01:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263683AbUDQFuq
+	id S263678AbUDQGPw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 02:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263683AbUDQGPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 01:50:46 -0400
-Received: from holomorphy.com ([207.189.100.168]:34441 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263684AbUDQFug (ORCPT
+	Sat, 17 Apr 2004 02:15:52 -0400
+Received: from ozlabs.org ([203.10.76.45]:31675 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263678AbUDQGPt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 01:50:36 -0400
-Date: Fri, 16 Apr 2004 22:50:33 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, rmk@arm.linux.org.uk, elf@buici.com
-Subject: ARM-related ptep_to_address() fix
-Message-ID: <20040417055033.GA5197@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, rmk@arm.linux.org.uk,
-	elf@buici.com
+	Sat, 17 Apr 2004 02:15:49 -0400
+Subject: Re: [CHECKER] Probable security holes in 2.6.5
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Ken Ashcraft <ken@coverity.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mc@cs.stanford.edu
+In-Reply-To: <20040416122733.Z22989@build.pdx.osdl.net>
+References: <1082134916.19301.7.camel@dns.coverity.int>
+	 <20040416122733.Z22989@build.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1082181408.2122.106.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 17 Apr 2004 16:15:44 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rmk mentioned that ARM was borked as the relation, assumed by generic rmap,
-PTRS_PER_PTE*sizeof(pte_t) == PAGE_SIZE, fails to hold. The following patch,
-developed jointly with him (or depending on POV, by him with me acting as
-codemonkey), is reported to resolve the issue.
+On Sat, 2004-04-17 at 05:27, Chris Wright wrote:
+> > [BUG]
+> > /home/kash/linux/linux-2.6.5/kernel/module.c:1303:load_module:
+> > ERROR:TAINT: 1283:1303:Using user value "((*hdr).e_shstrndx * 0)"
+> > without first performing bounds checks
 
-Specifically, while ARM dedicates an entire PAGE_SIZE -sized block of
-memory to each PTE table, the PTE table itself only spans half that,
-the remainder being dedicated to hardware-interpreted structures. As the
-hardware structure must be contiguous, wider ptes can't be used. So the
-core-visible PTE table only spans PAGE_SIZE/2 bytes, violating the
-assumption. This corrects masking and scaling done in ptep_to_address().
+Yes, this is a special case. We've already checked CAP_SYS_MODULE, and
+we only do trivial sanity checks for correct arch and truncated
+modules.  This is by policy, since there are things we simply can't
+check (like the code we're about to run!),
 
-I'm aware hugh and andrea's patches address this by blowing away the
-dependence on this address calculation altogether, so if anything this
-should be considered a stopgap measure if not dropped on account of the
-imminent merging of hugh and/or andrea's code.
+Hope that helps!
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
-
--- wli
-
-
-Index: wli-2.6.5-mm6/include/asm-generic/rmap.h
-===================================================================
---- wli-2.6.5-mm6.orig/include/asm-generic/rmap.h	2004-04-03 19:37:24.000000000 -0800
-+++ wli-2.6.5-mm6/include/asm-generic/rmap.h	2004-04-16 12:21:18.000000000 -0700
-@@ -57,7 +57,8 @@
- {
- 	struct page * page = kmap_atomic_to_page(ptep);
- 	unsigned long low_bits;
--	low_bits = ((unsigned long)ptep & ~PAGE_MASK) * PTRS_PER_PTE;
-+	low_bits = ((unsigned long)ptep & (PTRS_PER_PTE*sizeof(pte_t) - 1))
-+			* (PAGE_SIZE/sizeof(pte_t));
- 	return page->index + low_bits;
- }
- 

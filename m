@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbSJUObT>; Mon, 21 Oct 2002 10:31:19 -0400
+	id <S266529AbSJUO2M>; Mon, 21 Oct 2002 10:28:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbSJUObT>; Mon, 21 Oct 2002 10:31:19 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:6576 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261448AbSJUObS>; Mon, 21 Oct 2002 10:31:18 -0400
-Date: Mon, 21 Oct 2002 09:37:20 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: bert hubert <ahu@ds9a.nl>
-cc: Neil Brown <neilb@cse.unsw.edu.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: nfsd/sunrpc boot on reboot in 2.5.44
-In-Reply-To: <20021021063454.GA5898@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.44.0210210933340.28262-100000@chaos.physics.uiowa.edu>
+	id <S266532AbSJUO2M>; Mon, 21 Oct 2002 10:28:12 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:10975 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266529AbSJUO2L>; Mon, 21 Oct 2002 10:28:11 -0400
+Date: Mon, 21 Oct 2002 12:33:54 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Rob Landley <landley@trommello.org>
+cc: Xavier Bestel <xavier.bestel@free.fr>, Robert Love <rml@tech9.net>,
+       Ben Collins <bcollins@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper outrage, old and new
+In-Reply-To: <200210201926.19757.landley@trommello.org>
+Message-ID: <Pine.LNX.4.44L.0210211233080.22993-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002, bert hubert wrote:
+On Sun, 20 Oct 2002, Rob Landley wrote:
+> On Sunday 20 October 2002 17:53, Rik van Riel wrote:
 
-> I also found this to work:
-> 
-> touch sunrpc.c
-> make
-> [ observe how sunrpc.o gets compiled ]
-> [ add a -g to the commandline ]
-> gdb sunrpc.o
-> l *(auth_domain_drop+0x50)
+> > Germany (and France, judging from your words) have laws that
+> > guarantee that the creator of a work keeps copyright on the
+> > work.  At least, part of the copyright cannot be signed over
+> > to other people or organisations.
 
-Or even
+> 3) The creator of a work doesn't always get the copyright, at least in
+> the US.
 
-	make fs/sunrpc/svc_auth.lst
+Please see above.  It's possible the FSF copyright assignment
+just can't be legal in some countries.
 
-and stare at fs/sunrpc/svc_auth.lst ;)
-
-(it also gives you a svc_auth.o compiled with -g, so you can use the gdb 
-thing above, too)
-
---Kai
-
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267643AbSLFW1U>; Fri, 6 Dec 2002 17:27:20 -0500
+	id <S267640AbSLFWY5>; Fri, 6 Dec 2002 17:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267644AbSLFW1U>; Fri, 6 Dec 2002 17:27:20 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:13186 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267643AbSLFW1S>;
-	Fri, 6 Dec 2002 17:27:18 -0500
-Date: Fri, 6 Dec 2002 23:34:59 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@digeo.com>,
-       Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
-Message-ID: <20021206223459.GG4335@dualathlon.random>
-References: <20021206111326.B7232@turing.une.edu.au> <3DEFF69F.481AB823@digeo.com> <20021206011733.GF1567@dualathlon.random> <3DEFFEAA.6B386051@digeo.com> <20021206014429.GI1567@dualathlon.random> <20021206021559.GK9882@holomorphy.com> <1039170975.1432.5.camel@laptop.fenrus.com> <20021206142302.GC11023@holomorphy.com> <20021206151238.GE11023@holomorphy.com>
+	id <S267641AbSLFWY5>; Fri, 6 Dec 2002 17:24:57 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:62952 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267640AbSLFWY4>;
+	Fri, 6 Dec 2002 17:24:56 -0500
+Date: Fri, 06 Dec 2002 14:29:27 -0800 (PST)
+Message-Id: <20021206.142927.88817589.davem@redhat.com>
+To: James.Bottomley@steeleye.com
+Cc: adam@yggdrasil.com, willy@debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200212062226.gB6MQsr04565@localhost.localdomain>
+References: <adam@yggdrasil.com>
+	<200212062226.gB6MQsr04565@localhost.localdomain>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021206151238.GE11023@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 06, 2002 at 07:12:38AM -0800, William Lee Irwin III wrote:
-> split just to get a bloated mem_map to fit. Many of the smaller apps,
-> e.g. /bin/sh etc. are indifferent to the ABI violation.
+   From: James Bottomley <James.Bottomley@steeleye.com>
+   Date: Fri, 06 Dec 2002 16:26:54 -0600
 
-the problem of the split is that it would reduce the address space
-available to userspace that is quite critical on big machines (one of
-the big advantages of 64bit that can't be fixed on 32bit) but I wouldn't
-classify it as an ABI violation, infact the little I can remember about
-the 2.0 kernels [I almost never read that code] is that it had shared
-address space and tlb flush while entering/exiting kernel, so I can bet
-the user stack in 2.0  was put at 4G, not at 3G. 2.2 had to put it at 3G
-because then the address space was shared with the obvious performance
-advantages, so while I didn't read any ABI, I deduce you can't say the
-ABI got broken if the stack is put at 2G or 1G or 3.5G or 4G again with
-x86-64 (of course x86-64 can give the full 4G to userspace because the
-kernel runs in the negative part of the [64bit] address space, as 2.0
-could too).
+   adam@yggdrasil.com said:
+   > 	This makes me lean infinitesmally more toward a parameter to
+   > dma_alloc rather than a separate dma_alloc_not_necessarily_consistent
+   > function, because if there ever are other dma_alloc variations that we
+   > want to support, it is more likely that there may be overlap between
+   > the users of those features and then the number of different function
+   > calls would have to grow exponentially (or we might then talk about
+   > changing the API again, which is not the end of the world, but is
+   > certainly more difficult than not having to do so). 
+   
+   I think I like this.
+   
+I don't.
 
-Andrea
+If the concept isn't all that important, why bother?
+
+See, if you have to allocate a whole new routine, you'll think
+about whether it makes sense or not.
+
+It's like adding a new system call, and the same arguments apply.
+
+I don't want a 'flags' thing, because that tends to be the action
+which opens the flood gates for putting random feature-of-the-day new
+bits.
+
+If you have to actually get a real API change made, it will get review
+and won't "sneak on in".  I also don't want architectures adding arch
+specific flag bits that some drivers end up using, for example.
+The suggested scheme allows that, and I can guarentee you that people
+will do things like that.
+
+You must take the time to get the semantics right and make sure they
+really do handle the cases that are problematic.  Random flag bits
+passed to a "do everything" dma_alloc function don't encourage that at
+all.

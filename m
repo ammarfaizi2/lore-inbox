@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269946AbUJSWXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269944AbUJSWXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269946AbUJSWXb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 18:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269971AbUJSWUh
+	id S269944AbUJSWXd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 18:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269949AbUJSWUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 18:20:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29397 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269942AbUJSWMN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:12:13 -0400
-Date: Tue, 19 Oct 2004 15:11:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <4d8e3fd3041019145469f03527@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
-References: <41752E53.8060103@pobox.com>  <20041019153126.GG18939@work.bitmover.com>
-  <41753B99.5090003@pobox.com>  <4d8e3fd304101914332979f86a@mail.gmail.com>
-  <20041019213803.GA6994@havoc.gtf.org> <4d8e3fd3041019145469f03527@mail.gmail.com>
+	Tue, 19 Oct 2004 18:20:22 -0400
+Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:6546 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S269933AbUJSWPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:15:51 -0400
+From: Russell Miller <rmiller@duskglow.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: 2.6.9 DRM compile problem
+Date: Tue, 19 Oct 2004 17:19:34 -0500
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <200410191613.35691.rmiller@duskglow.com> <9e4733910410191514db82abc@mail.gmail.com>
+In-Reply-To: <9e4733910410191514db82abc@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410191719.35057.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 19 Oct 2004, Paolo Ciarrocchi wrote:
+On Tuesday 19 October 2004 17:14, Jon Smirl wrote:
+> #
+> # Code maturity level options
+> #
+> CONFIG_EXPERIMENTAL=y
+> # CONFIG_CLEAN_COMPILE is not set
+> CONFIG_BROKEN=y
+> CONFIG_BROKEN_ON_SMP=y
 >
-> I know I'm pedantic but can we all see the list of bk trees ("patches
-> ready for mainstream" and "patches eventually ready for mainstream")
-> that we'll be used by Linus ?
+> Gamma is marked BROKEN
 
-Even _I_ don't have that kind of list. 
+Hmm.  I didn't see an option to turn it off, though I will look again.
 
-It's on a case-by-case basis (although with certain developers, the cases 
-tend to be pretty clear-cut), and it literally changes over time. Some 
-people use throw-away trees that are just used for some particular set, 
-and I merge them (or not), and they go away.
+And how do I find out which are broken so I don't post to this list and make 
+an @$$ out of myself again?
 
-		Linus
+Thanks.
+
+--Russell
+
+-- 
+
+Russell Miller - rmiller@duskglow.com - Le Mars, IA
+Duskglow Consulting - Helping companies just like you to succeed for ~ 10 yrs.
+http://www.duskglow.com - 712-546-5886

@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266876AbUIFSt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268448AbUIFStn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266876AbUIFSt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 14:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268448AbUIFSt0
+	id S268448AbUIFStn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 14:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268463AbUIFStn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 14:49:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54733 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266876AbUIFStZ (ORCPT
+	Mon, 6 Sep 2004 14:49:43 -0400
+Received: from maxipes.logix.cz ([81.0.234.97]:63366 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S268448AbUIFSth (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 14:49:25 -0400
-Date: Mon, 6 Sep 2004 11:48:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@muc.de>
-cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix argument checking in sched_setaffinity
-In-Reply-To: <20040906182330.GA79122@muc.de>
-Message-ID: <Pine.LNX.4.58.0409061147220.28608@ppc970.osdl.org>
-References: <20040831183655.58d784a3.pj@sgi.com> <20040904133701.GE33964@muc.de>
- <20040904171417.67649169.pj@sgi.com> <Pine.LNX.4.58.0409041717230.4735@ppc970.osdl.org>
- <20040904180548.2dcdd488.pj@sgi.com> <Pine.LNX.4.58.0409041827280.2331@ppc970.osdl.org>
- <20040904204850.48b7cfbd.pj@sgi.com> <Pine.LNX.4.58.0409042055460.2331@ppc970.osdl.org>
- <20040904211749.3f713a8a.pj@sgi.com> <20040904215205.0a067ab8.pj@sgi.com>
- <20040906182330.GA79122@muc.de>
+	Mon, 6 Sep 2004 14:49:37 -0400
+Date: Mon, 6 Sep 2004 20:49:30 +0200 (CEST)
+From: Michal Ludvig <michal@logix.cz>
+To: Andreas Happe <andreashappe@flatline.ath.cx>
+Cc: James Morris <jmorris@redhat.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
+In-Reply-To: <20040901082819.GA2489@final-judgement.ath.cx>
+Message-ID: <Pine.LNX.4.53.0409061847000.25698@maxipes.logix.cz>
+References: <20040831175449.GA2946@final-judgement.ath.cx>
+ <Xine.LNX.4.44.0409010043020.30561-100000@thoron.boston.redhat.com>
+ <20040901082819.GA2489@final-judgement.ath.cx>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Andreas,
 
-On Mon, 6 Sep 2004, Andi Kleen wrote:
-> 
-> The only change I would like to have is to check the excess bytes
-> to make sure they don't contain some random value. They should
-> be either all 0 or all 0xff. 
+I really like the patch - I wanted to do quite the same so thanks that you
+saved me some work ;-)
 
-I hate the "byte at a time" interface.
+On Wed, 1 Sep 2004, Andreas Happe wrote:
 
-That said, I think the "long at a time" interface we have now for bitmaps 
-ends up being a compatibility problem, where the compat layer has to worry 
-about big-endian 32-bit "long" lookign different from big-endian 64-bit 
-"long".
+> the attached patch creates a /sys/cryptoapi/<cipher-name>/ hierarchie
 
-So there are other issues here.
+I'd prefer to have the algorithms grouped by "type" ("cipher", "digest",
+"compress")? Then the apps could easily see only the algos that thay are
+interested in...
 
-		Linus
+> Also the different cipher types (digest, compress..) could be seperated
+> into own ksets/directories, but this would make the crypto/proc.c code
+> worse.
+
+There could eventually be a separate crypto/sysfs.c, couldn't?
+
+> | bash-2.05b# cd aes/
+> | bash-2.05b# ls
+> | blocksize  maxkeysize  minkeysize  module  name  type
+
+Few notes:
+- - some algorithms allow only discrete set of keysizes (e.g. AES can do
+128b, 192b and 256b). Can we instead of min/max have a file 'keysize' with
+either:
+	minsize-maxsize
+or
+	size1,size2,size3
+?
+
+- - ditto for blocksize?
+
+- - With the future support for hardware crypto accelerators it
+might be possible to have more modules loaded providing the same
+algorithm. They may have different priorities and one would be treated as
+"default". Then I expect the syntax of 'module' file to change from a
+simple module name to something like:
+	# modname:prio:type:whatever
+	aes:0:generic:
+	aes_i586:1:optimized:
+	padlock:2:hardware:default
+But for now there is probably nothing to do about it.
+
+Michal Ludvig
+- -- 
+* A mouse is a device used to point at the xterm you want to type in.
+* Personal homepage - http://www.logix.cz/michal
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQFBPLFADDolCcRbIhgRAksyAJ4t+6m6demqQYdlJm3TnKMkLCSa5QCgrset
+VlNlUPb0517aLARgI6mt8gk=
+=rjsX
+-----END PGP SIGNATURE-----
+

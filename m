@@ -1,104 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbTDOTJz (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 15:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTDOTJz 
+	id S264034AbTDOTNj (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 15:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264036AbTDOTNj 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 15:09:55 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:35590 "EHLO
+	Tue, 15 Apr 2003 15:13:39 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:39430 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263023AbTDOTJx (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 15:09:53 -0400
-Date: Tue, 15 Apr 2003 20:21:43 +0100 (BST)
+	id S264034AbTDOTNh (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 15:13:37 -0400
+Date: Tue, 15 Apr 2003 20:25:25 +0100 (BST)
 From: James Simmons <jsimmons@infradead.org>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, <linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [FBDEV BK] Updates and fixes.
-In-Reply-To: <20030414005814.6719915f.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0304152004350.8236-100000@phoenix.infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Andrew Morton <akpm@digeo.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Re: [FBDEV BK] Updates and fixes.
+In-Reply-To: <1050310411.5574.44.camel@zion.wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0304152022550.8236-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> There are a lot of compilation warnings. 
+> > ATI Technologies Inc Rage Mobility M3 AGP 2x (rev 02)
 > 
-> drivers/char/agp/agp.h:50: warning: `global_cache_flush' defined but not used
+> This is a r128 based chip, which lacks some of the proper support for
+> LCD stuff (especially automatic retreival of the EDID from BIOS) that
+> we have in radeonfb. If you feed the driver with a suitable mode, it
+> should work
 
-Not related.
+Oh. A Rage 128 chip with a LCD display. Then you are out of luck right 
+now.
 
-> drivers/video/aty/mach64_gx.c:194: warning: initialization from incompatible pointer type
-
-Haven't applied a few driver patches yet because I have been working on 
-the upper layer stuff.
-
-> drivers/video/console/fbcon.c: In function `fbcon_startup':
-> drivers/video/console/fbcon.c:530: warning: unused variable `irqres'
-> drivers/video/console/fbcon.c: At top level:
-> drivers/video/console/fbcon.c:206: warning: `fb_vbl_handler' defined but not used
-
-Which brings up the point. The driver specific code for handing the 
-flashing (acorn, atarti, and mac generic) driver shoudl move that code to 
-there respected driver. 
-
-> drivers/video/riva/fbdev.c: In function `rivafb_cursor':
-
-Cleaned up.
-
-> #
-> # Console display driver support
-> #
-> CONFIG_VGA_CONSOLE=y
-> CONFIG_MDA_CONSOLE=y
-> CONFIG_DUMMY_CONSOLE=y
+> I haven't yet checked which codebase is in there for rivafb, I have
+> started collecting various patches around & doing my own fixes, I have
+> a version here that works on PPC with GeForce2 & 4, though I still
+> have problems with accel on the GeForce4. It's a 2.4 code base right
+> now, I haven't had time to clean that up and release a patch though.
 > 
-> Disabling CONFIG_MDA_CONSOLE prevents that from happening.
+> If 2.5 still has the old codebase, then GeForce4 isn't properly
+> supported yet.
 
-That is strange. I think it might have to do with the font height issue 
-someone reported just recently. Before thee was a global variable 
-video_font_height. This caused issues with framebuffer consoles since 
-different VCs can have different font heights. Now it is private to each 
-driver. This is probable related. I will test. I have a few more updates 
-to vgacon coming later one.
+We it sort of is old but yet new. I did port alot of the code from 2.4.X. 
+to the latest tree. I haven't ported "thee" latest patches tho.
 
-> This machine has:
-> 
-> ATI Technologies Inc Rage Mobility M3 AGP 2x (rev 02)
+> Note that if you have a flat panel, then the problem of properly
+> retreiving the EDID to get a suitable default mode is also present
+> there, unless James added some support for it.
 
-The patch applied is the latest work from Monta Vista to get that chipset 
-working on non ix86 platforms. As usual any changes to the Mach 64 driver 
-affects a bunch of other machines. 
+It there but only for PPC platforms. Hopefully with the new fbmon.c code I 
+will be able to have this work on ix86 very soon.
 
-> VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX440] (rev a3)
-> 
-> When fbcon is enabled here the screen is full of random uninitialised gunk
-> and no text is readable.
-
-Well you are using bleeding edge code here.  
-
-> Another machine has Cirrus hardware.  The Cirrus drivers do not compile.
-
-Haven't ported it over to the new api yet. I have been fixing the upper 
-layer lately. As soon as I'm done I plan to do extensive house cleaning. 
-Alot of the drivers where ported over as fast as possible and as such 
-suffered.
-
-> A fourth machine has:
-> 
-> 	nVidia Corporation NV11 [GeForce2 MX] (rev b2)
-> 
-> this seems to work OK.  The penguins initially have a white background, then
-> the background goes black, then they go away.  Perhaps that is intentional. 
-> But it gets to a readable login prompt.
-
-That is the stable code. As for the white background that is strange.
-
-> A fifth machine has:
-> 
-> 	ATI Technologies Inc Radeon VE QY
-> 
-> it seems to work OK as well.  The penguins started out on a black background.
-> I didn't test dual-head mode.
-
-Great. I don't think the driver supports dual head mode yet.
 
 

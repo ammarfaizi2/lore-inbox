@@ -1,86 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTFAFwm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 01:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTFAFwm
+	id S261308AbTFAGMx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 02:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTFAGMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 01:52:42 -0400
-Received: from haw-66-102-130-200.vel.net ([66.102.130.200]:6872 "HELO
-	mx100.mysite4now.com") by vger.kernel.org with SMTP id S261294AbTFAFwk
+	Sun, 1 Jun 2003 02:12:53 -0400
+Received: from [216.148.213.132] ([216.148.213.132]:48880 "EHLO
+	smtp.mailix.net") by vger.kernel.org with ESMTP id S261308AbTFAGMx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 01:52:40 -0400
-From: Udo Hoerhold <maillists@goodontoast.com>
-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21rc6-ac1
-Date: Sun, 1 Jun 2003 02:05:08 -0400
-User-Agent: KMail/1.5.2
-References: <200305311153.h4VBrNi21640@devserv.devel.redhat.com>
-In-Reply-To: <200305311153.h4VBrNi21640@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Jun 2003 02:12:53 -0400
+Date: Sun, 1 Jun 2003 08:26:04 +0200
+From: Alex Riesen <fork0@users.sf.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-bk4+: oops by mc -v /proc/bus/pci/00/00.0
+Message-ID: <20030601062604.GA4361@steel.home>
+Reply-To: Alex Riesen <fork0@users.sf.net>
+References: <20030531165523.GA18067@steel.home> <20030531195414.10c957b7.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306010205.09012.maillists@goodontoast.com>
+In-Reply-To: <20030531195414.10c957b7.akpm@digeo.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 May 2003 07:53 am, Alan Cox wrote:
-> Linux 2.4.21rc6-ac1
+Andrew Morton, Sun, Jun 01, 2003 04:54:14 +0200:
+> >
+> > MC (Midnight Commander 4.6.0 Gentoo) segfaults trying to mmap files
+> >  under /proc/bus/pci.
+> 
+> Thanks.  This will fix it up.
+> 
 
-I'm seeing these errors, and it doesn't look like anyone else has reported 
-them.  I didn't see them in 2.4.21-rc5-ac3, the last time I compiled.
-
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/at1700.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/atp.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/de4x5.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/depca.o
-depmod:         crc32_le
-depmod:         bitreverse
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/dmfe.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/epic100.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/ewrk3.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/smc9194.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/starfire.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/sundance.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/sungem.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/sunhme.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/tulip/tulip.o
-depmod:         crc32_le
-depmod:         bitreverse
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/net/via-rhine.o
-depmod:         crc32_le
-depmod:         bitreverse
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/usb/catc.o
-depmod:         crc32_le
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.21-rc6-ac1/kernel/drivers/usb/usbnet.o
-depmod:         crc32_le
-make: *** [_modinst_post] Error 1
+it did, of course.
 

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129171AbQKTR0M>; Mon, 20 Nov 2000 12:26:12 -0500
+	id <S129189AbQKTRbX>; Mon, 20 Nov 2000 12:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQKTR0D>; Mon, 20 Nov 2000 12:26:03 -0500
-Received: from [193.127.21.194] ([193.127.21.194]:36905 "HELO
-	postal.sl.trymedia.com") by vger.kernel.org with SMTP
-	id <S129189AbQKTRZw>; Mon, 20 Nov 2000 12:25:52 -0500
-From: Rubén Gallardo Fructuoso <ruben@trymedia.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Sharing memory between processes in kernel mode
-Date: Mon, 20 Nov 2000 17:58:33 +0100
-Message-ID: <DLECJAOCHAKJBLMJFKPIGENJCCAA.ruben@trymedia.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
+	id <S129345AbQKTRbM>; Mon, 20 Nov 2000 12:31:12 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:46091 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129189AbQKTRaz>;
+	Mon, 20 Nov 2000 12:30:55 -0500
+Date: Mon, 20 Nov 2000 18:00:32 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: "Charles Turner, Ph.D." <cturner@quark.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Defective Red Hat Distribution poorly represents Linux
+Message-ID: <20001120180032.C599@almesberger.net>
+In-Reply-To: <Pine.LNX.3.95.1001120084920.580A-100000@quark.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1001120084920.580A-100000@quark.analogic.com>; from cturner@quark.analogic.com on Mon, Nov 20, 2000 at 08:53:19AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi!
+Charles Turner, Ph.D. wrote:
+> I can even see obvious bugs in the trace, i.e., :
+> stat("/usrusr/lib/ldscripts", 0xbffffa7c) = -1 ENOENT (No such file or directory)
 
-	I want to share memory between two differents processes in kernel mode. The
-goal is to copy the read buffer of a user process into the read buffer of
-another user process. I know it's possible to do it by creating an
-intermediate buffer in kernel mode and to use the 'copy_from_memory' and
-'copy_to_user' functions for copying data from a process to other, but this
-is a slow method. Can I do it in a different way? Are there functions for
-turning user space pointers into kernel space pointers without copying data?
+Probably only a cosmetic problem. A regular run (RedHat binutils-2.9.5.0.22-6)
+yields:
 
-	Thanks in advance,
-	Rubén.
+stat("/usrusr/lib/ldscripts", 0xbffff5c4) = -1 ENOENT (No such file or directory
+)
+stat("/usr/bin/ldscripts", 0xbffff5c4)  = -1 ENOENT (No such file or directory)
+stat("/usr/bin/../lib/ldscripts", {st_mode=S_IFDIR|0755, st_size=1024, ...}) = 0
 
+So it's not perfect, but it works. 
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

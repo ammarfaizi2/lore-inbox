@@ -1,80 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUJHUX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUJHUZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbUJHUX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 16:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJHUX0
+	id S264530AbUJHUZR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 16:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUJHUZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 16:23:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:27361 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264530AbUJHUXI (ORCPT
+	Fri, 8 Oct 2004 16:25:17 -0400
+Received: from users.ccur.com ([208.248.32.211]:61488 "EHLO mig.iccur.com")
+	by vger.kernel.org with ESMTP id S264530AbUJHUYz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 16:23:08 -0400
-Date: Fri, 8 Oct 2004 13:22:47 -0700
-From: Greg KH <greg@kroah.com>
-To: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: InfiniBand incompatible with the Linux kernel?
-Message-ID: <20041008202247.GA9653@kroah.com>
+	Fri, 8 Oct 2004 16:24:55 -0400
+Date: Fri, 8 Oct 2004 16:24:52 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: john_fodor@mitel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: wait_event and preemption in 2.6
+Message-ID: <20041008202452.GA4894@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <20041008174510.GJ30977@e-smith.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041008174510.GJ30977@e-smith.com>
+User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 08 Oct 2004 20:24:52.0938 (UTC) FILETIME=[DE3A22A0:01C4AD74]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, Oct 08, 2004 at 01:45:10PM -0400, michael_soulier@mitel.com wrote:
+> I'm writing a device driver for PPC Linux and I'm using wait_event. It
+> seems to me that there is a potential race condition in wait_event when
+> preemption is turned on (2.6 kernel).
+> 
+> The scenario goes something like this: After the waiting process is
+> woken up and returns from schedule it goes to the top of the loop and
+> prepares to wait again (despite the condition being true). Then it will
+> check the condition and break out of the loop. But what if in-kernel
+> preemption occurs while it's doing that and another process is
+> immediately scheduled to run? Does the process sleep forever? Assume
+> that the event (say interrupt) that caused the original wakeup is a one
+> shot.
+> 
+> I'm probably missing something. I've googled for an answer and asked
+> some of my Linux friends but it's not clear. Thanks for any replies.
+> Please cc me.
 
-Enough people have been asking me about this lately, that I thought I
-would just bring it up publicly here.
 
-It seems that the Infiniband group (IBTA) has changed their licensing
-agrement of the basic Infiniband spec.  See:
-	http://www.theinquirer.net/?article=18922
-for more info about this.
+Hi Mike,
+Here is the answer Robert Love gave me to that very same question,
+over a year ago.......
 
-The main point that affects Linux is the fact that now, no non-member of
-the IBTA can implement any working Infiniband code, otherwise they might
-run into legal problems.  As an anonymous member of a IBTA company told
-me:
-	If someone downloads the spec without joining the IBTA, and
-	proceeds to use the spec for an implementation of the IBTA spec,
-	that person (company) runs the risk of being a target of patent
-	infringement claims by IBTA members.
+> On Mon, 2003-04-14 at 17:54, Joe Korty wrote:
+>> Is this analysis correct?  If it is, perhaps there is an alternative
+>> to fixing these cases individually: make the TASK_INTERRUPTIBLE/
+>> TASK_UNINTERRUPTIBLE states block preemption.  In which case the
+>> 'set_current_state(TASK_RUNNING)' macro would need to include the
+>> same preemption check as 'preemption_enable'.
 
-Another person, wanting to remain anonymous stated to me:
-	In justification for this position people say that they are just
-	trying to get more people to join the IBTA because they need the
-	dues, which by coincidence are $9500 per year, and point out
-	that some other commonly used specs are similarly made available
-	for steep prices. I don't know one way or the other about that
-	but this sounds a lot like the reason that we all gave ourselves
-	for NOT including SDP in the kernel[1].
-
-So, even if a IBTA member company creates a Linux IB implementation, and
-gets it into the kernel tree, any company who ships such a
-implementation, who is not a IBTA member, could be the target of any
-patent infringement claims[2].
-
-So, OpenIB group, how to you plan to address this issue?  Do you all
-have a position as to how you think your code base can be accepted into
-the main kernel tree given these recent events?
-
-thanks,
-
-greg k-h
-
-[1] SDP, for those who do not know, is a part of the IB spec that
-Microsoft has come out and stated they they currently own the patents
-that cover that portion of the specification, and that anyone who wants
-to implement it, needs to get a licensing agreement with them.  Of
-course, that license agreement does not allow for a GPLed version of the
-implementation.
-
-[2] Sure, any person who has a copy of the kernel source tree could be a
-target for any of a zillion other potential claims, nothing new there,
-but the point here is they are explicitly stating that they will go
-after non-IBTA members who touch IB code[3].
-
-[3] An insanely stupid position to take, given the fact that any normal
-industry group would be very happy to actually have people use their
-specification, but hey, the IB people have never been know for their
-brilliance in the past...
+> Thankfully you are wrong or we would have some serious problems :)
+>
+> See kernel/sched.c :: preempt_schedule() where we set p->preempt_count
+> to PREEMPT_ACTIVE.
+>
+> Then see kernel/sched.c :: schedule() where we short-circuit the
+> remove-from-runqueue code if PREEMPT_ACTIVE is set.
+>
+> Thus, it is safe to preempt regardless of the task's state.  It will
+> eventually reschedule.
+>
+>        Robert Love

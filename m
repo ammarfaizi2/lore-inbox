@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129927AbRBIXFA>; Fri, 9 Feb 2001 18:05:00 -0500
+	id <S130107AbRBIXTM>; Fri, 9 Feb 2001 18:19:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130041AbRBIXEv>; Fri, 9 Feb 2001 18:04:51 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:10028 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S129927AbRBIXEf>; Fri, 9 Feb 2001 18:04:35 -0500
-Message-ID: <3A847729.2C868879@redhat.com>
-Date: Fri, 09 Feb 2001 18:03:05 -0500
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+	id <S131011AbRBIXTC>; Fri, 9 Feb 2001 18:19:02 -0500
+Received: from nga.com ([198.68.22.250]:24815 "EHLO c2_dmz.nga.com")
+	by vger.kernel.org with ESMTP id <S130243AbRBIXSt>;
+	Fri, 9 Feb 2001 18:18:49 -0500
+Message-ID: <3A847A56.922ED4D@nga.com>
+Date: Fri, 09 Feb 2001 15:16:38 -0800
+From: Tom Popowski <tom@nga.com>
+Organization: Northwest Geophysical Associates, Inc.
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [beta patch] SSE copy_page() / clear_page()
-In-Reply-To: <3A846C84.109F1D7D@colorfullife.com> <961rkk$fgm$1@penguin.transmeta.com>
+To: linux-kernel@vger.kernel.org
+Subject: FA-311 / Natsemi problems with 2.4.1
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> In article <3A846C84.109F1D7D@colorfullife.com>,
-> Manfred Spraul  <manfred@colorfullife.com> wrote:
-> >
-> >* use sse for normal memcopy. Then main advantage of sse over mmx is
-> >that only the clobbered registers must be saved, not the full fpu state.
-> >
-> >* verify that the code doesn't break SSE enabled apps.
-> >I checked a sse enabled mp3 encoder and Mesa.
-> 
-> Ehh..  Did you try this with pending FPU exceptions that have not yet
-> triggered?
+Please CC me, as I don't follow the list.
 
-There are other gotcha's here as well (speaking from experience :-(
+Please also forgive me if I'm stepping on toes.  I'm in user-space.
 
-> I have this strong suspicion that your kernel will lock up in a bad way
-> of you have somebody do something like divide by zero without actually
-> touching a single FP instruction after the divide (so that the error has
-> happened, but has not yet been raised as an exception).
+I have had similar problems (network server XXXX not responding) with
+both a Netgear FA311 (DP83815) and a Macronix (tulip) card when using
+Donald Becker's drivers under 2.2.x  kernels when connected to a Netgear
+FE108 (100BaseTx-HD) hub.  Both work correctly when dumbed-down to
+10Mb.  The fa311 driver from Netgear worked fine at 100Mb with a 2.2
+kernel.
 
-Or much worse, let the kernel mix-and-match SSE and MMX optimized routines
-without doing full saves of the FPU on SSE routines, which leads to FPU saves
-in MMX routines with kernel data in the SSE registers, which then shows up
-when the app touches those SSE registers and you get use space corruption.  My
-code to handle this type of situation was *very* complex, and I don't think I
-ever got it quite perfectly right without simply imposing a rule that the
-kernel could never use both SSE and MMX instructions on the same CPU.
+Under 2.4.x, fa311 doesn't compile and natsemi.c gives the messages
+below.  Again, I can (and do) force the card to 10Mb and it works fine
+with the natsemi driver.
 
-> And when it hits your SSE copy routines with the pending error, it will
-> likely loop forever on taking the fault in kernel space.
-> 
-> Basically, kernel use of MMX and SSE are a lot harder to get right than
-> many people seem to realize.  Why do you think I threw out all the
-> patches that tried to do this?
-> 
-> And no, the bug won't show up in any normal testing.  You'll never know
-> about it until somebody malicious turns your machine into a doorstop.
-> 
-> Finally, did you actually see any performance gain in any benchmarks?
+> I'm having problems with the natsemi drivers on my Netgear FA-311 card.
+>
+> On one host, I get lots of messages like this:
+>
+> eth1: Something Wicked happened! 0700.
+> eth1: Something Wicked happened! 0740.
+> eth1: Something Wicked happened! 0740.
+> eth1: Something Wicked happened! 0740.
+> eth1: Something Wicked happened! 0740.
+> eth1: Something Wicked happened! 0740.
+> eth1: Something Wicked happened! 0540.
+>
+--
+Tom Popowski
+Software Support
+Northwest Geophysical Associates, Inc.
+http://www.nga.com
 
-Now this I can comment on.  Real life gain.  We had to re-run a SpecWEB99 test
-after taking the SSE instructions out of our (buggy) 2.2.14-5.0 kernel that
-shipped in Red Hat Linux 6.2 (hanging bag over my head).  We recompiled the
-exact same kernel without the SSE stuff, then re-ran the SpecWEB99 test, and
-there was an performance drop of roughly 2% overall from the change.  So, yes,
-they make an aggregate performance difference to the typical running of the
-kernel (and this was without copy_page or zero_page being optimized, instead I
-had done memset, memcpy, copy_*_user as optimized routines) and they make a
-huge difference to benchmarks that target the areas they help the most (like
-disk I/O benchmarks which would sometimes see a 40% or more boost in
-performance).
 
--- 
-
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

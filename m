@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUJHXQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUJHXU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUJHXQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXOm
+	id S266196AbUJHXU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:14:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:17847 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266128AbUJHXOQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:14:16 -0400
-Date: Fri, 8 Oct 2004 16:13:07 -0700
-From: Greg KH <greg@kroah.com>
-To: "Eric W. Biederman" <ebiederman@lnxi.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
-Message-ID: <20041008231307.GA32530@kroah.com>
-References: <20041008202247.GA9653@kroah.com> <m3d5zs966r.fsf@maxwell.lnxi.com>
+	Fri, 8 Oct 2004 19:18:32 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:14568 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266128AbUJHXPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:15:41 -0400
+Subject: Re: [PATCH] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
+       "Jack O'Quin" <joq@io.com>
+In-Reply-To: <20041008161205.T2357@build.pdx.osdl.net>
+References: <877jq5vhcw.fsf@sulphur.joq.us>
+	 <1097193102.9372.25.camel@krustophenia.net>
+	 <1097269108.1442.53.camel@krustophenia.net>
+	 <20041008144539.K2357@build.pdx.osdl.net>
+	 <1097272140.1442.75.camel@krustophenia.net>
+	 <20041008145252.M2357@build.pdx.osdl.net>
+	 <1097273105.1442.78.camel@krustophenia.net>
+	 <20041008151911.Q2357@build.pdx.osdl.net>
+	 <20041008152430.R2357@build.pdx.osdl.net>
+	 <1097276726.1442.82.camel@krustophenia.net>
+	 <20041008161205.T2357@build.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1097277337.1442.90.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3d5zs966r.fsf@maxwell.lnxi.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Oct 2004 19:15:37 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 04:49:16PM -0600, Eric W. Biederman wrote:
-> Greg KH <greg@kroah.com> writes:
+On Fri, 2004-10-08 at 19:12, Chris Wright wrote:
+> * Lee Revell (rlrevell@joe-job.com) wrote:
+> > On Fri, 2004-10-08 at 18:24, Chris Wright wrote:
+> > > (relative to last one)
+> > > 
+> > > use in_group_p
+> > > 
+> > 
+> > Thanks!  These make the patch even smaller and more comprehensible. 
+> > Does this cover all the issues with the patch as I posted it?
 > 
-> > [2] Sure, any person who has a copy of the kernel source tree could be a
-> > target for any of a zillion other potential claims, nothing new there,
-> > but the point here is they are explicitly stating that they will go
-> > after non-IBTA members who touch IB code[3].
+> The last bit is removing sysctls.  It'll take a bit more effort, as we
+> need a touch of infrastructure for it.  I'm working on that now.  Here's
+> a couple really minor ones.
 > 
-> Greg I see nothing to back up the idea that IBTA intends to go after
-> non-members.  I simply see a disclaimer of warranty, and I see wording
-> by your anonymous source that restates a disclaimer of warranty.
+> - make realtime_bprm_set_security static
+> - don't mark exit_security __exit, it's called from an __init function
 
-All I know is a number of different people, from different companies are
-suddenly very worried about this.  The fact that they don't want to
-comment on it in public leads me to believe that there is something
-behind their fears.
+I think the patch is reversed.  It does the opposite of what you say in
+both cases ;-).  I fixed these by hand.  
 
-> Until I see something more to back this up I do not see a problem.  In
-> fact I see infiniband prices dropping, and competition increasing.
-> The drivers off of openib.org look like they are a good start at
-> making a sane linux implementation.
+Thanks again.
 
-It is a good start.  And as all OpenIB members are also IBTA members, I
-am asking for the group's position as to this change.
+Lee
 
-> Even the PCI-SIG requires you to pay for the spec.
-
-I know that, almost all groups do.  Although $9500 does seem a bit steep
-for spec prices :)
-
-> I agree it would be suicidally insane for the infiniband trade
-> association to go after a linux stack, as it appears that a large
-> portion of the infiniband users are currently running linux.
-
-One specific IBTA member has issues with the adaption of Linux, and has
-already done one thing to restrict a full IB implementation that would
-work on Linux.  And as for insane, have you ever tried to actually read
-that spec?  :)
-
-thanks,
-
-greg k-h

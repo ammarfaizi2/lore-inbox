@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311262AbSDUIYb>; Sun, 21 Apr 2002 04:24:31 -0400
+	id <S311475AbSDUIbM>; Sun, 21 Apr 2002 04:31:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311403AbSDUIYb>; Sun, 21 Apr 2002 04:24:31 -0400
-Received: from postfix2-1.free.fr ([213.228.0.9]:33964 "EHLO
-	postfix2-1.free.fr") by vger.kernel.org with ESMTP
-	id <S311262AbSDUIYa>; Sun, 21 Apr 2002 04:24:30 -0400
-From: Willy Tarreau <wtarreau@free.fr>
-Message-Id: <200204210824.g3L8OR720085@ns.home.local>
-Subject: Re: PATCH] Allow setuid/setgid core files
-To: nawilson@nawilson.com
-Date: Sun, 21 Apr 2002 10:24:26 +0200 (CEST)
+	id <S311523AbSDUIbL>; Sun, 21 Apr 2002 04:31:11 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65037 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S311475AbSDUIbK>; Sun, 21 Apr 2002 04:31:10 -0400
+Date: Sun, 21 Apr 2002 09:31:03 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Skip Ford <skip.ford@verizon.net>
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020421093103.A19904@flint.arm.linux.org.uk>
+In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu> <20020421043811.BHIC5495.out020.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Neil,
+On Sun, Apr 21, 2002 at 12:40:11AM -0400, Skip Ford wrote:
+> That's only 1 aspect.  The frustrating part is bug reports mailed to the
+> list getting a response of "oh, that's fixed in the latest bk tree."
+> 
+> That's happened a dozen times in the last week...no wonder non-bk users
+> feel out of the loop.  I've been staring at the code for a lot of years
+> and it's finally just starting to make sense to me, now by the time I see
+> it the core hackers have moved on to something else.
+> 
+> Daily snapshots would be great.
 
-I think I will try your patch since I have also had the same need
-several times. In fact, not dumping a setuid core seems logical
-for shared systems with lots of users, but on secured servers
-which only host one daemon or two, and on which there's not any
-user account, it's a bit annoying. In this case, if anyone gets
-in the system, he's root anyway, so the initial protection
-doesn't apply.
+We have hourly snapshots, thanks to the work David Woodhouse and
+Rik van Riel did at a moments notice.  Does this satisfy your
+concerns above?
 
-BTW, what uid/gid will the core get ? I think that it should get
-the highest level so that if someone breaks in through a service
-which uses this feature and which has dropped its uid/gid, at
-least he cannot read eventual cores from previous attempts.
-Comments ?
+I have a suspicion that the problem of conflicting obvious fixes
+won't go away.
 
-Willy
+There's another interesting twist here... - I didn't see any of them on
+linux-kernel.
+
+<joke>
+I'm a BK user!  GNU patches are being submitted behind my back without
+discussion on linux-kernel.  I'm going to remove the SubmittingPatches
+document!  It's harming discussion of patches on linux-kernel.
+</joke>
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315479AbSEHW7p>; Wed, 8 May 2002 18:59:45 -0400
+	id <S315487AbSEHXAk>; Wed, 8 May 2002 19:00:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315487AbSEHW7o>; Wed, 8 May 2002 18:59:44 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8964 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S315479AbSEHW7n>; Wed, 8 May 2002 18:59:43 -0400
-Date: Thu, 9 May 2002 00:59:46 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Reading page from given block device
-Message-ID: <20020508225946.GB11842@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020508204809.GA2300@elf.ucw.cz> <3CD996E5.BFB5CF9E@zip.com.au>
+	id <S315494AbSEHXAj>; Wed, 8 May 2002 19:00:39 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:9991 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315487AbSEHXAi>;
+	Wed, 8 May 2002 19:00:38 -0400
+Date: Wed, 8 May 2002 15:00:41 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] pcihpview 0.3
+Message-ID: <20020508220041.GA13129@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 10 Apr 2002 20:28:17 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Hi!
-> > 
-> > For swsusp, I kind of need to read 4K from given block device.
-> > 
-> > Here's my attempt:
-> > 
-> > static int bdev_read_page(kdev_t dev, long pos, void *buf)
-> > {
-> >         struct buffer_head *bh;
-> >         struct block_device *bdev;
-> > 
-> >         if (pos%PAGE_SIZE) panic("Sorry, dave, I can't let you do
-> > that!\n");
-> 
-> It's possible I guess that someone has a pinned buffer against
-> the same page which has a different block size.  See the "lock up"
-> comment over __getblk().
-> 
-> >         bdev = bdget(kdev_t_to_nr(dev));
-> >         if (!bdev) {
-> >                 printk("No block device for %s\n", __bdevname(dev));
-> >                 BUG();
-> >         }
-> >         printk("C");
-> >         bh = __bread(bdev, pos/PAGE_SIZE, PAGE_SIZE);
-> >         printk("D");
-> >         bdput(bdev);
-> >         if (!bh || (!bh->b_data)) {
-> >                 return -1;
-> >         }
-> >         memcpy(buf, bh->b_data, PAGE_SIZE);
-> 
-> You'll need to kmap bh->b_page before copying the data.
-> 
-> > 
-> > It works *once*, second time it deadlocks in __bread(). I tried both
-> > bforget() and brelse(). Kernel is 2.5.13. What am I doing wrong/what's
-> > wrong?
-> 
-> brelse is safer.
-> 
-> Please try 2.5.14.  2.5.13 had a few leaky problems which
-> could perhaps result in a pinned buffer which will cause
-> try_to_free_buffers() to fail, which triggers the __getblk()
-> nastiness.
+Hi all,
 
-Went with brelse(), and switched to 2.5.14; still deadlocks on second
-read.
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+I've made a few small changes to the PCI Hotplug GUI tool (called
+pcihpview) and released a new version of it.  I also built some .rpm
+packages, to try to alleviate some of the problems people were having
+when building from the tarball.
+
+The files can be found at:
+ 	http://www.kroah.com/linux/hotplug/pcihpview-0.3.tar.gz
+ 	http://www.kroah.com/linux/hotplug/pcihpview-0.3-1.i386.rpm
+ 	http://www.kroah.com/linux/hotplug/pcihpview-0.3-1.src.rpm
+
+More info on the program (but not much), and the obligatory screenshot
+can be found at:
+	http://www.kroah.com/linux/hotplug/
+
+The changelog entries for this version are:
+	- added pcihpview.spec file so we can build rpms
+	- added logging.c and logging.h to move logging messages to the
+	  syslog
+	- moved printk() calls to dbg().
+	- added Refresh menu option.
+
+Things that will be changing in the future are:
+	- autorefresh for when slot status changes without user
+	  interaction (needed when using the ACPI PCI Hotplug driver.)
+	- user interface cleanups.
+
+If anyone has any problems with the program, please let me know.
+
+thanks,
+
+greg k-h

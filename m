@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263472AbUDZUgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUDZUim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263472AbUDZUgd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 16:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUDZUgd
+	id S263185AbUDZUim (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 16:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbUDZUim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 16:36:33 -0400
-Received: from adsl120.freestart.hu ([193.226.240.120]:9480 "EHLO matrix")
-	by vger.kernel.org with ESMTP id S263472AbUDZUgb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 16:36:31 -0400
-Date: Mon, 26 Apr 2004 22:37:10 +0200
-To: linux-kernel@vger.kernel.org
-Subject: bug in include file!?
-Message-ID: <20040426203710.GA3005@matrix>
+	Mon, 26 Apr 2004 16:38:42 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:59281 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263185AbUDZUik
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 16:38:40 -0400
+Subject: Re: [PATCH 6/11] nfsacl-lazy-alloc
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1082975192.3295.76.camel@winden.suse.de>
+References: <1082975192.3295.76.camel@winden.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1083011918.15282.24.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-From: csg69@mailbox.hu
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 26 Apr 2004 16:38:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux Kernel Stuff!
+On Mon, 2004-04-26 at 06:28, Andreas Gruenbacher wrote:
+> Allow to allocate pages in the receive buffers lazily
+> 
+> Patch from Olaf Kirch <okir@suse.de>: Replies to the GETACL remote
+> procedure call can become quite big, yet in the common case replies will
+> be very small.  This patch checks of argument pages have already been
+> allocated, and allocates pages up to the maximum length of the xdr_buf
+> when this is not the case.
 
+AFAICS, there is nothing to stop xdr_partial_copy_from_skb() from
+writing beyond the end of xdr->pages[]. How do you propose to prevent
+this?
 
-I encountered a strange error recently, when I tried to
-compile cdrtools-2.00.3 on my system (debian woody 3.0,
-kernel 2.6.5, gcc 2.95.4, make 3.79.1).
-
-The bug is in line 217 in /usr/src/linux/include/scsi/scsi.h
-gcc says: parse error before u8
-(I think everything is OK there)
-
-Finally I solved the problem by changing the value
-in cdrtools-2.00.3/DEFAULTS/Defaults.linux
-
-from the original:
-DEFINCDIRS=	$(SRCROOT)/include /usr/src/linux/include
-
-to:
-DEFINCDIRS=	$(SRCROOT)/include /usr/include
-
-
-It seems that in /usr/include/scsi/scsi.h everything is OK...
-
-
-It may be the error of the makefiles or the kernel include files...
-
-Joerg Schilling (schilling@fokus.fraunhofer.de) advised me
-to send to you this report.
-He thinks this is a bug in kernel include files.
-
-
-yours sincerely
-
-
-csg
-
-
+Cheers,
+  Trond

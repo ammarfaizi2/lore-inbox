@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVA0AHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262528AbVA0BGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVA0AHH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 19:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbVA0AGM
+	id S262528AbVA0BGK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 20:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbVA0APy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:06:12 -0500
-Received: from web52303.mail.yahoo.com ([206.190.39.98]:24731 "HELO
-	web52303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262453AbVAZV2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 16:28:14 -0500
-Message-ID: <20050126212812.74696.qmail@web52303.mail.yahoo.com>
-Date: Wed, 26 Jan 2005 22:28:12 +0100 (CET)
-From: Albert Herranz <albert_herranz@yahoo.es>
-Subject: [PATCH 2.6.11-rc2-mm1] perfctl-ppc: fix duplicate mmcr0 define
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-438995560-1106774892=:73159"
-Content-Transfer-Encoding: 8bit
+	Wed, 26 Jan 2005 19:15:54 -0500
+Received: from gate.crashing.org ([63.228.1.57]:43478 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262471AbVAZWLW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 17:11:22 -0500
+Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: brking@us.ibm.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41F7C6A1.9070102@us.ibm.com>
+References: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com>
+	 <m14qhpxo2j.fsf@muc.de> <41E2AC74.9090904@us.ibm.com>
+	 <20050110162950.GB14039@muc.de> <41E3086D.90506@us.ibm.com>
+	 <1105454259.15794.7.camel@localhost.localdomain>
+	 <20050111173332.GA17077@muc.de>
+	 <1105626399.4664.7.camel@localhost.localdomain>
+	 <20050113180347.GB17600@muc.de>
+	 <1105641991.4664.73.camel@localhost.localdomain>
+	 <20050113202354.GA67143@muc.de>  <41ED27CD.7010207@us.ibm.com>
+	 <1106161249.3341.9.camel@localhost.localdomain>
+	 <41F7C6A1.9070102@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 09:10:05 +1100
+Message-Id: <1106777405.5235.78.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-438995560-1106774892=:73159
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+On Wed, 2005-01-26 at 10:34 -0600, Brian King wrote:
 
-Hi,
+> Here is the last one. I've looked at making userspace sleep until BIST 
+> is finished. The downside I see to this is that is complicates the patch 
+> due to the following reasons:
+> 
+> 1. In order to also make this work for Ben's PPC power management usage 
+> would require an additional flag and additional APIs to set and clear 
+> the flag.
+> 2. Since BIST can be run at interrupt context, the interfaces to block 
+> and unblock userspace accesses across BIST must be callable from 
+> interrupt context. This prevents the usage of semaphores or simple 
+> wait_event macros and requires new macros that carefully check the new 
+> pci device flag and manage the spinlock.
+> 
 
-This small patch fixes a compilation warning due to a
-duplicate definition of MMCR0_PMXE.
+Well, I honestly think that this is unnecessary burden. I think that
+just dropping writes & returning data from the cache on reads is enough,
+blocking userspace isn't necessary, but then, I may be wrong ;)
 
-The definition comes in perfctr-ppc.patch, but was
-recently introduced too in Linus tree.
-
-Cheers,
-Albert
+Ben.
 
 
-
-		
-______________________________________________ 
-Renovamos el Correo Yahoo!: ¡250 MB GRATIS! 
-Nuevos servicios, más seguridad 
-http://correo.yahoo.es
---0-438995560-1106774892=:73159
-Content-Type: text/plain; name="perfctr-ppc-mmcr0-duplicate-define-fix.patch"
-Content-Description: perfctr-ppc-mmcr0-duplicate-define-fix.patch
-Content-Disposition: inline; filename="perfctr-ppc-mmcr0-duplicate-define-fix.patch"
-
---- a/include/asm-ppc/reg.h	2005-01-26 22:31:19.000000000 +0100
-+++ b/include/asm-ppc/reg.h	2005-01-26 22:32:26.000000000 +0100
-@@ -388,7 +388,6 @@
- #define MMCR0_PMC2_CYCLES	0x1
- #define MMCR0_PMC2_ITLB		0x7
- #define MMCR0_PMC2_LOADMISSTIME	0x5
--#define MMCR0_PMXE		(1 << 26)
- 
- /* Short-hand versions for a number of the above SPRNs */
- #define CTR	SPRN_CTR	/* Counter Register */
-
---0-438995560-1106774892=:73159--

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbTDYBhg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 21:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbTDYBhg
+	id S262689AbTDYByJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 21:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbTDYByJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 21:37:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22967 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262423AbTDYBhf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 21:37:35 -0400
-Message-ID: <3EA8942D.4050201@pobox.com>
-Date: Thu, 24 Apr 2003 21:49:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roland McGrath <roland@redhat.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] i386 vsyscall DSO implementation
-References: <200304250110.h3P1Aoo02525@magilla.sf.frob.com>
-In-Reply-To: <200304250110.h3P1Aoo02525@magilla.sf.frob.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Apr 2003 21:54:09 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:38878 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262689AbTDYByH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 21:54:07 -0400
+Date: Fri, 25 Apr 2003 03:05:36 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch?] SiS 746 AGP-Support
+Message-ID: <20030425020530.GA18673@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>,
+	linux-kernel@vger.kernel.org
+References: <200304250224.50431.volker.hemmann@heim9.tu-clausthal.de> <20030425004003.GA12614@suse.de> <200304250302.26791.volker.hemmann@heim9.tu-clausthal.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304250302.26791.volker.hemmann@heim9.tu-clausthal.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Two DSOs are built (a int $0x80 one and a sysenter one), using normal
-> assembly code and ld -shared with a special linker script.  Both images
-> (stripped ELF .so files) are embedded in __initdata space; sysenter_setup
-> copies one or the other whole image into the vsyscall page.  Each image is
-> a little under 2k (1884 and 1924) now, and could be trimmed a little bit
-> with some specialized ELF stripping that ld and strip don't do.  Adding
-> additional entry points should not have much additional overhead beyond the
-> code itself and the string size of new symbol names.
+On Fri, Apr 25, 2003 at 03:02:26AM +0200, Hemmann, Volker Armin wrote:
 
-We already embed a cpio archive into __initdata space.  What about 
-putting the images in there, and either copying the data out of 
-initramfs, or, directly referencing the pages that store each image?
+ > I have only a AGP 2 (geforce 4-mx) card, so I missed that(and with one I would 
+ > only to be able to say 'it doesn't work' so thanks for your explanation). But 
+ > without this changes I won't even able to use dga, because the first 
+ > dga-enabled app completely locks up my box. 
+ > And to have working AGP2 and non working APG3 looks a lot better for me than 
+ > no AGP-support at all.  
 
-	Jeff
+Sure, I wasn't objecting per'se to the patch, but people should be made
+aware it's not going to help them a tiny bit if they have an AGP3 card.
+It may just abort nicely, it may take down the machine in horrible ways
+depending on how well SiS handles reads/writes to disabled registers.
 
+		Dave
 

@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280638AbRKYBrL>; Sat, 24 Nov 2001 20:47:11 -0500
+	id <S280646AbRKYBrv>; Sat, 24 Nov 2001 20:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280641AbRKYBrB>; Sat, 24 Nov 2001 20:47:01 -0500
-Received: from news.heim1.tu-clausthal.de ([139.174.234.200]:35678 "EHLO
-	neuemuenze.heim1.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id <S280638AbRKYBqt>; Sat, 24 Nov 2001 20:46:49 -0500
-Date: Sun, 25 Nov 2001 02:46:52 +0100
-From: Sven.Riedel@tu-clausthal.de
+	id <S280641AbRKYBrm>; Sat, 24 Nov 2001 20:47:42 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46092 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280646AbRKYBra>; Sat, 24 Nov 2001 20:47:30 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Linux and RS/6000 250
-Message-ID: <20011125024652.B26191@moog.heim1.tu-clausthal.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Network hardware: "Network Media Detection"
+Date: 24 Nov 2001 17:47:04 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9tpiio$n4u$1@cesium.transmeta.com>
+In-Reply-To: <E167ja2-0004fF-00@carbon.btinternet.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've uh "inherited" an elderly RS/6000 250 and wanted to install linux
-on it. Googleing for this machine and linux turns up information that it 
-is not possible. Yet, this information is a tad older (one to two years
-old), so I wondered if anything changed in that regard - 
-apparently PPC in combination with the MCA bus were not supported.
+Followup to:  <E167ja2-0004fF-00@carbon.btinternet.com>
+By author:    Jeff Snyder <je4d@pobox.com>
+In newsgroup: linux.dev.kernel
+>
+> Hi
+> I was wondering if there was any way in linux to use what redmond calls 
+> "Network Media Detection"?
+> 
+> That is, it detects the presence of a (10BaseT) cable in the back of the 
+> card.. and then does appropriate stuff (ifup/down, dhcpcd) when the event 
+> happens.
+> I remember  having this in W*nME, so can linux use it?
+> if so can someone please give me some pointers to appropriate sites/howtos on 
+> how to use it?
+> 
 
-Regs,
-Sven
+This is basically taking the interface down when the link disappears
+(and vice versa.)  Rather useful for portable systems.  Don't think
+anyone has implemented it, but it should be easy enough to do.
+
+	-hpa
 -- 
-Sven Riedel                      sr@gimp.org
-Osteroeder Str. 6 / App. 13      sven.riedel@tu-clausthal.de
-38678 Clausthal                  "Call me bored, but don't call me boring."
-                                 - Larry Wall 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265926AbRFZGuF>; Tue, 26 Jun 2001 02:50:05 -0400
+	id <S265927AbRFZHHm>; Tue, 26 Jun 2001 03:07:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265928AbRFZGtz>; Tue, 26 Jun 2001 02:49:55 -0400
-Received: from www.wen-online.de ([212.223.88.39]:48134 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S265927AbRFZGtt>;
-	Tue, 26 Jun 2001 02:49:49 -0400
-Date: Tue, 26 Jun 2001 08:48:43 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-        <Paul.Russell@rustcorp.com.au>
-Subject: Re: proc_file_read() question
-In-Reply-To: <Pine.LNX.4.30.0106252141181.13052-100000@biker.pdb.fsc.net>
-Message-ID: <Pine.LNX.4.33.0106260834400.737-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265928AbRFZHHd>; Tue, 26 Jun 2001 03:07:33 -0400
+Received: from node-c-0bd1.a2000.nl ([62.194.11.209]:32640 "EHLO
+	globus.uptsoft.com") by vger.kernel.org with ESMTP
+	id <S265927AbRFZHHP>; Tue, 26 Jun 2001 03:07:15 -0400
+Date: Tue, 26 Jun 2001 09:07:08 +0200
+From: Yarick <ysu@hetnet.nl>
+To: linux-kernel@vger.kernel.org
+Cc: support@epox.com
+Subject: Possible timing problems after a bios upgrade.
+Message-ID: <20010626090708.A3055@globus.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001, Martin Wilck wrote:
+After upgrading to a new bios (dated 06/14/2001) on EPOX EP-8KTA3+
+motherboard I have the following problems:
 
-> Hi,
->
-> the "hack" below in proc_file_read() fs/proc/generic.c (2.4.5)
-> irritates me:
->
-> If I do use "start" for a pointer into a memory area
-> allocated in read_proc, will it be always guaranteed
-> that (start > page)?
->
-> If no, this will IMO lead to spuriously wrong output.
-> If yes, I'd like to understand why.
+- The SB128 PCI (module es1371) plays about twise slower than normal.
+- The via UDMA shows about 15Mb/sec instead of ~35Mb/sec.
 
-Shhh ;-)  Last time that hack was mentioned, someone wanted to _remove_
-it.  It's a very nice little hack to have around, and IKD uses it.
+The text from the bios upgrade says:
 
-	-Mike
+ *  Fixed compatibility with nVidia Geforce 2 MX AGP card causing system hangs while running 3DMark2001.
+ * Changed method to show AMD K7 CPU FSB.
+ * DRAM Bank-Interleave will be disabled if VCM SPD ROM is bad (or fails).
 
-diff -urN linux-2.4.4.virgin/fs/proc/generic.c linux-2.4.4.ikd.mike/fs/proc/generic.c
---- linux-2.4.4.virgin/fs/proc/generic.c	Mon Dec 11 22:45:42 2000
-+++ linux-2.4.4.ikd/fs/proc/generic.c	Sun Dec 17 07:58:56 2000
-@@ -104,6 +104,11 @@
-  		 * return the bytes, and set `start' to the desired offset
-  		 * as an unsigned int. - Paul.Russell@rustcorp.com.au
- 		 */
-+		/* Ensure that the data will fit when using the ppos hack,
-+		 * otherwise userland receives truncated data.
-+		 */
-+		if (n > count-1 && start && start < page)
-+			break;
-  		n -= copy_to_user(buf, start < page ? page : start, n);
- 		if (n == 0) {
- 			if (retval == 0)
+The windows behaviour did not alter (at least I did not notice).
+
+An ideas?
+
+Best,
+Yarick.
 

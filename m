@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267426AbTBQOtn>; Mon, 17 Feb 2003 09:49:43 -0500
+	id <S267260AbTBQOkh>; Mon, 17 Feb 2003 09:40:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267446AbTBQOtn>; Mon, 17 Feb 2003 09:49:43 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:787 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267426AbTBQOsg>;
-	Mon, 17 Feb 2003 09:48:36 -0500
-Date: Mon, 17 Feb 2003 15:58:34 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (8/26) core
-Message-ID: <20030217145834.GB3729@mars.ravnborg.org>
-Mail-Followup-To: Osamu Tomita <tomita@cinet.co.jp>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20030217134333.GA4734@yuzuki.cinet.co.jp> <20030217140722.GH4799@yuzuki.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030217140722.GH4799@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+	id <S267263AbTBQOjc>; Mon, 17 Feb 2003 09:39:32 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:7121
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267260AbTBQOjV>; Mon, 17 Feb 2003 09:39:21 -0500
+Date: Mon, 17 Feb 2003 09:47:40 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH][2.5] Don't schedule tasks on offline cpus
+In-Reply-To: <Pine.LNX.4.44.0302171513380.24394-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.50.0302170941040.18087-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0302171513380.24394-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 17, 2003 at 11:07:22PM +0900, Osamu Tomita wrote:
-> This is patchset to support NEC PC-9800 subarchitecture
-> against 2.5.61 (8/26).
+On Mon, 17 Feb 2003, Ingo Molnar wrote:
 
-Browsing the code resulted in a few comments:
-this code does at least the following:
-1) introducing more sensible names for some constants
-2) Moving functionality to mach-default
-3) Adding PC9800 functionality
+> 
+> On Mon, 17 Feb 2003, Zwane Mwaikambo wrote:
+> 
+> > We don't want to allow a cpu going offline to keep doing scheduler work
+> > so let it exit early, otherwise we'd keep pulling in tasks every timer
+> > tick.
+> 
+> i'd rather have all the hotplug CPU code to do this kind of stuff
+> completely out of line. Start up a max-RT-priority housekeeping task and
+> just clean the runqueue and deregister the CPU in one atomic pass - look
+> at how the migration threads do similar stuff. No need to contaminate
+> various codepaths with 'is this CPU online' checks.
 
-I suggest splitting up the patch in more sensible chunks, and get 1) and 2) applied first.
+Ok for this we'll have to move the task migration down till after the cpu 
+has gone completely offline ie dead, then pull the tasks off the dead 
+runqueue. I'm not aware of any ill effects of such a move.
 
-	Sam
+	Zwane
+-- 
+function.linuxpower.ca

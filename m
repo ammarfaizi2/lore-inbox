@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262926AbUBZTVf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:21:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbUBZTVf
+	id S262927AbUBZTXq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbUBZTXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:21:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59796 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262926AbUBZTV3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:21:29 -0500
-Subject: Re: 2.6.3-mm4 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <403E4206.5070303@matchmail.com>
-References: <20040225185536.57b56716.akpm@osdl.org>
-	 <1077813008.16811.1.camel@cherrytest.pdx.osdl.net>
-	 <403E4206.5070303@matchmail.com>
-Content-Type: text/plain
-Message-Id: <1077823601.16811.29.camel@cherrytest.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 26 Feb 2004 11:26:41 -0800
+	Thu, 26 Feb 2004 14:23:46 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:21198 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262927AbUBZTXo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:23:44 -0500
+Message-ID: <403E47B4.8080507@matchmail.com>
+Date: Thu, 26 Feb 2004 11:23:32 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grigor Gatchev <grigor@zadnik.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A Layered Kernel: Proposal
+References: <Pine.LNX.4.44.0402261303490.21036-100000@lugburz.zadnik.org>
+In-Reply-To: <Pine.LNX.4.44.0402261303490.21036-100000@lugburz.zadnik.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry about the typo.  At least you noticed it!  :)
-
-On Thu, 2004-02-26 at 10:59, Mike Fedyk wrote:
-> John Cherry wrote:
-> > Much better...
-> > 
-> > Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-> > Warnings/Errors Summary
-> > 
-> > Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-> >                 (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
-> > --------------- ---------- -------- -------- -------- -------- --------
-> > 2.6.3-mm3         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-> > 2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
+Grigor Gatchev wrote:
+> I don't see the need for starting a project.
 > 
-> Yes, much better, especially since it's the same version? ;)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> First, if unsuccssful, no reason to start it. And if successful, it will
+> fork the kernel development, with all negative implications following.
+> I see no sense in doing what eventually will damage the kernel
+> development, instead of improving it.
 
+If you start a project, that doesn't mean the "fork" is bad as long as 
+the intention is to integrate the work back into the base.
+
+What you are asking for is for people to add to their list of things to 
+code.  You should be adding code yourself.
+
+> Second, the development of the kernel is already going this way,
+> regardless of our discussion. This is its logic. You can see no use of the
+> discussion, but you cannot see no use in following the kernel development
+> logic.
+
+Linux has many groups of people pushing and pulling it in numerous 
+directions.  Very rarely does a direction succeed if the people who want 
+that specific direction don't submit code.
+
+Useful discussion would be asking for implementation suggestions to get 
+to your goal.  Oh wait, I think there are already some of those in this 
+thread.
+
+Mike

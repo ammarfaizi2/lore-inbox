@@ -1,92 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbTILOAT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 10:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbTILOAT
+	id S261707AbTILOHy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 10:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbTILOHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 10:00:19 -0400
-Received: from [139.30.44.2] ([139.30.44.2]:19418 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S261696AbTILOAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 10:00:12 -0400
-Date: Fri, 12 Sep 2003 16:00:05 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Tabris <tabris@tabris.net>
-cc: lkml <linux-kernel@vger.kernel.org>, <bero@arklinux.org>,
-       <saint@arklinux.org>, Alan Cox <alan@redhat.com>
-Subject: Re: Jiffies_64 for 2.4.22-ac
-In-Reply-To: <200309120035.28720.tabris@tabris.net>
-Message-ID: <Pine.LNX.4.33.0309121541180.21331-100000@gans.physik3.uni-rostock.de>
+	Fri, 12 Sep 2003 10:07:54 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:26007 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261707AbTILOHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 10:07:53 -0400
+Message-ID: <3F61D322.7020507@nortelnetworks.com>
+Date: Fri, 12 Sep 2003 10:07:30 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Rahul Karnik <rahul@genebrew.com>, rusty@linux.co.intel.com,
+       riel@conectiva.com.br, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Enabling other oom schemes
+References: <200309120219.h8C2JANc004514@penguin.co.intel.com> <3F614912.3090801@genebrew.com> <3F614C1F.6010802@nortelnetworks.com> <20030912111808.GA13973@hh.idb.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Sep 2003, Tabris wrote:
+Helge Hafting wrote:
+> On Fri, Sep 12, 2003 at 12:31:27AM -0400, Chris Friesen wrote:
 
-> I took Tim Schmielau's jiffies_64 patch, and ported it to -ac
->
-> currently running on my machine here.
-> comments? did i screw up horribly?
+> Note that this "memory" is RAM+swap.  So you can avoid allocation
+> failure by giving your strict overcommit box much more swap space.
 
-see my comments below:
+This works great for the desktop, doesn't work so well when you don't 
+have any swap--as is the case for most embedded apps that would like 
+stricter overcommit.
 
-
-> +#define get_uidle_64()     get_64bits(&(init_tasks[0]->times.tms_utime),\
-> +                                      &uidle_msb_flips)
-> +#define get_sidle_64()     get_64bits(&(init_tasks[0]->times.tms_stime),\
-> +                                      &sidle_msb_flips)
-
-for -ac this needs to be
-
-+#define get_uidle_64()     get_64bits(&(init_task.times.tms_utime),\
-+                                      &uidle_msb_flips)
-+#define get_sidle_64()     get_64bits(&(init_task.times.tms_stime),\
-+                                      &sidle_msb_flips)
-
-
-> +	check_one(init_tasks[0]->times.tms_utime, &uidle_msb_flips);
-> +	check_one(init_tasks[0]->times.tms_stime, &sidle_msb_flips);
-
-ditto
-
-
-+#define get_uidle_64()     (init_tasks[0]->times.tms_utime)
-+#define get_sidle_64()     (init_tasks[0]->times.tms_stime)
-
-ditto
-
-
-> -	unsigned long uptime;
-> -	unsigned long idle;
-> +	u64 uptime, idle;
->  	int len;
-
-the declaration
-	unsigned long uptime_remainder, idle_remainder;
-is missing
-
-
->  #if HZ!=100
->  	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
-> -		uptime / HZ,
-> -		(((uptime % HZ) * 100) / HZ) % 100,
-> -		idle / HZ,
-> -		(((idle % HZ) * 100) / HZ) % 100);
-> +		(unsigned long) uptime,
-> +		uptime_remainder,
-> +		(unsigned long) idle / HZ,
-> +		idle_remainder);
-
-since we're in the HZ!=100 branch, this needs to be
-
-+               (uptime_remainder * 100) / HZ,
-+               (unsigned long) idle,
-+               (idle_remainder * 100) / HZ);
+Chris
 
 
 
-I wonder it actually compiled, but otherwise it looks good.
-
-Tim
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

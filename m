@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284413AbRLEOIv>; Wed, 5 Dec 2001 09:08:51 -0500
+	id <S284418AbRLEOTD>; Wed, 5 Dec 2001 09:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284414AbRLEOIm>; Wed, 5 Dec 2001 09:08:42 -0500
-Received: from barn.holstein.com ([198.134.143.193]:53002 "EHLO holstein.com")
-	by vger.kernel.org with ESMTP id <S284413AbRLEOIb>;
-	Wed, 5 Dec 2001 09:08:31 -0500
-Date: Wed, 5 Dec 2001 09:05:33 -0500
-Message-Id: <200112051405.fB5E5X800353@pcx4168.holstein.com>
-From: "Todd M. Roy" <troy@holstein.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: todd_m_roy@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E16BJ85-0002iE-00@the-village.bc.nu> (message from Alan Cox on
-	Tue, 4 Dec 2001 17:13:13 +0000 (GMT))
-Subject: Re: Linux 2.4.17-pre2 (fwd)
-Reply-To: troy@holstein.com
-In-Reply-To: <E16BJ85-0002iE-00@the-village.bc.nu>
-X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 12/05/2001 09:05:50 AM,
-	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 12/05/2001 09:05:51 AM,
-	Serialize complete at 12/05/2001 09:05:51 AM
-X-Priority: 3 (Normal)
+	id <S284419AbRLEOSo>; Wed, 5 Dec 2001 09:18:44 -0500
+Received: from mail207.mail.bellsouth.net ([205.152.58.147]:24549 "EHLO
+	imf07bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S284418AbRLEOSl>; Wed, 5 Dec 2001 09:18:41 -0500
+Message-ID: <3C0E2CBA.57412C69@mandrakesoft.com>
+Date: Wed, 05 Dec 2001 09:18:34 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Eric Lammerts <eric@lammerts.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
+        Josh McKinney <forming@home.com>, linux-kernel@vger.kernel.org
+Subject: Re: Fwd: binutils in debian unstable is broken.
+In-Reply-To: <Pine.LNX.4.43.0112051424560.1157-100000@ally.lammerts.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  X-Apparently-To: todd_m_roy@yahoo.com via web13604.mail.yahoo.com; 04 Dec 2001 09:04:18 -0800 (PST)
->  X-Track: 1: 40
->  Date: Tue, 4 Dec 2001 17:13:13 +0000 (GMT)
->  Cc: todd_m_roy@yahoo.com
->  Reply-To: alan@lxorguk.ukuu.org.uk
->  From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->  
->  > Could you please take a look at this? 
->  
->  Will do - it doesnt look remotely possibly related except as a bad compile
->  but stranger things have happened.
->  
->  > It worked fine for 2.4.16 and 2.4.17-pre1 and works fine
->  > again when I replaced 2.4.17-pre2's ad1848.c source with 2.4.16's ad1848.c
->  > and recompiled.
->  
->  Ok
->  
->  > this is what I get with the "bad" ad1848.o when I try to load esd:
->  
->  Can you strace esd and send me the strace output
->  
+Eric Lammerts wrote:
+> change the drivers like this:
+> 
+> #ifdef DEVEXIT_LINKED
+>      remove:         firestream_remove_one,
+> #endif
+> 
+> to this:
+> 
+>      remove:         DEVEXIT_FUNC(firestream_remove_one),
 
-Alan,
-  additional tidbit:
-isapnp reports the sound chip to be a CS4236B, also I added
-a printk to the bottom of ad1848.c 's init function that reports
-the same thing.
+The overall situation is not great, but I think I prefer this, or
+something like this, to the ifdef.
 
--- todd --
+I'm tempted to say we should add a per-driver function that calls BUG()
+instead of a generic function which calls panic(), though.  That will be
+a bit more informative to users.  For the case where the real
+xxx_remove_one is dropped, it is a kernel bug if that code is -ever-
+called...
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274824AbTGaWoh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 18:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274867AbTGaWoh
+	id S270609AbTGaWrK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 18:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274867AbTGaWrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 18:44:37 -0400
-Received: from mailc.telia.com ([194.22.190.4]:31203 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id S274824AbTGaWoe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 18:44:34 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Christian Vogel <vogel@skunk.physik.uni-erlangen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.0-test2: Never using pm_idle (CPU wasting power)
-Date: Fri, 1 Aug 2003 00:45:08 +0200
-User-Agent: KMail/1.5.9
-References: <20030731150722.A5938@skunk.physik.uni-erlangen.de>
-In-Reply-To: <20030731150722.A5938@skunk.physik.uni-erlangen.de>
-Cc: Robert Love <rml@tech9.net>
+	Thu, 31 Jul 2003 18:47:10 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:16653 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S270609AbTGaWrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 18:47:05 -0400
+Date: Thu, 31 Jul 2003 17:41:50 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Timothy Miller <miller@techsource.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       James Simmons <jsimmons@infradead.org>, Charles Lepple <clepple@ghz.cc>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off automatic screen clanking
+In-Reply-To: <20030731152007.GA6658@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.53.0307311741090.3779@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org>
+ <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com>
+ <20030730012533.GA18663@mail.jlokier.co.uk> <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com>
+ <3F2928AD.90501@techsource.com> <Pine.LNX.4.53.0307311056540.9348@montezuma.mastecende.com>
+ <20030731152007.GA6658@mail.jlokier.co.uk>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200308010045.08178.roger.larsson@skelleftea.mail.telia.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 July 2003 15.07, Christian Vogel wrote:
-> Hi,
->
-> on a Thinkpad 600X I noticed the CPU getting very hot. It turned
-> out that pm_idle was never called (which invokes the ACPI pm_idle
-> call in this case) and default_idle was used instead.
->
-> 	/* arch/i386/kernel/process.c, line 723 */
-> 	void cpu_idle (void)
-> 	{
-> 		/* endless idle loop with no priority at all */
-> 		while (1) {
-> 			void (*idle)(void) = pm_idle;
-> 			if (!idle)
-> 				idle = default_idle; /* once on bootup */
-> 			irq_stat[smp_processor_id()].idle_timestamp = jiffies;
-> 			while (!need_resched())
-> 				idle();
-> 			schedule();  /* never reached */
-> 		}
-> 	}
->
-> The schedule() is never reached (need_resched() is never 0) and
-> so the idle-variable is not updated. pm_idle is NULL on the
-> first call to cpu_idle on this thinkpad, and so I stay idling
-> in the default_idle()-function.
->
+On Thu, 31 Jul 2003, Jamie Lokier wrote:
 
-This smells preemptive kernel, correct?
+> Zwane Mwaikambo wrote:
+> > On Thu, 31 Jul 2003, Timothy Miller wrote:
+> > > This looks like it prevents blanking after panic.  What about UNblanking 
+> > > during panic?
+> > 
+> > iirc the screen already unblanks. But it's been a while since i've looked 
+> > at a panic'ing box via the screen.
+> 
+> That's still not good enough if the boot-time crash is not a panic.
 
-> By moving the "void *idle = pm_idle; if(!idle)..." in the inner
-> while()-loop the notebook calls pm_idle (as it get's updated by ACPI)
-> and stays cool.
->
-
-/RogerL
+You mean oopses?
 
 -- 
-Roger Larsson
-Skellefteå
-Sweden
+function.linuxpower.ca

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280757AbRKBSDg>; Fri, 2 Nov 2001 13:03:36 -0500
+	id <S280758AbRKBSE4>; Fri, 2 Nov 2001 13:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280756AbRKBSD0>; Fri, 2 Nov 2001 13:03:26 -0500
-Received: from L0936P17.dipool.highway.telekom.at ([62.46.180.241]:11232 "EHLO
-	gordon.freakzone.net") by vger.kernel.org with ESMTP
-	id <S280755AbRKBSDR>; Fri, 2 Nov 2001 13:03:17 -0500
-Date: Fri, 2 Nov 2001 19:00:18 +0000
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Linux Progress Patch for 2.4.13
-Message-ID: <20011102190018.A404@freakzone.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011101235449.A356@bigfoot.com>
+	id <S280756AbRKBSEl>; Fri, 2 Nov 2001 13:04:41 -0500
+Received: from [208.232.58.25] ([208.232.58.25]:16323 "EHLO kronos.usol.com")
+	by vger.kernel.org with ESMTP id <S280758AbRKBSEE>;
+	Fri, 2 Nov 2001 13:04:04 -0500
+Subject: Re: Via onboard audio
+From: Sean Middleditch <elanthis@awesomeplay.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15zii5-00037A-00@the-village.bc.nu>
+In-Reply-To: <E15zii5-00037A-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.30.16.08 (Preview Release)
+Date: 02 Nov 2001 13:03:13 -0500
+Message-Id: <1004724193.4883.21.camel@smiddle>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011101235449.A356@bigfoot.com>
-User-Agent: Mutt/1.3.23i
-X-Url: <http://www.freakzone.net/>
-X-PGP-ID: 588B7D9C
-From: Gordon Fraser <gordon@freakzone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Odin (dindinx@wanadoo.fr) wrote:
+On Fri, 2001-11-02 at 13:06, Alan Cox wrote:
+> > OK, will do that.  RedHat uses your kernel trees, right?  I'll download
+> > new RPM's from rawhide if they're there (I'm in no hurry.)
 > 
->   I've updated the Linux-Progress patch for the 2.4.13 kernel.
->   [...] The lpp project on sourceforge seems dead :-(.
+> Both Linus and -ac current trees support
+> 
+> make config
+> make rpm
+> 
+> rpm -Ivh blah...
+> 
+> then edit your lilo/grub config 8)
 
-Maybe try http://lpp.freelords.org/ - not sure if it ever was hosted
-on sourceforge?
+Hmm, good point, I forgot that was added.
 
-Gordon
+I suppose I could be evil and ask when make deb support will be there for my
+more preferred Debian boxes... But I won't ask.  ~,^
 
--- 
-Gordon Fraser
-gordon@freakzone.net                    With your bare hands?!?
-http://www.freakzone.net
+Thanks, Alan!
+
+Sean Etc.
+
+

@@ -1,108 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129029AbQKIPwC>; Thu, 9 Nov 2000 10:52:02 -0500
+	id <S129040AbQKIQBX>; Thu, 9 Nov 2000 11:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129040AbQKIPvx>; Thu, 9 Nov 2000 10:51:53 -0500
-Received: from airbus.mayn.de ([194.145.150.13]:30260 "HELO mayn.de")
-	by vger.kernel.org with SMTP id <S129029AbQKIPvg>;
-	Thu, 9 Nov 2000 10:51:36 -0500
-Date: Thu, 9 Nov 2000 16:49:00 +0100
-From: Thomas Köhler <jean-luc@picard.franken.de>
-To: linux-kernel@vger.kernel.org
+	id <S129147AbQKIQBN>; Thu, 9 Nov 2000 11:01:13 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:61312 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129040AbQKIQBC>; Thu, 9 Nov 2000 11:01:02 -0500
+Date: Thu, 9 Nov 2000 11:00:22 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Andrea Pintori <1997s112@educ.disi.unige.it>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Kernel 2.2.17 bug found
-Message-ID: <20001109164900.A3505@picard.franken.de>
-Mail-Followup-To: Thomas Köhler <jean-luc@picard.franken.de>,
-	linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.3.91.1001109171915.5142B-100000@aries>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.91.1001109171915.5142B-100000@aries>; from 1997s112@educ.disi.unige.it on Thu, Nov 09, 2000 at 05:20:22PM +0200
-X-Operating-System: Linux picard 2.2.17
-X-Editor: VIM - Vi IMproved 6.0l ALPHA http://www.vim.org/
-X-IRC: tirc; Nick: jeanluc
-X-URL: http://jeanluc-picard.de/
+Message-ID: <Pine.LNX.3.95.1001109104830.10062A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 9 Nov 2000, Andrea Pintori wrote:
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Nov 09, 2000 at 05:20:22PM +0200,
-Andrea Pintori <1997s112@educ.disi.unige.it> wrote:
->=20
 > I've a Debian dist, Kernel 2.2.17, no patches, all packages are stable.
-
-I've Debian unstable, Kernel 2.2.17
-
+> 
 > here what I found:
->=20
+> 
 > [/tmp] mkdir old
 > [/tmp] chdir old
 > [/tmp/old] mv . ../new
 > [/tmp/old]                    (should be /tmp/new !!)
 
-Uhm, no. $PWD only gets updated on cd, not on mv. Thus, the old value is
-OK!
+The shell might not read this all the while so the name you see
+may not change until you change directory.
 
 > [/tmp/old] mkdir fff
 > error: cannot write...
+
+This should not happen and it doesn't happen in kernel version 2.4.0-test0
+
 > [tmp/old] ls > fff
 > error: cannot write...
+> [/tmp/old] ls -la
+> total 0                         (?)
+> [/tmp/old] cd ..
+> [/tmp] ls -la
+> *****************       ./
+> *****************       ../
+> *****************       new/
+> 
 
-This seems wrong. But I'd rather say this is a bug in your shell, not in
-the kernel!
 
-/tmp> mkdir old
-/tmp> cd old=20
-/tmp/old> mv . ../new
-/tmp/old> mkdir fff
-/tmp/old> ls -al=20
-total 12
-drwxr-xr-x    3 jean-luc jean-luc     4096 Nov  9 16:46 .
-drwxrwxrwt    8 root     root         4096 Nov  9 16:46 ..
-drwxr-xr-x    2 jean-luc jean-luc     4096 Nov  9 16:46 fff
-/tmp/old> cd ../new
-/tmp/new> ls -al
-total 12
-drwxr-xr-x    3 jean-luc jean-luc     4096 Nov  9 16:46 .
-drwxrwxrwt    8 root     root         4096 Nov  9 16:46 ..
-drwxr-xr-x    2 jean-luc jean-luc     4096 Nov  9 16:46 fff
+Script started on Thu Nov  9 10:45:35 2000
+# pwd
+/tmp
+# mkdir old
+# cd old
+# pwd
+/tmp/old
+# mv ../old ../new
+# pwd
+/tmp/old       The shell hasn't re-read the current directory
+# ls
+# >foo		Make a file called foo
+# ls
+foo		It's there okay
+# rm foo	Remove the file 
+# mkdir bar	Make a directory
+# ls
+bar		It's there
+# cd bar
+# pwd
+/tmp/new/bar	Now, the shell re-read the directory, it is correct
+# cd ..
+# pwd
+/tmp/new	Back where we were, shell reads correct directory.
+# cd ..
+# ls
+new  typescript
+# rm -r new
+# exit
+exit
 
-Works for both bash-2.04 and zsh-3.1.9-dev7 (as in Debian unstable).
+Script done on Thu Nov  9 10:47:23 2000
 
-> Does anybody knew this bug?
 
-Well, I can't even reproduce it ;)
 
-Ciao,
-Thomas
+Cheers,
+Dick Johnson
 
---=20
- Thomas K=F6hler Email:   jean-luc@picard.franken.de     | LCARS - Linux
-     <><        WWW:     http://jeanluc-picard.de      | for Computers
-                IRC:             jeanluc               | on All Real
-               PGP public key available from Homepage! | Starships
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
 
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6CsdsTEYXWMJlHuYRAiplAKCU7a4L5vMc40H5eTNfy3tA7vFgqQCfTJs7
-XPKkXL5T1ZKjvM1JbRUO170=
-=5ueK
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

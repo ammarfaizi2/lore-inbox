@@ -1,48 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVBAWqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVBAWqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbVBAWqI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 17:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVBAWoc
+	id S262145AbVBAWqH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 17:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVBAWoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 17:44:32 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:3281 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262158AbVBAWj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 17:39:27 -0500
-Date: Tue, 1 Feb 2005 14:39:21 -0800
-From: Mitch Williams <mitch.a.williams@intel.com>
-X-X-Sender: mawilli1@mawilli1-desk2.amr.corp.intel.com
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com
-Subject: [PATCH] reject sysfs writes with nonzero position
-Message-ID: <Pine.CYG.4.58.0502011432430.396@mawilli1-desk2.amr.corp.intel.com>
-ReplyTo: "Mitch Williams" <mitch.a.williams@intel.com>
+	Tue, 1 Feb 2005 17:44:46 -0500
+Received: from fire.osdl.org ([65.172.181.4]:23988 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262149AbVBAWlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 17:41:17 -0500
+Message-ID: <42000122.90104@osdl.org>
+Date: Tue, 01 Feb 2005 14:22:26 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Wedgwood <cw@f00f.org>
+CC: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/8] lib/sort: Replace qsort in XFS
+References: <6.416337461@selenic.com> <7.416337461@selenic.com> <5.416337461@selenic.com> <6.416337461@selenic.com> <3.416337461@selenic.com> <4.416337461@selenic.com> <2.416337461@selenic.com> <3.416337461@selenic.com> <20050201222915.GA9285@taniwha.stupidest.org>
+In-Reply-To: <20050201222915.GA9285@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch causes an error to be returned if the user attempts to write a
-sysfs file at a nonzero offset.  Because sysfs store methods do not
-support a position parameter, the behavior in this case would be
-unpredictable.  Thus, we return an error, because at least now we're
-consistent.
+Chris Wedgwood wrote:
+> On Mon, Jan 31, 2005 at 01:34:59AM -0600, Matt Mackall wrote:
+> 
+> 
+>>+#define qsort xfs_sort
+>>+static inline void xfs_sort(void *a, size_t n, size_t s,
+>>+			int (*cmp)(const void *,const void *))
+>>+{
+>>+	sort(a, n, s, cmp, 0);
+>>+}
+>>+
+> 
+> 
+> why not just:
+> 
+> #define qsort(a, n, s, cmp)	sort(a, n, s, cmp, NULL)
+> 
+> 
+> 
+> On Mon, Jan 31, 2005 at 01:35:00AM -0600, Matt Mackall wrote:
+> 
+> 
+>>Switch NFS ACLs to lib/sort
+> 
+> 
+>>+	sort(acl->a_entries, acl->a_count, sizeof(struct posix_acl_entry),
+>>+	     cmp_acl_entry, 0);
+> 
+> 
+> There was a thread about stlye and I though the concensurs for null
+> pointers weas to use NULL and not 0?
 
-This patch generated from 2.6.11-rc1.
+Yes, otherwise sparse complains... and maybe Linus  :)
 
-Now with tabs.
 
-Signed-off-by:  Mitch Williams <mitch.a.williams@intel.com>
+> On Mon, Jan 31, 2005 at 01:35:00AM -0600, Matt Mackall wrote:
+> 
+> 
+>>Eep. cpuset uses bubble sort on a data set that's potentially O(#
+>>processes). Switch to lib/sort.
+> 
+> 
+>>+	sort(pidarray, npids, sizeof(pid_t), cmppid, 0);
+> 
+> 
+> and there?
+> 
+> 
+> 
+> On Mon, Jan 31, 2005 at 01:35:00AM -0600, Matt Mackall wrote:
+> 
+> 
+>>Replace exception table insertion sort with lib/sort
+> 
+> 
+>>+	sort(start, finish - start, sizeof(struct exception_table_entry),
+>>+	     cmp_ex, 0);
+> 
+> 
+> and there?
 
-diff -urpN -X dontdiff linux-2.6.11-clean/fs/sysfs/file.c linux-2.6.11/fs/sysfs/file.c
---- linux-2.6.11-clean/fs/sysfs/file.c	2004-12-24 13:33:50.000000000 -0800
-+++ linux-2.6.11/fs/sysfs/file.c	2005-01-25 10:47:15.000000000 -0800
-@@ -232,6 +232,8 @@ sysfs_write_file(struct file *file, cons
- {
- 	struct sysfs_buffer * buffer = file->private_data;
 
-+	if (*ppos > 0)
-+		return -EIO;
- 	down(&buffer->sem);
- 	count = fill_write_buffer(buffer,buf,count);
- 	if (count > 0)
+-- 
+~Randy

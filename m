@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317413AbSFMCZg>; Wed, 12 Jun 2002 22:25:36 -0400
+	id <S317409AbSFMCZf>; Wed, 12 Jun 2002 22:25:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317414AbSFMCZf>; Wed, 12 Jun 2002 22:25:35 -0400
-Received: from dsl093-054-208.blt1.dsl.speakeasy.net ([66.93.54.208]:10480
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S317413AbSFMCZd>; Wed, 12 Jun 2002 22:25:33 -0400
-Date: Wed, 12 Jun 2002 22:25:22 -0400 (EDT)
-From: Donald Becker <becker@scyld.com>
-X-X-Sender: <becker@presario>
-To: "David S. Miller" <davem@redhat.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-mips@oss.sgi.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <netdev@oss.sgi.com>
-Subject: Re: NAPI for eepro100
-In-Reply-To: <20020612.163344.31410429.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0206122219100.1390-100000@presario>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317414AbSFMCZe>; Wed, 12 Jun 2002 22:25:34 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:13319 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S317409AbSFMCZd>; Wed, 12 Jun 2002 22:25:33 -0400
+Date: Wed, 12 Jun 2002 19:25:26 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+Message-ID: <20020612192526.B6679@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3D06FEA9.AB40CC79@zip.com.au> <Pine.LNX.4.21.0206121455560.1032-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jun 2002, David S. Miller wrote:
->    From: Jeff Garzik <jgarzik@mandrakesoft.com>
->    Oh crap, you're right...   eepro100 in general does funky stuff with the
->    way packets are handled, mainly due to the need to issue commands to the
->    NIC engine instead of the normal per-descriptor owner bit way of doing
->    things.
+On Wed, Jun 12, 2002 at 03:52:34PM +0100, Hugh Dickins wrote:
+> On Wed, 12 Jun 2002, Andrew Morton wrote:
+> > 
+> > A more serious form of data loss occurs when an application has a shared
+> > mapping over a sparse file.  If the filesystem is out of space when
+> > the VM decides to write back some pages, your data simply gets dropped
+> > on the floor.  Even a subsequent msync() won't tell you that you have
+> > a shiny new bunch of zeroes in your file.
+> > 
+> > It's not simple to fix.  Approaches might be:
+> > 
+> > 1: Map the page to disk at fault time, generate SIGBUS on
+> >    ENOSPC  (the standards don't seem to address this issue, and
+> >    this is a non-standard overload of SIGBUS).
+> 
+> I believe your option 1 is closest to the right direction; and SIGBUS
+> is entirely appropriate, I don't see it as a non-standard overload.
 
-The eepro100 has a unique design in many different aspects.
+I concur that #1 is closest.  I'd prefer it to happen on a
+write fault rather read but the frequency with which
+this should occur is low enough i wouldn't sweat it.
 
-> The question is, do the descriptor bits have to live right before
-> the RX packet data buffer or can other schemes be used?
+It is a non-standard overload of SIGBUS.  SIGBUS is to
+indicate an unaligned memory access or otherwise malformed
+address. Many confuse SIGBUS with SIGSEGV because they are
+usually symptoms of the same problems but a SIGSEGV is to
+indicate memory protection violation (unresolvable page
+fault) which is not the same as a malformed address.  I
+believe Linux, at least on x86 maps both errors to SIGSEGV.
+I would think SIGXFSZ might be a better fit.
 
-With the current driver structure, yes, the descriptor words must be
-immediately before the packet data.  You can use other Rx and Tx
-structures/modes to avoid this, but they use less efficient memory access.
-For instance, the current Tx structure allows transmitting a packet with
-a single PCI burst, rather than multiple transfers.
-
+> 
+> But you didn't spell out the worst news on that option: read faults
+> into a read-only shared mapping of a file which the application had
+> open for read-write when it mmapped: the page must be mapped to disk
+> at read fault time (because the mapping just might be mprotected for
+> read-write later on, and the page then dirtied).
+> 
+> 
 
 -- 
-Donald Becker				becker@scyld.com
-Scyld Computing Corporation		http://www.scyld.com
-410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
-Annapolis MD 21403			410-990-9993
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

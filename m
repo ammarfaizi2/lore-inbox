@@ -1,50 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266281AbTGEGKo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 02:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266283AbTGEGKo
+	id S266287AbTGEGbF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 02:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266288AbTGEGbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 02:10:44 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:9917 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266281AbTGEGKn (ORCPT
+	Sat, 5 Jul 2003 02:31:05 -0400
+Received: from 66-75-253-176.san.rr.com ([66.75.253.176]:384 "EHLO mackman.net")
+	by vger.kernel.org with ESMTP id S266287AbTGEGbA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 02:10:43 -0400
-Date: Sat, 5 Jul 2003 08:23:58 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Osterlund <petero2@telia.com>
-Cc: "P. Christeas" <p_christ@hol.gr>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Early mail about synaptics driver
-Message-ID: <20030705082358.A13729@ucw.cz>
-References: <200306241846.26953.p_christ@hol.gr> <Pine.LNX.4.44.0307050014560.2344-100000@telia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0307050014560.2344-100000@telia.com>; from petero2@telia.com on Sat, Jul 05, 2003 at 01:09:11AM +0200
+	Sat, 5 Jul 2003 02:31:00 -0400
+Date: Fri, 4 Jul 2003 23:45:29 -0700 (PDT)
+From: Ryan Mack <rmack@mackman.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.4.21 ServerWorks DMA Bugs
+Message-ID: <Pine.LNX.4.53.0307042325430.3837@mackman.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 05, 2003 at 01:09:11AM +0200, Peter Osterlund wrote:
-> On Tue, 24 Jun 2003, P. Christeas wrote:
-> 
-> > I am trying to use your synaptics kernel driver. I do have the touchpad,
-> > which means that as from 2.573 the kernel tries to use that by default.
-> > 
-> > The other important part (which I have solved) is that you set "disable
-> > gestures" by default. I don't know if this is required in absolute mode,
-> > but it surely makes the touchpad less useful in relative mode. That is,
-> > if I unload the module and reload it with 'psmouse_noext=1' [1], then
-> > the previous setting [2] applies and gestures are disabled.
-> 
-> I think it would be better to restore default settings when the driver is
-> unloaded, as in the patch below. I have verified that this patch solves
-> the problem on my computer using kernel 2.5.74.
+I've real the other threads but nothing touches on my specific issue.  I
+have a dual P4 Xeon Dell PowerEdge 1600SC with a Fusion MPT SCSI
+controller and a ServerWorks CSB5 IDE chipset.  All the HDs are on the
+SCSI bus, and only my CD reader and my DVD writer are on the IDE bus (one
+on each channel).  Hyperthreading is enabled (4 logical processors).  I am 
+using GCC 3.2.2.
 
-Thanks, applied.
+The CD readers is the blacklisted 'SAMSUNG CD-ROM SC-148C' and I never use
+it so I can remove it if needed.  The DVD writer is a 'SONY DVD RW
+DRU-500A'.  Both are going through the ide-scsi driver.  Whenever I
+read/write CDs in the DVD writer, I get very high system load (50% on one
+CPU), even though DMA seems to be enabled.
 
- 
+In addition, I get horrible clock skew.  After burning a 50 meg audio
+track, my clock is 10 seconds off.  Enabled unmasked interrupts and 32 bit
+bus IO reduces the clock skew to about .1 seconds, but this adds up.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I've tried everything, even downgrading to 2.4.20, although under 2.4.20 I
+can't seem to find an appropriate devfs entry to run hdparm on, so I'm
+unable to unmask interrupts and switch bus IO width.  Not compiling the
+CSB5 driver doesn't make a difference either.
+
+Anyhow, anybody know what might be going on?  Excerpts from the relevant
+files included below.
+
+Thanks, Ryan
+
+
+dmesg:
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+SvrWks CSB5: IDE controller at PCI slot 00:0f.1
+SvrWks CSB5: chipset revision 147
+SvrWks CSB5: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x08b0-0x08b7, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x08b8-0x08bf, BIOS settings: hdc:DMA, hdd:pio
+hda: SONY DVD RW DRU-500A, ATAPI CD/DVD-ROM drive
+hdc: SAMSUNG CD-ROM SC-148C, ATAPI CD/DVD-ROM drive
+hdc: Disabling (U)DMA for SAMSUNG CD-ROM SC-148C
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: attached ide-scsi driver.
+hdc: attached ide-scsi driver.
+scsi1 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: SONY      Model: DVD RW DRU-500A   Rev: 2.0c
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: SAMSUNG   Model: CD-ROM SC-148C    Rev: B105
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi1, channel 0, id 0, lun 0
+Attached scsi CD-ROM sr1 at scsi1, channel 0, id 1, lun 0
+sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.12
+sr1: scsi3-mmc drive: 1x/48x cd/rw xa/form2 cdda tray
+
+
+.config:
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_SVWKS=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=m
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_CONSTANTS=y
+
+CONFIG_FUSION=y
+CONFIG_FUSION_BOOT=y
+CONFIG_FUSION_MAX_SGE=40
+CONFIG_FUSION_ISENSE=m
+
+
+/proc/svwks (note that like others, this is being misidentified as only
+UDMA2 capable, when it should be UDMA5):
+
+                             ServerWorks OSB4/CSB5/CSB6
+
+                            ServerWorks CSB5 Chipset (rev 93)
+------------------------------- General Status ---------------------------------
+--------------- Primary Channel ---------------- Secondary Channel -------------
+                 enabled                          enabled
+--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+DMA enabled:    yes              no              no                no 
+UDMA enabled:   yes              no              no                no 
+UDMA enabled:   2                0               0                 0
+DMA enabled:    2                2               ?                 2
+PIO  enabled:   4                0               4                 0

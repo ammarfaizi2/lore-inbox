@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271214AbRH2Aq6>; Tue, 28 Aug 2001 20:46:58 -0400
+	id <S271752AbRH2AwS>; Tue, 28 Aug 2001 20:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271738AbRH2Aqt>; Tue, 28 Aug 2001 20:46:49 -0400
-Received: from mailoff.mtu.edu ([141.219.70.111]:59880 "EHLO mailoff.mtu.edu")
-	by vger.kernel.org with ESMTP id <S271214AbRH2Aqk>;
-	Tue, 28 Aug 2001 20:46:40 -0400
-From: John Duff <jfduff@mtu.edu>
-Message-Id: <200108290020.f7T0Km901301@tamarack.cs.mtu.edu>
-Subject: Apollo Pro266 system freeze followup
-To: linux-kernel@vger.kernel.org
-Date: Tue, 28 Aug 2001 20:20:48 -0400 (EDT)
-Cc: rjh@groucho.maths.monash.edu.au, barryn@pobox.com
-X-Mailer: ELM [version 2.5 PL5]
+	id <S271774AbRH2AwI>; Tue, 28 Aug 2001 20:52:08 -0400
+Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:59404 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S271752AbRH2Av4>; Tue, 28 Aug 2001 20:51:56 -0400
+Message-ID: <3B8C3C87.6090307@ixiacom.com>
+Date: Tue, 28 Aug 2001 17:51:19 -0700
+From: Bryan Rittmeyer <bryan@ixiacom.com>
+Organization: Ixia
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: davem@redhat.com, ak@muc.de, kuznet@ms2.inr.ac.ru
+CC: linux-kernel@vger.kernel.org
+Subject: skb->dev set redundantly in net/ipv4/arp.c:arp_send()
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-I noticed a thread on this list about a month ago regarding complete system
-freezes on machines using the VIA Apollo Pro266 chipset:
+I think skb->dev is being set twice, for no purpose,
+in net/ipv4/arp.c:489 and net/ipv4/arp.c:563. The
+only external calls between these lines are memcpy
+and dev->hard_header, and neither of those will ever
+change skb->dev. So we can get rid of the redundant
+"skb->dev = dev" line right before dev_queue_xmit()
+unless I'm really stupid :-)
 
-http://uwsg.iu.edu/hypermail/linux/kernel/0107.3/0514.html
+Anyway, here's my proposed patch against 2.4.9:
 
-I too have such a system: 
-(Iwill DVD266-R, two 1GHz PIIIs, 512M of Crucial PC2100, 4 IBM 75GXP 30G 
-hard drives each hanging off one of the onboard IDE channels, running 
-software RAID-5, Plextor CDRW),
-and have seen the same thing.  I first noticed the problem when I decided
-to do a stress test involving two simultaneous linux kernel compiles, 
-continuously doing make clean and then make bzImage.  This will freeze
-the system every time after a few hours or so, guaranteed.
+--- net/ipv4/arp-orig.c Tue Aug 28 17:36:45 2001
++++ net/ipv4/arp.c      Tue Aug 28 17:38:52 2001
+@@ -560,7 +560,6 @@
+                 memset(arp_ptr, 0, dev->addr_len);
+         arp_ptr+=dev->addr_len;
+         memcpy(arp_ptr, &dest_ip, 4);
+-       skb->dev = dev;
 
-Then I tried compiling a 2.4.9 kernel without SMP support, and it has
-been running two simultaneous linux kernel compiles continuously for
-more than two days straight on my Iwill box.  I dunno if this is very
-helpful in figuring out where the bug may lie in the chipset, but I
-thought it might be of interest to others with Apollo Pro266 chipset
-boxes, that at least they can run reliably (keeping my fingers crossed)
-on just one cpu for now.
+         dev_queue_xmit(skb);
+         return;
 
-(I don't subscribe to the list, so please CC me on any follow-ups).
+Comments?
 
--John
-jfduff@mtu.edu
+-Bryan
+
+-- 
+Bryan Rittmeyer
+mailto:bryan@ixiacom.com
 

@@ -1,73 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbUCWQB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 11:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbUCWQB3
+	id S262647AbUCWQCK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 11:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUCWQCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 11:01:29 -0500
-Received: from poros.telenet-ops.be ([195.130.132.44]:51882 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S262609AbUCWQB1 convert rfc822-to-8bit (ORCPT
+	Tue, 23 Mar 2004 11:02:06 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:2439 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S262623AbUCWQB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 11:01:27 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: Sven Luther <sven.luther@wanadoo.fr>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] Sysfs for framebuffer
-Date: Tue, 23 Mar 2004 17:01:16 +0100
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Kronos <kronos@kronoz.cjb.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-References: <20040320174956.GA3177@dreamland.darkstar.lan> <200403231211.09334.lkml@kcore.org> <20040323122627.GA22830@lambda>
-In-Reply-To: <20040323122627.GA22830@lambda>
+	Tue, 23 Mar 2004 11:01:58 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230C77D@exa-atlanta.se.lsil.com>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'Matthew Wilcox'" <willy@debian.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'marcelo@cyclades.com.br'" <marcelo@cyclades.com.br>,
+       "'marcelo.tosatti@cyclades.com'" <marcelo.tosatti@cyclades.com>
+Subject: RE: [PATCH][RELEASE] megaraid 2.10.2 Driver
+Date: Tue, 23 Mar 2004 11:00:59 -0500
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403231701.19786.lkml@kcore.org>
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Tuesday 23 March 2004 13:26, Sven Luther wrote:
-
-> > - From a users point of view: if there are only to be framebuffer devices
-> > listed in this class, why not call it just what it is: "Framebuffer" ?
-> > Naming it after something it is only in a broad sense makes no sense to
-> > me. I'd be looking in /sys/.../framebuffer instead of /sys/.../graphics
-> > or /display.
+>> > I don't think you understand how CONFIG_COMPAT works.  
+>x86-64 defines it
+>> > when it wants it:
+>> 
+>> But not in 2.4, and this is a 2.4-only patch..
 >
-> Notice that /display is what is used by most OF implementations, so this
-> kinda makes sense. I would vote like BenH on this if i was consulted.
+>It is?  I didn't see that mentioned anywhere.
 
-OF implementations?
+My fault. I will be more thorough from now on. Thanks for pointing that out.
 
 >
-> > Display would be the EDID info of my screen (physical), and graphics...
-> > well... I'd half expect something like capture cards to be there...
+>Anyway, it's wrong to define LSI_CONFIG_COMPAT based solely on 
+>__x86_64__.
+>You'd also need to check IA32_EMULATION.  Really, it would be simpler
+>to add CONFIG_COMPAT to 2.4.
 >
-> But this also makes sense, still, i guess we are concerned with more
-> info than just the framebuffer, right ?
 
-Yup. What's in a name indeed. But one might try to make it as non-confusing as 
-possible.
+Most of the objections centered around CONFIG_COMPAT issue. If we have 
+to support 32-bit applications on lk 2.4, what is the right way to do it?
+Any
+helpful suggestions are appreciated.
 
-Kind regards,
+>So you can only copy to the bottom 4GB of user address space? That
+>seems like a recipe for disaster. Particularly on ia64.
 
-Jan De Luyck
+This interface is only for 32-bit applications. If and when we have 64-bit
+apps,
+they use a different (new) interface.
 
-- -- 
-Anything is possible on paper.
-		-- Ron McAfee
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+>and everything will be fine. Please don't introduce this stupid
+>unnecessary LSI_CONFIG_COMPAT. That just makes people say "what the
+>**** are they doing?".
 
-iD8DBQFAYF9OUQQOfidJUwQRAlUCAJ9gevHf51xYtw7Zu4PAAI3Lq+VvJgCbByUB
-c2zgx+ZzG9zKZo/9Lslr76s=
-=zzhB
------END PGP SIGNATURE-----
+May I also respectfully suggest that you don't use any F* or similar words
+in
+your mails, for the sole reason that our corporate server filters those
+mails out.
+We had to infer from Christoph's mail that you had responded earlier. We
+don't
+want to miss your valuable feedback.
+
+Thank you,
+Sreenivas

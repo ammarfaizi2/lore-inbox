@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262655AbUKLXEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbUKLXEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbUKLXEF (ORCPT <rfc822;willy@w.ods.org>);
+	id S262654AbUKLXEF (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 12 Nov 2004 18:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbUKLXDO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbUKLXD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 18:03:14 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:39060 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262655AbUKLXAk convert rfc822-to-8bit
+	Fri, 12 Nov 2004 18:03:27 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:65176 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262654AbUKLXAk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 12 Nov 2004 18:00:40 -0500
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] More Driver Core patches for 2.6.10-rc1
-In-Reply-To: <1100300406618@kroah.com>
+In-Reply-To: <11003004071194@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Fri, 12 Nov 2004 15:00:06 -0800
-Message-Id: <11003004062835@kroah.com>
+Date: Fri, 12 Nov 2004 15:00:07 -0800
+Message-Id: <11003004072900@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,61 +23,73 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2094, 2004/11/12 11:42:03-08:00, miltonm@bga.com
+ChangeSet 1.2098, 2004/11/12 11:43:27-08:00, kay.sievers@vrfy.org
 
-[PATCH] fix sysfs backing store error path confusion
+[PATCH] add the bus name to the hotplug environment
 
-On Nov 3, 2004, at 3:42 PM, Greg KH wrote:
+Add the name of the bus and the driver to the hotplug event for
+/sys/devices/*. With this addition, userspace knows what it can
+expect from sysfs to show up, instead of waiting for a timeout
+for devices without a bus.
 
-|On Tue, Nov 02, 2004 at 10:03:34AM -0600, Maneesh Soni wrote:
-||On Tue, Nov 02, 2004 at 02:46:58AM -0600, Milton Miller wrote:
-|||sysfs_new_dirent returns ERR_PTR(-ENOMEM) if kmalloc fails but the callers
-|||were expecting NULL.
-||
-||Thanks for spotting this. But as you said, I will prefer to change the callee.
-||How about this patch?
-..
-||-		return -ENOMEM;
-||+		return NULL;
-|
-|Actually, this needs to be a 0, not NULL, otherwise the compiler
-|complains with a warning.  I've fixed it up and applied it.
-|
-|thanks,
-|
-|greg k-h
+  ACTION=add
+  DEVPATH=/devices/pci0000:00/0000:00:1d.1/usb3/3-1
+  SUBSYSTEM=usb
+  SEQNUM=978
+  PHYSDEVBUS=usb
+  PHYSDEVDRIVER=usb
 
-I wondered why greg thought the type was wrong.   After it was merged I
-realized that the wrong function was changed.  Here's an attempt to fix
-both errors.
-
-
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- fs/sysfs/dir.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/bus.c  |    2 +-
+ drivers/base/core.c |   21 +++++++++++++++++++++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
 
-diff -Nru a/fs/sysfs/dir.c b/fs/sysfs/dir.c
---- a/fs/sysfs/dir.c	2004-11-12 14:53:33 -08:00
-+++ b/fs/sysfs/dir.c	2004-11-12 14:53:33 -08:00
-@@ -38,7 +38,7 @@
+diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
+--- a/drivers/base/bus.c	2004-11-12 14:53:04 -08:00
++++ b/drivers/base/bus.c	2004-11-12 14:53:04 -08:00
+@@ -247,7 +247,7 @@
+  *	device_bind_driver - bind a driver to one device.
+  *	@dev:	device.
+  *
+- *	Allow manual attachment of a driver to a deivce.
++ *	Allow manual attachment of a driver to a device.
+  *	Caller must have already set @dev->driver.
+  *
+  *	Note that this does not modify the bus reference count
+diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c	2004-11-12 14:53:04 -08:00
++++ b/drivers/base/core.c	2004-11-12 14:53:04 -08:00
+@@ -116,7 +116,28 @@
+ 			int num_envp, char *buffer, int buffer_size)
+ {
+ 	struct device *dev = to_dev(kobj);
++	int i = 0;
++	int length = 0;
+ 	int retval = 0;
++
++	/* add bus name of physical device */
++	if (dev->bus)
++		add_hotplug_env_var(envp, num_envp, &i,
++				    buffer, buffer_size, &length,
++				    "PHYSDEVBUS=%s", dev->bus->name);
++
++	/* add driver name of physical device */
++	if (dev->driver)
++		add_hotplug_env_var(envp, num_envp, &i,
++				    buffer, buffer_size, &length,
++				    "PHYSDEVDRIVER=%s", dev->driver->name);
++
++	/* terminate, set to next free slot, shrink available space */
++	envp[i] = NULL;
++	envp = &envp[i];
++	num_envp -= i;
++	buffer = &buffer[length];
++	buffer_size -= length;
  
- 	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
- 	if (!sd)
--		return ERR_PTR(-ENOMEM);
-+		return NULL;
- 
- 	memset(sd, 0, sizeof(*sd));
- 	atomic_set(&sd->s_count, 1);
-@@ -56,7 +56,7 @@
- 
- 	sd = sysfs_new_dirent(parent_sd, element);
- 	if (!sd)
--		return 0;
-+		return -ENOMEMurn -ENOMEM;
- 
- 	sd->s_mode = mode;
- 	sd->s_type = type;
+ 	if (dev->bus->hotplug) {
+ 		/* have the bus specific function add its stuff */
 

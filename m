@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262972AbUFVMaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUFVMez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUFVMaC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 08:30:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUFVMaA
+	id S263147AbUFVMez (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 08:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbUFVMez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 08:30:00 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:53380 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263147AbUFVM3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 08:29:53 -0400
-Date: Tue, 22 Jun 2004 13:29:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Dean Nelson <dcn@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add wait_event_interruptible_exclusive() macro
-Message-ID: <20040622122948.GA2038@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chris Wedgwood <cw@f00f.org>, Dean Nelson <dcn@sgi.com>,
-	linux-kernel@vger.kernel.org
-References: <40D30646.mailxA8X155I80@aqua.americas.sgi.com> <20040622120130.GA16246@taniwha.stupidest.org>
+	Tue, 22 Jun 2004 08:34:55 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:46747 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S263147AbUFVMex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 08:34:53 -0400
+Date: Tue, 22 Jun 2004 22:34:49 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] iSeries virtual i/o sysfs files
+Message-Id: <20040622223449.160fa820.sfr@canb.auug.org.au>
+In-Reply-To: <20040622113103.GA1288@infradead.org>
+References: <20040622140405.4cb6f8e1.sfr@canb.auug.org.au>
+	<40D7CFBC.30706@pobox.com>
+	<20040622212319.2a0c121b.sfr@canb.auug.org.au>
+	<20040622113103.GA1288@infradead.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040622120130.GA16246@taniwha.stupidest.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__22_Jun_2004_22_34_49_+1000_zBYFaf0ffqv1351C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 22, 2004 at 05:01:30AM -0700, Chris Wedgwood wrote:
-> Thsi reminds me...
-> 
-> I really loath all the preprocessor macros.  I know there are plenty
-> of this already, but I don't see the advantage of macros over (static)
-> inline functions which IMO look cleaner and give gcc some change to
-> sanitize what it's looking at without actually having to have it used.
-> 
-> Is there a reason why we keep doing this?
+--Signature=_Tue__22_Jun_2004_22_34_49_+1000_zBYFaf0ffqv1351C
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-In this case a macro is the only sensible way.  Check how the arguments
-are used in wait_event_*
+On Tue, 22 Jun 2004 12:31:03 +0100 Christoph Hellwig <hch@infradead.org> wrote:
+>
+> Maybe you should just kick your collegues on the OS/400 side to provide
+> a better interface?  After IBM is oh so Linux friendly they could maybe
+> fi up their legacy codebases to make the slightest bit of sense?
 
+Thank you for your constructive comment ...
+
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Tue__22_Jun_2004_22_34_49_+1000_zBYFaf0ffqv1351C
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA2CdpFG47PeJeR58RAhCwAJ4x3QD0GQy1VfbAPCkcy8qA8Z3lKwCdF8xC
+mCccY+8pThBHR4puK2s0cKQ=
+=x+4e
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__22_Jun_2004_22_34_49_+1000_zBYFaf0ffqv1351C--

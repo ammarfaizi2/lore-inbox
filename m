@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269203AbUJKTjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269133AbUJKTu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269203AbUJKTjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 15:39:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269205AbUJKTjQ
+	id S269133AbUJKTu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 15:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269205AbUJKTu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 15:39:16 -0400
-Received: from nemesis.nephthys.org ([82.67.27.49]:59594 "EHLO
-	mx1.nephthys.org") by vger.kernel.org with ESMTP id S269203AbUJKTjP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 15:39:15 -0400
-From: Glennie Vignarajah <glenny@nephthys.org>
-Organization: Nephthys
-To: linux-kernel@vger.kernel.org
-Subject: Re: possible GPL violation by Free
-Date: Mon, 11 Oct 2004 21:39:09 +0200
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200410112139.09905.glenny@nephthys.org>
+	Mon, 11 Oct 2004 15:50:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18836 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269133AbUJKTu0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 15:50:26 -0400
+Date: Mon, 11 Oct 2004 12:54:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1 HPET compile problems on AMD64
+Message-Id: <20041011125421.106eff07.akpm@osdl.org>
+In-Reply-To: <1097509362.12861.334.camel@dyn318077bld.beaverton.ibm.com>
+References: <1097509362.12861.334.camel@dyn318077bld.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting a écrit: 
- 
-> Perhaps customers can demand to _rent_ the source code too then? 
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> I get following error while linking kernel on 2.6.9-rc4-mm1.
+> x86_64/kernel/time.c seems to have a dependency on char/hpet.c
+> driver. Its forcing me to use CONFIG_HPET. 
+> 
+>  LD      .tmp_vmlinux1
+> arch/x86_64/kernel/built-in.o(.init.text+0x2071): In function
+> `late_hpet_init':
+> arch/x86_64/kernel/entry.S:259: undefined reference to `hpet_alloc'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> ...
+> 
+> [hpet_alloc_fix.patch  text/plain (638 bytes)]
+> --- linux.org/arch/x86_64/kernel/time.c	2004-10-11 09:17:15.613107488 -0700
+> +++ linux/arch/x86_64/kernel/time.c	2004-10-11 09:14:05.983935504 -0700
+> @@ -727,6 +727,7 @@ static unsigned int __init pit_calibrate
+>  	return (end - start) / 50;
+>  }
+>  
+> +#ifdef	CONFIG_HPET
+>  static __init int late_hpet_init(void)
+>  {
+>  	struct hpet_data	hd;
+> @@ -773,6 +774,7 @@ static __init int late_hpet_init(void)
+>  	return 0;
+>  }
+>  fs_initcall(late_hpet_init);
+> +#endif
 
- After few discussions on proad.free.adsl and on linuxfr.org
-(http://linuxfr.org/~superzen/15187.html), it seems that Free
-_lends_ the Freebox (at no charge) while people use their Internet
-Access. When one stops his Internet Access abonnement, he has sent
-it back.
- Moreover, Freebox boots (each power cycle) over the network and
-downloads the OS (which seems to Linux and it's not resident). The
-bootstrap code used to boot over network is from Broadcom (for V4
-model). So even if you can buy it, you just have a box without any
-OS inside.
--- 
-Glennie
-"Personne ne survit au fait d'être estimé au-dessus de sa valeur." 
+I assume you have CONFIG_HPET=n and CONFIG_HPET_TIMER=n?
+
+Andi, what's going on here?  Should the hpet functions in
+arch/x86_64/kernel/time.c be inside CONFIG_HPET_TIMER?
+

@@ -1,78 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbUBZVal (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 16:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUBZVal
+	id S261369AbUBZV23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 16:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUBZV23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 16:30:41 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:30339 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261387AbUBZVab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 16:30:31 -0500
-Subject: Re: Why no interrupt priorities?
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: root@chaos.analogic.com, linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <403E5EF7.7080309@am.sony.com>
-References: <403E4363.2070908@am.sony.com>
-	 <Pine.LNX.4.53.0402261423170.4239@chaos>  <403E5EF7.7080309@am.sony.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c9Dv4Crscr9ELKFBe8aN"
-Organization: Red Hat, Inc.
-Message-Id: <1077831001.4443.9.camel@laptop.fenrus.com>
+	Thu, 26 Feb 2004 16:28:29 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28132 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261369AbUBZV2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 16:28:10 -0500
+Date: Thu, 26 Feb 2004 22:27:59 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.26-pre1: SCTP compile error
+Message-ID: <20040226212759.GV5499@fs.tum.de>
+References: <Pine.LNX.4.58L.0402251605360.5003@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 26 Feb 2004 22:30:02 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0402251605360.5003@logos.cnet>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 25, 2004 at 04:09:20PM -0300, Marcelo Tosatti wrote:
+>...
+> It contains a big SCTP merge (to match 2.6 API), networking updates,
+>...
 
---=-c9Dv4Crscr9ELKFBe8aN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I got the compile error forwarded below using gcc 2.95.3 .
 
-On Thu, 2004-02-26 at 22:02, Tim Bird wrote:
-> Richard B. Johnson wrote:
-> > On Thu, 26 Feb 2004, Tim Bird wrote:
-> >=20
-> >>What's the rationale for not supporting interrupt priorities
-> >>in the kernel?
-> >=20
-> > Interrupt priorities are supported and have been supported
-> > since the first cascaded interrupt controllers and, now
-> > with the APIC.=20
->=20
-> Please forgive my ignorance.  I'm not sure what's going
-> on with 2.6 and work queues, but do the hardware priorities
-> allow you to control scheduling of interrupt bottom halves?
+cu
+Adrian
 
 
-hardware IRQ priorities are useless for the linux model. In linux, the
-hardirq runs *very* briefly and then lets the softirq context do the
-longer taking work. hardware irq priorities then don't matter really
-because the hardirq's are hardly ever interrupted really, and when they
-are they cause a performance *loss* due to cache trashing. The latency
-added by waiting briefly is going to be really really short for any sane
-hardware.
 
-Now doing priorities in softirq context... well... here again it's a
-case of a tiny latency hit vs a lot of cache trashing. If your softirq
-handler runs in 10 cachemisses (it's useless to talk about cpu cycles
-since most of teh time you'll be cache bound) that's not too long
-latency, but if you interrupt it it might get 15 or more cachemisses
-instead. That again will increase the delay the user context gets from
-irq's.... so from a userspace pov you actually increased irq latency....
-
---=-c9Dv4Crscr9ELKFBe8aN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAPmVZxULwo51rQBIRAo/LAKCENWSdIeR1UNWozRwM5VvdcwkUQQCgp2yh
-Xy4tZHPnaZeBzuLKSiAxPLI=
-=Hf8j
------END PGP SIGNATURE-----
-
---=-c9Dv4Crscr9ELKFBe8aN--
+...
+gcc-2.95 -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4   -nostdinc -iwithprefix include -DKBUILD_BASENAME=ipv6  -c -o ipv6.o ipv6.c
+In file included from ipv6.c:77:
+/home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/include/net/sctp/sctp.h:119: warning: `MSECS_TO_JIFFIES' redefined
+/home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/include/net/irda/irda.h:89: warning: this is the location of the previous definition
+ipv6.c: In function `sctp_v6_xmit':
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c:189: request for member `in6_u' in something not a structure or union
+ipv6.c: In function `sctp_v6_get_dst':
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:213: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+ipv6.c:219: request for member `in6_u' in something not a structure or union
+make[3]: *** [ipv6.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/net/sctp'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/net/sctp'
+make[1]: *** [_subdir_sctp] Error 2
+make[1]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/net'
+make: *** [_dir_net] Error 2

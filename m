@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266946AbRGHRmo>; Sun, 8 Jul 2001 13:42:44 -0400
+	id <S266950AbRGHR7p>; Sun, 8 Jul 2001 13:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbRGHRme>; Sun, 8 Jul 2001 13:42:34 -0400
-Received: from eax.student.umd.edu ([129.2.236.2]:6673 "EHLO
-	eax.student.umd.edu") by vger.kernel.org with ESMTP
-	id <S266945AbRGHRm3>; Sun, 8 Jul 2001 13:42:29 -0400
-Date: Sun, 8 Jul 2001 13:42:28 -0500 (EST)
-From: Adam <adam@cfar.umd.edu>
-X-X-Sender: <cfar@eax.student.umd.edu>
-To: Chris Wedgwood <cw@f00f.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: recvfrom and sockaddr_in.sin_port
-In-Reply-To: <20010709052100.E28809@weta.f00f.org>
-Message-ID: <Pine.LNX.4.33.0107081338140.936-100000@eax.student.umd.edu>
+	id <S266945AbRGHR7Z>; Sun, 8 Jul 2001 13:59:25 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:52487 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266944AbRGHR7U>; Sun, 8 Jul 2001 13:59:20 -0400
+Date: Sun, 8 Jul 2001 10:58:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Mike Galbraith <mikeg@wen-online.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33L.0107081241280.22014-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0107081039420.7044-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     isn't it set? to quote from the example I have attached:
->       socklen_t fromlen = sizeof(struct sockaddr_in);
-> sorry, I misread the source (the memset line)
-> you are using raw sockets, what does port mean for raw sockets?
 
-well, from raw(7) man page:
+On Sun, 8 Jul 2001, Rik van Riel wrote:
+>
+> ... Bingo.  You hit the infamous __wait_on_buffer / ___wait_on_page
+> bug. I've seen this for quite a while now on our quad xeon test
+> machine, with some kernel versions it can be reproduced in minutes,
+> with others it won't trigger at all.
 
-       raw_socket = socket(PF_INET, SOCK_RAW, int protocol);
-       [...]
-       All packets [...] matching the protocol number  speci
-       fied  for the raw socket are passed to this socket.
+Hmm.. That would explain why the "tar" gets stuck, but why does the whole
+machine grind to a halt with all other processes being marked runnable?
 
-so it seem to imply that only tcp packets only are to be passed.
-still group "SOCK_RAW" is subset of the PF_INET group (the way
-I see it), so from ip(7) man page I should use sockaddr_in
-structure, which should be defined in this particular case,
-as it ought be for IPPROTO_UDP.
+> I hope there is somebody out there who can RELIABLY trigger
+> this bug, so we have a chance of tracking it down.
+>
+> > tar
+> > Trace; c012f2da <__wait_on_buffer+6a/8c>
+> > Trace; c01303c9 <bread+45/64>
 
+I wonder if "getblk()" returned a locked not-up-to-date buffer.. That
+would explain how the buffer stays locked forever - the "ll_rw_block()"
+will not actually submit any IO on a locked buffer, so there won't be any
+IO to release it.
+
+And it's interesting to see that this happens for a _inode_ block, not a
+data block - which could easily have been dirty and scheduled for a
+write-out. So I wonder if there is some race between "write buffer and try
+to free it" and "getblk()".
+
+The locking in "try_to_free_buffers()" is rather anal, so I don't see how
+this could happen, but..
+
+That still doesn't explain why everybody is busy running. I'd have
+expected all the processes to end up waiting for the page or buffer, not
+stuck in a live-lock.
+
+		Linus
 

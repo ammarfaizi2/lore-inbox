@@ -1,234 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVAXUeC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVAXUgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVAXUeC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:34:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVAXUcC
+	id S261602AbVAXUgT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVAXUfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:32:02 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:48389 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261633AbVAXUZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:25:43 -0500
-Date: Mon, 24 Jan 2005 21:25:40 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dwmw2@infradead.org, jffs-dev@axis.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/jffs2/: misc cleanups
-Message-ID: <20050124202540.GV3515@stusta.de>
+	Mon, 24 Jan 2005 15:35:40 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:45101 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261632AbVAXUZc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:25:32 -0500
+Date: Mon, 24 Jan 2005 22:26:09 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andi Kleen <ak@suse.de>
+Cc: hch@infradead.org, linux-kernel@vger.kernel.org, chrisw@osdl.org,
+       davem@davemloft.net
+Subject: [PATCH] move common compat ioctls to hash
+Message-ID: <20050124202609.GA15057@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20050118072133.GB76018@muc.de> <20050118110432.GE23127@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- make some needlessly global functions static
-- remove the following unused global functions:
-  - compr.c: jffs2_set_compression_mode
-  - compr.c: jffs2_get_compression_mode
+Hi!
+The new ioctl code in fs/compat.c can be streamlined a little
+using the compat hash instead of an explicit switch statement.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+The attached patch is against 2.6.11-rc2-bk2.
+Andi, could you please comment? Does this make sence?
 
----
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 
- fs/jffs2/compr.c       |   10 ----------
- fs/jffs2/compr.h       |    3 ---
- fs/jffs2/compr_rtime.c |   12 ++++++++----
- fs/jffs2/erase.c       |    3 ++-
- fs/jffs2/file.c        |   15 +++++++++++----
- fs/jffs2/fs.c          |    3 ++-
- fs/jffs2/nodelist.h    |    1 -
- fs/jffs2/os-linux.h    |    5 -----
- fs/jffs2/wbuf.c        |    2 +-
- 9 files changed, 24 insertions(+), 30 deletions(-)
-
-This patch was already sent on:
-- 8 Jan 2005
-
---- linux-2.6.10-mm2-full/fs/jffs2/compr.h.old	2005-01-08 04:16:42.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/compr.h	2005-01-08 04:18:40.000000000 +0100
-@@ -41,9 +41,6 @@
- #define JFFS2_COMPR_MODE_PRIORITY   1
- #define JFFS2_COMPR_MODE_SIZE       2
+diff -rup linux-2.6.10/fs/compat.c linux-2.6.10-rc2-bk2/fs/compat.c
+--- linux-2.6.10/fs/compat.c	2005-01-24 21:47:17.252499536 +0200
++++ linux-2.6.10-rc2-bk2/fs/compat.c	2005-01-24 22:06:00.254777240 +0200
+@@ -439,37 +439,10 @@ asmlinkage long compat_sys_ioctl(unsigne
+ 	if (!filp)
+ 		goto out;
  
--void jffs2_set_compression_mode(int mode);
--int jffs2_get_compression_mode(void);
+-	/*
+-	 * To allow the compat_ioctl handlers to be self contained
+-	 * we need to check the common ioctls here first.
+-	 * Just handle them with the standard handlers below.
+-	 */
+-	switch (cmd) {
+-	case FIOCLEX:
+-	case FIONCLEX:
+-	case FIONBIO:
+-	case FIOASYNC:
+-	case FIOQSIZE:
+-		break;
 -
- struct jffs2_compressor {
-         struct list_head list;
-         int priority;              /* used by prirority comr. mode */
---- linux-2.6.10-mm2-full/fs/jffs2/compr.c.old	2005-01-08 04:18:49.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/compr.c	2005-01-08 04:19:59.000000000 +0100
-@@ -23,16 +23,6 @@
- /* Actual compression mode */
- static int jffs2_compression_mode = JFFS2_COMPR_MODE_PRIORITY;
- 
--void jffs2_set_compression_mode(int mode) 
--{
--        jffs2_compression_mode = mode;
--}
+-	case FIBMAP:
+-	case FIGETBSZ:
+-	case FIONREAD:
+-		if (S_ISREG(filp->f_dentry->d_inode->i_mode))
+-			break;
+-		/*FALL THROUGH*/
 -
--int jffs2_get_compression_mode(void)
--{
--        return jffs2_compression_mode;
--}
+-	default:
+-		if (filp->f_op && filp->f_op->compat_ioctl) {
+-			error = filp->f_op->compat_ioctl(filp, cmd, arg);
+-			if (error != -ENOIOCTLCMD)
+-				goto out_fput;
+-		}
 -
- /* Statistics for blocks stored without compression */
- static uint32_t none_stat_compr_blocks=0,none_stat_decompr_blocks=0,none_stat_compr_size=0;
+-		if (!filp->f_op ||
+-		    (!filp->f_op->ioctl && !filp->f_op->unlocked_ioctl))
+-			goto do_ioctl;
+-		break;
++	if (filp->f_op && filp->f_op->compat_ioctl) {
++		error = filp->f_op->compat_ioctl(filp, cmd, arg);
++		if (error != -ENOIOCTLCMD)
++			goto out_fput;
+ 	}
  
---- linux-2.6.10-mm2-full/fs/jffs2/compr_rtime.c.old	2005-01-08 04:20:19.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/compr_rtime.c	2005-01-08 04:21:09.000000000 +0100
-@@ -29,8 +29,10 @@
- #include "compr.h"
+ 	/* When register_ioctl32_conversion is finally gone remove
+@@ -509,7 +482,7 @@ asmlinkage long compat_sys_ioctl(unsigne
+ 	}
  
- /* _compress returns the compressed size, -1 if bigger */
--int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out, 
--		   uint32_t *sourcelen, uint32_t *dstlen, void *model)
-+static int jffs2_rtime_compress(unsigned char *data_in,
-+				unsigned char *cpage_out, 
-+				uint32_t *sourcelen, uint32_t *dstlen,
-+				void *model)
+ 	up_read(&ioctl32_sem);
+- do_ioctl:
++ 
+ 	error = sys_ioctl(fd, cmd, arg);
+  out_fput:
+ 	fput_light(filp, fput_needed);
+diff -rup linux-2.6.10/fs/ioctl.c linux-2.6.10-rc2-bk2/fs/ioctl.c
+--- linux-2.6.10/fs/ioctl.c	2005-01-24 21:47:17.400477040 +0200
++++ linux-2.6.10-rc2-bk2/fs/ioctl.c	2005-01-24 22:05:38.346107864 +0200
+@@ -80,7 +80,7 @@ static int file_ioctl(struct file *filp,
+ 
+ /*
+  * When you add any new common ioctls to the switches above and below
+- * please update compat_sys_ioctl() too.
++ * please update compat_ioctl.h too.
+  */
+ asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
  {
- 	short positions[256];
- 	int outpos = 0;
-@@ -69,8 +71,10 @@
- }		   
+diff -rup linux-2.6.10/include/linux/compat_ioctl.h linux-2.6.10-rc2-bk2/include/linux/compat_ioctl.h
+--- linux-2.6.10/include/linux/compat_ioctl.h	2005-01-24 21:47:21.486855816 +0200
++++ linux-2.6.10-rc2-bk2/include/linux/compat_ioctl.h	2005-01-24 22:06:22.349418344 +0200
+@@ -10,6 +10,15 @@
+ #define ULONG_IOCTL(cmd)  HANDLE_IOCTL((cmd),(ioctl_trans_handler_t)sys_ioctl)
+ #endif
  
- 
--int jffs2_rtime_decompress(unsigned char *data_in, unsigned char *cpage_out,
--		      uint32_t srclen, uint32_t destlen, void *model)
-+static int jffs2_rtime_decompress(unsigned char *data_in,
-+				  unsigned char *cpage_out,
-+				  uint32_t srclen, uint32_t destlen,
-+				  void *model)
- {
- 	short positions[256];
- 	int outpos = 0;
---- linux-2.6.10-mm2-full/fs/jffs2/nodelist.h.old	2005-01-08 04:24:11.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/nodelist.h	2005-01-08 04:24:16.000000000 +0100
-@@ -460,7 +460,6 @@
- int jffs2_do_mount_fs(struct jffs2_sb_info *c);
- 
- /* erase.c */
--void jffs2_erase_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
- void jffs2_erase_pending_blocks(struct jffs2_sb_info *c, int count);
- 
- #ifdef CONFIG_JFFS2_FS_NAND
---- linux-2.6.10-mm2-full/fs/jffs2/erase.c.old	2005-01-08 04:24:24.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/erase.c	2005-01-08 04:24:44.000000000 +0100
-@@ -33,7 +33,8 @@
- static void jffs2_free_all_node_refs(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
- static void jffs2_mark_erased_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
- 
--void jffs2_erase_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb)
-+static void jffs2_erase_block(struct jffs2_sb_info *c,
-+			      struct jffs2_eraseblock *jeb)
- {
- 	int ret;
- 	uint32_t bad_offset;
---- linux-2.6.10-mm2-full/fs/jffs2/os-linux.h.old	2005-01-08 04:25:12.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/os-linux.h	2005-01-08 04:27:59.000000000 +0100
-@@ -173,11 +173,7 @@
- extern struct inode_operations jffs2_file_inode_operations;
- extern struct address_space_operations jffs2_file_address_operations;
- int jffs2_fsync(struct file *, struct dentry *, int);
--int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg);
- int jffs2_do_readpage_unlock (struct inode *inode, struct page *pg);
--int jffs2_readpage (struct file *, struct page *);
--int jffs2_prepare_write (struct file *, struct page *, unsigned, unsigned);
--int jffs2_commit_write (struct file *, struct page *, unsigned, unsigned);
- 
- /* ioctl.c */
- int jffs2_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
-@@ -208,7 +204,6 @@
- void jffs2_gc_release_page(struct jffs2_sb_info *c,
- 			   unsigned char *pg,
- 			   unsigned long *priv);
--int jffs2_flash_setup(struct jffs2_sb_info *c);
- void jffs2_flash_cleanup(struct jffs2_sb_info *c);
-      
- 
---- linux-2.6.10-mm2-full/fs/jffs2/file.c.old	2005-01-08 04:25:37.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/file.c	2005-01-08 04:27:48.000000000 +0100
-@@ -25,6 +25,11 @@
- extern int generic_file_open(struct inode *, struct file *) __attribute__((weak));
- extern loff_t generic_file_llseek(struct file *file, loff_t offset, int origin) __attribute__((weak));
- 
-+static int jffs2_commit_write (struct file *filp, struct page *pg,
-+			       unsigned start, unsigned end);
-+static int jffs2_prepare_write (struct file *filp, struct page *pg,
-+				unsigned start, unsigned end);
-+static int jffs2_readpage (struct file *filp, struct page *pg);
- 
- int jffs2_fsync(struct file *filp, struct dentry *dentry, int datasync)
- {
-@@ -65,7 +70,7 @@
- 	.commit_write =	jffs2_commit_write
- };
- 
--int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg)
-+static int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg)
- {
- 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
- 	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
-@@ -105,7 +110,7 @@
- }
- 
- 
--int jffs2_readpage (struct file *filp, struct page *pg)
-+static int jffs2_readpage (struct file *filp, struct page *pg)
- {
- 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(pg->mapping->host);
- 	int ret;
-@@ -116,7 +121,8 @@
- 	return ret;
- }
- 
--int jffs2_prepare_write (struct file *filp, struct page *pg, unsigned start, unsigned end)
-+static int jffs2_prepare_write (struct file *filp, struct page *pg,
-+				unsigned start, unsigned end)
- {
- 	struct inode *inode = pg->mapping->host;
- 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
-@@ -198,7 +204,8 @@
- 	return ret;
- }
- 
--int jffs2_commit_write (struct file *filp, struct page *pg, unsigned start, unsigned end)
-+static int jffs2_commit_write (struct file *filp, struct page *pg,
-+			       unsigned start, unsigned end)
- {
- 	/* Actually commit the write from the page cache page we're looking at.
- 	 * For now, we write the full page out each time. It sucks, but it's simple
---- linux-2.6.10-mm2-full/fs/jffs2/fs.c.old	2005-01-08 04:28:06.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/fs.c	2005-01-08 04:28:36.000000000 +0100
-@@ -25,6 +25,7 @@
- #include <linux/crc32.h>
- #include "nodelist.h"
- 
-+static int jffs2_flash_setup(struct jffs2_sb_info *c);
- 
- static int jffs2_do_setattr (struct inode *inode, struct iattr *iattr)
- {
-@@ -644,7 +645,7 @@
- 	page_cache_release(pg);
- }
- 
--int jffs2_flash_setup(struct jffs2_sb_info *c) {
-+static int jffs2_flash_setup(struct jffs2_sb_info *c) {
- 	int ret = 0;
- 	
- 	if (jffs2_cleanmarker_oob(c)) {
---- linux-2.6.10-mm2-full/fs/jffs2/wbuf.c.old	2005-01-08 04:28:50.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/jffs2/wbuf.c	2005-01-08 04:29:01.000000000 +0100
-@@ -1087,7 +1087,7 @@
- };
- 
- 
--int jffs2_nand_set_oobinfo(struct jffs2_sb_info *c)
-+static int jffs2_nand_set_oobinfo(struct jffs2_sb_info *c)
- {
- 	struct nand_oobinfo *oinfo = &c->mtd->oobinfo;
- 
++/* Common stuff */
++HANDLE_IOCTL(FIOCLEX)
++HANDLE_IOCTL(FIONCLEX)
++HANDLE_IOCTL(FIONBIO)
++HANDLE_IOCTL(FIOASYNC)
++HANDLE_IOCTL(FIOQSIZE)
++HANDLE_IOCTL(FIBMAP)
++HANDLE_IOCTL(FIGETBSZ)
++HANDLE_IOCTL(FIONREAD)
+ /* Big T */
+ COMPATIBLE_IOCTL(TCGETA)
+ COMPATIBLE_IOCTL(TCSETA)
 
+
+-- 
+I dont speak for Mellanox.

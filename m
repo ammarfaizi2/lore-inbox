@@ -1,140 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbTJAMkb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 08:40:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTJAMkb
+	id S262099AbTJAMwG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 08:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTJAMwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 08:40:31 -0400
-Received: from scanmail1.cableone.net ([24.116.0.121]:38916 "EHLO
-	scanmail1.cableone.net") by vger.kernel.org with ESMTP
-	id S262055AbTJAMk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 08:40:28 -0400
-Subject: File Permissions are incorrect. Security flaw in Linux
-From: "Lisa R. Nelson" <lisanels@cableone.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eUJ3Nbpl7Vq1lUrEUBiE"
-Organization: 
-Message-Id: <1065012013.4078.2.camel@lisaserver>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Oct 2003 06:40:13 -0600
-X-SMTP-HELO: 24-117-5-213.cpe.cableone.net
-X-SMTP-MAIL-FROM: lisanels@cableone.net
-X-SMTP-PEER-INFO: 24-117-5-213.cpe.cableone.net [24.117.5.213]
+	Wed, 1 Oct 2003 08:52:06 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:25284 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262074AbTJAMwA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 08:52:00 -0400
+Date: Wed, 1 Oct 2003 09:51:33 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@localhost.localdomain
+To: Santiago Garcia Mantinan <manty@manty.net>, <bridge@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
+Subject: Re: bridge breaks loopback on 2.4.22
+In-Reply-To: <20030927202200.GA612@man.beta.es>
+Message-ID: <Pine.LNX.4.44.0309301531530.2511-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-eUJ3Nbpl7Vq1lUrEUBiE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Stephen, 
 
-[1.] One line summary of the problem:   =20
-A low level user can delete a file owned by root and belonging to group
-root even if the files permissions are 744.  This is not in agreement
-with Unix, and is a major security issue.
+Have you looked into this? 
 
-[2.] Full description of the problem/report:=20
-    Permissions on a file basis take precedence over directory
-permissions (for most cases), but in Linux they do not.  In order to
-secure a file, you have to secure the directory which effects all files
-within it. =20
-    As user 'lisa', I do all my work on my server.  One task is to move
-pictures from my digital camera to my server picture directory that is
-wide open to everyone.  All users can create sub-folders and put
-pictures in there.  But every hour I have a cron job run that changes
-the ownership to root, and sets the permissions to 644 on all files in
-that directory structure.  Thinking the files could no longer be altered
-by anyone but root (as would be the case in unix), and found anyone
-could delete them.  That's when I discovered this major bug.
-    I verified this on a sun station today, by simply creating a file in
-a wide open directory with 444 permissions and was then able to delete
-it after the "Ok to delete write-protected file(y/n), but could NOT
-delete a similar file with the same permissions owned by root...  As it
-should be...
-Try this:
+Thank you 
 
-[lisa@localhost lisa]$ su - root
-Password:
-[root@localhost root]# cd /
-[root@localhost /]# mkdir junk
-[root@localhost /]# chmod 777 junk
-[root@localhost /]# ls -l
-total 225
-...
-drwxrwxrwx    2 root     root         4096 Sep 29 07:30 junk
-...
-[root@localhost /]#
-[root@localhost /]# cd junk
-[root@localhost junk]# ls .. > rootfile
-[root@localhost junk]# ls -l
-total 4
--rw-r--r--    1 root     root           95 Sep 29 07:31 rootfile
-[root@localhost junk]# cp rootfile rootfile2
-[root@localhost junk]# cp rootfile rootfile3
-[root@localhost junk]# ls -l
-total 12
--rw-r--r--    1 root     root           95 Sep 29 07:31 rootfile
--rw-r--r--    1 root     root           95 Sep 29 07:32 rootfile2
--rw-r--r--    1 root     root           95 Sep 29 07:32 rootfile3
-[root@localhost junk]# chmod 444 rootfile2
-[root@localhost junk]# chmod 000 rootfile3
-[root@localhost junk]# ls -l
-total 12
--rw-r--r--    1 root     root           95 Sep 29 07:31 rootfile
--r--r--r--    1 root     root           95 Sep 29 07:32 rootfile2
---    1 root     root           95 Sep 29 07:32 rootfile3
-[root@localhost junk]#exit
-[lisa@localhost lisa]$ cd /junk
-[lisa@localhost junk]$ ls -l
-total 12
--rw-r--r--    1 root     root           95 Sep 29 07:31 rootfile
--r--r--r--    1 root     root           95 Sep 29 07:32 rootfile2
---    1 root     root           95 Sep 29 07:32 rootfile3
-[lisa@localhost junk]$
-[lisa@localhost junk]$ rm root*
-rm: remove write-protected regular file `rootfile'? y
-rm: remove write-protected regular file `rootfile2'? y
-rm: remove write-protected regular file `rootfile3'? y
-[lisa@localhost junk]$ ls -l
-total 0
-[lisa@localhost junk]$
-Notice that all three files that 'lisa' does not have write permissions
-to are gone! =20
+On Sat, 27 Sep 2003, Santiago Garcia Mantinan wrote:
+
+> Hi!
+> 
+> Since the change to 2.4.22 I've been experimenting problems here, after
+> many tests I have seen what I think is the problem that is causing this.
+> 
+> The problem I'm seing is the loopback starts loosing packages, I don't know
+> if this could also happen on other interfaces. I'm testing this by starting
+> a:
+> 	tcpdump -n -i lo port
+> then a:
+> 	nc -n -l port >/dev/null
+> and a:
+> 	nc localhost port </dev/zero
+> 
+> If everything is fine my cpu goes to 100% and I see the packages all the way
+> in my tcpdump screen, great. But there are sometimes when this doesn't go
+> smooth and the tcpdump starts to show only one or two packages each N
+> seconds, till it ends up showing the resend of the last package which is
+> never acknowledged, you can even see that the timings of this packages that
+> are being repeated match those of tcp backoff, my cpu charge is then really
+> really low, nc disconnects after a while, ...
+> 
+> When does this happen?
+> 
+> It took me a while to find this out, but it happens when you have a bridge
+> interface and one of the ports of the bridge is told to drop packages, like
+> when they detect a loop in the net and an interface is set to a blocking
+> state.
+> 
+> Of course that the loopback is not a part of any bridge in any of my setups,
+> and I've seen this in a couple of machines, one SMP and the other one single
+> micro, 2.4.21 worked ok, at least I could not reproduce this on that one. If
+> the interfaces have been in a forwarding state all the time since the bridge
+> was setup, without being in a blocking state, then this problem does not
+> seem to happen.
+> 
+> I believe that the changes the bridge went through from 2.4.21 to 2.4.22 are
+> to blame on this one, but this is just a guess.
+> 
+> Hope we can find a fix for this so that it is integrated in 2.4.23 kernel,
+> I'll be happy to make any tests you want to track this farther down.
+> 
+> Regards...
+> 
 
 
-[3.] Keywords (i.e., modules, networking, kernel):
-kernel file permissions security
-
-[4.] Kernel version (from /proc/version):=20
-[root@localhost proc]# cat version
-Linux version 2.4.20-20.9 (root@rwbp4) (gcc version 3.2.2 20030222 (Red
-Hat Linux 3.2.2-5)) #1 Wed Aug 20 17:41:55 EDT 2003
-[root@localhost proc]#
-
-[5.] Output of Oops.. message
-None=20
-[6.] A small shell script or example
-See Above
-
-http://www.auburn.edu/oit/software/os/unix_files.html
-http://www.dartmouth.edu/~rc/help/faq/permissions.html
-http://www.december.com/unix/tutor/permissions.html
-http://www.itc.virginia.edu/desktop/web/permissions/
-
-
-
---=-eUJ3Nbpl7Vq1lUrEUBiE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/esst1/1mqQZ8DYsRAqmSAJ9psuNfH1TYwDL8CQFSEPM9s8nMVACgyh6y
-dE8bZViGLrs835TSzpsgd60=
-=GRTy
------END PGP SIGNATURE-----
-
---=-eUJ3Nbpl7Vq1lUrEUBiE--
 

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264054AbTFDUot (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 16:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264063AbTFDUos
+	id S264061AbTFDUjC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 16:39:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbTFDUhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 16:44:48 -0400
-Received: from thumper2.emsphone.com ([199.67.51.102]:35470 "EHLO
-	thumper2.emsphone.com") by vger.kernel.org with ESMTP
-	id S264054AbTFDUn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 16:43:57 -0400
-Date: Wed, 4 Jun 2003 15:57:16 -0500
-From: Andrew Ryan <genanr@emsphone.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
-Message-ID: <20030604205716.GA11537@thumper2.emsphone.com>
-References: <200306031912.53569.mflt1@micrologica.com.hk> <20030603144257.GA31734@thumper2.emsphone.com> <shs7k83p2g6.fsf@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <shs7k83p2g6.fsf@charged.uio.no>
-User-Agent: Mutt/1.5.4i
+	Wed, 4 Jun 2003 16:37:09 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:11490 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264060AbTFDUgK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 16:36:10 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: 2.4.21-rc7 ACPI broken
+Date: Wed, 4 Jun 2003 13:49:37 -0700
+Message-ID: <F760B14C9561B941B89469F59BA3A847E96F25@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4.21-rc7 ACPI broken
+Thread-Index: AcMq2k7u5BR3I0NETG+DAJ1k+UWDIAAAFyzg
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "Grzegorz Jaskiewicz" <gj@pointblue.com.pl>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Jun 2003 20:49:38.0311 (UTC) FILETIME=[D0571170:01C32ADA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03, 2003 at 06:10:01PM +0200, Trond Myklebust wrote:
-> 
-> Tough. 'soft' is not a priority of mine. It is a broken feature...
->
-No, it is a broken feature in *LINUX* post 2.4.20pre3, it's not broken in
-FreeBSD or Tru64.  Regardless of what Trond says about soft mounts they
-should work in Linux just as well as they do in other OSes, such as FreeBSD.
+> From: Grzegorz Jaskiewicz [mailto:gj@pointblue.com.pl] 
+> > > ACPI: Core Subsystem version [20011018]
+> >
+> > Old ACPI code, get patch from http://sf.net/projects/acpi 
+> and report back
+> > if problems persist.
+> Any chance to get patch against latest -rc7 ?
 
-I've tried to debug and I have seen no timeouts.  I believe something is up
-with the congestion routines that were added.
+It's big, and deemed too risky. We are shooting for 2.4.22-pre1.
 
-Yes, hard mounts work.  But so soft ones.  Linux should not have a
-broken NFS.
+Did it work for you?
 
-Andy
-
-  
+Regards -- Andy

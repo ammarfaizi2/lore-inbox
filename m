@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315372AbSHBWMw>; Fri, 2 Aug 2002 18:12:52 -0400
+	id <S316709AbSHBW0Y>; Fri, 2 Aug 2002 18:26:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316541AbSHBWMw>; Fri, 2 Aug 2002 18:12:52 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:13319 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S315372AbSHBWMv>;
-	Fri, 2 Aug 2002 18:12:51 -0400
-Date: Fri, 2 Aug 2002 15:14:21 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       "Peter J. Braam" <braam@clusterfs.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: BIG files & file systems
-In-Reply-To: <200208021726.g72HQFU445780@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.33L2.0208021507420.14068-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317378AbSHBW0Y>; Fri, 2 Aug 2002 18:26:24 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:41996 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316709AbSHBW0Y>;
+	Fri, 2 Aug 2002 18:26:24 -0400
+Date: Fri, 2 Aug 2002 15:27:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Stephen Cameron <steve.cameron@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.30 breaks cciss driver?
+Message-ID: <20020802222758.GA1687@kroah.com>
+References: <20020802154751.A1943@zuul.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020802154751.A1943@zuul.cca.cpqcorp.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Fri, 05 Jul 2002 21:12:40 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Aug 2002, Albert D. Cahalan wrote:
+On Fri, Aug 02, 2002 at 03:47:51PM -0500, Stephen Cameron wrote:
+> 
+> I just saw this problem with 2.5.30.
+> 
+> I can't mount my 2nd volume on a cciss controller (SmartArray 5i)
+> 
+> < /dev/cciss/c0d1p1 /u1
+> No such device or address
+> 
+> The first volume, /dev/cciss/c0d0p1, works fine
+> (I'm booted from it.)
+> 
+> Reboot 2.5.29, both volumes work fine.
+> 
+> I don't have time to look into this right now,
+> but I thought I'd mention it in case someone else
+> does have time.  Looks like there was some partition 
+> code and/or devfs changes...
 
-| Matti Aarnio writes:
-|
-| >   It depends on many things:
-| >    - Block layer (unsigned long)
-| >    - Page indexes (unsigned long)
-| >    - Filesystem format dependent limits
-| >       - EXT2/EXT3: u32_t FILESYSTEM block index, presuming the EXT2/EXT3
-| >                    is supported only up to 4 kB block sizes, that gives
-| >                    you a very hard limit.. of 16 terabytes (16 * "10^12")
-|
-| You first hit the triple-indirection limit at 4 TB.
-| http://www.cs.uml.edu/~acahalan/linux/ext2.gif
-|
-| >       - ReiserFS:  u32_t block indexes presently, u64_t in future;
-| >                    block size ranges ?   Max size is limited by the
-| >                    maximum supported file size, likely 2^63, which is
-| >                    roughly  8 * "10^18", or circa 500 000 times larger
-| >                    than EXT2/EXT3 format maximum.
-|
-| The top 4 st_size bits get stolen, so it's 60-bit sizes.
-| You also get the 32-bit block limit at 16 TB.
-| -
+Are you running in "devfs=only" mode?  If so, the changes I made
+probably are the cause of this.
 
-For a LinuxWorld presentation in August, I have asked each of the
-4 journaling filesystems (ext3, reiserfs, JFS, and XFS) what their
-filesystem/filesize limits are.  Here's what they have told me.
+thanks,
 
-                      ext3fs     reiserfs     JFS     XFS
-max filesize:         16 TB#      1 EB       4 PB$   8 TB%
-max filesystem size:   2 TB      17.6 TB*    4 PB$   2 TB!
-
-Notes:
-#: think sparse files
-*: 4 KB blocks
-$: 16 TB on 32-bit architectures
-%: 4 KB pages
-!: block device limit
-
-
--- 
-~Randy
-
+greg k-h

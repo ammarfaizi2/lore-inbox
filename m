@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264719AbRFSS4Q>; Tue, 19 Jun 2001 14:56:16 -0400
+	id <S264421AbRFSTDi>; Tue, 19 Jun 2001 15:03:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264702AbRFSS4G>; Tue, 19 Jun 2001 14:56:06 -0400
-Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:25841 "HELO
-	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S264709AbRFSSzs>; Tue, 19 Jun 2001 14:55:48 -0400
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880AB2@xsj02.sjs.agilent.com>
-From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: how to get DMA'able memory within 4GB on 64-bit machine
-Date: Tue, 19 Jun 2001 12:55:30 -0600
+	id <S264722AbRFSTDS>; Tue, 19 Jun 2001 15:03:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29201 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264421AbRFSTDN>; Tue, 19 Jun 2001 15:03:13 -0400
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+To: steveu@coppice.org (Steve Underwood)
+Date: Tue, 19 Jun 2001 20:01:56 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B2F91A5.49C7219C@coppice.org> from "Steve Underwood" at Jun 20, 2001 01:53:41 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15CQlA-0006Tr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
+> How about "If you think you need threads, stop programming with closed
+> sourced libraries where the documentation doesn't give you a clue how
+> you might make things work within a state machine way"
 
-Is there a way for a driver to ask kernel to
-give DMA'able memory within 4GB ? I read about
-pci_alloc_consistent(). But I could not find out
-whether that guarantees the DMA'able memory to be
-within 4GB or not. Is there any other kernel routine
-that I should call from Driver to get such a memory ?
+Linux inherits several unix properties which are not friendly to good state
+based programming - lack of good AIO for one.
 
-Regards,
--hiren
-hiren_mehta@agilent.com
+

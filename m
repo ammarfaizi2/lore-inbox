@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVCWOEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVCWOGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVCWOEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 09:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVCWOEP
+	id S261597AbVCWOGC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 09:06:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVCWOGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 09:04:15 -0500
-Received: from smtp-out.tiscali.no ([213.142.64.144]:62982 "EHLO
-	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262399AbVCWOD7
+	Wed, 23 Mar 2005 09:06:02 -0500
+Received: from mx03.cybersurf.com ([209.197.145.106]:33686 "EHLO
+	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S261597AbVCWOF4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 09:03:59 -0500
-Subject: Re: forkbombing Linux distributions
-From: Natanael Copa <mlists@tanael.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: aq <aquynh@gmail.com>, "Hikaru1@verizon.net" <Hikaru1@verizon.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050323134525.GA5374@harddisk-recovery.com>
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-	 <20050322112628.GA18256@roll>
-	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
-	 <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
-	 <20050323134525.GA5374@harddisk-recovery.com>
+	Wed, 23 Mar 2005 09:05:56 -0500
+Subject: Re: memory leak in net/sched/ipt.c?
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <Pine.LNX.4.61.0503231438290.10048@yvahk01.tjqt.qr>
+References: <E1DE44X-0001QM-00@gondolin.me.apana.org.au>
+	 <1111581618.1088.72.camel@jzny.localdomain>
+	 <20050323125516.GP3086@postel.suug.ch>
+	 <1111583497.1089.92.camel@jzny.localdomain>
+	 <Pine.LNX.4.61.0503231438290.10048@yvahk01.tjqt.qr>
 Content-Type: text/plain
-Date: Wed, 23 Mar 2005 15:03:56 +0100
-Message-Id: <1111586636.27969.81.camel@nc>
+Organization: jamalopolous
+Message-Id: <1111586750.1075.0.camel@jzny.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 23 Mar 2005 09:05:50 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-23 at 14:45 +0100, Erik Mouw wrote:
-> On Wed, Mar 23, 2005 at 01:37:38PM +0100, Natanael Copa wrote:
-> > On Wed, 2005-03-23 at 19:56 +0900, aq wrote:
-> > > > /etc/limits does a better job at stopping forkbombs.
-> > 
-> > but does not limit processes that are started from the boot scripts. So
-> > if a buggy non-root service is exploited, an attacker would be able to
-> > easily shut down the system.
+On Wed, 2005-03-23 at 08:40, Jan Engelhardt wrote:
+> >I have seen people put little comments of "kfree will work if you
+> >pass it NULL" - are you saying such assumptions exist all over
+> >net/sched?
 > 
-> That's easy to fix: set limits from initrd or initramfs.
+> Not only net/sched. The C standard requires that free(NULL) works.
 
-..or run "ulimit -u" early in the boot scripts.
+Thanks for clarifying this.
 
-What I suggest is doing the reverse. Let the kernel be restrictive by
-default and let distro's or sysadmins open up if they need more
-processes.
-
---
-Natanael Copa
-
+cheers,
+jamal
 

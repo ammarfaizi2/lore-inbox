@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129108AbRBTQt1>; Tue, 20 Feb 2001 11:49:27 -0500
+	id <S129115AbRBTQxI>; Tue, 20 Feb 2001 11:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129115AbRBTQtR>; Tue, 20 Feb 2001 11:49:17 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:42408 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129108AbRBTQtK>; Tue, 20 Feb 2001 11:49:10 -0500
-Message-ID: <3A929DF2.CDA7F949@sympatico.ca>
-Date: Tue, 20 Feb 2001 11:40:18 -0500
-From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+	id <S129444AbRBTQw6>; Tue, 20 Feb 2001 11:52:58 -0500
+Received: from kxmail.berlin.de ([195.243.105.30]:21894 "EHLO kxmail.berlin.de")
+	by vger.kernel.org with ESMTP id <S129115AbRBTQwq>;
+	Tue, 20 Feb 2001 11:52:46 -0500
+Message-ID: <3A92A071.8D7906C8@berlin.de>
+Date: Tue, 20 Feb 2001 17:50:57 +0100
+From: Norbert Roos <n.roos@berlin.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-7 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Xavier Bestel <xavier.bestel@free.fr>
-CC: Andreas Bombe <andreas.bombe@munich.netsurf.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Is this the ultimate stack-smash fix?
-In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca>  
-		<m1lmr98c5t.fsf@frodo.biederman.org> <3A8ADA30.2936D3B1@sympatico.ca>  
-		<m1hf1w8qea.fsf@frodo.biederman.org> <3A8BF5ED.1C12435A@colorfullife.com>  
-		<m1k86s6imn.fsf@frodo.biederman.org> <20010217084330.A17398@cadcamlab.org>  
-		<m1y9v4382r.fsf@frodo.biederman.org>  <20010220021012.A1481@storm.local> <200102200909.KAA12190@microsoft.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Probs with PCI bus master DMA to user space
+In-Reply-To: <Pine.LNX.3.96.1010220084656.23246Q-100000@mandrakesoft.mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel wrote:
-
-> Le 20 Feb 2001 02:10:12 +0100, Andreas Bombe a écrit :
+Jeff Garzik wrote:
+> 
+> On Tue, 20 Feb 2001, Norbert Roos wrote:
+> 
+> > Jeff Garzik wrote:
 > >
-> > An array is a word that contains the address of the first element.
->
-> No. Exercise 3: compile and run this:
-> file a.c:
-> char array[] = "I'm really an array";
->
-> file b.c:
-> extern char* array;
-> main() { printf("array = %s\n", array); }
->
+> > > > But the buffers are usually allocated with malloc() by any application
+> > > > which wants to use my driver.. otherwise my driver would have to offer a
 
-try file b.c
-extern char array;
-main() { printf("array= %s\n", &array); }
+> 
+> fd = open(...);
+> buf = mmap(fd, ...);
+> fill_buffer_with_data(buf);
+> ioctl(fd, ...); /* tell kernel data is there */
+> 
 
-?
+Hm hm - this is exactly what i wanted to avoid: The application should
+not
+be modified only to be able to use my driver - and if it is using
+malloc(), it would have to be modified..
 
->
-> ... and watch it biting the dust !
-> in short: an array is NOT a pointer.
+Thanks anyway!
 
+Norbert

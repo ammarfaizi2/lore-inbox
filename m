@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289067AbSAGAyc>; Sun, 6 Jan 2002 19:54:32 -0500
+	id <S286462AbSAGBEN>; Sun, 6 Jan 2002 20:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289065AbSAGAyW>; Sun, 6 Jan 2002 19:54:22 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:6418 "EHLO
+	id <S289062AbSAGBED>; Sun, 6 Jan 2002 20:04:03 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:1287 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289063AbSAGAyN>; Sun, 6 Jan 2002 19:54:13 -0500
-Message-ID: <3C38F077.32064893@zip.com.au>
-Date: Sun, 06 Jan 2002 16:48:55 -0800
+	id <S286462AbSAGBDu>; Sun, 6 Jan 2002 20:03:50 -0500
+Message-ID: <3C38F2BE.EF5E5DA3@zip.com.au>
+Date: Sun, 06 Jan 2002 16:58:38 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Chris Pitchford <cpitchford@intrepid.co.uk>
+To: Stefan Frank <sfr@gmx.net>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Ethernet/SCSI/PCI problems when enabling SMP on 2.4.17: VP6, 
- aix7xxx& 3c595
-In-Reply-To: <Pine.LNX.4.33.0201062057400.18876-100000@boatman.intrepnet>
+Subject: Re: [2nd Oops] 2.4.17, looks ext3 related
+In-Reply-To: <20020106224633.GA725@asterix>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Pitchford wrote:
+Stefan Frank wrote:
 > 
-> Hi all,
+> Some more oopses occured this evening after a  strange behaviour:
 > 
-> I am experiencing problems using a 3Com Network card and Adaptec SCSI
-> card under 2.4.17 in SMP mode. Since the only other PCI card in my system
-> is a very under used sound card I am wondering if this is a deeper
-> problem with SMP under Linux on my system.
+> A few hours ago i noticed that the system load was stable around 1, but
+> according to top no process was responsible. I just ignored it but
+> then vim got stuck when quitting it inside a xterm. What followed were 3
+> oopses of different processes (see ksymoops decoding below).
 > 
-> I recently installed two Intel P3 Coppermine processors onto my Abit
-> VP6 motherboard and recompiled my kernel as SMP. I am seeing
-> problems that never once occured during the month I ran the system
-> with one P3 processor in UP mode.
-> 
-> During light network load I am seeing messages appear frequently in the
-> kernel messages and the network card stop receiving/transmitting traffic
-> out onto the network. This did not happen (and does not happen) when
-> running Uni-processor:
-> 
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: transmit timed out, tx_status 00 status e000.
->   diagnostics: net 0c80 media 88c0 dma ffffffff.
-> eth0: Updating statistics failed, disabling stats as an interrupt source.
->
+> Somewhere between the 2nd and the 3rd oops (i'm NOT exactly shure when) the
+> system load went up to around 7. Again no, process seemed responsible.
 
-I've never seen that one before.  There's this comment in the source:
+The system load goes up by one for each process which is stuck on
+a semaphore.  You have lots of processes stuck on a semaphore because
+a process took an oops with a semaphore held, and killed itself
+without releasing the semaphore.
 
-        update_stats(ioaddr, dev);
-        /* HACK: Disable statistics as an interrupt source. */                                    /* This occurs when we have the wrong media type! */
-        if (DoneDidThat == 0  &&
-            inw(ioaddr + EL3_STATUS) & StatsFull) {
-            printk(KERN_WARNING "%s: Updating statistics failed, disabling "
-                   "stats as an interrupt source.\n", dev->name);
+> Jan  6 19:58:46 asterix kernel:  printing eip:
+> Jan  6 19:58:46 asterix kernel: c012ea98
+> Jan  6 19:58:46 asterix kernel: Oops: 0000
+> Jan  6 19:58:46 asterix kernel: CPU:    0
+> Jan  6 19:58:46 asterix kernel: EIP:    0010:[get_hash_table+104/144]
 
-But it looks like you don't have the wrong media type?  Please check
-this.
+We appear to not have the faulting address.  And because klogd attempted
+to interpret the oops, we don't have the instruction decode which would
+allow us to work out the faulting address.
 
+Please.  edit /etc/rc.d/init.f/syslog (or equivalent) and ensure that
+klogd is launched with the `-x' option:
 
-The 3c595 is ancient, and there are numerous reports of PCI bus
-problems with it.  Fiddling with the PCI latency timers sometimes
-helps.
+        daemon klogd -x $KLOGD_OPTIONS
 
-My advice: buy another NIC.  Even a ten-dollar rtl8139 will
-perform better than the 3c595.  Sorry.
+Once this is done, your logs will be ksymoops-friendly.
+
+So.  Why did it oops?  Don't know.  The buffercache hashtable has
+become corrupted.  Could be bad memory, could be some part of the
+kernel (any part) scribbled on memory.  And the latter is one of
+the very hardest bugs to find.
 
 -

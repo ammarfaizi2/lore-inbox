@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293515AbSCGOi5>; Thu, 7 Mar 2002 09:38:57 -0500
+	id <S310348AbSCGOkr>; Thu, 7 Mar 2002 09:40:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310170AbSCGOir>; Thu, 7 Mar 2002 09:38:47 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:60595 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S293515AbSCGOii>; Thu, 7 Mar 2002 09:38:38 -0500
-Message-Id: <200203071350.GAA05585@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.5.5-dj3, small update to drivers/telephony/Config.help
-Date: Thu, 7 Mar 2002 07:36:14 -0700
+	id <S310170AbSCGOkc>; Thu, 7 Mar 2002 09:40:32 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:10886 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S293729AbSCGOkO>;
+	Thu, 7 Mar 2002 09:40:14 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: furwocks: Fast Userspace Read/Write Locks
+Date: Thu, 7 Mar 2002 09:41:11 -0500
 X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+In-Reply-To: <E16iwkE-000216-00@wagner.rustcorp.com.au> <3C875FD1.4040904@loewe-komp.de>
+In-Reply-To: <3C875FD1.4040904@loewe-komp.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020307144006.B9D213FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch modifies the help text for CONFIG_PHONE_IXJ_PCMCIA in
-drivers/telephony/Config.help.  The text was improved by Alan Cox
-in 2.4.19-pre2-ac3.  This patch will also apply to 2.5.6-pre3.
+On Thursday 07 March 2002 07:40 am, Peter Wächtler wrote:
+> Rusty Russell wrote:
+> > This is a userspace implementation of rwlocks on top of futexes.
+>
+> With the futex approach in mind: Does anybody think it's desirable to have
+>
+> pthread_cond_wait/signal and pthread_mutex_* with inter process scope build
+> into the kernel as system call?
+>
 
-Steven
+Yes, I talked with Bill Abt from IBM's NPthreads package about it in 
+December. Huge value as it would provide full POSIX compliants.
+There are differences whether you have a 1:1 threading model or
+a M:N threading model.
 
---- linux-2.5.5-dj3/drivers/telephony/Config.help.orig  Thu Mar  7 07:25:22 2002
-+++ linux-2.5.5-dj3/drivers/telephony/Config.help       Thu Mar  7 07:26:04 2002
-@@ -28,6 +28,6 @@
+Eitherway this could be implemented using futexes. 
+M:N is surely more tricky. The problem is that the calling process/kernel 
+thread can not be blocked but has to return to user level to continue another 
+user level thread. What needs to happen is something like a signaling 
+mechanism.
 
- CONFIG_PHONE_IXJ_PCMCIA
-   Say Y here to configure in PCMCIA service support for the Quicknet
--  cards manufactured by Quicknet Technologies, Inc.  This changes the
--  card initialization code to work with the card manager daemon.
-+  cards manufactured by Quicknet Technologies, Inc.  This builds an
-+  additional support module for the PCMCIA version of the card.
+
+> The only issue I see so far, is that libpthread should get a "reserved"
+> namespace entry ( /dev/shm/.linuxthreads-locks ?) to hold all the
+> PTHREAD_PROCESS_SHARE locks/condvars.
+>
+> OTOH Irix seems to implement inter process locks as syscall, so that the
+> kernel does all the bookkeeping. That approach denies a malicious program
+> to trash all locks in the system...
+>
+> Hmh, then we could implement a per user /dev/shm/.linuxthreads-lock-<uid>
+> with tight permissions?
+>
+> What do you think?
+
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

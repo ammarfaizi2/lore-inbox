@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284850AbRLEXt2>; Wed, 5 Dec 2001 18:49:28 -0500
+	id <S284854AbRLEXrI>; Wed, 5 Dec 2001 18:47:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284864AbRLEXtV>; Wed, 5 Dec 2001 18:49:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:264 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284861AbRLEXtH>; Wed, 5 Dec 2001 18:49:07 -0500
-Subject: Re: Loadable drivers  [was  SMP/cc Cluster description ]
-To: ak@suse.de (Andi Kleen)
-Date: Wed, 5 Dec 2001 23:56:23 +0000 (GMT)
-Cc: erich@uruk.org, linux-kernel@vger.kernel.org
-In-Reply-To: <p738zch8kix.fsf@amdsim2.suse.de> from "Andi Kleen" at Dec 05, 2001 09:44:06 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284851AbRLEXqw>; Wed, 5 Dec 2001 18:46:52 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:34474 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S284854AbRLEXqa>;
+	Wed, 5 Dec 2001 18:46:30 -0500
+Date: Wed, 5 Dec 2001 15:46:18 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler Cleanup
+Message-ID: <20011205154618.B24407@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <20011205135851.D1193@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.40.0112051539130.1644-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Blto-00081l-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.40.0112051539130.1644-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Wed, Dec 05, 2001 at 03:44:42PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The solution that is tried in Linux land to avoid the "buggy drivers" ->
-> "linux going to windows levels of stability" trap is to keep drivers in tree
-> and aggressively auditing them; trying to fix their bugs.
+On Wed, Dec 05, 2001 at 03:44:42PM -0800, Davide Libenzi wrote:
+> Anyway me too have verified an increased latency with sched_yield() test
+> and next days I'm going to try the real one with the cycle counter
+> sampler.
+> I've a suspect, but i've to see the disassembly of schedule() before
+> talking :)
 
-We need to teach Linus about "taste" in drivers. His core code taste is
-impeccable, but I'm not fond of his driver taste ;)
+One thing to note is that possible acquisition of the runqueue
+lock was reintroduced in sys_sched_yield().  From looking at
+the code, it seems the purpose was to ?add fairness? in the case
+of multiple yielders.  Is that correct Ingo?
 
-Alan (currently cleaning up NCR5380)
-
+-- 
+Mike

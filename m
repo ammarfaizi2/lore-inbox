@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131418AbQKAUyE>; Wed, 1 Nov 2000 15:54:04 -0500
+	id <S131598AbQKAUzE>; Wed, 1 Nov 2000 15:55:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131591AbQKAUxy>; Wed, 1 Nov 2000 15:53:54 -0500
-Received: from smtp-abo-1.wanadoo.fr ([193.252.19.122]:21697 "EHLO
-	villosa.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S131590AbQKAUxm>; Wed, 1 Nov 2000 15:53:42 -0500
-Date: Wed, 1 Nov 2000 22:03:27 +0100
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Looking for better 2.2-based VM (do_try_to_free_pages fails, machine hangs)
-Message-ID: <20001101220326.A4514@bylbo.nowhere.earth>
-In-Reply-To: <20001101174816.A18510@athlon.random> <Pine.LNX.4.21.0011011456430.11112-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0011011456430.11112-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, Nov 01, 2000 at 02:59:01PM -0200
-From: Yann Dirson <ydirson@altern.org>
+	id <S131602AbQKAUyy>; Wed, 1 Nov 2000 15:54:54 -0500
+Received: from animal.cs.chalmers.se ([129.16.225.30]:26602 "EHLO
+	animal.cs.chalmers.se") by vger.kernel.org with ESMTP
+	id <S131599AbQKAUym>; Wed, 1 Nov 2000 15:54:42 -0500
+Date: Wed, 1 Nov 2000 21:54:30 +0100 (MET)
+From: Dennis Bjorklund <dennisb@cs.chalmers.se>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Broadcast
+In-Reply-To: <Pine.LNX.3.95.1001101150538.4511A-100000@chaos.analogic.com>
+Message-ID: <Pine.SOL.4.21.0011012143200.20182-100000@muppet17.cs.chalmers.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2000 at 02:59:01PM -0200, Rik van Riel wrote:
+On Wed, 1 Nov 2000, Richard B. Johnson wrote:
 
-Andrea wrote:
-> (btw, make sure you're using the -7 revision of the VM-global patch, as it
-> includes the same MM corruption bugfix that is been included into 18pre18)
-
-Damn, I was using -6.  http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre9/ does not have -7.
-Neither does your e-mind repository hlinked from linux-mm.
-
-I'm currently running -6 :(
-
-
-On Wed, Nov 01, 2000 at 02:59:01PM -0200, Rik van Riel wrote:
-> it appears there has been amazingly little research on this
-> subject and it's completely unknown which approach will work
-> "best" ... or even, what kind of behaviour is considered to
-> be best by the users...
-
-Sounds to me like a good point to favour a config-time selection of
-OOM killers.
-
-
-> On Wed, 1 Nov 2000, Andrea Arcangeli wrote:
-> > Fair enough as there isn't an oom killer in the kernel you're
-> > running :). So it can kill unlucky tasks as well.
+> > I'm trying to turn of the broadcast flag for a network card. But I
+> > can't, why??
 > 
-> There's a (slightly outdated?) patch available on my home
-> page, though...
+> Your version of `ifconfig` is probably broken (just like mine).
+> `strace` it and see:
+> ioctl(5, SIOCGIFFLAGS, 0xbffff620)      = 0
+> ioctl(5, SIOCSIFFLAGS, 0xbffff620)      = 0
+> 
+> In this case the flags were gotten with SIOCGIFFLAGS, then the
+> exact same stuff was written back with SIOCSIFFLAGS.
 
-Found http://www.surriel.com/patches/2.2.17pre8-oomkill.  Will take a
-look, thanks.
+IFF_BROADCAST is bit number 1 (that is 0x2). So in this case it indicates
+that the broadcast bit is not set before and not set after. But why do I
+see BROADCAST listed when i do "ifconfig eth1" then. This bit should be
+set.
 
+Right now I'm a bit confused. There is something strange going on here
+that I don't understand. 
 
-> Not because I think it matters all that much on most systems
-> (good admins put in enough memory&swap), but simply because
+/Dennis
 
-Ah, I'll have to reconsider how much I rate my skills :)
-
-Best regards,
--- 
-Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
-debian-email:   <dirson@debian.org> |   Support Debian GNU/Linux:
-                                    | Cheaper, more Powerful, more Stable !
-http://ydirson.free.fr/             | Check <http://www.debian.org/>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277964AbRJIU4Y>; Tue, 9 Oct 2001 16:56:24 -0400
+	id <S277966AbRJIU7M>; Tue, 9 Oct 2001 16:59:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277973AbRJIU4M>; Tue, 9 Oct 2001 16:56:12 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13952 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S277967AbRJIUz7>; Tue, 9 Oct 2001 16:55:59 -0400
-Date: Tue, 9 Oct 2001 16:52:56 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Fabbione <fabbione@fabbione.net>
-cc: Kitwor <kitwor@kki.net.pl>, linux-kernel@vger.kernel.org
+	id <S277968AbRJIU7C>; Tue, 9 Oct 2001 16:59:02 -0400
+Received: from colorfullife.com ([216.156.138.34]:28178 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S277966AbRJIU67>;
+	Tue, 9 Oct 2001 16:58:59 -0400
+Message-ID: <001401c15105$544ea0d0$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "\"Kitwor\"" <kitwor@kki.net.pl>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: PROBLEM: old exploit works!!!
-In-Reply-To: <3BC35EF1.DB7E1824@fabbione.net>
-Message-ID: <Pine.LNX.3.95.1011009165125.4351A-100000@chaos.analogic.com>
+Date: Tue, 9 Oct 2001 22:59:40 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, Fabbione wrote:
+> Old exploit which works on kernels up to 2.2.18 (itr doesn't work on 2.2.19)
+> works on 2.4.9!!
+> I attach that exploit.
+> [snip]
+> if (check_execve(victim, filename))
+> 	goto exit;
+>
+>  (void)waitpid(victim, NULL, WUNTRACED);
+>  if (ptrace(PTRACE_CONT, victim, 0, 0)) {
 
-> I made the same test but it just locked the xterm.
-> 
-> Fabbione
+It doesn't work, only the behaviour changed:
+Linux now ignores the setuid bit if you try to ptrace a setuid app (idea from FreeBSD).
+Up to 2.2.18 [and 2.4.0-pre?], it tried to return an error message if you try to ptrace a setuid app, and there was a race window
+between the test (must be early, since it tries to return an error code) and the actual uid change. I haven't checked how it was
+fixed in 2.2.19.
 
-Yup. No exploit. Everytime I see a 'c' file with ^M at
-the end of each line, is should set a red flag. It's
-a troll.
+--
+    Manfred
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
 
 

@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130900AbRCWOlj>; Fri, 23 Mar 2001 09:41:39 -0500
+	id <S131076AbRCWOvT>; Fri, 23 Mar 2001 09:51:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131028AbRCWOla>; Fri, 23 Mar 2001 09:41:30 -0500
-Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:55538
-	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
-	with SMTP id <S130900AbRCWOlU>; Fri, 23 Mar 2001 09:41:20 -0500
-Date: Fri, 23 Mar 2001 15:40:41 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: <bunk@pluto.fachschaften.tu-muenchen.de>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.2-ac21 
-In-Reply-To: <Pine.LNX.4.10.10103230910390.27532-100000@athena.intergrafix.net>
-Message-ID: <Pine.NEB.4.33.0103231534460.26755-100000@pluto.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131079AbRCWOvJ>; Fri, 23 Mar 2001 09:51:09 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:37952 "EHLO
+	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S131076AbRCWOvA>; Fri, 23 Mar 2001 09:51:00 -0500
+Date: Fri, 23 Mar 2001 15:47:52 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Dawson Engler <engler@csl.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
+Subject: Re: [CHECKER] blocking w/ spinlock or interrupt's disabled
+Message-ID: <20010323154752.H12408@garloff.casa-etp.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Dawson Engler <engler@csl.Stanford.EDU>,
+	linux-kernel@vger.kernel.org, mc@cs.stanford.edu
+In-Reply-To: <200103180423.UAA17766@csl.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="TKDEsImF70pdVIl+"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200103180423.UAA17766@csl.Stanford.EDU>; from engler@csl.Stanford.EDU on Sat, Mar 17, 2001 at 08:23:34PM -0800
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Admin Mailing Lists wrote:
 
-> > >It was causing SMP boxes to crash mysteriously after
-> > >several hours or days.  Quite a lot of them.  Nobody
-> > >was able to explain why, so it was turned off.
-> >
-> > I know why it was turned off by default.  The annoying this is that now
-> > the *only* way to activate the watchdog is via a boot command.  It is
-> > not possible to compile a standard debugging kernel with this option
-> > turned on, you have to rely on every user setting the boot options for
-> > every kernel.  If it is going to be off by default there should be a
-> > way to patch the kernel to make it on by default.
-> >
->
-> i'm troubled by that fact that something the would be used to debug the
-> kernel, is something that actually causes crashes. doesn't that kind of
-> defeat the purpose..and introduce just another unstable element to the
-> problem/crash at hand?
+--TKDEsImF70pdVIl+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi Dawson,
 
-I had some unreproducable system crashes with NO watchdog and NO SMP
-enabled that do no longer occure since I compile my kernels without
-CONFIG_DEBUG_KERNEL. I don't know if it this is related, but there seems
-to be a problem in one of the "Kernel hacking" options that isn't related
-to watchdog or SMP.
+On Sat, Mar 17, 2001 at 08:23:34PM -0800, Dawson Engler wrote:
+> > enclosed are 163 potential bugs in 2.4.1 where blocking functions are
+> > called with either interrupts disabled or a spin lock held.  The
+> > checker works by:=20
+>=20
+> Here's the file manifest.  Apologies.
+>=20
+[...]
+> drivers/scsi/tmscsim.c
+[...]
 
+I'm interested in this one as I'm the maintainer ...
 
-> -Tony
+How do I get more details on the problem?
 
-cu
-Adrian
+Most other CHECKER reports have been indicating the function where the
+problem occurs, this unfortunately not. Am I missing something?
 
--- 
+PS: Very nice work! Keep on going!
 
-Nicht weil die Dinge schwierig sind wagen wir sie nicht,
-sondern weil wir sie nicht wagen sind sie schwierig.
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
+--TKDEsImF70pdVIl+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6u2IXxmLh6hyYd04RAhVTAKCYdYHdYDYWfjl0TWPAP/FwVjgNgQCgiVeD
+RgiHW/AHTen7ahIl7QWjs+Q=
+=17GN
+-----END PGP SIGNATURE-----
+
+--TKDEsImF70pdVIl+--

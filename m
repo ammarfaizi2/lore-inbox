@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271377AbTHHObk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 10:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271378AbTHHObk
+	id S271407AbTHHOlz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 10:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271408AbTHHOlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 10:31:40 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:50306 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S271377AbTHHObh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 10:31:37 -0400
-Date: Fri, 08 Aug 2003 07:31:09 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: rphillips@gentoo.org
-Subject: [Bug 1059] New: 3c905B Driver Doesn't work in 2.6.0_test2
-Message-ID: <24320000.1060353069@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 8 Aug 2003 10:41:55 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:34296 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S271407AbTHHOlx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 10:41:53 -0400
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: Updated MSI Patches
+Date: Fri, 8 Aug 2003 07:41:46 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024015416E0@orsmsx404.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Updated MSI Patches
+Thread-Index: AcNdNY05j4yjaSmQSQa4TnkdRphFEAAhVNcQ
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       <greg@kroah.com>, "long" <tlnguyen@snoqualmie.dp.intel.com>
+X-OriginalArrivalTime: 08 Aug 2003 14:41:47.0161 (UTC) FILETIME=[31C29890:01C35DBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1059
+> Seems like a lot of this file could go into a new file,
+> drivers/pci/msi.c.  We'll want to share as much code as possible across
+> all Linux architectures.
+Agree. Next update release will incorporate your feedback.
 
-           Summary: 3c905B Driver Doesn't work in 2.6.0_test2
-    Kernel Version: 2.6.0_test2
-            Status: NEW
-          Severity: normal
-             Owner: jgarzik@pobox.com
-         Submitter: rphillips@gentoo.org
+Thanks,
+Long
 
 
-Distribution: Gentoo
-Hardware Environment: Desktop Athlon-XP 2100+
-Software Environment: 
-Problem Description:
-   dmesg displays my 3com 3c905B in dmesg.  Upon booting the OS and trying
-unsuccessfully to get a DHCP address, a tried a static IP without any luck also.
- This computer has ran 2.4.20 and .21 alright with this particular driver.  I'm
-not sure how t3reproduce:
-  1. Get a 3C905B Network Card
-  2. Install 2.6.0_test2
-     a. Doesn't matter if driver is a module or in the kernel
-  3. Assign and IP or try using DHCP
-  4. Failure on pings to local computers on the LAN and a failure to get an IP
-address.
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@pobox.com]
+Sent: Thursday, August 07, 2003 3:45 PM
+To: long
+Cc: linux-kernel@vger.kernel.org; Nakajima, Jun; Nguyen, Tom L;
+greg@kroah.com
+Subject: Re: Updated MSI Patches
+
+
+long wrote:
+
+
+> diff -X excludes -urN linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/pci_msi.c linux-2.6.0-test2-create-msi/arch/i386/kernel/pci_msi.c
+> --- linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/pci_msi.c	1969-12-31 19:00:00.000000000 -0500
+> +++ linux-2.6.0-test2-create-msi/arch/i386/kernel/pci_msi.c	2003-08-06 09:47:02.000000000 -0400
+
+Seems like a lot of this file could go into a new file, 
+drivers/pci/msi.c.  We'll want to share as much code as possible across 
+all Linux architectures.
+
+	Jeff
 
 

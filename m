@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S145136AbRA2FfZ>; Mon, 29 Jan 2001 00:35:25 -0500
+	id <S145160AbRA2Fnp>; Mon, 29 Jan 2001 00:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S145160AbRA2FfO>; Mon, 29 Jan 2001 00:35:14 -0500
-Received: from isunix.it.ilstu.edu ([138.87.124.103]:12307 "EHLO
-	isunix.it.ilstu.edu") by vger.kernel.org with ESMTP
-	id <S145136AbRA2FfE>; Mon, 29 Jan 2001 00:35:04 -0500
-From: Tim Hockin <thockin@isunix.it.ilstu.edu>
-Message-Id: <200101290511.XAA21997@isunix.it.ilstu.edu>
-Subject: Re: PCI IRQ routing problem in 2.4.0
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sun, 28 Jan 2001 23:11:13 -0600 (CST)
-Cc: siemer@panorama.hadiko.de (Robert Siemer), jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101282050180.5079-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 28, 2001 08:58:57 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S145262AbRA2Fng>; Mon, 29 Jan 2001 00:43:36 -0500
+Received: from webmail.metabyte.com ([216.218.208.53]:42249 "EHLO
+	webmail.metabyte.com") by vger.kernel.org with ESMTP
+	id <S145160AbRA2FnU>; Mon, 29 Jan 2001 00:43:20 -0500
+Message-ID: <3A7502A2.C9899EF0@metabyte.com>
+Date: Sun, 28 Jan 2001 21:41:54 -0800
+From: Pete Zaitcev <zaitcev@metabyte.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1-pre11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: dagb@cs.uit.no
+Subject: Patch to run IrDA with no modules in 2.4.x
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jan 2001 05:43:14.0231 (UTC) FILETIME=[5F4D0470:01C089B6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Device 00:01.0 (slot 0): ISA bridge
-> >   INTA: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-> >   INTB: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-> >   INTC: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-> >   INTD: link 0x04, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-> 
-> Your "link" values are in the range 1-4. Which makes perfect sense, but
-> that's absolutely _not_ what the Linux SiS routing code expects (the code 
-> seems to expect them to be ASCII 'A' - 'D').
+A minor problem here - module_init(irda_proto_init) got bracketed
+by #ifdef MODULE and became ineffective if compiled without modules.
 
+-- Pete
 
-In reading the PIRQ specs, and making it work for our board, I thought
-about this.  PIRQ states that link is chipset-dependant.  No chipset that I
-have seen specifies what link should be.  So, as this case demonstrates, it
-may be 'A' - the value the chipset expects, or 1, the logical index.
-Either one makes sense, assuming the PIRQ routing code knows what link
-means.  Here we see two BIOS vendors/versions that apparently do it
-differently for the same chipset.    Grrr.
-
-
+diff -ur -X dontdiff linux-2.4.1-pre11/net/irda/af_irda.c linux-2.4.1-pre11-p3/net/irda/af_irda.c
+--- linux-2.4.1-pre11/net/irda/af_irda.c	Sat Nov 11 18:11:23 2000
++++ linux-2.4.1-pre11-p3/net/irda/af_irda.c	Sun Jan 28 21:31:16 2001
+@@ -2409,6 +2409,7 @@
+ #endif
+ 	return 0;
+ }
++module_init(irda_proto_init);
+ 
+ /*
+  * Function irda_proto_cleanup (void)
+@@ -2429,11 +2430,9 @@
+ 	
+         return;
+ }
+-module_init(irda_proto_init);
+ module_exit(irda_proto_cleanup);
+  
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
+ MODULE_DESCRIPTION("The Linux IrDA Protocol Subsystem"); 
+ MODULE_PARM(irda_debug, "1l");
+ #endif /* MODULE */
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131731AbRCUS6Z>; Wed, 21 Mar 2001 13:58:25 -0500
+	id <S131733AbRCUTPh>; Wed, 21 Mar 2001 14:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131736AbRCUS6P>; Wed, 21 Mar 2001 13:58:15 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:33039 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S131731AbRCUS55>;
-	Wed, 21 Mar 2001 13:57:57 -0500
-To: Francois Romieu <romieu@cogenit.fr>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, Alan Cox <alan@redhat.com>
-Subject: Re: [PATCH] 2.4.3-pre6 - hdlc/dscc4 missing bits
-In-Reply-To: <20010321163031.A28981@se1.cogenit.fr>
-	<3AB8CDE0.2B2619AF@mandrakesoft.com>
-	<20010321173930.A29474@se1.cogenit.fr>
-Content-Type: text/plain; charset=US-ASCII
-From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
-Date: 21 Mar 2001 19:53:42 +0100
-In-Reply-To: Francois Romieu's message of "Wed, 21 Mar 2001 17:39:30 +0100"
-Message-ID: <m3pufbj6mh.fsf_-_@intrepid.pm.waw.pl>
+	id <S131742AbRCUTP2>; Wed, 21 Mar 2001 14:15:28 -0500
+Received: from clueserver.org ([206.163.47.224]:31496 "HELO clueserver.org")
+	by vger.kernel.org with SMTP id <S131736AbRCUTPO>;
+	Wed, 21 Mar 2001 14:15:14 -0500
+Date: Wed, 21 Mar 2001 11:28:12 -0800 (PST)
+From: Alan Olsen <alan@clueserver.org>
+To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: mysterious card
+In-Reply-To: <27525795B28BD311B28D00500481B7601F104E@ftrs1.intranet.ftr.nl>
+Message-ID: <Pine.LNX.4.10.10103211126060.18756-100000@clueserver.org>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@cogenit.fr> writes:
+On Wed, 21 Mar 2001, Heusden, Folkert van wrote:
 
-> What about the following (2.5 ?):
+> Hi,
 > 
-> -		dev->type = ARPHRD_HDLC;
-> +		dev->type = ARPHRD_CISCO;
+> I have this mysterious 8 bit ISA card with nothing more then 2 smb-mounted
+> ic's
+> and a button. It seems to be something that should force a system memory
+> dump.
+> I think I can handle the code-writing, but since there's no documentation I
+> have
+> to find out how things are working.
+> Ok, the question is: does anyone know a place on the web where I can find
+> specifications of ISA-slots? I need to know what is supposed to be connected
+> to
+> the pins (1, 2, 6, etc.)
 
-I'll replace ARPHRD_HDLC with ARPHRD_CISCO in the whole (AC) tree when
-2.4.x kernel with '#define ARPHRD_CISCO' is out, leaving ARPHRD_HDLC only
-in the header file for possible external drivers. It can then be removed
-in 2.5.
--- 
-Krzysztof Halasa
-Network Administrator
+It is supposed to do that!
+
+That sounds like the card that came with an old DOS debugger.
+
+The old 8088 PCs did not have a reset switch. This was so you could do
+hardware breaks when the whole system was locked up.
+
+I have one of those lying around somewhere...
+
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
+

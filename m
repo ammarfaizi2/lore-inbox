@@ -1,89 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265373AbSK1KIJ>; Thu, 28 Nov 2002 05:08:09 -0500
+	id <S265400AbSK1KOQ>; Thu, 28 Nov 2002 05:14:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265385AbSK1KIJ>; Thu, 28 Nov 2002 05:08:09 -0500
-Received: from turing.fb12.de ([80.76.224.45]:29869 "HELO turing.fb12.de")
-	by vger.kernel.org with SMTP id <S265373AbSK1KII>;
-	Thu, 28 Nov 2002 05:08:08 -0500
-Date: Thu, 28 Nov 2002 11:15:28 +0100
-From: Sebastian Benoit <benoit-lists@fb12.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, alan@lxorguk.ukuu.org.uk
-Subject: drivers/pci/quirks.c / Re: Linux v2.5.50
-Message-ID: <20021128111528.A28437@turing.fb12.de>
-Mail-Followup-To: Sebastian Benoit <benoit-lists@fb12.de>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>, alan@lxorguk.ukuu.org.uk
-References: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com>
+	id <S265409AbSK1KOQ>; Thu, 28 Nov 2002 05:14:16 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:32393 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265400AbSK1KOO>;
+	Thu, 28 Nov 2002 05:14:14 -0500
+Date: Thu, 28 Nov 2002 11:21:26 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alex Ryan <alexryan1@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: optimal value for blksize_size
+Message-ID: <20021128102126.GB999@suse.de>
+References: <20021127232431.7188.qmail@webmail36.rediffmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Nov 27, 2002 at 03:07:38PM -0800
-X-MSMail-Priority: High
-x-gpg-fingerprint: 2999 9839 6C9E E4BF B540  C44B 4EC4 E1BE 5BA2 2F00
-x-gpg-key: http://wwwkeys.de.pgp.net:11371/pks/lookup?op=get&search=0x82AE75E4
-x-gpg-keyid: 0x82AE75E4
+In-Reply-To: <20021127232431.7188.qmail@webmail36.rediffmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 27 2002, Alex  Ryan wrote:
+> Hello,
+> 
+> I am writing a Linux block driver for our RAID firmware, and I am 
+> very confused about blksize_size.
+> 
+> The documentation simply says that blksize_size should be the size 
+> of the block used by the device in bytes.
+> Now, for my device(hard disk), the only restriction is that calls 
+> must be a multiple of 512 bytes(1 sector).
+> 
+> I thought the natural choice for blksize_size would be 512, but I 
+> saw that if I make it as 512 then the upper layer breaks up all 
+> calls into buffer heads , each of size 512.
+> I think that is bad for sequential performance, even though my 
+> device has scatter gather capability.
+> 
+> And if I make blksize_size of a higher value(e.g 4K), then the 
+> upper layer gives calls of 4k size even for 512 byte reads.
+> 
+> Making blksize_size greater than PAGE_SIZE results in kernel 
+> panic.
+> 
+> I am really very confused about what  blksize_size really means, 
+> and what should be an optimum value to put in there.
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You should not put anything there, just leave room for someone else to
+fill it in. It's the soft block size, and file systems typically set it
+at mount time.
 
+If 512b is the minimum request size you can do, you need to set
+hardsect_size to that and trust that you wont get requests below that
+size.
 
-with CONFIG_X86_IO_APIC=3Dy I get
+That's all you need to worry about.
 
-  gcc -Wp,-MD,drivers/pci/.quirks.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict=
--prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-fram=
-e-pointer -pipe -mpreferred-stack-boundary=3D2 -march=3Di686 -Iarch/i386/ma=
-ch-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=3Dquirks -DK=
-BUILD_MODNAME=3Dquirks   -c -o drivers/pci/quirks.o drivers/pci/quirks.c
-drivers/pci/quirks.c: In function `quirk_ioapic_rmw':
-drivers/pci/quirks.c:354: `sis_apic_bug' undeclared (first use in this func=
-tion)
-drivers/pci/quirks.c:354: (Each undeclared identifier is reported only once
-drivers/pci/quirks.c:354: for each function it appears in.)
-make[2]: *** [drivers/pci/quirks.o] Error 1
-make[1]: *** [drivers/pci] Error 2
-make: *** [drivers] Error 2
+> One more question about clustering:
+> All IO requests for consecutive sectors are clustered in the same 
+> request structure, this much I understand.  My question is, does 
+> the b_data field of the corresponding bufferheads are also 
+> sequential in the physical memory? In other words, can I satisfy a 
+> request if I simply transfer req->nr_sectors amount of data to 
+> req->buffer?
 
+No this is very wrong. First of all, if you are setting up sg tables for
+a request you never ever want to look at rq->buffer. Ever. You need to
+loop through all the buffer heads attached to the request and setup an
+sg entry for each of them.
 
-fixed by
+A clustered request just means that it is contig on disk, not in memory.
+Of course it can happen that some buffer_heads are also contig in memory
+and you can coalesc these segments into one sg entry, but that all
+depends on your hardware capabilities and you need to detect this
+yourself.
 
---- drivers/pci/quirks.c.old	Tue Nov 26 20:40:02 2002
-+++ drivers/pci/quirks.c	Tue Nov 26 20:39:54 2002
-@@ -18,6 +18,7 @@
- #include <linux/pci.h>
- #include <linux/init.h>
- #include <linux/delay.h>
-+#include <asm/io_apic.h>
-=20
- #undef DEBUG
-=20
+BTW, I'm assuming a 2.4 kernel. In 2.5 this is all automated for you.
 
-/B.
---=20
-Sebastian Benoit <benoit-lists@fb12.de>
-My mail is GnuPG signed -- Unsigned ones are bogus -- http://www.gnupg.org/
-GnuPG 0x5BA22F00 2001-07-31 2999 9839 6C9E E4BF B540  C44B 4EC4 E1BE 5BA2 2=
-F00
+-- 
+Jens Axboe
 
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAj3l7MAACgkQTsThvluiLwBCogCgs6t5kDXp12m7j8PWl6QLEXdR
-hqMAn0IilRTWGQ3QMABVcENDKPRzjmZy
-=XeHy
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--

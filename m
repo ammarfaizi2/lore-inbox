@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263659AbTHZNF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 09:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbTHZNF0
+	id S263761AbTHZNMn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 09:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTHZNMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 09:05:26 -0400
-Received: from gate.perex.cz ([194.212.165.105]:63501 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S263689AbTHZNFW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 09:05:22 -0400
-Date: Tue, 26 Aug 2003 15:03:51 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Strange memory usage reporting
-In-Reply-To: <yw1xad9w1uj5.fsf@users.sourceforge.net>
-Message-ID: <Pine.LNX.4.44.0308261459180.29234-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso8859-2
-Content-Transfer-Encoding: 8BIT
+	Tue, 26 Aug 2003 09:12:43 -0400
+Received: from ms-smtp-04.tampabay.rr.com ([65.32.1.35]:7302 "EHLO
+	ms-smtp-04.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S263761AbTHZNMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 09:12:42 -0400
+Subject: re: [ACPI] 2.4.22, My bios is to old?
+From: "Tony A. Lambley" <tal@vextech.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1061903560.686.6.camel@lappy2.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 26 Aug 2003 09:12:40 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Aug 2003, [iso-8859-1] Måns Rullgård wrote:
+I have the same problem on a sager 5600D that's only 8 months old. It
+didn't happen with 2.4.22-rc2, I missed -rc3, but it happens in -rc4. I
+also get it in 2.6.0-test4. Was something back-ported?
 
-> I was a little surprised to see top tell me this:
-> 
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND           
-> 10642 mru       11   0 23200  81m 2740 S  0.0 37.0   0:00.07 tcvp              
-> 
-> It didn't make sense that RES > VIRT, so I check /proc/pid/*.  Their
-> contents are below.  Am I missing something?  Note that they are not
-> consistent with the 'top' line above, since they were copied at a
-> different time.  The effect is easily reproducible.  It happens every
-> time I run my music player with using ALSA.
+Here's my grepped dmesg:
 
-I have exactly same behaviour with 2.4.21 kernel. It seems that VmRSS
-grows with the mmap2 syscalls although appropriate munmap is called. I'm
-investigating a possible problem with the memory accounting.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
-
+$ dmesg |grep ACPI
+ BIOS-e820: 000000003fef0000 - 000000003fefb000 (ACPI data)
+ BIOS-e820: 000000003fefb000 - 000000003ff00000 (ACPI NVS)
+ACPI: have wakeup address 0xc0001000
+ACPI disabled because your bios is from 92 and too old
+ACPI: RSDP (v000 PTLTD                                     ) @
+0x000f6360
+ACPI: RSDT (v001 PTLTD  Sheeks   0x06040000  LTP 0x00000000) @
+0x3fef6ae7
+ACPI: FADT (v001 Clevo  845MP    0x06040000 PTL  0x00000050) @
+0x3fefaf2d
+ACPI: BOOT (v001 PTLTD  $SBFTBL$ 0x06040000  LTP 0x00000001) @
+0x3fefafa1
+ACPI: DSDT (v001 INTEL  845M     0x06040000 MSFT 0x0100000d) @
+0x00000000
+ACPI: MADT not present
+ACPI: Subsystem revision 20030813
+ACPI: Interpreter disabled.
+PCI: ACPI tables contain no PCI IRQ routing entries

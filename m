@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265635AbSKASDw>; Fri, 1 Nov 2002 13:03:52 -0500
+	id <S265651AbSKASGT>; Fri, 1 Nov 2002 13:06:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265642AbSKASDw>; Fri, 1 Nov 2002 13:03:52 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:44957 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265635AbSKASDw>; Fri, 1 Nov 2002 13:03:52 -0500
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.45: fix fs capabilities initialization
-Date: Fri, 01 Nov 2002 19:10:16 +0100
-Message-ID: <87vg3h6u0n.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
+	id <S265653AbSKASGT>; Fri, 1 Nov 2002 13:06:19 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:11361 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S265651AbSKASGS>; Fri, 1 Nov 2002 13:06:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jos Hulzink <josh@stack.nl>
+To: Robert Varga <nite@hq.alert.sk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.45 build failed with ACPI turned on
+Date: Fri, 1 Nov 2002 20:12:47 +0100
+User-Agent: KMail/1.4.3
+References: <20021031194547.GA3555@hq.alert.sk>
+In-Reply-To: <20021031194547.GA3555@hq.alert.sk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211012012.47050.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements filesystem capabilities. It allows to run
-privileged executables without the need for suid root.
+After some more puzzling, it becomes clear that much more ACPI code should rely on CONFIG_PM. (Sleep.c should not be compiled in at all without CONFIG_PM) As the ACPI guys seem awake, I assume this will be fixed soon. For now: don't forget to enable CONFIG_PM (Power Management in the root of ACPI / APM configuration)
 
-Changes:
-- recognize new capability db immediately instead of after the next
-  mount
+Jos
 
-The complete patch is available at:
-<http://home.t-online.de/home/olaf.dietsche/linux/capability/>
+On Thursday 31 October 2002 20:45, Robert Varga wrote:
+> Hi
+>
+> Build fails with:
+>
+> drivers/acpi/sleep.c: In function `acpi_system_suspend':
+> drivers/acpi/sleep.c:209: warning: implicit declaration of function
+> `do_suspend_lowlevel' drivers/acpi/sleep.c: In function `acpi_sleep_init':
+> drivers/acpi/sleep.c:707: `sysrq_acpi_poweroff_op' undeclared (first use in
+> this function) drivers/acpi/sleep.c:707: (Each undeclared identifier is
+> reported only once drivers/acpi/sleep.c:707: for each function it appears
+> in.)
+>
+> The structure declaration is protected by
+>
+> #if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_PM)
+>
+> on line 640.
+>
+> Config file attached.
 
-Regards, Olaf.
 
-diff -urN a/fs/fscaps.c b/fs/fscaps.c
---- a/fs/fscaps.c	Fri Nov  1 18:52:41 2002
-+++ b/fs/fscaps.c	Fri Nov  1 02:06:15 2002
-@@ -252,7 +252,7 @@
- 		return;
- 
- 	if (__fscap_lookup(mnt, &nd))
--		return;
-+		nd.dentry = NULL;
- 
- 	__info_init(mnt, nd.dentry);
- }

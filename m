@@ -1,62 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUFZEDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265944AbUFZEc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUFZEDg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 00:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUFZEDg
+	id S265944AbUFZEc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 00:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265470AbUFZEc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 00:03:36 -0400
-Received: from chnmfw01.eth.net ([202.9.145.21]:62988 "EHLO ETH.NET")
-	by vger.kernel.org with ESMTP id S262138AbUFZEDe (ORCPT
+	Sat, 26 Jun 2004 00:32:59 -0400
+Received: from vh60.uniserve.ca ([216.86.100.60]:8342 "HELO vh60.pcnet.ca")
+	by vger.kernel.org with SMTP id S265944AbUFZEc4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 00:03:34 -0400
-Message-ID: <40DCF598.6000206@eth.net>
-Date: Sat, 26 Jun 2004 09:33:36 +0530
-From: Amit Gud <gud@eth.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Fao, Sean" <Sean.Fao@dynextechnologies.com>
-CC: Alan <alan@clueserver.org>, Pavel Machek <pavel@ucw.cz>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-Subject: Re: Elastic Quota File System (EQFS)
-References: <004e01c45abd$35f8c0b0$b18309ca@home>	 <200406251444.i5PEiYpq008174@eeyore.valparaiso.cl>	 <20040625162537.GA6201@elf.ucw.cz> <1088181893.6558.12.camel@zontar.fnordora.org> <40DC625F.3010403@eth.net> <40DC8981.7090703@dynextechnologies.com>
-In-Reply-To: <40DC8981.7090703@dynextechnologies.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 26 Jun 2004 00:32:56 -0400
+Date: 26 Jun 2004 04:18:41 -0000
+Message-ID: <20040626041841.32500.qmail@vh60.pcnet.ca>
+Subject: Lottery Winning Notification.
+From: luckystrike01 <promolotto1@winninglottery.net>
+X-Priority: 1 (Highest)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Jun 2004 03:55:51.0203 (UTC) FILETIME=[78D5F730:01C45B31]
+X-Mailer: RLSP Mailer
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fao, Sean wrote:
 
-> Amit Gud wrote:
->
->> It cannot be denied that there _are_ applications for such a system 
->> that we already discussed and theres a class of users who will find 
->> the system useful.
->
->
->
-> I personally see no use whatsoever. Why not just allocate 100% of the 
-> file system to everybody and ignore quota's, entirely?  Each user will 
-> use whatever he/she requires and when space starts to run out, users 
-> will manually clean up what they don't need.
->
-We should get our basics right first. We _do_ need quotas!! Without any 
-quota system how are we going to avoid a malicious user  from taking 
-away all the space to keep other people starving? In EQFS also this can 
-happen, but we are giving *controlled flexibility* to the user. He is 
-having some stretching power but not beyond a certain limit. And do you 
-think users are sincere enough to clean up there files when they are done?
+FROM: THE PRIZE AWARD DEPARTMENT
+LUCKY STRIKE LOTTERY, UK
 
-> I am totally against the automatic deletion of files and believe that 
-> all users will _eventually_ walk in on a Monday morning to find out 
-> that the OS took it upon itself to delete a file that was flagged as 
-> elastic, that shouldn't have been.  
+        Congratulations Category A prize winner! 
+You have been selected as one of two winners of the LUCKY STRIKE
+LOTTERY, UK computer ballot draws and thus will be a
+privileged recipient of the grand draw prize of £
+6,500,000 (Six million five hundred thousand Great
+Britain Pounds only). Winning File Reference number
+for your prize is Lsl/UK/ 71-662055; ticket number
+101-344-40/A.
 
-User is the king, he decides what files should be elastic and what not. 
-This can always be controlled.
+We in the LUCKY STRIKE LOTTERY, UK is by this program,
+launching our model computer balloting lottery draws,
+developed and designed to satisfy the cravings of the
+ever growing number of participants in our various
+lottery programs. With funds accrued exclusively from
+previous draws, payouts to all Winners are guaranteed
+and will be transferred in record time.
+
+After randomly selecting 15,000 participants from an
+initial database of 300,000 emails and zoning all
+participants by their respective continents from
+across the globe, we produced an extensive list from
+which you have emerged as one of the winners of the
+Grand Draw prize.
+
+To ensure a smooth collection of your winnings, the
+transfer of your prize is to be handled by your Claims
+Director. You are to contact our agent by email and/or
+fax within a week of receiving this notice. Please
+find full contact details below:
+
+MR.FELIX PETERSON
+FINANCIAL DIRECTOR
+GLOBAL LINK CASH CHANGE U.K LTD
+EMAIL:findire3@globallinkcashchangeltd.net
 
 
-AG
+Also find all other relevant winning lottery
+information below:
+Draw Serial No: 55/821377
+Batch No: 09-A665
+Zonal Draw No: A2-101
+Grand Draw No: 21055
 
+You are seriously advised to keep all winning lottery
+information and numbers from the public in line with
+our company security protocol to avoid double claiming
+and unwarranted abuse of this program by unscrupulous
+individuals.
+
+Please direct all further correspondences and queries
+to your respective category Prize Transfer handlers.
+Congratulations once again from the LUCKY STRIKE
+LOTTERY, UK.
+
+
+Sincerely,
+THE LOTTERY COORDINATOR,
+GOLDEN LOTTERY UK,
+1 BRIDGE STREET
+STAINES
+MIDDLESEX TW18 4TP
+UNITED KINGDOM
+TEL/FAX: 44 70928998613
+
+Lottery web site:www.luckystrikelotteryuk.com
+
+___________________________________________________________________________
+Mail sent from DN Clan Website
+- http://www.dnclan.com

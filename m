@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbTE1VmM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 17:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTE1VmM
+	id S261179AbTE1VlT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 17:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTE1VlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 17:42:12 -0400
-Received: from [62.29.71.123] ([62.29.71.123]:47491 "EHLO submoron.org")
-	by vger.kernel.org with ESMTP id S261182AbTE1VmL (ORCPT
+	Wed, 28 May 2003 17:41:19 -0400
+Received: from smtp2.pp.htv.fi ([213.243.153.6]:41176 "EHLO smtp2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S261179AbTE1VlS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 17:42:11 -0400
-From: "ismail (cartman) donmez" <kde@myrealbox.com>
-Organization: Bogazici University
-To: covici@ccs.covici.com
-Subject: Re: peculiar alsa problems in 2.5.70
-Date: Thu, 29 May 2003 00:54:43 +0300
-User-Agent: KMail/1.5.9
-Cc: covici@ccs.covici.com, linux-kernel@vger.kernel.org
-References: <m38ysravhp.fsf@ccs.covici.com> <200305282337.20169.kde@myrealbox.com> <16085.11257.992638.629349@ccs.covici.com>
-In-Reply-To: <16085.11257.992638.629349@ccs.covici.com>
-MIME-Version: 1.0
+	Wed, 28 May 2003 17:41:18 -0400
+Date: Thu, 29 May 2003 00:55:05 +0300
+From: Richard Braakman <dark@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Patch for strncmp use in s390 in 2.5
+Message-ID: <20030528215505.GA3779@cs140102.pp.htv.fi>
+References: <20030528162019.A3492@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-   =?ISO-8859-1?Q?=20charset=3D=22=FDso-885?= =?ISO-8859-1?Q?9-9=22?=
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305290054.43629.kde@myrealbox.com>
+In-Reply-To: <20030528162019.A3492@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 May 2003 00:36, John covici wrote:
-> If I do an alsactl restore without unloading the module I get no
-> message, but if I actually shut down the sound driver (stop and
-> start) I get the messages again.
->
-Sorry no idea then :(
+On Wed, May 28, 2003 at 04:20:19PM -0400, Pete Zaitcev wrote:
+> I didn't see this posted before. Sorry if I missed it.
+> It's a harmless buglet which causes false positives with correctness
+> checking tools, and so annoys me.
 
-Regards,
-/ismail
+Are you sure it's harmless?  Your patch changes the meaning from an
+exact match to a prefix match.  I think it's intended to be an exact
+match, but I don't know why it doesn't just use strcmp().
+
+Richard Braakman

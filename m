@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318966AbSHSSKD>; Mon, 19 Aug 2002 14:10:03 -0400
+	id <S318969AbSHSSRT>; Mon, 19 Aug 2002 14:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318969AbSHSSKD>; Mon, 19 Aug 2002 14:10:03 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:16778 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S318966AbSHSSKD>;
-	Mon, 19 Aug 2002 14:10:03 -0400
-Date: Mon, 19 Aug 2002 11:19:53 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Adam Belay <ambx1@netscape.net>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.31 driverfs: patch for your consideration
-In-Reply-To: <3D5D7E50.4030307@netscape.net>
-Message-ID: <Pine.LNX.4.44.0208191111100.1048-100000@cherise.pdx.osdl.net>
+	id <S318970AbSHSSRT>; Mon, 19 Aug 2002 14:17:19 -0400
+Received: from web13008.mail.yahoo.com ([216.136.174.18]:17171 "HELO
+	web13008.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S318969AbSHSSRS>; Mon, 19 Aug 2002 14:17:18 -0400
+Message-ID: <20020819182121.93059.qmail@web13008.mail.yahoo.com>
+Date: Mon, 19 Aug 2002 11:21:21 -0700 (PDT)
+From: Xuehua Chen <namniardniw@yahoo.com>
+Subject: A question about cache coherence
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Met a problem in my research. I run some code on a
+Xeon
+dual-processor machine. It seems to me that there is a
+ cache coherence problem. As I am not so familiar 
+to this topic, I would like to ask some experts about 
+the following questions.
 
-> Also if You're interested here's the write support for "driver".
+1. Do Xeon processors have hardware mechanisms to
+maintain cache coherence?
+2. Does the SMP kernel handle the cache coherence
+problem
+3. What should I do if both of them don't handle cache
+coherence.
 
-This just doesn't make sense. When a device is inserted or a driver is
-loaded, the bus tries to attach devices to a driver by comparing the
-hardware ID of a device to the list of supported IDs of a driver. This is
-handled at the bus level because the format of the ID and the semantics
-for matching them are bus-specific.
+Thanks.
 
-Regardless, it happens automatically. It just doesn't make sense to let 
-people try and bind a device to some random driver. 
+Frank Samuel
 
-Suppose we did support this. If you write the name of a driver to a file, 
-we search the bus's list of drivers for a match. We then let the bus 
-compare the hardware IDs and call probe if it matches. 
-
-One big problem is that the IDs in the driver are marked __devinitdata, so
-they're thrown away after init (if hotplugging is not enabled). So, we 
-would have to change every driver. 
-
-Besides, it just doesn't make sense. If $user wants to use a different 
-or third party driver, let them rmmod and insmod. 
-
-> PS:  Would you be interested in a patch that would port the pnpbios
-> driver to the driver model?
-
-Yes. 
-
-	-pat
-
-
+__________________________________________________
+Do You Yahoo!?
+HotJobs - Search Thousands of New Jobs
+http://www.hotjobs.com

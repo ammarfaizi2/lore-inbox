@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265599AbUFDEdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265592AbUFDEeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265599AbUFDEdV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 00:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUFDEdV
+	id S265592AbUFDEeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 00:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265588AbUFDEeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 00:33:21 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:23614 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265588AbUFDEdF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 00:33:05 -0400
-Date: Fri, 4 Jun 2004 15:29:54 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: xfs corruption or not
-Message-ID: <20040604052953.GE13756@frodo>
-References: <40BFDB13.7000901@cornell.edu>
+	Fri, 4 Jun 2004 00:34:25 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:60321 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S265592AbUFDEdp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 00:33:45 -0400
+Subject: Re: idebus setup problem (2.6.7-rc1)
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, "Zhu, Yi" <yi.zhu@intel.com>,
+       Auzanneau Gregory <mls@reolight.net>, Jeff Garzik <jgarzik@pobox.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200406032344.19152.bzolnier@elka.pw.edu.pl>
+References: <3ACA40606221794F80A5670F0AF15F8403BD54FE@PDSMSX403.ccr.corp.intel.com>
+	 <20040603213115.GA1107@MAIL.13thfloor.at>
+	 <200406032344.19152.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Message-Id: <1086323563.29391.1039.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40BFDB13.7000901@cornell.edu>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 04 Jun 2004 14:32:43 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 03, 2004 at 08:14:43PM -0600, Ivan Gyurdiev wrote:
-> ...
-> errors. I also did an xfs_repair on the system, which corrected problems..
+On Fri, 2004-06-04 at 07:44, Bartlomiej Zolnierkiewicz wrote:
+> On Thursday 03 of June 2004 23:31, Herbert Poetzl wrote:
+> > On Thu, Jun 03, 2004 at 10:05:08PM +0800, Zhu, Yi wrote:
+> > > Rusty Russell wrote:
+> > > > Dislike this idea.  If you have hundreds of parameters, maybe it's
+> > > > supposed to be a PITA?
+> > >
+> > > What's your idea to make module_param support alterable param
+> > > names like ide3=xxx ?
+> >
+> > hmm, what about making all those something like:
+> >
+> > 	ide=3:foo,bar;4:wossname
 > 
-> However, thunderbird still generates the following oops, and then it 
-> becomes unkillable. Do you think this is most likely due to:
-> - memory is still defective
-> - there's corruption on-disk which isn't fixed
-> or
-> - this is an actual bug in xfs
-> 
-> Note that there's no input/output errors after the oops, and only 
-> thunderbird causes this (so far).
+> We are in stable kernel and in 2.7 'idex=' and 'hdx=' will die.
 
-Do you know if the kernel was low on memory at the time?  (any
-signs of allocation failures in your system log?)
+Yes, and if you want to clean this up for 2.6, I'd recommend simply
+putting twenty module_param_call() lines.
 
-This looks like a memory allocation failure which hasn't been
-gracefully handled (or approriately retried) in XFS - there's
-a few patches being worked on to improve this, but they aren't
-ready to be merged in just yet.
+It's ugly, but that's because it's doing ugly things, IMHO, and I don't
+think Bart would disagree?
 
-> EFLAGS: 00010206   (2.6.6-1.406)
-> EIP is at xfs_bmbt_set_all+0x2f/0x5c [xfs]
-> Process thunderbird-bin (pid: 3799, threadinfo=04b32000 task=041aadf0)
-
-> [<0a8c48f7>] xfs_bmap_insert_exlist+0x97/0xae [xfs]
-> [<0a8c1cc7>] xfs_bmap_add_extent_hole_delay+0x42f/0x485 [xfs]
-
-cheers.
-
+Rusty.
 -- 
-Nathan
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUL1XQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbUL1XUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUL1XQh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 18:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbUL1XQh
+	id S261160AbUL1XUf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 18:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUL1XUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 18:16:37 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:20383 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261159AbUL1XQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 18:16:35 -0500
-Subject: Re: PATCH: 2.6.10 - Incorrect return from PCI ide controller
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <20041228205553.GA18525@electric-eye.fr.zoreil.com>
-References: <1104158258.20952.44.camel@localhost.localdomain>
-	 <20041228205553.GA18525@electric-eye.fr.zoreil.com>
-Content-Type: text/plain
+	Tue, 28 Dec 2004 18:20:35 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:29344 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S261160AbUL1XU2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 18:20:28 -0500
+Message-ID: <41D1FA78.50203@softhome.net>
+Date: Tue, 28 Dec 2004 16:29:44 -0800
+From: Brannon Klopfer <plazmcman@softhome.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Screwy clock after apm suspend
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104271949.26109.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 28 Dec 2004 22:12:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-12-28 at 20:55, Francois Romieu wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> :
-> > This fixes the IT8172 driver. There are other drivers with this bug (eg
-> > generic) but the -ac IDE is sufficiently diverged from base that someone
-> > else needs to generate/test the more divergent cases.
-> 
-> ide_setup_pci_device{s} will always claim that everything is fine even
-> though do_ide_setup_pci_device() has some opportunity to fail.
-> 
-> Should it matter as well ?
+2.6.10
+Slackware 10/-current
+IBM ThinkPad 600E
+----------------
 
-Probably. It's less pressing because the bad cases are those where
-->init_one() errors with a positive return and we steal the device. The
-nasty one only showed up in -ac because it has a generic driver that can
-be told to capture all other IDE devices that are unknown, and it ran
-off with all the SATA devices until the bug was fixed 8)
+2.6.10 screws up my system clock.
+Two kernel/hardware clock readings, before and after suspend.
+-------------
+plaz@gonzo:~$ date ;hwclock
+Tue Dec 28 15:52:39 PST 2004
+Tue Dec 28 14:54:07 2004 -0.503621 seconds
+#suspend, resume
+plaz@gonzo:~$ date ;hwclock
+Tue Dec 28 16:11:58 PST 2004
+Tue Dec 28 15:04:06 2004 -0.168262 seconds
+---------------------
+These are all when the comp is on without suspend (difference about the 
+same throughout).
+----------------
+plaz@gonzo:~$ date ;hwclock
+Tue Dec 28 16:14:52 PST 2004
+Tue Dec 28 15:07:00 2004 -0.251812 seconds
+plaz@gonzo:~$ date ;hwclock
+Tue Dec 28 16:15:26 PST 2004
+Tue Dec 28 15:07:34 2004 -0.236138 seconds
+plaz@gonzo:~$ date ;hwclock
+Tue Dec 28 16:19:48 PST 2004
+Tue Dec 28 15:11:57 2004 -0.908540 seconds
+plaz@gonzo:~$
+------------
+I did not have this problem with 2.6.9. My machine uses APM, clock 
+stores local time (specified in kernel config). I use PIT for 
+timesource, as others were losing ticks when on battery power (changes 
+CPU clock speed). Again, did _not_ have this problem with 2.6.9.
 
-
+Be glad to try out patches,
+Brannon Klopfer

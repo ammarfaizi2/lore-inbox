@@ -1,80 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267851AbUJONvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267890AbUJONzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267851AbUJONvY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 09:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUJONub
+	id S267890AbUJONzy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 09:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJONyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 09:50:31 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:22656 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267776AbUJONrq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 09:47:46 -0400
-Date: Fri, 15 Oct 2004 09:47:32 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Stephan <support@bbi.co.bw>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fw: ERROR: /bin/insmod exited abnormally!
-In-Reply-To: <002c01c4b2ba$a7d5bbc0$0200060a@STEPHANFCN56VN>
-Message-ID: <Pine.LNX.4.61.0410150935440.24590@chaos.analogic.com>
-References: <002c01c4b2ba$a7d5bbc0$0200060a@STEPHANFCN56VN>
+	Fri, 15 Oct 2004 09:54:47 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:11960 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S267852AbUJONxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 09:53:42 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16751.54873.668167.981073@alkaid.it.uu.se>
+Date: Fri, 15 Oct 2004 15:53:29 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "mobil@wodkahexe.de" <mobil@wodkahexe.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4 No local APIC present or hardware disabled
+In-Reply-To: <Pine.LNX.4.58L.0410142225160.25607@blysk.ds.pg.gda.pl>
+References: <20041012195448.2eaabcea.mobil@wodkahexe.de>
+	<Pine.LNX.4.58L.0410132311190.17462@blysk.ds.pg.gda.pl>
+	<16750.23132.41441.649851@alkaid.it.uu.se>
+	<Pine.LNX.4.58L.0410142225160.25607@blysk.ds.pg.gda.pl>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Oct 2004, Stephan wrote:
+Maciej W. Rozycki writes:
+ > @@ -667,7 +667,7 @@ static int __init detect_init_APIC (void
+ >  	u32 h, l, features;
+ >  	extern void get_cpu_vendor(struct cpuinfo_x86*);
+ >  
+ > -	/* Disabled by DMI scan or kernel option? */
+ > +	/* Disabled by kernel option? */
+ >  	if (enable_local_apic < 0)
+ >  		return -1;
+ >  
 
-> Hi there,
->
-> System Configuration...
-> LSI Megaraid 320-1 SCSI Card
-> Redhat ES 3 , build 3
-> Boot loader : lilo
->
-> I'm running Redhat ES 3 release and after much struggle finally  succeeded in 
-> compiling the kernel successfully.... I hope :). I'm getting the following 
-> problems after I've rebooted the system on the newly installed kernel.
->
-> Now I've done some reading on google about this and the only thing I could 
-> find was that I should try to change (append="root=LABEL=/") to the actual 
-> device name where root can be found. I got the same affect.....
->
-> Any ideas would be apreciated.
->
-> <------------------------------error----------------------------------->
-> ERROR: /bin/insmod exited abnormally!
-> Loading sd_mod.ko module
-> insmod QM_MODULES:
->
+DMI scan may still be relevant. Previously we used it to
+override the default force-enable policy. Now we may still
+need it to force-disable the lapic on systems that boot with
+it enabled but malfunction if it's used. (I don't know of
+any, but given BIOS history, they aren't impossible.)
+So the comment doesn't need to change.
 
-Your insmod may need updating (the one used by initrd).
-As you can see, it was unable to load even the first
-module necessary to eventually access your root file-system.
+ > @@ -681,8 +681,7 @@ static int __init detect_init_APIC (void
+ >  			break;
+ >  		goto no_apic;
+ >  	case X86_VENDOR_INTEL:
+ > -		if (boot_cpu_data.x86 == 6 ||
+ > -		    (boot_cpu_data.x86 == 15 && (cpu_has_apic || enable_local_apic > 0)) ||
+ > +		if (boot_cpu_data.x86 == 6 || boot_cpu_data.x86 == 15 ||
+ >  		    (boot_cpu_data.x86 == 5 && cpu_has_apic))
+ >  			break;
+ >  		goto no_apic;
 
-The new kernel has QUERY_MODULES removed (don't ask why, normally
-there would be some kind of compatibility-overlap). So, your
-older `insmod` or `insmod.static` is trying to use the old-
-method of loading modules.
+Looks Ok
 
-[SNIPPED...]
+ > @@ -692,15 +691,20 @@ static int __init detect_init_APIC (void
+ >  
+ >  	if (!cpu_has_apic) {
+ >  		/*
+ > -		 * Over-ride BIOS and try to enable LAPIC
+ > -		 * only if "lapic" specified
+ > +		 * Over-ride BIOS and try to enable the local
+ > +		 * APIC only if "lapic" specified.
+ >  		 */
+ > -		if (enable_local_apic != 1)
+ > -			goto no_apic;
+ > +		if (enable_local_apic <= 0) {
+ > +			printk("Not enabling local APIC "
+ > +			       "because of frequent BIOS bugs\n");
+ > +			printk("You can enable it with \"lapic\"\n");
+ > +			return -1;
 
-You may not be able to recover easily. I found that I needed
-to rebuild the kernel with the necessary SCSI drivers in the
-kernel. This would allow me to boot and mount a root file-system.
-Save the previous kernel ".config" file. You must rebuild
-with the 'loop' device in the kernel as well (or else you
-can't make a new initrd RAM disk).
+I agree with Alan that accusing the BIOS of being buggy is unwarranted.
+The text should just state the obvious:
 
-Then you can install the new modutils package.
+The local APIC was disabled by the BIOS.
+You can enable it with "lapic".
 
-Then you can change back to the previous configuration with
-`make clean ; make oldconfig`....etc. Rebuild the kernel,
-install and boot happy.
+ > +		}
+ >  		/*
+ >  		 * Some BIOSes disable the local APIC in the
+ >  		 * APIC_BASE MSR. This can only be done in
+ > -		 * software for Intel P6 and AMD K7 (Model > 1).
+ > +		 * software for Intel P6, Intel P4 and AMD K7
+ > +		 * (Model > 1).
 
+To implicitly include P4 and K8, just change this to:
+Intel P6 and later, and AMD K7 (Model > 1) and later
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
-
+/Mikael

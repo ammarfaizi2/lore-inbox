@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268372AbUH3A0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUH3Ajf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268372AbUH3A0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 20:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268382AbUH3A0U
+	id S268421AbUH3Ajf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 20:39:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268425AbUH3Ajf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 20:26:20 -0400
-Received: from holomorphy.com ([207.189.100.168]:44465 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268372AbUH3A0N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 20:26:13 -0400
-Date: Sun, 29 Aug 2004 17:26:04 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-       Alessandro Rubini <rubini@ipvvis.unipv.it>
-Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
-Message-ID: <20040830002604.GB5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andries Brouwer <Andries.Brouwer@cwi.nl>,
-	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-	Alessandro Rubini <rubini@ipvvis.unipv.it>
-References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <20040829184114.GS5492@holomorphy.com> <20040829192617.GB24937@apps.cwi.nl> <20040829212350.GX5492@holomorphy.com> <20040829232543.GC24937@apps.cwi.nl>
+	Sun, 29 Aug 2004 20:39:35 -0400
+Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:50570 "HELO
+	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S268423AbUH3Ajc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 20:39:32 -0400
+In-Reply-To: <20040829191044.GA10090@thundrix.ch>
+To: Tonnerre <tonnerre@thundrix.ch>
+Subject: Re: silent semantic changes with reiser4
+Cc: spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com, vonbrand@inf.utfsm.cl
+X-Mailer: BeMail - Mail Daemon Replacement 2.3.1 Final
+From: "Alexander G. M. Smith" <agmsmith@rogers.com>
+Date: Sun, 29 Aug 2004 20:39:25 -0400 EDT
+Message-Id: <3247172997-BeMail@cr593174-a>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040829232543.GC24937@apps.cwi.nl>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 01:25:43AM +0200, Andries Brouwer wrote:
-> That is good - although so far I have not heard complaints
-> about readprofile's memory use. Maybe multiple MB is not
-> so excessive these days.
-> But improvement is always good.
-> On the other hand, I like stability. Maybe readprofile is just some
-> kind of throwaway utility, not very important, but nevertheless,
-> some people use it, and they have habits and hate to relearn,
-> and they have scripts, and hate to adapt these scripts.
-> So, if the internal code is improved, excellent, but I am not so
-> happy if the invocation is changed without a very good reason.
-> Maybe you can make a cross: your improved algorithm inside the
-> old framework with options and locale?
+Tonnerre wrote on Sun, 29 Aug 2004 21:10:44 +0200:
+> On Fri, Aug 27, 2004 at 07:58:40PM -0400, Horst von Brand wrote:
+> > So the _kernel_ has to know about thousands of formats, just in case it
+> > some blue day it comes across a strange file? Better leave that to the
+> > applications.
+> 
+> I'd  do  that  quite  differently:  Collect metadata  about  files  in
+> extended attributes (which are  rather universally useable), and do it
+> from  an userspace daemon/application/file  manager plugin  which uses
+> dynamically   loadable   plugins   for   the  different   file   types
+> differentiated by libmagic.
+> 
+> This has nothing to do in the kernel.
 
-Easy enough, though I suppose there are also stylistic improvements.
+I mostly agree, like I was saying earlier, file types are needed!  The kernel doesn't have to know about all of them, just some of them.  It should be possible to attach a file type to everything so you know what kind of thing it is, not just block or character device or file, but something like a MIME type.  If space is a concern, add to the inode a unique 8 byte character code for each popular type and a global translation table to get back the MIME string.
 
+The kernel (includes file systems and plug-ins) would have to know some standard file types and how to compare them for indexing purposes.  For example, an integer attribute like the year a music album was released would be stored as a 4 byte attribute "file" with a type like "primitive/int32", which tells the kernel to use 32 bit integer number comparison for indexing order.  Another type the kernel could be aware of are the file types used for security attributes.  A third kind it might need to know about are the computed attributes, which get set whenever related attributes they are computed from change.  For any unknown types, the kernel just stores the data and doesn't do any extra processing.
 
-On Sun, Aug 29, 2004 at 02:23:50PM -0700, William Lee Irwin III wrote:
->> The removal of -V was intentional, as I consider it bloat.
+Optionally the kernel could also maintain the global list of all file types and their properties (such as which ones are indexed, which are computed), though that could also be done in userland if you aren't doing indexing or computed attributes or other fancy operations.
 
-On Mon, Aug 30, 2004 at 01:25:43AM +0200, Andries Brouwer wrote:
-> Don't you know that whenever there are complaints about software
-> the very first question is "which version?"?
+The determination of the types would be in userland (smart programs would write the type when they created the file).  Like you said, a daemon could classify unknown files in the background (BeOS does this).  Most of the uses of the file type would also be in userland, such as deciding which program can handle a given file, or what icon to display, or to hint that a file/directory/attribute thing should be interpreted as an old style directory to the user, or to mark a file thing as being worth backing up (don't need to back up the computed ones).
 
-Okay, I suppose asking to look at external information with dpkg, rpm,
-etc. may not be feasible/desirable under all circumstances.
-
-
-On Sun, Aug 29, 2004 at 02:23:50PM -0700, William Lee Irwin III wrote:
->> I wasn't really expecting much to come of it besides prodding people
->> to clean up bloat. The reduced functionality alone likely precludes it
->> from consideration for inclusion. Supposing that there is greater
->> interest, which I don't expect, I can fix these things up and so on.
-
-On Mon, Aug 30, 2004 at 01:25:43AM +0200, Andries Brouwer wrote:
-> Well, you sent me something. I have three choices: take it as
-> replacement for the current version, ignore it, work on it.
-> I have no time to work on it, so am only happy with what you send
-> if it can replace the current version.
-
-I'll look around to see how much interest there is, or if others
-complain about the issues I'm concerned with, or others find them
-sufficiently compelling, and send an update for inclusion of the
-form that appears to be preferred if so.
-
-
--- wli
+- Alex

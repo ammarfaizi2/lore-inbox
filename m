@@ -1,83 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319516AbSIGUWu>; Sat, 7 Sep 2002 16:22:50 -0400
+	id <S319517AbSIGUie>; Sat, 7 Sep 2002 16:38:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319517AbSIGUWu>; Sat, 7 Sep 2002 16:22:50 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:29089 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319516AbSIGUWt>; Sat, 7 Sep 2002 16:22:49 -0400
-Date: Sat, 7 Sep 2002 17:27:13 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: Lars Marowsky-Bree <lmb@suse.de>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [lmb@suse.de: Re: [RFC] mount flag "direct" (fwd)]
-In-Reply-To: <200209071959.g87JxKN17732@oboe.it.uc3m.es>
-Message-ID: <Pine.LNX.4.44L.0209071723200.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319518AbSIGUie>; Sat, 7 Sep 2002 16:38:34 -0400
+Received: from [208.34.227.200] ([208.34.227.200]:42376 "EHLO
+	babylon5.babcom.com") by vger.kernel.org with ESMTP
+	id <S319517AbSIGUie>; Sat, 7 Sep 2002 16:38:34 -0400
+Date: Sat, 7 Sep 2002 16:41:01 -0400
+From: Phil Stracchino <alaric@babcom.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       usb-storage@one-eyed-alien.net
+Subject: Re: [linux-usb-devel] Feiya 5-in-1 Card Reader
+Message-ID: <20020907204101.GA19588@babylon5.babcom.com>
+Mail-Followup-To: Alan Stern <stern@rowland.harvard.edu>,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+	usb-storage@one-eyed-alien.net
+References: <20020905150026.GA4676@babylon5.babcom.com> <Pine.LNX.4.33L2.0209061000410.642-100000@ida.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0209061000410.642-100000@ida.rowland.org>
+User-Agent: Mutt/1.4i
+X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
+X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
+X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Sep 2002, Peter T. Breuer wrote:
-
-> > Noone appreciates reinventing the wheel another time, especially if - for
-> > simplification - it starts out as a square.
->
-> But what I suggest is finding a simple way to turn an existing FS into a
-> distributed one. I.e. NOT reinventing the wheel. All those other people
-> are reinventing a wheel, for some reason :-).
-
-To stick with the wheel analogy, while bicycle wheels will
-fit on a 40-tonne truck, they won't even get you out of the
-parking lot.
-
-> > You tell me why Distributed Filesystems are important. I fully agree.
+On Fri, Sep 06, 2002 at 10:09:51AM -0400, Alan Stern wrote:
+> On Thu, 5 Sep 2002, Phil Stracchino wrote:
+> > Hmm.  So if I was to grab 2.5.${LATEST} and try porting the sddr09
+> > driver back to 2.4.${CURRENT} ....
 > >
-> > You fail to give a convincing reason why that must be made to work with
-> > "all" conventional filesystems, especially given the constraints this implies.
->
-> Because that's the simplest thing to do.
-
-You've already admitted that you would need to modify the
-existing filesystems in order to create "filesystem independant"
-clustered filesystem functionality.
-
-If you're modifying filesystems, surely it no longer is filesystem
-independant and you might as well design your filesystem so it can
-do clustering in an _efficient_ way.
-
-> > What you are starting would need at least 3-5 years to catch up with what
-> > people currently already can do, and they'll improve in this time too.
->
-> Maybe 3-4 weeks more like. The discussion is helping me get a picture,
-> and when I'm back next week I'll try something. Then, unfortunately I
-> am away again from the 18th ...
-
-If you'd only spent 3-4 _days_ looking at clustered filesystems
-you would see that it'd take months or years to get something
-work decently.
+> > Thanks for the pointer.
+> 
+> You might like to use the patch below, which I prepared a few weeks ago.
+> It is a backport for the (more-or-less) current 2.5.x usb-storage module
+> that should work under 2.4.x.  My copy of the 2.5 source is not exactly
+> synched with ${LATEST}, so you may have to massage the patch a little bit
+> to make it apply properly.  (Also, you have to apply the patch from within
+> the linux/drivers/usb directory rather than at the top level; sorry about
+> that.)
 
 
-> No features. Just take any FS that corrently works, and see if you can
-> distribute it.  Get rid of all fancy features along the way.  You mean
-> "what's wrong with X"?  Well, it won't be mainstream, for a start, and
-> that's surely enough.  The projects involved are huge, and they need to
-> minimize risk, and maximize flexibility. This is CERN, by the way.
+Sir, you are a scholar and a gentleman.  Thank you.  :)
 
-All you can hope for now is that CERN doesn't care about data
-integrity or performance ;)
 
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+  *********  Fight Back!  It may not be just YOUR life at risk.  *********
+  phil stracchino   ::   alaric@babcom.com   ::   halmayne@sourceforge.net
+    unix ronin     ::::   renaissance man   ::::   mystic zen biker geek
+     2000 CBR929RR, 1991 VFR750F3 (foully murdered), 1986 VF500F (sold)
+       Linux Now! ...because friends don't let friends use Microsoft.

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262681AbRFMJkr>; Wed, 13 Jun 2001 05:40:47 -0400
+	id <S262706AbRFMJy7>; Wed, 13 Jun 2001 05:54:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262706AbRFMJkh>; Wed, 13 Jun 2001 05:40:37 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:23309 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S262681AbRFMJk0>;
-	Wed, 13 Jun 2001 05:40:26 -0400
-Date: Wed, 13 Jun 2001 11:40:17 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Ben Greear <greearb@candelatech.com>
-cc: <landley@webofficenow.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Hour long timeout to ssh/telnet/ftp to down host?
-In-Reply-To: <3B26CD5B.47002360@candelatech.com>
-Message-ID: <Pine.LNX.4.33.0106131138390.22415-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262715AbRFMJyj>; Wed, 13 Jun 2001 05:54:39 -0400
+Received: from gandalf.uznam.net.pl ([195.205.28.2]:5907 "EHLO
+	gandalf.uznam.net.pl") by vger.kernel.org with ESMTP
+	id <S262706AbRFMJyi>; Wed, 13 Jun 2001 05:54:38 -0400
+Date: Wed, 13 Jun 2001 11:52:27 +0200
+From: Michal Margula <alchemyx@uznam.net.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Summary of Error no buffer space available
+Message-ID: <20010613115227.A3023@cerber.uznam.net.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux 2.2.19 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+I got plenty of replies. Thanks. Playing with
+/proc/sys/net/ipv4/neigh/default/gc_thresh{2,3} helped. The funny thing
+is that there are no more ENOBUFS problems - I am guessing that in
+2.2.19 buffer of TCP is bigger than in 2.4.x, or something...
 
-On Tue, 12 Jun 2001, Ben Greear wrote:
+People asked me about more details of oopses I had with 2.4.5. Sorry I
+don't have any data that could help and I won't try 2.4.x again, until 2.4.20 comes out :)
 
-> Rob Landley wrote:
-> >
-> > I have scripts that ssh into large numbers of boxes, which are sometimes
-> > down.  The timeout for figuring out the box is down is over an hour.  This is
-> > just insane.
-> >
-> > Telnet and ftp behave similarly, or at least tthey lasted the 5 minutes I was
-> > willing to wait, anyway.  Basically anything that calls connect().  If the
-> > box doesn't respond in 15 seconds, I want to give up.
-> >
-> > Is this a problem with the kernel or with glibc?  If it's the kernel, I'd
-> > expect a /proc entry where I can set this, but I can't seem to find one.  Is
-> > there one?  What would be involved in writing one?
-> >
->
-> You can tune things by setting the tcp-timeout probably..I don't
-> know exactly where to set this..
+Andi Kleen said that my problems with 2.4.x and ENOBUFS should be fixed
+after changing some things in /proc/sys/net/ipv4/tcp_mem, net/core/[rw]mem_{max,default}.
 
-/proc/sys/net/ipv4/tcp_fin_timeout
+Thank you once again :)
 
-default is 60.
-
-
+-- 
+Michal Margula, alchemyx@uznam.net.pl, ICQ UIN 12267440, +)
+http://uznam.net.pl/~alchemyx/, Polish section of Linux Counter maintainer

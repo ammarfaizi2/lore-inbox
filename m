@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUIAQCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266488AbUIAQHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbUIAQCo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 12:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267338AbUIAQC3
+	id S266488AbUIAQHU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 12:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUIAP56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 12:02:29 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:22774 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S267378AbUIAQBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 12:01:44 -0400
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       arjanv@redhat.com, viro@parcelfarce.linux.theplanet.co.uk,
-       mst@mellanox.co.il, filia@softhome.net
-Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
-X-Message-Flag: Warning: May contain useful information
-References: <1094052981.431.7160.camel@cube>
-From: Roland Dreier <roland@topspin.com>
-Date: Wed, 01 Sep 2004 08:59:09 -0700
-In-Reply-To: <1094052981.431.7160.camel@cube> (Albert Cahalan's message of
- "01 Sep 2004 11:36:21 -0400")
-Message-ID: <52vfey0ylu.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 Sep 2004 15:59:09.0218 (UTC) FILETIME=[9DBEC820:01C4903C]
+	Wed, 1 Sep 2004 11:57:58 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:58802 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S267285AbUIAPvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:51:43 -0400
+Date: Wed, 1 Sep 2004 16:51:20 +0100
+Message-Id: <200409011551.i81FpKhF000600@delerium.codemonkey.org.uk>
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix leak in atmel wireless driver.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Albert> Per-command parameters included?
+Spotted with the source checker from Coverity.com.
 
-    Albert> People really do want private syscalls. An ioctl is that,
-    Albert> in a namespace defined by the file descriptor. So ioctl()
-    Albert> provides local scope to something that would otherwise be
-    Albert> global.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Yes, this is exactly right.  One issue raised by this thread is that
-the ioctl32 compatibility code only allows one compatibility handler
-per ioctl number.  It seems that this creates all sorts of
-possibilities for mayhem because it makes the ioctl namespace global
-in scope in some situations.  Does anyone have any thoughts on if/how
-this should be addressed.
 
- - Roland
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/net/wireless/atmel.c linux-2.6/drivers/net/wireless/atmel.c
+--- bk-linus/drivers/net/wireless/atmel.c	2004-08-11 00:00:37.000000000 +0100
++++ linux-2.6/drivers/net/wireless/atmel.c	2004-08-23 14:08:15.000000000 +0100
+@@ -2430,12 +2430,13 @@ static int atmel_ioctl(struct net_device
+ 			rc = -ENOMEM;
+ 			break;
+ 		}
+-		
++
+ 		if (copy_from_user(new_firmware, com.data, com.len)) {
++			kfree(new_firmware);
+ 			rc = -EFAULT;
+ 			break;
+ 		}
+-		
++
+ 		if (priv->firmware)
+ 			kfree(priv->firmware);
+ 		

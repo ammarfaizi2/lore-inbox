@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRACXKS>; Wed, 3 Jan 2001 18:10:18 -0500
+	id <S129267AbRACXNI>; Wed, 3 Jan 2001 18:13:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131413AbRACXKI>; Wed, 3 Jan 2001 18:10:08 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:51186 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131400AbRACXKA>; Wed, 3 Jan 2001 18:10:00 -0500
-Date: Wed, 3 Jan 2001 21:09:01 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dcache 2nd chance replacement
-In-Reply-To: <20010103221221.I32185@athlon.random>
-Message-ID: <Pine.LNX.4.21.0101032107550.1917-100000@duckman.distro.conectiva>
+	id <S131904AbRACXM6>; Wed, 3 Jan 2001 18:12:58 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:38149 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S131806AbRACXMv>; Wed, 3 Jan 2001 18:12:51 -0500
+Message-ID: <3A53B356.32353C01@uow.edu.au>
+Date: Thu, 04 Jan 2001 10:18:46 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: mzyngier@freesurf.fr
+CC: linux-kernel@vger.kernel.org, linux-irda@pasta.cs.UiT.No
+Subject: Re: [IrDA+SMP] Lockup in handle_IRQ_event
+In-Reply-To: <wrpzoh89t1c.fsf@hina.wild-wind.fr.eu.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, Andrea Arcangeli wrote:
-> On Wed, Jan 03, 2001 at 05:47:39PM -0200, Rik van Riel wrote:
-> > Not really. Under very high VFS loads we'd just scan
-> > through the list twice and free the entries anyway.
+Marc ZYNGIER wrote:
 > 
-> You're obviously wrong.
+> Hi all,
 > 
-> The higher was the load, the faster your working set was getting
-> dropped from the dcache. (with the patch the working set will
-> have a chance to remains in cache also with polluting going on
-> instead,
+> Having just started playing with IrDA on my dual celeron (Abit "APIC
+> error..." BP6), I managed to kill it every single time (NMI watchdog
+> in handle_IRQ_event) while connecting to my mobile phone (in fact,
+> when closing the connection to the phone. even 'cat /dev/ircomm0' will
+> do...). This is perfectly repeatable.
+> 
 
-> The example with only pollution in the cache doesn't make sense,
+Try this:
 
-Ever heard of slocate / updatedb ?
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+--- linux-2.4.0-prerelease/net/irda/irqueue.c	Tue Nov 21 20:11:22 2000
++++ linux-akpm/net/irda/irqueue.c	Thu Jan  4 10:14:10 2001
+@@ -436,7 +436,7 @@
+ 
+ 	/* Release lock */
+ 	if ( hashbin->hb_type & HB_GLOBAL) {
+-		spin_unlock_irq( &hashbin->hb_mutex[ bin]);
++		spin_unlock_irqrestore( &hashbin->hb_mutex[ bin], flags);
+ 
+ 	} else if ( hashbin->hb_type & HB_LOCAL) {
+ 		restore_flags( flags);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

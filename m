@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293457AbSDTUgi>; Sat, 20 Apr 2002 16:36:38 -0400
+	id <S313165AbSDTUxD>; Sat, 20 Apr 2002 16:53:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311670AbSDTUgh>; Sat, 20 Apr 2002 16:36:37 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:44553 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293457AbSDTUgg>;
-	Sat, 20 Apr 2002 16:36:36 -0400
-Date: Sat, 20 Apr 2002 12:35:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Thomas Hood <jdthood@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre7-ac1 breaks my USB mouse
-Message-ID: <20020420193508.GA18880@kroah.com>
-In-Reply-To: <1019328673.873.5.camel@thanatos> <20020420182719.GA18580@kroah.com> <1019333233.1908.2.camel@thanatos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 23 Mar 2002 17:32:31 -0800
+	id <S313168AbSDTUxC>; Sat, 20 Apr 2002 16:53:02 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:27402 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S313165AbSDTUxB>; Sat, 20 Apr 2002 16:53:01 -0400
+Date: Sat, 20 Apr 2002 22:52:54 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: O_LARGEFILE support in smbfs?
+In-Reply-To: <Pine.LNX.4.44.0204201612100.11230-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.33.0204202245560.3325-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 04:07:05PM -0400, Thomas Hood wrote:
-> The mouse doesn't work on 2.4.19-pre7 either.
-> I reconfirmed that it does work on 2.4.19-pre5.
+On Sat, 20 Apr 2002, Roy Sigurd Karlsbakk wrote:
 
-You don't have CONFIG_USB_HIDINPUT set, which you need to do.  You did
-read the help for it when doing 'make oldconfig', right?  :)
+> hm ...
+> i tried patching 2.4.19-pre7-ac2, and it seems like it's already in there. 
+> is it?
 
-Let me know if that fixes it for you.
+The "00" one is. The others are not (AFAIK. Alan seems to be in patch
+sniffing mode sometimes ... :)
 
-thanks,
+Try starting at "01", or stick with 2.4.18.
 
-greg k-h
+/Urban
+

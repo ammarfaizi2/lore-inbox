@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311691AbSCNRZS>; Thu, 14 Mar 2002 12:25:18 -0500
+	id <S311688AbSCNR26>; Thu, 14 Mar 2002 12:28:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311688AbSCNRY7>; Thu, 14 Mar 2002 12:24:59 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:51333 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S311689AbSCNRYy>;
-	Thu, 14 Mar 2002 12:24:54 -0500
-Date: Thu, 14 Mar 2002 18:24:44 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200203141724.SAA05707@harpo.it.uu.se>
-To: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br, torvalds@transmeta.com
-Subject: [PATCH] boot_cpu_data corruption on SMP x86
-Cc: linux-kernel@vger.kernel.org
+	id <S311689AbSCNR2i>; Thu, 14 Mar 2002 12:28:38 -0500
+Received: from rj.sgi.com ([204.94.215.100]:39571 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S311688AbSCNR2h>;
+	Thu, 14 Mar 2002 12:28:37 -0500
+Date: Thu, 14 Mar 2002 09:28:08 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Erich Focht <focht@ess.nec.de>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Node affine NUMA scheduler
+Message-ID: <20020314172808.GB138234@sgi.com>
+Mail-Followup-To: Erich Focht <focht@ess.nec.de>,
+	lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20020314025818.GA136486@sgi.com> <Pine.LNX.4.21.0203141459260.12844-100000@sx6.ess.nec.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0203141459260.12844-100000@sx6.ess.nec.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below eliminates a case of boot_cpu_data corruption
-on SMP x86 machines. This was first observed on SMP Athlons,
-but it also affects SMP Intel boxes in a less serious way.
+On Thu, Mar 14, 2002 at 03:54:12PM +0100, Erich Focht wrote:
+> Jesse,
+> 
+> thanks for running the tests. Actually "hackbench" is a bad example for
+> the node affinity (though it's a good test for heavy scheduling). The code
+> forks but doesn't exec and therefore all hackbench tasks have the same
+> homenode. Also the tasks are not particularly memory bandwidth or latency
+> hungry, therefore node affinity won't speed them up. I'm actually glad
+> that they aren't slower, that shows that the additional overhead is small.
 
-When the secondary processors boot and execute head.S:checkCPUtype,
-the code performs a 32-bit write of a small constant to the
-byte-sized variable boot_cpu_data.x86 (X86 in head.S). Since the
-write is 32-bit, it also writes zeros to the following 3 bytes,
-which clobbers the x86_vendor, x86_model, and x86_mask fields
-previously set up by check_bugs()'s call to identify_cpu().
-Thus, after smp_init(), boot_cpu_data will _always_ identify
-the CPU as an Intel (X86_VENDOR_INTEL == 0 in processor.h) with
-model 0 and stepping 0.
+Alright, I'll try running some other numbers too, what can you
+recommend other than aim and kernel compiles?
 
-The effect in standard kernels is not catastrophic, since:
-(a) most SMP x86 boxes are Intel
-(b) most uses of x86_vendor occur before smp_init() or reference
-    the SMP cpu_data[] array
-(c) most post-boot references to boot_cpu_data occur in the
-    cpu_has_XXX macros which only read the x86_capability[] array
-However, third-party extensions (like my x86 performance-monitoring
-conters driver) can get seriously confused by this mis-identification.
+> Thanks for sending the macros for SGI_SN1/2, I'll include them. You
+> probably use the DISCONTIGMEM patch, for that I append a small patch which
+> "couples" DISCONTIGEMEM with the node affine scheduler such that pages
+> will be allocated on the node current->node instead of the node on which
+> the task is currently running. Hackbench might slow down a bit but
+> AIM7 should improve.
 
-The patch is for 2.4.19-pre3, but it also applies to 2.5.6 and
-2.2.21rc1. Please apply.
+Sounds good, I'll have to update those macros later too (Jack
+reminded me that physical node numbers aren't always the same as
+logical node numbers).
 
-/Mikael
-
---- linux-2.4.19-pre3/arch/i386/kernel/head.S.~1~	Tue Feb 26 13:26:56 2002
-+++ linux-2.4.19-pre3/arch/i386/kernel/head.S	Thu Mar 14 16:20:57 2002
-@@ -178,7 +178,7 @@
-  * we don't need to preserve eflags.
-  */
- 
--	movl $3,X86		# at least 386
-+	movb $3,X86		# at least 386
- 	pushfl			# push EFLAGS
- 	popl %eax		# get EFLAGS
- 	movl %eax,%ecx		# save original EFLAGS
-@@ -191,7 +191,7 @@
- 	andl $0x40000,%eax	# check if AC bit changed
- 	je is386
- 
--	movl $4,X86		# at least 486
-+	movb $4,X86		# at least 486
- 	movl %ecx,%eax
- 	xorl $0x200000,%eax	# check ID flag
- 	pushl %eax
+Jesse

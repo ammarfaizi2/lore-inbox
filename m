@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbQKOAmO>; Tue, 14 Nov 2000 19:42:14 -0500
+	id <S129045AbQKOAsE>; Tue, 14 Nov 2000 19:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129045AbQKOAmF>; Tue, 14 Nov 2000 19:42:05 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59396 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129047AbQKOAlu>;
-	Tue, 14 Nov 2000 19:41:50 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011150001.AAA00723@raistlin.arm.linux.org.uk>
-Subject: Re: [PATCH] pcmcia event thread. (fwd)
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Wed, 15 Nov 2000 00:01:15 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), torvalds@transmeta.com,
-        dhinds@valinux.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20554.974126251@redhat.com> from "David Woodhouse" at Nov 13, 2000 02:37:31 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129132AbQKOAry>; Tue, 14 Nov 2000 19:47:54 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:57721 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S129045AbQKOArq>;
+	Tue, 14 Nov 2000 19:47:46 -0500
+From: "LA Walsh" <law@sgi.com>
+To: "Andries Brouwer" <aeb@veritas.com>
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+Subject: RE: IDE0 /dev/hda performance hit in 2217 on my HW - more info - maybe extended partitions
+Date: Tue, 14 Nov 2000 16:16:08 -0800
+Message-ID: <NBBBJGOOMDFADJDGDCPHOEJLCJAA.law@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20001114015834.A24158@veritas.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse writes:
-> If we don't specify CLONE_FS | CLONE_FILES | CLONE_SIGHAND then new ones 
-> get allocated just for us to free them again immediately. If we clone them, 
-> then we just increase and decrease the use counts of the parent's ones. The 
-> latter is slightly more efficient, and I don't think it really matters. If 
-> you really care, that can be changed. I've dropped CLONE_SIGHAND because 
-> daemonize() doesn't free that, but left CLONE_FS and CLONE_FILES.
+It seems to be the output of vmstat that isn't matching things.  First it
+says
+it's getting near 10M/s, but if you divide 128M/27 seconds, it's more like
+4.7.
+So where is the time being wasted?  It's not in cpu either.
 
-Small suggestion - when your thread is created, make sure that all /proc
-accesses to stuff relating to this thread doesn't cause the kernel to panic.
+Now lets look at hda7 where vmstat reported 2-3meg/sec.  Again, the math
+says it's a rate near 5.  So it still doesn't make sense.
 
-I used to create some processes with '0' as the third arg until Debian's
-start-stop-daemon script started killing peoples machines with a kernel
-oops.  Now I always use CLONE_FS | CLONE_FILES | CLONE_SIGHAND as per
-fs/buffer.c (which I used as the reference for creating kernel threads).
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Andries Brouwer
+> Sent: Monday, November 13, 2000 4:59 PM
+> To: LA Walsh
+> Cc: lkml
+> Subject: Re: IDE0 /dev/hda performance hit in 2217 on my HW - more info
+> - maybe extended partitions
+>
+>
+> On Mon, Nov 13, 2000 at 03:47:27PM -0800, LA Walsh wrote:
+>
+> > Some further information in response to a private email, I did
+> hdparm -ti
+> > under both
+> > 2216 and 2217 -- they are identical -- this may be something weird
+> > w/extended partitions...
+>
+> What nonsense. There is nothing special with extended partitions.
+> Partitions influence the logical view on the disk, but not I/O.
+>
+> (But the outer rim of a disk is faster than the inner side.)
+>
+> Moreover, you report elapsed times
+> 0:27, 0:22, 0:24, 0:28, 0:21, 0:24, 0:27
+> where is this performance hit?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132265AbRAASoo>; Mon, 1 Jan 2001 13:44:44 -0500
+	id <S132230AbRAAS6j>; Mon, 1 Jan 2001 13:58:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132230AbRAASoe>; Mon, 1 Jan 2001 13:44:34 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:51217 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132265AbRAASoY>; Mon, 1 Jan 2001 13:44:24 -0500
-Date: Mon, 1 Jan 2001 10:13:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Chipsets, DVD-RAM, and timeouts....
-In-Reply-To: <Pine.LNX.4.10.10012312252220.21836-300000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.10.10101011011350.2892-100000@penguin.transmeta.com>
+	id <S132251AbRAAS6U>; Mon, 1 Jan 2001 13:58:20 -0500
+Received: from dns1.rz.fh-heilbronn.de ([141.7.1.18]:52687 "EHLO
+	dns1.rz.fh-heilbronn.de") by vger.kernel.org with ESMTP
+	id <S132230AbRAAS6O>; Mon, 1 Jan 2001 13:58:14 -0500
+Date: Mon, 1 Jan 2001 19:27:45 +0100 (CET)
+From: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS-Root on AIX
+In-Reply-To: <E14D9QE-00018E-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.05.10101011917520.23540-100000@lara.stud.fh-heilbronn.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Jan 2001, Alan Cox wrote:
 
+> > Last we had to use an AIX-Server as NFS-Server for NFSRoot-Boot.
+> > 
+> > It did not work, because the all Major-Device-Numbers in /dev/ are all
+> > set to 0. The minor numbers are transported correctly. 
+> 
+> NFS doesnt handle this elegantly for NFSv2 - are you using v2 or v3 ?
+That's the question! What does the RedHat 7 support? ;-)
 
-Andre, what's the idea behind the following change:
+Where is the switching for v2 or v3 as nfs-client done?
+Kernel-Config CONFIG_NFS_V3 or mount-option nfsvers?
 
---- linux-2.4.0-prerelease-pristine/drivers/ide/ide-features.c  Mon Oct 16 12:21:40 2000
-+++ linux-2.4.0-prerelease/drivers/ide/ide-features.c   Sun Dec 31 21:53:17 2000
-@@ -224,7 +224,7 @@
- #ifndef CONFIG_IDEDMA_IVB
-                if ((drive->id->hw_config & 0x6000) == 0) {
- #else /* !CONFIG_IDEDMA_IVB */
--               if (((drive->id->hw_config & 0x2000) == 0) ||
-+               if (((drive->id->hw_config & 0x2000) == 0) &&
-                    ((drive->id->hw_config & 0x4000) == 0)) {
- #endif /* CONFIG_IDEDMA_IVB */
-                        printk("%s: Speed warnings UDMA 3/4/5 is not functional.\n", drive->name);
+Which version does the nfsroot-boot use?
 
-as it apparently makes CONFIG_IDEDMA_IVB a complete no-op?
+BYtE Oli
 
-		Linus
++++LINUX++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++Manchmal stehe ich sogar nachts auf und installiere mir eins....+++++++
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

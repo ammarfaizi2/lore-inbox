@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273333AbRJIHDJ>; Tue, 9 Oct 2001 03:03:09 -0400
+	id <S273360AbRJIHD4>; Tue, 9 Oct 2001 03:03:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273349AbRJIHDA>; Tue, 9 Oct 2001 03:03:00 -0400
-Received: from foobar.isg.de ([62.96.243.63]:57473 "HELO mail.isg.de")
-	by vger.kernel.org with SMTP id <S273333AbRJIHCr>;
-	Tue, 9 Oct 2001 03:02:47 -0400
-Message-ID: <3BC2A130.CFEBBE2D@isg.de>
-Date: Tue, 09 Oct 2001 09:03:12 +0200
-From: Constantin Loizides <Constantin.Loizides@isg.de>
-Organization: Innovative Software AG
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac18 i686)
-X-Accept-Language: en
+	id <S273349AbRJIHDk>; Tue, 9 Oct 2001 03:03:40 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18321 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273358AbRJIHD3>;
+	Tue, 9 Oct 2001 03:03:29 -0400
+Date: Tue, 9 Oct 2001 03:03:49 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Nathan Scott <nathans@sgi.com>
+cc: Jan Kara <jack@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: Quotactl change
+In-Reply-To: <20011008203418.A505344@wobbly.melbourne.sgi.com>
+Message-ID: <Pine.GSO.4.21.0110090256140.13381-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-Cc: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.11.p4 and dd
-In-Reply-To: <Pine.LNX.4.33.0110081343280.1775-100000@boris.prodako.se>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > 2.4.3 uses a large amount of buffer, 2.4.11p4 only chache.
+
+On Mon, 8 Oct 2001, Nathan Scott wrote:
+
+> hi all,
 > 
-> Block devices are handled by the page cache in 2.4.10 and up.
-> 
+> Al - is the attached patch more along the lines of what you
+> were after?
 
-Eh, did I miss something? Thought, that meta data are still
-cached in buffer cache? Did it change from 2.4.9 to 2.4.10?
-What about the ac kernels? 
+Quota side looks sane.  fs/super.c one is an overkill - just set default in
+alloc_super().  There is no need to bother with resetting it - in the
+places where you do it superblock is already deactivated, so get_super()
+in quotactl will not return it and at that point there should be no inodes
+left from that filesystem.
 
-Constantin

@@ -1,106 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267998AbUJOUTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268317AbUJOU1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267998AbUJOUTV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 16:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268228AbUJOUTV
+	id S268317AbUJOU1N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 16:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUJOU1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 16:19:21 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:42399 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267998AbUJOUTR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 16:19:17 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=B/Uo7ObtuHUb5BAtV/0flnkC2Y8EdxTuZZMsHTsdxAYHsn3S9akeix18qN4B6goaAuXMTfwWhl3vM3aaKoi7EJYRRKmqmgUWEs3u9XCxoYZkhrPkOlvfDbqXDcZcIZr1VzJdOIpynA4tgHCdJuaGNgDUS+24ENMzuXCfySecRNE
-Message-ID: <9e4733910410151319159482ce@mail.gmail.com>
-Date: Fri, 15 Oct 2004 16:19:16 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Kendall Bennett <kendallb@scitechsoft.com>
-Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fbdev <linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <416FB275.6425.1C3D985@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <416E8322.25700.29ACC2F1@localhost>
-	 <1097843969.9863.8.camel@localhost.localdomain>
-	 <416FB275.6425.1C3D985@localhost>
+	Fri, 15 Oct 2004 16:27:12 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:54682 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S268317AbUJOU1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 16:27:08 -0400
+Date: Fri, 15 Oct 2004 13:27:02 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Alistair John Strachan <alistair@devzero.co.uk>
+cc: a.ledvinka@promon.cz, linux-kernel@vger.kernel.org
+Subject: Re: promise (105a:3319) unattended boot
+In-Reply-To: <200410152112.18691.alistair@devzero.co.uk>
+Message-ID: <Pine.LNX.4.61.0410151317090.21618@twin.uoregon.edu>
+References: <OF77D5B4E1.A38CC6EC-ONC1256F2E.004E78A5-C1256F2E.0050B72C@promon.cz>
+ <200410152112.18691.alistair@devzero.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Oct 2004 11:20:21 -0700, Kendall Bennett
-<kendallb@scitechsoft.com> wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> 
-> > On Iau, 2004-10-14 at 21:46, Kendall Bennett wrote:
-> > > a way to spawn a user mode process that early in the boot sequence (it
-> > > would have to come from the initrd image I expect) then the only option
-> > > is to compile it into the kernel.
-> >
-> > There is exactly that in 2.6 - the hotplug interfaces allow the
-> > kernel to fire off userspace programs. Jon Smirl (who you should
-> > definitely talk to about this stuff) has been hammering out a
-> > design for moving almost all the mode switching into user space for
-> > kernel video.
-> 
-> That is awesome! I am all for moving this outside of the kernel, as it
-> would allow the use of ream vm86() services for VGA/VESA BIOS access on
-> x86 and the user of the emulator for non-x86 platforms.
-> 
-> The only catch would be making sure this stuff is available really early
-> in the boot sequence. As it stands right now the solution we have brings
-> up the video almost imediately after you see the 'uncompressing kernel
-> image' message on the serial port. The other solution of course is to get
-> this into the boot loader which is what the AmigaOne folks did for their
-> machines (U-Boot brings up the video). We are working with those guys to
-> update their BIOS emulator to the latest version as the one they have
-> doesn't work that reliably.
-> 
-> Anyway how do I find out more about this in 2.6?
-> 
-> Also I assume the code would need to end up in the initrg image, correct?
-> Can you point me at some resources to learn more about how to get custom
-> code into the initrd image?
+On Fri, 15 Oct 2004, Alistair John Strachan wrote:
 
-The plan for this in 2.6 is to first write a VGA device driver. This
-driver is responsible for identifying all of the VGA devices in a
-system and ensuring only one of them gets enabled a time. I started
-writing this but I haven't finished. This driver would be compiled
-into the kernel. I can send source if you are interested.
+> On Friday 15 Oct 2004 15:41, you wrote:
+>> Hello.
+>>
+>> Got here http://pciids.sourceforge.net/iii/?i=105a3319
+>> As http://linux.yyz.us/sata/faq-sata-raid.html#tx4 calls it
+>> soft/accelerator raid version
+>> Going to use latest kernel from /pub/linux/kernel/v2.4/
+>>
+>> But bios even with keyboard unplugged requires me to press one of 2 keys
+>> to either define array OR continue booting in case no array is defined.
+>>
+>> What would you recommend me to do?
+>> - stay with ft3xx module from promise  and 10 level RAID array and not use
+>> sata_promise?
+>> - define some array in bios and completely ignore that fact and use
+>> sata_promise, bypass bios and define custom linux soft raid arrays?
+>
+> If you define an array, AFAIK the controller doesn't do anything physically to
+> the discs. It's just the settings it tells the promise driver (thus software
+> RAID). If you define ANY array, the drives should still be detected by Linux
+> individually and you can use linux/md to RAID them.
 
-I have added hooks to the PCI subsystem to record the boot video
-device. If the VGA driver finds VGA devices other than the boot one it
-will generate hotplug events on them. Initramfs should contain a reset
-program for using X86 mode to reset these cards. To do this you need
-two things from the kernel: 1) a way to make sure only a single VGA
-device is active (VGA driver, allow you to disable the current VGA
-device, reset the card, restore the active VGA device) and 2) a way to
-get the ROM image. There is a patch in -mm that makes the ROMs visible
-in sysfs that should be in the kernel shortly.
+for sanity purposes we generally define spanned volumes each composed of 
+one disk. this still bites you ocasionaly because the controller will 
+pause when one or more disks are missing which otherwise may or may not be 
+catostrophic ie if you have a software raid-5 raid 1 or 10 stripe it'll 
+probably do fine with one disk missing, but the promise will freak again.
 
-So, when you first boot you have two choices, 1) use a display the
-boot ROM setup, such as VGAcon or PROMcon. or 2) have no display.
-People want this both ways. VGAcon/PROMcon will let you get output
-very early in the boot process.
+> This is how I'm doing it on my older PATA promise card.
+>
+>> - anything else (no bios flashing and no hw hacking)?
 
-Next the VGA driver will initialize. This will trigger user space
-resets using the program on initramfs. Now it is possible to use all
-of your displays. To control this from something like resume, the
-driver sets a lock that is cleared by the reset app and the end of
-reset. This will keep other processes out of the driver until reset is
-finished.
+non-raid sata or pata promise cards are darn cheap...
 
-Right now I am working on a merged fbdev/DRM that supports multi-head
-adapters. It's turning out to be much more work than I though because
-neither DRM or fbdev handle multihead at the device driver level. You
-can get snapshots of the code at mesa3d.bkbits.net but it doesn't work
-right yet. This driver is designed to run after the VGAdriver has
-reset the hardware.
+>
+>
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu 
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+

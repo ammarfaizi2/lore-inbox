@@ -1,101 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130172AbRCCAE0>; Fri, 2 Mar 2001 19:04:26 -0500
+	id <S130167AbRCCADz>; Fri, 2 Mar 2001 19:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130173AbRCCAEQ>; Fri, 2 Mar 2001 19:04:16 -0500
-Received: from gatekeeper.corp.netcom.net.uk ([194.42.224.25]:30426 "EHLO
-	gatekeeper") by vger.kernel.org with ESMTP id <S130172AbRCCAEB>;
-	Fri, 2 Mar 2001 19:04:01 -0500
-Message-ID: <3AA034DA.1C3ADA41@ops.netcom.net.uk>
-Date: Sat, 03 Mar 2001 00:03:38 +0000
-From: Bill Crawford <bill@ops.netcom.net.uk>
-Reply-To: billc@netcomuk.co.uk
-Organization: Netcom Internet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac7 i686)
-X-Accept-Language: en
+	id <S130172AbRCCADp>; Fri, 2 Mar 2001 19:03:45 -0500
+Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:12229
+	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
+	with SMTP id <S130167AbRCCADc>; Fri, 2 Mar 2001 19:03:32 -0500
+Date: Sat, 3 Mar 2001 01:03:26 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: <bunk@io.fachschaften.tu-muenchen.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Adam Sampson <azz@gnu.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM balancing problems under 2.4.2-ac1
+In-Reply-To: <Pine.LNX.4.31.0102232120531.8568-100000@localhost.localdomain>
+Message-ID: <Pine.NEB.4.33.0103030053070.14582-100000@io.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Bill Crawford <billc@netcomuk.co.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Daniel Phillips <phillips@innominate.de>
-Subject: Re: Hashing and directories
-In-Reply-To: <3A959BFD.B18F833@netcomuk.co.uk> <20000101020213.D28@(none)>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Fri, 23 Feb 2001, Rik van Riel wrote:
 
-> Hi!
+> On 23 Feb 2001, Adam Sampson wrote:
+>
+> > The VM balancing updates in the recent ac kernels seem to have caused
+> > some interesting performance problems on my desktop machine. I've got
+> > 160Mb of RAM, and 2.4.2-ac1 appears to be using excessively large
+> > amounts of it for buffers and cache while pushing stuff out to
+> > swap. This means that Mozilla, for instance, runs significantly worse
+> > than under 2.4.0, since bits of it are being swapped in and out.
+>
+> This is a known problem which I'll fix as soon as I have a
+> solution.
+>
+> The problem is that we still have no good way to balance
+> how much memory we take from the cache and how much memory
+> we take from processes.
 
-> >  I was hoping to point out that in real life, most systems that
-> > need to access large numbers of files are already designed to do
-> > some kind of hashing, or at least to divide-and-conquer by using
-> > multi-level directory structures.
+I have the same problem Adam has: I'm running 3-5 applications on my
+computer. I have 64 MB of RAM and I use usually less than 50 MB. I have
+swap for the rare cases where I need more RAM than I have. But with
+2.4.x-acyz kernels I do often have to wait several seconds after I
+switched to another running application before it's swapped in again
+because it seems this application was swapped out to cache some MP3 I
+surely won't listen to before the next reboot...
 
-> Yes -- because their workaround kernel slowness.
+> This means that for some workloads we'll be evicting too
+> much cache while for other workloads we'll be evicting too
+> much process pages...
+>
+> If anybody as a good idea to make this code auto-balancing,
+> please let me know.
 
- Not just kernel ... because we use NFS a lot, directory searching is
-a fair bit quicker with smaller directories (especially when looking
-manually at things).
+I have no idea for auto-balancing but another idea: It's one possibility
+to let the user choose when doing "make *config" what he wants:
 
-> I had to do this kind of hashing because kernel disliked 70000 html
-> files (copy of train time tables).
+- A VM optimized for servers that swaps out applications in favor of
+  caching.
+or
+- A VM optimized for workstations that won't swap out applications in
+  favor of caching.
 
-> BTW try rm * with 70000 files in directory -- command line will overflow.
 
- Sort of my point, again.  There are limits to what is sane.
+I know that's not a perfect solution but it would make the situation much
+better.
 
- Another example I have cited -- our ticketing system -- is a good one.
-If there is subdivision, it can be easier to search subsets of the data.
-Can you imagine a source tree with 10k files, all in one directory?  I
-think *people* need subdivision more than the machines do, a lot of the
-time.  Another example would be mailboxes ... I have started to build a
-hierarchy of mail folders because I have more than a screenful.
 
-> Yes? Easier to type cat timetab1/2345 that can timetab12345? With bigger
-> command line size, putting i into *one& directory is definitely easier.
+> regards,
+>
+> Rik
 
- IMO (strictly my own) it is often easier to have things subdivided.
-I have had to split up my archive of linux tarballs and patches because
-it was getting too big to vgrep.
-
-> >  A couple of practical examples from work here at Netcom UK (now
-> > Ebone :), would be say DNS zone files or user authentication data.
-> > We use Solaris and NFS a lot, too, so large directories are a bad
-> > thing in general for us, so we tend to subdivide things using a
-> > very simple scheme: taking the first letter and then sometimes
-> > the second letter or a pair of letters from the filename.  This
-> > actually works extremely well in practice, and as mentioned above
-> > provides some positive side-effects.
-
-> Positive? Try listing all names that contain "linux" with such case. I'll
-> do ls *linux*. You'll need ls */*linux* ?l/inux* li/nux*. Seems ugly to
-> me.
-
- It's not that bad, as we tend to be fairly consistent in a scheme.  I
-only have to remember one of those combinations at a time :)
-
- Anyway, again I apologise for starting or continuing (I forget which)
-this thread.  I really do understand (and agree with) the arguments for
-better directory performance.  I have moved to ReiserFS, mainly for the
-avoidance of long fsck (power failure, children pushing buttons, alpha
-and beta testing of 3D graphics drivers).  I *love* being able to type
-"rm -rf linux-x.y.z-acNN" and have the command prompt reappear in less
-than a second.  I intended merely to highlight the danger inherent in
-saying to people "oh look you can put a million entries in a directory
-now" :)
-
- *whack* bad thread *die* *die*
-
->                                                                 Pavel
+cu
+Adrian
 
 -- 
-/* Bill Crawford, Unix Systems Developer, Ebone (formerly GTS Netcom) */
-#include <stddiscl>
-const char *addresses[] = {
-    "bill@syseng.netcom.net.uk", "Bill.Crawford@ebone.com",     // work
-    "billc@netcomuk.co.uk", "bill@eb0ne.net"                    // home
-};
+
+Nicht weil die Dinge schwierig sind wagen wir sie nicht,
+sondern weil wir sie nicht wagen sind sie schwierig.
+

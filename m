@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261459AbRFAURg>; Fri, 1 Jun 2001 16:17:36 -0400
+	id <S261473AbRFAUW0>; Fri, 1 Jun 2001 16:22:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261473AbRFAUR0>; Fri, 1 Jun 2001 16:17:26 -0400
-Received: from sun.plan9.de ([213.69.218.222]:34742 "EHLO mailout.plan9.de")
-	by vger.kernel.org with ESMTP id <S261459AbRFAURO>;
-	Fri, 1 Jun 2001 16:17:14 -0400
-Date: Fri, 1 Jun 2001 22:16:37 +0200
-From: Marc Lehmann <pcg@goof.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
-        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
-        John R Lenton <john@grulic.org.ar>
-Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
-Message-ID: <20010601221637.B13797@cerebro.laendle>
-Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
-	support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
-	John R Lenton <john@grulic.org.ar>
-In-Reply-To: <20010519110721.A1415@pua.nirvana> <20010601171848.F467@cerebro.laendle> <3B17B4B0.9A805766@mandrakesoft.com>
+	id <S261482AbRFAUWQ>; Fri, 1 Jun 2001 16:22:16 -0400
+Received: from nwcst337.netaddress.usa.net ([204.68.23.82]:46239 "HELO
+	nwcst337.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S261473AbRFAUWE> convert rfc822-to-8bit; Fri, 1 Jun 2001 16:22:04 -0400
+Message-ID: <20010601201659.9930.qmail@nwcst337.netaddress.usa.net>
+Date: 1 Jun 2001 21:16:59 BST
+From: L Larssen <rescue_disk_13@usa.net>
+To: linux-kernel@vger.kernel.org
+Subject: international patches from kerneli far behind
+X-Mailer: USANET web-mailer (34FM.0700.17C.01)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <3B17B4B0.9A805766@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Jun 01, 2001 at 11:28:48AM -0400
-X-Operating-System: Linux version 2.4.5 (root@cerebro) (gcc version 2.95.2.1 19991024 (release)) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 01, 2001 at 11:28:48AM -0400, Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> Once you get into the area of flushing data (or not flushing, which is
-> what delayed txn would imply), it is entirely possible that the driver
-> simply does not support what occurs when the PCI Delay Txn option is
-> set.
+Hello,
 
-Aren't PCI delayed transaction supposed to be handled by the pci master
-(e.g. my northbridge), not by the (software) driver for my pdc(?) I would
-also be surprised if my pdc actually used that feature, not to speak of
-the fact that the promise + harddisk worked fine in another computer (the
-data corruption was easily detectable, one couldn't even write 500megs
-without altered bytes).
+Sorry if this subject does not fit in this list.
+I am a bit worried about the development of the international kernel patches
+from kerneli.org.
 
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+These patches are getting far behind on the real kernel distributions.
+At this moment the latest patches are 2.2.18.3 and 2.4.3.1 while the kernel at
+now is at 2.2.19 and 2.4.5.
+
+There is now news to the public why these patches are falling behind.
+
+I hope more people are consirned about this.
+
+best regards,
+
+L. Larssen
+
+
+PS:
+Due to mailbox restrictions of my account I'm not able to subscribe to the
+list. Please also CC any reply's to my e-mail address. Thank you.
+
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1

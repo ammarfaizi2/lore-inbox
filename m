@@ -1,254 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVBICJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVBICLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbVBICJd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 21:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVBICJd
+	id S261745AbVBICLs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 21:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVBICLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 21:09:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30133 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261747AbVBICIa (ORCPT
+	Tue, 8 Feb 2005 21:11:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54712 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261745AbVBICK3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 21:08:30 -0500
-Date: Tue, 8 Feb 2005 18:08:21 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Richard Henderson <rth@twiddle.net>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: out-of-line x86 "put_user()" implementation
-In-Reply-To: <20050209012543.GA13802@twiddle.net>
-Message-ID: <Pine.LNX.4.58.0502081805470.2165@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0502062212450.2165@ppc970.osdl.org>
- <20050207114415.GA22948@elte.hu> <Pine.LNX.4.58.0502071717310.2165@ppc970.osdl.org>
- <20050209012543.GA13802@twiddle.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Feb 2005 21:10:29 -0500
+Date: Tue, 8 Feb 2005 18:10:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       Daniel Jacobowitz <dan@debian.org>
+Subject: Re: 2.6.11-rc3: Kylix application no longer works?
+Message-Id: <20050208181018.5592beab.akpm@osdl.org>
+In-Reply-To: <20050208111625.0bb1896d@dxpl.pdx.osdl.net>
+References: <20050207221107.GA1369@elf.ucw.cz>
+	<20050207145100.6208b8b9.akpm@osdl.org>
+	<20050208175106.GA1091@elf.ucw.cz>
+	<20050208111625.0bb1896d@dxpl.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 8 Feb 2005, Richard Henderson wrote:
+Stephen Hemminger <shemminger@osdl.org> wrote:
+>
+> On Tue, 8 Feb 2005 18:51:06 +0100
+> Pavel Machek <pavel@ucw.cz> wrote:
 > 
-> The first 3 gets lost.
+> > Hi!
+> > 
+> > > I wonder if reverting the patch will restore the old behaviour?
+> > 
+> > This seems to be minimal fix to get Kylix application back to the
+> > working state... Maybe it is good idea for 2.6.11?
+> > 
+> > Signed-off-by: Pavel Machek <pavel@suse.cz>
+> > 								Pavel
+> > 
+> > --- clean/fs/binfmt_elf.c	2005-02-03 22:27:19.000000000 +0100
+> > +++ linux/fs/binfmt_elf.c	2005-02-08 18:46:38.000000000 +0100
+> > @@ -803,11 +803,8 @@
+> >  				nbyte = ELF_MIN_ALIGN - nbyte;
+> >  				if (nbyte > elf_brk - elf_bss)
+> >  					nbyte = elf_brk - elf_bss;
+> > -				if (clear_user((void __user *) elf_bss + load_bias, nbyte)) {
+> > -					retval = -EFAULT;
+> > -					send_sig(SIGKILL, current, 0);
+> > -					goto out_free_dentry;
+> > -				}
+> > +				if (clear_user((void __user *) elf_bss + load_bias, nbyte))
+> > +					printk(KERN_ERR "Error clearing BSS, wrong ELF executable? (Kylix?!)\n");
+> 
+> do once or rate limit rather than log spamming.
 
-Thanks. So here's v3 (which also removes the now stale __put_user_check() 
-macro).
+We could just remove the printk and stick a comment over it.  If the
+application later tries to access the not-there pages then it'll just
+fault.
 
-Andrew - do you want to put it in -mm? 
+However I worry if there is some way in which we can leave unzeroed memory
+accessible to the application, although it's hard to see how that could
+happen.
 
-		Linus
+Daniel, Pavel cruelly chopped you off the Cc when replying.  What's your
+diagnosis on the below?
 
----
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/02/08 18:05:45-08:00 torvalds@evo.osdl.org 
-#   x86: make "put_user()" be out-of-line
-#   
-#   It's really too big to be inlined.
-#   
-#   Ingo tests and reports: this shrinks his kernel text size by
-#   about 12kB (roughly 0.5%)
-# 
-# arch/i386/lib/putuser.S
-#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +87 -0
-# 
-# include/asm-i386/uaccess.h
-#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +27 -13
-#   x86: make "put_user()" be out-of-line
-# 
-# arch/i386/lib/putuser.S
-#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +0 -0
-#   BitKeeper file /home/torvalds/v2.6/linux/arch/i386/lib/putuser.S
-# 
-# arch/i386/lib/Makefile
-#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +1 -1
-#   x86: make "put_user()" be out-of-line
-# 
-# arch/i386/kernel/i386_ksyms.c
-#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +5 -0
-#   x86: make "put_user()" be out-of-line
-# 
-diff -Nru a/arch/i386/kernel/i386_ksyms.c b/arch/i386/kernel/i386_ksyms.c
---- a/arch/i386/kernel/i386_ksyms.c	2005-02-08 18:06:14 -08:00
-+++ b/arch/i386/kernel/i386_ksyms.c	2005-02-08 18:06:14 -08:00
-@@ -97,6 +97,11 @@
- EXPORT_SYMBOL(__get_user_2);
- EXPORT_SYMBOL(__get_user_4);
- 
-+EXPORT_SYMBOL(__put_user_1);
-+EXPORT_SYMBOL(__put_user_2);
-+EXPORT_SYMBOL(__put_user_4);
-+EXPORT_SYMBOL(__put_user_8);
-+
- EXPORT_SYMBOL(strpbrk);
- EXPORT_SYMBOL(strstr);
- 
-diff -Nru a/arch/i386/lib/Makefile b/arch/i386/lib/Makefile
---- a/arch/i386/lib/Makefile	2005-02-08 18:06:14 -08:00
-+++ b/arch/i386/lib/Makefile	2005-02-08 18:06:14 -08:00
-@@ -3,7 +3,7 @@
- #
- 
- 
--lib-y = checksum.o delay.o usercopy.o getuser.o memcpy.o strstr.o \
-+lib-y = checksum.o delay.o usercopy.o getuser.o putuser.o memcpy.o strstr.o \
- 	bitops.o
- 
- lib-$(CONFIG_X86_USE_3DNOW) += mmx.o
-diff -Nru a/arch/i386/lib/putuser.S b/arch/i386/lib/putuser.S
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/arch/i386/lib/putuser.S	2005-02-08 18:06:14 -08:00
-@@ -0,0 +1,87 @@
-+/*
-+ * __put_user functions.
-+ *
-+ * (C) Copyright 2005 Linus Torvalds
-+ *
-+ * These functions have a non-standard call interface
-+ * to make them more efficient, especially as they
-+ * return an error value in addition to the "real"
-+ * return value.
-+ */
-+#include <asm/thread_info.h>
-+
-+
-+/*
-+ * __put_user_X
-+ *
-+ * Inputs:	%eax[:%edx] contains the data
-+ *		%ecx contains the address
-+ *
-+ * Outputs:	%eax is error code (0 or -EFAULT)
-+ *
-+ * These functions should not modify any other registers,
-+ * as they get called from within inline assembly.
-+ */
-+
-+#define ENTER	pushl %ebx ; GET_THREAD_INFO(%ebx)
-+#define EXIT	popl %ebx ; ret
-+
-+.text
-+.align 4
-+.globl __put_user_1
-+__put_user_1:
-+	ENTER
-+	cmpl TI_addr_limit(%ebx),%ecx
-+	jae bad_put_user
-+1:	movb %al,(%ecx)
-+	xorl %eax,%eax
-+	EXIT
-+
-+.align 4
-+.globl __put_user_2
-+__put_user_2:
-+	ENTER
-+	movl TI_addr_limit(%ebx),%ebx
-+	subl $1,%ebx
-+	cmpl %ebx,%ecx
-+	jae bad_put_user
-+2:	movw %ax,(%ecx)
-+	xorl %eax,%eax
-+	EXIT
-+
-+.align 4
-+.globl __put_user_4
-+__put_user_4:
-+	ENTER
-+	movl TI_addr_limit(%ebx),%ebx
-+	subl $3,%ebx
-+	cmpl %ebx,%ecx
-+	jae bad_put_user
-+3:	movl %eax,(%ecx)
-+	xorl %eax,%eax
-+	EXIT
-+
-+.align 4
-+.globl __put_user_8
-+__put_user_8:
-+	ENTER
-+	movl TI_addr_limit(%ebx),%ebx
-+	subl $7,%ebx
-+	cmpl %ebx,%ecx
-+	jae bad_put_user
-+4:	movl %eax,(%ecx)
-+5:	movl %edx,4(%ecx)
-+	xorl %eax,%eax
-+	EXIT
-+
-+bad_put_user:
-+	movl $-14,%eax
-+	EXIT
-+
-+.section __ex_table,"a"
-+	.long 1b,bad_put_user
-+	.long 2b,bad_put_user
-+	.long 3b,bad_put_user
-+	.long 4b,bad_put_user
-+	.long 5b,bad_put_user
-+.previous
-diff -Nru a/include/asm-i386/uaccess.h b/include/asm-i386/uaccess.h
---- a/include/asm-i386/uaccess.h	2005-02-08 18:06:14 -08:00
-+++ b/include/asm-i386/uaccess.h	2005-02-08 18:06:14 -08:00
-@@ -185,6 +185,21 @@
- 
- extern void __put_user_bad(void);
- 
-+/*
-+ * Strange magic calling convention: pointer in %ecx,
-+ * value in %eax(:%edx), return value in %eax, no clobbers.
-+ */
-+extern void __put_user_1(void);
-+extern void __put_user_2(void);
-+extern void __put_user_4(void);
-+extern void __put_user_8(void);
-+
-+#define __put_user_1(x, ptr) __asm__ __volatile__("call __put_user_1":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
-+#define __put_user_2(x, ptr) __asm__ __volatile__("call __put_user_2":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
-+#define __put_user_4(x, ptr) __asm__ __volatile__("call __put_user_4":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
-+#define __put_user_8(x, ptr) __asm__ __volatile__("call __put_user_8":"=A" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
-+#define __put_user_X(x, ptr) __asm__ __volatile__("call __put_user_X":"=a" (__ret_pu):"c" (ptr))
-+
- /**
-  * put_user: - Write a simple value into user space.
-  * @x:   Value to copy to user space.
-@@ -201,9 +216,18 @@
-  *
-  * Returns zero on success, or -EFAULT on error.
-  */
--#define put_user(x,ptr)							\
--  __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
+
+
+Begin forwarded message:
+
+Date: Tue, 8 Feb 2005 23:27:59 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3: Kylix application no longer works?
+
+
+Hi!
+
+> > > I wonder if reverting the patch will restore the old behaviour?
+> > 
+> > This seems to be minimal fix to get Kylix application back to the
+> > working state... Maybe it is good idea for 2.6.11?
+> 
+> Why does clearing the BSS fail?  Are the program headers bogus?
+> (readelf -l).
+
+No idea, probably yes. Here's readelf -l result:
+
+								Pavel
+
+Elf file type is EXEC (Executable file)
+Entry point 0x80614b4
+There are 5 program headers, starting at offset 52
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08048034 0x08048034 0x000a0 0x000a0 R E 0x4
+  INTERP         0x0000d4 0x080480d4 0x080480d4 0x00013 0x00013 R   0x1
+      [Requesting program interpreter: /lib/ld-linux.so.2]
+  LOAD           0x000000 0x08048000 0x08048000 0xb7354 0x1b7354 R E 0x1000
+  LOAD           0x0b7354 0x08200354 0x08200354 0x1e3e4 0x1f648 RW  0x1000
+  DYNAMIC        0x0d56a0 0x0821e6a0 0x0821e6a0 0x00098 0x00098 RW  0x4
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     
+   01     .interp 
+   02     .interp .dynsym .dynstr .hash .rel.plt .plt .text borland.ressym borland.resstr borland.reshash borland.resdata borland.resspare 
+   03     .data .rodata .got .dynamic .bss 
+   04     .dynamic 
+
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
 -
-+#define put_user(x,ptr)						\
-+({	int __ret_pu;						\
-+	__chk_user_ptr(ptr);					\
-+	switch(sizeof(*(ptr))) {				\
-+	case 1: __put_user_1(x, ptr); break;			\
-+	case 2: __put_user_2(x, ptr); break;			\
-+	case 4: __put_user_4(x, ptr); break;			\
-+	case 8: __put_user_8(x, ptr); break;			\
-+	default:__put_user_X(x, ptr); break;			\
-+	}							\
-+	__ret_pu;						\
-+})
- 
- /**
-  * __get_user: - Get a simple variable from user space, with less checking.
-@@ -258,16 +282,6 @@
- 	__pu_err;						\
- })
- 
--
--#define __put_user_check(x,ptr,size)					\
--({									\
--	long __pu_err = -EFAULT;					\
--	__typeof__(*(ptr)) __user *__pu_addr = (ptr);			\
--	might_sleep();						\
--	if (access_ok(VERIFY_WRITE,__pu_addr,size))			\
--		__put_user_size((x),__pu_addr,(size),__pu_err,-EFAULT);	\
--	__pu_err;							\
--})							
- 
- #define __put_user_u64(x, addr, err)				\
- 	__asm__ __volatile__(					\
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

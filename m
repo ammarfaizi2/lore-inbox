@@ -1,87 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRCWEeE>; Thu, 22 Mar 2001 23:34:04 -0500
+	id <S129506AbRCWFIl>; Fri, 23 Mar 2001 00:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbRCWEdy>; Thu, 22 Mar 2001 23:33:54 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:22279 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S129511AbRCWEdh> convert rfc822-to-8bit; Thu, 22 Mar 2001 23:33:37 -0500
-To: Jakob Østergaard <jakob@unthought.net>,
-        Linus Torvalds <torvalds@transmeta.com>
-Cc: Serge Orlov <sorlov@con.mcst.ru>, linux-kernel@vger.kernel.org,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>
-	<vba1yrr7w9v.fsf@mozart.stat.wisc.edu>
-	<15032.1585.623431.370770@pizda.ninka.net>
-	<vbay9ty50zi.fsf@mozart.stat.wisc.edu>
-	<vbaelvp3bos.fsf@mozart.stat.wisc.edu>
-	<20010322193549.D6690@unthought.net>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Jakob Østergaard's message of "Thu, 22 Mar 2001 19:35:49 +0100"
-Date: 22 Mar 2001 22:32:51 -0600
-Message-ID: <vbawv9hyuj0.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S129509AbRCWFIb>; Fri, 23 Mar 2001 00:08:31 -0500
+Received: from barry.mail.mindspring.net ([207.69.200.25]:39223 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S129506AbRCWFIT>; Fri, 23 Mar 2001 00:08:19 -0500
+Message-ID: <012301c0b357$3d29cc50$1601a8c0@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Can't get serial.c to work with Xircom Cardbus Ethernet+Modem
+Date: Fri, 23 Mar 2001 00:08:02 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakob Østergaard <jakob@unthought.net> writes:
->
-> Try compiling something like Qt/KDE/gtk-- which are really heavy on
-> templates (with all the benefits and drawbacks of that).
+Hi all,
 
-Okay, I just compiled gtk-- 1.0.3 (with CFLAGS = "-O2 -g") under three
-versions of GCC (Debian 2.95.3, RedHat 2.96, and a CVS pull of the
-"gcc-3_0-branch") on the same Debian machine running kernel 2.4.2.
+I saw a discussion on this list about this problem earlier, but could not
+find that it had actually been resolved.
 
-In all cases, the "cc1plus" processes appeared to max out around 25M
-total size.  The "maps" pseudofiles for the 2.95.3 and and 3.0
-compiles never grew past 250 lines, but the "maps" pseudofiles for the
-RedHat 2.96 compile were gigantic, jumping to 3000 or 5000 lines at
-times.
+With the removal of serial_cb from the 2.4.3pre kernels I can no longer use
+the modem of my Xircom adapter.  According to the posts in the other thread
+serial.c should now provide this functionality, however it still does not,
+at least for me.
 
-The results speak for themselves:
+The thread seemed to come to the conclusion that this was caused because the
+serial driver only looks for PCI devices of class SERIAL and not MODEM.  I
+tried the patch shown there for the 5.05 serial driver but it still doesn't
+find the serial interface on my Xircom 10/100 Ethernet+56K Modem combo card.
 
-    CVS gcc 3.0:          Debian gcc 2.95.3:   RedHat gcc 2.96:
-                      
-    real    16m8.423s     real    8m2.417s     real    12m24.939s
-    user    15m23.710s    user    7m22.200s    user    10m14.420s
-    sys     0m48.730s     sys     0m41.040s    sys     2m13.910s 
-maps:    <250 lines           <250 lines          >3000 lines
+I'm pretty sure the issue is not caused by the problem above, because as far
+as I can tell the modem on the adapter does present itself as a PCI SERIAL
+class device as shown by the following lspci output:
 
-Obviously, the *real* problem is RedHat GCC 2.96.  If Linus bothers to
-write this patch (he probably already has), its only proven benefit so
-far is that it improves the performance of a RedHat-specific, orphaned
-G++ development snapshot that everyone (the people of RedHat most of
-all) will be glad to be rid of as soon as possible.
+[root@iso-2146-l1 ttsig]# /sbin/lspci
+02:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
+02:00.1 Serial controller: Xircom Cardbus Ethernet + 56k Modem (rev 03)
 
-The numbers above suggest that the patch is unlikely to have a
-positive impact on the performance of either officially released GCC
-versions or the upcoming 3.0 release.
+[root@iso-2146-l1 ttsig]# /sbin/lspci -n
+02:00.0 Class 0200: 115d:0003 (rev 03)
+02:00.1 Class 0700: 115d:0103 (rev 03)
 
-Drifting off topic...
+[root@iso-2146-l1 ttsig]# /sbin/lspci -v
+02:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
+        Subsystem: Xircom Cardbus Ethernet 10/100
+        Flags: bus master, medium devsel, latency 64, IRQ 11
+        I/O ports at 1800 [size=128]
+        Memory at 14800000 (32-bit, non-prefetchable) [size=2K]
+        Memory at 14800800 (32-bit, non-prefetchable) [size=2K]
+        Expansion ROM at 14400000 [size=16K]
+        Capabilities: [dc] Power Management version 1
 
-> Mozilla uses C++ mainly as "extended C" - due to compatibility concerns.
+02:00.1 Serial controller: Xircom Cardbus Ethernet + 56k Modem (rev 03)
+(prog-if
+ 02 [16550])
+        Subsystem: Xircom CBEM56G-100 Ethernet + 56k Modem
+        Flags: medium devsel, IRQ 11
+        I/O ports at 1880 [size=8]
+        Memory at 14801000 (32-bit, non-prefetchable) [size=2K]
+        Memory at 14801800 (32-bit, non-prefetchable) [size=2K]
+        Expansion ROM at 14404000 [size=16K]
+        Capabilities: [dc] Power Management version 1
 
-This statement is potentially misleading.
+I'm pretty sure that Class 0700 is the proper class for a PCI serial device.
+The serial_cb driver from 2.4.2 always recognized this device properly and
+set it up as /dev/ttyS1 using IO 0x1880 and IRQ 11.  It showed under
+setserial as a follows:
 
-I think most people will believe you to mean "using C++ as a better C"
-in the sense of Stroustrup: using the small, conventional-language
-subset of C++ that looks like C but has stronger type checking,
-function and operator overloading, default arguments, "//" style
-comments, reference types, and other syntactic and semantic sugar.
+/dev/ttyS1, UART: 16550A, Port: 0x1880, IRQ: 11
 
-Mozilla does not use C++ as "extended C" in this sense.  While it does
-use a *subset* of C++ for compatibility reasons, the subset includes
-extensive use of class lattices and polymorphism as well as extensive
-(albeit simple and carefully constructed) uses of templates for its
-utility classes, including string and component-autoreferencing
-template classes and functions that are used throughout the source.
-The only major C++ facilities that are not used are the standard
-library, RTTI, namespaces, and exception handling, but other than that
-it's a good, real-world C++ test case.
+Now with serial.c it doesn't even get reported, I get the following when I
+load serial.c:
 
-Kevin <buhr@stat.wisc.edu>
+Serial driver version 5.05.SA (2000-09-14) with MANY_PORTS MULTIPORT
+SHARE_IRQ SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+
+I know the version doesn't show as 5.05A, but I applied the patch by hand
+and left off that part.  I'm pretty sure the patch is irrelavent since the
+device does show up as a true PCI SERIAL Class device.
+
+Any ideas?  I may look at it more tomorrow.  For now I'm back to using
+serial_cb which still works fine (even though that apparently suprises many
+people).
+
+Later,
+Tom
+
+

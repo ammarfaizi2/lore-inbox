@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUJVSm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUJVSm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUJVSm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 14:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266491AbUJVSjX
+	id S265029AbUJVSm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 14:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUJVRfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 14:39:23 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:15810 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S266820AbUJVR7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 13:59:44 -0400
-Message-ID: <417941C7.1030207@drdos.com>
-Date: Fri, 22 Oct 2004 11:22:15 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: David Weinehall <tao@acc.umu.se>, Dax Kelson <dax@gurulabs.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <1098218286.8675.82.camel@mentorng.gurulabs.com> <41757478.4090402@drdos.com> <20041022090752.GA1308@khan.acc.umu.se> <41793204.9090208@drdos.com> <20041022175233.GY24336@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041022175233.GY24336@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Oct 2004 13:35:02 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:26015 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S266216AbUJVRMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 13:12:38 -0400
+Date: Fri, 22 Oct 2004 19:13:38 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
+Message-ID: <20041022171338.GK14325@dualathlon.random>
+References: <417728B0.3070006@yahoo.com.au> <20041020213622.77afdd4a.akpm@osdl.org> <417837A7.8010908@yahoo.com.au> <20041021224533.GB8756@dualathlon.random> <41785585.6030809@yahoo.com.au> <20041022011057.GC14325@dualathlon.random> <20041021182651.082e7f68.akpm@osdl.org> <417879FB.5030604@yahoo.com.au> <20041021202656.08788551.akpm@osdl.org> <41787FFF.9060502@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41787FFF.9060502@yahoo.com.au>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
+On Fri, Oct 22, 2004 at 01:35:27PM +1000, Nick Piggin wrote:
+> Andrea do you have any pointers?
 
->On Fri, Oct 22, 2004 at 10:15:00AM -0600, Jeff V. Merkey wrote:
->  
->
->>This was written by Novell's stooge Judge Schoefield. It's total 
->>fiction. Don't worry, it will get cleared up soon.
->>
->>More bugs to find ....
->>    
->>
->
->Out of curiosity, which bugs are you using?  Never heard of hallucinogenic
->insects to be found in Utah...
->
->  
->
-Al,
+here we go, the same that deadlocked 2.4.14pre5aa1 will deadlock 2.6
+just now (but not latest mainline 2.4 and of course not any recent
+2.4-aa)
 
-This is a high traffic list. I am refering to the bugs in my code and 
-occasionally the ones I find in Linux
-that for some reason get challenged everytime I post, then get fixed in 
-subsequent patches. :-)
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&selm=linux.kernel.3BE07730.60905%40google.com
+http://groups.google.com/groups?q=google+VM+deadlock&hl=en&lr=&ie=UTF-8&selm=linux.kernel.20011118092434.A1331%40athlon.random&rnum=1
 
-So I am sticking to bugs from now on. On the GPL buyout, when stuff gets 
-released publically,
-it will be clear this was an an attempt to help you guys and shut down 
-the SCO/Canopy/Novell
-legal ranglings. I just want to develop code and have fun. Time to get 
-back to that.
+2.6 has a sysctl that should fix it too but it's disabled by default
+(which makes it useless to 99% of userbase) and it's pretty hard to be
+able to attempt to tun it to a desired value.
 
-At least the bugs get fixed. There is a hallucinogenic toad (Bufus 
-Coloradus) the colorado river toad that lives
-about 4 hours drive from here, and it secretes 5-DMT when you lick it's 
-back. Some indian showed this to california hippies
-and now the toads are endamgered. It's the closest thing to a 
-hallucingenic bug I can think of. It's a felony to
-possess these toads now in the US (Freeze - drop that toad - your honor, 
-upon approaching the vehicle I heard
-a strange croaking noise coming from the trunk, upon inspection, I found 
-these -- colorado river toads).
-
-Jeff
+When you get an oom killer triggering too early, or an complete oom
+deadlock, I never know if this is the lowmem_reserve missing, or the oom
+killer going nuts, and I've a dozen of reports of oom triggering
+spurious and some oom deadlock pending. So this is certainly the first
+thing I must fix.

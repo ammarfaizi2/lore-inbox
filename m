@@ -1,70 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbUDCOLe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 09:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUDCOL1
+	id S261745AbUDCOUp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 09:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUDCOUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 09:11:27 -0500
-Received: from mail.shareable.org ([81.29.64.88]:46998 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261745AbUDCOLY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 09:11:24 -0500
-Date: Sat, 3 Apr 2004 15:11:12 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Tim Connors <tconnors+linuxkernel1080972247@astro.swin.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: solved (was Re: xterm scrolling speed - scheduling weirdness in 	2.6 ?!)
-Message-ID: <20040403141112.GD4706@mail.shareable.org>
-References: <1073227359.6075.284.camel@nosferatu.lan> <20040104225827.39142.qmail@web40613.mail.yahoo.com> <20040104233312.GA649@alpha.home.local> <20040104234703.GY1882@matchmail.com> <1073296227.8535.34.camel@tiger> <1080930132.1720.38.camel@localhost> <slrn-0.9.7.4-9426-9838-200404031530-tc@hexane.ssi.swin.edu.au> <slrn-0.9.7.4-25410-10302-200404031604-tc@hexane.ssi.swin.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrn-0.9.7.4-25410-10302-200404031604-tc@hexane.ssi.swin.edu.au>
-User-Agent: Mutt/1.4.1i
+	Sat, 3 Apr 2004 09:20:45 -0500
+Received: from mail.gmx.de ([213.165.64.20]:48852 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261745AbUDCOUl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 09:20:41 -0500
+X-Authenticated: #294883
+Message-ID: <406EC833.4080909@gmx.de>
+Date: Sat, 03 Apr 2004 16:20:35 +0200
+From: Hans-Georg Esser <h.g.esser@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20 and 2.4.21, Firewire, 160 GB Harddisk, 134 GB barrier
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Connors wrote:
-> So this is much like the xterm situation - 2 CPU chewing things,
-> interacting with a third short lived low CPU job (ls or some
-> wwwoffle fork) that the other two are relying on (mozilla and xterm
-> directly, X indirectly)
-> 
-> This is my reason for not thinking this is an xterm bug. The scheduler
-> looks inherently fragile.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It looks like scheduler fragility to me too.
+Hello list,
 
-I see the same with Gnome Terminal.  Most of the time, ls or cat are
-fast, with jump scrolling.  But occasionally they are much slower.
+I found an earlier thread ("KERNEL 2.6.3 and MAXTOR 160 GB", March 2004)
+dealing with a 137 GB barrier (that I guess meant: 137xxx MB) for a Maxtor
+160 GB drive in Kernel 2.6.x. I'd like to add my personal observation to
+that (for Kernel 2.4.20/21):
 
-There are two stable scheduling modes here - rapid switching with a
-few characters moved, or slow switching with lots of characters moved.
+My drive (Western Digital WD1600BB-32DWA0) works well when directly
+connected to the IDE controller, but doesn't like using an external firewire
+connection ("Pyro 1394 Drive Kit" of Adstech.com). The firewire stuff
+worked well with an 80 GB disk, but with the 160 GB disk I'm only getting
+134 GB (or 137439 MB).
 
-We'd like the former to decay spontaneously to the latter, quickly.
+This may be related to the other post I mentioned, cause of the same
+"barrier" number. I haven't tried a newer kernel yet, this was with the
+standard kernel that came with the distro:
 
-I like the observation that the terminal program can solve this
-problem by introducing a short delay after receiving a few bytes.
-However, that's not feasible for X itself, which must draw things very
-soon after receiving the commands so that animations are smooth when
-that's intended, which happens when a client deliberately sleeps
-rather than being preempted by having just sent a command to X.
+# uname -a
+Linux server 2.4.21-99-default #1 Wed Sep 24 13:30:51 UTC 2003 i686 i686 i386
+GNU/Linux
+# lspci -v
+03:08.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller
+(rev 46) (prog-if 10 [OHCI])
+~        Subsystem: VIA Technologies, Inc. IEEE 1394 Host Controller
+~        Flags: bus master, stepping, medium devsel, latency 32, IRQ 9
+~        Memory at e9000000 (32-bit, non-prefetchable) [size=2K]
+~        I/O ports at 9800 [size=128]
+~        Capabilities: [50] Power Management version 2
 
-I think the problem is that the scheduler is aggressively preempting a
-task which has just written through a pipe/terminal/socket, when the
-task at the other end becomes ready to run as a result.
+Is this a known problem of the 2.4.x line and should I move to 2.6 to make
+it go away? (A test with a 2.4.20 kernel gave the same results, minus the
+"non-standard ROM format" stuff.)
 
-If the writing task is still runnable, usually you want the writing
-task to continue for a little while more.  The scheduler is getting
-that right most times on my box with ls+Gnome Terminal+X, but
-occasionally gets stuck in a mode where it consistently gets it wrong
-until all the programs become idle again.  Then it recovers.
-This mode is quite rare, once every few days.
+Following snippet shows what is being logged when connecting the external
+drive.
 
-> To help you work out my datapoint in relation to someone elses, my box
-> is a 500MHz AMD KII, now running 2.6.4. The video card is in no way
-> accelarated (crappy old nvidia card), so X likes to chew CPU easily.
+Thanks,
+Hans-Georg
 
-Dual Athlon 1500 MHz, Matrox Millenium video card.
 
--- Jamie
+<snip "/var/log/messages">
+Apr  3 13:19:46 server kernel: ieee1394: Node 0-00:1023 has non-standard ROM
+format (0 quads), cannot parse
+Apr  3 13:19:57 server kernel: ieee1394: Node added: ID:BUS[0-00:1023]
+GUID[0008b502000500c8]
+Apr  3 13:20:02 server kernel: sbp2: $Rev: 1018 $ Ben Collins <bcollins@debian.org>
+Apr  3 13:20:02 server kernel: scsi1 : SCSI emulation for IEEE-1394 SBP-2 Devices
+Apr  3 13:20:02 server kernel: blk: queue d137fa14, I/O limit 4095Mb (mask
+0xffffffff)
+Apr  3 13:20:03 server kernel: ieee1394: sbp2: Logged into SBP-2 device
+Apr  3 13:20:03 server kernel: ieee1394: sbp2: Node 0-00:1023: Max speed [S400]
+- - Max payload [2048]
+Apr  3 13:20:03 server insmod: Using
+/lib/modules/2.4.21-99-default/kernel/drivers/ieee1394/sbp2.o
+Apr  3 13:20:03 server insmod: Symbol version prefix ''
+Apr  3 13:20:03 server kernel: scsi singledevice 1 0 0 0
+Apr  3 13:20:03 server kernel:   Vendor: WDC WD16  Model: 00BB-32DWA0       Rev:
+Apr  3 13:20:03 server kernel:   Type:   Direct-Access                      ANSI
+SCSI revision: 06
+Apr  3 13:20:03 server kernel: blk: queue d137f414, I/O limit 4095Mb (mask
+0xffffffff)
+Apr  3 13:20:03 server kernel: Attached scsi disk sda at scsi1, channel 0, id 0,
+lun 0
+Apr  3 13:20:03 server kernel: SCSI device sda: 268435455 512-byte hdwr sectors
+(137439 MB)
+Apr  3 13:20:03 server kernel:  sda: sda1 sda2
+Apr  3 13:20:03 server kernel: scsi singledevice 1 0 1 0
+Apr  3 13:20:03 server kernel: scsi singledevice 1 0 2 0
+Apr  3 13:20:03 server kernel: scsi singledevice 1 0 3 0
+Apr  3 13:20:03 server kernel: scsi singledevice 1 0 4 0
+Apr  3 13:20:03 server kernel: scsi singledevice 1 0 5 0
+Apr  3 13:20:03 server kernel: scsi singledevice 1 0 6 0
+Apr  3 13:20:03 server kernel: scsi singledevice 1 0 7 0
+</snip>
+
+- --
+Hans-Georg Eßer  -  http://privat.hgesser.com  -  Tel. 089 99248380
+GPG Fingerprint: F319 10C0 76E2 DAAD DDFA  F017 4CAD BB99 A4A9 9E53
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFAbsgzTK27maSpnlMRAnD+AJ9muCgK3T/LIxoeZGL6V8a4L6/C6wCeOpEP
+WXsRyQEg+H+udDiOOT30atM=
+=SfzQ
+-----END PGP SIGNATURE-----

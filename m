@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276411AbRJCPnn>; Wed, 3 Oct 2001 11:43:43 -0400
+	id <S276416AbRJCPmn>; Wed, 3 Oct 2001 11:42:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276422AbRJCPne>; Wed, 3 Oct 2001 11:43:34 -0400
-Received: from altern.org ([212.73.209.210]:26639 "HELO altern.org")
-	by vger.kernel.org with SMTP id <S276411AbRJCPnQ>;
-	Wed, 3 Oct 2001 11:43:16 -0400
-Date: Wed, 3 Oct 2001 17:43:22 +0200 (CEST)
-From: <booh@altern.org>
-Subject: [PATCH] Re: all files are executable in vfat
-To: linux-kernel@vger.kernel.org
+	id <S276411AbRJCPme>; Wed, 3 Oct 2001 11:42:34 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:22710 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S276418AbRJCPm0>;
+	Wed, 3 Oct 2001 11:42:26 -0400
+Message-ID: <3BBB31F4.C223E12E@candelatech.com>
+Date: Wed, 03 Oct 2001 08:42:44 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Message-Id: <20011003154324Z276411-761+15300@vger.kernel.org>
+To: jamal <hadi@cyberus.ca>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, netdev@oss.sgi.com,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.GSO.4.30.0110030850480.4495-100000@shell.cyberus.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking at linux/fs/fat/inode.c it seems that everything is
-here to allow a smart handling of the x flag.
-But there is something that I don't undestand (or is a bug)
-and is corrected by this micro patch.
+jamal wrote:
 
---- linux-2.4.10-xfs/fs/fat/inode.c        Wed Sep 26 20:59:39 2001
-+++ linux-2.4.10-xfs.fat_exec/fs/fat/inode.c     Wed Sep 26 22:32:35 2001
-@@ -920,8 +920,8 @@
-                inode->i_generation |= 1;
-                inode->i_mode = MSDOS_MKMODE(de->attr,
-                    ((sbi->options.showexec &&
--                      !is_exec(de->ext))
--                       ? S_IRUGO|S_IWUGO : S_IRWXUGO)
-+                      is_exec(de->ext))
-+                       ? S_IRWXUGO : S_IRUGO|S_IWUGO)
-                    & ~sbi->options.fs_umask) | S_IFREG;
-                MSDOS_I(inode)->i_start = CF_LE_W(de->start);
-                if (sbi->fat_bits == 32) {
+> No. NAPI is for any type of network activities not just for routers or
+> sniffers. It works just fine with servers. What do you see in there that
+> will make it not work with servers?
 
+Will NAPI patch, as it sits today, fix all IRQ lockup problems for
+all drivers (as Ingo's patch claims to do), or will it just fix
+drivers (eepro, tulip) that have been integrated with it?
 
-Now you have two choices when using umask=OOO
-- without showexec : only dirs have the x flag set.
-- with showexec : *.{exe,bat,com} have it too.
-
-I am not the list so ...
-
-Guillaume Chazarain
-(putting my name in the header doesn't work.)
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

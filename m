@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbTHUABP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 20:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbTHUABP
+	id S262341AbTHTXxC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 19:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbTHTXxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 20:01:15 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:58266 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262344AbTHUABO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 20:01:14 -0400
-Subject: Re: DVD ROM on 2.6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: bill davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <bi0db7$err$1@gatekeeper.tmr.com>
-References: <200308192009.11298.admin@kentonet.net>
-	 <bi0db7$err$1@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061423984.1199.7.camel@dhcp23.swansea.linux.org.uk>
+	Wed, 20 Aug 2003 19:53:02 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:8197 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262341AbTHTXw7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 19:52:59 -0400
+Date: Thu, 21 Aug 2003 01:52:58 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Neil Brown <neilb@cse.unsw.edu.au>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Input issues - key down with no key up
+Message-ID: <20030821015258.A3180@pclin040.win.tue.nl>
+References: <16188.27810.50931.158166@gargle.gargle.HOWL> <20030815094604.B2784@pclin040.win.tue.nl> <20030815105802.GA14836@ucw.cz> <16188.54799.675256.608570@gargle.gargle.HOWL> <20030815135248.GA7315@win.tue.nl> <20030815141328.GA16176@ucw.cz> <16189.58357.516036.664166@gargle.gargle.HOWL> <20030821003606.A3165@pclin040.win.tue.nl> <20030820225812.GB24639@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 21 Aug 2003 00:59:45 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030820225812.GB24639@mail.jlokier.co.uk>; from jamie@shareable.org on Wed, Aug 20, 2003 at 11:58:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-20 at 19:06, bill davidsen wrote:
-> If iso9660 looks enough like UDF to confuse the f/s typing logic, would
-> the problem go away if the iso9660 were checked first? It seems iso9660
-> can be mistaken for UDF, is the converse true?
-> 
-> In any case it can be set explicitly.
+On Wed, Aug 20, 2003 at 11:58:12PM +0100, Jamie Lokier wrote:
 
-Disks can be mastered with both
+> Synthesising an UP event after receiving a DOWN from the keyboard, and
+> nothing else for that key for > (repeat delay + a bit more) time looks
+> like a good plan to me, UNLESS there are keys which do report UP when
+> the key is released (as opposed to immediately after the DOWN), and
+> also don't repeat.
+
+And there are keyboards with such keys.
+
+> Unrelated: I have some messages from my laptop, Toshiba Satellite 4070CDT:
+> 
+>   atkbd.c: Unknown key (set 2, scancode 0x94, in isa0060/serio0) pressed.
+>   atkbd.c: Unknown key (set 2, scancode 0xbf, in isa0060/serio0) pressed.
+>   atkbd.c: Unknown key (set 2, scancode 0xa1, in isa0060/serio0) pressed.
+
+Do you know what keystrokes cause this?
+
+It looks like this cannot come from i8042_unxlate_table[].
+Do you set i8042_direct?
+
+Vojtech, this sounds like a bug in i8042.c:
+We do
+	if (data > 0x7f) {
+		index = (data & 0x7f);
+		if (test_and_clear_bit(index, i8042_unxlate_seen)) {
+			data = i8042_unxlate_table[data & 0x7f];
+		}
+	} else {
+		data = i8042_unxlate_table[data];
+	}
+	serio_interrupt(&i8042_kbd_port, data, dfl, regs);
+
+In other words, the keyboard sends something in translated Set 2,
+but we fake that it is untranslated, unless it was
+a key release and we didnt know that the key was down.
+Thus, atkbd.c gets a mixture of untranslated and translated codes.
+
+Andries
 

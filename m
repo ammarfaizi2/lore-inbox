@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265531AbUGGWDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265537AbUGGWIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbUGGWDM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 18:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbUGGWDM
+	id S265537AbUGGWIj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 18:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbUGGWIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 18:03:12 -0400
-Received: from mail-relay-4.tiscali.it ([212.123.84.94]:61152 "EHLO
-	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
-	id S265531AbUGGWDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 18:03:10 -0400
-Date: Thu, 8 Jul 2004 00:02:58 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mason@suse.com, marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: Unnecessary barrier in sync_page()?
-Message-ID: <20040707220258.GV28479@dualathlon.random>
-References: <20040707175724.GB3106@logos.cnet> <20040707182025.GJ28479@dualathlon.random> <20040707112953.0157383e.akpm@osdl.org> <20040707184202.GN28479@dualathlon.random> <1089233823.3956.80.camel@watt.suse.com> <20040707210608.GS28479@dualathlon.random> <20040707143015.03379d0f.akpm@osdl.org>
+	Wed, 7 Jul 2004 18:08:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3755 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265537AbUGGWIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 18:08:37 -0400
+Date: Wed, 7 Jul 2004 15:11:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] task name handling in proc fs
+Message-Id: <20040707151134.05fc1e07.akpm@osdl.org>
+In-Reply-To: <20040707215246.GB4314@w-mikek2.beaverton.ibm.com>
+References: <20040701220510.GA6164@w-mikek2.beaverton.ibm.com>
+	<20040701151935.1f61793c.akpm@osdl.org>
+	<20040701224215.GC5090@w-mikek2.beaverton.ibm.com>
+	<20040701160335.229cfe03.akpm@osdl.org>
+	<20040707215246.GB4314@w-mikek2.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040707143015.03379d0f.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 02:30:15PM -0700, Andrew Morton wrote:
-> And we cannot lock the page because, err, we need to run sync_page() for
-> that.
+Mike Kravetz <kravetz@us.ibm.com> wrote:
+>
+> +void set_task_comm(struct task_struct *tsk, char *name)
+> +{
+> +	int i, ch;
+> +
+> +	task_lock(tsk);
+> +	for (i=0; (ch = *(name++)) != '\0';) {
+> +		if (ch == '/')
+> +			i = 0;
+> +		else
+> +			if (i < (sizeof(tsk->comm) - 1))
+> +				tsk->comm[i++] = ch;
+> +	}
+> +	tsk->comm[i] = '\0';
+> +	task_unlock(tsk);
+> +}
 
-exactly ;)
+I don't think the basename logic should be in this function.  Only one
+caller needs it, and if we later try to use this function to set
+current->comm for per-cpu kernel threads, it will mangle the text.
 
-> But I cannot think of any callers of sync_page() who don't have a ref on
-> the inode, so...
+root         2  0.0  0.0     0    0 ?        SW   Jul06   0:00 [migration/0]
+root         3  0.0  0.0     0    0 ?        SWN  Jul06   0:00 [ksoftirqd/0]
+root         4  0.0  0.0     0    0 ?        SW   Jul06   0:00 [migration/1]
+root         5  0.0  0.0     0    0 ?        SWN  Jul06   0:00 [ksoftirqd/1]
+root         6  0.0  0.0     0    0 ?        SW   Jul06   0:00 [migration/2]
+root         7  0.0  0.0     0    0 ?        SWN  Jul06   0:00 [ksoftirqd/2]
+root         8  0.0  0.0     0    0 ?        SW   Jul06   0:00 [migration/3]
+root         9  0.0  0.0     0    0 ?        SWN  Jul06   0:00 [ksoftirqd/3]
 
-I'm thinking, does handle_write_error() holds a ref on the inode? that's
-the VM and it finds the page without passing through the inode. I'm
-afraid the VM isn't safe calling lock_page, or am I overlooking
-something here?
+We probably won't actually _do_ that, since kthread_create() uses vsnprintf(),
+but pushing code which is specific to one caller into a library function
+seems wrong...

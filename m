@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261721AbTAIHMP>; Thu, 9 Jan 2003 02:12:15 -0500
+	id <S261723AbTAIHPh>; Thu, 9 Jan 2003 02:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261723AbTAIHMP>; Thu, 9 Jan 2003 02:12:15 -0500
-Received: from mailhost.NMT.EDU ([129.138.4.52]:61453 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S261721AbTAIHMO>;
-	Thu, 9 Jan 2003 02:12:14 -0500
-Date: Thu, 9 Jan 2003 00:20:43 -0700
-From: Val Henson <val@nmt.edu>
-To: Miles Bader <miles@gnu.org>
-Cc: dpaun@rogers.com, rms@gnu.org, lm@bitmover.com, acahalan@cs.uml.edu,
-       linux-kernel@vger.kernel.org
-Subject: "Mother" == "computer-illiterate"
-Message-ID: <20030109072043.GE26010@boardwalk>
-References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <20030106173705.GP1386@work.bitmover.com> <E18Vtxy-0002c2-00@fencepost.gnu.org> <200301071118.41059.dpaun@rogers.com> <buofzs474ro.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	id <S261732AbTAIHPh>; Thu, 9 Jan 2003 02:15:37 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:29409 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S261723AbTAIHPh>;
+	Thu, 9 Jan 2003 02:15:37 -0500
+Date: Wed, 8 Jan 2003 23:24:18 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.55
+Message-ID: <20030109072418.GA19265@tapu.f00f.org>
+References: <Pine.LNX.4.44.0301082033410.1438-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <buofzs474ro.fsf@mcspd15.ucom.lsi.nec.co.jp>
+In-Reply-To: <Pine.LNX.4.44.0301082033410.1438-100000@penguin.transmeta.com>
 User-Agent: Mutt/1.4i
-Favorite-Color: Polka dot
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 11:29:47AM +0900, Miles Bader wrote:
-> 
-> If someone's mom (having heard the gossip) asks their computer-literate
-> child, `What is this XXX thing, anyway?', the answer is likely to be
-> very different when XXX is "GNU" as opposed to when XXX is "Linux".
+On Wed, Jan 08, 2003 at 08:35:45PM -0800, Linus Torvalds wrote:
 
-How come no one ever talks about a Linux distribution so easy that
-your grandfather could install it?  Or a kernel configuration tool so
-simple that even Uncle Timmy can use it?
+> <joe@fib011235813.fsnet.co.uk>:
+>   o dm: Don't let the ioctl interface drop a suspended device
+>   o dm: Correct clone info initialisation
+>   o dm: Correct target_type reference counting
+>   o dm: rwlock_t -> rw_semaphore (fluff)
+>   o dm: Call dm_put_target_type() *after* calling the destructor
+>   o dm: Remove explicit returns from void fns (fluff)
+>   o dm: printk tgt->error if dm_table_add_target() fails
+>   o dm: Simplify error->map
+>   o dm: Export dm_table_get_mode()
+>   o dm: Remove redundant error checking
 
-Can we quit with the "clueless mother" examples already?  My own
-mother has installed more distributions of Linux than I've even logged
-into.  I know quite a few mothers who have PhDs in CS, own several
-CS-related patents, and/or made important fundamental discoveries in
-CS.  Hint: Find out who invented the spanning tree algorithm for
-ethernet bridges, $10 ThinkGeek gift certificate to the first person
-who emails me the correct answer.
+FWIW, I *really* like it when people are able to prefix these
+summaries as they send patches... I make reading the log more
+pleasant.
 
--VAL
+
+
+  --cw

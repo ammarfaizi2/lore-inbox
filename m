@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316585AbSFZN5b>; Wed, 26 Jun 2002 09:57:31 -0400
+	id <S316586AbSFZOAf>; Wed, 26 Jun 2002 10:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316586AbSFZN5a>; Wed, 26 Jun 2002 09:57:30 -0400
-Received: from arsenal.visi.net ([206.246.194.60]:25080 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S316585AbSFZN53>;
-	Wed, 26 Jun 2002 09:57:29 -0400
-Date: Wed, 26 Jun 2002 09:47:15 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix .text.exit error in ieee1394/ohci1394.c
-Message-ID: <20020626134715.GG496@blimpo.internal.net>
-References: <Pine.NEB.4.44.0206251547300.14220-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S316589AbSFZOAe>; Wed, 26 Jun 2002 10:00:34 -0400
+Received: from abricot.axialys.net ([217.146.226.10]:53240 "EHLO kiwi")
+	by vger.kernel.org with ESMTP id <S316586AbSFZOAe>;
+	Wed, 26 Jun 2002 10:00:34 -0400
+Date: Wed, 26 Jun 2002 16:00:29 +0200
+From: Nicolas Bougues <nbougues-listes@axialys.net>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with wait queues
+Message-ID: <20020626140029.GA6310@kiwi>
+Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
+	linux-kernel@vger.kernel.org
+References: <20020626103243.GA4797@kiwi> <20020626105241.GA19512@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0206251547300.14220-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20020626105241.GA19512@win.tue.nl>
+User-Agent: Mutt/1.4i
+Organization: Axialys Interactive http://www.axialys.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 25, 2002 at 03:52:58PM +0200, Adrian Bunk wrote:
+On Wed, Jun 26, 2002 at 12:52:41PM +0200, Andries Brouwer wrote:
+> On Wed, Jun 26, 2002 at 12:32:43PM +0200, Nicolas Bougues wrote:
 > 
-> The following error occured at the final linking of 2.4.19-rc1:
+> > Does anybody have any idea on what I may have done wrong, and why
+> > would loadavg increase when vmstat show no activity ?
+> 
+> loadavg does not report what you think it reports
+> 
 
-I thought Marcelo was already supposed to have applied this? We already
-have it in our repository, and I ok'd the patch you (or someone) sent
-him the last time. I don't want to resync our current repo with 2.4 this
-late prior to it becoming final, so please apply this simple patch.
+As far as I understand, loadavg reports the average number of
+processes in the TASK_RUNNING state.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://linux1394.sourceforge.net/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+What happens in my driver, I believe, is that :
+- on timer interrupt, I do some stuff, and wake_up the waiting process
+- then the loadavg is computed (seeing my waiting task as TASK_RUNNING)
+- then the scheduler runs the task
+- then the task goes immediatly back to sleep
+
+>From this point of view, then my problem is just "cosmetic". Isn't
+there a way to do things in a different order, so that I could still
+get a meaningful(*) loadavg ?
+
+(*): by meaningful, I mean representing the number of busy processes
+at a random point in time.
+--
+Nicolas Bougues
+

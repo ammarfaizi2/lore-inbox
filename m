@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbTJMQFt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 12:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTJMQFt
+	id S261871AbTJMQPa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 12:15:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTJMQPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 12:05:49 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:27031 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S261862AbTJMQFs
+	Mon, 13 Oct 2003 12:15:30 -0400
+Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:12765
+	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S261871AbTJMQP2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 12:05:48 -0400
-Date: Mon, 13 Oct 2003 09:05:46 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Mikael Pettersson <mikpe@csd.uu.se>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: non-modular 2.6 ppc kernels miscompiled by gcc-3.3.1?
-Message-ID: <20031013160546.GH3634@ip68-0-152-218.tc.ph.cox.net>
-References: <200310121310.h9CDASEI006119@harpo.it.uu.se> <1065964761.993.34.camel@gaston> <20031012181950.GB2328@mars.ravnborg.org>
+	Mon, 13 Oct 2003 12:15:28 -0400
+Date: Mon, 13 Oct 2003 09:15:22 -0700
+To: Jari Tenhunen <jait@ee.oulu.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5/2.6 PCMCIA Issues
+Message-ID: <20031013161522.GA9362@nasledov.com>
+References: <20031013161010.GH1623@ee.oulu.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031012181950.GB2328@mars.ravnborg.org>
+In-Reply-To: <20031013161010.GH1623@ee.oulu.fi>
 User-Agent: Mutt/1.5.4i
+From: Misha Nasledov <misha@nasledov.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 12, 2003 at 08:19:50PM +0200, Sam Ravnborg wrote:
-> 
-> On Sun, Oct 12, 2003 at 03:19:22PM +0200, Benjamin Herrenschmidt wrote:
-> > Smells like some section alignement issues. Can you check
-> > how the __ex_table  section is aligned and where __start___ex_table
-> > points to ? (using objdump)
-> 
-> Or you could try to apply the following patch - it will fix mis-
-> alignmnet of above section.
+Hi,
 
-Applied.  Thanks.
+I think I know what you're talking about. My laptop won't suspend either if
+there are PCMCIA cards in it; once I take out the offending PCMCIA cards and
+try to suspend again, it'll suspend properly. I think this is a bug as this
+kind of thing never happened in 2.4.. I'm Cc'ing this to lkml, so maybe
+somebody will take a look at it...
+
+On Mon, Oct 13, 2003 at 07:10:10PM +0300, Jari Tenhunen wrote:
+> Hi,
+> 
+> I found your old post on lkml. I'm having exactly same kind of problems
+> with my laptop (Thinkpad T20). 2.6-series up to 2.6.0-test6 won't
+> suspend and it seems that the problem is PCMCIA (no errors, screen
+> blanksi, hd spins down but won't suspend). After some testing 
+> I found out that after unloading the yenta_socket module everything works.
+> 
+> Have you seen any patches for this or have you managed to contact the
+> developer(s)?
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Misha Nasledov
+misha@nasledov.com
+http://nasledov.com/misha/

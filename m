@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTFXJcn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 05:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTFXJcm
+	id S261249AbTFXJbL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 05:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTFXJbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 05:32:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7697 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261566AbTFXJcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 05:32:42 -0400
-Date: Tue, 24 Jun 2003 10:46:47 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73-mm1
-Message-ID: <20030624104647.C6478@flint.arm.linux.org.uk>
-Mail-Followup-To: Alexander Hoogerhuis <alexh@ihatent.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20030623232908.036a1bd2.akpm@digeo.com> <87r85jn7ko.fsf@lapper.ihatent.com>
+	Tue, 24 Jun 2003 05:31:11 -0400
+Received: from mn.miryuna.net ([203.141.146.63]:40832 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261249AbTFXJbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 05:31:09 -0400
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+From: David Blomber <dblomber@davelinux.com>
+To: Larry McVoy <lm@bitmover.com>, kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030623140943.GE6715@work.bitmover.com>
+References: <20030620142436.GB14404@work.bitmover.com>
+	<20030620143012.GC14404@work.bitmover.com>
+	<20030620163349.GG17563@work.bitmover.com>
+	<20030621142048.2ae63afa.skraw@ithnet.com>
+	<20030621133831.GA10089@work.bitmover.com>
+	<1056358467.29264.41.camel@passion.cambridge.redhat.com>
+	<20030623132231.GC6715@work.bitmover.com>
+	<1056375161.29264.178.camel@passion.cambridge.redhat.com>
+	<20030623133714.GB4302@work.bitmover.com>
+	<1056377073.29264.200.camel@passion.cambridge.redhat.com> 
+	<20030623140943.GE6715@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Jun 2003 18:51:03 +0900
+Message-Id: <1056448263.1243.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <87r85jn7ko.fsf@lapper.ihatent.com>; from alexh@ihatent.com on Tue, Jun 24, 2003 at 11:33:27AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 24, 2003 at 11:33:27AM +0200, Alexander Hoogerhuis wrote:
-> This is my result from modprobing yenta_socket and inserting my
-> wlan-card (NetGear MA311).
 
-Can you give some further details about the card and your setup please.
-Eg, was cardmgr running when you inserted the card?
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> The difference is that I can charge a price for the word processor which
+> gives me enough profit to build the spread sheet application.  If you are
+> trying to do the same thing but your app is GPLed, you can forget about it.
+> The market won't pay $300 for something they can download for free.
+> -- 
+> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> -
+Yes but a word processor is not worth $300.  I am all for anyone making
+a profit, but not when they hold the rest of us over a barrel and
+railroad us with proprietary products that are vastly overpriced and
+marginally better.  (and yes I put my money where my mouth is I actually
+buy the distros and software I use and donate to GNU)
 

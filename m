@@ -1,64 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbULTOzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbULTPEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbULTOzv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 09:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbULTOzv
+	id S261516AbULTPEY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 10:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbULTPEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 09:55:51 -0500
-Received: from web88006.mail.re2.yahoo.com ([206.190.37.193]:43671 "HELO
-	web88006.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261515AbULTOzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 09:55:44 -0500
-Message-ID: <20041220145543.56059.qmail@web88006.mail.re2.yahoo.com>
-Date: Mon, 20 Dec 2004 09:55:43 -0500 (EST)
-From: Shawn Starr <shawn.starr@rogers.com>
-Subject: Re: Cannot resume from PCI devices [now: Drivebay LED light going into S3]
-To: linux-kernel@vger.kernel.org
-Cc: borislav@users.sf.net
-MIME-Version: 1.0
+	Mon, 20 Dec 2004 10:04:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19679 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261516AbULTPEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 10:04:15 -0500
+Date: Mon, 20 Dec 2004 10:46:04 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: James Pearson <james-p@moving-picture.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       andrea@suse.de
+Subject: Re: Reducing inode cache usage on 2.4?
+Message-ID: <20041220124604.GB2529@logos.cnet>
+References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041218110247.GB31040@logos.cnet> <41C6D802.7070901@moving-picture.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C6D802.7070901@moving-picture.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yes, the ALSA fix is in (don't know which -bk it was
-added) but it works fine with -bk13 as
-pci_disable_device now is in there.
+On Mon, Dec 20, 2004 at 01:47:46PM +0000, James Pearson wrote:
+> I've tested the patch on my test setup - running a 'find $disk -type f' 
+> and a cat of large files to /dev/null at the same time does indeed 
+> reduce the size of the inode and dentry caches considerably - the first 
+> column numbers for fs_inode, linvfs_icache and dentry_cache in 
+> /proc/slabinfo hover at about 400-600 (over 900000 previously).
+> 
+> However, is this going a bit to far the other way? When I boot the 
+> machine with 4Gb RAM, the inode and dentry caches are squeezed to the 
+> same amounts, but it may be the case that it would be more beneficial to 
+> have more in the inode and dentry caches? i.e. I guess some sort of 
+> tunable factor that limits the minimum size of the inode and dentry 
+> caches in this case?
 
-Boris, when we go into S3 mode, the drivebay light
-remains on, draining power.. How can this be shut off
-when we enter S3? aside from manually shutting the LED
-off before suspend. Any code hooks we can trigger apon
-entering S3?
+One can increase vm_vfs_scan_ratio if required, but hopefully this change
+will benefit all workloads.
 
-Shawn.
+Andrew, Andrea, do you think of any workloads which might be hurt by this change?
 
->List:       acpi4linux
->Subject:    [ACPI] [ACPI][2.6.10-rc3][SUSPEND] S3
-mode - Cannot resume from PCI devices
->From:       Shawn Starr
->Date:       2004-12-10 8:15:21
+> But saying that, I notice my 'find $disk -type f' (with about 2 million 
+> files) runs a lot faster with the smaller inode/dentry caches - about 1 
+> or 2 minutes with the patched kernel compared with about 5 to 7 minutes 
+> with the unpatched kernel - I guess it was taking longer to search the 
+> inode/dentry cache than reading direct from disk.
 
->I have netconsole configured I can see kernel
-messages >on a remote machine, but when I suspend the
-laptop it >goes into S3. I am unable to capture the
-(oops) the >laptop when bringing it out of S3. It
-remains in a >half suspended-unsuspended state. (the
-crescent moon >LED is solidly on, video is back on
-(can see the 'Back >to C!' string), cannot use sysctl
-key combos,  >netconsole doesn't display the output
-since no PCI >devices resume (the video is AGP
-onboard).
+Wonderful.
 
->Is there any way I can capture this output somehow? I
->don't think even serial would work (it would be a USB
->to serial converter which would be PCI) or even
-trying >to get this to print to lp0 since the laptop
-is >totally unresponsive in its state.
-
->I booted into single and sh for init, mounted /proc
->/sys and with no kernel modules it would fail to
->resume after suspending.
-
->This isn't a nice regression.
-
->Shawn.
+> 
+> James Pearson
+> 
+> Marcelo Tosatti wrote:
+> >James,
+> >
+> >Can apply Andrew's patch and examine the results?
+> >
+> >I've merged it to mainline because it looks sensible.
+> >
+> >Thanks Andrew!
+> >
+> >On Fri, Dec 17, 2004 at 05:21:04PM -0800, Andrew Morton wrote:
+> >
+> >>James Pearson <james-p@moving-picture.com> wrote:
+> >>
+> >>>It seems the inode cache has priority over cached file data.
+> >>
+> >>It does.  If the machine is full of unmapped clean pagecache pages the
+> >>kernel won't even try to reclaim inodes.  This should help a bit:
+> >>
+> >>--- 24/mm/vmscan.c~a	2004-12-17 17:18:31.660254712 -0800
+> >>+++ 24-akpm/mm/vmscan.c	2004-12-17 17:18:41.821709936 -0800
+> >>@@ -659,13 +659,13 @@ int fastcall try_to_free_pages_zone(zone
+> >>
+> >>		do {
+> >>			nr_pages = shrink_caches(classzone, gfp_mask, 
+> >>			nr_pages, &failed_swapout);
+> >>-			if (nr_pages <= 0)
+> >>-				return 1;
+> >>			shrink_dcache_memory(vm_vfs_scan_ratio, gfp_mask);
+> >>			shrink_icache_memory(vm_vfs_scan_ratio, gfp_mask);
+> >>#ifdef CONFIG_QUOTA
+> >>			shrink_dqcache_memory(vm_vfs_scan_ratio, gfp_mask);
+> >>#endif
+> >>+			if (nr_pages <= 0)
+> >>+				return 1;
+> >>			if (!failed_swapout)
+> >>				failed_swapout = !swap_out(classzone);
+> >>		} while (--tries);
+> >>_
+> >>
+> >>
+> >>
+> >>>What triggers the 'normal ageing round'? Is it possible to trigger this 
+> >>>earlier (at a lower memory usage), or give a higher priority to cached 
+> >>>data?
+> >>
+> >>You could also try lowering /proc/sys/vm/vm_mapped_ratio.  That will cause
+> >>inodes to be reaped more easily, but will also cause more swapout.
+> >
+> >

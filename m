@@ -1,82 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281465AbRKME3W>; Mon, 12 Nov 2001 23:29:22 -0500
+	id <S281468AbRKMEiL>; Mon, 12 Nov 2001 23:38:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281466AbRKME3L>; Mon, 12 Nov 2001 23:29:11 -0500
-Received: from TK212017087078.teleweb.at ([212.17.87.78]:27633 "EHLO
-	elch.elche") by vger.kernel.org with ESMTP id <S281465AbRKME3E>;
-	Mon, 12 Nov 2001 23:29:04 -0500
-Date: Tue, 13 Nov 2001 05:28:54 +0100
-From: Armin Obersteiner <armin@xos.net>
-To: linux-kernel@vger.kernel.org
-Cc: reiserfs-list@namesys.com
-Subject: 2.4.15-pre2 and earlier: reiserfs problem
-Message-ID: <20011113052854.A26879@elch.elche>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S281469AbRKMEhz>; Mon, 12 Nov 2001 23:37:55 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:41353 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281468AbRKMEhj>; Mon, 12 Nov 2001 23:37:39 -0500
+Date: Mon, 12 Nov 2001 21:37:02 -0700
+Message-Id: <200111130437.fAD4b2j17329@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPLONLY kernel symbols???
+In-Reply-To: <3BF09E44.58D138A6@mandrakesoft.com>
+In-Reply-To: <200111130324.fAD3OE916102@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0111122249160.22925-100000@weyl.math.psu.edu>
+	<200111130358.fAD3wgb16617@vindaloo.ras.ucalgary.ca>
+	<3BF09E44.58D138A6@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+Jeff Garzik writes:
+> Richard Gooch wrote:
+> > Alexander Viro writes:
+> > > On Mon, 12 Nov 2001, Richard Gooch wrote:
+> > > > Dave Jones writes:
+> > > > > How about running mtrr.c & devfs code through scripts/Lindent
+> > > > > sometime btw?
+> 
+> Go ahead and Lindent mtrr.c, it hasn't been touched by rgooch in a
+> while...
 
-i have some problems with reiserfs. i write to both the kernel mailing list and
-reiserfs list because i found no solution in the reiserfs-mailing list archives ... 
-(i found some answers, but controversial advices :-( and they did not work for me.)
+Hey!
 
-i use reiserfs for a very long time, nearly 2 years if i calculate right. i needed
-large filesystem support so i had to update from 3.5 to 3.6 in order to get it.
+> > > > That would be a step backwards: I wouldn't be able to read my own code
+> > > > then.
+> > >
+> > > You mean that you are unable to read any of the core kernel source?
+> > > That would explain a lot...
+> > 
+> > Were you born rude, or did you have to practice it?
+> 
+> I would argue both ;-)  He is a Usenet denizen after all.
+> (takes one to know one... I'm one as well :))
 
-i booted with suse 7.3 rescue dvd and mounted the / partition with the conv flag.
-then after unmounting i rebooted...
+I gave up Usenet years ago, about when the signal to noise ratio fell
+under 0.1% and I got tired of wasting time wading through the flames.
 
-the kernel i was using that time: with 2.4.12-ac5 with preempt patch.
+Now, on to your points about coding style. I'll say this once only. I
+don't want to waste time with an argument about this.
 
-some errors occured during reboot: permission denied, processes could not be started.
-some files simply weren't there (ls), but you could get a bash TAB filename completion 
-on them... (with 'ls' at the bgeinning of the line). if i tried to access them i got: permission denied.
+> He and davej still have a point.  Your code formatting is
+> non-standard, and is difficult to read.  A document exists
+> CodingStyle which explains a good style, and further -why- it is a
+> good style.
 
-after some emergency backups i used suse 7.3 rescue dvd to do a reiserfsck (3.x.0k-pre9
-if i remember right). first i did --check then --fix-non-critical after some reboots
-(and some files "visible" again) but not all i did a --rebuild-tree. it did not take
-that long (30 min on 40GB)...
+And one of the very first things that document says that coding style
+is very personal and he doesn't want to force his views on others.
+So, as a symbolic gesture, I printed out and burned that document.
 
-the positive aspect: no invisible/inaccessible files any more
+> Among other reasons, because of long term maintenance.
+> 
+> How do you expect others in the Linux kernel community to review
+> your code, if it is widely considered difficult to read?  How do you
+> expect people to maintain your code when are no longer around?  The
+> Linux kernel will be around long after you and I and others leave
+> kernel development.  Others need to read and maintain this code.
 
-BUT the negative ones: 
+If and when I step down as maintainer (if I do so, I'll publically
+pass the baton to the new maintainer), the new maintainer can indent
+to their preference. Until that time, *I'm* the maintainer, and *I*
+need to be able to read the code efficiently. It's the part of the
+kernel I spend the most time in, after all.
 
-* filename tab completion within bash is working in some cases/dirs but not ALL (this is really strange).
-  with 'ls name<TAB>' i get completion, but e.g. with 'gv name<TAB>' i don't ...
+And the coding style used elsewhere in the kernel is revolting to
+me. More importantly, it's harder for me to parse than my own style.
+I shouldn't have to constantly stumble over an appalling coding style
+in my own code!
 
-* i get a lot of "reiserfs_release_objectid: tried to free free object id" these started
-  immediately after converting to 3.6...
+"He who writes the code gets to choose".
 
-* i couldn't create large files so far ;-) [but that is of no concern right now]
+				Regards,
 
-i tried to be cool for now, but i don't know if the filesystem problem is small or large.
-
-before converting i got these exotic error: (may be irrelevant, but i wanted to show all error lines)
-
-PAP-5710: reiserfs_paste_into_item: entry or pasted byte ([251560 167552 0x1d3001 IND]) exists<4>vs-: reiserfs_get_block: [251560 167552 0x1b5f001 UNKNOWN] should not be found<7>ISO 9660 Extensions: Microsoft Joliet Level 3
-
-this is an example of the release object id problem:
-
-vs-15010: reiserfs_release_objectid: tried to free free object id (292421)<4>vs-15010: reiserfs_release_objectid: tried to free free object id (221948)<4>vs-15010: reiserfs_release_objectid: tried to free free object id (240872)<4>vs-15010: reiserfs_release_objectid: tried to free free object id (275896)<4>nfsd: last server has exited
-
-reiserfscks with --rebuild-tree throws all these files in /lost+found (i suppose *these* files), well i actually 
-deleted them on purpose ...
-
-but they seem to be creeping in the filesystem again from time to time ...
-
-is it somehow possible to recover my filesystem to a working one again? 
-
-now i'm using linux-2.4.15-pre2 (i hoped some reiserfs problems would have been corrected in this
-release ...).
-
-if i had to reformat, i wouldn't use reiserfs anymore now that ext3 is in the kernel ...
-
-MfG,
-	Armin Obersteiner
---
-armin@xos.net                        pgp public key on request        CU
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

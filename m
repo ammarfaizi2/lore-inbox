@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132802AbRDQSZG>; Tue, 17 Apr 2001 14:25:06 -0400
+	id <S132808AbRDQS2H>; Tue, 17 Apr 2001 14:28:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132804AbRDQSY4>; Tue, 17 Apr 2001 14:24:56 -0400
-Received: from mean.netppl.fi ([195.242.208.16]:38156 "EHLO mean.netppl.fi")
-	by vger.kernel.org with ESMTP id <S132802AbRDQSYq>;
-	Tue, 17 Apr 2001 14:24:46 -0400
-Date: Tue, 17 Apr 2001 21:24:43 +0300
-From: Pekka Pietikainen <pp@evil.netppl.fi>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible problem with zero-copy TCP and sendfile()
-Message-ID: <20010417212443.A8842@netppl.fi>
-In-Reply-To: <20010417170206.C2589096@informatics.muni.cz> <E14pXxg-0002cI-00@the-village.bc.nu> <20010417181524.E2589096@informatics.muni.cz>
+	id <S132807AbRDQS1r>; Tue, 17 Apr 2001 14:27:47 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:59652
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S132804AbRDQS1m>; Tue, 17 Apr 2001 14:27:42 -0400
+Date: Tue, 17 Apr 2001 11:25:24 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.1.4 is available
+Message-ID: <20010417112524.G28200@opus.bloom.county>
+In-Reply-To: <20010417141335.A32711@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <20010417181524.E2589096@informatics.muni.cz>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010417141335.A32711@thyrsus.com>; from esr@thyrsus.com on Tue, Apr 17, 2001 at 02:13:35PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 06:15:24PM +0200, Jan Kasprzak wrote:
-> 	Some more progress: I now downgraded to proftpd without sendfile().
-> The CPU usage is now nearly 100% (with ~170 FTP users; with sendfile()
-> it was under 50% with >320 FTP users). But nevertheless, the downloaded
-> images now seem to be OK.
+On Tue, Apr 17, 2001 at 02:13:35PM -0400, Eric S. Raymond wrote:
+> The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 > 
-> 	Should I try the stock 2.4.3 without zero-copy patches?
-It might also be useful to try 2.4.3+zc with the dev->features |=
-NETIF_F_SG; in the 3c59x driver taken out (so it won't use zero-copy)
+> Release 1.1.4: Tue Apr 17 14:02:17 EDT 2001
+> 	* Tom Rini's patches for the ARM port tree.
 
-Since it starts from the beginning instead of corrupting random packets I
-doubt it's a hardware problem, though.
+Er, that should read PPC. :)
+
+> 	* Correct handling of booleans when trits are disabled.
+> 	* `nohelp' tie symbol introduced.
+> 	* Code audited with PyChecker.
+[snip] 
+> So let's try to shift our attention to auditing and fixing the rules files,
+> shall we?
+
+Well, I've got more to come anyways. :)
 
 -- 
-Pekka Pietikainen
-
-
-
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

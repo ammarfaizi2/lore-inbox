@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265891AbUGHHoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265897AbUGHH6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265891AbUGHHoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 03:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265893AbUGHHoZ
+	id S265897AbUGHH6k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 03:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265898AbUGHH6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 03:44:25 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29971 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265891AbUGHHoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 03:44:23 -0400
-Date: Thu, 8 Jul 2004 08:44:19 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Paul Rolland <rol@as2917.net>
-Cc: "'Bernd Eckenfels'" <ecki-news2004-05@lina.inka.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Init single and Serial console : How to ?
-Message-ID: <20040708084419.A13706@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Rolland <rol@as2917.net>,
-	'Bernd Eckenfels' <ecki-news2004-05@lina.inka.de>,
-	linux-kernel@vger.kernel.org
-References: <200407041032.i64AWTX21222@tag.witbe.net> <200407080532.i685WpX28901@tag.witbe.net>
+	Thu, 8 Jul 2004 03:58:40 -0400
+Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:16268 "EHLO
+	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265897AbUGHH6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 03:58:37 -0400
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org> <cone.1089268800.781084.4554.502@pc.kolivas.org> <20040708001027.7fed0bc4.akpm@osdl.org>
+Message-ID: <cone.1089273505.418287.4554.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nigelenki@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: Autoregulate swappiness & inactivation
+Date: Thu, 08 Jul 2004 17:58:25 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200407080532.i685WpX28901@tag.witbe.net>; from rol@as2917.net on Thu, Jul 08, 2004 at 07:32:45AM +0200
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-pc.kolivas.org-4554-1089273505-0014";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 07:32:45AM +0200, Paul Rolland wrote:
-> Got this one working :
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
+
+--=_mimegpg-pc.kolivas.org-4554-1089273505-0014
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+Andrew Morton writes:
+
+> Con Kolivas <kernel@kolivas.org> wrote:
+>>
+>>  Ah what the heck. They can only be knocked back to where they already are.
 > 
-> LILO: linux init=/sbin/sulogin /dev/ttyS0
+> hm.  You get an eGrump for sending two patchs in one email.  Surprisingly
+> nice numbers though.
 > 
-> It finally asked me to enter root password, I did my maintenance, 
-> and then...
-> /sbin/reboot did nothing
-> leaving the shell (exit) said :
-> Attempting to kill init
-> Panic, will reboot in 30 seconds.
-> (or something like that), but it didn't restart, and I had to reboot
-> the machine...
-> Is this the expected behaviour ?
+> How come vm_swappiness gets squared?  That's the mysterious "bias
+> downwards", yes?  What's the theory there?
 
-Yes, since you exited the process which was pretending to be the init
-program.  Basically, whatever program is pretending to be init must
-never exit or be killed off - it's special.
+No real world feedback mechanism is linear. As the pressure grows the 
+positive/negative feedback grows exponentially.
 
-You probably wanted to do /sbin/reboot -f
+> Please define this new term "application pages"?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+errm it's fuzzy to say the least. It's the closest I can come to 
+representing what end users understand as "non-cached" pages.
+
+> Those si_swapinfo() and si_meminfo() calls need to come out of there.
+
+I'm game. I had the idea but not the skill. Anyone wanna help me with that?
+
+> A diff against Documentation/filesystems/proc.txt will be needed sometime,
+> please.
+
+Ok. I'll try and put together one patch that does the lot.
+
+Con
+
+
+--=_mimegpg-pc.kolivas.org-4554-1089273505-0014
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA7P6hZUg7+tp6mRURAs66AJ9au33KuKauNHMDjPxn5m7/WyxpFACfS3dU
+fomkenoRPToSDeNNfp4+coI=
+=cSYm
+-----END PGP SIGNATURE-----
+
+--=_mimegpg-pc.kolivas.org-4554-1089273505-0014--

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317629AbSGJV1T>; Wed, 10 Jul 2002 17:27:19 -0400
+	id <S317628AbSGJVYW>; Wed, 10 Jul 2002 17:24:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317632AbSGJV1S>; Wed, 10 Jul 2002 17:27:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61703 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317629AbSGJV1R>;
-	Wed, 10 Jul 2002 17:27:17 -0400
-Message-ID: <3D2CA6E3.CB5BC420@zip.com.au>
-Date: Wed, 10 Jul 2002 14:28:03 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S317629AbSGJVYV>; Wed, 10 Jul 2002 17:24:21 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:34261 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317628AbSGJVYT>; Wed, 10 Jul 2002 17:24:19 -0400
+Message-ID: <1026336421.3d2ca6a50d35b@imap.linux.ibm.com>
+Date: Wed, 10 Jul 2002 14:27:01 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+To: "Hurwitz Justin W." <hurwitz@lanl.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How many copies to get from NIC RX to user read()?
+References: <Pine.LNX.4.44.0207101509240.17835-100000@alvie-mail.lanl.gov>
+In-Reply-To: <Pine.LNX.4.44.0207101509240.17835-100000@alvie-mail.lanl.gov>
 MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-CC: Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-References: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 9.47.18.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" wrote:
+
+> So, to make sure I have this right:
 > 
-> I'd like to see HZ closer to 100 than 1000, for CPU power reasons. Processor
-> power states like C3 may take 100 microseconds+ to enter/leave - time when
-> both the CPU isn't doing any work, but still drawing power as if it was. We
-> pop out of C3 whenever there is an interrupt, so reducing timer interrupts
-> is good from a power standpoint by amortizing the transition penalty over a
-> longer period of power savings.
+> When the data is processed from the NIC
+>   tcp_rcv_established() is called in processing it
+>     if a user process is waiting on the socket
+>       iovec copy data to the user
+>     else
+>       copy it to receive_queue or backlog_queue
 
-That makes a ton of sense.
+well, we append the skb to the tail of the queue.
+this is not a copy operation. (just a few instructions).
 
-> But on the other hand, increasing HZ has perf/latency benefits, yes? Have
-> these been quantified?
+> When the user tries read (in any way) a socket
+>   iovec copy from receive_queue or backlog_queue
+> 
+> 
+> E.g., if the user is ready for the data, dump it straight from
+> SKBs. Else, 
+> don't waste SKBs on a lazy (or busy) user and copy the data to a
+> queue.
 
-Not that I'm aware of.  And I'd regard any such claims with some
-scepticism.
+yep.
 
-> I'd either like to see a HZ that has balanced
-> power/performance, or could we perhaps detect we are on a system that cares
-> about power (aka a laptop) and tweak its value at runtime?
+> If this is right, I'm happy :) If it's wrong, please correct. 
+> 
+> Thx,
+> --Gus
 
-It's all rather fishy.
+I should add that my reading of the code is hardly
+authoritative :). caveat emptor...
 
--
+thanks,
+Nivedita
+
+
+

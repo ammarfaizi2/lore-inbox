@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273269AbRKEV75>; Mon, 5 Nov 2001 16:59:57 -0500
+	id <S273333AbRKEWA6>; Mon, 5 Nov 2001 17:00:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281372AbRKEV7r>; Mon, 5 Nov 2001 16:59:47 -0500
-Received: from pool-141-154-110-12.bos.east.verizon.net ([141.154.110.12]:2570
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S273269AbRKEV73>; Mon, 5 Nov 2001 16:59:29 -0500
-To: acpi@phobos.fachschaften.tu-muenchen.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI problems
-In-Reply-To: <20011105123321.GA13301@fefe.de>
-From: Nick Papadonis <nick@coelacanth.com>
-Organization: None
-X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
- <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
- !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
-Date: 05 Nov 2001 16:58:26 -0500
-In-Reply-To: <20011105123321.GA13301@fefe.de> (Felix von Leitner's message of "Mon, 5 Nov 2001 13:33:21 +0100")
-Message-ID: <m33d3sswvx.fsf@localhost.localdomain>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Civil Service)
+	id <S281372AbRKEWAs>; Mon, 5 Nov 2001 17:00:48 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:54156 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S273333AbRKEWAg>;
+	Mon, 5 Nov 2001 17:00:36 -0500
+Message-ID: <3BE70B9A.1010904@candelatech.com>
+Date: Mon, 05 Nov 2001 14:58:50 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Tim Jansen <tim@tjansen.de>
+CC: Rik van Riel <riel@conectiva.com.br>, dalecki@evision.ag,
+        Stephen Satchell <satch@concentric.net>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Jakob =?ISO-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
+        linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <Pine.LNX.4.33L.0111051638230.27028-100000@duckman.distro.conectiva> <160qqc-1ClvWqC@fmrl04.sul.t-online.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forwarded to the ACPI list.
 
-Felix von Leitner <leitner@fefe.de> writes:
 
-> Hi!
+Tim Jansen wrote:
+
+> On Monday 05 November 2001 19:40, Rik van Riel wrote:
 > 
-> ACPI is acting up on me.  On my main machine, ACPI used to be unable to
-> power the machine down.  It just said "Power down." and the said there.
-> It worked flawlessly with my notebook (Dell Inspiron 8k).
+>>I think you've hit the core of the problem. There is no magical
+>>bullet which will stop badly written userland programs from
+>>breaking, but the kernel developers should have the courtesy
+>>of providing documentation for the /proc files so the writers
+>>of userland programs can have an idea what to expect.
+>>
 > 
-> Now, since about 2.4.10 (?) the situation reversed.  Now ACPI can power
-> down my desktop just fine but my notebook just sits there after the "Power
-> Down." message.  Normally, I press the power button then, but yesterday
-> I was too busy and let the machine sit there and to my utter
-> astonishment, the notebook did power down after several minutes!  I
-> didn't take the exact time, but right now I'm sitting besides the
-> notebook which said "Power down." exactly 3 minutes ago and still is
-> powered on.  Any ideas?
+> I think the core insight is that if the kernel continues to have dozens of 
+> "human-readable" file formats in /proc, each should to be documented using a 
+> BNF description that can guarantee that the format is still valid in the 
+> future, even if there is the need to add additional fields. 
+> The result of this is, of course, that it may be very hard to write 
+> shell scripts that won't break sooner or later and that accessing the data in 
+> C is much more work than a simple scanf.
+
+
+So if BNF makes it harder for shell scripts and sscanf, and harder for
+the kernel developers...what good does it do???  I definately don't advocate
+anything more than some simple documentation about whatever format the proc
+module writer uses.  All of these interfaces (proc, ioctl, ...) end up being
+hacks at some point, but a _documented_ hack can be called a feature :)
+
+
 > 
-> Felix
+> bye...
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 > 
+> 
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

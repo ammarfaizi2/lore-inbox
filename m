@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVANBOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVANBSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbVANBOO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVANBN4
+	id S261738AbVANBSO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVANBGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 20:13:56 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:53161 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S261752AbVANBMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 20:12:08 -0500
-Date: Thu, 13 Jan 2005 20:11:59 -0500
-Message-Id: <200501140111.j0E1Bx0N023763@agora.fsl.cs.sunysb.edu>
-From: Erez Zadok <ezk@cs.sunysb.edu>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] shared subtrees 
-In-reply-to: Your message of "Thu, 13 Jan 2005 22:18:51 GMT."
-             <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> 
-X-MailKey: Erez_Zadok
+	Thu, 13 Jan 2005 20:06:05 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60941
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261749AbVANBBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 20:01:19 -0500
+Date: Fri, 14 Jan 2005 02:01:32 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: lcall disappeared? kernel CVS destabilized?
+Message-ID: <20050114010132.GJ5949@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al, how do shared subtrees related to stacking?  From your description, it
-looks like event propagation is similar to what stacking does (pass an op
-from one layer to another), only that subtree sharing is for "mount points"
-and not for every VFS object.  Am I right?
+I'm porting the seccomp patch to 2.6.10, do you have an idea where lcall
+(i.e. call gates for binary compatibility with other OS) went? I can't
+find it anywhere. Looks like it was dropped but I must be sure of that,
+and especially I must be sure that you don't add it again without me
+noticing that I had to patch it ;). Is lcall definitely dead code that I
+can forget about or am I missing something? Thanks.
 
-If shared subtrees have nothing to do with stacking, do you foresee them as
-perhaps a first step toward full stacking support in the VFS?  (I mean, if
-we're going to have to hack the VFS heavily already...)  Your "p-node"
-sounds awfully similar to Rosenthal's and Skinner's "pvnode"s. :-)
+Kernel CVS is broken here, it doesn't even show me the changeset where
+lcall disappeared, this returns nothing obvious:
 
-Thanks,
-Erez.
+	cvsps -g -r v2_6_8 -f arch/i386/kernel/entry.S
+
+If I use cvsps -x --bkcvs the changesets are screwed.
+
+Note that the entry.S of the kernel CVS has not the lcall, it's
+magically forgetting to show me a chageset, and I doubt cvsps is to
+blame here, since it was working well for a long time before the thing
+destabilized.
+
+Can somebody confirm the kernel CVS is unstable or am I the only one
+having deep troubles?

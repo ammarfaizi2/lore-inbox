@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUGQEbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266698AbUGQEh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264860AbUGQEbv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 00:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUGQEbv
+	id S266698AbUGQEh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 00:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUGQEh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 00:31:51 -0400
-Received: from mail5.tpgi.com.au ([203.12.160.101]:24028 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S264860AbUGQEbu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 00:31:50 -0400
-Subject: Re: psmouse as module with suspend/resume
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Kevin Fenzi <kevin-kernel@scrye.com>, Brouard Nicolas <brouard@ined.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200407161743.37577.dtor_core@ameritech.net>
-References: <20040715205459.197177253D@voldemort.scrye.com>
-	 <200407160058.57824.dtor_core@ameritech.net>
-	 <20040716164704.CFC1A43FF@voldemort.scrye.com>
-	 <200407161743.37577.dtor_core@ameritech.net>
-Content-Type: text/plain
-Message-Id: <1090038217.11603.0.camel@nigel-laptop.wpcb.org.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 17 Jul 2004 14:23:37 +1000
+	Sat, 17 Jul 2004 00:37:26 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:55956 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S266670AbUGQEhX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 00:37:23 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Message-ID: <16632.44288.370612.885408@napali.hpl.hp.com>
+Date: Fri, 16 Jul 2004 21:37:20 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: davidm@hpl.hp.com, Mark Haverkamp <markh@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
+       suresh.b.siddha@intel.com, jun.nakajima@intel.com,
+       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: serious performance regression due to NX patch
+In-Reply-To: <Pine.LNX.4.58.0407161837260.20824@ppc970.osdl.org>
+References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
+	<20040711123803.GD21264@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
+	<16626.62318.880165.774044@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0407122358570.13111@devserv.devel.redhat.com>
+	<1089734729.1356.79.camel@markh1.pdx.osdl.net>
+	<16632.28018.130890.290832@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0407161837260.20824@ppc970.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+>>>>> On Fri, 16 Jul 2004 18:39:40 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
 
-On Sat, 2004-07-17 at 08:43, Dmitry Torokhov wrote:
-> I am inclined to say that it's swsusp2 problem. I briefly looked over
-> the code and I could not find a place where device_power_up would be
-> called; swsusp2 goes straight to device_resume. This causes system
-> devices (and i8042 is currently a system device) not be resumed and
-> thus your touchpad is left id default PS/2 hardware emulation mode.
+  Linus> No. Using "def_flags" was a mistake for the whole VM_EXEC
+  Linus> thing. It's not designed for that, and it doesn't work that
+  Linus> way. I applied the paper-over fix that gets it
+  Linus> almost-working, but I'm waiting for Ingo to rewrite it by
+  Linus> just saving the "executable_stack" information at exec time,
+  Linus> and not playing with def_flags at all.
 
-Ah. I see what you mean. Pavel and Patrick have improved the support in
-their versions and I still have the old code. I'll update to use the
-device tree properly.
+I'm very happy to hear that.
 
-Regards,
+Thanks,
 
-Nigel
-
+	--david

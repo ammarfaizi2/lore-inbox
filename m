@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270774AbTG0NaW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 09:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270775AbTG0NaW
+	id S270775AbTG0Nnk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 09:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270776AbTG0Nnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 09:30:22 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:63661 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S270774AbTG0NaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 09:30:21 -0400
-Message-ID: <3F23DB4E.1000203@genebrew.com>
-Date: Sun, 27 Jul 2003 10:01:50 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
-X-Accept-Language: en-us, en
+	Sun, 27 Jul 2003 09:43:39 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:19098
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S270775AbTG0Nnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 09:43:39 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
+Date: Mon, 28 Jul 2003 00:03:04 +1000
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.44.0307271535590.22937-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0307271535590.22937-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Andrew de Quincey <adq_dvb@lidskialf.net>
-CC: Marcelo Penna Guerra <eu@marcelopenna.org>,
-       lkml <linux-kernel@vger.kernel.org>, Laurens <masterpe@xs4all.nl>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
-References: <200307262309.20074.adq_dvb@lidskialf.net> <200307271222.13649.adq_dvb@lidskialf.net> <3F23BC1D.7070804@genebrew.com> <200307271301.41660.adq_dvb@lidskialf.net>
-In-Reply-To: <200307271301.41660.adq_dvb@lidskialf.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+Content-Disposition: inline
+Message-Id: <200307280003.05185.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew de Quincey wrote:
+On Sun, 27 Jul 2003 23:40, Ingo Molnar wrote:
+>  - further increase timeslice granularity
 
-> I've just dumped the mmapped IO space on mine. The MAC address shows up at 
-> offset 0xa8, but the amd8111e driver is looking for it at 0x160 (there's just 
-> loads of 0x00 there).
+For a while now I've been running a 1000Hz 2.4 O(1) kernel tree that uses 
+timeslice granularity set to MIN_TIMESLICE which has stark smoothness 
+improvements in X. I've avoided promoting this idea because of the 
+theoretical drop in throughput this might cause. I've not been able to see 
+any detriment in my basic testing of this small granularity, so I was curious 
+to see what you throught was a reasonable lower limit?
 
-Hmmmm, with this info I am able to get amd8111e to read the correct MAC 
-address, but the network connection does not seem to work anyway. How 
-would we know if this is the right driver anyway?
-
--Rahul
--- 
-Rahul Karnik
-rahul@genebrew.com
+Con
 

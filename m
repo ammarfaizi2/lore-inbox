@@ -1,99 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263330AbUJ2OME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263333AbUJ2OOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263330AbUJ2OME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbUJ2OME
+	id S263333AbUJ2OOc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 10:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbUJ2OOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:12:04 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:57803 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263330AbUJ2OLw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:11:52 -0400
-Subject: Re: [2.6 patch] jfs_metapage.c: remove an unused function
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041029001839.GK29142@stusta.de>
-References: <20041028222444.GQ3207@stusta.de>
-	 <20041029001839.GK29142@stusta.de>
-Content-Type: text/plain
-Message-Id: <1099059105.7480.7.camel@localhost>
+	Fri, 29 Oct 2004 10:14:32 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:21919 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263333AbUJ2OOT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:14:19 -0400
+Date: Fri, 29 Oct 2004 16:15:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041029141505.GA25204@elte.hu>
+References: <20041029135530.GA22463@elte.hu> <200410291403.i9TE3jq3006445@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 29 Oct 2004 09:11:45 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410291403.i9TE3jq3006445@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-28 at 19:18, Adrian Bunk wrote:
-> The patch below removes an unused function from fs/jfs/jfs_metapage.c
->
-> --- patch removed ---
 
-I guess I had intended to call alloc_metapage when I wrote that code,
-but I never did.  This must have been my intent:
+* Paul Davis <paul@linuxaudiosystems.com> wrote:
 
-diff -urp linux.orig/fs/jfs/jfs_metapage.c linux/fs/jfs/jfs_metapage.c
---- linux.orig/fs/jfs/jfs_metapage.c	2004-10-29 08:55:16.670499440 -0500
-+++ linux/fs/jfs/jfs_metapage.c	2004-10-29 08:56:35.603499800 -0500
-@@ -289,7 +289,7 @@ again:
- 		 */
- 		mp = NULL;
- 		if (JFS_IP(inode)->fileset == AGGREGATE_I) {
--			mp =  mempool_alloc(metapage_mempool, GFP_ATOMIC);
-+			mp = alloc_metapage(1);
- 			if (!mp) {
- 				/*
- 				 * mempool is supposed to protect us from
-@@ -306,7 +306,7 @@ again:
- 			struct metapage *mp2;
- 
- 			spin_unlock(&meta_lock);
--			mp =  mempool_alloc(metapage_mempool, GFP_NOFS);
-+			mp = alloc_metapage(0);
- 			spin_lock(&meta_lock);
- 
- 			/* we dropped the meta_lock, we need to search the
+> >> 		if (poll (driver->pfd, nfds, driver->poll_timeout) < 0) {
+> >
+> >in Rui's test (9 fluidsynth instances running), what would be the value
+> >of nfds - 9 or 1? I.e. is the '9 streams' abstraction provided by jackd,
+> >and you map it to a single alsa driver fd over which you poll, or is
+> >each stream a separate fd?
+> 
+> for almost all audio interfaces, there is one fd per hardware device.
+> so whether its a 26 channel device or a simple stereo device, there is
+> one fd. jackd will be polling a single fd in that call under almost
+> all circumstances, and certainly those used in rui's testing.
 
-It seems cleaner to call alloc_metapage, since we have a corresponding
-free_metapage, but this version is less cryptic:
+great - this certainly simplifies the scenario.
 
-diff -urp linux.orig/fs/jfs/jfs_metapage.c linux/fs/jfs/jfs_metapage.c
---- linux.orig/fs/jfs/jfs_metapage.c	2004-10-29 08:55:16.670499440 -0500
-+++ linux/fs/jfs/jfs_metapage.c	2004-10-29 09:01:24.560571648 -0500
-@@ -108,9 +108,9 @@ static void init_once(void *foo, kmem_ca
- 	}
- }
- 
--static inline struct metapage *alloc_metapage(int no_wait)
-+static inline struct metapage *alloc_metapage(int gfp_mask)
- {
--	return mempool_alloc(metapage_mempool, no_wait ? GFP_ATOMIC : GFP_NOFS);
-+	return mempool_alloc(metapage_mempool, gfp_mask);
- }
- 
- static inline void free_metapage(struct metapage *mp)
-@@ -289,7 +289,7 @@ again:
- 		 */
- 		mp = NULL;
- 		if (JFS_IP(inode)->fileset == AGGREGATE_I) {
--			mp =  mempool_alloc(metapage_mempool, GFP_ATOMIC);
-+			mp = alloc_metapage(GFP_ATOMIC);
- 			if (!mp) {
- 				/*
- 				 * mempool is supposed to protect us from
-@@ -306,7 +306,7 @@ again:
- 			struct metapage *mp2;
- 
- 			spin_unlock(&meta_lock);
--			mp =  mempool_alloc(metapage_mempool, GFP_NOFS);
-+			mp = alloc_metapage(GFP_NOFS);
- 			spin_lock(&meta_lock);
- 
- 			/* we dropped the meta_lock, we need to search the
--- 
-Dave Kleikamp
-IBM Linux Technology Center
-shaggy@austin.ibm.com
-
+	Ingo

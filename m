@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262107AbSJEHYT>; Sat, 5 Oct 2002 03:24:19 -0400
+	id <S262123AbSJEHqI>; Sat, 5 Oct 2002 03:46:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262113AbSJEHYT>; Sat, 5 Oct 2002 03:24:19 -0400
-Received: from web13113.mail.yahoo.com ([216.136.174.181]:46451 "HELO
-	web13113.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262107AbSJEHYS>; Sat, 5 Oct 2002 03:24:18 -0400
-Message-ID: <20021005071621.6628.qmail@web13113.mail.yahoo.com>
-Date: Sat, 5 Oct 2002 00:16:21 -0700 (PDT)
-From: devnetfs <devnetfs@yahoo.com>
-Subject: questions regarding sending/recving udp packets in kernel
+	id <S262122AbSJEHqH>; Sat, 5 Oct 2002 03:46:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4622 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262123AbSJEHqH>; Sat, 5 Oct 2002 03:46:07 -0400
 To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: initramfs work
+Date: 5 Oct 2002 00:51:23 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <anm5lr$m58$1@cesium.transmeta.com>
+References: <200210050512.g955CSx86532@sullivan.realtime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Followup to:  <200210050512.g955CSx86532@sullivan.realtime.net>
+By author:    "Milton D. Miller II" <miltonm@realtime.net>
+In newsgroup: linux.dev.kernel
+> 
+> Al,
+>   Is there somewhere one could see what you are planning to merge?  
+> 
+> I was following the klibc dicussion list, but the archiver went slient after
+> August.
+> 
+> I like the idea in general, but I wasn't sure where this was going.   It
+> looked like the discussion there was going for replacing the do_mounts with
+> the kernel uncpio/uncompress followed by a bunch of small utilities and
+> scripts.  I had some other ideas that I played with, but depend on starting
+> with a single binary to make a lot of sense (going for the multi-call binary
+> base approach).   (This would leave the initrd file for the user space).
+> 
+> If there is some place to get a preview I would appreciate it.
+> 
 
-I am trying to write a kernel module, to send and receive udp packets. 
-I have the following questions/problems:
+The next step is to get it all merged into the kernel tree.
 
-[1] 
-I wish to receive packets asynchronously (thru a callback), rather 
-than polling [i.e calling udp_recvmsg() periodically to check for
-packtets]. 
-
-To get this done, presently after creating a socket (sock_create), I 
-replace sk->data_ready with my own function, which when called (by the
-kernel) wakes up a kernel thread that does skb_recv_datagram() to get a
-udp sk_buff.
-
-Is this the correct approach? or is there a better way to register a
-callback with the core-networking subsystem, which will get called and
-deliver the pkt, when a udp pkt arrives on an ip/port?
-
-
-[2]
-The memory allocted for the sk_buff (which i get thru
-skb_recv_datagram() is charged to the socket (i created). But I wish to
-use this sk_buff in my module (for processing etc.) so i dont call
-kfree_skb for a long time (hence the rmem_alloc does not get
-decremented). I tried to unlink the sk_buff from the socket list by
-calling skb_unlink() but that does NOT decrease 'rmem_alloc'.
-
-How do I cleanly (and truly) unlink a sk_buff from a socket list and
-decrease equivalent memory charged to this socket? I would be calling
-kfree_skb() later though which will eventually decrease rmem_alloc, but
-I wish to do it as part of skb_unlink(). Please advice.
-
-
-[3]
-My kernel module sends/recvs UDP pkts process and store these packets
-internally sk_buffs only. But udp_sendmsg() requires an iovec.
-I can construct an iovec from an sk_buff and give it to udp_sendmsg()
-but that will involve an additional COPYING from one kernel memory 
-space (sk_buff data buffer) to another new buffer (for iovec). I want 
-to avoid this xtra copying.
-
-Am I missing something? 
-And if above approach does involve extra copying is there a way to
-transmit a udp packet if one has the data in form of sk_buff (assuming
-there is head space for ether+ip+udp header)?
-
-
-Thanks in advance,
-
-Regards,
-Abhi.
-
-I am not subscribed to this list. Please Cc: me the replies. -- thanks.
-
-
-
-__________________________________________________
-Do you Yahoo!?
-Faith Hill - Exclusive Performances, Videos & More
-http://faith.yahoo.com
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263743AbTFPLXs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 07:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263749AbTFPLXs
+	id S263749AbTFPL0X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 07:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTFPL0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 07:23:48 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:28088 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263743AbTFPLXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 07:23:47 -0400
-Date: Mon, 16 Jun 2003 13:37:39 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: =?unknown-8bit?Q?J=F6rn_Engel_=3Cjoern=40wohnheim=2Efh-wedel=2Ede=3E?=@win.tue.nl,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make cramfs look less hostile
-Message-ID: <20030616113739.GC18717@wohnheim.fh-wedel.de>
-References: <20030615182642.A19479@infradead.org> <20030615173926.GH1063@wohnheim.fh-wedel.de> <20030615184417.A19712@infradead.org> <20030615175815.GI1063@wohnheim.fh-wedel.de> <20030615190349.A21931@infradead.org> <20030615181424.GJ1063@wohnheim.fh-wedel.de> <20030615191853.A22150@infradead.org> <20030615234909.A11481@pclin040.win.tue.nl> <20030616091215.GA17446@wohnheim.fh-wedel.de> <20030616112128.GA9415@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030616112128.GA9415@win.tue.nl>
-User-Agent: Mutt/1.3.28i
+	Mon, 16 Jun 2003 07:26:23 -0400
+Received: from pd135.torun.sdi.tpnet.pl ([213.76.208.135]:48318 "EHLO
+	athena.raptor.pl") by vger.kernel.org with ESMTP id S263749AbTFPL0W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 07:26:22 -0400
+Date: Mon, 16 Jun 2003 13:40:11 +0200 (CEST)
+From: Andrzej Sosnowski <raptor@lists.raptor.pl>
+X-X-Sender: raptor@athena.raptor.pl
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21 oops
+Message-ID: <Pine.LNX.4.44.0306161220200.19177-100000@athena.raptor.pl>
+X-Info: nick: raptor; www: http://raptor.pl
+X-PGP/GPG-Key: 0xB71774A2; http://raptor.pl/raptor.pgp.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: AVscanner at raptor.pl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 June 2003 13:21:28 +0200, Andries Brouwer wrote:
-> 
-> Please don't distribute misinformation.
-> If you doubt, read the mount(8) code first.
+Hi.
 
-Sorry about that.  When working from memory, my judgment of valid and
-invalid information is sometimes borked.
+Kernel makes an oops while executing the following script:
 
-Jörn
+#!/bin/sh
+for IP in `/usr/bin/seq 3 500`; do
+  ip addr add 3ffe:80ee:c1d::$IP/48 dev eth0
+  ip addr add 3ffe:80ee:c1d::a:$IP/48 dev eth0
+done
+
+Result:
+kernel BUG sched.c 564!
+(sorry for incomplete oops message)
+
+Tested on:
+  debian 2.4.21
+  debian/redhat 2.4.21-grsec 1.9.10
+  redhat 2.4.21-uv2-grsec 1.9.10
+
+This script with 2.4.20 working fine.
 
 -- 
-When you close your hand, you own nothing. When you open it up, you
-own the whole world.
--- Li Mu Bai in Tiger & Dragon
+____________________________________________________________________
+andrzej sosnowski * raptor@raptor.pl * http://raptor.pl * 0xB71774A2
+
+
+
+
+
+
+

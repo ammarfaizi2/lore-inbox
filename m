@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132908AbRDEOrj>; Thu, 5 Apr 2001 10:47:39 -0400
+	id <S132952AbRDEOqt>; Thu, 5 Apr 2001 10:46:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132951AbRDEOr3>; Thu, 5 Apr 2001 10:47:29 -0400
-Received: from ns2.cypress.com ([157.95.67.5]:40110 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S132908AbRDEOrP>;
-	Thu, 5 Apr 2001 10:47:15 -0400
-Message-ID: <3ACC8538.8B2532FC@cypress.com>
-Date: Thu, 05 Apr 2001 09:46:16 -0500
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+	id <S132951AbRDEOqk>; Thu, 5 Apr 2001 10:46:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:34571 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132908AbRDEOq1>;
+	Thu, 5 Apr 2001 10:46:27 -0400
+To: Joseph Carter <knghtbrd@debian.org>
+Cc: Bart Trojanowski <bart@jukie.net>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: asm/unistd.h
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER>
+	<Pine.LNX.4.30.0104050901500.13496-100000@localhost>
+	<20010405072628.C22001@debian.org>
+X-Yow: I want another RE-WRITE on my CAESAR SALAD!!
+From: Andreas Schwab <schwab@suse.de>
+Date: 05 Apr 2001 16:45:44 +0200
+In-Reply-To: <20010405072628.C22001@debian.org>
+Message-ID: <jevgojiew7.fsf@hawking.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.101
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Config printk buffer size
-In-Reply-To: <200104050947.LAA08111@sunrise.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz wrote:
-> 
-> IMO, it would be nice to add a test here whether the CONFIG_PRINTK_BUF_LEN
-> value is really set as a power of two, eg.:
-> 
-> #if (LOG_BUF_LEN & LOG_BUF_MASK)
-> #error CONFIG_PRINTK_BUF_LEN must be a power of two
-> #endif
+Joseph Carter <knghtbrd@debian.org> writes:
 
-I couldn't figure out how to do it in the config,
-forgot about preprocessing. But Alan wants a menu
-option instead.
+|> On Thu, Apr 05, 2001 at 09:06:20AM -0400, Bart Trojanowski wrote:
+|> > So you ask: "why not just use a { ... } to define a macro".  I don't
+|> > remember the case for this but I know it's there.  It has to do with a
+|> > complicated if/else structure where a simple {} breaks.
+|> 
+|> This doesn't follow in my mind.  I can't think of a case where a { ... }
+|> would fail, but a do { ... } while (0) would succeed.  The former would
+|> also save a few keystrokes.
 
-Anyone who uses the embedded systems want
-a different default? Let me know and I'll
-put it in the default config files.
-I'm sure a small hand held with fixed devices
-doesn't need even a 8K buffer. Just don't know
-which ones.
+Try this and watch your compiler complaining:
 
-	-Thomas
+#define foo() { }
+#define bar() do { } while (0)
+void mumble ()
+{
+        if (1) foo(); else bar();
+        if (2) bar(); else foo();
+}
+
+Andreas.
+
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

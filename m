@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261648AbSJJQIU>; Thu, 10 Oct 2002 12:08:20 -0400
+	id <S261649AbSJJQMv>; Thu, 10 Oct 2002 12:12:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261649AbSJJQIU>; Thu, 10 Oct 2002 12:08:20 -0400
-Received: from mail.hometree.net ([212.34.181.120]:49118 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S261648AbSJJQIT>; Thu, 10 Oct 2002 12:08:19 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: BK is *evil* corporate software [was Re: New BK License Problem?]
-Date: Thu, 10 Oct 2002 16:14:03 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ao490b$3nm$1@forge.intermeta.de>
-References: <20021005112552.A9032@work.bitmover.com> <20021007001137.A6352@elf.ucw.cz> <5.1.0.14.2.20021007204830.00b8b460@pop.gmx.net> <20021007143134.V14596@work.bitmover.com> <ao2ee1$l0c$1@forge.intermeta.de> <20021009165500.L27050@work.bitmover.com> <20021010080448.A17675@hq.fsmlabs.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1034266443 4263 212.34.181.4 (10 Oct 2002 16:14:03 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 10 Oct 2002 16:14:03 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S261650AbSJJQMv>; Thu, 10 Oct 2002 12:12:51 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:18696 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261649AbSJJQMu>; Thu, 10 Oct 2002 12:12:50 -0400
+Date: Thu, 10 Oct 2002 17:18:16 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: linux-2.5.41uc1 (MMU-less support)
+Message-ID: <20021010171816.A21468@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg Ungerer <gerg@snapgear.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3DA5A42F.6030001@snapgear.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DA5A42F.6030001@snapgear.com>; from gerg@snapgear.com on Fri, Oct 11, 2002 at 02:00:47AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yodaiken@fsmlabs.com writes:
+On Fri, Oct 11, 2002 at 02:00:47AM +1000, Greg Ungerer wrote:
+> Hi All,
+> 
+> An updated uClinux patch is available at:
+> 
+> http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc1.patch.gz
+> 
+> This one has the long awaited merge of the mmnommu and mm directories.
+> Went pretty smoothly really. The patches are not too bad, but there is
+> still some cleaning to do. A couple of files are still heavily #ifdef'ed
+> (like mm/mmap.c, mm/swap_state.c and mm/swapfile.c) but I think these
+> can ironed out a bit.
 
->But it is interesting that you can hire a full time "really good" 
->programmer for total cost of $50K/year. Salaries are dropping.
+Could you please merge the patches Ib sent you instead of this horrible
+ifdef mess?  and yes, page_io.o, swapfile.o and swap_state.o shouldn't
+be compiled at all for !CONFIG_SWAP dito for highmem.o, madvise.o, 
+memory.o, mincore.o, mmap.o, mprotect.o, mremap.o, msync.o, rmap.o,
+shmem.o, vmalloc.o for !CONFIG_MMU
 
-For small and medium companies (such as Siemens...), $50k (or the
-rough aequivalent of EUR 50k) are already good developers salary.
-
-The time of the "I can do Visual Basic and start at EUR 70k/year and
-expect 5% raise every year" developers are gone. Thank goodness for
-that.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

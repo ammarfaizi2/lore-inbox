@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131214AbRATTvU>; Sat, 20 Jan 2001 14:51:20 -0500
+	id <S132022AbRATTzM>; Sat, 20 Jan 2001 14:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132022AbRATTvK>; Sat, 20 Jan 2001 14:51:10 -0500
-Received: from femail2.rdc1.on.home.com ([24.2.9.89]:12535 "EHLO
-	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S131214AbRATTu5>; Sat, 20 Jan 2001 14:50:57 -0500
-Message-ID: <3A69EBF8.B35A3B80@Home.net>
-Date: Sat, 20 Jan 2001 14:50:16 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre9 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132115AbRATTzD>; Sat, 20 Jan 2001 14:55:03 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:8210 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132022AbRATTyu>; Sat, 20 Jan 2001 14:54:50 -0500
+Date: 20 Jan 2001 16:56:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.x and 2.4.1-preX - Higher latency then 2.2.x kernels?
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Message-ID: <7uDh9dHmw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.30.0101181840380.16292-100000@twinlark.arctic.org>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3A660746.543226B@cup.hp.com> <Pine.LNX.4.30.0101181840380.16292-100000@twinlark.arctic.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It it just me or does it seem that 2.4.x has some latency problems?
+dean-list-linux-kernel@arctic.org (dean gaudet)  wrote on 18.01.01 in <Pine.LNX.4.30.0101181840380.16292-100000@twinlark.arctic.org>:
 
-It just seems that since using 2.4 ive noticed my poor Pentium 200Mhz
-slow down whether being in X or otherwise. It just seems that the system
-is sluggish.
+> i'm pretty sure the actual use of pipelining is pretty disappointing.
+> the work i did in apache preceded the widespread use of HTTP/1.1 and we
 
-I am using the new ReiserFS filesystem and I do know its still in heavy
-development perhaps my latency is due to this (?)
+What widespread use of HTTP/1.1?
 
-Any suggestions?
+I justtried the following excercise:
 
-Shawn.
+Request a nonexistant page with HTTP/1.1 syntax.
 
+a. Directly from Apache: I get a nice chunked HTTP/1.1 answer.
+b. Via Squid: I get a plain HTTP/1.0 answer.
 
+As long as not even Squid talks 1.1, how can we expect browsers to do it?
+
+WebMUX? In a thousand years perhaps.
+
+MfG Kai
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

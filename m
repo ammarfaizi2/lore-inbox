@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbTKTToc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 14:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTKTToc
+	id S261957AbTKTTr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 14:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTKTTr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 14:44:32 -0500
-Received: from mail.xor.ch ([212.55.210.163]:28424 "HELO mail.xor.ch")
-	by vger.kernel.org with SMTP id S261793AbTKTTo1 (ORCPT
+	Thu, 20 Nov 2003 14:47:58 -0500
+Received: from dp.samba.org ([66.70.73.150]:1675 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261957AbTKTTr4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 14:44:27 -0500
-Message-ID: <3FBD1997.FA66A2F1@orpatec.ch>
-Date: Thu, 20 Nov 2003 20:44:22 +0100
-From: Otto Wyss <otto.wyss@orpatec.ch>
-Reply-To: otto.wyss@orpatec.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
-MIME-Version: 1.0
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: ALSA ICE1724 driver doesn't work
+	Thu, 20 Nov 2003 14:47:56 -0500
+Date: Fri, 21 Nov 2003 06:46:44 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: high res timestamps and SMP
+Message-ID: <20031120194644.GA11889@krispykreme>
+References: <3FBBF148.20203@nortelnetworks.com> <1069297341.23568.130.camel@cog.beaverton.ibm.com> <16316.38292.729957.491201@alkaid.it.uu.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <16316.38292.729957.491201@alkaid.it.uu.se>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since google shows no results and nobody in the alsa project knows an
-answer I try it here. Just say if there is a better place to ask.
 
-When alsa is started I get the following error:
+Hi,
 
-Starting ALSA (version 0.9.6): ice1724-failed failed
+> Last time I checked, all 32-bit PowerPC chips ran that clock at 1/4
+> of the bus clock speed.
 
-After shutting down X I see on the console the following message:
+It depends on the chip, on recent ppc64 boxes its 1/8 of the processor
+clock speed.
 
-ALSA ../../alsa-kernel/pci/ice1712/ice1724.c:1614: invalid EEPROM (size=120)
+> That may be adequate for time-of-day and I/O delays and such, but
+> it's worthless for timestamps or performance measurements.
 
-I guess there is something in the kernel driver wrong. How can I fix
-this? Is there a newer version?
+Can you show me the application that depends on timestamps being that
+accurate?
 
-O. Wyss
+Running the multiplier at a set fraction of the processor speed
+is a good idea I think. Go look at any large x86 box (and possibly ia64
+box) and you will find the timebases are not synced. Even our biggest
+box has the timebase synced, its easy to do when the timebase is running
+at a reasonable rate.
 
--- 
-See "http://wxguide.sourceforge.net/" for ideas how to design your app
+In a trade off between unsynced timebases and timebase running at a
+fraction of the cpu speed, ill take the latter :) (Ask the x86 guys what
+a pain unsynced timebases are)
 
-
--------------------------------------------------------
-This SF.net email is sponsored by: SF.net Giveback Program.
-Does SourceForge.net help you be more productive?  Does it
-help you create better code?  SHARE THE LOVE, and help us help
-YOU!  Click Here: http://sourceforge.net/donate/
-_______________________________________________
-Alsa-user mailing list
-Alsa-user@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/alsa-user
+Anton

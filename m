@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUG1WEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265237AbUG1WGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUG1WEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUG1WEQ
+	id S265237AbUG1WGy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265293AbUG1WGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:04:16 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:13283 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264377AbUG1WEO (ORCPT
+	Wed, 28 Jul 2004 18:06:54 -0400
+Received: from omx2-ext.SGI.COM ([192.48.171.19]:53659 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265237AbUG1WGu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:04:14 -0400
+	Wed, 28 Jul 2004 18:06:50 -0400
 From: Jesse Barnes <jbarnes@engr.sgi.com>
 To: Dave Hansen <haveblue@us.ibm.com>
 Subject: Re: [PATCH] don't pass mem_map into init functions
-Date: Wed, 28 Jul 2004 14:58:37 -0700
+Date: Wed, 28 Jul 2004 15:01:19 -0700
 User-Agent: KMail/1.6.2
 Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-mm <linux-mm@kvack.org>,
        LSE <lse-tech@lists.sourceforge.net>, Anton Blanchard <anton@samba.org>,
@@ -24,7 +24,7 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407281458.37344.jbarnes@engr.sgi.com>
+Message-Id: <200407281501.19181.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -33,6 +33,8 @@ On Wednesday, July 28, 2004 1:55 pm, Dave Hansen wrote:
 > in a bit.  I'd appreciate if one of the ia64 guys could make sure it's
 > OK for them as well.
 
-It *looks* ok.  I'll give it a whirl to make sure.
+Which tree is this against?  It doesn't apply to the bk tree or 
+linux-2.6.8-rc2-mm1.
 
+Thanks,
 Jesse

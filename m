@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135977AbRDTTx6>; Fri, 20 Apr 2001 15:53:58 -0400
+	id <S132038AbRDTTyS>; Fri, 20 Apr 2001 15:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132027AbRDTTxs>; Fri, 20 Apr 2001 15:53:48 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:58548 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S136005AbRDTTxc>; Fri, 20 Apr 2001 15:53:32 -0400
-Date: Fri, 20 Apr 2001 21:53:30 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: rwsem.o listed twice as export-objs
-Message-ID: <20010420215330.N682@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S132027AbRDTTyK>; Fri, 20 Apr 2001 15:54:10 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:19439 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132038AbRDTTxw>;
+	Fri, 20 Apr 2001 15:53:52 -0400
+Date: Fri, 20 Apr 2001 15:53:45 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Jeremy Fitzhardinge <jeremy@goop.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, autofs@linux.kernel.org
+Subject: Re: Fix for SMP deadlock in autofs4
+In-Reply-To: <Pine.LNX.4.31.0104201158290.5632-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0104201516480.21455-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
 
-please remove rwsem.o from the list of exported objects, if it is
-not used.
 
-Regards
+On Fri, 20 Apr 2001, Linus Torvalds wrote:
 
-Ingo Oeser
+> Why are we doing the mntget/dget at all? We hold the spinlock, so we know
+> they are not going away. Not doing the mntget/dget means that we (a) run
+> faster and (b) don't have the bug, because we don't need to put the damn
+> things.
+> 
+> Comments?
 
-patch is as follows
+It looks like you are right, but I wonder how the hell did that code
+happen at all. Looks like somewhere around 2.4.0-test10-pre* dcache_lock
+was moved out of is_tree_busy() and covered dget/dput. Hmm... Might be
+my fault - I don't remember doing that, but...
+ 
+Anyway, it looks like in that case we can forget about games with
+->d_count/->mnt_count. Other cases when we do "safe" dput() under
+spinlocks are done under _different_ spinlocks, so they are not
+a problem.
+ 
+Removing that will require an obvious change in is_tree_busy() (shift
+count by 1). However, the real question is WTF are we trying to 
+get in autofs4_expire() - it returns dentry without grabbing a
+reference to it. The only thing that saves us is that we have a
+ramfs-style situation (dentries are pinned until we rmdir) and
+everything up to the point where we silently forget about dentry
+is covered by BKL. Since ->rmdir() is under BKL too it's enough,
+but... Eww... 
 
---- lib/Makefile.orig   Fri Apr 20 21:51:12 2001
-+++ lib/Makefile        Fri Apr 20 21:51:19 2001
-@@ -8,7 +8,7 @@
+Jeremy, what are you really trying to do there? is_tree_busy()
+seems to be written in assumption that mnt/dentry is not a
+mountpoint but root of a subtree with something mounted on its
+leaves. And autofs4_expire() traverses the list of root's
+subdirectories, picks one that has nothing busy mounted in
+_its_ subdirectories and essentially pass the name to caller.
+Which sends that name (of first-level subdirectory) to
+userland.
 
- L_TARGET := lib.a
+Is that what you really want there? It looks very odd - why don't we pass
+the names of actual mountpoints? What's wrong with the case when foo/bar
+is busy, but foo/baz is not?
+								Al
 
--export-objs := cmdline.o rwsem.o
-+export-objs := cmdline.o
 
- obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o bust_spinlocks.o
-
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

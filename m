@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbRB1SEr>; Wed, 28 Feb 2001 13:04:47 -0500
+	id <S129134AbRB1SGV>; Wed, 28 Feb 2001 13:06:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129134AbRB1SEh>; Wed, 28 Feb 2001 13:04:37 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:19193 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129116AbRB1SEZ>; Wed, 28 Feb 2001 13:04:25 -0500
-Date: Wed, 28 Feb 2001 18:06:55 +0000 (GMT)
-From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-cc: Per Erik Stendahl <PerErik@onedial.se>,
-        "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: Unmounting and ejecting the root fs on shutdown.
-In-Reply-To: <Pine.LNX.4.32.0102280750320.24482-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.30.0102281806260.7011-100000@dax.joh.cam.ac.uk>
+	id <S129143AbRB1SF5>; Wed, 28 Feb 2001 13:05:57 -0500
+Received: from mill.gdls.com ([4.18.140.69]:61139 "EHLO mill.gdls.com")
+	by vger.kernel.org with ESMTP id <S129134AbRB1SF0>;
+	Wed, 28 Feb 2001 13:05:26 -0500
+From: "Keven Murphy" <murphyk@gdls.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.2 & PPP bad file descriptor
+Date: Wed, 28 Feb 2001 13:06:14 -0500
+Message-ID: <NEBBJIOMKDAKJOCGELHHEEGBCLAA.murphyk@gdls.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <A490B2C9C629944E85CE1F394138AF957FC3EA@bignorse.SURGIENT.COM>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Feb 2001, Mr. James W. Laferriere wrote:
+I've recompiled my kernel to 2.4.2 (even tried 2.4.1) and I am having
+problems with pppd. The error I am getting is pppd[1491]: read: bad file
+descriptor (9). Under the kernel 2.2.22-16 (or whatever came default with
+redhat 7.0) it work fine. I am using a default redhat 7.0 install.
 
->
-> 	Hello James ,  Yup that works alright .  But the difficulty
-> 	Per & I were talking about is after the system (such as
-> 	slackware's live-fs) is -shutdown- the CD drive bay is still
-> 	locked ,  One has to hard-reset (or even power off for some)
-> 	before the bay will open .  I am well aware why the bay does
-> 	not open while the live-fs has it mounted .  But am quite
-> 	baffled as to why the darn thing remains locked after system
-> 	shutdown .  Again I am quite sure I know why that is happening
-> 	as well .  The live-fs is hard read-only and the umount of the
-> 	live-fs can not complete , so the CD drive never receives an
-> 	unlock .  Sound about right ?  Twyl ,  JimL
+I have tried compiling the ppp and options as modules and another time into
+the kernel. I keep getting the same results. I have also downloaded and
+installed the latest version of modutilities after getting the error. I
+recompiled again and recieved the same error.
 
-The point is, if you mount the CD as /usr, you should then be able to
-unmount it properly on shutdown...
+If for some reason this is not the right list, please tell me where I can go
+to get help with this problem.
 
+Thank you for any help,
 
-James.
+Xavier
+xavier@greyhawk-codex.com
+
 

@@ -1,47 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129434AbQKYNye>; Sat, 25 Nov 2000 08:54:34 -0500
+        id <S129228AbQKYOAf>; Sat, 25 Nov 2000 09:00:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131173AbQKYNyZ>; Sat, 25 Nov 2000 08:54:25 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:3599 "HELO mail.ocs.com.au")
-        by vger.kernel.org with SMTP id <S129434AbQKYNyF>;
-        Sat, 25 Nov 2000 08:54:05 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: jamagallon@able.es
-cc: linux-kernel@vger.kernel.org
-Subject: Re: LKCD from SGI 
-In-Reply-To: Your message of "Sat, 25 Nov 2000 14:18:30 BST."
-             <20001125141830.C2877@werewolf.able.es> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 26 Nov 2000 00:23:57 +1100
-Message-ID: <7235.975158637@ocs3.ocs-net>
+        id <S129434AbQKYOA0>; Sat, 25 Nov 2000 09:00:26 -0500
+Received: from [192.108.102.201] ([192.108.102.201]:6589 "EHLO myrealbox.com")
+        by vger.kernel.org with ESMTP id <S129228AbQKYOAK> convert rfc822-to-8bit;
+        Sat, 25 Nov 2000 09:00:10 -0500
+From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Date: Sat, 25 Nov 2000 14:28:56 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+Subject: Re: setting up pppd dial-in on linux 
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3A1FCCA8.608.1E5DAB@localhost>
+In-Reply-To: <20001125003600.A28207@vger.timpanogas.org>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2000 14:18:30 +0100, 
-"J . A . Magallon" <jamagallon@able.es> wrote:
->On Sat, 25 Nov 2000 02:58:37 Keith Owens wrote:
->> 2.5 kernel build wish list[1] has a couple of entries for standardising
->> the install targets.  My thinking (and I know that some people disagree
->> with this) is that the standard targets of a linux compile are only
->> 
->> * vmlinux
->> * System.map
->> * modules in the kernel tree (not installed yet)
->> * any other bits and pieces that are required to compile external
->>   modules against this config.
->
->Could the default target install names int the std kernel be changed to 
->System.map -> System.map-$(KERNELRELEASE)
->vmlinuz    -> vmlinuz-$(KERNELRELEASE)
->and then symlink to that ?
 
-We could do a lot of things in the install targets.  But none of them
-are going to be done before kernel 2.5.  We are in code freeze (is this
-freeze number 4 or 5?).  Changing the install method just before a new
-kernel branch is released will not be popular with the distributors.
+   You are not alone. And the problem gets even worse when you 
+have to deal with ISDN devices. In my company´s data room we 
+have all Linux servers running 365 days a year (minus upgrade 
+time) and in one corner a lonely Windows NT Server 3.0 with 5 
+Client Access Licenses working as a RAS server for 2 Diva Server 
+BRI cards (4 analog/digital channels) plus one analog modem. 
+Time to set it up? Half an hour counting NT installation. Time i lost 
+investigating and trying different configurations, dealing with 
+contradictory documentation, chat scripts, different ipppd versions, 
+and authentication failures? 2 days. At Ieast i cant complain about 
+pppd oops, as you do, the pppd in RH6.2 seemed solid. The 
+document of reference that seemed more interesting to me at the 
+time was http://www.swcp.com/~jgentry/pers.html  , have a look 
+please.
+
+
+Regards,
+Pedro
+
+On 25 Nov 2000, at 0:36, Jeff V. Merkey wrote:
+
+> 
+> 
+> Anyone out there a whiz at setting up a pppd dialin server?  I am 
+> trying to put together an RPM for pppd dialin configurations
+> that will support default Windows NT and Linux dial in clients
+> without requiring the poor user to learn bash scripting, chat 
+> scripting, mgetty and inittab configuration, etc.  The steps
+> in setting this up are about as easy as going on a U.N. relief
+> mission to equatorial Africa, and most customers who are 
+> "mere mortals" would give up about an hour into it.
+> 
+> I am seeing massive problems with pppd dial-in and IP/IPX 
+> routing with problems that range from constant Oops, to 
+> the bug infested pppd daemon failing valid MD5 chap 
+> authentication.  The HOW-TO's and man pages provide 
+> wonderful commentary on all the things about pppd 
+> that don't work, but it's not too helpful on getting
+> it to work reliably.  An NT dial-in server takes about
+> 5 minutes to configure on W2K.  Linux takes about 2 days, and 
+> won't stay up reliably.  
+> 
+> Who out there is an expert on Linux pppd that would like
+> to help put together some easy configs for standard 
+> dial-in scenarios?
+> 
+> Thanks
+> 
+> Jeff
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263558AbTEYSs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 14:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263673AbTEYSs3
+	id S263673AbTEYSwG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 14:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbTEYSwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 14:48:29 -0400
-Received: from h80ad2667.async.vt.edu ([128.173.38.103]:912 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263558AbTEYSs2 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 14:48:28 -0400
-Message-Id: <200305251901.h4PJ1LoH022514@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ben Collins <bcollins@debian.org>,
-       Edgar Toernig <froese@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE 
-In-Reply-To: Your message of "Sun, 25 May 2003 21:05:09 +0200."
-             <20030525210509.09429aaa.l.s.r@web.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030525112150.3994df9b.l.s.r@web.de> <3ED0FC58.D1F04381@gmx.de>
-            <20030525210509.09429aaa.l.s.r@web.de>
+	Sun, 25 May 2003 14:52:06 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:55194 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263673AbTEYSwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 14:52:05 -0400
+Date: Sun, 25 May 2003 14:16:22 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Ren? Scharfe <l.s.r@web.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Edgar Toernig <froese@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
+Message-ID: <20030525181622.GD602@phunnypharm.org>
+References: <20030525112150.3994df9b.l.s.r@web.de> <3ED0FC58.D1F04381@gmx.de> <20030525210509.09429aaa.l.s.r@web.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1401674720P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 25 May 2003 15:01:20 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030525210509.09429aaa.l.s.r@web.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1401674720P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sun, May 25, 2003 at 09:05:09PM +0200, Ren? Scharfe wrote:
+> On Sun, 25 May 2003 19:24:40 +0200 Edgar Toernig <froese@gmx.de> wrote:
+> > Ren? Scharfe wrote:
+> > > +       if (bufsize == 0)
+> > > +               return 0;
+> > 
+> >                   return ret; ???
+> 
+> Yes, Samba's and the BSDs' strlcpy() deviate in that point. It's a very
+> unusual case to have a zero-sized buffer, though, so probably it doesn't
+> matter much.
+> 
+> Anyway, I corrected this. Patch below contains a "BSD-compatible" version,
+> and also a strlcat().
+> 
+> Ben, I think this one is better than your's because it's shorter and
+> already GPL'd (there's not more license than C code :). Linus?
 
-On Sun, 25 May 2003 21:05:09 +0200, =3D?ISO-8859-1?Q?Ren=3DE9?=3D Scharfe=
- said:
-
-> +size_t strlcpy(char *dest, const char *src, size_t bufsize)
+> +size_t strlcat(char *dest, const char *src, size_t bufsize)
 > +{
-> +	size_t len =3D strlen(src);
-> +	size_t ret =3D len;
+> +	size_t len1 = strlen(dest);
+> +	size_t len2 = strlen(src);
+> +	size_t ret = len1 + len2;
 > +
-> +	if (bufsize > 0)
-> +		return ret;
+> +	if (len1+len2 >= bufsize)
+> +		len2 = bufsize - (len1+1);
+> +	if (len2 > 0) {
+> +		memcpy(dest+len1, src, len2);
+> +		dest[len1+len2] = '\0';
+> +	}
+> +	return ret;
+> +}
+> +#endif
 
-Umm... Rene?  Either you or I need more caffeine, this looks b0rked to me=
-?
+Your strlcat doesn't take into consideration that a zero bufsize could
+mean that dest is not NUL-terminated, in which case strlen(dest) could
+blow up in your face. Since strlcpy can handle zero bufsize, strlcat
+should be able to handle being called just after strlcpy being called
+with zero bufsize (see my patch).
 
---==_Exmh_-1401674720P
-Content-Type: application/pgp-signature
+I personally am not concerned either way, but it is definitely worth
+noting.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+0RMAcC3lWbTT17ARAmqKAKDNlgBbOaQlK/Mw56T4Y6D3jSpoAACfSaFb
-g6k97cLtZ9Ba9fAkXHwwJNg=
-=ClDc
------END PGP SIGNATURE-----
-
---==_Exmh_-1401674720P--
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

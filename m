@@ -1,107 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVAWEYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVAWEX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVAWEYI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 23:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVAWEYH
+	id S261208AbVAWEX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 23:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVAWEX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 23:24:07 -0500
-Received: from soundwarez.org ([217.160.171.123]:4747 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261207AbVAWEXU (ORCPT
+	Sat, 22 Jan 2005 23:23:28 -0500
+Received: from waste.org ([216.27.176.166]:660 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261208AbVAWEXK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 23:23:20 -0500
-Date: Sun, 23 Jan 2005 05:23:17 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 2/7] block core: export MAJOR/MINOR to the hotplug env
-Message-ID: <20050123042317.GC9209@vrfy.org>
+	Sat, 22 Jan 2005 23:23:10 -0500
+Date: Sat, 22 Jan 2005 20:22:41 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Felipe Alfaro Solana <lkml@mac.com>
+Cc: vlobanov <vlobanov@speakeasy.net>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel@vger.kernel.org, Buck Huppmann <buchk@pobox.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       Andreas Gruenbacher <agruen@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>, Olaf Kirch <okir@suse.de>
+Subject: Re: [patch 1/13] Qsort
+Message-ID: <20050123042241.GH3867@waste.org>
+References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de> <Pine.LNX.4.58.0501221257440.1982@shell3.speakeasy.net> <FB9BAC88-6CE2-11D9-86B4-000D9352858E@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <FB9BAC88-6CE2-11D9-86B4-000D9352858E@mac.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+On Sun, Jan 23, 2005 at 03:03:32AM +0100, Felipe Alfaro Solana wrote:
+> On 22 Jan 2005, at 22:00, vlobanov wrote:
+> 
+> >Hi,
+> >
+> >I was just reading over the patch, and had a quick question/comment 
+> >upon
+> >the SWAP macro defined below. I think it's possible to do a tiny bit
+> >better (better, of course, being subjective), as follows:
+> >
+> >#define SWAP(a, b, size)			\
+> >    do {					\
+> >	register size_t __size = (size);	\
+> >	register char * __a = (a), * __b = (b);	\
+> >	do {					\
+> >	    *__a ^= *__b;			\
+> >	    *__b ^= *__a;			\
+> >	    *__a ^= *__b;			\
+> >	    __a++;				\
+> >	    __b++;				\
+> >	} while ((--__size) > 0);		\
+> >    } while (0)
+> >
+> >What do you think? :)
+> 
+> AFAIK, XOR is quite expensive on IA32 when compared to simple MOV 
+> operatings. Also, since the original patch uses 3 MOVs to perform the 
+> swapping, and your version uses 3 XOR operations, I don't see any 
+> gains.
+> 
+> Am I missing something?
 
-===== drivers/block/genhd.c 1.109 vs edited =====
---- 1.109/drivers/block/genhd.c	2005-01-14 20:21:23 +01:00
-+++ edited/drivers/block/genhd.c	2005-01-23 02:59:27 +01:00
-@@ -430,42 +430,57 @@ static int block_hotplug_filter(struct k
- static int block_hotplug(struct kset *kset, struct kobject *kobj, char **envp,
- 			 int num_envp, char *buffer, int buffer_size)
- {
--	struct device *dev = NULL;
- 	struct kobj_type *ktype = get_ktype(kobj);
-+	struct device *physdev;
-+	struct gendisk *disk;
-+	struct hd_struct *part;
- 	int length = 0;
- 	int i = 0;
- 
--	/* get physical device backing disk or partition */
- 	if (ktype == &ktype_block) {
--		struct gendisk *disk = container_of(kobj, struct gendisk, kobj);
--		dev = disk->driverfs_dev;
-+		disk = container_of(kobj, struct gendisk, kobj);
-+		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
-+				    &length, "MINOR=%u", disk->first_minor);
- 	} else if (ktype == &ktype_part) {
--		struct gendisk *disk = container_of(kobj->parent, struct gendisk, kobj);
--		dev = disk->driverfs_dev;
--	}
--
--	if (dev) {
--		/* add physical device, backing this device  */
--		char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
-+		disk = container_of(kobj->parent, struct gendisk, kobj);
-+		part = container_of(kobj, struct hd_struct, kobj);
-+		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
-+				    &length, "MINOR=%u",
-+				    disk->first_minor + part->partno);
-+	} else
-+		return 0;
-+
-+	add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size, &length,
-+			    "MAJOR=%u", disk->major);
-+
-+	/* add physical device, backing this device  */
-+	physdev = disk->driverfs_dev;
-+	if (physdev) {
-+		char *path = kobject_get_path(&physdev->kobj, GFP_KERNEL);
- 
- 		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
- 				    &length, "PHYSDEVPATH=%s", path);
- 		kfree(path);
- 
--		/* add bus name of physical device */
--		if (dev->bus)
-+		if (physdev->bus)
- 			add_hotplug_env_var(envp, num_envp, &i,
- 					    buffer, buffer_size, &length,
--					    "PHYSDEVBUS=%s", dev->bus->name);
-+					    "PHYSDEVBUS=%s",
-+					    physdev->bus->name);
- 
--		/* add driver name of physical device */
--		if (dev->driver)
-+		if (physdev->driver)
- 			add_hotplug_env_var(envp, num_envp, &i,
- 					    buffer, buffer_size, &length,
--					    "PHYSDEVDRIVER=%s", dev->driver->name);
--
--		envp[i] = NULL;
-+					    "PHYSDEVDRIVER=%s",
-+					    physdev->driver->name);
- 	}
-+
-+	/* terminate, set to next free slot, shrink available space */
-+	envp[i] = NULL;
-+	envp = &envp[i];
-+	num_envp -= i;
-+	buffer = &buffer[length];
-+	buffer_size -= length;
- 
- 	return 0;
- }
+No temporary variable needed in the xor version. mov and xor are
+roughly the same speed, but xor modifies flags.
 
+-- 
+Mathematics is the supreme nostalgia of our time.

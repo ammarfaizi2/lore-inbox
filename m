@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbUB1QvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 11:51:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUB1QvQ
+	id S261877AbUB1Qyx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 11:54:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUB1Qyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 11:51:16 -0500
-Received: from uranium.btinternet.com ([194.73.73.89]:11654 "EHLO
-	uranium.btinternet.com") by vger.kernel.org with ESMTP
-	id S261878AbUB1QvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 11:51:15 -0500
-Message-ID: <4040C710.6010908@btopenworld.com>
-Date: Sat, 28 Feb 2004 16:51:28 +0000
-From: Subodh Shrivastava <subodh@btopenworld.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+	Sat, 28 Feb 2004 11:54:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37276 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261877AbUB1Qyw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 11:54:52 -0500
+Message-ID: <4040C7CF.4020108@pobox.com>
+Date: Sat, 28 Feb 2004 11:54:39 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ben Collins <bcollins@debian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sbp2 module not initialising external hdd connected on firewire
- port.
-References: <40409D0A.8040903@btopenworld.com> <20040228144134.GC1152@phunnypharm.org>
-In-Reply-To: <20040228144134.GC1152@phunnypharm.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: de@axiros.com
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.25: Get rid of obsolete LMC driver
+References: <1077972033.24149.399.camel@sonja>
+In-Reply-To: <1077972033.24149.399.camel@sonja>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
+Daniel Egger wrote:
+> Hi Marcello,
+> 
+> This patch plus an additional
+> rm -r drivers/net/wan/lmc
+> gets rid of the obsolete LMC WAN driver and all references to it in the
+> Configure.in and Makefiles and MAINTAINERS.
+> 
+> When LMC was taken over by SBE their kernel version of the driver went
+> effectively unmaintained after Alan Cox turned down their LMC->SBE
+> rename patch. Today SBE recommends their own version of the driver only
+> which unfortunately needs different tools and also clashes with the LMC
+> driver when not compiled as module. This general recommendation from
+> their support effectively makes the in-kernel code obsete.
+> 
+> Their drivers can be retrieved from:
+> ftp://ftp.sbei.com/pub/OpenSource/Linux/sbe_driver/sbe_linux-4.0a.tgz
 
->On Sat, Feb 28, 2004 at 01:52:10PM +0000, Subodh Shrivastava wrote:
->  
->
->>Hi Ben,
->>
->>I am trying to connect my external HDD on firewire port. Linux is not 
->>recognising this disk. Same disk is recognised in windows, also its 
->>recognised in linux when connected on USB port. Attached here is my 
->>.config file, lspci output, dmesg output.
->>
->>uname -a:
->>Linux subbu 2.6.3-mm2 #9 Sat Feb 28 13:11:28 GMT 2004 i686 Intel(R) 
->>Pentium(R) M processor 1300MHz GenuineIntel GNU/Linux
->>    
->>
->
->Can you do "ls -l /sys/bus/ieee1394/devices/" ?
->
->  
->
-subbu-gentoo root # ls -l /sys/bus/ieee1394/devices/
-total 0
-lrwxrwxrwx    1 root     root           79 Feb 28 13:13 0010b92000e4f18d 
--> 
-../../../devices/pci0000:00/0000:00:1e.0/0000:02:07.0/fw-host0/0010b92000e4f18d
-lrwxrwxrwx    1 root     root           98 Feb 28 13:13 
-0010b92000e4f18d-0 -> 
-../../../devices/pci0000:00/0000:00:1e.0/0000:02:07.0/fw-host0/0010b92000e4f18d/0010b92000e4f18d-0
-lrwxrwxrwx    1 root     root           79 Feb 28 13:13 00c09f00000a5e53 
--> 
-../../../devices/pci0000:00/0000:00:1e.0/0000:02:07.0/fw-host0/00c09f00000a5e53
-lrwxrwxrwx    1 root     root           62 Feb 28 13:13 fw-host0 -> 
-../../../devices/pci0000:00/0000:00:1e.0/0000:02:07.0/fw-host0
+Alan Cox vetoed a rename patch, so you want to rip out the driver 
+instead???  For an unreviewed out-of-tree driver?
+
+Without a suitable replacement, I don't give a shit about what SBE 
+recommends.
+
+Veto.
+
+	Jeff
+
+
+

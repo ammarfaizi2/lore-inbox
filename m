@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTEENcw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 09:32:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbTEENcw
+	id S262206AbTEENiF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 09:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbTEENiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 09:32:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59065 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262202AbTEENcr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 09:32:47 -0400
-Date: Mon, 5 May 2003 14:45:16 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+	Mon, 5 May 2003 09:38:05 -0400
+Received: from elin.scali.no ([62.70.89.10]:53381 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id S262206AbTEENiD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 09:38:03 -0400
 Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030505134516.GB10374@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.SGI.4.10.10305051745290.8200163-100000@Sky.inp.nsk.su>
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, D.A.Fedorov@inp.nsk.su,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20030505144353.B23483@infradead.org>
+References: <1052122784.2821.4.camel@pc-16.office.scali.no>
+	 <20030505092324.A13336@infradead.org>
+	 <1052127216.2821.51.camel@pc-16.office.scali.no>
+	 <20030505112531.B16914@infradead.org>
+	 <1052133798.2821.122.camel@pc-16.office.scali.no>
+	 <20030505135211.A21658@infradead.org>
+	 <1052142082.2821.169.camel@pc-16.office.scali.no>
+	 <20030505144353.B23483@infradead.org>
+Content-Type: text/plain
+Organization: Scali AS
+Message-Id: <1052142626.2821.173.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SGI.4.10.10305051745290.8200163-100000@Sky.inp.nsk.su>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 05 May 2003 15:50:26 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 08:30:38PM +0700, Dmitry A. Fedorov wrote:
-> I use the following calls:
-> 
-> sys_mknod
-> sys_chown
-> sys_umask
-> sys_unlink
-> 
-> for creating/deleting /dev entries dynamically on driver
-> loading/unloading. It allows me to acquire dynamic major
-> number without devfs and external utility of any kind.
-> And there is no risk of intersection with statically assigned major
-> numbers, as it is for many others third-party sources.
+OK
 
-*yuck*
+My warp'ed insane problem aside, Let me ask this:
 
-Do that from modprobe.  "No external utility" is not a virtue, especially
-when said utility is a trivial shell script.
+
+"Do you acknowledge a legitimate need to have syscall hooks?"
+
+
+
+-- 
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

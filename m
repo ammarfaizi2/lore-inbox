@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbTIYTFH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 15:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTIYTFH
+	id S261607AbTIYT0t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 15:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTIYT0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 15:05:07 -0400
-Received: from 64.221.211.208.ptr.us.xo.net ([64.221.211.208]:14217 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S261955AbTIYTFD
+	Thu, 25 Sep 2003 15:26:49 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:55199 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S261607AbTIYT0s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 15:05:03 -0400
-Subject: Re: 2.6.0-test broke RPM 4.2 on Red Hat 9 in a VERY weird way
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Bradley Chapman <kakadu_croc@yahoo.com>
-Cc: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030925171025.98557.qmail@web40911.mail.yahoo.com>
-References: <20030925171025.98557.qmail@web40911.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1064516701.7624.89.camel@serpentine.internal.keyresearch.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 25 Sep 2003 12:05:01 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Sep 2003 15:26:48 -0400
+Date: Fri, 26 Sep 2003 07:27:09 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Announce/Thanks: Nigel Cunningham to work full-time on Swsusp for	a
+ while.
+To: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Jerritt Collord <collord@linuxfund.org>
+Message-id: <1064518028.3213.18.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-25 at 10:10, Bradley Chapman wrote:
+Hi all.
 
-> I tried it the first way and I got the same error. I've already upgraded my glibc;
-> do I need to reboot to 2.4.22-ac2 and upgrade some other system component, like
-> ld.so?
+This is to announce that LinuxFund.org (http://www.linuxfind.org) have
+kindly agreed to support me while I work on Software Suspend full time
+for a while, beginning 1 October.
 
-You need to install the latest version of RPM.  You can get it from
-rpm.org.
+This development should lead to a faster completion of the 2.4 version,
+and a faster release of the port to 2.6. Lord willing, a test version of
+Software Suspend for the 2.6 kernel that has all the features of the 2.4
+version will be available within a couple of weeks.
 
-	<b
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+You see, at just the right time, when we were still powerless,
+Christ died for the ungodly.
+	-- Romans 5:6, NIV.
 

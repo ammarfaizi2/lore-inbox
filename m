@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbTLQRy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 12:54:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbTLQRy4
+	id S264490AbTLQSHl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 13:07:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTLQSHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 12:54:56 -0500
-Received: from sow.visionpro.com ([63.91.95.5]:19464 "EHLO sow.visionpro.com")
-	by vger.kernel.org with ESMTP id S264505AbTLQRyx (ORCPT
+	Wed, 17 Dec 2003 13:07:41 -0500
+Received: from mail.kroah.org ([65.200.24.183]:16260 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264490AbTLQSHk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 12:54:53 -0500
-Message-ID: <F8E34394F337C74EA249580DEE7C240C28C3D1@chicken.machinevisionproducts.com>
-From: "Brian D. McGrew" <brian@visionpro.com>
-To: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: 
-Date: Wed, 17 Dec 2003 09:50:34 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 17 Dec 2003 13:07:40 -0500
+Date: Wed, 17 Dec 2003 10:07:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@gentoo.org>, dsteklof@us.ibm.com,
+       patmans@us.ibm.com
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: scsi_id segfault with udev-009
+Message-ID: <20031217180729.GB6487@kroah.com>
+References: <1071682198.5067.17.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1071682198.5067.17.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning,
+On Wed, Dec 17, 2003 at 07:29:58PM +0200, Martin Schlemmer wrote:
+> Hi
+> 
+> Getting this with scsi_id and udev-009:
+> 
+> --
+> Starting program:
+> /space/var/tmp/portage/udev-009/work/udev-009/extras/scsi_id/scsi_id -p
+> 0x80 -s /block/sdb
+>  
+> Program received signal SIGSEGV, Segmentation fault.
+> 0x080499c5 in sysfs_get_attr (dev=0x80d2d68, attr=0x80b559c "dev") at
+> scsi_id.h:45
+> 45              return
+> sysfs_get_value_from_attributes(dev->directory->attributes,
+> (gdb) k
+> Kill the program being debugged? (y or n) y
 
-I'm hoping that someone can help me out here just a bit.  I somehow need to
-accomplish two tasks that I'm sure are somewhat trivial yet just out my
-conceptual grasp!
+Yeah, I bet this is due to the libsysfs change that is now in udev.  If
+I get a chance, I'll look into it.  Unless Pat or Dan beats me to it...
 
-I'm trying to get the scheduling figured out so that I can get/set the
-priority and schedule of pthreads.  The below excerpt is the code I use.
-Now, on Solaris (which is where I've been for years) it of course works
-fine.  However, being new to Linux, I couldn't make it work and therefore
-had to come up with a work around.  It seems the on Linux the scheduler is
-just ignoring my parameters and options.  My code looks like:
+thanks,
 
-#ifdef LINUX
-    struct sched_param grabber_sched_param = { SCHED_RR };
-    struct sched_param examine_sched_param = { 0 };
-#else
-    struct sched_param grabber_sched_param = { SCHED_RR, 0, 0 };
-    struct sched_param examine_sched_param = { 0, 0, 0 };
-#endif
-
-As I said, on Solaris (sparc) this works just fine by on Linux, when we
-call:
-
-pthread_setschedparam(_grabber_id, policy, &grabber_sched_param);
-
-It seems like nothing happens and everything is ignored.  Any ideas?
-
-Also, on a (maybe) separate note, how do I go about increasing the system
-stack size.  We have several programs that 'chain' together and right now on
-Linux this isn't working becuase we're running out of stack space.  Again,
-works fine on Solaris.  
-
-Can someone sched some light on this for me?
-
-Thanks so much in advance,
-
--brian
-
-Brian D. McGrew {brian@visionpro.com || brian@doubledimension.com }
---
-> My job is so secret ... I don't know what I do!
-
+greg k-h

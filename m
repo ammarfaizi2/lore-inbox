@@ -1,94 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUJLOXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUJLOYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUJLOXh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJLOXg
+	id S264530AbUJLOYV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJLOXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:23:36 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:35010 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S264246AbUJLOX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:23:27 -0400
-Date: Tue, 12 Oct 2004 16:24:17 +0200
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Andrew Morton <akpm@osdl.org>
+	Tue, 12 Oct 2004 10:23:45 -0400
+Received: from dyn3.mc.tuwien.ac.at ([128.130.175.85]:44421 "EHLO
+	mail.13thfloor.at") by vger.kernel.org with ESMTP id S264098AbUJLOXa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:23:30 -0400
+Date: Tue, 12 Oct 2004 16:29:16 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: secure computing for 2.6.7
-Message-ID: <20041012142417.GD17372@dualathlon.random>
-References: <20040704173903.GE7281@dualathlon.random> <20040704143526.62d00790.akpm@osdl.org>
+Subject: Re: lock issues
+Message-ID: <20041012142916.GA8513@DUMA.13thfloor.at>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
+References: <20041011225700.GD32228@DUMA.13thfloor.at> <1097539708.5432.64.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040704143526.62d00790.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1097539708.5432.64.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 04, 2004 at 02:35:26PM -0700, Andrew Morton wrote:
-> Of course, yes, the patch is sufficiently safe and simple for it to be
-> mergeable in 2.6, if this is the way we want to do secure computing.  I'd
-> wonder whether the API should be syscall-based rather than /proc-based, and
-> whether there should be a config option for it.
+On Tue, Oct 12, 2004 at 02:08:28AM +0200, Trond Myklebust wrote:
+> På ty , 12/10/2004 klokka 00:57, skreiv Herbert Poetzl:
+> > Hi Trond!
+> > 
+> > experiencing the following panic on a linux-vserver
+> > kernel (2.6.9-rc4, no modifications to locking)
+> 
+> Which filesystem? Is this NFS or CIFS (which both have an f_op->lock()
+> routine)?
 
-here a new patch, possibly candidate for merging in 2.6.10pre?
+NFS v3  options should be rw,intr,tcp,nfsvers=3
+(not 100% sure)
 
-	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.9-rc4/seccomp
+> > it's the locks_free_lock(file_lock); at the end of 
+> > fcntl_setlk64() and I'm asking myself if something
+> > like in sys_flock()
+> > 
+> >         if (list_empty(&lock->fl_link)) {
+> >                 locks_free_lock(lock);
+> >         }
+> > 
+> > would help here or just paper over the real issue?
+> 
+> Actually, the sys_flock() thing looks a lot more iffy to me: why should
+> list_empty(lock->fl_link) mean that you are responsible for freeing that
+> lock? Couldn't a sibling or child thread have released it from
+> underneath you?
 
-I added the config option, mostly to be sure archs will show the seccomp
-file only if they really support the feature interally.
+btw, once the following messages where observed
+right before the panic()
 
-For my purpose seccomp is the most robust and secure API I could desire.
-Adding genericity isn't the object, the object is to keep it simple and
-obviously safe and as hard as possible to break.  I plan to eventually
-go a bit more complex (and in turn a bit less secure from the point of
-view of the seller) with xen-like trusted computing later once there
-will be enough hardware in the market to make it worthwhile. As for the
-syscall vs /proc, it's not performance critical, and I find this more
-usable (plus currently I'm firing it on with python and excuting a new
-syscalls with python isn't as quick as a file('/proc/' + pid +
-'/seccomp', 'w').write('1').
+nlmclnt_lock: VFS is out of sync with lock manager!
+nlmclnt_lock: VFS is out of sync with lock manager!
+nlmclnt_lock: VFS is out of sync with lock manager!
 
-Also note, I don't mind if the seccomp file could be removed from /proc
-eventually, as far as I have the guarantee that when it's in there it
-implements the feature. Ideally the seccomp.c file should be pretty much
-fixed in stone and not subject to any further kernel development.
+but that was jsut in one case of many ...
 
-To receive the data asynchronously SIGIO can be set by the
-seccomp-loader, or it can simply retry some read syscall from the socket
-once every couple of seconds if the buffer isn't already full (socket
-can be set in nonblocking mode).  That's all userspace stuff that
-belongs to the seccomp loader. On the kernel side I will make it with
-only read/write/exit/sigreturn.  Even once trusted computing will be
-enabled I will only allow those few operations to communicate with the
-untrusted world. So the model is going to stay and this also means
-ideally no bytecode would require modification to run in trusted
-computing mode by just creating a proper trusted-seccomp-loader (we'll
-see if this is really true, I think it's at least theoretically
-feasible, but it's not a short term matter).
+> Anyhow, that would indeed be papering over an issue in the posix lock
+> case. 
 
-It's a pain to program inside the seccomp mode for the programmer, but
-the power he/she will get if he does I believe could make it worthwhile
-and the whole thing worth a quick try.
+thought so .. but why the check for sys_flock() ?
+(disclaimer: don't know the locking code)
 
-Another reason for merging this is that projects like BOINC should start
-using seccomp too. They write in their webpage "Accidental abuse of
-participant hosts by projects: BOINC does nothing to prevent this. The
-chances of it happening can be minimized by pre-released application
-testing. Projects should test their applications thoroughly on all
-platforms and with all input data scenarios before promoting them to
-production status.".  seccomp will fix it completely, which means the
-userbase could increase significantly too, beacuse the seller will not
-have to trust the buyer not to have bugs.
+> By the time we get to the end of fcntl_setlk64(), the file_lock
+> should not be on any lists. If it got added to somebody else's block
+> list, it should either have been unblocked when the region was freed, or
+> in case of a signal, we remove it from the block list manually. Unlike
+> the flock case, file_lock itself never gets added to the active list.
 
-Relaying on seccomp not to break (like I'm doing) is no different from
-relaying on the netfilter code not to break and it's no different from
-relaying on the openssh code not to break, and again no different from
-relaying on the IPSEC code not to break. Except this is an order of
-magnitude simpler to guarantee as obviously safe since much less kernel
-code is involved in these secure paths. Plus this is a lot more secure
-too since if something breaks I will force an upgrade immediatly on
-every single client connected and I'll notify via email as well anybody
-who could have been affeected, something not enforceable on firewall
-kernel code for example on a random computer on the internet.
+best,
+Herbert
+
+> Cheers,
+>   Trond

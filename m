@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315606AbSFERRU>; Wed, 5 Jun 2002 13:17:20 -0400
+	id <S315616AbSFERSa>; Wed, 5 Jun 2002 13:18:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315607AbSFERRT>; Wed, 5 Jun 2002 13:17:19 -0400
-Received: from ns.suse.de ([213.95.15.193]:35852 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315606AbSFERRS>;
-	Wed, 5 Jun 2002 13:17:18 -0400
-Date: Wed, 5 Jun 2002 19:17:19 +0200
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.20 i2c uses nonexistent linux/i2c-old.h
-Message-ID: <20020605191719.H11945@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20279.1023240470@kao2.melbourne.sgi.com> <1023298545.2442.16.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S315619AbSFERS3>; Wed, 5 Jun 2002 13:18:29 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:15777 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S315616AbSFERS1>; Wed, 5 Jun 2002 13:18:27 -0400
+Message-ID: <3CFE47D1.A4A3D0B4@nortelnetworks.com>
+Date: Wed, 05 Jun 2002 13:18:09 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: packets being dropped in IP stack but no error counts incrementing?
+In-Reply-To: <3CFD01F8.B69152E4@nortelnetworks.com> <3CFD9B9C.1050906@candelatech.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 06:35:45PM +0100, Alan Cox wrote:
- > > drivers/media/video/i2c-old.c:#include <linux/i2c-old.h>
- > > drivers/media/video/saa7110.c:#include <linux/i2c-old.h>
- > > drivers/media/video/saa7111.c:#include <linux/i2c-old.h>
- > > drivers/media/video/saa7185.c:#include <linux/i2c-old.h>
- > > drivers/media/video/zr36067.c:#include <linux/i2c-old.h>
- > > drivers/media/video/zr36120.h:#include <linux/i2c-old.h>
- > > 
- > > There is no file called i2c-old.h in 2.5.20.  These only build because
- > > they pick up i2c-old.h from /usr/include/linux :(.
- > 
- > i2c-old was back compatibility for obsolete code from 2.2 into 2.4. Its
- > dead its gone, and now folks need to go fix the drivers
+Ben Greear wrote:
+> 
+> I am not sure the UDP drop counters are available.  If you do
+> find them, I'm interested in them too!
 
-Which makes me wonder why it compiled for Keith.
-Why is kbuild2.5 expanding <linux/foo.h> to /usr/include/linux/foo.h ?
-If $sourcetree/include/linux/foo.h doesn't exist, it should stop
-compiling, not look in /usr/include/ for a (obsolete/wrong) alternative.
+Well, I've found an entry in /proc that has some information.  The entry is:
 
-        Dave.
+/proc/net/softnet_stat
+
+
+The first two columns are:
+
+total
+dropped
+
+
+In this case, dropped is the number of messages dropped due to the softnet_data
+queue being full.  I have actually hit this under high load.
+
+I'm still looking for socket/protocol specific stuff though.
+
+Chris
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,76 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265094AbUETMUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbUETM0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265094AbUETMUj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 08:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUETMUj
+	id S265048AbUETM0M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 08:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265050AbUETM0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 08:20:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37338 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265094AbUETMUh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 08:20:37 -0400
-Date: Thu, 20 May 2004 09:21:32 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Cc: linux-kernel@vger.kernel.org, Carson Gaspar <carson@taltos.org>,
-       Marco Fais <marco.fais@abbeynet.it>
-Subject: Re: kernel BUG at page_alloc.c:98 -- compiling with distcc
-Message-ID: <20040520122131.GB18718@logos.cnet>
-References: <406D3E8F.20902@abbeynet.it> <20040505183558.GB1350@logos.cnet> <20040519115950.GE12419@logos.cnet> <200405191750.10090@WOLK>
-Mime-Version: 1.0
+	Thu, 20 May 2004 08:26:12 -0400
+Received: from ozlabs.org ([203.10.76.45]:20373 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265048AbUETMZ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 08:25:57 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405191750.10090@WOLK>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16556.41970.241616.7431@cargo.ozlabs.ibm.com>
+Date: Thu, 20 May 2004 22:26:26 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, anton@samba.org
+Subject: [PATCH][PPC64] Make enter_rtas() take unsigned long arg
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 19, 2004 at 05:50:10PM +0200, Marc-Christian Petersen wrote:
-> On Wednesday 19 May 2004 13:59, Marcelo Tosatti wrote:
-> 
-> Hi Marcelo, Carson ...
-> 
-> > > > >>[1.] Kernel panic while using distcc
-> > > > >>[2.] I have 5-6 development linux systems that we use without problem
-> > > > >>under a normal development workload. Trying distcc for speeding up
-> > > > >>compilation, we have a fully reproducible kernel panic in a very
-> > > > >> short time (seconds after compilation start). The kernel panic
-> > > > >> happens *only* when the systems are "remotely controlled" (the
-> > > > >> distcc daemon is receiving source files from remote systems, compile
-> > > > >> and send back compiled objects). When compiling with distcc the
-> > > > >> local system doesn't show any kernel panic, while the same system
-> > > > >> used as a "remote compiler system" dies very quickly.
-> > > > >>[3.] Keywords: distcc BUG page_alloc.c
-> 
-> > So did Andrea's fix work for you? :)
-> 
-> sorry if I did not follow this thread from the beginning, but why is distcc 
-> causing a BUG() in page_alloc.c? I use distcc since I don't know when and 
-> never had any BUG() in page_alloc with distcc, nor the specific bug at :98.
-> 
-> I have 7 machines in my distcc farm, and all are "remote controlled".
-> 
-> Could someone please clarify me? Thank you.
+We declare enter_rtas with a struct rtas_args * argument, though it
+is supposed to be a physical address, and then every time we call it
+we cast the unsigned long result from __pa() to a void *.  This patch
+changes the declaration of enter_rtas to make it take an unsigned long
+argument, and removes the cast from all the callers.  The actual
+enter_rtas() routine is in assembler and doesn't need to be changed.
 
-We try to free a page which has been sent over the network 
-in IRQ context, because with sendfile() its possible that such IRQ context 
-reference is the last one on the page.
+Please apply.
 
-Quoting David Miller:
+Thanks,
+Paul.
 
-When vmscan.c shrinks a cache, it never tosses a page which is LRU if
-the page count is not 1 (after trying to toss attached buffers if any).
-                                                                                                                                                                                   
-I think LRU used to contribute a page count, which prevented this problem,
-or something like that.
-                                                                                                                                                                                   
-In fact it seems trivial to trigger the bug in question:
-                                                                                                                                                                                   
-1) open file
-2) sendfile() it over a socket
-3) quickly close the file, no existing user references, only the
-   sendfile() packet references remain to the page
-                                                                                                                                                                                   
-When the TCP packet gets ACK'd, we explode in __free_pages_ok() as per
-the report.
-
+diff -urN linux-2.5/arch/ppc64/kernel/rtas.c ppc64-2.5-pseries/arch/ppc64/kernel/rtas.c
+--- linux-2.5/arch/ppc64/kernel/rtas.c	2004-05-20 08:06:38.000000000 +1000
++++ ppc64-2.5-pseries/arch/ppc64/kernel/rtas.c	2004-05-20 15:06:23.000000000 +1000
+@@ -79,7 +79,7 @@
+ 	args->rets  = (rtas_arg_t *)&(args->args[1]);
+ 	args->args[0] = (int)c;
+ 
+-	enter_rtas((void *)__pa((unsigned long)args));	
++	enter_rtas(__pa(args));
+ 
+ 	spin_unlock_irqrestore(&rtas.lock, s);
+ }
+@@ -115,9 +115,9 @@
+ 	get_paca()->xRtas = err_args;
+ 
+ 	PPCDBG(PPCDBG_RTAS, "\tentering rtas with 0x%lx\n",
+-	       (void *)__pa((unsigned long)&err_args));
+-	enter_rtas((void *)__pa((unsigned long)&get_paca()->xRtas));
+-	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");	
++	       __pa(&err_args));
++	enter_rtas(__pa(&get_paca()->xRtas));
++	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");
+ 
+ 	err_args = get_paca()->xRtas;
+ 	get_paca()->xRtas = temp_args;
+@@ -174,8 +174,8 @@
+ 		rtas_args->rets[i] = 0;
+ 
+ 	PPCDBG(PPCDBG_RTAS, "\tentering rtas with 0x%lx\n",
+-		(void *)__pa((unsigned long)rtas_args));
+-	enter_rtas((void *)__pa((unsigned long)rtas_args));
++		__pa(rtas_args));
++	enter_rtas(__pa(rtas_args));
+ 	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");
+ 
+ 	if (rtas_args->rets[0] == -1)
+@@ -480,7 +480,7 @@
+ 	spin_lock_irqsave(&rtas.lock, flags);
+ 
+ 	get_paca()->xRtas = args;
+-	enter_rtas((void *)__pa((unsigned long)&get_paca()->xRtas));
++	enter_rtas(__pa(&get_paca()->xRtas));
+ 	args = get_paca()->xRtas;
+ 
+ 	spin_unlock_irqrestore(&rtas.lock, flags);
+@@ -515,7 +515,7 @@
+ 
+ 	printk("%u %u Ready to die...\n",
+ 	       smp_processor_id(), hard_smp_processor_id());
+-	enter_rtas((void *)__pa(rtas_args));
++	enter_rtas(__pa(rtas_args));
+ 
+ 	panic("Alas, I survived.\n");
+ }
+diff -urN linux-2.5/include/asm-ppc64/rtas.h ppc64-2.5-pseries/include/asm-ppc64/rtas.h
+--- linux-2.5/include/asm-ppc64/rtas.h	2004-04-13 09:25:10.000000000 +1000
++++ ppc64-2.5-pseries/include/asm-ppc64/rtas.h	2004-04-24 10:41:12.000000000 +1000
+@@ -166,7 +166,7 @@
+ 
+ extern struct rtas_t rtas;
+ 
+-extern void enter_rtas(struct rtas_args *);
++extern void enter_rtas(unsigned long);
+ extern int rtas_token(const char *service);
+ extern long rtas_call(int token, int, int, unsigned long *, ...);
+ extern void call_rtas_display_status(char);

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318611AbSGSRLo>; Fri, 19 Jul 2002 13:11:44 -0400
+	id <S316900AbSGSRPB>; Fri, 19 Jul 2002 13:15:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318612AbSGSRLo>; Fri, 19 Jul 2002 13:11:44 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:46602 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S318611AbSGSRLn>; Fri, 19 Jul 2002 13:11:43 -0400
-Date: Fri, 19 Jul 2002 19:14:45 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch* 1/3] remove 287 unneeded #includes of sched.h (fwd)
-Message-ID: <Pine.LNX.4.33.0207191905470.23868-100000@gans.physik3.uni-rostock.de>
+	id <S316903AbSGSRPB>; Fri, 19 Jul 2002 13:15:01 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:37542 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S316900AbSGSRPA>;
+	Fri, 19 Jul 2002 13:15:00 -0400
+Date: Sat, 20 Jul 2002 19:16:59 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Erich Focht <efocht@ess.nec.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ia64 <linux-ia64@linuxia64.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH]: scheduler complex macros fixes
+In-Reply-To: <200207191911.48427.efocht@ess.nec.de>
+Message-ID: <Pine.LNX.4.44.0207201913400.17697-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes 287 occurences of '#include <linux/sched.h>', where 
-none of the definitions is actually referenced. In some cases #includes
-of files previously pulled in by sched.h are reintroduced to satisfy 
-indirect dependencies.
 
-Since some files depend on sched.h being included indirectly anyways,
-two more patches are required to make the kernel compile again. 
+On Fri, 19 Jul 2002, Erich Focht wrote:
 
-Tim
+> Thanks. But as long as SCHED_BATCH ins't in 2.5.X, we need this separate
+> fix. And if it's in the main tree, you don't need it additionally in
+> your patches. The fix is O(1) specific and I thought it should not hide
+> inside the SCHED_BATCH patches, some people might encounter these
+> problems...
 
+well, SCHED_BATCH is in fact ready, so we might as well put it in. All the
+suggestions mentioned on lkml (or in private) are now included, there are
+no pending (known) problems, no objections, and a number of people are
+using it with success.
 
-The actual patch can be found here:
-Part 1/3:
-  http://www.physik3.uni-rostock.de/tim/kernel/2.5/sched.h-10a.patch.gz
-Part 2/3:
-  http://www.physik3.uni-rostock.de/tim/kernel/2.5/sched.h-10b.patch.gz
-Part 3/3:
-  http://www.physik3.uni-rostock.de/tim/kernel/2.5/task_struct.h-06.patch
-    
+	Ingo
 

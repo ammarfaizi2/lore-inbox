@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271890AbRIDQGC>; Tue, 4 Sep 2001 12:06:02 -0400
+	id <S269796AbRIDQJm>; Tue, 4 Sep 2001 12:09:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271982AbRIDQFx>; Tue, 4 Sep 2001 12:05:53 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:49426 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271890AbRIDQFh>; Tue, 4 Sep 2001 12:05:37 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Martin =?iso-8859-1?q?MOKREJ=3F=20?= <mmokrejs@natur.cuni.cz>,
+	id <S271982AbRIDQJc>; Tue, 4 Sep 2001 12:09:32 -0400
+Received: from otter.mbay.net ([206.40.79.2]:29456 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S269796AbRIDQJS>;
+	Tue, 4 Sep 2001 12:09:18 -0400
+Date: Tue, 4 Sep 2001 09:09:08 -0700 (PDT)
+From: John Alvord <jalvo@mbay.net>
+To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+cc: Jeff Mahoney <jeffm@suse.com>, Andi Kleen <ak@suse.de>,
         linux-kernel@vger.kernel.org
-Subject: Re: __alloc_pages: 0-order allocation failed.
-Date: Tue, 4 Sep 2001 18:12:40 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.OSF.4.21.0109041500460.8354-100000@prfdec.natur.cuni.cz>
-In-Reply-To: <Pine.OSF.4.21.0109041500460.8354-100000@prfdec.natur.cuni.cz>
+Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs
+ on parisc architecture
+In-Reply-To: <OF263FB8E3.75D4DAB3-ONC1256ABD.004F349C@de.ibm.com>
+Message-ID: <Pine.LNX.4.20.0109040907260.25139-100000@otter.mbay.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010904160546Z16284-32383+3441@humbolt.nl.linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 4, 2001 03:11 pm, Martin MOKREJ? wrote:
-> Hi,
->   I'm getting the above error on 2.4.9 kernel with kernel HIGHMEM option
-> enabled to 2GB, 2x Intel PentiumIII. The machine has 1GB RAM
-> physically. Althougj I've found many report to linux-kernel list during
-> past months, not a real solution. Maybe only:
-> http://www.alsa-project.org/archive/alsa-devel/msg08629.html
+On Tue, 4 Sep 2001, Ulrich Weigand wrote:
 
-Try 2.4.10-pre4.
+> 
+> Jeff Mahoney wrote:
+> 
+> >    Are the S/390 asm/unaligned.h versions broken, or is the ReiserFS code
+> doing
+> >    something not planned for? It's a 16-bit member, at a 16-bit alignment
+> >    in the structure.  The structure itself need not be aligned in any
+> >    particular manner as it is read directly from disk, and is a packed
+> structure.
+> 
+> The S/390 unaligned.h macros are just direct assignments because the
+> S/390 hardware normally *allows* unaligned accesses just fine.
+> 
+> It is only *atomic* accesses (those implemented using the S/390
+> compare-and-swap instruction) that need to be word aligned; this includes
+> the atomic bit operations that reiserfs appears to be using.
 
->   I hope it's not related to memory chunks allocated twice,
+Aren't their some other "must align" instructions like CVB? Or have they
+all been relaxed...
 
-It's not
+john
 
-> so I think it's another problem in 2.4.9, right?
-
-Yep.  Most probably bounce buffers, patch by Marcelo already in Linus's
-tree.
-
---
-Daniel

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262689AbRFBU0V>; Sat, 2 Jun 2001 16:26:21 -0400
+	id <S262692AbRFBU3v>; Sat, 2 Jun 2001 16:29:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbRFBU0L>; Sat, 2 Jun 2001 16:26:11 -0400
-Received: from host213-123-127-165.btopenworld.com ([213.123.127.165]:51724
-	"EHLO argo.dyndns.org") by vger.kernel.org with ESMTP
-	id <S262689AbRFBU0B>; Sat, 2 Jun 2001 16:26:01 -0400
-X-test: X
-To: John Cavan <johnc@damncats.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-From: lk@mailandnews.com
-Subject: Re: CUV4X-D lockup on boot
-In-Reply-To: <E156E44-0001sS-00@the-village.bc.nu> <3B193BE0.4B15ACEC@damncats.org>
-Date: 02 Jun 2001 21:25:58 +0100
-In-Reply-To: John Cavan's message of "Sat, 02 Jun 2001 15:17:52 -0400"
-Message-ID: <m3snhipr1l.fsf@fork.man2.dom>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S262694AbRFBU3l>; Sat, 2 Jun 2001 16:29:41 -0400
+Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:38629
+	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
+	with SMTP id <S262692AbRFBU33>; Sat, 2 Jun 2001 16:29:29 -0400
+Date: Sat, 2 Jun 2001 22:29:21 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: <bunk@mimas.fachschaften.tu-muenchen.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Inconsistent "#ifdef __KERNEL__" on different architectures
+In-Reply-To: <20010530003001.A2864@bacchus.dhis.org>
+Message-ID: <Pine.NEB.4.33.0106022224480.6994-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Cavan <johnc@damncats.org> writes:
+On Wed, 30 May 2001, Ralf Baechle wrote:
 
-> Alan Cox wrote:
-> > At minimum you need the 1007 bios and to run noapic. As yet we don't know why
-> > or what the newer BIOS has done to make it boot at all
-> 
-> Actually, I'm running this board with MPS 1.1, BIOS version 1007, and
-> APIC enabled without problem. Current kernel is 2.4.5-ac5, no lockups,
-> no boot failures, full access to my USB, etc.
-> 
-> With the older BIOS revision, you definitely need to have "noapic" as an
-> option. For the latest BIOS, just ensure that you set MPS 1.4 support
-> off.
+> > This is no good.  The ARM kernel just doesn't provide any atomic primitives
+> > that will work in user space.  If you want atomicity you have to use
+> > libpthread.
+>
+> Similar on some MIPS processors where the kernel has to implement atomic
+> operations because there is no practical possibility to implement them
+> in userspace.
 
-Indeed, disabling MPS 1.4 does appear to solve the problem. Incidentally,
-I also had to enable legacy USB support always (instead of Auto) to
-allow my usb camera to work whilst in SMP mode. Is MPS 1.4 worth
-having and the problem worth solving, or should I stick with this?
+Thanks for the answer, this means:
+It is specific to the arm, mips, mips64 and sparc ports that atomic_read,
+atomic_inc and atomic_dec won't work in user space and they do work on all
+other architectures.
 
-Paul
+(my main concern wasn't whether the "#ifdef __KERNEL__" is correct or not
+but I was wondering whether there's a reason why it's different on
+different architectures)
+
+>   Ralf
+
+cu
+Adrian
+
+-- 
+A "No" uttered from deepest conviction is better and greater than a
+"Yes" merely uttered to please, or what is worse, to avoid trouble.
+                -- Mahatma Ghandi
+
+

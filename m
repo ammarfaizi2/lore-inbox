@@ -1,92 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130518AbRCDV2H>; Sun, 4 Mar 2001 16:28:07 -0500
+	id <S130523AbRCDVdH>; Sun, 4 Mar 2001 16:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130519AbRCDV15>; Sun, 4 Mar 2001 16:27:57 -0500
-Received: from smtp3.xs4all.nl ([194.109.127.132]:20237 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S130518AbRCDV1o>;
-	Sun, 4 Mar 2001 16:27:44 -0500
-Path: Home.Lunix!not-for-mail
-Subject: Re: Another rsync over ssh hang (repeatable, with 2.4.1 on both ends)
-Date: Sun, 4 Mar 2001 21:28:45 +0000 (UTC)
-Organization: lunix confusion services
-In-Reply-To: <Pine.LNX.4.33.0103011607540.17365-100000@laird.ocp.internap.com>
-    <20010302101236.A21799@flint.arm.linux.org.uk>
-    <20010302114541.C1438@kochanski.internal.splhi.com>
-NNTP-Posting-Host: kali.eth
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: quasar.home.lunix 983741325 8812 10.253.0.3 (4 Mar 2001 21:28:45 GMT)
-X-Complaints-To: abuse-0@ton.iguana.be
-NNTP-Posting-Date: Sun, 4 Mar 2001 21:28:45 +0000 (UTC)
-X-Newsreader: knews 1.0b.0
-Xref: Home.Lunix mail.linux.kernel:78796
-X-Mailer: Perl5 Mail::Internet v1.32
-Message-Id: <97uc2d$8jc$1@post.home.lunix>
-From: linux-kernel@ton.iguana.be (Ton Hospel)
-To: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
+	id <S130521AbRCDVc6>; Sun, 4 Mar 2001 16:32:58 -0500
+Received: from ip167-84.fli-ykh.psinet.ne.jp ([210.129.167.84]:54725 "EHLO
+	standard.erephon") by vger.kernel.org with ESMTP id <S130519AbRCDVci>;
+	Sun, 4 Mar 2001 16:32:38 -0500
+Message-ID: <3AA2B390.12819DD2@yk.rim.or.jp>
+Date: Mon, 05 Mar 2001 06:28:49 +0900
+From: Ishikawa <ishikawa@yk.rim.or.jp>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: Douglas Gilbert <dougg@torque.net>
+CC: Mike Black <mblack@csihq.com>, Jeremy Hansen <jeremy@xxedgexx.com>,
+        linux-scsi@vger.kernel.org, mysql@lists.mysql.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: scsi vs ide performance on fsync's
+In-Reply-To: <Pine.LNX.4.33L2.0103021033190.6176-200000@srv2.ecropolis.com> <054201c0a33d$55ee5870$e1de11cc@csihq.com> <3AA2A120.49509A11@torque.net>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Notice also that by default ssh opens stdin/stdout blocking, and can
-relatively easily deadlock if the pipes it talks over really want to do
-a write before a read or the other way round. 
+Douglas Gilbert wrote:
 
-You can try compile the following file, put it in the same directory
-as ssh, and then run rsync over this instead of plain ssh (I use it in
-fact in all places where I connect to ssh over pipes).
+> There is definitely something strange going on here.
+> As the bonnie test below shows, the SCSI disk used
+> for my tests should vastly outperform the old IDE one:
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-#ifndef HAVE_NO_UNISTD_H
-# include <unistd.h>
-#endif /* HAVE_NO_UNISTD_H */
-#include <fcntl.h>
+First thank you and others with my clueless investigation about
+the module loading under Debian GNU/Linux. (I should have known
+that Debian uses a very special module setup.)
 
-static char ssh[] = "ssh";
+Anyway, I used to think SCSI is better than IDE in general, and
+the post was quite surprising.
+So I ran the test on my PC.
+On my systems too, the IDE beats SCSI hand down with the test case.
 
-int unblock(FILE *fp) {
-    int fd, rc, flags;
+BTW, has anyone noticed that
+the elapsed time of SCSI case is TWICE as long if
+we let the previous output of the test program stay before
+running the second test? (I suspect fdatasync
+takes time proportional to the (then current)  file size, but
+still why SCSI case is so long is beyond me.)
 
-    fd = fileno(fp);
-    if (isatty(fd)) return 0;
+Eg.
 
-    flags = fcntl(fd, F_GETFL, 0);
-    if (flags < 0) {
-        fprintf(stderr, "Could not query fd %d: %s\n", fd, strerror(errno));
-        return 1;
-    }
-    rc = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-    if (rc < 0) {
-        fprintf(stderr, "Could not unblock fd %d: %s\n", fd, strerror(errno));
-        return 1;
-    }
-    return 0;
-}
+ishikawa@duron$ ls -l /tmp/t.out
+ls: /tmp/t.out: No such file or directory
+ishikawa@duron$ time ./xlog /tmp/t.out fsync
 
-int main(int argc, char **argv) {
-    int rc;
-    char *ptr, *work;
+real    0m38.673s    <=== my scsi disk is slow one to begin with...
+user    0m0.050s
+sys     0m0.140s
+ishikawa@duron$ ls -l /tmp/t.out
+-rw-r--r--    1 ishikawa users      112000 Mar  5 06:19 /tmp/t.out
+ishikawa@duron$ time ./xlog /tmp/t.out fsync
 
-    if (unblock(stdin))  return 1;
-    if (unblock(stdout)) return 1;
-    if (unblock(stderr)) return 1;
-    
-    ptr = strrchr(argv[0], '/');
-    if (ptr == NULL) ptr = argv[0];
-    else ptr++;
-    work = malloc(ptr-argv[0]+sizeof(ssh));
-    if (!work) {
-        fprintf(stderr, "Out of memory. Buy more ?\n");
-        return 1;
-    }
-    memcpy(work, argv[0], ptr-argv[0]);
-    memcpy(work+(ptr-argv[0]), ssh, sizeof(ssh));
-    argv[0] = work;
-    rc = execvp(work, argv);
-    fprintf(stderr, "Could not exec %.300s: %s\n", work, strerror(errno));
-    return rc;
-}
+real    1m16.928s        <=== See TWICE as long!
+user    0m0.060s
+sys     0m0.160s
+ishikawa@duron$ ls -l /tmp/t.out
+-rw-r--r--    1 ishikawa users      112000 Mar  5 06:20 /tmp/t.out
+ishikawa@duron$ rm /tmp/t.out    <==== REMOVE the file and try again.
+ishikawa@duron$ time ./xlog /tmp/t.out fsync
+
+real    0m40.667s       <==== Half as long and back to original.
+user    0m0.040s
+sys     0m0.120s
+iishikawa@duron$ time ./xlog /tmp/t.out xxx
+
+real    0m0.012s          <=== very fast without fdatasync as it should be.
+user    0m0.010s
+sys     0m0.010s
+ishikawa@duron$
+
+

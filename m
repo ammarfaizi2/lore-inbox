@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSEHHoc>; Wed, 8 May 2002 03:44:32 -0400
+	id <S311752AbSEHIAE>; Wed, 8 May 2002 04:00:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311752AbSEHHob>; Wed, 8 May 2002 03:44:31 -0400
-Received: from 213-98-127-214.uc.nombres.ttd.es ([213.98.127.214]:36265 "HELO
-	demo.mitica") by vger.kernel.org with SMTP id <S311749AbSEHHoa>;
-	Wed, 8 May 2002 03:44:30 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <Pine.LNX.4.44.0205070944020.2509-100000@home.transmeta.com>
-X-Url: http://people.mandrakesoft.com/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-Date: 08 May 2002 09:48:50 +0200
-Message-ID: <m2r8knkrkt.fsf@demo.mitica>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S311834AbSEHIAD>; Wed, 8 May 2002 04:00:03 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:9524 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S311752AbSEHIAC>; Wed, 8 May 2002 04:00:02 -0400
+Date: Wed, 8 May 2002 09:49:00 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: James <jdickens@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't Burn CDR's On 2.4.19pre8
+Message-Id: <20020508094900.161451ec.kristian.peters@korseby.net>
+In-Reply-To: <20020508072001.WWPH3647.mailhost.mil.ameritech.net@there>
+X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: i686-redhat-linux 2.4.18-ac3
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "linus" == Linus Torvalds <torvalds@transmeta.com> writes:
+James <jdickens@ameritech.net> wrote:
+> I have read that Disk at Once mode works for writers that understand that 
+> mode of writing, but the track at once is the one that is currently broken, 
+> that explains why some us are complaining and others say that all is fine.
 
-Hi
+Do you mean cdrecord or the kernel ?
 
-linus> (Side note: I'm afraid that don't think backwards compatibility weighs
-linus> very heavily on an embedded setup - I'm more thinking about things like "a
-linus> regular RedHat/SuSE/Debian/whatever install won't work any more".)
+DiscAtOnce only works with newer models. I suspect that something is broken with late versions of cdrecord (>=1.10) cause burning with cdrdao works for other persons.
+So adding "-dao" and "-pad" when you're burning audio to your commandline you should be on the safe side for now.
 
-here at Mandrake we have a patch for the install kernel to remove the
-/proc/ide, and  I think that we got it from redhat, that means that at
-least two distros preffer to save ~25kb in the boot kernels than the
-reporting that they do :p
+*Kristian
 
-Later, Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ :: http://gsmp.sf.net         _\_V
+  :.........................:

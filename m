@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264860AbSKEO1l>; Tue, 5 Nov 2002 09:27:41 -0500
+	id <S264831AbSKEOWX>; Tue, 5 Nov 2002 09:22:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264862AbSKEO1l>; Tue, 5 Nov 2002 09:27:41 -0500
-Received: from mta03ps.bigpond.com ([144.135.25.135]:16337 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S264860AbSKEO1k>; Tue, 5 Nov 2002 09:27:40 -0500
-Message-ID: <3DC7D739.70506@snapgear.com>
-Date: Wed, 06 Nov 2002 00:35:37 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S264860AbSKEOWX>; Tue, 5 Nov 2002 09:22:23 -0500
+Received: from modemcable074.85-202-24.mtl.mc.videotron.ca ([24.202.85.74]:49937
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S264831AbSKEOWW>; Tue, 5 Nov 2002 09:22:22 -0500
+Date: Tue, 5 Nov 2002 09:30:10 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.45 odd deref in serial_in
+In-Reply-To: <20021105102055.B20224@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211050927350.27141-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-To: Miles Bader <miles@gnu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.5.46-uc0 (MMU-less fixups)
-References: <3DC77832.6040600@snapgear.com> <buoznsofk1a.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Miles,
+On Tue, 5 Nov 2002, Russell King wrote:
 
-Miles Bader wrote:
-> Here's a v850 update for 2.5.46-uc0.
+> static _INLINE_ unsigned int serial_in(struct uart_8250_port *up, int offset)
+> {
+>         offset <<= up->port.regshift;
+> 
+>         switch (up->port.iotype) {
+> 
+> which also dereferences "up".  So something may have corrupted %ebx
+> between executing that switch statement and executing the inb().
+> 
+> Could the NMI handler be corrupting %ebx ?
 
-Got it.
+Yes that is highly likely, my current NMI handler does a fair amount of 
+work, however it chains from the current default nmi handler, i thought 
+register saving was already taken care of otherwise wouldn't i have all 
+sorts of other strange bugs creeping up?
 
-Thanks
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+	Zwane
+-- 
+function.linuxpower.ca
 

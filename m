@@ -1,103 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbULJVpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbULJVqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbULJVpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 16:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbULJVpK
+	id S261825AbULJVqg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 16:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbULJVqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 16:45:10 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:9047 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261816AbULJVoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 16:44:46 -0500
-Date: Fri, 10 Dec 2004 21:43:59 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Christoph Lameter <clameter@sgi.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, <linux-mm@kvack.org>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
-    tests
-In-Reply-To: <Pine.LNX.4.58.0412101006200.8714@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.44.0412102125210.32422-100000@localhost.localdomain>
+	Fri, 10 Dec 2004 16:46:35 -0500
+Received: from users.ccur.com ([208.248.32.211]:2582 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S261825AbULJVpp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 16:45:45 -0500
+Message-ID: <41BA1904.4090904@ccur.com>
+Date: Fri, 10 Dec 2004 16:45:40 -0500
+From: John Blackwood <john.blackwood@ccur.com>
+Reply-To: john.blackwood@ccur.com
+Organization: Concurrent Computer Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040301
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+CC: Andi Kleen <ak@muc.de>
+Subject: [PATCH] include/asm-x86_64/pgtable.h pgd_offset_gate()
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Dec 2004 21:45:41.0503 (UTC) FILETIME=[9838B0F0:01C4DF01]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Dec 2004, Christoph Lameter wrote:
-> On Thu, 9 Dec 2004, Hugh Dickins wrote:
-> 
-> > Your V12 patches would apply well to 2.6.10-rc3, except that (as noted
-> > before) your mailer or whatever is eating trailing whitespace: trivial
-> > patch attached to apply before yours, removing that whitespace so yours
-> > apply.  But what your patches need to apply to would be 2.6.10-mm.
-> 
-> I am still mystified as to why this is an issue at all. The patches apply
-> just fine to the kernel sources as is. I have patched kernels numerous
-> times with this patchset and never ran into any issue. quilt removes trailing
-> whitespace from patches when they are generated as far as I can tell.
 
-Perhaps you've only tried applying your original patches, not the ones
-as received through the mail.  It discourages people from trying them
-when "patch -p1" fails with rejects, however trivial.  Or am I alone
-in seeing this?  never had such a problem with other patches before.
+Hi Andi,
 
-> > Your scalability figures show a superb improvement.  But they are (I
-> > presume) for the best case: intense initial faulting of distinct areas
-> > of anonymous memory by parallel cpus running a multithreaded process.
-> > This is not a common case: how much do what real-world apps benefit?
-> 
-> This is common during the startup of distributed applications on our large
-> machines. They seem to freeze for minutes on bootup. I am not sure how
-> much real-world apps benefit. The numbers show that the benefit would
-> mostly be for SMP applications. UP has only very minor improvements.
+We noticed a problem on x86_64 platforms where a /proc read of the
+vsyscall area (address 0xffffffffff600000) would cause the kernel to
+oops in get_user_pages().
 
-How much do your patches speed the startup of these applications?
-Can you name them?
+I believe that the fix is to pull in the include/asm-ia64/pgtable.h
+changes for pgd_offset_gate() into the x86_64 pgtable.h header file.
 
-> I have worked with a couple of arches and received feedback that was
-> integrated. I certainly welcome more feedback. A vague idea if there is
-> more trouble on that front: One could take the ptl in the cmpxchg
-> emulation and then unlock on update_mmu cache.
+This seems to fix the problem nicely for us.
 
-Or move the update_mmu_cache into the ptep_cmpxchg emulation perhaps.
+The original ia64 patch was:
 
-> > (I do wonder why do_anonymous_page calls mark_page_accessed as well as
-> > lru_cache_add_active.  The other instances of lru_cache_add_active for
-> > an anonymous page don't mark_page_accessed i.e. SetPageReferenced too,
-> > why here?  But that's nothing new with your patch, and although you've
-> > reordered the calls, the final page state is the same as before.)
-> 
-> The mark_page_accessed is likely there avoid a future fault just to set
-> the accessed bit.
+# ChangeSet
+#   2004/07/28 23:01:30-07:00 davidm@napali.hpl.hp.com
+#   [PATCH] Make get_user_pages() work again for ia64 gate area
+#
+#   Changeset
+#
+#     roland@redhat.com[torvalds]|ChangeSet|20040624165002|30880
+#
+#   inadvertently broke ia64 because the patch assumed that 
+pgd_offset_k() is
+#   just an optimization of pgd_offset(), which it is not.  This patch fixes
+#   the problem by introducing pgd_offset_gate().  On architectures on which
+#   the gate area lives in the user's address-space, this should be 
+aliased to
+#   pgd_offset() and on architectures on which the gate area lives in the
+#   kernel-mapped segment, this should be aliased to pgd_offset_k().
+#
+#   This bug was found and tracked down by Peter Chubb.
+#
+#   Signed-off-by: <davidm@hpl.hp.com>
+#   Signed-off-by: Andrew Morton <akpm@osdl.org>
+#   Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-No, mark_page_accessed is an operation on the struct page
-(and the accessed bit of the pte is preset too anyway).
 
-> > Where handle_pte_fault does "entry = *pte" without page_table_lock:
-> > you're quite right to passing down precisely that entry to the fault
-> > handlers below, but there's still a problem on the 32bit architectures
-> > supporting 64bit ptes (i386, mips, ppc), that the upper and lower ints
-> > of entry may be out of synch.  Not a problem for do_anonymous_page, or
-> > anything else relying on ptep_cmpxchg to check; but a problem for
-> > do_wp_page (which could find !pfn_valid and kill the process) and
-> > probably others (harder to think through).  Your 4/7 patch for i386 has
-> > an unused atomic get_64bit function from Nick, I think you'll have to
-> > define a get_pte_atomic macro and use get_64bit in its 64-on-32 cases.
-> 
-> That would be a performance issue.
+The changes to pgtable.h for x86_64 are below.
 
-Sadly, yes, but correctness must take precedence over performance.
-It may be possible to avoid it in most cases, doing the atomic
-later when in doubt: but would need careful thought.
+Thank you for your time and considerations.
 
-> Good suggestions. Will see what I can do but I will need some assistence
-> my main platform is ia64 and the hardware and opportunities for testing on
-> i386 are limited.
 
-There's plenty of us can be trying i386.  It's other arches worrying me.
 
-Hugh
+diff -ru linux-2.6.9/include/asm-x86_64/pgtable.h 
+linux/include/asm-x86_64/pgtable.h
+--- linux-2.6.9/include/asm-x86_64/pgtable.h    2004-10-18 
+17:54:40.000000000 -0400
++++ linux/include/asm-x86_64/pgtable.h  2004-12-10 16:00:30.434277001 -0500
+@@ -340,6 +340,11 @@
+         return __pgd_offset_k((pgd_t *)__va(addr), address);
+  }
+
++/* Look up a pgd entry in the gate area.  On x86_64, the gate-area
++   resides in the kernel-mapped segment, hence we use pgd_offset_k()
++   here.  */
++#define pgd_offset_gate(mm, addr)      pgd_offset_k(addr)
++
+  #define pgd_offset(mm, address) ((mm)->pgd+pgd_index(address))
+
+  /* PMD  - Level 2 access */
+@@ -442,6 +447,7 @@
+  #define __HAVE_ARCH_PTEP_SET_WRPROTECT
+  #define __HAVE_ARCH_PTEP_MKDIRTY
+  #define __HAVE_ARCH_PTE_SAME
++#define __HAVE_ARCH_PGD_OFFSET_GATE
+  #include <asm-generic/pgtable.h>
+
+  #endif /* _X86_64_PGTABLE_H */
 

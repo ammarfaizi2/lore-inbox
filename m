@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132137AbQLHUlt>; Fri, 8 Dec 2000 15:41:49 -0500
+	id <S132282AbQLHUnJ>; Fri, 8 Dec 2000 15:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132282AbQLHUlj>; Fri, 8 Dec 2000 15:41:39 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:52927 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S132137AbQLHUlf>; Fri, 8 Dec 2000 15:41:35 -0500
-To: David Howells <dhowells@redhat.com>
+	id <S132685AbQLHUm7>; Fri, 8 Dec 2000 15:42:59 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:48749
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S132282AbQLHUmv>; Fri, 8 Dec 2000 15:42:51 -0500
+Date: Fri, 8 Dec 2000 21:12:17 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Elmer.Joandi@ut.ee
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH,preliminary] cleanup shm handling
-In-Reply-To: <20295.976288425@warthog.cygnus>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <20295.976288425@warthog.cygnus>
-Message-ID: <m3zoi6pvh1.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+Subject: [PATCH] remove warning from drivers/net/arlan.c
+Message-ID: <20001208211217.A599@jaquet.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: 08 Dec 2000 21:04:14 +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> writes:
+Hi.
 
-> Can you help me with an SHM related problem?
-> 
-> I'm currently writing a Win32 emulation kernel module to help speed Wine up,
-> and I'm writing the file mapping support stuff at the moment
-> (CreateFileMapping and MapViewOfFile).
+The following patch eliminates an 'defined but not used' warning when
+compiling drivers/net/arlan.c without module support (240t12p3). It 
+also fixes a typo.
 
-These two calls were exactly the reasons to make the shm fs for
-linux. It makes posix shm possible which provides shm_open an
-shm_unlink. This together with mmap and frtuncate gives you exactly
-this functionality.
+It should apply cleanly.
 
-shm_open and shm_unlink are provided by glibc 2.2. If you don't want
-to rely on that, you can use open ("/dev/shm/xxx") and hope that the
-admin configured right.
 
-> I have PE Image mapping just about working (fixups, misaligned file
-> sections and all), but I'm trying to think of a good way of doing
-> anonymous shared mappings without having to hack the main kernel
-> around too much (so far I've only had to add to kernel/ksyms.c).
-> 
-> Is there a reasonable way I could hook into the SHM system to
-> "reserve" a chunk of shared memory of a particular size, and then a
-> second hook by which I can "map" _part_ of that into a process's
-> address space?
+--- linux-240-t12-pre3-clean/drivers/net/arlan.c	Wed Nov 22 22:41:40 2000
++++ linux/drivers/net/arlan.c	Sun Dec  3 13:05:53 2000
+@@ -8,7 +8,7 @@
+ #include <linux/config.h>
+ #include "arlan.h"
+ 
+-static const char *arlan_version = "C.Jennigs 97 & Elmer.Joandi@ut.ee  Oct'98, http://www.ylenurme.ee/~elmer/655/";
++static const char *arlan_version = "C.Jennings 97 & Elmer.Joandi@ut.ee  Oct'98, http://www.ylenurme.ee/~elmer/655/";
+ 
+ struct net_device *arlan_device[MAX_ARLANS];
+ int last_arlan;
+@@ -19,7 +19,6 @@
+ static char *siteName = siteNameUNKNOWN;
+ static int mem = memUNKNOWN;
+ int arlan_debug = debugUNKNOWN;
+-static int probe = probeUNKNOWN;
+ static int numDevices = numDevicesUNKNOWN;
+ static int spreadingCode = spreadingCodeUNKNOWN;
+ static int channelNumber = channelNumberUNKNOWN;
+@@ -1986,6 +1985,8 @@
+ }
+ 
+ #ifdef  MODULE
++
++static int probe = probeUNKNOWN;
+ 
+ int init_module(void)
+ {
 
-Yes:
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-fd = shm_open ("xxx",...)
-ptr = mmap (NULL, size, ..., fd, offset);
-
-No kernel changes necessary on 2.4 any more.
-
-Greetings
-                Christoph
-
+If a man says something in a forest and there are no women around to 
+hear him, is he still wrong? -- Anonymous
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265114AbUAHPEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 10:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUAHPEU
+	id S265140AbUAHPRU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 10:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265143AbUAHPRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 10:04:20 -0500
-Received: from anor.ics.muni.cz ([147.251.4.35]:24268 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S265114AbUAHPEO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 10:04:14 -0500
-Date: Thu, 8 Jan 2004 16:03:19 +0100
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: Christoph Hellwig <hch@infradead.org>, Nathan Scott <nathans@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: Performance drop 2.6.0-test7 -> 2.6.1-rc2
-Message-ID: <20040108160319.G29178@fi.muni.cz>
-References: <20040107023042.710ebff3.akpm@osdl.org> <20040107215240.GA768@frodo> <20040108105427.E20265@fi.muni.cz> <20040108120739.A8987@infradead.org>
+	Thu, 8 Jan 2004 10:17:18 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:14599 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S265140AbUAHPPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 10:15:31 -0500
+Date: Thu, 8 Jan 2004 18:15:02 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Relocation overflow with modules on Alpha
+Message-ID: <20040108181502.B9562@jurassic.park.msu.ru>
+References: <yw1xy8sn2nry.fsf@ford.guide> <20040106004435.A3228@Marvin.DL8BCU.ampr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040108120739.A8987@infradead.org>; from hch@infradead.org on Thu, Jan 08, 2004 at 12:07:39PM +0000
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Virus-Test: Clean
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040106004435.A3228@Marvin.DL8BCU.ampr.org>; from dl8bcu@dl8bcu.de on Tue, Jan 06, 2004 at 12:44:35AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-: On Thu, Jan 08, 2004 at 10:54:27AM +0100, Jan Kasprzak wrote:
-: > 	I have done further testing:
-: > 
-: > - this is reliable: repeated boot back to 2.6.1-rc2 makes the problem
-: > 	appear again (high load, system slow has hell), booting back
-: > 	to -test7 makes it disappear.
-: 
-: Can you put fs/xfs from -test7 into the 2.6.1-rc tree and test with that?
+On Tue, Jan 06, 2004 at 12:44:35AM +0000, Thorsten Kranzkowski wrote:
+> : relocation truncated to fit: BRADDR .init.text
+> init/built-in.o(.text+0xf10): In function `inflate_codes':
 
-	I did that. Under 2.6.1-rc2 wit 2.6.0-test7 fs/xfs subtree the load
-went up to >40 two minutes after boot.  So it is not XFS related.
+Looks like it's a GCC-3.3 bug.
+lib/inflate.c is directly included in init/initramfs.c and
+init/do_mounts_rd.c, so the compiler assumes that all subroutines in these
+files as "local" and uses branches (bsr instead of jsr) for function calls.
+Even though some of those functions are in different sections
+(.text vs .init.text)...
+GCC-3.4 seems to be OK.
 
-	I have also ran hdparm -t (under a load, though) on all of my
-physical disks, and the numbers on 2.6.1-rc2 seems to be more-or-less
-the same as under 2.6.0-test7.
+> It seems my kernel crossed the 4 MB barrier in consumed RAM and possibly
+> some relocation type(s) can't cope with that. Time to use -fpic or 
+> some such?
 
-	Now I will try to boot 2.6.0-test9 and we will see if it is
-similar to -rc2 or not.
+I'm thinking about some __init tricks in lib/inflate.c.
+What about this patch? It has a nice side effect - the "inflate"
+code gets freed after init is done.
 
--Y.
+Ivan.
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|  I actually have a lot of admiration and respect for the PATA knowledge  |
-| embedded in drivers/ide. But I would never call it pretty:) -Jeff Garzik |
+--- rc3/lib/inflate.c	Thu Jan  8 16:52:19 2004
++++ linux/lib/inflate.c	Thu Jan  8 17:55:14 2004
+@@ -120,6 +120,10 @@ static char rcsid[] = "#Id: inflate.c,v 
+ 	
+ #define slide window
+ 
++#ifndef __init
++#define __init		/* included from bootloader */
++#endif
++
+ /* Huffman code lookup table entry--this entry is four bytes for machines
+    that have 16-bit pointers (e.g. PC's in the small or medium model).
+    Valid extra bits are 0..13.  e == 15 is EOB (end of block), e == 16
+@@ -271,7 +275,7 @@ STATIC const int dbits = 6;          /* 
+ STATIC unsigned hufts;         /* track memory usage */
+ 
+ 
+-STATIC int huft_build(
++STATIC int __init huft_build(
+ 	unsigned *b,            /* code lengths in bits (all assumed <= BMAX) */
+ 	unsigned n,             /* number of codes (assumed <= N_MAX) */
+ 	unsigned s,             /* number of simple-valued codes (0..s-1) */
+@@ -490,7 +494,7 @@ DEBG("huft7 ");
+ 
+ 
+ 
+-STATIC int huft_free(
++STATIC int __init huft_free(
+ 	struct huft *t         /* table to free */
+ 	)
+ /* Free the malloc'ed tables built by huft_build(), which makes a linked
+@@ -512,7 +516,7 @@ STATIC int huft_free(
+ }
+ 
+ 
+-STATIC int inflate_codes(
++STATIC int __init inflate_codes(
+ 	struct huft *tl,    /* literal/length decoder tables */
+ 	struct huft *td,    /* distance decoder tables */
+ 	int bl,             /* number of bits decoded by tl[] */
+@@ -627,7 +631,7 @@ STATIC int inflate_codes(
+ 
+ 
+ 
+-STATIC int inflate_stored(void)
++STATIC int __init inflate_stored(void)
+ /* "decompress" an inflated type 0 (stored) block. */
+ {
+   unsigned n;           /* number of bytes in block */
+@@ -686,7 +690,7 @@ DEBG("<stor");
+ 
+ 
+ 
+-STATIC int inflate_fixed(void)
++STATIC int __init inflate_fixed(void)
+ /* decompress an inflated type 1 (fixed Huffman codes) block.  We should
+    either replace this with a custom decoder, or at least precompute the
+    Huffman tables. */
+@@ -740,7 +744,7 @@ DEBG("<fix");
+ 
+ 
+ 
+-STATIC int inflate_dynamic(void)
++STATIC int __init inflate_dynamic(void)
+ /* decompress an inflated type 2 (dynamic Huffman codes) block. */
+ {
+   int i;                /* temporary variables */
+@@ -921,7 +925,7 @@ DEBG("dyn7 ");
+ 
+ 
+ 
+-STATIC int inflate_block(
++STATIC int __init inflate_block(
+ 	int *e                  /* last block flag */
+ 	)
+ /* decompress an inflated block */
+@@ -972,7 +976,7 @@ STATIC int inflate_block(
+ 
+ 
+ 
+-STATIC int inflate(void)
++STATIC int __init inflate(void)
+ /* decompress an inflated entry */
+ {
+   int e;                /* last block flag */
+@@ -1034,7 +1038,7 @@ static ulg crc;		/* initialized in makec
+  * gzip-1.0.3/makecrc.c.
+  */
+ 
+-static void
++static void __init 
+ makecrc(void)
+ {
+ /* Not copyrighted 1990 Mark Adler	*/
+@@ -1082,7 +1086,7 @@ makecrc(void)
+ /*
+  * Do the uncompression!
+  */
+-static int gunzip(void)
++static int __init gunzip(void)
+ {
+     uch flags;
+     unsigned char magic[2]; /* magic header */

@@ -1,34 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbTIXVrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 17:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbTIXVrP
+	id S261632AbTIXVwo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 17:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbTIXVwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 17:47:15 -0400
-Received: from h139-142-214-162.gtcust.grouptelecom.net ([139.142.214.162]:19980
-	"EHLO smtp.atrium.ca") by vger.kernel.org with ESMTP
-	id S261580AbTIXVrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 17:47:15 -0400
-Message-id: <fc.008695730061456b008695730061456b.6145b2@atrium.ca>
-Date: Wed, 24 Sep 2003 16:49:29 -0500
-Subject: 2.6.0-test5-mm3 Promise SuperTrak SX6000 unrecognized
-X-FC-Form-ID: 141
-To: linux-kernel@vger.kernel.org
-From: "Dave Poirier" <dave.poirier@atrium.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 24 Sep 2003 17:52:43 -0400
+Received: from mail.kroah.org ([65.200.24.183]:8623 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261632AbTIXVu7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 17:50:59 -0400
+Date: Wed, 24 Sep 2003 13:48:46 -0700
+From: Greg KH <greg@kroah.com>
+To: Yaroslav Halchenko <yoh@onerussian.com>, linux-kernel@vger.kernel.org
+Subject: Re: USB problem. 'irq 9: nobody cared!'
+Message-ID: <20030924204846.GS11234@kroah.com>
+References: <20030921184149.GA12274@washoe.rutgers.edu> <20030922063324.GF3398@ppp0.net> <20030923050848.GA5917@washoe.rutgers.edu> <20030923094746.GA22232@ppp0.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030923094746.GA22232@ppp0.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Promise SuperTRAK SX6000 IDE RAID controller card which, no
-matter which options are set in the kernel, fail to be recognized.  I
-tried with 2.4.22, 2.6.0-test1..test5 and 2.6.0-test5-mm3, all of which
-simply seems to ignore the card altogether.
+On Tue, Sep 23, 2003 at 11:47:46AM +0200, Jan Dittmer wrote:
+> Yaroslav Halchenko <yoh@onerussian.com> wrote on 2003-09-23 01:08:48
+> > Thanx - reversing all "improvements"  done in -bk5 seems to help
+> > - usb works :-))
+> > 
+> > --Yarik
+> > 
+> > On Mon, Sep 22, 2003 at 08:33:24AM +0200, Jan Dittmer wrote:
+> > > Yaroslav Halchenko <kernel@onerussian.com> wrote on 2003-09-21 14:41:49
+> > > > Dear Gurus,
+> > > > 
+> > > > Since one of the bk versions in -test4- USB problem persist. On boot I'm
+> > > > getting next dump. More information about my system and configuration is at
+> > > > 
+> > > > http://www.onerussian.com/Linux/bug.USB/
+> > > > 
+> > > > Please help to get rid of the problem cause USB doesn't work now for me :-(
+> > > 
+> > > Try reverting the following patch, taken from the bk4-bk5 incremental
+> > > diff (Apply with patch -p1 -R). This fixed it for me.
+> > > 
+> > >    Jan
+> > > 
+> 
+> Greg, what is going on here? In a nutshell: Irq 9 gets disabled on boot
+> and all other devices on this irq consequently doesn't work any more.
+> Here is the oops from dmesg again:
 
-Find attached the `lspci -vxx` output.
+There's no "oops" here, just a warning message.  Things worked just fine
+after this, right?
 
-Let me know if you need any testing, I am more than willing to help on
-this.
+Did you try David Brownell's patch for this issue?
 
+thanks,
 
+greg k-h

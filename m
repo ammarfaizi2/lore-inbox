@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266330AbSK1RLx>; Thu, 28 Nov 2002 12:11:53 -0500
+	id <S265998AbSK1RVK>; Thu, 28 Nov 2002 12:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266487AbSK1RLx>; Thu, 28 Nov 2002 12:11:53 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16397 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266330AbSK1RLv>; Thu, 28 Nov 2002 12:11:51 -0500
-Date: Thu, 28 Nov 2002 12:17:58 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Benchmark] AIM results
-In-Reply-To: <r1_20021125114124.13129.qmail@linuxmail.org>
-Message-ID: <Pine.LNX.3.96.1021128121311.12997C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266157AbSK1RVJ>; Thu, 28 Nov 2002 12:21:09 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:53993 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265998AbSK1RVJ>;
+	Thu, 28 Nov 2002 12:21:09 -0500
+Date: Thu, 28 Nov 2002 17:26:19 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: odd ext3 problem with 2.5.50
+Message-ID: <20021128172619.GA930@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Nov 2002, Paolo Ciarrocchi wrote:
+Erm. Whats going on here ?
 
-> I can run it for every 2.5.* linus will release. 
-> Do you think it is a good idea or just a waste of time ?
+(davej@tetrachloride:davej)$ ls .viminfo
+ls: .viminfo: No such file or directory
+(davej@tetrachloride:davej)$ touch .viminfo
+touch: creating `.viminfo': File exists
+(davej@tetrachloride:davej)$ 
 
-As someone who worries about IPC latency (more than speed) I think these
-are useful numbers, if only to give some suggestions to kernel developers
-who want to get the last bit out and will take them as a challenge. 
+strace of the touch..
 
-The VM stuff in 2.5 is slightly slower, not much to be done there,
-hopefully in the real world balanced by more stable performance under
-heavy load. 
+brk(0x8050000)                          = 0x8050000
+open(".viminfo", O_WRONLY|O_NONBLOCK|O_CREAT|O_NOCTTY|O_LARGEFILE, 0666) = -1 EEXIST (File exists)
+utime(".viminfo", NULL)                 = -1 ENOENT (No such file or directory)
+write(2, "touch: ", 7touch: )                  = 7
+write(2, "creating `.viminfo\'", 19creating `.viminfo')    = 19
+write(2, ": File exists", 13: File exists)           = 13
+write(2, "\n", 1
+)                       = 1
+_exit(1)                                = ?
+
+
+strace of the ls...
+
+lstat64(".viminfo", 0x80580ac)          = -1 ENOENT (No such file or directory)
+write(2, "ls: ", 4ls: )                     = 4
+
+
+.viminfo is actually there, and does show up with bash's tab completion.
+Weird.
+
+		Dave
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

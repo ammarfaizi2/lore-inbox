@@ -1,77 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129537AbRB0VZi>; Tue, 27 Feb 2001 16:25:38 -0500
+	id <S129339AbRB0VWS>; Tue, 27 Feb 2001 16:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129563AbRB0VZ2>; Tue, 27 Feb 2001 16:25:28 -0500
-Received: from mail.eunet.ch ([146.228.10.7]:7172 "EHLO mail.kpnqwest.ch")
-	by vger.kernel.org with ESMTP id <S129537AbRB0VZP>;
-	Tue, 27 Feb 2001 16:25:15 -0500
-Message-ID: <3A9C2948.506897B8@dial.eunet.ch>
-Date: Tue, 27 Feb 2001 22:25:12 +0000
-From: Mario Vanoni <vanonim@dial.eunet.ch>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7aa1 i686)
+	id <S129435AbRB0VWJ>; Tue, 27 Feb 2001 16:22:09 -0500
+Received: from hilbert.umkc.edu ([134.193.4.60]:1288 "HELO tesla.umkc.edu")
+	by vger.kernel.org with SMTP id <S129339AbRB0VVy>;
+	Tue, 27 Feb 2001 16:21:54 -0500
+Message-ID: <3A9C1A3A.8BC1BCF2@kasey.umkc.edu>
+Date: Tue, 27 Feb 2001 15:20:58 -0600
+From: "David L. Nicol" <david@kasey.umkc.edu>
+Organization: University of Missouri - Kansas City   supercomputing infrastructure
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 3c59x new version, help me please with the new kernels
+To: Zack Brown <zbrown@tumblerings.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Will Mosix go into the standard kernel?
+In-Reply-To: <Pine.LNX.3.96.1010227091255.780M-100000@renegade>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PCI 3COM 3C905B COMBO Etherlink XL 10/100Mbit BNC+RJ-45
-running a LAN with 3 machines 10MB with BNC/RG-58U cable.
+Zack Brown wrote:
+> 
+> Just curious, are there any plans to put Mosix into the standard kernel,
+> maybe in 2.5, so folks could just configure it and go? it seems that the
+> number of people with more than one computer might make this a feature many
+> would at least want to try, especially if it was available as an option by
+> default. Is there anything in the Mosix folks' implementation that would
+> prevent this?
 
-2.2.12 ... 2.2.19pre7aa1 no problems,
+I'm not a knowledgeable person, but I've been following Mosix/beowulf/? for
+a few years and trying to keep up.
 
-kernel with modules, /etc/modules.conf:
-alias eth0 3c59x
-options 3x59x options=0
+I've thought that it would be good to break up the different clustering
+frills -- node identification, process migration, process hosting, distributed
+memory, yadda yadda blah, into separate bite-sized portions.  
 
-kernel _without_ modules, my usual and preferred mode,
-with the following little patch from Andrea
-in /usr/src/linux/drivers/net/3c59x.c, original:
-static int options[MAX_UNITS] = { -1, -1, -1, -1, -1, -1, -1, -1,};
-always manually changed to:
-static int options[MAX_UNITS];
+Centralization would be good for standardizing on what /proc/?/?/? you read to
+find out what clusters you are in, and whatis your node number there.  There
+is a lot of theorhetical work to be done.
 
-booting message without modules:
+Until then, I don't expect to see the Complete Mosix Patch Set available
+from ftp.kernel.org in its current form, as a monolithic set that does many things,
+including its Very Own Distributed File System Architecture.
 
-eth0: 3Com 3c905B Cyclone 10/100/BNC at 0xa000,  00:50:04:9b:f0:b8 IRQ11
-  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
-  Media override to transceiver type 0 (10baseT)
-  Enabling bus-master transmits and whole-frame receives.
-(the 1st line after 00:50 ... is different on all 3 machines!)
+If any of the work from Mosix will make it Into The Standard Kernel it will be
+by backporting and standardization.
 
-Works since over an year perfectly.
------------------------------------
 
-2.2.19pre15aa1 (same effect with 2.4.2pre?):
+Is there a good list to discuss this on?  Is this the list?  Which pieces of
+clustering-scheme patches would be good to have? 
 
-neither telnet nor mount -t nfs work,
-rebooting to 2.2.19pre7aa1, _all_ works always perfectly.
+I think a good place to start would be node numbering.
 
-Checked with 3c59x as module, without modules,
-with/without Andrea's change, rien ne va plus.
+The standard node numbering would need to be flexible enough to have one machine
+participating in multiple clusters at the same time.
 
-gcc-2.95.3.test3, all kernels since test1 compiled with in
-/usr/src/linux/arch/i386/Makefile:
-ifdef CONFIG_M686
-CFLAGS := ... -march=i686 ... in place of -m486
-(stolen from 2.4.2pre?)
+/proc/cluster/....	this would be standard root point for clustering stuff
 
-All machines PIII550, 2 UP's 512MB mem, 1 SMP Dual 1024MB.
-glib-2.1.3
-base old SuSE 6.4 with many updgrades via sources
-*.tar.gz/*tar.bz2, never with rpm!
+/proc/mosix would go away, become proc/cluster/mosix
 
-Not in lkml, CC if necessary.
+and the same with whatever bproc puts into /proc; that stuff would move to
+/proc/cluster/bproc
 
-I will do every test is needed/requested !!!
 
-Regards and many thanks
-Mario
+Or, the status quo will endure, with cluster hackers playing catch-up.
 
-PS Why _all_ machines swap copying 545MB, 5 files ~115MB,
-   from a mounted /cdrom to /tmp?  With the newest kernels!
-   AT&T SVR2...3.2 in over 12 years newer swapped with cp(1).
+
+
+
+-- 
+                      David Nicol 816.235.1187 dnicol@cstp.umkc.edu
+             "Americans are a passive lot, content to let so-called
+                              experts run our lives" -- Dr. Science
+

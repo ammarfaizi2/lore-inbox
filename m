@@ -1,91 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbTILQdE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 12:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbTILQdD
+	id S261761AbTILQ1i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 12:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbTILQ1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 12:33:03 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20418 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261750AbTILQc7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 12:32:59 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Ronny Buchmann <ronny-lkml@vlugnet.org>
-Subject: Re: [OOPS] 2.4.22 / HPT372N
-Date: Fri, 12 Sep 2003 18:35:12 +0200
-User-Agent: KMail/1.5
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Marko Kreen <marko@l-t.ee>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200309091406.56334.ronny-lkml@vlugnet.org> <200309121642.19966.bzolnier@elka.pw.edu.pl> <200309121726.01792.ronny-lkml@vlugnet.org>
-In-Reply-To: <200309121726.01792.ronny-lkml@vlugnet.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Sep 2003 12:27:37 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:29250 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S261761AbTILQ1g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 12:27:36 -0400
+Date: Fri, 12 Sep 2003 09:27:13 -0700
+To: Anthony Dominic Truong <anthony.truong@mascorp.com>
+Cc: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+       willy@debian.org
+Subject: Re: Memory mapped IO vs Port IO
+Message-ID: <20030912162713.GA4852@sgi.com>
+Mail-Followup-To: Anthony Dominic Truong <anthony.truong@mascorp.com>,
+	linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
+	willy@debian.org
+References: <20030911192550.7dfaf08c.ak@suse.de> <1063308053.4430.37.camel@huykhoi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309121835.12649.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <1063308053.4430.37.camel@huykhoi>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 of September 2003 17:26, Ronny Buchmann wrote:
-> Am Freitag 12 September 2003 16:42 schrieben Sie:
-> > On Friday 12 of September 2003 16:24, Ronny Buchmann wrote:
-> > > Am Freitag 12 September 2003 14:58 schrieb Bartlomiej Zolnierkiewicz:
-> > > > On Friday 12 of September 2003 12:48, Alan Cox wrote:
-> > > > > On Gwe, 2003-09-12 at 10:41, Ronny Buchmann wrote:
-> > > > > > -	d->channels = 1;
-> > > > > > +	d->channels = 2;
-> > > > >
-> > > > > Need to work out which 372N and others are dual channel but yes
-> > > >
-> > > > No, "d->channels = 1" is only executed for orginal HPT366 which has
-> > > > separate PCI configurations for first and second channel.  For
-> > > > HPT372N you have correct value in hpt366.h - ".channels = 2".
->
-> Some of the HPT372N (including mine) have the same device id as the HPT366
-> (0004), they differ only in revision (rev 6 is 372N).
->
-> (this logic is already used in other functions)
->
-> --- linux-2.4.22-ac1/drivers/ide/pci/hpt366.c.orig	2003-09-11
-> 21:29:06.000000000 +0200 +++
-> linux-2.4.22-ac1/drivers/ide/pci/hpt366.c	2003-09-12 17:13:31.000000000
-> +0200 @@ -1343,7 +1343,7 @@
->  	u8 pin1 = 0, pin2 = 0;
->  	unsigned int class_rev;
->  	static char *chipset_names[] = {"HPT366", "HPT366",  "HPT368",
-> -				 "HPT370", "HPT370A", "HPT372"};
-> +				 "HPT370", "HPT370A", "HPT372", "HPT372N"};
->
->  	if (PCI_FUNC(dev->devfn) & 1)
->  		return;
-> @@ -1351,16 +1351,11 @@
->  	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
->  	class_rev &= 0xff;
->
-> -	/* New ident 372N reports revision 1. We could do the
-> -	   io port based type identification instead perhaps (DID, RID) */
-> -
-> -	if(d->device == PCI_DEVICE_ID_TTI_HPT372N)
-> -		class_rev = 5;
-> -
-> -	if(class_rev < 6)
-> +	if(class_rev <= 6)
->  		d->name = chipset_names[class_rev];
->
->  	switch(class_rev) {
-> +		case 6:
->  		case 5:
->  		case 4:
->  		case 3: ide_setup_pci_device(dev, d);
->
-> Since the 372N with the new id (0009) is set up with init_setup_37x(),
-> "class_rev = 5" is never executed.
->
-> So the second part of the previous patch is wrong.
+On Fri, Sep 12, 2003 at 09:10:25AM -0700, Anthony Dominic Truong wrote:
+> Andi Kleen wrote:
+> > #ifdef CONFIG_MMIO
+> >         writel(... )
+> >         readl(...)
+> > #else
+> >         outl( ... ) 
+> >         inl ( ...) 
+> > #endif
+> > 
+> > to 
+> >         if (dev->mmio) { 
+> >                 writel(); 
+> >                 real();
+> >         } else { 
+> >                 outl();
+> >                 inl();
+> >         } 
+> > 
+> > and you will have a hard time to benchmark the difference on any non
+> > ancient system
+> > in actual driver operation.
+> > 
+> > -Andi
+> > 
+> Hello,
+> Wouldn't it be better if we set the IN and OUT function pointers to the
+> right functions during driver init. based on the setting of dev->mmio.
+> And throughout the driver, we just call the IN and OUT functions by
+> their pointers.  Then we don't have to do if (dev->mmio) every time.
+> It's similar to the concept of virtual member function in C++.
 
-Looks good, thanks.
+I'd rather not see any more pointer dereferences or even branches than
+absolutely necessary.  Right now, readX/writeX and inX/outX are usually
+inlines, and outX and writeX can be very fast.  So I'd prefer either a
+global CONFIG_MMIO option or consistent driver specific options that
+explain what the difference between MMIO and port I/O actually is.
 
---bartlomiej
-
-
+Jesse

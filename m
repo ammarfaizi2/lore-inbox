@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264677AbSIQXd6>; Tue, 17 Sep 2002 19:33:58 -0400
+	id <S264625AbSIQXg4>; Tue, 17 Sep 2002 19:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264689AbSIQXd6>; Tue, 17 Sep 2002 19:33:58 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:3001 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264677AbSIQXd5>;
-	Tue, 17 Sep 2002 19:33:57 -0400
+	id <S264675AbSIQXg4>; Tue, 17 Sep 2002 19:36:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:45188 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264625AbSIQXg4>;
+	Tue, 17 Sep 2002 19:36:56 -0400
+Date: Tue, 17 Sep 2002 16:32:46 -0700 (PDT)
+Message-Id: <20020917.163246.113965700.davem@redhat.com>
+To: johnstul@us.ibm.com
+Cc: jamesclv@us.ibm.com, ak@suse.de, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, anton.wilson@camotion.com
 Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
-From: john stultz <johnstul@us.ibm.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: James <jamesclv@us.ibm.com>, ak@suse.de,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>, anton.wilson@camotion.com
-In-Reply-To: <20020917.161215.03597459.davem@redhat.com>
-References: <20020918004442.A32234@wotan.suse.de>
-	<20020917.153828.24171342.davem@redhat.com>
-	<200209171555.52872.jamesclv@us.ibm.com> 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1032305535.7481.204.camel@cog>
+References: <200209171555.52872.jamesclv@us.ibm.com>
 	<20020917.161215.03597459.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Sep 2002 16:32:15 -0700
-Message-Id: <1032305535.7481.204.camel@cog>
+	<1032305535.7481.204.camel@cog>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 16:12, David S. Miller wrote:
->    From: James Cleverdon <jamesclv@us.ibm.com>
->    Date: Tue, 17 Sep 2002 15:55:52 -0700
->    
->    The initial sync was easy, even with variable latencies on cache lines.  A 
->    much simplified NTP-ish algorithm works fine.  The painful thing was bus 
->    clock drift and programs that foolishly relied on the TSC being the same 
->    between CPUs and between nodes.
-> 
-> This is why the gettimeofday implementation should use the system tick
-> thing and also any profiling support in the C library should avoid
-> TSC as well.
+   From: john stultz <johnstul@us.ibm.com>
+   Date: 17 Sep 2002 16:32:15 -0700
+   
+   Additionally, where is this system tick thing? You make it sound like
+   its a register in the cpu, and while the Ultra-III may have one, I'm
+   unaware of a system/bus tick register on intel chips. Is it in some
+   semi-documented MSR?
 
-I think the point James is making is that on very large systems, you
-will get system tick skew as well. On one system I know of, the bus
-frequency is intensionally skewed slightly between nodes. This is what
-causes the TSCs to skew, and I believe would also cause this "system
-tick" to skew as well.
+It's in a register on Ultra-III.  The whole point of this
+conversation, if you read my initial postings, is that
+"this should have been specified in the x86 architecture"
 
-Additionally, where is this system tick thing? You make it sound like
-its a register in the cpu, and while the Ultra-III may have one, I'm
-unaware of a system/bus tick register on intel chips. Is it in some
-semi-documented MSR?
-
-I apologize for being confused, I'm just not sure if your criticizing
-the code or the hardware. 
-
-thanks
--john 
-
+I know full well it isn't currently :-)

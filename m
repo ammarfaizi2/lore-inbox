@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262404AbSJVKig>; Tue, 22 Oct 2002 06:38:36 -0400
+	id <S262411AbSJVKqR>; Tue, 22 Oct 2002 06:46:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262409AbSJVKig>; Tue, 22 Oct 2002 06:38:36 -0400
-Received: from gate.perex.cz ([194.212.165.105]:53771 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S262404AbSJVKif>;
-	Tue, 22 Oct 2002 06:38:35 -0400
-Date: Tue, 22 Oct 2002 12:43:53 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: sound/core/wrappers.c __GENKSYMS__ usage
-In-Reply-To: <20021021211120.A6964@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.33.0210221132400.521-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262420AbSJVKqR>; Tue, 22 Oct 2002 06:46:17 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46297 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262411AbSJVKqR>; Tue, 22 Oct 2002 06:46:17 -0400
+Date: Tue, 22 Oct 2002 16:36:00 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: rusty@rustcorp.com.au, richard <richardj_moore@uk.ibm.com>,
+       suparna <suparna@in.ibm.com>, bharata <bharata@in.ibm.com>
+Subject: [patch 0/4] kprobes patches for 2.5.44
+Message-ID: <20021022163600.A26609@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002, Sam Ravnborg wrote:
+Here is the latest set of kprobes patches for 2.5.44. It is essentially 
+same as the last one I sent out for 2.5.40. On top of that, I am sending
+additional patches to get kprobes closer to dprobes full version.
 
-> Hi Jaroslav
-> 
-> The usage of __GENKSYMS__ in sound/core/wrappers.c looks wrong.
-> 
-> >From the file:
-> #include <linux/version.h>
-> #include <linux/config.h>
-> #ifdef ALSA_BUILD
-> #if defined(CONFIG_MODVERSIONS) && !defined(__GENKSYMS__) && !defined(__DEPEND__)
-> #define MODVERSIONS
-> #include <linux/modversions.h>
-> #include "sndversions.h"
-> #endif
-> #endif
-> 
-> So __GENKSYMS__ etc is used to protect against inclusion of modversions.h
-> and sndversion.h.
-> The latter is not present in my tree (2.5.44).
-> __DEPEND__ is no longer used.
-> 
-> I do not see the purpose of this - please explain.
+0/1 - this
+1/1 - kprobes - base - same as the one Rusty has been sending, just
+                upgraded to 2.5.44.
+2/1 - kprobes - debug register management
+3/1 - kprobes - kwatch points
+4/1 - kprobes - user space probes
 
-It's for compatibility with older kernels. We use same sources for 2.2 and 
-2.4 kernels. Also notice that "problematic" #if is after ALSA_BUILD and 
-it's not defined for Linux kernel (we use this definition internally for 
-our build system).
-
-Anyway, I'll move this code outside the kernel tree.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
-
+Any comments, especially about the addon patches welcome.
+-- 
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

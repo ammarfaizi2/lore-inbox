@@ -1,122 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266255AbUAVM6P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 07:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266256AbUAVM6P
+	id S266316AbUAVSgF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 13:36:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266332AbUAVSgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 07:58:15 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:33431 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266255AbUAVM5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 07:57:55 -0500
-Subject: Races in sleep_on()
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040122005436.5895d7bb.akpm@osdl.org>
-References: <E1AjOdk-0000pG-Ah@thunk.org> <874qup9dml.fsf@rover.gag.com>
-	 <20040121231522.GC3780@thunk.org>
-	 <1074757117.16045.201.camel@imladris.demon.co.uk>
-	 <20040122083643.GM1016@holomorphy.com>
-	 <1074760818.16750.1026.camel@hades.cambridge.redhat.com>
-	 <20040122005436.5895d7bb.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1074776272.28136.64.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Thu, 22 Jan 2004 12:57:52 +0000
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-Spam-Score: 0.0 (/)
+	Thu, 22 Jan 2004 13:36:05 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:25243 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S266316AbUAVSgC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 13:36:02 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: David Ford <david+hb@blue-labs.org>
+Cc: Jes Sorensen <jes@wildopensource.com>, Zan Lynx <zlynx@acm.org>,
+       Andreas Jellinghaus <aj@dungeon.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Thu, 22 Jan 2004 10:35:54 -0800 (PST)
+Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to
+ public posts
+In-Reply-To: <401000C1.9010901@blue-labs.org>
+Message-ID: <Pine.LNX.4.58.0401221034090.4548@dlang.diginsite.com>
+References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
+ <20040121194315.GE9327@redhat.com> <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
+ <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com>
+ <20040121213027.GN23765@srv-lnx2600.matchmail.com>
+ <pan.2004.01.21.23.40.00.181984@dungeon.inka.de> <1074731162.25704.10.camel@localhost.localdomain>
+ <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-22 at 00:54 -0800, Andrew Morton wrote:
-> > Yes. That's why I advocated the BUG_ON(!BKL) a _long_ time ago. Arjan
-> > had a huge list of bogus callers even in 2.4. 
-> 
-> So...  do me a patch which does a WARN_ON()?  Make sure that it shuts
-> itself up after the first five messages so people don't hate us too much.
-> 
-> To get best coverage you'll need to make the !CONFIG_SMP&&!CONFIG_PREEMPT
-> version of lock_kernel() set a flag or something.
+On Thu, 22 Jan 2004, David Ford wrote:
 
-Since the spinlock is a NOP anyway there doesn't seem to be any harm in
-just letting the UP version use the same code as the SMP/PREEMPT
-versions. 
+> Considering that Bayesian filters are useless against the new spam that
+> is proliferating these days, that's laughable.  Spam now comes with a
+> good 5-10K of random dictionary words.
 
-I've done the _timeout versions too, despite the frequent whinge that
-'it's OK if we miss wakeups because we time out eventually anyway'. That
-argument was never acceptable to me anyway.
+so we need to extend the Bayesian filters to deal with multi-word combos,
+how many legit mail has those dictionary words in them? properly traind
+their presence should help identify the spam.
 
-===== include/linux/smp_lock.h 1.7 vs edited =====
---- 1.7/include/linux/smp_lock.h	Mon Jan 19 23:38:11 2004
-+++ edited/include/linux/smp_lock.h	Thu Jan 22 09:15:17 2004
-@@ -5,7 +5,9 @@
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- 
--#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
-+#define BKL_DEBUG /* For testing for sleep_on() abuse */
-+
-+#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT) || defined(BKL_DEBUG)
- 
- extern spinlock_t kernel_flag;
- 
-===== kernel/sched.c 1.236 vs edited =====
---- 1.236/kernel/sched.c	Mon Jan 19 23:38:12 2004
-+++ edited/kernel/sched.c	Thu Jan 22 10:49:55 2004
-@@ -1903,10 +1903,21 @@
- 	__remove_wait_queue(q, &wait);			\
- 	spin_unlock_irqrestore(&q->lock, flags);
- 
-+#define SLEEP_ON_BKLCHECK				\
-+	if (unlikely(!kernel_locked()) &&		\
-+	    sleep_on_bkl_warnings < 10) {		\
-+		sleep_on_bkl_warnings++;		\
-+		WARN_ON(1);				\
-+	}
-+
-+static int sleep_on_bkl_warnings;
-+
- void interruptible_sleep_on(wait_queue_head_t *q)
- {
- 	SLEEP_ON_VAR
- 
-+	SLEEP_ON_BKLCHECK
-+
- 	current->state = TASK_INTERRUPTIBLE;
- 
- 	SLEEP_ON_HEAD
-@@ -1920,6 +1931,8 @@
- {
- 	SLEEP_ON_VAR
- 
-+	SLEEP_ON_BKLCHECK
-+
- 	current->state = TASK_INTERRUPTIBLE;
- 
- 	SLEEP_ON_HEAD
-@@ -1935,6 +1948,8 @@
- {
- 	SLEEP_ON_VAR
- 
-+	SLEEP_ON_BKLCHECK
-+
- 	current->state = TASK_UNINTERRUPTIBLE;
- 
- 	SLEEP_ON_HEAD
-@@ -1947,6 +1962,8 @@
- long sleep_on_timeout(wait_queue_head_t *q, long timeout)
- {
- 	SLEEP_ON_VAR
-+
-+	SLEEP_ON_BKLCHECK
- 
- 	current->state = TASK_UNINTERRUPTIBLE;
- 
+not that you will ever see this (other then through the list) as I won't
+respond to your confirmation message.
 
-
--- 
-dwmw2
-
+David Lang

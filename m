@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267396AbTBFVXh>; Thu, 6 Feb 2003 16:23:37 -0500
+	id <S267414AbTBFV0m>; Thu, 6 Feb 2003 16:26:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267410AbTBFVXh>; Thu, 6 Feb 2003 16:23:37 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:59776 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267396AbTBFVXg>; Thu, 6 Feb 2003 16:23:36 -0500
-Date: Thu, 6 Feb 2003 15:33:19 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: possible partition corruption
-In-Reply-To: <20030206132346.4b635676.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0302061529240.998-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267415AbTBFV0m>; Thu, 6 Feb 2003 16:26:42 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:9961 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S267414AbTBFV0l>; Thu, 6 Feb 2003 16:26:41 -0500
+Subject: [PATCH][TRIVIAL] ACPI_PROCESSOR depends on CPU_FREQ
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: andrew.grover@intel.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Feb 2003 13:28:11 -0800
+Message-Id: <1044566892.3098.19.camel@vmhack>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Feb 2003, Andrew Morton wrote:
+After pulling from Linus's tree my build broke while attempting to
+compile drivers/acpi/processor.c because cpufreq_get_policy() and
+cpufreq_set_policy() were not defined.
 
-> Thomas Molina <tmolina@cox.net> wrote:
-> >
-> > > Everything you describe is consistent with a kernel which does not have ext3
-> > > compiled into it.
-> > ...
-> > I'm aware of that.
-> 
-> In that case you may be experiencing the mysterious vanishing
-> ext3_read_super-doesn't-work bug.  Usually a recompile/relink makes it go
-> away.  I haven't seen it in months.
-> 
-> Could you please drop this additional debugging in there and see
-> what happens?
+Here is a quick Kconfig fix.
 
-I'll try it, but a question did occur to me.  I got the hang while booting 
-a freshly-compiled 2.5.59, but the error message was received after 
-supposedly cleaning and recovering the journal.  That was using the stock 
-RedHat 8.0 kernel, 2.4.18-24.8.0, which most certainly does have ext3 
-support.  Would the bug you described affect a following boot into a 
-totally different kernel?
+    --rustyl
+
+--- drivers/acpi/Kconfig.orig	2003-02-06 13:29:24.000000000 -0800
++++ drivers/acpi/Kconfig	2003-02-06 13:31:01.000000000 -0800
+@@ -110,6 +110,7 @@
+ 
+ config ACPI_PROCESSOR
+ 	tristate "Processor"
++	depends on CPU_FREQ
+ 	depends on IA64 && !IA64_HP_SIM || X86 && ACPI && !ACPI_HT_ONLY
+ 	help
+ 	  This driver installs ACPI as the idle handler for Linux, and uses
+
+
 

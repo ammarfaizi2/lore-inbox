@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVC3Sda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbVC3Sfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbVC3Sda (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:33:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVC3Sda
+	id S262389AbVC3Sfc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbVC3Sfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:33:30 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:23849 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262377AbVC3Sd1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:33:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Zvw25bVJ70N1tAGxWT7uIfKVWzCHUh2lXVIN3bVLTBgvZaxTcAFItl2142I76dKHzFJoKjfTF4AWycvJKAfKAQfxHOkfQzYslNTNQqQdPLChJEXVC1nOkeAtMqyBg6layg+T4ZyH2sddAAqkhGH6wf1Hortcb659iZE7zV1VxyY=
-Message-ID: <9e473391050330103379e398de@mail.gmail.com>
-Date: Wed, 30 Mar 2005 13:33:24 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: krishna <krishna.c@globaledgesoft.com>
-Subject: Re: How to debug kernel before there is no printk mechanism?
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <424AD247.4080409@globaledgesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <424AD247.4080409@globaledgesoft.com>
+	Wed, 30 Mar 2005 13:35:32 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:52102 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S262386AbVC3SfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:35:16 -0500
+Subject: [patch 1/3] fix defined but unused warning
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Wed, 30 Mar 2005 19:32:07 +0200
+Message-Id: <20050330173212.0851AE0735@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you try turning on CONFIG_EARLY_PRINTK=y? That will allow printk
-to a serial console much earlier.
 
-You need to build the serial driver in too:
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
+Fix "defined but unused" warning in kernel/sched.c.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.11-paolo/kernel/sched.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -puN kernel/sched.c~fix-def-notused-warn kernel/sched.c
+--- linux-2.6.11/kernel/sched.c~fix-def-notused-warn	2005-03-27 22:14:49.000000000 +0200
++++ linux-2.6.11-paolo/kernel/sched.c	2005-03-27 22:15:00.000000000 +0200
+@@ -314,7 +314,9 @@ static inline void task_rq_unlock(runque
+ static int show_schedstat(struct seq_file *seq, void *v)
+ {
+ 	int cpu;
++#ifdef CONFIG_SMP
+ 	enum idle_type itype;
++#endif
+ 
+ 	seq_printf(seq, "version %d\n", SCHEDSTAT_VERSION);
+ 	seq_printf(seq, "timestamp %lu\n", jiffies);
+_

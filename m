@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316650AbSFKCBc>; Mon, 10 Jun 2002 22:01:32 -0400
+	id <S315485AbSFKCLH>; Mon, 10 Jun 2002 22:11:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316652AbSFKCBb>; Mon, 10 Jun 2002 22:01:31 -0400
-Received: from th00.opsion.fr ([195.219.20.10]:25862 "HELO th00.opsion.fr")
-	by vger.kernel.org with SMTP id <S316650AbSFKCBb> convert rfc822-to-8bit;
-	Mon, 10 Jun 2002 22:01:31 -0400
-Send-By: 202.181.219.129 with Mozilla/4.78 [en] (Win95; U)
+	id <S316652AbSFKCLG>; Mon, 10 Jun 2002 22:11:06 -0400
+Received: from [61.132.182.1] ([61.132.182.1]:24672 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id <S315485AbSFKCLF>;
+	Mon, 10 Jun 2002 22:11:05 -0400
+Date: Tue, 11 Jun 2002 10:09:15 +0800 (CST)
+From: Wang Hui <whui@mail.ustc.edu.cn>
+X-X-Sender: <whui@mail>
 To: <linux-kernel@vger.kernel.org>
-Subject: Re: mke2fs (and mkreiserfs) core dumps
-From: <cnliou@eurosport.com>
-X-Priority: 3 (normal)
+Subject: What dose 'general protection fault: 0000' mean?
+Message-ID: <Pine.GSO.4.31L2A.0206111003200.10818-100000@mail>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Tue, 11 Jun 2002 02:01:10 GMT
-Message-id: <200206110201.0ab3@th00.opsion.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi, all,
 
-I am exeperiencing the similar problem in kernel
-2.4.18, glibc 2.2.5, and patched gcc 2.95.3
-(http://ricardo.ecn.wfu.edu/glib-linux-archive/0110/0
-007.html).
+I am coding a linux kernel module, but when I run my testing code I got
+a kernel panic.  And the panic screen said:
 
-Both of the following commands
+general protection fault:0000
+CPU: 0
+EIP: 0010:[<d289a213>]       Tainted: P
+EFLAGS: 00010297
+............
+............
+Code: 8b 02 8b 55 08 89 02 8b 55 0c 8b 42 04 8b 55 08 89 42 04 8b
+<0> Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
-mke2fs /dev/md0
-mke2fs -j /dev/md0
+==================================================
 
-output
+I am a newbie to linux kernel hacking.  I dont know how to find out
+where is the fault code.  :(  Could anyone give me some hints???
 
-File size limit exceeded
+Thanks a lot in advance!!
 
-Please help and thank you in advance!
-
-CN
-
---------------------------------------------------------
-You too can have your own email address from Eurosport.
-http://www.eurosport.com
-
-
-
-
+Regards,
+Wang Hui.
 

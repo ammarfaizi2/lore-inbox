@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262750AbUKRMSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbUKRMWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262750AbUKRMSv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 07:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUKRMSv
+	id S262752AbUKRMWk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 07:22:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUKRMWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 07:18:51 -0500
-Received: from alog0221.analogic.com ([208.224.220.236]:36736 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262750AbUKRMSs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 07:18:48 -0500
-Date: Thu, 18 Nov 2004 07:13:30 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Sharma Sushant <sushant@cs.unm.edu>, linux-kernel@vger.kernel.org
-Subject: Re: max agruments in system_calls
-In-Reply-To: <Pine.LNX.4.53.0411181127170.26614@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0411180710170.4477@chaos.analogic.com>
-References: <Pine.LNX.4.60.0411171608250.30215@chawla.cs.unm.edu>
- <Pine.LNX.4.61.0411171839430.1111@chaos.analogic.com>
- <Pine.LNX.4.53.0411181127170.26614@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-1384073508-1100780010=:4477"
+	Thu, 18 Nov 2004 07:22:40 -0500
+Received: from pop.gmx.de ([213.165.64.20]:39137 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262752AbUKRMWi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 07:22:38 -0500
+X-Authenticated: #4399952
+Date: Thu, 18 Nov 2004 13:23:40 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.28-1
+Message-ID: <20041118132340.5b995dcb@mango.fruits.de>
+In-Reply-To: <20041118123521.GA29091@elte.hu>
+References: <20041106155720.GA14950@elte.hu>
+	<20041108091619.GA9897@elte.hu>
+	<20041108165718.GA7741@elte.hu>
+	<20041109160544.GA28242@elte.hu>
+	<20041111144414.GA8881@elte.hu>
+	<20041111215122.GA5885@elte.hu>
+	<20041116125402.GA9258@elte.hu>
+	<20041116130946.GA11053@elte.hu>
+	<20041116134027.GA13360@elte.hu>
+	<20041117124234.GA25956@elte.hu>
+	<20041118123521.GA29091@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Thu, 18 Nov 2004 13:35:21 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
---1678434306-1384073508-1100780010=:4477
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+> 
+> i have released the -V0.7.28-1 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
+> 
+> 	http://redhat.com/~mingo/realtime-preempt/
+> 
+> this should fix the lockup bug reported by Florian Schmidt.
 
-On Thu, 18 Nov 2004, Jan Engelhardt wrote:
+great news! did you find any sleep at all? anyways, built and booted fine.
+putting load on the system since 15 minutes. If it locks up again, i'll write
+another mail.
 
->> Huh? You KNOW that you don't have more than 7 registers available
->> on ix86 so you KNOW that you either need a pointer to a struct (one
->> parameter) or it won't work.
->>
->> FYI:
->> =09eax =3D function code
->> =09ebx =3D first parameter
->> =09ecx =3D second parameter
->> =09edx =3D third parameter
->> =09esi =3D fourth parameter
->> =09edi =3D fifth parameter
->> =09ebp =3D sixth parameter
->
-> And if you use varargs?
->
->
->
-Not relevant. You can't pass your arguments on the stack with
-any efficiency (you become Windows) because the user-stack is
-just data in the kernel. One would have to copy from the user
-stack which is about as inefficient as possible.
-
-> Jan Engelhardt
-> --=20
-> Gesellschaft f=FF=FFr Wissenschaftliche Datenverarbeitung
-> Am Fassberg, 37077 G=FF=FFttingen, www.gwdg.de
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
---1678434306-1384073508-1100780010=:4477--
+flo

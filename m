@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281294AbRKUWHc>; Wed, 21 Nov 2001 17:07:32 -0500
+	id <S281641AbRKUWIM>; Wed, 21 Nov 2001 17:08:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281395AbRKUWHX>; Wed, 21 Nov 2001 17:07:23 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:49426 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S281294AbRKUWHS>;
-	Wed, 21 Nov 2001 17:07:18 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: marcel@mesa.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make modules_install fails with latest fileutils 
-In-Reply-To: Your message of "Wed, 21 Nov 2001 09:08:54 BST."
-             <20011121090854.A15851@joshua.mesa.nl> 
+	id <S281683AbRKUWIC>; Wed, 21 Nov 2001 17:08:02 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:57861 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S281641AbRKUWHu>;
+	Wed, 21 Nov 2001 17:07:50 -0500
+Date: Wed, 21 Nov 2001 15:05:15 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: visor.o oopses in 2.4.14
+Message-ID: <20011121150515.A11113@kroah.com>
+In-Reply-To: <20011121005419.A11766@gintaras>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 22 Nov 2001 09:06:31 +1100
-Message-ID: <7409.1006380391@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <20011121005419.A11766@gintaras>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 24 Oct 2001 22:01:23 -0700
+X-Message-Flag: Message text blocked: Unsuitable for Adults
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001 09:08:54 +0100, 
-"Marcel J.E. Mol" <marcel@mesa.nl> wrote:
->On Wed, Nov 21, 2001 at 11:52:26AM +1100, Keith Owens wrote:
->> (2) The correct workaround is
->>      cp -f $(sort $(ALL_MOBJS)) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
->
->shouldn't this then be 'sort -u'.
+On Wed, Nov 21, 2001 at 12:54:19AM +0200, Marius Gedminas wrote:
+> Syncing my Palm m500 with coldsync 2.2.0 always results in an oops.  This
+> happened on 2.4.12 and 2.4.14
 
-info make, /$(sort
+Can you try 2.4.15-pre8?  There should be a patch in there that fixes
+this problem.
 
+thanks,
+
+greg k-h

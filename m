@@ -1,106 +1,192 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265250AbTBCTyL>; Mon, 3 Feb 2003 14:54:11 -0500
+	id <S265094AbTBCTyK>; Mon, 3 Feb 2003 14:54:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265081AbTBCTxT>; Mon, 3 Feb 2003 14:53:19 -0500
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:60634 "EHLO
+	id <S265250AbTBCTxO>; Mon, 3 Feb 2003 14:53:14 -0500
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:59866 "EHLO
 	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S265895AbTBCTwh> convert rfc822-to-8bit; Mon, 3 Feb 2003 14:52:37 -0500
+	id <S265081AbTBCTwg> convert rfc822-to-8bit; Mon, 3 Feb 2003 14:52:36 -0500
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH, =?iso-8859-1?q?B=F6blingen?=
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 fixes (12/12).
-Date: Mon, 3 Feb 2003 20:48:24 +0100
+Subject: [PATCH] s390 fixes (6/12).
+Date: Mon, 3 Feb 2003 20:46:50 +0100
 User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200302032048.24470.schwidefsky@de.ibm.com>
+Message-Id: <200302032046.50209.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-trivial s390 fixes
-diff -urN linux-2.5.59/arch/s390/kernel/setup.c linux-2.5.59-s390/arch/s390/kernel/setup.c
---- linux-2.5.59/arch/s390/kernel/setup.c	Fri Jan 17 03:21:38 2003
-+++ linux-2.5.59-s390/arch/s390/kernel/setup.c	Mon Feb  3 20:50:22 2003
-@@ -551,7 +551,7 @@
+updates for compiling with gcc-3.3pre
+
+- add -finline-limit=10000 to make it build
+- drop .eh_frame elf section from vmlinux
+- fix common warnings inn asm headers
+- make dasd compile
+- Don't warn about signed/unsigned comparisions
+diff -urN linux-2.5.59/arch/s390/Makefile linux-2.5.59-s390/arch/s390/Makefile
+--- linux-2.5.59/arch/s390/Makefile	Fri Jan 17 03:21:42 2003
++++ linux-2.5.59-s390/arch/s390/Makefile	Mon Feb  3 20:49:42 2003
+@@ -18,7 +18,7 @@
+ LDFLAGS_vmlinux := -e start
+ LDFLAGS_BLOB	:= --format binary --oformat elf32-s390
  
- static void *c_start(struct seq_file *m, loff_t *pos)
+-CFLAGS += -pipe -fno-strength-reduce
++CFLAGS += -pipe -fno-strength-reduce -finline-limit=10000 -Wno-sign-compare
+ 
+ HEAD := arch/$(ARCH)/kernel/head.o arch/$(ARCH)/kernel/init_task.o
+ 
+diff -urN linux-2.5.59/arch/s390/vmlinux.lds.S linux-2.5.59-s390/arch/s390/vmlinux.lds.S
+--- linux-2.5.59/arch/s390/vmlinux.lds.S	Fri Jan 17 03:22:01 2003
++++ linux-2.5.59-s390/arch/s390/vmlinux.lds.S	Mon Feb  3 20:49:42 2003
+@@ -64,6 +64,9 @@
+   __setup_start = .;
+   .init.setup : { *(.init.setup) }
+   __setup_end = .;
++  __start___param = .;
++  __param : { *(__param) }
++  __stop___param = .;
+   __initcall_start = .;
+   .initcall.init : {
+ 	*(.initcall1.init) 
+@@ -98,6 +101,7 @@
+ 	*(.exit.text)
+ 	*(.exit.data)
+ 	*(.exitcall.exit)
++	*(.eh_frame)
+ 	}
+ 
+   /* Stabs debugging sections.  */
+diff -urN linux-2.5.59/arch/s390x/Makefile linux-2.5.59-s390/arch/s390x/Makefile
+--- linux-2.5.59/arch/s390x/Makefile	Fri Jan 17 03:22:13 2003
++++ linux-2.5.59-s390/arch/s390x/Makefile	Mon Feb  3 20:49:42 2003
+@@ -19,7 +19,7 @@
+ MODFLAGS += -fpic -D__PIC__
+ LDFLAGS_BLOB	:= --format binary --oformat elf64-s390
+ 
+-CFLAGS += -pipe -fno-strength-reduce
++CFLAGS += -pipe -fno-strength-reduce -finline-limit=10000 -Wno-sign-compare
+ 
+ HEAD := arch/$(ARCH)/kernel/head.o arch/$(ARCH)/kernel/init_task.o
+ 
+diff -urN linux-2.5.59/arch/s390x/vmlinux.lds.S linux-2.5.59-s390/arch/s390x/vmlinux.lds.S
+--- linux-2.5.59/arch/s390x/vmlinux.lds.S	Fri Jan 17 03:21:50 2003
++++ linux-2.5.59-s390/arch/s390x/vmlinux.lds.S	Mon Feb  3 20:49:42 2003
+@@ -64,6 +64,9 @@
+   __setup_start = .;
+   .init.setup : { *(.init.setup) }
+   __setup_end = .;
++  __start___param = .;
++  __param : { *(__param) }
++  __stop___param = .;
+   __initcall_start = .;
+   .initcall.init : {
+ 	*(.initcall1.init) 
+@@ -98,6 +101,7 @@
+ 	*(.exit.text)
+ 	*(.exit.data)
+ 	*(.exitcall.exit)
++	*(.eh_frame)
+ 	}
+ 
+   /* Stabs debugging sections.  */
+diff -urN linux-2.5.59/drivers/s390/block/dasd_eckd.h linux-2.5.59-s390/drivers/s390/block/dasd_eckd.h
+--- linux-2.5.59/drivers/s390/block/dasd_eckd.h	Fri Jan 17 03:22:03 2003
++++ linux-2.5.59-s390/drivers/s390/block/dasd_eckd.h	Mon Feb  3 20:49:42 2003
+@@ -5,7 +5,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
+  *
+- * $Revision: 1.5 $
++ * $Revision: 1.6 $
+  *
+  * History of changes 
+  * 
+@@ -109,7 +109,7 @@
+ 		unsigned char cfw:1;	/* Cache fast write */
+ 		unsigned char dfw:1;	/* DASD fast write */
+ 	} __attribute__ ((packed)) attributes;
+-	__u16 short blk_size;	/* Blocksize */
++	__u16 blk_size;		/* Blocksize */
+ 	__u16 fast_write_id;
+ 	__u8 ga_additional;	/* Global Attributes Additional */
+ 	__u8 ga_extended;	/* Global Attributes Extended	*/
+diff -urN linux-2.5.59/include/asm-s390/bitops.h linux-2.5.59-s390/include/asm-s390/bitops.h
+--- linux-2.5.59/include/asm-s390/bitops.h	Fri Jan 17 03:21:36 2003
++++ linux-2.5.59-s390/include/asm-s390/bitops.h	Mon Feb  3 20:49:42 2003
+@@ -469,7 +469,7 @@
+  * This routine doesn't need to be atomic.
+  */
+ 
+-static inline int __test_bit(int nr, volatile unsigned long *ptr)
++static inline int __test_bit(int nr, const volatile unsigned long *ptr)
  {
--	return *pos <= NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
-+	return *pos < NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
+ 	unsigned long addr;
+ 	unsigned char ch;
+@@ -480,7 +480,7 @@
  }
- static void *c_next(struct seq_file *m, void *v, loff_t *pos)
- {
-diff -urN linux-2.5.59/arch/s390x/kernel/setup.c linux-2.5.59-s390/arch/s390x/kernel/setup.c
---- linux-2.5.59/arch/s390x/kernel/setup.c	Fri Jan 17 03:22:02 2003
-+++ linux-2.5.59-s390/arch/s390x/kernel/setup.c	Mon Feb  3 20:50:22 2003
-@@ -545,7 +545,7 @@
  
- static void *c_start(struct seq_file *m, loff_t *pos)
- {
--	return *pos <= NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
-+	return *pos < NR_CPUS ? (void *)((unsigned long) *pos + 1) : NULL;
+ static inline int 
+-__constant_test_bit(int nr, volatile unsigned long * addr) {
++__constant_test_bit(int nr, const volatile unsigned long * addr) {
+     return (((volatile char *) addr)[(nr>>3)^3] & (1<<(nr&7))) != 0;
  }
- static void *c_next(struct seq_file *m, void *v, loff_t *pos)
+ 
+diff -urN linux-2.5.59/include/asm-s390/idals.h linux-2.5.59-s390/include/asm-s390/idals.h
+--- linux-2.5.59/include/asm-s390/idals.h	Fri Jan 17 03:21:38 2003
++++ linux-2.5.59-s390/include/asm-s390/idals.h	Mon Feb  3 20:49:42 2003
+@@ -191,10 +191,10 @@
+ __idal_buffer_is_needed(struct idal_buffer *ib)
  {
-diff -urN linux-2.5.59/fs/partitions/ibm.c linux-2.5.59-s390/fs/partitions/ibm.c
---- linux-2.5.59/fs/partitions/ibm.c	Fri Jan 17 03:22:56 2003
-+++ linux-2.5.59-s390/fs/partitions/ibm.c	Mon Feb  3 20:50:22 2003
-@@ -91,6 +91,11 @@
- 	EBCASC(type, 4);
- 	EBCASC(name, 6);
+ #ifdef CONFIG_ARCH_S390X
+-	return ib->size > (4096 << ib->page_order) ||
++	return ib->size > (4096ul << ib->page_order) ||
+ 		idal_is_needed(ib->data[0], ib->size);
+ #else
+-	return ib->size > (4096 << ib->page_order);
++	return ib->size > (4096ul << ib->page_order);
+ #endif
+ }
  
-+/* FIXME: this no longer works.
-+	if(name[0] != '\0')
-+		register_disk_label(hd, name);
-+*/
-+
- 	/*
- 	 * Three different types: CMS1, VOL1 and LNX1/unlabeled
- 	 */
-diff -urN linux-2.5.59/include/asm-s390/spinlock.h linux-2.5.59-s390/include/asm-s390/spinlock.h
---- linux-2.5.59/include/asm-s390/spinlock.h	Fri Jan 17 03:23:01 2003
-+++ linux-2.5.59-s390/include/asm-s390/spinlock.h	Mon Feb  3 20:50:22 2003
-@@ -122,4 +122,17 @@
-                      : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
- 		     : "2", "3", "cc" )
+diff -urN linux-2.5.59/include/asm-s390x/bitops.h linux-2.5.59-s390/include/asm-s390x/bitops.h
+--- linux-2.5.59/include/asm-s390x/bitops.h	Fri Jan 17 03:22:44 2003
++++ linux-2.5.59-s390/include/asm-s390x/bitops.h	Mon Feb  3 20:49:42 2003
+@@ -473,7 +473,7 @@
+  * This routine doesn't need to be atomic.
+  */
  
-+extern inline int _raw_write_trylock(rwlock_t *rw)
-+{
-+	unsigned int result, reg;
-+	
-+	__asm__ __volatile__("   lhi  %0,1\n"
-+			     "   sll  %0,31\n"
-+			     "   basr %1,0\n"
-+			     "0: cs   %0,%1,0(%3)\n"
-+			     : "=&d" (result), "=&d" (reg), "+m" (rw->lock)
-+			     : "a" (&rw->lock) : "cc" );
-+	return !result;
-+}
-+
- #endif /* __ASM_SPINLOCK_H */
-diff -urN linux-2.5.59/include/asm-s390x/spinlock.h linux-2.5.59-s390/include/asm-s390x/spinlock.h
---- linux-2.5.59/include/asm-s390x/spinlock.h	Fri Jan 17 03:21:41 2003
-+++ linux-2.5.59-s390/include/asm-s390x/spinlock.h	Mon Feb  3 20:50:22 2003
-@@ -139,5 +139,17 @@
- 		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
- 		     : "2", "3", "cc" )
+-static inline int __test_bit(unsigned long nr, volatile unsigned long *ptr)
++static inline int __test_bit(unsigned long nr, const volatile unsigned long *ptr)
+ {
+ 	unsigned long addr;
+ 	unsigned char ch;
+@@ -484,7 +484,7 @@
+ }
  
-+extern inline int _raw_write_trylock(rwlock_t *rw)
-+{
-+	unsigned int result, reg;
-+	
-+	__asm__ __volatile__("   llihh %0,0x8000\n"
-+			     "   basr  %1,0\n"
-+			     "0: csg %0,%1,0(%3)\n"
-+			     : "=&d" (result), "=&d" (reg), "+m" (rw->lock)
-+			     : "a" (&rw->lock) : "cc" );
-+	return !result;
-+}
-+
- #endif /* __ASM_SPINLOCK_H */
+ static inline int 
+-__constant_test_bit(unsigned long nr, volatile unsigned long *addr) {
++__constant_test_bit(unsigned long nr, const volatile unsigned long *addr) {
+     return (((volatile char *) addr)[(nr>>3)^7] & (1<<(nr&7))) != 0;
+ }
+ 
+diff -urN linux-2.5.59/include/asm-s390x/idals.h linux-2.5.59-s390/include/asm-s390x/idals.h
+--- linux-2.5.59/include/asm-s390x/idals.h	Fri Jan 17 03:22:22 2003
++++ linux-2.5.59-s390/include/asm-s390x/idals.h	Mon Feb  3 20:49:42 2003
+@@ -191,10 +191,10 @@
+ __idal_buffer_is_needed(struct idal_buffer *ib)
+ {
+ #ifdef CONFIG_ARCH_S390X
+-	return ib->size > (4096 << ib->page_order) ||
++	return ib->size > (4096ul << ib->page_order) ||
+ 		idal_is_needed(ib->data[0], ib->size);
+ #else
+-	return ib->size > (4096 << ib->page_order);
++	return ib->size > (4096ul << ib->page_order);
+ #endif
+ }
  
 

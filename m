@@ -1,399 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266715AbUHIQoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266726AbUHIQrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266715AbUHIQoI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 12:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266725AbUHIQoI
+	id S266726AbUHIQrS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 12:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266731AbUHIQrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 12:44:08 -0400
-Received: from [66.199.235.26] ([66.199.235.26]:49107 "EHLO
-	nabucodonosor.cmn-consulting.com") by vger.kernel.org with ESMTP
-	id S266715AbUHIQnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 12:43:33 -0400
-Subject: EDD Support
-From: Henry Molina <henrymolina@cmn-consulting.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: CMN Consulting
-Message-Id: <1092069811.2907.85.camel@prometeo>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 09 Aug 2004 11:43:31 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 12:47:18 -0400
+Received: from vivaldi.madbase.net ([81.173.6.10]:18922 "HELO
+	vivaldi.madbase.net") by vger.kernel.org with SMTP id S266726AbUHIQrQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 12:47:16 -0400
+Date: Mon, 9 Aug 2004 12:47:15 -0400 (EDT)
+From: Eric Lammerts <eric@lammerts.org>
+X-X-Sender: eric@vivaldi.madbase.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Greg KH <greg@kroah.com>,
+       albert@users.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dynamic /dev security hole?
+In-Reply-To: <1092065586.14144.31.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0408091238080.8693@vivaldi.madbase.net>
+References: <20040808162115.GA7597@kroah.com>  <1091969260.5759.125.camel@cube>
+  <20040808175834.59758fc0.Ballarin.Marc@gmx.de>  <20040808162115.GA7597@kroah.com>
+  <20040809000727.1eaf917b.Ballarin.Marc@gmx.de> 
+ <Pine.LNX.4.58.0408090025590.26834@vivaldi.madbase.net> 
+ <1092062974.14153.26.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0408091203160.8353@vivaldi.madbase.net>
+ <1092065586.14144.31.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
 
-I'm compiling kernel 2.6.7 with CONFIG_EDD fine, then I proceed to
-install the module but I can't get the /proc/sys/firmware/edd entry.
+I guess I'm missing something here...
 
-Any Suggestion?.
-	
-Many Thanks,
+On Mon, 9 Aug 2004, Alan Cox wrote:
+> User closes device
+> I have linked copy (not open)
+> Device unloaded
 
-Henry Molina
+At this point, udev (with the chown/chmod patch) would chown your
+linked copy (before unlinking the original device node), right?
 
-PD: I attach the dmidecode output
+> I open the linked copy
 
-# dmidecode 2.2
-SMBIOS 2.3 present.
-31 structures occupying 1017 bytes.
-Table at 0x000F0630.
-Handle 0x0000
-	DMI type 0, 20 bytes.
-	BIOS Information
-		Vendor: American Megatrends Inc.
-		Version: 1.02    
-		Release Date: 05/09/2003
-		Address: 0xF0000
-		Runtime Size: 64 kB
-		ROM Size: 512 kB
-		Characteristics:
-			ISA is supported
-			PCI is supported
-			PNP is supported
-			APM is supported
-			BIOS is upgradeable
-			BIOS shadowing is allowed
-			ESCD support is available
-			Boot from CD is supported
-			Selectable boot is supported
-			BIOS ROM is socketed
-			EDD is supported
-			5.25"/360 KB floppy services are supported (int 13h)
-			5.25"/1.2 MB floppy services are supported (int 13h)
-			3.5"/720 KB floppy services are supported (int 13h)
-			3.5"/2.88 MB floppy services are supported (int 13h)
-			Print screen service is supported (int 5h)
-			8042 keyboard services are supported (int 9h)
-			Printer services are supported (int 17h)
-			CGA/mono video services are supported (int 10h)
-			ACPI is supported
-			USB legacy is supported
-			AGP is supported
-			LS-120 boot is supported
-			ATAPI Zip drive boot is supported
-			BIOS boot specification is supported
-Handle 0x0001
-	DMI type 1, 25 bytes.
-	System Information
-		Manufacturer: Hewlett-Packard
-		Product Name: HP d220 MT (DC526A)
-		Version:    
-		Serial Number: MXD33701GQ
-		UUID: 15F4C490-59EA-D711-851C-517B4801761B
-		Wake-up Type: Power Switch
-Handle 0x0002
-	DMI type 2, 8 bytes.
-	Base Board Information
-		Manufacturer: Lite-On Tech.
-		Product Name: 0888h
-		Version:    
-		Serial Number: 01234567
-Handle 0x0003
-	DMI type 3, 17 bytes.
-	Chassis Information
-		Manufacturer: Hewlett-Packard
-		Type: Desktop
-		Lock: Not Present
-		Version:  
-		Serial Number:  
-		Asset Tag:  
-		Boot-up State: Safe
-		Power Supply State: Safe
-		Thermal State: Safe
-		Security Status: None
-		OEM Information: 0x00000000
-Handle 0x0004
-	DMI type 4, 32 bytes.
-	Processor Information
-		Socket Designation: mPGA-478
-		Type: Central Processor
-		Family: Pentium 4
-		Manufacturer: Intel                                           
-		ID: 29 0F 41 33 FF FB EB BF
-		Signature: Type 0, Family 34F, Model 12, Stepping 9
-		Flags:
-			FPU (Floating-point unit on-chip)
-			VME (Virtual mode extension)
-			DE (Debugging extension)
-			PSE (Page size extension)
-			TSC (Time stamp counter)
-			MSR (Model specific registers)
-			PAE (Physical address extension)
-			MCE (Machine check exception)
-			CX8 (CMPXCHG8 instruction supported)
-			APIC (On-chip APIC hardware supported)
-			SEP (Fast system call)
-			MTRR (Memory type range registers)
-			PGE (Page global enable)
-			MCA (Machine check architecture)
-			CMOV (Conditional move instruction supported)
-			PAT (Page attribute table)
-			PSE-36 (36-bit page size extension)
-			CLFSH (CLFLUSH instruction supported)
-			DS (Debug store)
-			ACPI (ACPI supported)
-			MMX (MMX technology supported)
-			FXSR (Fast floating-point save and restore)
-			SSE (Streaming SIMD extensions)
-			SSE2 (Streaming SIMD extensions 2)
-			SS (Self-snoop)
-			HTT (Hyper-threading technology)
-			TM (Thermal monitor supported)
-			SBF (Signal break on FERR)
-		Version: PENTIUM 4                                       
-		Voltage: 2.9 V
-		External Clock: 133 MHz
-		Max Speed: 4000 MHz
-		Current Speed: 2400 MHz
-		Status: Populated, Enabled
-		Upgrade: ZIF Socket
-		L1 Cache Handle: 0x0005
-		L2 Cache Handle: 0x0006
-		L3 Cache Handle: Not Provided
-Handle 0x0005
-	DMI type 7, 19 bytes.
-	Cache Information
-		Socket Designation: Internal Cache
-		Configuration: Enabled, Not Socketed, Level 1
-		Operational Mode: Write Back
-		Location: Internal
-		Installed Size: 8 KB
-		Maximum Size: 1024 KB
-		Supported SRAM Types:
-			Synchronous
-		Installed SRAM Type: Pipeline Burst Synchronous
-		Speed: 40 ns
-		Error Correction Type: Single-bit ECC
-		System Type: Data
-		Associativity: 4-way Set-associative
-Handle 0x0006
-	DMI type 7, 19 bytes.
-	Cache Information
-		Socket Designation: Internal Cache
-		Configuration: Enabled, Not Socketed, Level 2
-		Operational Mode: Write Back
-		Location: Internal
-		Installed Size: 512 KB
-		Maximum Size: 1024 KB
-		Supported SRAM Types:
-			Synchronous
-		Installed SRAM Type: Synchronous
-		Speed: 40 ns
-		Error Correction Type: Parity
-		System Type: Unified
-		Associativity: 8-way Set-associative
-Handle 0x0007
-	DMI type 5, 20 bytes.
-	Memory Controller Information
-		Error Detecting Method: None
-		Error Correcting Capabilities: None
-		Supported Interleave: One-way Interleave
-		Current Interleave: One-way Interleave
-		Maximum Memory Module Size: 1024 MB
-		Maximum Total Memory Size: 2048 MB
-		Supported Speeds:
-			Other
-		Supported Memory Types:
-			DIMM
-			SDRAM
-		Memory Module Voltage: 3.3 V
-		Associated Memory Slots: 2
-			0x0008
-			0x0009
-		Enabled Error Correcting Capabilities: None
-Handle 0x0008
-	DMI type 6, 12 bytes.
-	Memory Module Information
-		Socket Designation: DIMM1
-		Bank Connections: 1 0
-		Current Speed: Unknown
-		Type: DIMM SDRAM
-		Installed Size: 128 MB (Single-bank Connection)
-		Enabled Size: 128 MB (Single-bank Connection)
-		Error Status: OK
-Handle 0x0009
-	DMI type 6, 12 bytes.
-	Memory Module Information
-		Socket Designation: DIMM2
-		Bank Connections: 3 2
-		Current Speed: Unknown
-		Type: Unknown
-		Installed Size: Not Installed (Single-bank Connection)
-		Enabled Size: Not Installed (Single-bank Connection)
-		Error Status: OK
-Handle 0x000A
-	DMI type 9, 13 bytes.
-	System Slot Information
-		Designation: PCI1
-		Type: 32-bit PCI
-		Current Usage: Available
-		Length: Long
-		ID: 1
-		Characteristics:
-			3.3 V is provided
-			Opening is shared
-			PME signal is supported
-Handle 0x000B
-	DMI type 9, 13 bytes.
-	System Slot Information
-		Designation: PCI2
-		Type: 32-bit PCI
-		Current Usage: Available
-		Length: Long
-		ID: 2
-		Characteristics:
-			3.3 V is provided
-			Opening is shared
-			PME signal is supported
-Handle 0x000C
-	DMI type 9, 13 bytes.
-	System Slot Information
-		Designation: PCI3
-		Type: 32-bit PCI
-		Current Usage: Available
-		Length: Long
-		ID: 3
-		Characteristics:
-			3.3 V is provided
-			Opening is shared
-			PME signal is supported
-Handle 0x000D
-	DMI type 9, 13 bytes.
-	System Slot Information
-		Designation: AGP
-		Type: 32-bit PCI
-		Current Usage: Available
-		Length: Long
-		ID: 1
-		Characteristics:
-			3.3 V is provided
-			Opening is shared
-			PME signal is supported
-Handle 0x000E
-	DMI type 11, 5 bytes.
-	OEM Strings
-		String 1: SMBIOS Support from AMI
-Handle 0x000F
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: USB0
-		Internal Connector Type: None
-		External Reference Designator: USB1
-		External Connector Type: Access Bus (USB)
-		Port Type: USB
-Handle 0x0010
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: USB1
-		Internal Connector Type: None
-		External Reference Designator: USB2
-		External Connector Type: Access Bus (USB)
-		Port Type: USB
-Handle 0x0011
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: USB2
-		Internal Connector Type: None
-		External Reference Designator: USB3
-		External Connector Type: Access Bus (USB)
-		Port Type: USB
-Handle 0x0012
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: USB3
-		Internal Connector Type: None
-		External Reference Designator: USB4
-		External Connector Type: Access Bus (USB)
-		Port Type: USB
-Handle 0x0013
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: USB4
-		Internal Connector Type: None
-		External Reference Designator: USB5
-		External Connector Type: Access Bus (USB)
-		Port Type: USB
-Handle 0x0014
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: USB5
-		Internal Connector Type: None
-		External Reference Designator: USB6
-		External Connector Type: Access Bus (USB)
-		Port Type: USB
-Handle 0x0015
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: COM1
-		Internal Connector Type: 9 Pin Dual Inline (pin 10 cut)
-		External Reference Designator: COM1
-		External Connector Type: DB-9 male
-		Port Type: Serial Port 16550A Compatible
-Handle 0x0016
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: LPT
-		Internal Connector Type: 25 Pin Dual Inline (pin 26 cut)
-		External Reference Designator: LPT
-		External Connector Type: DB-25 male
-		Port Type: Parallel Port ECP/EPP
-Handle 0x0017
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: KEYBOARD
-		Internal Connector Type: None
-		External Reference Designator: KEYBOARD
-		External Connector Type: PS/2
-		Port Type: Keyboard Port
-Handle 0x0018
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: MOUSE
-		Internal Connector Type: None
-		External Reference Designator: MOUSE
-		External Connector Type: PS/2
-		Port Type: Mouse Port
-Handle 0x0019
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: Floppy
-		Internal Connector Type: On Board Floppy
-		External Reference Designator: Floppy
-		External Connector Type: None
-		Port Type: None
-Handle 0x001A
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: Primary IDE
-		Internal Connector Type: On Board IDE
-		External Reference Designator: IDE-1
-		External Connector Type: None
-		Port Type: None
-Handle 0x001B
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: Secondary IDE
-		Internal Connector Type: On Board IDE
-		External Reference Designator: IDE-2
-		External Connector Type: None
-		Port Type: None
-Handle 0x001C
-	DMI type 12, 5 bytes.
-	System Configuration Options
-		Option 1: System Management BIOS from Atlanta
-Handle 0x001D
-	DMI type 13, 22 bytes.
-	BIOS Language Information
-		Installable Languages: 4
-			English
-			Traditional Chinese
-			Simplified Chinese
-			Japanese
-		Currently Installed Language: English
-Handle 0x001E
-	DMI type 127, 4 bytes.
-	End Of Table
+So this wouldn't work.
 
+> This makes new device load for me.
+>
+>
+> I'm just trying to point out that the order of operations matters here
+> because the old nodes must all be dead before the new device. Its even
+> worse for less dynamic numbering.
 
+The only problem I can think of is a race when a new device appears
+with the same major/minor before udev gets a chance to do its stuff,
+eg.
+
+1) User closes device
+2) I have linked copy (not open)
+3) Device unloaded
+4) New device appears
+5) I open the linked copy
+6) Udev chowns/chmods old device node (triggered by 3)) --> too late
+
+Eric

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264526AbRF0XLy>; Wed, 27 Jun 2001 19:11:54 -0400
+	id <S265441AbRF0XQY>; Wed, 27 Jun 2001 19:16:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265441AbRF0XLo>; Wed, 27 Jun 2001 19:11:44 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:16556 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S264526AbRF0XLd>;
-	Wed, 27 Jun 2001 19:11:33 -0400
-Date: Thu, 28 Jun 2001 01:11:30 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106272311.BAA463353.aeb@vlet.cwi.nl>
-To: acahalan@cs.uml.edu, hpa@transmeta.com
-Subject: Re: [PATCH] User chroot
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+	id <S265443AbRF0XQO>; Wed, 27 Jun 2001 19:16:14 -0400
+Received: from 24-25-197-107.san.rr.com ([24.25.197.107]:8723 "HELO
+	acmay.homeip.net") by vger.kernel.org with SMTP id <S265441AbRF0XQD>;
+	Wed, 27 Jun 2001 19:16:03 -0400
+Date: Wed, 27 Jun 2001 16:16:00 -0700
+From: andrew may <acmay@acmay.homeip.net>
+To: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What is the best way for multiple net_devices
+Message-ID: <20010627161600.C23834@ecam.san.rr.com>
+In-Reply-To: <3B3A5852.AAEF9531@mandrakesoft.com> <20010627145201.A23834@ecam.san.rr.com> <3B3A5852.AAEF9531@mandrakesoft.com> <20010627151829.B23834@ecam.san.rr.com> <4.3.1.0.20010627153532.036e9320@mail1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <4.3.1.0.20010627153532.036e9320@mail1>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not that the documentation on MAP_ANON is any good either
-> but at least the mere existence of the flag is mentioned.
+On Wed, Jun 27, 2001 at 03:36:37PM -0700, Maksim Krasnyanskiy wrote:
+> 
+> >Any examples of drivers and apps that do this cleanly. The ones I have seen are not.
+> TUN/TAP driver and tuncfg utility
+> http://vtun.sf.net/tun
 
-> Seriously:
-> both features ought to be documented in the man pages
-> (I did submit a man page too, back in 1996)
+OK, thanks that is nice, but I think adding support to get into the /dev
+namespace may be a little heavy for things like bonding or ipip.
 
-Ah yes, I see. We both wrote a man page, and each contained
-stuff not in the other, and I asked you to merge them, but
-then nothing happened anymore. Maybe I should merge them
-myself.
+I did not see tuncfg. From what I could see there were 2 ways to create
+new devices. There was a script with mknod and then the ioctl(fd, TUNSETIFF, 
+(void *) &ifr).
 
-[In case you do the merging: please distinguish clearly
-between what is prescribed by POSIX (or SUSv2, or Austin draft 7)
-and what is implemented by (g)libc or the Linux kernel.
-I see that your version has prototypes like
-	caddr_t mmap(caddr_t  addr, ...
-but this caddr_t is typically from BSD, and is void * these days.]
+I could do a similar ioctl for a pure net device but I still need a dummy
+socket for creating/destroying devices.
 
-Andries
-
+I am going for an embedded system so I want to keep things light.

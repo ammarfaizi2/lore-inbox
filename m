@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266343AbRGBBGe>; Sun, 1 Jul 2001 21:06:34 -0400
+	id <S266337AbRGBBKE>; Sun, 1 Jul 2001 21:10:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266338AbRGBBG1>; Sun, 1 Jul 2001 21:06:27 -0400
-Received: from anime.net ([63.172.78.150]:43792 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S266334AbRGBBGV>;
-	Sun, 1 Jul 2001 21:06:21 -0400
-Date: Sun, 1 Jul 2001 18:06:19 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Justin Guyett <justin@soze.net>
-cc: <linux-kernel@vger.kernel.org>
+	id <S266335AbRGBBJy>; Sun, 1 Jul 2001 21:09:54 -0400
+Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:3854 "EHLO
+	benatar.snurgle.org") by vger.kernel.org with ESMTP
+	id <S266336AbRGBBJp>; Sun, 1 Jul 2001 21:09:45 -0400
+Date: Sun, 1 Jul 2001 21:09:32 -0400 (EDT)
+From: William T Wilson <fluffy@snurgle.org>
+To: Ben Ford <ben@kalifornia.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Uncle Sam Wants YOU!
-In-Reply-To: <Pine.LNX.4.33.0107011549230.27884-100000@gw.soze.net>
-Message-ID: <Pine.LNX.4.30.0107011802430.12737-100000@anime.net>
+In-Reply-To: <3B3FB7F5.6080008@kalifornia.com>
+Message-ID: <Pine.LNX.4.21.0107012107010.3665-100000@benatar.snurgle.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jul 2001, Justin Guyett wrote:
-> On Sun, 1 Jul 2001, Dan Hollis wrote:
-> > On Sun, 1 Jul 2001, Kurt Maxwell Weber wrote:
-> > As demonstrated many times over the past several years, it is becoming
-> > increasingly difficult to buy a PC without bundled m$-ware. Even if you
-> > dont use m$-ware you are still forced to pay for it.
-> And you can get a refund if you don't agree to the license.
+On Sun, 1 Jul 2001, Ben Ford wrote:
 
-No, you can't. (tested & proven)
+> This seems to be meant as a joke, but I don't think it's all that unlikely.
+> 
+> I seem to recall that MS products cannot be used in aircraft control 
+> rooms for this reason.
 
-> Or you can build your own computer.
+It's not just MS.  Aircraft control rooms (as well as nuclear power
+plants, spacecraft mission control, etc.) require special certified
+software to be used - it's not simply that they avoid MS, they avoid all
+software that hasn't been blessed.
 
-Sure.
-
-> The OS isn't the only thing Dell or Compaq or anyone else forces on
-> you.  Would you complain if you couldn't get a machine from a major
-> vendor with a certain disk drive, and were then "forced" to buy it
-> anyway, and trash the original drive?
-
-strawman and you know it.
-
--Dan
+My understanding is that astronauts going up on the shuttle take turns
+bringing a laptop computer so they have actual computing power available
+to them.  The shuttle computer is not adequate for many tasks because it
+is something like 30 years old, but that's what they use because it is
+certified.  So somebody has to bring along a non-certified system in their
+"personal effects" allowance to get real work done :}
 

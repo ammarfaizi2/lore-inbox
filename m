@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136041AbRAMC2H>; Fri, 12 Jan 2001 21:28:07 -0500
+	id <S135832AbRAMCkN>; Fri, 12 Jan 2001 21:40:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135832AbRAMC1r>; Fri, 12 Jan 2001 21:27:47 -0500
-Received: from repton.netsplit.com ([62.49.129.34]:23558 "HELO
-	mailgate.netsplit.com") by vger.kernel.org with SMTP
-	id <S136349AbRAMC1l>; Fri, 12 Jan 2001 21:27:41 -0500
-To: linux-kernel@vger.kernel.org
-Date: 13 Jan 2001 02:27:36 GMT
-From: scott@netsplit.com (Scott James Remnant)
-Message-ID: <slrn95vf8o.min.scott@repton.netsplit.com>
-Organization: Netsplit.com
-Subject: Re: 1.1 ideas
+	id <S136235AbRAMCjw>; Fri, 12 Jan 2001 21:39:52 -0500
+Received: from nat-hdqt.valinux.com ([198.186.202.17]:46090 "EHLO
+	earth.su.valinux.com") by vger.kernel.org with ESMTP
+	id <S135832AbRAMCjr>; Fri, 12 Jan 2001 21:39:47 -0500
+Date: Fri, 12 Jan 2001 19:47:44 -0800
+From: Dragan Stancevic <visitor@valinux.com>
+To: Dan B <db@cyclonehq.dnsalias.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [eepro100] Ok, I'm fed up now
+Message-ID: <20010112194744.A22966@valinux.com>
+In-Reply-To: <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com> <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com> <20010111141435.C12616@valinux.com> <5.0.2.1.0.20010112153102.021f34e8@10.0.0.254>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <5.0.2.1.0.20010112153102.021f34e8@10.0.0.254>; from Dan B on Fri, Jan 12, 2001 at 03:32:57PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies for this.  I have absolutely no idea what happened, but
-somehow I managed to post this to three groups when it was only
-mean't for one.
+On Fri, Jan 12, 2001, Dan B <db@cyclonehq.dnsalias.net> wrote:
+; Has anyone gotten Intel's (non-GPL) e100 driver working in 2.4.x yet?  What 
+; about their e100-ANS driver that supports FEC 800mbps?
 
-*gets more coffee*
+I don't think the intels driver is using pci_dma yet so it's
+going to take a while before they port all that stuff over,
+but than again that is just a guess, maybe they have stuff
+done alredy it's just waiting for a new release.
 
-Scott
+
+
 -- 
-Scott James Remnant     Have you ever, ever felt like this?  Had strange
-http://netsplit.com/      things happen?  Are you going round the twist?
+I knew I was alone, I was scared, it was getting dark and
+it was a hardware problem.
+
+                                                -Dragan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267160AbSKMKXJ>; Wed, 13 Nov 2002 05:23:09 -0500
+	id <S267161AbSKMKl1>; Wed, 13 Nov 2002 05:41:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267161AbSKMKXI>; Wed, 13 Nov 2002 05:23:08 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28691 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267160AbSKMKXI>; Wed, 13 Nov 2002 05:23:08 -0500
-Message-Id: <200211131024.gADAObp13940@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "Theodore Ts'o" <tytso@mit.edu>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: [RFC] devfs API
-Date: Wed, 13 Nov 2002 13:15:58 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <20021112013244.GF1729@mythical.michonline.com> <Pine.GSO.4.21.0211112039430.29617-100000@steklov.math.psu.edu> <20021112080417.GA11660@think.thunk.org>
-In-Reply-To: <20021112080417.GA11660@think.thunk.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S267162AbSKMKl1>; Wed, 13 Nov 2002 05:41:27 -0500
+Received: from userbb201.dsl.pipex.com ([62.190.241.201]:44688 "EHLO
+	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
+	id <S267161AbSKMKl0>; Wed, 13 Nov 2002 05:41:26 -0500
+Date: Wed, 13 Nov 2002 10:48:09 +0000
+From: Nick Craig-Wood <ncw1@axis.demon.co.uk>
+To: Oliver Neukum <oliver@neukum.name>
+Cc: Sean Neakums <sneakums@zork.net>, linux-kernel@vger.kernel.org
+Subject: Re: hotplug (was devfs)
+Message-ID: <20021113104809.D2386@axis.demon.co.uk>
+References: <20021112093259.3d770f6e.spyro@f2s.com> <20021112094949.GE17478@higherplane.net> <6uadkf9kdt.fsf@zork.zork.net> <200211121351.08328.oliver@neukum.name>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200211121351.08328.oliver@neukum.name>; from oliver@neukum.name on Tue, Nov 12, 2002 at 01:51:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 November 2002 06:04, Theodore Ts'o wrote:
-> On Mon, Nov 11, 2002 at 08:49:22PM -0500, Alexander Viro wrote:
-> > The only way I'll use devfs is
-> > 	* on a separate testbox devoid of network interfaces
-> > 	* with no users
-> > 	* with no data - disk periodically populated from image on CD.
-> >
-> > And that's regardless of that cleanup - fixing the interface
-> > doesn't solve the internal races, so...
->
-> Hi Al,
->
-> It's good that you're trying to clean up the devfs code, but...
->
-> How many people are actually using devfs these days?  I don't like it
-> myself, and I've had to add a fair amount of hair to fsck's
-> mount-by-label/uuid code to deal with interesting cases such as
-> kernels where devfs is configured, but not actually mounted (it
-> changes what /proc/partitions exports).  So I'm one of those who have
-> never looked all that kindly on devfs, which shouldn't come as a
-> surprise to most folks.
->
-> In any case, if there aren't all that many people using devfs, I can
-> think of a really easy way in which we could simplify and clean up
-> its API by slimming it down by 100%......
+On Tue, Nov 12, 2002 at 01:51:08PM +0100, Oliver Neukum wrote:
+> > Actually, here's a question: are /sbin/hotplug upcalls serialized in
+> > some fashion?  I'd hate to online a thousand devices in my disk array
+> > and have the machine forkbomb itself.
+> 
+> Nope, no serialisation. You don't have any guarantee even that
+> addition will be delivered before removal.
 
-I do use it.
---
-vda
+And that is why (we finally discovered) we were getting
+non-deterministic device numbering of USB nodes.
+
+We have machines with 6 x 4 port USB <-> serial converters attached.
+These would get randomly assigned usb device ids and hence random
+/dev/ttyUSB nodes.  Not very useful when there is a load of different
+things attached to the 24 serial ports!
+
+Sometimes we also found that one of the devices wouldn't get
+initialised properly.
+
+We fixed these problems by removing hotplug and loading the relevant
+kernel modules in the correct order and voila a perfectly
+deterministic order for the /dev/ttyUSBs with all devices initialised.
+
+Plugging in our USB bus with 24 devices on it does indeed produce a
+mini-forkbomb effect ;-) (Especially since these Keyspan devices are
+initialised twice - once without firmware and once with firmware.)
+
+So - perhaps hotplug ought to be serialised?
+
+-- 
+Nick Craig-Wood
+ncw1@axis.demon.co.uk

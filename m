@@ -1,26 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270292AbTGMQsT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 12:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270293AbTGMQsS
+	id S270294AbTGMQxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 12:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270295AbTGMQxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 12:48:18 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:62853 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270292AbTGMQsD
+	Sun, 13 Jul 2003 12:53:19 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:65413 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270294AbTGMQxS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 12:48:03 -0400
+	Sun, 13 Jul 2003 12:53:18 -0400
 X-AuthUser: davidel@xmailserver.org
-Date: Sun, 13 Jul 2003 09:55:23 -0700 (PDT)
+Date: Sun, 13 Jul 2003 10:00:38 -0700 (PDT)
 From: Davide Libenzi <davidel@xmailserver.org>
 X-X-Sender: davide@bigblue.dev.mcafeelabs.com
 To: Jamie Lokier <jamie@shareable.org>
-cc: Eric Varsanyi <e0206@foo21.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: "David S. Miller" <davem@redhat.com>, e0206@foo21.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kuznet@ms2.inr.ac.ru
 Subject: Re: [Patch][RFC] epoll and half closed TCP connections
-In-Reply-To: <20030713131210.GA19132@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.55.0307130932300.14680@bigblue.dev.mcafeelabs.com>
-References: <20030712181654.GB15643@srv.foo21.com> <20030712194432.GE10450@mail.jlokier.co.uk>
- <20030712205114.GC15643@srv.foo21.com> <20030713131210.GA19132@mail.jlokier.co.uk>
+In-Reply-To: <20030713140758.GF19132@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.55.0307130956530.14680@bigblue.dev.mcafeelabs.com>
+References: <20030712181654.GB15643@srv.foo21.com>
+ <Pine.LNX.4.55.0307121256200.4720@bigblue.dev.mcafeelabs.com>
+ <20030712222457.3d132897.davem@redhat.com> <20030713140758.GF19132@mail.jlokier.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,58 +30,34 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, 13 Jul 2003, Jamie Lokier wrote:
 
-> Eric Varsanyi wrote:
-> > > Well then, use epoll's level-triggered mode.  It's quite easy - it's
-> > > the default now. :)
-> >
-> > The problem with all the level triggered schemes (poll, select, epoll w/o
-> > EPOLLET) is that they call every driver and poll status for every call into
-> > the kernel. This appeared to be killing my app's performance and I verified
-> > by writing some simple micro benchmarks.
+> David S. Miller wrote:
+> > Alexey, they seem to want to add some kind of POLLRDHUP thing,
+> > comments wrt. TCP and elsewhere in the networking?  See below...
 >
-> OH! :-O
+> POLLHUP is a mess.  It means different things according to the type of
+> fd, precisely because it is considered an unmaskeable event for the
+> poll() API so the standard meaning isn't useful for sockets.  (See the
+> comments in tcp_poll()).
 >
-> Level-triggered epoll_wait() time _should_ be scalable - proportional
-> to the number of ready events, not the number of listening events.  If
-> this is not the case then it's a bug in epoll.
+> POLLRDHUP makes sense because it could actually have a well-defined
+> meaning: set iff reading the fd would return EOF.
+>
+> However, if a program is waiting on POLLRDHUP, you don't want the
+> program to have to say "if this fd is a TCP socket then listen for
+> POLLRDHUP else if this fd is another kind of socket call read to
+> detect EOF else listen for POLLHUP".  Programs have enough
+> version-specific special cases as it is.
+>
+> So I suggest:
+>
+>   - Everywhere that POLLHUP is currently set in a driver, socket etc.
+>     it should set POLLRDHUP|POLLHUP - unless it specifically knows
+>     about POLLRDHUP as in TCP (and presumably UDP, SCTP etc).
 
-Jamie, he is talking about select here.
-
-
-> Reading the code in eventpoll.c et al, I think that some time will
-> be taken for fds that are transitioning on events which you're not
-> interested in.  Notably, each time a TCP segment is sent and
-> acknowledged by the other end, poll-waiters are woken, your task will
-> be woken and do some work in epoll_wait(), but no events are returned
-> if you are only listening for read availability.
->
-> I'm not 100% sure of this, but tracing through
->
->     skb->destructor
->     -> sock_wfree()
->     -> tcp_write_space()
->     -> wake_up_interruptible()
->     -> ep_poll_callback()
->
-> it looks as though _every_ TCP ACK you receive will cause epoll to wake up
-> a task which is interested in _any_ socket events, but then in
->
->     <context switch>
->     ep_poll()
->     -> ep_events_transfer()
->     -> ep_send_events()
->
-> no events are transferred, so ep_poll() will loop and try again.  This
-> is quite unfortunate if true, as many of the apps which need to scale
-> write a lot of segments without receiving very much.
-
-That's true, it is the beauty of the poll hook ;) I said this a long time
-ago. It is addressable by a wake_up_mask() and some code all around. I did
-not see (as long as other didn't) any performance impact bacause of this,
-with throughput that remained steady flat under any ratio of hot/cold fds.
-Since it is easily addressable and will not require an API change, I'd
-rather wait for someone to report a real (or even unreal) load that makes
-epoll to not flat-scale.
+Returning POLLHUP to a caller waiting for POLLIN might break existing code
+IMHO. After ppl reporting the O_RDONLY|O_TRUNC case I'm inclined to expect
+everything from existing apps ;) POLLHUP should be returned to apps
+waiting for POLLOUT while POLLRDHUP to ones for POLLIN.
 
 
 

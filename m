@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263957AbTJ1Mko (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 07:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263968AbTJ1Mkn
+	id S263955AbTJ1M6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 07:58:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263959AbTJ1M6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 07:40:43 -0500
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:59869
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263957AbTJ1Mkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 07:40:42 -0500
-From: Con Kolivas <kernel@kolivas.org>
+	Tue, 28 Oct 2003 07:58:05 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:19371 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S263955AbTJ1M6D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 07:58:03 -0500
 To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] Autoregulate vm swappiness cleanup
-Date: Tue, 28 Oct 2003 23:40:37 +1100
-User-Agent: KMail/1.5.3
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200310232337.50538.kernel@kolivas.org> <200310251658.23070.kernel@kolivas.org> <20031028110443.GA1792@elf.ucw.cz>
-In-Reply-To: <20031028110443.GA1792@elf.ucw.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>
+Subject: Re: Blockbusting news, results get worse
+References: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com>
+	<3F9D6891.5040300@namesys.com> <3F9D7666.6010504@pobox.com>
+	<20031028012143.GA427@elf.ucw.cz>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 28 Oct 2003 13:54:33 +0100
+In-Reply-To: <20031028012143.GA427@elf.ucw.cz>
+Message-ID: <m37k2pfrp2.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310282340.38029.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Oct 2003 22:04, Pavel Machek wrote:
-> Hi!
+Pavel Machek <pavel@ucw.cz> writes:
 
-Hello!
+> Well, even without FLUSH CACHE, you can expect that sector being
+> writen during powerfail either contains old data *or* new data.
 
-> I believe swappiness == 100 was "I want max throughput, I don't care
-> about latency going through roof", while swappiness == 0 was "I don't
-> want you to swap too much, behave reasonably".
->
-> As you don't know if user cares about latency or not, I don't see how
-> you can autotune this.
-
-Well I guess you either see merit in what my patch does based on what I said, 
-or you don't... so I guess you don't. That's fine; I just offered why I felt 
-this helped in my varied workloads more than a static value did.
-
-Con
-
+I thinks so. It was not always the case with IBM DTLA drives, though.
+-- 
+Krzysztof Halasa, B*FH

@@ -1,16 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316875AbSEVGvM>; Wed, 22 May 2002 02:51:12 -0400
+	id <S316876AbSEVGyI>; Wed, 22 May 2002 02:54:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316876AbSEVGvL>; Wed, 22 May 2002 02:51:11 -0400
-Received: from ds217-115-141-141.dedicated.hosteurope.de ([217.115.141.141]:9743
-	"EHLO ds217-115-141-141.dedicated.hosteurope.de") by vger.kernel.org
-	with ESMTP id <S316875AbSEVGvL>; Wed, 22 May 2002 02:51:11 -0400
-Date: Wed, 22 May 2002 08:51:11 +0200
-From: Jochen Suckfuell <jo-lkml@suckfuell.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre*: IO statistics in /proc/partitions corrupt
-Message-ID: <20020522085111.C20554@ds217-115-141-141.dedicated.hosteurope.de>
+	id <S316877AbSEVGyH>; Wed, 22 May 2002 02:54:07 -0400
+Received: from mail011.syd.optusnet.com.au ([210.49.20.139]:65465 "EHLO
+	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S316876AbSEVGyH>; Wed, 22 May 2002 02:54:07 -0400
+Date: Wed, 22 May 2002 16:57:09 +1000
+From: Andrew Pam <xanni@glasswings.com.au>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Initialisation bug in IDE patch
+Message-ID: <20020522165709.K2437@kira.glasswings.com.au>
+In-Reply-To: <20020522161144.G2437@kira.glasswings.com.au> <Pine.LNX.4.10.10205212313160.19403-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -18,32 +20,27 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, May 21, 2002 at 11:18:56PM -0700, Andre Hedrick wrote:
+> Now you have me puzzled........
+> If "ide_setup" which parses the passed settings calls "init_ide_data"
+> which initalizes all "hwif" groups and sets a cookie to prevent "ide_init"
+> from re-initalizing thus purging the contents place in by "ide_setup", how
+> are you getting a "BAD -- OPTION"?
 
-The statistics patch included in the kernel since 2.4.19pre still has a
-bug leading to negative values for the "running io's" value, called
-ios_in_flight internally.
-This leads to completely wrong results for many other values computed
-from this one and renders the statistics utterly unusable.
+Off the top of my head, it looks like ide_init_default_hwifs creates
+an uninitialised "hw_regs_t hw;" variable, fills in some fields, then
+calls "ide_register_hw(&hw, NULL);" which does "memcpy(&hwif->hw, hw,
+sizeof(*hw));" thus copying the unitialised fields (such as "chipset")
+right over the area zeroed by init_ide_data().
 
-The problem appears on IDE and SCSI drives, affecting values for
-partitions and also whole disks. It seems to be most significant when
-using a RAID (which is often the case on servers with much disk access,
-where statistics are important!):
+Am I on the right track?
 
-8    16   35842048 sdb 12637435 51727 101513266 103991890 19600590
-	 14721219 274592008 988438640 **-100** 250563400 315019978
-8    32   35842048 sdc 8438773 75872 68117130 62271950 13147577
-	 9950844 184838544 550059270 **-32** 247111750 1119563006
-
-Here sdb and sdc are each a RAID1 pair, on a Dual-CPU running
-2.4.19-pre8-ac4.
-
-Does anyone have an idea where a starting disk io might not be counted
-correctly?
-
-Bye
-Jochen
-
+Cheers,
+	Andrew Pam
 -- 
-Jochen Suckfuell  ---  http://www.suckfuell.net/jochen/  ---
+mailto:xanni@xanadu.net                         Andrew Pam
+http://www.xanadu.com.au/                       Chief Scientist, Xanadu
+http://www.glasswings.com.au/                   Technology Manager, Glass Wings
+http://www.sericyb.com.au/                      Manager, Serious Cybernetics
+http://two-cents-worth.com/?105347&EG		Donate two cents to our work!
+P.O. Box 477, Blackburn VIC 3130 Australia	Phone +61 401 258 915

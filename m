@@ -1,147 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbUCKHFp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 02:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUCKHFp
+	id S261444AbUCKHG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 02:06:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUCKHG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 02:05:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:33251 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262902AbUCKHFj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 02:05:39 -0500
-Date: Thu, 11 Mar 2004 08:05:26 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, kenneth.w.chen@intel.com,
-       Andrew Morton <akpm@osdl.org>, thornber@redhat.com,
-       linux-xfs@oss.sgi.com
-Subject: Re: [PATCH] backing dev unplugging
-Message-ID: <20040311070526.GD6955@suse.de>
-References: <20040310124507.GU4949@suse.de> <20040310222247.GA713@frodo>
+	Thu, 11 Mar 2004 02:06:28 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:11275 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261444AbUCKHGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 02:06:24 -0500
+Date: Thu, 11 Mar 2004 07:50:41 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Peter Williams <peterw@aurema.com>, root@chaos.analogic.com,
+       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+       "Godbole, Amarendra (GE Consumer & Industrial)" 
+	<Amarendra.Godbole@ge.com>
+Subject: Re: (0 == foo), rather than (foo == 0)
+Message-ID: <20040311065041.GB14537@alpha.home.local>
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F9E28.4040706@aurema.com> <Pine.LNX.4.58.0403101832580.1045@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040310222247.GA713@frodo>
+In-Reply-To: <Pine.LNX.4.58.0403101832580.1045@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11 2004, Nathan Scott wrote:
-> Hi Jens,
+Hi,
+
+On Wed, Mar 10, 2004 at 06:36:22PM -0800, Linus Torvalds wrote:
 > 
-> On Wed, Mar 10, 2004 at 01:45:07PM +0100, Jens Axboe wrote:
-> > ...[snip]...
-> > diff -ur -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.4-rc2-mm1/fs/xfs/linux/xfs_buf.c linux-2.6.4-rc2-mm1-plug/fs/xfs/linux/xfs_buf.c
-> > --- /opt/kernel/linux-2.6.4-rc2-mm1/fs/xfs/linux/xfs_buf.c	2004-03-09 13:08:30.000000000 +0100
-> > +++ linux-2.6.4-rc2-mm1-plug/fs/xfs/linux/xfs_buf.c	2004-03-10 13:13:49.000000000 +0100
-> > @@ -1013,7 +1013,7 @@
-> >  {
-> >  	PB_TRACE(pb, "lock", 0);
-> >  	if (atomic_read(&pb->pb_io_remaining))
-> > -		blk_run_queues();
-> > +		blk_run_address_space(pb->pb_target->pbr_mapping);
-> >  	down(&pb->pb_sema);
-> >  	PB_SET_OWNER(pb);
-> >  	PB_TRACE(pb, "locked", 0);
-> > @@ -1109,7 +1109,7 @@
-> >  		if (atomic_read(&pb->pb_pin_count) == 0)
-> >  			break;
-> >  		if (atomic_read(&pb->pb_io_remaining))
-> > -			blk_run_queues();
-> > +			blk_run_address_space(pb->pb_target->pbr_mapping);
-> >  		schedule();
-> >  	}
-> >  	remove_wait_queue(&pb->pb_waiters, &wait);
-> > @@ -1407,7 +1407,7 @@
-> >  	if (pb->pb_flags & PBF_RUN_QUEUES) {
-> >  		pb->pb_flags &= ~PBF_RUN_QUEUES;
-> >  		if (atomic_read(&pb->pb_io_remaining) > 1)
-> > -			blk_run_queues();
-> > +			blk_run_address_space(pb->pb_target->pbr_mapping);
-> >  	}
-> >  }
-> >  
-> > @@ -1471,7 +1471,7 @@
-> >  {
-> >  	PB_TRACE(pb, "iowait", 0);
-> >  	if (atomic_read(&pb->pb_io_remaining))
-> > -		blk_run_queues();
-> > +		blk_run_address_space(pb->pb_target->pbr_mapping);
-> >  	down(&pb->pb_iodonesema);
-> >  	PB_TRACE(pb, "iowaited", (long)pb->pb_error);
-> >  	return pb->pb_error;
-> > @@ -1617,7 +1617,6 @@
-> >  pagebuf_daemon(
-> >  	void			*data)
-> >  {
-> > -	int			count;
-> >  	page_buf_t		*pb;
-> >  	struct list_head	*curr, *next, tmp;
-> >  
-> > @@ -1640,7 +1639,6 @@
-> >  
-> >  		spin_lock(&pbd_delwrite_lock);
-> >  
-> > -		count = 0;
-> >  		list_for_each_safe(curr, next, &pbd_delwrite_queue) {
-> >  			pb = list_entry(curr, page_buf_t, pb_list);
-> >  
-> > @@ -1657,7 +1655,7 @@
-> >  				pb->pb_flags &= ~PBF_DELWRI;
-> >  				pb->pb_flags |= PBF_WRITE;
-> >  				list_move(&pb->pb_list, &tmp);
-> > -				count++;
-> > +				blk_run_address_space(pb->pb_target->pbr_mapping);
-> >  			}
+> And while "0 == foo" may be logically the same thing as "foo == 0", the 
+> fact is, the latter is what people are used to seeing. And by being used 
+> to seeing it, they have an easier time thinking about it.
 > 
-> This moves the blk_run_address_space to before we submit the
-> I/O (this bit of code is moving buffers off the delwri queue
-> onto a temporary queue, buffers on the temporary queue are
-> then submitted a little further down) - I suspect we need to
-> move this new blk_run_address_space call down into the temp
-> list processing, just after pagebuf_iostrategy.
+> As a result, using the former just tends to increase peoples confusion by
+> making code harder to read, which in turn tends to increase the chance of 
+> bugs.
 
-I'm not surprised, the XFS 'conversion' was done quickly and is expected
-to be half-assed :)
+I have a friend who constantly uses it, and his code is unreadable, because
+sometimes, a "0 == xxx" becomes "0 <= xxx" or "0 >= xxx" which is difficult
+to understand. Thinking that xxx is negative because it's written on the
+right side of a >= is complicated. And the worst he does is when he uses
+functions : 
 
-Thanks a lot for taking a look at this.
+   if (0 < strcmp(a, "xxx")) ...
+   if (sizeof(t) > read(fd, t, sizeof(t)) ...
 
-> >  		}
-> >  
-> > @@ -1671,8 +1669,6 @@
-> >  
-> >  		if (as_list_len > 0)
-> >  			purge_addresses();
-> > -		if (count)
-> > -			blk_run_queues();
-> >  
-> >  		force_flush = 0;
-> >  	} while (pagebuf_daemon_active);
-> > @@ -1734,13 +1730,11 @@
-> >  		pagebuf_lock(pb);
-> >  		pagebuf_iostrategy(pb);
-> >  		if (++flush_cnt > 32) {
-> > -			blk_run_queues();
-> > +			blk_run_address_space(pb->pb_target->pbr_mapping);
-> >  			flush_cnt = 0;
-> >  		}
-> >  	}
-> >  
-> > -	blk_run_queues();
-> > -
-> >  	while (!list_empty(&tmp)) {
-> >  		pb = list_entry(tmp.next, page_buf_t, pb_list);
-> >  
-> 
-> For this second one, we probably just want to ditch the flush_cnt
-> there (this change is doing blk_run_address_space on every 32nd
-> buffer target, and not the intervening ones).  We will be doing a
-> bunch more blk_run_address_space calls than we probably need to,
-> not sure if thats going to become an issue or not, let me prod
-> some of the other XFS folks for more insight there...
+I have already helped him track bugs in his programs, and some of them were
+just related to this usage, because nobody's brain can understand these
+constructions immediately without thinking a bit. So I'm all against this
+sort of thing.
 
-If any of you could send me a replacement xfs_buf bit, I'd much
-appreciate it.
-
--- 
-Jens Axboe
+Cheers,
+Willy
 

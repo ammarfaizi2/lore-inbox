@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbTLCDuq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 22:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTLCDuq
+	id S264492AbTLCEA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 23:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTLCEA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 22:50:46 -0500
-Received: from dhcp024-209-033-037.neo.rr.com ([24.209.33.37]:48259 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S264500AbTLCDuo (ORCPT
+	Tue, 2 Dec 2003 23:00:29 -0500
+Received: from holomorphy.com ([199.26.172.102]:15821 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264492AbTLCEA2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 22:50:44 -0500
-Date: Tue, 2 Dec 2003 22:43:37 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: ivan vadovic <pivo@pobox.sk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: isapnp modem in 2.6.0-test9-bk13 not working
-Message-ID: <20031202224337.GA3531@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	ivan vadovic <pivo@pobox.sk>, linux-kernel@vger.kernel.org
-References: <20031111005856.GB2104@larva.oko>
+	Tue, 2 Dec 2003 23:00:28 -0500
+Date: Tue, 2 Dec 2003 20:00:22 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Xose Vazquez Perez <xose@wanadoo.es>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ATI boards [was Re: Linux 2.4 future]
+Message-ID: <20031203040022.GS8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Xose Vazquez Perez <xose@wanadoo.es>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3FCD5533.8050105@wanadoo.es> <Pine.LNX.4.58.0312021939400.2072@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031111005856.GB2104@larva.oko>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0312021939400.2072@home.osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 11, 2003 at 01:58:58AM +0100, ivan vadovic wrote:
-> I've got an ordinary isapnp modem which provides a serial port unlike
-> winmodems and it just happens to work under 2.4 kernels. When I boot into
-> the 2.6 kernel on the same machine, everything ( sound, ide, md, networking,
-> input devices) seems to work right but the modem. Modprobing 8250_pnp only
-> detects the 2 onboard serial ports. Am I doing anything wrong? What am I
-> supposed to test? Should I provide any more info? Please Cc me as I'm not
-> on the list.
->
+On Wed, 3 Dec 2003, Xose Vazquez Perez wrote:
+>> Torvalds was talking about R200 chip. Those boards are 8500, and
+>> 9100/8500 LE. IMO they are the best for FOSS.
 
-Could you try this patch.
+On Tue, Dec 02, 2003 at 07:42:08PM -0800, Linus Torvalds wrote:
+> Actually, the whole R2x0 family seems to be largely supported by the DRI
+> drivers.
+> The newer cards just need a recent enough DRI server to know about them,
+> but they should otherwise be ok.
+> It's the R300-based cards (ATI 9800 & friends) that apparently don't get
+> any open-source 3D acceleration right now.
+> (But hey, I may be wrong - I follow the DRI stuff only sporadically).
 
---- a/drivers/serial/8250_pnp.c	2003-11-26 20:42:52.000000000 +0000
-+++ b/drivers/serial/8250_pnp.c	2003-12-02 22:41:04.000000000 +0000
-@@ -310,6 +310,8 @@
- 	{	"PNPCXXX",		UNKNOWN_DEV	},
- 	/* More unkown PnP modems */
- 	{	"PNPDXXX",		UNKNOWN_DEV	},
-+	/* check all devices and guess if they are modems */
-+	{	"ANYDEVS",		UNKNOWN_DEV	},
- 	{	"",			0	}
- };
+The graphics drivers do a lot of memory mapping, and so I need to fish
+around down there for various things I'm hacking on. How much kernel
+content to this would you say there is out-of-tree?
 
-Thanks,
-Adam
 
+-- wli

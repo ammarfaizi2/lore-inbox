@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbTAEUBa>; Sun, 5 Jan 2003 15:01:30 -0500
+	id <S265171AbTAEUAT>; Sun, 5 Jan 2003 15:00:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265249AbTAEUB3>; Sun, 5 Jan 2003 15:01:29 -0500
-Received: from pop.gmx.de ([213.165.65.60]:34777 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265247AbTAEUB3>;
-	Sun, 5 Jan 2003 15:01:29 -0500
-Message-Id: <5.1.1.6.2.20030105210535.00c76738@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Sun, 05 Jan 2003 21:06:50 +0100
-To: Bruce Harada <bruce@ask.ne.jp>
-From: Mike Galbraith <efault@gmx.de>
+	id <S265187AbTAEUAT>; Sun, 5 Jan 2003 15:00:19 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:4618 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265171AbTAEUAS>; Sun, 5 Jan 2003 15:00:18 -0500
+Date: Sun, 5 Jan 2003 12:07:37 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, paul@clubi.ie,
+       andrew@indranet.co.nz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Honest does not pay here ...
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030106044716.41cab8ce.bruce@ask.ne.jp>
-References: <5.1.1.6.2.20030105190733.00c80b88@pop.gmx.net>
- <Pine.LNX.4.44.0301050314470.16362-100000@fogarty.jakma.org>
- <5.1.1.6.2.20030105190733.00c80b88@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+In-Reply-To: <1041780832.14092.1.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10301051203200.421-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:47 AM 1/6/2003 +0900, Bruce Harada wrote:
->On Sun, 05 Jan 2003 19:16:26 +0100
->
->Ah well, where else could you see St. Ignatius squaring off against the Mad
->Genius of IDE and a WebTV user ;)
+On 5 Jan 2003, Alan Cox wrote:
 
-:)))
+> On Sun, 2003-01-05 at 12:26, Adam J. Richter wrote:
+> > 	  If you look toward the bottom of the second web page that I
+> > mentioned in my previous message
+> > ( http://www.gcom.com/home/support/whitepapers/linux-gnu-license.html ),
+> > you'll see a statement from Alan Cox of June 7, 2001 making a similar
+> > point.  Here is a URL for the lkml message that that page quoted:
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=99193676018831&w=2
+> 
+> Not the gcom response contains fundamental factual errors, it does not for
+> example understand how the LGPL/GPL interact
+
+Alan,
+
+Okay, but they had a lawyer draft a position.
+Now given that RMS, FSF, et al. are out of the picture, and left to the
+domain of the copyright holders, and you have a position of stenght.
+Are you going to enforce the copyright on every file you have your name
+on, regardless?
+
+If this is the case, then the rest of us sadly have to pick sides.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
 

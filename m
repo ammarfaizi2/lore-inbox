@@ -1,64 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265798AbSKTFkv>; Wed, 20 Nov 2002 00:40:51 -0500
+	id <S265800AbSKTF5A>; Wed, 20 Nov 2002 00:57:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267630AbSKTFkv>; Wed, 20 Nov 2002 00:40:51 -0500
-Received: from chopper.slackworks.com ([64.244.30.42]:19986 "EHLO
-	chopper.slackworks.com") by vger.kernel.org with ESMTP
-	id <S265798AbSKTFku>; Wed, 20 Nov 2002 00:40:50 -0500
-Date: Wed, 20 Nov 2002 00:47:55 -0500 (EST)
-From: Zac Hansen <xaxxon@chopper.slackworks.com>
-To: linux-kernel@vger.kernel.org
-Subject: GPL rant -- was: spinlocks, the GPL, and binary-only modules
-In-Reply-To: <Pine.LNX.4.44.0211200022360.21801-100000@cerberus.localhost>
-Message-ID: <Pine.LNX.4.44.0211200045320.9931-100000@chopper.slackworks.com>
+	id <S265806AbSKTF5A>; Wed, 20 Nov 2002 00:57:00 -0500
+Received: from pop016pub.verizon.net ([206.46.170.173]:14824 "EHLO
+	pop016.verizon.net") by vger.kernel.org with ESMTP
+	id <S265800AbSKTF47>; Wed, 20 Nov 2002 00:56:59 -0500
+Date: Wed, 20 Nov 2002 01:03:11 -0500
+From: Akira Tsukamoto <akira-t@suna-asobi.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: Performance improvement with Akira Tsukamoto's Athlon copy_user patch
+Cc: Akira Tsukamoto <at541@columbia.edu>, linux-kernel@vger.kernel.org,
+       Hirokazu Takahashi <taka@valinux.co.jp>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <3DDA8E81.4070508@colorfullife.com>
+References: <3DDA8E81.4070508@colorfullife.com>
+Message-Id: <20021120004212.5F4C.AKIRA-T@suna-asobi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.4.1(snapshot 20020919) (chopper.slackworks.com)
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.05.06
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop016.verizon.net from [138.89.33.207] at Wed, 20 Nov 2002 00:03:56 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Not deeply but I looked your exception safe kfpu.
 
-I think he means when you contribute to a GNU piece of code?  They ask you 
-to sign over your copyright so they can enforce it more easily in court.  
+'kernel_fpu_begin/end' was like delayed FPU sate switching,
+on the other hand, kfpu is more abstracted FPU semaphore
+which works per cpu.
 
-Or so they say.  They could also use this power for evil.  Also, what's up 
-with that "GPL version 2 or later" stuff?  I always take that out of my 
-licenses.  While I understand that if I die, its then sort of trapped 
-under GPL2, I really don't want whoever decides to make the next GPL 
-changing the licensing on my program significantly...
+I have not compiled it but it should work fine on 2.4, but
+have some questions using kfpu for 2.5.
 
---Zac
+ 1)Is 'per CPU' safe for 2.5?
+   I think the new O(1) scheduler has process migration between cpus
+   and I am a bit afraid.
+   If not safe, any good idea for it?
+   May be per task could be safer even not optimal for smp?
+ 2)Need to add preempt_disable/enable().
+ 3)struct kfpuacquire {} kfpuacquire; is in the kfpu.h header,
+   might cause compile problem.
 
-On Wed, 20 Nov 2002, Jon Portnoy wrote:
+> Have you tried SSE based copy_to_user? With SSE, you can just save the affected registers, without unexpected sideeffects.
 
-> Blatantly false. Have you even _read_ the GPL? It doesn't seem that way - 
-> in which case why are you discussing it?
+No, my CPU don't run SSE......:)
+
+By the way,
+do you have separeted patch only for kfpu?
+
+Thank you,
+
+Akira Tsukamoto
+
+On Tue, 19 Nov 2002 20:18:25 +0100
+Manfred Spraul <manfred@colorfullife.com> mentioned:
+
+> >I read the code of laze FPU state saving and confirmed that 
+> >if the function does not generate exception than
+> >'kernel_fpu_begin/end()' should assure fpu safe inside kernel.
+> >
+> >However, it is not enough where exception could rise, as Takahashi
+> >mentioned.
 > 
-> Please get your facts straight. While you're at it, please avoid making 
-> yourself look like an idiot in the future.
 > 
-> On Wed, 20 Nov 2002, archaios wrote:
+> I had prototyped an exception safe kfpu framework, but then I didn't have the time to submit/cleanup it.
 > 
-> > When you GPL a piece of software, you sign over your rights to the FSF. Therefore, there is very little that can be done about this;
-> > from a legal perspective, the FSF _itself_ determines what is and what isn't construed as a derived work.
-> > 
-> > - David McIlwraith
-> > ----- Original Message -----
-> > From: Ross Vandegrift <ross@willow.seitz.com>
-> > To: Rik van Riel <riel@conectiva.com.br>
-> > Cc: <linux-kernel@vger.kernel.org>
-> > Sent: Wednesday, November 20, 2002 3:26 PM
-> > Subject: Re: spinlocks, the GPL, and binary-only modules
-> > 
-> > 
-> > On Wed, Nov 20, 2002 at 12:59:26AM -0200, Rik van Riel wrote:
-> [snip]
+> http://www.colorfullife.com/~manfred/linux-2.5/sse/patch-kfpu
+> 
+> Have you tried SSE based copy_to_user? With SSE, you can just save the affected registers, without unexpected sideeffects.
+> 
+> --
+> 	Manfred
+> 
 > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+-- 
+Akira Tsukamoto <akira-t@suna-asobi.com, at541@columbia.edu>
+
 

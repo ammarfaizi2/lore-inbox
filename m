@@ -1,56 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272368AbTHKGcH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 02:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272379AbTHKGcH
+	id S272518AbTHKGvG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 02:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272512AbTHKGvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 02:32:07 -0400
-Received: from pan.togami.com ([66.139.75.105]:28359 "EHLO pan.mplug.org")
-	by vger.kernel.org with ESMTP id S272368AbTHKGcD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 02:32:03 -0400
-Subject: Re: 2.6-test3 compusa USB optical mouse
-From: Warren Togami <warren@togami.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20030810215205.1028d3de.akpm@osdl.org>
-References: <1060565776.2888.3.camel@laptop>
-	 <20030810215205.1028d3de.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1060583513.2888.22.camel@laptop>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
-Date: Sun, 10 Aug 2003 20:32:01 -1000
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Aug 2003 02:51:06 -0400
+Received: from 13.telemaxx.net ([213.144.13.149]:47823 "EHLO
+	gatekeeper.syskonnect.de") by vger.kernel.org with ESMTP
+	id S272458AbTHKGu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 02:50:58 -0400
+From: <support@syskonnect.de>
+To: "'Adrian Bunk'" <bunk@fs.tum.de>
+Cc: <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <trivial@rustcorp.com.au>, <linux@syskonnect.de>
+Subject: RE: [2.6 patch] fix net/sk98lin/skge.c for !PROC_FS
+Date: Mon, 11 Aug 2003 08:47:00 +0200
+Message-ID: <000e01c35fd4$5e80a320$bc01090a@skd.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
+In-Reply-To: <20030808201823.GE16091@fs.tum.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-08-10 at 18:52, Andrew Morton wrote:
-> Warren Togami <warren@togami.com> wrote:
-> >
-> > I normally use Logitech optical USB mice in Linux.  I bought a "CompUSA
-> > Optical USB Notebook Mouse" for $14 and the following happens in dmesg
-> > in kernel-2.6.0-test3.
-> > 
-> > Known bug?  Should I Bugzilla this?
-> > 
-> > hub 1-1:0: debounce: port 2: delay 100ms stable 4 status 0x301
-> > hub 1-1:0: new USB device on port 2, assigned address 8
-> > drivers/usb/core/message.c: selecting invalid configuration 0
-> > usb 1-1.2: failed to set device 8 default configuration (error=-22)
-> > hub 1-1:0: new USB device on port 2, assigned address 9
-> > drivers/usb/core/message.c: selecting invalid configuration 0
-> > usb 1-1.2: failed to set device 9 default configuration (error=-22)
-> 
-> You don't state whether the mouse actually works.
-> 
-> Assuming it doesn't, yes, please bugzilla it, or bug the folks at
-> linux-usb-devel@lists.sourceforge.net
+Hello Adrian,
 
-http://bugzilla.kernel.org/show_bug.cgi?id=1077
-Filed Bugzilla.  Indeed the mouse does not work.
+Thank you very much for your interest in SysKonnect products.
 
-Thanks,
-Warren Togami
-warren@togami.com
+We will consider your suggestion during the next release.
+
+Thank you again for your cooperation.
+
+Best regards
+Karim
+
+SysKonnect GmbH
+A Marvell®Company
+-------------------------------------
+Karim Jamal
+Technical Support Engineer
+--------------------------------------
+Phone: +49 (0) 7243502-330
+Fax: +49 (0) 7243502-364
+Mail: support@syskonnect.de
+Web: http:\\www.syskonnect.de
+
+
+
+
+-----Original Message-----
+From: Adrian Bunk [mailto:bunk@fs.tum.de]
+Sent: Friday, August 08, 2003 10:18 PM
+To: linux@syskonnect.de
+Cc: linux-net@vger.kernel.org; linux-kernel@vger.kernel.org;
+trivial@rustcorp.com.au
+Subject: [2.6 patch] fix net/sk98lin/skge.c for !PROC_FS
+
+
+I got the following compile error compiling 2.6.0-test2-mm5 with
+!CONFIG_PROC_FS:
+
+<--  snip  -->
+
+...
+  CC      drivers/net/sk98lin/skge.o
+...
+drivers/net/sk98lin/skge.c:730: error: `proc_net' undeclared (first use
+in this function)
+drivers/net/sk98lin/skge.c:730: error: (Each undeclared identifier is
+reported only once
+drivers/net/sk98lin/skge.c:730: error: for each function it appears in.)
+make[3]: *** [drivers/net/sk98lin/skge.o] Error 1
+
+<--  snip  -->
+
+The following patch fixes it:
+
+--- linux-2.6.0-test2-mm5/drivers/net/sk98lin/skge.c.old	2003-08-08
+20:24:50.000000000 +0200
++++ linux-2.6.0-test2-mm5/drivers/net/sk98lin/skge.c	2003-08-08
+20:25:22.000000000 +0200
+@@ -724,6 +724,7 @@
+ 			SK_MEMCPY(&SK_Root_Dir_entry, BootString,
+ 				sizeof(SK_Root_Dir_entry) - 1);
+
++#ifdef CONFIG_PROC_FS
+ 			/*Create proc (directory)*/
+ 			if(!proc_root_initialized) {
+ 				pSkRootDir = create_proc_entry(SK_Root_Dir_entry,
+@@ -731,6 +732,7 @@
+ 				pSkRootDir->owner = THIS_MODULE;
+ 				proc_root_initialized = 1;
+ 			}
++#endif  /*  CONFIG_PROC_FS  */
+
+ 		}
+
+
+
+Please apply
+Adrian
+
+--
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
 

@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312208AbSCYCJB>; Sun, 24 Mar 2002 21:09:01 -0500
+	id <S312235AbSCYCNv>; Sun, 24 Mar 2002 21:13:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312233AbSCYCIu>; Sun, 24 Mar 2002 21:08:50 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:31501 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S312208AbSCYCIi>; Sun, 24 Mar 2002 21:08:38 -0500
-Date: Mon, 25 Mar 2002 03:08:33 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Cc: becker@scyld.com, jonathan@woaf.net
-Subject: Re: Possible problems with D-LINK DFE-550TX (stock sundance driver) under 2.4.18
-Message-ID: <20020325020833.GE1566@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org, becker@scyld.com,
-	jonathan@woaf.net
-In-Reply-To: <20020325004808.GA7838@woaf.net>
-Mime-Version: 1.0
+	id <S312233AbSCYCNl>; Sun, 24 Mar 2002 21:13:41 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:34572 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312235AbSCYCN2>; Sun, 24 Mar 2002 21:13:28 -0500
+Message-ID: <3C9E8767.4F57CB0A@zip.com.au>
+Date: Sun, 24 Mar 2002 18:11:51 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>, lkml <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@elte.hu>
+Subject: Re: preempt-related hangs
+In-Reply-To: <3C9E8497.9355C462@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Mar 2002, David Flynn wrote:
+Andrew Morton wrote:
+> 
+> ..
+> Kernel is 2.5.7, dual PIII.  When I enable preempt it
+> locks during boot.
 
-> With the following hardware::
->   dual Athlon XP 1700+
->   D-Link DFE-550TX NIC
->   SiS cheapo g/card
+OK, this patch fixed it.  I don't know why.
 
-El cheapo configuration, Athlon XP are not stable in SMP configurations.
 
-(I look after a dual XP 1700+ machine with Tyan board, and it falls over
-from time to time, but booted with just one CPU, the machine is rock
-solid.)
+--- linux-2.5.7/kernel/sched.c	Mon Mar 18 13:04:41 2002
++++ 25/kernel/sched.c	Sun Mar 24 18:09:09 2002
+@@ -1545,6 +1545,8 @@ void set_cpus_allowed(task_t *p, unsigne
+ 	migration_req_t req;
+ 	runqueue_t *rq;
+ 
++	preempt_disable();
++
+ 	new_mask &= cpu_online_map;
+ 	if (!new_mask)
+ 		BUG();
+@@ -1557,7 +1559,7 @@ void set_cpus_allowed(task_t *p, unsigne
+ 	 */
+ 	if (new_mask & (1UL << p->thread_info->cpu)) {
+ 		task_rq_unlock(rq, &flags);
+-		return;
++		goto out;
+ 	}
+ 
+ 	init_MUTEX_LOCKED(&req.sem);
+@@ -1567,6 +1569,8 @@ void set_cpus_allowed(task_t *p, unsigne
+ 	wake_up_process(rq->migration_thread);
+ 
+ 	down(&req.sem);
++out:
++	preempt_disable();
+ }
+ 
+ static volatile unsigned long migration_mask;
 
-Try booting with just one processor (maxcpus=1 boot option) or borrow
-two Athlon MP and see if you can reproduce the problem then. If you can,
-someone may help you. I you can't reproduce it with one CPU, you're
-probably on your own.
+
+-

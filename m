@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263493AbTFILhi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 07:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTFILhi
+	id S263273AbTFILnb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 07:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTFILnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 07:37:38 -0400
-Received: from rsys000a.roke.co.uk ([193.118.201.102]:30224 "HELO
-	rsys000a.roke.co.uk") by vger.kernel.org with SMTP id S263493AbTFILha
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 07:37:30 -0400
-From: "ZCane, Ed (Test Purposes)" <zed.cane@roke.co.uk>
-To: linux-kernel@vger.kernel.org
-Message-ID: <006d01c32e7d$63666330$d8c176c1@roke.co.uk>
-Subject: Advice regarding memory allocation/sharing
-Date: Mon, 9 Jun 2003 12:50:56 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	Mon, 9 Jun 2003 07:43:31 -0400
+Received: from gate.perex.cz ([194.212.165.105]:53509 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S263273AbTFILna (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 07:43:30 -0400
+Date: Mon, 9 Jun 2003 13:56:59 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: ALSA development <alsa-devel@alsa-project.org>,
+       <kbuild-devel@lists.sourceforge.net>
+Subject: 2.5 kbuild: use of '-z muldefs' for LD?
+Message-ID: <Pine.LNX.4.44.0306091342400.1323-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello all,
 
-I appreciate this is probably trivial to you experts, but would be very
-grateful if you could spare a minute to tell me if I'm on the right tracks,
-or barking up the wrong tree!
+	I am trying to figure the best solution for our problem. We reuse
+one object file for more targets. Example:
 
-I'm trying to write a system to capture large amounts of data from a Gb
-Ethernet card. Using Linux, Kernel Version 2.4.
+------
+snd-ice1712-objs := ice1712.o delta.o hoontech.o ews.o ak4xxx.o
+snd-ice1724-objs := ice1724.o amp.o revo.o aureon.o ak4xxx.o
 
-I've done a bit of reading, and this is how I propose to do it.
+# Toplevel Module Dependency
+obj-$(CONFIG_SND_ICE1712) += snd-ice1712.o
+obj-$(CONFIG_SND_ICE1724) += snd-ice1724.o
+------
 
-Allocate a large block (500mb) of contiguous physical memory, at boot time,
-using bootmem.
-Share this memory with user-space processess, using memmap and shared memory
-IPC.
-Modify our Ethernet driver so that it DMA's into my block of memory.
+The ak4xxx.o module is shared and has defined a few public functions.
+Unfortunately, the default build-in.o rule fails when targets are 
+requested to be included into the solid kernel because the public 
+functions are duplicated in snd-ice1712.o and snd-ice17124.o.
 
-I'll use semaphores, and split the memory into separate chunks, and make it
-so it rotates in a ring buffer style, I can handle all that stuff, just
-wanted to make sure I was on the right tracks with the design/concept of the
-memory.
+I can instruct the ld compiler to ignore the multiple definitions using 
+'-z muldefs':
 
-Any advice appreciated, dont wish to take too much of your time!
+EXTRA_LDFLAGS = -z muldefs
 
-Best regards,
-Ed
+But it seems like a hack for me.
+Does anybody have another idea to solve my problem?
 
+						Jaroslav
 
-
-
-
-
-
-
-begin 666 RMRL-Disclaimer.txt
-M4F5G:7-T97)E9"!/9F9I8V4Z(%)O:V4@36%N;W(@4F5S96%R8V@@3'1D+"!3
-M:65M96YS($AO=7-E+"!/;&1B=7)Y+"!"<F%C:VYE;&PL( T*0F5R:W-H:7)E
-M+B!21S$R(#A&6@T*#0I4:&4@:6YF;W)M871I;VX@8V]N=&%I;F5D(&EN('1H
-M:7,@92UM86EL(&%N9"!A;GD@871T86-H;65N=',@:7,@8V]N9FED96YT:6%L
-M('1O(%)O:V4@#0T-"DUA;F]R(%)E<V5A<F-H($QT9"!A;F0@;75S="!N;W0@
-M8F4@<&%S<V5D('1O(&%N>2!T:&ER9"!P87)T>2!W:71H;W5T('!E<FUI<W-I
-M;VXN(%1H:7,@#0T-"F-O;6UU;FEC871I;VX@:7,@9F]R(&EN9F]R;6%T:6]N
-M(&]N;'D@86YD('-H86QL(&YO="!C<F5A=&4@;W(@8VAA;F=E(&%N>2!C;VYT
-;<F%C='5A;" -#0T*<F5L871I;VYS:&EP+@T*
-end
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
 

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbTAaTnb>; Fri, 31 Jan 2003 14:43:31 -0500
+	id <S262040AbTAaTqy>; Fri, 31 Jan 2003 14:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbTAaTnb>; Fri, 31 Jan 2003 14:43:31 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:46470 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S261934AbTAaTna>; Fri, 31 Jan 2003 14:43:30 -0500
-Message-Id: <200301311952.h0VJqnuu009494@eeyore.valparaiso.cl>
-To: John Bradford <john@grabjohn.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.59 morse code panics 
-In-Reply-To: Your message of "Fri, 31 Jan 2003 16:01:05 GMT."
-             <200301311601.h0VG159O001744@darkstar.example.net> 
-Date: Fri, 31 Jan 2003 20:52:49 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S262089AbTAaTqy>; Fri, 31 Jan 2003 14:46:54 -0500
+Received: from ns1.system-techniques.com ([199.33.245.254]:61582 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S262040AbTAaTqx>; Fri, 31 Jan 2003 14:46:53 -0500
+Date: Fri, 31 Jan 2003 14:55:09 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Pete Zaitcev <zaitcev@redhat.com>,
+       Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: Perl in the toolchain
+In-Reply-To: <20030131194837.GC8298@gtf.org>
+Message-ID: <Pine.LNX.4.53.0301311452270.14554@filesrv1.baby-dragons.com>
+References: <20030131133929.A8992@devserv.devel.redhat.com>
+ <Pine.LNX.4.44.0301311327480.16486-100000@chaos.physics.uiowa.edu>
+ <20030131194837.GC8298@gtf.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@grabjohn.com> said:
 
-[...]
+	Hello All,   And no one wanted python ?  I find the necessity for
+	extraneous packages silly .  Perl for gods sake .  JimL my .02
 
-> > you're just angry that I've left out your original
-> > plain_blinking code.
-> 
-> Well, there are typically *three* keyboard LEDs...  Why not use one
-> the middle one for morse, and outside two for plain blinking?
-
-Then put out the stuff in octal...
-
-/me dives for a hiding place
+On Fri, 31 Jan 2003, Jeff Garzik wrote:
+> On Fri, Jan 31, 2003 at 01:41:26PM -0600, Kai Germaschewski wrote:
+> > Generally, we've been trying to not make perl a prequisite for the kernel
+> > build, and I'd like to keep it that way. Except for some arch specific
+> That's pretty much out the window when klibc gets merged, so perl will
+> indeed be a build requirement for all platforms...
+> 	Jeff
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbUKCIgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbUKCIiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbUKCIgA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 03:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUKCIf7
+	id S261480AbUKCIiK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 03:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbUKCIiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 03:35:59 -0500
-Received: from dev.tequila.jp ([128.121.50.153]:11277 "EHLO dev.tequila.jp")
-	by vger.kernel.org with ESMTP id S261470AbUKCIfx (ORCPT
+	Wed, 3 Nov 2004 03:38:10 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:26345 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261480AbUKCIiD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 03:35:53 -0500
-Message-ID: <41889857.5040506@tequila.co.jp>
-Date: Wed, 03 Nov 2004 17:35:35 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: still no cd/dvd burning as user with 2.6.9
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Nov 2004 03:38:03 -0500
+Date: Wed, 3 Nov 2004 09:39:00 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
+Message-ID: <20041103083900.GA27211@elte.hu>
+References: <OF9F489E60.B8B3EA93-ON86256F40.007C1401-86256F40.007C1430@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF9F489E60.B8B3EA93-ON86256F40.007C1401-86256F40.007C1430@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hi,
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-I use 2.6.9-ac3 on my Laptop and I just wanted to burn a DVD-Video with
-my external Pioneer DVD writer which is connected via fire-wire to the
-Laptop.
+> The crash sequence was...
+> 
+>  - boot to single user (uneventful)
+>  - telnet 5 (uneventful)
+>  - X and top tests (uneventful)
+>  - network test started (and did not finish)
+>  - 2343 usec latency dumped
+>  - 55962 usec latency dumped
+>  - 74229 usec latency dumped
+>  - 83374 usec latency dumped
+>  - deadlock
 
-Before 2.6.9-ac3 I used 2.6.9-rc2-mm2 and with this I could write CDs/DVDs.
+yeah, this is yet another networking deadlock, nicely detected and
+logged. Since the deadlock locks up ksoftirqd, timer handling (also
+driven by ksoftirqd) wont work - i think this explains the followup
+symptoms you got.
 
-<rant>
-So why is it still impossible that users can write CDs/DVDs. I, as a
-user, find this rather ridicolous that you have to patch the kernel to
-get this simple thing running. Security is important, yes, but this is
-just annoying.
-
-I really hope that gets fixed soon, because its just annoying to reboot
-to a different kernel, just to write CDs ...
-</rant>
-
-lg, clemens
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBiJhXjBz/yQjBxz8RAjdNAKCNDLnxwHk7JA13vPuJde0BAco0qwCfVyS3
-gAWHY0/vh3P8BBEgo+Rx76U=
-=olzo
------END PGP SIGNATURE-----
+	Ingo

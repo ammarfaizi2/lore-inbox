@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbRKAALy>; Wed, 31 Oct 2001 19:11:54 -0500
+	id <S276576AbRKAATO>; Wed, 31 Oct 2001 19:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276477AbRKAALf>; Wed, 31 Oct 2001 19:11:35 -0500
-Received: from pc-62-31-92-167-az.blueyonder.co.uk ([62.31.92.167]:58863 "EHLO
-	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S276429AbRKAALZ>; Wed, 31 Oct 2001 19:11:25 -0500
-Date: Thu, 1 Nov 2001 00:10:54 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Cort Dougan <cort@fsmlabs.com>, Craig Milo Rogers <rogers@ISI.EDU>,
-        Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
-        Timur Tabi <ttabi@interactivesi.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Module Licensing?
-Message-ID: <20011101001054.B9542@kushida.jlokier.co.uk>
-In-Reply-To: <20011031092228.J1506@work.bitmover.com> <4986.1004558101@ISI.EDU> <20011031144244.R607@ftsoj.fsmlabs.com> <20011031234707.A9542@kushida.jlokier.co.uk> <20011031155447.R1506@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011031155447.R1506@work.bitmover.com>; from lm@bitmover.com on Wed, Oct 31, 2001 at 03:54:47PM -0800
+	id <S276585AbRKAATF>; Wed, 31 Oct 2001 19:19:05 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:14349 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S276576AbRKAASr>;
+	Wed, 31 Oct 2001 19:18:47 -0500
+Date: Wed, 31 Oct 2001 22:19:07 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andreas Palsson <did@algonet.se>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Recommendations for beginners
+In-Reply-To: <Pine.SOL.4.10.10111010044440.21380-100000@kairos>
+Message-ID: <Pine.LNX.4.33L.0110312218540.2963-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> On Wed, Oct 31, 2001 at 11:47:07PM +0000, Jamie Lokier wrote:
-> > But if you take that strict interpretation, you have _no_ right to copy
-> > or distribute the object module anyway, except as granted by the license
-> > on the accompanying source code.
-> 
-> Right you are, but this is trivial to circumvent if you are trying to ship
-> a binary driver.  The binary doesn't have GPLed code, you are shipping two
-> things which are not combined when they were shipped, the end user combines
-> them when running them.
+On Thu, 1 Nov 2001, Andreas Palsson wrote:
 
-Indeed, the very old, never resolved, "user does the link" argument again.
+> I would like to give it a try to contribute to the Linux-kernel.
+> And as many other beginners I look for a place to start.
 
-I honestly don't know what a court of law would decide on that.  It may
-well be different in different jurisdictions.
+http://kernelnewbies.org/
 
--- Jamie
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276225AbRJDJpv>; Thu, 4 Oct 2001 05:45:51 -0400
+	id <S276195AbRJDJnl>; Thu, 4 Oct 2001 05:43:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276246AbRJDJpl>; Thu, 4 Oct 2001 05:45:41 -0400
-Received: from codepoet.org ([166.70.14.212]:47414 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S276225AbRJDJpb>;
-	Thu, 4 Oct 2001 05:45:31 -0400
-Date: Thu, 4 Oct 2001 03:46:00 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Message-ID: <20011004034600.B29438@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0110040004430.26177-100000@weyl.math.psu.edu> <m14rpg0w4a.fsf@frodo.biederman.org> <20011004113019.L22640@niksula.cs.hut.fi>
-Mime-Version: 1.0
+	id <S276225AbRJDJnc>; Thu, 4 Oct 2001 05:43:32 -0400
+Received: from otter.mbay.net ([206.40.79.2]:15109 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S276195AbRJDJnP> convert rfc822-to-8bit;
+	Thu, 4 Oct 2001 05:43:15 -0400
+From: John Alvord <jalvo@mbay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel changes
+Date: Thu, 04 Oct 2001 02:43:38 -0700
+Message-ID: <1gbort0cb2j19cm0mo9rlr21pk7f8gelml@4ax.com>
+In-Reply-To: <07f901c148b8$720a6230$1a01a8c0@allyourbase> <200110040036.f940a1I08480@deathstar.prodigy.com>
+In-Reply-To: <200110040036.f940a1I08480@deathstar.prodigy.com>
+X-Mailer: Forte Agent 1.8/32.553
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011004113019.L22640@niksula.cs.hut.fi>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: 2.4.9-ac18-rmk1, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Oct 04, 2001 at 11:30:19AM +0300, Ville Herva wrote:
-> On Thu, Oct 04, 2001 at 12:15:01AM -0600, you [Eric W. Biederman] claimed:
-> > 
-> > <snip size of glibc>
-> 
-> Where size is an issue, diet libc might be an alternative:
-> 
-> http://www.fefe.de/dietlibc/
-> 
-> (287kB statically linked zsh is not too shabby, I reckon.)
+On Wed, 3 Oct 2001 20:36:01 -0400, davidsen@tmr.com (bill davidsen)
+wrote:
 
-uClibc is also a nice alternative.  Works just great and uses glibc
-header files.  I only fully support shared libs on x86 and arm
-at the moment.  
+>In article <07f901c148b8$720a6230$1a01a8c0@allyourbase> dmaas@dcine.com wrote:
+>| > The answer is to treat all linus/ac/aa/... kernels as development
+>| > kernels.  Don't treat anything as stable until it's been through
+>| > a real QA cycle.
+>| 
+>| I definitely have to second what you guys are saying here... 2.2.x is the
+>| stable kernel series, 2.4.x is for caffeine-fueled developers who read the
+>| LKML at least once every day...
+>
+>  Not really. I have found that 2.4 kernels are usefully stable if you
+>pick them carefully.
 
-http://cvs.uclinux.org/uClibc.html
+If you run kernels from the developers, you have joined the linux
+development test team... whether you know it or not.  The bug reports
+coming in are the main output of the test team. Positive reports are
+nice but contain relatively little information for developers. You may
+get productive use, and that is nice, but it is not the primary
+purpose of the test team.
 
-(I need to update the webpage sometime)
-
-> That and things like busybox:
-> 
-> http://busybox.lineo.com/
-
-Why thanks.  I've sure worked hard to make it be nice and small...
-
- -Erik
-
---
-Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
---This message was written using 73% post-consumer electrons--
+john alvord

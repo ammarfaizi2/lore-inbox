@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266142AbUF2XX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266140AbUF2XW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266142AbUF2XX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 19:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUF2XX1
+	id S266140AbUF2XW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 19:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUF2XW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 19:23:27 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:57576 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266139AbUF2XXH (ORCPT
+	Tue, 29 Jun 2004 19:22:57 -0400
+Received: from winds.org ([68.75.195.9]:41877 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id S266078AbUF2XWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 19:23:07 -0400
-Subject: Re: per-process namespace?
-From: Ram Pai <linuxram@us.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Mike Waychison <Michael.Waychison@Sun.COM>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040629221025.GI12308@parcelfarce.linux.theplanet.co.uk>
-References: <1088534826.2816.38.camel@dyn319623-009047021109.beaverton.ibm.com>
-	 <40E1DABD.9000202@sun.com>
-	 <20040629221025.GI12308@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1088551367.4788.49.camel@dyn319623-009047021109.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Jun 2004 16:22:48 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Jun 2004 19:22:44 -0400
+Date: Tue, 29 Jun 2004 19:22:37 -0400 (EDT)
+From: Byron Stanoszek <gandalf@winds.org>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+cc: Mark Haverkamp <markh@osdl.org>, Alan Cox <alan@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: RE: PATCH: Further aacraid work
+In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6EE@otce2k03.adaptec.com>
+Message-ID: <Pine.LNX.4.60.0406291918590.27755@winds.org>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6EE@otce2k03.adaptec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-29 at 15:10, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
- 
-> Note that sharing parts of namespace (which is basically what automounter
-> wants and what we do not have yet) is deliberate act of trust - same as
-> having a part of your address space shared with other process.
+On Tue, 29 Jun 2004, Salyzyn, Mark wrote:
 
-Al, are you working on this feature(namespace sharing) ?
-If so, can we help?  If not, any estimate on the complexity of this
-work?
+> Oooo, good!
+>
+> The Adapter has declared itself `dead' (maybe for reasons other than a
+> controlled blinkLED situation). Effectively a crash or complete loss of
+> communications with the Adapter. Last time I've seen this happened it
+> was a bad power supply.
+>
+> Contact technical support to have them narrow down the actual cause of
+> adapter failure ... I don't know where the F/W updates are held on the
+> Dell Site.
 
-Thanks,
-RP
+I found the firmware updates on Dell's site, latest version 2.8.0, build 6089.
+I'm going to try updating the server along with its BIOS tomorrow morning.
 
+I'll keep you posted!
+
+  -Byron
+
+--
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com

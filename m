@@ -1,102 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269076AbRHBTrs>; Thu, 2 Aug 2001 15:47:48 -0400
+	id <S269102AbRHBT4I>; Thu, 2 Aug 2001 15:56:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269082AbRHBTri>; Thu, 2 Aug 2001 15:47:38 -0400
-Received: from ntt-connection.daiwausa.com ([210.175.188.3]:28109 "EHLO
-	ead42.ead.dsa.com") by vger.kernel.org with ESMTP
-	id <S269076AbRHBTrc>; Thu, 2 Aug 2001 15:47:32 -0400
-Date: Thu, 2 Aug 2001 15:47:18 -0400
-From: "Bill Rugolsky Jr." <rugolsky@ead.dsa.com>
-To: Daniel Phillips <phillips@bonn-fries.net>,
+	id <S269082AbRHBTzw>; Thu, 2 Aug 2001 15:55:52 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:62224 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269099AbRHBTzf>; Thu, 2 Aug 2001 15:55:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: ext3-2.4-0.9.4
+Date: Thu, 2 Aug 2001 22:01:01 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
         "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-Message-ID: <20010802154718.A16494@ead45>
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010801170230.B7053@redhat.com> <20010802110341.B17927@emma1.emma.line.org> <01080219261601.00440@starship> <20010802193750.B12425@emma1.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010802193750.B12425@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Thu, Aug 02, 2001 at 07:37:50PM +0200
+In-Reply-To: <Pine.GSO.4.21.0108021347300.29563-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0108021347300.29563-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Message-Id: <01080222010104.00440@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 02, 2001 at 07:37:50PM +0200, Matthias Andree wrote:
-> The other thing is, that Linux is the only known system that does
-> asynchronous rename/link/unlink/symlink -- people have claimed it might
-> not be the only one, but failed to name systems.
-> 
-> So we need to assume that Linux is the only system that does
-> asynchronous rename/link/unlink/symlink, however a directory fsync() is
-> believed to be rather expensive.
-> 
-> Still, some people object to a dirsync mount option. But this has been
-> the actual reason for the thread - MTA authors are refusing to pamper
-> Linux and use chattr +S instead which gives unnecessary (premature) sync
-> operations on write() - but MTAs know how to fsync().
+On Thursday 02 August 2001 19:54, Alexander Viro wrote:
+> On Thu, 2 Aug 2001, Daniel Phillips wrote:
+> > I don't know why it is hard or inefficient to implement this at the
+> > VFS level, though I'm sure there is a reason or this thread
+> > wouldn't exist.  Stephen, perhaps you could explain for the record
+> > why sys_fsync can't just walk the chain of dentry parent links
+> > doing fdatasync?  Does this create VFS or Ext3 locking problems? 
+> > Or maybe it repeats work that Ext3 is already supposed to have
+> > done?
+>
+> Parent directory can be renamed. Which grandparent should we sync?
+> New one? Old one? Both?
 
-Let's inject a little reality into this discussion.  Filesystems are used
-for something other than running MTA's written by stubborn "purists".
+Either one, or both, it doesn't matter since the application has not 
+forced any serialization on this and can't assume any.
 
-Solaris: Dell 600 MHz PIII 128MB RAM, largely quiescent:
-         Solaris 8 mu4, UFS with logging
+> BTW, how about file itself getting renamed during fsync()?
 
-Linux:   VA Linux 800 MHZ PIII, 128MB RAM, largely quiescent
-         RedHat Linux 7.1 w/ kernel-2.4.6-2.4 (2.4.6-ac5 + ext3-0.9.3).
+It doesn't matter.  If the application wants to race that way, let it.  
+We're talking about ensuring access to the fsynced fd's inode.
 
-660MB XFree86-4.1 build tree, cache primed with du -s in each case.
+> See the problem? And no, blocking all renames while fsync() happens
+> is not an answer - it's a DoS.
 
-Here's something that we developers probably all do frequently: copy a
-tree using hard links, so that we can patch it.
+We would have done our duty by fsyncing the inodes one at a time 
+working up the dentry chain towards the root, and not trying to lock 
+the whole chain.  If something happens while we're doing that it's an 
+application race.
 
-[solaris] find . | wc     
-   33027   33027 1251671
-[solaris] time find . -depth | cpio -pdul ../foo
-0 blocks
- 363.46s real    0.84s user   10.13s system 
-
-Plain ext2:
-
-[linux]# time find . -depth | cpio -pdul ../foo
-0 blocks
-
-real    0m3.823s user    0m0.240s sys     0m3.570s
-
-Mounted ext3, ordered data mode.
-
-[linux] time find . -depth | cpio -pdul ../foo
-0 blocks
-
-real    0m5.106s user    0m0.200s sys     0m3.700s
-
-Mounted ext3, -o sync:
-
-[root@ead51 bar]# time find . -depth | cpio -pdul ../foo
-0 blocks
-
-real    1m28.483s user    0m0.470s sys     0m4.410s 
-
-=====================================================
-
-Solaris8 UFS:   363.5 seconds
-ext2:             3.8 seconds
-ext3:             5.1 seconds
-ext3 -o sync:    88.5 seconds
-
-Got it?
-
-Obviously, the last is the result of the poor interaction
-of ext3+sync in 0.9.3, but Andrew Morton has already fixed that.
-I will try again with 0.9.5 when I have a chance to upgrade that
-machine.
-
-I have no idea where BSD falls, but the basic point stands:  unused
-features should not penalize other applications.  Andrew Morton has
-figured out how to do this efficiently with ext3, and many kudos to him
-for doing the work.  Absent that, why should I have to go get a cup of
-coffee every time I want to patch a tree, just so some MTA can make
-naive assumptions?
-
-Regards,
-
-   Bill Rugolsky
+--
+Daniel

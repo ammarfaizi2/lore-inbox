@@ -1,38 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271779AbRH2BWC>; Tue, 28 Aug 2001 21:22:02 -0400
+	id <S271788AbRH2BZw>; Tue, 28 Aug 2001 21:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271788AbRH2BVv>; Tue, 28 Aug 2001 21:21:51 -0400
-Received: from [194.46.8.33] ([194.46.8.33]:38663 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S271779AbRH2BVl>;
-	Tue, 28 Aug 2001 21:21:41 -0400
-Date: Wed, 29 Aug 2001 01:50:50 +0100
-From: Dale Amon <amon@vnl.com>
-To: linux-kernel@vger.kernel.org
-Subject: Vger triggering alerts
-Message-ID: <20010829015050.F27869@vnl.com>
-In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux, the choice of a GNU generation
+	id <S271824AbRH2BZn>; Tue, 28 Aug 2001 21:25:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11785 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271788AbRH2BZ1>; Tue, 28 Aug 2001 21:25:27 -0400
+Date: Tue, 28 Aug 2001 18:23:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] yenta resource allocation fix
+In-Reply-To: <20010829013318.A16910@storm.local>
+Message-ID: <Pine.LNX.4.33.0108281814470.978-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any one have an idea why I'd be getting these snort alerts
-from vger mail transactions?
 
-[**] [111:4:1] spp_stream4: WINDOW VIOLATION detection [**]
-08/27-01:01:27.806453 199.183.24.194:45473 -> 194.46.0.61:25
-TCP TTL:49 TOS:0x0 ID:25963 IpLen:20 DgmLen:74 DF
-***AP*** Seq: 0x3DFC914F  Ack: 0xC8CF2D66  Win: 0x16D0  TcpLen: 32
-TCP Options (3) => NOP NOP TS: 137819194 96190743 
+On Wed, 29 Aug 2001, Andreas Bombe wrote:
+>
+> I'm no expert on the PCI/CardBus bridge stuff, but let's see:  The OR
+> operation on the range end register with 0xfff seems pretty bogus to me.
 
--- 
-------------------------------------------------------
-Use Linux: A computer        Dale Amon, CEO/MD
-is a terrible thing          Village Networking Ltd
-to waste.                    Belfast, Northern Ireland
-------------------------------------------------------
+No. The windows are supposed to be in "pages", so what the code does is to
+say
+ - we read the start page and the end page
+ - the end is up-to-and-including the final page, so if both start and end
+   were "page 1" (0x1000), that actually means that the area is from
+   0x1000 to 0x1fff
+
+> Also the "if (start && ..." was always true since start included the 32
+> bit IO flag.  What my patch does is to mask out the IO flags on both
+> start and end if the resource is indeed an IO resource, which seems
+> correct to me.
+
+Now, the masking off of the low bits is very possibly the right thing. I
+don't have the documentation on what the low bits contain in front of me,
+I'll try to find it. But I suspect that _that_ part of the patch may be
+right.
+
+Does it work for you if you do a minimal one-liner patch
+
+-	start = config_readl(socket, offset);
++	start = config_readl(socket, offset) & ~0xfff;
+ 	end = config_readl(socket, offset+4) | 0xfff;
+ 	if (start && end > start) {
+ 		res->start = start;
+ 		res->end = end;
+
+instead?
+
+> Some additional data for the missed card insertions:  I put printk()s in
+> yenta_interrupt() and yenta_bh() printing events (yenta_bh() just out of
+> curiosity, no events get lost/delayed between interrupt and bh, all fine
+> there).
+>
+> This showed that the first insertion after module load doesn't even
+> arrive as an interrupt.  After that, with only pcmcia_core and
+> yenta_socket loaded, every card removal and insertion show up as event
+> 0x80 (to be more precise cb_event 0x6, csc 0x0).
+
+This sounds like a separate problem, and might be due to not ACK'ing the
+changes (ie writing the status register with all ones) always. But we _do_
+do the
+
+	cb_writel(socket, CB_SOCKET_EVENT, -1);
+	cb_writel(socket, CB_SOCKET_MASK, CB_CDMASK);
+
+at init time - I wonder if they should be done in the reverse order..
+
+		Linus
+

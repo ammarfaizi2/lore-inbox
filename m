@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262580AbTCIT3l>; Sun, 9 Mar 2003 14:29:41 -0500
+	id <S262581AbTCIT2D>; Sun, 9 Mar 2003 14:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262583AbTCIT3L>; Sun, 9 Mar 2003 14:29:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34322 "EHLO
+	id <S262585AbTCIT1A>; Sun, 9 Mar 2003 14:27:00 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37394 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262580AbTCITZy>; Sun, 9 Mar 2003 14:25:54 -0500
-Date: Sun, 9 Mar 2003 19:36:31 +0000
+	id <S262581AbTCIT0T>; Sun, 9 Mar 2003 14:26:19 -0500
+Date: Sun, 9 Mar 2003 19:36:56 +0000
 From: Russell King <rmk@arm.linux.org.uk>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Fwd: [PATCH] cpufreq (3/7): remove unneeded code
-Message-ID: <20030309193631.D26266@flint.arm.linux.org.uk>
+Subject: Fwd: [PATCH] cpufreq (7/7): update documentation
+Message-ID: <20030309193656.H26266@flint.arm.linux.org.uk>
 Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,152 +24,75 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 From: Dominik Brodowski <linux@brodo.de>
 To: torvalds@transmeta.com
 Cc: cpufreq@www.linux.org.uk
-Subject: [PATCH] cpufreq (3/7): remove unneeded code
-Date: Fri, 7 Mar 2003 11:09:04 +0100
+Subject: [PATCH] cpufreq (7/7): update documentation
+Date: Fri, 7 Mar 2003 11:09:28 +0100
 
-- no cpufreq driver uses the frequency table helper "setpolicy" any more
-  ("target" is much more appropriate for them anyways) - so remove
-  that helper
-- all cpufreq drivers use the advanced registration process, so some
-  compatibility code can safely be removed.
+The sysfs directory where the cpufreq-related files are stored changed due
+to the new device interface code, so the documentation needs to be updated
+accordingly. Also, add some information about the reference counting and the
+exporting of sysfs files by the drivers.
 
- drivers/cpufreq/freq_table.c |   50 -------------------------------------------
- include/linux/cpufreq.h      |    7 ------
- kernel/cpufreq.c             |   22 ++++++------------
- 3 files changed, 7 insertions(+), 72 deletions(-)
+Please apply,
+	Dominik
 
-diff -u linux-original/drivers/cpufreq/freq_table.c linux/drivers/cpufreq/freq_table.c
---- linux-original/drivers/cpufreq/freq_table.c	2003-03-06 19:13:52.000000000 +0100
-+++ linux/drivers/cpufreq/freq_table.c	2003-03-06 21:17:14.000000000 +0100
-@@ -77,56 +77,6 @@
- EXPORT_SYMBOL_GPL(cpufreq_frequency_table_verify);
+ core.txt        |    4 ++++
+ cpu-drivers.txt |    3 +++
+ user-guide.txt  |    8 ++++----
+ 3 files changed, 11 insertions(+), 4 deletions(-)
+
+
+diff -ruN linux-original/Documentation/cpu-freq/core.txt linux/Documentation/cpu-freq/core.txt
+--- linux-original/Documentation/cpu-freq/core.txt	2003-03-06 19:13:31.000000000 +0100
++++ linux/Documentation/cpu-freq/core.txt	2003-03-06 22:05:27.000000000 +0100
+@@ -35,6 +35,10 @@
+ kernel "constant" loops_per_jiffy is updated on frequency changes
+ here.
+ 
++Reference counting is done by cpufreq_get_cpu and cpufreq_put_cpu,
++which make sure that the cpufreq processor driver is correctly
++registered with the core, and will not be unloaded until
++cpufreq_put_cpu is called.
+ 
+ 2. CPUFreq notifiers
+ ====================
+diff -ruN linux-original/Documentation/cpu-freq/cpu-drivers.txt linux/Documentation/cpu-freq/cpu-drivers.txt
+--- linux-original/Documentation/cpu-freq/cpu-drivers.txt	2003-03-06 19:13:31.000000000 +0100
++++ linux/Documentation/cpu-freq/cpu-drivers.txt	2003-03-06 23:15:39.000000000 +0100
+@@ -63,6 +63,9 @@
+ 
+ cpufreq_driver.exit -		A pointer to a per-CPU cleanup function.
+ 
++cpufreq_driver.attr -		A pointer to a NULL-terminated list of
++				"struct freq_attr" which allow to
++				export values to sysfs.
  
  
--int cpufreq_frequency_table_setpolicy(struct cpufreq_policy *policy,
--				      struct cpufreq_frequency_table *table,
--				      unsigned int *index)
--{
--	struct cpufreq_frequency_table optimal = { .index = ~0, };
--	unsigned int i;
--
--	switch (policy->policy) {
--	case CPUFREQ_POLICY_PERFORMANCE:
--		optimal.frequency = 0;
--		break;
--	case CPUFREQ_POLICY_POWERSAVE:
--		optimal.frequency = ~0;
--		break;
--	}
--
--	if (!cpu_online(policy->cpu))
--		return -EINVAL;
--
--	for (i=0; (table[i].frequency != CPUFREQ_TABLE_END); i++) {
--		unsigned int freq = table[i].frequency;
--		if (freq == CPUFREQ_ENTRY_INVALID)
--			continue;
--		if ((freq < policy->min) || (freq > policy->max))
--			continue;
--		switch(policy->policy) {
--		case CPUFREQ_POLICY_PERFORMANCE:
--			if (optimal.frequency <= freq) {
--				optimal.frequency = freq;
--				optimal.index = i;
--			}
--			break;
--		case CPUFREQ_POLICY_POWERSAVE:
--			if (optimal.frequency >= freq) {
--				optimal.frequency = freq;
--				optimal.index = i;
--			}
--			break;
--		}
--	}
--	if (optimal.index > i)
--		return -EINVAL;
--
--	*index = optimal.index;
--	
--	return 0;
--}
--EXPORT_SYMBOL_GPL(cpufreq_frequency_table_setpolicy);
--
--
- int cpufreq_frequency_table_target(struct cpufreq_policy *policy,
- 				   struct cpufreq_frequency_table *table,
- 				   unsigned int target_freq,
-diff -u linux-original/include/linux/cpufreq.h linux/include/linux/cpufreq.h
---- linux-original/include/linux/cpufreq.h	2003-03-06 21:18:02.000000000 +0100
-+++ linux/include/linux/cpufreq.h	2003-03-06 21:17:14.000000000 +0100
-@@ -172,9 +172,6 @@
+ 1.2 Per-CPU Initialization
+diff -ruN linux-original/Documentation/cpu-freq/user-guide.txt linux/Documentation/cpu-freq/user-guide.txt
+--- linux-original/Documentation/cpu-freq/user-guide.txt	2003-03-06 19:13:31.000000000 +0100
++++ linux/Documentation/cpu-freq/user-guide.txt	2003-03-06 22:08:21.000000000 +0100
+@@ -114,9 +114,9 @@
+ ------------------------------
  
- int cpufreq_register_driver(struct cpufreq_driver *driver_data);
- int cpufreq_unregister_driver(struct cpufreq_driver *driver_data);
--/* deprecated */
--#define cpufreq_register(x)   cpufreq_register_driver(x)
--#define cpufreq_unregister() cpufreq_unregister_driver(NULL)
+ The preferred interface is located in the sysfs filesystem. If you
+-mounted it at /sys, the cpufreq interface is located in the 
+-cpu-device directory (e.g. /sys/devices/sys/cpu0/ for the first
+-CPU).
++mounted it at /sys, the cpufreq interface is located in a subdirectory
++"cpufreq" within the cpu-device directory
++(e.g. /sys/devices/sys/cpu0/cpufreq/ for the first CPU).
  
+ cpuinfo_min_freq :		this file shows the minimum operating
+ 				frequency the processor can run at(in kHz) 
+@@ -125,7 +125,7 @@
+ scaling_driver :		this file shows what cpufreq driver is
+ 				used to set the frequency on this CPU
  
- void cpufreq_notify_transition(struct cpufreq_freqs *freqs, unsigned int state);
-@@ -297,10 +294,6 @@
- int cpufreq_frequency_table_verify(struct cpufreq_policy *policy,
- 				   struct cpufreq_frequency_table *table);
+-available_scaling_governors :	this file shows the CPUfreq governors
++scaling_available_governors :	this file shows the CPUfreq governors
+ 				available in this kernel. You can see the
+ 				currently activated governor in
  
--int cpufreq_frequency_table_setpolicy(struct cpufreq_policy *policy,
--				      struct cpufreq_frequency_table *table,
--				      unsigned int *index);
--
- int cpufreq_frequency_table_target(struct cpufreq_policy *policy,
- 				   struct cpufreq_frequency_table *table,
- 				   unsigned int target_freq,
-diff -u linux-original/kernel/cpufreq.c linux/kernel/cpufreq.c
---- linux-original/kernel/cpufreq.c	2003-03-06 21:18:02.000000000 +0100
-+++ linux/kernel/cpufreq.c	2003-03-06 21:17:14.000000000 +0100
-@@ -798,7 +798,7 @@
- 	if (cpufreq_driver)
- 		return -EBUSY;
- 	
--	if (!driver_data || !driver_data->verify || 
-+	if (!driver_data || !driver_data->verify || !driver_data->init ||
- 	    ((!driver_data->setpolicy) && (!driver_data->target)))
- 		return -EINVAL;
- 
-@@ -806,20 +806,12 @@
- 
- 	cpufreq_driver = driver_data;
- 
-+	cpufreq_driver->policy = kmalloc(NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
- 	if (!cpufreq_driver->policy) {
--		/* then we need per-CPU init */
--		if (!cpufreq_driver->init) {
--			up(&cpufreq_driver_sem);
--			return -EINVAL;
--		}
--		cpufreq_driver->policy = kmalloc(NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
--		if (!cpufreq_driver->policy) {
--			up(&cpufreq_driver_sem);
--			return -ENOMEM;
--		}
--		memset(cpufreq_driver->policy, 0, NR_CPUS * sizeof(struct cpufreq_policy));
-+		up(&cpufreq_driver_sem);
-+		return -ENOMEM;
- 	}
--	
-+	memset(cpufreq_driver->policy, 0, NR_CPUS * sizeof(struct cpufreq_policy));
- 	up(&cpufreq_driver_sem);
- 
- 	ret = interface_register(&cpufreq_interface);
-@@ -841,8 +833,8 @@
- {
- 	down(&cpufreq_driver_sem);
- 
--	if (!cpufreq_driver || 
--	    ((driver != cpufreq_driver) && (driver != NULL))) { /* compat */
-+	if (!cpufreq_driver ||
-+	    (driver != cpufreq_driver)) { 
- 		up(&cpufreq_driver_sem);
- 		return -EINVAL;
- 	}
 
 _______________________________________________
 Cpufreq mailing list

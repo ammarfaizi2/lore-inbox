@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264337AbUAMO03 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 09:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbUAMO03
+	id S264326AbUAMOXw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 09:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbUAMOXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 09:26:29 -0500
-Received: from med-gwia-01a.med.umich.edu ([141.214.93.149]:30736 "EHLO
-	med-gwia-01a.med.umich.edu") by vger.kernel.org with ESMTP
-	id S264337AbUAMO01 convert rfc822-to-8bit (ORCPT
+	Tue, 13 Jan 2004 09:23:52 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:34199 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S264326AbUAMOXu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 09:26:27 -0500
-Message-Id: <s003b9c2.082@med-gwia-01a.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
-Date: Tue, 13 Jan 2004 09:26:05 -0500
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
+	Tue, 13 Jan 2004 09:23:50 -0500
+Date: Tue, 13 Jan 2004 22:21:17 +0800
+From: Hugang <hugang@soulinfo.com>
+To: Bart Samwel <bart@samwel.tk>
+Cc: Jens Axboe <axboe@suse.de>, Jan De Luyck <lkml@kcore.org>,
+       Kiko Piris <kernel@pirispons.net>, linux-kernel@vger.kernel.org,
+       Dax Kelson <dax@gurulabs.com>, Bartek Kania <mrbk@gnarf.org>,
+       Simon Mackinlay <smackinlay@mail.com>
+Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
+Message-Id: <20040113222117.21d1ac0b@localhost>
+In-Reply-To: <4003E8BE.3000402@samwel.tk>
+References: <3FFFD61C.7070706@samwel.tk>
+	<200401121409.44187.lkml@kcore.org>
+	<20040112140238.GG24638@suse.de>
+	<200401131200.16025.lkml@kcore.org>
+	<20040113110110.GA6711@suse.de>
+	<4003E8BE.3000402@samwel.tk>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Måns Rullgård <mru@kth.se> 01/13/04 09:07AM >>>
->"Randal, Phil" <prandal@herefordshire.gov.uk> writes:
+On Tue, 13 Jan 2004 13:46:54 +0100
+Bart Samwel <bart@samwel.tk> wrote:
 
->>> Fixing typos I like - occurences should be occurrences and comiled
->>> compiled - but fixing something that is correct in English because
->>> it is wrong in American?  There are occasional words in Polish,
->>> Danish, French, German in the kernel.  I wouldn't mind some words
->>> in English.
->>
->> I'd hazard a guess that number of non-American English speakers far
->> outnumbers the Americans, so can we stick to the Queen's English please?
+> The reiserfs patch for "commit=" was included in Linux 2.6.1. I really 
+> don't know if it works with laptop mode, haven't tested it -- I don't 
+> use reiserfs. So, let's ask the world: is there anyone out there who is 
+> running laptop mode *successfully* with reiserfs?
+Yes, I'm use reiserfs in 2.6.1 with laptop_mode patch. It works fine for me, I use cpudyn daemon to let spin download harddisk. In cpudyn.conf
+I changed TIMEOUT from 120 to 10. When i reading email/web, the harddisk can spin down for very long time (>3min). 
 
-> Of the persons with some form of English as a native language, I guess
-> the Americans are the majority.  For the rest, it shouldn't really
-> matter which variety they use.
->
-> -- 
-> Måns Rullgård
-> mru@kth.se 
+So you can try cpudynd.
 
-69% of mother tongue English speakers live in the US (as of 1995).
-If you add in Lingua Franca and bilingual users, it's a little under 55%.
-But loads of New England natives use some British spellings.
+# TIMEOUT=120
+TIMEOUT=10
 
-Nik Berry
-(Queens English speaker in the US)
+# 
+# Specified disks to spindown (comma separated devices)
+#
 
+# DISKS=/dev/hda,/dev/hdb
+DISKS=/dev/hda
 
+For now, I switch to 2.6.1-mm2, it looks fine, not need any patch.
+
+$mount
+/dev/hda13 on / type ext3 (rw,noatime,errors=remount-ro,commit=600)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+/dev/vg00/opt on /opt type reiserfs (rw,noatime,commit=600)
+/dev/vg00/hugang on /home/hugang type reiserfs (rw,noatime,commit=600)
+/dev/vg00/scm on /scm type reiserfs (rw,noatime,commit=600)
+/dev/vg00/build on /build type reiserfs (rw,noatime,commit=600)
+none on /sys type sysfs (rw)
+
+-- 
+Hu Gang / Steve
+RLU#          : 204016 [1999] (Registered Linux user)
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc

@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267423AbSLEXxI>; Thu, 5 Dec 2002 18:53:08 -0500
+	id <S267447AbSLEX6p>; Thu, 5 Dec 2002 18:58:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267434AbSLEXxI>; Thu, 5 Dec 2002 18:53:08 -0500
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:1222 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S267423AbSLEXxH>; Thu, 5 Dec 2002 18:53:07 -0500
-Message-ID: <3DEFE86A.8060906@drugphish.ch>
-Date: Fri, 06 Dec 2002 00:59:38 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: hidden interface (ARP) 2.4.20
-References: <A6B0BFA3B496A24488661CC25B9A0EFA333DEF@himl07.hickam.pacaf.ds.af.mil> <1039124530.18881.0.camel@rth.ninka.net> <20021205140349.A5998@ns1.theoesters.com> <3DEFD845.1000600@drugphish.ch> <20021205154822.A6762@ns1.theoesters.com>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267450AbSLEX6p>; Thu, 5 Dec 2002 18:58:45 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57094 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S267447AbSLEX6n>; Thu, 5 Dec 2002 18:58:43 -0500
+Date: Fri, 6 Dec 2002 01:06:18 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: [2.5.50, ACPI] link error
+Message-ID: <20021206000618.GB15784@atrey.karlin.mff.cuni.cz>
+References: <20021205224019.GH7396@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0212051632120.974-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0212051632120.974-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-[trimmed list drastically because I get a lot of bounce emails back]
+> > > Doesn't that imply your fix is broken to begin with?
+> > 
+> > ACPI/S4 support needs swsusp. ACPI/S3 needs big part of
+> > swsusp. Splitting CONFIG_ACPI_SLEEP to S3 and S4 part seems like
+> > overdesign to me, OTOH if you do the work it is okay with me.
+> 
+> You broke the design. S3 support was developed long before swsusp was in 
+> the kernel, and completely indpendent of it. It should have remained that 
+> way. 
+> 
+> S3 support is a subset of what is need for S4 support. 
 
-> Eh?  Last I checked, there were other loadbalancing solutions out there.  Some
-> even use hardware (like ours).  IOW - LVS isn't the only use for the hidden flag.
+That's not true. acpi_wakeup.S is nasty piece of code, needed for S3
+but not for S4. Big part of driver support is only needed for S3.
 
-Oops, right. I forgot the HW LBs that do triangulation. I wonder 
-however, why one wants to use a HW LB and not configure it to work in 
-NAT mode.
+> swsusp is an implementation of S4 support. In theory, there could be 
+> multiple implementations that all use the same core (saving/restoring 
+> state). 
 
-> Granted, further discussion on the matter is an exercise in futility, as the current
-> net maintainer has already stated his disdain for it.  So...we'll go on patching
-> our kernels ad infinitum.
+There were patches for S4bios floating around, but it never really
+worked, IIRC.
 
-As mentioned before, you don't necessarily need to patch your kernels, 
-there are other possibilities to overcome the arp problem. You could (if 
-not already done so) consult the LVS howto where solutions are certainly 
-applicable also to non-LVS LBs.
+> There could also be different power management schemes that use swsusp as 
+> an implementation for suspend-to-disk. But, that's another tangent. 
+> 
+> CONFIG_ACPI_SLEEP should give you S3 support, and the ACPI side of S4 
+> support. 
 
-Regards and sorry for my wrong assumptions,
-Roberto Nibali, ratz
+What's ACPI side of S4 good for when you can not do S4?
+
+> The comment in the config option should tell the user that they 
+> must choose a suspend implementation (e.g. CONFIG_SUSPEND, which should 
+> prolly be CONFIG_SWAP_SUSPEND) in order to get complete S4 support. (The 
+> ACPI side can make an empty call to swsusp if no implementation is 
+> selected). 
+
+S3 needs process stopper from kernel/suspend.c. I did not want to have
+#ifdefs all over suspend.c...
+
+> Some time ago, I made a BK repo for suspend support. I axed it, since no 
+> one ever used it. But, it's back again, and I'll be integrating your 
+> patches and try to dedicate a few extra cycles to resolving some of the 
+> issues. I'll send an announcement to the list once I've integrated your 
+> patches. 
+
+I probably will not persuade you to make it CVS, right? [Sorry, I'm
+not going to touch bitkeeper.]
+								Pavel
 -- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

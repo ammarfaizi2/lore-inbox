@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266121AbUGTT1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUGTTXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266121AbUGTT1P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 15:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUGTTYv
+	id S266216AbUGTTXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 15:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266200AbUGTTNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:24:51 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63911 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266158AbUGTTXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 15:23:45 -0400
-Date: Tue, 20 Jul 2004 21:23:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Nathan Bryant <nbryant@optonline.net>, linux-scsi@vger.kernel.org,
-       random1@o-o.yi.org, Luben Tuikov <luben_tuikov@adaptec.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: device_suspend() levels [was Re: [patch] ACPI work on aic7xxx]
-Message-ID: <20040720192341.GB9461@atrey.karlin.mff.cuni.cz>
-References: <40FD38A0.3000603@optonline.net> <20040720155928.GC10921@atrey.karlin.mff.cuni.cz> <40FD4CFA.6070603@optonline.net> <20040720174611.GI10921@atrey.karlin.mff.cuni.cz> <40FD6002.4070206@optonline.net> <1090347939.1993.7.camel@gaston> <40FD65C2.7060408@optonline.net> <1090350609.2003.9.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Jul 2004 15:13:34 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:53336 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266181AbUGTTL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 15:11:56 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [0/25] Merge pmdisk and swsusp
+Date: Tue, 20 Jul 2004 12:41:51 -0500
+User-Agent: KMail/1.6.2
+Cc: sam@ravnborg.org, Pavel Machek <pavel@suse.cz>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Andrew Morton <akpm@zip.com.au>
+References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net> <20040720164640.GH10921@atrey.karlin.mff.cuni.cz> <20040720192858.GB9147@mars.ravnborg.org>
+In-Reply-To: <20040720192858.GB9147@mars.ravnborg.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1090350609.2003.9.camel@gaston>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407201241.52334.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > 2 comments here:
-> > > 
-> > >  - The low level bus state (PCI D state for example) and the "linux"
-> > > state should be 2 different entities.
-> > > 
-> > >  - For PCI, we probably want a hook so the arch can implement it's own
-> > > version of pci_set_power_state() so that ACPI can use it's own trickery
-> > > there.
+On Tuesday 20 July 2004 02:28 pm, sam@ravnborg.org wrote:
+> On Tue, Jul 20, 2004 at 06:46:40PM +0200, Pavel Machek wrote:
+> > Hi!
 > > 
-> > Ok, so the takeaway message for driver writers is to treat the 
-> > pci_dev->suspend() state parameter as an opaque value as far as 
-> > possible, and just pass it on to the other layers
+> > > In the end, these patches remove pmdisk from the kernel and clean up the
+> > > swsusp code base. The result is a single code base with greatly improved
+> > > code, that will hopefully help others underestand it better.
+> > 
+> > Followup patch:
+> > 
+> > * if machine halt fails, it is very dangerous to continue.
+> > 
+> > diff -ur linux.middle/kernel/power/disk.c linux/kernel/power/disk.c
+> > --- linux.middle/kernel/power/disk.c	2004-07-19 08:58:08.000000000 -0700
+> > +++ linux/kernel/power/disk.c	2004-07-19 15:00:16.000000000 -0700
+> > @@ -63,6 +63,9 @@
+> >  		break;
+> >  	}
+> >  	machine_halt();
+> > +	/* Valid image is on the disk, if we continue we risk serious data corruption
+> > +	   after resume. */
+> > +	while(1);
 > 
-> NO ! The exact opposite in fact. I'll work on cleaning that up and
-> write some doco this week with Pavel.
+> Would be nicer to use:
+> 
+> 	while(1)
+> 		/* Loop forever */;
+> 
+> 	Sam
 
-Agreed. I do not have strong opinion about Sx or Dx, but it should
-be enum or equivalent so it is hard to get wrong. [And not "really
-easy to get wrong because noone knows for sure", as it is now].
+And even nicer would be remove swsusp signature from swap and restore state as
+original version did so user could do clean shutdown...
 
-								Pavel
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Dmitry

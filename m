@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268441AbRGXUGV>; Tue, 24 Jul 2001 16:06:21 -0400
+	id <S268443AbRGXUQu>; Tue, 24 Jul 2001 16:16:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268443AbRGXUGK>; Tue, 24 Jul 2001 16:06:10 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:14605 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268441AbRGXUF5>; Tue, 24 Jul 2001 16:05:57 -0400
-Date: Tue, 24 Jul 2001 17:05:33 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "David E. Weekly" <dweekly@legato.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Is /dev/epoll scheduled for official inclusion anytime soon?
-In-Reply-To: <01dc01c11478$9a529920$5c044589@legato.com>
-Message-ID: <Pine.LNX.4.33L.0107241704530.20326-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268445AbRGXUQk>; Tue, 24 Jul 2001 16:16:40 -0400
+Received: from utopia.booyaka.com ([206.156.231.220]:39098 "HELO
+	utopia.booyaka.com") by vger.kernel.org with SMTP
+	id <S268443AbRGXUQ2>; Tue, 24 Jul 2001 16:16:28 -0400
+Date: Tue, 24 Jul 2001 15:16:27 -0500
+From: Ryan Dooley <ryan@utopia.booyaka.com>
+To: linux-kernel@vger.kernel.org
+Subject: soft read-only fs
+Message-ID: <20010724151627.A12709@utopia.booyaka.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, David E. Weekly wrote:
+Hi,
 
-> I've been playing around with Davide Libenzi's "/dev/epoll"
+I was trying to come up with a project to do and I was wondering if anybody
+had done work on a filesystem to support soft read only mounts.  This is
+something I had seen on our F5 Big-IP boxes.  They are based on BSD/OS for
+those who are intrested.
 
-> Given the sheer utility of using /dev/epoll in a largescale
-> server, are there any plans to roll it into the mainline kernel
-> at any point?
+The soft read-only functionality checks to see if files are open for writing. 
+If there are none, the file system gets downgraded to read-only.  When a file
+opens up for writing, the file system is promoted to read-write.
 
-So why don't you ask Davide if he has any plans to submit
-it for inclusion into the kernel? ;)
+It's probably not a necessity with the more journaling filesystems that get
+working with Linux.  I just wanted to make sure I wasn't about to reinvent
+the wheel (or fs if you like :-)
 
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Cheers,
+	Ryan
 

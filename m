@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277746AbRJRPZy>; Thu, 18 Oct 2001 11:25:54 -0400
+	id <S277750AbRJRP2p>; Thu, 18 Oct 2001 11:28:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277750AbRJRPZq>; Thu, 18 Oct 2001 11:25:46 -0400
-Received: from [65.96.183.159] ([65.96.183.159]:20228 "HELO rakis.net")
-	by vger.kernel.org with SMTP id <S277746AbRJRPZe>;
-	Thu, 18 Oct 2001 11:25:34 -0400
-Date: Thu, 18 Oct 2001 11:29:57 -0400 (EDT)
-From: Greg Boyce <gboyce@rakis.net>
-To: linux-kernel@vger.kernel.org
-Subject: Input on the Non-GPL Modules
-Message-ID: <Pine.LNX.4.21.0110181113020.9058-100000@wyrm.rakis.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277751AbRJRP2f>; Thu, 18 Oct 2001 11:28:35 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:30457 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S277750AbRJRP2T>; Thu, 18 Oct 2001 11:28:19 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Thu, 18 Oct 2001 09:28:37 -0600
+To: Kamil Iskra <kamil@science.uva.nl>
+Cc: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Poor floppy performance in kernel 2.4.10
+Message-ID: <20011018092837.C1144@turbolinux.com>
+Mail-Followup-To: Kamil Iskra <kamil@science.uva.nl>,
+	Steve Kieu <haiquy@yahoo.com>,
+	kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011017204524.88702.qmail@web10404.mail.yahoo.com> <Pine.LNX.4.33.0110181158060.6306-100000@krakow.science.uva.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110181158060.6306-100000@krakow.science.uva.nl>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Oct 18, 2001  12:11 +0200, Kamil Iskra wrote:
+> So, to reiterate, the conditions known to be necessary to reproduce it
+> are: kernel >=2.4.10 (perhaps only the Linus series), small files or
+> directory operations, mtools.  The behaviour is as if no caching was done,
+> there is a slowdown by a factor of two.  I have this problem both on my
+> laptop and on the desktop machine at work.  They are running different
+> kernel versions (2.4.12 and 2.4.10), differently configured and compiled
+> by two different people.  Kernel 2.4.9 and earlier worked fine.
 
-I've been following the various mail threads regarding the non-GPL
-compatable modules, and I had a bit of feedback on the situation.
+I think this is a result of the "blockdev in pagecache" change added in
+2.4.10.  One of the byproducts of this change is that if a block device
+is closed (no other openers) then all of the pages from this device are
+dropped from the cache.  In the case of a floppy drive, this is very
+important, as you don't want to be cacheing data from one floppy after
+you have inserted a new floppy.
 
-Last week someone brought up the the notion that if the kernel was marked
-as tainted due to proprietary modules being loaded, that people would just
-end up modifying the bug report to remove the tainted mark.  
+In contrast, if you mounted the floppy instead of using mtools, it would
+probably have good performance for small files as well.
 
-Alan had responded with:
-"Well for the moment Im working on the basis that the problem isnt people
-trying to con anyone, its people who don't know better - and thats backed
-up by my bug queue."
-
-I agree with this fully.  Most people that would be filing bug reports
-fall under one of two catagories.  People who don't realize what the
-tainted mark means, or people who realize that the kernel developers won't
-be able to help them with the proprietary module loaded.  Therefore there
-is no motivation for someone to attempt a con.
-
-However, with the addition of GPL only symbols, you add motivation for
-conning.  Not by end users, but by the developers of binary only
-modules.  If they export the GPL license symbol, they gain access to
-kernel symbols that they may want to use.  Since no code is actually being
-stolen, would this kind of trick actually cause a licensing violation?
-
-All in all, I find people to be generally honest.  I don't always have
-that sort of trust in corporations though.  Just something to think about.
-
+Cheers, Andreas
 --
-
-Gregory Boyce
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

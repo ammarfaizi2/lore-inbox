@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288612AbSADMLY>; Fri, 4 Jan 2002 07:11:24 -0500
+	id <S288535AbSADMOY>; Fri, 4 Jan 2002 07:14:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288611AbSADMLO>; Fri, 4 Jan 2002 07:11:14 -0500
-Received: from [129.27.43.9] ([129.27.43.9]:63247 "EHLO xarch.tu-graz.ac.at")
-	by vger.kernel.org with ESMTP id <S288607AbSADMK4>;
-	Fri, 4 Jan 2002 07:10:56 -0500
-Date: Fri, 4 Jan 2002 13:10:50 +0100 (CET)
-From: Alex <mail_ker@xarch.tu-graz.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <3C34D0D9.6010008@free.fr>
-Message-ID: <Pine.LNX.4.10.10201041306520.16087-100000@xarch.tu-graz.ac.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S288601AbSADMOO>; Fri, 4 Jan 2002 07:14:14 -0500
+Received: from NILE.GNAT.COM ([205.232.38.5]:55544 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S288535AbSADMOF>;
+	Fri, 4 Jan 2002 07:14:05 -0500
+From: dewar@gnat.com
+To: dewar@gnat.com, fw@deneb.enyo.de
+Subject: Re: [PATCH] C undefined behavior fix
+Cc: Dautrevaux@microprocess.com, Franz.Sirl-kernel@lauterbach.com,
+        benh@kernel.crashing.org, gcc@gcc.gnu.org, jtv@xs4all.nl,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
+        minyard@acm.org, paulus@samba.org, rth@redhat.com,
+        trini@kernel.crashing.org, velco@fadata.bg
+Message-Id: <20020104121403.D7262F3123@nile.gnat.com>
+Date: Fri,  4 Jan 2002 07:14:03 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<<We have seen much trouble in this area before, but I doubt we can
+avoid all of them by proper documentation.  Quite a few people seem to
+write some C code, check that it works, look at the generated machine
+code, and if it seems to be correct, the C code is considered to be
+correct.
+>>
 
-
-On Thu, 3 Jan 2002, Lionel Bouton wrote:
-
-> MAC configuration is a dream we can't touch.
-
-
-I just had an idea in case what we might do in case of complex
-hardware....
-
-We already have the "command line parameter" that we can provide to the
-kernel.
-
-Maybe the best thing would be to supply the kernel a "large" _textfile_
-with all the hardware the user definitely has (at such-and such
-irq/dma/io); the textfile could be the output resilt from a
-"userfriendly" hardware-detection tool that lists all categories of
-hardwares etc. and has - generally - a large hardware database. 
-
-What do you think?
-
-Yours, Alex
-
-
+We can't avoid people writing wrong code, but we can avoid debate as to
+whether the code is right or wrong :-)

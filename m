@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263025AbVCXEkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbVCXEnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263025AbVCXEkG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 23:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbVCXEkF
+	id S263027AbVCXEnm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 23:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263030AbVCXEnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 23:40:05 -0500
-Received: from fire.osdl.org ([65.172.181.4]:64211 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263025AbVCXEj7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 23:39:59 -0500
-Date: Wed, 23 Mar 2005 20:38:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David McCullough <davidm@snapgear.com>
-Cc: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, jmorris@redhat.com,
-       herbert@gondor.apana.org.au
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
- (2.6.11)
-Message-Id: <20050323203856.17d650ec.akpm@osdl.org>
-In-Reply-To: <20050324042708.GA2806@beast>
-References: <20050315133644.GA25903@beast>
-	<20050324042708.GA2806@beast>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 23 Mar 2005 23:43:42 -0500
+Received: from web53305.mail.yahoo.com ([206.190.39.234]:63664 "HELO
+	web53305.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263027AbVCXEnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 23:43:35 -0500
+Message-ID: <20050324044331.10713.qmail@web53305.mail.yahoo.com>
+Date: Thu, 24 Mar 2005 04:43:30 +0000 (GMT)
+From: sounak chakraborty <sounakrin@yahoo.co.in>
+Subject: sched.c  function
+To: linux kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David McCullough <davidm@snapgear.com> wrote:
->
-> Here is a small patch for 2.6.11 that adds a routine:
-> 
->  	add_true_randomness(__u32 *buf, int nwords);
 
-It neither applies correctly nor compiles in current kernels.  2.6.11 is
-very old in kernel time.
+Dear sir,
 
-Are we likely to see any in-kernel users of this?
+ I am new to kernel. I want to know which function in
+the file sched.c or procedure is called to bring a
+process for processing in the CPU after context
+switching. 
+
+Thanks in advance,
+Sounak
+
+________________________________________________________________________
+Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/

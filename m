@@ -1,53 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316477AbSGRHDq>; Thu, 18 Jul 2002 03:03:46 -0400
+	id <S316599AbSGRHTP>; Thu, 18 Jul 2002 03:19:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316576AbSGRHDq>; Thu, 18 Jul 2002 03:03:46 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38149 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316477AbSGRHDp>; Thu, 18 Jul 2002 03:03:45 -0400
-Message-ID: <3D3666A9.7050608@zytor.com>
-Date: Wed, 17 Jul 2002 23:56:41 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-CC: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, viro@math.psu.edu,
-       trond.myklebust@fys.uio.no, mnalis-umsdos@voyager.hr, aia21@cantab.net,
-       al@alarsen.net, asun@cobaltnet.com, bfennema@falcon.csc.calpoly.edu,
-       dave@trylinux.com, braam@clusterfs.com, chaffee@cs.berkeley.edu,
-       dwmw2@infradead.org, eric@andante.org, hch@infradead.org,
-       jaharkes@cs.cmu.edu, jakub@redhat.com, jffs-dev@axis.com,
-       mikulas@artax.karlin.mff.cuni.cz, quinlan@transmeta.com,
-       reiserfs-dev@namesys.com, mason@suse.com, rgooch@atnf.csiro.au,
-       rmk@arm.linux.org.uk, shaggy@austin.ibm.com, tigran@veritas.com,
-       urban@teststation.com, vandrove@vc.cvut.cz, vl@kki.org,
-       zippel@linux-m68k.org, ahaas@neosoft.com
-Subject: Re: Remain Calm: Designated initializer patches for 2.5
-References: <20020718032331.5A36644A8@lists.samba.org> <3D366103.8010403@zytor.com> <20020717.232832.44968023.davem@redhat.com> <20020718065355.GA2248@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316847AbSGRHTP>; Thu, 18 Jul 2002 03:19:15 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:7892 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S316599AbSGRHTO>; Thu, 18 Jul 2002 03:19:14 -0400
+Date: Thu, 18 Jul 2002 10:21:56 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: "J. Hart" <jhart@atr.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: File Corruption in Kernel 2.4.18
+Message-ID: <20020718072155.GB1548@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	"J. Hart" <jhart@atr.co.jp>, linux-kernel@vger.kernel.org
+References: <3D362125.3A324489@atr.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D362125.3A324489@atr.co.jp>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnaldo Carvalho de Melo wrote:
+On Thu, Jul 18, 2002 at 11:00:05AM +0900, you [J. Hart] wrote:
 > 
-> Well, I also like the non C99 variant that is in gcc as well, but if gcc is
-> going to drop that in the future in favour of the C99 standard... But yes,
-> not having the spacing is _ugly_, what I'm doing is:
-> 
-> static struct proto_ops SOCKOPS_WRAPPED(atalk_dgram_ops) = {
->         .family         = PF_APPLETALK,
->         .release        = atalk_release,
->         .bind           = atalk_bind,
->         .connect        = atalk_connect,
->         .socketpair     = sock_no_socketpair,
->         .accept         = sock_no_accept,
+>      A few of the files at the copy destination, typically three or four, will
+> usually be corrupt while the source files will be correct.  Occasionally the
+> copy will be done without any corrupt files at the destination.  The
+> mem=nopentium option appears to have no effect on this.  An overnight test using
+> the memtest86 utility shows no memory errors.  The corruption in each file
+> occurs in precise 4096 byte blocks.  An overnight test using the memtest86
+> utility shows no memory errors.  The corruption in each file occurs in precise
+> 4096 byte blocks.  
 
-Agreed, that's the way to do it.
+> motherboard   : ASYS-A7V
 
-	-hpa
+Asus A7V is Via KT133 based, right? It has additional Promise ide
+controller?
+
+> Linux version : Slackware 8
+> Kernel        : 2.4.18
+
+Stock 2.4.18, no patches? Which filesystem are you using? Ext2, ext3, other?
+
+> hard disk     : ATA100 IBM-DTLA-307045 45gb
+> hd controller : Promise Technology, Inc. 20265
+
+So the harddisk is connected to Promise, not Via? You have no other
+harddisks?
+
+> cpu           : 900mhz AMD Athlon
+
+I had enormous trouble with a KT133(A or not) based mobo (Abit-KT7(A)-RAID
+in past - it would just corrupt data when transferring big files from the
+additional ide controller (HPT370 in this case). The Via ide controller
+didn't show this behaviour.
+
+- This happened on 2.2.20, 2.4.15, 2.4.18preX + ide-patch.
+- Memtest86 showed nothing
+- Network activity seemed to have to do with it
+- Changing the NIC to another PCI slot and tweaking bios params seemed to
+  help, but eventually it happened again
+- I eventually concluded that KT133 corrupts PCI transfers under load, which
+  was found out by others in 'net as well. 
+- Tried bios updates and contacting Via, Highpoint, Abit. Highpoint and Abit
+  never cared to answer. Neither did Via until I spotted an Via employee on
+  viahardware.com forum. She said they'd investigate the issue, never heard
+  of her since.
+- Ditched the mobo fo good, bought an Abit ST6R, and never had a problem
+  since. You may be lucky just switching the drive to Via ide.
+
+First reports on the corruption:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100651892331843&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100669782329815&w=2
+http://groups.google.com/groups?q=We+first+reported+disk+corruption+with+a+VIA+KT133A+based+board&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=linux.kernel.00c201c1a033%241cf46700%24b71c64c2%40viasys.com&rnum=3
+
+There was a long thread on forums.viahardware.com as well
+(http://forums.viaarena.com/messageview.cfm?catid=6&threadid=7171&start=21),
+but it seems they have sensored it away for good.
+
+I've also received reports of similar experiences from a number of people
+since I wrote to linux-kernel about this.
+
+I repoduced the problem with wrchk utility I wrote
+(http://iki.fi/v/tmp/wrchk.c) but it seems you can do it with you directory
+tree copying.
 
 
+-- v --
+
+v@iki.fi

@@ -1,83 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271278AbTGQAJx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 20:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271279AbTGQAJw
+	id S271272AbTGQAId (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 20:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271277AbTGQAId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 20:09:52 -0400
-Received: from ce.fis.unam.mx ([132.248.33.1]:25820 "EHLO ce.fis.unam.mx")
-	by vger.kernel.org with ESMTP id S271278AbTGQAJu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 20:09:50 -0400
-Subject: Re: 2.6 sound drivers?
-From: Max Valdez <maxvalde@fis.unam.mx>
-To: Jeff Garzik <jgarzik@pobox.com>, kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F15E1B5.4020206@pobox.com>
-References: <20030716225826.GP2412@rdlg.net>  <3F15E1B5.4020206@pobox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ANEbJke175QZapFQgXPw"
-Message-Id: <1058383534.5432.33.camel@garaged.homeip.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 16 Jul 2003 14:25:35 -0500
+	Wed, 16 Jul 2003 20:08:33 -0400
+Received: from mcmmta1.mediacapital.pt ([193.126.240.146]:49839 "EHLO
+	mcmmta1.mediacapital.pt") by vger.kernel.org with ESMTP
+	id S271272AbTGQAIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 20:08:32 -0400
+Date: Thu, 17 Jul 2003 01:21:43 +0100
+From: "Paulo Andre'" <fscked@netvisao.pt>
+Subject: Re: Problems with 2.6.0-test1 && depmod
+In-reply-to: <20030716111316.2c7dc703.rddunlap@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Pedro Ribeiro <deadheart@netcabo.pt>, linux-kernel@vger.kernel.org
+Message-id: <20030717012143.70ecc8ec.fscked@netvisao.pt>
+Organization: Transatlantic Inc.
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <3F15E439.70107@netcabo.pt>
+ <20030716103517.65e146bc.rddunlap@osdl.org> <3F15F4AE.3080306@netcabo.pt>
+ <20030716111316.2c7dc703.rddunlap@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 16 Jul 2003 11:13:16 -0700
+Randy.Dunlap wrote:
 
---=-ANEbJke175QZapFQgXPw
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> | I'm sorry, but what version am I supposed to download? The lastest? 
+> | (module-init-tools-0.9.13-pre.tar.gz)
+> | 
+> | PR
+> 
+> I use 0.9.12.  You can try 0.9.13-pre if you want to.
 
-I have a SBlive too, emu10k1 works pretty well for me, what should I do
-for going to ALSA ??=20
+0.9.13-pre seems to work flawlessly here, by the way.
 
-I hope the answer is not a, buy a good new supported sound card
-
-:-)
-Max
-On Wed, 2003-07-16 at 18:37, Jeff Garzik wrote:
-> Robert L. Harris wrote:
-> >=20
-> > I have a soundblaster Live.  I've historically used the OSS drivers as
-> > they've worked well for me.  I just tried to load the emu10k1 which
-> > loads without error, but mpg123 says it can't open the default sound
-> > device.
->=20
->=20
-> I am biased, but, it would be nice for people to start testing the=20
-> "official" 2.6 sound drivers, ALSA.  The ALSA API has many benefits over=20
-> OSS, but needs wide-spread testing and validation.
->=20
-> 	Jeff, who is long tired of hacking on OSS drivers :)
->=20
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-Linux garaged 2.6.0-test1-ac1 #2 SMP Tue Jul 15 06:25:03 CDT 2003 i686 Pent=
-ium III (Coppermine) GenuineIntel GNU/Linux
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GS/ d-s:a-28C++ILHA+++P+L++>+++E---W++N*o--K-w++++O-M--V--PS+PEY--PGP++t5XR=
-tv++b++DI--D-G++e++h-r+y**
-------END GEEK CODE BLOCK------
-gpg-key: http://garaged.homeip.net/gpg-key.txt
-
---=-ANEbJke175QZapFQgXPw
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/FaausrSE6THXcZwRAqPlAKD1I5Jcr+99Tivt/Nde4ePJ3NvRFQCguVU4
-DaW9+LfYnRwYq/MGPSjiOtQ=
-=iiHo
------END PGP SIGNATURE-----
-
---=-ANEbJke175QZapFQgXPw--
-
+		Paulo

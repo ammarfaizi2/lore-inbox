@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbUKOQrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbUKOQsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbUKOQrj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 11:47:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUKOQrj
+	id S261637AbUKOQsk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 11:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUKOQsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 11:47:39 -0500
-Received: from ip126.globalintech.pl ([62.89.81.126]:7960 "EHLO
-	MAILSERVER.dmz.globalintech.pl") by vger.kernel.org with ESMTP
-	id S261634AbUKOQri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 11:47:38 -0500
-Message-ID: <4198DDA8.3000100@globalintech.pl>
-Date: Mon, 15 Nov 2004 17:47:36 +0100
-From: Blizbor <kernel@globalintech.pl>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 native IPsec implementation question
-References: <4198B2B6.9050803@globalintech.pl> <Pine.LNX.4.53.0411151455020.17543@yvahk01.tjqt.qr> <4198C1A4.8080707@globalintech.pl> <Pine.LNX.4.53.0411151557550.17812@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0411151557550.17812@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2004 16:47:36.0708 (UTC) FILETIME=[CFB9CC40:01C4CB32]
+	Mon, 15 Nov 2004 11:48:39 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:3028 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261637AbUKOQsa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 11:48:30 -0500
+Date: Mon, 15 Nov 2004 18:50:00 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
+Message-ID: <20041115175000.GA7559@elte.hu>
+References: <OF201B61B1.F0A7806E-ON86256F4A.005D427B-86256F4A.005D4299@raytheon.com> <20041115164604.GA1456@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041115164604.GA1456@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
 
->You "sit" on the network card chip and then think of input and output.
->Btw, -j DROP will only drop what has not been matched up to now. So if you get
->to -j ACCEPT IPsec traffic beforehand (I think -m ah / -m esp, did not
->it?), they will never reach -j DROP.
->  
->
-No, it's not like you think.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Situation is NOT EASY IF you have ONE VPN.
-Just "close" eth0 for anything, allow AH,ESP,DNS from "any" IP addres,
-then how you detect if tcp/389 is from VPN or form world ? You cant.
-To make things harder - there are eth0, eth1, eth2 and eth3, two of them
-has public IP addresses, two has private IP addresses, there is IPsec VPN
-server running on both public addresses and a lot (32) of roadwarrior VPN
-clients.
+> >  [8] Some samples of /proc/loadavg during my big test showed some
+> > extremely large numbers. For example:
+> > 5.07 402.44 0.58 5/120 4448
+> 
+> i'm currently trying to track down this one. The
+> rq->nr_uninterruptible count got out of sync during one of the
+> scheduler changes - and this causes large negative task counts,
+> messing up the load-average.
 
-So, in this not easy situation firewalling is not possible.
-Believe me.
+ok, found it - it's an upstream bug in fact. I've uploaded -V0.7.26-5
+with the fix.
 
-But, how to implement firewall using iptables command is not my issue.
-Lets assume that I just want to do "mrtg" traffic accounting....
-
-So, my questions are still actual.
-
-Regards,
-Blizbor
-
+	Ingo

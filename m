@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264925AbUFLVpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbUFLVuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264925AbUFLVpA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 17:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbUFLVpA
+	id S264929AbUFLVuI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 17:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbUFLVuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 17:45:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8680 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264925AbUFLVo6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 17:44:58 -0400
-Date: Sat, 12 Jun 2004 14:44:37 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: In-kernel Authentication Tokens (PAGs)
-Message-ID: <20040612144437.V21045@build.pdx.osdl.net>
-References: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com> <20040611201523.X22989@build.pdx.osdl.net> <C636D44C-BC2B-11D8-888F-000393ACC76E@mac.com> <20040612135302.Y22989@build.pdx.osdl.net> <ADFD1FB4-BCB5-11D8-888F-000393ACC76E@mac.com>
+	Sat, 12 Jun 2004 17:50:08 -0400
+Received: from p213.54.72.94.tisdip.tiscali.de ([213.54.72.94]:59520 "EHLO
+	stralsunder-10.homelinux.org") by vger.kernel.org with ESMTP
+	id S264929AbUFLVtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 17:49:49 -0400
+Date: Sat, 12 Jun 2004 23:49:47 +0200
+From: Andreas Schmidt <andy@space.wh1.tu-dresden.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Frequent system freezes after kernel bug
+Message-ID: <20040612214947.GI1733@rocket>
+References: <20040612183742.GE1733@rocket> <20040612202023.GA22145@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed	DelSp=Yes
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <ADFD1FB4-BCB5-11D8-888F-000393ACC76E@mac.com>; from mrmacman_g4@mac.com on Sat, Jun 12, 2004 at 05:15:50PM -0400
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040612202023.GA22145@taniwha.stupidest.org> (from cw@f00f.org on Sat, Jun 12, 2004 at 22:20:23 +0200)
+X-Mailer: Balsa 2.0.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kyle Moffett (mrmacman_g4@mac.com) wrote:
-> On Jun 12, 2004, at 16:53, Chris Wright wrote:
-> > Actually that's not the case.  The UID is currently insufficient to
-> > describe the security domain that a process is running in.  The whole
-> > of the LSM infrastructure is designed with this in mind.  So somehting
-> > like SELinux may enforce a security domain change (w/out a UID change)
-> > across an execve() of pagsh.  I was simply trying to ascertain if you
-> > were storing this within task->user which I think would be wrong.
+On 2004.06.12 22:20, Chris Wedgwood wrote:
+> On Sat, Jun 12, 2004 at 08:37:42PM +0200, Andreas Schmidt wrote:
 > 
-> Ahh, ok, I myself have no experience with LSM, so there will likely be 
-> some
-> need to change my implementation.  Currently the only field that I add 
-> to
-> existing structures in the kernel is a pag field in the task_struct.  
-> PAG
-> structures themselves need some way of determining if the calling task
-> is in the same "grouping" as a stored "grouping" within the PAG.  My
-> implementation uses UIDs, but I would be very glad if you could tell me
-> what I should use instead.  I need some kind of structure or pointer 
-> that I
-> can embed within a PAG and a token, and some kind of equality test.
-
-Typically, objects that LSM cares about include a pointer to opaque
-data (security blob) which describes the security domain for the object.
-See task->security as an example.  It's not clear to me if task->security
-is sufficient and you only need a back pointer to the task or if each
-PAG needs it's own security blob.
-
-> The other thing that needs to be implemented is some kind of limit that
-> restricts how many PAGs/tokens and how much memory can be allocated
-> in the kernel per user and per process.  Do you have any information on
-> where would be the best place to store that information?
-
-Sounds like an extension to rlimits.  The counters could be stored in
-->user to limit the userwide number of tokens.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> > > kernel: EIP:    0010:[iput+44/592]    Tainted: P
+> 
+> what modules do you have loaded?
+>
+root@stralsunder-10:~# lsmod
+Module                  Size  Used by    Tainted: P
+ipt_MASQUERADE          1272   1  (autoclean)
+ipt_state                568  10  (autoclean)
+ipt_LOG                 3256   1  (autoclean)
+iptable_filter          1700   1  (autoclean)
+ip_nat_ftp              2800   0  (unused)
+iptable_nat            15448   2  [ipt_MASQUERADE ip_nat_ftp]
+ip_conntrack_irc        2992   0  (unused)
+ip_conntrack_ftp        3696   1
+ip_conntrack           19272   2  [ipt_MASQUERADE ipt_state ip_nat_ftp  
+iptable_nat ip_conntrack_irc ip_conntrack_ftp]
+ip_tables              11416   7  [ipt_MASQUERADE ipt_state ipt_LOG  
+iptable_filter iptable_nat]
+ppp_deflate             2968   0  (autoclean)
+zlib_inflate           18532   0  (autoclean) [ppp_deflate]
+zlib_deflate           17912   0  (autoclean) [ppp_deflate]
+bsd_comp                3992   0  (autoclean)
+ppp_synctty             5152   1  (autoclean)
+ppp_generic            20192   3  (autoclean) [ppp_deflate bsd_comp  
+ppp_synctty]
+slhc                    4672   0  (autoclean) [ppp_generic]
+serial                 44228   0  (autoclean)
+nls_iso8859-1           2844   0  (unused)
+dummy                   1056   1
+fcdsl                 862816   2
+capi                   18304   5
+kernelcapi             29828   3  [fcdsl capi]
+capiutil               22368   0  [kernelcapi]
+capifs                  3532   1  [capi]
+8139too                12296   2
+mii                     2400   0  [8139too]
+crc32                   2848   0  [8139too]
+apm                     9344   2
+rtc                     6012   0  (autoclean)
+root@stralsunder-10:~#

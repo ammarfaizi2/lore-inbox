@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbTDTQNo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 12:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTDTQNo
+	id S263623AbTDTQMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 12:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbTDTQMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 12:13:44 -0400
-Received: from WebDev.iNES.RO ([80.86.100.174]:37249 "EHLO webdev.ines.ro")
-	by vger.kernel.org with ESMTP id S263624AbTDTQNn (ORCPT
+	Sun, 20 Apr 2003 12:12:16 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:43023 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263623AbTDTQMP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 12:13:43 -0400
-Date: Sun, 20 Apr 2003 19:25:43 +0300 (EEST)
-From: Andrei Ivanov <andrei.ivanov@ines.ro>
-X-X-Sender: shadow@webdev.ines.ro
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: oops in 2.5.68-mm1
-In-Reply-To: <20030420161306.GA16656@hh.idb.hist.no>
-Message-ID: <Pine.LNX.4.50L0.0304201924490.1931-100000@webdev.ines.ro>
-References: <Pine.LNX.4.50L0.0304201843300.1931-200000@webdev.ines.ro>
- <Pine.LNX.4.50L0.0304201850130.1931-100000@webdev.ines.ro>
- <20030420161306.GA16656@hh.idb.hist.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Apr 2003 12:12:15 -0400
+Date: Sun, 20 Apr 2003 18:24:13 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+Message-Id: <20030420182413.7574930a.skraw@ithnet.com>
+In-Reply-To: <1050789876.3961.22.camel@dhcp22.swansea.linux.org.uk>
+References: <20030419180421.0f59e75b.skraw@ithnet.com>
+	<1050766175.3694.4.camel@dhcp22.swansea.linux.org.uk>
+	<20030419190046.6566ed18.skraw@ithnet.com>
+	<1050789876.3961.22.camel@dhcp22.swansea.linux.org.uk>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 19 Apr 2003 23:04:36 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-It may be so, but I don't think the kernel should oops...
+> On Sad, 2003-04-19 at 18:00, Stephan von Krawczynski wrote:
+> > Ok, you mean active error-recovery on reading. My basic point is the
+> > writing case. A simple handling of write-errors from the drivers level and
+> > a retry to write on a different location could help a lot I guess.
+> 
+> It would make no difference. The IDE drive firmware already knows about
+> such things.
 
-On Sun, 20 Apr 2003, Helge Hafting wrote:
+Hm, maybe this is only another field where "knowing" differs from "doing" (the
+right thing) sometimes.
 
-> On Sun, Apr 20, 2003 at 06:58:33PM +0300, Andrei Ivanov wrote:
-> [...]
-> > -r--------    1 root     root        48281 Apr 11 21:05 Cats & Dogs (RO).txt
-> > -r--------    1 root     root     730341376 Apr 11 21:04 Cats And Dogs.avi
-> > 
-> > I typed less Cats<tab>, and then &<tab>, and here it was stuck, and the 
-> > kernel oopsed. If I type less Cats<tab>, and then \&<tab>, it works, but 
-> > without the \ in front of the &, the shell gets stuck in D state.
+> > Just to give some numbers: from 25 disk I bought during last half year 16
+> > have gone dead within the first month. This is ridiculous. Of course they
+> > are all returned and guarantee-replaced, but it gets on ones nerves to
+> > continously replace disks, the rate could be lowered if one could use them
+> > at least 4 months (or upto a deadline number of bad blocks mapped by the fs
+> > - still guarantee but fewer replacement cycles).
 > 
-> Typing 
-> <any command> &<TAB>
-> gives the shell and the fs some work to do.  The "&" ends one
-> command and starts a new one (similiar to ";") so typing
-> nothing more after "&" and pressing <TAB> makes the shell search the entire
-> path and consider all the commands available.
-> (Press tab some more times and see the list, 2078 possibilities
-> in my case. :-)  This sort of thing can easily
-> take some time (in D state) if your PATH includes network drives.
-> 
-> Helge Hafting
-> 
+> I'd be changing vendors and also looking at my power/heat/vibration for
+> that level of problems. I'm sure google consider hard disks as a
+> consumable but not the rest of us 8)
+
+Maybe I have something in common with google, I am re-writing large parts (well
+over 50%) of the harddrives capacity on a daily basis (in the discussed setup).
+How many people really do that?
+
+Regards,
+Stephan
+

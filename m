@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132942AbRDRBNl>; Tue, 17 Apr 2001 21:13:41 -0400
+	id <S132941AbRDRBOp>; Tue, 17 Apr 2001 21:14:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132948AbRDRBNa>; Tue, 17 Apr 2001 21:13:30 -0400
-Received: from p3EE3C9F7.dip.t-dialin.net ([62.227.201.247]:44807 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S132941AbRDRBNU>; Tue, 17 Apr 2001 21:13:20 -0400
-Date: Wed, 18 Apr 2001 03:13:12 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: ip_masq_ftp in 2.2.19
-Message-ID: <20010418031312.A31160@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Mime-Version: 1.0
+	id <S132948AbRDRBOc>; Tue, 17 Apr 2001 21:14:32 -0400
+Received: from ladakh.smo.av.com ([209.73.174.140]:59144 "EHLO
+	ladakh.smo.av.com") by vger.kernel.org with ESMTP
+	id <S132941AbRDRBOS>; Tue, 17 Apr 2001 21:14:18 -0400
+Message-ID: <3ADC7144.36E715C5@av.com>
+Date: Tue, 17 Apr 2001 09:37:24 -0700
+From: Laurent Chavet <lchavet@av.com>
+Organization: AltaVista Company
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Is there a way to turn file caching off ?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ip_masq_ftp does case sensitive comparisons of FTP commands when
-snooping the control connection, and may thus miss legitimate PORT/PASV
-negotiation. The culprit is the use of safe_mem_eq2 to match on the
-commands, it catches them in either all-caps or all-lower-case (PASV,
-pasv), but not in mixed case (PaSv) or with trailing whitespace ("PaSv
-"), while RFC-959 (FTP) demands case insensitive handling of FTP
-commands.
+Hi,
 
-I don't currently have time to fix this myself and submit a patch,
-sorry.
+I'm running on a machine with 2GB of memory and dual PIII 550MHZ.
+Just after boot with "nothing else running":
+I run a program that almost like dd if=/dev/null of=/local/test
+count=10000 bs=1000000
+Except that there is a thread for reading and a thread for writing.
+The program itself almost doesn't take any CPU.
+What's going on is top showing:
+    First cache grows to the size of RAM (2GB) with transfer rate
+slowing down as the cache grows.
+    Then the transfer rates drops a lot (2 to 3 time slower than the
+drive capacity) and there is a very high CPU usage of system time (more
+than a CPU) used by bdflush and kswapd (and some others like kupdated).
 
--- 
-Matthias Andree
+Of course my real application doesn't go from /dev/zero to file but it
+still only does sequential access, and it seems that I pay a high price
+for the file caching when I'm not using it at all.
+
+Is there a way to turn file caching off, or at least limit its size ?
+
+Thanks,
+
+Laurent Chavet
+

@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVCJADc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVCJAKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbVCJADc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVCJAAI
+	id S262560AbVCJAKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbVCJAGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:00:08 -0500
-Received: from pat.uio.no ([129.240.130.16]:52353 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262214AbVCIX5L (ORCPT
+	Wed, 9 Mar 2005 19:06:43 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:37092 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262401AbVCJAGI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:57:11 -0500
-Subject: Re: [patch 11/16] Solaris nfsacl workaround
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Olaf Kirch <okir@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+	Wed, 9 Mar 2005 19:06:08 -0500
+Subject: Re: [PATCH 2/2] readahead: improve sequential read detection
+From: Ram <linuxram@us.ibm.com>
+To: Steven Pratt <slpratt@austin.ibm.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
        Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050227152353.510432000@blunzn.suse.de>
-References: <20050227152243.083308000@blunzn.suse.de>
-	 <20050227152353.510432000@blunzn.suse.de>
+In-Reply-To: <422F8EBE.5080803@austin.ibm.com>
+References: <42260F30.BE15B4DA@tv-sign.ru>
+	 <1110412324.4816.89.camel@localhost>  <422F8EBE.5080803@austin.ibm.com>
 Content-Type: text/plain
-Date: Wed, 09 Mar 2005 18:56:59 -0500
-Message-Id: <1110412619.10804.51.camel@lade.trondhjem.org>
+Organization: IBM 
+Message-Id: <1110413161.4816.96.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 09 Mar 2005 16:06:02 -0800
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.345, required 12,
-	autolearn=disabled, AWL 1.66, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-su den 27.02.2005 Klokka 16:22 (+0100) skreiv Andreas Gruenbacher:
-> vanlig tekstdokument vedlegg (nfsacl-solaris-nfsacl-workaround.patch)
-> If the nfs_acl program is available, Solaris clients expect both version
-> 2 and version 3 to be available; RPC_PROG_MISMATCH leads to a mount
-> failure.  Fake RPC_PROG_UNAVAIL when asked for nfs_acl version 2.
+On Wed, 2005-03-09 at 16:03, Steven Pratt wrote:
+> Ram wrote:
 > 
-> Trond has rejected this patch. I'm not sure how to deal with it in a
-> truly clean way, so probably I won't care and still use this as a vendor
-> patch.
+> >On Wed, 2005-03-02 at 11:08, Oleg Nesterov wrote:
+> >
+> >
+> >..snip...
+> >
+> >  
+> >
+> >>@@ -527,7 +527,7 @@ page_cache_readahead(struct address_spac
+> >> 	}
+> >> 
+> >> out:
+> >>-	return newsize;
+> >>+	return ra->prev_page + 1;
+> >>    
+> >>
+> >
+> >This change introduces one key behavioural change in
+> >page_cache_readahead(). Instead of returning the number-of-pages
+> >successfully read, it now returns the next-page-index which is yet to be
+> >read. Was this essential? 
+> >
+> >  
+> >
+> and unless filmap.c was changed accordingly this is broken..  need. to 
+> look at this more.
 
-So I've talked to the Solaris implementors about this issue. They said
-that the above behaviour on their clients was a bug that they've
-corrected in Solaris 10.
 
-Given that very few people are going to be using Solaris clients with
-NFSv2 against a Linux server, and given that there is always the option
-of compiling the server without NFSACL support for those few who need to
-do this, I suggest we just drop this patch.
+Oleg has taken care of it in filemap.c whereever page_cache_readahead()
+is called. So its not a bug as such. But I dont think it was necessary.
+Doing so takes care of 1-line code reduction in filemap.c which is the
+only plus point.
 
-Cheers,
-  Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+RP
+ 
+> >  
+> >
+> 
 

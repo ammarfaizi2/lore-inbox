@@ -1,89 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVCUWs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVCUWx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbVCUWs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVCUWq1
+	id S261947AbVCUWx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 17:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVCUWvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:46:27 -0500
-Received: from tiu.fh-brandenburg.de ([195.37.0.8]:18085 "EHLO
-	tiu.fh-brandenburg.de") by vger.kernel.org with ESMTP
-	id S262148AbVCUWoV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:44:21 -0500
-Date: Mon, 21 Mar 2005 23:44:10 +0100
-From: Markus Dahms <dahms@fh-brandenburg.de>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] Lockup using ALi SATA controller (sata_uli)
-Message-ID: <20050321224410.GA27760@fh-brandenburg.de>
+	Mon, 21 Mar 2005 17:51:23 -0500
+Received: from sta.galis.org ([66.250.170.210]:41360 "HELO sta.galis.org")
+	by vger.kernel.org with SMTP id S261947AbVCUWsQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 17:48:16 -0500
+From: "George Georgalis" <george@galis.org>
+Date: Mon, 21 Mar 2005 17:48:15 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Paul Jarc <prj@po.cwru.edu>
+Subject: Re: problem with linux 2.6.11 and sa
+Message-ID: <20050321224815.GA4041@ixeon.local>
+References: <20050303173459.GC952@ixeon.local> <20050321142555.47b1e5a1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050321142555.47b1e5a1.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+On Mon, Mar 21, 2005 at 02:25:55PM -0800, Andrew Morton wrote:
+>"George Georgalis" <george@galis.org> wrote:
+>>
+>> I'm very defiantly seeing a problem with the 2.6.11
+>> kernel and my spamassassin setup. However, it's not
+>> clear exactly where the problem is, seems like sa
+>> but it might be 2.6.11 with daemontools + qmail +
+>> QMAIL_QUEUE.
+>> 
+>> A sure sign of it is no logs (with debug) for
+>> remote sa connections which score "0/0" and correct
+>> operation with local "cat spam.txt | spamc -R"; fix
+>> is to use the older kernel.
+>> 
+>> SA has stopped stdout logging completely with 2.6.11
+>> in addition to the all pass score. But the message
+>> seems to go through my temp queue (for testing) and
+>> sent on to my local MDA. I'm not sure if it's a sa
+>> problem with the kernel or the new kernel doing
+>> something new with pipes from tcp connections.
+>> Maybe the new kernel is not making files available
+>> (eg 0 bytes), until the writing pipe is closed?
+>> That would make my SA test a zero byte file, which
+>> would pass, close, become full, and the file piped
+>> to local MDA is full? ...humm then I'd get a score
+>> of "0/5"... this sounds like a SA problem with the
+>> new kernel, ideas?
+>
+>George, did you end up getting to the bottom of this?  I'd be suspecting a
+>bug in the new pipe code, or an application bug which was triggered by the
+>new pipe code.
 
-I have a reproducable lockup of my system using an ALi SATA controller
-and writing some 100 MB to the attached disk.
+Hi! No resolution, I've been overloaded on a work related project.  The
+best I can say is no problem noticed with 2.6.8.1, 2.6.10 works for smtp
+code below but fails mplayer commands; 2.6.11 failed smtp code, didn't
+test mplayer on 2.6.11 and haven't tried any newer kernels.
 
-kernel: 2.6.11 SMP (w/ and w/o preemption tested)
-system: 2 x Pentium III on Asus CUV266-D
-controller: ALi M5283 based PCI card (1xPATA, 2xSATA)
-disk: 160GB Hitachi
+while read file; do mplayer $file ; done <mediafiles.txt # fails
 
-The Linux system is on another disk (PATA, onboard controller).
+for file in `cat mediafiles.txt`; do mplayer $file ; done # works
 
-The same controller with the same disk in another system (AMD) show
-the same errors (lockup, BadCRC as seen below), the disk with another
-controller (SII) works.
+mplayer foo.mpg # works 
+mplayer foo.mpg < mediafiles.txt # confuses binary for keboard input
 
-Thanks to netconsole I could get the following "last words":
+This is the code that seems to fail per quote above, stdin is the smtp
+DATA
 
-| ata2: command 0x35 timeout, stat 0xd0 host_stat 0x81
-| ata2: status=0xd0 { Busy }
-| SCSI error : <1 0 0 0> return code = 0x8000002
-| sda: Current: sense key: Aborted Command
-|     Additional sense: Scsi parity error
-| end_request: I/O error, dev sda, sector 2087934
-| Buffer I/O error on device sda5, logical block 260976
-| lost page write due to I/O error on sda5
-| ATA: abnormal status 0xD0 on port 0x9007
-| ATA: abnormal status 0xD0 on port 0x9007
-| ATA: abnormal status 0xD0 on port 0x9007
+tmp="${scq}/`safecat "${scq}/tmp" "${scq}" </dev/stdin`" \
+        || { echo "Error $?"; exit 71; } # put the pipeline to disk, if possible
+        # ${scq}/tmp is a temp for this function ${scq} is temp for this
+        # program
+score=`spamc -x -c <"$tmp"` # score it with spamd
+sce=$?
 
-After a hard reset the following lines appear 4 to 10 times in the
-boot messages and the filesystem recovery (XFS in my case) fails.
-A second attempt to mount the filesystem succeeds.
+I saw some notes on the new multi page pipes, me thinks its related but
+that's all I know...
 
-| ata2: status=0x51 { DriveReady SeekComplete Error }
-| ata2: error=0x84 { DriveStatusError BadCRC }
+Regards,
+// George
 
-The relevant lines from the boot log:
-
-| libata version 1.10 loaded.
-| ACPI: PCI interrupt 0000:00:0e.0[A] -> GSI 17 (level, low) -> IRQ 17
-| ata1: SATA max UDMA/133 cmd 0x9800 ctl 0x9402 bmdma 0x8400 irq 17
-| ata2: SATA max UDMA/133 cmd 0x9000 ctl 0x8802 bmdma 0x8408 irq 17
-| ata1: no device found (phy stat 00000000)
-| scsi0 : sata_uli
-| ata2: dev 0 cfg 49:2f00 82:74eb 83:7fea 84:4023 85:74e8 86:3c02 87:4023 88:003f
-| ata2: dev 0 ATA, max UDMA/100, 321672960 sectors: lba48
-| ata2: dev 0 configured for UDMA/100
-| scsi1 : sata_uli
-|   Vendor: ATA       Model: HDS722516VLSA80   Rev: V34O
-|   Type:   Direct-Access                      ANSI SCSI revision: 05
-| SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
-| SCSI device sda: drive cache: write back
-| SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
-| SCSI device sda: drive cache: write back
-|  sda: sda1 < sda5 >
-| Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
-
-Do you have some hints?
-
-Greetings,
-
-	Markus
 
 -- 
-Do bl Sp ce is a v ry saf  me hod of driv  compr s ion
+George Georgalis, systems architect, administrator Linux BSD IXOYE
+http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org

@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265901AbUBBVTM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 16:19:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUBBVTM
+	id S266097AbUBBU7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUBBU4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 16:19:12 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:15488 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265901AbUBBVTG (ORCPT
+	Mon, 2 Feb 2004 15:56:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:3973 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266097AbUBBUyX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 16:19:06 -0500
-Date: Mon, 2 Feb 2004 22:19:26 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Valdis.Kletnieks@vt.edu
-Cc: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 2.6 input drivers FAQ
-Message-ID: <20040202211926.GB440@ucw.cz>
-References: <20040201100644.GA2201@ucw.cz> <20040201163136.GF11391@triplehelix.org> <200402020527.i125RvTx008088@turing-police.cc.vt.edu> <20040202092318.GD548@ucw.cz> <200402021812.i12IC6eR006637@turing-police.cc.vt.edu> <20040202201813.GA272@ucw.cz> <200402022028.i12KSnSQ011554@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402022028.i12KSnSQ011554@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+	Mon, 2 Feb 2004 15:54:23 -0500
+X-Authenticated: #4512188
+Message-ID: <401EB8FA.2060108@gmx.de>
+Date: Mon, 02 Feb 2004 21:54:18 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Len Brown <len.brown@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: oops with 2.6.1-rc1 and rc-3
+References: <BF1FE1855350A0479097B3A0D2A80EE0020AEB18@hdsmsx402.hd.intel.com>	 <1075664953.2389.12.camel@dhcppc4>  <401E0E2C.8020708@gmx.de> <1075748372.2398.117.camel@dhcppc4> <401EB859.9090200@gmx.de>
+In-Reply-To: <401EB859.9090200@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 02, 2004 at 03:28:49PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 02 Feb 2004 21:18:13 +0100, Vojtech Pavlik said:
+Prakash K. Cheemplavam wrote:
+> Len Brown wrote:
 > 
-> > Because normally the X server reads them in very quick succession and if
-> > you don't make a very short click, the sequence looks like this:
-> > 
-> > push1 push2 release1 release2, which is fine, because X interprets that
-> > as just a push and a release.
-> > 
-> > If there is disk activity or something else that causes the scheduling
-> > to be delayed, it's push1 release1 push2 release2, which counts as a
-> > doubleclick.
-> > 
-> > Hence sporadic doubleclicking.
+>>>> handlers:
+>>>> [<c02a6b50>] (ide_intr+0x0/0x190)
+>>>> [<c03248c0>] (snd_intel8x0_interrupt+0x0/0x210)
+>>>> Disabling IRQ #11
+>>>> irq 11: nobody cared!
+>>
+>>
+>>
+>> dmesg -s40000 output (or serial console log if dmesg unavailable)
+>> /proc/interrupts
 > 
-> Well.. that would explain things except for the single /dev/psaux I have.
 > 
-> Could a similar timing hole happen if the system submerged into SMM
-> code for a battery check or similar? (I know, that *should* cause
-> lost events not duplicated, but....)
+> This is starting to get stupid: I tried recreating the oops with rc2 and 
+> rc2-mm2, but this time they started up normal. Currently I am even using 
+> a mm2 based kernel. But 2.6.2-rc3 still oopses. The problem is it 
 
-I don't see a way how this could happen. One thing you could try - run
-evtest on the mouse event device in a window/on another vc, and when the
-doubleclick happens, examine the last sreenful of events.
+BTW, the only maybe affecting thing I change in the meanwhileis using 
+the newest nvidia binary driver 53.36. Could something of it survive to 
+the next boot (without powering the machin down)? Or might above oops 
+just be a timing issue?
 
-> > For movement, of course, you get twice the mouse speed, but usually most
-> > people just adjust the acceleration settings and are done with that.
-> 
-> Haven't seen this.
-
-Most likely your problem comes from elsewhere. Did you try another
-mouse?
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Prakash

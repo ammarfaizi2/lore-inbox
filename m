@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291756AbSBANmv>; Fri, 1 Feb 2002 08:42:51 -0500
+	id <S291925AbSBATgv>; Fri, 1 Feb 2002 14:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291754AbSBANmm>; Fri, 1 Feb 2002 08:42:42 -0500
-Received: from server7.suhplains1.com ([12.110.244.153]:26891 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S291755AbSBANm2>; Fri, 1 Feb 2002 08:42:28 -0500
-Subject: 2.5.3-dj7
-From: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
-To: davej@suse.de
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C59749C.B4855316@lbl.gov>
-In-Reply-To: <3C59749C.B4855316@lbl.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 31 Jan 2002 19:43:22 -0600
-Message-Id: <1012527802.8490.5.camel@localhost.localdomain>
+	id <S291927AbSBATgl>; Fri, 1 Feb 2002 14:36:41 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:50795 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S291926AbSBATgY>; Fri, 1 Feb 2002 14:36:24 -0500
+Date: Thu, 31 Jan 2002 21:44:41 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3 compile failure
+Message-ID: <20020131204441.GA7311@elfie.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <02013119142604.00643@middle-earth.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <02013119142604.00643@middle-earth.net>
+User-Agent: Mutt/1.5.0-hc8-current-20020125i (Linux 2.5.3-pre5-J9 i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of these days the kernel + modules will compile without error for
-me.....
-but today is not the day....
+On Thu Jan 31 2002, rudmer wrote:
 
-gcc -D__KERNEL__ -I/home/kernel/linux-2.5/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -DMODULE -DMODVERSIONS -include
-/home/kernel/linux-2.5/include/linux/modversions.h 
--DKBUILD_BASENAME=ataraid  -DEXPORT_SYMTAB -c ataraid.c
-ataraid.c: In function `ataraid_make_request':
-ataraid.c:105: structure has no member named `b_rdev'
-ataraid.c:103: warning: `minor' might be used uninitialized in this
-function
-ataraid.c: In function `ataraid_split_request':
-ataraid.c:182: structure has no member named `b_rsector'
-ataraid.c:193: warning: passing arg 1 of
-`generic_make_request_Rsmp_094ec5c7' makes pointer from integer without
-a cast
-ataraid.c:193: too many arguments to function
-`generic_make_request_Rsmp_094ec5c7'
-ataraid.c:194: warning: passing arg 1 of
-`generic_make_request_Rsmp_094ec5c7' makes pointer from integer without
-a cast
-ataraid.c:194: too many arguments to function
-`generic_make_request_Rsmp_094ec5c7'
-ataraid.c: In function `ataraid_init':
-ataraid.c:249: `hardsect_size' undeclared (first use in this function)
-ataraid.c:249: (Each undeclared identifier is reported only once
-ataraid.c:249: for each function it appears in.)
-ataraid.c:280: warning: passing arg 2 of
-`blk_queue_make_request_Rsmp_b22de294' from incompatible pointer type
-ataraid.c: In function `ataraid_exit':
-ataraid.c:289: `hardsect_size' undeclared (first use in this function)
-make[2]: *** [ataraid.o] Error 1
-make[2]: Leaving directory `/home/kernel/linux-2.5/drivers/ide'
-make[1]: *** [_modsubdir_ide] Error 2
-make[1]: Leaving directory `/home/kernel/linux-2.5/drivers'
-make: *** [_mod_drivers] Error 2
+> make[3]: Entering directory `/usr/src/linux-2.5.3/drivers/base'
+> gcc -D__KERNEL__ -I/usr/src/linux-2.5.3/include -Wall -Wstrict-prototypes 
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+> -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     
+> -DEXPORT_SYMTAB -c core.c
+> core.c:10: linux/malloc.h: No such file or directory
+> make[3]: *** [core.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux-2.5.3/drivers/base'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.5.3/drivers/base'
+> make[1]: *** [_subdir_base] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.5.3/drivers'
+> make: *** [_dir_drivers] Error 2
+
+Open "/linux/drivers/base/core.c" and "fs.c" and change
+
+     #include <linux/malloc.h>
+     
+into
+    
+     #include <linux/slab.h>
+    
+and recompile.
+
+-- 
+# Heinz Diehl, 68259 Mannheim, Germany

@@ -1,54 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130530AbQL0Bwo>; Tue, 26 Dec 2000 20:52:44 -0500
+	id <S130473AbQL0CWj>; Tue, 26 Dec 2000 21:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131075AbQL0Bwe>; Tue, 26 Dec 2000 20:52:34 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:52719 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S130530AbQL0BwW>;
-	Tue, 26 Dec 2000 20:52:22 -0500
-Date: Tue, 26 Dec 2000 17:22:57 -0800
-From: Greg KH <greg@wirex.com>
-To: Giuliano Pochini <pochini@denise.shiny.it>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: USB related crashes
-Message-ID: <20001226172257.G30876@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-	Giuliano Pochini <pochini@denise.shiny.it>,
-	linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-In-Reply-To: <3A4930FA.7C8E9F7C@denise.shiny.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A4930FA.7C8E9F7C@denise.shiny.it>; from pochini@denise.shiny.it on Tue, Dec 26, 2000 at 06:59:54PM -0500
-X-Operating-System: Linux 2.2.18-immunix (i686)
+	id <S130480AbQL0CW2>; Tue, 26 Dec 2000 21:22:28 -0500
+Received: from paloma17.e0k.nbg-hannover.de ([62.159.219.17]:63990 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S130473AbQL0CWQ>; Tue, 26 Dec 2000 21:22:16 -0500
+From: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+Subject: test13-preX: DRM (tdfx.o) unresolved symbols fixed?
+Date: Wed, 27 Dec 2000 02:54:08 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Cc: "Rik Faith" <faith@valinux.com>,
+        "Dri-devel" <Dri-devel@lists.sourceforge.net>
+MIME-Version: 1.0
+Message-Id: <00122702540800.15395@SunWave1>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 26, 2000 at 06:59:54PM -0500, Giuliano Pochini wrote:
-> 
-> How to crash kernel 2.2.17-18:
-> 
-> Turn on the USB printer without paper and try
-> to print something. Wait for the "printer.c: usblp0:
-> out of paper" message and turn off the printer.
-> Ok, now "killall gs" will freeze the system.
-> 
-> (kernel 2.2.17-18, I did't try 2.4, GCC 2.95.3, PowerPC750)
+Hello to all of you,
 
-What USB code does 2.2.17-18 have in it?  Is this a vendor specific
-backport?
+I got this since test13-pre1 (pre4, now):
 
-Anyway, try 2.2.18 and/or 2.4.0-test13-pre4 and let me / the list know
-if you still have this same problem.
+SunWave1>depmod -e
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/tdfx.o
+depmod:         remap_page_range
+depmod:         _mmx_memcpy
+depmod:         __wake_up
+depmod:         mtrr_add
+depmod:         __generic_copy_from_user
+depmod:         schedule
+depmod:         kmalloc
+depmod:         si_meminfo
+depmod:         create_proc_entry
+depmod:         inter_module_put
+depmod:         __get_free_pages
+depmod:         boot_cpu_data
+depmod:         inter_module_get
+depmod:         remove_wait_queue
+depmod:         high_memory
+depmod:         iounmap
+depmod:         free_pages
+depmod:         __ioremap
+depmod:         del_timer
+depmod:         interruptible_sleep_on
+depmod:         __pollwait
+depmod:         kfree
+depmod:         remove_proc_entry
+depmod:         pci_find_slot
+depmod:         kill_fasync
+depmod:         fasync_helper
+depmod:         add_wait_queue
+depmod:         do_mmap_pgoff
+depmod:         mem_map
+depmod:         sprintf
+depmod:         jiffies
+depmod:         printk
+depmod:         add_timer
+depmod:         irq_stat
+depmod:         __generic_copy_to_user
 
-thanks,
+Something missing in the 'new' drm/Makefile?
 
-greg k-h
-
+Thanks,
+	Dieter
 -- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+Cognitive Systems Group
+Vogt-Kölln-Straße 30
+D-22527 Hamburg, Germany
+
+email: nuetzel@kogs.informatik.uni-hamburg.de
+@home: Dieter.Nuetzel@hamburg.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

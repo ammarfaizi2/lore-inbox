@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130064AbRB1FjP>; Wed, 28 Feb 2001 00:39:15 -0500
+	id <S130065AbRB1GWW>; Wed, 28 Feb 2001 01:22:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130065AbRB1Fiz>; Wed, 28 Feb 2001 00:38:55 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:23293 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S130064AbRB1Fii>;
-	Wed, 28 Feb 2001 00:38:38 -0500
-Date: Tue, 27 Feb 2001 21:40:46 -0800
-From: Greg KH <greg@wirex.com>
-To: jt@hpl.hp.com
-Cc: Dag Brattli <dag@brattli.net>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] patch-2.4.2-irda1 (irda-usb)
-Message-ID: <20010227214046.A10265@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>, jt@hpl.hp.com,
-	Dag Brattli <dag@brattli.net>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010227093329.A10482@wirex.com> <200102272032.UAA74232@tepid.osl.fast.no> <20010227135810.E910@wirex.com> <20010227184109.B6898@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010227184109.B6898@bougret.hpl.hp.com>; from jt@bougret.hpl.hp.com on Tue, Feb 27, 2001 at 06:41:09PM -0800
-X-Operating-System: Linux 2.4.2-immunix (i686)
+	id <S130071AbRB1GWD>; Wed, 28 Feb 2001 01:22:03 -0500
+Received: from web9204.mail.yahoo.com ([216.136.129.27]:19212 "HELO
+	web9204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130065AbRB1GV5>; Wed, 28 Feb 2001 01:21:57 -0500
+Message-ID: <20010228062156.33159.qmail@web9204.mail.yahoo.com>
+Date: Tue, 27 Feb 2001 22:21:56 -0800 (PST)
+From: bradley mclain <bradley_kernel@yahoo.com>
+Subject: -ac6 mis-reports cpu clock
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1535016996-983341316=:33108"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 27, 2001 at 06:41:09PM -0800, Jean Tourrilhes wrote:
-> 
-> 	First thanks for Dag for bringing me into the conversation. I
-> may add my little bit of spice, especially that I was the one pushing
-> for having the driver in .../drivers/net/irda.
-> 	By the way, Greg, sorry if I hurt your feeling, I don't want
-> to put down any of the great work that has been done on the USB stack.
+--0-1535016996-983341316=:33108
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks, but it didn't bother me, or hurt any of my feelings at all.  I
-just wanted to point out that all of the other usb drivers (with 2
-exceptions) reside in the drivers/usb directory, and I didn't know if
-you knew that.
+here is an extract from dmesg from 2.4.2 and -ac6,
+showing a disparity in cpu clock speed..
 
-(the exceptions are the input drivers, which are part of the input core,
-and the cpia video driver, which has the parallel port and the usb
-driver all together in one file.)
+-ac6 has inserted a line claiming my clock is 400Mhz
+(it is actually 533 -- and i believe my fsb is 133).
 
-> 	My feeling is that devices are mostly defined by their higher
-> level interface, because this is what is closer to the user.
-> 	If I look at a Pcmcia Ethernet card, I will tend to associate
-> more with a PCI Ethernet card rather than a Pcmcia SCSI card. Both
-> card have the same high level interface (TCP/IP) even if their low
-> level interface is different (Pcmcia, PCI).
-> 	People tend to agree with that, and that's why you have
-> directories called drivers/net, drivers/scsi and driver/sound, rather
-> that drivers/pci, drivers/isa, drivers/mca and drivers/pcmcia.
+i don't think i compiled these two radically
+differently.  what could i have done wrong to cause
+this?  or has -ac6 introduced a bug of some sort?
 
-This argument has been discussed in the past (see the linux-usb-devel
-and linux-kernel mailing list archives) but from what I remember, Linus
-and others wanted them all to stay in the drivers/usb directory for now.
-
-Personally I don't care either way, but it has been easier to do usb
-core changes (such as the hotplug interface changes that I suggested for
-your driver) with all of the drivers in one place, not that I can't do a
-recursive grep :)
+any suggestions for debugging or additional
+information?
 
 thanks,
+bradley mclain
 
-greg k-h
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/
+--0-1535016996-983341316=:33108
+Content-Type: application/x-unknown; name=compare
+Content-Transfer-Encoding: base64
+Content-Description: compare
+Content-Disposition: attachment; filename=compare
 
--- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+S2VybmVsIGNvbW1hbmQgbGluZTogQk9PVF9JTUFHRT1saW51eC0yLjQuMiBy
+byByb290PTM0NgouLi4KQ1BVOiBCZWZvcmUgdmVuZG9yIGluaXQsIGNhcHM6
+IDAzODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwLCB2ZW5kb3IgPSAwCkNQVTog
+TDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksKQ1BVOiBMMiBjYWNo
+ZTogMjU2SwpJbnRlbCBtYWNoaW5lIGNoZWNrIGFyY2hpdGVjdHVyZSBzdXBw
+b3J0ZWQuCgotLS0tLS0tLS0tLS0KCktlcm5lbCBjb21tYW5kIGxpbmU6IEJP
+T1RfSU1BR0U9bGludXgtMjQyYWM2IHJvIHJvb3Q9MzQ2Ci4uLgpDUFU6IEJl
+Zm9yZSB2ZW5kb3IgaW5pdCwgY2FwczogMDM4M2ZiZmYgMDAwMDAwMDAgMDAw
+MDAwMDAsIHZlbmRvciA9IDAKQ1BVOiBMMSBJIGNhY2hlOiAxNkssIEwxIEQg
+Y2FjaGU6IDE2SwpDUFU6IEwyIGNhY2hlOiAyNTZLCkNQVSBzcGVlZCA0MDBN
+aHosIEJ1cyBTcGVlZCAxMDBNSHoKSW50ZWwgbWFjaGluZSBjaGVjayBhcmNo
+aXRlY3R1cmUgc3VwcG9ydGVkLgpJbnRlbCBtYWNoaW5lIGNoZWNrIHJlcG9y
+dGluZyBlbmFibGVkIG9uIENQVSMwLg==
+
+--0-1535016996-983341316=:33108--

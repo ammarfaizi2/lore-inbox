@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262915AbRFTWzd>; Wed, 20 Jun 2001 18:55:33 -0400
+	id <S262655AbRFTWyl>; Wed, 20 Jun 2001 18:54:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262922AbRFTWzV>; Wed, 20 Jun 2001 18:55:21 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:48006 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S262915AbRFTWzK>; Wed, 20 Jun 2001 18:55:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Martin Dalecki <dalecki@evision-ventures.com>,
-        Mike Harrold <mharrold@cas.org>
-Subject: Re: [OT] Threads, inelegance, and Java
-Date: Wed, 20 Jun 2001 13:53:59 -0400
-X-Mailer: KMail [version 1.2]
-Cc: landley@webofficenow.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200106201927.PAA01484@mah21awu.cas.org> <3B30FF33.58807C3F@evision-ventures.com>
-In-Reply-To: <3B30FF33.58807C3F@evision-ventures.com>
+	id <S262922AbRFTWyb>; Wed, 20 Jun 2001 18:54:31 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:6639 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262655AbRFTWy1>; Wed, 20 Jun 2001 18:54:27 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200106202253.f5KMrX2X029668@webber.adilger.int>
+Subject: Re: Unknown PCI Net Device
+In-Reply-To: <Pine.LNX.4.21.0106201401060.1874-100000@maestro.symsys.com>
+ "from Greg Ingram at Jun 20, 2001 02:19:00 pm"
+To: Greg Ingram <ingram@symsys.com>
+Date: Wed, 20 Jun 2001 16:53:33 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Message-Id: <01062013535909.00776@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 June 2001 15:53, Martin Dalecki wrote:
-> Mike Harrold wrote:
->
-> Well the transmeta cpu isn't cheap actually.
+Greg writes:
+> I picked up a network card that claims to use the "most reliable Realtek
+> LAN chip".  The big chip is labelled "LAN-8139" so naturally I tried the
+> 8139too driver.  It doesn't find the device.  I'm wondering if maybe it's
+> just something in the device ID tables.  Here's some info:
+> 
+> 00:0b.0 Ethernet controller: MYSON Technology Inc: Unknown device 0803
+> 	Subsystem: MYSON Technology Inc: Unknown device 0803
+> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
 
-Any processor's cheap once it's got enough volume.  That's an effect not a 
-cause.
+Add the PCI vendor ID and device ID (0803) to drivers/net/8139too.c, in
+the rtl8139_pci_tbl[] and board_info[] and if it works, send a patch to
+Jeff (CC'd).
 
-> And if you talk about
-> super computing, hmm what about some PowerPC CPU variant - they very
-> compettetiv in terms of cost and FPU performance! Transmeta isn't the
-> adequate choice here.
+Jeff, is there a reason why you have numeric vendor and device IDs instead
+of using the definitions in <linux/pci_ids.h>?
 
-You honestly think you can fit 142 PowerPC processors in a single 1U, air 
-cooled?
-
-Liquid air cooled, maybe...
-
-> Well both of those concepts fail in terms of optimization due
-> to the same reason: much less information is present about
-> the structure of the code then during source code compilation.
-
-LESS info?
-
-Anybody wanna explain to me how it's possible to do branch prediction and 
-speculative execution at compile time?  (Ala iTanium?)  I've heard a few 
-attempts at an explanation, but nothing by anybody who was sober at the 
-time...
-
-You have less time to work, but you actually have MORE info about how it's 
-actually running...
-
-> Additionaly there may be some performance wins due to the
-> ability of runtime profiling (anykind thereof), however it still remains
-> to be shown that this performs better then statically analyzed code.
-
-Okay, I'll bite.  Why couldn't a recompiler (like MetroWerks stuff) do the 
-same static analysis on large code runs that GCC or some such could do if you 
-give it -Oinsane and let it think for five minutes about each file?
-
-Obviously the run-time version isn't going to spend the TIME to do that.  But 
-claiming the information to perform these actions isn't available just 
-because your variables no longer have english names...
-
-> > /Mike - who doesn't work for Transmeta, in case anyone was wondering...
-> > :-)
->
-> /Marcin - who doesn't bet a penny on Transmeta
-
-/Rob, who still owns stock in Intel of all things.
-
-Rob
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

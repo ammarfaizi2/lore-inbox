@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263316AbTH0LwI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 07:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbTH0LwI
+	id S263288AbTH0Lou (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 07:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263326AbTH0Lou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 07:52:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7134 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263316AbTH0LwF
+	Wed, 27 Aug 2003 07:44:50 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:58372 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263288AbTH0Lot
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 07:52:05 -0400
-Message-ID: <3F4C9B59.20504@pobox.com>
-Date: Wed, 27 Aug 2003 07:51:53 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Wed, 27 Aug 2003 07:44:49 -0400
+Message-ID: <3F4C9B85.7040602@aitel.hist.no>
+Date: Wed, 27 Aug 2003 13:52:37 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-References: <20030722184532.GA2321@codepoet.org> <20030722185443.GB6004@gtf.org> <20030722190705.GA2500@codepoet.org> <20030722205629.GA27179@gtf.org> <20030722213926.GA4295@codepoet.org> <3F4C1F09.846A83EF@vtc.edu.hk> <3F4C2210.6050404@pobox.com> <20030827090020.GC9054@merlin.emma.line.org>
-In-Reply-To: <20030827090020.GC9054@merlin.emma.line.org>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm2 didn't try to mount root
+References: <20030826221053.25aaa78f.akpm@osdl.org>	<3F4C8424.3040204@aitel.hist.no> <20030827031534.29b08946.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
-> On Tue, 26 Aug 2003, Jeff Garzik wrote:
+Andrew Morton wrote:
+> Helge Hafting <helgehaf@aitel.hist.no> wrote:
+> 
+>>test4-mm1 with the same config works on the same machine,
+>> and mounts root between "md: ... autorun DONE" and  "Mounted devfs on /dev"
+>>
+>> Root is supposed to be on the raid array, which did come up.
+>> Lilo uses append="root=/dev/md/0".
 > 
 > 
->>For the future, I'm currently whipping the libata internals into shape 
->>so that Promise may be supported.  Promise hardware supports native 
->>command queueing, a lot like many SCSI adapters.
+> Does reverting this fix it?
 > 
 > 
-> Is that true even for the older stuff such as a PDC20265?
+Thanks, that did the trick.  Seems this "no root" stuff
+didn't realize that I want a root after all.
 
-PATA stuff will continue to be supported via drivers/ide, I'm only 
-shooting for the newer SATA stuff.
+ > This patch allows a person to not require mounting a root device at 
+startup.
+ > This works idealy for people trying to use the initramfs/sysfs as the 
+only
+ > filesystem.
+ > What happens is that when the root device is set to 0,0 mount_root is 
+not
+ > called.
 
+There is more than one way to specify a root, it seems.  I never
+set any numbers for my root, I use the root=/dev/md/0 parameter
+to the kernel.  I don't have any initramfs.
 
-> It appears that FreeBSD 4-STABLE blacklists some older (before-TX2)
-> Promise chips because they apparently lock up when used with tagged
-> command queueing. I haven't yet looked at the ATAng driver merged into
-> FreeBSD 5-CURRENT.
+Why don't those who want to keep an initramfs simply
+specify root=/dev/root which don't need extra parsing?
 
-
-ATA tagged command queueing is a bunch of crap.  :)  I'm not sure 
-whether I want to implement it or not.
-
-I was referring to _native_ command queueing.  ATA TCQ is something 
-different.  ATA TCQ does not allow multiple outstanding scatter/gather 
-tables to be sent to the host controller.   Native command queuing does.
-
-	Jeff
+Helge Hafting
 
 
 

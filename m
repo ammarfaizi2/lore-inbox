@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbTJIXGD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 19:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbTJIXGD
+	id S262324AbTJIXKl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 19:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbTJIXKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 19:06:03 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:38810 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S262589AbTJIXGA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 19:06:00 -0400
-Subject: Re: Call trace when rmmod'ing saa7134 and error when compiling
-	static
-From: Stian Jordet <liste@jordet.nu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-In-Reply-To: <20031009212804.GD12618@kroah.com>
-References: <1065708534.737.2.camel@chevrolet.hybel>
-	 <20031009210805.GB12266@kroah.com>
-	 <1065734600.6237.0.camel@chevrolet.hybel>
-	 <20031009212804.GD12618@kroah.com>
-Content-Type: text/plain
-Message-Id: <1065740778.22357.0.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 10 Oct 2003 01:06:18 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Oct 2003 19:10:41 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:17937 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262324AbTJIXKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 19:10:39 -0400
+Date: Thu, 9 Oct 2003 19:10:27 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Domen Puncer <domen@coderock.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x on 2.6.0-test3->test6 slow
+In-Reply-To: <200310091049.18595.domen@coderock.org>
+Message-ID: <Pine.LNX.4.53.0310091904400.3679@montezuma.fsmlabs.com>
+References: <200310061529.56959.domen@coderock.org> <200310081705.16241.domen@coderock.org>
+ <Pine.LNX.4.53.0310082152380.21753@montezuma.fsmlabs.com>
+ <200310091049.18595.domen@coderock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 09.10.2003 kl. 23.28 skrev Greg KH:
-> On Thu, Oct 09, 2003 at 11:23:21PM +0200, Stian Jordet wrote:
-> > tor, 09.10.2003 kl. 23.08 skrev Greg KH:
-> > > On Thu, Oct 09, 2003 at 04:08:54PM +0200, Stian Jordet wrote:
-> > > > Hello,
-> > > > 
-> > > > when I try to rmmod the saa7134 module from kernel 2.6.0-test7, I get
-> > > > this call trace:
-> > > > 
-> > > > Device class 'i2c-1' does not have a release() function, it is broken
-> > > > and must be fixed.
-> > > 
-> > > This is when you remove the i2c-dev module, right?  Yeah, I know about
-> > > the problem and will fix it.
-> > 
-> > I have no idea, I just "rmmod saa7134" :)
+On Thu, 9 Oct 2003, Domen Puncer wrote:
+
+> > > eth0: negotiated 100baseTx-FD, link ok
+> > > when it is ok (reloaded -test2 module)
+> >
+> > What does mii-tool -r do?
 > 
-> Sorry, I ment to say, you have the i2c-dev module loaded, or built into
-> your kernel, right?  That will cause this warning to be printed out.
+> Doesn't help, neither do -R or -F.
 
-You're right. But I don't need it, so one problem solved :-)
+Ok to recap, backing out the WOL change fixes things? If not, can you 
+isolate which kernel version it is?
 
-Gerd: I still would like to be able to compile the driver static, though
-:)
-
-Stian
+Thanks
 

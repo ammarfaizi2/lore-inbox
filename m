@@ -1,33 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271848AbRIQQmx>; Mon, 17 Sep 2001 12:42:53 -0400
+	id <S271861AbRIQQnx>; Mon, 17 Sep 2001 12:43:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271847AbRIQQmd>; Mon, 17 Sep 2001 12:42:33 -0400
-Received: from dynamic-135.remotepoint.com ([204.221.114.135]:61445 "EHLO
-	AeroSpace.davidapt.local") by vger.kernel.org with ESMTP
-	id <S271832AbRIQQmW>; Mon, 17 Sep 2001 12:42:22 -0400
-Date: Mon, 17 Sep 2001 11:43:15 -0500
-From: David Fries <dfries@mail.win.org>
-To: linux-kernel@vger.kernel.org
-Subject: how to get cpu_khz?
-Message-ID: <20010917114315.A4041@aerospace.fries.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+	id <S271856AbRIQQnp>; Mon, 17 Sep 2001 12:43:45 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:44417 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S271832AbRIQQna>; Mon, 17 Sep 2001 12:43:30 -0400
+Date: Mon, 17 Sep 2001 12:42:27 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
+cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
+Subject: Re: [Q] Implementation of spin_lock on i386: why "rep;nop" ?
+In-Reply-To: <Pine.LNX.4.31.0109171725140.26090-100000@sisley.ri.silicomp.fr>
+Message-ID: <Pine.LNX.3.95.1010917123904.14830A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using the TSC of the Pentium processors to get some precise timing
-delays for writing to a eeprom (bit banging bus operations), and it
-works just fine, but the cpu_khz variable isn't exported to a kernel
-module, so I hardcoded in my module.  It works fine for that one
-system, but obviously I don't want to hard code it for the general
-case.  I guess I could write my own routine to figure out what the
-cpu_khz is, but it is already done, so how do I get access to it?
+On Mon, 17 Sep 2001, Jean-Marc Saffroy wrote:
 
--- 
-		+---------------------------------+
-		|      David Fries                |
-		|      dfries@mail.win.org        |
-		+---------------------------------+
+> Hi all,
+> 
+> One of my coworkers directed my attention to the implementation of
+> spinlocks on IA-32. In spin_lock_string, we can read:
+> 
+> 	"cmpb $0,%0\n\t" \
+> 	"rep;nop\n\t" \
+> 	"jle 2b\n\t" \
+> 
+> The "rep;nop" line looks dubious, since the IA-32 programmer's manual from
+> Intel (year 2001) mentions that the behaviour of REP is undefined when it
+> is not used with string opcodes. BTW, according to the same manual, REP is
+> supposed to modify ecx, but it looks like is is not the case here... which
+> is fortunate, since ecx is never saved. :-)
+> 
+> What is the intent behind this "rep;nop" ? Does it really rely on an
+> undocumented behaviour ?
+> 
+> 
+> Regards,
+
+Well it's now documented although you have to search a web-site to
+find it. Basically, it runs the CPU at low clock-speed when it's
+busy-waiting. Since most all spin-locks lock for mere microseconds
+it's unlikely that it does anything useful, but it can't hurt.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

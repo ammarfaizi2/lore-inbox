@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVASUng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVASUpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbVASUng (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 15:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVASUng
+	id S261885AbVASUpe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 15:45:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVASUpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 15:43:36 -0500
-Received: from main.gmane.org ([80.91.229.2]:20716 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261884AbVASUnZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 15:43:25 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] AOE: fix up the block device registration so that it
- actually works now.
-Date: Wed, 19 Jan 2005 15:43:02 -0500
-Message-ID: <87mzv5m9pl.fsf@coraid.com>
-References: <20050119000935.GA22454@kroah.com>
+	Wed, 19 Jan 2005 15:45:34 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:47884 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261885AbVASUpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 15:45:19 -0500
+Message-Id: <200501192044.j0JKiwJ2005994@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: John Richard Moser <nigelenki@comcast.net>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues 
+In-Reply-To: Your message of "Wed, 19 Jan 2005 20:53:51 +0100."
+             <1106164432.6310.195.camel@laptopd505.fenrus.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org> <20050113082320.GB18685@infradead.org> <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org> <1105635662.6031.35.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org> <41E6BE6B.6050400@comcast.net> <20050119103020.GA4417@elte.hu> <41EE96E7.3000004@comcast.net> <1106157152.6310.171.camel@laptopd505.fenrus.org> <41EEABEF.5000503@comcast.net> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu>
+            <1106164432.6310.195.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-214-28-36.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:dgobE2Ajx64PAvPppnl6fndCpOs=
+Content-Type: multipart/signed; boundary="==_Exmh_1106167498_1885P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 19 Jan 2005 15:44:58 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+--==_Exmh_1106167498_1885P
+Content-Type: text/plain; charset=us-ascii
 
-Greg KH <greg@kroah.com> writes:
+On Wed, 19 Jan 2005 20:53:51 +0100, Arjan van de Ven said:
 
-> Ed, I need the following patch against the latest -bk tree in order to
-> get the aoe code to load and work properly.  Does it look good to you?
+> > Now look at http://www.kernel.org/pub/linux/kernel/people/arjan/execshield/
+.
+> > 4 separate hunks, the biggest is under 7K.  Other chunks of similar size
+> > for non-exec stack and NX support are already merged.
+> > 
+> > And why were they merged?  Because they showed up in 4-8K chunks.
+> >   
+> note to readers: I'm still not happy about the split up and want to
+> split this up even further in smaller pieces; the split up there is only
+> a first order split.
 
-I hadn't submitted all my changes correctly, sorry.  Here's a patch
-against block-2.6 that rectifies the omission.
-
-
-Remove allow aoeblk_exit to be called from __init code, and move
-register_blkdev into aoe_init.
-
-Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
-
-
---=-=-=
-Content-Disposition: inline; filename=diff-block-2.6
-
-diff -uprN block-2.6-export-a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
---- block-2.6-export-a/drivers/block/aoe/aoeblk.c	2005-01-19 14:29:31.000000000 -0500
-+++ patch-block-2.6-20050119-export/linux/drivers/block/aoe/aoeblk.c	2005-01-19 15:21:53.000000000 -0500
-@@ -245,7 +252,7 @@ aoeblk_gdalloc(void *vp)
- 		d->fw_ver, (long long)d->ssize);
- }
- 
--void __exit
-+void
- aoeblk_exit(void)
- {
- 	kmem_cache_destroy(buf_pool_cache);
-@@ -254,19 +261,12 @@ aoeblk_exit(void)
- int __init
- aoeblk_init(void)
- {
--	int n;
--
- 	buf_pool_cache = kmem_cache_create("aoe_bufs", 
- 					   sizeof(struct buf),
- 					   0, 0, NULL, NULL);
- 	if (buf_pool_cache == NULL)
- 		return -ENOMEM;
- 
--	n = register_blkdev(AOE_MAJOR, DEVICE_NAME);
--	if (n < 0) {
--		printk(KERN_ERR "aoe: aoeblk_init: can't register major\n");
--		return n;
--	}
- 	return 0;
- }
- 
-
---=-=-=
+Right - the point is that even an idiot like me can get my head wrapped around
+that biggest 7K chunk and figure out what's going on.  On the other hand, even
+the Alan Cox gnome-cluster isn't able to digest a 280K patch...
 
 
+--==_Exmh_1106167498_1885P
+Content-Type: application/pgp-signature
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---=-=-=--
+iD8DBQFB7sbKcC3lWbTT17ARAhfDAKCC7+/enOdRUmsQi3sh/L9y7v+OGwCgkaWv
+XOIghQrCAEYVZQvG8s932rE=
+=kMpQ
+-----END PGP SIGNATURE-----
 
+--==_Exmh_1106167498_1885P--

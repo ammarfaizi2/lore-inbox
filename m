@@ -1,68 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271352AbTHDBFO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 21:05:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271353AbTHDBFO
+	id S271353AbTHDBXN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 21:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271355AbTHDBXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 21:05:14 -0400
-Received: from [202.20.92.128] ([202.20.92.128]:41152 "EHLO quattro.co.nz")
-	by vger.kernel.org with ESMTP id S271352AbTHDBFJ (ORCPT
+	Sun, 3 Aug 2003 21:23:13 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:19407 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S271353AbTHDBXG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 21:05:09 -0400
-Message-ID: <006601c35a24$748372c0$0401a8c0@SIMON>
-From: "Simon Garner" <sgarner@expio.co.nz>
-To: <linux-kernel@vger.kernel.org>
-Cc: <taroon-beta-list@redhat.com>
-Subject: MSI K8D-Master - GART error 3
-Date: Mon, 4 Aug 2003 13:05:05 +1200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Sun, 3 Aug 2003 21:23:06 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 4 Aug 2003 03:23:01 +0200 (MEST)
+Message-Id: <UTC200308040123.h741N1311674.aeb@smtp.cwi.nl>
+To: akpm@osdl.org, torvalds@osdl.org
+Subject: [PATCH] ide capacity
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi lists,
+It is already nine months ago that I first had to provide people
+with a patch that made the boot messages report disk capacity
+in 32 bits instead of 31.
+No doubt 2.6 will last long enough to make disk capacity
+(for RAIDs at least) pass the 2^32 sectors. Probably we
+should keep track of disk capacities in sector_t instead of long.
 
-(please cc me on any replies as I am not currently subscribed to lkml)
+Andries
 
-I have recently installed Red Hat Enterprise Linux 2.9.5 Beta (Taroon)
-x86-64 on an MSI K8D-Master (MSI-9131) motherboard with Dual Opteron 240
-processors.
-
-While the system is running, every 30 seconds I get the following on
-system console and in /var/log/messages:
-
-Aug  4 12:52:41 terra kernel: Northbridge status 9405c00000000a13
-Aug  4 12:52:41 terra kernel: GART error 3
-Aug  4 12:52:41 terra kernel: Lost an northbridge error
-Aug  4 12:52:41 terra kernel: NB error address 00000000002e0310
-Aug  4 12:53:11 terra kernel: Northbridge status 9405c00000000a13
-Aug  4 12:53:11 terra kernel: GART error 3
-Aug  4 12:53:11 terra kernel: Lost an northbridge error
-Aug  4 12:53:11 terra kernel: NB error address 0000000004432320
-
-and so forth. This also occurred under SuSE Linux 8.2 Beta x86_64 and it
-even occurs while running the Red Hat installer (isolinux).
-
-Otherwise the system seems to run fine. Can anyone shed some light on
-what this means, and how concerned should I be? Is it fixable?
-
-I thought GART referred to the AGP aperture - this system doesn't
-actually have an AGP port, could that be the cause of this? (It has an
-onboard ATI Rage XL chip)
-
-# uname -a
-Linux terra 2.4.21-1.1931.2.349.2.2.entsmp #1 SMP Fri Jul 18 00:06:19
-EDT 2003 x86_64 x86_64 x86_64 GNU/Linux
-
-The system also has an Adaptec 2120S scsi raid card.
-
-cheers,
-
--Simon
-
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+--- a/drivers/ide/ide-cd.c	Mon Jul 28 05:39:23 2003
++++ b/drivers/ide/ide-cd.c	Mon Aug  4 03:44:18 2003
+@@ -3228,7 +3228,7 @@
+ }
+ 
+ static
+-unsigned long ide_cdrom_capacity (ide_drive_t *drive)
++sector_t ide_cdrom_capacity (ide_drive_t *drive)
+ {
+ 	unsigned long capacity;
+ 
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	Mon Jul 28 05:39:23 2003
++++ b/drivers/ide/ide-disk.c	Mon Aug  4 04:02:21 2003
+@@ -1065,6 +1065,13 @@
+ 
+ #endif /* CONFIG_IDEDISK_STROKE */
+ 
++static unsigned long long
++sectors_to_MB(unsigned long long n) {
++	n <<= 9;			/* make it bytes */
++	do_div(n, 1000000);	 /* make it MB */
++	return n;
++}
++
+ /*
+  * Tests if the drive supports Host Protected Area feature.
+  * Returns true if supported, false otherwise.
+@@ -1165,7 +1172,7 @@
+ 	}
+ }
+ 
+-static unsigned long idedisk_capacity (ide_drive_t *drive)
++static sector_t idedisk_capacity (ide_drive_t *drive)
+ {
+ 	if (drive->id->cfs_enable_2 & 0x0400)
+ 		return (drive->capacity48 - drive->sect0);
+@@ -1564,7 +1571,7 @@
+ static void idedisk_setup (ide_drive_t *drive)
+ {
+ 	struct hd_driveid *id = drive->id;
+-	unsigned long capacity;
++	unsigned long long capacity;
+ 
+ 	idedisk_add_settings(drive);
+ 
+@@ -1628,14 +1635,23 @@
+ 	 * by correcting bios_cyls:
+ 	 */
+ 	capacity = idedisk_capacity (drive);
+-	if ((capacity >= (drive->bios_cyl * drive->bios_sect * drive->bios_head)) &&
+-	    (!drive->forced_geom) && drive->bios_sect && drive->bios_head)
+-		drive->bios_cyl = (capacity / drive->bios_sect) / drive->bios_head;
+-	printk (KERN_INFO "%s: %ld sectors", drive->name, capacity);
+-
+-	/* Give size in megabytes (MB), not mebibytes (MiB). */
+-	/* We compute the exact rounded value, avoiding overflow. */
+-	printk (" (%ld MB)", (capacity - capacity/625 + 974)/1950);
++	if (!drive->forced_geom && drive->bios_sect && drive->bios_head) {
++		unsigned int cap0 = capacity;   /* truncate to 32 bits */
++		unsigned int cylsz, cyl;
++
++		if (cap0 != capacity)
++			drive->bios_cyl = 65535;
++		else {
++			cylsz = drive->bios_sect * drive->bios_head;
++			cyl = cap0 / cylsz;
++			if (cyl > 65535)
++				cyl = 65535;
++			if (cyl > drive->bios_cyl)
++				drive->bios_cyl = cyl;
++		}
++	}
++	printk(KERN_INFO "%s: %llu sectors (%llu MB)",
++	       drive->name, capacity, sectors_to_MB(capacity));
+ 
+ 	/* Only print cache size when it was specified */
+ 	if (id->buf_size)
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
+--- a/drivers/ide/ide-floppy.c	Sun Jun 15 01:40:55 2003
++++ b/drivers/ide/ide-floppy.c	Mon Aug  4 03:41:20 2003
+@@ -1626,7 +1626,7 @@
+ /*
+  *	Return the current floppy capacity to ide.c.
+  */
+-static unsigned long idefloppy_capacity (ide_drive_t *drive)
++static sector_t idefloppy_capacity (ide_drive_t *drive)
+ {
+ 	idefloppy_floppy_t *floppy = drive->driver_data;
+ 	unsigned long capacity = floppy->blocks * floppy->bs_factor;
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c	Thu Jul  3 09:26:43 2003
++++ b/drivers/ide/ide.c	Mon Aug  4 03:45:37 2003
+@@ -351,7 +351,7 @@
+  * current_capacity() returns the capacity (in sectors) of a drive
+  * according to its current geometry/LBA settings.
+  */
+-unsigned long current_capacity (ide_drive_t *drive)
++sector_t current_capacity (ide_drive_t *drive)
+ {
+ 	if (!drive->present)
+ 		return 0;
+@@ -2391,7 +2391,7 @@
+ {
+ }
+ 
+-static unsigned long default_capacity (ide_drive_t *drive)
++static sector_t default_capacity (ide_drive_t *drive)
+ {
+ 	return 0x7fffffff;
+ }
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h	Mon Jul 28 05:39:35 2003
++++ b/include/linux/ide.h	Mon Aug  4 03:48:04 2003
+@@ -1225,7 +1225,7 @@
+ 	ide_startstop_t	(*abort)(ide_drive_t *, const char *);
+ 	int		(*ioctl)(ide_drive_t *, struct inode *, struct file *, unsigned int, unsigned long);
+ 	void		(*pre_reset)(ide_drive_t *);
+-	unsigned long	(*capacity)(ide_drive_t *);
++	sector_t	(*capacity)(ide_drive_t *);
+ 	ide_startstop_t	(*special)(ide_drive_t *);
+ 	ide_proc_entry_t	*proc;
+ 	int		(*attach)(ide_drive_t *);
+@@ -1358,7 +1358,7 @@
+ /*
+  * Return the current idea about the total capacity of this drive.
+  */
+-extern unsigned long current_capacity (ide_drive_t *drive);
++extern sector_t current_capacity (ide_drive_t *drive);
+ 
+ /*
+  * Start a reset operation for an IDE interface.

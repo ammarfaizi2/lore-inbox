@@ -1,116 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273796AbRJ0RvR>; Sat, 27 Oct 2001 13:51:17 -0400
+	id <S274194AbRJ0SAc>; Sat, 27 Oct 2001 14:00:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273854AbRJ0RvI>; Sat, 27 Oct 2001 13:51:08 -0400
-Received: from femail23.sdc1.sfba.home.com ([24.0.95.148]:43949 "EHLO
-	femail23.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S273796AbRJ0Ru5>; Sat, 27 Oct 2001 13:50:57 -0400
-Message-ID: <3BDAF334.93A1B465@home.com>
-Date: Sat, 27 Oct 2001 13:47:32 -0400
-From: John Gluck <jgluckca@home.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roel Teuwen <Roel.Teuwen@advalvas.be>
-CC: Rob MacGregor <rob_macgregor@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.13 and ACPI not working (HP Omnibook 6000)
-In-Reply-To: <F59K4GB7DEEbRQwGF5u0001425c@hotmail.com> <1004178427.3496.5.camel@omniroel>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274299AbRJ0SAW>; Sat, 27 Oct 2001 14:00:22 -0400
+Received: from calais.pt.lu ([194.154.192.52]:47493 "EHLO calais.pt.lu")
+	by vger.kernel.org with ESMTP id <S274194AbRJ0SAF>;
+	Sat, 27 Oct 2001 14:00:05 -0400
+Message-Id: <200110271800.f9RI0M803440@hitchhiker.org.lu>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
+Reply-To: alain@linux.lu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Re: Poor floppy performance in kernel 2.4.10 
+In-Reply-To: Your message of "Sat, 27 Oct 2001 13:42:32 EDT."
+             <Pine.GSO.4.21.0110271320540.21545-100000@weyl.math.psu.edu> 
+Date: Sat, 27 Oct 2001 20:00:22 +0200
+From: Alain Knaff <Alain.Knaff@hitchhiker.org.lu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-
-Something seems to be broken, I had it working in 2.4.10 and 2.4.9
-With 2.4.13 on boot I get:
-
-Oct 24 15:09:19 tachyon kernel: Total of 2 processors activated (1798.96 BogoMIPS).
-Oct 24 15:09:19 tachyon kernel: ...changing IO-APIC physical APIC ID to 2 ... ok.
-Oct 24 15:09:19 tachyon kernel: ..TIMER: vector=0x31 pin1=2 pin2=0
-Oct 24 15:09:19 tachyon kernel: testing the IO APIC.......................
-Oct 24 15:09:19 tachyon kernel: .................................... done.
-
-[snipped irrelevant stuff]
-
-Oct 24 15:09:19 tachyon kernel: ACPI: Core Subsystem version [20010831]
-Oct 24 15:09:19 tachyon kernel: ACPI: Subsystem enabled
-
-When I try to start acpid I get:
-
-john:~/download/lexmark> sudo /sbin/acpid
-Password:
-acpid: ACPI is not present
-john:~/download/lexmark> uname -a
-Linux tachyon 2.4.13 #2 SMP Wed Oct 24 13:40:05 EDT 2001 i686 unknown
-
-John
-
-Roel Teuwen wrote:
-
-> Hi,
 >
-> I am seeing the exact same problem on my OB 6000, I think it's because
-> of a buggy bios. I upgraded to the latest version (1.80 [1 okt 2001])
-> but this doesn't help.
 >
-> regards,
+>On Sat, 27 Oct 2001, Alain Knaff wrote:
 >
-> Roel
+>> Cursory examination of floppy.c (as an example of a block device
+>> driver) showed that bdops are also registered using devfs_register and
+>> register_disk (what's THAT for?!? Floppies don't have partitions...)
 >
-> On Thu, 2001-10-25 at 14:56, Rob MacGregor wrote:
-> > System is an HP Omnibook 6000 laptop, using the provided BIOS.  Kernel
-> > 2.4.13 with ACPI enabled as a module.
-> >
-> > On boot, with the debug enabled I get:
-> >
-> > tbxface-0107 [01] Acpi_load_tables      : ACPI Tables successfully loaded
-> > Parsing
-> > Methods:............................................................................................................................................................................................................................................................................................................
-> > 300 Control Methods found and parsed (1046 nodes total)
-> > ACPI Namespace successfully loaded at root c02d03c0
-> > ACPI: Core Subsystem version [20010831]
-> > evregion-0217 [22] Ev_address_space_dispa: no handler for region(c184cea8)
-> > [PCIConfig]
-> > exfldio-0222 [21] Ex_read_field_datum   : Region PCIConfig(2) has no handler
-> > evregion-0217 [22] Ev_address_space_dispa: no handler for region(c184cea8)
-> > [PCIConfig]
-> > exfldio-0597 [21] Ex_write_field_datum  : **** Region type PCIConfig(2) does
-> > not have a handler
-> > ACPI: Subsystem enable failed
-> >
-> > This is certainly an improvement over previous kernels, however I'd like to
-> > get it working.  Any thoughts or is this in the hands of those who
-> > understand such things?
-> >
-> > Thanks.
-> >
-> > Oh, I'm not on the list, but I will see any replies on the archive.  If you
-> > want a faster response you'll need to CC me.
-> >
-> > --
-> > Rob  |  Please ask questions the smart way:
-> >                 http://www.tuxedo.org/~esr/faqs/smart-questions.html
-> >
-> >     Please don't CC me on anything sent to mailing lists or send
-> >         me email directly unless it's a privacy issue, thanks.
-> >
-> >
-> >
-> > _________________________________________________________________
-> > Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>Actually, _that_ is Right Thing(tm) - it should allocate a structure that
+>would contain pointer to methods table and would be controlled by
+>driver.  devfs_register() would get that + prefered name, etc. so that
+>we had a common object.  Then driver would have a point where it could
+>tell the rest of kernel that disk is gone.
 
+Register_disk seems to be related to partitions... and is yet another
+place where floppy_fops is handed out. And it doesn't seem to have a
+corresponding unregister_disk function, so this worries me
+somewhat. Who did that, and why didn't he contact me?
+
+>> Apparently, devfs_register allows a direct mapping from the device's
+>> name to its driver, without going through its major/minor number.
+>> 
+>> Thus, a possible solution would be to equip all possible paths leading
+>> to the driver's block_device_operations with correct "teardown"
+>> function. Thus, not only unregister_blkdev would dump the cache, but
+>> also devfs_unregister (maybe near the place in unregister() where
+>> de->u.fcb.ops = NULL is done?). Best make this call generic, such as
+>
+>No go.  We can have situations where some of uses come from devfs and
+>some - from normal device nodes.  struct block_device will be the same.
+
+Ok. So maybe some kind of counter? When it drops to zero, dump the
+cache?
+
+>> All this begs of course the following question: what kind of
+>> idnetifier does the buffer cache code actually use to refer to the
+>> block device, if there is no longer a major?
+>
+>Right now - major:minor, in 2.5 - struct block_device *.
+
+Good. But then, what's the point of devfs=only ? I assumed this was
+intended for situations where we had a direct mapping from filename to
+device.
+
+Ok, so in 2.5 will be possible with struct block_device, and the
+option will make sense.
+
+So, in the interest of stability, shouldn't we (temporarily) disable
+this devfs=only stuff in 2.4 ?
+
+>> We could either use bdev->bd_sem (awkward, as many drivers implement
+>> multiple bdev's), or a new per-major device lock to protect that
+>> section.
+>
+>I'd rather have refcount raised by get_blkfops().  Again, that code path
+>is not a problem.  devfs_get_ops() is.
+> 
+>> unregister_blkdev would need to acquire the same lock while zero-ing
+>> blkdevs[major].bdops.
+>
+>We could put bdev on per-major cyclic list and have it killed on
+>unregister_blkdev().  _That_ is easy.  The trouble being, with devfs
+>we don't have a single removal point.  Sometimes it's still
+>unregister_blkdev(), sometimes - crapload of devfs_unregister() for
+>each minor, sometimes - both.  Worse yet, we have one more place that
+>holds pointer to block_device_operations - gendisk.  Also used by
+>devfs (and nothing else) and logics is, to put it mildly, fuzzy.
+>
+>Frankly, at that point I would prefer to remove the code in devfs that
+>tries to provide bdev methods by devfs entry.  Rationale:
+>	a) it's fucked up beyond any repair
+>	b) it will be useless until we switch buffer cache to block_device *
+>	c) we will need to change that logics anyway - as it is the thing is
+>inherently racy
+>	d) right now it stands in the way of long-living cache stuff _and_
+>introduces an oopsable race between mount and rmmod.
+>
+
+I agree. We could maybe just #ifdef those methods out, so that we
+could easily add them back in 2.5 once struct block_device is in
+place.
+
+Regards,
+
+Alain

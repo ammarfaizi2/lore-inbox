@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132310AbRAKVOR>; Thu, 11 Jan 2001 16:14:17 -0500
+	id <S129511AbRAKVbm>; Thu, 11 Jan 2001 16:31:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131768AbRAKVOH>; Thu, 11 Jan 2001 16:14:07 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:19190 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S132310AbRAKVOA>; Thu, 11 Jan 2001 16:14:00 -0500
-Date: Thu, 11 Jan 2001 17:26:46 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Paul Powell <moloch16@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux driver:  __get_free_pages()
-Message-ID: <20010111172646.C9711@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Paul Powell <moloch16@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010111203933.17385.qmail@web119.yahoomail.com> <Pine.LNX.3.95.1010111154554.379A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+	id <S132957AbRAKVbc>; Thu, 11 Jan 2001 16:31:32 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24708 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129511AbRAKVb2>;
+	Thu, 11 Jan 2001 16:31:28 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1010111154554.379A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Jan 11, 2001 at 04:01:08PM -0500
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
+Message-ID: <14942.9759.730641.804611@pizda.ninka.net>
+Date: Thu, 11 Jan 2001 13:31:11 -0800 (PST)
+To: nigel@nrg.org
+Cc: andrewm@uow.edu.au, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org>
+In-Reply-To: <200101110519.VAA02784@pizda.ninka.net>
+	<Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Jan 11, 2001 at 04:01:08PM -0500, Richard B. Johnson escreveu:
-> If all you need is a kernel buffer to store the stuff that will be
-> written to NVRAM, then just use kmalloc(). It is virtual and will
 
-s/kmalloc/vmalloc/
+Nigel Gamble writes:
+ > That's why MontaVista's kernel preemption patch uses sleeping mutex
+ > locks instead of spinlocks for the long held locks.
 
-> seem contiguous to your driver.
+Anyone who uses sleeping mutex locks is asking for trouble.  Priority
+inversion is an issue I dearly hope we never have to deal with in the
+Linux kernel, and sleeping SMP mutex locks lead to exactly this kind
+of problem.
 
-- Arnaldo
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

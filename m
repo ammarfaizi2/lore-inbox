@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264228AbTCXOJE>; Mon, 24 Mar 2003 09:09:04 -0500
+	id <S264229AbTCXOKC>; Mon, 24 Mar 2003 09:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264227AbTCXOJE>; Mon, 24 Mar 2003 09:09:04 -0500
-Received: from main.gmane.org ([80.91.224.249]:202 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S264228AbTCXOJD>;
-	Mon, 24 Mar 2003 09:09:03 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Metzler <ametzler@logic.univie.ac.at>
-Subject: Re: [2.4.21-pre5] compile error in ip_conntrack_ftp.c:440:
-Date: Mon, 24 Mar 2003 14:18:18 +0000 (UTC)
-Message-ID: <b5n43a$djn$1@main.gmane.org>
-References: <b44s65$pdl$1@main.gmane.org> <61rskxlnt.ln2@elmicha.333200002251-0001.dialin.t-online.de>
-X-Complaints-To: usenet@main.gmane.org
-X-Archive: encrypt
-User-Agent: tin/1.5.17-20030309 ("Bubbles") (UNIX) (Linux/2.4.21-pre4 (i686))
+	id <S264230AbTCXOKC>; Mon, 24 Mar 2003 09:10:02 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:5269 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S264229AbTCXOKB>;
+	Mon, 24 Mar 2003 09:10:01 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Date: Mon, 24 Mar 2003 15:20:42 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [Fwd: RE: kernel compile on phoebe 3]
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <5874B87FB9@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Mauch <michael.mauch@gmx.de> wrote:
-> Andreas Metzler <lkml-2003-03@downhill.at.eu.org> wrote:
->> Since iirc 2.4.20 I get this error when compiling a kernel:
->> |-------------------
->> | make[2]: Entering directory `/tmp/KERNEL/linux-2.4.20-pre5/net/ipv4/netfilter'
->> | make[2]: Circular /tmp/KERNEL/linux-2.4.20-pre5/include/linux/netfilter_ipv4/ip_conntrack_helper.h <- /tmp/KERNEL/linux-2.4.20-pre5/include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped.
->> | ld -m elf_i386 -r -o ip_conntrack.o ip_conntrack_standalone.o ip_conntrack_core.o ip_conntrack_proto_generic.o ip_conntrack_proto_tcp.o ip_conntrack_proto_udp.o ip_conntrack_proto_icmp.o
->> | gcc -D__KERNEL__ -I/tmp/KERNEL/linux-2.4.20-pre5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=ip_conntrack_ftp  -c -o ip_conntrack_ftp.o ip_conntrack_ftp.c
->> | ip_conntrack_ftp.c:440: parse error before `this_object_must_be_defined_as_export_objs_in_the_Makefile'
-[...]
->> CONFIG_IP_NF_CONNTRACK=m
->> CONFIG_IP_NF_FTP=m
->> CONFIG_IP_NF_IRC=m
->> CONFIG_IP_NF_IPTABLES=m
- 
-> I got the same error. With
- 
-> CONFIG_IP_NF_MATCH_CONNTRACK=m
- 
-> (Connection tracking match support), the error disappears.
+On 24 Mar 03 at 15:09, Felipe Alfaro Solana wrote:
+> 
+> For some reason I don't get /proc/ksyms file with 2.5 kernels I compile, and
+> that causes rc.sysinit to set /proc/sys/kernel/modprobe to /bin/true. What
+> option enables /proc/ksyms creation?
 
-Hello,
-This fixes neither the example I posted (add this line to initial
-minimal config, make menuconfig, make clean dep, make modules), nor the
-real world example
-
-http://www.logic.univie.ac.at/~ametzler/2.4.20.breaks.config
-               cu andreas
+None. /proc/ksyms is gone. Fix initscript to not touch 
+/proc/sys/kernel/modprobe, I see no reason why it should touch it unless
+you want to kill modprobe functionality - and then it should depend on
+some configuration setting and not on existence of /proc/ksyms.
+                                                          Petr Vandrovec
+                                                          
 

@@ -1,78 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272430AbTHNPY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 11:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272432AbTHNPY5
+	id S272417AbTHNPTq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 11:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272423AbTHNPTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 11:24:57 -0400
-Received: from law10-f6.law10.hotmail.com ([64.4.15.6]:8208 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S272430AbTHNPYy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 11:24:54 -0400
-X-Originating-IP: [217.158.179.18]
-X-Originating-Email: [allymcw2000@hotmail.com]
-From: "Alasdair McWilliam" <allymcw2000@hotmail.com>
-To: m.c.p@wolk-project.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Unresolved symbols of _mmx_memcpy in modules on an Athlon XP system
-Date: Thu, 14 Aug 2003 16:24:52 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law10-F6vjQN0hIQFBR0004a024@hotmail.com>
-X-OriginalArrivalTime: 14 Aug 2003 15:24:52.0825 (UTC) FILETIME=[356A1C90:01C36278]
+	Thu, 14 Aug 2003 11:19:46 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:51719 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S272417AbTHNPTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 11:19:44 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test3: extra ttyS in /sys/class/tty
+Date: Thu, 14 Aug 2003 18:55:31 +0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308141855.31137.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+{pts/1}% dmesg | grep ttyS
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+ttyS2 at I/O 0xd000 (irq = 9) is a 16550A
 
-Thanks for making the patch - unfortunately it had no effect. :(
+{pts/1}% l -d /sys/class/tty/ttyS*
+/sys/class/tty/ttyS0/  /sys/class/tty/ttyS1/  /sys/class/tty/ttyS2/
+/sys/class/tty/ttyS3/
+{pts/1}% cat /sys/class/tty/ttyS*/dev
+4:64
+4:65
+4:66
+4:67
 
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-rc2/kernel/drivers/block/floppy.o
-depmod:         _mmx_memcpy
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-rc2/kernel/drivers/block/loop.o
-depmod:         _mmx_memcpy
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-rc2/kernel/drivers/cdrom/cdrom.o
-depmod:         _mmx_memcpy
-depmod: *** Unresolved symbols in 
-/lib/modules/2.4.22-rc2/kernel/drivers/ide/ide-cd.o
-depmod:         _mmx_memcpy
+not that I find sysfs that useful for cdevs in general but I am just curiouos 
+- where does it come from?
 
+I have irtty_sir loaded if it matters.
 
-... etc.
-
-Alasdair
-
-
->From: Marc-Christian Petersen <m.c.p@wolk-project.de>
->To: "Alasdair McWilliam" <allymcw2000@hotmail.com>,   
->linux-kernel@vger.kernel.org
->Subject: Re: PROBLEM: Unresolved symbols of _mmx_memcpy in modules on an 
->Athlon XP system
->Date: Thu, 14 Aug 2003 04:46:45 +0200
->
->On Thursday 14 August 2003 03:02, Alasdair McWilliam wrote:
->
->Hi Alasdair,
->
-> > 1. PROBLEM: Unresolved symbols of _mmx_memcpy in modules on an Athlon XP
-> > 8. I've done research and found that people have been experiencing this
-> > problem from linux-2.4.0-test releases. Can someone please fix it?! Or
-> > point me to a patch that works? :( The server's running on a chunky 
->kernel
-> > optimised for the old K6-II (i586).
->
->urgs, for that long? surprising :)
->
->Could you please try attached patch? Completely untested and just a guess.
->Please report success/failure. Thanks
->
->ciao, Marc
-><< mmx_memcpy-fix.patch >>
-
-_________________________________________________________________
-Sign-up for a FREE BT Broadband connection today! 
-http://www.msn.co.uk/specials/btbroadband
-
+-andrey

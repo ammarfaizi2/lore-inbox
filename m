@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbUKPQtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbUKPQwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbUKPQtL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 11:49:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUKPQsg
+	id S262047AbUKPQwc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 11:52:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUKPQvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 11:48:36 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:26783 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S262041AbUKPQpd (ORCPT
+	Tue, 16 Nov 2004 11:51:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32904 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262042AbUKPQsU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 11:45:33 -0500
-To: greg@kroah.com
-CC: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20041116163314.GA6264@kroah.com> (message from Greg KH on Tue,
-	16 Nov 2004 08:33:14 -0800)
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com>
-Message-Id: <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 16 Nov 2004 17:45:25 +0100
+	Tue, 16 Nov 2004 11:48:20 -0500
+Date: Tue, 16 Nov 2004 11:48:10 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Kaigai Kohei <kaigai@ak.jp.nec.com>
+Subject: Re: 2.6.10-rc2-mm1 - SELinux atomic_dec_and_test() bug
+In-Reply-To: <20041116014213.2128aca9.akpm@osdl.org>
+Message-ID: <Xine.LNX.4.44.0411161136080.26462-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well, 'Documentation/devices.txt' says:
-> > 
-> >   THE DEVICE REGISTRY IS OFFICIALLY FROZEN FOR LINUS TORVALDS' KERNEL
-> >   TREE.  At Linus' request, no more allocations will be made official
-> >   for Linus' kernel tree; the 3 June 2001 version of this list is the
-> >   official final version of this registry.
-> 
-> Not true, you can get new numbers.
+Atomic underflow debugging in this kernel exposed a bug in the AVC RCU
+code, fix below.  The effect of this bug would be delayed node
+reclamation.
 
-I don't understand, what's the reason for this warning then?  To scare
-away developers wanting to allocate lots of device numbers?
+Signed-off-by: James Morris <jmorris@redhat.com>
 
-> Don't put things that should be in /dev into /proc, not allowed.
-> 
-> > So placing it in /proc doesn't seem to me such a bad idea.
-> 
-> No.  Actually, put it in sysfs, and then udev will create your /dev node
-> for you automatically.  And in sysfs you can put your other stuff
-> (version, etc.) which is the proper place for it.
+---
 
-I'll do that.
-
-Thanks,
-Miklos
+diff -purN -X dontdiff linux-2.6.10-rc2-mm1.o/security/selinux/avc.c linux-2.6.10-rc2-mm1.w/security/selinux/avc.c
+--- linux-2.6.10-rc2-mm1.o/security/selinux/avc.c	2004-11-16 10:57:16.000000000 -0500
++++ linux-2.6.10-rc2-mm1.w/security/selinux/avc.c	2004-11-16 11:27:19.000000000 -0500
+@@ -269,7 +269,7 @@ static inline int avc_reclaim_node(void)
+ 			continue;
+ 
+ 		list_for_each_entry(node, &avc_cache.slots[hvalue], list) {
+-			if (!atomic_dec_and_test(&node->ae.used)) {
++			if (atomic_dec_and_test(&node->ae.used)) {
+ 				/* Recently Unused */
+ 				avc_node_delete(node);
+ 				avc_cache_stats_incr(reclaims);
 

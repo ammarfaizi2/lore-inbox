@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbREPEJB>; Wed, 16 May 2001 00:09:01 -0400
+	id <S261785AbREPEUC>; Wed, 16 May 2001 00:20:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261506AbREPEIv>; Wed, 16 May 2001 00:08:51 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:18638 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S261427AbREPEIm>; Wed, 16 May 2001 00:08:42 -0400
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE29F@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'jalaja devi'" <jala_74@yahoo.com>,
-        Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: RE: kernel2.2.x to kernel2.4.x
-Date: Tue, 15 May 2001 21:08:35 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261786AbREPETw>; Wed, 16 May 2001 00:19:52 -0400
+Received: from mailproxy.de.uu.net ([192.76.144.34]:43501 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S261785AbREPETj>; Wed, 16 May 2001 00:19:39 -0400
+Date: Wed, 16 May 2001 06:19:26 +0200 (MET DST)
+Message-Id: <200105160419.GAA11958@mailproxy.de.uu.net>
+From: Tim Jansen <tim@tjansen.de>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re:  Re: LANANA: To Pending Device Number Registrants
+X-Mailer: Top Gun Postman version 1.2 beta for USR PalmPilot
+X-URL: http://www.isaac.cs.berkeley.edu/pilot/TGpostman/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: jalaja devi [mailto:jala_74@yahoo.com]
-> 
-> I tried porting a network driver from kernel2.2.x to
-> 2.4. When i tried loading the driver, it shows the
-> unresolved symbols for
-> copy_to_user_ret
-> outs
-> __bad_udelay
-> 
-> Could anyone please tell me the corresponding fxns in 2.4.
+Miles Lane <miles@megapathdsl.net> wrote on 15/5/01 17:41:
 
-You need to "unroll" copy_to_user_ret().  There is no
-corresponding macro.  Just test the condition and return
--EFAULT (?; not looking at the source code) if it's invalid.
+>Does your approach solve 
+>the problem of USB devices, 
+>like mice, that
+>don't have device ID's of any 
+>sort, where topology is the 
+>only way to 
+>distinguish them?  
 
-Don't know about "outs".
+yes, that's what the location part is for.
 
-__bad_udelay means that some module used a too-large-parameter-value
-to udelay().  Linker should be telling you which module.
-
-~Randy
+Bye...
 

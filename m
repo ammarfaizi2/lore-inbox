@@ -1,82 +1,76 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155920AbPKWXAu>; Tue, 23 Nov 1999 18:00:50 -0500
-Received: by vger.rutgers.edu id <S155908AbPKWXAk>; Tue, 23 Nov 1999 18:00:40 -0500
-Received: from shaft.engin.umich.edu ([141.213.33.85]:4076 "EHLO shaft.engin.umich.edu") by vger.rutgers.edu with ESMTP id <S155906AbPKWXAb>; Tue, 23 Nov 1999 18:00:31 -0500
-Date: Tue, 23 Nov 1999 18:00:30 -0500 (EST)
-From: Chris Wing <wingc@engin.umich.edu>
-To: linux-kernel@vger.rutgers.edu
-Subject: [PATCH] 32-bit UID support for 2.3.29pre3 (updated)
-Message-ID: <Pine.LNX.4.10.9911231719340.16755-100000@shaft.engin.umich.edu>
+Received: by vger.rutgers.edu via listexpand id <S156023AbPKXD12>; Tue, 23 Nov 1999 22:27:28 -0500
+Received: by vger.rutgers.edu id <S155958AbPKXDV4>; Tue, 23 Nov 1999 22:21:56 -0500
+Received: from [202.96.135.132] ([202.96.135.132]:44694 "EHLO mail.huawei.com.cn") by vger.rutgers.edu with ESMTP id <S155964AbPKXDPS>; Tue, 23 Nov 1999 22:15:18 -0500
+Date: Mon, 1 Nov 1999 02:15:56 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: hechengdong <dony.he@huawei.com.cn>
+Cc: linux-kernel@vger.rutgers.edu
+Subject: Re: structure dentry help...
+In-Reply-To: <381D3575.D3DA089A@huawei.com.cn>
+Message-ID: <Pine.GSO.4.10.9911010154030.18168-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi. I have another update for the Linux 32-bit UID support patches. These
-patches are against the latest development kernel version.
-(pre-patch-2.3.29-3)
-
-This patch includes more IPC changes, and a "final" proposal for new
-msqid_ds, semid_ds, and shmid_ds structures. Now there is padding space
-available on all platforms for:
-	32-bit pid_t
-	64-bit time_t
-	32-bit mode_t
-	32-bit 'seq' in ipc_perm
-	32-bit or 64-bit message sizes for message queues
-
-The ipc_perm structure is now also broken out architecture-by-architecture
-into include/asm-[arch]/ipc.h, along with the msqid_ds, semid_ds, and
-shmid_ds structures.
 
 
-The patches are available at:
+On Mon, 1 Nov 1999, hechengdong wrote:
 
-http://www.engin.umich.edu/caen/systems/Linux/code/misc/2.3/19991123b/
+> Hi,
+> 
+>     Now I am learning linux kernel sources. Can anyone point out to me
+> the detailed information about _DENTRY_ structure? I can not guess
+> what's the actual meaning of its member, such as d_parent,d_mounts,
+> d_covers etc.
 
+It's slightly messy, but the current layout looks so:
+	d_parent: points to the parent node in the tree.
+	d_subdirs: anchor of the cyclic list that goes through all
+children
+	d_children: that's where the aforementioned list sits (i.e we
+have  parent's d_subdirs <-> 1st child's d_children <-> 2nd child's
+d_children <-> ... <-> parent's d_subdirs).
 
-Changes in this version:
-	- struct ipc_perm is now broken out on an architecture-by-
-	  architecture basis, pad space is now included for a 32-bit
-	  mode_t and seq on all architectures.
+	d_mounts: who overlaps it (root of the tree mounted atop of our
+dentry) _or_ dentry itself if it's not a mountpoint; in other words it's a
+step upwards.
+	d_covers: opposite.
 
-	- include/asm-m68k/shm.h file was clobbered by previous patch;
-	  now fixed
+	d_inode: inode corresponding to dentry. May be NULL (for negative
+dentries).
+	d_alias: cyclic list of dentries that have the same d_inode. It's
+anchored in the d_inode->i_dentry. This looks like d_parent/d_children/d_subdirs
+structure. Warning: it's badly abused in several filesystems and it is
+going to change. d_inode will stay as it is, but you will be safer if
+you'll stay out of the d_alias (and i_dentry in struct inode).
 
-	- sem_perm.seq field now copied properly by semctl() and
-	  IPC_OLDSTAT, SEM_OLDSTAT
+	d_hash: hash chains. Anchored in hash table.
 
+	d_count: reference counter. Number of pointers to dentry. Pointers
+from cyclic lists do not count.
 
-As always, the patches are tested and working on i386.
+	d_name: name of dentry.
 
-In order to use 32-bit UIDs you need the following patches from the above
-URL:
-	linux-acct.patch
-	linux-arch-independ.patch
-	linux-ext2.patch
-	linux-ipc.patch
-	linux-filesystems.patch
+	d_op: methods.
 
-as well as a patch for your particular architecture:
+	The rest: bloody mess.
 
-	linux-alpha.patch
-	linux-arm.patch
-	linux-i386.patch
-	linux-m68k.patch
-	linux-mips.patch
-	linux-ppc.patch
-	linux-sh.patch
-	linux-sparc.patch
-	linux-sparc64.patch
-
-
-Still broken with these patches:
-	- sparc64 architecture.
-
-
-Thanks,
-
-Chris Wing
-wingc@engin.umich.edu
+Notice that:
+	a) we can't handle more than one dentry for a directory. VFS does
+not allow that, partially due to the d_alias abuse in NFS and friends.
+	b) _all_ work with dcache still requires big lock. Again, fixing
+that will require cleanup of d_alias/i_dentry mess.
+	c) we have only two states for dentry - hashed and unhashed.
+Life would be much easier if we had finer separation (e.g. special case
+for dentry in process of lookup()). To be changed.
+	d) all locking is done on inode level. It makes race prevention
+much harder.
+	e) cached_lookup() acts funny if we find a directory dentry _and_
+attempt to revalidate it gives negative. Compare with the case of
+non-directory. Handling of invalidation is tied with the d_alias/i_dentry
+problem - same offenders hold the thing. It will take a large and nasty
+rewrite.
 
 
 -

@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVCYLTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVCYL3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVCYLTb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 06:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVCYLTb
+	id S261604AbVCYL3p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 06:29:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVCYL3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 06:19:31 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:64147 "HELO
+	Fri, 25 Mar 2005 06:29:45 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:17556 "HELO
 	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261602AbVCYLTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 06:19:18 -0500
+	id S261604AbVCYL3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 06:29:38 -0500
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Li Shaohua <shaohua.li@intel.com>
-Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re:2.6.12-rc1-mm1: Kernel BUG at pci:389)
-Date: Fri, 25 Mar 2005 12:19:23 +0100
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while resuming device drivers
+Date: Fri, 25 Mar 2005 12:29:47 +0100
 User-Agent: KMail/1.7.1
-References: <1111626180.17317.921.camel@d845pe> <200503241442.14604.rjw@sisk.pl> <1111711799.23113.4.camel@sli10-desk.sh.intel.com>
-In-Reply-To: <1111711799.23113.4.camel@sli10-desk.sh.intel.com>
-Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+       Li Shaohua <shaohua.li@intel.com>, Pavel Machek <pavel@suse.cz>
+References: <20050325002154.335c6b0b.akpm@osdl.org>
+In-Reply-To: <20050325002154.335c6b0b.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200503251219.24202.rjw@sisk.pl>
+Message-Id: <200503251229.47705.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Friday, 25 of March 2005 01:49, you wrote:
-]--snip--[
-> > > I actually added such calls in uhci, ehci and yenta. It's ok for S3 (and
-> > > definitely required for S3). Unclear if it's ok for S4, so please try
-> > > revert the patch.
-> > 
-> > 2.6.11-rc1-mm1 with the patch reverted works fine. :-)
-> So just remove the pci_enable/disable_device call in the driver makes
-> the system work?
+On Friday, 25 of March 2005 09:21, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm3/
+> 
+> - Mainly a bunch of fixes relative to 2.6.12-rc1-mm2.
 
-I'm a bit confused. :-)  I'm not sure if the patch that I have reverted is related
-to pci_enable/disable_device.  It's this one:
+First, rmmod works again (thanks ;-)).
+
+> - Again, we'd like people who have had recent DRM and USB resume problems to
+>   test and report, please.
+
+My box is still hanged solid on resume (swsusp) by the drivers:
+
+ohci_hcd
+ehci_hcd
+yenta_socket
+
+possibly others, too.  To avoid this, I had to revert the following patch from
+the Len's tree:
 
 diff -Naru a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
 --- a/drivers/acpi/pci_link.c	2005-03-24 04:57:27 -08:00
@@ -123,10 +129,34 @@ diff -Naru a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
 -        .resume = irqrouter_resume,
 +        .suspend = irqrouter_suspend,
  };
-
+ 
+ 
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/03/18 16:30:29-05:00 len.brown@intel.com 
+#   [ACPI] S3 Suspend to RAM: interrupt resume fix
+#   
+#   Delete PCI Interrupt Link Device .resume method --
+#   it is the device driver's job to request interrupts,
+#   not the Link's job to remember what the devices want.
+#   
+#   This addresses the issue of attempting to run
+#   the ACPI interpreter too early in resume, when
+#   interrupts are still disabled.
+#   
+#   http://bugzilla.kernel.org/show_bug.cgi?id=3469
+#   
+#   Signed-off-by: David Shaohua Li <shaohua.li@intel.com>
+#   Signed-off-by: Len Brown <len.brown@intel.com>
+# 
+# drivers/acpi/pci_link.c
+#   2005/03/02 22:23:50-05:00 len.brown@intel.com +14 -22
+#   Delete PCI Interrupt Link .resume method
+# 
 
 Greets,
-Rafael 
+Rafael
 
 
 -- 

@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAIV60>; Tue, 9 Jan 2001 16:58:26 -0500
+	id <S130850AbRAIV7F>; Tue, 9 Jan 2001 16:59:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRAIV6P>; Tue, 9 Jan 2001 16:58:15 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:54223 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129431AbRAIV56>;
-	Tue, 9 Jan 2001 16:57:58 -0500
-Date: Tue, 9 Jan 2001 16:57:55 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Mathieu Chouquet-Stringer <mchouque@e-steel.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Floppy disk strange behavior
-In-Reply-To: <E14G6S5-0007UK-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0101091642260.9953-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129835AbRAIV6z>; Tue, 9 Jan 2001 16:58:55 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:39754
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129436AbRAIV6q>; Tue, 9 Jan 2001 16:58:46 -0500
+Date: Tue, 9 Jan 2001 22:58:38 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Patch for drivers/net/rcpci45.c updated to 2.4.0
+Message-ID: <20010109225838.C945@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
+I have updated my patch for drivers/net/rcpci45.c to 2.4.0. It can
+be found at www.jaquet.dk/kernel/patches/rcpci.patch.gz. Besides
+being rediffed it sports some more resource checks compared to the
+last one (mentioned in http://marc.theaimsgroup.com/?l=linux-kernel&
+m=97743837428000&w=2).
 
-On Tue, 9 Jan 2001, Alan Cox wrote:
+If somebody would like me to split this up for easier digestion/
+acceptance I am willing to do so. Especially if a magic incantation
+on how to split a large diff up into smaller (but line-number wise
+interwoven) diffs were provided.
+-- 
+        Rasmus(rasmus@jaquet.dk)
 
-> > dd bug. It tries to ftruncate() the output file and gets all upset when
-> > kernel refuses to truncate a block device (surprise, surprise).
-> 
-> Standards compliant but unexpected. 
-
-dd is supposed to be portable. On Solaris:
-% man ftruncate
-[snip]
-      EINVAL    The fildes argument  does  not  correspond  to  an
-               ordinary file.
- 
-> Actually its explicitly mentioned by the spec that truncate _may_ extend
-> a file but need not do so. 
-
-However, it also explicitly mentions that truncate can fail for non-regular
-file.
-
-> > Try to build GNU dd on other Unices and you will be able to trigger that
-> > bug on quite a few of them.
-> 
-> I think not
-
-Solaris, for one thing. OK, let's ask folks to test it on different systems
-and see what it gives.
-
-> > ftruncate(2) is _not_ supposed to succeed on anything other than regular
-> > files. I.e. dd(1) should not call it and expect success if file is not
-> > regular. Plain and simple...
-> 
-> 2.2 is least suprise 2.4 is most information, but misleading errno IMHO
-
-Agreed. It should be -EINVAL, not -EPERM.
-
-IMO there are two issues:
-	* dd(1) portability bug. Obviously there - ftruncate(2) is allowed
-to fail on non-regular ones. Fix is trivial and it (or something equivalent)
-should go into the fileutils.
-	* What should 2.4 do here? I would prefer -EINVAL - it is true
-(requested action is invalid for the arguments we got), it is consistent
-with other systems and it doesn't hide the failure. Data that used to
-be in the file we were trying to truncate is still there. -EPERM is
-arguably wrong here - it's not like the problem was in the lack of
-permissions.
-
+You know how dumb the average guy is?  Well, by  definition, half
+of them are even dumber than that.
+            -- J.R. "Bob" Dobbs 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

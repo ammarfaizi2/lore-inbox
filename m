@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267152AbSLKO0H>; Wed, 11 Dec 2002 09:26:07 -0500
+	id <S267171AbSLKOgf>; Wed, 11 Dec 2002 09:36:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267165AbSLKO0H>; Wed, 11 Dec 2002 09:26:07 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:43994 "EHLO
-	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267152AbSLKO0F>; Wed, 11 Dec 2002 09:26:05 -0500
-Date: Wed, 11 Dec 2002 07:26:50 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Stian Jordet <liste@jordet.nu>, Allan Duncan <allan.d@bigpond.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.51
-In-Reply-To: <m1smx4vrem.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33.0212110720540.2617-100000@maxwell.earthlink.net>
+	id <S267170AbSLKOgf>; Wed, 11 Dec 2002 09:36:35 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:11526 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267165AbSLKOge>; Wed, 11 Dec 2002 09:36:34 -0500
+Message-Id: <200212111435.gBBEYWa06788@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Kevin Corry <corryk@us.ibm.com>
+Subject: Re: [PATCH] dm.c - device-mapper I/O path fixes
+Date: Wed, 11 Dec 2002 17:24:10 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, lvm-devel@sistina.com
+References: <02121016034706.02220@boiler> <02121107165303.29515@boiler> <20021211141820.GA21461@reti>
+In-Reply-To: <20021211141820.GA21461@reti>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> How well does this driver work if you don't have a firmware
-> driver initialize the card? aka a pci option ROM.
+On 11 December 2002 12:18, Joe Thornber wrote:
+> On Wed, Dec 11, 2002 at 07:16:53AM -0600, Kevin Corry wrote:
+> > However, it might be a good idea to consider how bio's keep track
+> > of errors. When a bio is created, it is marked UPTODATE. Then, if
+> > any part of a bio takes an error, the UPTODATE flag is turned off.
+> > When the whole bio completes, if the UPTODATE flag is still on,
+> > there were no errors during the i/o. Perhaps the "error" field in
+> > "struct dm_io" could be modified to use this method of error
+> > tracking? Then we could change dec_pending() to be something like:
+> >
+> > if (error)
+> > 	clear_bit(DM_IO_UPTODATE, &io->error);
+> >
+> > with a "set_bit(DM_IO_UPTODATE, &ci.io->error);" in __bio_split().
 >
-> I am interested because with LinuxBIOS it is still a pain to run
-> PCI option roms, and I don't necessarily even have then if it a
-> motherboard with video.  There are some embedded/non-x86 platforms
-> with similar issues.
->
-> My primary interest is in the cheap ATI Rage XL chip that is on many
-> server board. PCI Vendor/device  id 1002:4752 (rev 27) from lspci.
->
-> If nothing else if some one could point me to some resources on
-> how to get the appropriate documentation from the video chipset
-> manufacturers I would be happy.
->
-> But I did want to at least point that running a system with out bios
-> initialized video was certainly among the cases that are used.
+> The problem with this is you don't keep track of the specific error
+> to later pass to bio_endio(io->bio...).  I guess it all comes down to
+> just how expensive that spin lock is; and since locking only occurs
+> when there's an error I'm happy with things as they are.
 
-Unfortunely ATI doesn't like to release info on what needs to be done to
-initialize without frimware. I really wish this was the case. I did see
-email back about someone getting a mach64 card working without firmware.
-They used a bus analysiser to do this. I will see what kind of patches I
-can dig up.
+lock();
+a = b;
+unlock();
 
-
+Store of ints is atomic anyway. You need locking if a is a larger entity,
+say, a struct.
+--
+vda

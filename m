@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRAEATy>; Thu, 4 Jan 2001 19:19:54 -0500
+	id <S129183AbRAEAcj>; Thu, 4 Jan 2001 19:32:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRAEATo>; Thu, 4 Jan 2001 19:19:44 -0500
-Received: from foobar.napster.com ([64.124.41.10]:41223 "EHLO
-	foobar.napster.com") by vger.kernel.org with ESMTP
-	id <S129387AbRAEATb>; Thu, 4 Jan 2001 19:19:31 -0500
-Message-ID: <3A55130D.BF0A954@napster.com>
-Date: Thu, 04 Jan 2001 16:19:25 -0800
-From: Jordan Mendelson <jordy@napster.com>
-Organization: Napster, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
+	id <S129267AbRAEAca>; Thu, 4 Jan 2001 19:32:30 -0500
+Received: from patan.Sun.COM ([192.18.98.43]:54146 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S129183AbRAEAcV>;
+	Thu, 4 Jan 2001 19:32:21 -0500
+Message-ID: <3A55170F.7DF3B5F2@sun.com>
+Date: Thu, 04 Jan 2001 16:36:32 -0800
+From: ludovic fernandez <ludovic.fernandez@sun.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14-15 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-pre: usbdevfs: USBDEVFS_BULK failed ...
+To: nigel@nrg.org
+CC: Roger Larsson <roger.larsson@norran.net>,
+        Daniel Phillips <phillips@innominate.de>,
+        george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
+In-Reply-To: <Pine.LNX.4.05.10101041554520.4946-100000@cosmic.nrg.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nigel Gamble wrote:
 
-I've been having some problems with the recent 2.4.x kernels with my
-digital camera. The s10sh program accesses the Canon S20 digital camera
-using libusb in conjunction with usbfs to download images. Apparently,
-incorrect data about the size of images is being sent down the line
-after the first image transfer.
+> On Thu, 4 Jan 2001, ludovic fernandez wrote:
+> > This is not the point I was trying to make .....
+> > So far we are talking about real time behaviour. This is a very interesting/exciting
+> > thing and we all agree it's a huge task which goes much more behind
+> > just having a preemptive kernel.
+>
+> You're right that it is more than just a preemptible kernel, but I don't
+> agree that it's all that huge.  But this is the third time I have worked
+> on enabling real-time behavior in unix-like OSes, so I may be biased ;-)
+>
+> > I'm not convinced that a preemptive kernel is interesting for apps using
+> > the time sharing scheduling, mainly because it is not deterministic and the
+> > price of a mmu conntext switch is still way to heavy (that's my 2 cents belief
+> > anyway).
+>
+> But as Roger pointed out, the number of extra context switches
+> introduced by having a preemptible kernel is actually very low.  If an
+> interrupt occurs while running in user mode, the context switch it may
+> cause will happen even in a non-preemptible kernel.  I think that
+> running a kernel compile for example, the number of context switches per
+> second caused by kernel preemption is probably between 1% and 10% of the
+> total context switches per second.  And it's certainly interesting to me
+> that I can listen to MP3s without interruption now, while doing a kernel
+> build!
+>
 
-Here are some messages printed to syslog:
+I agree Nigel, but as you pointed out you will have to deal with
+scheduling behaviour, interrupt latency and priority inversion to
+achieve that.
+I was just trying to point out that just having kernel preemptable threads
+will enable, for example, kswapd to adjust itself more efficiently with the
+current load of the system and what it needs to achieve (running from
+low priority to non preemptable thread). Providing a better (smoother)
+swap behaviour.
+Saying that, I definitely agree that I want/need to one day listen to
+my MP3s while building  my kernel.
 
-hub.c: USB new device connect on bus1/1, assigned device number 4
-usbserial.c: none matched
-usb.c: USB device 4 (vend/prod 0x4a9/0x3043) is not claimed by any
-active driver.
-usb-uhci.c: interrupt, status 3, frame# 496
-usbdevfs: USBDEVFS_BULK failed dev 4 ep 0x81 len 2872 ret -32
-usbdevfs: USBDEVFS_BULK failed dev 4 ep 0x81 len 84 ret -32
-usbdevfs: USBDEVFS_BULK failed dev 4 ep 0x81 len 64 ret -32
-usb.c: USB disconnect on device 4
-
-Now, the USB disconnect never actually happened physically. The camera
-looks like it stopped responding to it's USB port.
+Ludo.
 
 
-Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

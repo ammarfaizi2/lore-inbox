@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSDPPd3>; Tue, 16 Apr 2002 11:33:29 -0400
+	id <S313416AbSDPPcr>; Tue, 16 Apr 2002 11:32:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313533AbSDPPd1>; Tue, 16 Apr 2002 11:33:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20495 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313477AbSDPPdX>; Tue, 16 Apr 2002 11:33:23 -0400
-Date: Tue, 16 Apr 2002 08:30:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Lang <david.lang@digitalinsight.com>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Vojtech Pavlik <vojtech@suse.cz>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <Pine.LNX.4.44.0204160215570.389-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.33.0204160825160.1167-100000@penguin.transmeta.com>
+	id <S313477AbSDPPcq>; Tue, 16 Apr 2002 11:32:46 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:6149 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S313416AbSDPPcq>; Tue, 16 Apr 2002 11:32:46 -0400
+Date: Tue, 16 Apr 2002 12:32:25 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Terje Eggestad <terje.eggestad@scali.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Liam Girdwood <l_girdwood@bitwise.co.uk>,
+        BALBIR SINGH <balbir.singh@wipro.com>,
+        William Olaf Fraczyk <olaf@navi.pl>,
+        Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <20020416093824.A4025@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44L.0204161231440.16531-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 16 Apr 2002, Mark Mielke wrote:
 
-On Tue, 16 Apr 2002, David Lang wrote:
-> 
-> It sounds as if you are removing this capability, am I misunderstaning you
-> or is there some other way to do this? (and duplicating the drive to use
-> dd to byteswap is not practical for 100G+)
+> Increasing the HZ can only improve responsiveness, however, there is a
+> cost (mentioned by others). The cost is that the scheduler is executed
+> more often per second. If the scheduler does the same amount of work
+> per tick, but there are more ticks per second, the scheduler does more
+> work overall, and the CPU is free for use by the processes less.
 
-Doing it with a loopback like interface at a higher level is the much 
-saner operation - I understand why Martin removed the byteswap support, 
-and agree with it 100%. It just didn't make any sense from a driver 
-standpoint.
+Why are you discussing Linux 1.2 ?
 
-In fact, the byteswapping was actively incorrect, in that it swapped data 
-in-place - which means that it corrupts the data area while IO is in 
-progress. It also only works for PIO.
+Linux is not running the scheduler each cpu tick and hasn't
+done this for years.
 
-The only reason byteswapping exists is a rather historical one: Linux did 
-the wrong thing for "insw/outsw" on big-endian architectures at one point 
-(it byteswapped the data).
+regards,
 
-(Oh, and coupled with the fact that the IDE ID string is in a "big-endian"  
-word order, which may have been one more reason to add a "do byteswapped 
-IO" thing).
+Rik
+-- 
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
 
-		Linus
+http://www.surriel.com/		http://distro.conectiva.com/
 

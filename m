@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262183AbTCRHYD>; Tue, 18 Mar 2003 02:24:03 -0500
+	id <S262200AbTCRHhn>; Tue, 18 Mar 2003 02:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262198AbTCRHYD>; Tue, 18 Mar 2003 02:24:03 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:48544 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262183AbTCRHYD>;
-	Tue, 18 Mar 2003 02:24:03 -0500
-Date: Mon, 17 Mar 2003 23:33:37 -0800 (PST)
-Message-Id: <20030317.233337.76754195.davem@redhat.com>
-To: sfr@canb.auug.org.au
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, bcrl@redhat.com
-Subject: Re: [PATCH][COMPAT] cleanups in net/compat.c and related files
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030318182935.0aa53710.sfr@canb.auug.org.au>
-References: <20030318181824.6f593d2c.sfr@canb.auug.org.au>
-	<20030317.232218.91332148.davem@redhat.com>
-	<20030318182935.0aa53710.sfr@canb.auug.org.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262204AbTCRHhn>; Tue, 18 Mar 2003 02:37:43 -0500
+Received: from chello212017098056.surfer.at ([212.17.98.56]:32517 "EHLO
+	hofr.at") by vger.kernel.org with ESMTP id <S262200AbTCRHhm>;
+	Tue, 18 Mar 2003 02:37:42 -0500
+From: Der Herr Hofrat <der.herr@hofr.at>
+Message-Id: <200303180751.h2I7pIT11537@hofr.at>
+Subject: bug in kernel/sysctl.c (SYSIPC) ?
+To: linux-kernel@vger.kernel.org
+Date: Tue, 18 Mar 2003 08:51:17 +0100 (CET)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stephen Rothwell <sfr@canb.auug.org.au>
-   Date: Tue, 18 Mar 2003 18:29:35 +1100
 
-   On Mon, 17 Mar 2003 23:22:18 -0800 (PST) "David S. Miller" <davem@redhat.com> wrote:
-   > Why not include/net/compat.h?
-   
-   Because compat_socket.h is already there ... I didn't create it.
+HI !
 
-I'm saying to move this stuff to include/net/compat.h instead
-of creating this new meaningless net/compat_socket.h file.
+ atleast in kernel 2.4.19 and 2.4.20 in kernel/sysctl.c shmmax and shmall use
+ the proc_dointvec_minmax callback without passing a min/max value - is there
+ a reson for this or is this a simple bug ?
+
+linux/kenrel/sysctl.c (line 221 for 2.4.19/20)
+
+#ifdef CONFIG_SYSVIPC
+	{KERN_SHMMAX, "shmmax", &shm_ctlmax, sizeof (size_t),
+	 0644, NULL, &proc_doulongvec_minmax},
+	{KERN_SHMALL, "shmall", &shm_ctlall, sizeof (size_t),
+	 0644, NULL, &proc_doulongvec_minmax},
+	...
+#endif
+
+hofrat

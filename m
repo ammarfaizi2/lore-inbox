@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUGASUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266220AbUGASUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266216AbUGASUc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 14:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUGASUc
+	id S266220AbUGASUu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 14:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266225AbUGASUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 14:20:32 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:32457 "EHLO slimnas.slim")
-	by vger.kernel.org with ESMTP id S266216AbUGASUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 14:20:30 -0400
-Subject: Re: 2.6.7-mm5
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040630172656.6949ec60.akpm@osdl.org>
-References: <20040630172656.6949ec60.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1088706673.7901.1.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 01 Jul 2004 20:31:14 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jul 2004 14:20:50 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:53442 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266220AbUGASUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 14:20:45 -0400
+To: linux-kernel@vger.kernel.org, seb@highlab.com
+Subject: io priorities?
+Date: Thu, 01 Jul 2004 12:14:05 -0600
+From: Sebastian Kuzminsky <seb@highlab.com>
+Message-Id: <E1Bg64T-0003MC-00@highlab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-01 at 02:26, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm5/
-> 
-> - bk-acpi.patch is back.  If devices mysteriously fail to function please
->   try reverting it with
-> 
->        patch -p1 -R -i ~/bk-acpi.patch
-> 
-> - last call for reviewers of the perfctr patches.
-> 
-> - s390, ppc64, ppc32 and IDE updates.
-> 
-Still the same problem with my EHCI controller.
-
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
-ehci_hcd 0000:00:1d.7: can't reset
-ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
-ehci_hcd: probe of 0000:00:1d.7 failed with error -95
-
-Unplugging gives:
-
-ACPI: PCI interrupt 0000:02:0b.0[A] -> GSI 23 (level, low) -> IRQ 23
-irq 23: nobody cared!
- [<c0108106>] __report_bad_irq+0x2a/0x8b
- [<c01081f0>] note_interrupt+0x6f/0x9f
- [<c0108473>] do_IRQ+0x10c/0x10e
- [<c0106850>] common_interrupt+0x18/0x20
- [<c010401e>] default_idle+0x0/0x2c
- [<c0104047>] default_idle+0x29/0x2c
- [<c01040b0>] cpu_idle+0x33/0x3c
- [<c031684b>] start_kernel+0x1a0/0x1dd
- [<c0316309>] unknown_bootoption+0x0/0x149
-handlers:
-[<f8aa165c>] (snd_emu10k1_interrupt+0x0/0x3c4 [snd_emu10k1])
-Disabling IRQ #23
-
-Jurgen
+Hi folks, i've got IO problems...
 
 
+I've got a computer with one IDE disk.  There are a couple of processes
+writing big telemetry logs, totally not time-critical.  Then there's one
+process periodically writing a tiny little state file, about 150 bytes.
+The process with the state file wants to sync its file to disk and then
+quickly be back and running.  When it calls fsync() it has to wait for
+other processes' less-important pending I/O before it gets to complete,
+and it's not unusual for this to take 30 seconds (CF over IDE), which
+is too slow for my application.
+
+
+This happens with both 2.4.23 and 2.6.6 (as, cfq, & deadline).  I havent
+tried to tune the schedulers at all, just using the default values.
+
+
+I've tried five methods of syncing the file: sync(), fsync(), fdatasync(),
+and opening with O_SYNC or O_DSYNC.  All take about the same amount
+of time.
+
+
+I've tried it on my target machine (Compact Flash via pio IDE) and on
+my development machine (regular hard drive via udma5 IDE).  Same results
+qualitatively speaking.
+
+
+
+
+I read Jens Axboe's thread about cfq + io priorities, and it sounds
+perfect!  I could give my one time-critical process high io priority
+and it should preempt the others and life would be fine.  But all the
+l-k traffic i've found about this is from back in November.  Did this
+work go anywhere?
+
+
+Any suggestions on fixes or workarounds?
+
+
+I'm stumped.
+
+
+
+
+--
+Sebastian
 

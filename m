@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132041AbQLVPzx>; Fri, 22 Dec 2000 10:55:53 -0500
+	id <S131045AbQLVQDN>; Fri, 22 Dec 2000 11:03:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132107AbQLVPzo>; Fri, 22 Dec 2000 10:55:44 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:31736 "EHLO
-	mail.plan9.de") by vger.kernel.org with ESMTP id <S132041AbQLVPzc>;
-	Fri, 22 Dec 2000 10:55:32 -0500
-Date: Fri, 22 Dec 2000 16:24:50 +0100
-From: Marc Lehmann <pcg@goof.com>
+	id <S131209AbQLVQDD>; Fri, 22 Dec 2000 11:03:03 -0500
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:30981 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
+	id <S131045AbQLVQCz>; Fri, 22 Dec 2000 11:02:55 -0500
+Date: Fri, 22 Dec 2000 17:32:28 +0200
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
 To: linux-kernel@vger.kernel.org
-Subject: time function problems with 2.2.18 / hang
-Message-ID: <20001222162447.A657@fuji.laendle>
+Subject: Re: Linux 2.2.19pre3
+Message-ID: <20001222173228.A1424@elektroni.ee.tut.fi>
 Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux version 2.2.18 (root@fuji) (gcc version pgcc-2.95.2 19991024 (release)) 
-X-Copyright: copyright 2000 Marc Alexander Lehmann - all rights reserved
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 22, 2000 at 12:52:32AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an error that occurs after upgrading from 2.2.18pre23 to 2.2.18 +
-vm-global-7 patch.
+On Fri, Dec 22, 2000 at 12:52:32AM +0000, Alan Cox wrote:
+> 
+> o	Optimise kernel compiler detect, kgcc before	(Peter Samuelson)
+> 	gcc272 also
 
-Apart from enhanced stability in low-memory cases (hey, it doesn't
-freeze ten times a day ;), I have the problem that once every few days,
-preferably under high load, X behaves strangely (window manager shows no
-reaction, mouse works OR mousecursor stops moving OR wm works, mouse works
-but rxvt's stop working tc..)
+kwhich doesn't seem to work ok with several arguments if sh is bash-1.14.7:
 
-When this happens I can still log-in via the network and run command, but
-every copmmand that uses waits (select(0,0,0,xxx) or nanosleep) just hangs:
+$ sh scripts/kwhich kgcc gcc272 cc gcc
+kgcc:gcc272:cc:gcc: not found
 
-cerebro:~# strace -f sleep 1
-...
-nanosleep({1, 0}, 
+If sh is bash-2.04 or ash-0.3.7 it works ok:
 
-Also, when I beep the terminal it starts beeping but never stops, so it
-seems the timer system inside the kernel is somehow wrecked in this state.
-
-Doing while :;do kill -CONT -1;done lets me do some things, like runing top
-or kill and restart X (very slowly ;).
-
-That is the strangest thing I ever saw in a release kernel ;)
-
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@opengroup.org |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+$ sh scripts/kwhich kgcc gcc272 cc gcc
+/usr/bin/kgcc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

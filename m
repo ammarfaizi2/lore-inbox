@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261456AbTCDVnU>; Tue, 4 Mar 2003 16:43:20 -0500
+	id <S261486AbTCDVoH>; Tue, 4 Mar 2003 16:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261463AbTCDVnU>; Tue, 4 Mar 2003 16:43:20 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:7134 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261456AbTCDVnS>;
-	Tue, 4 Mar 2003 16:43:18 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: thunder7@xs4all.nl
-Date: Tue, 4 Mar 2003 22:53:13 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
-Cc: Antonino Daplas <adaplas@pol.net>, James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux@mailgw.cvut.cz, Fbdev@mailgw.cvut.cz, development@mailgw.cvut.cz,
-       "list <linux-fbdev-"@vc.cvut.cz
-X-mailer: Pegasus Mail v3.50
-Message-ID: <11D5C9495B88@vcnet.vc.cvut.cz>
+	id <S261495AbTCDVoH>; Tue, 4 Mar 2003 16:44:07 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28321
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261486AbTCDVoF>; Tue, 4 Mar 2003 16:44:05 -0500
+Subject: Re: IDE DVD reading & error handling
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: mathias.kretschmer@verizon.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E64EE6A.90208@lemur.sytes.net>
+References: <3E64EE6A.90208@lemur.sytes.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046818748.12226.21.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 04 Mar 2003 22:59:08 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  4 Mar 03 at 22:46, Petr Vandrovec wrote:
-> On Tue, Mar 04, 2003 at 10:29:06PM +0100, Jurriaan wrote:
-> > > text mode.
-> > 
-> > There is a regression here: I boot my kernel like this:
-> > 
-> > kernel /boot/vmlinuz-2563matrox root=/dev/hda7 video=matrox:vesa:0x11E,fv:80,sgram hdc=scsi apm=smp apm=power-off nosmp=1
-> > 
-> > I see a continuous strip of alternating blocks, of sub-character size,
-> > at the extreme right end of my screen. The colors seem linked to the
-> > color of the line with the cursor in some way.
-> > 
-> > After leaving XFRee, a piece of chbg's background picture is shown for a
-> > short while, then the blocks return.
-> 
-> Reproduced. Try this (untested) (it is against clean tree, so you'll 
-> get some line offsets if you had applied my matroxfb patch). Or set 
-> xres to odd value, even values do not work...
->                             Petr Vandrovec
-> 
-> 
-> --- linux/drivers/video/console/fbcon.c 2003-03-03 18:42:37.000000000 +0100
-> +++ linux/drivers/video/console/fbcon.c 2003-03-04 22:44:05.000000000 +0100
-> @@ -456,7 +456,7 @@
->     region.color = attr_bgcol_ec(p, vc);
->     region.rop = ROP_COPY;
->  
-> -   if (rw & !bottom_only) {
-> +   if (rw && !bottom_only) {
->         region.dx = info->var.xoffset + rs;
->         region.dy = 0;
->         region.width = rw;
-> -
+On Tue, 2003-03-04 at 18:20, Mathias Kretschmer wrote:
+> Is there a way to optimize the IDE layer to handle DVD
+> read errors more gracefully ?
 
-It will not solve problem that you'll get non-black edge if your
-background color is not black... I'll try to invent some solution,
-like ROP_ZERO...
-                                            Petr
-                                            
+I think its perfectly doable to set the maximum retries per
+device. Have a look at the current ide_error() and the error: handler
+in the relevant ide drivers (notably ide-cd).
+
+> I wonder if it would be possible to tune the IDE layer by i.e.
+> reducing the number of retries and disabling the controller reset, etc.
+
+A lot of the time you have to go through the controller reset. However 
+cutting the retries down and having good readahead management on the
+I/O thread ought to still cope with that.
+
+As to drives I'm using a mix of drives. Old 1x and 2x speed DVD drives
+are very cheap so its a good way to get multiple regions cheaply, and
+saves breaking the DMCA in the US 8)
 

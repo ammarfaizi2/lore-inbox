@@ -1,49 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268527AbUIQHYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268529AbUIQHZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268527AbUIQHYI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 03:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268529AbUIQHYH
+	id S268529AbUIQHZh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 03:25:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbUIQHZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 03:24:07 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:55565 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268527AbUIQHX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 03:23:58 -0400
-Date: Fri, 17 Sep 2004 08:23:44 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 1/2
-Message-ID: <20040917082344.B10537@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	Andrew Morton <akpm@digeo.com>,
-	Patrick Mochel <mochel@digitalimplant.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1095332323.3855.159.camel@laptop.cunninghams>
+	Fri, 17 Sep 2004 03:25:36 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:65507 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S268529AbUIQHYO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 03:24:14 -0400
+Date: Fri, 17 Sep 2004 00:22:32 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Simon Derr <Simon.Derr@bull.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] cpusets: fix race in cpuset_add_file()
+Message-Id: <20040917002232.7b4135f5.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.61.0409161715550.5423@openx3.frec.bull.fr>
+References: <20040916012913.8592.85271.16927@sam.engr.sgi.com>
+	<Pine.LNX.4.61.0409161548040.5423@openx3.frec.bull.fr>
+	<20040916075501.20c3ee45.pj@sgi.com>
+	<Pine.LNX.4.61.0409161715550.5423@openx3.frec.bull.fr>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1095332323.3855.159.camel@laptop.cunninghams>; from ncunningham@linuxmail.org on Thu, Sep 16, 2004 at 08:58:44PM +1000
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +struct partial_device_tree default_device_tree =
-> +{ 
-> +	.dpm_active	= LIST_HEAD_INIT(default_device_tree.dpm_active),
-> +	.dpm_off	= LIST_HEAD_INIT(default_device_tree.dpm_off),
-> +	.dpm_off_irq	= LIST_HEAD_INIT(default_device_tree.dpm_off_irq),
-> +};
-> +EXPORT_SYMBOL(default_device_tree);
+You can continue to ignore this patch, Andrew.  I'm still thinking it
+through with Simon.
+
+Here's another possible way to skin this cat, Simon.
+
+Instead of adding an inode lock, how about just extending the cpuset_sem
+window.  If we hold cpuset_sem for the entire cpuset_mkdir() operation,
+then no other cpuset_mkdir can overlap, and there should be no
+confused overlapping directory creations.
+
+This reduces the risks of unrecognized A-B-A deadlocks, and it removes
+the concern I have that dropping the cpuset_sem before we're done opens
+the way for more inconsistencies.
+
+This needs to be tested before it goes in - there is a non-zero risk
+that I made a stupid mistake and it locks up or something.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+Index: 2.6.9-rc2-mm1/kernel/cpuset.c
+===================================================================
+--- 2.6.9-rc2-mm1.orig/kernel/cpuset.c	2004-09-16 23:46:01.000000000 -0700
++++ 2.6.9-rc2-mm1/kernel/cpuset.c	2004-09-17 00:19:02.000000000 -0700
+@@ -1235,7 +1235,6 @@ static long cpuset_create(struct cpuset 
+ 	if (!cs)
+ 		return -ENOMEM;
+ 
+-	down(&cpuset_sem);
+ 	cs->flags = 0;
+ 	if (notify_on_release(parent))
+ 		set_bit(CS_NOTIFY_ON_RELEASE, &cs->flags);
+@@ -1256,22 +1255,23 @@ static long cpuset_create(struct cpuset 
+ 		goto err;
+ 	err = cpuset_populate_dir(cs->dentry);
+ 	/* If err < 0, we have a half-filled directory - oh well ;) */
+-	up(&cpuset_sem);
+ 	return 0;
+ err:
+ 	list_del(&cs->sibling);
+-	up(&cpuset_sem);
+ 	kfree(cs);
+ 	return err;
+ }
+ 
+ static int cpuset_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+ {
+-	struct dentry *d_parent = dentry->d_parent;
+-	struct cpuset *c_parent = (struct cpuset *)d_parent->d_fsdata;
++	struct cpuset *c_parent;
++	int rc;
+ 
+-	/* the vfs holds inode->i_sem already */
+-	return cpuset_create(c_parent, dentry->d_name.name, mode | S_IFDIR);
++	down(&cpuset_sem);
++	c_parent = dentry->d_parent->d_fsdata;
++	rc = cpuset_create(c_parent, dentry->d_name.name, mode | S_IFDIR);
++	up(&cpuset_sem);
++	return rc;
+ }
+ 
+ static int cpuset_rmdir(struct inode *unused_dir, struct dentry *dentry)
 
 
-_never_ exports lists, only accessory funktions.  But honestly please get
-some builtin code merged first, then think about making it modular.
-
-We don't want to add random exports just to see them never used later on.
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

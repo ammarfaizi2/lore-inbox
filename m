@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbUJ0KVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbUJ0KVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbUJ0KVp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 06:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbUJ0KUM
+	id S262372AbUJ0KVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 06:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUJ0KUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 06:20:12 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:46542 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262381AbUJ0KCo (ORCPT
+	Wed, 27 Oct 2004 06:20:51 -0400
+Received: from math.ut.ee ([193.40.5.125]:49403 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S262370AbUJ0KKT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 06:02:44 -0400
-Date: Wed, 27 Oct 2004 12:03:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-ID: <20041027100341.GA26729@elte.hu>
-References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027082831.GA15192@elte.hu> <20041027084401.GA15989@elte.hu> <20041027085221.GA16742@elte.hu> <20041027090620.GA17621@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041027090620.GA17621@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 27 Oct 2004 06:10:19 -0400
+Date: Wed, 27 Oct 2004 13:10:17 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Multiple serial port detection messages on PC
+Message-ID: <Pine.GSO.4.44.0410271308570.19695-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This 2.6.10-rc1+BK on a regular PC - from dmesg:
 
-> i've also uploaded -RT-V0.3.2 with this fix included.
+Serial: 8250/16550 driver $Revision: 1.90 $ 48 ports, IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
 
-note that if you are running amlat/realfeel then you should do something
-like this after starting realfeel:
+Probably a side result of the latest serial detection changes.
 
-  chrt -f 99 -p `pidof 'IRQ 8'`
-  chrt -f 98 -p `pidof realfeel`
+-- 
+Meelis Roos (mroos@linux.ee)
 
-because by default IRQ 8 has a lower RT priority than realfeel.
-
-	Ingo

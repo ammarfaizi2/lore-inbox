@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263010AbTDFPeU (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbTDFPeU (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:34:20 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:18560 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263010AbTDFPeU (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:34:20 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304061547.h36FlvbL000563@81-2-122-30.bradfords.org.uk>
-Subject: Re: [PATCH] take 48-bit lba a bit further
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 6 Apr 2003 16:47:57 +0100 (BST)
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <1049639724.962.7.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 06, 2003 03:35:25 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263019AbTDFPgd (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbTDFPgd (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:36:33 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25742
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263019AbTDFPgc (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:36:32 -0400
+Subject: Re: objrmap and vmtruncate
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@digeo.com>, andrea@suse.de, mingo@elte.hu,
+       hugh@veritas.com, dmccr@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <72740000.1049599406@[10.10.2.4]>
+References: <20030404163154.77f19d9e.akpm@digeo.com>
+	 <12880000.1049508832@flay><20030405024414.GP16293@dualathlon.random>
+	 <20030404192401.03292293.akpm@digeo.com>
+	 <20030405040614.66511e1e.akpm@digeo.com>  <72740000.1049599406@[10.10.2.4]>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049640548.962.10.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 Apr 2003 15:49:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Then, don't we want to be using 48-bit lba all the time on compatible devices
-> > instead of falling back to 28-bit when possible to save a small amount of
-> > instruction overhead?  (Or is that what we're doing already?  I haven't really
-> > had the time to follow this thread).
+On Sul, 2003-04-06 at 03:23, Martin J. Bligh wrote:
+> > 	14.91s user 75.30s system 24% cpu 6:15.84 total
 > 
-> The overhead of the double load of the command registers is microseconds so it
-> is actually quite a lot, especially since IDE lacks TCQ so neither end of the
-> link is doing *anything* useful. SCSI has similar problems on older SCSI with 
-> command sending being slow, but the drive is at least doing other commands during
-> this.
+> Isn't the intent to use sys_remap_file_pages for these sort of workloads
+> anyway? In which case partial objrmap = rmap for these tests, so we're
+> still OK?
 
-So, say you have a choice of either a 256Kb request to a low block number,
-which can use the faster 28-bit mode, or a 512Kb request to the same low block
-number, which can only be made using 48-bit LBA, which is the best to use?
+What matters is the worst case not the best case. Users will do non
+optimal things on a regular basis. 
 
-I originally thought that we might only be honouring 512Kb requests for blocks
-over the 28-bit limit, which Jens corrected me on, but maybe we *should* only
-do 512Kb requests on high block number, where we have to use 48-bit anyway.
-
-John.

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317277AbSGVNmD>; Mon, 22 Jul 2002 09:42:03 -0400
+	id <S316848AbSGVMsa>; Mon, 22 Jul 2002 08:48:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317279AbSGVNmD>; Mon, 22 Jul 2002 09:42:03 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:59034 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317277AbSGVNmB>;
-	Mon, 22 Jul 2002 09:42:01 -0400
-Date: Mon, 22 Jul 2002 15:43:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-In-Reply-To: <20020722152056.A18619@lst.de>
-Message-ID: <Pine.LNX.4.44.0207221538580.9004-100000@localhost.localdomain>
+	id <S316851AbSGVMsa>; Mon, 22 Jul 2002 08:48:30 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41899 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S316848AbSGVMs3>;
+	Mon, 22 Jul 2002 08:48:29 -0400
+Date: Mon, 22 Jul 2002 08:51:37 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: martin@dalecki.de
+cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.27 sysctl
+In-Reply-To: <3D3BE699.9000708@evision.ag>
+Message-ID: <Pine.GSO.4.21.0207220843320.6045-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 22 Jul 2002, Christoph Hellwig wrote:
 
-> void irq_off(void);
-> void irq_on(void);
+On Mon, 22 Jul 2002, Marcin Dalecki wrote:
+
+> > The kernel is full of GNUisms, and this one is actually usefull.
 > 
-> flags_t irq_save();
-> void irq_restore(flags_t);
+> Its is not half as full as you may think.
 
-i'm not so sure about flags_t. 'unsigned long' worked pretty well so far,
-and i do not see the need for a more complex (or more opaque) irqflags
-type. It's not that we confuse flags with some other flag all that
-frequently that would necessiate some structure-based more abstract
-protection of these variables.
+Trailing comma in enums has _exactly_ the same status as .foo = bar in
+structure initializers.  Both appear in C99 and were compiler-specific
+extensions before that.
 
-(wrt. inline functions, every architecture is free to define them as
-inline functions as they see fit.)
+If -pedantic is unhappy about one but not another - take it with gcc
+folks, it's a bug in gcc.
 
-	Ingo
+Speaking of GNUisms, inline assembler is one and it's by far the worst
+obstacle to portability.  Speaking of *REALLY* ugly stuff - may I point
+you to abuses of ##?  Yes, it's legal C.  No, using it is a Bad Idea(tm).
+And the actual uses of _that_ one in the tree can give you the second
+look at your breakfast - grep around and you'll see.
 

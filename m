@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262567AbTCRUnw>; Tue, 18 Mar 2003 15:43:52 -0500
+	id <S262572AbTCRUs7>; Tue, 18 Mar 2003 15:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262569AbTCRUnw>; Tue, 18 Mar 2003 15:43:52 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:62601 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S262567AbTCRUnu>;
-	Tue, 18 Mar 2003 15:43:50 -0500
-Subject: Re: eepro100+NAPI failure
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: "Vladimir B. Savkin" <savkin@shade.msu.ru>
-Cc: fxzhang@ict.ac.cn, linux-kernel@vger.kernel.org
-In-Reply-To: <20030318202728.GA15796@tentacle.sectorb.msk.ru>
-References: <20030318202728.GA15796@tentacle.sectorb.msk.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048020884.1521.60.camel@tux.rsn.bth.se>
+	id <S262573AbTCRUs7>; Tue, 18 Mar 2003 15:48:59 -0500
+Received: from 12-225-92-115.client.attbi.com ([12.225.92.115]:33664 "EHLO
+	p3.coop.hom") by vger.kernel.org with ESMTP id <S262572AbTCRUs6>;
+	Tue, 18 Mar 2003 15:48:58 -0500
+Date: Tue, 18 Mar 2003 12:59:07 -0800
+From: Jerry Cooperstein <coop@axian.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: seqlock/unlock(&xtime_lock) problems cause keyboard, time skew problems
+Message-ID: <20030318205907.GB4081@p3.attbi.com>
+References: <20030318190557.GA14447@p3.attbi.com> <1048019543.6294.3.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 18 Mar 2003 21:54:44 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048019543.6294.3.camel@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-18 at 21:27, Vladimir B. Savkin wrote:
-> Hi!
+On Tue, Mar 18, 2003 at 12:32:24PM -0800, Stephen Hemminger wrote:
+> On Tue, 2003-03-18 at 11:05, Jerry Cooperstein wrote:
+> > Since 2.5.60 my thinkpad keyboard repeat rate has been erratic when
+....
+
 > 
-> I'm planning to deploy Intel-based fast ethernet NICs on a busy
-> router so I decided to try NAPI.
+> Does this notebook vary the clock rate? If so then using TSC for 
+> time of day clock is probably a problem.  Try booting with notsc.
 
-> To test NAPI performance, I've blasted a stream of short packets 
-> from another host using pktgen. The bad thing is that receiving host
-> stopped responding to packets immediately. The effect is 100%
-> reproducable, eventually it comes back though, black-out can last
-> from a second to several minutes. Here is what I was able to catch
-> after 'ethtool -s eth0 msglvl 0xfff':
+Yes the notebook varies the clock rate -- its about 150MHZ with
+batter power, 500 MHZ on AC.
 
-I saw the same problem when I tested it a while back, didn't have time
-to investigate so my routers are running without NAPI right now :(
+I tried booting with notsc, the results were:
 
-> Can anyone help me to make NAPI work? Does anyone even use NAPI
-> with eepro100, I guess not many people since the patch is pretty old
-> and I could not find it ported to 2.4.21-pre.
+for kernels through 2.5.63:  kernel panic on boot, message saying pentium+
+requires tsc
 
-I havn't heard of anyone using it. I've understood that the recieve path
-in the eepro100 chip can be quite fragile and has to be treated right or
-it'll hang... maybe the NAPI patch changes things too much...
+for 2.5.64, 2.5.65:  no failure, but no help.
 
-Anyway, please let me know if you manage to get it working
+Merci
 
--- 
-/Martin
+coop
 
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
+======================================================================
+ Jerry Cooperstein,  Senior Consultant,  <coop@axian.com>
+ Axian, Inc., Software Consulting and Training
+ 4800 SW Griffith Dr., Ste. 202,  Beaverton, OR  97005 USA
+ http://www.axian.com/               
+======================================================================
+

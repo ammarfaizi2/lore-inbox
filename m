@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317221AbSGCRF0>; Wed, 3 Jul 2002 13:05:26 -0400
+	id <S317081AbSGCQ6j>; Wed, 3 Jul 2002 12:58:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317230AbSGCRFZ>; Wed, 3 Jul 2002 13:05:25 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:12268 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S317221AbSGCRFY>; Wed, 3 Jul 2002 13:05:24 -0400
-Date: Wed, 3 Jul 2002 18:07:15 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit
-In-Reply-To: <200207031553.IAA04513@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.21.0207031803250.1391-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317191AbSGCQt3>; Wed, 3 Jul 2002 12:49:29 -0400
+Received: from mail.clsp.jhu.edu ([128.220.34.27]:56029 "EHLO
+	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
+	id <S317192AbSGCQsF>; Wed, 3 Jul 2002 12:48:05 -0400
+Date: Wed, 3 Jul 2002 05:50:13 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Werner Almesberger <wa@almesberger.net>, Keith Owens <kaos@ocs.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal
+Message-ID: <20020703035013.GJ474@elf.ucw.cz>
+References: <20020702133658.I2295@almesberger.net> <20020702165019.29700@smtp.adsl.oleane.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020702165019.29700@smtp.adsl.oleane.com>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jul 2002, Adam J. Richter wrote:
-> On Wed, 03 Jul 2002 22:27:33 +1000, Keith Owens wrote:
+Hi!
+
+> >> It's not really just the module information. If I can, say, get
+> >> callbacks from something even after I unregister, I may well
+> >> have destroyed the data I need to process the callbacks, and
+> >> oops or worse.
+> >
+> >Actually, if module exit synchronizes properly, even the
+> >return-after-removal case shouldn't exist, because we'd simply
+> >wait for this call to return.
+> >
+> >Hmm, interesting. Did I just make the whole problem go away,
+> >or is travel fatigue playing tricks on my brain ? :-)
 > 
-> >It does not.  There is no code to adjust any tables after discarding
-> >kernel __init sections.  We rely on the fact that the discarded kernel
-> >area is not reused for executable text.
-> 
-> 	Come to think of it, if the core kernel's .text.init pages could
-> later be vmalloc'ed for module .text section, then I think you may have
-> found a potential kernel bug.
+> That was one of the solutions proposed by Rusty, that is basically
+> waiting for all CPUs to have scheduled upon exit from module_exit
+> and before doing the actual removal.
 
-No: the virtual address (which is what matters) would be different:
-core kernel's .text.init is not in vmalloc virtual address range.
-
-Hugh
-
+That seems reasonable... lighter version of freeze_processes() I was
+thinking about.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

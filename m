@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317623AbSGOTpj>; Mon, 15 Jul 2002 15:45:39 -0400
+	id <S317627AbSGOTrc>; Mon, 15 Jul 2002 15:47:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317624AbSGOTpi>; Mon, 15 Jul 2002 15:45:38 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:44571 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S317623AbSGOTpi>;
-	Mon, 15 Jul 2002 15:45:38 -0400
-Subject: Some sysctl parameter change questions.
-From: Austin Gonyou <austin@coremetrics.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-84isx0wKXrZxSKLugtOS"
-Organization: Coremetrics, Inc.
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 15 Jul 2002 14:48:25 -0500
-Message-Id: <1026762505.14251.6.camel@UberGeek>
-Mime-Version: 1.0
+	id <S317628AbSGOTrb>; Mon, 15 Jul 2002 15:47:31 -0400
+Received: from ousrvr.oulu.fi ([130.231.240.1]:8614 "EHLO oulu.fi")
+	by vger.kernel.org with ESMTP id <S317627AbSGOTra>;
+	Mon, 15 Jul 2002 15:47:30 -0400
+Date: Mon, 15 Jul 2002 22:50:23 +0300 (EEST)
+From: Jukka Honkela <fatal@ees2.oulu.fi>
+X-X-Sender: fatal@stekt41
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch[ Simple Topology API
+Message-ID: <Pine.SOL.4.44.0207152240110.3084-100000@stekt41>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-84isx0wKXrZxSKLugtOS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Chris Friesen wrote:
 
-Looking through some tuning documentation about sysctl values as related
-to Oracle and other DB tuning bits, I noticed that the following don't
-exist anymore, and was curious where or if they were moved.
+>> Beyond 8-way, you need glue logic (hypertransport switches?) and
+>> latency seems bound to become an issue.
 
-/proc/sys/kernel/inode-max
-/proc/sys/vm/freepages
+>Nope.  Just extend the ladder.  Each cpu talks to three other entities,
+>either cpu or I/O.  Can be extended arbitrarily until latencies are too
+>high.
 
-In coincidence with this info, I was curious if anyone has tweaked the
-following and if it makes any difference, with regard to performance:
+You seem to be missing one critical piece from the OLS talk. The HT
+protocol (or something related) can't handle more than 8 CPU's in a single
+configuration. You need to have some kind of bridge to connect
+more than 8CPU's together, although systems with more than 8 CPU's have
+not been discussed officially anywhere, afaik.
 
-/proc/fs/pagebuf
-/proc/sys/vm/pagebuf
-/proc/sys/vm/pagebuf/max_dio_pages
-/proc/sys/vm/page-cluster
-/proc/sys/vm/pagetable_cache
+8 CPU's and less belongs to the SUMO category (Sufficiently Uniform Memory
+Organization, apparently new AMD terminology) whereas 9 CPU's and more is
+likely to be NUMA.
+
+-- 
+Jukka Honkela
 
 
---=20
-Austin Gonyou <austin@coremetrics.com>
-Coremetrics, Inc.
-
---=-84isx0wKXrZxSKLugtOS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA9MycJ94g6ZVmFMoIRAhiWAKCPW7tSYWl3P/wSVUueoWM9XZ1Q7ACfffZs
-gu4vdlpBONNE0b0MGqYulp4=
-=kdkf
------END PGP SIGNATURE-----
-
---=-84isx0wKXrZxSKLugtOS--

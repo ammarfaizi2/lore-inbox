@@ -1,75 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVBYRUD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVBYR0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262757AbVBYRUD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 12:20:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVBYRUC
+	id S262755AbVBYR0h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 12:26:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVBYR0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 12:20:02 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:51160 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S262760AbVBYRTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 12:19:42 -0500
-Date: Fri, 25 Feb 2005 18:19:11 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: aq <aquynh@gmail.com>
-cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Jay Lan <jlan@engr.sgi.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Erich Focht <efocht@hpce.nec.com>
-Subject: Re: [PATCH 2.6.11-rc4-mm1] connector: Add a fork connector
-In-Reply-To: <9cde8bff050225085479761ef4@mail.gmail.com>
-Message-ID: <Pine.LNX.4.53.0502251814230.1039@gockel.physik3.uni-rostock.de>
-References: <1109240677.1738.196.camel@frecb000711.frec.bull.fr>
- <9cde8bff050225085479761ef4@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Feb 2005 12:26:37 -0500
+Received: from fire.osdl.org ([65.172.181.4]:38326 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262755AbVBYR02 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 12:26:28 -0500
+Date: Fri, 25 Feb 2005 09:26:21 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: akpm@osdl.org
+Cc: linux-audit@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] detangle audit.h from fs.h
+Message-ID: <20050225172621.GA15867@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +#ifdef CONFIG_FORK_CONNECTOR
-[...]
-> > +static inline void fork_connector(pid_t parent, pid_t child)
-> > +{
-[...]
-> > +}
-> > +#else
-> > +static inline void fork_connector(pid_t parent, pid_t child)
-> > +{
-> > +       return;
-> > +}
-> > +#endif
-[...]
-> > @@ -1238,6 +1281,8 @@ long do_fork(unsigned long clone_flags,
-> >                         if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
-> >                                 ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
-> >                 }
-> > +
-> > +               fork_connector(current->pid, p->pid);
-> >         } else {
-> >                 free_pidmap(pid);
-> >                 pid = PTR_ERR(p);
+Currently touching audit.h triggers a large rebuild because it's sucked
+in via fs.h.  It's there because of the getname()/putname() requirements
+that come with CONFIG_AUDITSYSCALL.  Remove header dependency by pushing
+relevant putname() implementation into fs/namei.c.  It adds function
+call overhead for putname() callers when CONFIG_AUDITSYSCALL is set,
+quite minor cost for detangled source.  Any objections?
 
-> Guillaume, I see that you are trying to discover if the kernel has
-> CONFIG_FORK_CONNECTOR defined or not. In case CONFIG_FORK_CONNECTOR is
-> not defined, you will call a "dummy" fork_connector (which just call
-> "return"). But why you dont move the checking to where you call
-> fork_connector? In this case, if CONFIG_FORK_CONNECTOR is not defined,
-> nothing called, and of course you dont need a "dummy" fork_connector
-> like in the above code.
-> 
-> Just try something like this: 
-> 
->  +#ifdef CONFIG_FORK_CONNECTOR
->  +
->  +               fork_connector(current->pid, p->pid);
-> #endif
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-No, Guillaume did it right. Don't litter the code with useless #ifdefs
-that turn one simple line of code into three for no good.
-The dummy routine is optimized away by the compiler anyways.
-
-Only the name "fork_connector()" might be discussed...
-
-Tim 
+===== include/linux/fs.h 1.378 vs edited =====
+--- 1.378/include/linux/fs.h	2005-02-22 16:17:36 -08:00
++++ edited/include/linux/fs.h	2005-02-24 15:59:53 -08:00
+@@ -210,7 +210,6 @@ extern int dir_notify_enable;
+ #include <linux/list.h>
+ #include <linux/radix-tree.h>
+ #include <linux/prio_tree.h>
+-#include <linux/audit.h>
+ #include <linux/init.h>
+ 
+ #include <asm/atomic.h>
+@@ -1268,13 +1267,7 @@ extern void __init vfs_caches_init(unsig
+ #ifndef CONFIG_AUDITSYSCALL
+ #define putname(name)   __putname(name)
+ #else
+-#define putname(name)							\
+-	do {								\
+-		if (unlikely(current->audit_context))			\
+-			audit_putname(name);				\
+-		else							\
+-			__putname(name);				\
+-	} while (0)
++extern void putname(const char *name);
+ #endif
+ 
+ extern int register_blkdev(unsigned int, const char *);
+===== fs/namei.c 1.118 vs edited =====
+--- 1.118/fs/namei.c	2005-01-20 21:00:21 -08:00
++++ edited/fs/namei.c	2005-02-24 15:58:47 -08:00
+@@ -148,10 +148,21 @@ char * getname(const char __user * filen
+ 			result = ERR_PTR(retval);
+ 		}
+ 	}
+-	if (unlikely(current->audit_context) && !IS_ERR(result) && result)
+-		audit_getname(result);
++	audit_getname(result);
+ 	return result;
+ }
++
++#ifdef CONFIG_AUDITSYSCALL
++void putname(const char *name)
++{
++	if (unlikely(current->audit_context))
++		audit_putname(name);
++	else
++		__putname(name);
++}
++EXPORT_SYMBOL(putname);
++#endif
++
+ 
+ /**
+  * generic_permission  -  check for access rights on a Posix-like filesystem
+===== kernel/auditsc.c 1.6 vs edited =====
+--- 1.6/kernel/auditsc.c	2005-01-30 22:33:47 -08:00
++++ edited/kernel/auditsc.c	2005-02-24 16:06:06 -08:00
+@@ -800,7 +800,9 @@ void audit_getname(const char *name)
+ {
+ 	struct audit_context *context = current->audit_context;
+ 
+-	BUG_ON(!context);
++	if (!context || IS_ERR(name) || !name)
++		return;
++
+ 	if (!context->in_syscall) {
+ #if AUDIT_DEBUG == 2
+ 		printk(KERN_ERR "%s:%d(:%d): ignoring getname(%p)\n",
+@@ -855,7 +857,6 @@ void audit_putname(const char *name)
+ 	}
+ #endif
+ }
+-EXPORT_SYMBOL(audit_putname);
+ 
+ /* Store the inode and device from a lookup.  Called from
+  * fs/namei.c:path_lookup(). */
+===== fs/proc/base.c 1.88 vs edited =====
+--- 1.88/fs/proc/base.c	2005-01-30 22:33:47 -08:00
++++ edited/fs/proc/base.c	2005-02-24 16:03:06 -08:00
+@@ -32,6 +32,7 @@
+ #include <linux/mount.h>
+ #include <linux/security.h>
+ #include <linux/ptrace.h>
++#include <linux/audit.h>
+ #include "internal.h"
+ 
+ /*

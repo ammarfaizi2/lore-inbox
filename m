@@ -1,68 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264284AbRFHRqK>; Fri, 8 Jun 2001 13:46:10 -0400
+	id <S264274AbRFHRpT>; Fri, 8 Jun 2001 13:45:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264287AbRFHRqA>; Fri, 8 Jun 2001 13:46:00 -0400
-Received: from alpo.casc.com ([152.148.10.6]:38788 "EHLO alpo.casc.com")
-	by vger.kernel.org with ESMTP id <S264284AbRFHRpt>;
-	Fri, 8 Jun 2001 13:45:49 -0400
-From: John Stoffel <stoffel@casc.com>
+	id <S264284AbRFHRpJ>; Fri, 8 Jun 2001 13:45:09 -0400
+Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:11539 "EHLO
+	mail.communicationsboard.net") by vger.kernel.org with ESMTP
+	id <S264274AbRFHRpE>; Fri, 8 Jun 2001 13:45:04 -0400
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Subject: Re: xircom_cb problems
+Message-ID: <992022302.3b210f1e0e26f@eargle.com>
+Date: Fri, 08 Jun 2001 13:45:02 -0400 (EDT)
+From: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: Tom Sightler <ttsig@tuxyturvy.com>, linux-kernel@vger.kernel.org,
+        arjan@fenrus.demon.nl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15137.3796.287765.4809@gargle.gargle.HOWL>
-Date: Fri, 8 Jun 2001 13:43:48 -0400
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: John Stoffel <stoffel@casc.com>, Tobias Ringstrom <tori@unhappy.mine.nu>,
-        Jonathan Morton <chromi@cyberspace.org>, Shane Nay <shane@minirl.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.33.0106081853400.418-100000@mikeg.weiden.de>
-In-Reply-To: <15136.62579.588726.954053@gargle.gargle.HOWL>
-	<Pine.LNX.4.33.0106081853400.418-100000@mikeg.weiden.de>
-X-Mailer: VM 6.92 under Emacs 20.6.1
+Content-Type: multipart/mixed; boundary="-MOQ9920223029bf91d0bb62ae3d3b801a6414b21e76b"
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This message is in MIME format.
 
-Mike> OK, riddle me this.  If this test is a crummy test, just how is
-Mike> it that I was able to warn Rik in advance that when 2.4.5 was
-Mike> released, he should expect complaints?  How did I _know_ that?
-Mike> The answer is that I fiddle with Rik's code a lot, and I test
-Mike> with this test because it tells me a lot.  It may not tell you
-Mike> anything, but it does me.
+---MOQ9920223029bf91d0bb62ae3d3b801a6414b21e76b
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-I never said it was a crummy test, please do not read more into my
-words than was written.  What I was trying to get across is that just
-one test (such as a compile of the kernel) isn't perfect at showing
-where the problems are with the VM sub-system.
+Whoops!! Sorry, forgot the attachment.
 
-Jonathan Morton has been using another large compile to also test the
-sub-system, and it includes a compile which puts a large, single
-process pressure on the VM.  I consider this to be a more
-representative test of how the VM deals with pressure.  
+Thanks,
+Tom
 
-The kernel compile is an ok test of basic VM handling, but from what
-I've been hearing on linux-kernel and linux-mm is that the VM goes to
-crap when you have a mix of stuff running, and one (or more) processes
-starts up or grows much larger and starts impacting the system
-performance.
 
-I'm also not knocking your contributions to this discussion, so stop
-being so touchy.  I was trying to contribute and say (albeit poorly)
-that a *mix* of tests is needed to test the VM.
+> Both of these are slow, actually. I'm getting 7.5-8MB/s when receiving
+> from a 100Mbit box (tulip or starfire, doesn't seem to matter). 
+> Transmitting is still slow for me, but that is most likely a different 
+> problem -- and I'm looking into it.
 
-More importantly, a *repeatable* set of tests is what is needed to
-test the VM and get consistent results from run to run, so you can see
-how your changes are impacting performance.  The kernel compile
-doesn't really have any one process grow to a large fraction of
-memory, so dropping in a compile which *does* is a good thing.
+Yeah, I knew they were both slow, but at least one is acceptable, the <200KB/s
+is below usable when doing any network based work.
 
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548
+> Moreover, I'm getting 9+MB/s in both directions when using the other 
+> driver (xircom_tulip_cb), patched to do half-duplex only. So the card
+> can definitely transfer at network speeds.
 
+I'm not doing nearly as well with the other driver, but I don't have it patched
+for half-duplex only.  I tried setting the remote end to force half-duplex but
+this didn't seem to work quite right.
+
+
+> Looking forward to seeing them...
+
+OK, I tried your patch, it did fix the problem where pump wouldn't pull an IP
+address, but I'm still having the problem where my ping times go nuts.  I've
+attached an example, it's 100% repeatable on my network at work.  It was so bad
+I couldn't get any benchmark numbers.
+
+Later,
+Tom
+
+
+---MOQ9920223029bf91d0bb62ae3d3b801a6414b21e76b
+Content-Type: text/plain; name="/root/xircom-slow-pings.txt"; name="/root/xircom-slow-pings.txt"; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline; filename="/root/xircom-slow-pings.txt"
+
+
+[root@iso-2146-l1 ttsig]# ping 10.10.4.254
+PING 10.10.4.254 (10.10.4.254) from 10.10.4.33 : 56(84) bytes of data.
+64 bytes from 10.10.4.254: icmp_seq=3 ttl=255 time=590 usec
+64 bytes from 10.10.4.254: icmp_seq=0 ttl=255 time=2.996 sec
+64 bytes from 10.10.4.254: icmp_seq=1 ttl=255 time=2.000 sec
+64 bytes from 10.10.4.254: icmp_seq=2 ttl=255 time=1.000 sec
+64 bytes from 10.10.4.254: icmp_seq=7 ttl=255 time=575 usec
+64 bytes from 10.10.4.254: icmp_seq=4 ttl=255 time=3.000 sec
+64 bytes from 10.10.4.254: icmp_seq=5 ttl=255 time=2.000 sec
+64 bytes from 10.10.4.254: icmp_seq=6 ttl=255 time=1.000 sec
+
+--- 10.10.4.254 ping statistics ---
+10 packets transmitted, 8 packets received, 20% packet loss
+round-trip min/avg/max/mdev = 0.575/1500.228/3000.710/1117.327 ms
+[root@iso-2146-l1 ttsig]# rmmod xircom_cb
+rmmod: module xircom_cb is not loaded
+[root@iso-2146-l1 ttsig]# lsmod
+Module                  Size  Used by
+appletalk              18352   0  (autoclean)
+serial                 44864   0 
+vmnet                  16448   1 
+vmmon                  18352   0 
+r128                  145392   1 
+agpgart                13568   3  (autoclean)
+usb-uhci               20864   0  (unused)
+usbcore                48176   1  [usb-uhci]
+[root@iso-2146-l1 ttsig]# ping 10.10.4.254
+PING 10.10.4.254 (10.10.4.254) from 10.10.4.33 : 56(84) bytes of data.
+64 bytes from 10.10.4.254: icmp_seq=0 ttl=255 time=955 usec
+64 bytes from 10.10.4.254: icmp_seq=1 ttl=255 time=492 usec
+64 bytes from 10.10.4.254: icmp_seq=2 ttl=255 time=453 usec
+64 bytes from 10.10.4.254: icmp_seq=3 ttl=255 time=465 usec
+64 bytes from 10.10.4.254: icmp_seq=4 ttl=255 time=451 usec
+64 bytes from 10.10.4.254: icmp_seq=5 ttl=255 time=455 usec
+64 bytes from 10.10.4.254: icmp_seq=6 ttl=255 time=450 usec
+64 bytes from 10.10.4.254: icmp_seq=7 ttl=255 time=453 usec
+
+--- 10.10.4.254 ping statistics ---
+8 packets transmitted, 8 packets received, 0% packet loss
+round-trip min/avg/max/mdev = 0.450/0.521/0.955/0.166 ms
+---MOQ9920223029bf91d0bb62ae3d3b801a6414b21e76b--

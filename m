@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135248AbRDRS3v>; Wed, 18 Apr 2001 14:29:51 -0400
+	id <S135251AbRDRSbm>; Wed, 18 Apr 2001 14:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135247AbRDRS3m>; Wed, 18 Apr 2001 14:29:42 -0400
-Received: from monza.monza.org ([209.102.105.34]:30477 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S132507AbRDRS3Z>;
-	Wed, 18 Apr 2001 14:29:25 -0400
-Date: Wed, 18 Apr 2001 11:29:10 -0700
-From: Tim Wright <timw@splhi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get better  audio.
-Message-ID: <20010418112910.A1761@kochanski>
-Reply-To: timw@splhi.com
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <m1lmoys7wt.fsf@frodo.biederman.org> <E14prJy-0004eW-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14prJy-0004eW-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 18, 2001 at 01:44:32PM +0100
+	id <S135247AbRDRSbc>; Wed, 18 Apr 2001 14:31:32 -0400
+Received: from hypnos.cps.intel.com ([192.198.165.17]:20200 "EHLO
+	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S132507AbRDRSbP>; Wed, 18 Apr 2001 14:31:15 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDD9A@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>
+Cc: "'Pavel Machek'" <pavel@suse.cz>,
+        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Let init know user wants to shutdown
+Date: Wed, 18 Apr 2001 11:28:52 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So grab and install dsproxy (http://freshmeat.net/projects/dsproxy/), and
-capture the output. Than feed to e.g. XMMS which already has an AGC plugin.
-
-t
-
-On Wed, Apr 18, 2001 at 01:44:32PM +0100, Alan Cox wrote:
-> > So my question is, what would it take to get some automatic software
-> > volume correction going.  This looks like it would be the easiest fix
-> > of all.
+> From: Simon Richter
+> > We are going to need some software that handles button 
+> events, as well as
+> > thermal events, battery events, polling the battery, AC 
+> adapter status
+> > changes, sleeping the system, and more.
 > 
-> Unfortunately its encoded in a proprietary format otherwise it would have
-> been perhaps half an hours work to write an AGC filter for the data.
-> 
-> Alan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Yes, that will be a separate daemon that will also get the 
+> events. But I
+> think it's a good idea to have a simple interface that allows 
+> the user to
+> run arbitrary commands when ACPI events occur, even without 
+> acpid running
+> (think of singleuser mode, embedded systems, ...).
 
--- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-Interested in Linux scalability ? Look at http://lse.sourceforge.net/
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+Fair enough. I don't think I would be out of line to say that our resources
+are focused on enabling full ACPI functionality for Linux, including a
+full-featured PM policy daemon. That said, I don't think there's anything
+precluding the use of another daemon (or whatever) from using the ACPI
+driver's interface.
+
+> > Unix philosophy: "do one thing and do it well".
+> 
+> Another Unix philosophy: "keep it simple, stupid". :-)
+
+OK one more silly aphorism and I'll shut up. ;-) "Make it as simple as
+possible, but no simpler."
+
+Regards -- Andy
+

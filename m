@@ -1,96 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269332AbUI3QSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269330AbUI3QUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269332AbUI3QSN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 12:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269330AbUI3QSN
+	id S269330AbUI3QUP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 12:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269341AbUI3QUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 12:18:13 -0400
-Received: from ns.visionsystems.de ([62.145.30.242]:36075 "EHLO
-	hhlx01.visionsystems.de") by vger.kernel.org with ESMTP
-	id S269327AbUI3QRI convert rfc822-to-8bit (ORCPT
+	Thu, 30 Sep 2004 12:20:15 -0400
+Received: from mail.tmr.com ([216.238.38.203]:54534 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S269330AbUI3QSV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 12:17:08 -0400
-From: Roland =?utf-8?q?Ca=C3=9Febohm?= 
-	<roland.cassebohm@VisionSystems.de>
-Organization: Vision Systems GmbH
+	Thu, 30 Sep 2004 12:18:21 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: Serial driver hangs
-Date: Thu, 30 Sep 2004 18:16:44 +0200
-User-Agent: KMail/1.6.2
-Cc: Paul Fulghum <paulkf@microgate.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de> <200409291607.07493.roland.cassebohm@visionsystems.de> <1096467951.1964.22.camel@deimos.microgate.com>
-In-Reply-To: <1096467951.1964.22.camel@deimos.microgate.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409301816.44649.roland.cassebohm@visionsystems.de>
-X-OriginalArrivalTime: 30 Sep 2004 16:16:46.0069 (UTC) FILETIME=[E1A83250:01C4A708]
-X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.82
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: __attribute__((always_inline)) fiasco
+Date: Thu, 30 Sep 2004 12:19:31 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cjhb65$5ka$1@gatekeeper.tmr.com>
+References: <20040926012925.GA14305@thundrix.ch><20040926012925.GA14305@thundrix.ch> <20040926020556.GR9106@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1096560646 5770 192.168.12.100 (30 Sep 2004 16:10:46 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+In-Reply-To: <20040926020556.GR9106@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 29. September 2004 16:25 schrieb Paul Fulghum:
-> On Wed, 2004-09-29 at 09:07, Roland Caßebohm wrote:
-> > I have added a routine to "struct tty_driver" for
-> > restarting the RX interrupt after TTY_DONT_FLIP bit is
-> > cleared in read_chan().
->
-> If you are using RTS/CTS flow control,
-> your scheme might prevent data loss if you also
-> drop RTS (like driver throttle method) when disabling
-> the rx IRQ and reasserting RTS (unthrottle) when
-> reenabling the IRQ. Unfortunately, this may interfere
-> with the line discipline's use of throttle/unthrottle.
+William Lee Irwin III wrote:
+> On Thu, Sep 23, 2004 at 12:26:18PM -0400, Albert Cahalan wrote:
+> 
+>>>>#define INLINE static inline  // an oxymoron
+>>>>#define INLINE extern inline  // an oxymoron
+> 
+> 
+> On Thu, Sep 23, 2004 at 09:50:26AM -0700, William Lee Irwin III wrote:
+> 
+>>>The // apart from being a C++ ism (screw C99; it's still non-idiomatic)
+>>>will cause spurious ignorance of the remainder of the line, which is
+>>>often very important. e.g.
+>>>static INLINE int lock_need_resched(spinlock_t *lock)
+>>>{
+>>>	...
+> 
+> 
+> On Sun, Sep 26, 2004 at 03:29:25AM +0200, Tonnerre wrote:
+> 
+>>Mmm, shouldn't the comments be filtered *before* the definition is set
+>>in place? Just wondering...
+> 
+> 
+> I've already heard more about this than I ever cared to. I'll continue
+> to stick to saner subsets of C and refuse to use things such as how the
+> preprocessor committing incest with the compiler proper (no, I don't
+> need it explained to me, it's trivial) allows crappy code to be written.
+> Don't lecture me; there's nothing to explain and I don't want to hear it.
 
-Maybe I can use the functions rs_throttle() and 
-rs_unthrottle(). In rs_unthrottle I could reenable the RX 
-interrupt. So I don't need to add a function in "struct 
-tty_driver". I only need to set the flag TTY_THROTTLED if I 
-disable the interrupt.
+Don't hold back, tell us how you really feel ;-)
 
->
-> > It seems to take to long time in read_chan(). Do you now
-> > what is the exact reason of locking the filp buffer with
-> > the TTY_DONT_FLIP flag? For a short look I would say the
-> > buffers are safe locked by the spinlock tty->read_lock.
->
-> I can't identify the reason.
-> If you feel brave, remove the setting/clearing
-> of TTY_DONT_FLIP and see what happens.
+And I agree, those tricks shouldn't be used.
 
-I've just commented out all places where TTY_DONT_FLIP would 
-be set and left everything else original. It seems to work 
-without problems.
-
-My system is sending and receiving on two ports with 921600 
-baud with CPU load of 85%. Some bytes get still lost, but 
-less then before. The test is working for 2h now and I have 
-forced sometimes some more activity to have a CPU load of 
-100%, but it is still working. 
-
-Maybe TTY_DONT_FLIP is really don't needed anymore.
-I think to be save and fast maybe one way could be, if the 
-flip buffer is full it should be flipped but not processed 
-with tty->ldisc.receive_buf() in the interrupt routine. 
-flush_to_ldisc() has then always to look at both flip buffers 
-and process them.
-If the second flip buffer is still not clean, if the interrupt 
-routine needs to flip it, it has to stop the flow and disable 
-the receive interrupt.
-unthrottle() could then reenable the interrupt.
-
-Maybe my thinking is to simple, what do you think?
-
-Roland
 -- 
-___________________________________________________
-
-VS Vision Systems GmbH, Industrial Image Processing
-Dipl.-Ing. Roland Caßebohm
-Aspelohe 27A, D-22848 Norderstedt, Germany
-Mail: roland.cassebohm@visionsystems.de
-http://www.visionsystems.de
-___________________________________________________
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

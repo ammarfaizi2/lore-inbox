@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTE0Kkq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 06:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbTE0Kkq
+	id S263219AbTE0KqO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 06:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTE0KqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 06:40:46 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:42756 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263212AbTE0Kko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 06:40:44 -0400
-Date: Tue, 27 May 2003 12:53:12 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "David S. Miller" <davem@redhat.com>
-cc: mika.penttila@kolumbus.fi, <rmk@arm.linux.org.uk>,
-       Andrew Morton <akpm@digeo.com>, <hugh@veritas.com>,
-       <LW@karo-electronics.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at
- least))
-In-Reply-To: <20030526.153415.41663121.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0305270111370.5042-100000@serv>
-References: <3ED1A7E2.6080607@kolumbus.fi> <20030525.223655.123997551.davem@redhat.com>
- <Pine.LNX.4.44.0305261414060.12110-100000@serv> <20030526.153415.41663121.davem@redhat.com>
+	Tue, 27 May 2003 06:46:14 -0400
+Received: from [213.229.38.66] ([213.229.38.66]:28290 "HELO mail.falke.at")
+	by vger.kernel.org with SMTP id S263219AbTE0KqN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 06:46:13 -0400
+Message-ID: <3ED34528.90702@winischhofer.net>
+Date: Tue, 27 May 2003 12:59:52 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en, de, de-de, de-at, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Davide Libenzi <davidel@xmailserver.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: SiS USB IRQ (Was: [patch] sis650 irq router fix for 2.4.x)
+References: <3ED21CE3.9060400@winischhofer.net> <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 26 May 2003, David S. Miller wrote:
+Not relevant to the 650, but for the 630: Going through the datasheet 
+revealed that the 630 (with built-in Super South Bridge) does not know 
+register 0x62 (of the "ISA bridge", speak the irq router, 00:01.0, 
+1039:0008, revision 0) - it's reserved there, but the datasheets states 
+explicitly that bit 7 should be set to 1.
 
->    I'd prefer not to do this at driver level at all and rather let the
->    user of the data do it.
-> 
-> This is an easy thing to say, but you have to recognize that PIO
-> based data transfers must retain the EXACT behavior required of
-> real DMA transfers, which is that a subsequent user mapping of the
-> data must be able to see the data without an intervening
-> flush_dcache_page() or similar.
-> 
-> You can STILL optimize this the way you seem to want to.  The
-> update_mmu_cache() routing exists as a point at which you can
-> do such deferred situation-based flushing optimizations.
-> 
-> F.e. at ide_insw() time you mark pages as "might_need_flush" with
-> some bit in page->flags, we even have bits allocated for arch specific
-> use and we can allocate 1 or 2 more if you need them.  Then at
-> update_mmu_cache() time you check this bit and act accordingly.
+The USB interrupts and their routing is determined by bit 8 register 
+0x04 of the USB OHCI configuration space (00:01.2 and 00:01.3).
 
-I thought about this before, but I don't think there is much to optimize. 
-The PG_arch_1 bit is the only optimization which makes sense and setting 
-it by default to dirty, makes it a lot easier for PIO drivers. PIO 
-transfers are really the smallest problem as drivers write only into not 
-uptodate and so not mapped pages. We have to be more careful with other 
-writes, that they always call flush_dcache_page().
-The point I don't like about update_mmu_cache() is that it's called 
-_after_ set_pte(). Practically it's maybe not a problem right now, but 
-the cache synchronization should happen before set_pte().
+Perhaps some interrupt guru knows what to do with this information and 
+is able to verify that the current implementation does this right...
 
-bye, Roman
+Thomas
+
+
+-- 
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
+twini AT xfree86 DOT org
+
+
 

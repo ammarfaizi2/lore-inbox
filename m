@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262775AbTJYSmi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 14:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTJYSmh
+	id S262776AbTJYSnh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 14:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbTJYSnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 14:42:37 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:10769 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S262775AbTJYSmh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 14:42:37 -0400
-Date: Sat, 25 Oct 2003 20:42:35 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "David S. Geirsson" <david@loesje.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: setmax for clipping disks
-Message-ID: <20031025184235.GA9593@win.tue.nl>
-References: <20031025173017.GA621@hyper>
-Mime-Version: 1.0
+	Sat, 25 Oct 2003 14:43:37 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:8209 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262776AbTJYSng
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 14:43:36 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Vid Strpic <vms@bofhlet.net>, linux-kernel@vger.kernel.org
+Subject: Re: *FAT problem in 2.6.0-test8
+References: <20031024103225.GC1046@home.bofhlet.net>
+	<20031024185953.GA9265@win.tue.nl>
+	<87ismdoc2s.fsf@devron.myhome.or.jp>
+	<20031025110514.GA9553@win.tue.nl>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 26 Oct 2003 03:43:27 +0900
+In-Reply-To: <20031025110514.GA9553@win.tue.nl>
+Message-ID: <87smlhkvjk.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031025173017.GA621@hyper>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 25, 2003 at 07:30:17PM +0200, David S. Geirsson wrote:
+Andries Brouwer <aebr@win.tue.nl> writes:
 
-> Also (since I'm asking anyway) has anyone tried the setmax utility on
-> IBM/Hitachi vendored laptop drives?
+> [BTW - Does anyone have more information about this other nonstandard
+> value, apparently found on pc9800?]
 
-See the discussion on
-http://www.win.tue.nl/~aeb/linux/Large-Disk-11.html#ss11.3
-
-I have no information on laptops.
-
+IIRC, it seems it was used by DOS of PC98 series.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbTDHCBF (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 22:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTDHCBF (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 22:01:05 -0400
-Received: from dp.samba.org ([66.70.73.150]:34536 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263865AbTDHCBB (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 22:01:01 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: SET_MODULE_OWNER? 
-In-reply-to: Your message of "Mon, 07 Apr 2003 14:29:44 -0400."
-             <3E91C398.9070400@pobox.com> 
-Date: Tue, 08 Apr 2003 12:01:37 +1000
-Message-Id: <20030408021239.1155C2C4EE@lists.samba.org>
+	id S263872AbTDHCME (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 22:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263876AbTDHCME (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 22:12:04 -0400
+Received: from almesberger.net ([63.105.73.239]:22791 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S263872AbTDHCMD (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 22:12:03 -0400
+Date: Mon, 7 Apr 2003 23:23:02 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Andi Kleen <ak@suse.de>
+Cc: Robert Williamson <robbiew@us.ibm.com>, linux-kernel@vger.kernel.org,
+       aniruddha.marathe@wipro.com, ltp-list@lists.sourceforge.net
+Subject: Re: Same syscall is defined to different numbers on 3 different archs(was Re: Makefile  issue)
+Message-ID: <20030407232302.D19288@almesberger.net>
+References: <OF51DE965A.FDCB6DBE-ON85256D01.005201B1-86256D01.005610CF@pok.ibm.com.suse.lists.linux.kernel> <p73vfxqxpz4.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73vfxqxpz4.fsf@oldwotan.suse.de>; from ak@suse.de on Mon, Apr 07, 2003 at 05:54:39PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3E91C398.9070400@pobox.com> you write:
-> Rusty Russell wrote:
-> > I thought it was completely useless, hence deprecated.
-> > 
-> > Anyone have any reason to defend it?
-> 
-> 
-> It's used to allow source compatibility with all kernels, old or new.
-> 
-> Thus it is in active use, and should not be removed.
+Andi Kleen wrote:
+> #include </path/to/kernel/source/include/asm-<arch>/unistd.h>
+> (you need the version in the kernel source because many glibc packagers
+> in their infinite wisdom use an old outdated copy of asm/ usually from
+> the last stable kernel only) 
 
-Inside individual drivers, or a set of compat macros, it makes sense.
-But as a general module.h primitive it doesn't.
+Do we need a /proc/syscalls ? :-)
 
-Imagine a structure adds an owner field in 2.5.  This macro doesn't
-help you, you need a specific compat macro for that struct.
+- Werner
 
-ie. AFAICT it only buys you 2.2 compatibility, and even then only if
-you #define it at the top of your driver.
-
-I still don't understand: please demonstrate a use in existing source.
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

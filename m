@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262862AbTJ3VXv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbTJ3VXv
+	id S262921AbTJ3VmS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262928AbTJ3VmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:23:51 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:63939 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S262855AbTJ3VXt (ORCPT
+	Thu, 30 Oct 2003 16:42:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18356 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262921AbTJ3VmQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:23:49 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: 8250 serial issues in 2.6.0-test9
-Date: Thu, 30 Oct 2003 14:23:47 -0700
-User-Agent: KMail/1.5.3
+	Thu, 30 Oct 2003 16:42:16 -0500
+Date: Thu, 30 Oct 2003 13:44:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: age <ahuisman@cistron.nl>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Subject: Re: READAHEAD
+Message-Id: <20031030134407.0c97c86e.akpm@osdl.org>
+In-Reply-To: <bnrdqi$uho$1@news.cistron.nl>
+References: <bnrdqi$uho$1@news.cistron.nl>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310301423.47442.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+age <ahuisman@cistron.nl> wrote:
+>
+> I have a problem which i don`t understand and i hope that you
+>  will and can  help me. The problem is that i experience strange disk
+>  read performance. I have to set hdparm -m16 -u1 -c1 -d1 -a4096 /dev/hde
+>  to get  timing buffered disk reads of 56 MB/SEC.
+>  When i disable readahead i get 17 MB/SEC
+>  When i enable readahead with -a8 i get  17 MB/SEC
+>  When i enable readahead with -a16 i get 24,5 MB/SEC
+>  When i enable readahead with -a32 i get 30,5 MB/SEC
+>  When i enable readahead with -a64 i get 35 MB/SEC
+>  When i enable readahead with -a128 i get 39 MB/SEC
+>  When i enable readahead with -a256 i get 39 MB/SEC
+>  When i enable readahead with -a512 i get 41 MB/SEC
+>  When i enable readahead with -a1024 i get 50 MB/SEC
+>  When i enable readahead with -a2048 i get 50 MB/SEC
+>  When i enable readahead with -a4096 i get 56 MB/SEC
+>  With -a8192,-a16384 and -a32768 i get also 56MB/SEC
+> 
+>  Before, i never had to set readahead so high
+>  Please could you tell me, what is going on here ?
 
-I know you don't want to mess with the setserial problem I
-tripped over, and that's fine -- it's not a huge issue for
-me.  While poking around at it, I noticed a couple other
-issues, which I'll just mention here in case anybody else
-wants to have a go at reworking this code.
+Lots of people have been reporting this.  It's rather weird.
 
-Mostly this mail is just because I'm about to go on vacation,
-and didn't want all my pondering to be completely wasted :-)
-
-Bjorn
-
-
-serial8250_release_port():
-	When releasing an RSA port, it looks like serial8250_release_port()
-	releases the wrong range ("start + offset" rather than "start") 
-	for the standard IO port region.
-
-serial8250_request_port():
-	The error path ("ret < 0") leaks memory because request_region()
-	kmallocs the new resource, but release_resource() doesn't free it.
-
-serial8250_config_port():
-	Same leak as in serial8250_request_port().
-
-serial8250_release_port()/serial8250_request_port():
-	The problem I mentioned before -- _request_port() doesn't
-	ioremap the region that was iounmapped by _release_port(),
-	so "setserial /dev/ttyS0 port 0x3f8" causes an oops if
-	ttyS0 is an MMIO uart:
-
-	    uart_set_info()
-	        serial8250_release_port()
-	            iounmap(membase);
-	            membase = NULL;
-	            release_mem_region(mapbase, ...);
-	        serial8250_request_port()
-	            request_mem_region(mapbase, ...);
-	        serial8250_startup()
-	            serial_out()
-	                port.iotype == IO_MEM, so
-	                    writeb(value, membase);
-	                        oops - null pointer dereference (membase == NULL)
+Is the same effect observable when reading a large file, or is it only
+observable via `hdparm -t'?
 

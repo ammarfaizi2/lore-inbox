@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263648AbUDMR3t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 13:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263649AbUDMR3t
+	id S263645AbUDMR3k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 13:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUDMR3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 13:29:49 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:20868 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263648AbUDMR3q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 13:29:46 -0400
-Date: Tue, 13 Apr 2004 10:29:46 -0700
-From: Andy Isaacson <adi@bitmover.com>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BK] status
-Message-ID: <20040413172946.GA17271@bitmover.com>
-References: <20040413150435.GA12004@work.bitmover.com> <20040413153631.GA2385@mars.ravnborg.org>
+	Tue, 13 Apr 2004 13:29:40 -0400
+Received: from mproxy.gmail.com ([216.239.56.253]:4831 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S263645AbUDMR3i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 13:29:38 -0400
+Message-ID: <AA1FCD0C.1328532@mail.gmail.com>
+Date: Tue, 13 Apr 2004 10:29:05 -0700
+From: Martin Peck <coderman@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Question about dentry cache in VFS
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040413153631.GA2385@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 13, 2004 at 05:36:32PM +0200, Sam Ravnborg wrote:
-> > Other than the up/down problems, have any of you noticed bkbits being 
-> > slower since the move (which happened Friday or Saturday, it's sort of
-> > a blur)?
-> 
-> I see no slowdown.
-> But this morning (something like 8 hours ago) I could not pull from
-> linux.bkbits.net - it just silently exited.
-> 
-> When trying to access www.bkbits.net I got a full list of projects,
-> but when I tried to access one of the projects (when it starts using port
-> 8080) I after a while got a message that "I had not purchased BKWeb" or
-> something similar. I took this as overload but now you ask I report it.
+I am working on a userspace filesystem and would like
+the ability to selectively decache inodes and their children
+from the VFS.
 
-Both problems due to an internal network error, which should be fixed
-now.  Thanks for the report; please let us know if you see any further
-problems.
+I can do this on a global scale using invalidate_inodes() and
+shrink_dcache_sb(), however, I would also like to be able
+to decache for specific inodes/entries.
 
--andy
+One possibility (and perhaps the 'right' way) to do this which
+I had considered is using dentry_operations to trap d_revalidate
+as needed, however, I would like to avoid an invocation here
+for every dentry if there is another way to selectively decache.
+
+Thanks in advance,

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261792AbTCGV2e>; Fri, 7 Mar 2003 16:28:34 -0500
+	id <S261791AbTCGV1m>; Fri, 7 Mar 2003 16:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261796AbTCGV2e>; Fri, 7 Mar 2003 16:28:34 -0500
-Received: from main.gmane.org ([80.91.224.249]:54986 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S261792AbTCGV2c>;
-	Fri, 7 Mar 2003 16:28:32 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jason Lunz <lunz@falooley.org>
-Subject: [PATCH] fix SMP lockup in eepro100 with ethtool on unused interface
-Date: Fri, 7 Mar 2003 21:38:29 +0000 (UTC)
-Organization: PBR Streetgang
-Message-ID: <slrnb6i4bm.a4a.lunz@stoli.localnet>
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	id <S261793AbTCGV1m>; Fri, 7 Mar 2003 16:27:42 -0500
+Received: from nat9.steeleye.com ([65.114.3.137]:25862 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id <S261791AbTCGV1l>; Fri, 7 Mar 2003 16:27:41 -0500
+Subject: Re: 2.5.64-ac3: 3c527.c doesn't compile
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030307210323.GD19615@fs.tum.de>
+References: <200303071756.h27HuiY01551@devserv.devel.redhat.com> 
+	<20030307210323.GD19615@fs.tum.de>
+Content-Type: multipart/mixed; boundary="=-wgaNFt70SEN1snrtIwQL"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 07 Mar 2003 15:34:52 -0600
+Message-Id: <1047072894.3444.22.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When support for the GSET and SSET ethtool ioctls was added to
-eepro100.c in 2.4.20, the tx lock was overloaded to serialize their use.
-Unfortunately, this lock is only initialized in dev->open(), causing
-ethtool to deadlock the machine when used on an unconfigured eepro100
-interface.
 
-The fix is to initialize the spinlock at probe time. Jeff, the patch
-below is against 2.4.21-pre5, but I'm assuming you'll integrate it into
-2.5 and push it to Linus as well as Marcelo. It applies to both trees.
+--=-wgaNFt70SEN1snrtIwQL
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Jason
+On Fri, 2003-03-07 at 15:03, Adrian Bunk wrote:
+> On Fri, Mar 07, 2003 at 12:56:44PM -0500, Alan Cox wrote:
+> 
+> >...
+> > Linux 2.5.64-ac2
+> >...
+> > o	Update 3c527 to modern locking (untested)	(James Bottomley)
+> >...
+> 
+> It seems even the compilation is untested?
+
+It builds for me fine in 2.5.64.  Perhaps you misapplied the patch, or
+got a mangled one.  The correct patch is below.
+
+James
 
 
---- linux-2.4.21-pre5/drivers/net/eepro100.c	Thu Feb 27 14:21:34 2003
-+++ linux-eepro100/drivers/net/eepro100.c	Fri Mar  7 16:38:17 2003
-@@ -842,6 +842,7 @@
- 	sp->lstats = (struct speedo_stats *)(sp->tx_ring + TX_RING_SIZE);
- 	sp->lstats_dma = TX_RING_ELEM_DMA(sp, TX_RING_SIZE);
- 	init_timer(&sp->timer); /* used in ioctl() */
-+	spin_lock_init(&sp->lock);
- 
- 	sp->mii_if.full_duplex = option >= 0 && (option & 0x10) ? 1 : 0;
- 	if (card_idx >= 0) {
-@@ -993,7 +994,6 @@
- 	sp->dirty_tx = 0;
- 	sp->last_cmd = 0;
- 	sp->tx_full = 0;
--	spin_lock_init(&sp->lock);
- 	sp->in_interrupt = 0;
- 
- 	/* .. we can safely take handler calls during init. */
+--=-wgaNFt70SEN1snrtIwQL
+Content-Disposition: attachment; filename=tmp.diff
+Content-Type: application/octet-stream; name=tmp.diff
+Content-Transfer-Encoding: base64
+
+
+--=-wgaNFt70SEN1snrtIwQL--
 

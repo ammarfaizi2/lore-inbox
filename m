@@ -1,56 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291192AbSCDDdN>; Sun, 3 Mar 2002 22:33:13 -0500
+	id <S291245AbSCDDfD>; Sun, 3 Mar 2002 22:35:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291193AbSCDDcx>; Sun, 3 Mar 2002 22:32:53 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:31724 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S291192AbSCDDcn>;
-	Sun, 3 Mar 2002 22:32:43 -0500
-Message-ID: <3C82EAD9.8010802@candelatech.com>
-Date: Sun, 03 Mar 2002 20:32:41 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S291194AbSCDDep>; Sun, 3 Mar 2002 22:34:45 -0500
+Received: from 216-42-72-143.ppp.netsville.net ([216.42.72.143]:43164 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S291193AbSCDDek>; Sun, 3 Mar 2002 22:34:40 -0500
+Date: Sun, 03 Mar 2002 22:34:07 -0500
+From: Chris Mason <mason@suse.com>
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        James Bottomley <James.Bottomley@SteelEye.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Message-ID: <757370000.1015212846@tiny>
+In-Reply-To: <E16heCm-0000Q5-00@starship.berlin>
+In-Reply-To: <200202281536.g1SFaqF02079@localhost.localdomain> <E16heCm-0000Q5-00@starship.berlin>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: J Sloan <joe@tmsusa.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: latency & real-time-ness.
-In-Reply-To: <E16hd1T-0005QW-00@the-village.bc.nu> <3C82A702.1030803@candelatech.com> <3C82CA19.9000702@tmsusa.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-J Sloan wrote:
+On Sunday, March 03, 2002 11:11:44 PM +0100 Daniel Phillips <phillips@bonn-fries.net> wrote:
 
-> Ben Greear wrote
+> I have a standing offer from at least one engineer to make firmware changes 
+> to the drives if it makes Linux work better.  So a reasonable plan is: first 
+> know what's ideal, second ask for it.  Coupled with that, we'd need a way of 
+> identifying drives that don't work in the ideal way, and require a fallback.
 > 
->>> Would the low-latency patch help me?
->>>
->>> Yes
->> Excellent, I'm compiling that now.... 
-> Eh?
+> In my opinion, the only correct behavior is a write barrier that completes
+> when data is on the platter, and that does this even when write-back is
+> enabled.  
+
+With a battery backup, we want the raid controller (or whatever) to 
+pretend the barrier is done right away.  It should be as safe, and 
+allow the target to merge the writes.
+
+> Surely this is not rocket science at the disk firmware level.  Is
+> this or is this not the way ordered tags were supposed to work?
+
+There are many issues at play in this thread, here's an attempt at
+a summary (please correct any mistakes).
+
+1) The drivers would need to be changed to properly keep tag ordering 
+in place on resets, and error conditions.
+
+2) ordered tags force ordering of all writes the drive is processing.
+For some workloads, it will be forced to order stuff the journal code
+doesn't care about at all, perhaps leading to lower performance than
+the simple wait_on_buffer() we're using now.
+
+2a) Are the filesystems asking for something impossible?  Can drives
+really write block N and N+1, making sure to commit N to media before
+N+1 (including an abort on N+1 if N fails), but still keeping up a 
+nice seek free stream of writes?
+
+3) Some drives may not be very smart about ordered tags.  We need
+to figure out which is faster, using the ordered tag or using a
+simple cache flush (when writeback is on).  The good news about
+the cache flush is that it doesn't require major surgery in the
+scsi error handlers.
+
+4) If some scsi drives come with writeback on by default, do they also
+turn it on under high load like IDE drives do?
+
 > 
-> The full-on low latency patch from Andrew Morton?
+>> Clearly, there would also have to be a mechanism to flush the cache on 
+>> unmount, so if this were done by ioctl, would you prefer that the filesystem 
+>> be in charge of flushing the cache on barrier writes, or would you like the sd 
+>> device to do it transparently?
 > 
-> You might want to make some diffs available
-> since AFIK that would have involved quite a bit
-> of hand editing to fix rejects...
+> The filesystem should just say 'this request is a write barrier' and the 
+> lower layers, whether that's scsi or bio, should do what's necessary to make
+> it come true.
 
+That's the goal.  The current 2.4 patch differentiates between ordered
+barriers and flush barriers just so I can make the flush the default
+on IDE, and enable the ordered stuff when I want to experiment on scsi.
 
-I found this patch:
-preempt-kernel-rml-2.4.19-pre2-ac2-1.patch
-
-It applied cleanly...looks like maybe this isn't
-the low-latency patch though now that I look at
-it a little closer.
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+-chris
 

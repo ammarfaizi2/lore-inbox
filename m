@@ -1,108 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263207AbTJBDGC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 23:06:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263218AbTJBDGC
+	id S263220AbTJBC6g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 22:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbTJBC6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 23:06:02 -0400
-Received: from dyn-ctb-203-221-73-10.webone.com.au ([203.221.73.10]:17156 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S263207AbTJBDF6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 23:05:58 -0400
-Message-ID: <3F7B9600.408@cyberone.com.au>
-Date: Thu, 02 Oct 2003 13:05:36 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Wed, 1 Oct 2003 22:58:36 -0400
+Received: from fujitsu2.FUJITSU.COM ([192.240.0.2]:49575 "EHLO
+	fujitsu2.fujitsu.com") by vger.kernel.org with ESMTP
+	id S263220AbTJBC6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 22:58:06 -0400
+Date: Wed, 01 Oct 2003 19:57:48 -0700
+From: Yasunori Goto <ygoto@fsw.fujitsu.com>
+To: linux-ia64@vger.kernel.org, discontig-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Idea of Memory hotplug
+Cc: linux-hotplug-devel@lists.sourceforge.net
+Message-Id: <20031001194236.8ADF.YGOTO@fsw.fujitsu.com>
 MIME-Version: 1.0
-To: piotr@member.fsf.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0-test6
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <200309281703.53067.kernel@kolivas.org> <200309280502.36177.rob@landley.net> <3F77BB2C.7030402@cyberone.com.au> <3F7863F0.6070401@wmich.edu> <20031002004102.GB2013@81.38.200.176>
-In-Reply-To: <20031002004102.GB2013@81.38.200.176>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.06.02
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Dear all.
 
-Pedro Larroy wrote:
+I'm going to enhance some features in Linux that could replace
+highly reliable/available system like mainframe and UNIX.
+My first interest is Memory hotplug functionality.
+Hot remove memory is not only needed for online memory maintenance
+but also necessary for the dynamic re-partitioning(*) functionality,
+which many mainframe systems already support.
 
->On Mon, Sep 29, 2003 at 12:55:12PM -0400, Ed Sweetman wrote:
->
->>Nick Piggin wrote:
->>
->>>
->>>Rob Landley wrote:
->>>
->>>
->>>>On Sunday 28 September 2003 02:03, Con Kolivas wrote:
->>>>
->>>>
->>>>>On Sun, 28 Sep 2003 11:27, Linus Torvalds wrote:
->>>>>
->>>>>>from Andrew Morton. Most notably perhaps Con's scheduler changes that
->>>>>
->>>>>>have been discussed extensively and made it into the -mm tree for
->>>>>>testing.
->>>>>>
->>>>>>
->>>>>For those who are trying this for the first time, please note that the
->>>>>scheduler has been tuned to tell the difference between tasks of the 
->>>>>_same_
->>>>>nice level. This means do NOT renice X or it will make audio skip unless
->>>>>you also renice your audio application by the same amount. Lots of
->>>>>distributions have done this for the old 2.4 scheduler which could not
->>>>>treat equal "nice" levels as differently as the new scheduler does 
->>>>>and 2.6
->>>>>shouldn't need special treatment.
->>>>>
->>>>>So for testing note the following points:
->>>>>
->>>>>Make sure X is NOT reniced to -10 as many distributions are doing.
->>>>>Some shells spawn processes at nice +5 by default and this will make 
->>>>>audio
->>>>>apps suffer.
->>>>>Make sure your hard disk, graphics card and audio card are performing at
->>>>>equal standard to your 2.4 kernel (ie dma is working, graphics is fully
->>>>>accelerated etc).
->>>>>
->>>>>
->>>>I.E. with your new scheduler, priority levels actually have enough of 
->>>>an effect now that things that aren't reniced can be noticeably 
->>>>starved by things that are.
->>>>
->>>>
->>>AFAIK, Con's scheduler doesn't change the nice implementation at all.
->>>Possibly some of his changes amplify its problems, or, more likely they
->>>remove most other scheduler problems leaving this one noticable.
->>>
->>>If X is running at -20, and xmms at +19, xmms is supposed to still get
->>>5% of the CPU. Should be enough to run fine. Unfortunately this is
->>>achieved by giving X very large timeslices, so xmms's scheduling latency
->>>becomes large. The interactivity bonuses don't help, either.
->>>
->>>
->>there are 40 positions between -20 and 19, that doesn't equal 5% steps. 
->>They don't even refer to % of cpu.  If i nice a process to -20 it 
->>doesn't get a given percentage of cpu just because it's -20. I may have 
->>other processes at -20 as well.  If you nice something to -20 and it is 
->>actually using that cpu then things that are +19 shouldn't run and wont 
->>run.  If I nice -20 vmstat 1, it's not going to starve xmms (or any 
->>better audio player).  -20 means starve all and it should do that when 
->>it actually makes use of the resources.
->>
->>
->
->Why not run xmms with SCHED_RR or SCHED_FIFO?
->
->
+(*) Memory and CPUs of a system can be divided into several
+independent sets to form multiple independent computers
+("partitioning"). Re-partitioning means moving separation boundary of
+memory (and CPUs, maybe) to improve resource utilization.
 
-Well because playing an mp3 really is a pitiful task for modern CPUs,
-and the standard scheduler should handle this fine. Also a music skip
-isn't terribly important.
+My idea is followings.
 
-Realtime applications are difficult to make robust and they can easily
-hang the system.
+    - Basically, swap out memory on node which user want to remove.
+    - Areas which can't be removed is collected to node 0.
+    - Node 0 is NOT hotpluggable, but other nodes are hotpluggable.
+    - User area (which is able to be swapped out in many case)
+      allocated at ZONE_HIGHMEM now, so we will make it as follows.
+
+  Now
+      node 0                 node 1                node 2
+    +----------+           +----------+          +----------+
+    |          |           |          |          |          |
+    |          |-----------|          |----------|          |
+    |          |           |          |          |          |
+    +----------+           +----------+          +----------+
+     ZONE_DMA               ZONE_DMA              ZONE_DMA
+     ZONE_NORMAL            ZONE_NORMAL           ZONE_NORMAL
+     ZONE_HIGHMEM           ZONE_HIGHMEM          ZONE_HIGHMEM
+
+
+  We want to make like this.
+      node 0                 node 1                node 2
+     (unhotpluggable)      (hotpluggable)        (hotpluggable)
+    +----------+           +----------+          +----------+
+    |          |           |          |          |          |
+    |          |-----------|          |----------|          |
+    |          |           |          |          |          |
+    +----------+           +----------+          +----------+
+     ZONE_DMA
+     ZONE_NORMAL              
+                           ZONE_HIGHMEM          ZONE_HIGHMEM
+
+Todo list:
+  - Pages which without secondary store.
+    The page caches of virtural file system like sysfs.
+  - Huge TLB page which cannot be page out.
+  - Pages which need time to become free.
+    Pages which are being sent by sendfile, or accessed by NFS.
+  - DMA mapping area.
+  - And so on....
+
+I wish I will have comments from anybody.
+And,I want to find other appropriate mailing-list 
+about this discussion if you know.
+
+Best regards.
+
+
+-- 
+Yasunori Goto <ygoto at fsw.fujitsu.com>
+
 

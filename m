@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292754AbSCDXsA>; Mon, 4 Mar 2002 18:48:00 -0500
+	id <S293017AbSCDXso>; Mon, 4 Mar 2002 18:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292764AbSCDXru>; Mon, 4 Mar 2002 18:47:50 -0500
-Received: from callisto.affordablehost.com ([64.23.37.14]:36016 "HELO
-	callisto.affordablehost.com") by vger.kernel.org with SMTP
-	id <S292754AbSCDXrn>; Mon, 4 Mar 2002 18:47:43 -0500
-Message-ID: <3C8407C0.1000503@keyed-upsoftware.com>
-Date: Mon, 04 Mar 2002 17:48:16 -0600
-From: David Stroupe <dstroupe@keyed-upsoftware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
+	id <S293014AbSCDXsb>; Mon, 4 Mar 2002 18:48:31 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:6672 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292764AbSCDXsW>;
+	Mon, 4 Mar 2002 18:48:22 -0500
+Date: Mon, 4 Mar 2002 20:48:02 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Robert Love <rml@tech9.net>
+Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: latency & real-time-ness.
+In-Reply-To: <1015266757.15277.4.camel@phantasy>
+Message-ID: <Pine.LNX.4.44L.0203042047010.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Q:Shared IRQ
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have written a driver for a pci board that uses interrupts.  I install 
-the shared handler with a unique dev_id, or at least it should be unique 
-as it is the address of my driver's internal data struct for that card. 
- I get not only my interrupts, but also the interrupts of the shared 
-device, namely the network card.  Is this what I should expect?  If I 
-get a notification for the network card, why is the dev_id the same as 
-what I passed?  If I didn't have an interrupt pending bit on my 
-hardware, how would I distinguish between the interrupts?
+On 4 Mar 2002, Robert Love wrote:
 
-TIA
+> If rmap finds its way into 2.5, I and others have some ideas about ways
+> to optimize the algorithms to reduce lock hold time and benefit from
+> preemption.  For example, Daniel Phillips has some ideas wrt
+> zap_page_range.
 
+Feel free to help resolve these issues before rmap code gets
+merged. I'd prefer to be able to introduce rmap in small bits
+and pieces without breaking anything.
+
+regards,
+
+Rik
 -- 
-Best regards,
-David Stroupe
-Keyed-Up Software 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

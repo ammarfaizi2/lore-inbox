@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262787AbSITPtx>; Fri, 20 Sep 2002 11:49:53 -0400
+	id <S262785AbSITPte>; Fri, 20 Sep 2002 11:49:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSITPtx>; Fri, 20 Sep 2002 11:49:53 -0400
-Received: from packet.digeo.com ([12.110.80.53]:17594 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262787AbSITPtw>;
-	Fri, 20 Sep 2002 11:49:52 -0400
-Message-ID: <3D8B4421.59392B30@digeo.com>
-Date: Fri, 20 Sep 2002 08:52:01 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S262787AbSITPte>; Fri, 20 Sep 2002 11:49:34 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9235 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262785AbSITPtd>; Fri, 20 Sep 2002 11:49:33 -0400
+Date: Fri, 20 Sep 2002 11:47:22 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 100,000 threads? [was: [ANNOUNCE] Native POSIX Thread Library 0.1]
+In-Reply-To: <Pine.LNX.4.44.0209200942030.27825-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1020920114403.29079B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: locking rules for ->dirty_inode()
-References: <15755.14336.739277.700462@laputa.namesys.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Sep 2002 15:52:02.0303 (UTC) FILETIME=[A92AB8F0:01C260BD]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
-> 
-> Hello,
-> 
-> Documentation/filesystems/Locking states that all super operations may
-> block, but __set_page_dirty_buffers() calls
-> 
->    __mark_inode_dirty()->s_op->dirty_inode()
-> 
-> under mapping->private_lock spin lock. This seems strange, because file
-> systems' ->dirty_inode() assume that they are allowed to block. For
-> example, ext3_dirty_inode() allocates memory in
-> 
->    ext3_journal_start()->journal_start()->new_handle()->...
-> 
+On Fri, 20 Sep 2002, Ingo Molnar wrote:
 
-OK, thanks.
 
-mapping->private_lock is taken there to pin page->buffers()
-(Can't lock the page because set_page_dirty is called under
-page_table_lock, and other locks).
+> the extreme high-end of threading typically uses very controlled
+> applications and very small user level stacks.
+> 
+> as to the question of why so many threads, the answer is because we can :)
+> This, besides demonstrating some of the recent scalability advances, gives
+> us the warm fuzzy feeling that things are right in this area. I mean,
+> there are architectures where Linux could map a petabyte of RAM just fine,
+> even though that might not be something we desperately need today.
 
-I'm sure we can just move the spin_unlock up to above the
-TestSetPageDirty(), but I need to zenuflect for a while over
-why I did it that way.
+I think testing at these high numbers is a good proof of scalability,
+although response and stability are also important. Before I went to NGPT
+I had a fair bit of problem with learning experiences after threads got
+beyond 200 or so.
 
-It's necessary to expose buffer-dirtiness and page-dirtiness
-to the rest of the world in the correct order.  If we set the
-page dirty and then the buffers, there is a window in which writeback
-could find the dirty page, try to write it, discover clean buffers
-and mark the page clean.  We would end up with a !PageDirty page,
-on mapping->clean_pages, with dirty buffers.  It would never be
-written.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Yup.  We can move that spin_unlock up ten lines.

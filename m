@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263980AbUENHU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263946AbUENHWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263980AbUENHU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 03:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUENHU5
+	id S263946AbUENHWF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 03:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUENHWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 03:20:57 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:38635 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263980AbUENHUz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 03:20:55 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Andy Lutomirski <luto@myrealbox.com>, Andrew Morton <akpm@osdl.org>,
-       vojtech@suse.cz
-Subject: Re: 2.6.6-mm2 (oops on keyboard/mouse USB hub unplug)
-Date: Fri, 14 May 2004 09:20:51 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <fa.h3bu70j.nm6rj1@ifi.uio.no> <40A4207D.9000003@myrealbox.com>
-In-Reply-To: <40A4207D.9000003@myrealbox.com>
+	Fri, 14 May 2004 03:22:05 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:1297 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S263946AbUENHV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 03:21:59 -0400
+Date: Fri, 14 May 2004 15:30:15 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: raven@wombat.indigo.net.au
+To: Christoph Hellwig <hch@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm2
+In-Reply-To: <20040513121206.A8620@infradead.org>
+Message-ID: <Pine.LNX.4.58.0405141509090.3012@wombat.indigo.net.au>
+References: <20040513032736.40651f8e.akpm@osdl.org> <20040513114520.A8442@infradead.org>
+ <20040513035134.2e9013ea.akpm@osdl.org> <20040513121206.A8620@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200405140920.51717.baldrick@free.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unplugging my hub still oopses.  This one was introduced in -mm1
-> (2.6.6-rc2-mm1 was fine), and reverting mm1's bk-usb.patch fixed it.
-> This happens every time.
+On Thu, 13 May 2004, Christoph Hellwig wrote:
 
-The following patch from Alan Stern should fix it:
+> On Thu, May 13, 2004 at 03:51:34AM -0700, Andrew Morton wrote:
+> > Once I'm convinced that kernel.org kernels will be able to run applications
+> > which vendor kernels will run, sure.
+> > 
+> > We're nowhere near that, and your continual whining gets us no closer.
+> 
+> Sorry, but this argumentation is utter bullshit.
 
-===== drivers/usb/core/message.c 1.83 vs edited =====
---- 1.83/drivers/usb/core/message.c     Mon May  3 06:26:40 2004
-+++ edited/drivers/usb/core/message.c   Thu May 13 13:37:48 2004
-@@ -830,7 +830,14 @@
-                        interface = dev->actconfig->interface[i];
-                        dev_dbg (&dev->dev, "unregistering interface %s\n",
-                                interface->dev.bus_id);
--                       device_unregister (&interface->dev);
-+                       device_del (&interface->dev);
-+               }
-+
-+               /* Now that the interfaces are unbound, nobody should
-+                * try to access them.
-+                */
-+               for (i = 0; i < dev->actconfig->desc.bNumInterfaces; i++) {
-+                       put_device (&dev->actconfig->interface[i]->dev);
-                        dev->actconfig->interface[i] = NULL;
-                }
-                dev->actconfig = 0;
-===== drivers/usb/core/usb.c 1.264 vs edited =====
---- 1.264/drivers/usb/core/usb.c        Thu Apr 15 08:19:20 2004
-+++ edited/drivers/usb/core/usb.c       Thu May 13 13:40:06 2004
-@@ -198,6 +198,9 @@
-  * This routine helps device drivers avoid such mistakes.
-  * However, you should make sure that you do the right thing with any
-  * alternate settings available for this interfaces.
-+ *
-+ * Don't call this function unless you are bound to one of the interfaces
-+ * on this device or you own the dev->serialize semaphore!
-  */
- struct usb_interface *usb_ifnum_to_if(struct usb_device *dev, unsigned ifnum)
- {
-@@ -228,6 +231,9 @@
-  * it would be incorrect to assume that the first altsetting entry in
-  * the array corresponds to altsetting zero.  This routine helps device
-  * drivers avoid such mistakes.
-+ *
-+ * Don't call this function unless you are bound to the intf interface
-+ * or you own the device's ->serialize semaphore!
-  */
- struct usb_host_interface *usb_altnum_to_altsetting(struct usb_interface *intf,
-                unsigned int altnum)
+Excuse me for interrupting.
+
+Surely the main concern is the place where this runs not the kernel 
+developer or application developer.
+
+I know it's not a good situation, it never has been, but sites often 
+aren't able to upgrade to new versions of kernels or products, in anything 
+like short order, for all sorts of reasons.
+
+Ian
+

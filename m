@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266907AbTATTkw>; Mon, 20 Jan 2003 14:40:52 -0500
+	id <S267271AbTATTw1>; Mon, 20 Jan 2003 14:52:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266888AbTATTk3>; Mon, 20 Jan 2003 14:40:29 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:3332 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266837AbTATTiu>;
-	Mon, 20 Jan 2003 14:38:50 -0500
-Date: Sun, 19 Jan 2003 22:42:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       torvalds@transmeta.com
-Subject: Kill unused code
-Message-ID: <20030119214230.GA27874@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S267237AbTATTvo>; Mon, 20 Jan 2003 14:51:44 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:21989 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267206AbTATTvF>; Mon, 20 Jan 2003 14:51:05 -0500
+Date: Mon, 20 Jan 2003 11:52:20 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Theurer <habanero@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
+cc: Erich Focht <efocht@ess.nec.de>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: [patch] sched-2.5.59-A2
+Message-ID: <264880000.1043092340@flay>
+In-Reply-To: <200301201352.55534.habanero@us.ibm.com>
+References: <Pine.LNX.4.44.0301201817220.12564-100000@localhost.localdomain> <200301201313.39621.habanero@us.ibm.com> <262510000.1043091224@flay> <200301201352.55534.habanero@us.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>> > I have included a very rough patch to do ht-numa topology.  I requires to
+>> > manually define CONFIG_NUMA and CONFIG_NUMA_SCHED.  It also uses
+>> > num_cpunodes instead of numnodes and defines MAX_NUM_NODES to 8 if
+>> > CONFIG_NUMA is defined.
+>> 
+>> Whilst it's fine for benchmarking, I think this kind of overlap is a
+>> very bad idea long-term - the confusion introduced is just asking for
+>> trouble. And think what's going to happen when you mix HT and NUMA.
+>> If we're going to use this for HT, it needs abstracting out.
+> 
+> I have no issues with using HT specific bits instead of NUMA.  Design wise it 
+> would be nice if it could all be happy together, but if not, then so be it.  
 
-Second part of this patch never got in (and I was told it was not bug
-in ASUS but in linux), so it is useless junk... Please apply,
-								Pavel
+That's not what I meant - we can share the code, we just need to abstract
+it out so you don't have to turn on CONFIG_NUMA. That was the point of
+the pooling patch I posted at the weekend. Anyway, let's decide on the
+best approach first, we can clean up the code for merging later.
 
---- clean/arch/i386/kernel/dmi_scan.c	2002-11-01 00:37:04.000000000 +0100
-+++ linux-swsusp/arch/i386/kernel/dmi_scan.c	2003-01-19 18:10:59.000000000 +0100
-@@ -450,17 +450,6 @@
- }
- 
- /*
-- * ASUS K7V-RM has broken ACPI table defining sleep modes
-- */
--
--static __init int broken_acpi_Sx(struct dmi_blacklist *d)
--{
--	printk(KERN_WARNING "Detected ASUS mainboard with broken ACPI sleep table\n");
--	dmi_broken |= BROKEN_ACPI_Sx;
--	return 0;
--}
--
--/*
-  * Toshiba keyboard likes to repeat keys when they are not repeated.
-  */
- 
-@@ -746,12 +750,6 @@
- 			NO_MATCH, NO_MATCH, NO_MATCH
- 			} },
- 			
--	{ broken_acpi_Sx, "ASUS K7V-RM", {		/* Bad ACPI Sx table */
--			MATCH(DMI_BIOS_VERSION,"ASUS K7V-RM ACPI BIOS Revision 1003A"),
--			MATCH(DMI_BOARD_NAME, "<K7V-RM>"),
--			NO_MATCH, NO_MATCH
--			} },
--			
- 	{ broken_toshiba_keyboard, "Toshiba Satellite 4030cdt", { /* Keyboard generates spurious repeats */
- 			MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
- 			NO_MATCH, NO_MATCH, NO_MATCH
+M.
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?

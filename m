@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132477AbQLRSuw>; Mon, 18 Dec 2000 13:50:52 -0500
+	id <S132517AbQLRSvw>; Mon, 18 Dec 2000 13:51:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132478AbQLRSum>; Mon, 18 Dec 2000 13:50:42 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:21005 "EHLO
-	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S132477AbQLRSua>; Mon, 18 Dec 2000 13:50:30 -0500
-From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: 2.2.18 asm-alpha/system.h has a problem
-Date: 18 Dec 2000 18:20:07 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <91lkgn$ef$2@enterprise.cistron.net>
-In-Reply-To: <20001217153444N.dyky@df-usa.com> <20001218033154.F3199@cadcamlab.org> <20001218154907.A16749@athlon.random> <20001218184531Z132357-439+4699@vger.kernel.org>
-X-Trace: enterprise.cistron.net 977163607 463 195.64.65.67 (18 Dec 2000 18:20:07 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S132515AbQLRSvm>; Mon, 18 Dec 2000 13:51:42 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:15115 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S132476AbQLRSv0>;
+	Mon, 18 Dec 2000 13:51:26 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Date: Mon, 18 Dec 2000 19:19:38 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Startup IPI (was: Re: test13-pre3)
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@chiara.elte.hu
+X-mailer: Pegasus Mail v3.40
+Message-ID: <1009FFDF1491@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20001218184531Z132357-439+4699@vger.kernel.org>,
-Timur Tabi  <ttabi@interactivesi.com> wrote:
->** Reply to message from Peter Samuelson <peter@cadcamlab.org> on Mon, 18 Dec
->2000 09:03:00 -0600 (CST)
->> Not a compiler bug, a source bug of assuming a C header file can be
->> included by a C++ program.  The right solution, as always, is to make a
->> copy of the header (assuming you really do need it) and edit the copy
->> as necessary. 
->
->That just creates more maintenance problems.  What if the kernel header file
->changes?  Then he'll have to change his copy as well.  He'll forever need to
->check changes in that kernel header file, or risk having an obscure bug that's
->otherwise hard to track.
+On 18 Dec 00 at 18:18, Maciej W. Rozycki wrote:
+> On Mon, 18 Dec 2000, Petr Vandrovec wrote:
+> 
+> > No. Without udelay() before first printk() it just does not boot on my
+> > motherboard. There were two choices: either remove all printk() from
+> > these loops (define Dprintk to null), or add udelay(x), where x >= 200,
+> > before first printk. I sent patch twice to linux-kernel, and to 
+> > mingo@redhat.com, and nobody said anything against it.
+> 
+>  I see.  But are you sure this is the right fix?  You may be covering
+> the real problem with this arbitrary delay.
 
-No, in fact that is the desired behaviour. If the kernel include files
-change, chances are very big that the source of the utility (or library)
-needs adjustments as well. In fact if you simply recompile the old
-source with the new header files you might get unwanted and unexpected
-behaviour, whereas if you recompile with the older header defs you'll
-simply use an advertized api that might not be the latest but works
+It is possible. But it is hard to track, as it works with serial console,
+and it is not possible to paint characters to VGA screen, as vgacon uses
+hardware panning instead of scrolling :-( And if it dies, shift-pageup
+apparently does not work... And filling whole 32KB with some char
+does not work, as it changes timing too much...
+ 
+> > analyzer (or if I should come with motherboard), I'm willing to continue
+> > testing. But current idea is that inb/outb done by cursor positioning
+> > code is incompatible with something else done in secondary CPU startup.
+> 
+>  Have you tried putting explicit display adapter (other ISA) I/O accesses
+> after sending the IPI to see if they trigger the problem?  IPIs are
 
-Mike.
--- 
-RAND USR 16514
+No, I'll try. It occured with either AGP (Matrox G200/G400/G450) or
+PCI (S3, CL5434) VGA adapter. I did not tried real ISA VGA...
+
+> > Without delay() both CPU die, and board does not react to anything except
+> > hard reset anymore (and sometime it does not react even to hard reset; lookup
+> > for my messages during last week).
+> 
+>  Now THAT is weird.  It might mean a chipset bug.  Still no idea how an
+> inter-APIC message might trigger it -- it completely bypasses MB
+
+Yes. I could understand if I had to place bigger udelay() after INIT IPI,
+as this can cause some specific PIII initialization and Intel says that
+there should not be any MESI traffic during this init (at least I understand
+it that way). But after startup IPI it should just start executing code...
+I tried to put 'wbinvd' here and there, but it did not make any change,
+only udelay() between startup IPI cmd and first printk() did.
+
+> chipset...  Hmm, maybe not...  Is your I/O APIC discrete (like Intel's
+> 82093AA) or integrated?  It appears there are vendors manufacturing I/O
+> APIC clones and this may imply new problems, sigh...
+
+I have no idea. I know that board has VT82C694X (rev c4) host and PCI bridge,
+and VT82C686 (rev 22) ISA bridge. I tried to request documentation
+of 694X from VIA, but I did not heard from them. They have probably
+some secrets hidden in their hardware...
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,83 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbUBZXQL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUBZXMs
+	id S261216AbUBZXTg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbUBZXSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:12:48 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:1671 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261292AbUBZXKp (ORCPT
+	Thu, 26 Feb 2004 18:18:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19391 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261216AbUBZWyo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:10:45 -0500
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-From: john stultz <johnstul@us.ibm.com>
-To: george anzinger <george@mvista.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       David Ford <david+powerix@blue-labs.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <403E7BEE.9040203@mvista.com>
-References: <403C014F.2040504@blue-labs.org>
-	 <1077674048.10393.369.camel@cube>  <403C2E56.2060503@blue-labs.org>
-	 <1077679677.10393.431.camel@cube>  <403CCD3A.7080200@mvista.com>
-	 <1077725042.8084.482.camel@cube>  <403D0F63.3050101@mvista.com>
-	 <1077760348.2857.129.camel@cog.beaverton.ibm.com>
-	 <403E7BEE.9040203@mvista.com>
-Content-Type: text/plain
-Message-Id: <1077837016.2857.171.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 26 Feb 2004 15:10:18 -0800
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Feb 2004 17:54:44 -0500
+Date: Thu, 26 Feb 2004 15:00:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add getdents32t syscall
+In-Reply-To: <403E7348.60503@redhat.com>
+Message-ID: <Pine.LNX.4.58.0402261438470.7830@ppc970.osdl.org>
+References: <20040226193819.GA3501@sunsite.ms.mff.cuni.cz>
+ <Pine.LNX.4.58.0402261411420.7830@ppc970.osdl.org>
+ <Pine.LNX.4.58.0402261415590.7830@ppc970.osdl.org> <403E7348.60503@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-26 at 15:06, George Anzinger wrote:
-> john stultz wrote:
-> > On Wed, 2004-02-25 at 13:10, George Anzinger wrote:
-> > 
-> >>Albert Cahalan wrote:
-> >>
-> >>>This is NOT sane. Remeber that procps doesn't get to see HZ.
-> >>>Only USER_HZ is available, as the AT_CLKTCK ELF note.
-> >>>
-> >>>I think the way to fix this is to skip or add a tick
-> >>>every now and then, so that the long-term HZ is exact.
-> >>>
-> >>>Another way is to simply choose between pure old-style
-> >>>tick-based timekeeping and pure new-style cycle-based
-> >>>(TSC or ACPI) timekeeping. Systems with uncooperative
-> >>>hardware have to use the old-style time keeping. This
-> >>>should simply the code greatly.
-> >>
-> >>On checking the code and thinking about this, I would suggest that we change 
-> >>start_time in the task struct to be the wall time (or monotonic time if that 
-> >>seems better).  I only find two places this is used, in proc and in the 
-> >>accounting code.  Both of these could easily be changed.  Of course, even 
-> >>leaving it as it is, they could be changed to report more correct values by 
-> >>using the correct conversions to translate the system HZ to USER_HZ.
-> > 
-> > 
-> > Is this close to what your thinking of? 
-> > I can't reproduce the issue on my systems, so I'll need someone else to
-> > test this. 
+
+
+On Thu, 26 Feb 2004, Ulrich Drepper wrote:
+> Linus Torvalds wrote:
 > 
-> More or less.  I wonder if:
+> >  - pre-fill the dirent area with 0xff or something
+> 
+> fill whole temporary buffer allocated by opendir() for every call to
+> getdents(2)?
 
-> static inline long jiffies_to_clock_t(long x)
-> {
-> 	u64 tmp = (u64)x * TICK_NSEC;
-> 	div64(tmp, (NSEC_PER_SEC / USER_HZ));
-> 	return (long)x;
-> }
-> might be better as it addresses the overflow issue.  Should be able to toss the 
-> #if (HZ % USER_HZ)==0 test too.  We could get carried away and do scaled math to 
-> eliminate the div64 but I don't think this path is used enough to justify the 
-> clarity ;) that would make.
+No no.
 
-Sounds good to me. Would you mind sending the diff so Petri and David
-could test it?
+You only need to do this _once_. Once you know that the kernel is ok, you 
+never ever need to do it again.
 
-thanks
--john
+It's not even "once per file descriptor" or anything like that. It's 
+literally _once_. 
 
+And you don't need to fill the whole buffer even that first time. You 
+only need to fill enough to guarantee that the _first_ entry is filled 
+up.
 
+In fact, if you're willing to have an algorithm that always works, but
+might under some circumstances be a bit conservative, you can avoid
+filling entirely, and just have a static flag that says "newformat", you
+can do the following:
+
+ - assume old format
+ - if you ever see a reclen that is "too big" for the name length, you 
+   know you have a new-format case (this will happen with any name that is 
+   of length 1 modulo 4 on a 32-bit architecture).
+
+For old-format stuff, you return DT_UNKNOWN, or you do your old existing 
+song and dance. For new-format stuff you do the trivial thing.
+
+And guess what? The entry "." will give you the information abotu whether 
+it is old-format or not. On an old-format thing, "." will look like this:
+
+	offset
+	 0:	32-bit d_ino
+	 4:	32-bit d_offset = 12
+	 8:     16-bit d_namelen = 1
+	10:	string ".\0"
+
+	12:	32-bit d_ino for the next entry
+	...
+
+while with a new-format readdir you will get
+
+	offset
+	 0:	32-bit d_ino
+	 4:	32-bit d_offset = 16
+	 8:	16-bit d_namelen = 1
+	10:	string ".\0"
+	12-14:	three bytes of garbage
+	15:	8-bit d_type
+
+	16:	32-bit d_ino for the next entry..
+	...
+
+Notice? You are guaranteed to find out really quickly whether it's old- or 
+new-format unless the user is doing something really really strange, and 
+even if the user is doing something strange, returning D_UNKNOWN is always 
+"correct".
+
+So not only is my solution simple in kernel space, it allows you to 
+simplify glibc too, if you are willing to make the old case go slower.
+
+			Linus

@@ -1,71 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbULAUnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbULAUnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbULAUnU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 15:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbULAUnU
+	id S261443AbULAUnd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 15:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbULAUnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 15:43:20 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:18067 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261442AbULAUnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 15:43:13 -0500
-Subject: Re: phase change messages cusing slowdown with sym53c8xx_2 driver
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: "Jose R. Santos" <jrsantos@austin.ibm.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041201203226.GI5752@parcelfarce.linux.theplanet.co.uk>
-References: <20041130030212.GB22916@austin.ibm.com>
-	<20041201165654.GA32687@rx8.austin.ibm.com>
-	<1101921398.1930.24.camel@mulgrave> 
-	<20041201203226.GI5752@parcelfarce.linux.theplanet.co.uk>
+	Wed, 1 Dec 2004 15:43:33 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:10905 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261443AbULAUnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 15:43:16 -0500
+Subject: Re: Suspend 2 merge
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@suse.cz>
+Cc: Stefan Seyfried <seife@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20041201100854.GA1015@elf.ucw.cz>
+References: <20041125192016.GA1302@elf.ucw.cz>
+	 <1101422088.27250.93.camel@desktop.cunninghams>
+	 <20041125232200.GG2711@elf.ucw.cz>
+	 <1101426416.27250.147.camel@desktop.cunninghams> <41AAED32.2010703@suse.de>
+	 <1101766833.4343.425.camel@desktop.cunninghams> <41AC6480.6020002@suse.de>
+	 <1101849416.5715.13.camel@desktop.cunninghams>
+	 <20041130222027.GE1361@elf.ucw.cz>
+	 <1101893275.5073.0.camel@desktop.cunninghams>
+	 <20041201100854.GA1015@elf.ucw.cz>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 01 Dec 2004 15:43:02 -0500
-Message-Id: <1101933788.1930.226.camel@mulgrave>
+Message-Id: <1101933562.5073.3.camel@desktop.cunninghams>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 02 Dec 2004 07:39:22 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-01 at 15:32, Matthew Wilcox wrote:
-> On Wed, Dec 01, 2004 at 12:16:33PM -0500, James Bottomley wrote:
-> > does this look like the "drive won't respond properly to PPR if the bus
-> > is SE" problem again?
-> 
-> Thomas Babut who tested that fix reported it didn't solve his problem ;-(
-> 
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=109968716312783&w=2
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=109969829411685&w=2
-> 
-> I'm out of ideas for fixing that one.  Would you consider Richard
-> Waltham's patch?
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109967237930243&w=2
+Hi.
 
-Actually, yes, or the attached variant of it.  Does this solve the
-problem?
+On Wed, 2004-12-01 at 21:08, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > >>Putting only the absolutely necessary things into the kernel (the same
+> > > > > >>is true for the interactive resume thing - if someone wants interactive
+> > > > > >>startup at a failing resume, he has to use an initrd, i don't see a
+> > > > > >>problem with that) will probably increase the acceptance a bit :-)
+> > > > > > 
+> > > > > > That's fine if your initrd is properly configured and you're willing to
+> > > > > 
+> > > > > This is something distributions have to take care of.
+> > > > 
+> > > > No; it's something the users will have to take care of. Distro makers
+> > > > might make the process more automated, but in the end it's the user's
+> > > > problem if it doesn't work.
+> > > 
+> > > Actually, no, its not like that. 
+> > > 
+> > > User will click icon in KDE, and if it does not suspend & resume
+> > > properly, distribution has problem to fix. And yes, it works well in
+> > > SUSE9.2.
+> > 
+> > I didn't know you had support for initramfs and initrd configurations
+> > already. You are making progress.
+> 
+> Well, no, not that one.
+> 
+> OTOH for SUSE9.2 these things basically can not happen. (There's no
+> wrong kernel you can click on ;-) -- either you boot normally, then
+> there's just one kernel to boot, or you boot failsafe, and then you
+> want to kill signatures etc.) 
 
-There's no reason why we should assume a SCSI_3 or greater device
-automatically supports ppr (especially if it's inquiry bit is
-advertising that it doesn't...)
+And it's impossible for you to accidentally select the failsafe?
 
-James
+Anyway, even if it is impossible, you're still only talking about one
+particular set of circumstances; that's not necessarily the case for
+everyone else, not should it necessarily be.
 
-===== drivers/scsi/scsi_scan.c 1.134 vs edited =====
---- 1.134/drivers/scsi/scsi_scan.c	2004-10-24 07:09:48 -04:00
-+++ edited/drivers/scsi/scsi_scan.c	2004-12-01 15:41:03 -05:00
-@@ -554,10 +554,8 @@
- 	sdev->removable = (0x80 & inq_result[1]) >> 7;
- 	sdev->lockable = sdev->removable;
- 	sdev->soft_reset = (inq_result[7] & 1) && ((inq_result[3] & 7) == 2);
-+	sdev->ppr = (sdev->inquiry_len > 56 && (inq_result[56] & 0x04) == 0x04);
- 
--	if (sdev->scsi_level >= SCSI_3 || (sdev->inquiry_len > 56 &&
--		inq_result[56] & 0x04))
--		sdev->ppr = 1;
- 	if (inq_result[7] & 0x60)
- 		sdev->wdtr = 1;
- 	if (inq_result[7] & 0x10)
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

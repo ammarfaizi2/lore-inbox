@@ -1,92 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286672AbRLVFBi>; Sat, 22 Dec 2001 00:01:38 -0500
+	id <S286680AbRLVFGS>; Sat, 22 Dec 2001 00:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286675AbRLVFBS>; Sat, 22 Dec 2001 00:01:18 -0500
-Received: from dracula.gtri.gatech.edu ([130.207.193.70]:34832 "EHLO
-	shaft.shaftnet.org") by vger.kernel.org with ESMTP
-	id <S286672AbRLVFBL>; Sat, 22 Dec 2001 00:01:11 -0500
-Date: Sat, 22 Dec 2001 00:01:05 -0500
-From: Stuffed Crust <pizza@shaftnet.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] - 2.4.17 - if_arp.h - Add the Prism2 ARP type
-Message-ID: <20011222000105.A22554@shaftnet.org>
+	id <S286683AbRLVFGI>; Sat, 22 Dec 2001 00:06:08 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:56837 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286680AbRLVFF4>;
+	Sat, 22 Dec 2001 00:05:56 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jason Thomas <jason@topic.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] link errors with internal calls to devexit functions 
+In-Reply-To: Your message of "Sat, 22 Dec 2001 13:57:25 +1100."
+             <20011222025725.GA629@topic.com.au> 
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 22 Dec 2001 16:05:43 +1100
+Message-ID: <5750.1008997543@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 22 Dec 2001 13:57:25 +1100, 
+Jason Thomas <jason@topic.com.au> wrote:
+>please CC me I'm not on the list.
+>
+>This patch against 2.4.17 fixes internal calls to devexit functions (which
+>is bypasses the devexit_p wrapper) in drivers/media/video/bttv-driver.c and
+>drivers/usb/usb-uhci.c, they are the only two I found.
+>
+>diff -ur linux-2.4.17.orig/drivers/media/video/bttv-driver.c linux-2.4.17/drivers/media/video/bttv-driver.c
+>--- linux-2.4.17.orig/drivers/media/video/bttv-driver.c Sat Dec 22 13:39:39 2001
+>+++ linux-2.4.17/drivers/media/video/bttv-driver.c      Sat Dec 22 13:46:02 2001
+>@@ -2992,7 +2992,9 @@
+>        pci_set_drvdata(dev,btv);
+> 
+>        if(init_bt848(btv) < 0) {
+>+#if defined(MODULE) || defined(CONFIG_HOTPLUG)
+>                bttv_remove(dev);
+>+#endif
+>                return -EIO;
+>        }
+>        bttv_num++;
+>diff -ur linux-2.4.17.orig/drivers/usb/usb-uhci.c linux-2.4.17/drivers/usb/usb-uhci.c
+>--- linux-2.4.17.orig/drivers/usb/usb-uhci.c    Sat Dec 22 13:39:39 2001
+>+++ linux-2.4.17/drivers/usb/usb-uhci.c Sat Dec 22 13:46:38 2001
+>@@ -3001,7 +3001,9 @@
+>        s->irq = irq;
+> 
+>        if(uhci_start_usb (s) < 0) {
+>+#if defined(MODULE) || defined(CONFIG_HOTPLUG)
+>                uhci_pci_remove(dev);
+>+#endif
+>                return -1;
+>        }
 
---A6N2fC+uXW/VQSAv
-Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
-Content-Disposition: inline
+I don't like #if defined(MODULE) || defined(CONFIG_HOTPLUG) in open
+code.  If the rules for what gets discarded change (again) then those
+ifdefs will be out of sync.  That is why __devexit_p() is a wrapper, it
+is defined once and only has to be changed once when the rules change.
 
+Define a __devexit_call wrapper in include/linux/init.h at the same
+place that __devexit_p is defined and use the wrapper around the calls.
+Untested.
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+#if defined(MODULE) || defined(CONFIG_HOTPLUG)
+#define __devexit_p(x) x
+#define __devexit_call(x) x
+#else
+#define __devexit_call(x) do { } while (0)
+#define __devexit_p(x) NULL
+#endif
 
-(Please CC: me responses; I'm not subscribed)
+	__devexit_call(bttv_remove(dev));
+	__devexit_call(uhci_pci_remove(dev));
 
-Hey, this one-line patch (I diffed it against 2.4.17-rc2) defines the
-ARPHRD_IEEE80211_PRISM arp type.
-
-A little background.  The prism2 series of wireless ethernet cards are
-capable of operating in true promiscious mode, capturing raw 802.11
-frames.  When it's doing this, the driver prepends a special monitoring
-header onto the packet with useful information.=20
-
-Since the v0.1.6 release of the driver, this was handled via NETLINK
-broadcasts.. but that's Bad(tm).  Instead, the next version (0.1.14) of
-the driver will support raw capture using the PF_PACKET interface, which
-means that it'll need its own arp type for libpcap to recognize and
-handle the special headers.  (without the header, it sends standard
-ARPHRD_IEEE80211 frames)=20
-
-libpcap/ethereal/etc already have dissectors for this special header, so
-all that's left is to define a fixed arp type.
-
-So, I humbly submit this patch for inclusion.
-
-Thanks!
---=20
-Solomon Peachy                                    pizzaATfucktheusers.org
-I ain't broke, but I'm badly bent.                           ICQ# 1318344
-Patience comes to those who wait.
-    ...It's not "Beanbag Love", it's a "Transanimate Relationship"...
-
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="prism_arp.diff"
-
---- linux/include/linux/if_arp.h	Wed Dec 19 20:55:17 2001
-+++ linux-old/include/linux/if_arp.h	Wed Dec 19 20:59:07 2001
-@@ -82,6 +82,7 @@
- 	/* 787->799 reserved for fibrechannel media types */
- #define ARPHRD_IEEE802_TR 800		/* Magic type ident for TR	*/
- #define ARPHRD_IEEE80211 801		/* IEEE 802.11			*/
-+#define ARPHRD_IEEE80211_PRISM 802	/* IEEE 802.11 + Prism2 header  */
- 
- #define ARPHRD_VOID	  0xFFFF	/* Void type, nothing is known */
- 
-
---r5Pyd7+fXNt84Ff3--
-
---A6N2fC+uXW/VQSAv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8JBORysXuytMhc5ERAvqzAJsGP6omLA+JdR4NPosz7oHt++23sQCfUjb3
-43pgeZYEk0VEA1QCnXbNiXE=
-=tNbJ
------END PGP SIGNATURE-----
-
---A6N2fC+uXW/VQSAv--

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266667AbRGJR2Q>; Tue, 10 Jul 2001 13:28:16 -0400
+	id <S266949AbRGJRlQ>; Tue, 10 Jul 2001 13:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266885AbRGJR2G>; Tue, 10 Jul 2001 13:28:06 -0400
-Received: from [216.151.155.121] ([216.151.155.121]:37645 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S266667AbRGJR1r>; Tue, 10 Jul 2001 13:27:47 -0400
-To: fabrizio.gennari@philips.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.6 does not compile on Sparc
-In-Reply-To: <OF41725CBA.1CC3C47B-ONC1256A85.005BAE76@diamond.philips.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 10 Jul 2001 13:27:42 -0400
-In-Reply-To: fabrizio.gennari@philips.com's message of "Tue, 10 Jul 2001 18:51:14 +0200"
-Message-ID: <m3bsms4ru9.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S266965AbRGJRlG>; Tue, 10 Jul 2001 13:41:06 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:16653 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S266949AbRGJRkt>;
+	Tue, 10 Jul 2001 13:40:49 -0400
+Date: Tue, 10 Jul 2001 14:40:42 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Joe Barr <warthawg@ecpi.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Bogomips Replacement
+In-Reply-To: <20010710102935.5b5d6cfb.warthawg@ecpi.com>
+Message-ID: <Pine.LNX.4.33L.0107101439440.2836-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fabrizio.gennari@philips.com writes:
+On Tue, 10 Jul 2001, Joe Barr wrote:
 
-> Has anyone got a patch to fix the following error when compiling
-> 2.4.4 on SparcStation 4?
+> I've just finished reading "Teach Yourself Linux Kernel Hacking In 15
+> Minutes" and feel like I'm ready to jump into the fray and start
+> making contributions.  So, where to start.  I feel like that lady on
+> TV, looking for the weakest link.
 
-Currently, 2.4.X does not compile or run on Sparc32 due to lack of a
-maintainer for that platform.
+I'm afraid you have confused linux-kernel with another
+mailing list:
 
--Doug
--- 
-The rain man gave me two cures; he said jump right in,
-The first was Texas medicine--the second was just railroad gin,
-And like a fool I mixed them, and it strangled up my mind,
-Now people just get uglier, and I got no sense of time...          --Dylan
+	humorix-l@nl.linux.org
+
+(the discussion list for the humorix postings)
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbUKLUzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbUKLVNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262615AbUKLUzY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 15:55:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbUKLUzX
+	id S262616AbUKLVNu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 16:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbUKLVNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 15:55:23 -0500
-Received: from colo.lackof.org ([198.49.126.79]:61125 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262615AbUKLUzL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 15:55:11 -0500
-Date: Fri, 12 Nov 2004 13:55:09 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Michael Chan <mchan@broadcom.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, greg@kroah.com,
-       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
-Subject: Re: [PATCH] pci-mmconfig fix for 2.6.9
-Message-ID: <20041112205509.GB8828@colo.lackof.org>
-References: <B1508D50A0692F42B217C22C02D84972020F3C9C@NT-IRVA-0741.brcm.ad.broadcom.com>
+	Fri, 12 Nov 2004 16:13:49 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:58036 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262616AbUKLVNs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 16:13:48 -0500
+Date: Fri, 12 Nov 2004 22:10:55 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: sebastian.ionita@focomunicatii.ro
+Cc: seby@focomunicatii.ro, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       alan@redhat.com, jgarzik@pobox.com
+Subject: Re: ZyXEL GN650-T
+Message-ID: <20041112211055.GA346@electric-eye.fr.zoreil.com>
+References: <20041107214427.20301.qmail@focomunicatii.ro> <20041107224803.GA29248@electric-eye.fr.zoreil.com> <20041109000006.GA14911@electric-eye.fr.zoreil.com> <20041109232510.GA5582@electric-eye.fr.zoreil.com> <20041110201010.18341.qmail@focomunicatii.ro> <20041110212835.GA23758@electric-eye.fr.zoreil.com> <20041110230853.GB23758@electric-eye.fr.zoreil.com> <20041111073754.27966.qmail@focomunicatii.ro> <20041111095102.GA2280@electric-eye.fr.zoreil.com> <20041112175911.24846.qmail@focomunicatii.ro>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <B1508D50A0692F42B217C22C02D84972020F3C9C@NT-IRVA-0741.brcm.ad.broadcom.com>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+In-Reply-To: <20041112175911.24846.qmail@focomunicatii.ro>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 12, 2004 at 11:23:06AM -0800, Michael Chan wrote:
-> Hi Grant,
-> 
-> I think it is well documented that config cycles are non-posted in PCI,
-> PCIX, and PCI Express specs as you pointed out. The only ambiguity is
-> whether the mmconfig memory cycle from the CPU to the chipset is posted
-> or not.
+sebastian.ionita@focomunicatii.ro <sebastian.ionita@focomunicatii.ro> :
+[...]
+> Without vlan's it works but with vlan the behavier is just like with the 
+> old drivers. Shoud I give some param's to the module if want to have vlans ?
 
-sorry - I was wrongly assuming mmconfig has to follow the same
-semantics as config since it's intended as a replacement.
+I have modified the original patch. Does the network appliance allow you
+to configure some specific VID, say 68, 1028 or 1092 ?
 
-In short, the ECN answers Andi's question with "Yes" - thanks for
-pointing it out.
-For those who don't want to read the whole ECN, bits of it below.
+If yes, pick one and test the behavior of the three VID on the network adapter,
+ideally within their own insmod, config up, ping (from host and remote),
+config down and rmmod session.
 
->  The Implementation Note in the MMCONFIG ECN from pcisig (link
-> below) allows the mmconfig write cycle to be posted, meaning mmconfig
-> write cycle can complete before the real config write cycle completes.
+Provided the issue is only a matter of ordering of the VID, something should
+appear in the log/packet statistics when the VID overlap.
 
-Yes. I found it on page 5 of PciEx_ECN_MMCONFIG_040217.pdf.
-AFAICT, this section only applies to "systems that implement a
-processor-architecture-specific firmware interface standard".
-e.g. ia64 SAL calls.
+dmesg/kernel log messages as well as the serie of commands issued would be
+welcome. bzip2 is your friend.
 
-> That's why we needed confirmations from chipset engineers.
+If the VID on the lan side is fixed for you, please send it so I'll see which
+values on the network adapter could match (the values above are not sensitive
+to endianness for instance).
 
-Well, Intel confirmed existing chipset comply with this bit of the ECN:
-| For systems that are PC-compatible, or that do not implement a
-| processor-architecture-specific firmware interface standard that
-| allows access to the Configuration Space, the enhanced configuration
-| access mechanism is required as defined in this section.
-....
-| The system hardware must provide a method for the system software
-| to guarantee that a write transaction using the enhanced configuration
-| access mechanism is completed by the completer before system software
-| execution continues.
+A patch against vanilla 2.4.18-rc2 is available at:
+http://www.fr.zoreil.com/people/francois/misc/20041112-2.4.28-rc2-via-velocity-backport.patch
 
-
-> http://www.pcisig.com/specifications/pciexpress/specifications/specifica
-> tions
-
-I assumed this one was meant:
-http://www.pcisig.com/specifications/pciexpress/PciEx_ECN_MMCONFIG_040217.pdf
-
-thanks,
-grant
+--
+Ueimor

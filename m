@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbUKPS5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbUKPTIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbUKPS5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 13:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUKPS5Y
+	id S262095AbUKPTIV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 14:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbUKPTIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 13:57:24 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:57860 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262120AbUKPSzv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 13:55:51 -0500
-Date: Tue, 16 Nov 2004 19:56:14 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Justin Thiessen <jthiessen@penguincomputing.com>
-Cc: greg@kroah.com, sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: adm1026 driver port for kernel 2.6.X - [RE-REVISED DRIVER]
-Message-Id: <20041116195614.1634e3b0.khali@linux-fr.org>
-In-Reply-To: <20041103164354.GB20465@penguincomputing.com>
-References: <20041102221745.GB18020@penguincomputing.com>
-	<NN38qQl1.1099468908.1237810.khali@gcu.info>
-	<20041103164354.GB20465@penguincomputing.com>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>
-X-Mailer: Sylpheed version 1.0.0beta2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 16 Nov 2004 14:08:21 -0500
+Received: from outbound01.telus.net ([199.185.220.220]:62684 "EHLO
+	priv-edtnes57.telusplanet.net") by vger.kernel.org with ESMTP
+	id S262095AbUKPTIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 14:08:19 -0500
+Subject: Boot failure, 2.6.10-rc2
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 16 Nov 2004 12:08:36 -0700
+Message-Id: <1100632116.4388.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
-> 
-> Ok, let's try this again:
+Hi.  When booting 2.6.10-rc2, I get 
+Warning: unable to open an initial console
+(and the boot process then stalls).
 
-Fine with me. Care to send this again as a patch against 2.6.10-rc2?
-This would include updates to drivers/i2c/chips/Makefile and
-drivers/i2c/chips/Kconfig.
+My system has the following already configured:
+crw-------  1 bob root 5, 1 Nov 16 10:10 /dev/console
 
-Thanks.
+/etc/fstab shows:
+none                    /dev/pts                devpts  gid=5,mode=620
+0 0
 
+My kernel configuration includes the following:
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+
+I have appended console=/sbin/bash to the kernel boot line (which does
+not meet with success).
+
+If it makes any difference, my system is FC3.  Is there anything special
+I have to do to udev (or a particular version I have to get in order to
+start a console after the kernel is loaded (and the memory is freed
+after it's shuffled from himem to lomem)?
+
+Please reply to me directly as I'm not on the list.
+
+TIA,
+
+Bob  
 -- 
-Jean Delvare
-http://khali.linux-fr.org/
+Bob Gill <gillb4@telusplanet.net>
+

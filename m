@@ -1,121 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbVBDA2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVBDAbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbVBDA2h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 19:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVBDA2h
+	id S262622AbVBDAbf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 19:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVBDAbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 19:28:37 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:63121 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263397AbVBDA2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:28:07 -0500
-Message-ID: <4202C18F.5010605@yahoo.com.au>
-Date: Fri, 04 Feb 2005 11:27:59 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Thu, 3 Feb 2005 19:31:17 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:61570 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262986AbVBDAat (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 19:30:49 -0500
+Message-ID: <4202C223.6050802@home-tj.org>
+Date: Fri, 04 Feb 2005 09:30:27 +0900
+From: Tejun Heo <tj@home-tj.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-CC: Roland Mc Grath <roland@redhat.com>, Jeff Dike <jdike@addtoit.com>,
-       BlaisorBlade <blaisorblade_spam@yahoo.it>,
-       user-mode-linux devel 
-	<user-mode-linux-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Race condition in ptrace
-References: <42021E35.8050601@fujitsu-siemens.com>
-In-Reply-To: <42021E35.8050601@fujitsu-siemens.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2 21/29] ide: Merge do_rw_taskfile() and flagged_taskfile().
+References: <20050202024017.GA621@htj.dyndns.org>	 <20050202030603.GF1187@htj.dyndns.org> <58cb370e050203103952e1cd22@mail.gmail.com>
+In-Reply-To: <58cb370e050203103952e1cd22@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Stroesser wrote:
-> Working with the new UML skas0 mode on my Xeon HT host, sporadically I saw
-> some processes on UML segfaulting.
-> 
-> In all cases, I could track this down to be caused by a gs segment 
-> register,
-> that had the wrong contents.
-> 
-> This again is caused by a problem in the host linux: A ptraced child 
-> going to
-> stop and having woken up its parent, will save some of its registers (on 
-> i386
-> they are fs, gs and the fp-registers) very late in switch_to. The parent is
-> granted access to child's registers as soon, as the child is removed from
-> the runqueue. Thus, in rare cases, the parent might access child's register
-> savearea before the registers really are saved.
-> 
-> This problem might also be the reason for problems with floatpoint on UML,
-> that were reported some time ago.
-> 
-> I've written a test program, that reproduces the problem on my 2.6.9 
-> vanilla
-> host quite quick. Using SuSE kernel 2.6.5-7.97-smp, I can't reproduce the
-> problem, although the relevant parts seem to be unchanged. Maybe not 
-> related
-> changes modify the timing?
-> 
-> I also created a patch, that fixes the problem on my 2.6.9 host. This 
-> probably
-> isn't a sane patch, but is enough to demonstrate, where I think, the bug 
-> is.
-> Both files are attached.
-> 
->        Bodo
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- a/include/linux/sched.h	2005-02-02 22:15:51.000000000 +0100
-> +++ b/include/linux/sched.h	2005-02-02 22:22:54.000000000 +0100
-> @@ -584,6 +584,7 @@ struct task_struct {
->    	struct mempolicy *mempolicy;
->    	short il_next;		/* could be shared with used_math */
->  #endif
-> +	volatile long saving;
->  };
->  
->  static inline pid_t process_group(struct task_struct *tsk)
-> --- a/kernel/sched.c	2005-02-02 21:32:51.000000000 +0100
-> +++ b/kernel/sched.c	2005-02-02 22:12:14.000000000 +0100
-> @@ -2689,8 +2689,10 @@ need_resched:
->  		if (unlikely((prev->state & TASK_INTERRUPTIBLE) &&
->  				unlikely(signal_pending(prev))))
->  			prev->state = TASK_RUNNING;
-> -		else
-> +		else {
-> +			prev->saving = 1;
->  			deactivate_task(prev, rq);
-> +		}
->  	}
->  
->  	cpu = smp_processor_id();
-> --- a/kernel/ptrace.c	2005-02-02 22:12:33.000000000 +0100
-> +++ b/kernel/ptrace.c	2005-02-02 22:20:46.000000000 +0100
-> @@ -96,6 +96,7 @@ int ptrace_check_attach(struct task_stru
->  
->  	if (!ret && !kill) {
->  		wait_task_inactive(child);
-> +		while ( child->saving ) ;
->  	}
->  
->  	/* All systems go.. */
-> --- a/arch/i386/kernel/process.c	2005-02-02 22:18:29.000000000 +0100
-> +++ b/arch/i386/kernel/process.c	2005-02-02 22:19:22.000000000 +0100
-> @@ -577,6 +577,9 @@ struct task_struct fastcall * __switch_t
->  	asm volatile("movl %%fs,%0":"=m" (*(int *)&prev->fs));
->  	asm volatile("movl %%gs,%0":"=m" (*(int *)&prev->gs));
->  
-> +	wmb();
-> +	prev_p->saving=0;
-> +
->  	/*
->  	 * Restore %fs and %gs if needed.
->  	 */
-> 
+Hello,
 
-I don't see how this could help because AFAIKS, child->saving is only
-set and cleared while the runqueue is locked. And the same runqueue lock
-is taken by wait_task_inactive.
+Bartlomiej Zolnierkiewicz wrote:
+> On Wed, 2 Feb 2005 12:06:03 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> 
+>>>21_ide_do_taskfile.patch
+>>>
+>>>      Merged do_rw_taskfile() and flagged_taskfile() into
+>>>      do_taskfile().  During the merge, the following changes took
+>>>      place.
+>>>      1. flagged taskfile now honors HOB feature register.
+>>>         (do_rw_taskfile() did write to HOB feature.)
+>>>      2. No do_rw_taskfile() HIHI check on select register.  Except
+>>>         for the DEV bit, all bits are honored.
+>>>      3. Uses taskfile->data_phase to determine if dma trasfer is
+>>>         requested.  (do_rw_taskfile() directly switched on
+>>>         taskfile->command for all dma commands)
+>>
+>>Signed-off-by: Tejun Heo <tj@home-tj.org>
+> 
+> 
+> do_rw_taskfile() is going to be used by fs requests once
+> __ide_do_rw_disk() is converted to taskfile transport.
+> 
+> I don't think that do_rw_taskfile() and flagged_taskfile() merge
+> is a good thing as it adds unnecessary overhead for hot path
+> (fs requests).
+
+Yeah, I also thought about that, but here are reasons why I still think 
+merging is better.
+
+1. The added overhead is small.  It's just a dozen more if's per every 
+disk io.  I don't think it will make any noticeable difference.
+
+2. If hot path optimization is needed, it can be easily done inside one 
+do_taskfile() function with one or two more if's.
+
+3. Currently, do_rw_taskfile() isn't used by __ide_do_rw_disk().  We can 
+think about optimization when actually converting it to use taskfile 
+transport.  And IMHO, if hot path optimization is needed, leaving hot 
+path optimization where it is now (inside __ide_do_rw_disk()) is better 
+  than moving it to separate taskfile function (do_rw_taskfile()).
+
+-- 
+tejun
 

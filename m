@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267474AbRGRBe2>; Tue, 17 Jul 2001 21:34:28 -0400
+	id <S267624AbRGRB10>; Tue, 17 Jul 2001 21:27:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267388AbRGRBeS>; Tue, 17 Jul 2001 21:34:18 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:14960
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S267474AbRGRBeH>; Tue, 17 Jul 2001 21:34:07 -0400
-Date: Tue, 17 Jul 2001 18:34:10 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        schoebel@eicheinformatik.uni-stuttgart.de
-Subject: Re: Common hash table implementation
-Message-ID: <20010717183410.S29668@work.bitmover.com>
-Mail-Followup-To: "Brian J. Watson" <Brian.J.Watson@compaq.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	schoebel@eicheinformatik.uni-stuttgart.de
-In-Reply-To: <3B54DEF5.B85F57E4@compaq.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3B54DEF5.B85F57E4@compaq.com>; from Brian.J.Watson@compaq.com on Tue, Jul 17, 2001 at 05:57:25PM -0700
+	id <S267474AbRGRB1Q>; Tue, 17 Jul 2001 21:27:16 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:10902 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S267388AbRGRB1J>; Tue, 17 Jul 2001 21:27:09 -0400
+Date: Wed, 18 Jul 2001 02:27:12 +0100 (BST)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.2.20-pre7 tiny NTFS fix
+Message-ID: <Pine.SOL.3.96.1010718022151.2496A-200000@draco.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-995419632=:2496"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've got a fairly nice hash table interface in BitKeeper that we'd be 
-happy to provide under the GPL.  I've always thought it would be cool
-to have it in the kernel, we use it everywhere.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-http://bitmover.com:8888//home/bk/bugfixes/src/src/mdbm
+---559023410-851401618-995419632=:2496
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-will let you browse it.  The general interface is gdbm() like and there
-are both file backed and memory backed versions.  It was designed to be
-useful in small and large configs, you can get a hash into 128 bytes if
-I recall correctly.
+Alan,
 
-On Tue, Jul 17, 2001 at 05:57:25PM -0700, Brian J. Watson wrote:
-> A couple of days ago, I was thinking about a common hash table
-> implementation, ala include/linux/list.h. Then I came across
-> include/linux/ghash.h, and thought that someone's already done it.
-> After that I noticed the copyright line said 1997, and a quick check
-> in cscope showed that nobody's including it.
-> 
-> Does anyone know if this file is worth studying and working with? I
-> have to wonder if nobody's using it after four years.
-> 
-> Does anyone see a problem with a common hash table implementation?
-> I've implemented a few hash tables from scratch for our clustering
-> work, and it's starting to get a little old. Something easy to use
-> like list.h would be a lot nicer.
-> 
-> -- 
-> Brian Watson             | "The common people of England... so 
-> Linux Kernel Developer   |  jealous of their liberty, but like the 
-> Open SSI Clustering Lab  |  common people of most other countries 
-> Compaq Computer Corp     |  never rightly considering wherein it 
-> Los Angeles, CA          |  consists..."
->                          |      -Adam Smith, Wealth of Nations, 1776
-> 
-> mailto:Brian.J.Watson@compaq.com
-> http://opensource.compaq.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Please apply attached patch for the next 2.2.20-pre release. It contains
+a tiny ntfs fix to detect when the cluster size is too big and refuse to
+mount the volume. (Without this patch the kernel panics which is not a
+Good Thing and someone got anoyed enough with it to ask me to please fix
+it...)
 
+Patch is untested but considering it's a straight copy from 2.4 and it
+passes a quick sanity check it should be fine.
+
+Best regards,
+
+	Anton
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
+---559023410-851401618-995419632=:2496
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ntfs-2.2.20-pre7.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.SOL.3.96.1010718022712.2496B@draco.cus.cam.ac.uk>
+Content-Description: 
+
+ZGlmZiAtdXJOIGxpbnV4LTIuMi4yMC1wcmU3LXZhbmlsbGEvZnMvbnRmcy9m
+cy5jIGxpbnV4LTIuMi4yMC1wcmU3LW50ZnMvZnMvbnRmcy9mcy5jDQotLS0g
+bGludXgtMi4yLjIwLXByZTctdmFuaWxsYS9mcy9udGZzL2ZzLmMJU3VuIE1h
+ciAyNSAxNzozMTowMiAyMDAxDQorKysgbGludXgtMi4yLjIwLXByZTctbnRm
+cy9mcy9udGZzL2ZzLmMJV2VkIEp1bCAxOCAwMjoxODo0NCAyMDAxDQpAQCAt
+MjksNiArMjksNyBAQA0KICNpbmNsdWRlIDxsaW51eC9ubHMuaD4NCiAjaW5j
+bHVkZSA8bGludXgvbG9ja3MuaD4NCiAjaW5jbHVkZSA8bGludXgvaW5pdC5o
+Pg0KKyNpbmNsdWRlIDxhc20vcGFnZS5oPg0KIA0KIC8qIEZvcndhcmQgZGVj
+bGFyYXRpb25zICovDQogc3RhdGljIHN0cnVjdCBpbm9kZV9vcGVyYXRpb25z
+IG50ZnNfZGlyX2lub2RlX29wZXJhdGlvbnM7DQpAQCAtOTQxLDYgKzk0Miwx
+MyBAQA0KIAlicmVsc2UoYmgpOw0KIAlOVEZTX1NCKHZvbCk9c2I7DQogCW50
+ZnNfZGVidWcoREVCVUdfT1RIRVIsICJEb25lIHRvIGluaXQgdm9sdW1lXG4i
+KTsNCisNCisJLyogQ2hlY2sgdGhlIGNsdXN0ZXIgc2l6ZSBpcyB3aXRoaW4g
+YWxsb3dlZCBibG9ja3NpemUgbGltaXRzLiAqLw0KKwlpZiAodm9sLT5jbHVz
+dGVyc2l6ZSA+IFBBR0VfU0laRSkgew0KKwkJbnRmc19lcnJvcigiUGFydGl0
+aW9uIGNsdXN0ZXIgc2l6ZSBpcyBub3Qgc3VwcG9ydGVkIHlldCAoaXQgIg0K
+KwkJCSAgICJpcyA+IG1heCBrZXJuZWwgYmxvY2tzaXplKS5cbiIpOw0KKwkJ
+Z290byBudGZzX3JlYWRfc3VwZXJfdW5sOw0KKwl9DQogDQogCS8qIEluZm9y
+bSB0aGUga2VybmVsIHRoYXQgYSBkZXZpY2UgYmxvY2sgaXMgYSBOVEZTIGNs
+dXN0ZXIgKi8NCiAJc2ItPnNfYmxvY2tzaXplPXZvbC0+Y2x1c3RlcnNpemU7
+DQo=
+---559023410-851401618-995419632=:2496--

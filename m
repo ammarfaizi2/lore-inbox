@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262672AbTCYOkk>; Tue, 25 Mar 2003 09:40:40 -0500
+	id <S262673AbTCYOmO>; Tue, 25 Mar 2003 09:42:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262673AbTCYOkk>; Tue, 25 Mar 2003 09:40:40 -0500
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:15281 "EHLO
-	dexter.hensema.net") by vger.kernel.org with ESMTP
-	id <S262672AbTCYOkj>; Tue, 25 Mar 2003 09:40:39 -0500
-From: Erik Hensema <usenet@hensema.net>
-Subject: Negative dynamic priorities in 2.5.6[4-6]?
-Date: Tue, 25 Mar 2003 14:51:48 +0000 (UTC)
-Message-ID: <slrnb80r80.288.usenet@bender.home.hensema.net>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linux-kernel@vger.kernel.org
+	id <S262675AbTCYOmO>; Tue, 25 Mar 2003 09:42:14 -0500
+Received: from almesberger.net ([63.105.73.239]:6663 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S262673AbTCYOmN>; Tue, 25 Mar 2003 09:42:13 -0500
+Date: Tue, 25 Mar 2003 11:53:15 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: raj <raj@cs.wisc.edu>, linux-kernel@vger.kernel.org, zandy@cs.wisc.edu
+Subject: Re: [PATCH] ptrace on stopped processes (2.4)
+Message-ID: <20030325115315.B7414@almesberger.net>
+References: <1047936295.3e763d273307c@www-auth.cs.wisc.edu> <20030324040908.GA19754@nevyn.them.org> <3E7EA4B2.5010306@cs.wisc.edu> <20030324150552.GA26287@nevyn.them.org> <20030325104842.A7468@almesberger.net> <20030325135802.GA13406@nevyn.them.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030325135802.GA13406@nevyn.them.org>; from dan@debian.org on Tue, Mar 25, 2003 at 08:58:02AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Daniel Jacobowitz wrote:
+> Have you got an example that needs this?
 
-Since upgrading to 2.5.64 from 2.4.x, I'm seeing negative dynamic
-priorities in top. top from procps-2.0.11 treats PRI as an unsigned long
-long, so it displays negative priorities as being extremely large.
-After changing the format specifier, top displays -51 for artsd:
+No, I was just suggesting an approach that may work, in case
+somebody wants to fix this. SIGSTOP/CONT doesn't seem like a
+very popular communication mechanism anyway.
 
-  PID USER     PRI  NI  SIZE SWAP  RSS SHARE STAT %CPU %MEM   TIME COMMAND
- 1136 erik     -51   0 11040 4592 6448  8828 S     1.5  1.2   0:36 artsd
+I did notice that two processes trying to ptrace each other
+end up being unkillably deadlocked on 2.4.18, which a fix
+for the SIGSTOP problem may resolve, but I didn't check if
+this still happens in more recent kernels. ("Don't do it" is
+a satisfactory work-around.)
 
-kernel 2.5.66 vanilla
-procps 2.0.11
-arts 1.1-50 packaged for suse 8.0
+I'll worry about such subtleties once I've made heads and
+tails of how UML's ptrace-relay interacts with process
+termination :-)
 
-this is while playing a shoutcast mp3 stream.
+- Werner
 
-Is this normal behaviour?
 -- 
-Erik Hensema <erik@hensema.net>
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

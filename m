@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbTJEFhL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 01:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbTJEFhL
+	id S262970AbTJEFfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 01:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbTJEFfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 01:37:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34774 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262971AbTJEFhJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 01:37:09 -0400
-Date: Sat, 4 Oct 2003 22:38:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: insecure@mail.od.ua
-Cc: jgarzik@pobox.com, lm@bitmover.com, hannal@us.ibm.com,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from 10/1 LSE Call
-Message-Id: <20031004223838.338bf4f4.akpm@osdl.org>
-In-Reply-To: <200310030138.34430.insecure@mail.od.ua>
-References: <37940000.1065035945@w-hlinder>
-	<200310022156.49678.insecure@mail.od.ua>
-	<3F7C780C.9040001@pobox.com>
-	<200310030138.34430.insecure@mail.od.ua>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 5 Oct 2003 01:35:04 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:13072
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262970AbTJEFe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 01:34:59 -0400
+Date: Sat, 4 Oct 2003 22:34:58 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: David Ashley <dash@xdr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Idea for improving linux buffer cache behaviour
+Message-ID: <20031005053458.GC1205@matchmail.com>
+Mail-Followup-To: Rik van Riel <riel@redhat.com>,
+	David Ashley <dash@xdr.com>, linux-kernel@vger.kernel.org
+References: <200310041534.h94FYv0X007015@xdr.com> <Pine.LNX.4.44.0310041513150.14750-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310041513150.14750-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-insecure <insecure@mail.od.ua> wrote:
->
-> So:
->  * we hit a ceiling of ~133 Mb/s, no matter how many disks
->  * CPU utilization is 100%, spent mostly in copy_to_user
->  * RAM bandwidth is >1Gb/s
+On Sat, Oct 04, 2003 at 03:14:14PM -0400, Rik van Riel wrote:
+> On Sat, 4 Oct 2003, David Ashley wrote:
 > 
->  These can't be true at once.
+> > Forgive me if this has already been thought of, or is obsolete, or is
+> > just plain a bad idea, but here it is:
+> 
+> Do you also want an answer if the kernel already does
+> exactly what you are suggesting ? ;)
+> 
 
-True.  But bear in mind that the data crosses the memory busses up to three
-times: disk to pagecache, pagecache to CPU, CPU to user memory.
+Then why doesn't it work better?
 
-So top speed may be as little as 300 MB/sec.
+> > 1) Lowest access count looked at first to toss
+> > 2) If access counts equal, throw out oldest first
+> 
+> > The net result is commonly used items you very much want to remain in
+> > cache always quickly get rated very highly as the system is used.
+> 
+> Which results in exactly the behaviour you're complaining
+> about ;))
 
+So, you use the system, have glibc loaded, and then play a dvd, and now
+glibc needs to be re-read because it's not in cache.
+
+Why wasn't glibc (one example) kept in cache with the streaming read from
+the dvd?
 

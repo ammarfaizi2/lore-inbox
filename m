@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288953AbSAFN25>; Sun, 6 Jan 2002 08:28:57 -0500
+	id <S288948AbSAFNa1>; Sun, 6 Jan 2002 08:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288949AbSAFN2r>; Sun, 6 Jan 2002 08:28:47 -0500
-Received: from holomorphy.com ([216.36.33.161]:32457 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S288948AbSAFN2f>;
-	Sun, 6 Jan 2002 08:28:35 -0500
-Date: Sun, 6 Jan 2002 05:28:15 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Jones <davej@suse.de>
-Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove 8 bytes from struct page on 64bit archs
-Message-ID: <20020106052815.F10391@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Jones <davej@suse.de>, Anton Blanchard <anton@samba.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020106123913.GA5407@krispykreme> <Pine.LNX.4.33.0201061403120.3859-100000@Appserv.suse.de>
+	id <S288949AbSAFNaR>; Sun, 6 Jan 2002 08:30:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59919 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288948AbSAFN37>;
+	Sun, 6 Jan 2002 08:29:59 -0500
+Date: Sun, 6 Jan 2002 13:29:57 +0000
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org
+Subject: Re: Binutils and the Linux kernel source finder
+Message-ID: <20020106132957.GE22105@gallifrey>
+In-Reply-To: <20020105180237.GF485@gallifrey> <20020106023953.GA1728@codepoet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33.0201061403120.3859-100000@Appserv.suse.de>; from davej@suse.de on Sun, Jan 06, 2002 at 02:07:05PM +0100
-Organization: The Domain of Holomorphy
+In-Reply-To: <20020106023953.GA1728@codepoet.org>
+User-Agent: Mutt/1.3.25i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.4.17 (i686)
+X-Uptime: 13:27:28 up 1 day, 14:39,  4 users,  load average: 2.01, 1.95, 1.95
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002, Anton Blanchard wrote:
->> Therefore there is no reason to waste 8 bytes per page when every page
->> points to the same zone!
+* Erik Andersen (andersen@codepoet.org) wrote:
 
-On Sun, Jan 06, 2002 at 02:07:05PM +0100, Dave Jones wrote:
-> Some of the low end single zone machines (m68k, sparc32, arm etc)
-> could benefit from losing ->virtual too. wli has patches in
-> his dir on kernel.org that do this (and other struct page reductions)
-> The newer ones are against Rik's rmap vm though iirc, so you may have to
-> frob a bit to get them to play with the stock vm.
+> Note that uClinux (not ucLinux as on your page) does not natively
 
-I can personally (and quite quickly) port the page size reductions to
-other VM's, as the changes required are not particularly invasive.
+Oops - fixed that.
 
-On Sun, Jan 06, 2002 at 02:07:05PM +0100, Dave Jones wrote:
-> It'd be nice to see all these patches reducing this struct consolidated,
-> right now they're all ifdefing different bits with different names..
+> run the ELF binary file format, but uses what is called the
+> "Flat" binary format.  It is structurally much simpler (and
+> therefore smaller) then ELF, but more importantly, this format
+> helps us avoid needing to always use PIC and/or do tons of
+> relocations.
 
-I can correct style issues and the like for at least the bits I'm
-responsible for  in very short order. I'll consolidate the waitqueue,
-->virtual and ->zone removals within the hour, since that appears to
-be wanted/needed.
+OK.
 
-Anton, do you want to take on mixing the zone into ->flags folding with
-your approach?
+> The uClinux toolchains for ARM and m68k (which are the two most
+> commonly used architectures) are available from 
+>     http://www.uclinux.org/pub/uClinux/m68k-elf-tools/
 
-Cheers,
-Bill
+OK, I've added that - it could be said that a page entitled
+'m68k-elf-tools' is perhaps not the obvious place to find stuff for m68k
+and ARM that specifically produces something other than ELF :-)
+
+> 
+> Links to toolchains for other arches and _lots_ of help
+> information can be found at 
+>     http://home.at/uclinux/
+
+Also added - but it breaks Javascript on Mozilla for me, and the menu
+doesn't appear at all in Konqueror for me. It also doesn't have a
+non-Javascript version - making it useless in simpler browsers.
+It does however have a very nice penguin.
+
+Dave
+
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

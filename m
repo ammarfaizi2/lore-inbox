@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137084AbREKIbU>; Fri, 11 May 2001 04:31:20 -0400
+	id <S137080AbREKIda>; Fri, 11 May 2001 04:33:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137079AbREKIbK>; Fri, 11 May 2001 04:31:10 -0400
-Received: from popeye.ipv6.univ-nantes.fr ([193.52.101.20]:4868 "HELO
-	popeye.ipv6.univ-nantes.fr") by vger.kernel.org with SMTP
-	id <S137078AbREKIbB>; Fri, 11 May 2001 04:31:01 -0400
-Subject: Re: Deadlock/crash with Quad tulip card in 2.4
-From: Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S137079AbREKIdU>; Fri, 11 May 2001 04:33:20 -0400
+Received: from ns.suse.de ([213.95.15.193]:6149 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S137078AbREKIdI>;
+	Fri, 11 May 2001 04:33:08 -0400
+Date: Fri, 11 May 2001 10:32:34 +0200
+From: Andi Kleen <ak@suse.de>
+To: Daniel Podlejski <underley@witch.underley.eu.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AFABCE8.8D0BF42A@mandrakesoft.com>
-In-Reply-To: <989507596.18286.0.camel@olive> 
-	<3AFABCE8.8D0BF42A@mandrakesoft.com>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution/0.10+cvs.2001.04.18.22.02 (Preview Release)
-Date: 11 May 2001 10:30:53 +0200
-Message-Id: <989569853.21196.4.camel@olive>
+Subject: Re: reiserfs, xfs, ext2, ext3
+Message-ID: <20010511103233.A2252@gruyere.muc.suse.de>
+In-Reply-To: <alan@lxorguk.ukuu.org.uk> <20010510151204.A16686@gruyere.muc.suse.de> <20010510222313Z5297730-750+10@witch.underley.eu.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010510222313Z5297730-750+10@witch.underley.eu.org>; from underley@witch.underley.eu.org on Fri, May 11, 2001 at 12:23:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 10 May 2001 12:08:08 -0400, Jeff Garzik a écrit :
-> Yann Dupont wrote:
-
-> I'm working on fixing this right now; until then, the "de4x5" driver
-> should work for you.
+On Fri, May 11, 2001 at 12:23:09AM +0200, Daniel Podlejski wrote:
 > 
+> ext2:
+> 
+> root@witch:/mobile:# time tar xzf /arc/test.tar.gz
 
-Yes that's true, it's working like a charm now. I didn't know the de4x5
-driver was working on 4 port Ethernet 21140...
+If /arc is not on a different hd it is probably a good idea to make 
+sure test.tar.gz is small enough to fit into memory and has been read
+at least once to be cache hot (that was the case with my test tar). 
+Otherwise you're testing how fast the hd can seek between the two places 
+and how far XFS and ext2 are away, and both are not very interesting.
 
-Thanks for the quick answer.
 
--- 
-\|/ ____ \|/ Fac. des sciences de Nantes-Linux-Python-IPv6-ATM-BONOM....
-"@'/ ,. \@"  Tel :(+33) [0]251125865(AM)[0]251125857(PM)[0]251125868(Fax)
-/_| \__/ |_\ Yann.Dupont@sciences.univ-nantes.fr
-   \__U_/    http://www.unantes.univ-nantes.fr/~dupont
+-Andi
 

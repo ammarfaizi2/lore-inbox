@@ -1,77 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbUKGMDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbUKGMMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261583AbUKGMDd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 07:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbUKGMDd
+	id S261587AbUKGMMB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 07:12:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbUKGMMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 07:03:33 -0500
-Received: from a4.complang.tuwien.ac.at ([128.130.173.65]:23999 "EHLO
-	a4.complang.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261583AbUKGMDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 07:03:30 -0500
-X-mailer: xrn 9.03-beta-14
-From: anton@mips.complang.tuwien.ac.at (Anton Ertl)
-Subject: memory overcommit (was: [PATCH] Remove OOM killer ...)
-To: Marko Macek <marko.macek@gmx.net>
+	Sun, 7 Nov 2004 07:12:00 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41993 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261587AbUKGMLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 07:11:46 -0500
+Date: Sun, 7 Nov 2004 13:11:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: tao@acc.umu.se
 Cc: linux-kernel@vger.kernel.org
-X-Newsgroups: linux.kernel
-In-reply-to: <418DEA55.2080202@gmx.net>
-Date: Sun, 07 Nov 2004 11:34:02 GMT
-Message-ID: <2004Nov7.123402@mips.complang.tuwien.ac.at>
+Subject: [2.6 patch] small MCA cleanups
+Message-ID: <20041107121112.GF14308@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marko Macek <marko.macek@gmx.net> writes:
->Andries Brouwer wrote:
->
->> I have always been surprised that so few people investigated
->> doing things right, that is, entirely without OOM killer.
+The patch below does the following cleanups in the MCA code:
+- make some needlessly global code static
+- remove three unused global functions from mca-legacy.c (two of them
+  were EXPORT_SYMBOL'ed); this should IMHO be safe since mca-legacy
+  is not an API drivers should move to
 
-I.e., without overcommitment.  That's not necessarily the right thing
-for all processes, because many programs are not written in a way to
-do useful things when a memory allocation or other system call fails.
-For these programs it's better to let the allocation succeed, let it
-use all the unused (but possibly commited) memory and swap space in
-the system, and kill the process if the system runs out of memory
-later.
 
-In a recent posting <2004Oct9.085407@mips.complang.tuwien.ac.at> in
-c.o.l.d.s, I proposed separating the processes in two classes:
+diffstat output:
+ drivers/mca/mca-bus.c      |    2 -
+ drivers/mca/mca-legacy.c   |   59 -------------------------------------
+ drivers/mca/mca-proc.c     |    4 +-
+ include/linux/mca-legacy.h |    5 ---
+ 4 files changed, 3 insertions(+), 67 deletions(-)
 
-- a no-overcommit class for which memory commitment is accounted.  It
-may get ENOMEM on allocation, when the system runs out of commitable
-memory, and processes in this class are never OOM killed.
 
-- an overcommiting class for which memory commitment is not accounted.
-It normally does not get ENOMEM on allocation, but if the system runs
-out of memory (virtual memory, not commitable memory), processes from
-this class are OOM-killed.  Note that these processes can use memory
-that has been commited to, but has not been used by no-overcommit
-class processes.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Ideally, all the important applications would be able to handle failed
-allocations gracefully, and would be marked as no-overcommit, and thus
-would be safe from the OOM killer.
+--- linux-2.6.10-rc1-mm3-full/drivers/mca/mca-bus.c.old	2004-11-07 12:29:40.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/mca/mca-bus.c	2004-11-07 12:30:01.000000000 +0100
+@@ -34,7 +34,7 @@
+ /* Very few machines have more than one MCA bus.  However, there are
+  * those that do (Voyager 35xx/5xxx), so we do it this way for future
+  * expansion.  None that I know have more than 2 */
+-struct mca_bus *mca_root_busses[MAX_MCA_BUSSES];
++static struct mca_bus *mca_root_busses[MAX_MCA_BUSSES];
+ 
+ #define MCA_DEVINFO(i,s) { .pos = i, .name = s }
+ 
+--- linux-2.6.10-rc1-mm3-full/include/linux/mca-legacy.h.old	2004-11-07 12:31:22.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/include/linux/mca-legacy.h	2004-11-07 12:31:44.000000000 +0100
+@@ -34,10 +34,6 @@
+ extern int mca_find_adapter(int id, int start);
+ extern int mca_find_unused_adapter(int id, int start);
+ 
+-/* adapter state info - returns 0 if no */
+-extern int mca_isadapter(int slot);
+-extern int mca_isenabled(int slot);
+-
+ extern int mca_is_adapter_used(int slot);
+ extern int mca_mark_as_used(int slot);
+ extern void mca_mark_as_unused(int slot);
+@@ -50,7 +46,6 @@
+  * so we can have a more interesting /proc/mca.
+  */
+ extern void mca_set_adapter_name(int slot, char* name);
+-extern char* mca_get_adapter_name(int slot);
+ 
+ /* These routines actually mess with the hardware POS registers.  They
+  * temporarily disable the device (and interrupts), so make sure you know
+--- linux-2.6.10-rc1-mm3-full/drivers/mca/mca-legacy.c.old	2004-11-07 12:30:12.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/mca/mca-legacy.c	2004-11-07 12:31:09.000000000 +0100
+@@ -283,25 +283,6 @@
+ EXPORT_SYMBOL(mca_set_adapter_name);
+ 
+ /**
+- *	mca_get_adapter_name - get the adapter description
+- *	@slot:	slot to query
+- *
+- *	Return the adapter description if set. If it has not been
+- *	set or the slot is out range then return NULL.
+- */
+-
+-char *mca_get_adapter_name(int slot)
+-{
+-	struct mca_device *mca_dev = mca_find_device_by_slot(slot);
+-
+-	if(!mca_dev)
+-		return NULL;
+-
+-	return mca_device_get_name(mca_dev);
+-}
+-EXPORT_SYMBOL(mca_get_adapter_name);
+-
+-/**
+  *	mca_is_adapter_used - check if claimed by driver
+  *	@slot:	slot to check
+  *
+@@ -365,43 +346,3 @@
+ }
+ EXPORT_SYMBOL(mca_mark_as_unused);
+ 
+-/**
+- *	mca_isadapter - check if the slot holds an adapter
+- *	@slot:	slot to query
+- *
+- *	Returns zero if the slot does not hold an adapter, non zero if
+- *	it does.
+- */
+-
+-int mca_isadapter(int slot)
+-{
+-	struct mca_device *mca_dev = mca_find_device_by_slot(slot);
+-	enum MCA_AdapterStatus status;
+-
+-	if(!mca_dev)
+-		return 0;
+-
+-	status = mca_device_status(mca_dev);
+-
+-	return status == MCA_ADAPTER_NORMAL
+-		|| status == MCA_ADAPTER_DISABLED;
+-}
+-EXPORT_SYMBOL(mca_isadapter);
+-
+-/**
+- *	mca_isenabled - check if the slot holds an enabled adapter
+- *	@slot:	slot to query
+- *
+- *	Returns a non zero value if the slot holds an enabled adapter
+- *	and zero for any other case.
+- */
+-
+-int mca_isenabled(int slot)
+-{
+-	struct mca_device *mca_dev = mca_find_device_by_slot(slot);
+-
+-	if(!mca_dev)
+-		return 0;
+-
+-	return mca_device_status(mca_dev) == MCA_ADAPTER_NORMAL;
+-}
+--- linux-2.6.10-rc1-mm3-full/drivers/mca/mca-proc.c.old	2004-11-07 12:31:53.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/mca/mca-proc.c	2004-11-07 12:33:30.000000000 +0100
+@@ -43,8 +43,8 @@
+ 	return len;
+ }
+ 
+-int get_mca_info(char *page, char **start, off_t off,
+-		 int count, int *eof, void *data)
++static int get_mca_info(char *page, char **start, off_t off,
++			int count, int *eof, void *data)
+ {
+ 	int i, len = 0;
+ 
 
-And all the other applications would often continue running long after
-they would have crashed or become otherwise useless from ENOMEM on a
-pure no-overcommitment system.
-
->> This is not in a state such that I would like to submit it,
->> but I think it would be good to focus some energy into
->> offering a Linux that is guaranteed free of OOM surprises.
->
->A good thing would be to make the OOM killer only kill
->processes that actually overcommit (independant of overcommit mode).
-
-What does that mean?  Overcommitment is normally a thing that all
-processes do together (each one usually asks for less than the total
-virtual memory).  In my proposal it means that the process would be
-marked as overcommiting or not through something like "nice", maybe
-with a default coming from a flag in the executable.
-
-- anton
--- 
-M. Anton Ertl                    Some things have to be seen to be believed
-anton@mips.complang.tuwien.ac.at Most things have to be believed to be seen
-http://www.complang.tuwien.ac.at/anton/home.html

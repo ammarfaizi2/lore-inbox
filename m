@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVCaWRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVCaWWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262031AbVCaWRN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 17:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVCaWPd
+	id S262034AbVCaWWO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 17:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVCaWWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 17:15:33 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:9118 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262028AbVCaWOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 17:14:43 -0500
-Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp
-	at fault?
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
+	Thu, 31 Mar 2005 17:22:13 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58271 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262026AbVCaWSi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 17:18:38 -0500
+Date: Fri, 1 Apr 2005 00:18:14 +0200
+From: Pavel Machek <pavel@suse.cz>
 To: dtor_core@ameritech.net
-Cc: Patrick Mochel <mochel@digitalimplant.org>, Pavel Machek <pavel@suse.cz>,
+Cc: Patrick Mochel <mochel@digitalimplant.org>,
        Vojtech Pavlik <vojtech@suse.cz>, Andy Isaacson <adi@hexapodia.org>,
        Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
        Stefan Seyfried <seife@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <d120d50005033108321c8f4ae7@mail.gmail.com>
-References: <20050329181831.GB8125@elf.ucw.cz>
-	 <1112135477.29392.16.camel@desktop.cunningham.myip.net.au>
-	 <20050329223519.GI8125@elf.ucw.cz>
-	 <200503310226.03495.dtor_core@ameritech.net>
-	 <Pine.LNX.4.50.0503310801410.15519-100000@monsoon.he.net>
-	 <d120d50005033108321c8f4ae7@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1112307395.18871.4.camel@desktop.cunningham.myip.net.au>
+Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Message-ID: <20050331221814.GC1802@elf.ucw.cz>
+References: <20050329181831.GB8125@elf.ucw.cz> <1112135477.29392.16.camel@desktop.cunningham.myip.net.au> <20050329223519.GI8125@elf.ucw.cz> <200503310226.03495.dtor_core@ameritech.net> <Pine.LNX.4.50.0503310801410.15519-100000@monsoon.he.net> <d120d50005033108321c8f4ae7@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 01 Apr 2005 08:16:36 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d50005033108321c8f4ae7@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi!
 
-On Fri, 2005-04-01 at 02:32, Dmitry Torokhov wrote:
-> On Thu, 31 Mar 2005 08:02:44 -0800 (PST), Patrick Mochel
-> <mochel@digitalimplant.org> wrote:
-> > 
-> > On Thu, 31 Mar 2005, Dmitry Torokhov wrote:
-> > 
 > > > Ok, what do you think about this one?
 > > >
 > > > ===================================================================
@@ -63,24 +52,11 @@ On Fri, 2005-04-01 at 02:32, Dmitry Torokhov wrote:
 > are not doing suspend after all - can we still drop messages on the
 > floor? After all, we still have ability to run coldplug after failed
 > suspend.
-> 
-> I frankly am not sure at what point to disable usermode helper. Or
-> maybe we need to have a list of pending events and suspend khelper_wq
-> while suspending.
 
-FWIW, my solution is purely freezer based. I freeze khelper and in the
-freezer code ignore kernel threads in state uninterruptible (which is
-where kseriod, eg, will be while it waits for the usermode helper
-process (which also gets frozen).
-
-Regards,
-
-Nigel
+I believe we should freeze hotplug before processes. Dropping messages
+on the floor should not be a problem, we should just call coldplug
+after failed suspend.
+								Pavel
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

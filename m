@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273680AbRIQUKd>; Mon, 17 Sep 2001 16:10:33 -0400
+	id <S273682AbRIQUMd>; Mon, 17 Sep 2001 16:12:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273681AbRIQUKN>; Mon, 17 Sep 2001 16:10:13 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:18669 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S273680AbRIQUKE>; Mon, 17 Sep 2001 16:10:04 -0400
-Message-ID: <3BA6593F.94DC371E@idcomm.com>
-Date: Mon, 17 Sep 2001 14:12:47 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Important, but please don't reply on the list.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S273674AbRIQUMX>; Mon, 17 Sep 2001 16:12:23 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:32427 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S273675AbRIQUMH>;
+	Mon, 17 Sep 2001 16:12:07 -0400
+Message-Id: <m15j4kj-000QJQC@amadeus.home.nl>
+Date: Mon, 17 Sep 2001 21:12:25 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: garrett@garrettm.com
+Subject: Re: HPT370
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200109172006.f8HK6TO01234@archimedes.garrettm.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought these were incredibly important, as it might have a
-devastating effect on U.S. Linux developers if it ever passed. But
-please don't add more comments on it to this list, instead point it out
-to your local area Linux users. Here are some links on an effort to ban
-all computer systems that don't pass a government security
-certification:
-http://slashdot.org/articles/01/09/08/0238200.shtml
-http://www.wired.com/news/politics/0,1283,46655,00.html
-http://www.wired.com/news/politics/0,1283,46671,00.html
+In article <200109172006.f8HK6TO01234@archimedes.garrettm.com> you wrote:
+> I'm unsure of who maintains the driver for the hpt370 ide raid card, but was 
+> wondering if anyone knows when (or if) it will support raid sets instead of 
+> just single disks. 
 
-I'm sorry if this isn't directly "development", but article will explain
-that in the long run, developers would be devastated if the proposed
-legal changes take place.
+Recent 2.4.X-ac kernels already support it in RAID0 mode; you can also get
+the standalone driver from
 
-D. Stimits, stimits@idcomm.com
+http://people.redhat.com/arjanv/pdcraid/
+

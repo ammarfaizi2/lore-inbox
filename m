@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261728AbSJ2JjJ>; Tue, 29 Oct 2002 04:39:09 -0500
+	id <S261613AbSJ2Jxs>; Tue, 29 Oct 2002 04:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261729AbSJ2JjJ>; Tue, 29 Oct 2002 04:39:09 -0500
-Received: from mail14.bigmailbox.com ([209.132.220.45]:44770 "EHLO
-	mail14.bigmailbox.com") by vger.kernel.org with ESMTP
-	id <S261728AbSJ2JjI>; Tue, 29 Oct 2002 04:39:08 -0500
-Date: Tue, 29 Oct 2002 01:45:25 -0800
-Message-Id: <200210290945.g9T9jP619257@mail14.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
-Mime-Version: 1.0
-X-Originating-Ip: [218.2.150.97]
-From: "Jim Zeus" <jimzeus@edguy.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Some Question about tty
+	id <S261640AbSJ2Jxs>; Tue, 29 Oct 2002 04:53:48 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63963 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261613AbSJ2Jxr>; Tue, 29 Oct 2002 04:53:47 -0500
+Date: Tue, 29 Oct 2002 11:00:04 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.44-ac5
+In-Reply-To: <200210281452.g9SEqwF17910@devserv.devel.redhat.com>
+Message-ID: <Pine.NEB.4.44.0210291056170.14144-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,folks
 
-I am reading the source code about tty(tty_io.c,n_tty.c,tty_ioctl.c etc)to implement some virtual tty which link to the UART through complex protocol .
+<--  snip  -->
 
-My problem:
-I know /dev/tty is the current terminal,
-and /dev/ttySX is serial port,
-but what is /dev/tty0,/dev/ttyX,/dev/console,/dev/cuaX,/dev/cuaX?
-I got confused with these.
+$ make xconfig
+make -f scripts/Makefile scripts/kconfig.tk
+  Generating scripts/kconfig.tk
+drivers/serial/Config.in: 112: unknown define_bool value
+...
+make: *** [xconfig] Error 1
+$
 
-what is /dev/ptmx?what is ptm/pts? what is the device which's major device number is 128-135 and 136-143,what is the relationship among them?
-
-I am sorry about my poor Englist and maybe foolish question,but I really need help.
-
-TIA
-
-BTW:can somebody show me any link to Mailing list/News group/Forum which about tty?
+<--  snip  -->
 
 
-
-------------------------------------------------------------
-Edguy's Official Website - http://www.edguy.nu
+The fix is simple:
 
 
----------------------------------------------------------------------
-Express yourself with a super cool email address from BigMailBox.com.
-Hundreds of choices. It's free!
-http://www.bigmailbox.com
----------------------------------------------------------------------
+--- linux-2.5.44-full-ac/drivers/serial/Config.in.old	2002-10-29 10:52:34.000000000 +0100
++++ linux-2.5.44-full-ac/drivers/serial/Config.in	2002-10-29 10:53:20.000000000 +0100
+@@ -109,7 +109,7 @@
+    bool '68360 SMC uart support' CONFIG_SERIAL_68360_SMC
+    bool '68360 SCC uart support' CONFIG_SERIAL_68360_SCC
+    if [ "$CONFIG_SERIAL_68360_SMC" = "y" -o "$CONFIG_SERIAL_68360_SCC" = "y" ]; then
+-      define_bool CONFIG_68360_SERIAL
++      define_bool CONFIG_68360_SERIAL y
+    fi
+ fi
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+
+

@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbTHaOqv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 10:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbTHaOqv
+	id S261754AbTHaO7L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 10:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbTHaO7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 10:46:51 -0400
-Received: from [66.155.158.133] ([66.155.158.133]:3712 "EHLO
-	ns.waumbecmill.com") by vger.kernel.org with ESMTP id S261353AbTHaOqr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 10:46:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: joe briggs <jbriggs@briggsmedia.com>
-Organization: BMS
-To: Hans-Peter Jansen <hpj@urpla.net>, Nick Urbanik <nicku@vtc.edu.hk>
-Subject: Re: Single P4, many IDE PCI cards == trouble??
-Date: Sun, 31 Aug 2003 11:46:03 -0400
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3F4EA30C.CEA49F2F@vtc.edu.hk> <3F4F5C9A.5BAA1542@vtc.edu.hk> <200308311443.55543.hpj@urpla.net>
-In-Reply-To: <200308311443.55543.hpj@urpla.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200308311146.03877.jbriggs@briggsmedia.com>
+	Sun, 31 Aug 2003 10:59:11 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54992
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261885AbTHaO7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 10:59:09 -0400
+Date: Sun, 31 Aug 2003 16:59:32 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Re: Andrea VM changes
+Message-ID: <20030831145932.GU24409@dualathlon.random>
+References: <Pine.LNX.4.55L.0308301248380.31588@freak.distro.conectiva> <Pine.LNX.4.55L.0308301607540.31588@freak.distro.conectiva> <Pine.LNX.4.55L.0308301618500.31588@freak.distro.conectiva> <20030830231904.GL24409@dualathlon.random> <1062339003.10208.1.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062339003.10208.1.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am successful in using the Tyan 2460/2466 motherboard with a 3ware 8-channel 
-IDE controller and 8 WD1200 drivers, and a single WD800 IDE system drive, and 
-4 bt878 frame grabbers.  
+On Sun, Aug 31, 2003 at 03:10:04PM +0100, Alan Cox wrote:
+> On Sul, 2003-08-31 at 00:19, Andrea Arcangeli wrote:
+> > I've an algorithm that will work, and that will provide very good
+> > guarantees to kill the "best" task to make the machine usable again,
+> > with the needed protection against the security DoSes, but it's in
+> > no-way similar to the current oom killer.
+> 
+> And -ac has trivial code so you can avoid OOM killing every happening,
+> which is pretty much essential for big servers. Perhaps merging that
+> as well would be a good idea.
 
-However, on a Gigabyte GA7VXP via 400 with Athlon 2400 MP with onboard Promise 
-20276 controller with 2 WD1200's and a WD800 for the system drive and 4 
-framegrabbers, I get IDE DMA timeouts which are a symptom for future file 
-system corruption. I am using the /dev/ataraid device, and have not tried 
-this configuration using Promise's driver which creates a /dev/sda1 SCSI 
-device out of it. I have tried 3ware's 7000 controller with the 
-kernel-included (GPL) /dev/sda driver, and it results in lower probability of 
-file system corruption.
+the reservation that you've to do can generate a less optimal
+utilization of ram (some buggy app can also fail with it), but I agree
+it's a nice feature to be able to return -ENOMEM out of malloc (for
+desktops too), instead of killing the task.
 
-On Sunday 31 August 2003 08:43 am, Hans-Peter Jansen wrote:
-> Hi Nick,
->
-> On Friday 29 August 2003 16:00, Nick Urbanik wrote:
-> > Performance is a relatively minor issue compared with stability and
-> > low cost.
-> >
-> > Is there _anyone_ who is using a number of ATA133 IDE disks (>=6),
-> > each on its own IDE channel, on a number of PCI IDE cards, and
-> > doing so successfully and reliably?  I begin to suspect not!  If
-> > so, please tell us what motherboard, IDE cards you are using.  I
-> > used to imagine that a terabyte of RAID storage on one P4 machine
-> > with ordinary cheap IDE cards with software RAID would be feasible.
-> >  I believe it is not (although I cannot afford to play musical
-> > motherboards).
->
-> It is. I'm running several pretty stable systems with IDE SW RAID 5
-> on top of Promise TX2/100 (~30 Eur) controllers. There was a long
-> standing limit of two cards from this type, which seems to be removed
-> lately (as Alan stated). At least, the test system hasn't fallen on
-> it's face, when adding a third controller, and attached devices acted
-> as expected without freezing, throwing DMA errors, and the like.
->
-> Of course, the usual "don't buy the latest and greatest hardware,
-> if the manufacturer isn't fully commited to linux support" applies.
-> Promise isn't!
->
-> Pete
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+However you have the exact same oom deadlocks problem with all non
+userspace allocations, like a select, select will deadlock the box in
+-ac if you're out of lowmemory, no matter of the non-overcommit
+behaviour, same goes for mlock.
 
--- 
-Joe Briggs
-Briggs Media Systems
-105 Burnsen Ave.
-Manchester NH 01304 USA
-TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
-www.briggsmedia.com
+And I don't see how you can avoid oom killing to ever happen if the apps
+recurse on the stack and growsdown some hundred megs. In such case
+you've to oom kill, since there's no synchronous failure path during the
+stack growsdown walk.
+
+this of course doesn't change the fact that providing the non overcommit
+behaviour (optional), sounds a very good idea, I'm all for it.
+
+I just don't think it solves or hides the other issues, it seems
+completely orthogonal to me, because you can still run oom during stack
+growsdown.
+
+Andrea

@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131042AbRCFRrW>; Tue, 6 Mar 2001 12:47:22 -0500
+	id <S131044AbRCFSIN>; Tue, 6 Mar 2001 13:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131039AbRCFRrM>; Tue, 6 Mar 2001 12:47:12 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:38672 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S131038AbRCFRrA>;
-	Tue, 6 Mar 2001 12:47:00 -0500
-Date: Tue, 6 Mar 2001 12:46:59 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: chromi@cyberspace.org, linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's
-Message-ID: <20010306124659.B2244@xi.linuxpower.cx>
-In-Reply-To: <3AA51AE7.29FAC080@uni-mb.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <3AA51AE7.29FAC080@uni-mb.si>; from david.balazic@uni-mb.si on Tue, Mar 06, 2001 at 06:14:15PM +0100
+	id <S131046AbRCFSIE>; Tue, 6 Mar 2001 13:08:04 -0500
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:18560
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S131044AbRCFSHx>; Tue, 6 Mar 2001 13:07:53 -0500
+Date: Tue, 6 Mar 2001 10:07:08 -0800
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Message-Id: <200103061807.f26I78i00928@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2-ac12
+In-Reply-To: <E14aHXp-0000gN-00@the-village.bc.nu>
+In-Reply-To: <Pine.LNX.4.32.0103060713400.3095-100000@nic-31-c31-100.mn.mediaone.net> <E14aHXp-0000gN-00@the-village.bc.nu>
+Reply-To: whitney@math.berkeley.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 06, 2001 at 06:14:15PM +0100, David Balazic wrote:
-[snip]
-> Hardware Level caching is only good for OSes which have broken
-> drivers and broken caching (like plain old DOS).
-> 
-> Linux does a good job in caching and cache control at software
-> level.
+In mailing-lists.linux-kernel, you wrote:
 
-Read caching, yes. But for writes, the drive can often do a lot more
-optimization because of it's synchronous operation with the platter and
-greater knowledge of internal disk geometry.
+> -ac is currently testing versions of the new VIA IDE driver 
 
-What would be useful, as Alan said, is a barrier operation.
+What is the relationship between the version 3.21 in -ac12 and the
+version 4.3 that was distributed on this list a week or two ago?
+
+Cheers, Wayne
+

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262215AbSLaIaE>; Tue, 31 Dec 2002 03:30:04 -0500
+	id <S262506AbSLaIdR>; Tue, 31 Dec 2002 03:33:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262528AbSLaIaE>; Tue, 31 Dec 2002 03:30:04 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:40124 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S262215AbSLaIaD>; Tue, 31 Dec 2002 03:30:03 -0500
-Date: Tue, 31 Dec 2002 09:38:25 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix up UP in 2.5-bkcurrent
-Message-ID: <20021231083825.GS21097@louise.pinerecords.com>
+	id <S262646AbSLaIdR>; Tue, 31 Dec 2002 03:33:17 -0500
+Received: from are.twiddle.net ([64.81.246.98]:32385 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S262506AbSLaIdQ>;
+	Tue, 31 Dec 2002 03:33:16 -0500
+Date: Tue, 31 Dec 2002 00:41:38 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: [TGAFB] implement the imageblit acceleration hook
+Message-ID: <20021231004138.A13860@twiddle.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Please pull from
 
-The following bit is needed to build (and boot) current 2.5 bk on
-UP.  The fix just favors a "we may have to do this" comment. <g>
-
--- 
-Tomas Szepe <szepe@pinerecords.com>
+	bk://are.twiddle.net/tgafb-2.5
 
 
-diff -urN a/include/asm-i386/hw_irq.h b/include/asm-i386/hw_irq.h
---- a/include/asm-i386/hw_irq.h	2002-12-31 09:33:21.000000000 +0100
-+++ b/include/asm-i386/hw_irq.h	2002-12-31 09:26:18.000000000 +0100
-@@ -131,8 +131,9 @@
- 
- #endif /* CONFIG_PROFILING */
-  
--#ifdef CONFIG_X86_IO_APIC /*more of this file should probably be ifdefed SMP */
--static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i) {
-+#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_SMP)
-+static inline void hw_resend_irq(struct hw_interrupt_type *h, unsigned int i)
-+{
- 	if (IO_APIC_IRQ(i))
- 		send_IPI_self(IO_APIC_VECTOR(i));
- }
+r~
+
+
+
+ drivers/video/tgafb.c |  255 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ include/video/tgafb.h |   27 +++++
+ 2 files changed, 281 insertions, 1 deletion
+
+through these ChangeSets:
+
+<rth@are.twiddle.net> (02/12/31 1.954.2.7)
+   [TGAFB] Implement the fb_imageblit hook.
+   
+   Speeds up rendering of text by around 7x for 8bpp cards,
+   as you'd expect from the difference in the volume of data
+   passed across the bus.  Thus the win should be about 31x
+   for 32bpp cards.

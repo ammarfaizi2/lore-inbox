@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290125AbSBFGWC>; Wed, 6 Feb 2002 01:22:02 -0500
+	id <S290120AbSBFGum>; Wed, 6 Feb 2002 01:50:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290120AbSBFGVw>; Wed, 6 Feb 2002 01:21:52 -0500
-Received: from queen.bee.lk ([203.143.12.182]:56961 "EHLO queen.bee.lk")
-	by vger.kernel.org with ESMTP id <S290125AbSBFGVg>;
-	Wed, 6 Feb 2002 01:21:36 -0500
-Date: Wed, 6 Feb 2002 12:22:38 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Christian Koenig <"ChristianK."@t-online.de>
-Cc: Anuradha Ratnaweera <anuradha@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] kernelconf-0.1.2
-Message-ID: <20020206122238.B17324@bee.lk>
-In-Reply-To: <20020124124548.A2435@lklug.pdn.ac.lk> <16YBk1-1gvG08C@fwd07.sul.t-online.com>
+	id <S290156AbSBFGuc>; Wed, 6 Feb 2002 01:50:32 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:27214 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S290120AbSBFGuR>;
+	Wed, 6 Feb 2002 01:50:17 -0500
+Date: Tue, 5 Feb 2002 23:50:00 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020205235000.J2928@lynx.turbolabs.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16YBk1-1gvG08C@fwd07.sul.t-online.com>; from "ChristianK."@t-online.de on Tue, Feb 05, 2002 at 09:01:17PM +0100
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 05, 2002 at 07:37:41PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 05, 2002 at 09:01:17PM +0100, Christian Koenig wrote:
-> 
-> The atachmend is a little beta/patch to your kernelconf.  It adds xconfig
-> capability to kernelconf, by using Tcl/Tk scripts.  It's still a little bit
-> beta, but the main parts like config file loading/storing, menu-deps ... are
-> implemented.
+On Feb 05, 2002  19:37 -0800, Linus Torvalds wrote:
+> For a first example, the ChangeLog file for 2.5.4-pre1 is rather more
+> detailed than usual (in fact, right now it is _too_ detailed, and I
+> haven't written the scripts to "terse it down" for postings to
+> linux-kernel, for example).
 
-Thanks.
+Well, I for one would rather have these verbose messages than very terse
+messages (or none at all).  Actually, having the full email explanation
+helps other readers just as much as it helps you, and having the subject
+lines helps go back to the specific message/thread in l-k (if the patch
+was also posted there).
 
-I will include it _after_ the next release (0.1.3) which will come out within a
-couple of days.  Structure of kernelconf has changed a bit, so we will have to
-do some sync.  Also, binaries for each type of config are seperate.
-
-BTW, seems as if you have forgotton to `make clean' before making the patch ;)
-
-	Anuradha
-
--- 
-
-Debian GNU/Linux (kernel 2.4.17)
-
-If you can't get your work done in the first 24 hours, work nights.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

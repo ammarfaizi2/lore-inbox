@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUHDVnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267443AbUHDVpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267452AbUHDVnX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 17:43:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUHDVld
+	id S267443AbUHDVpF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 17:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267457AbUHDVpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 17:41:33 -0400
-Received: from home.geizhals.at ([213.229.14.34]:7300 "EHLO
-	morework.geizhals.at") by vger.kernel.org with ESMTP
-	id S267443AbUHDVkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 17:40:13 -0400
-Message-ID: <4111577A.9010901@geizhals.at>
-Date: Wed, 04 Aug 2004 23:39:06 +0200
-From: "Marinos J. Yannikos" <mjy@geizhals.at>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.7 SATA (SCSI emulation) sw-raid1 - lockup when 1 drive is removed
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Aug 2004 17:45:03 -0400
+Received: from zlynx.org ([199.45.143.209]:55304 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S267443AbUHDVoU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 17:44:20 -0400
+Subject: 2.6.8-rc2-mm2, staircase sched and ESD
+From: Zan Lynx <zlynx@acm.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qlnvKCgiFixtwtHqZl+u"
+Message-Id: <1091655857.3088.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 04 Aug 2004 15:44:17 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-A box with a stock 2.6.7 kernel using the Promise SX4 controller 
-(CONFIG_SCSI_SATA_SX4, i.e. libata driver) locks up completely when one 
-of the 2 drives in a raid 1 configuration is removed. I believe this is 
-not how raid 1 is supposed to work. ;-) swap was initially on the drive 
-   I removed only (/dev/sdb2), but I also tested this with swap on a 
-raid volume (/dev/md2 = /dev/sdb2 + /dev/sdc2)- the effect is exactly 
-the same in both cases.
+--=-qlnvKCgiFixtwtHqZl+u
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The last message seen is: "ata1 DMA timeout", then the console stops 
-working. dmesg output and config.gz available at: 
-http://stuff.geizhals.at/misc/2004-08-04/
+The 2.6.8-rc2-mm2 kernel has the staircase scheduler, right?  Well, I am
+seeing an odd thing.  At least, I think it is odd.
 
-Perhaps there is a work-around or this issue can be resolved quickly 
-before one of the drives actually dies...
+I'm running Fedora Core 2 and playing music with Rhythmbox.  When I
+watch top sorted by priority, I see esd slowly increase its priority
+until it reaches 38, then it goes back to 20.  ESD is only using 1-2%
+CPU.
 
-Regards,
-  Marinos
--- 
-Dipl.-Ing. Marinos Yannikos, CEO
-Preisvergleich Internet Services AG
-Obere Donaustrasse 63, A-1020 Wien
-Tel./Fax: (+431) 5811609-52/-55
+This is causing a problem because doing just about anything in X, like
+bring up a new window or drag a window causes the sound to just stop.
+
+Why does ESD's priority keep climbing?
+
+Oh yes, this does not happen if I change /proc/sys/fs/interactive to 0.=20
+When it is 0, X's priority climbs faster than ESDs and does not cause
+the problem.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-qlnvKCgiFixtwtHqZl+u
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBEVixG8fHaOLTWwgRAv2sAKCLAZDs7IPpm54PyNXxrYKpuz384ACgrPtF
+gK1VBAuI6bUM99S29TX2TOI=
+=REcl
+-----END PGP SIGNATURE-----
+
+--=-qlnvKCgiFixtwtHqZl+u--
+

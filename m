@@ -1,34 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130488AbRCILXq>; Fri, 9 Mar 2001 06:23:46 -0500
+	id <S130487AbRCILp3>; Fri, 9 Mar 2001 06:45:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130490AbRCILXg>; Fri, 9 Mar 2001 06:23:36 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3346 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130488AbRCILXV>;
-	Fri, 9 Mar 2001 06:23:21 -0500
-Date: Fri, 9 Mar 2001 11:15:19 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, test-linux-kernel-to@arm.linux.org.uk
-Cc: test-linux-kernel-cc@arm.linux.org.uk
-Subject: test for someones cocked up mail system
-Message-ID: <20010309111519.B27869@flint.arm.linux.org.uk>
+	id <S130491AbRCILpJ>; Fri, 9 Mar 2001 06:45:09 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:2493 "EHLO zooty.lancs.ac.uk")
+	by vger.kernel.org with ESMTP id <S130487AbRCILpC>;
+	Fri, 9 Mar 2001 06:45:02 -0500
+Message-Id: <l03130321b6ce6fe21a72@[192.168.239.101]>
+In-Reply-To: <Pine.LNX.4.10.10103051957240.778-100000@penguin.transmeta.com>
+In-Reply-To: <l03130307b6ca031531fc@[192.168.239.101]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset="us-ascii"
+Date: Fri, 9 Mar 2001 11:39:44 +0000
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: scsi vs ide performance on fsync's
+Cc: Jeremy Hansen <jeremy@xxedgexx.com>, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Appologies for the noise.
+>> It's pretty clear that the IDE drive(r) is *not* waiting for the physical
+>> write to take place before returning control to the user program, whereas
+>> the SCSI drive(r) is.
+>
+>This would not be unexpected.
+>
+>IDE drives generally always do write buffering. I don't even know if you
+>_can_ turn it off. So the drive claims to have written the data as soon as
+>it has made the write buffer.
+>
+>It's definitely not the driver, but the actual drive.
 
-I have been receiving 3 copies of mailings that are sent to linux-kernel
-and name me in the To: and CC: lines.  This mail is designed to put a
-theory to the test.
+As I suspected.  However, testing shows that many drives, including most
+IBMs, do respond to hdparm -W0 which turns write-caching off (some drives
+don't, including some Seagates).  There are also drives in existence that
+have no cache at all (mostly old sub-1G drives) and some with too little
+for this to make a significant difference (the old 1.2G TravelStar in one
+of my PowerBooks is an example).
 
- - this mail, when it leaves my system here only has linux-kernel
-   as the envelope recipient.  I should only receive _one_ copy back,
-   directly from linux-kernel.
+So, is there a way to force (the majority of, rather than all) IDE drives
+to wait until it's been truly committed to media?  If so, will this be
+integrated into the appropriate parts of the kernel, particularly for
+certain members of the sync() family and FS unmounting?
 
-Please do _NOT_ reply to this mail.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-Thanks.
+The key to knowledge is not to rely on people to teach you it.
+
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
+-----END GEEK CODE BLOCK-----
+
+

@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRB0Cv1>; Mon, 26 Feb 2001 21:51:27 -0500
+	id <S129509AbRB0Cpr>; Mon, 26 Feb 2001 21:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbRB0CvS>; Mon, 26 Feb 2001 21:51:18 -0500
-Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:32495 "HELO
+	id <S129511AbRB0Cp2>; Mon, 26 Feb 2001 21:45:28 -0500
+Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:30191 "HELO
 	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129511AbRB0Cu5>; Mon, 26 Feb 2001 21:50:57 -0500
-Date: Mon, 26 Feb 2001 22:11:51 -0300
+	id <S129509AbRB0Cp1>; Mon, 26 Feb 2001 21:45:27 -0500
+Date: Mon, 26 Feb 2001 22:06:20 -0300
 From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mike McLagan <mike.mclagan@linux.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] dlci: update last_rx after netif_rx
-Message-ID: <20010226221151.X8692@conectiva.com.br>
+Subject: [PATCH] cycx_x25: update last_rx after netif_rx
+Message-ID: <20010226220620.W8692@conectiva.com.br>
 Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Mike McLagan <mike.mclagan@linux.org>, linux-kernel@vger.kernel.org
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,28 +22,42 @@ X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Mon, Feb 26, 2001 at 09:58:31PM -0300, Arnaldo Carvalho de Melo escreveu:
 Hi,
 
-	Please consider applying.
+	Please apply. This one I maintain. 8)
 
 - Arnaldo
 
---- linux-2.4.2/drivers/net/wan/dlci.c	Tue Feb 13 19:15:05 2001
-+++ linux-2.4.2.acme/drivers/net/wan/dlci.c	Mon Feb 26 23:43:25 2001
-@@ -205,7 +205,7 @@
+--- linux-2.4.2/drivers/net/wan/cycx_x25.c	Tue Feb 13 19:15:05 2001
++++ linux-2.4.2.acme/drivers/net/wan/cycx_x25.c	Mon Feb 26 23:38:48 2001
+@@ -812,7 +812,6 @@
+ 	if (bitm)
+ 		return; /* more data is coming */
  
- 			case FRAD_P_IP:
- 				header = sizeof(hdr->control) + sizeof(hdr->IP_NLPID);
--				skb->protocol = htons(ETH_P_IP);
-+				skb->protocol = __constant_htons(ETH_P_IP);
- 				process = 1;
- 				break;
+-	dev->last_rx = jiffies;		/* timestamp */
+ 	chan->rx_skb = NULL;		/* dequeue packet */
  
-@@ -229,6 +229,7 @@
- 		skb_pull(skb, header);
- 		netif_rx(skb);
- 		dlp->stats.rx_packets++;
-+		dev->last_rx = jiffies;
- 	}
- 	else
- 		dev_kfree_skb(skb);
+ 	++chan->ifstats.rx_packets;
+@@ -820,6 +819,7 @@
+ 
+ 	skb->mac.raw = skb->data;
+ 	netif_rx(skb);
++	dev->last_rx = jiffies;		/* timestamp */
+ }
+ 
+ /* Connect interrupt handler. */
+@@ -1454,11 +1454,12 @@
+         *ptr = event;
+ 
+         skb->dev = dev;
+-        skb->protocol = htons(ETH_P_X25);
++        skb->protocol = __constant_htons(ETH_P_X25);
+         skb->mac.raw = skb->data;
+         skb->pkt_type = PACKET_HOST;
+ 
+         netif_rx(skb);
++	dev->last_rx = jiffies;		/* timestamp */
+ }
+ 
+ /* Convert line speed in bps to a number used by cyclom 2x code. */

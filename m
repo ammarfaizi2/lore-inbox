@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266930AbSKOXW0>; Fri, 15 Nov 2002 18:22:26 -0500
+	id <S266938AbSKOXRg>; Fri, 15 Nov 2002 18:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266933AbSKOXWZ>; Fri, 15 Nov 2002 18:22:25 -0500
-Received: from fantomas.webnet.pl ([195.205.113.35]:24193 "EHLO
-	fantomas.webnet.pl") by vger.kernel.org with ESMTP
-	id <S266930AbSKOXWV>; Fri, 15 Nov 2002 18:22:21 -0500
-Message-ID: <3DD58343.6030306@wfmh.org.pl>
-Date: Sat, 16 Nov 2002 00:29:07 +0100
-From: Miloslaw Smyk <thorgal@wfmh.org.pl>
-Organization: W.F.M.H.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021109
-X-Accept-Language: en-us, pl
+	id <S266936AbSKOXRg>; Fri, 15 Nov 2002 18:17:36 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:3819 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266933AbSKOXRf>; Fri, 15 Nov 2002 18:17:35 -0500
+Date: Fri, 15 Nov 2002 15:21:40 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jeff Garzik <jgarzik@pobox.com>, Khoa Huynh <khoa@us.ibm.com>
+cc: "David S. Miller" <davem@redhat.com>, ak@suse.de,
+       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <470718948.1037373699@[10.10.2.3]>
+In-Reply-To: <3DD57C42.3000107@pobox.com>
+References: <3DD57C42.3000107@pobox.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-To: Ian Chilton <ian@ichilton.co.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Anyone use HPT366 + UDMA in Linux?
-References: <20021115123541.GA1889@buzz.ichilton.co.uk> <1037371184.19971.0.camel@irongate.swansea.linux.org.uk> <3DD571F1.3010502@wfmh.org.pl> <20021115225137.GB6625@buzz.ichilton.co.uk>
-In-Reply-To: <20021115225137.GB6625@buzz.ichilton.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> The bugs assigned to me are all in the 'open' state, with no 
+> obvious way to change them to 'assigned'.
 
-Ian Chilton wrote:
-
-> I booed 2.4.19 with HPT366 compiled in and i have not got it to fall
-> over yet :)
+There's a radio button just below the additional comments box,
+"Accept bug (change status to ASSIGNED)". Then hit Commit.
+ 
+>> Also, the bug owner can close MULTIPLE bugs at the same time
+>> on Bugzilla.  A bug owner can query all of his bugs which will
+>> then be displayed in a list, click the option "Change several bugs
+>> at once" at the bottom of the list, select the bugs that he wants
+>> to close, and then hit Commit button.  It's pretty simple.  Besides
+>> closing the bugs, the owner can make similar changes to several bugs
+>> at the same time using the same mechanism.
 > 
-> HPT366: onboard version of chipset, pin1=1 pin2=2
-> HPT366: IDE controller on PCI bus 00 dev 98
-> HPT366: chipset revision 1
-> HPT366: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xb400-0xb407, BIOS settings: hda:DMA, hdb:pio
-> HPT366: IDE controller on PCI bus 00 dev 99
-> HPT366: chipset revision 1
-> HPT366: not 100% native mode: will probe irqs later
->     ide1: BM-DMA at 0xc000-0xc007, BIOS settings: hdc:pio, hdd:pio
-> hda: IBM-DTLA-307045, ATA DISK drive
-> ide0 at 0xac00-0xac07,0xb002 on irq 15
-> hda: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=89355/16/63,
-> UDMA(44)
+> The basic point still stands, though, that if the bug owner must close multiple bugs at once, they are likely clearing out garbage and that each individual bug is not necessarily unique or valid...
 
-Your IBM-DTLA-307045 is on ATA100 and ATA66 bad_drives lists and is properly 
-downgraded to UDMA3. Mine however (IC35L040AVER07-0), despite also being 
-present on those lists, is recognized as UDMA5 by hpt366.c newer than 0.18. 
-That may be the culprit.
+If it gets onerous in terms of numbers of bugs filed, we can get people
+to prefilter them. I think that things will calm down in a week or so,
+but if you want, I can find someone to do that for network drivers.
 
-Cheers,
-Milek
--- 
-mailto:thorgal@wfmh.org.pl    |  "Man in the Moon and other weird things" -
-http://wfmh.org.pl/~thorgal/  |  see it at http://wfmh.org.pl/~thorgal/Moon/
-        PLEASE UPDATE YOUR ADDRESSBOOK WITH MY NEW EMAIL ADDRESS.
-
+M.
 

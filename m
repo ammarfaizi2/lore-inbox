@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131651AbQLJWor>; Sun, 10 Dec 2000 17:44:47 -0500
+	id <S130913AbQLJWyH>; Sun, 10 Dec 2000 17:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132345AbQLJWoh>; Sun, 10 Dec 2000 17:44:37 -0500
-Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:34834 "EHLO
-	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S131651AbQLJWo0>;
-	Sun, 10 Dec 2000 17:44:26 -0500
-Date: Sun, 10 Dec 2000 23:13:59 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200012102213.XAA27317@db0bm.ampr.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test12-pre8 (plip) does not compile
+	id <S131014AbQLJWx5>; Sun, 10 Dec 2000 17:53:57 -0500
+Received: from [212.32.186.211] ([212.32.186.211]:59608 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S130913AbQLJWxu>; Sun, 10 Dec 2000 17:53:50 -0500
+Date: Sun, 10 Dec 2000 23:23:14 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test12-pre8
+In-Reply-To: <3A33E0DE.81720F77@haque.net>
+Message-ID: <Pine.LNX.4.21.0012102259450.21029-100000@cola.svenskatest.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 10 Dec 2000, Mohammad A. Haque wrote:
 
-Hi there,
+> Could someome who knows what they are doing check over the following
+> patch please?
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=i586 -DMODULE   -c -o plip.o plip.c
-plip.c: In function `plip_init_dev':
-plip.c:352: structure has no member named `next'
-plip.c:357: structure has no member named `next'
-plip.c:363: structure has no member named `next'
-{standard input}: Assembler messages:
-{standard input}:18: Warning: Ignoring changed section attributes for .modinfo
-make[2]: *** [plip.o] Erreur 1
-make[2]: Quitte le répertoire
-`/usr/src/kernel-sources-2.4.0-test12-pre8/drivers/net'
-make[1]: *** [_modsubdir_net] Erreur 2
-make[1]: Quitte le répertoire
-`/usr/src/kernel-sources-2.4.0-test12-pre8/drivers'
-make: *** [_mod_drivers] Erreur 2
+I wouldn't say that I do, but no one else seems to be answering this.
+list_add_tail does head->prev and making the call with a NULL 'head' looks
+bad to me. I would prefer:
 
+diff -ur -X exclude linux-2.4.0-test12-pre8-orig/fs/smbfs/sock.c linux-2.4.0-test12-pre8-smbfs/fs/smbfs/sock.c
+--- linux-2.4.0-test12-pre8-orig/fs/smbfs/sock.c	Sun Dec 10 21:01:16 2000
++++ linux-2.4.0-test12-pre8-smbfs/fs/smbfs/sock.c	Sun Dec 10 23:07:15 2000
+@@ -163,7 +163,7 @@
+ 		found_data(sk);
+ 		return;
+ 	}
+-	job->cb.next = NULL;
++	INIT_LIST_HEAD(&job->cb.list);
+ 	job->cb.sync = 0;
+ 	job->cb.routine = smb_data_callback;
+ 	job->cb.data = job;
 
-----
-Regards
-		Jean-Luc
+or just leaving the list as it is. It will be initialized anyway by
+schedule_task (queue_task), but using the init macro seems like a nice
+thing to do.
+
+/Urban
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,89 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268365AbUIBOxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268399AbUIBO5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268365AbUIBOxj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 10:53:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIBOxa
+	id S268399AbUIBO5J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 10:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbUIBO5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 10:53:30 -0400
-Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:8656 "EHLO
-	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S268365AbUIBOwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 10:52:23 -0400
-From: Stuart Young <cef-lkml@optusnet.com.au>
+	Thu, 2 Sep 2004 10:57:09 -0400
+Received: from adsl-ull-123-100.42-151.net24.it ([151.42.100.123]:53233 "EHLO
+	www.gtkperl.org") by vger.kernel.org with ESMTP id S268389AbUIBO4f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 10:56:35 -0400
+Date: Thu, 2 Sep 2004 16:56:27 +0200
+From: Paolo Molaro <lupus@debian.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-Date: Fri, 3 Sep 2004 00:45:18 +1000
-User-Agent: KMail/1.7
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Jeremy Allison <jra@samba.org>,
-       Jamie Lokier <jamie@shareable.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       flx@namesys.com, reiserfs-list@namesys.com
-References: <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua> <20040901205140.GL4455@legion.cup.hp.com> <20040902125417.GA12118@thunk.org>
-In-Reply-To: <20040902125417.GA12118@thunk.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: incorrect time accouting
+Message-ID: <20040902145627.GX2761@debian.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409030045.20098.cef-lkml@optusnet.com.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Sep 2004 22:54, Theodore Ts'o wrote:
-> On Wed, Sep 01, 2004 at 01:51:40PM -0700, Jeremy Allison wrote:
-> > > So you're saying SCP, CVS, Subversion, Bitkeeper, Apache and rsyncd
-> > > will _all_ lose part of a Word document when they handle it on a
-> > > Window box?
-> > >
-> > > Ouch!
-> >
-> > Yep. It's the meta data that Word stores in streams that will get lost.
->
-> And this is why I believe that using streams in application is well,
-> ill-advised.  Indeed, one of my concerns with providing streams
-> support is that application authors may make the mistake of using it,
-> and we will be back to the bad old days (when MacOS made this mistake)
-> where you will need to binhex files before you ftp them (and unbinhex
-> them on the otherside) --- and if you forget, the resulting file will
-> be useless.
+While benchmarking, a user pointed out that time(1) reported
+incorrect user and system times when running mono.
+A typical example (running on 2.6.8.1 is):
 
-At least currently (to my knowledge anyway) all stream support in Windows is 
-data that is not important, and that can be either regenerated from 
-filesystem metadata or (more usually) the main file stream itself.
+	$ /usr/bin/time mono so-sieve.exe 5000
+	Count: 1028
+	0.02user 0.00system 0:01.97elapsed 1%CPU (0avgtext+0avgdata 0maxresident)k
+	0inputs+0outputs (1major+1509minor)pagefaults 0swaps
 
-This sort of data is really where streams excel, by providing a way to access 
-data that would otherwise take time/cpu to regenerate over and over, but that 
-in itself is not indispensable. Good examples of this are indexes of data 
-within a document, details of who owns/created/modified the document, common 
-views or reformatting of the data, etc. With audio/video/graphics, you could 
-store lower quality transforms of data (eg: stereo to mono, resolution 
-reduction, thumbnails, etc) in the streams for a file. With a word document, 
-it could be things like an index (assuming it's auto-generated from section 
-headings). With a database, it could be the indexes, and a few views that are 
-expensive time-wise to generate. All of these are easily regenerated from the 
-original data stream, but takes a while. And if you've got the disk, why not 
-use it?
+Where so-sieve.exe is a cpu-bound benchmark.
+On 2.6.8.1 very low user and system times are reported every time, while
+on both 2.4.19 and 2.2.20 sometimes the correct (or at least sensible) 
+results are reported, while sometimes very low timings are reported as
+well.
+top reports high cpu usage and low idle percentages, but with no cpu
+time accounted to the mono process.
+This looks like a mild security issue, since it appears there is some way
+to circumvent the kernel's idea of the cpu resource usage of a process,
+so the limits set become useless and users could bog down the system.
 
-If streams were always to be considered volatile, then you could do all sorts 
-of interesting things with them. Any disk cleanup mechanism you have could 
-also reap old streams specifically if the disk gets below a certain amount 
-free. This means that old streams that are hanging about don't end up wasting 
-all your disk space. Of course, you'd want a way to disable this (for servers 
-mainly), and streams would have to be considered volatile on more than just 
-Linux as a platform for this to be useful.
+http://primates.ximian.com/~lupus/time-strace has the result of
+	strace -tt -f time /usr/local/bin/mono so-sieve.exe 5000 2> time-strace
+The highlights include:
 
-Note that I'm not particularly advocating streams here. I'm just pointing out 
-'how' it could be useful. It could be very easy to misuse streams and cause 
-huge problems (as per Ted's comments), but it's always good to know the other 
-side of the argument.
+[pid  9630] 19:22:28.609566 execve("/usr/local/bin/mono", ["/usr/local/bin/mono", "so-sieve.exe", "5000"], [/* 33 vars */]) = 0
+Pid 9630 is the main process: it creates a thread that will execute the
+bulk of the cpu-intensive code (pid 9633):
+
+[pid  9630] 19:22:28.839532 clone(Process 9633 attached child_stack=0x40d17b48, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, parent_tidptr=0x40d17bf8, {entry_number:6, base_addr:0x40d17bb0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}, child_tidptr=0x40d17bf8) = 9633
+The main loop starts here, after some memory allocation:
+
+[pid  9633] 19:22:28.849138 brk(0x82ae000) = 0x82ae000
+And it ends about two seconds later, with the next entry in the trace
+for the 9633 pid:
+
+[pid  9633] 19:22:30.780451 brk(0)      = 0x82ae000
+At the end, wait4 is called to collect the times, less than 0.5 sec
+user+system:
+[pid  9629] 19:22:30.821596 <... wait4 resumed> [WIFSIGNALED(s) && WTERMSIG(s) == SIGKILL], 0, {ru_utime={0, 14997}, ru_stime={0, 1999}, ...}) = 9630
+
+http://primates.ximian.com/~lupus/mono-1.1.1.tar.gz is the mono source,
+if you don't have mono installed to reproduce (I tried to reproduce with
+a simple pthread program what mono is doing, executing cpu-intensive
+code in a subthread, but times are reported correctly there).
+http://primates.ximian.com/~lupus/so-sieve.exe is the sample program,
+but other programs exibited the same behaviour.
+Let me know if more info is needed to track down the problem.
+
+lupus
 
 -- 
- Stuart Young (aka Cef)
- cef-lkml@optusnet.com.au is for LKML and related email only
+-----------------------------------------------------------------
+lupus@debian.org                                     debian/rules
+lupus@ximian.com                             Monkeys do it better

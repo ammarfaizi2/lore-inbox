@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129036AbRBCBPE>; Fri, 2 Feb 2001 20:15:04 -0500
+	id <S130875AbRBCBPy>; Fri, 2 Feb 2001 20:15:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129048AbRBCBOz>; Fri, 2 Feb 2001 20:14:55 -0500
-Received: from mail-dns1-nj.dialogic.com ([146.152.228.10]:14340 "EHLO
-	mail-dns1-nj.dialogic.com") by vger.kernel.org with ESMTP
-	id <S129036AbRBCBOp>; Fri, 2 Feb 2001 20:14:45 -0500
-Message-ID: <EFC879D09684D211B9C20060972035B1D46850@exchange2ca.sv.dialogic.com>
-From: "Miller, Brendan" <Brendan.Miller@Dialogic.com>
-To: "'J . A . Magallon'" <jamagallon@able.es>,
-        "Miller, Brendan" <Brendan.Miller@Dialogic.com>
-Cc: "'linux-kernel @ vger . kernel . org'" <linux-kernel@vger.kernel.org>
-Subject: RE: bidirectional named pipe?
-Date: Fri, 2 Feb 2001 19:49:10 -0500 
+	id <S130874AbRBCBPf>; Fri, 2 Feb 2001 20:15:35 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:62980 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129048AbRBCBPL>; Fri, 2 Feb 2001 20:15:11 -0500
+Message-ID: <3A7B5B84.A6A3211E@transmeta.com>
+Date: Fri, 02 Feb 2001 17:14:44 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Hugh Dickins <hugh@veritas.com>
+CC: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        Richard Gooch <rgooch@atnf.csiro.au>, linux-kernel@vger.kernel.org
+Subject: Re: CPU capabilities -- an update proposal
+In-Reply-To: <Pine.LNX.4.21.0102022217350.7240-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought mkfifo was only unidirectional...
-
-Brendan
-
-Please cc: me personally, as I am not subscribed.
-
------Original Message-----
-From: J . A . Magallon [mailto:jamagallon@able.es]
-Sent: Friday, February 02, 2001 4:47 PM
-To: Miller, Brendan
-Cc: 'linux-kernel @ vger . kernel . org'
-Subject: Re: bidirectional named pipe?
-
-
-Perhaps man 2 mkfifo ?
-
-On 02.03 "Miller, Brendan" wrote:
+Hugh Dickins wrote:
 > 
-> I've countless web searches and linux-kernel archives, but I haven't yet
-> found the answer to my question.
+> I wonder (you or hpa may very quickly point out why this is stupid
+> and impossible), could we move the identify_cpu() calls into
+> cpu_init()?  I used to think it was called too early for that, but
+> now I see it's already using current, smp_processor_id(), printk().
 > 
-> I'm porting some software to Linux that requires use of a bidirectional,
-> named pipe.  The architecture is as follows:  A server creates a named
-pipe
-> in the /tmp directory.  Any client can then open("/tmp/pipename",
-> O_RDWR|O_NDELAY) and gain access to the server.  The pipe is
-bidirectional,
-> so the client and server communicate on the same pipe.  I support a number
-> of clients on the single pipe using file-locking to prohibit from two
-> clients from writing/reading at once.
-> 
-> How can I do this under Linux?  In SVR4 Unices, I just use pipe() as it's
-> pipes are bidirectional, and I can attach a name with fattach().  In SVR3
-> Unices, I go through a bunch of hacking using the "stream clone device --
-> /dev/spx".  I experiemented with socket-based pipes under Linux, but I
-> couldn't gain access to them by open()ing the name.  Is there help?  I
-> really don't want to use LiS (the Linux Streams) package, as I'd rather do
-> something native and not be dependent on another module.  Plus, I read
-> somewhere that this was a poor way to do things.
-> 
-> Brendan
-> 
-> Please cc: me personally, as I am not subscribed.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+
+I like that idea.  I think it would clean up a lot of crud.
+
+	-hpa
+
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more
-beer
-
-Linux werewolf 2.4.1-ac1 #2 SMP Fri Feb 2 00:19:04 CET 2001 i686
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

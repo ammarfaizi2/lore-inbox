@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313084AbSDTS2B>; Sat, 20 Apr 2002 14:28:01 -0400
+	id <S313022AbSDTSfI>; Sat, 20 Apr 2002 14:35:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314664AbSDTS2A>; Sat, 20 Apr 2002 14:28:00 -0400
-Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:907 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S313084AbSDTS17>;
-	Sat, 20 Apr 2002 14:27:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Larry McVoy <lm@bitmover.com>
+	id <S313025AbSDTSfI>; Sat, 20 Apr 2002 14:35:08 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:61987 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313022AbSDTSfH>; Sat, 20 Apr 2002 14:35:07 -0400
+Message-Id: <5.1.0.14.2.20020420192100.06dd8bb0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 20 Apr 2002 19:35:10 +0100
+To: ebiederm@xmission.com (Eric W. Biederman)
+From: Anton Altaparmakov <aia21@cantab.net>
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Fri, 19 Apr 2002 20:27:58 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0204201006280.11450-100000@penguin.transmeta.com> <E16ycFR-0000Vg-00@starship> <20020420105125.B29646@work.bitmover.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16yd71-0000X4-00@starship>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <m1adry45ho.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 April 2002 19:51, Larry McVoy wrote:
-> If you dump the licensing discussion and think about how BK could help 
-> you, you can see we are half to an improvement over the "mail to the 
-> list" model.  The problem I had with the "mail to the list" model was
-> that it was easy to miss something and then not realized that you
-> had missed it.
+At 18:58 20/04/02, Eric W. Biederman wrote:
+>Anton Altaparmakov <aia21@cantab.net> writes:
+> > The fact that some developers use bitkeeper has no effect on other
+> > developers. Well ok, it means that the bk using developers can work 
+> faster but
+> > that is not at issue here...
+>
+>Faster?  BK has no impact on the fundamentals of code development.  Only
+>on the problem of merging code.  Only when the bottle neck is merge speed
+>does it really come into play.
 
-True, but it also seemed to create a certain energy that now seems to be
-slipping away.  Maybe this is just called 'maturity', I don't know.  Now,
-my original objection was *only* to the inclusion of the Bitkeeper
-documentation in the kernel tree.  A well-known developer who has chosen
-to stay out of the discussion - perhaps by reason of being asleep - used
-the term 'bitkeeper mafia'.  That's not a good sign.  At this juncture, a
-little moderation, as you've shown, could do a lot to mitigate that
-perception.
+I would disagree personally. The more I play with the GUI tools provided by 
+bitkeeper the more interesting things i discover. For example actually 
+SEEING how patches fit together, being able to see what each patch did, 
+looking at a file and having each line annotated as to who added it and in 
+which patch makes it easier for me to understand how the code I am trying 
+to understand has evolved and why certain things are the way they are. But 
+that is something very personal to me, others may not find it useful...
 
-Then it would be back to the usual programming: how to make it all better.
+>For Linus this is obviously a very important issue.  For some of the
+>rest of us it is less so.
+>
+>For myself I find great benefit in reviewing my own patches, and in
+>having other people look at them and review them.  I may be wrong
+>but I do not see bitkeeper helping in that regard (except reduce
+>the noise of renames).
 
-> Now a lot of that stuff is ending up on bkbits.net
-> and if there was a way to say "tell me everything that is there but
-> not here", that would be a distinct improvement, it means that the 
-> "mail" is archived and you can find it when you want it.
+I really like the way bk citool works because it makes my changelogs a lot 
+more useful as I actually see what I have changed when writing them. But 
+again, that is just me...
 
-The missing part is watching the mail go by.  It's the discourse, where
-has it gone?  What happened to the times when patches were actually
-discussed before going into the tree?  Can we somehow have that and
-bitkeeper too... and a fairy castle... 
+Best regards,
+
+Anton
+
 
 -- 
-Daniel
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

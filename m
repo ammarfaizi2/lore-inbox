@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAXJnj>; Wed, 24 Jan 2001 04:43:39 -0500
+	id <S129383AbRAXJq2>; Wed, 24 Jan 2001 04:46:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130869AbRAXJn3>; Wed, 24 Jan 2001 04:43:29 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:15370 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S130866AbRAXJnP>; Wed, 24 Jan 2001 04:43:15 -0500
-From: Paul Mackerras <paulus@linuxcare.com.au>
+	id <S129401AbRAXJqS>; Wed, 24 Jan 2001 04:46:18 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:8198 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129383AbRAXJqH>;
+	Wed, 24 Jan 2001 04:46:07 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Compile dnotify example w/o glibc 2.2 headers
+Date: Wed, 24 Jan 2001 10:27:54 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14958.42045.576523.62083@argo.linuxcare.com.au>
-Date: Wed, 24 Jan 2001 20:45:33 +1100 (EST)
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: l_indien@magic.fr, jma@netgem.com, jfree@sovereign.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Bug in ppp_async.c
-In-Reply-To: <200101240701.f0O71OE110437@saturn.cs.uml.edu>
-In-Reply-To: <14958.25201.508164.388346@diego.linuxcare.com.au>
-	<200101240701.f0O71OE110437@saturn.cs.uml.edu>
-X-Mailer: VM 6.75 under Emacs 20.4.1
-Reply-To: paulus@linuxcare.com.au
+Message-Id: <01012410434304.16618@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan writes:
+<plug>dnotify is cool, check it out</plug>
 
-> Even Red Hat 7 only has the 2.3.11 version.
-> 
-> The 2.4.xx series is supposed to be stable. If there is any way
-> you could add a compatibility hack, please do so.
+If you want to compile the example in Documentation/dnotify.txt and
+you don't have glibc 2.2 headers installed you have 3 choices:
 
-Stable != backwards compatible to the year dot.  ppp-2.4.0 has been
-out for over 5 months now.  Adding the compatibility stuff back in
-would make the PPP subsystem much more complicated and less robust.
-And pppd is not the only thing you would have to upgrade if you are
-using a 2.4.0 with Red Hat 7.0 - I would expect that you would also at
-least have to upgrade modutils, and switch over from ipchains to
-iptables if you use the netfilter stuff.
+  1) Upgrade to glibc 2.2
+  2) Hunt for the missing symbols in the 2.4 source tree
+  3) Apply this patch
 
-Paul.
+Option (1) is recommended of course, but if you're lazy (like me)
+then...
+
+--- 2.4.0/Documentation/dnotify.txt~	Mon Jan 22 16:04:32 2001
++++ 2.4.0/Documentation/dnotify.txt	Mon Jan 22 16:04:25 2001
+@@ -63,6 +63,17 @@
+ 	#include <stdio.h>
+ 	#include <unistd.h>
+ 	
++	#ifndef F_NOTIFY 	/* pre-glibc 2.2? */
++	#define F_NOTIFY	1026
++	#define DN_ACCESS	0x00000001	/* File accessed */
++	#define DN_MODIFY	0x00000002	/* File modified */
++	#define DN_CREATE	0x00000004	/* File created */
++	#define DN_DELETE	0x00000008	/* File removed */
++	#define DN_RENAME	0x00000010	/* File renamed */
++	#define DN_ATTRIB	0x00000020	/* File changed attibutes */
++	#define DN_MULTISHOT	0x80000000	/* Don't remove notifier */
++	#endif
++
+ 	static volatile int event_fd;
+ 	
+ 	static void handler(int sig, siginfo_t *si, void *data)
 
 -- 
-Paul Mackerras, Open Source Research Fellow, Linuxcare, Inc.
-+61 2 6262 8990 tel, +61 2 6262 8991 fax
-paulus@linuxcare.com.au, http://www.linuxcare.com.au/
-Linuxcare.  Support for the revolution.
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

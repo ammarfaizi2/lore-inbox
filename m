@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbUDAB6v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 20:58:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUDAB6v
+	id S262063AbUDACCB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 21:02:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUDACCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 20:58:51 -0500
-Received: from gate.crashing.org ([63.228.1.57]:1948 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261969AbUDAB6s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 20:58:48 -0500
-Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Maneesh Soni <maneesh@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
-       David Brownell <david-b@pacbell.net>, viro@math.psu.edu,
-       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040331221804.GA4729@kroah.com>
-References: <Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org>
-	 <20040328123857.55f04527.akpm@osdl.org> <20040329210219.GA16735@kroah.com>
-	 <20040329132551.23e12144.akpm@osdl.org> <20040329231604.GA29494@kroah.com>
-	 <20040329153117.558c3263.akpm@osdl.org> <20040330055135.GA8448@in.ibm.com>
-	 <20040330230142.GA13571@kroah.com> <20040330235533.GA9018@kroah.com>
-	 <1080699090.1198.117.camel@gaston>  <20040331221804.GA4729@kroah.com>
-Content-Type: text/plain
-Message-Id: <1080784568.1435.37.camel@gaston>
+	Wed, 31 Mar 2004 21:02:01 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58573
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262063AbUDACB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 21:01:27 -0500
+Date: Thu, 1 Apr 2004 04:01:26 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040401020126.GW2143@dualathlon.random>
+References: <20040331150718.GC2143@dualathlon.random> <Pine.LNX.4.44.0403311735560.27163-100000@localhost.localdomain> <20040331172851.GJ2143@dualathlon.random> <20040401004528.GU2143@dualathlon.random> <20040331172216.4df40fb3.akpm@osdl.org> <20040401012625.GV2143@dualathlon.random> <20040331175113.27fd1d0e.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 01 Apr 2004 11:56:09 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040331175113.27fd1d0e.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 31, 2004 at 05:51:13PM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> >  > Doing a __GFP_FS allocation while holding lock_page() is worrisome.  It's
+> >  > OK if that page is private, but how do we know that the caller didn't pass
+> >  > us some page which is on the LRU?
+> > 
+> >  it _has_ to be private if it's using rw_swap_page_sync. How can a page
+> >  be in a lru if we're going to execute add_to_page_cache on it? That
+> >  would be pretty broken in the first place.
+> 
+> An anonymous user page meets these requirements.  A did say "anal", but
+> rw_swap_page_sync() is a general-purpose library function and we shouldn't
+> be making assumptions about the type of page which the caller happens to be
+> feeding us.
 
-> But that is impossible as has already been pointed out by Alan Stern.
-> If a module creates a kobject, how can the module_exit() function ever
-> be called if that kobject incremented the module reference count?
+that is a specialized backdoor to do I/O on _private_ pages, it's not a
+general-purpose library function for doing anonymous pages
+swapin/swapout, infact the only user is swap susped and we'd better
+forbid swap suspend to pass anonymous pages through that interface and
+be sure that nobody will ever attempt anything like that.
 
-I just had a loooong discussion with Rusty on that subject, it's
-indeed a nasty one. The problem is that the real solution is to
-change the module unload semantics. Regardless of the count, module
-exit should be called, and the actual unload (and eventually calling
-an additional module "release" function) then should only happen
-once the count is down to 0. That means that rmmod would block forever
-if the driver is opened, but that is just something that needs to be
-known.
+that interface is useful only to reach the swap device, for doing I/O on
+private pages outside the VM, in the old days that was used to
+read/write the swap header (again on a private page), swap suspend is
+using it for similar reasons on _private_ pages.
 
-But that's not something we'll do for 2.6. For that to work, it also
-need various subsystem unregister_* (netdev etc...) functions to not
-error when the device is opened, just prevent new opens, and operate
-asynchronously (freeing data structures on kobject release) etc...
-
-> So what we do is any reference to the kobject grabbed by userspace
-> causes the module reference count to go up.  That fixes the issue for
-> the most part (with the exception of the race that Maneesh has
-> documented.)
-
-Well.... Maybe, I still think it's dodgy, but probably fine for 2.6
-
-Ben.
-
-
+the idea of allowing people to do I/O on anonymous pages using that
+interface sounds broken to me. Your code sounds overkill complicated
+for allowing something that we definitely must forbid.

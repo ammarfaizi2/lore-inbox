@@ -1,57 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265444AbUBFNlj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 08:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265464AbUBFNlj
+	id S265431AbUBFNqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 08:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbUBFNqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 08:41:39 -0500
-Received: from pop.gmx.net ([213.165.64.20]:32646 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265444AbUBFNlh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 08:41:37 -0500
-X-Authenticated: #4512188
-Message-ID: <4023998E.9040404@gmx.de>
-Date: Fri, 06 Feb 2004 14:41:34 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Fri, 6 Feb 2004 08:46:16 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:5275 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S265431AbUBFNqH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 08:46:07 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Andi Kleen <ak@suse.de>
+Subject: Re: kgdb support in vanilla 2.6.2
+Date: Fri, 6 Feb 2004 19:14:38 +0530
+User-Agent: KMail/1.5
+Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       piggy@timesys.com, trini@kernel.crashing.org, george@mvista.com
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <200402061835.16960.amitkale@emsyssoft.com> <20040206142441.23def5f3.ak@suse.de>
+In-Reply-To: <20040206142441.23def5f3.ak@suse.de>
 MIME-Version: 1.0
-To: a.verweij@student.tudelft.nl
-CC: Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>,
-       =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>,
-       david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-References: <Pine.GHP.4.44.0402061433510.7943-100000@elektron.its.tudelft.nl>
-In-Reply-To: <Pine.GHP.4.44.0402061433510.7943-100000@elektron.its.tudelft.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402061914.38826.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjen Verweij wrote:
- > It would probably be more useful if I included the URL as well duh... 
-(thx
- > Craig)
- >
- > http://atlas.et.tudelft.nl/verwei90/nforce2/
- > http://atlas.et.tudelft.nl/verwei90/nforce2/index.html
+On Friday 06 Feb 2004 6:54 pm, Andi Kleen wrote:
+> On Fri, 6 Feb 2004 18:35:16 +0530
+>
+> "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > On Friday 06 Feb 2004 5:46 pm, Andi Kleen wrote:
+> > > On Fri, 6 Feb 2004 17:28:36 +0530
+> > >
+> > > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > > > On Friday 06 Feb 2004 7:50 am, Andi Kleen wrote:
+> > > > > On Thu, 5 Feb 2004 23:20:04 +0530
+> > > > >
+> > > > > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > > > > > On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
+> > > > > > > Andrew Morton <akpm@osdl.org> writes:
+> > > > > > > > need to take a look at such things and really convice
+> > > > > > > > ourselves that they're worthwhile.  Personally, I'd only be
+> > > > > > > > interested in the basic stub.
+> > > > > > >
+> > > > > > > What I found always extremly ugly in the i386 stub was that it
+> > > > > > > uses magic globals to talk to the page fault handler. For the
+> > > > > > > x86-64 version I replaced that by just using __get/__put_user
+> > > > > > > in the memory accesses, which is much cleaner. I would suggest
+> > > > > > > doing that for i386 too.
+> > > > > >
+> > > > > > May be I am missing something obvious. When debugging a page
+> > > > > > fault handler if kgdb accesses an swapped-out user page doesn't
+> > > > > > it deadlock when trying to hold mm semaphore?
+> > > > >
+> > > > > Modern i386 kernels don't grab the mm semaphore when the access is
+> > > > > >= TASK_SIZE and the access came from kernel space (actually I see
+> > > > > x86-64 still does, but that's a bug, will fix). You could only see
+> > > > > a deadlock when using user addresses and you already hold the mm
+> > > > > semaphore for writing (normal read lock is ok). Just don't do that.
+> > > >
+> > > > OK. It don't deadlock when kgdb accesses kernel addresses.
+> > > >
+> > > > When a user space address is accessed through kgdb, won't the kernel
+> > > > attempt to fault in the user page? We don't want that to happen
+> > > > inside kgdb.
+> > >
+> > > Yes, it will. But I don't think it's a bad thing. If the users doesn't
+> > > want that they should not follow user addresses. After all kgdb is for
+> > > people who know what they are doing.
+> >
+> > Let kgdb refuse to access any addresses below TASK_SIZE. That's better
+> > than accidentally typing something and getting lost.
+>
+> That's fine. But can you perhaps add a magic command that enables it again?
 
-     * 3.2 Turning off the CPU bus disconnect in the BIOS? (verify) 
-(drawback: causes cpu to run significantly hotter)
+Yes. This sounds good.
 
-Inprecice: CPU runs as hot as without disconnect, only without load, cpu 
-disconnect lets the cpu cool down.
+-Amit
 
-With athcool you can alsao turn it off, or there is a quirk-patch 
-available from Bart.
+> I could imagine in a few cases it will be useful because there may be pages
+> mapped into the user address space that are not in the direct mapping
+> (that's mainly on 32bit of course, on amd64 you can always access all
+> memory using mappings >TASK_SIZE)
+>
+> -Andi
 
-     * 3.3 Apply patches cooked up by Ross Dickson, possibly in 
-conjunction with 3.2? (verify)
-           o 3.3.1 Seems to work for Craig Bradney (hardware unknown, 
-some Asus board?) and Prakash K. Cheemplavam (Abit NF7-S)
-
-I have Rev2 (2.0) board and d22 (or 2.2 ? Abit has a strange way of 
-numbering.) Bios. I only applied first patch. I already use an 
-equivalent to the second one.
-
-Prakash

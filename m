@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268150AbRHAUpL>; Wed, 1 Aug 2001 16:45:11 -0400
+	id <S268202AbRHAU4y>; Wed, 1 Aug 2001 16:56:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268151AbRHAUox>; Wed, 1 Aug 2001 16:44:53 -0400
-Received: from quark.didntduck.org ([216.43.55.190]:52494 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S268150AbRHAUoc>; Wed, 1 Aug 2001 16:44:32 -0400
-Message-ID: <3B686A1F.B2409245@didntduck.org>
-Date: Wed, 01 Aug 2001 16:44:15 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S268197AbRHAU4o>; Wed, 1 Aug 2001 16:56:44 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39377 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268182AbRHAU4c>; Wed, 1 Aug 2001 16:56:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Paul Larson <plars@austin.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: LTP-20010801 has been released
+Date: Wed, 1 Aug 2001 15:57:10 +0000
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Svein Erling Seldal <Svein.Seldal@edcom.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: readw() access
-In-Reply-To: <NEBBLKFNEDOFBCDCJMLKCEAKCEAA.Svein.Seldal@edcom.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <0108011554500C.24863@plars.austin.ibm.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Svein Erling Seldal wrote:
-> 
-> Hello,
-> 
-> I'm trying to port a driver from 2.2.x to 2.4.x where I previously has used
-> readw() to read the contents of the memory-adresses 0x408-0x40c (Where the
-> BIOS gives you the adr. for the par-ports.) But on 2.4.x readw(0x408) Oops:
-> 
-> "Unable to handle kernel NULL pointer dereference at virtual address
-> 00000408"
-> 
-> How do you read a memory-address like this?
-> 
-> Svein Erling Seldal
+The Linux Test Project ltp-20010801 was released today.  You can download the 
+Linux Test Project on SourceForge at http://sourceforge.net/projects/ltp.  
 
-Use isa_readw() or ioremap().
+The Linux Test Project is an open source project originated by SGI and 
+recently joined by IBM and OSDL to provide a collection of tools for testing 
+Linux.  The project consists of well over 100 individual testcases and a test 
+driver to automate execution of the tests.  This release includes several 
+enhancements and bugfixes as well as new tests.
 
---
+For more information about the Linux Test Project, visit our web site at 
+http://ltp.sf.net.
 
-				Brian Gerst

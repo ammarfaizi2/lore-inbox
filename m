@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263720AbUDGQPy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 12:15:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUDGQPx
+	id S263722AbUDGQWK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 12:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUDGQWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 12:15:53 -0400
-Received: from zero.aec.at ([193.170.194.10]:33546 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263720AbUDGQPu (ORCPT
+	Wed, 7 Apr 2004 12:22:10 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:38410 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S263722AbUDGQWC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 12:15:50 -0400
-To: Paul Wagland <paul@wagland.net>
-cc: linux-kernel@vger.kernel.org, gktnews@gktech.net
-Subject: Re: amd64 questions
-References: <1Ijzw-4ff-5@gated-at.bofh.it> <1Ijzv-4ff-3@gated-at.bofh.it>
-	<1IntE-7wn-39@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 07 Apr 2004 18:15:38 +0200
-In-Reply-To: <1IntE-7wn-39@gated-at.bofh.it> (Paul Wagland's message of
- "Wed, 07 Apr 2004 17:50:18 +0200")
-Message-ID: <m3isgb69xx.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+	Wed, 7 Apr 2004 12:22:02 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6529.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: cciss updates for 2.6.6xxx [1/2]
+Date: Wed, 7 Apr 2004 11:21:47 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF105BC200E@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: cciss updates for 2.6.6xxx [1/2]
+Thread-Index: AcQcu4X5AeyHmIP9R9S+RdjTnEmrogAAJSLw
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <alpm@odsl.org>, <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 07 Apr 2004 16:21:48.0198 (UTC) FILETIME=[6D096C60:01C41CBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Wagland <paul@wagland.net> writes:
+Yep, you're right. I just regurgitated the same code. I'll pull my head out and try again :(
 
-> On Apr 7, 2004, at 13:29, Andi Kleen wrote:
->
->> A few programs (namely iptables and ipsec tools) need to be used
->> as 64bit programs because the 32bit emulation doesn't work for them.
->> ipchains works though.
->
-> I seem to recall reading that the DM based programs also need to be 64
-> bit, since their 32 bit stuff was also broken?
+mikem
 
-That was already fixed, but the fix may not be in mainline yet
-[and I think it broke ppc64 too]. But right, DM has problems too.
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@pobox.com]
+Sent: Wednesday, April 07, 2004 11:15 AM
+To: Miller, Mike (OS Dev)
+Cc: alpm@odsl.org; axboe@suse.de; linux-kernel@vger.kernel.org
+Subject: Re: cciss updates for 2.6.6xxx [1/2]
 
-> The question I have is whether or not this is a kernel bug that should
-> be fixed? As I understand the DM case, fixing it so that 32bit works,
-> then breaks the 64bit interfaces, requiring re-compiles of the DM
-> programs.
 
-It is a subsystem bug really. These subsystems were all designed to
-not require emulation, but the designers weren't aware of all the
-requirements for this and broke it for AMD64/IA64. Unfortunately the
-interfaces were done in a way that it would be very complicated and a
-lot of work to write an emulation layer, because they're extremly
-emulation unfriendly. Maybe it would be still possible to write an
-emulation layer, but easier is it to just use static 64bit executables 
-or hacked 32bit executables.
+mikem@beardog.cca.cpqcorp.net wrote:
+> This patch adds per logical device queues to the HP cciss driver. It currently only implements a single lock but when time permits I will provide that funtionality. Thanks to Jeff Garzik for providing some sample code.
+> This patch built against 2.6.5. Please consider this for inclusion.
 
-I don't have any plans to write emulation layers for such hopeless
-cases on my own, but just declared these subsystems as broken.
 
-The problem is always the long long alignment. AMD64/IA64 have different
-alignment for long long than i386. The emulation was originally tested
-on some RISC port, where the alignment is the same.
+I appreciate the credit but I don't see that it addressed my original 
+objection -- the starvation issue.
 
--Andi
+Do you cap the number of per-array requests a "1024 / n_arrays", or 
+something like that?  You mentioned that the hardware has a maximum of 
+1024 outstanding commands, for all devices.  The two typical solutions 
+are a round-robin queue (see carmel.c) or limiting each array such that 
+if all arrays are full of commands, the total outstanding never exceeds 
+1024.
+
+This patch may be OK for -mm, I would rather not see it go upstream -- 
+it seems to me you are choosing to decrease stability to obtain a 
+performance increase.  I think you can increase performance without 
+decreasing stability.
+
+	Jeff
+
+
 

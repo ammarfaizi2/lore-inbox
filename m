@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287488AbSBDTyc>; Mon, 4 Feb 2002 14:54:32 -0500
+	id <S287545AbSBDTzw>; Mon, 4 Feb 2002 14:55:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287545AbSBDTyW>; Mon, 4 Feb 2002 14:54:22 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:39648 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S287488AbSBDTyT>;
-	Mon, 4 Feb 2002 14:54:19 -0500
-Date: Mon, 4 Feb 2002 11:54:17 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Patches to review (IrDA + Wireless)
-Message-ID: <20020204115417.A6654@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
+	id <S287699AbSBDTzo>; Mon, 4 Feb 2002 14:55:44 -0500
+Received: from ua0d5hel.dial.kolumbus.fi ([62.248.132.0]:7978 "EHLO
+	porkkala.uworld.dyndns.org") by vger.kernel.org with ESMTP
+	id <S287545AbSBDTzf>; Mon, 4 Feb 2002 14:55:35 -0500
+Message-ID: <3C5EE691.1E7C2ADF@kolumbus.fi>
+Date: Mon, 04 Feb 2002 21:52:49 +0200
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: Ed Tomlinson <tomlins@cam.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
+In-Reply-To: <Pine.LNX.4.33.0202040137070.19391-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+Ingo Molnar wrote:
+> 
+> 'response' in terms of interactive latencies should be good, yes.
+> 
+> 'response' in terms of relative CPU time given to CPU hogs and 
+> interactive tasks wont be as 'good' as with the old scheduler. (ie. CPU 
+> hogs *will* be punished harder - this is what is needed for good 
+> interactivity after all.) So if you see that some of your interactive 
 
-	I've uplaoded my latest IrDA patches on my web page. Review
-welcome :
-http://www.hpl.hp.com/personal/Jean_Tourrilhes/IrDA/IrDA.html#links
+How about priority inheritance? When interactive task relies heavily on
+output from CPU hog?
 
-	And by the way, last chance to comment about second phase of
-Wireless Extensions :
-http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/iw_handlers.w14-4.diff
-http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html#newapi
+My application uses three tier architecture where is low HAL layer reading
+audio from soundcard which is compressed and sent (TCP) to distributor
+process which decompresses the audio and distributes (UNIX/LOCAL) it to
+clients. Distributor's clients are the CPU hogs doing various processing
+tasks to the signal and then sending (TCP) the results to the very thin user
+interface.
 
-	Have fun...
+Now the user interface can take some CPU time and is considered to be
+interactive. But if that leads to starvation of CPU hog processing tasks it
+leads to unusable output on user interface because starvation leads to
+losing blocks of data in distributor process.
 
-	Jean
+HAL and distributor are running as SCHED_FIFO, but CPU hog processing tasks
+are dynamically fork()/exec()'d and run on default priority (not as root).
+So I should nice user interfaces to 15+?
+
+App can be found from: http://hasas.sf.net
+
+
+	- Jussi Laako
+
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers
+

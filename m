@@ -1,59 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282212AbRLVUWN>; Sat, 22 Dec 2001 15:22:13 -0500
+	id <S285073AbRLQKAR>; Mon, 17 Dec 2001 05:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282222AbRLVUWD>; Sat, 22 Dec 2001 15:22:03 -0500
-Received: from pD9053081.dip.t-dialin.net ([217.5.48.129]:61169 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S282212AbRLVUWA> convert rfc822-to-8bit; Sat, 22 Dec 2001 15:22:00 -0500
-Date: Thu, 7 Jan 1904 09:32:10 +0100
-From: Marc Heckmann <heckmann@hbe.ca>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cerberus on 2.4.17-rc2 UP
-Message-ID: <19040107093209.B1421@hbe.ca>
-In-Reply-To: <20011220135904.B32516@hbe.ca> <Pine.LNX.4.21.0112211454140.7313-100000@freak.distro.conectiva>
+	id <S285077AbRLQKAI>; Mon, 17 Dec 2001 05:00:08 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:46866 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S285073AbRLQJ7v>;
+	Mon, 17 Dec 2001 04:59:51 -0500
+Date: Tue, 18 Dec 2001 13:03:33 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] __ISAPNP__ breakage in serial.c (2.5.1)
+Message-ID: <20011218130333.A199@pazke.ipt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.21.0112211454140.7313-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Fri, Dec 21, 2001 at 02:56:34PM -0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
+User-Agent: Mutt/1.0.1i
+X-Uname: Linux pazke 2.5.1-pre11 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 21, 2001 at 02:56:34PM -0200, Marcelo Tosatti wrote:
-> 
-> Can you please run Cerberus again and give me more information ?
 
-I did and the machine made it through this time ( in 18 hours). The thing 
-is that I skipped the LTP and crashme tests because last time, they 
-finished in 8 hours succesfully and the machine only locked up after 14 so 
-I thought that one of the other tests that were still running were 
-responsible. 
+--neYutvxvOLaeuPCA
+Content-Type: multipart/mixed; boundary="x+6KMIRAuhnl3hBn"
 
-In anz case, I don't have access to the box till thursday due to the 
-holidays. I will re-run with all tests then.
 
-Cheers, 
+--x+6KMIRAuhnl3hBn
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> On Thu, 20 Dec 2001, marc. h. wrote:
-> 
-> > I tried out the latest cerberus from
-> > http://people.redhat.com/bmatthews/cerberus/ on a UP redhat-7.2 box. I ran the
-> > standard non-destructive RedHat tests.
-> > 
-> > It ran for about 14 hours and then became unresponsive..  machine still ping'ed
-> > , I could switch VC's scroll up on console, but that's it. Could not log in,
-> > etc.. Another point is that the hard drive light remained on but it was not
-> > seeking, it seemed dead silent.
-> 
-> 
-> 
+Hi all,
 
--m
+in serial driver __ISAPNP__ conditional symbol is used before=20
+isapnp.h file is included. Quick and dirty fix attached.
 
--- 
-	C3C5 9226 3C03 CDF7 2EF1  029F 4CAD FBA4 F5ED 68EB
-	key: http://people.hbesoftware.com/~heckmann/
+Best regards.
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--x+6KMIRAuhnl3hBn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-serial-isapnp
+Content-Transfer-Encoding: quoted-printable
+
+diff -urN -X /usr/dontdiff /linux.vanilla/drivers/char/serial.c /linux/driv=
+ers/char/serial.c
+--- /linux.vanilla/drivers/char/serial.c	Mon Dec 17 17:44:31 2001
++++ /linux/drivers/char/serial.c	Tue Dec 18 00:13:01 2001
+@@ -122,11 +122,6 @@
+ #define ENABLE_SERIAL_ACPI
+ #endif
+=20
+-#ifdef __ISAPNP__
+-#ifndef ENABLE_SERIAL_PNP
+-#define ENABLE_SERIAL_PNP
+-#endif
+-#endif
+=20
+ /* Set of debugging defines */
+=20
+@@ -211,9 +206,14 @@
+ #ifdef ENABLE_SERIAL_PCI
+ #include <linux/pci.h>
+ #endif
+-#ifdef ENABLE_SERIAL_PNP
++
+ #include <linux/isapnp.h>
++#ifdef __ISAPNP__
++#ifndef ENABLE_SERIAL_PNP
++#define ENABLE_SERIAL_PNP
++#endif
+ #endif
++
+ #ifdef CONFIG_MAGIC_SYSRQ
+ #include <linux/sysrq.h>
+ #endif
+
+--x+6KMIRAuhnl3hBn--
+
+--neYutvxvOLaeuPCA
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8HxR1Bm4rlNOo3YgRAl4LAJ9FcBXy5uti6nQLkYxO8kx3qgWRZgCfRrag
+tW3Evu7OExUnB/tEKEQB5ow=
+=06LF
+-----END PGP SIGNATURE-----
+
+--neYutvxvOLaeuPCA--

@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267252AbSLKSGV>; Wed, 11 Dec 2002 13:06:21 -0500
+	id <S267248AbSLKSF5>; Wed, 11 Dec 2002 13:05:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267253AbSLKSGV>; Wed, 11 Dec 2002 13:06:21 -0500
-Received: from [195.212.29.5] ([195.212.29.5]:20436 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S267252AbSLKSGT> convert rfc822-to-8bit; Wed, 11 Dec 2002 13:06:19 -0500
-From: rasman@uk.ibm.com
-Reply-To: rasman@uk.ibm.com
-Organization: IBM
-To: <chinnakka.b@bplmail.com>
-Subject: Re: Kernel Module
-Date: Wed, 11 Dec 2002 18:11:53 +0000
-User-Agent: KMail/1.4.1
-References: <2585.10.10.13.148.1039606840.squirrel@btlmail.bplmail.com>
-In-Reply-To: <2585.10.10.13.148.1039606840.squirrel@btlmail.bplmail.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <200212111811.53135.rasman@uk.ibm.com>
-X-MIMETrack: Itemize by SMTP Server on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
- 11/12/2002 18:14:00,
-	Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
- 11/12/2002 18:14:04,
-	Serialize complete at 11/12/2002 18:14:04
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+	id <S267252AbSLKSF4>; Wed, 11 Dec 2002 13:05:56 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:23272 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267248AbSLKSF4>;
+	Wed, 11 Dec 2002 13:05:56 -0500
+Date: Wed, 11 Dec 2002 13:13:37 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Changes doc update.
+Message-ID: <20021211181337.GD2612@gtf.org>
+References: <20021211172559.GA8613@suse.de> <20021211175810.GC2612@gtf.org> <20021211180719.GB10008@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021211180719.GB10008@suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 Dec 2002 11:40 am, chinnakka.b@bplmail.com wrote:
-> Hello sir,
-> After building the kernel i tried to insert the modules
-> scsi_mod,sd_mod,usb- storage
-> It is giving could not find the kernel version the module was compiled for
-> what is wrong with this?
-> waiting for your response
-> regards
-> chinnakka
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Wed, Dec 11, 2002 at 06:07:19PM +0000, Dave Jones wrote:
+> On Wed, Dec 11, 2002 at 12:58:10PM -0500, Jeff Garzik wrote:
+>  > I think the coolest things (to me) of the new build system need to be
+>  > noted too,
+>  > 
+>  > - "make" is now the preferred target; it does <arch-zimage> and modules.
+>  > - "make -jN" is now the preferred parallel-make execution.  Do not
+>  >   bother to provide "MAKE=xxx".
+> 
+> Yup. Added. Thanks.
+> Something else that I've noticed (but not found documented) is that
+> make dep seems to be automagickly done somewhen. An explicit make dep
+> takes about a second, and doesn't seem to do much at all.
 
-Did you change the kernel version? 
-If so did  you "make modules" followes by "make modules_install"?
-See the kernel README
+I would check with Kai on that... IIRC there _is_ a purpose to "make
+dep", creating some file that's needed before the build process begins.
+Maybe that's fixed now...
 
-
--- 
-Richard J Moore
-RAS Team Lead - IBM Linux Technology Centre

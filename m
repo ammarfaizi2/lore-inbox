@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261198AbRELHvT>; Sat, 12 May 2001 03:51:19 -0400
+	id <S261201AbRELIWB>; Sat, 12 May 2001 04:22:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261199AbRELHvJ>; Sat, 12 May 2001 03:51:09 -0400
-Received: from jalon.able.es ([212.97.163.2]:7403 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S261198AbRELHvF>;
-	Sat, 12 May 2001 03:51:05 -0400
-Date: Sat, 12 May 2001 09:50:57 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: "David S . Miller" <davem@redhat.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+	id <S261202AbRELIVw>; Sat, 12 May 2001 04:21:52 -0400
+Received: from colorfullife.com ([216.156.138.34]:31244 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S261201AbRELIVg>;
+	Sat, 12 May 2001 04:21:36 -0400
+Message-ID: <3AFCF294.10A93DD6@colorfullife.com>
+Date: Sat, 12 May 2001 10:21:40 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: "J . A . Magallon" <jamagallon@able.es>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] new version of singlecopy pipe
-Message-ID: <20010512095057.A2539@werewolf.able.es>
-In-Reply-To: <3AFC36BA.B71FC470@colorfullife.com> <20010512020742.A1054@werewolf.able.es> <15100.33537.982370.753962@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <15100.33537.982370.753962@pizda.ninka.net>; from davem@redhat.com on Sat, May 12, 2001 at 02:25:37 +0200
-X-Mailer: Balsa 1.1.4
+In-Reply-To: <3AFC36BA.B71FC470@colorfullife.com> <20010512020742.A1054@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 05.12 David S. Miller wrote:
+"J . A . Magallon" wrote:
 > 
-> J . A . Magallon writes:
->  > I tried your patch on 2.4.4-ac8, and something strange happens.
->  > Untarring linux-2.4.4 takes a little time, disk light flashes,
->  > but no files appear on the disk (just 'Makefile', as you will see below).
->  > Doing a separate gunzip - tar xf works fine:
+> On 05.11 Manfred Spraul wrote:
+> >
+> > Please test it.
+> > The kernel space part should be ok, but I know that the
+> > patch can cause deadlocks with buggy user space apps.
+> >
 > 
-> What platform?
+> I tried your patch on 2.4.4-ac8, and something strange happens.
+> Untarring linux-2.4.4 takes a little time, disk light flashes,
+> but no files appear on the disk (just 'Makefile', as you will see below).
+> Doing a separate gunzip - tar xf works fine:
 > 
+> werewolf:~/soft/kernel# gtar zxf linux-2.4.4.tar.gz
+> werewolf:~/soft/kernel# ls linux-2.4.4
+> Makefile
 
-Mandrake 8.1 Cooker. Dual PII@400, 440BX, 256Mb. One aic7890 under Gibbs driver.
-gcc 2.96-0.50mdk (matches 84-redhat).
+Could you try if 'strace -f -F gtar zxf linux-2.4.4.tar.gz > /tmp/trace
+2>&1' hangs?
 
-Any more info ?
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.4-ac8 #1 SMP Sat May 12 01:16:37 CEST 2001 i686
-
+If yes, please send me the strace.
+--
+	Manfred

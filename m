@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132147AbRAZQE1>; Fri, 26 Jan 2001 11:04:27 -0500
+	id <S135411AbRAZQIa>; Fri, 26 Jan 2001 11:08:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135286AbRAZQES>; Fri, 26 Jan 2001 11:04:18 -0500
-Received: from [213.38.169.194] ([213.38.169.194]:59918 "EHLO
-	proxy.herefordshire.gov.uk") by vger.kernel.org with ESMTP
-	id <S132924AbRAZQEC>; Fri, 26 Jan 2001 11:04:02 -0500
-Message-ID: <AFE36742FF57D411862500508BDE8DD055F6@mail.herefordshire.gov.uk>
-From: "Randal, Phil" <prandal@herefordshire.gov.uk>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: hotmail not dealing with ECN
-Date: Fri, 26 Jan 2001 16:04:03 -0000
+	id <S135469AbRAZQIX>; Fri, 26 Jan 2001 11:08:23 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:9088 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S135411AbRAZQIC>; Fri, 26 Jan 2001 11:08:02 -0500
+Date: Fri, 26 Jan 2001 11:07:37 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: rjohnson@analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux Post codes during runtime, possibly OT
+In-Reply-To: <3A719AFE.922A8005@colorfullife.com>
+Message-ID: <Pine.LNX.3.95.1010126110426.1321B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Sutherland wrote:
+On Fri, 26 Jan 2001, Manfred Spraul wrote:
 
-> Except you can't retry without ECN, because DaveM wants to do 
-> a Microsoft and force ECN on everyone, whether they like it
-> or not. If ECN is so wonderful, why doesn't anybody actually
-> WANT to use it anyway?
+> > + * 
+> > + * Changed the slow-down I/O port from 0x80 to 0x19. 0x19 is a 
+> > + * DMA controller scratch register. rjohnson@analogic.com 
+> >    */ 
+> >  
+> What about making that a config option?
+> 
+> default: delay with 'outb 0x80', other options could be
+> 	udelay(n); (n=1,2,3)
+> 	outb 0x19
+> 
+> 0x80 is a safe port, and IMHO changing the port on all i386 systems
+> because it's needed for some embedded system debuggers is too dangerous.
+> 
+Dangerous? udelay(1) on a 33 MHz system is like udelay(100). Don't
+get too used to 800+ MHz CPUs. There are systems, probably most in
+the world, that need 300 +/- nanosecond delays. This is what the
+port I/O does.
 
-And there's the rub.  Whether ECN is wonderful or not, attempting
-to force it on everyone, whether they like it or not, whether
-(for whatever reason) they are able to upgrade their firewalls
-to handle ECN appropriately or not, is a recipe for a "Great
-Linux Public Relations Disaster".
 
-Because if we do try to force it, the response which will come
-back won't be "Linux is wonderful, it conforms to the standards".
-It will be "Linux sucks, we can't connect to xyz.com with it (or
-we can't connect because to xyz.com they run it)".
+Cheers,
+Dick Johnson
 
-We may be right, "they" may be wrong, but in the real world
-arrogance rarely wins anyone friends.
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
 
-Just my 2p worth,
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-Phil
 
-(speaking for myself and not my employer)
-
----------------------------------------------
-Phil Randal
-Network Engineer
-Herefordshire Council
-Hereford, UK
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

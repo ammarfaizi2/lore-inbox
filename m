@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUILVlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUILWDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUILVlP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 17:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUILVlP
+	id S261875AbUILWDC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 18:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbUILWDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 17:41:15 -0400
-Received: from [80.91.229.2] ([80.91.229.2]:15800 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262605AbUILVlF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 17:41:05 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Stefan Seyfried <seife@suse.de>
-Subject: Re: swsusp: kill crash when too much memory is free
-Date: Sun, 12 Sep 2004 23:40:56 +0200
-Message-ID: <4144C268.80602@suse.de>
-References: <20040909154219.GB11742@atrey.karlin.mff.cuni.cz> <200409111150.28457.rjw@sisk.pl> <20040912204255.GA3168@elf.ucw.cz> <200409122316.41601.rjw@sisk.pl>
+	Sun, 12 Sep 2004 18:03:02 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:9430 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261875AbUILWDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 18:03:00 -0400
+Date: Sun, 12 Sep 2004 23:59:33 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Sean Neakums <sneakums@zork.net>
+Cc: jgarzik@pobox.com, akpm@osdl.org, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm4: r8169: irq 16: nobody cared!/TX Timeout
+Message-ID: <20040912215933.GB27282@electric-eye.fr.zoreil.com>
+References: <6upt4s4cro.fsf@zork.zork.net> <20040912110614.GA20942@electric-eye.fr.zoreil.com> <6u8ybf2w3f.fsf@zork.zork.net> <20040912204319.GA27282@electric-eye.fr.zoreil.com> <6uisaj19m4.fsf@zork.zork.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
-       Patrick Mochel <mochel@digitalimplant.org>
-X-Gmane-NNTP-Posting-Host: c3b3c813.dial.de.easynet.net
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-In-Reply-To: <200409122316.41601.rjw@sisk.pl>
+Content-Disposition: inline
+In-Reply-To: <6uisaj19m4.fsf@zork.zork.net>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> On Sunday 12 of September 2004 22:42, Pavel Machek wrote:
-
->>Does snd-intel8x0 have any suspend/resume support?
+Sean Neakums <sneakums@zork.net> :
+> Francois Romieu <romieu@fr.zoreil.com> writes:
+> > Sean Neakums <sneakums@zork.net> :
+> > [...]
+> >> Unfortunately after tonight I won't have access to this machine until
+> >> Friday evening.  I'll grab the netdev patchset and try those next.
+> >
+> > via686a based multiprocessor board and acpi...
+> >
+> > Can you try vanilla 2.6.8 r8169 driver with 2.6.9-rc1-mm4 ?
 > 
-> It seems it doesn't, but frankly I haven't looked at the code.
+> Same result on starting X:
+> 
+> irq 16: nobody cared!
 
-It has intel8x0_suspend() and intel8x0_resume() and works on a lot of
-i386 machines fine, i can play sound while suspending and it will
-continue after resuming on e.g. a Dell D600 or a hp nx5000.
+It slightly sounds like a broken irq routing.
 
-    Stefan
+Any taker for the hot potato ?
 
+--
+Ueimor

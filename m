@@ -1,138 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269786AbRHDDu4>; Fri, 3 Aug 2001 23:50:56 -0400
+	id <S269787AbRHDEPo>; Sat, 4 Aug 2001 00:15:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269785AbRHDDus>; Fri, 3 Aug 2001 23:50:48 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:11536 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269786AbRHDDua>; Fri, 3 Aug 2001 23:50:30 -0400
-Date: Fri, 3 Aug 2001 20:48:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-In-Reply-To: <Pine.LNX.4.33.0108032318330.14842-100000@touchme.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.33.0108032045280.15155-200000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168447515-942040992-996896883=:15155"
+	id <S269791AbRHDEPf>; Sat, 4 Aug 2001 00:15:35 -0400
+Received: from [204.214.10.168] ([204.214.10.168]:49423 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S269787AbRHDEPV>;
+	Sat, 4 Aug 2001 00:15:21 -0400
+Date: Fri, 3 Aug 2001 23:14:48 -0400
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010803231448.B15494@xi.linuxpower.cx>
+In-Reply-To: <01080317471707.01827@starship> <20010803121638.A28194@cs.cmu.edu> <0108031854120A.01827@starship> <Pine.LNX.4.33L.0107301320370.11893-100000@imladris.rielhome.conectiva> <s5gvgkacqlm.fsf@egghead.curl.com> <200107301711.f6UHBWHE001945@acap-dev.nas.cmu.edu> <20010803132457.A30127@cs.cmu.edu> <s5g3d78261g.fsf@egghead.curl.com> <20010804051320.B16516@emma1.emma.line.org> <s5gr8usmqkg.fsf@egghead.curl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <s5gr8usmqkg.fsf@egghead.curl.com>; from patl@cag.lcs.mit.edu on Fri, Aug 03, 2001 at 11:50:23PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Fri, Aug 03, 2001 at 11:50:23PM -0400, Patrick J. LoPresti wrote:
+> > http://cr.yp.to/qmail/faq/reliability.html
+> 
+> ...which is consistent.  Qmail is assuming that the link() is
+> synchronous, as it was back in the "Good Old Days" of stock FFS.
 
---168447515-942040992-996896883=:15155
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+That isn't the only cruft there from the "Good Old Days":
 
+"Battery backups will keep your server alive, letting you park the disk to
+avoid a head crash, when the power goes out."
 
-You might try this approach instead, which just removes the thing that
-might deadlock and always is unfair..
-
-(Ugh, I hate attachements, but the system I'm sending this from has this
-broken version of 'pine' that will mess up white-space).
-
-For nicer interactive behaviour while flushing things out, the
-inode_fsync() thing should really use "write_locked_buffers()". That's a
-separate patch, though.
-
-		Linus
-
---168447515-942040992-996896883=:15155
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0108032048030.15155@penguin.transmeta.com>
-Content-Description: 
-Content-Disposition: attachment; filename=patch
-
-ZGlmZiAtdSAtLXJlY3Vyc2l2ZSAtLW5ldy1maWxlIHByZTMvbGludXgvZHJp
-dmVycy9ibG9jay9sbF9yd19ibGsuYyBsaW51eC9kcml2ZXJzL2Jsb2NrL2xs
-X3J3X2Jsay5jDQotLS0gcHJlMy9saW51eC9kcml2ZXJzL2Jsb2NrL2xsX3J3
-X2Jsay5jCVRodSBKdWwgMTkgMjA6NTE6MjMgMjAwMQ0KKysrIGxpbnV4L2Ry
-aXZlcnMvYmxvY2svbGxfcndfYmxrLmMJRnJpIEF1ZyAgMyAyMDoyODo0MyAy
-MDAxDQpAQCAtMTE5LDE3ICsxMTksMTAgQEANCiBpbnQgKiBtYXhfc2VjdG9y
-c1tNQVhfQkxLREVWXTsNCiANCiAvKg0KLSAqIHF1ZXVlZCBzZWN0b3JzIGZv
-ciBhbGwgZGV2aWNlcywgdXNlZCB0byBtYWtlIHN1cmUgd2UgZG9uJ3QgZmls
-bCBhbGwNCi0gKiBvZiBtZW1vcnkgd2l0aCBsb2NrZWQgYnVmZmVycw0KKyAq
-IEhvdyBtYW55IHJlcWV1c3RzIGRvIHdlIGFsbG9jYXRlIHBlciBxdWV1ZSwN
-CisgKiBhbmQgaG93IG1hbnkgZG8gd2UgImJhdGNoIiBvbiBmcmVlaW5nIHRo
-ZW0/DQogICovDQotYXRvbWljX3QgcXVldWVkX3NlY3RvcnM7DQotDQotLyoN
-Ci0gKiBoaWdoIGFuZCBsb3cgd2F0ZXJtYXJrIGZvciBhYm92ZQ0KLSAqLw0K
-LXN0YXRpYyBpbnQgaGlnaF9xdWV1ZWRfc2VjdG9ycywgbG93X3F1ZXVlZF9z
-ZWN0b3JzOw0KLXN0YXRpYyBpbnQgYmF0Y2hfcmVxdWVzdHMsIHF1ZXVlX25y
-X3JlcXVlc3RzOw0KLXN0YXRpYyBERUNMQVJFX1dBSVRfUVVFVUVfSEVBRChi
-bGtfYnVmZmVyc193YWl0KTsNCitzdGF0aWMgaW50IHF1ZXVlX25yX3JlcXVl
-c3RzLCBiYXRjaF9yZXF1ZXN0czsNCiANCiBzdGF0aWMgaW5saW5lIGludCBn
-ZXRfbWF4X3NlY3RvcnMoa2Rldl90IGRldikNCiB7DQpAQCAtNTkyLDEzICs1
-ODUsNiBAQA0KIAkgKi8NCiAJaWYgKHEpIHsNCiAJCS8qDQotCQkgKiB3ZSd2
-ZSByZWxlYXNlZCBlbm91Z2ggYnVmZmVycyB0byBzdGFydCBJL08gYWdhaW4N
-Ci0JCSAqLw0KLQkJaWYgKHdhaXRxdWV1ZV9hY3RpdmUoJmJsa19idWZmZXJz
-X3dhaXQpDQotCQkgICAgJiYgYXRvbWljX3JlYWQoJnF1ZXVlZF9zZWN0b3Jz
-KSA8IGxvd19xdWV1ZWRfc2VjdG9ycykNCi0JCQl3YWtlX3VwKCZibGtfYnVm
-ZmVyc193YWl0KTsNCi0NCi0JCS8qDQogCQkgKiBBZGQgdG8gcGVuZGluZyBm
-cmVlIGxpc3QgYW5kIGJhdGNoIHdha2V1cHMNCiAJCSAqLw0KIAkJbGlzdF9h
-ZGQoJnJlcS0+dGFibGUsICZxLT5wZW5kaW5nX2ZyZWVsaXN0W3J3XSk7DQpA
-QCAtMTAzMiwxNiArMTAxOCw2IEBADQogCWZvciAoaSA9IDA7IGkgPCBucjsg
-aSsrKSB7DQogCQlzdHJ1Y3QgYnVmZmVyX2hlYWQgKmJoID0gYmhzW2ldOw0K
-IA0KLQkJLyoNCi0JCSAqIGRvbid0IGxvY2sgYW55IG1vcmUgYnVmZmVycyBp
-ZiB3ZSBhcmUgYWJvdmUgdGhlIGhpZ2gNCi0JCSAqIHdhdGVyIG1hcmsuIGlu
-c3RlYWQgc3RhcnQgSS9PIG9uIHRoZSBxdWV1ZWQgc3R1ZmYuDQotCQkgKi8N
-Ci0JCWlmIChhdG9taWNfcmVhZCgmcXVldWVkX3NlY3RvcnMpID49IGhpZ2hf
-cXVldWVkX3NlY3RvcnMpIHsNCi0JCQlydW5fdGFza19xdWV1ZSgmdHFfZGlz
-ayk7DQotCQkJd2FpdF9ldmVudChibGtfYnVmZmVyc193YWl0LA0KLQkJCSBh
-dG9taWNfcmVhZCgmcXVldWVkX3NlY3RvcnMpIDwgbG93X3F1ZXVlZF9zZWN0
-b3JzKTsNCi0JCX0NCi0NCiAJCS8qIE9ubHkgb25lIHRocmVhZCBjYW4gYWN0
-dWFsbHkgc3VibWl0IHRoZSBJL08uICovDQogCQlpZiAodGVzdF9hbmRfc2V0
-X2JpdChCSF9Mb2NrLCAmYmgtPmJfc3RhdGUpKQ0KIAkJCWNvbnRpbnVlOw0K
-QEAgLTExNjgsMjYgKzExNDQsOSBAQA0KIAltZW1zZXQobWF4X3JlYWRhaGVh
-ZCwgMCwgc2l6ZW9mKG1heF9yZWFkYWhlYWQpKTsNCiAJbWVtc2V0KG1heF9z
-ZWN0b3JzLCAwLCBzaXplb2YobWF4X3NlY3RvcnMpKTsNCiANCi0JYXRvbWlj
-X3NldCgmcXVldWVkX3NlY3RvcnMsIDApOw0KIAl0b3RhbF9yYW0gPSBucl9m
-cmVlX3BhZ2VzKCkgPDwgKFBBR0VfU0hJRlQgLSAxMCk7DQogDQogCS8qDQot
-CSAqIFRyeSB0byBrZWVwIDEyOE1CIG1heCBoeXN0ZXJpcy4gSWYgbm90IHBv
-c3NpYmxlLA0KLQkgKiB1c2UgaGFsZiBvZiBSQU0NCi0JICovDQotCWhpZ2hf
-cXVldWVkX3NlY3RvcnMgPSAodG90YWxfcmFtICogMikgLyAzOw0KLQlsb3df
-cXVldWVkX3NlY3RvcnMgPSBoaWdoX3F1ZXVlZF9zZWN0b3JzIC8gMzsNCi0J
-aWYgKGhpZ2hfcXVldWVkX3NlY3RvcnMgLSBsb3dfcXVldWVkX3NlY3RvcnMg
-PiBNQigxMjgpKQ0KLQkJbG93X3F1ZXVlZF9zZWN0b3JzID0gaGlnaF9xdWV1
-ZWRfc2VjdG9ycyAtIE1CKDEyOCk7DQotDQotDQotCS8qDQotCSAqIG1ha2Ug
-aXQgc2VjdG9ycyAoNTEyYikNCi0JICovDQotCWhpZ2hfcXVldWVkX3NlY3Rv
-cnMgPDw9IDE7DQotCWxvd19xdWV1ZWRfc2VjdG9ycyA8PD0gMTsNCi0NCi0J
-LyoNCiAJICogU2NhbGUgZnJlZSByZXF1ZXN0IHNsb3RzIHBlciBxdWV1ZSB0
-b28NCiAJICovDQogCXRvdGFsX3JhbSA9ICh0b3RhbF9yYW0gKyBNQigzMikg
-LSAxKSAmIH4oTUIoMzIpIC0gMSk7DQpAQCAtMTIwMCwxMCArMTE1OSw3IEBA
-DQogCWlmICgoYmF0Y2hfcmVxdWVzdHMgPSBxdWV1ZV9ucl9yZXF1ZXN0cyA+
-PiAzKSA+IDMyKQ0KIAkJYmF0Y2hfcmVxdWVzdHMgPSAzMjsNCiANCi0JcHJp
-bnRrKCJibG9jazogcXVldWVkIHNlY3RvcnMgbWF4L2xvdyAlZGtCLyVka0Is
-ICVkIHNsb3RzIHBlciBxdWV1ZVxuIiwNCi0JCQkJCQloaWdoX3F1ZXVlZF9z
-ZWN0b3JzIC8gMiwNCi0JCQkJCQlsb3dfcXVldWVkX3NlY3RvcnMgLyAyLA0K
-LQkJCQkJCXF1ZXVlX25yX3JlcXVlc3RzKTsNCisJcHJpbnRrKCJibG9jazog
-JWQgc2xvdHMgcGVyIHF1ZXVlLCBiYXRjaD0lZFxuIiwgcXVldWVfbnJfcmVx
-dWVzdHMsIGJhdGNoX3JlcXVlc3RzKTsNCiANCiAjaWZkZWYgQ09ORklHX0FN
-SUdBX1oyUkFNDQogCXoyX2luaXQoKTsNCkBAIC0xMzI0LDQgKzEyODAsMyBA
-QA0KIEVYUE9SVF9TWU1CT0woZ2VuZXJpY19tYWtlX3JlcXVlc3QpOw0KIEVY
-UE9SVF9TWU1CT0woYmxrZGV2X3JlbGVhc2VfcmVxdWVzdCk7DQogRVhQT1JU
-X1NZTUJPTChnZW5lcmljX3VucGx1Z19kZXZpY2UpOw0KLUVYUE9SVF9TWU1C
-T0wocXVldWVkX3NlY3RvcnMpOw0KZGlmZiAtdSAtLXJlY3Vyc2l2ZSAtLW5l
-dy1maWxlIHByZTMvbGludXgvaW5jbHVkZS9saW51eC9ibGtkZXYuaCBsaW51
-eC9pbmNsdWRlL2xpbnV4L2Jsa2Rldi5oDQotLS0gcHJlMy9saW51eC9pbmNs
-dWRlL2xpbnV4L2Jsa2Rldi5oCU1vbiBKdWwgMzAgMTA6NDU6NTkgMjAwMQ0K
-KysrIGxpbnV4L2luY2x1ZGUvbGludXgvYmxrZGV2LmgJRnJpIEF1ZyAgMyAy
-MDozMDowMSAyMDAxDQpAQCAtMTc0LDggKzE3NCw2IEBADQogDQogZXh0ZXJu
-IGludCAqIG1heF9zZWdtZW50c1tNQVhfQkxLREVWXTsNCiANCi1leHRlcm4g
-YXRvbWljX3QgcXVldWVkX3NlY3RvcnM7DQotDQogI2RlZmluZSBNQVhfU0VH
-TUVOVFMgMTI4DQogI2RlZmluZSBNQVhfU0VDVE9SUyAyNTUNCiANCkBAIC0y
-MDMsMTQgKzIwMSw3IEBADQogCQlyZXR1cm4gNTEyOw0KIH0NCiANCi0jZGVm
-aW5lIGJsa19maW5pc2hlZF9pbyhuc2VjdHMpCQkJCVwNCi0JYXRvbWljX3N1
-Yihuc2VjdHMsICZxdWV1ZWRfc2VjdG9ycyk7CQlcDQotCWlmIChhdG9taWNf
-cmVhZCgmcXVldWVkX3NlY3RvcnMpIDwgMCkgewkJXA0KLQkJcHJpbnRrKCJi
-bG9jazogcXVldWVkX3NlY3RvcnMgPCAwXG4iKTsJXA0KLQkJYXRvbWljX3Nl
-dCgmcXVldWVkX3NlY3RvcnMsIDApOwkJXA0KLQl9DQotDQotI2RlZmluZSBi
-bGtfc3RhcnRlZF9pbyhuc2VjdHMpCQkJCVwNCi0JYXRvbWljX2FkZChuc2Vj
-dHMsICZxdWV1ZWRfc2VjdG9ycyk7DQorI2RlZmluZSBibGtfZmluaXNoZWRf
-aW8obnNlY3RzKQlkbyB7IH0gd2hpbGUgKDApDQorI2RlZmluZSBibGtfc3Rh
-cnRlZF9pbyhuc2VjdHMpCWRvIHsgfSB3aGlsZSAoMCkNCiANCiAjZW5kaWYN
-Cg==
---168447515-942040992-996896883=:15155--
+What the hell? Self-parking drives predate qmail by quite a long time.

@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbUJ0SdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbUJ0S27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262616AbUJ0SdG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 14:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbUJ0S3g
+	id S262587AbUJ0S27 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 14:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbUJ0SX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 14:29:36 -0400
-Received: from delta.ece.northwestern.edu ([129.105.5.125]:20218 "EHLO
-	delta.ece.northwestern.edu") by vger.kernel.org with ESMTP
-	id S262592AbUJ0S2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 14:28:45 -0400
-Message-ID: <417FE937.1040304@ece.northwestern.edu>
-Date: Wed, 27 Oct 2004 13:30:15 -0500
-From: Lei Yang <lya755@ece.northwestern.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040921
-X-Accept-Language: en-us, en
+	Wed, 27 Oct 2004 14:23:57 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:16375 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S262587AbUJ0SUF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 14:20:05 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: [BK PATCHES] ide-2.6 update
+Date: Wed, 27 Oct 2004 14:19:59 -0400
+User-Agent: KMail/1.7
+Cc: torvalds@osdl.org, linux-ide@vger.kernel.org
+References: <58cb370e04102706074c20d6d7@mail.gmail.com> <200410271305.06265.gene.heskett@verizon.net> <58cb370e041027101527b5e340@mail.gmail.com>
+In-Reply-To: <58cb370e041027101527b5e340@mail.gmail.com>
 MIME-Version: 1.0
-To: Lei Yang <lya755@ece.northwestern.edu>, linux-kernel@vger.kernel.org
-Subject: Re: set blksize of block device
-References: <417FE6A8.5090803@ece.northwestern.edu>
-In-Reply-To: <417FE6A8.5090803@ece.northwestern.edu>
-X-Enigmail-Version: 0.76.8.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410271419.59500.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.91.102] at Wed, 27 Oct 2004 13:20:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please cc me if you have answers to this, I am not on the list. Thanks a 
-lot!
+On Wednesday 27 October 2004 13:15, Bartlomiej Zolnierkiewicz wrote:
+>>On Wed, 27 Oct 2004 13:05:06 -0400, Gene Heskett
 
-Lei Yang wrote:
-
-> Hello,
+>> Drat.  I can't afford bitkeeper, either the time or the resources.
+>> So I assume this will be in 2.6.10-rc2 or 3?
 >
-> I am learning block device drivers and have a newbie question. Given a 
-> block device, is there anyway that I could set its block size? For 
-> example, I want to write a block device driver that will work on an 
-> existing block device.  In this driver, I want block size smaller. 
-> (The idea looks confusing but I could explain if anybody is interested 
-> :- )  However,  typically the block size is 1KB, now I want to set it 
-> to 512 or 256.  Can I do it?
->
-> TIA
-> Lei
->
+>I hope it will be in the next -bk snapshot...
 
+I just grabbed 2.6.10-rc1-bk6.  Dated about 3 hours ago if the time 
+zones are the same.
 
+Thanks
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

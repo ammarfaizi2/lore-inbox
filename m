@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269718AbTGOVS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 17:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269716AbTGOVSZ
+	id S269755AbTGOVVk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 17:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269758AbTGOVVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 17:18:25 -0400
-Received: from login.osdl.org ([65.172.181.5]:62353 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269713AbTGOVRJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 17:17:09 -0400
-Date: Tue, 15 Jul 2003 14:29:37 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: dacin <dacin@hotpop.com>
+	Tue, 15 Jul 2003 17:21:40 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:12964 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S269755AbTGOVUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 17:20:20 -0400
+Date: Tue, 15 Jul 2003 22:35:05 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Folkert van Heusden <folkert@vanheusden.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modutil version for linux-2.6-test1
-Message-Id: <20030715142937.576479ba.rddunlap@osdl.org>
-In-Reply-To: <3F146DF4.1050404@hotpop.com>
-References: <3F146DF4.1050404@hotpop.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Subject: Re: v2.6.0-test1 - no keyboard/mouse
+Message-ID: <20030715213503.GA29897@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Folkert van Heusden <folkert@vanheusden.com>,
+	linux-kernel@vger.kernel.org
+References: <200307152246.57389.folkert@vanheusden.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307152246.57389.folkert@vanheusden.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jul 2003 02:41:16 +0530 dacin <dacin@hotpop.com> wrote:
+On Tue, Jul 15, 2003 at 10:46:57PM +0200, Folkert van Heusden wrote:
+ > Ehrm, hello? Has this list became silent suddenly?
+ > Anyway: I just tried 2.6.0-test1 on my celeron. Boots up flawlessly. Rather 
+ > quick and all. X boots up, all fine.
+ > Only one minor problem: the keyboard and the mouse do not work.
+ > I *have* included input-core, etc.:
+ > CONFIG_INPUT=y
+ > CONFIG_INPUT_MOUSEDEV=y
+ > CONFIG_INPUT_MOUSEDEV_PSAUX=y
+ > CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+ > CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ > CONFIG_INPUT_EVDEV=y
+ > CONFIG_INPUT_KEYBOARD=y
+ > CONFIG_INPUT_MOUSE=y
+ > CONFIG_INPUT_MISC=y
+ > CONFIG_INPUT_PCSPKR=y
+ > CONFIG_INPUT_UINPUT=y
 
-| Ello friedns.
-| I am back from long xxx
-| Umm whats the modutil version for 2.6-test1...
+Here's your problem.. (or one of them at least)..
 
-Whatever is the latest version here:
-  http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
-Also see linux/Documentation/Changes (file).
+# CONFIG_SERIO is not set
 
---
-~Randy
-| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+You're likely also missing a CONFIG_KEYBOARD_ATKBD=y
+but that will probably appear when CONFIG_SERIO=y
+along with PS2 mouse.
+
+		Dave
+

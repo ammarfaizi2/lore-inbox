@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289839AbSAKChx>; Thu, 10 Jan 2002 21:37:53 -0500
+	id <S289834AbSAKCs0>; Thu, 10 Jan 2002 21:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289840AbSAKChn>; Thu, 10 Jan 2002 21:37:43 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:50193 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S289839AbSAKChf> convert rfc822-to-8bit; Thu, 10 Jan 2002 21:37:35 -0500
-Date: Thu, 10 Jan 2002 18:42:25 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-cc: Ed Tomlinson <tomlins@cam.org>, Ingo Molnar <mingo@elte.hu>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] O(1) scheduler, -H4 - 2.4.17 problems
-In-Reply-To: <20020111021221Z289836-13997+3739@vger.kernel.org>
-Message-ID: <Pine.LNX.4.40.0201101841430.1493-100000@blue1.dev.mcafeelabs.com>
+	id <S289840AbSAKCsR>; Thu, 10 Jan 2002 21:48:17 -0500
+Received: from nrg.org ([216.101.165.106]:58162 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S289834AbSAKCsB>;
+	Thu, 10 Jan 2002 21:48:01 -0500
+Date: Thu, 10 Jan 2002 18:47:45 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Rob Landley <landley@trommello.org>, Andrew Morton <akpm@zip.com.au>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16OkSV-0005EZ-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0201101840470.5213-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
-
-> On Fri, Jan 11, 2002 at 00:52:16AM, khromy wrote:
-> > On Thu, Jan 10, 2002 at 07:43:04PM -0500, Ed Tomlinson wrote:
-> > > Incase I messed up removing and repatch I tried from a clean kernel with
-> > > the same results.
-> > > Any one else seeing this?
-> >
-> > Yes.. This is a PII350 with 128MiB... If anybody needs any more info let
-> > me know.
+On Thu, 10 Jan 2002, Alan Cox wrote:
+> The fun below 1mS comes from
 >
-> -H5 (-G1, latest I've tried worked)
->
-> 1 GHz Athlon II, 640 MB
-> hang hard right after
-> Initializing RT netlink socket
+> 	1.	APM bios calls where the bios decides to take >1mS to have
+> 		a chat with your batteries
+> 	2.	Video cards pulling borderline legal PCI tricks to get
+> 		better benchmarketing by stalling the entire bus
 
-Look in init/main.c, if kernel_thread() is called before init_idle().
+Don't forget the embedded space, where the hardware vendor can ensure
+that their hardware is well-behaved.  Even on a PC, it is possible for
+someone who cares about realtime to spec a reasonable system.
 
+On good hardware, we can easily do much better than 1ms latency with a
+preemptible kernel and a spinlock cleanup.  I don't think the
+limitations of some PC hardware should limit our goals for Linux.
 
-
-
-- Davide
-
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 

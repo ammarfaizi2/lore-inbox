@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318036AbSFSW3t>; Wed, 19 Jun 2002 18:29:49 -0400
+	id <S318038AbSFSWan>; Wed, 19 Jun 2002 18:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318037AbSFSW3s>; Wed, 19 Jun 2002 18:29:48 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9225 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318036AbSFSW3r>; Wed, 19 Jun 2002 18:29:47 -0400
-Date: Wed, 19 Jun 2002 18:25:22 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question about sched_yield() 
-In-Reply-To: <E17Kg4s-0001Lz-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.3.96.1020619181429.3743B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318039AbSFSWam>; Wed, 19 Jun 2002 18:30:42 -0400
+Received: from ns.suse.de ([213.95.15.193]:30989 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318038AbSFSWak>;
+	Wed, 19 Jun 2002 18:30:40 -0400
+Date: Thu, 20 Jun 2002 00:30:41 +0200
+From: Dave Jones <davej@suse.de>
+To: Rudmer van Dijk <rvandijk@science.uva.nl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.23-dj2
+Message-ID: <20020620003041.U29373@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rudmer van Dijk <rvandijk@science.uva.nl>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20020619205136.GA18903@suse.de> <200206192133.g5JLXH814796@mail.science.uva.nl> <20020619234035.R29373@suse.de> <200206192213.g5JMDu823286@mail.science.uva.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200206192213.g5JMDu823286@mail.science.uva.nl>; from rvandijk@science.uva.nl on Thu, Jun 20, 2002 at 12:16:59AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Jun 2002, Rusty Russell wrote:
+On Thu, Jun 20, 2002 at 12:16:59AM +0200, Rudmer van Dijk wrote:
+ > PCI: Using IRQ router SIS [1039/0008] at 00:02.0
+ > __iounmap: bad address d0802030
+ > .. 
+ > I just saw the iounmap error, maybe related??
 
-> In message <Pine.LNX.3.96.1020619072548.1119D-100000@gatekeeper.tmr.com> you wr
-> ite:
-> > On Wed, 19 Jun 2002, Rusty Russell wrote:
-> > 
-> > > On Mon, 17 Jun 2002 17:46:29 -0700
-> > > David Schwartz <davids@webmaster.com> wrote:
-> > > > "The sched_yield() function shall force the running thread to relinquish 
-> the 
-> > > > processor until it again becomes the head of its thread list. It takes no
->  
-> > > > arguments."
-> > > 
-> > > Notice how incredibly useless this definition is.  It's even defined in ter
-> ms
-> > > of UP.
-> > 
-> > I think you parse this differently than I, I see no reference to UP. The
-> > term "the processor" clearly (to me at least) means the processor running
-> > in that thread at the time of the yeild.
-> > 
-> > The number of processors running in a single thread at any one time is an
-> > integer number in the range zero to one.
-> 
-> It's the word "until": "relinquish the processor until".
-> 
-> It's pretty clearly implied that it's going to "unrelinquish" *the
-> processor* at the end of this process.
-> 
-> So, by your definition, it can be scheduled on another CPU before it
-> becomes head of the thread list?
+No, that happens earlier. No idea what causes it, but it's obviously
+a problem somewhere..
 
-I have to read "head of the thread list" broadly, and assume it means the
-thread will be run when it is the most appropriate thread to be run. I
-don't read the wording as requiring or forbidding SMP, uni, or a strict
-round-robin scheduler. The term "head of the thread list" doesn't state
-that all other processes must get a time slice.
+ > however, when I started X from the bootscript, that is the bootscript starts 
+ > kdm which in turn starts the X server, I got the same oops as before...
+ > the process that causes the oops appears to be chmod, if you want the whole 
+ > oops, please tell and I will write it down (cannot use a serial console...).
 
-I believe I clarified my concerns in another post, I don't want to repeat
-them. I don't want a process with threads contending for a resource to get
-all or none of the CPU, each of which is possible with various schedulers
-and patches recently available. I'd like to see threads of a single
-process be able to get, use, and share a timeslice before some cpu hog
-comes in and get his timeslice.
+Please do. And feed it through ksymoops please.
 
-I don't read the text you quoted as requiring much more than 'run someone
-else," because it's comfortably vague. To me anyway. I'm not knocking
-anyone who reads it more strictly, I just don't see what you did.
+ > so the agpgart split seems to work fine here, but there is clearly something 
+ > wrong when kde2 tries to start.
+
+Finger of suspicion points to..
+http://www.codemonkey.org.uk/patches/merged/2.5.23/dj2/poll-select-fast-path.diff
+
+Apply this (with -R), and see if it goes away. 
+
+        Dave
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,85 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261564AbREUQTP>; Mon, 21 May 2001 12:19:15 -0400
+	id <S261553AbREUQWP>; Mon, 21 May 2001 12:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261520AbREUQTF>; Mon, 21 May 2001 12:19:05 -0400
-Received: from node17.benchmk.com ([207.180.73.117]:40196 "EHLO noop.")
-	by vger.kernel.org with ESMTP id <S261564AbREUQSt>;
-	Mon, 21 May 2001 12:18:49 -0400
-To: linux-kernel@vger.kernel.org
-Subject: ACPI - console problems 2.4.4
-From: Nick Papadonis <npapadon@yahoo.com>
-Organization: None
-X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
- <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
- !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
-Content-Type: text/plain; charset=US-ASCII
-Date: 21 May 2001 12:17:55 -0400
-Message-ID: <m3ae46fzgs.fsf@yahoo.com>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S261558AbREUQWF>; Mon, 21 May 2001 12:22:05 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:36868 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S261553AbREUQVy>;
+	Mon, 21 May 2001 12:21:54 -0400
+Date: Mon, 21 May 2001 12:24:42 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Jes Sorensen <jes@sunsite.dk>, Jakob ?stergaard <jakob@unthought.net>,
+        "Robert M. Love" <rml@tech9.net>,
+        John Cowan <jcowan@reutershealth.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Message-ID: <20010521122442.B3151@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Tom Rini <trini@kernel.crashing.org>, Jes Sorensen <jes@sunsite.dk>,
+	Jakob ?stergaard <jakob@unthought.net>,
+	"Robert M. Love" <rml@tech9.net>,
+	John Cowan <jcowan@reutershealth.com>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com> <d31ypj1r4y.fsf@lxplus015.cern.ch> <990411054.773.0.camel@phantasy> <20010521043553.C20911@unthought.net> <d3ofsnowfp.fsf@lxplus015.cern.ch> <20010521083602.C9965@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010521083602.C9965@opus.bloom.county>; from trini@kernel.crashing.org on Mon, May 21, 2001 at 08:36:02AM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anyone having problems with ACPI causing console problems in kernel
-2.4.4 w/ Intel's patches?   When watching my system boot over the
-serial console, things work fine.  When looking at my VAIO-FX140's
-LCD, my console no longer updates after ACPI starts initializing _INI methods.
+Tom Rini <trini@kernel.crashing.org>:
+> python1.5.x is compatiable w/ python2 EXCEPT in the cases where the script
+> uses undocumented things which did work in python1.5.x.
 
-I am able to login and shutdown without my LCD echoing back.
+That's true of the core language.  The reason I moved to 2.0 was that there
+are library changes in 2.0 that enabled me to to cut CML2's in-kernel footprint
+substantially.
 
-Here is my output from the serial port:
+> Which brings up another point, RedHat (7.1?) and Debian/woody both have the
+> option of having python2 around.  Anyone know about mandrake?  My point is
+> that some dists are already dealing with python2.
 
---------------------------------------------------------------------------------
+Yes.  By the time 2.5 forks, distros covering an estimated 85% of the market
+will carry python2 binaries which the CML2 install script will find 
+automatically.  By the time 2.6 forks, we're going to laugh if we ever
+remember that we thought this was an issue.
 
+> Eric, would it be easy/possible to go back to requiring python 1.5.x for
+> CML2, since that is what many dists ship with?
 
-tbxface-0089: 
-**** Context Switch from TID FFFFFFFF to TID 1 ****
-ACPI Tables successfully loaded
-Parsing Methods:...................................................................................................................................................................................................
-
-195 Control Methods found and parsed (554 nodes total)
-ACPI Namespace successfully loaded at root c034a2d8
-ACPI: Core Subsystem version [20010427]
-evxfevnt-0082: Transition to ACPI mode successful
-Executing device _INI methods:..............
-
-
-******************* LAPTOP CONSOLE NO LONGER DISPLAYS ANYTHING ********************
-
-
-evregion-0304: Ev_address_space_dispatch: Region handler: AE_ERROR [PCIConfig]
-breakpoint: Fatal error encountered
-  nsinit-0333: \   /_SB_PCI0HUB_CRD1._INI failed: AE_ERROR
-........................................
-54 Devices found: 54 _STA, 1 _INI
-Completing Region and Field initialization:.................
-12/18 Regions, 5/5 Fields initialized (554 nodes total)
-ACPI: Subsystem enabled
-ACPI: System firmware supports S0 S3 S4 S5
-Processor[0]: C0 C1 C2, throttling states: 8
-Battery: socket found, battery present
-Battery: socket found, battery absent
-AC Adapter: found
-Power Button: found
-Lid Switch: found
-Thermal Zone: found
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 512 buckets, 4Kbytes
-TCP: Hash tables configured (established 8192 bind 8192)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-DEBUG: mount root filesystem
-VFS: Mounted root (ext2 filesystem) readonly.
-DEBUG: mounted root file
-DEBUG: free_initmem()
-Freeing unused kernel memory: 196k freed
-DEBUG: unlock kernel()
-DEBUG: open /dev/console
-DEBUG: exec init somewhere
-
-Restarting system.
-
+It wouldn't be too difficult.  But it would make the code heavier, and
+I'm not clear that it would make anybody happy who isn't already willing
+to deal with the design concept.
 -- 
-Nick
-PGP KEY: http://www.coelacanth.com/~nick/npapadon.public.asc
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+The world is filled with violence. Because criminals carry guns, we
+decent law-abiding citizens should also have guns. Otherwise they will
+win and the decent people will lose.
+        -- James Earl Jones

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264023AbRFEP7z>; Tue, 5 Jun 2001 11:59:55 -0400
+	id <S264024AbRFEQDZ>; Tue, 5 Jun 2001 12:03:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264024AbRFEP7p>; Tue, 5 Jun 2001 11:59:45 -0400
-Received: from u-87-21.karlsruhe.ipdial.viaginterkom.de ([62.180.21.87]:40943
+	id <S264027AbRFEQDP>; Tue, 5 Jun 2001 12:03:15 -0400
+Received: from u-87-21.karlsruhe.ipdial.viaginterkom.de ([62.180.21.87]:42223
 	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S264023AbRFEP7c>; Tue, 5 Jun 2001 11:59:32 -0400
-Date: Tue, 5 Jun 2001 17:17:04 +0200
+	id <S264024AbRFEQDD>; Tue, 5 Jun 2001 12:03:03 -0400
+Date: Tue, 5 Jun 2001 17:10:48 +0200
 From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Bjorn Wesen <bjorn.wesen@axis.com>, David Woodhouse <dwmw2@infradead.org>,
-        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: Missing cache flush.
-Message-ID: <20010605171704.B30818@bacchus.dhis.org>
-In-Reply-To: <13942.991696607@redhat.com> <Pine.LNX.4.21.0106051105110.1078-100000@godzilla.axis.se> <20010606005703.A23758@metastasis.f00f.org>
+Message-ID: <20010605171048.A30818@bacchus.dhis.org>
+In-Reply-To: <9fhqlj$7jt$1@penguin.transmeta.com> <Pine.LNX.4.33.0106051027390.2339-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010606005703.A23758@metastasis.f00f.org>; from cw@f00f.org on Wed, Jun 06, 2001 at 12:57:03AM +1200
+In-Reply-To: <Pine.LNX.4.33.0106051027390.2339-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Jun 05, 2001 at 10:29:28AM +0200
 X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 06, 2001 at 12:57:03AM +1200, Chris Wedgwood wrote:
+On Tue, Jun 05, 2001 at 10:29:28AM +0200, Ingo Molnar wrote:
 
-> I don't know about the CRIS (never heard of it, what is it?), but on
-> an Athlon when benchmarking stuff, I could still see L1 cache hits
-> from data that was 15 seconds old under certain work-loads (obviously
-> not gcc!). Does anyone know how old something may exisit in cache
-> before being written back to RAM?
+> >  - even when it works, it is necessarily very very very slow. Not to be
+> >    used lightly. As you can imagine, the work-around is even slower.
+> 
+> i've measured it once, IIRC it was around 10-15 millisecs on normal
+> pentiums, so while it's indeed the slowest x86 instruction on the planet,
+> it's still perhaps acceptable for hot-swapping ECC RAM.
 
-I know of no architecture that has a time limit that after which's expire
-caches get written back to memory.  In other words cache lines may stay
-dirty for an indefinate time if things are just right.
+I can already hear the realtime crowd bitch ...
 
   Ralf

@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261600AbTAaRDB>; Fri, 31 Jan 2003 12:03:01 -0500
+	id <S261495AbTAaRBz>; Fri, 31 Jan 2003 12:01:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbTAaRDB>; Fri, 31 Jan 2003 12:03:01 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:8196 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261600AbTAaRCI>;
-	Fri, 31 Jan 2003 12:02:08 -0500
-Date: Thu, 30 Jan 2003 08:25:22 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Raphael Schmid <Raphael_Schmid@CUBUS.COM>,
-       "'John Bradford'" <john@grabjohn.com>, rob@r-morris.co.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bootscreen
-Message-ID: <20030130072521.GA559@zaurus>
-References: <398E93A81CC5D311901600A0C9F2928946937F@cubuss2> <1043764502.24813.16.camel@bip.localdomain.fake>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1043764502.24813.16.camel@bip.localdomain.fake>
-User-Agent: Mutt/1.3.27i
+	id <S261600AbTAaRBz>; Fri, 31 Jan 2003 12:01:55 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:21639 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S261495AbTAaRBy>; Fri, 31 Jan 2003 12:01:54 -0500
+Message-ID: <3E3AAE34.3000802@namesys.com>
+Date: Fri, 31 Jan 2003 20:11:16 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@codemonkey.org.uk>
+CC: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
+References: <200302010020.34119.conman@kolivas.net> <3E3A7C22.1080709@namesys.com> <200302010040.49141.conman@kolivas.net> <3E3A8077.9050409@namesys.com> <20030131152156.GA15977@codemonkey.org.uk> <3E3AA6F6.3090504@namesys.com> <20030131164711.GA18147@codemonkey.org.uk>
+In-Reply-To: <20030131164711.GA18147@codemonkey.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Dave Jones wrote:
 
-> Yeah, I'd really like a stable working swsusp (on a working kernel) to
-> shortcut the fscking boot. Go pawel !
+>On Fri, Jan 31, 2003 at 07:40:22PM +0300, Hans Reiser wrote:
+>
+> > >> Try running with the -E option for gcc, it might be less CPU intensive, 
+> > >> and thus a better FS benchmark.
+> > >> What do you think?
+> > >It's hardly a realistic real-world benchmark if you start nobbling
+> > >bits of it though.  Not reading the preprocessed output is sure
+> > >to bump the benchmark points on an fs optimised for lots of small
+> > >writes.
+> > Sigh.  The alternative is to strace the compile, write a perl scipt or 
+> > something to get just the FS related calls out of it, and then create a 
+> > program with just the FS related calls. gcc -E sounds easier to me.;-)
+>
+>It still seems like perverting a benchmark to turn it into dbench to me.
+>
+>		Dave
+>
+>  
+>
+Easier is not always correct.;-)  We need better benchmarks in our 
+field, sigh.... and correct ones are really a lot of work....
 
-Well, with right scripts you can probably boot
-faster than do resume (and you can certainly
-shutdown faster than suspend). OTOH, if you
-turn off ide-scsi in 2.5.59, swsusp should just
-work.
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+Hans
+
 

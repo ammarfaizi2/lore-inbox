@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261849AbSJNHNM>; Mon, 14 Oct 2002 03:13:12 -0400
+	id <S261855AbSJNHQ3>; Mon, 14 Oct 2002 03:16:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbSJNHNM>; Mon, 14 Oct 2002 03:13:12 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:38542 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261849AbSJNHNL>;
-	Mon, 14 Oct 2002 03:13:11 -0400
-Date: Mon, 14 Oct 2002 09:18:56 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Ingo Adlung <Ingo.Adlung@t-online.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
-Message-ID: <20021014091855.A4197@ucw.cz>
-References: <3DA4B1EC.781174A6@mvista.com> <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com> <3DA94F07.7070109@t-online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3DA94F07.7070109@t-online.de>; from Ingo.Adlung@t-online.de on Sun, Oct 13, 2002 at 12:46:31PM +0200
+	id <S261857AbSJNHQ2>; Mon, 14 Oct 2002 03:16:28 -0400
+Received: from mailout.mbnet.fi ([194.100.161.24]:5388 "EHLO posti.mbnet.fi")
+	by vger.kernel.org with ESMTP id <S261855AbSJNHQ2> convert rfc822-to-8bit;
+	Mon, 14 Oct 2002 03:16:28 -0400
+Message-ID: <002301c27355$7cfa7b80$5fa864c2@windows>
+From: "Matti Annala" <gval@mbnet.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] include/asm-*/init.h removal
+Date: Mon, 14 Oct 2002 10:44:11 +0300
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+X-OriginalArrivalTime: 14 Oct 2002 08:18:57.0428 (UTC) FILETIME=[57A1FD40:01C2735A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 13, 2002 at 12:46:31PM +0200, Ingo Adlung wrote:
+The tiny patch below removes the last "#include <asm/init.h>" from the kernel tree and thus renders the include/asm-*/init.h headers useless. The source file didn't seem to need anything from the include/linux/init.h header so I simply removed the line. The include/asm-*/init.h headers can now be safely removed.
 
-> Linus Torvalds wrote:
-> > On Wed, 9 Oct 2002, george anzinger wrote:
-> > 
-> >>This patch, in conjunction with the "core" high-res-timers
-> >>patch implements high resolution timers on the i386
-> >>platforms.
-> > 
-> > 
-> > I really don't get the notion of partial ticks, and quite frankly, this 
-> > isn't going into my tree until some major distribution kicks me in the 
-> > head and explains to me why the hell we have partial ticks instead of just 
-> > making the ticks shorter.
+diff -ur linux-2.5.42/drivers/macintosh/via-macii.c difflinux/drivers/macintosh/via-macii.c
+--- linux-2.5.42/drivers/macintosh/via-macii.c 2002-10-12 07:22:10.000000000 +0300
++++ difflinux/drivers/macintosh/via-macii.c 2002-10-11 17:35:38.000000000 +0300
+@@ -27,7 +27,6 @@
+ #include <asm/mac_via.h>
+ #include <asm/io.h>
+ #include <asm/system.h>
+-#include <asm/init.h>
+ 
+ static volatile unsigned char *via;
+ 
 
-Not speaking for a major distro, just for me writing HPET (high
-performance event timer ...) support for x86-64 (and it happens to exist
-on ia64 as well, and possibly might be in new Intel P4 chipsets, too).
 
-It's a very nice piece of hardware that allows very fine granularity
-aperiodic interrupts (in each interrupt you set when the next one will
-happen), without much overhead.
-
-It'd be a shame to just set this timer to 1kHz periodic just use that as
-a base timer, when you can do much better resolution and latency-wise.
-HPET has a base clock > 10 MHz.
-
-> > 		Linus
-> 
-> In any kind of virtual environment you would rather prefer a completely 
-> tickless system alltogether than increased tick rates. In a S/390 
-> virtual machine, running many hundreds of virtual Linux servers the 
-> 100Hz timer pops are already considerably painful, and going to a higher 
-> tick rate achieving higher timer resolution is completely prohibitive. 
-> Similar is true in many embedded systems related to power consumption of 
-> high frequency ticks.
-> 
-> However, George has shown that introducing the notion of a completely 
-> tickless system is expensive on Intel overhead wise, thus partial ticks 
-> seem to be a possibility addressing the needs for embedded and virtual 
-> environments, getting decent timer resolution as needed.
-
-When HPET becomes a standard (yes, it's a MS requirement for new PCs),
-it won't be expensive on i386 anymore.
-
--- 
-Vojtech Pavlik
-SuSE Labs

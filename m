@@ -1,103 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129259AbRCPNFl>; Fri, 16 Mar 2001 08:05:41 -0500
+	id <S129112AbRCPNHM>; Fri, 16 Mar 2001 08:07:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129268AbRCPNFb>; Fri, 16 Mar 2001 08:05:31 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:15047 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S129259AbRCPNFR>;
-	Fri, 16 Mar 2001 08:05:17 -0500
-Message-ID: <3AB20F42.1D37984C@mandrakesoft.com>
-Date: Fri, 16 Mar 2001 08:04:02 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: pmhahn@titan.lahn.de
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: [OOPS] 8139too
-In-Reply-To: <Pine.LNX.4.33.0103151022220.1497-100000@titan.lahn.de>
-Content-Type: multipart/mixed;
- boundary="------------DF8484491B89A50436827FA2"
+	id <S129321AbRCPNHB>; Fri, 16 Mar 2001 08:07:01 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:19205 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129112AbRCPNGv>;
+	Fri, 16 Mar 2001 08:06:51 -0500
+Date: Fri, 16 Mar 2001 14:05:58 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Dawson Engler <engler@csl.Stanford.EDU>, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 9 potential copy_*_user bugs in 2.4.1
+Message-ID: <20010316140558.A1805@pcep-jamie.cern.ch>
+In-Reply-To: <200103160224.SAA03920@csl.Stanford.EDU> <Pine.GSO.4.21.0103152146550.10709-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0103152146550.10709-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Mar 15, 2001 at 10:11:46PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------DF8484491B89A50436827FA2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Alexander Viro wrote:
+> 	* verify_area() cleans the value, but you'll be better off
+> considering these as dangerous - it only checks that range is OK and if
+> pointer arithmetics moves you out of that range or you access piece longer
+> than range in question...
 
-> i686 2.4.2 UP+kdb+lm_sensors+pcmcia
-> after APM laptop suspend to disk
-> 8139too is build-in, not pcmcia
-> I often get hangups after suspend-to-disk if I'm connected to a hub/switch.
-> This is the first oops I've actually seen and copied it by hand:
+Note that verify_area's argument cannot be safely dereferenced if a
+parallel thread is able to change the user-space mapping.  This is
+usually possible.
 
-Philipp,
-
-Does the attached patch solve the problem?
-
-Modifying the interrupt handler may not be necessary, but it's there
-just in case.  (that's the first chunk of the patch)
-
-Regards,
-
-	Jeff
-
-
--- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full mooon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
---------------DF8484491B89A50436827FA2
-Content-Type: text/plain; charset=us-ascii;
- name="8139too.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="8139too.patch"
-
-Index: drivers/net/8139too.c
-===================================================================
-RCS file: /cvsroot/gkernel/linux_2_4/drivers/net/8139too.c,v
-retrieving revision 1.1.1.29.10.1
-diff -u -r1.1.1.29.10.1 8139too.c
---- drivers/net/8139too.c	2001/03/13 05:12:53	1.1.1.29.10.1
-+++ drivers/net/8139too.c	2001/03/16 13:01:08
-@@ -2028,10 +2028,12 @@
- 			rtl8139_weird_interrupt (dev, tp, ioaddr,
- 						 status, link_changed);
- 
--		if (status & (RxOK | RxUnderrun | RxOverflow | RxFIFOOver))	/* Rx interrupt */
-+		if (netif_running (dev) &&
-+		    status & (RxOK | RxUnderrun | RxOverflow | RxFIFOOver))	/* Rx interrupt */
- 			rtl8139_rx_interrupt (dev, tp, ioaddr);
- 
--		if (status & (TxOK | TxErr)) {
-+		if (netif_running (dev) &&
-+		    status & (TxOK | TxErr)) {
- 			spin_lock (&tp->lock);
- 			rtl8139_tx_interrupt (dev, tp, ioaddr);
- 			spin_unlock (&tp->lock);
-@@ -2262,6 +2264,9 @@
- 	void *ioaddr = tp->mmio_addr;
- 	unsigned long flags;
- 
-+	if (!netif_running (dev))
-+		return;
-+
- 	netif_device_detach (dev);
- 
- 	spin_lock_irqsave (&tp->lock, flags);
-@@ -2282,6 +2287,8 @@
- {
- 	struct net_device *dev = pci_get_drvdata (pdev);
- 
-+	if (!netif_running (dev))
-+		return;
- 	netif_device_attach (dev);
- 	rtl8139_hw_start (dev);
- }
-
---------------DF8484491B89A50436827FA2--
-
+-- Jamie

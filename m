@@ -1,215 +1,302 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267455AbSLLSN7>; Thu, 12 Dec 2002 13:13:59 -0500
+	id <S267472AbSLLSQy>; Thu, 12 Dec 2002 13:16:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbSLLSMf>; Thu, 12 Dec 2002 13:12:35 -0500
-Received: from 217-127-135-237.uc.nombres.ttd.es ([217.127.135.237]:52209 "EHLO
-	pulp.ibd.es") by vger.kernel.org with ESMTP id <S267424AbSLLSLs>;
-	Thu, 12 Dec 2002 13:11:48 -0500
-Date: Thu, 12 Dec 2002 19:19:30 +0100 (CET)
-From: =?ISO-8859-1?Q?Alfredo_Sanju=C3=A1n?= <alfre@ibd.es>
-X-X-Sender: alfre@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [TRIVIAL] available spell fixes
-Message-ID: <Pine.LNX.4.44.0212121912100.1528-100000@localhost.localdomain>
+	id <S265081AbSLLSMM>; Thu, 12 Dec 2002 13:12:12 -0500
+Received: from [195.212.29.5] ([195.212.29.5]:64713 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S265019AbSLLSHs> convert rfc822-to-8bit; Thu, 12 Dec 2002 13:07:48 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 (6/8): staticification.
+Date: Thu, 12 Dec 2002 19:09:11 +0100
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212121909.11264.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Against vanilla 2.4.20, spell fixes for 'available'.
+Make some functions and variables static.
 
-Regrads - alfredo
+diffstat:
+ char/sclp.c     |    6 +++---
+ char/sclp_con.c |    8 ++++----
+ char/sclp_rw.c  |    2 +-
+ char/sclp_tty.c |    4 ++--
+ net/ctcmain.c   |   16 ++++++++--------
+ net/lcs.c       |   20 ++++++++++----------
+ 6 files changed, 28 insertions(+), 28 deletions(-)
 
---
-Alfredo Sanjuan
-<alfre@ibd.es>
-
-diff -ruN linux-2.4.20/drivers/atm/iphase.c linux-2.4.20spellfix/drivers/atm/iphase.c
---- linux-2.4.20/drivers/atm/iphase.c	Fri Nov 29 00:53:12 2002
-+++ linux-2.4.20spellfix/drivers/atm/iphase.c	Thu Dec 12 17:40:33 2002
-@@ -1884,7 +1884,7 @@
-                     return -EINVAL; 
-                 }
-                 if (vcc->qos.txtp.max_pcr > iadev->LineRate) {
--                   IF_CBR(printk("PCR is not availble\n");)
-+                   IF_CBR(printk("PCR is not available\n");)
-                    return -1;
-                 }
-                 vc->type = CBR;
-@@ -1894,7 +1894,7 @@
-                 }
-        } 
- 	else  
--           printk("iadev:  Non UBR, ABR and CBR traffic not supportedn"); 
-+           printk("iadev:  Non UBR, ABR and CBR traffic not supported\n"); 
-         
-         iadev->testTable[vcc->vci]->vc_status |= VC_ACTIVE;
- 	IF_EVENT(printk("ia open_tx returning \n");)  
-diff -ruN linux-2.4.20/drivers/ieee1394/dv1394.h linux-2.4.20spellfix/drivers/ieee1394/dv1394.h
---- linux-2.4.20/drivers/ieee1394/dv1394.h	Sat Aug  3 02:39:44 2002
-+++ linux-2.4.20spellfix/drivers/ieee1394/dv1394.h	Thu Dec 12 17:41:03 2002
-@@ -175,7 +175,7 @@
-    where copy_DV_frame() reads or writes on the dv1394 file descriptor
-    (read/write mode) or copies data to/from the mmap ringbuffer and
-    then calls ioctl(DV1394_SUBMIT_FRAMES) to notify dv1394 that new
--   frames are availble (mmap mode).
-+   frames are available (mmap mode).
+diff -urN linux-2.5.51/drivers/s390/char/sclp.c linux-2.5.51-s390/drivers/s390/char/sclp.c
+--- linux-2.5.51/drivers/s390/char/sclp.c	Tue Dec 10 03:46:11 2002
++++ linux-2.5.51-s390/drivers/s390/char/sclp.c	Thu Dec 12 18:03:31 2002
+@@ -47,7 +47,7 @@
+ static struct list_head sclp_reg_list;
  
-    reset_dv1394() is called in the event of a buffer
-    underflow/overflow or a halt in the DV stream (e.g. due to a 1394
-diff -ruN linux-2.4.20/drivers/md/lvm.c linux-2.4.20spellfix/drivers/md/lvm.c
---- linux-2.4.20/drivers/md/lvm.c	Fri Nov 29 00:53:13 2002
-+++ linux-2.4.20spellfix/drivers/md/lvm.c	Thu Dec 12 17:41:28 2002
-@@ -2405,7 +2405,7 @@
- 		}
- 	}
+ /* sccb queue */
+-struct list_head sclp_req_queue;
++static struct list_head sclp_req_queue;
  
--	/* save availiable i/o statistic data */
-+	/* save available i/o statistic data */
- 	if (old_lv->lv_stripes < 2) {	/* linear logical volume */
- 		end = min(old_lv->lv_current_le, new_lv->lv_current_le);
- 		for (l = 0; l < end; l++) {
-diff -ruN linux-2.4.20/drivers/net/saa9730.c linux-2.4.20spellfix/drivers/net/saa9730.c
---- linux-2.4.20/drivers/net/saa9730.c	Wed Oct 17 06:56:29 2001
-+++ linux-2.4.20spellfix/drivers/net/saa9730.c	Thu Dec 12 17:31:08 2002
-@@ -265,7 +265,7 @@
- 	lp->NextRcvPacketIndex = 0;
- 	lp->NextRcvToUseIsA = 1;
+ /* sccb for unconditional read */
+ static struct sclp_req sclp_read_req;
+@@ -448,7 +448,7 @@
+ 	spin_unlock_irqrestore(&sclp_lock, flags);
+ }
  
--	/* Set current buffer index & next availble packet index */
-+	/* Set current buffer index & next available packet index */
- 	lp->NextTxmPacketIndex = 0;
- 	lp->NextTxmBufferIndex = 0;
- 	lp->PendingTxmPacketIndex = 0;
-@@ -520,7 +520,7 @@
- 	lp->NextRcvPacketIndex = 0;
- 	lp->NextRcvToUseIsA = 1;
+-struct sclp_register sclp_state_change_event = {
++static struct sclp_register sclp_state_change_event = {
+ 	.receive_mask = EvTyp_StateChange_Mask,
+ 	.receiver_fn = sclp_state_change
+ };
+@@ -514,7 +514,7 @@
+ 	ctrl_alt_del();
+ }
  
--	/* Set current buffer index & next availble packet index */
-+	/* Set current buffer index & next available packet index */
- 	lp->NextTxmPacketIndex = 0;
- 	lp->NextTxmBufferIndex = 0;
- 	lp->PendingTxmPacketIndex = 0;
-diff -ruN linux-2.4.20/drivers/net/wan/comx-hw-munich.c linux-2.4.20spellfix/drivers/net/wan/comx-hw-munich.c
---- linux-2.4.20/drivers/net/wan/comx-hw-munich.c	Fri Nov 29 00:53:14 2002
-+++ linux-2.4.20spellfix/drivers/net/wan/comx-hw-munich.c	Thu Dec 12 17:30:12 2002
-@@ -269,7 +269,7 @@
- 				   - Path Code Violations >1, but <320
- 				   - not a Severely Errored Second
- 				   - no AIS
--				   - not incremented during an Unavailabla Second                       */
-+				   - not incremented during an Unavailable Second                       */
-       severely_err_secs,	/* Severely Errored Second:
- 				   - CRC4: >=832 Path COde Violations || >0 Out Of Frame defects
- 				   - noCRC4: >=2048 Line Code Violations
-diff -ruN linux-2.4.20/drivers/scsi/aic7xxx/aic7xxx.h linux-2.4.20spellfix/drivers/scsi/aic7xxx/aic7xxx.h
---- linux-2.4.20/drivers/scsi/aic7xxx/aic7xxx.h	Sat Aug  3 02:39:44 2002
-+++ linux-2.4.20spellfix/drivers/scsi/aic7xxx/aic7xxx.h	Thu Dec 12 17:38:17 2002
-@@ -362,7 +362,7 @@
- 
+-struct sclp_register sclp_quiesce_event = {
++static struct sclp_register sclp_quiesce_event = {
+ 	.receive_mask = EvTyp_SigQuiesce_Mask,
+ 	.receiver_fn = sclp_quiesce
+ };
+diff -urN linux-2.5.51/drivers/s390/char/sclp_con.c linux-2.5.51-s390/drivers/s390/char/sclp_con.c
+--- linux-2.5.51/drivers/s390/char/sclp_con.c	Tue Dec 10 03:45:59 2002
++++ linux-2.5.51-s390/drivers/s390/char/sclp_con.c	Thu Dec 12 18:03:31 2002
+@@ -97,7 +97,7 @@
  /*
-  * The driver keeps up to MAX_SCB scb structures per card in memory.  The SCB
-- * consists of a "hardware SCB" mirroring the fields availible on the card
-+ * consists of a "hardware SCB" mirroring the fields available on the card
-  * and additional information the kernel stores for each transaction.
+  * Writes the given message to S390 system console
+  */
+-void
++static void
+ sclp_console_write(struct console *console, const char *message,
+ 		   unsigned int count)
+ {
+@@ -152,7 +152,7 @@
+ }
+ 
+ /* returns the device number of the SCLP console */
+-kdev_t
++static kdev_t
+ sclp_console_device(struct console *c)
+ {
+ 	return	mk_kdev(sclp_console_major, sclp_console_minor);
+@@ -163,7 +163,7 @@
+  * is going to give up. We have to make sure that all buffers
+  * will be flushed to the SCLP.
+  */
+-void
++static void
+ sclp_console_unblank(void)
+ {
+ 	unsigned long flags;
+@@ -187,7 +187,7 @@
+  * used to register the SCLP console to the kernel and to
+  * give printk necessary information
+  */
+-struct console sclp_console =
++static struct console sclp_console =
+ {
+ 	.name = sclp_console_name,
+ 	.write = sclp_console_write,
+diff -urN linux-2.5.51/drivers/s390/char/sclp_rw.c linux-2.5.51-s390/drivers/s390/char/sclp_rw.c
+--- linux-2.5.51/drivers/s390/char/sclp_rw.c	Tue Dec 10 03:45:55 2002
++++ linux-2.5.51-s390/drivers/s390/char/sclp_rw.c	Thu Dec 12 18:03:31 2002
+@@ -31,7 +31,7 @@
+ #define MAX_SCCB_ROOM (PAGE_SIZE - sizeof(struct sclp_buffer))
+ 
+ /* Event type structure for write message and write priority message */
+-struct sclp_register sclp_rw_event = {
++static struct sclp_register sclp_rw_event = {
+ 	.send_mask = EvTyp_Msg_Mask | EvTyp_PMsgCmd_Mask
+ };
+ 
+diff -urN linux-2.5.51/drivers/s390/char/sclp_tty.c linux-2.5.51-s390/drivers/s390/char/sclp_tty.c
+--- linux-2.5.51/drivers/s390/char/sclp_tty.c	Tue Dec 10 03:45:44 2002
++++ linux-2.5.51-s390/drivers/s390/char/sclp_tty.c	Thu Dec 12 18:03:31 2002
+@@ -466,7 +466,7 @@
+ /*
+  * push input to tty
+  */
+-void sclp_tty_input(unsigned char* buf, unsigned int count)
++static void sclp_tty_input(unsigned char* buf, unsigned int count)
+ {
+ 	unsigned int cchar;
+ 
+@@ -694,7 +694,7 @@
+ {
+ }
+ 
+-struct sclp_register sclp_input_event =
++static struct sclp_register sclp_input_event =
+ {
+ 	.receive_mask = EvTyp_OpCmd_Mask | EvTyp_PMsgCmd_Mask,
+ 	.state_change_fn = sclp_tty_state_change,
+diff -urN linux-2.5.51/drivers/s390/net/ctcmain.c linux-2.5.51-s390/drivers/s390/net/ctcmain.c
+--- linux-2.5.51/drivers/s390/net/ctcmain.c	Tue Dec 10 03:45:54 2002
++++ linux-2.5.51-s390/drivers/s390/net/ctcmain.c	Thu Dec 12 18:03:31 2002
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: ctcmain.c,v 1.29 2002/12/06 12:31:38 cohuck Exp $
++ * $Id: ctcmain.c,v 1.30 2002/12/09 13:56:20 aberg Exp $
   *
-  * To minimize space utilization, a portion of the hardware scb stores
-diff -ruN linux-2.4.20/drivers/scsi/aic7xxx/aic7xxx_core.c linux-2.4.20spellfix/drivers/scsi/aic7xxx/aic7xxx_core.c
---- linux-2.4.20/drivers/scsi/aic7xxx/aic7xxx_core.c	Fri Nov 29 00:53:14 2002
-+++ linux-2.4.20spellfix/drivers/scsi/aic7xxx/aic7xxx_core.c	Thu Dec 12 17:38:00 2002
-@@ -388,7 +388,7 @@
+  * CTC / ESCON network driver
+  *
+@@ -36,7 +36,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.29 $
++ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.30 $
+  *
+  */
+ 
+@@ -279,7 +279,7 @@
+ print_banner(void)
+ {
+ 	static int printed = 0;
+-	char vbuf[] = "$Revision: 1.29 $";
++	char vbuf[] = "$Revision: 1.30 $";
+ 	char *version = vbuf;
  
- 	ahc_dump_card_state(ahc);
+ 	if (printed)
+@@ -2821,7 +2821,7 @@
+  * @returns 0 on success, !0 on failure.
+  */
  
--	/* Tell everyone that this HBA is no longer availible */
-+	/* Tell everyone that this HBA is no longer available */
- 	ahc_abort_scbs(ahc, CAM_TARGET_WILDCARD, ALL_CHANNELS,
- 		       CAM_LUN_WILDCARD, SCB_LIST_NULL, ROLE_UNKNOWN,
- 		       CAM_NO_HBA);
-@@ -2748,9 +2748,9 @@
- 	targ_scsirate = tinfo->scsirate;
+-int
++static int
+ ctc_probe_device(struct ccwgroup_device *cgdev)
+ {
+ 	struct ctc_priv *priv;
+@@ -2864,7 +2864,7 @@
+  *
+  * @returns 0 on success, !0 on failure.
+  */
+-int
++static int
+ ctc_new_device(struct ccwgroup_device *cgdev)
+ {
+ 	char read_id[CTC_ID_SIZE];
+@@ -2941,7 +2941,7 @@
+  *
+  * @returns 0 on success, !0 on failure.
+  */
+-int
++static int
+ ctc_shutdown_device(struct ccwgroup_device *cgdev)
+ {
+ 	struct ctc_priv *priv;
+@@ -2975,7 +2975,7 @@
  
- 	/*
--	 * Parse as much of the message as is availible,
-+	 * Parse as much of the message as is available,
- 	 * rejecting it if we don't support it.  When
--	 * the entire message is availible and has been
-+	 * the entire message is available and has been
- 	 * handled, return MSGLOOP_MSGCOMPLETE, indicating
- 	 * that we have parsed an entire message.
- 	 *
-diff -ruN linux-2.4.20/drivers/scsi/aic7xxx_old.c linux-2.4.20spellfix/drivers/scsi/aic7xxx_old.c
---- linux-2.4.20/drivers/scsi/aic7xxx_old.c	Wed Nov 21 23:05:29 2001
-+++ linux-2.4.20spellfix/drivers/scsi/aic7xxx_old.c	Thu Dec 12 17:35:55 2002
-@@ -5435,9 +5435,9 @@
-   target_mask = (0x01 << tindex);
+ }
  
-   /*
--   * Parse as much of the message as is availible,
-+   * Parse as much of the message as is available,
-    * rejecting it if we don't support it.  When
--   * the entire message is availible and has been
-+   * the entire message is available and has been
-    * handled, return TRUE indicating that we have
-    * parsed an entire message.
-    */
-diff -ruN linux-2.4.20/drivers/scsi/ips.c linux-2.4.20spellfix/drivers/scsi/ips.c
---- linux-2.4.20/drivers/scsi/ips.c	Fri Nov 29 00:53:14 2002
-+++ linux-2.4.20spellfix/drivers/scsi/ips.c	Thu Dec 12 17:35:00 2002
-@@ -7211,7 +7211,7 @@
- /*     Assumes that ips_read_adapter_status() is called first filling in     */
- /*     the data for SubSystem Parameters.                                    */
- /*     Called from ips_write_driver_status() so it also assumes NVRAM Page 5 */
--/*     Data is availaible.                                                   */
-+/*     Data is available.                                                   */
- /*                                                                           */
- /*---------------------------------------------------------------------------*/
- static void ips_version_check(ips_ha_t *ha, int intr) {
-diff -ruN linux-2.4.20/drivers/scsi/pcmcia/nsp_cs.c linux-2.4.20spellfix/drivers/scsi/pcmcia/nsp_cs.c
---- linux-2.4.20/drivers/scsi/pcmcia/nsp_cs.c	Thu Oct 11 18:04:57 2001
-+++ linux-2.4.20spellfix/drivers/scsi/pcmcia/nsp_cs.c	Thu Dec 12 17:38:50 2002
-@@ -707,7 +707,7 @@
- 		ocount			 += res;
- 		//DEBUG(0, " ptr=0x%p this_residual=0x%x ocount=0x%x\n", SCpnt->SCp.ptr, SCpnt->SCp.this_residual, ocount);
+-int
++static int
+ ctc_remove_device(struct ccwgroup_device *cgdev)
+ {
+ 	struct ctc_priv *priv;
+@@ -2991,7 +2991,7 @@
+ 	return 0;
+ }
  
--		/* go to next scatter list if availavle */
-+		/* go to next scatter list if available */
- 		if (SCpnt->SCp.this_residual	== 0 &&
- 		    SCpnt->SCp.buffers_residual != 0 ) {
- 			//DEBUG(0, " scatterlist next timeout=%d\n", time_out);
-@@ -780,7 +780,7 @@
- 		SCpnt->SCp.this_residual -= res;
- 		ocount			 += res;
+-struct ccwgroup_driver ctc_group_driver = {
++static struct ccwgroup_driver ctc_group_driver = {
+ 	.name        = "ctc",
+ 	.max_slaves  = 2,
+ 	.driver_id   = 0xC3E3C3,
+diff -urN linux-2.5.51/drivers/s390/net/lcs.c linux-2.5.51-s390/drivers/s390/net/lcs.c
+--- linux-2.5.51/drivers/s390/net/lcs.c	Tue Dec 10 03:45:44 2002
++++ linux-2.5.51-s390/drivers/s390/net/lcs.c	Thu Dec 12 18:03:31 2002
+@@ -11,7 +11,7 @@
+  *			  Frank Pavlic (pavlic@de.ibm.com) and
+  *		 	  Martin Schwidefsky <schwidefsky@de.ibm.com>
+  *
+- *    $Revision: 1.41 $	 $Date: 2002/12/06 12:42:01 $
++ *    $Revision: 1.42 $	 $Date: 2002/12/09 13:55:28 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -59,7 +59,7 @@
+ /**
+  * initialization string for output
+  */
+-#define VERSION_LCS_C  "$Revision: 1.41 $"
++#define VERSION_LCS_C  "$Revision: 1.42 $"
  
--		/* go to next scatter list if availavle */
-+		/* go to next scatter list if available */
- 		if (SCpnt->SCp.this_residual	== 0 &&
- 		    SCpnt->SCp.buffers_residual != 0 ) {
- 			//DEBUG(0, " scatterlist next\n");
-diff -ruN linux-2.4.20/net/ipv6/af_inet6.c linux-2.4.20spellfix/net/ipv6/af_inet6.c
---- linux-2.4.20/net/ipv6/af_inet6.c	Wed Oct 17 23:16:39 2001
-+++ linux-2.4.20spellfix/net/ipv6/af_inet6.c	Thu Dec 12 17:28:34 2002
-@@ -619,7 +619,7 @@
- 	/*
- 	 *	ipngwg API draft makes clear that the correct semantics
- 	 *	for TCP and UDP is to consider one TCP and UDP instance
--	 *	in a host availiable by both INET and INET6 APIs and
-+	 *	in a host available by both INET and INET6 APIs and
- 	 *	able to communicate via both network protocols.
- 	 */
+ static const char *version="LCS driver ("VERSION_LCS_C "/" VERSION_LCS_H ")";
  
-diff -ruN linux-2.4.20/net/ipv6/ip6_output.c linux-2.4.20spellfix/net/ipv6/ip6_output.c
---- linux-2.4.20/net/ipv6/ip6_output.c	Fri Nov 29 00:53:15 2002
-+++ linux-2.4.20spellfix/net/ipv6/ip6_output.c	Thu Dec 12 17:28:59 2002
-@@ -563,7 +563,7 @@
- 		if (err) {
- #if IP6_DEBUG >= 2
- 			printk(KERN_DEBUG "ip6_build_xmit: "
--			       "no availiable source address\n");
-+			       "no available source address\n");
- #endif
- 			goto out;
- 		}
+@@ -1576,7 +1576,7 @@
+ /**
+  * get network statistics for ifconfig and other user programs
+  */
+-struct net_device_stats *
++static struct net_device_stats *
+ lcs_getstats(struct net_device *dev)
+ {
+ 	struct lcs_card *card;
+@@ -1590,7 +1590,7 @@
+  * stop lcs device
+  * This function will be called by user doing ifconfig xxx down
+  */
+-int
++static int
+ lcs_stop_device(struct net_device *dev)
+ {
+ 	struct lcs_card *card;
+@@ -1612,7 +1612,7 @@
+  * start lcs device and make it runnable
+  * This function will be called by user doing ifconfig xxx up
+  */
+-int
++static int
+ lcs_open_device(struct net_device *dev)
+ {
+ 	struct lcs_card *card;
+@@ -1678,7 +1678,7 @@
+ /**
+  * lcs_probe_device is called on establishing a new ccwgroup_device.
+  */
+-int
++static int
+ lcs_probe_device(struct ccwgroup_device *ccwgdev)
+ {
+ 	struct lcs_card *card;
+@@ -1714,7 +1714,7 @@
+ /**
+  * lcs_new_device will be called by setting the group device online.
+  */
+-int
++static int
+ lcs_new_device(struct ccwgroup_device *ccwgdev)
+ {
+ 	struct  lcs_card *card;
+@@ -1794,7 +1794,7 @@
+ /**
+  * lcs_shutdown_device, called when setting the group device offline.
+  */
+-int
++static int
+ lcs_shutdown_device(struct ccwgroup_device *ccwgdev)
+ {
+ 	struct lcs_card *card;
+@@ -1810,7 +1810,7 @@
+ /**
+  * lcs_remove_device, free buffers and card
+  */
+-int
++static int
+ lcs_remove_device(struct ccwgroup_device *ccwgdev)
+ {
+ 	struct lcs_card *card;
+@@ -1828,7 +1828,7 @@
+ /**
+  * LCS ccwgroup driver registration
+  */
+-struct ccwgroup_driver lcs_group_driver = {
++static struct ccwgroup_driver lcs_group_driver = {
+ 	.name        = "lcs",
+ 	.max_slaves  = 2,
+ 	.driver_id   = 0xD3C3E2,
 

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266523AbRGYOOv>; Wed, 25 Jul 2001 10:14:51 -0400
+	id <S268574AbRGYOQL>; Wed, 25 Jul 2001 10:16:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266723AbRGYOOl>; Wed, 25 Jul 2001 10:14:41 -0400
-Received: from [62.254.209.2] ([62.254.209.2]:47352 "EHLO cam-gw.zeus.co.uk")
-	by vger.kernel.org with ESMTP id <S266523AbRGYOOY>;
-	Wed, 25 Jul 2001 10:14:24 -0400
-Date: Wed, 25 Jul 2001 15:14:28 +0100 (BST)
-From: Stephen Landamore <stephenl@zeus.com>
-To: linux-kernel@vger.kernel.org
+	id <S268577AbRGYOQB>; Wed, 25 Jul 2001 10:16:01 -0400
+Received: from mx1.nameplanet.com ([62.70.3.31]:19721 "HELO mx1.nameplanet.com")
+	by vger.kernel.org with SMTP id <S268574AbRGYOP6>;
+	Wed, 25 Jul 2001 10:15:58 -0400
+Date: Wed, 25 Jul 2001 16:54:45 +0200 (CEST)
+From: Ketil Froyn <ketil@froyn.com>
+To: "M. Tavasti" <tawz@nic.fi>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Select with device and stdin not working
-Message-ID: <Pine.LNX.4.10.10107251505060.2829-100000@phaedra.cam.zeus.com>
+In-Reply-To: <m2snflm8s6.fsf@akvavitix.vuovasti.com>
+Message-ID: <Pine.LNX.4.30.0107251653580.20130-100000@pccn3.uio.no>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanner: exiscan *15PPQi-0008Sr-00*6WQ3JFlakS6* http://duncanthrax.net/exiscan/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Select is working fine for device (in this example /dev/random) or
-> stdin. But for both, not. When entering something to stdin, it's not
-> sure select will return.
+On 25 Jul 2001, M. Tavasti wrote:
 
-If stdin is a tty, chances are select will not show any data ready
-until you hit return - this is canonical mode (or cooked mode).  Try
-clearing canonical mode (or setting cbreak / raw mode).
+> But one would at least expect FD_ZERO() to really clean up rfds, and
+> after it FD_SET() is used again, for every call of select().  And this
+> code works fine in 2.0 kernels, and also with 2.2 and 2.4 if I'm using
+> named pipe and stdin. Therefore I have strong belief problem is not
+> usage of select() but something else.
 
-In the case of stdin being a tty, and you are typing away, note that
-your keypresses will generate entropy - so /dev/random probably will
-become ready to read before stdin ;)
+Sorry, my bad. I misread your code.
 
-cheers,
-stephen
+Ketil
 
---
-Stephen Landamore, <slandamore@zeus.com>              Zeus Technology
-Tel: +44 1223 525000                      Universally Serving the Net
-Fax: +44 1223 525100                              http://www.zeus.com
-Zeus Technology, Zeus House, Cowley Road, Cambridge, CB4 0ZT, ENGLAND
 

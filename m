@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136160AbRASCKJ>; Thu, 18 Jan 2001 21:10:09 -0500
+	id <S136720AbRASCK7>; Thu, 18 Jan 2001 21:10:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136720AbRASCKA>; Thu, 18 Jan 2001 21:10:00 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:64784 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S136160AbRASCJy>; Thu, 18 Jan 2001 21:09:54 -0500
-Date: Fri, 19 Jan 2001 04:23:25 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1pre8 slowdown on dbench tests 
-In-Reply-To: <Pine.LNX.4.30.0101182208420.1729-100000@fs131-224.f-secure.com>
-Message-ID: <Pine.LNX.4.30.0101190416570.1729-100000@fs131-224.f-secure.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136779AbRASCKj>; Thu, 18 Jan 2001 21:10:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:15887 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S136720AbRASCKS>;
+	Thu, 18 Jan 2001 21:10:18 -0500
+Date: Fri, 19 Jan 2001 03:10:04 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1pre8 slowdown on dbench tests
+Message-ID: <20010119031004.B18452@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0101181449240.4124-100000@freak.distro.conectiva> <20010119011629.C32087@athlon.random> <20010119024023.B18209@suse.de> <20010119024610.A7573@gruyere.muc.suse.de> <20010119024745.G18209@suse.de> <20010119030825.A8011@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010119030825.A8011@gruyere.muc.suse.de>; from ak@suse.de on Fri, Jan 19, 2001 at 03:08:25AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 19 2001, Andi Kleen wrote:
+> Shouldn't it more depend on the bandwidth/latency of the IO device? 
 
-Redone with big enough swap by requests.
+Not really they should just make sure that we don't lock down
+all buffers. The low water mark is just to make sure we don't
+wake up readers/writers right after having blocked them.
 
-2.4.0,132MB swap
-548.81user 128.97system    11:22  99%CPU (442433major+705419minor)
-561.12user 171.06system    12:29  97%CPU (446949major+712525minor)
-625.68user 2833.29system 1:12:38  79%CPU (638957major+1463974minor)
-===========
-2.4.1pre8,132MB swap
-548.71user 117.93system    11:09  99%CPU (442434major+705420minor)
-558.93user 166.82system    12:20  98%CPU (446941major+712662minor)
-621.37user 2592.54system 1:07:33  79%CPU (592679major+1311442minor)
-
-> Below some kernel compile numbers on a 32 MB RAM + 32 MB swap box. The
-> three lines mean compilation with the -j1, -j2 and -j4 option. Most of
-> the time 2.4.1pre8 was also unable to compile the kernel because cc1
-> was killed by OOM handler.
->
-> 2.2.18
-> 548.27user 94.18system     10:50  98%CPU (450479major+696869minor)
-> 548.94user 153.85system    11:51  98%CPU (487111major+704948minor)
-> 599.44user 2018.66system   51:47  84%CPU (2295045major+1182819minor)
-> =========
-> 2.4.0
-> 557.18user 121.57system    11:25  99%CPU (442434major+705429minor)
-> 551.76user 158.78system    12:11  97%CPU (446183major+711572minor)
-> 579.65user 2860.53system 1:05:45  87%CPU (650964major+1209969minor)
-> ===========
-> 2.4.0+blk-13B
-> 546.89user 140.35system    11:33  99%CPU (442435major+705424minor)
-> 570.73user 188.51system    12:56  97%CPU (445171major+712791minor)
-> 566.33user 2681.20system 1:02:26  86%CPU (654402major+1225784minor)
-> =================
-> 2.4.1pre8
-> 546.23user 118.81system    11:09  99%CPU (442434major+705424minor)
-> 569.12user 161.25system    12:22  98%CPU (446667major+712457minor)
-> 727.58user 2489.96system 1:25:34  62%CPU (616240major+1375321minor)
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271747AbTG2N7P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 09:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271746AbTG2N7P
+	id S271706AbTG2Nvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 09:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271712AbTG2Nvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 09:59:15 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:13220 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S271740AbTG2N6B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 09:58:01 -0400
-To: "Kathy Frazier" <kfrazier@mdc-dayton.com>
-Cc: <linux-kernel@vger.kernel.org>, <herbert@13thfloor.at>
-Subject: Re: Problems related to DMA or DDR memory on Intel 845 chipset?
-References: <PMEMILJKPKGMMELCJCIGKELACDAA.kfrazier@mdc-dayton.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 29 Jul 2003 15:57:44 +0200
-In-Reply-To: <PMEMILJKPKGMMELCJCIGKELACDAA.kfrazier@mdc-dayton.com>
-Message-ID: <m3he55xwo7.fsf@defiant.pm.waw.pl>
+	Tue, 29 Jul 2003 09:51:38 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:39816 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S271706AbTG2Nvg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 09:51:36 -0400
+Date: Tue, 29 Jul 2003 09:53:23 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Andries.Brouwer@cwi.nl
+cc: clepple@ghz.cc, linux-kernel@vger.kernel.org
+Subject: Re: Turning off automatic screen clanking
+In-Reply-To: <UTC200307291302.h6TD2q310517.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.53.0307290950001.1696@chaos>
+References: <UTC200307291302.h6TD2q310517.aeb@smtp.cwi.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kathy Frazier" <kfrazier@mdc-dayton.com> writes:
+On Tue, 29 Jul 2003 Andries.Brouwer@cwi.nl wrote:
 
-> We are using the ASUS P4PE MoBo - Uses Intel 845PE chipset.  The message
-> file indicates:
-> 
-> Transparant bridge - Intel Corp. 82801BA/CA/DB PCI bridge
+>     Yes. This is f*ing absurb. A default that kills the screen and the
+>     requirement to send some @!_$%!@$ sequences to turn it off. This
+>     is absolute crap, absolutely positively, with no possible justification
+>     whatsoever. If I made an ioctl, it will probably be rejected.........
+>
+> What language. What about the below (not compiled, not tested)?
+>
+[SNIPPED...]
 
-Actually I was thinking about an IC on your card, something like
-PLX PCI9080 chip - i.e. the chip connected to the PCI bus and doing
-the DMA transfers (many specialized controllers have built-in PCI
-bridge, though).
+I think you need to call poke_blanked_console() after setting the
+blanking interval. Also this won't patch on 2.4.20 because the
+header file is different. Anyway, I will try it after I take a
+work-break.
 
-Could you please state if you are using bus mastering PCI DMA, or
-if it is IDE DMA (an IDE hard disk etc) thing?
--- 
-Krzysztof Halasa
-Network Administrator
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

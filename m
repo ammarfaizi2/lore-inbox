@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264012AbTE3UQz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 16:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTE3UQz
+	id S263971AbTE3UVY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 16:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263976AbTE3UVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 16:16:55 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:47576 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264012AbTE3UQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 16:16:54 -0400
-Date: Fri, 30 May 2003 13:30:15 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "John Stoffel" <stoffel@lucent.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm2
-Message-Id: <20030530133015.4f305808.akpm@digeo.com>
-In-Reply-To: <16087.47491.603116.892709@gargle.gargle.HOWL>
-References: <20030529012914.2c315dad.akpm@digeo.com>
-	<20030529042333.3dd62255.akpm@digeo.com>
-	<16087.47491.603116.892709@gargle.gargle.HOWL>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 May 2003 16:21:24 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3038
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263971AbTE3UVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 16:21:23 -0400
+Subject: Re: Problem Installing Linux Kernel Module compiled with gcc-3.2.x
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Joe Buck <jbuck@synopsys.com>
+Cc: Bernd Jendrissek <berndj@prism.co.za>,
+       Kendrick Hamilton <hamilton@sedsystems.ca>, gcc@gcc.gnu.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030530120231.A1328@synopsys.com>
+References: <Pine.LNX.4.44.0305300919510.3613-100000@sw-55.sedsystems.ca>
+	 <20030530192240.A7564@prism.co.za> <20030530103329.A848@synopsys.com>
+	 <20030530204332.C7564@prism.co.za>  <20030530120231.A1328@synopsys.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 May 2003 20:30:14.0356 (UTC) FILETIME=[4680E140:01C326EA]
+Organization: 
+Message-Id: <1054323389.23566.56.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 May 2003 20:36:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"John Stoffel" <stoffel@lucent.com> wrote:
->
-> >>>>> "Andrew" == Andrew Morton <akpm@digeo.com> writes:
+On Gwe, 2003-05-30 at 20:02, Joe Buck wrote:
+> > Between GCC 2.x and 3.x the *major* version changed (duh).  I would
+> > imagine that people are/were (justifiably?) concerned that ABI's might
+> > have changed.  From your response, I assume there are no ABI changes
+> > for C at least?  I suppose a gratuitous ABI change would constitute a
+> > bug, though...
 > 
-> >> . A couple more locking mistakes in ext3 have been fixed.
-> 
-> Andrew> But not all of them.  The below is needed on SMP.
-> 
-> Any hint on when -mm3 will be out,
+> There are no ABI changes for C.
 
-About ten hours hence, probably.
-
-> and if it will include the RAID1 patches?
-
-I have a raid0 patch from Neil, but no raid1 patch.  I saw one drift past,
-from Zwane (I think), but wasn't sure that it worked.  If someone has a
-raid1 fix, please send it.
-
-> I haven't had time to play with -mm2, and all the stuff
-> floating by about problems has made me a bit hesitant to try it out.
-
-Welll ext3 has been a bit bumpy of course.  It's getting better, but I
-haven't yet been able to give it a 12-hour bash on the 4-way.  Last time I
-tried a circuit breaker conked; it lasted three hours but even ext3 needs
-electricity.  But three hours is very positive - it was hard testing.
-
-I'm not testing RAID at present, partly because I'm too stoopid to
-understand mdadm and partly because the box-with-18-disks heats the room up
-too much.  This needs to change, because of possible interaction between
-the IO scheduler work and software RAID.
+Not quite true but close. The padding in gcc 2.96 however is actually to
+work around a compiler bug
 

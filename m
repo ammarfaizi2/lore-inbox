@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUG1TqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbUG1Tqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbUG1TqH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 15:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUG1Tpm
+	id S262927AbUG1Tqu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 15:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUG1TqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 15:45:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23017 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263040AbUG1Tpg (ORCPT
+	Wed, 28 Jul 2004 15:46:15 -0400
+Received: from waste.org ([209.173.204.2]:33447 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263062AbUG1Tph (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 15:45:36 -0400
-Date: Wed, 28 Jul 2004 12:44:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: ebiederm@xmission.com, kaos@sgi.com, linux-kernel@vger.kernel.org,
-       suparna@in.ibm.com, mbligh@aracnet.com, fastboot@osdl.org
-Subject: Re: Announce: dumpfs v0.01 - common RAS output API
-Message-Id: <20040728124405.1a934bec.akpm@osdl.org>
-In-Reply-To: <200407281106.17626.jbarnes@engr.sgi.com>
-References: <16734.1090513167@ocs3.ocs.com.au>
-	<200407280903.37860.jbarnes@engr.sgi.com>
-	<m1bri06mgw.fsf@ebiederm.dsl.xmission.com>
-	<200407281106.17626.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 28 Jul 2004 15:45:37 -0400
+Date: Wed, 28 Jul 2004 14:45:35 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-tiny@selenic.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       celinux-dev@tree.celinuxforum.org
+Subject: Linux-tiny 2.6.8-rc2-tiny1
+Message-ID: <20040728194510.GD16310@waste.org>
+Reply-To: linux-tiny@selenic.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
->
-> On Wednesday, July 28, 2004 11:00 am, Eric W. Biederman wrote:
-> > > I think this could end up being a good thing.  It gives more people a
-> > > stake in making sure that driver shutdown() routines work well.
-> >
-> > Which actually is one of the items open for discussion currently.
-> > For kexec on panic do we want to run the shutdown() routines?
-> 
-> We'll have to do something about incoming dma traffic and other stuff that the 
-> devices might be doing.  Maybe a arch specific callout to do some chipset 
-> stuff?
-> 
+This is a resync of the -tiny tree against 2.6.8-rc2. Minor compile
+tweaks and a fix for disabling DMI scanning.
 
-Does ongoing DMA actually matter?  After all,the memory which is being
-dma-ed into is pre-reserved and allocated for that purpose, and the dump
-kernel won't be using it.
+There's also now a mailing list for linux-tiny development at:
+ 
+ linux-tiny at selenic.com
+ http://selenic.com/mailman/listinfo/linux-tiny
 
-It would be polite to pause for a number of seconds to allow things to go
-quiet, but apart from that I think all we need to ensure is that the
-drivers in the dump kernel firmly whack the hardware before reinitialising
-it?
+The latest patch can be found at:
 
+ http://selenic.com/tiny/2.6.8-rc2-tiny1.patch.bz2
+ http://selenic.com/tiny/2.6.8-rc2-tiny1-broken-out.tar.bz2
+
+Webpage for your bookmarking pleasure:
+
+ http://selenic.com/tiny-about/
+
+-- 
+Mathematics is the supreme nostalgia of our time.

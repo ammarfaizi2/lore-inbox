@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264134AbUE1WIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264138AbUE1WMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbUE1WIq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 18:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264131AbUE1WIn
+	id S264138AbUE1WMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 18:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUE1WJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 18:08:43 -0400
-Received: from mail.kroah.org ([65.200.24.183]:34238 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264061AbUE1WB3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 18:01:29 -0400
-Subject: Re: [PATCH] I2C update for 2.6.7-rc1
-In-Reply-To: <1085781643301@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 28 May 2004 15:00:43 -0700
-Message-Id: <10857816431154@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Fri, 28 May 2004 18:09:36 -0400
+Received: from mail.aei.ca ([206.123.6.14]:22773 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S262361AbUE1VlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 17:41:17 -0400
+From: Ed Tomlinson <edt@aei.ca>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.7-rc1-mm1] cant mount reiserfs using -o barrier=flush
+Date: Fri, 28 May 2004 17:39:53 -0400
+User-Agent: KMail/1.6.2
+Cc: Jens Axboe <axboe@suse.de>, Gunther Persoons <gunther_persoons@spymac.com>
+References: <1085689455.7831.8.camel@localhost> <40B72886.3000507@spymac.com> <20040528121822.GH20657@suse.de>
+In-Reply-To: <20040528121822.GH20657@suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405281739.53892.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1717.6.27, 2004/05/19 00:26:13-07:00, ebs@ebshome.net
+On May 28, 2004 08:18 am, Jens Axboe wrote:
+> error=0x04 is an aborted command, meaning it's not supported. So
+> ide-disk dumps that message to the log (barrier support doesn't work)
+> and turns it off. This is expected behaviour if your drive doesn't
+> support cache flushing.
 
-[PATCH] I2C PPC4xx IIC driver: fix debug build with gcc3
+Then I would expect to see the message _once_.   In my case I have 8
+entries with these errors in my logs (then I rebooted).  Once would not 
+be bad but 8 indicates to me that something is not respecting the flag
+(or its being reset).
 
-this patch fixes PPC4xx IIC driver debug mode build with gcc 3.x compiler.
-Noticed by Evgenij Polyakov.
-
-
- drivers/i2c/busses/i2c-ibm_iic.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-
-diff -Nru a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
---- a/drivers/i2c/busses/i2c-ibm_iic.c	Fri May 28 14:52:17 2004
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c	Fri May 28 14:52:17 2004
-@@ -69,14 +69,14 @@
- #endif
- 
- #if DBG_LEVEL > 0
--#  define DBG(x...)	printk(KERN_DEBUG "ibm-iic" ##x)
-+#  define DBG(f,x...)	printk(KERN_DEBUG "ibm-iic" f, ##x)
- #else
--#  define DBG(x...)	((void)0)
-+#  define DBG(f,x...)	((void)0)
- #endif
- #if DBG_LEVEL > 1
--#  define DBG2(x...) 	DBG( ##x )
-+#  define DBG2(f,x...) 	DBG(f, ##x)
- #else
--#  define DBG2(x...) 	((void)0)
-+#  define DBG2(f,x...) 	((void)0)
- #endif
- #if DBG_LEVEL > 2
- static void dump_iic_regs(const char* header, struct ibm_iic_private* dev)
-
+Ed

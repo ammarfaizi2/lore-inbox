@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316585AbSFDTNB>; Tue, 4 Jun 2002 15:13:01 -0400
+	id <S316456AbSFDTTM>; Tue, 4 Jun 2002 15:19:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316587AbSFDTNA>; Tue, 4 Jun 2002 15:13:00 -0400
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:59894 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S316585AbSFDTM7>;
-	Tue, 4 Jun 2002 15:12:59 -0400
-Date: Tue, 4 Jun 2002 15:12:57 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Brett Dikeman <brett@cloud9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 assertion failure in journal_commit_transaction
-Message-ID: <20020604191257.GA24463@www.kroptech.com>
-In-Reply-To: <a05111705b922b09b689a@[10.1.0.123]>
+	id <S316616AbSFDTTL>; Tue, 4 Jun 2002 15:19:11 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:60665 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316456AbSFDTTL>; Tue, 4 Jun 2002 15:19:11 -0400
+Subject: Re: [OT] Re: please kindly get back to me
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: J Sloan <jjs@lexus.com>
+Cc: Hank Leininger <hlein@progressive-comp.com>,
+        linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CFD0899.6040402@lexus.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 04 Jun 2002 21:24:35 +0100
+Message-Id: <1023222275.6773.182.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 02:30:07PM -0400, Brett Dikeman wrote:
-> Greetings all.
-> 
-> I'm helping a company which just installed Redhat 7.3 on several 
-> systems(Compaq dl380G2, dual proc systems.)  They are running the smp 
-> kernel that came with the distro(versioned 2.4.18-3; -4 is out, but I 
-> reviewed the changelogs and it didn't look like they did anything 
-> that would affect this problem, but I really couldn't tell.)  ext3 
-> for all filesystems, hardware raid 0+1 via the Compaq controller.
+On Tue, 2002-06-04 at 19:36, J Sloan wrote:
+> Complacency is never a good idea - however,
+> let's give credit where credit is due - it's orders
+> of magnitude more difficult to do something like
+> this against a unix system - most script kiddies
+> will go for the easy targets (microsoft) instead
 
-Uh, what changelog did you read?
+Each of the major viruses has probably got one author singular.
 
-Redhat seems pretty clear that 2.4.18-3 + ext3 + SMP = bad
+There are ways of making systems much more resistant to attack including
+viruses. Things like RSBAC and the NSA security modules help you get
+into a situation where this kind of stuff doesn't occur
 
-The errata describing 2.4.18-4 is here:
-http://rhn.redhat.com/errata/RHBA-2002-085.html
+	User1 gets a virus
+	User1 owns a binary root users
+	Root gets the virus
+	Splat
 
---Adam
+Because with a trust model it goes instead
+
+	User1 geta a virus
+	User1 owns a binary root users
+	User1 virus patches the binary
+
+	Root is refused permission to run the binary because it no 	longer has
+a high enough integrity
+
+Even before that the lack of people checking GPG keys on RPM and other
+packages is disturbing. 
+
+Alan
 

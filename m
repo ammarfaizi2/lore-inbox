@@ -1,46 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267689AbSLGA62>; Fri, 6 Dec 2002 19:58:28 -0500
+	id <S267691AbSLGB1a>; Fri, 6 Dec 2002 20:27:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267690AbSLGA61>; Fri, 6 Dec 2002 19:58:27 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54267 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267689AbSLGA61>; Fri, 6 Dec 2002 19:58:27 -0500
-Date: Sat, 7 Dec 2002 02:06:02 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: David Schwartz <davids@webmaster.com>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>, acpi-devel@sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Proposed ACPI Licensing change
-Message-ID: <20021207010602.GT2544@fs.tum.de>
+	id <S267692AbSLGB1a>; Fri, 6 Dec 2002 20:27:30 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:40627 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267691AbSLGB1a>; Fri, 6 Dec 2002 20:27:30 -0500
+Subject: Re: 2.4.18 beats 2.5.50 in hard drive access????
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Ashley <dash@xdr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212062300.gB6N0jg10757@xdr.com>
+References: <200212062300.gB6N0jg10757@xdr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Dec 2002 02:10:36 +0000
+Message-Id: <1039227036.25004.0.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 06, 2002 at 04:36:13PM -0800, David Schwartz wrote:
+On Fri, 2002-12-06 at 23:00, David Ashley wrote:
+> hda is an IDE cdrom drive, but here it is:
 
-> On Sat, 7 Dec 2002 01:24:06 +0100, Adrian Bunk wrote:
-> 
-> >You can't forbid people to send GPL-only patches, so if a person doesn't
-> >want his patch under your looser license you can't enforce that he also
-> >releases it under your looser license.
-> 
-> 	No, but then you just reject the patch.
-
-Surely.
-
-> 	DS
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Ok that would explain why DMA is off on it. The disk puzzles me - for an
+OSB4 the code should be selecting MWDMA2
 

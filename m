@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284762AbRLRTfx>; Tue, 18 Dec 2001 14:35:53 -0500
+	id <S284752AbRLRTqZ>; Tue, 18 Dec 2001 14:46:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284696AbRLRTeJ>; Tue, 18 Dec 2001 14:34:09 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:33034 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S284843AbRLRTde>;
-	Tue, 18 Dec 2001 14:33:34 -0500
-Date: Tue, 18 Dec 2001 11:28:02 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andreas Bombe <bombe@informatik.tu-muenchen.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1 API change summary
-In-Reply-To: <20011218031427.GA5990@storm.local>
-Message-ID: <Pine.LNX.4.33L2.0112181124460.20824-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284911AbRLRTpI>; Tue, 18 Dec 2001 14:45:08 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:9939 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S284860AbRLRToS>;
+	Tue, 18 Dec 2001 14:44:18 -0500
+Date: Tue, 18 Dec 2001 20:43:53 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'James A Sutherland'" <james@sutherland.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Booting a modular kernel through a multiple streams file
+Message-ID: <20011218204353.R5235@khan.acc.umu.se>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D803@orsmsx111.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D803@orsmsx111.jf.intel.com>; from andrew.grover@intel.com on Tue, Dec 18, 2001 at 09:47:58AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Andreas Bombe wrote:
+On Tue, Dec 18, 2001 at 09:47:58AM -0800, Grover, Andrew wrote:
+> > From: James A Sutherland [mailto:james@sutherland.net]
+> > > Had you actually looked at initrd-related code?  I had and 
+> > "bloody mess"
+> > > is the kindest description I've been able to come up with.  
+> > Even after
+> > > cleanups and boy, were they painful...
+> > 
+> > With a choice between that, or teaching lilo, grub etc how to 
+> > link modules - 
+> > and how to read NTFS and XFS, and losing the ability to boot 
+> > from fat, minix 
+> > etc floppies, tftp or nfs servers - almost any level of 
+> > existing nastiness 
+> > would be preferable to that sort of insane codebloat!
+> 
+> 1) GRUB can already do this
+> 2) Each bootloader doesn't need to link, the kernel includes the linker.
+> (which after it does its job can be discarded and insmod used later on)
+> 3) Seeing how ugly everyone seems to think initrd is, this seems like a
+> worthwhile option to consider.
 
-| One problem with following kernel development is that new APIs are
-| nowhere really summarized outside of the list thread where they are
-| developed (if there is a thread at all).  So maybe there's this great
-| new function that simplifies something in your driver, but you don't
-| know about it and only stumble across it much later (like 50 dev kernel
-| revisions) and wish you'd known earlier.
-|
-| So someone should just collect the changes and post a summary to
-| linux-kernel, now wouldn't that be useful ...
-|
-| [Silence, far away keyboards can be heard having "So I take it you
-| volun..." typed on them.]
-|
-| ... and I will try to do that for the kernel 2.5 revisions.
-|
-| I have collected the API changes in 2.5.1 and summarized below.  I just
-| read the patch for all the *.h files, so I may have confused something
-| (like not realizing something just moved instead of being new).  I also
-| don't know much about most of the areas I'm summarizing, any corrections
-| are welcome.
-|
-| These summaries won't serve as documentation except when it's short and
-| simple.  If there are big changes, I won't list every detail (I just
-| remind you that there is something, you can read the source yourself).
-| I will list changes which are global or at least apply to a whole
-| subsystem.
-|
-| You'll also find stuff that's pretty much the talk of the week on
-| linux-kernel and therefore well known, but these summaries should also
-| serve as a overview ("when was what introduced") in combination with the
-| kernel changelogs for those who get into 2.5 later (yes, I will archive
-| these summaries on the web when I get a few together).
-|
-| So, here it goes:
-|
-| =======================================================================
+And GRUB is of course available for all platforms that Linux is
+available for? Noooo? I didn't think so...
 
-[snip]
 
-I guess you won't see summaries of proposals or actual changes
-in IRC discussions (: , but linux-kernel (mailing list) does have
-_some_ of them.  For links to the ones that I'm aware of (for
-2.5.x), see
-
-http://www.osdl.org/archive/rddunlap/linux-port-25x.html .
-
-~Randy
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

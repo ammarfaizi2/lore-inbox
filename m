@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131208AbQKCTM7>; Fri, 3 Nov 2000 14:12:59 -0500
+	id <S129034AbQKCTQJ>; Fri, 3 Nov 2000 14:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131355AbQKCTMt>; Fri, 3 Nov 2000 14:12:49 -0500
-Received: from nat-40.kulnet.kuleuven.ac.be ([134.58.0.40]:13409 "EHLO
-	maui.kotnet.org") by vger.kernel.org with ESMTP id <S131208AbQKCTMr>;
-	Fri, 3 Nov 2000 14:12:47 -0500
-Date: Fri, 3 Nov 2000 20:12:33 +0100 (CET)
-From: Frederik Vanrenterghem <frederik@maui.kotnet.org>
-To: linux-kernel@vger.kernel.org
-Subject: Cmpci sound problem (test10)
-Message-ID: <Pine.LNX.4.21.0011032008150.455-100000@maui.kotnet.org>
+	id <S129042AbQKCTP7>; Fri, 3 Nov 2000 14:15:59 -0500
+Received: from inet-smtp3.oracle.com ([205.227.43.23]:13502 "EHLO
+	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
+	id <S129034AbQKCTPu>; Fri, 3 Nov 2000 14:15:50 -0500
+Message-ID: <3A030EE2.92DC3F2@oracle.com>
+Date: Fri, 03 Nov 2000 11:15:46 -0800
+From: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>
+Organization: Linux Strategic Business Unit, Oracle Corporation
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: en,pdf
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Value of TASK_UNMAPPED_SIZE on 2.4
+Content-Type: multipart/mixed;
+ boundary="------------E7646E6CF7A8BFC1D1841EEE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------E7646E6CF7A8BFC1D1841EEE
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hi,
+All,
 
-I've recently changed kernel versions, from 2.2.17 to 2.4.0-test10. Since
-then, I have 'grainy' sound while playing mp3's as a user (a bit like an
-old record). This does not happen when I play the mp3's as root. I didn't
-have this problem in 2.2.17.
-I guess this is some priority issue? Is there a way to change this
-behaviour, 'cause I consider it sub-optimal to play mp3's as root.
+TASK_UNMAPPED_SIZE is defined in include/asm-i386/processor.h as:
 
-Please CC me.
+#define TASK_UNMAPPED_SIZE    (TASK_SIZE / 3)
+
+The value of TASK_SIZE is defined as PAGE_OFFSET which is set to 0xC0000000
+(page.h).  This works out to be a value of 0x4000000.
+
+The question is:
+Are there any negative side effects in defining TASK_UNMAPPED_SIZE to 0x1000000?
+
+By doing this we allow a process to access more memory.  On Oracle it allows us
+to grow our buffer size from 1.7 GB to 2.4 GB improving overall performance by
+reducing I/O.
 
 Thanks in advance,
 
-Frederik
+--
+=======================================================================
+  Josue Emmanuel Amaro                         Josue.Amaro@oracle.com
+  Linux Products Manager                       Phone:   650.506.1239
+  Intel and Linux Technologies Group           Fax:     650.413.0167
+=======================================================================
 
-- -- 
 
-Neutrinos have bad breadth.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Made with pgp4pine
+--------------E7646E6CF7A8BFC1D1841EEE
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="Josue.Amaro.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Josue Emmanuel Amaro
+Content-Disposition: attachment;
+ filename="Josue.Amaro.vcf"
 
-iEYEARECAAYFAjoDDisACgkQjGz8qD1yPRC+2wCgvFigqrS63Rf8qdVlja8hDUqd
-6ggAnA5wrrk63AHMgcLnBcZuEiMbO5pa
-=d78d
------END PGP SIGNATURE-----
+begin:vcard 
+n:Amaro;Josue Emmanuel
+tel;cell:650-245-5131
+tel;fax:650-413-0167
+tel;work:650-506-1239
+x-mozilla-html:FALSE
+url:http://www.oracle.com
+org:Intel and Linux Technologies
+version:2.1
+email;internet:Josue.Amaro@oracle.com
+title:Sr.Product Manager - Linux
+adr;quoted-printable:;;500 Oracle Parkway=0D=0AMS1ip4;Redwood Shores;CA;94065;United States
+fn:Josue Emmanuel Amaro
+end:vcard
+
+--------------E7646E6CF7A8BFC1D1841EEE--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

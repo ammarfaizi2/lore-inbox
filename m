@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266428AbRGONJD>; Sun, 15 Jul 2001 09:09:03 -0400
+	id <S266488AbRGONMo>; Sun, 15 Jul 2001 09:12:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266438AbRGONIx>; Sun, 15 Jul 2001 09:08:53 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5906 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266428AbRGONIi>; Sun, 15 Jul 2001 09:08:38 -0400
-Subject: Re: Linux 2.4.6-ac3 - some unresolved
-To: eyal@eyal.emu.id.au (Eyal Lebedinsky)
-Date: Sun, 15 Jul 2001 14:09:28 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3B50F26C.19334B5F@eyal.emu.id.au> from "Eyal Lebedinsky" at Jul 15, 2001 11:31:24 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S266464AbRGONMe>; Sun, 15 Jul 2001 09:12:34 -0400
+Received: from weta.f00f.org ([203.167.249.89]:61571 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S266448AbRGONMW>;
+	Sun, 15 Jul 2001 09:12:22 -0400
+Date: Mon, 16 Jul 2001 01:12:27 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __KERNEL__ removal
+Message-ID: <20010716011227.B10493@weta.f00f.org>
+In-Reply-To: <E15LTIY-0001Ul-00@the-village.bc.nu> <3B5083AE.71515696@mandrakesoft.com> <p05100309b77639cfaced@[207.213.214.37]> <3B508D34.180A07A0@mandrakesoft.com> <84uhW6amw-B@khms.westfalen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15LleK-0003z8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <84uhW6amw-B@khms.westfalen.de>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Building a kernel with as many modules as possible (i386).
-> 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-ac3/kernel/drivers/net/dl2k.o
+On Sun, Jul 15, 2001 at 01:53:00PM +0200, Kai Henningsen wrote:
 
-This one builds ok with gcc 2.96, but its a known problem with older
-compilers and people are fixing
+    ... but if we are looking for a clean solution to types and
+    constants that are needed to communicate between kernel and user
+    space, IMO the thing to do is to define these in some sort of
+    generic format, and have a tool to generate actual headers from
+    that according to whatever kernel, libc or whoever wants to
+    see. Possibly more than one tool as requirements differ.
 
-> depmod:         __ucmpdi2
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.6-ac3/kernel/drivers/net/wan/comx.o
-> depmod:         proc_get_inode
+Too complex, too hard... why not standard headers for the kernel
+peoplem as that is the origin on the headers and helper comments for
+others?
 
-This requires someone fixes comx to use the newer proc stuff
 
+  --cw

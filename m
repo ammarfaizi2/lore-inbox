@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264834AbUEVCyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264835AbUEVC5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264834AbUEVCyE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 22:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbUEVCyE
+	id S264835AbUEVC5I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 22:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbUEVC5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 22:54:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48872 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264834AbUEVCyB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 22:54:01 -0400
-Date: Sat, 22 May 2004 03:54:00 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: "Spinka, Kristofer" <kspinka@style.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unserializing ioctl() system calls
-Message-ID: <20040522025400.GU17014@parcelfarce.linux.theplanet.co.uk>
-References: <web-1649994@style.net>
+	Fri, 21 May 2004 22:57:07 -0400
+Received: from mail.kroah.org ([65.200.24.183]:32189 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264835AbUEVC5F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 22:57:05 -0400
+Date: Fri, 21 May 2004 19:56:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Exporting PCI ROMs via syfs
+Message-ID: <20040522025623.GA15224@kroah.com>
+References: <20040521010510.84867.qmail@web14928.mail.yahoo.com> <200405212338.i4LNcV8Z007967@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <web-1649994@style.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200405212338.i4LNcV8Z007967@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 10:46:45PM -0400, Spinka, Kristofer wrote:
-> I noticed that even in the 2.6.6 code, callers to ioctl 
-> system call (sys_ioctl in fs/ioctl.c) are serialized with 
-> {lock,unlock}_kernel().
+On Fri, May 21, 2004 at 07:38:31PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 20 May 2004 18:05:10 PDT, Jon Smirl <jonsmirl@yahoo.com>  said:
+> > GregKH has suggested that a good interface for accessing the contents of PCI
+> > ROMs from user space would be to make them available from sysfs. What would be a
+> > good way to structure the code for doing this? Should this be part of the pci
+> > driver, and how would this interface into class_simple to make the attribute
+> > appear?
 > 
-> I realize that many kernel modules, and POSIX for that 
-> matter, may not be ready to make this more concurrent.
-> 
-> I propose adding a flag to indicate that the underlying 
-> module would like to support its own concurrency 
-> management, and thus we avoid grabbing the BKL around the 
-> f_op->ioctl call.
-> 
-> The default behavior would adhere to existing standards, 
-> and if the flag is present (in the underlying module), we 
-> let the module (or modules) handle it.
-> 
-> Reasonable?
+> Hmm... how do you make that fit with the "one file, one value" rule for sysfs?
+> Have the "one value" be a nnnK binary blob representing the ROM image?
 
-No.  Flags on drivers are never a good idea.  What's more, if somebody
-wants that shit parallelized they can always drop BKL upon entry and
-reacquire on exit from their ->ioctl().
+Exactly, just like the pci "config" file is in sysfs today.
+
+thanks,
+
+greg k-h

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTJPUvV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 16:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbTJPUvV
+	id S263207AbTJPUrd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 16:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTJPUrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 16:51:21 -0400
-Received: from mcomail04.maxtor.com ([134.6.76.13]:23311 "EHLO
-	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
-	id S263212AbTJPUvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 16:51:19 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C105CDB2D0@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@Maxtor.com>
-To: "'Greg Stark'" <gsstark@mit.edu>
-Cc: "'Jens Axboe'" <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] ide write barrier support
-Date: Thu, 16 Oct 2003 14:51:13 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Thu, 16 Oct 2003 16:47:33 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:19937 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S263184AbTJPUrb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 16:47:31 -0400
+Date: Thu, 16 Oct 2003 13:46:49 -0700
+To: William Lee Irwin III <wli@holomorphy.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: I/O errors in -test7-mm1 tree on ia64
+Message-ID: <20031016204649.GA1778@sgi.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20031016185505.GA1255@sgi.com> <20031016194934.GB711@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031016194934.GB711@holomorphy.com>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 16, 2003 at 12:49:34PM -0700, William Lee Irwin III wrote:
+> On Thu, Oct 16, 2003 at 11:55:05AM -0700, Jesse Barnes wrote:
+> > I don't see this when using Linus' BK tree as of a few minutes ago, and
+> > the only changes I've made are adding the kgdb.h for ia64 and adding in
+> > the Altix console driver.  Any ideas?  I'll try reverting some patches
+> > and looking around a bit more.
+> 
+> Well, the first thing to try is backing out invalidate_inodes-speedup.patch
 
+That didn't seem to help.  Got the same errors.
 
-> -----Original Message-----
-> From: Greg Stark
->
-> Ideally postgres just needs to call some kind of fsync 
-> syscall that guarantees
-> it won't return until all buffers from the file that were 
-> dirty prior to the
-> sync were flushed and the disk was really synced. It's fine 
-> for buffers that
-> were dirtied later to get synced as well, as long as all the 
-> old buffers are
-> all synced.
-
-This checkpointing doesn't exist in ATA, only in SCSI I think.  You can get
-similar behavior in ATA-7 capable drives (which I don't think are on the
-market yet) by issuing FUA commands.  These will not return good status
-until the data is on the media, and they can be intermingled with other
-cached writes without destroying overall performance.
-
-If there was some way to define a file as FUA instead of normal, then you'd
-know every write to it would be on the media if the status was good.
-However, you may have committed your journal or whatever and have possibly
-significantly stale data on the drive's cache in the user data area.
-
-As far as the actual file-system call mechanism to achive this, I have no
-idea... I know very little about linux internals, I just try to answer
-disk-related questions.
-
---eric
+Jesse

@@ -1,84 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbUJZMl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbUJZMn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbUJZMl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 08:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbUJZMl3
+	id S262250AbUJZMn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 08:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUJZMn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 08:41:29 -0400
-Received: from 66-61-147-78.dialroam.rr.com ([66.61.147.78]:47375 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S262241AbUJZMlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 08:41:23 -0400
-Date: Tue, 26 Oct 2004 08:36:51 -0400
-From: jfannin1@columbus.rr.com
-To: Christophe Saout <christophe@saout.de>
-Cc: Mathieu Segaud <matt@minas-morgul.org>, linux-kernel@vger.kernel.org,
-       Alasdair G Kergon <agk@redhat.com>
-Subject: Re: 2.6.9-mm1: LVM stopped working
-Message-ID: <20041026123651.GA2987@zion.rivenstone.net>
-Mail-Followup-To: Christophe Saout <christophe@saout.de>,
-	Mathieu Segaud <matt@minas-morgul.org>, linux-kernel@vger.kernel.org,
-	Alasdair G Kergon <agk@redhat.com>
-References: <87oeitdogw.fsf@barad-dur.crans.org> <1098731002.14877.3.camel@leto.cs.pocnet.net>
+	Tue, 26 Oct 2004 08:43:58 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:5437 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262250AbUJZMny (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 08:43:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=VVK4b20qERswcOqW3PWHWtqw6ZOvfxnmARn8v2IP7XvY5XpIaEGHTVbWmfJvs/rbQE4Sopp2/aewaqb1ye1kg9vagQa5NiHfa3kbZy508x4sGsMQ+rpBoblgIPs107rfDHqt+b+cJTvn7D3JJw9UGaS1AP8ueGkDYxiR6A5+TJY=
+Message-ID: <605a56ed04102605433b9f368@mail.gmail.com>
+Date: Tue, 26 Oct 2004 14:43:54 +0200
+From: Arne Henrichsen <ahenric@gmail.com>
+Reply-To: Arne Henrichsen <ahenric@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Problems with close() system call
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0410261329410.26803@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098731002.14877.3.camel@leto.cs.pocnet.net>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <605a56ed04102504401e0f469f@mail.gmail.com>
+	 <Pine.LNX.4.53.0410261329410.26803@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 09:03:22PM +0200, Christophe Saout wrote:
-> Am Sonntag, den 24.10.2004, 01:06 +0200 schrieb Mathieu Segaud:
+On Tue, 26 Oct 2004 13:30:35 +0200 (MEST), Jan Engelhardt
+<jengelh@linux01.gwdg.de> wrote:
 > 
->>Well, I gave a try to last -mm tree. The bot seemed good till it got to
->>LVM stuff. Vgchange does not find any volume groups. I can't say much because
->>lvm is pretty "early stuff" on this box; so it is pretty unusable.
+> Best is to put a printk("i'm in ioctl()") in the ioctl() function and a
+> printk("i'm in close()") in the close() one, to be really sure whether the
+> close() function of your module is called.
+> 
 
-    LVM doesn't work with 2.6.9-mm1 here either, complaining that it
-can't find all the pv's. I'm not using any sort of encryption. Here,
-pvdisplay reports:
+Yes, that is exactly what I am doing. I basically implement the
+flush() call (for close) as the release() call was never called on
+close. So my release call does nothing. What I see is that the flush
+function gets called, even though I have never called the close()
+system call from my user app.
 
-  --- Physical volume ---
-  PV Name               /dev/hda2
-  VG Name               home
-  PV Size               24.52 GB / not usable 0   
-  Allocatable           yes (but full)
-  PE Size (KByte)       4096
-  Total PE              6277
-  Free PE               0
-  Allocated PE          6277
-  PV UUID               M8tcls-7Tp7-sAYe-ypH3-if50-00JH-hvvXSL
-   
-  --- Physical volume ---
-  PV Name               unknown device
-  VG Name               home
-  PV Size               70.47 GB / not usable 0   
-  Allocatable           yes (but full)
-  PE Size (KByte)       4096
-  Total PE              18040
-  Free PE               0
-  Allocated PE          18040
-  PV UUID               SmreB9-Q3dp-DBBc-q0N9-v762-o6UB-1VUgYw
-   
-  --- Physical volume ---
-  PV Name               unknown device
-  VG Name               home
-  PV Size               25.12 GB / not usable 0   
-  Allocatable           yes (but full)
-  PE Size (KByte)       4096
-  Total PE              6431
-  Free PE               0
-  Allocated PE          6431
-  PV UUID               sbbFSh-0MP8-jtir-Jcyx-VtcE-TxNh-tfNwNe
+I also print out the module counter, and it doesn't make sense who
+increments it:
 
-    I can open the device nodes for the 'missing' pv's in a hexeditor and see the
-uuid magic; if I reboot into 2.6.9-rc4-mm1 they are found without a
-problem, and everything works.
+open(0): f_count = 1
+ioctl(0): f_count = 2
+ioctl(0): f_count = 5
+open(1)): f_count = 1
+ioctl(1): f_count = 2
+flush(0): f_count = 7
+ioctl(1): f_count = 5
+open(2): f_count = 1
+ioctl(2): f_count = 2
+flush(1): f_count = 7
 
-    Whether or not I'll have time to try to narrow down the change
-that causes this depends on things that are out of my control ATM. :-/
+My user app looks something like this:
+int fd[8];
 
--- 
-Joseph Fannin
-jfannin1@columbus.rr.com
+for(i = 0; i < nr_dev; i)
+  {
+    sprintf(dev, "/dev/mydev_%c", '0' + i);
+    fd[i] = open(dev, O_RDWR | O_SYNC);
+    if(fd[i] < 0)
+    {
+      printf("Error opening device: %s - %s\n", dev, strerror(errno));
+      goto test_error;
+    }
+
+    status = ioctl(fd[i], CMD1);
+    if(status != 0)
+    {
+      printf("%s - %s\n", dev, strerror(errno));
+    }
+
+    status = ioctl(fd[i], CMD2);
+    if(status != 0)
+    {
+      printf("%s - %s\n", dev, strerror(errno));
+    }
+  } /* for(port_id = 0; port_id < nr_ports; port_id++) */
+  
+Arne

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSHRUbK>; Sun, 18 Aug 2002 16:31:10 -0400
+	id <S316135AbSHRU6x>; Sun, 18 Aug 2002 16:58:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316106AbSHRUbJ>; Sun, 18 Aug 2002 16:31:09 -0400
-Received: from dsl-213-023-039-196.arcor-ip.net ([213.23.39.196]:51162 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316088AbSHRUbJ>;
-	Sun, 18 Aug 2002 16:31:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Subject: Re: Generic list push/pop
-Date: Sun, 18 Aug 2002 22:34:12 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <Pine.LNX.4.44.0208181326160.2499-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0208181326160.2499-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S316161AbSHRU6w>; Sun, 18 Aug 2002 16:58:52 -0400
+Received: from twister.ispgateway.de ([62.67.200.3]:2059 "HELO
+	twister.ispgateway.de") by vger.kernel.org with SMTP
+	id <S316135AbSHRU6w>; Sun, 18 Aug 2002 16:58:52 -0400
+Date: Sun, 18 Aug 2002 23:03:02 +0200
+From: Steffen Moser <lists@steffen-moser.de>
+To: Robert Love <rml@tech9.net>
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E17gWkW-00032w-00@starship>
+Subject: Re: Complete system freeze with "linux-2.4.19-ac4"
+Message-ID: <20020818210302.GA3699@steffen-moser.de>
+Mail-Followup-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+References: <20020818160126.GA1696@steffen-moser.de> <1029688481.1837.14.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1029688481.1837.14.camel@phantasy>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 August 2002 21:28, you wrote:
-> Hi,
-> 
-> On Sun, 18 Aug 2002, Daniel Phillips wrote:
-> > #define push_list(_LIST_, _NODE_) \
-> > 	_NODE_->next = _LIST_; \
-> > 	_LIST_ =_NODE_;
-> > 
-> > #define pop_list(_LIST_) ({ \
-> > 	typeof(_LIST_) _NODE_ = _LIST_; \
-> > 	_LIST_ = _LIST_->next; \
-> > 	_NODE_; })
-> 
-> How do we protect against:
-> 
-> push_list(getFuckingList(), node);
-> node_t node = pop_list(getFuckingList());
-> 
-> ? Couldn't this break the _LIST_ = _LIST_->next; ?
+Hi Robert,
 
-Yes, there are various sloppy things there, including missing parens
-around args and missing wrapper around the statement.  It should also
-be written to evaluate each arg exactly once.  With all that done it
-will be even uglier but at least it will work reliably.
+thank you very much for your fast reply!
 
--- 
-Daniel
+* On Sun, Aug 18, 2002 at 12:34 PM (-0400), Robert Love wrote:
 
+> On Sun, 2002-08-18 at 12:01, Steffen Moser wrote:
+> 
+> > enclosed you'll find a bug report. I would be very interested 
+> > whether someone is able to reproduce the crash.
+> 
+> Alan might be able to say better (e.g. this is a known problem) but I
+> would suggest trying to reproduce this on the latest 2.4-ac, which at
+> the moment is 2.4.20-pre2-ac3... much IDE work is ongoing.
+
+I've just tested "linux-2.4.20-pre2-ac3" on one of the two machines
+("gateway") - I've had the same results. 
+
+Regards,
+Steffen

@@ -1,102 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTGHOZj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 10:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTGHOZj
+	id S267378AbTGHOcG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 10:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267380AbTGHOcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 10:25:39 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4480 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261823AbTGHOZh
+	Tue, 8 Jul 2003 10:32:06 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:38412 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S267378AbTGHObv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 10:25:37 -0400
-Date: Tue, 8 Jul 2003 10:40:15 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: syscall __NR_mmap2
-In-Reply-To: <20030708140546.GA15612@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.53.0307081033190.267@chaos>
-References: <Pine.LNX.4.53.0307071655470.22074@chaos>
- <20030708003656.GC12127@mail.jlokier.co.uk> <Pine.LNX.4.53.0307080749160.24488@chaos>
- <20030708140546.GA15612@mail.jlokier.co.uk>
+	Tue, 8 Jul 2003 10:31:51 -0400
+To: Sancho Dauskardt <sda@bdit.de>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: FAT statfs loop abort on read-error
+References: <20030706102410.2becd137.rddunlap@osdl.org>
+	<5.0.2.1.2.20030704123653.03140b70@pop.puretec.de>
+	<20030706102410.2becd137.rddunlap@osdl.org>
+	<5.0.2.1.2.20030708142409.03e19c60@pop.kundenserver.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 08 Jul 2003 23:46:11 +0900
+In-Reply-To: <5.0.2.1.2.20030708142409.03e19c60@pop.kundenserver.de>
+Message-ID: <87wuetnkjw.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003, Jamie Lokier wrote:
+Sancho Dauskardt <sda@bdit.de> writes:
 
-> Richard B. Johnson wrote:
-> > > The offset argument to mmap2 is divided by PAGE_SIZE.
-> > > That is the whole point of mmap2 :)
-> >
-> > Okay. Do you know where that's documented? Nothing in linux/Documentation,
-> > and nothing in any headers. Do you have to read the code to find out?
-> >
-> > So, the address is now the offset in PAGES, not bytes. Seems logical,
-> > but there is no clue in any documentation.
->
-> I found this great command which really helps.  Only 1337 kernel
-> gnurus know about it, now u can be 1 2 :)
->
-> $ man mmap2
-> [...]
->        The  function mmap2 operates in exactly the same way as mmap(2), except
->        that the final argument specifies the offset into the file in units  of
->        the  system  page  size  (instead of bytes).
->
-> -- Jamie
->
+> >I don't know anybody ported dmsdos to 2.4. The cvf stuff was removed
+> >and many error handlings was fixed on 2.5.x. So, personally I think to
+> >remove the cvf stuff and backport the some parts of fat driver to 2.4
+> >is good.
+> 
+> OK, the 100k diff between 2.4.21/fs/fat and 2.5.74 didn't really help
+> me understand what's really changed (other than the cvf removal).
+> Should I attempt to brute-force backport fs/fat/* in one large patch,
+> or incrementally re-apply the 2.5 changes to 2.4 ?
 
-Yeah? So the Linux kernel now requires a specific vendor distribution?
-Since when?
+I submited the some patch to marcelo several times about one year ago,
+however, unfortunately those patches was ignored.
 
-So, to get the proper documentation of the Linux Kernel, I now
-need to purchase a vendor's distribution??? I think not. I think
-the sys-calls need to be documented and I think that I have established
-proof of that supposition.
+So, one large patch may not be applied. And incremental ways is more
+safety, I think. (Probably, we need to address the difference of vfs
+and umsdos)
 
-Script started on Tue Jul  8 10:35:05 2003
-# man mmap2
-No manual entry for mmap2
-# mmap
-# man map
+> Or, as you write 'some parts', which parts would that be ?
 
-MMAP(2)             Linux Programmer's Manual             MMAP(2)
+I thought that the patches of only bug fix is probably easy to be
+applied.
 
-NAME
-       mmap, munmap - map or unmap files or devices into memory
-
-SYNOPSIS
-       #include <sys/types.h>
-       #include <sys/mman.h>
-
-       caddr_t  mmap(caddr_t  addr,  size_t  len,  int prot , int
-       flags, int fd, off_t offset );
-       int munmap(caddr_t addr, size_t len);
-
-DESCRIPTION
-       WARNING: This is a BSD man page.  Linux 0.99.11 can't  map
-       files, and can't do other things documented here.
-
-       The  mmap  function  causes the pages starting at addr and
-       continuing for at most len bytes to  be  mapped  from  the
-       object  described  by  fd, starting at byte offset offset.
-       If offset or len is not a multiple of  the  pagesize,  the
-       mapped region may extend past the specified range.
-
-line 1
-#
-#
-# exit
-exit
-
-Script done on Tue Jul  8 10:35:29 2003
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

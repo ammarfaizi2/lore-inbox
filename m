@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVCFTle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVCFUBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVCFTle (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 14:41:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVCFTle
+	id S261484AbVCFUBw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 15:01:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVCFUBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 14:41:34 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54444 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261482AbVCFTl1 (ORCPT
+	Sun, 6 Mar 2005 15:01:52 -0500
+Received: from fire.osdl.org ([65.172.181.4]:22455 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261484AbVCFUBt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 14:41:27 -0500
-Date: Sun, 6 Mar 2005 20:41:00 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andi Kleen <ak@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
-       paul.devriendt@amd.com, Nigel Cunningham <ncunningham@cyclades.com>
-Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
-Message-ID: <20050306194100.GA1528@elf.ucw.cz>
-References: <200502252237.04110.rjw@sisk.pl> <200503050026.06378.rjw@sisk.pl> <20050304234149.GD2647@elf.ucw.cz> <200503061830.00574.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503061830.00574.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 6 Mar 2005 15:01:49 -0500
+Date: Sun, 6 Mar 2005 12:03:22 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Daniel Jacobowitz <dan@debian.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Cagney <cagney@redhat.com>, Roland McGrath <roland@redhat.com>
+Subject: Re: More trouble with i386 EFLAGS and ptrace
+In-Reply-To: <20050306193840.GA26114@nevyn.them.org>
+Message-ID: <Pine.LNX.4.58.0503061155280.2304@ppc970.osdl.org>
+References: <20050306193840.GA26114@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-> > > Yes.  I thought about using PG_nosave in the begining, but there's a
-> > > 
-> > > BUG_ON(PageReserved(page) && PageNosave(page));
-> > > 
-> > > in swsusp.c:saveable() that I just didn't want to trigger.  It seems to me,
-> > > though, that we don't need it any more, do we?
-> > 
-> > No, we can just kill it. It was "if something unexpected happens, bail
-> > out soon".
+
+On Sun, 6 Mar 2005, Daniel Jacobowitz wrote:
 > 
-> OK
-> 
-> The following is what I'm comfortable with.  I didn't took the Nigel's patch
-> literally, because we do one thing differently (ie nosave pfns) and it contained
-> some changes that I thought were unnecessary.  The i386 part is
-> untested.
+> The reason this happens is that when the inferior hits a breakpoint, the
+> first thing GDB will do is remove the breakpoint, single-step past it, and
+> reinsert it.  So GDB does a PTRACE_SINGLESTEP, and the kernel invokes the
+> signal handler (without single-step - good so far).
 
-I'd add
+No, not good so far.
 
->  	page = pfn_to_page(pfn);
-> -	BUG_ON(PageReserved(page) && PageNosave(page));
+Yes, it cleared TF, but it saved eflags with TF set on-stack, even though 
+the TF was due to a TIF_SINGLESTEP (and was thus "temporary", not a real 
+flag). That's why you see the bogus SIGTRAP after returning from the 
+signal handler.
 
-a comment here explaining what PageReserved && PageNosave means. 
+Now, we actually get this _right_ if the signal is due to a single-step, 
+because do_debug() will do:
 
->  	if (PageNosave(page))
->  		return 0;
-> +
->  	if (PageReserved(page) && pfn_is_nosave(pfn)) {
->  		pr_debug("[nosave pfn 0x%lx]", pfn);
->  		return 0;
+                if (likely(tsk->ptrace & PT_DTRACE)) {
+                        tsk->ptrace &= ~PT_DTRACE;
+                        regs->eflags &= ~TF_MASK;
+                }
 
-AFAICT it only fixes "potential" bug, so it can probably wait. Once
-non-contiguous and initramfs patches are in, this can go...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+but that's the only place we do that. So any _other_ signal won't do this, 
+and we'll enter the signal handler without checking the PT_DTRACE flag to 
+see if TF was a temporary thing from debugger rather than something the 
+program actually did on its own.
+
+I _think_ your test-case would work right if you just moved that code from
+the special-case in do_debug(), and moved it to the top of
+setup_sigcontext() instead. I've not tested it, though, and haven't really 
+given it any "deep thought". Maybe somebody smarter can say "yeah, that's 
+obviously the right thing to do" or "no, that won't work because.."
+
+		Linus

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313217AbSEERcG>; Sun, 5 May 2002 13:32:06 -0400
+	id <S313238AbSEERsr>; Sun, 5 May 2002 13:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313238AbSEERcF>; Sun, 5 May 2002 13:32:05 -0400
-Received: from pD950B1E6.dip0.t-ipconnect.de ([217.80.177.230]:22364 "EHLO
-	mordor.svara") by vger.kernel.org with ESMTP id <S313217AbSEERcE>;
-	Sun, 5 May 2002 13:32:04 -0400
-Date: Sun, 5 May 2002 21:34:20 +0200
-From: Fabian Svara <svara@gmx.net>
-To: Christian Borntr <linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at page_alloc.c:82
-Message-Id: <20020505213420.30257ffd.svara@gmx.net>
-In-Reply-To: <200205051853.38557.linux-kernel@borntraeger.net>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S313242AbSEERsq>; Sun, 5 May 2002 13:48:46 -0400
+Received: from gear.torque.net ([204.138.244.1]:31498 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S313238AbSEERsp>;
+	Sun, 5 May 2002 13:48:45 -0400
+Message-ID: <3CD56FA0.FBCBD69B@torque.net>
+Date: Sun, 05 May 2002 13:45:04 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jurgen Botz <jurgen@botz.org>, linux-kernel@vger.kernel.org
+Subject: Re: Reproducible SMP kernel deadlock in SCSI generic driver (sg)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 May 2002 18:53:38 +0200
-Christian Borntr  <linux-kernel@borntraeger.net> wrote:
+Jurgen Botz <jurgen@botz.org>
+> The sg module reproducibly deadlocks the kernel for me after some time
+> of heavy I/O on an SMP system.  This appears to be true in /all/ kernel
+> versions... I can reproduce it very reliably now in 2.4.19-pre8 and
+> 2.5.13, and I've had problems with CD ripping on my SMP workstation at
+> least throughout the 2.4 series (I just never fully investigated before).
+> The bug is almost certainly in sg.c; here is what I've narrowed down...
 
-> Fabian Svara wrote:
-> > EIP:	0010:[<c0125183>]    Tainted: P
-> 
-> You have the Binary-NVIDIA Driver loaded, haven't you?
-> If yes, please report this bug to Nvidia, since nobody here can help
-> you because the main part of the driver is closed source and nobody
-> knows, what the driver is doing with the memory.
-> 
-> Christian
+Jurgen,
+Which version of cdparanoia (or whatever) are you using?
+You mention deadlock, is the machine completely locked
+up or is sg and the device inoperable? Since sg doesn't
+take any "big" locks (e.g. io_request_lock) then it
+shouldn't be able to lock up your machine without help
+(from other drivers).
 
-Yes, indeed. I will send the report to nvidia. I thought it wasn't
-nvidia-realted as there was no mention of it in the ksymoops-resolved
-report... But in fact, all problems involving there kernel I've had here
-were somehow related to those drivers.
+Assuming you can still execute commands on your box after the
+"deadlock", I'm interested in WCHAN from ps. Here are some
+ps variants:
+  ps -eo cmd,wchan
+  ps -eo fname,tty,pid,stat,pcpu,wchan
+  ps -eo pid,stat,pcpu,nwchan,wchan=WIDE-WCHAN-COLUMN -o args
+The line for cdparanoia would be useful.
 
--Fabian Svara
+BTW ps needs to find the correct System.map for
+the WCHAN output to be relevant.
+
+Doug Gilbert

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311582AbSCNKzG>; Thu, 14 Mar 2002 05:55:06 -0500
+	id <S311583AbSCNLHA>; Thu, 14 Mar 2002 06:07:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311583AbSCNKy5>; Thu, 14 Mar 2002 05:54:57 -0500
-Received: from f235.law14.hotmail.com ([64.4.21.235]:23302 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S311582AbSCNKyp>;
-	Thu, 14 Mar 2002 05:54:45 -0500
-X-Originating-IP: [203.115.6.248]
-From: "Ishan Jayawardena" <ioshadij@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: MCE hang in 2.2.21pre4 
-Date: Thu, 14 Mar 2002 10:54:38 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F23516sLtVHUR5BUlRD0001ba87@hotmail.com>
-X-OriginalArrivalTime: 14 Mar 2002 10:54:39.0208 (UTC) FILETIME=[A35DFE80:01C1CB46]
+	id <S311584AbSCNLGu>; Thu, 14 Mar 2002 06:06:50 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:51984 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S311583AbSCNLGk>; Thu, 14 Mar 2002 06:06:40 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        rth@twiddle.net
+Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas 
+In-Reply-To: Your message of "14 Mar 2002 09:39:57 BST."
+             <p73bsdrsftu.fsf@oldwotan.suse.de> 
+Date: Thu, 14 Mar 2002 22:09:52 +1100
+Message-Id: <E16lT7I-0003uC-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Something in this part broke my Mobile Pentium II (Deschutes).
->2.2.21pre3 boots fine, but 2.2.21pre4 hangs immediately after the "Intel 
->machine check architecture supported." line. gcc is 2.95.3. 2.4 and 2.5 
->kernels compiled with 2.95.3 also boot ok.
+In message <p73bsdrsftu.fsf@oldwotan.suse.de> you write:
+> Rusty Russell <rusty@rustcorp.com.au> writes:
+> 
+> > In message <15504.7958.677592.908691@napali.hpl.hp.com> you write:
+> > > OK, I see this.  Unfortunately, HIDE_RELOC() causes me problems
+> > > because it prevents me from taking the address of a per-CPU variable.
+> > > This is useful when you have a per-CPU structure (e.g., cpu_info).
+> > > Perhaps there should/could be a version of HIDE_RELOC() that doesn't
+> > > dereference the resulting address?
+> > 
+> > Yep, valid point.  Patch below: please play.
+> 
+> Please don't do that. I cannot easily take the address of a per CPU 
+> variable on x86-64, or rather only with additional overhead. If you need the
+> address of one please use a different macro for that.
 
-This happens to me on a celeron Mendocino (333 MHz) with _2.4.19-pre3_. GCC 
-is 2.96-98 (From RH 7.2). Appending "nomce" as a boot option works around 
-this, of course. The "flags" section of /proc/cpuinfo does have the "mce" 
-field.
+Sorry, I think one macro to get the address, one to get the contents
+is a *horrible* interface.  per_cpu() and per_cpu_ptr() or something?
+I think you'll find that per_cpu_ptr would be fairly common, so we're
+forced into a bad interface for little gain.  You might be better off
+using another method to implement per-cpu areas.
 
-Please CC me, as I'm not on the list any more; My ISP seems to be filtering 
-out everything (even majordomo) from vger.kernel.org after the attack of 
-W32.myparty :(
+To be honest, it was merely my oversight that the statement expression
+didn't allow the address to be taken in the first place, not a
+feature.
 
-
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
-
+Sorry,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

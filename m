@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261808AbTCGWHq>; Fri, 7 Mar 2003 17:07:46 -0500
+	id <S261819AbTCGWJN>; Fri, 7 Mar 2003 17:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261811AbTCGWHq>; Fri, 7 Mar 2003 17:07:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22792 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261808AbTCGWHp>; Fri, 7 Mar 2003 17:07:45 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC] one line fix in arch/i386/Kconfig
-Date: 7 Mar 2003 14:18:12 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b4b5r4$cii$1@cesium.transmeta.com>
-References: <20030307220337.5841.qmail@linuxmail.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id <S261813AbTCGWJJ>; Fri, 7 Mar 2003 17:09:09 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:51215
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261815AbTCGWI3>; Fri, 7 Mar 2003 17:08:29 -0500
+Subject: [patch] no need for kernel_flag on UP
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047075530.12130.8.camel@phantasy.awol.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 07 Mar 2003 17:18:50 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030307220337.5841.qmail@linuxmail.org>
-By author:    "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-In newsgroup: linux.dev.kernel
->
-> Hi all,
-> this is the first time I post a patch to the list,
-> therefore I'm really not sure if it is correct,
-> even if it is just a 'one line patch'
-> 
-> If I say that my cpu is not a PentiumIV why
-> he bothers me about "check for P4 thermal throttling interrupt." ?
-> 
+Linus,
 
-Because you might be compiling a kernel for a more baseline CPU, say a
-486, but still check for thermal throttle if it's present.
+Attached patch is a minor cleanup (and memory reduction for gcc < 3). 
+We currently define and declare the BKL's kernel_flag spinlock on either
+SMP or PREEMPT, which means a UP+PREEMPT machine gets it.
 
-> This patch show that option only if you select that kind of CPU.
-> 
-> Is it correct ? Does it makes sense ?
+We only need the actual lock on SMP.
 
-No.
+Patch is against current BK, please apply.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+	Robert Love
+
+
+ kernel/sched.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -urN linux-2.5.64-bk/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.64-bk/kernel/sched.c	2003-03-07 17:01:34.727552472 -0500
++++ linux/kernel/sched.c	2003-03-07 17:14:54.684940464 -0500
+@@ -2405,7 +2405,7 @@
+ 
+ #endif
+ 
+-#if CONFIG_SMP || CONFIG_PREEMPT
++#if CONFIG_SMP
+ /*
+  * The 'big kernel lock'
+  *
+
+
+

@@ -1,95 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264981AbUBEBkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 20:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUBEBkW
+	id S264459AbUBEBvV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 20:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUBEBvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 20:40:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22953 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264981AbUBEBkN (ORCPT
+	Wed, 4 Feb 2004 20:51:21 -0500
+Received: from www.trustcorps.com ([213.165.226.2]:27154 "EHLO raq1.nitrex.net")
+	by vger.kernel.org with ESMTP id S264459AbUBEBvR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 20:40:13 -0500
-Subject: [PATCH 2.6.2-rc3-mm1] DIO read race fix
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Janet Morgan <janetmor@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-In-Reply-To: <20040109035510.GA3279@in.ibm.com>
-References: <3FCD4B66.8090905@us.ibm.com>
-	 <1070674185.1929.9.camel@ibm-c.pdx.osdl.net>
-	 <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
-	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
-	 <20031230045334.GA3484@in.ibm.com>
-	 <1072830557.712.49.camel@ibm-c.pdx.osdl.net>
-	 <20031231060956.GB3285@in.ibm.com>
-	 <1073606144.1831.9.camel@ibm-c.pdx.osdl.net>
-	 <20040109035510.GA3279@in.ibm.com>
-Content-Type: multipart/mixed; boundary="=-NEHzzdBIvhWJ8IUPPqjo"
-Organization: 
-Message-Id: <1075945198.7182.46.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Feb 2004 17:39:58 -0800
+	Wed, 4 Feb 2004 20:51:17 -0500
+Message-ID: <4021A0FB.7060505@hcunix.net>
+Date: Thu, 05 Feb 2004 01:48:43 +0000
+From: the grugq <grugq@hcunix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Valdis.Kletnieks@vt.edu, "Theodore Ts'o" <tytso@mit.edu>,
+       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
+References: Your message of "Wed, 04 Feb 2004 12:05:07 EST."             <40212643.4000104@tmr.com> <200402041714.i14HEIVD005246@turing-police.cc.vt.edu> <402184AA.2010302@tmr.com>
+In-Reply-To: <402184AA.2010302@tmr.com>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-NEHzzdBIvhWJ8IUPPqjo
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> 
+> But what happens when the 'setgid' bit is put on a directory? At least 
+> in 2.4 existing files do NOT get the group set, only files newly 
+> created. So unless someone feels that's a bug which needs immediate 
+> fixing, I can point to it as a model by which the feature could be 
+> practically implemented.
 
-I have found (finally) the problem causing DIO reads racing with
-buffered writes to see uninitialized data on ext3 file systems 
-(which is what I have been testing on).
+Implementing the privacy patch based on the suggestions put forward 
+(chattr +s && mount options), i've hit something of a snag.
 
-The problem is caused by the changes to __block_write_page_full()
-and a race with journaling:
-
-journal_commit_transaction() -> ll_rw_block() -> submit_bh()
-	
-ll_rw_block() locks the buffer, clears buffer dirty and calls
-submit_bh()
-
-A racing __block_write_full_page() (from ext3_ordered_writepage())
-
-	would see that buffer_dirty() is not set because the i/o
-        is still in flight, so it would not do a bh_submit()
-
-	It would SetPageWriteback() and unlock_page() and then
-	see that no i/o was submitted and call end_page_writeback()
-	(with the i/o still in flight).
-
-This would allow the DIO code to issue the DIO read while buffer writes
-are still in flight.  The i/o can be reordered by i/o scheduling and
-the DIO can complete BEFORE the writebacks complete.  Thus the DIO
-sees the old uninitialized data.
-
-Here is a quick hack that fixes it, but I am not sure if this the
-proper long term fix.
-
-Thoughts?
-
-Daniel
+If a directory has "chattr +s" then whenever a directory entry is 
+deleted, should the dirent contents be overwritten, or should only freed 
+blocks be overwritten? It makes sense to me that the directory entry 
+should be overwritten because it is inaccessible meta-data and exposes 
+information about the file system. Since the user obviously wants the 
+directory to be securely deleted, that could be construed as implying 
+they want sensitive directory content securely deleted as well.
 
 
 
---=-NEHzzdBIvhWJ8IUPPqjo
-Content-Disposition: attachment; filename=2.6.2-rc3-mm1.DIO-read_race.patch
-Content-Type: text/plain; name=2.6.2-rc3-mm1.DIO-read_race.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.2-rc3-mm1/fs/buffer.c	2004-02-04 17:12:43.823525259 -0800
-+++ linux-2.6.2-rc3-mm1.patch/fs/buffer.c	2004-02-04 17:16:43.033252068 -0800
-@@ -1810,6 +1810,7 @@ static int __block_write_full_page(struc
- 
- 	do {
- 		get_bh(bh);
-+		wait_on_buffer(bh);
- 		if (buffer_mapped(bh) && buffer_dirty(bh)) {
- 			if (wbc->sync_mode != WB_SYNC_NONE) {
- 				lock_buffer(bh);
-
---=-NEHzzdBIvhWJ8IUPPqjo--
-
+--gq

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbTDGT7e (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 15:59:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbTDGT7d (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 15:59:33 -0400
-Received: from main.gmane.org ([80.91.224.249]:39653 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263624AbTDGT7b (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 15:59:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	id S263612AbTDGTyI (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 15:54:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTDGTyI (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 15:54:08 -0400
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:15029 "EHLO
+	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S263612AbTDGTyH (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 15:54:07 -0400
+Date: Mon, 7 Apr 2003 16:05:33 -0400
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
 To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <dragon@gentoo.org>
-Subject: Re: Interactivity backport to 2.4.20-ck*
-Date: Mon, 07 Apr 2003 16:03:42 -0400
-Message-ID: <3E91D99E.3090807@gentoo.org>
-References: <200304072353.47664.kernel@kolivas.org> <200304080015.11111.kernel@kolivas.org> <20030407193007.GA23077@cy599856-a> <200304072138.44957.m.c.p@wolk-project.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] new syscall: flink
+Message-ID: <20030407200533.GA23680@ti19>
+References: <20030407102005.4c13ed7f.manushkinvv@desnol.ru> <200304070709.h37792815083@mozart.cs.berkeley.edu> <20030407113534.1de8dc91.agri@desnol.ru> <b6s3k4$i0i$1@cesium.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b6s3k4$i0i$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen wrote:
-> On Monday 07 April 2003 21:30, Josh McKinney wrote:
-> 
-> Hi Josh,
-> 
-> 
->>>Yeah sure here:
->>>http://kernel.kolivas.org/scheda3_ck4
->>
->                                       ^^^^
-> 
->>Is this patch supposed to be against ck3?
-> 
-> 
-> see? ;)
+On Mon, Apr 07, 2003 at 07:57:08AM -0700, H. Peter Anvin wrote:
+> Personally I would prefer if open() on
+> /proc/*/fd would actually operate as if a dup() on the relevant file
+> descriptor, which would be a significant change of semantics; however,
+> one could argue those are the saner semantics.
 
-Actually, the Makefile hunk in the patch would have one 
-believe that it is against -ck3...
+We discussed this previously; I described the problems with
+existing semantics, and on 2000/020/29 you wrote:
 
-Cheers,
-Nicholas
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&threadm=fa.iqoa6kv.flii0q%40ifi.uio.no&rnum=1&prev=/groups%3Fhl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3DUTF-8%26q%3Dhpa%2Brugolsky%26btnG%3DGoogle%2BSearch
 
+  "I'm hoping to fix this in 2.5.  The problem is that the way open() is
+  done in the VFS *requires* the creation of a new filestructure."
+
+I'm still open to suggestions. ;-)
+
+Regards,
+
+   Bill Rugolsky
 

@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268182AbUIWRjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268135AbUIWRly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268182AbUIWRjt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUIWRiP
+	id S268135AbUIWRly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 13:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268223AbUIWRkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:38:15 -0400
-Received: from hostmaster.org ([212.186.110.32]:41860 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S268135AbUIWRhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:37:13 -0400
-Subject: Re: 2.6.8.1 doesn't boot on x86_64
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-In-Reply-To: <Pine.LNX.4.44.0409231814500.2275-100000@einstein.homenet>
-References: <Pine.LNX.4.44.0409231814500.2275-100000@einstein.homenet>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-o2CbcayxqcGTCUUsvAgY"
-Date: Thu, 23 Sep 2004 19:37:11 +0200
-Message-Id: <1095961031.3159.18.camel@hostmaster.org>
+	Thu, 23 Sep 2004 13:40:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29892 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268135AbUIWRj2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 13:39:28 -0400
+Date: Thu, 23 Sep 2004 18:39:27 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Albert Cahalan <albert@users.sf.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       rth@twiddle.net
+Subject: Re: __attribute__((always_inline)) fiasco
+Message-ID: <20040923173927.GO23987@parcelfarce.linux.theplanet.co.uk>
+References: <1095956778.4966.940.camel@cube> <20040923165026.GF9106@holomorphy.com> <20040923172104.GN23987@parcelfarce.linux.theplanet.co.uk> <20040923173315.GG9106@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 (2.0.0-2) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040923173315.GG9106@holomorphy.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 23, 2004 at 10:33:15AM -0700, William Lee Irwin III wrote:
+> On Thu, Sep 23, 2004 at 09:50:26AM -0700, William Lee Irwin III wrote:
+> >> The // apart from being a C++ ism (screw C99; it's still non-idiomatic)
+> >> will cause spurious ignorance of the remainder of the line, which is
+> 
+> On Thu, Sep 23, 2004 at 06:21:04PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > Usual Albert's taste level aside, you are wrong.  Comments are replaced
+> > with whitespace on phase 3 (tokenizer) and preprocessor lives on phase 4.
+> > IOW, that // will never be seen by preprocessor.
+> 
+> I'll be sure to put this on file with the rest of the numerous "while
+> legal in C, never *EVER* do this" oddities.
 
---=-o2CbcayxqcGTCUUsvAgY
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Successfully running 2.6.8.1 on Tyan Thunder K8W/dual Opteron here.
-
-Tom
-
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
-
-Experience is what you get when you expected something else.
-
-
-
-
---=-o2CbcayxqcGTCUUsvAgY
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iQEVAwUAQVMJx2D1OYqW/8uJAQJgigf6AtAY5RSQrRwqktl8kBQ8EXXRWKvjKfGL
-c2vLypv26Nm+S3vTm7cAhHWytEdKoJc7pYZ7OuYcMseZhT5cXmpAHv/cN9HzgfVZ
-CElbVzzomENrsS1rY7t+iQVG02ktu4UMIAbax0DDYomSr9iFlJwZoSXiQyiT6YmA
-Hwlzvv/Mx1znXbzlI9E0Lt80tDXOnkmv3u98OQ4cqspGHsp5KuLgz2UyPFN8rLTf
-IDmE34IMGN8b4VAOf4SeSxnVCG2iKpBGGAmegJTwNg0Cb3WPKRmerI4mCkfcLjz0
-EcctV5SP2+wkskD7wDetmcB2yEeSIm36c8uJJJEfuS6MJXUIcrT8Lg==
-=+JU2
------END PGP SIGNATURE-----
-
---=-o2CbcayxqcGTCUUsvAgY--
-
+Huh?  Comments (all sorts of comments) are dealt with before you get to
+preprocessing.  Which *is* the right behaviour - anything else would be
+much, much messier.  What's the problem with that?

@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265210AbRF0QzT>; Wed, 27 Jun 2001 12:55:19 -0400
+	id <S265054AbRF0Qyj>; Wed, 27 Jun 2001 12:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265237AbRF0Qy7>; Wed, 27 Jun 2001 12:54:59 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38660 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265210AbRF0Qyv>; Wed, 27 Jun 2001 12:54:51 -0400
-Subject: Re: 2.2.x series and mm
-To: adam@eax.com (Adam)
-Date: Wed, 27 Jun 2001 17:52:01 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106271134440.16671-100000@eax.student.umd.edu> from "Adam" at Jun 27, 2001 11:39:27 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265317AbRF0Qya>; Wed, 27 Jun 2001 12:54:30 -0400
+Received: from mail.aslab.com ([205.219.89.194]:33650 "EHLO mail.aslab.com")
+	by vger.kernel.org with ESMTP id <S265054AbRF0QyS>;
+	Wed, 27 Jun 2001 12:54:18 -0400
+Date: Wed, 27 Jun 2001 09:54:06 -0700 (PDT)
+From: Andre Hedrick <andre@aslab.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Gunther Mayer <Gunther.Mayer@t-online.de>, linux-kernel@vger.kernel.org,
+        dhinds@zen.stanford.edu
+Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
+In-Reply-To: <E15FDSD-00052S-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.04.10106270927070.21460-100000@mail.aslab.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15FIXp-0005UE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > b)	Make the processes smaller (eg switch to thttpd from www.acme.com)
-> > c)	Speed up the I/O throughput relative to CPU speed
-> > 	- eg the 2.2 IDE UDMA patches
-> 
-> can you elaborate on the "c" point" perhaps I could try it together with
-> 2.2.20pre6 until I can do a).
-> 
-> about b) would it really help? AFACT the issue here is the buffers in
-> memory gets filled and cause other stuff to get swapped out., and that
-> would happen no matter what kind of web server I use..
 
-It depends if it takes the working set down (you dont care about the total
-amount of data but the amount regularly being used) - thttpd uses a _lot_
-less memory for the webserver itself so can help
+Alan,
 
-As to c) - 2.4.x and with patches 2.2.x will do UDMA66/UDMA100 I/O on modern
-disks and that takes the CPU usage down (so you do more work while the
-disk is copying stuff) and might well be getting data on/off disk ten times
-as fast
+It is an issue that we have been trying to get fixed, and only after
+obsoleting ATA-2 did their attention at CFA become alarmed.  I agree that
+there needs to be a fix, but not at the price of locking the rest of the
+driver.  Since we now the identity of the device prior to assigned the
+interrupt we can handle the execption, but you do not go around blanket
+wacking the control register of all devices.
+
+You know yourself first and all the screwed up ATAPI products that are
+still using SFF-8020 that has been obsoleted before I start maintaining
+the subsystem three plus years ago. 
+
+The only way to get hardware fixed is to point out is broken and force the
+issue.
+
+I have one of these broken device with me, but I quit using it because of
+that hardware flaw, mostly because I did not have the time to deal with
+CFA and there lameness to follow the rules even when huge amounts of time
+have passed between the notification and execution of obsolesense (sp).
+
+Since David claims it is a known error we need to take the dirty list in
+ide.c dealing with CFA's that are detected by name strings or correctly
+putting in the CFA signature in word0 of identify.
+
+I have no problem in fixing it, just blanket chopper gunning is not always
+safe.
+
+Cheers,
+
+Andre Hedrick
+ASL Kernel Development
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+
+On Wed, 27 Jun 2001, Alan Cox wrote:
+
+> > I can not help if you have a device that not compliant to the rules.
+> > ATA-2 is OBSOLETED thus we forced (the NCITS Standards Body) the CFA
+> 
+> ATA-2 may be obsolete but existing ATA-2 hardware doesnt spontaenously
+> combust when the spec changes (much Im sure to some vendors dissappointmnent)
+> 
 

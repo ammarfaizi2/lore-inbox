@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271112AbRHXLQz>; Fri, 24 Aug 2001 07:16:55 -0400
+	id <S271142AbRHXLmo>; Fri, 24 Aug 2001 07:42:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271153AbRHXLQp>; Fri, 24 Aug 2001 07:16:45 -0400
-Received: from smtp8.xs4all.nl ([194.109.127.134]:61639 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S271112AbRHXLQa>;
-	Fri, 24 Aug 2001 07:16:30 -0400
+	id <S271212AbRHXLme>; Fri, 24 Aug 2001 07:42:34 -0400
+Received: from mx3.port.ru ([194.67.57.13]:30214 "EHLO mx3.port.ru")
+	by vger.kernel.org with ESMTP id <S271142AbRHXLm2>;
+	Fri, 24 Aug 2001 07:42:28 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: chrisp@newmail.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sound crashes in 2.4
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.27.193]
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
 Content-Type: text/plain; charset=US-ASCII
-From: Erick Staal <elstaal@xs4all.nl>
-Reply-To: elstaal@xs4all.nl
-To: Marko van Dooren <Marko.vanDooren@student.kuleuven.ac.be>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Using Philips CDD3610 cd-writer crashes my system with every 2.4 kernel
-Date: Fri, 24 Aug 2001 13:21:33 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <200108241045.f7OAjZ220280@urc1.cc.kuleuven.ac.be>
-In-Reply-To: <200108241045.f7OAjZ220280@urc1.cc.kuleuven.ac.be>
-MIME-Version: 1.0
-Message-Id: <01082413213300.00959@andromeda>
 Content-Transfer-Encoding: 7BIT
+Message-Id: <E15aFMJ-0007GS-00@f8.mail.ru>
+Date: Fri, 24 Aug 2001 15:42:43 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Both 2.4.8 and 2.4.9 have this problem (these are the ones I tried).
+> Btw on 2.2.x i get DMA (output) timeout errors (and broken sound).
 
-Basically I've encountered the same problem, but it went away after 2.4.6.
+  just to clarify: does 2.4.7 hangs?
+  (for me it doesnt, but everything >= 2.4.8 does)
 
-Machine: P II 300 Mhz, Adaptec 2940 SCSI adapter, 64 Mb memory, 1x Seagate 
-ST34520W, 1x Seagate ST34520LW, 1x Philips CDD 3610, Toshiba XM-6201TA
-OS: Redhat 7.1 with latest patches (except kernel)
+  also as i already said, the sound isn`t clear:
+  there are little clicks here and there...
 
-Division over the buses as shown by cdrecord -scanbus
+  but i have an infinite trace(*). you - don`t.
 
-Scsibus0
-           0.0.0           Seagate ST34520W
-           0.2.0           Seagate ST34520LW
-           0.5.0           Toshiba CD-ROM XM-6201TA
-Scsibus1
-           1.0.0           Philips CDD-3610 CD R/RW
+  (*) - in fact there are 3 traces.
+    first - quite short (1-1.5 screen)
+    second - 3-4 screens, and
+    third - infinite...
 
 
-and as stated everything fine after 2.4.6 (however 2.4.3-5 showed the same 
-behaviour as your machine). The cd drive makes after 2.4.6 a strange churning 
-sound when initializing cdrecord however. The cd's that were burned however 
-were flawless (at least up to 2.4.9).
-Further info: in the 2.4.3-2.4.5 kernels the devices which are above shown in 
-scsibus0 were shown in scsibus1 and vice versa...
+---
 
-Sincerely, Erick
+
+cheers,
+
+
+   Samium Gromoff

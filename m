@@ -1,37 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270938AbUJVJ0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270908AbUJVJhu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270938AbUJVJ0N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 05:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270916AbUJVJSb
+	id S270908AbUJVJhu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 05:37:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270934AbUJVJfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 05:18:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57559 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S270914AbUJVJSH (ORCPT
+	Fri, 22 Oct 2004 05:35:38 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51619 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S270932AbUJVJbg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 05:18:07 -0400
-Date: Fri, 22 Oct 2004 02:17:55 -0700
-Message-Id: <200410220917.i9M9Ht3m025244@magilla.sf.frob.com>
-MIME-Version: 1.0
+	Fri, 22 Oct 2004 05:31:36 -0400
+Date: Fri, 22 Oct 2004 11:31:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041022093103.GQ1820@suse.de>
+References: <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com> <20041022061901.GM32465@suse.de> <20041022085007.GA24444@nietzsche.lynx.com> <20041022085928.GK1820@suse.de> <20041022090637.GA24523@nietzsche.lynx.com> <20041022090938.GB24523@nietzsche.lynx.com> <20041022092058.GO1820@suse.de> <20041022092404.GA24605@nietzsche.lynx.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Laurent Dufour <ldufour@meiosys.com>
-X-Fcc: ~/Mail/linus
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM : Thread signal informations are not freed when it is
-	execing.
-In-Reply-To: Laurent Dufour's message of  Thursday, 21 October 2004 15:02:03 +0200 <1098363723.27235.103.camel@soho.lab.meiosys.com>
-X-Zippy-Says: It's the RINSE CYCLE!!  They've ALL IGNORED the RINSE CYCLE!!
+Content-Disposition: inline
+In-Reply-To: <20041022092404.GA24605@nietzsche.lynx.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think these problems are still relevant to the current sources,
-though some of them might still occur in 2.6.9.  The fix I posted for the
-semantics bugs of exec vs pending signals makes de_thread not abandon the
-old signal_struct at all, so it holds on to all the data structures.  If
-you can reproduce any kind of leak using the code now in Linus's tree,
-please show me the details.
+On Fri, Oct 22 2004, Bill Huey wrote:
+> On Fri, Oct 22, 2004 at 11:20:59AM +0200, Jens Axboe wrote:
+> > I've been as clear as I know how on the matter of semaphore use in
+> > Linux. I've made no comments at all on improving your deadlock
+> > detection scheme.
+> 
+> True, but "...deadlock detection breaks" is a negative comment about
+> the deadlock detector without a positive suggestion to change it, is
+> it not ? if so, then suggest a change to be made and it'll get
+> implementated somehow.
 
+It's a statement about the deadlock detection which is true, it's not a
+negative comment. A negative comment would be something ala "the
+deadlock detection code is crap". Note, to avoid further confusion in
+this thread: I have not read the deadlock detection code, nor do I
+intend to. The sentence is only an example of what a negative comment
+would look like, in no way does it reflect my view of the deadlock
+detection code. End disclaimer.
 
-Thanks,
-Roland
+As I said, I have no personal motivation to work on the deadlock
+detection. My interest in the thread pertained only to code in the
+kernel and its use of semaphores - something that we already cleared up
+many mails ago.
+
+So, please, lets just end it here. This branch of the thread has already
+dragged on for way too long.
+
+-- 
+Jens Axboe
+

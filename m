@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261479AbTCOQUs>; Sat, 15 Mar 2003 11:20:48 -0500
+	id <S261330AbTCOQSI>; Sat, 15 Mar 2003 11:18:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261480AbTCOQUs>; Sat, 15 Mar 2003 11:20:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42412 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261479AbTCOQUq>;
-	Sat, 15 Mar 2003 11:20:46 -0500
-Date: Sat, 15 Mar 2003 17:31:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.64-ac3: Crash in ide_init_queue
-Message-ID: <20030315163137.GR791@suse.de>
-References: <1047676410.7452.34.camel@sonja> <20030314212510.GE791@suse.de> <1047741940.10690.1.camel@sonja> <1047742416.10689.3.camel@sonja>
+	id <S261472AbTCOQSI>; Sat, 15 Mar 2003 11:18:08 -0500
+Received: from 67.231.118.64.mia-ftl.netrox.net ([64.118.231.67]:60328 "EHLO
+	smtp.netrox.net") by vger.kernel.org with ESMTP id <S261330AbTCOQSH>;
+	Sat, 15 Mar 2003 11:18:07 -0500
+Subject: Re: [PATCH] remove BKL from ext2's readdir
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+In-Reply-To: <20030315023614.3e28e67b.akpm@digeo.com>
+References: <m3vfyluedb.fsf@lexa.home.net>
+	 <20030315023614.3e28e67b.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047745867.946.1.camel@icbm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047742416.10689.3.camel@sonja>
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 15 Mar 2003 11:31:08 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 15 2003, Daniel Egger wrote:
-> Am Sam, 2003-03-15 um 16.25 schrieb Daniel Egger:
+On Sat, 2003-03-15 at 05:36, Andrew Morton wrote:
+
+> > I took a look at readdir() in 2.5.64's ext2 and found it serialized by BKL.
 > 
-> > > using ide tcq?
-> 
-> > It's compiled into the kernel but unused since there's no harddrive in
-> > the machine. I'll remove it from the config and retry.
-> 
-> Nope, same problem without tcq.
+> Yes, I had this in -mm for ages, seem to have lost it.  Also removal of BKL
+> from lseek().
 
-Please double check, TCQ is the only way that ide_init_queue() would end
-up with NULL EIP.
+I moved lseek() from the BKL to the i_sem in early 2.5.
 
-You could make the ide_dma_queued_on() conditional, ala:
-
-#ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
-	if (HWIF(drive)->ide_dma_queued_on)
-		HWIF(drive)->ide_dma_queued_on(drive);
-#endif
-
-
--- 
-Jens Axboe
+	Robert Love
 

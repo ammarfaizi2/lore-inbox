@@ -1,212 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263582AbUCUAta (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 19:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263583AbUCUAta
+	id S263583AbUCUAz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 19:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUCUAz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 19:49:30 -0500
-Received: from server17.pronicsolutions.com ([64.94.232.3]:21662 "EHLO
-	server17.pronicsolutions.com") by vger.kernel.org with ESMTP
-	id S263582AbUCUAro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 19:47:44 -0500
-From: "Bert Kammerer" <mot@pronicsolutions.com>
-To: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.26-pre5
-Date: Sat, 20 Mar 2004 19:48:07 -0500
-Message-ID: <001601c40ede$2d613390$0600a8c0@p17>
+	Sat, 20 Mar 2004 19:55:28 -0500
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:4357 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S263583AbUCUAzX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 19:55:23 -0500
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: REMINDER: 2.4.25 and 2.6.x yenta detection issue
+Date: Sun, 21 Mar 2004 01:51:55 +0100
+User-Agent: KMail/1.5.2
+Cc: David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0403191509280.2227-100000@dmt.cyclades> <20040319210720.J14431@flint.arm.linux.org.uk>
+In-Reply-To: <20040319210720.J14431@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <Pine.LNX.4.44.0403200251350.3436-100000@dmt.cyclades>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server17.pronicsolutions.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - pronicsolutions.com
+Content-Disposition: inline
+Message-Id: <200403210151.56041.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Marcelo,
+On Friday 19 March 2004 22:07, Russell King wrote:
+> On Fri, Mar 19, 2004 at 03:14:54PM -0300, Marcelo Tosatti wrote:
+> > It seems the problem reported by Silla Rizzoli is still present in 2.6.x
+> > and 2.4.25 (both include the voltage interrogation patch by rmk).
+> > 
+> > Daniel Ritz made some efforts to fix it, but did not seem to get it right. 
+> 
+> And that effort is still going on.  Daniel and Pavel have been trying
+> to find a good algorithm for detecting and fixing misconfigured TI
+> interrupt routing, and this effort is still on-going.
+> 
+> What would be useful is if Silla could test some of Daniel's patches
+> and provide feedback.
 
-You're my last hope :-)
+silla has another problem. mfunc and devctl are correct. the problems:
+- in 2.4 TI1520 is not in the override list, so PCI CSC interrupts are not active
+- redoing voltage interrogation: before 2.4.25 when there was no check pcmcia
+  was working better for silla (as long as another device was generating
+  interrupts) but with the check added cards are not recognized correctly.
+- it looks like (i'm not sure) that the socket state is bouncing a bit after card insert
+  (the CDETECT bits) so yenta_get_status() returns w/o SS_PENDING too early....
+the attached patch fixes it (at least for silla)  and does nothing bad for me...
 
-Ever since 2.4.25, when compiling it in to any RedHat 7.3 machine, the
-following appears in dmesg:
+marcelo, please apply at least the second part of the patch which adds the TI1510/1520.
 
-attempt to access beyond end of device
-03:02: rw=0, want=1020128, limit=1020127
+rgds
+-daniel
 
-I traced this to the mount version that ships with RedHat 7.3
-(mount-2.11n). Upgrading mount to a newer version gets rid of the
-messages, but I am unsure as to whether or not the errors are really
-going away. Do you have any comments/suggestions concerning this issue?
+---patch---
 
-Thanks a million!
-
-Bert
-
-
-On Sun, 20 Mar 2004, Marcelo Tosatti wrote:
-
-Hi, 
-
-Here goes the fifth -pre of 2.4.26.
-
-It includes a number of USB bugfixes/updates, SCSI driver/stack fixes
-from 
-Doug Ledford, another ACPI update, amongst others.
-
-This is probably the last -pre of 2.4.26 series.
-
-Detailed changelog follows
-
-Summary of changes from v2.4.26-pre4 to v2.4.26-pre5
-============================================
-
-<brill:fs.math.uni-frankfurt.de>:
-  o USB Storage: unusual_devs.h entry submission
-
-<dledford:build-base.perf.redhat.com>:
-  o scsi_lib.c: Fix sg segment recounting
-  o Fix various minor compiler warning issues
-  o Fix for Red Hat bug #98264, usb reset locking problem
-  o sym53c8xx:  Only do SCSI-3 PPR message based negotiations on SCSI-3
-devices or SCSI-2 devices that know to set the DT bit in their INQUIRY
-return data.
-  o scsi_scan.c: Correctness fix for scanning of multi-lun devices
-  o scsi_scan.c: Add an option for making linux treat offlined devices
-as online
-  o Update the error handler to use mod_timer
-  o Don't leak command structs when no device is found
-
-<jamesl:appliedminds.com>:
-  o USB: Fixing HID support for non-explicitly specified usages
-
-<michal_dobrzynski:mac.com>:
-  o USB: add IRTrans support to ftdi_sio driver
-
-<mlotek:foobar.pl>:
-  o USB: another unusual_devs.h change
-
-<not:just.any.name>:
-  o USB: Using physical extents instead of logical ones for NEC USB HID
-gamepads
-
-<pg:futureware.at>:
-  o USB: more FTDI-SIO devices
-
-<rene.herman:keyaccess.nl>:
-  o 8139too assertions
-
-<ricklind:us.ibm.com>:
-  o block layer accounting fix
-
-Alan Stern:
-  o USB: fix unneeded SubClass entry in unusual_devs.h
-
-Dave Kleikamp:
-  o JFS: zero new log pages, etc
-
-David Brownell:
-  o USB Gadget: ethernet gadget locking tweaks
-  o USB: EHCI updates (mostly periodic schedule scanning)
-  o USB Gadget: make usb gadget strings talk utf-8
-  o USB: add "gadget_chips.h"
-  o USB: gadget config buffer utilities
-  o USB: usb gadget, dualspeed {run,compile}-time flags
-  o USB: gadget zero, simplified controller-specific configuration
-
-Don Fry:
-  o pcnet32 correct names for changes
-  o pcnet32.c oops
-
-Greg Kroah-Hartman:
-  o USB: add support for the Aceeca Meazura device to the visor driver
-
-Ian Abbott:
-  o USB: ftdi_sio new PIDs and name fix for sysfs
-
-Jeff Garzik:
-  o Update pci_ids.h with new Intel PCI ids
-  o Add Intel ICH6 irq router
-  o Add Intel PCI ids to i810_audio
-  o Add Intel PCI ids to IDE (PATA) driver
-  o [netdrvr natsemi] Fix RX DMA mapping
-
-Kumar Gala:
-  o [PPC32] Modified OCP support so its not IBM specific and added new
-APIs to allow modification of the device tree before drivers are bound
-
-Len Brown:
-  o [ACPI] acpi_wakeup_address - print only when broken
-  o [ACPI] global lock macro fixes (Paul Menage, Luming Yu)
-http://bugzilla.kernel.org/show_bug.cgi?id=1669
-  o [ACPI] SMP poweroff (David Shaohua Li)
-http://bugzilla.kernel.org/show_bug.cgi?id=1141
-  o [ACPI] ACPICA 20040311 from Bob Moore
-  o [ACPI] add boot parameters "acpi_osi=" and "acpi_serialize"
-acpi_osi= will disable the _OSI method -- which by default tells the
-BIOS to behave as if Windows is the OS.
-
-Luca Tettamanti:
-  o USB: fix hid-core compile warning
-
-Manfred Spraul:
-  o forcedeth update
-
-Marcelo Tosatti:
-  o Changed EXTRAVERSION to -pre5
-
-Martin Diehl:
-  o USB: fix stack usage in pl2303 driver
-
-Paul Mackerras:
-  o [PPC32] Add support for the EP405/EP405PC embedded platforms
-  o [PPC32] Avoid prefetching past the end of the source in copy
-routines
-  o [PPC32] Add stabs debug entries to some assembler files
-  o [PPC32] Add support for the Redwood 5 and 6 embedded boards
-
-Paulo Marques:
-  o USB: usblp.c (Was: usblp_write spins forever after an error)
-
-Per Winkvist:
-  o USB Storage: unusual devs fix for Pentax cameras
-
-Pete Zaitcev:
-  o USB: Change the USB Maintainer entry
-  o USB: fix hid-input problem with BTC keyboards
-  o Trivial input.c change: Add missing new line on error case printk()
-
-Petko Manolov:
-  o USB: patch for pegasus.h
-  o USB: another patch to pegasus.h
-
-Richard Curnow:
-  o USB: Fix handling of bounce buffers by rh_call_control
-
-Stelian Pop:
-  o sonypi driver update
-  o meye driver update
-
-Thomas Chen:
-  o USB: fix little bug in io_edgeport.c
-
-Thomas Sailer:
-  o USB: OSS audio driver workaround for buggy descriptors
+- add the TI1510 and TI1520 to the TI override list
+- redo voltage interrogation if none of the voltage bits is set. this also does
+  the interrogation when there's no card or a partitial inserted card. some
+  bridges may have a wrong state on power up. the check was added to 2.4.25 'cos
+  unconditionally doing it breaks on some setups when a card is already
+  recognized correctly. this check is still intact with my small modification.
+- in yenta_get_status() return SS_PENDING when none of the voltage bits is set
+  or a card is only partitiall inserted, but not if there's no card at all.
 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in the body of a message to majordomo@vger.kernel.org More majordomo
-info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+--- 1.15/drivers/pcmcia/yenta.c	Tue Jan  6 11:55:05 2004
++++ edited/drivers/pcmcia/yenta.c	Sat Mar 20 18:50:07 2004
+@@ -135,8 +135,12 @@
+ 
+ 	val  = (state & CB_3VCARD) ? SS_3VCARD : 0;
+ 	val |= (state & CB_XVCARD) ? SS_XVCARD : 0;
+-	val |= (state & (CB_CDETECT1 | CB_CDETECT2 | CB_5VCARD | CB_3VCARD
+-			 | CB_XVCARD | CB_YVCARD)) ? 0 : SS_PENDING;
++
++	/* when there's may be a card -> SS_PENDING if no voltage bit is set */
++	if ((state & (CB_CDETECT1 | CB_CDETECT2)) != (CB_CDETECT1 | CB_CDETECT2))
++		if (!(state & (CB_5VCARD | CB_3VCARD | CB_XVCARD | CB_YVCARD)) ||
++		    (state & (CB_CDETECT1 | CB_CDETECT2)))
++			val |= SS_PENDING;
+ 
+ 	if (state & CB_CBCARD) {
+ 		val |= SS_CARDBUS;	
+@@ -677,10 +681,8 @@
+ 
+ 	/* Redo card voltage interrogation */
+ 	state = cb_readl(socket, CB_SOCKET_STATE);
+-	if (!(state & (CB_CDETECT1 | CB_CDETECT2 | CB_5VCARD |
+-			CB_3VCARD | CB_XVCARD | CB_YVCARD)))
+-		
+-	cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
++	if (!(state & (CB_5VCARD | CB_3VCARD | CB_XVCARD | CB_YVCARD)))
++		cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
+ }
+ 
+ /* Called at resume and initialization events */
+@@ -870,6 +872,8 @@
+ 	{ PD(TI,1420),	&ti_ops },
+ 	{ PD(TI,4410),	&ti_ops },
+ 	{ PD(TI,4451),	&ti_ops },
++	{ PD(TI,1510),	&ti_ops },
++	{ PD(TI,1520),	&ti_ops },
+ 
+ 	{ PD(RICOH,RL5C465), &ricoh_ops },
+ 	{ PD(RICOH,RL5C466), &ricoh_ops },
+--- 1.85/include/linux/pci_ids.h	Tue Mar 16 20:08:27 2004
++++ edited/include/linux/pci_ids.h	Sat Mar 20 00:19:22 2004
+@@ -660,6 +660,8 @@
+ #define PCI_DEVICE_ID_TI_4410		0xac41
+ #define PCI_DEVICE_ID_TI_4451		0xac42
+ #define PCI_DEVICE_ID_TI_1420		0xac51
++#define PCI_DEVICE_ID_TI_1520		0xac55
++#define PCI_DEVICE_ID_TI_1510		0xac56
+ 
+ #define PCI_VENDOR_ID_SONY		0x104d
+ #define PCI_DEVICE_ID_SONY_CXD3222	0x8039
+
+
+
 
 

@@ -1,52 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267436AbSLSBmJ>; Wed, 18 Dec 2002 20:42:09 -0500
+	id <S267492AbSLSBpx>; Wed, 18 Dec 2002 20:45:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267437AbSLSBmJ>; Wed, 18 Dec 2002 20:42:09 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:896 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267436AbSLSBmI>;
-	Wed, 18 Dec 2002 20:42:08 -0500
-Date: Wed, 18 Dec 2002 17:43:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-Message-ID: <40720000.1040262220@flay>
-In-Reply-To: <20021219003740.C20566@flint.arm.linux.org.uk>
-References: <200212182237.gBIMbQmk000479@darkstar.example.net> <1040260157.26882.7.camel@irongate.swansea.linux.org.uk> <20021219003740.C20566@flint.arm.linux.org.uk>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S267494AbSLSBpx>; Wed, 18 Dec 2002 20:45:53 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:50896 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267492AbSLSBpv>;
+	Wed, 18 Dec 2002 20:45:51 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CACA2D@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Robert Love'" <rml@tech9.net>,
+       "'torvalds@transmeta.com'" <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [PATCH 2.5.52] Use __set_current_state() instead of current->
+	 state = (take 1)
+Date: Wed, 18 Dec 2002 17:53:50 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This means I write (choose one):
+
+> > Agreed; however, I also don't want to introduce unnecessary
+> > bloat, so I need to understand first what cases need it - it
+> > is kind of hard for me. Care to let me know some gotchas?
 > 
-> 1. non-buggy code (highly unlikely)
-> 2. code no one tests
-> 3. code people do test but report via other means (eg, email, irc)
-> 
-> If it's (3), which it seems to be, it means that bugzilla is failing to
-> do its job properly, which is most unfortunate.
+> set_current_state() includes a write barrier to ensure the setting of
+> the state is flushed before any further instructions.  This is to
+> provide a memory barrier for weak-ordering processors that 
+> can and will rearrange the writes.
 
-Not everyone will end up using it ... if people want to log bugs from
-lkml into bugzilla, I think that'd help gather a critical mass.
+It is what I was expecting, given xchg() being in the equation;
+then it is reduced to a problem of guessing what can be the 
+delay for the flushing of the write ... beautiful ...
 
-Are you getting a lot of bug-reports for serial code on lkml? I use it
-heavily, and it seems to work just fine to me .... so I pick (1). Yay! ;-)
+So, in that scenario, it means that:
 
-Some of the bugs in there lie fallow, but I've seen quite a few get fixed.
-The fact that some people (Dave Jones springs to mind) trawl through there
-being extremely helpful fixing things is very useful ;-) Lots of things got
-fixed, though I can't *prove* it was solely due to it being in Bugzilla.
+- any setting before a return should be barriered unless we 
+  return to a place[s] known to be harmless
 
-As the list of bugs increases, it'll become an increasingly powerful 
-search engine for information as well .... I'll draw up a list of things
-that don't seem to being worked on, and mail it out to kernel-janitors
-and/or lkml and see if people are interested in fixing some of the fallow
-stuff.
+- any setting to TASK_RUNNING should be kind of safe
 
-M.
+- exec.c:de_thread(), 
+
+ 	while (atomic_read(&oldsig->count) > count) {
+ 		oldsig->group_exit_task = current;
+-		current->state = TASK_UNINTERRUPTIBLE;
++		__set_current_state(TASK_UNINTERRUPTIBLE);
+ 		spin_unlock_irq(&oldsig->siglock);
+
+  Should be safe, as spin_unlock_irq() will do memory clobber
+  on sti() [undependant from UP/SMP].
+
+- namei.c:do_follow_link()
+
+
+ 	if (current->total_link_count >= 40)
+ 		goto loop;
+ 	if (need_resched()) {
+-		current->state = TASK_RUNNING;
++		__set_current_state(TASK_RUNNING);
+ 		schedule();
+ 	}
+ 	err = security_inode_follow_link(dentry, nd);
+
+  There is a function for it, cond_resched().
+
+So, sending an updated patch right now
+
+> Not all processors like those made by your employer are 
+> strongly-ordered :)
+
+You'd be surprised how little about those gory details I do know :]
+
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
 

@@ -1,69 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUJQS4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268278AbUJQS7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268253AbUJQS4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 14:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268278AbUJQS4P
+	id S268278AbUJQS7A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 14:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268330AbUJQS7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 14:56:15 -0400
-Received: from cantor.suse.de ([195.135.220.2]:32432 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268253AbUJQSz7 (ORCPT
+	Sun, 17 Oct 2004 14:59:00 -0400
+Received: from ts2-075.twistspace.com ([217.71.122.75]:64987 "EHLO entmoot.nl")
+	by vger.kernel.org with ESMTP id S268278AbUJQS6h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 14:55:59 -0400
-Date: Sun, 17 Oct 2004 20:55:57 +0200
-From: Olaf Hering <olh@suse.de>
-To: linuxppc64-dev@ozlabs.org
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] allow kernel compile with native ppc64 compiler
-Message-ID: <20041017185557.GA9619@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Sun, 17 Oct 2004 14:58:37 -0400
+Message-ID: <002b01c4b483$b2bef130$161b14ac@boromir>
+From: "Martijn Sipkema" <martijn@entmoot.nl>
+To: "Buddy Lucas" <buddy.lucas@gmail.com>
+Cc: "Lars Marowsky-Bree" <lmb@suse.de>,
+       "David Schwartz" <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <5d6b657504101707175aab0fcb@mail.gmail.com> <20041017150509.GC10280@mark.mielke.cc> <5d6b65750410170840c80c314@mail.gmail.com> <000801c4b46f$b62034b0$161b14ac@boromir> <5d6b65750410171033d9d83ab@mail.gmail.com>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Date: Sun, 17 Oct 2004 20:58:39 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Buddy Lucas" <buddy.lucas@gmail.com>
+> On Sun, 17 Oct 2004 18:35:34 +0100, Martijn Sipkema <martijn@entmoot.nl> wrote:
+> > From: "Buddy Lucas" <buddy.lucas@gmail.com>
+> > > On Sun, 17 Oct 2004 11:05:09 -0400, Mark Mielke <mark@mark.mielke.cc> wrote:
+> > > > On Sun, Oct 17, 2004 at 04:17:06PM +0200, Buddy Lucas wrote:
+> > > > > On Sun, 17 Oct 2004 15:35:37 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
+> > > > > > The SuV spec is actually quite detailed about the options here:
+> > > > > >         A descriptor shall be considered ready for reading when a call
+> > > > > >         to an input function with O_NONBLOCK clear would not block,
+> > > > > >         whether or not the function would transfer data successfully.
+> > > > > >         (The function might return data, an end-of-file indication, or
+> > > > > >         an error other than one indicating that it is blocked, and in
+> > > > > >         each of these cases the descriptor shall be considered ready for
+> > > > > >         reading.)
+> > > > > But it says nowhere that the select()/recvmsg() operation is atomic, right?
+> > > >
+> > > > This is a distraction. If the call to select() had been substituted
+> > > > with a call to recvmsg(), it would have blocked. Instead, select() is
+> > > > returning 'yes, you can read', and then recvmsg() is blocking. The
+> > > > select() lied. The information is all sitting in the kernel packet
+> > >
+> > > No. A million things might happen between select() and recvmsg(), both
+> > > in kernel and application. For a consistent behaviour throughout all
+> > > possibilities, you *have* to assume that any read on a blocking fd may
+> > > block, and that a fd ready for reading at select() time might not be
+> > > readable once the app gets to recvmsg() -- for whatever reason.
+> > 
+> > It is perfectly possible to not have a million things happen between
+> > select() and recvmsg() and POSIX defines what can happen and what
+> > can't; it states that a process calling select() on a socket will not block
+> > on a subsequent recvmsg() on that socket.
+> > 
+> > > And indeed, that implies that select() on blocking fds is generally
+> > > not useful if you expect to bypass the blocking through select().
+> > > Personally,  I think any application that implements this expectation
+> > > is broken. (If only because you might have to do a second read() or
+> > > recvmsg() which will either result in a crappy select() loop or a
+> > > broken read()/recvmsg() loop).
+> > 
+> > The way select() is defined in POSIX effectively means that once an
+> > application has done a select() on a socket, the data that caused
+> > select() to return is committed, i.e. it can no longer be dropped and
+> > should be considered received by the application; this has nothing
+> 
+> That is plainly wrong. Data is never received by an application before
+> recvmsg() has succeeded.
 
-The zImage is a 32bit binary, but a native powerpc64-linux gcc will
-produce 64bit objects in arch/ppc64/boot.
-This patch fixes it.
+I didn't say it was, but that from the view of the UDP protocol it is, i.e.
+a UDP packet can not be dropped from that point onwards.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+> > to do with UDP being unreliable and being unreliable for the sake
+> > of it is not what UDP was meant for.
+> > 
+> > Whether you think an application that is written to use select() as
+> > defined in POSIX is broken is not really important. The fact remains
+> > that Linux currently implements a select() that is _not_ POSIX
+> > compliant and is so solely for performance reasons. I personally think
+> > correct behaviour is much more important.
+> 
+> All I'm saying is, that applications that are not correct now, will
+> probably not be correct even if we change the way Linux handles this
+> situation. The sanest thing really seems to accept the fact that any
+> read() on a blocking fd might block, even if the programmer thinks it
+> really shouldn't.
+> 
+> But then I am one of those who thinks it's sane to check for
+> EWOULDBLOCK on a nonblocking socket after blocking in select().
 
-diff -purN linux-2.6.9-final/arch/ppc64/boot/Makefile linux-2.6.9-final.native/arch/ppc64/boot/Makefile
---- linux-2.6.9-final/arch/ppc64/boot/Makefile	2004-10-16 03:03:50.000000000 +0000
-+++ linux-2.6.9-final.native/arch/ppc64/boot/Makefile	2004-10-17 18:44:33.229249956 +0000
-@@ -23,14 +23,14 @@
- CROSS32_COMPILE ?=
- #CROSS32_COMPILE = /usr/local/ppc/bin/powerpc-linux-
- 
--BOOTCC		:= $(CROSS32_COMPILE)gcc
-+BOOTCC		:= $(CROSS32_COMPILE)gcc -m32
- HOSTCC		:= gcc
- BOOTCFLAGS	:= $(HOSTCFLAGS) $(LINUXINCLUDE) -fno-builtin 
--BOOTAS		:= $(CROSS32_COMPILE)as
-+BOOTAS		:= $(CROSS32_COMPILE)as -a32
- BOOTAFLAGS	:= -D__ASSEMBLY__ $(BOOTCFLAGS) -traditional
--BOOTLD		:= $(CROSS32_COMPILE)ld
-+BOOTLD		:= $(CROSS32_COMPILE)ld -m elf32ppc
- BOOTLFLAGS	:= -Ttext 0x00400000 -e _start -T $(srctree)/$(src)/zImage.lds
--BOOTOBJCOPY	:= $(CROSS32_COMPILE)objcopy
-+BOOTOBJCOPY	:= $(CROSS32_COMPILE)objcopy --target elf32-powerpc
- OBJCOPYFLAGS    := contents,alloc,load,readonly,data
- 
- src-boot := crt0.S string.S prom.c main.c zlib.c imagesize.c div64.S
-diff -purN linux-2.6.9-final/arch/ppc64/boot/zImage.lds linux-2.6.9-final.native/arch/ppc64/boot/zImage.lds
---- linux-2.6.9-final/arch/ppc64/boot/zImage.lds	2004-10-16 03:01:55.000000000 +0000
-+++ linux-2.6.9-final.native/arch/ppc64/boot/zImage.lds	2004-10-17 18:48:14.824288338 +0000
-@@ -1,4 +1,4 @@
--OUTPUT_ARCH(powerpc)
-+OUTPUT_ARCH(powerpc:common)
- SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); SEARCH_DIR(/usr/local/powerpc-any-elf/lib);
- /* Do we need any of these for elf?
-    __DYNAMIC = 0;    */
--- 
-USB is for mice, FireWire is for men!
+A POSIX comliant implementation would never do this.
 
-sUse lINUX ag, nÜRNBERG
+> Let's just document this and move on to something more important.
+
+It actually _is_ important. Just implement select() and recvmsg() as
+described in the standard.
+
+
+--ms
+

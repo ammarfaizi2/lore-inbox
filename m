@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273568AbRIYWTI>; Tue, 25 Sep 2001 18:19:08 -0400
+	id <S273619AbRIYWUh>; Tue, 25 Sep 2001 18:20:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273596AbRIYWS5>; Tue, 25 Sep 2001 18:18:57 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:59739 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S273568AbRIYWSo> convert rfc822-to-8bit; Tue, 25 Sep 2001 18:18:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: __alloc_pages: 0-order allocation failed
-Date: Wed, 26 Sep 2001 00:16:53 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Paul Larson <plars@austin.ibm.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>,
-        =?iso-8859-1?q?Jacek=5Biso-8859-2=5DPop=B3awski?= 
-	<jpopl@interia.pl>,
-        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1001319223.4613.34.camel@plars.austin.ibm.com> <Pine.LNX.4.21.0109240933390.1593-100000@freak.distro.conectiva> <20010926000922.I8350@athlon.random>
-In-Reply-To: <20010926000922.I8350@athlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15m0Wz-0002He-00@mrvdom01.schlund.de>
+	id <S273609AbRIYWUU>; Tue, 25 Sep 2001 18:20:20 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:18955 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S273596AbRIYWT5>;
+	Tue, 25 Sep 2001 18:19:57 -0400
+Date: Tue, 25 Sep 2001 15:15:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Binary only module overview
+Message-ID: <20010925151551.D15314@kroah.com>
+In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010925084439.B6396@us.ibm.com> <20010925200947.B7174@itsolve.co.uk> <20010925134232.A14715@kroah.com> <3BB0F297.D4A9E986@drugphish.ch> <20010925141623.A14962@kroah.com> <3BB101AE.C7CA4997@drugphish.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BB101AE.C7CA4997@drugphish.ch>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> too much permissive (vm-tweaks-1 does something similar but not that
-> permissive)
+On Wed, Sep 26, 2001 at 12:14:06AM +0200, Roberto Nibali wrote:
+> 
+> I don't know about GPL and kernel related rights but I can hardly 
+> imagine a company that has a B1 certified product not to care well
+> about their other products to be on the right side of the law. I 
+> can talk to them on thursday about this at the comdex/orbit showcase.
+> The outcome of your legality statement might be crucial for their 
+> future business.
 
-But it doesnt help neither.  I installed vm-tweaks-1 on a vanilla 2.4.10 and 
-still got an __alloc_pages: 0-order allocation failure
-I have no swap and 512 MB of RAM.
+Yes, the LSM licensing issue seems to be critical to a lot of people :)
+Presently I am waiting for a response from WireX as to what their stance
+is.
 
+> BTW, I recall the HP Linux which IMO also violates the GPL then, doesn't
+> it? http://www.hp.com/security/products/linux/opensource/
+> Or does this differ in them providing the source code even for the LKMs
+> as opposite to argus which has binary only LKMs?
 
+Exactly.  It looks like HP provides the source code for everything
+(someone tell me if I'm wrong here) while Argus looks like they only
+provide the kernel patches and a compiled loadable module binary, under
+a unknown license (at this time.)
 
+thanks,
+
+greg k-h

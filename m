@@ -1,116 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbTI3No1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbTI3No1
+	id S261434AbTI3NxI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTI3NxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:44:27 -0400
-Received: from [195.95.38.160] ([195.95.38.160]:3838 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id S261489AbTI3NoR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 09:44:17 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.23-pre3] Cache size for Centrino CPU incorrect
-Date: Tue, 30 Sep 2003 14:23:15 +0200
-User-Agent: KMail/1.5.3
-References: <7F740D512C7C1046AB53446D3720017304A790@scsmsx402.sc.intel.com>
-In-Reply-To: <7F740D512C7C1046AB53446D3720017304A790@scsmsx402.sc.intel.com>
+	Tue, 30 Sep 2003 09:53:07 -0400
+Received: from chaos.sr.unh.edu ([132.177.249.105]:63193 "EHLO
+	chaos.sr.unh.edu") by vger.kernel.org with ESMTP id S261434AbTI3NxD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 09:53:03 -0400
+Date: Tue, 30 Sep 2003 09:50:14 -0400 (EDT)
+From: Kai Germaschewski <kai.germaschewski@unh.edu>
+X-X-Sender: kai@chaos.sr.unh.edu
+To: "David S. Miller" <davem@redhat.com>
+cc: David Woodhouse <dwmw2@infradead.org>, <bunk@fs.tum.de>,
+       <acme@conectiva.com.br>, <netdev@oss.sgi.com>, <pekkas@netcore.fi>,
+       <lksctp-developers@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: [2.6 patch] disallow modular IPv6
+In-Reply-To: <20030930022410.08c5649c.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0309300940030.4956-100000@chaos.sr.unh.edu>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200309301423.18378.lkml@kcore.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 30 Sep 2003, David S. Miller wrote:
 
-On Saturday 13 September 2003 00:02, Nakajima, Jun wrote:
-> This is a bit old, but try.
->
-> Thanks,
-> Jun
-> ------
-> --- linux-2.4.21/arch/i386/kernel/setup.c	2003-06-13
-> 07:51:29.000000000 -0700
-> +++ new/arch/i386/kernel/setup.c	2003-07-08 17:21:48.000000000
-> -0700
-> @@ -2246,6 +2249,8 @@
->  	{ 0x83, LVL_2,      512 },
->  	{ 0x84, LVL_2,      1024 },
->  	{ 0x85, LVL_2,      2048 },
-> +	{ 0x86, LVL_2,      512 },
-> +	{ 0x87, LVL_2,      1024 },
->  	{ 0x00, 0, 0}
->  };
->
+> I think they are the same.  It's module building depending upon the
+> kernel image being up to date.
+> 
+> modules: vmlinux image
+> 	... blah blah blah
+> 
+> or however you want to express it in the makefiles.
 
-This works like a charm. Thanks. Maybe for inclusion in 2.4.23-pre6?
+I strongly disagree with this. What the makefiles currently do is correct, 
+i.e. if you "make modules" you'll only get updated modules, you didn't ask 
+for an updated vmlinux, and so you don't get it. The module you get is 
+built correctly, i.e. you'd get the same result if you had rebuilt vmlinux 
+before, since the building of the module does not depend on a "correct" 
+vmlinux at all.
 
-Jan
+If in just about any project you type "make some_object.o", you don't 
+expect make to recompile and rebuild the rest of the project, either, you 
+ask it to 'make' something, and will build exactly that something and the 
+prerequisites necessary to get it right.
+
+A sidenote is that if you are using modversions, building the modules
+correctly needs versioning information from vmlinux, so in that case we
+need vmlinux to be up-to-date. And that's why in this case vmlinux will be
+rebuilt first (if something changed) - otherwise the modules you were
+asking for wouldn't be correct. But the fact the you get an updated
+vmlinux is just a side-effect, you didn't ask for it, and thus you can't
+rely on it.
+
+Think about the meaning of "make".
 
 
-> > -----Original Message-----
-> > From: Jan De Luyck [mailto:lkml@kcore.org]
-> > Sent: Friday, September 12, 2003 1:18 PM
-> > To: linux-kernel@vger.kernel.org
-> > Subject: [2.4.23-pre3] Cache size for Centrino CPU incorrect
-> >
-> > Hello List,
-> >
-> > I just noticed this:
-> >
-> > devilkin@precious:~$ cat /proc/cpuinfo
-> > processor       : 0
-> > vendor_id       : GenuineIntel
-> > cpu family      : 6
-> > model           : 9
-> > model name      : Intel(R) Pentium(R) M processor 1600MHz
-> > stepping        : 5
-> > cpu MHz         : 599.511
-> > cache size      : 0 KB
-> > fdiv_bug        : no
-> > hlt_bug         : no
-> > f00f_bug        : no
-> > coma_bug        : no
-> > fpu             : yes
-> > fpu_exception   : yes
-> > cpuid level     : 2
-> > wp              : yes
-> > flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov
->
-> pat
->
-> > clflush dts acpi mmx fxsr sse sse2 tm pbe tm2 est
-> > bogomips        : 1196.85
-> >
-> > Somehow, the cache size doesn't seem to be correct. Spec info tells me
-> > that this cpu
-> > has indeed a 1024kb cache.
-> >
-> > Any patches to test?
-> >
-> > Thankx
-> >
-> > Jan
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
->
-> linux-kernel" in
->
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+With respect to the actual discussion, my opinion is that it's desirable 
+to have the core kernel not change depending on whether or not something 
+is compiled modular, but I believe there are cases which justify an 
+exception, and IPv6 seems to be one of them. Modversions will catch this
+and prevent the user from inserting the module and accidentally crash the 
+system, so I think it's all fine.
 
-iD8DBQE/eXW2UQQOfidJUwQRAvYsAJ4sz4DslwL20NTjKR6EUCQ+wBp0xQCeJr3Z
-fKU5+c3OpZB2y794BbRF+rs=
-=gfTN
------END PGP SIGNATURE-----
+
+--Kai
+
 

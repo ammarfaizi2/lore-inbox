@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313057AbSEAPDQ>; Wed, 1 May 2002 11:03:16 -0400
+	id <S313070AbSEAPGz>; Wed, 1 May 2002 11:06:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSEAPDP>; Wed, 1 May 2002 11:03:15 -0400
-Received: from avscan1.sentex.ca ([199.212.134.11]:61164 "EHLO
-	avscan1.sentex.ca") by vger.kernel.org with ESMTP
-	id <S313057AbSEAPDO>; Wed, 1 May 2002 11:03:14 -0400
-Message-ID: <00f501c1f121$6b7614c0$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "David Dyck" <dcd@tc.fluke.com>, "Alan Modra" <alan@linuxcare.com>,
-        "Kiyokazu SUTO" <suto@ks-and-ks.ne.jp>,
-        "Andrew Morton" <andrewm@uow.edu.au>,
-        "Arnaldo Carvalho de Melo" <acme@conectiva.com.br>,
-        "Kanoj Sarcar" <kanoj@sgi.com>,
-        "Christer Weinigel" <wingel@hog.ctrl-c.liu.se>,
-        "Robert Schwebel" <robert@schwebel.de>,
-        "Juergen Beisert" <jbeisert@eurodsn.de>,
-        "Theodore Ts'o" <tytso@mit.edu>, "Sapan Bhatia" <sapan@corewars.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204301451300.2964-100000@dd.tc.fluke.com>
-Subject: Re: changes between 2.2.20 and 2.4.x 'broke' select() from detecting input characters in my serial /dev/ttyS0 program
-Date: Wed, 1 May 2002 11:03:57 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S313084AbSEAPGy>; Wed, 1 May 2002 11:06:54 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:11436 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313070AbSEAPGx>; Wed, 1 May 2002 11:06:53 -0400
+Message-ID: <3CD0047B.4060605@us.ibm.com>
+Date: Wed, 01 May 2002 08:06:35 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Guillaume Boissiere <boissiere@attbi.com>
+CC: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: [STATUS 2.5]  May 1, 2002 (BKL status)
+In-Reply-To: <3CCFBB21.9046.7889B0D2@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "David Dyck" <dcd@tc.fluke.com>
-> It turns out also that the O_WRONLY channel had CREAD turned off,
-> which I would expect was appropriate for an output channel, and
-> in 2.2 kernels, it didn't affect the O_RDONLY channel.  If I enable
-> the CREAD bit in termios c_cflag register for the O_WRONLY channel also
-> then the select on the O_RDONLY channel reports characters available.
->
-> I suspect that there is a different level of information sharing
-> between the 2 channels that are open, but which is the correct behaviour,
-> and why?
+Guillaume Boissiere wrote:
+> There has also been a lot of work done by various people to 
+> remove the BKL from many places, which leads to my question:
+> does anyone has a URL with a list of all the places where the
+> BKL should eventually be removed and who's working on it?
+> 
+> It seems like it would be most useful if someone was willing
+> to maintain something like this, but it might be a lot of 
+> work - I don't know how long the list would be...
 
-CREAD handling was changed to be correct; recently, but I don't know
-exactly when. The 2.4 vs 2.2 difference sounds about right though.
-Previously CREAD had been incorrectly handled by the driver and hadn't
-been changed because some apps would break. Now data is correctly
-ignored on receive when CREAD is off.
+I may not be the leading BKL expert, but I play one on TV :)
 
-When you talk about the "O_WRONLY channel" and the "O_RDONLY channel"
-you're not actually referring to separate things. Each serial port is
-represented in the kernel as one entity that may be opened different
-ways, possibly multiple times.
+Perhaps one of the kernel-janitor people would like to assist me with 
+this (cc'ing that list).  I'd be willing to keep a web page to list all 
+current BKL uses and keep track of them as they are removed/added 
+Perhaps a set of web pages which resemble the directory structure of the 
+kernel tree would be helpful??
 
-When you turn off CREAD in your write side, you turn off CREAD for the
-whole port, including the read only side. This is not a bug in the
-driver.
+Here's a good question for kernel-janitor, and anyone else who's 
+interested, what format describing BKL use would most encourage you to 
+go and remove it?  We already have Rick Lindsley's Global spinlock list: 
+  http://prdownloads.sourceforge.net/lse/locking_doc-2.4.16 .  The BKL 
+use in there is somewhat dated, but might be a good start.
 
-..Stu
+I have some awk scripts that I use on each new kernel release to check 
+for new and removed uses of the BKL.  I can adapt these to start 
+checking new BK changesets for BKL changes.
 
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

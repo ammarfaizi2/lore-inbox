@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282314AbRK2C4i>; Wed, 28 Nov 2001 21:56:38 -0500
+	id <S282317AbRK2DBI>; Wed, 28 Nov 2001 22:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282315AbRK2C4T>; Wed, 28 Nov 2001 21:56:19 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:12280
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S282314AbRK2C4H>; Wed, 28 Nov 2001 21:56:07 -0500
-Date: Wed, 28 Nov 2001 18:56:01 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.17-pre1
-Message-ID: <20011128185601.A784@mikef-linux.matchmail.com>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <Pine.LNX.4.21.0111281340210.15491-100000@freak.distro.conectiva>
+	id <S282316AbRK2DA6>; Wed, 28 Nov 2001 22:00:58 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:11408 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S282317AbRK2DAs>; Wed, 28 Nov 2001 22:00:48 -0500
+Date: Wed, 28 Nov 2001 22:03:29 -0500
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: Re: fsync02 test hangs 2.5.1-pre3 + patch
+Message-ID: <20011128220329.A2718@earthlink.net>
+In-Reply-To: <20011128212429.A155@earthlink.net> <Pine.GSO.4.21.0111282130310.8990-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0111281340210.15491-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0111282130310.8990-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Nov 28, 2001 at 09:32:43PM -0500
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 28, 2001 at 01:47:07PM -0200, Marcelo Tosatti wrote:
-> 
-> 
-> Ok, 2.4.17-pre1 is out. Still going to the mirrors though, so please wait
-> a while if you haven't found a copy on your local mirror. 
-> 
-> 
-> pre1:
-> 
+On Wed, Nov 28, 2001 at 09:32:43PM -0500, Alexander Viro wrote:
+> Umm...  With which patch?  Sorry for being dense, but I see no patches
 
-Any chance you'll merge Robert's netdev-random uniformity cleanup patch with
-the default to "no"?
+Oops.
 
-mf
+[PATCH] fix for drivers/char/pc_keyb.c in 2.5.1-pre3
+
+2.5.1-pre3 would not compile without Alan's patch for pc_keyb.c, etc.
+
+I also noticed the logfile LTP "runalltests" was writing to has binary 
+data and snippets of kernel code in it.  (Normally it would all be text).
+
+This was on a reiserfs system, btw.
+
+-- 
+Randy Hron
+

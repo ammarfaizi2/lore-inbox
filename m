@@ -1,68 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbUKKHKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbUKKH1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbUKKHKI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 02:10:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbUKKHKI
+	id S262178AbUKKH1H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 02:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbUKKH1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 02:10:08 -0500
-Received: from fmr12.intel.com ([134.134.136.15]:10460 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262179AbUKKHJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 02:09:57 -0500
-Subject: Re: [PATCH/RFC 1/4]device core changes
-From: Li Shaohua <shaohua.li@intel.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>, Greg <greg@kroah.com>
-Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <20041110042822.A13318@flint.arm.linux.org.uk>
-References: <1099887071.1750.243.camel@sli10-desk.sh.intel.com>
-	 <20041108225810.GB16197@kroah.com>
-	 <1099961418.15294.11.camel@sli10-desk.sh.intel.com>
-	 <1099971341.15294.48.camel@sli10-desk.sh.intel.com>
-	 <20041109045843.GA4849@kroah.com>
-	 <1099990981.15294.57.camel@sli10-desk.sh.intel.com>
-	 <20041110012443.GA9496@kroah.com>
-	 <1100051137.7825.6.camel@sli10-desk.sh.intel.com>
-	 <20041110042822.A13318@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1100156613.8769.26.camel@sli10-desk.sh.intel.com>
+	Thu, 11 Nov 2004 02:27:07 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:53907 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262178AbUKKH07 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 02:26:59 -0500
+Subject: Re: [PATCH 3/11] oprofile: i386 support for stack trace sampling
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: OProfile List <oprofile-list@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041110230347.7138f9d1.akpm@osdl.org>
+References: <1099996693.1985.785.camel@hole.melbourne.sgi.com>
+	 <20041110230347.7138f9d1.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-h1sYoCA6WbzaGDpz/eHI"
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1100157990.5769.163.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 11 Nov 2004 15:03:33 +0800
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 11 Nov 2004 18:26:30 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-10 at 12:28, Russell King wrote:
-> On Wed, Nov 10, 2004 at 09:45:37AM +0800, Li Shaohua wrote:
-> > On Wed, 2004-11-10 at 09:24, Greg KH wrote:
-> > > Maybe your other patches weren't so bad...  If we implement them, can we
-> > > drop the platform notify stuff?
-> > Currently only ARM use 'platform_notify', and we can easily convert it
-> > to use per-bus 'platform_bind'. One concern of per-bus 'platform_bind'
-> > is we will have many '#ifdef ..' if many platforms implement their
-> > per-bus 'platform_bind'.
-> 
-> Except none of the merged ARM platforms use platform_notify, and I haven't
-> seen any suggestion in the ARM world of why it would be needed.
-Ok, let me summarize it. we now have two options:
-1. using 'platform_notify'
-platform_notify only has one parameter 'struct device', we must know the
-exact bus type of a device. We can identify the bus type from its name
-(such as 'pci', 'ide'), but it's quite some ugly. Or we can add a 'type'
-flag in the 'struct bus_type' to indicate the exact bus type which Greg
-doesn't like it. One shortcoming is the method hasn't good flexibility,
-we must add a new type whenever a new bus type is added.
-2. using per-bus type 'platform_bind'
-Every bus type defines a 'platform_bind', so we know the exact bus type
-naturally in platform_bind. The method can't handle special devices,
-such as PCI root bridge, which hasn't a bus type, so no 'platform_bind'
-is invoked for them. we must use some tricky methods to work around.
-Another concern is the chaos if many platforms define 'platform_bind'
-for a bus type, which isn't a big problem currently.
-Greg, it seems you tend to option 2, isn't it?
 
-Thanks,
-Shaohua
+--=-h1sYoCA6WbzaGDpz/eHI
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Thu, 2004-11-11 at 18:03, Andrew Morton wrote:
+> Greg Banks <gnb@melbourne.sgi.com> wrote:
+> >
+> >  oprofile i386 arch updates, including some internal
+> >  API changes and support for stack trace sampling.
+> 
+> It needs this to compile and link on x86_64.  No idea if it works...
+
+Clearly, there has been zero testing on x86_64.  How about
+we just disable the backtrace code on that platform until
+it's been tested?
+
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
+
+
+--=-h1sYoCA6WbzaGDpz/eHI
+Content-Disposition: attachment; filename=oprofile-callgraph-x86_64
+Content-Type: text/plain; name=oprofile-callgraph-x86_64; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+Disable the oprofile backtrace feature pulled into x86_64 from
+i386 code, until it has been tested on x86_64.
+
+Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
+---
+ arch/i386/oprofile/init.c     |    4 ++++
+ arch/x86_64/oprofile/Makefile |    1 +
+ 2 files changed, 5 insertions(+)
+
+Index: linux/arch/x86_64/oprofile/Makefile
+===================================================================
+--- linux.orig/arch/x86_64/oprofile/Makefile	2004-10-19 07:53:43.%N +1000
++++ linux/arch/x86_64/oprofile/Makefile	2004-11-11 18:19:37.%N +1100
+@@ -1,6 +1,7 @@
+ #
+ # oprofile for x86-64.
+ # Just reuse the one from i386. 
++# Except for the backtrace code, which is not yet tested
+ #
+ 
+ obj-$(CONFIG_OPROFILE) += oprofile.o
+Index: linux/arch/i386/oprofile/init.c
+===================================================================
+--- linux.orig/arch/i386/oprofile/init.c	2004-11-10 20:53:24.%N +1100
++++ linux/arch/i386/oprofile/init.c	2004-11-11 18:20:13.%N +1100
+@@ -18,8 +18,10 @@
+ extern int nmi_init(struct oprofile_operations * ops);
+ extern int nmi_timer_init(struct oprofile_operations * ops);
+ extern void nmi_exit(void);
++#ifndef CONFIG_X86_64
+ extern void x86_backtrace(struct pt_regs * const regs, struct task_struct *,
+     	    	    	  unsigned int depth);
++#endif
+ 
+ 
+ void __init oprofile_arch_init(struct oprofile_operations * ops)
+@@ -33,7 +35,9 @@ void __init oprofile_arch_init(struct op
+ 	if (ret < 0)
+ 		ret = nmi_timer_init(ops);
+ #endif
++#ifndef CONFIG_X86_64
+ 	ops->backtrace = x86_backtrace;
++#endif
+ }
+ 
+ 
+
+--=-h1sYoCA6WbzaGDpz/eHI--
 

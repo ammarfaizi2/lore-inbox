@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264110AbTLOW3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbTLOW3Z
+	id S264261AbTLOWXv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 17:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTLOWXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:29:25 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:9624 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S264110AbTLOW3Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:29:24 -0500
-From: "Eric Sandeen" <sandeen@sgi.com>
-Subject: Re: 2.4.24-pre1 hangs with XFS on LVM filesystem full
-Date: Mon, 15 Dec 2003 16:29:22 -0600
-User-Agent: Pan/0.13.3 (That cat's something I can't explain)
-Message-Id: <pan.2003.12.15.22.29.21.879085@sgi.com>
-References: <fa.nj5bn9m.1khkr82@ifi.uio.no> <fa.lsavf2q.25afr8@ifi.uio.no>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 15 Dec 2003 17:23:50 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:33996 "EHLO
+	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S264261AbTLOWXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 17:23:49 -0500
+Message-Id: <200312152228.hBFMSCJf010565@pasta.boston.redhat.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Peter Bergmann <bergmann.peter@gmx.net>, nfedera@esesix.at, andrea@suse.de,
+       riel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Configurable OOM killer Re: old oom-vm for 2.4.32 (was oom killer in 2.4.23)
+In-Reply-To: Your message of "Mon, 08 Dec 2003 15:15:48 -0200."
+             <Pine.LNX.4.44.0312081512510.1289-100000@logos.cnet>
+Date: Mon, 15 Dec 2003 17:28:12 -0500
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003 21:02:21 +0000, Emilio Gargiulo wrote:
+On Monday, 8-Dec-2003 at 15:15 -0200, Marcelo Tosatti wrote:
 
-> It is reproduceable on LVM and on simple partition like /dev/hda10.
+> The following patch makes OOM killer configurable (its the same as the 
+> other patches posted except its around CONFIG_OOM_KILLER).
+> 
+> I hope the Configure.help entry is clear enough.
+> 
+> Peter, can you please try this.
+> 
+> Comments are appreciated.
+[...]
+> --- linux-2.4.24.orig/mm/page_alloc.c	2003-12-08 14:18:51.000000000 +0000
+> +++ linux-2.4.24/mm/page_alloc.c	2003-12-08 15:49:35.000000000 +0000
+> @@ -378,7 +378,8 @@
+>  
+>  	/* here we're in the low on memory slow path */
+>  
+> -	if (current->flags & PF_MEMALLOC && !in_interrupt()) {
+> +	if (((current->flags & PF_MEMALLOC) && !in_interrupt()) || 
+> +			(current->flags & (PF_MEMALLOC | PF_MEMDIE))) {
+>  		zone = zonelist->zones;
+>  		for (;;) {
+>  			zone_t *z = *(zone++);
+[...]
 
-Ah, if you can reproduce it on a simple partition, then I'd better
-give it a whirl here.  If you think it has something to do with
-the size of the fs vs. memory, can you post those details
-for your tests?  I.e. how much memory, and how big is the fs where
-you saw the failure?
 
-Thanks,
--Eric
+Hi, Marcelo.  I haven't studied this patch, but the change above looks
+suspicious.  The part added after the || makes the original condition
+irrelevant (because the 2nd part is true if either the PF_MEMALLOC or
+PF_MEMDIE flags are set).
 
+Were you perhaps thinking of something like this?
+
+	if ((current->flags & PF_MEMALLOC) &&
+	    ((current->flags & PF_MEMDIE) || !in_interrupt())) {
+
+Cheers.  -ernie

@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267696AbUI1MjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUI1Mlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267696AbUI1MjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 08:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUI1Mi7
+	id S267648AbUI1Mlq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 08:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267689AbUI1Mlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 08:38:59 -0400
-Received: from adsl-66-140-155-201.dsl.hstntx.swbell.net ([66.140.155.201]:9235
-	"HELO email.pl") by vger.kernel.org with SMTP id S267648AbUI1Miy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 08:38:54 -0400
-Message-ID: <dbb201c4a558$16fb8466$516e7fd3@email.pl>
-From: "Stephan Kelley" <stephankelley_to@freemails.ch>
-To: linux-kernel@vger.kernel.org
-Subject: New!  =?ISO-8859-1?Q?=20V=ECagra?= soft tabs.
-Date: Tue, 28 Sep 2004 15:45:03 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Tue, 28 Sep 2004 08:41:45 -0400
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:55774 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S267648AbUI1MlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 08:41:22 -0400
+Date: Tue, 28 Sep 2004 14:40:57 +0200
+From: Guido Guenther <agx@sigxcpu.org>
+To: Benjamin Herrenschmidt <benh.kernel.crashing.org@bogon.ms20.nix>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch]: fix cpufrequency scaling on ppc
+Message-ID: <20040928124057.GA3871@bogon.ms20.nix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
+attached patch against 2.6.9-rc2 fixes cpufrequency scaling after resume
+on pmacs. Please apply.
+ -- Guido
 
-We would like to offer V_I_A_G_R_A soft tabs,
+Signed-off-by: Guido Guenther <agx@sigxcpu.org>
 
-These pills are just like regular Vìagra but they are specially formulated 
-to be soft and dissolvable under the tongue. The pill is absorbed at the 
-mouth and enters the bloodstream directly instead of going through the stomach. 
-This results in a faster more powerful effect which lasts as long as the normal.
 
-Soft Tabs also have less sidebacks (you can drive or mix alcohol drinks with them).
-
-You can get it at: http://ca-t.com/st/?coupon
-
-No thanks: http://ca-t.com/rm.html
-
+--- linux-2.6.9-rc2.orig/arch/ppc/platforms/pmac_cpufreq.c	2004-09-15 09:22:54.000000000 +0200
++++ linux-2.6.9-rc2/arch/ppc/platforms/pmac_cpufreq.c	2004-09-28 14:36:20.265785384 +0200
+@@ -366,12 +367,26 @@
+ 	return 0x50 + (*reg);
+ }
+ 
++static unsigned int __pmac pmac_cpufreq_get(unsigned int cpu)
++{
++	if (cpu)
++		return -ENODEV;
++	return	cur_freq;
++}
++
++static struct freq_attr* pmac_cpufreq_attr[] = { 
++        &cpufreq_freq_attr_scaling_available_freqs,
++        NULL,
++};
++
+ static struct cpufreq_driver pmac_cpufreq_driver = {
+ 	.verify 	= pmac_cpufreq_verify,
+ 	.target 	= pmac_cpufreq_target,
+ 	.init		= pmac_cpufreq_cpu_init,
++	.get		= pmac_cpufreq_get,
+ 	.name		= "powermac",
+ 	.owner		= THIS_MODULE,
++	.attr		= pmac_cpufreq_attr,
+ };
+ 
+ 

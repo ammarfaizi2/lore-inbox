@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313851AbSDPTeo>; Tue, 16 Apr 2002 15:34:44 -0400
+	id <S313778AbSDPTh3>; Tue, 16 Apr 2002 15:37:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313854AbSDPTen>; Tue, 16 Apr 2002 15:34:43 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31496 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313851AbSDPTem>;
-	Tue, 16 Apr 2002 15:34:42 -0400
-Date: Tue, 16 Apr 2002 21:33:04 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: readahead
-Message-ID: <20020416193304.GV1097@suse.de>
-In-Reply-To: <UTC200204161910.g3GJAx009370.aeb@smtp.cwi.nl> <3CBC7A41.384FD032@zip.com.au>
-Mime-Version: 1.0
+	id <S313850AbSDPTh2>; Tue, 16 Apr 2002 15:37:28 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20298 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313778AbSDPTh2>; Tue, 16 Apr 2002 15:37:28 -0400
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 arch subdivision into machine types for 2.5.8
+In-Reply-To: <200204161555.g3GFtmH03317@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Apr 2002 13:30:19 -0600
+Message-ID: <m1r8lfigqc.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16 2002, Andrew Morton wrote:
-> Andries.Brouwer@cwi.nl wrote:
-> > 
-> > ...
-> >     Do these cards not have a request queue?
-> > 
-> > The kernel views them as SCSI disks.
-> > So yes, I can do
-> > 
-> >    blockdev --setra 0 /dev/sdc
-> > 
-> > Unfortunately that does not help in the least.
-> > Indeed, the only user of the readahead info is
-> > readahead.c: get_max_readahead() and it does
-> > 
-> >         blk_ra_kbytes = blk_get_readahead(inode->i_dev) / 2;
-> >         if (blk_ra_kbytes < VM_MIN_READAHEAD)
-> >                 blk_ra_kbytes = VM_MAX_READAHEAD;
-> > 
-> > We need to distinguish between undefined, and explicily zero.
-> 
-> Yup.  The below (untested) patch should fix it up.  Assuming
-> that all drivers use blk_init_queue(), and heaven knows if
-> that's the case.  If not, the readahead window will have to be
+James Bottomley <James.Bottomley@HansenPartnership.com> writes:
 
-set it in blk_queue_make_request(), please.
+> This patch tries to split arch/i386 up into machine specific directories 
+> (similar to the way arch/arm is done).  The idea is to separate out those 
+> machines which don't look like standard PCs (particularly from an SMP 
+> standpoint).  For the current kernel, all it really does is to get the visws 
+> stuff into a separate directory (arch/i386/visws).  I've also taken some files 
+> which aren't going to be used by non-pc SMP machines (mainly related to mpbios 
+> and ioapic) and placed them into arch/i386/generic.
 
--- 
-Jens Axboe
+A couple of comments.
+- There is no way to build a generic kernel, that just needs
+  a command line to select the architecture.  Something that is important
+  for installers.  Even better would auto detection of the platform from
+  firmware information, but you can't always do that.
 
+- By just allowing redirecting setup_memory_region you don't allow for
+  architectures that don't have the 384K memory hole.
+
+- The hooks you add aren't used and are so generic it isn't obvious what
+  they are supposed do from their names.
+
+- setup_arch.h is nasty.  What code it has depends on what it is defined
+  when it is included.  Couldn't 2 headers to this job better?  Or better yet
+  can't you just use function calls?
+
+And of course you don't look at allowing different firmware implementations,
+but I'm doing that, so it is covered. :)
+
+Eric

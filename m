@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbUK1SdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbUK1Sh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbUK1SdW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 13:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbUK1SdW
+	id S261549AbUK1Sh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 13:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbUK1Sh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 13:33:22 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:7826 "EHLO
+	Sun, 28 Nov 2004 13:37:59 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:9618 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261554AbUK1SdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 13:33:08 -0500
-Subject: Re: Out of memory, but no OOM Killer? (2.6.9-ac11)
+	id S261549AbUK1Sh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 13:37:56 -0500
+Subject: Re: [PATCH][2/2] ide-tape: small cleanups - handle
+	copy_to|from_user() failures
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041126224722.GK30987@charite.de>
-References: <20041126224722.GK30987@charite.de>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Gadi Oxman <gadio@netvision.net.il>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0411281731050.3389@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0411281731050.3389@dragon.hygekrogen.localhost>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1101662984.16787.40.camel@localhost.localdomain>
+Message-Id: <1101663266.16761.43.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 28 Nov 2004 17:29:46 +0000
+Date: Sun, 28 Nov 2004 17:34:28 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-11-26 at 22:47, Ralf Hildebrandt wrote:
-> rsync seems to want lots of memory, yet the OOM killer doesn't strike.
-> Subsequently, that machine died an ugly death until delivered by a
-> power-cycle.
-> 
-> Why doesn't the OOM killer reap rsync?
+On Sul, 2004-11-28 at 16:32, Jesper Juhl wrote:
+>  #endif /* IDETAPE_DEBUG_BUGS */
+>  		count = min((unsigned int)(bh->b_size - atomic_read(&bh->b_count)), (unsigned int)n);
+> -		copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count);
+> +		if (copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count))
+> +			return -EFAULT;
+>  		n -= count;
+>  		atomic_add(count, &bh->b_count);
+>  		buf += count;
 
-The OOM killer is a very dumb (near useless) heuristic. You can turn it
-off or switch to sane overcommit module by setting
-/proc/sys/vm/overcommit_memory to
-1 or 2 respectively.
-
-In this case your bug looks like the 2.6.9 network problem in which case
-if you are lucky -ac12 will have fixed it as I merged the stuff DaveM
-recommended into that.
-
-Alan
+If you do this then you don't fix up tape->bh for further operations.
+Have you tested these changes including the I/O errors ?
 

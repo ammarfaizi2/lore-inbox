@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265169AbUAOQeU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 11:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUAOQeU
+	id S264974AbUAOQ3j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 11:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbUAOQ3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 11:34:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52614 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265169AbUAOQeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 11:34:18 -0500
-Date: Thu, 15 Jan 2004 08:30:50 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: rusty@rustcorp.com.au
-Subject: Re: modprobe failed: digest_null
-Message-Id: <20040115083050.333bb13d.rddunlap@osdl.org>
-In-Reply-To: <20040115080815.GA2806@piper.madduck.net>
-References: <20040113215355.GA3882@piper.madduck.net>
-	<20040115102231.37a84ed0.rusty@rustcorp.com.au>
-	<20040115080815.GA2806@piper.madduck.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 15 Jan 2004 11:29:39 -0500
+Received: from relaycz.systinet.com ([62.168.12.68]:27019 "HELO
+	relaycz.systinet.com") by vger.kernel.org with SMTP id S264974AbUAOQ3i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 11:29:38 -0500
+Subject: Re: [2.6,2.4] HPT366 (on Abit BP6) + Seagate 7000.7 + DMA = kernel
+	halted
+From: Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1074178780.1400.34.camel@hostmaster.org>
+References: <1074103900.22670.27.camel@narsil>
+	 <1074178780.1400.34.camel@hostmaster.org>
+Content-Type: text/plain
+Message-Id: <1074184167.27869.19.camel@narsil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Jan 2004 17:29:27 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Jan 2004 09:08:15 +0100 martin f krafft <madduck@madduck.net> wrote:
+On Thu, 2004-01-15 at 15:59, Thomas Zehetbauer wrote:
+> Must be a problem with the harddisk; I do also have a Abit BP6 board
+> with two WD800JB which work fine on the HPT366 controller. Maybe you
+> should try to connect them to one of the PIIX4 IDE channels. Btw: I do
+> have CONFIG_IDEDMA_PCI_AUTO enabled so I do not even need to use hdparm
+> to enable DMA.
+> 
 
-| also sprach Rusty Russell <rusty@rustcorp.com.au> [2004.01.15.0022 +0100]:
-| > Upgrade module-init-tools to 0.9.14 or one of the 3.0 -pres.
-| 
-| diamond:~# modprobe -V
-| module-init-tools version 3.0-pre5
+It supports my idea that linux kernel driver miss some 'special'
+initialization for Seagate disk. But I need to try HighPoint's own
+driver first, hopefully during weekend.
 
-Yes, and I'm using 0.9.14 and seeing similar messages.
+I also know that's not problem of AUTO DMA, I tried it and it didn't
+change anything. During boot driver reports that my disk can do only
+PIO.
 
---
-~Randy
+However I am myself not so sure if I should use the HPT366 or the PIIX4
+> controller as I got better cache read throughput (hdparm -T) with the
+> PIIX4 controller and could avoid sharing an interrupt. Maybe someone
+> here is willing to share some piece of advice?
+> 
+
+The problem with faster controller is a bit funny. I suppose that the
+HPT366 controller is there because of its ability to run UDMA66, so that
+it should be faster.
+
+Anyway, thanks for your comments.
+
+Pogo
+
+-- 
+Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
+

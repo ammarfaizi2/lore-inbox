@@ -1,40 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVBFMxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVBFMyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVBFMxt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 07:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVBFMxt
+	id S261225AbVBFMyS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 07:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVBFMyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 07:53:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:20525 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261244AbVBFMxD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 07:53:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ksGfdMNuRz0BFFDNUz/rB6CGiwPzfKmtykbpviDIi+WQjTXBTteQNeHmzE+ngC9dIylbVb/Mv+CnDPNtTSO5ghuUA+H9nHfPmW5GKCyscRCIEz6sXAsjxtrDSJz+8karkfnt/R9bbbptc5EVyt9RXR0czX+1Cimo4+kEI0Z4fSU=
-Message-ID: <58cb370e05020604533657225c@mail.gmail.com>
-Date: Sun, 6 Feb 2005 13:53:02 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 11/14] ide_pci: Merges pdc202xx_old.h into pdc202xx_old.c
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050204071319.3E7CB1326FC@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <42032014.1020606@home-tj.org>
-	 <20050204071319.3E7CB1326FC@htj.dyndns.org>
+	Sun, 6 Feb 2005 07:54:17 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:59296 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261283AbVBFMxk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 07:53:40 -0500
+Message-ID: <42061347.4090301@free.fr>
+Date: Sun, 06 Feb 2005 13:53:27 +0100
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.5) Gecko/20041217
+X-Accept-Language: fr-fr, fr, en
+MIME-Version: 1.0
+To: Peter Osterlund <petero2@telia.com>
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3-mm1 : mount UDF CDRW stuck in D state
+References: <4204F91B.5040302@free.fr> <m3vf96r017.fsf@telia.com>	<m3sm4apig8.fsf@telia.com> <20050205222301.337de629.akpm@osdl.org> <m37jlmp0dv.fsf@telia.com>
+In-Reply-To: <m37jlmp0dv.fsf@telia.com>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig35314DA0DAA97DC237417883"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri,  4 Feb 2005 16:13:19 +0900 (KST), Tejun Heo <tj@home-tj.org> wrote:
-> 
-> 11_ide_pci_pdc202xx_old_merge.patch
-> 
->         Merges ide/pci/pdc202xx_old.h into pdc202xx_old.c.
-> 
-> Signed-off-by: Tejun Heo <tj@home-tj.org>
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig35314DA0DAA97DC237417883
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-applied
+
+Le 06.02.2005 09:18, Peter Osterlund a écrit :
+[snip]
+>
+> Anyway, the problem is that the add-struct-request-end_io-callback
+> patch forgot to update pktcdvd.c. This patch fixes it. It should
+> probably be merged into the add-struct-request-end_io-callback patch,
+> because that patch already fixes up other struct request users.
+>
+> Signed-off-by: Peter Osterlund <petero2@telia.com>
+> ---
+>
+>  linux-petero/drivers/block/pktcdvd.c |    1 +
+>  1 files changed, 1 insertion(+)
+>
+> diff -puN drivers/block/pktcdvd.c~pktcdvd-endio-fix drivers/block/pktcdvd.c
+> --- linux/drivers/block/pktcdvd.c~pktcdvd-endio-fix	2005-02-06 08:59:16.000000000 +0100
+> +++ linux-petero/drivers/block/pktcdvd.c	2005-02-06 09:01:22.000000000 +0100
+> @@ -375,6 +375,7 @@ static int pkt_generic_packet(struct pkt
+>  	rq->ref_count++;
+>  	rq->flags |= REQ_NOMERGE;
+>  	rq->waiting = &wait;
+> +	rq->end_io = blk_end_sync_rq;
+>  	elv_add_request(q, rq, ELEVATOR_INSERT_BACK, 1);
+>  	generic_unplug_device(q);
+>  	wait_for_completion(&wait);
+> _
+>
+
+Ok, this patch fixed the problem. I'm able to mount the CDRW and write some data.
+
+Thank you.
+--
+laurent
+
+--------------enig35314DA0DAA97DC237417883
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFCBhNSUqUFrirTu6IRAh5YAKCeUwvb7wkzgUXy3DfWCGfZZuetZwCgxp3g
+C+z7XcU6hUshCsuoCcdkiyk=
+=RphP
+-----END PGP SIGNATURE-----
+
+--------------enig35314DA0DAA97DC237417883--

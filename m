@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314801AbSEHSV7>; Wed, 8 May 2002 14:21:59 -0400
+	id <S314758AbSEHSVm>; Wed, 8 May 2002 14:21:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314829AbSEHSV6>; Wed, 8 May 2002 14:21:58 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:40966 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S314787AbSEHSV4>;
-	Wed, 8 May 2002 14:21:56 -0400
-Date: Wed, 8 May 2002 10:22:01 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Padraig Brady <padraig@antefacto.com>,
+	id <S314787AbSEHSVl>; Wed, 8 May 2002 14:21:41 -0400
+Received: from codepoet.org ([166.70.14.212]:17886 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S314758AbSEHSVk>;
+	Wed, 8 May 2002 14:21:40 -0400
+Date: Wed, 8 May 2002 12:21:39 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
         Linus Torvalds <torvalds@transmeta.com>,
+        Padraig Brady <padraig@antefacto.com>,
         Anton Altaparmakov <aia21@cantab.net>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.14 IDE 56
-Message-ID: <20020508172201.GG11620@kroah.com>
-In-Reply-To: <Pine.LNX.4.44.0205070827050.1343-100000@home.transmeta.com> <3CD800FE.4050004@antefacto.com> <3CD8D57B.4080702@evision-ventures.com>
+Message-ID: <20020508182139.GA22659@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Padraig Brady <padraig@antefacto.com>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CD8DAA2.6080907@evision-ventures.com> <E175QP9-0001RO-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 10 Apr 2002 15:28:34 -0700
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 08, 2002 at 09:36:27AM +0200, Martin Dalecki wrote:
-> >
-> >For e.g. could the same arguments could be made for lspci only
-> >interface to pci info rather than /proc/bus/pci? The following
-> >references are made to /proc/bus/pci on my system:
-> 
-> In esp. in sigth of the fact that we have a device tree filesystem, I
-> rather think that /prco/bus/pci is obsolete indeed.
+On Wed May 08, 2002 at 01:18:47PM +0100, Alan Cox wrote:
+> I can't speak directly for the Kudzu maintainer but I can say that having
+> a sane way to obtain the list of ide devices (all of them not just non 
+> pcmcia) and the device bindings/type has been a long standing request.
 
-Not quite yet.  I considered moving the functionality of /proc/bus/pci
-into driverfs, but couldn't find a good solid reason to do it (and it
-would involve changing lspci and any other userspace programs that use
-it today.)
+Can't one simply do something like:
 
-Now reimplementing /proc/bus/pci as a stand alone filesystem mounted in
-that position (like usbfs is) is another story.  pcifs anyone?  :)
+char device_string[20];
+int i, type, major=0, minor=0;
+for(i=0; i<26; i++) {
+    snprintf(device_string, sizeof(device_string), "/dev/hd%c", 'a'+i);
+    if ((fd=open(device_string, O_RDONLY | O_NONBLOCK)) < 0) {
+	continue;
+    }
+    switch ('a'+i) {
+	case 'a':
+	    major=3;minor=0;
+	    break;
+	case 'b':
+	    major=3;minor=64;
+	    break;
+	case 'c':
+	    major=22;minor=0;
+	    break;
+	case 'd':
+	    major=22;minor=64;
+	    break;
+	.....
+    }
 
-thanks,
+etc.... to detect the available ide devices without groveling
+through /proc/ide?
 
-greg k-h
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287596AbSCFXwS>; Wed, 6 Mar 2002 18:52:18 -0500
+	id <S287631AbSCFX47>; Wed, 6 Mar 2002 18:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287798AbSCFXv7>; Wed, 6 Mar 2002 18:51:59 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:27400 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287596AbSCFXv6>;
-	Wed, 6 Mar 2002 18:51:58 -0500
-Date: Wed, 6 Mar 2002 17:06:14 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Dario Bahena Tapia <dario.bahena@correo.unam.mx>,
-        <linux-c-programming@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: getting process i/o wasted time ...
-In-Reply-To: <Pine.LNX.3.95.1020306144031.13735A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44L.0203061705250.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288012AbSCFX4s>; Wed, 6 Mar 2002 18:56:48 -0500
+Received: from ns0.auctionwatch.com ([66.7.130.2]:36621 "EHLO
+	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
+	id <S287858AbSCFX4l>; Wed, 6 Mar 2002 18:56:41 -0500
+Date: Wed, 6 Mar 2002 15:56:27 -0800
+From: Petro <petro@auctionwatch.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jurgen Botz <jurgen@botz.org>, Thomas Hood <jdthood@mail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SSSCA: We're in trouble now
+Message-ID: <20020306235627.GD32504@auctionwatch.com>
+In-Reply-To: <20020306050010.GK22934@auctionwatch.com> <E16ieUY-0007MG-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16ieUY-0007MG-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Richard B. Johnson wrote:
+On Wed, Mar 06, 2002 at 04:42:14PM +0000, Alan Cox wrote:
+> >     Just about every company big enough to have a corporate lawyer, and
+> >     many even smaller do have "media" they need or want to track and
+> >     control. 
+> 
+> One thing the SSSCA people must consider here is security impact. If a 
 
-> Time for I/O is not generally "wasted" as you say. It is given to
-> other tasks. Of course if there are no other tasks that want the
-> CPU then, I guess, you could call it wasted.
+    Huh? 
 
-I guess it may be useful to measure IO wait time in the
-kernel, where IO wait time is defined as:
+    We're talking politicians here. 
 
-1) a CPU is idle
+    We're talking about the kind of people who try to pass a law setting
+    pi=3.14159 FULL STOP. 
 
-2) there are processes in D state
+    They don't have to consider jack shit. 
 
-regards,
+> document can be traced through its users then the ability of agencies to
+> work against organised crime will be crippled. The SSSCA appears to have no
+> provision to allow the FBI to remove watermarks, and makes it illegalf or
+> other people to be subcontracted to write the tools
+> Goodbye corporate whistleblowers, goodbye FBI plants in organised crime 
+> bodies..
 
-Rik
+    They don't care about whistleblowers, and FBI agents can always used
+    fake personalities. 
+
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Share and Enjoy. 

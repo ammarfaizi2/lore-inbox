@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUFZQeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267187AbUFZQgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUFZQeD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 12:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUFZQeC
+	id S267187AbUFZQgM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 12:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUFZQgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 12:34:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53893 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266304AbUFZQdq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 12:33:46 -0400
-Date: Sat, 26 Jun 2004 09:32:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix the cpumask rewrite
-In-Reply-To: <1088266111.1943.15.camel@mulgrave>
-Message-ID: <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
-References: <1088266111.1943.15.camel@mulgrave>
+	Sat, 26 Jun 2004 12:36:12 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:61321 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S267187AbUFZQet convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 12:34:49 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: kernel@kolivas.org
+Subject: Re: [PATCH] Staircase scheduler v7.4
+Date: Sat, 26 Jun 2004 18:33:29 +0200
+User-Agent: KMail/1.6.2
+References: <200406251840.46577.mbuesch@freenet.de> <200406252148.37606.mbuesch@freenet.de> <1088212304.40dccd5035660@vds.kolivas.org>
+In-Reply-To: <1088212304.40dccd5035660@vds.kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406261833.52060.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Saturday 26 June 2004 03:11, you wrote:
+> There was the one clear bug that Adrian Drzewiecki found (thanks!) that is easy
+> to fix. Can you see if this has any effect before I go searching elsewhere?
+
+Ok, I'll try it.
 
 
-On Sat, 26 Jun 2004, James Bottomley wrote:
->  
-> This might be correct for x86 and itanium, but it isn't for parisc where
-> our bitmap operators don't take volatile pointers.
+OT:
+Some mails bounce on kernel@kolivas.org:
 
-Why not? The thing is, the bitmap operators are supposed to work on 
-volatile data, ie people are literally using them for things like
+This is the Postfix program at host bhhdoa.org.au.
 
-	while (test_bit(TASKLET_STATE_SCHED, &t->state));
+####################################################################
+# THIS IS A WARNING ONLY.  YOU DO NOT NEED TO RESEND YOUR MESSAGE. #
+####################################################################
 
-and the thing is supposed to work.
+Your message could not be delivered for 4.0 hours.
+It will be retried until it is 5.0 days old.
 
-Now, I personally am not a big believer in the "volatile" keyword itself, 
-since I believe that anybody who expects the compiler to generate 
-different code for volatiles and non-volatiles is pretty much waiting for 
-a bug to happen, but there are two cases where I think it's ok:
+For further assistance, please send mail to <postmaster>
 
- - in function prototypes to show that the function can take volatile data 
-   (and not complain).
+                        The Postfix program
 
- - as an arch-specific low-level implementation detail to avoid having to 
-   use inline assembly just to load a value. Ie a _data_structure_ should 
-   never be volatile, but it's ok to use a volatile pointer for a single 
-   access.
+<kernel@kolivas.org>: connect to kolivas.org[211.28.147.198]: Connection timed
+    out
 
-I believe the bitop functions fall under #1 - the function is clearly
-supposed to handle the case of a volatile pointer, and if it is inlined,
-the above endless while-loop must not just load the bit once and turn it 
-into an endless loop - it needs to re-load the thing every iteration.
 
-> Since whether the bitmap operators are volatile or not is within the
-> province of the architecture to decide,
+Final-Recipient: rfc822; kernel@kolivas.org
+Action: delayed
+Status: 4.0.0
+Diagnostic-Code: X-Postfix; connect to kolivas.org[211.28.147.198]: Connection
+    timed out
+Will-Retry-Until: Wed, 30 Jun 2004 13:29:45 -0400 (EDT)
 
-I disagree. Why wouldn't they be volatile?
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
-		Linus
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA3aVtFGK1OIvVOP4RApVwAJ9ows81hLZoQtiFer5/F9DDZwKrHACdF/Cs
+y1sfWD8BusvvLWJMJbcT+yY=
+=Kd+H
+-----END PGP SIGNATURE-----

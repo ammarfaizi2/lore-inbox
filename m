@@ -1,78 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbTJTINk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 04:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTJTINk
+	id S262419AbTJTILL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 04:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbTJTILL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 04:13:40 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:49678 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262432AbTJTINd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 04:13:33 -0400
-Message-ID: <3F939B65.7060507@aitel.hist.no>
-Date: Mon, 20 Oct 2003 10:23:01 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
-X-Accept-Language: no, en
+	Mon, 20 Oct 2003 04:11:11 -0400
+Received: from mail.gmx.net ([213.165.64.20]:37098 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262419AbTJTIK5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 04:10:57 -0400
+Date: Mon, 20 Oct 2003 10:10:56 +0200 (MEST)
+From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, andre@linux-ide.org,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Harold Martin <cocoadev@earthlink.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Mounting /dev/md0 as root in 2.6.0-test7
-References: <1066582732.1108.5.camel@localhost>
-In-Reply-To: <1066582732.1108.5.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20031020064831.GT1128@suse.de>
+Subject: Re: HighPoint 374
+X-Priority: 3 (Normal)
+X-Authenticated: #20183004
+Message-ID: <6286.1066637456@www51.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harold Martin wrote:
-> First, is it possible to mount an md device as root (superblock is
-> present)?
-
-Yes, this is trivial.  /dev/md0 works just as good
-as, say, /dev/hda2.
-
-
-> If not then the rest of this doesn't really matter...
+> On Sun, Oct 19 2003, Bartlomiej Zolnierkiewicz wrote:
+> > 
+> > Andre, thanks for helpful hint.
+> > Svetoslav, the right person to whine about TCQ stuff is Jens Axboe 8-).
 > 
-> If so, I can't get it to work :(
-> I pass root=/dev/md0 to the kernl, but I get the "Kernel panic: VFS:
-> Unable to mount root fs on md0" error.
-
-1. This raid device is properly made and contains a valid root fs?
-2. The partitions containing parts of the RAID are of type
-   raid autodetect?  (if not, use cfdisk/fdisk/... and change them)
-2. Your kernel has the raid-drivers _compiled in_, they're not
-   modular?  (Modular _can_ be done if you load the drivers from
-   an initrd, but why bother?  Drivers for the root fs will never
-   be unloadable anyway, so no reason for modules here.  Compile
-   the drivers in, and they just work.
-
-> My setup:
-> kernel 2.6.0-test7
-> One drive on each of my two IDE channels (i810 chipset)
-> RAID 0, set up with raidtools
-> Using devfs
-I use devfs too.  Note that it isn't "/dev/md0" with devfs,
-it is "/dev/md/0".  Note the extra "/".  Now, devfsd may
-create a compatibilty symlink called "/dev/md0", but it isn't
-there at the time you mount root.
-
-Note that root=/dev/md/0 is not enough when you use devfs.
-You also need: append="root=/dev/md/0"
-for some strange dark reason.  It wasn't always so, it got broken.
-Perhaps an incentive to not use devfs?
-
-> My FS type (ext2 and ext3), partition type (DOS), and RAID-0 support are
-> all compiled in (not as modules).
-Good.
+> Well that's correct, but this looks more like an AS iosched bug :)
+> > > You do not enable TCQ on highpoint without using the hosted polling
+> timer.
+> > > Oh and I have not added it, and so hit Bartlomiej up for the
+> additions.
 > 
-> What else do I need to do to be able to mount /dev/md0 as root?
-> 
-Looks like the "append" thing is what you need, seeing that you
-already use compiled-in drivers.  Also make sure your raid-partitions
-are of the autodetect variety.
+> For what? TCQ tests fine on a HPT370 here.
 
-Helge Hafting
+cmdline : acpi=off pci=noacpi elevator=deadline
+
+hdparm  -d1 -X69 -Q32 /dev/hd[a,e,g]
+---------------------------------------------------------------------
+blk: queue f7dd2e00, I/O limit 4095Mb (mask 0xffffffff)
+hda: tagged command queueing enabled, command queue depth 32
+blk: queue f7dd2400, I/O limit 4095Mb (mask 0xffffffff)
+ide_dmaq_intr: stat=40, not expected
+ide_dmaq_intr: stat=40, not expected
+hde: tagged command queueing enabled, command queue depth 32
+ide_dmaq_intr: stat=40, not expected
+hdg: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
+DataRequest }
+blk: queue f7dcce00, I/O limit 4095Mb (mask 0xffffffff)
+hdg: dma_timer_expiry: dma status == 0x20
+hdg: DMA timeout retry
+hdg: timeout waiting for DMA
+hdg: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+
+hdg: drive not ready for command
+hdg: tagged command queueing enabled, command queue depth 32
+ide_dmaq_intr: hdg: error status ff
+hdg: ide_dmaq_complete: status=0xff { Busy }
+hdg: invalidating tag queue (1 commands)
+hdg: ide_intr: huh? expected NULL handler on exit
+hdg: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hdg: drive_cmd: error=0x04 { DriveStatusError }
+hdg: set_drive_speed_status: status=0xff { Busy }
+ide_tcq_intr_timeout: timeout waiting for completion interrupt
+hdg: invalidating tag queue (0 commands)
+hdg: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+
+hdg: drive not ready for command
+hdg: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+
+hdg: drive not ready for command
+hdg: CHECK for good STATUS
+ide_dmaq_intr: hde: error status ff
+hde: ide_dmaq_complete: status=0xff { Busy }
+hde: invalidating tag queue (1 commands)
+hde: ide_intr: huh? expected NULL handler on exit
+hde: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hde: drive_cmd: error=0x04 { DriveStatusError
+}
+--------------------------------------------------------------------------------------
+
+hdparm  -m16 -d1 -X69 -Q32
+/dev/hd[a,e,g]
+--------------------------------------------------------------------------------------
+blk: queue f7dd2e00, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue f7dd2400, I/O limit 4095Mb (mask 0xffffffff)
+hde: tagged command queueing enabled, command queue depth 32
+blk: queue f7dcce00, I/O limit 4095Mb (mask 0xffffffff)
+hdg: tagged command queueing enabled, command queue depth 32
+ide_dmaq_intr: hdg: error status ff
+hdg: ide_dmaq_complete: status=0xff { Busy }
+hdg: invalidating tag queue (1 commands)
+hdg: ide_intr: huh? expected NULL handler on exit
+hdg: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hdg: drive_cmd: error=0x04 { DriveStatusError
+}
+--------------------------------------------------------------------------------------
+
+hdparm  -m0 -d1 -X69 -Q32
+/dev/hd[a,e,g]
+--------------------------------------------------------------------------------------
+blk: queue f7dd2e00, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue f7dd2400, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue f7dcce00, I/O limit 4095Mb (mask 0xffffffff)
+hdg: tagged command queueing enabled, command queue depth 32
+ide_dmaq_intr: hdg: error status ff
+hdg: ide_dmaq_complete: status=0xff { Busy }
+hdg: invalidating tag queue (1 commands)
+hdg: ide_intr: huh? expected NULL handler on exit
+hdg: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hdg: drive_cmd: error=0x04 { DriveStatusError
+}
+-------------------------------------------------------------------------------------
+
+upto now no transfer to the drives, except to the root partition(system
+activity) which is on hdg
+
+dd if=/dev/zero of=/mnt/tmp/1/10Gb.zeros bs=512k count=20000
+[/dev/hde]
+------------------------------------------------------------------------------
+ide_dmaq_intr: hde: error status ff
+hde: ide_dmaq_complete: status=0xff { Busy }
+hde: invalidating tag queue (1 commands)
+hde: ide_intr: huh? expected NULL handler on exit
+hde: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hde: drive_cmd: error=0x04 { DriveStatusError }
+
+and a bit later
+
+ide_dmaq_intr: hda: error status ff
+hda: ide_dmaq_complete: status=0xff { Busy }
+hda: invalidating tag queue (1 commands)
+hda: ide_intr: huh? expected NULL handler on exit
+hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hda: drive_cmd: error=0x04 { DriveStatusError }
+
+only /boot ~ 90Mb was mounted on hda and i don't think the system accessed
+it
+
+on second thoght i also have a swap partition on it,
+but i have currently 1.9Mb swap used
+
+
+svetljo
+
+-- 
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+
+Jetzt kostenlos anmelden unter http://www.gmx.net
+
++++ GMX - die erste Adresse für Mail, Message, More! +++
 

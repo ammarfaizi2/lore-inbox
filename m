@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263627AbTIBI34 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 04:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263682AbTIBI34
+	id S263688AbTIBIbS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 04:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263689AbTIBIbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 04:29:56 -0400
-Received: from main.gmane.org ([80.91.224.249]:41933 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263627AbTIBI3y (ORCPT
+	Tue, 2 Sep 2003 04:31:18 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:20433 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S263688AbTIBIbO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 04:29:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Fix up power managment in 2.6
-Date: Tue, 02 Sep 2003 03:29:51 -0700
-Message-ID: <m21xuzjxeo.fsf@tnuctip.rychter.com>
-References: <20030901211220.GD342@elf.ucw.cz> <Pine.LNX.4.44.0309011509450.5614-100000@cherise>
+	Tue, 2 Sep 2003 04:31:14 -0400
+Date: Tue, 2 Sep 2003 11:31:07 +0300
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: Norbert Preining <preining@logic.at>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: 2.4, b44 transmit timeout
+Message-ID: <20030902083107.GA4065@ee.oulu.fi>
+References: <20030901193235.GA8280@gamma.logic.tuwien.ac.at> <20030901200022.GA3070@ee.oulu.fi> <20030902073353.GA935@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@sea.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:lzIwgPZuiAOCznDwZB5B+LP/Ft4=
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20030902073353.GA935@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
-
->>>>> "Patrick" =3D=3D Patrick Mochel <mochel@osdl.org>:
-[...]
- Patrick> Power management has not worked for a majority of users for a
- Patrick> long time. It's in dire need of someone with motivation,
- Patrick> direction, and the time to make it work properly, and get it
- Patrick> on par with some of our contemporary OSes. I'm trying to be
- Patrick> that person, and actually fix things in the long run, rather
- Patrick> than encouraging people to "fix it themselves".
-[...]
-
-I'd like to throw in some comments from a user's point of view.
-
-I've been using software suspend for quite a long time now. I was happy
-when Pavel made it work back when he first got to it. I was a bit less
-happy when it turned out that it doesn't really work all that well. Then
-I was happy again when Nigel Cunningham put in a *lot* of hard work
-(which he still does now) and made the 2.4 swsusp code nice and
-stable. The result of Nigel's work is code that allows me 2-3 weeks of
-uptime on my laptop with several suspends a day.
-
-In the meantime, the 2.5 version hasn't really gone anywhere
-interesting. It did not work for me when it was first merged, and it did
-not work in -test3 either. People reporting problems were mostly told to
-fix things themselves (which shows a blatant disregard for testers'
-time, a common pitfall for people that write code).
-
-Being a maintainer IMHO means fixing things, not standing in an ivory
-"maintainer" tower and shouting at people.
-
-Therefore, I couldn't agree more with Patrick. I am very happy to see
-that someone actually cares about the code, tries to clean it up and fix
-things. I hope things _will_ get fixed over time. And I certainly think
-that Patrick's cleanups and refactoring are better than the constantly
-broken state that software suspend was in.
-
-=2D-J.
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/VHEhLth4/7/QhDoRAkOvAKCDKDrrt96mig9S+DLo1Wg7EAIMUwCffPGx
-GYfpmVQ3Ifn7UhN5Bf/AGeg=
-=legi
------END PGP SIGNATURE-----
---=-=-=--
+On Tue, Sep 02, 2003 at 09:33:53AM +0200, Norbert Preining wrote:
+> * pinging the gateway (.1.1), working
+> Sep  2 09:20:22 gandalf vmunix: b44_start_xmit ctrl: e000002a addr: 5cea5d82 entry: 0 skb: d935b480
+> Sep  2 09:20:22 gandalf vmunix: b44_tx cons: 0 cur: 1 skb: d935b480
+> Sep  2 09:20:22 gandalf vmunix: b44_start_xmit ctrl: e0000062 addr: 5f982982 entry: 1 skb: d935b680
+> Sep  2 09:20:22 gandalf vmunix: b44_tx cons: 1 cur: 2 skb: d935b680
+> Sep  2 09:20:23 gandalf vmunix: b44_start_xmit ctrl: e0000062 addr: 5f982682 entry: 2 skb: d935b480
+> Sep  2 09:20:23 gandalf vmunix: b44_tx cons: 2 cur: 3 skb: d935b480
+> Sep  2 09:20:24 gandalf vmunix: b44_start_xmit ctrl: e0000062 addr: 5f982682 entry: 3 skb: d935b480
+> Sep  2 09:20:24 gandalf vmunix: b44_tx cons: 3 cur: 4 skb: d935b480
+> Sep  2 09:20:25 gandalf vmunix: b44_start_xmit ctrl: e0000062 addr: 5f982982 entry: 4 skb: d935b480
+> Sep  2 09:20:25 gandalf vmunix: b44_tx cons: 4 cur: 5 skb: d935b480
+> Sep  2 09:20:26 gandalf vmunix: b44_start_xmit ctrl: e0000062 addr: 5f982682 entry: 5 skb: d935b480
+> Sep  2 09:20:26 gandalf vmunix: b44_tx cons: 5 cur: 6 skb: d935b480
+> Sep  2 09:20:27 gandalf vmunix: b44_start_xmit ctrl: e000002a addr: 5cea5082 entry: 6 skb: d935ba80
+> Sep  2 09:20:27 gandalf vmunix: b44_tx cons: 6 cur: 7 skb: d935ba80
+> Sep  2 09:20:27 gandalf kernel: b44_start_xmit ctrl: e0000062 addr: 5f982982 entry: 7 skb: d935ba80
+> Sep  2 09:20:27 gandalf kernel: b44_tx cons: 7 cur: 8 skb: d935ba80
+> Sep  2 09:20:28 gandalf kernel: b44_start_xmit ctrl: e0000062 addr: 5f982682 entry: 8 skb: d935b480
+> Sep  2 09:20:28 gandalf kernel: b44_tx cons: 8 cur: 9 skb: d935b480
+> Sep  2 09:20:29 gandalf kernel: b44_start_xmit ctrl: e0000062 addr: 5f982982 entry: 9 skb: d935b480
+> Sep  2 09:20:29 gandalf kernel: b44_tx cons: 9 cur: 10 skb: d935b480
+> * stopping ping, ifconfig eth0 down, starting pump for getting dhcp
+> * address, no success!
+> Sep  2 09:20:41 gandalf pumpd[7584]: starting at (uptime 0 days, 2:04:19) Tue Sep  2 09:20:41 2003  
+> Sep  2 09:20:41 gandalf pumpd[7584]: PUMP: sending discover 
+> Sep  2 09:20:44 gandalf vmunix: b44: eth0: Link is up at 100 Mbps, full duplex.
+> Sep  2 09:20:44 gandalf vmunix: b44: eth0: Flow control is on for TX and on for RX.
+A-ha! Thanks, I think this should be enough to figure out what the problem
+is... Looks like the driver doesn't even get the packets pump tries to send,
+pump is a bit special in the way it bounces the interface up and down when
+doing its work, that probably triggers a race in b44..
 

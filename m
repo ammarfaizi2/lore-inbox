@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261338AbSJUMK6>; Mon, 21 Oct 2002 08:10:58 -0400
+	id <S261339AbSJUMNY>; Mon, 21 Oct 2002 08:13:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261339AbSJUMK6>; Mon, 21 Oct 2002 08:10:58 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:61875 "EHLO
+	id <S261341AbSJUMNY>; Mon, 21 Oct 2002 08:13:24 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:63155 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261338AbSJUMK5>; Mon, 21 Oct 2002 08:10:57 -0400
-Subject: Re: kexec for 2.5.44 (Who do I send this to?)
+	id <S261339AbSJUMNY>; Mon, 21 Oct 2002 08:13:24 -0400
+Subject: Re: [PATCH] Voyager subarchitecture for 2.5.44
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>
-In-Reply-To: <Pine.LNX.3.96.1021019151759.29078I-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1021019151759.29078I-100000@gatekeeper.tmr.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021019063230.GE23425@holomorphy.com>
+References: <200210190612.g9J6Cqu11812@localhost.localdomain> 
+	<20021019063230.GE23425@holomorphy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 13:31:31 +0100
-Message-Id: <1035203491.27259.71.camel@irongate.swansea.linux.org.uk>
+Date: 21 Oct 2002 13:35:08 +0100
+Message-Id: <1035203709.27318.73.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will start picking stuff up now I'm back and catching up on email
-(I've been away for a week). I'm not however interested in kexec or ltt
-or a lot of the other large stuff so don't bother resending me that kind
-of thing.
+On Sat, 2002-10-19 at 07:32, William Lee Irwin III wrote:
+> Also, I'd like to say this patch is impressively isolated from generic
+> i386 code. Although I've not tested, it seems very clear from the form
+> of the code that it will have no impact on UP i386 or other subarches.
 
-I really want to collect up bug fixes/compile fixes/driver updates and
-small but ready to merge stuff like the console updates if James Simmons
-is paying attention.
+Its been in -ac for ages - it doesnt cause problems. Would be nice if
+James had an update diff btw;)
 

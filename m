@@ -1,94 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317755AbSHHSry>; Thu, 8 Aug 2002 14:47:54 -0400
+	id <S317817AbSHHSw2>; Thu, 8 Aug 2002 14:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317785AbSHHSry>; Thu, 8 Aug 2002 14:47:54 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:65288
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317755AbSHHSrx>; Thu, 8 Aug 2002 14:47:53 -0400
-Date: Thu, 8 Aug 2002 11:43:20 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: Nick Orlov <nick.orlov@mail.ru>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org, davidsen@tmr.com
-Subject: Re: Part 2: Re: [PATCH] pdc20265 problem.
-In-Reply-To: <172AF2F5BB8@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.10.10208081138500.25573-100000@master.linux-ide.org>
+	id <S317852AbSHHSw2>; Thu, 8 Aug 2002 14:52:28 -0400
+Received: from [63.204.6.12] ([63.204.6.12]:698 "EHLO mail.somanetworks.com")
+	by vger.kernel.org with ESMTP id <S317817AbSHHSw1>;
+	Thu, 8 Aug 2002 14:52:27 -0400
+Date: Thu, 8 Aug 2002 14:56:06 -0400 (EDT)
+From: "Scott Murray" <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: Greg KH <greg@kroah.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: PCI hotplug resource reservation
+In-Reply-To: <20020808181931.GA22209@kroah.com>
+Message-ID: <Pine.LNX.4.33.0208081423550.26999-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Aug 2002, Petr Vandrovec wrote:
+On Thu, 8 Aug 2002, Greg KH wrote:
 
-> On  8 Aug 02 at 10:41, Andre Hedrick wrote:
-> 
-> > ide0 at 0xdfe0-0xdfe7,0xdfae on irq 31
-> > ide1 at 0xdfa0-0xdfa7,0xdfaa on irq 31
-> > ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
-> 
-> This is definitely bug. It should assigned ide0 to the port
-> in legacy mode, as far as I can tell.
+> On Thu, Aug 08, 2002 at 01:36:35PM -0400, Scott Murray wrote:
+> >
+> > Are you interested in this reservation code as a seperate patch for 2.4,
+> > or should I just send you all of my cPCI stuff to look at in one go?  I
+> > was going to cut it up into 3-4 patches before sending it to
+> > pcihpd-discuss sometime later today, but I can do whatever you want.
+>
+> I'd prefer it for 2.5 right now.  But if the cPCI stuff doesn't touch
+> anything else, I'd be interested in that for 2.4.
+>
+> I don't want to really touch the core PCI code in 2.4 right now, unless
+> we _really_ have to :)
 
-Again you have no experience in the logic!
+I do have some other core PCI changes, but they're nothing major:
+- exporting a few more things (e.g. pci_scan_bridge, pci_setup_bridge)
+- changing some things from __init to __devinit
+- adding new functions pci_find_bus, pci_do_max_busnr, and pci_max_busnr
 
-This boots with Promise first because of BIOS Logic with INT19 hooks.
-IE, that which I referenced in the documents that I know you did not read
-but come back and state it has nothing to do with the issues.
+Probably the most "interesting" code is a change I made to
+arch/i386/kernel/pci-irq.c to have pci_lookup_irq try to recursively
+find the parent slot in the IRQ routing table, via a new helper
+function pirq_get_parent_info.  This allows the IRQ assignment driven
+by pci_enable_device to work with devices behind bridges on cPCI
+peripheral cards.  This new code is currently conditional under
+CONFIG_HOTPLUG_PCI (probably _CPCI once I get my config changes done).
 
-> > PIIX4: IDE controller on PCI bus 00 dev 39
-> > PIIX4: device not capable of full native PCI mode
-> > PIIX4: device disabled (BIOS)
-> > PIIX4: device disabled (BIOS)
-> > hda: DupliDisk IDE RAID-1 Adapter( 1.19), ATA DISK drive
-> > hdc: QUANTUM FIREBALLP KA13.6, ATA DISK drive
-> > ide2: ports already in use, skipping probe
-> > ide0 at 0xd800-0xd807,0xdc02 on irq 18
-> > ide1 at 0xe400-0xe407,0xe802 on irq 18
-> 
-> You have disabled PIIX4 here, so ide0/1 were not reserved. I assume
+I can totally understand not wanting to destabilise 2.4, and I can
+live with having my own 2.4 cPCI tree up on bkbits if you don't want
+to pull these changes in.  Unfortunately, I'm not in a position to
+do any serious testing on 2.5, since I'm under the gun to deliver
+cPCI hotswap as part of a complete 2.4 based production system in
+another couple months.
 
-ASS U ME that is the word!
+> > Done.  I'd considered doing that right off, but it didn't seem to match
+> > the style of the rest of the PCI code, for example the proc and pm stuff.
+> > If you want, I can work on a patch to clean those up as well.
+>
+> For 2.5, I'd love a patch to do that.  As I said above, I don't really
+> care about that for 2.4.
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-HPT366: onboard version of chipset, pin1=1 pin2=2
-HPT366: IDE controller on PCI bus 00 dev 98
-PCI: Enabling device 00:13.0 (0005 -> 0007)
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:pio
-HPT366: IDE controller on PCI bus 00 dev 99
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-    ide1: BM-DMA at 0xec00-0xec07, BIOS settings: hdc:DMA, hdd:pio
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide2: BM-DMA at 0xf000-0xf007, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xf008-0xf00f, BIOS settings: hdg:pio, hdh:pio
-hda: DupliDisk IDE RAID-1 Adapter( 1.19), ATA DISK drive
-hdc: QUANTUM FIREBALLP KA13.6, ATA DISK drive
-ide0 at 0xd800-0xd807,0xdc02 on irq 18
-ide1 at 0xe400-0xe407,0xe802 on irq 18
+Okay, I might start pick at this on my vacation if I can get my hands on
+a half-decent laptop.
 
-What do you need me to attach a device?
+Scott
 
-The FSCKING BIOS did this, because there is an option to boot UDMA66
-first.
 
-> that if you enable PIIX4, it will use legacy ports, and will become
-> ide0/1.
->                                             Petr Vandrovec
->                                             
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Electrons wasted :-/
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 

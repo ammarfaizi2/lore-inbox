@@ -1,46 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSGMNIA>; Sat, 13 Jul 2002 09:08:00 -0400
+	id <S312558AbSGMNIa>; Sat, 13 Jul 2002 09:08:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311710AbSGMNH7>; Sat, 13 Jul 2002 09:07:59 -0400
-Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:20356 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S293680AbSGMNH6>;
-	Sat, 13 Jul 2002 09:07:58 -0400
-Subject: Re: PATCH: compile the kernel with -Werror
-From: Kenneth Johansson <ken@kenjo.org>
-To: Muli Ben-Yehuda <mulix@actcom.co.il>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020713102615.H739@alhambra.actcom.co.il>
-References: <20020713102615.H739@alhambra.actcom.co.il>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 13 Jul 2002 15:10:20 +0200
-Message-Id: <1026565820.13069.5.camel@tiger>
-Mime-Version: 1.0
+	id <S312254AbSGMNI3>; Sat, 13 Jul 2002 09:08:29 -0400
+Received: from [211.152.107.132] ([211.152.107.132]:27270 "EHLO dginfo305")
+	by vger.kernel.org with ESMTP id <S311710AbSGMNI1>;
+	Sat, 13 Jul 2002 09:08:27 -0400
+From: =?ISO-8859-1?Q?=B3=CC=B0=D8=C1=D6@?=
+Subject: =?GB2312?B?o6izrLXNvNu158TUsvrGt6Opyu682cbavOS158TU1fu7+rywxeS8/sirw+a+?=
+Message-Id: <20020713130827Z311710-686+1275@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
+Date: Sat, 13 Jul 2002 09:08:27 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-13 at 09:26, Muli Ben-Yehuda wrote:
-> A full kernel compilation, especially when using the -j switch to
-> make, can cause warnings to "fly off the screen" without the user
-> noticing them. For example, wli's patch lazy_buddy.2.5.25-1 of today
-> had a missing return statement in a function returning non void, which
-> the compiler probably complained about but the warning got lost in the
-> noise (a little birdie told me wli used -j64). 
+ =?GB2312?B?xdXbo6E=?=
+To: linux-kernel@vger.kernel.org
+Date: Sat, 13 Jul 2002 21:11:18 +0800
+X-Priority: 3
+X-Mailer: CSM 3.31
 
-use 
+台湾亿通集团驻广州供货中心
 
-make -j64 KBUILD_VERBOSE=0
+阁下：暑假期间电脑整机及配件全面九折！
 
-This is similar to what kbuils2.5 dose by default but since the in
-kernel version do not have one single makefile the output gets a bit
-reshuffled.
+见信好，我司将从全新面貌为广大新老客户服务，续推出手机、配件、笔记本等系列产品，因
+产品在不断更新，去年配件类需售后服务包换期未到的请尽尽快与公司联系，望广大客户来电
+垂询。单位：元
 
-But -j64 dose seem a but hi I usually use the same as numbers of cpu.
-over nfs I go a little higher.
-
-
-
+联系电话：013959832114    联系人：程柏林
+ 
+手机
+爱立信	诺基亚
+T68/T66/T65	580/1100/700	8910/9210/5510	3180/3880/850 元
+A3618/T39/T29	500/780/680	5210/8855/6510	900/2050/1300 元
+T28/T20	580/450	3350/8310/8250	560/1200/980 元
+摩托罗拉	8210/3330	600/520 元
+V70/388/T191	2050/1880/500	元
+三星
+V60/V66/T189	1300/980/580元 	T108/N628/A408	1900/1050/1150元
+A6288/V8088/V998+	1580/880/780	A388/N288/A288	980/880/1250元
+	N188/A188	680/980元
+笔记本系列
+IBM  X21/CH1  PⅢ/700/128M/12.1TFT/24XCD/56K+100M/1.6K                       8900  元       
+IBM  X22/106   PⅢ/733/128M/15G/12.1TFT/8XDVD/56K+100M/1.6K                  11000 元
+IBM  X22/QJC  PⅢ/800/128M/20G/12.1TFT/8XDVD/56K+100M/1.6K/无线网卡          12500元
+IBM  A30M/3BC PⅢ/1G/128M/30G/15.1TFT/8XDVD/56K+100M/16M显存                 12000元
+IBM  R30/62C  PⅢ/1G/128M/30G/14.1TFT/8XDVD/56K+100M/软驱外挂                10000元
+IBM  T23/2TC   PⅢ1G/128M/20G/14.1TFT/8XDVD/56K+100M/W12K/光软互换           12000 元
+TOSHIBA2800(13) 1800(13)C800/64M/10G/24XCD/14.1TFT/全内置/56K+100M            5500元
+TOSHIBA2800(13)1800(14) PⅢ1.1G/128M/20G/24XCD/14.1TFT/全内置/56K+100M        8610元
+TOSHIBA2800(13)1800(15) PⅢ1.1G/128M/20G/8XDVD/14.1TFT/全内置/56K+100M        9100元
+TOSHIB 3000 (14) PⅢ-m933/128M/20G/14.1TFT/8XDVD/56K+100M/16M/WINXP           9000元
+TOSHIB 3000 (14) PⅢ-m1G/128M/30G/14.1TFT/8XDVD/56K+100M/16M/WINXP            10000元
+SONY系列
+SR17  PⅢ700/128M/20G/10.4TFT/56K/超轻薄                                       7800元
+R505TE  PⅢ750/64M/15G/12.1TFT/100M网卡/56K/超轻薄                             8600元
+R505TS  PⅢ850/128M/20G/12.1TFT/100M网卡/56K/超轻薄                            9800元
+FX340  PⅢ900/128M/15G/14TFT/CDRW+DVD/56K/100M网卡/全内置                      8700元
+FX370  PⅢ1000/256M/20G/15TFT/CDRW+DVD/56K/100M网卡/全内置                     9880元
+CPU		金钻20G/40G/60G/80G	300/350/480/560
+雷鸟900/950/1G	250/270/350	主板	
+雷鸟1.2G/1.3G/1.4G	420/480/580	精英P4VXAD(VIA478DDR )	580元
+毒龙850/900/1G	180/200/280	精英D7AMA（ALI芯片）	475元
+赛扬766/850/900	260/280/300	精英P6IPAT(815EP)/815E	380/470元
+Athlon XP 1600+	600	精英K7S5ASIS/730S	390/380元
+Athlon XP 1800+	780	技嘉6VEM(集声卡、显卡)	380元
+PⅢ733/800/850	380/420/425	技嘉60X(815EP芯片)	320元
+PⅢ866/933/1G	435/485/485	技嘉8SRX645/478/DDR	570元
+P41.4G/1.5G(盒,423)	600/620	微星815EPPRO-R/EPT	495/460元
+P41.6/1.7/1.8(盒，478)	650/750/900	微星6309NL/850	370/600元
+赛扬950/1000(256K)	320/330	华硕CUSI-M（带声显卡）	345
+P41.4G/1.5G/1.6G	500/530/620	华硕CUSL2-M（L2-C）	420/510元
+P41.7G/1.8G/2.0G/	655/700/805	佰钰6A815EPD第一款815主板	530元
+PⅢ730/800/860	380/420/435	佰钰4PX266A/4D845支持478CPU	480/610元
+PⅢ850/930/1G	425/485/485	佰钰4S845AL（支持478CPU）	540元
+赛扬380/500/533	110/120/130	显示器	
+赛扬733/800/850	170/180/190	三星753DFX17”纯平	890元
+赛扬900/1G/1.2G	200/230/250	三星743DF17”纯平	800元
+赛扬1.3G/1.7G	270/350	三星753S17”数控	760元
+内存		三星551S15”数控	550元
+HY64M/128/256M	80/100/200	LG575N（15”）/773N(17”)	660/750元
+KM64M/128/256M	90/120/220	LG771EP/775FT	855/890元
+三星DDR128M	150	声卡	
+HYDDR128M/256M	150/300	创新VIBRAT28（盒装）	80元
+HY64M/128M/256M	50/80/150	创新LIVE/5.1	250元
+KMX128M/256M	90/160	创新Audigy Value版（无SB1394）	380元
+硬盘		创新Audigy 豪华版	488元
+IBM20G/40G 7200三年保	380/420	创新 FPS1600 4.1	250元
+IBM60G/80G 7200三年保	550/750	创新 FPS2222005.1	510元
+IBM 笔记本10G/20G	450/580	MODEM	
+金钻20G/30/40G(7200/2M)	300/380/480	GVC超级魔电内置（ESS）	50元
+星钻20G/40G(5400R/2M)	280/320	GVC硬猫双芯片INTER	60元
+IBM 30G/40/60G	180/250/300	全向硬猫双芯片INTER	75元
+IBM80G/1220G	390/600	全向56K外置（ROCKWELL）	200元
+希捷20G/40G/60G/80G	200/220/325/385	音箱	
+星钻20G/40G/60G	230/320/380	漫步者低音炮R20T/R30T	60/100元
+星钻80G/160G	400/985	元	

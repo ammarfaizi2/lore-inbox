@@ -1,67 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbVCVL20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVCVLcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262626AbVCVL20 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 06:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262646AbVCVL0l
+	id S261880AbVCVLcp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 06:32:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVCVL36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 06:26:41 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:56845 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262653AbVCVLZY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 06:25:24 -0500
-Date: Tue, 22 Mar 2005 22:25:04 +1100
-To: Fruhwirth Clemens <clemens@endorphin.org>
-Cc: James Morris <jmorris@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       cryptoapi@lists.logix.cz, linux-crypto@vger.kernel.org
-Subject: [9/*] [CRYPTO] Remap when walk_out crosses page in crypt()
-Message-ID: <20050322112504.GC7224@gondor.apana.org.au>
-References: <20050321094047.GA23084@gondor.apana.org.au> <20050322112231.GA7224@gondor.apana.org.au> <20050322112416.GB7224@gondor.apana.org.au>
+	Tue, 22 Mar 2005 06:29:58 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:35256 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262269AbVCVL3M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 06:29:12 -0500
+Date: Tue, 22 Mar 2005 12:28:56 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
+Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+Message-ID: <20050322112856.GA25129@elte.hu>
+References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="s9fJI615cBHmzTOP"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050322112416.GB7224@gondor.apana.org.au>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20050322100153.GA23143@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---s9fJI615cBHmzTOP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Hi:
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > hm, another thing: i think call_rcu() needs to take the read-lock.
+> > Right now it assumes that it has the data structure private, but
+> > that's only statistically true on PREEMPT_RT: another CPU may have
+> > this CPU's RCU control structure in use. So IRQs-off (or preempt-off)
+> > is not a guarantee to have the data structure, the read lock has to be
+> > taken.
+> 
+> i've reworked the code to use the read-lock to access the per-CPU data
+> RCU structures, and it boots with 2 CPUs and PREEMPT_RT now. The
+> -40-05 patch can be downloaded from the usual place:
 
-This is needed so that we can keep the in_place assignment outside the
-inner loop.  Without this in pathalogical situations we can start out
-having walk_out being different from walk_in, but when walk_out crosses
-a page it may converge with walk_in.
+bah, it's leaking dentries at a massive scale. I'm giving up on this
+variant for the time being and have gone towards a much simpler variant,
+implemented in the -40-07 patch at:
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+   http://redhat.com/~mingo/realtime-preempt/
 
---s9fJI615cBHmzTOP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=sg-9
+it's along the lines of Esben's patch, but with the conceptual bug fixed
+via the rcu_read_lock_nesting code from Paul's patch.
 
-===== cipher.c 1.26 vs edited =====
---- 1.26/crypto/cipher.c	2005-03-22 21:56:21 +11:00
-+++ edited/cipher.c	2005-03-22 21:59:53 +11:00
-@@ -129,7 +129,9 @@
- 			complete_dst(&walk_out, bsize, dst_p, in_place);
- 
- 			nbytes -= bsize;
--		} while (nbytes && !scatterwalk_across_pages(&walk_in, bsize));
-+		} while (nbytes &&
-+			 !scatterwalk_across_pages(&walk_in, bsize) &&
-+			 !scatterwalk_across_pages(&walk_out, bsize));
- 
- 		scatterwalk_done(&walk_in, 0, nbytes);
- 		scatterwalk_done(&walk_out, 1, nbytes);
+there's a new CONFIG_PREEMPT_RCU option. (always-enabled on PREEMPT_RT)
+It builds & boots fine on my 2-way box, doesnt leak dentries and
+networking is up and running.
 
---s9fJI615cBHmzTOP--
+first question, (ignoring the grace priod problem) is this a correct RCU
+implementation? The critical scenario is when a task gets migrated to
+another CPU, so that current->rcu_data is that of another CPU's. That is
+why ->active_readers is an atomic variable now. [ Note that while
+->active_readers may be decreased from another CPU, it's always
+increased on the current CPU, so when a preemption-off section
+determines that a quiescent state has passed that determination stays
+true up until it enables preemption again. This is needed for correct
+callback processing. ]
+
+this implementation has the 'long grace periods' problem. Starvation
+should only be possible if a system has zero idle time for a long period
+of time, and even then it needs the permanent starvation of
+involuntarily preempted rcu-read-locked tasks. Is there any way to force
+such a situation? (which would turn this into a DoS)
+
+[ in OOM situations we could force quiescent state by walking all tasks
+and checking for nonzero ->rcu_read_lock_nesting values and priority
+boosting affected tasks (to RT prio 99 or RT prio 1), which they'd
+automatically drop when they decrease their rcu_read_lock_nesting
+counter to zero. ]
+
+	Ingo

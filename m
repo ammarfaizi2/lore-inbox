@@ -1,77 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129792AbRALVW3>; Fri, 12 Jan 2001 16:22:29 -0500
+	id <S129595AbRALV1T>; Fri, 12 Jan 2001 16:27:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135387AbRALVWT>; Fri, 12 Jan 2001 16:22:19 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:25102 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S129792AbRALVWM>;
-	Fri, 12 Jan 2001 16:22:12 -0500
-Date: Fri, 12 Jan 2001 22:21:27 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, dwmw2@infradead.org,
-        linux-kernel@vger.kernel.org, mingo@elte.hu,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
-Message-ID: <20010112222127.A28576@unternet.org>
-In-Reply-To: <20010112205245.A26555@unternet.org> <Pine.LNX.4.10.10101121158050.3010-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101121158050.3010-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 11:59:25AM -0800
+	id <S135268AbRALV1K>; Fri, 12 Jan 2001 16:27:10 -0500
+Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:7113
+	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
+	with SMTP id <S129595AbRALV0v>; Fri, 12 Jan 2001 16:26:51 -0500
+Date: Fri, 12 Jan 2001 22:26:50 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: <bunk@tethys.fachschaften.tu-muenchen.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <E14H8hl-0004ji-00@the-village.bc.nu>
+Message-ID: <Pine.NEB.4.31.0101122220080.3614-100000@tethys.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Remind me: what polarity are your io-apic irq's? Level, edge, sideways?
-> Anything else that might be relevant?
+On Fri, 12 Jan 2001, Alan Cox wrote:
 
-Well, sideways ofcourse! :-)
+> > I want to see the code to handle the apparent VIA DMA bug. At this point,
+> > preferably by just disabling DMA on VIA chipsets or something like that
+> > (if it has only gotten worse since 2.2.x, I'm not interested in seeing any
+> > experimental patches for it during early 2.4.x).
+>
+> It hasnt gotten worse, its just its a very specific combination and its a
+> well known problem (vendors dont enable auto dma for ide for this reason)
+> 2.2.16 just covers the cases I know about (and slightly overdoes it for now)
+>
+> > We've already had one major fs corruption due to this, I want that fixed
+> > _first_.
+>
+> I've got other reports too.
+>...
 
-here's a cat /proc/interrupts from the (BP6) box:
+At least some of the reported problems with VIA chipsets are fixed with
+the VIA IDE driver v3.11 [1]. Are there any problems that still occur with
+this driver?
 
-           CPU0       CPU1       
-  0:     104936     105433    IO-APIC-edge  timer
-  1:       4444       4384    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  3:         79         59    IO-APIC-edge  serial
-  4:      12743      12850    IO-APIC-edge  serial
- 14:       7855       7885    IO-APIC-edge  ide0
- 15:       1990       1703    IO-APIC-edge  ide1
- 16:          0          0   IO-APIC-level  es1371, mga@PCI:1:0:0
- 17:         24         28   IO-APIC-level  sym53c8xx
- 18:          0          0   IO-APIC-level  bttv
- 19:     460435     460402   IO-APIC-level  eth0, eth1, usb-uhci
-NMI:     210303     210303 
-LOC:     210285     210284 
-ERR:          0
+cu,
+Adrian
 
-The interrupt which caused problems was 19 (with both network cards and USB on
-it). It shows a high number of interrupts because I've been load-testing the
-network. The mere fact that it shows this hig number of interrupts shows the
-fix works...
+[1] http://www.lib.uaa.alaska.edu/linux-kernel/archive/2001-Week-02/1291.html
 
-As this is a BP6, I'm now supposed to go on about the dead chickens, dedicated
-air conditioners, nuclear powersupplies and other magic you're supposed to buy
-to get these boards running. Well, nothing of that sort, it is running on a
-simple (but high quality) 235W PSU with heatgreased coolers on the CPUs and the
-BX xhipset. Nothing is overclocked. CPU and chipset tmeperatures are 24.C and
-32.C, respectively.
 
-In short, nothing remarkable. All PCI slots are used, as you can see from my
-first posting in this thread (which contains more info on the hardware).
-
-//Frank
 -- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+A "No" uttered from deepest conviction is better and greater than a
+"Yes" merely uttered to please, or what is worse, to avoid trouble.
+                -- Mahatma Ghandi
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265658AbUAGVKv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 16:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbUAGVKv
+	id S265636AbUAGVDN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 16:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265639AbUAGVDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 16:10:51 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56297 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265658AbUAGVKt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 16:10:49 -0500
-Date: Wed, 7 Jan 2004 22:10:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-rc1-tiny2
-Message-ID: <20040107211045.GJ16720@suse.de>
-References: <20040106054859.GA18208@waste.org> <20040107140640.GC16720@suse.de> <20040107185039.GC18208@waste.org>
+	Wed, 7 Jan 2004 16:03:12 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:16652 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S265636AbUAGVDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 16:03:09 -0500
+Date: Wed, 7 Jan 2004 22:02:55 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Subject: Re: Problem with 2.4.24 e1000 and keepalived
+Message-ID: <20040107210255.GA545@alpha.home.local>
+References: <20040107200556.0d553c40.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040107185039.GC18208@waste.org>
+In-Reply-To: <20040107200556.0d553c40.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07 2004, Matt Mackall wrote:
-> On Wed, Jan 07, 2004 at 03:06:40PM +0100, Jens Axboe wrote:
-> > On Mon, Jan 05 2004, Matt Mackall wrote:
-> > > This is the fourth release of the -tiny kernel tree. The aim of this
-> > > tree is to collect patches that reduce kernel disk and memory
-> > > footprint as well as tools for working on small systems. Target users
-> > > are things like embedded systems, small or legacy desktop folks, and
-> > > handhelds.
-> > > 
-> > > Latest release includes:
-> > >  - various compile fixes for last release
-> > >  - actually include Andi Kleen's bloat-o-meter this time
-> > >  - optional mempool removal
-> > 
-> > Your CONFIG_MEMPOOL is completely broken as you are no longer giving the
-> > same guarentees (you have no reserve at all). Might as well change it to
-> > CONFIG_DEADLOCK instead.
-> 
-> It's equivalent to a pool size of zero, yes, so deadlock odds are
-> significantly higher with some usage scenarios. I'll add a big fat
-> warning.
+Hi Stephan,
 
-Precisely. In most scenarios it makes deadlocks possible, where it was
-safe before (more below).
+On Wed, Jan 07, 2004 at 08:05:56PM +0100, Stephan von Krawczynski wrote:
+> Setup is a simple pair of routers with 2 nics each, all e1000. If you start a
+> vrrp setup with keepalived and interface state is down during keepalived
+> startup, then the failover does not work. If the nics are UP during startup
+> everything works well. Now the kernel part of the story: the exact same setup
+> works with tulip cards.
+> Is there a difference regarding UP/DOWN state handling/events in e1000 and
+> tulip. e100 and eepro100 show the same problem btw.
 
-> On the other hand, the existence of pre-allocated mempools can greatly
-> increase the likelihood of starvation, oom, and deadlock on the rest
-> of the system, especially as it becomes a greater percentage of the
-> total free memory on a small system. In other words, I had to cut this
-> corner to make running in 2M work with my config. When I merge
-> CONFIG_BLOCK, it'll be more generally useful.
+I noticed the exact same problem about 1 year ago with the early 2.4
+bonding code and eepro100. At this time, I attributed this to a yet
+undiscovered but in the bonding state machine, and could not investigate
+much since it was on a remote production machine. Someone went there and
+rebooted it and everything went OK. Before the reboot, the switch alredy
+detected an UP link, while the bonding code saw it down (using MII at this
+time, not ethtool). I recently read one report (here or on keepalived list)
+about someone who got the same problem with another eepro100. I wonder
+whether there would not be a bug either in the driver or in the chip itself.
 
-It needs to be carefulled tuned, definitely.
+What I noticed is that if you load the driver while the cable is unplugged,
+and then plug it, the MII status says the link is still down. Unfortunately,
+the only e100 I have access to are in prod at a customer's and I really
+cannot make tests there.
 
-> For the sake of our other readers, I'll point out that mempool doesn't
-> intrinisically reduce deadlock odds to zero unless we have a hard
-> limit on requests in flight that's strictly less than pool size.
-
-That's not true, depends entirely on usage. It's not a magic wand. And
-you don't need a hard limit, you only need progress guarentee. Typically
-just a single pre-allocated object can make you 100% deadlock free, if
-stacking is not involved. So for most cases, I think it would be much
-better if you just hard wired min_nr to 1, that would move you from 90%
-to 99% safe :-)
-
--- 
-Jens Axboe
+Cheers,
+Willy
 

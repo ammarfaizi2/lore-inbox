@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286893AbSBDSxK>; Mon, 4 Feb 2002 13:53:10 -0500
+	id <S286871AbSBDSwc>; Mon, 4 Feb 2002 13:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287289AbSBDSxB>; Mon, 4 Feb 2002 13:53:01 -0500
-Received: from stingr.net ([212.193.33.37]:61188 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id <S286893AbSBDSwo>;
-	Mon, 4 Feb 2002 13:52:44 -0500
-Date: Mon, 4 Feb 2002 21:52:31 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18pre7-ac3
-Message-ID: <20020204215231.D349@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200202041606.g14G6Lb16388@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200202041606.g14G6Lb16388@devserv.devel.redhat.com>
-User-Agent: Agent Tanya
-X-Mailer: Roxio Easy CD Creator 5.0
-X-RealName: Stingray Greatest Jr
-Organization: Bedleham International
+	id <S286893AbSBDSwW>; Mon, 4 Feb 2002 13:52:22 -0500
+Received: from squeaker.ratbox.org ([63.216.218.7]:35335 "EHLO
+	squeaker.ratbox.org") by vger.kernel.org with ESMTP
+	id <S286871AbSBDSwK>; Mon, 4 Feb 2002 13:52:10 -0500
+Date: Mon, 4 Feb 2002 13:59:09 -0500 (EST)
+From: Aaron Sethman <androsyn@ratbox.org>
+To: Kev <klmitch@MIT.EDU>
+Cc: Darren Smith <data@barrysworld.com>, "'Andrew Morton'" <akpm@zip.com.au>,
+        "'Dan Kegel'" <dank@kegel.com>,
+        "'Vincent Sweeney'" <v.sweeney@barrysworld.com>,
+        <linux-kernel@vger.kernel.org>, <coder-com@undernet.org>
+Subject: Re: [Coder-Com] Re: PROBLEM: high system usage / poor SMP network
+ performance
+In-Reply-To: <200202041848.NAA04094@coleco-sidewinder.mit.edu>
+Message-ID: <Pine.LNX.4.44.0202041358180.4584-100000@simon.ratbox.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Alan Cox:
-> Linux 2.4.18pre7-ac3
+On Mon, 4 Feb 2002, Kev wrote:
+> Wouldn't have the effect.  The original point was that adding the usleep()
+> gives some time for some more file descriptors to become ready before calling
+> poll(), thus increasing the number of file descriptors poll() can return
+> per system call.  Adding the time to timeout would have no effect.
 
-In -ac2 you introduced change to one of kernel iptables header that result
-in compile failure of while userland iptables 1.2.5-cvs. Let me see that is
-fixed now, if not, I will post here a couple of diffs.
+My fault, I'm not thinking straight today.  I don't believe I've had my
+daily allowance of caffine yet.
 
--- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
+Regards,
+
+Aaron
+

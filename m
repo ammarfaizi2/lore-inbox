@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265405AbUBIUKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 15:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265406AbUBIUKJ
+	id S265413AbUBIUPL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 15:15:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265420AbUBIUPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 15:10:09 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:63140 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265405AbUBIUKB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 15:10:01 -0500
-Subject: Re: p4ht time accelleration
-From: john stultz <johnstul@us.ibm.com>
-To: Tim Warnock <timoid@getonit.net.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <01cf01c3ed3f$069c1240$8c02a8c0@timtopxp>
-References: <01cf01c3ed3f$069c1240$8c02a8c0@timtopxp>
-Content-Type: text/plain
-Message-Id: <1076357381.1351.1.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 09 Feb 2004 12:09:41 -0800
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Feb 2004 15:15:11 -0500
+Received: from farley2.Colorado.EDU ([128.138.129.103]:8951 "EHLO
+	farley2.Colorado.EDU") by vger.kernel.org with ESMTP
+	id S265413AbUBIUPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 15:15:07 -0500
+From: moseleyt@colorado.edu
+Message-ID: <1076357703.4027ea47ed2e3@webmail.colorado.edu>
+Date: Mon,  9 Feb 2004 13:15:03 -0700
+To: linux-kernel@vger.kernel.org
+Subject: halting processor in SMT(Hyperthreading) system
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-06 at 21:55, Tim Warnock wrote:
-> i have a box running 2.4.24 (its been doing this since the box was put into
-> place on 2.4.21)
+Hello,
 
-[snip]
+I am doing research involving optimal scheduling for Hyperthreading systems.  I
+was curious if there was an easy way to arbitrarily halt/wake up a processor
+other than the one being run on from schedule().
 
-> the os time accellerates into the future but the rtc time stays normal...
-> 
-> is it software, hardware or what? i dont know. i dunno who to ask for
-> help hence the post...
-> 
-> the box is a p4ht 2.6 ibm think center
+Thanks
 
-Could you further describe the system you are seeing the problem on?
-
-Also, please send me your dmesg output.
-
-thanks
--john
-
+Tipp
 

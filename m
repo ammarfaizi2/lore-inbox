@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVC3PZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVC3PeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbVC3PZc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 10:25:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVC3PZc
+	id S262246AbVC3PeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 10:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVC3PeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 10:25:32 -0500
-Received: from colin2.muc.de ([193.149.48.15]:2060 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262219AbVC3PZ3 (ORCPT
+	Wed, 30 Mar 2005 10:34:09 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:38486 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S262246AbVC3PeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 10:25:29 -0500
-Date: 30 Mar 2005 17:25:27 +0200
-Date: Wed, 30 Mar 2005 17:25:27 +0200
-From: Andi Kleen <ak@muc.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "H. J. Lu" <hjl@lucon.org>, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: i386/x86_64 segment register issuses (Re: PATCH: Fix x86 segment register access)
-Message-ID: <20050330152527.GD12672@muc.de>
-References: <20050326020506.GA8068@lucon.org> <20050327222406.GA6435@lucon.org> <m14qev3h8l.fsf@muc.de> <Pine.LNX.4.58.0503291618520.6036@ppc970.osdl.org> <20050330015312.GA27309@lucon.org> <Pine.LNX.4.58.0503291815570.6036@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503291815570.6036@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Mar 2005 10:34:06 -0500
+Message-ID: <424AC6EA.9040707@tls.msk.ru>
+Date: Wed, 30 Mar 2005 19:34:02 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Yves Crespin <crespin.quartz@wanadoo.fr>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Disable cache disk
+References: <424AA2F0.3090100@wanadoo.fr>
+In-Reply-To: <424AA2F0.3090100@wanadoo.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 	unsigned gsindex;
-> > 	asm volatile("movl %%gs,%0" : "=g" (gsindex));
+Yves Crespin wrote:
+> Hello,
 > 
-> Ok, that's a real x86-64 bug, it seems. Andi, please fix, preferably by 
-> just making the "g" be a "r".
+> I write a lot of files on a USB disk for video monitoring archiving.
+> The write program is faster than the USB.
+> Cache disk take all RAM and kernel start swapping and everything become 
+> very slow.
+> 1/ is-it possible to *really* be synchronize. I prefer to have a blocked 
+> write() than use cache and get swap!
+> 2/ is-it possible to disable cache disk ?
 
-Will do.
+Try open() with O_DIRECT flag for a start.
 
--Andi
+/mjt

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284302AbRL1XD2>; Fri, 28 Dec 2001 18:03:28 -0500
+	id <S284177AbRL1XK2>; Fri, 28 Dec 2001 18:10:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284289AbRL1XDI>; Fri, 28 Dec 2001 18:03:08 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20749 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284258AbRL1XC7>; Fri, 28 Dec 2001 18:02:59 -0500
-Subject: Re: State of the new config & build system
-To: esr@thyrsus.com
-Date: Fri, 28 Dec 2001 23:13:00 +0000 (GMT)
-Cc: garzik@havoc.gtf.org (Legacy Fishtank),
-        torvalds@transmeta.com (Linus Torvalds), davej@suse.de (Dave Jones),
-        esr@snark.thyrsus.com (Eric S. Raymond),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011228154537.E17774@thyrsus.com> from "Eric S. Raymond" at Dec 28, 2001 03:45:37 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16K6BQ-00029u-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S284285AbRL1XKT>; Fri, 28 Dec 2001 18:10:19 -0500
+Received: from phosphor.cipic.ucdavis.edu ([169.237.153.5]:52999 "EHLO
+	phosphor.cipic.ucdavis.edu") by vger.kernel.org with ESMTP
+	id <S284177AbRL1XKI>; Fri, 28 Dec 2001 18:10:08 -0500
+Message-Id: <4.3.1.2.20011228145143.00b8d7e0@phosphor.cipic.ucdavis.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Fri, 28 Dec 2001 15:09:59 -0800
+To: linux-kernel@vger.kernel.org
+From: Dennis Thompson <yknot@cipic.ucdavis.edu>
+Subject: 2.4.17 - HIMEM option creates unresolved symbols for FS modules
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd be happy to take another swing at this problem once the kbuild-2.5/CML2
-> transition is done.  But I don't think we should let it block us from
-> having the good results we can get from that change.
+I have a pentium 4 machine running RedHat 7.2 into which I just install 1GB of RAM.  I compiled the 2.4.17 kernel and modules with the 4GB memory option.  On rebooting the system with the new kernel several error messages where generated.  depmod -e reported unresolved symbols for many file system modules including but not limited to: nfs nfsd loop smbfs and reiserfs.
 
-It would certainly fit nicely with the existing metadata. We already rip out
-code comments via kernel-doc, and extending it to rip out
+I re-complied the kernel with only one change, High Memory Support was turned off. The new kernel worked great and I had no unresolved symbols in any of the re-compiled modules.
 
-	-	Help text
-	-	Web site
-	-	Version information
-	-	Man page for the driver
-	-	Module options
 
-etc, shouldn't be too challenging. Ok so kernel-doc is in perl and ugly perl
-but if someone hates it enough to rewrite it in python thats a win too 8)
 
-Alan
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.11.90.0.8
+util-linux             2.11f
+mount                  2.11g
+modutils               2.4.6
+e2fsprogs              1.23
+reiserfsprogs          3.x.0j
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0.11
+Modules Loaded         sg sr_mod cdrom i810_audio ac97_codec soundcore radeon agpgart nfs autofs4 nfsd lockd sunrpc 3c59x ide-scsi scsi_mod reiserfs mousedev hid input usb-uhci usbcore rtc
+
+

@@ -1,74 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVBNXxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVBNX5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVBNXxj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 18:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVBNXxj
+	id S261367AbVBNX5b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 18:57:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVBNX5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 18:53:39 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:51328 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261290AbVBNXuf (ORCPT
+	Mon, 14 Feb 2005 18:57:31 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:8183 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S261367AbVBNX5I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 18:50:35 -0500
-Message-ID: <42113921.7070807@sgi.com>
-Date: Mon, 14 Feb 2005 17:49:53 -0600
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
+	Mon, 14 Feb 2005 18:57:08 -0500
+Date: Mon, 14 Feb 2005 23:57:07 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: udev and cdsymlinks
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Greg KH <gregkh@suse.de>
+X-Mailer: Balsa 2.3.0
+Message-Id: <1108425427l.23313l.1l@werewolf.able.es>
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Robin Holt <holt@sgi.com>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de> <20050212155426.GA26714@logos.cnet> <20050212212914.GA51971@muc.de> <20050214163844.GB8576@lnx-holt.americas.sgi.com> <20050214191509.GA56685@muc.de>
-In-Reply-To: <20050214191509.GA56685@muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+	protocol="application/pgp-signature"; boundary="=-+tQ5BUxpbw6DOLkdcO+U"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->>But how do you use mbind() to change the memory placement for an anonymous
->>private mapping used by a vendor provided executable with mbind()?
-> 
-> 
-> For that you use set_mempolicy.
-> 
-> -Andi
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"aart@kvack.org"> aart@kvack.org </a>
-> 
+--=-+tQ5BUxpbw6DOLkdcO+U
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Andi,
+Hi all...
 
-If all processes are guarenteed to use the NUMA api for memory placement,
-then AFAIK one could, in principle, imbed the migration of pages into
-the NUMA api as you propose.  The problem is that AFAIK most programs
-that we run are not using the NUMA api.  Instead, they are using first-touch
-with the knowledge that such pages will be allocated on the node where they
-are first referenced.
+There are some problems with current udev. I wil try to propose an acceptab=
+le
+solution (ie, patch ;) ).
 
-Since we have to build a migration facility that will migrate jobs that
-use both the NUMA API and the first-touch approach, it seems to me the
-only plausible soluion is to move the pages via a migration facility
-and then if there are NUMA API control structures found associated with
-the moved pages to update them to represent the new reality.  Whether
-this happens as an automatic side effect of the migration call or it
-happens by a issuing a new set_mempolicy() is not clear to me.  I would
-prefer to just issue a new set_mempolicy(), but somehow the migration
-code will have to figure out where this call needs to be executed (i. e.
-which pages have an associated NUMA policy).  [Thus the disclaimer in
-the overview note that we have figured all the interaction with
-memory policy stuff yet.]
+My problems are with cdsymlinks (the C version, mandrake cooker uses that;
+all I say is applicable also to the bash version).
 
--- 
------------------------------------------------
-Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-	 so I installed Linux.
------------------------------------------------
+Problems with udev-053:cdymlinks.c:
+
+- Does not obey the NUMBERED_LINKS flag. Just a problem with string lengths=
+.
+  Fixed below.
+- The nunbered links sould always be present (ie, kill NUMBERED_LINKS).
+  Why ?
+    - In a box with several optical units, you obviously need numbered link=
+s.
+      You also need a 'default' unit for each class (cdrom, dvd, cdrw...)
+    - In a box with only one unit, you also need the numbered links for
+      compatibility (a program can try to open cdrom{i}, i in 0.., ) until
+      it fails...)
+- In a box with just one DVDRW it fails, typo in the strtok.
+
+Is this patch acceptable ?
+
+TIA
+
+--- cdsymlinks.c.orig	2005-02-14 23:18:16.000000000 +0100
++++ cdsymlinks.c	2005-02-15 00:30:16.000000000 +0100
+@@ -55,7 +55,6 @@
+=20
+ /* Configuration variables */
+ static struct list_t allowed_output =3D {0};
+-static int numbered_links =3D 1;
+=20
+ /* Available devices */
+ static struct list_t Devices =3D {0};
+@@ -218,7 +217,7 @@
+ list_assign_split (struct list_t *list, char *text)
+ {
+   char *token =3D strchr (text, ':');
+-  token =3D strtok (token ? token + 1 : text, " \t");
++  token =3D strtok (token ? token + 1 : text, " \t\n");
+   while (token)
+   {
+     list_prepend (list, token);
+@@ -267,8 +266,6 @@
+             list_delete (&allowed_output);
+             list_assign_split (&allowed_output, p.we_wordv[0] + 7);
+           }
+-          else if (!strncmp (p.we_wordv[0], "NUMBERED_LINKS=3D", 14))
+-            numbered_links =3D atoi (p.we_wordv[0] + 14);
+           break;
+ 	}
+ 	/* fall through */
+@@ -325,9 +322,9 @@
+       list_assign_split (&cap_CDRW, text);
+     else if (!strncasecmp (text, "Can write CD-R", 14))
+       list_assign_split (&cap_CDR, text);
+-    else if (!strncasecmp (text, "Can read MRW", 14))
++    else if (!strncasecmp (text, "Can read MRW", 12))
+       list_assign_split (&cap_CDMRW, text);
+-    else if (!strncasecmp (text, "Can write MRW", 14))
++    else if (!strncasecmp (text, "Can write MRW", 13))
+       list_assign_split (&cap_CDWMRW, text);
+   }
+   if (!feof (info))
+@@ -408,24 +405,30 @@
+        */
+       present =3D 1;
+       if (isdev)
+-        printf (" %s", list_nth (&devls, li)->data);
++        printf ("%s ", list_nth (&devls, li)->data);
+     }
+=20
+     /* If we found no existing symlinks for the target device... */
+     if (!present)
+     {
+       char buf[256];
+-      snprintf (buf, sizeof (buf), count ? "%s%d" : "%s", link, count);
+-      /* Find the next available (not present) symlink name.
+-       * We always need to do this for reasons of output consistency: if a
+-       * symlink is created by udev as a result of use of this program, we
+-       * DON'T want different output!
+-       */
+-      while (list_search (&devls, buf))
+-        snprintf (buf, sizeof (buf), "%s%d", link, ++count);
+-      /* If ISDEV, output it. */
+-      if (isdev && (numbered_links || count =3D=3D 0))
+-        printf (" %s", buf);
++      if (!count)=20
++	  {
++        snprintf (buf, sizeof (buf), "%s", link);
++        if (isdev && !list_search (&devls, buf))
++          printf ("%s ", buf);
++	  }
++	  /* Find the next available (not present) symlink name.
++	   * We always need to do this for reasons of output consistency: if a
++	   * symlink is created by udev as a result of use of this program, we
++	   * DON'T want different output!
++	   */
++	  snprintf (buf, sizeof (buf), "%s%d", link, count);
++	  while (list_search (&devls, buf))
++		snprintf (buf, sizeof (buf), "%s%d", link, ++count);
++	  /* If ISDEV, output it. */
++	  if (isdev)
++		printf ("%s ", buf);
+       /* If the link isn't in our "existing links" list, add it and increm=
+ent
+        * our counter.
+        */
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-jam9 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
+
+
+--=-+tQ5BUxpbw6DOLkdcO+U
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCETrTRlIHNEGnKMMRAiljAJ0Q10NMvvhf5vLSiFlm+RP1zmaT7wCeIr08
+NZ3CJbQdQFGnnf8H9vdlZA4=
+=oPG/
+-----END PGP SIGNATURE-----
+
+--=-+tQ5BUxpbw6DOLkdcO+U--
+

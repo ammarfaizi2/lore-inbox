@@ -1,72 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263921AbTKSJSB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 04:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbTKSJSA
+	id S263927AbTKSJh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 04:37:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTKSJh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 04:18:00 -0500
-Received: from gprs144-235.eurotel.cz ([160.218.144.235]:35456 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263921AbTKSJR7 (ORCPT
+	Wed, 19 Nov 2003 04:37:57 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:27814 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263927AbTKSJhz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 04:17:59 -0500
-Date: Wed, 19 Nov 2003 10:18:33 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Rob Landley <rob@landley.net>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Patrick's Test9 suspend code.
-Message-ID: <20031119091833.GE197@elf.ucw.cz>
-References: <Pine.LNX.4.44.0311170844230.12994-100000@cherise> <200311181612.52176.rob@landley.net> <20031118232125.GA30268@atrey.karlin.mff.cuni.cz> <200311182326.17838.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311182326.17838.rob@landley.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 19 Nov 2003 04:37:55 -0500
+Date: Wed, 19 Nov 2003 10:37:35 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Sam Creasey <sammy@sammy.net>
+cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: [BK PATCHES] 2.6.x experimental net driver queue
+In-Reply-To: <Pine.LNX.4.40.0311191703120.6278-100000@sun3>
+Message-ID: <Pine.GSO.4.21.0311191035500.7852-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > :-), Okay, we could make grub read /etc/fstab... But again user can do
+On Wed, 19 Nov 2003, Sam Creasey wrote:
+> On Tue, 18 Nov 2003, Geert Uytterhoeven wrote:
+> > On Mon, 17 Nov 2003, Geert Uytterhoeven wrote:
+> > > On Sun, 16 Nov 2003, Jeff Garzik wrote:
+> > > > Yet more updates.  Syncing with Andrew Morton, and more syncing with Al
+> > > > Viro.
+> > > >
+> > > > No users of init_etherdev remain in the tree.  (yay!)
+> > >
+> > > Here are some (untested, except for cross-gcc) fixes for the m68k-related
+> > > drivers:
 > >
-> > swapoff and swapon manually etc.
+> > I forget to test the Sun-3 drivers:
+> >   - sun3_82586.c:
+> >       o add missing casts to iounmap() calls
+> >       o fix parameter of free_netdev()
+> >   - sun3lance.c: add missing casts to iounmap() calls
+> >
+> > Note that sun3_82586.c no longer compiles since SUN3_82586_TOTAL_SIZE is not
+> > defined. Sammy, is it OK to use PAGE_SIZE for that, since that's what's passed
+> > to ioremap()?
 > 
-> During resume?
+> Should be...  I looked back through a few versions of the code, and I'm
+> not even sure what SUN3_82586_TOTAL_SIZE even was (appears I commented
+> that line out long ago anyway).  (I'm also amazed just how much of that
+> driver I've forgotten in the last year or two :)
 
-No, imagine /dev/hda3 being set as swap in /etc/fstab, but user doing
-swapoff /dev/hda3, swapon /dev/usb_zip_drive, then suspend.
+OK, so here's a additional patch that fixes that:
 
-/etc/mtab would be better choice, but swap does not appear there.
+--- linux/drivers/net/sun3_82586.c.orig	2003-11-19 10:32:09.000000000 +0100
++++ linux/drivers/net/sun3_82586.c	2003-11-19 10:33:44.000000000 +0100
+@@ -55,6 +55,7 @@
+ 
+ #define DEBUG       /* debug on */
+ #define SYSBUSVAL 0 /* 16 Bit */
++#define SUN3_82586_TOTAL_SIZE	PAGE_SIZE
+ 
+ #define sun3_attn586()  {*(volatile unsigned char *)(dev->base_addr) |= IEOB_ATTEN; *(volatile unsigned char *)(dev->base_addr) &= ~IEOB_ATTEN;}
+ #define sun3_reset586() {*(volatile unsigned char *)(dev->base_addr) = 0; udelay(100); *(volatile unsigned char *)(dev->base_addr) = IEOB_NORSET;}
+@@ -298,7 +299,7 @@
+ 	if (found)
+ 		return ERR_PTR(-ENODEV);
+ 	
+-	ioaddr = (unsigned long)ioremap(IE_OBIO, PAGE_SIZE);
++	ioaddr = (unsigned long)ioremap(IE_OBIO, SUN3_82586_TOTAL_SIZE);
+ 	if (!ioaddr)
+ 		return ERR_PTR(-ENOMEM);
+ 	found = 1;
 
-> > Having sto stop userspace processes and bring hardware back to some
-> > sane state would complicate swsusp (and its testing!) a lot. Maybe in
-> > 2.8 when it works perfectly in other cases....
-> 
-> If there's only one "init" style task running from initramfs, which simply 
-> looks at the partitions and gets the info it needs from disk labels or 
-> something without actually mounting a filesystem (or mounts it read only, no 
-> journal playback, and then unmounts it again afterwards...)  And then the 
-> system call/whatever it does is sematically "exit and resume from
-> swap"...
 
-Well, I'd hate to write docs for that system call.
+Gr{oetje,eeting}s,
 
-"It is exit and resume from specified swap, you must not write any
-disk before you call it, must not access (list) devices, must not
-access any network."
+						Geert
 
-> > ....but swsusp with modular kernels... I'm not sure if it can even
-> > work. .. yes it can but you really should get it working monolithic, first.
-> 
-> Okay.  Tell me how to get hotplug devices (cardbus, usb) working 
-> monolithically, and I'm all for it.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Well, just compile all the drivers you need in, and it just
-works.... I'm using both cardbus and usb and no, I'm not using
-modules.
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-							Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

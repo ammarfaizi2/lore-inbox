@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266688AbTAFNoK>; Mon, 6 Jan 2003 08:44:10 -0500
+	id <S266638AbTAFNke>; Mon, 6 Jan 2003 08:40:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266712AbTAFNoK>; Mon, 6 Jan 2003 08:44:10 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:34438 "EHLO
+	id <S266640AbTAFNke>; Mon, 6 Jan 2003 08:40:34 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:10371 "EHLO
 	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S266688AbTAFNoI>; Mon, 6 Jan 2003 08:44:08 -0500
-Date: Mon, 6 Jan 2003 14:53:53 +0100
+	id <S266638AbTAFNkb>; Mon, 6 Jan 2003 08:40:31 -0500
+Date: Mon, 6 Jan 2003 14:49:35 +0100
 From: Dominik Brodowski <linux@brodo.de>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: [PATCH 2.5.54] cpufreq: elanfreq cleanup and compile fix
-Message-ID: <20030106135353.GB1307@brodo.de>
+Subject: [PATCH 2.5.54] cpufreq: p4-clockmod bugfixes
+Message-ID: <20030106134935.GA1307@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,119 +19,186 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clean up searching code for best frequency multiplier, and add a
-safety check. Also, SAFE_FREQ wasn't used.
+The "get current speed" algorithm wasn't aware of the disable/enable bit,
+and the policy verification function wasn't aware of the N44 / O17
+bug. Also, some unused code is removed.
 
+ arch/i386/kernel/cpu/cpufreq/p4-clockmod.c |   90 +++++++++++++++--------------
+ 1 files changed, 49 insertions(+), 41 deletions(-)
 
- arch/i386/kernel/cpu/cpufreq/elanfreq.c |   59 ++++++++++++--------------------
- 1 files changed, 23 insertions(+), 36 deletions(-)
-
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/elanfreq.c linux/arch/i386/kernel/cpu/cpufreq/elanfreq.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/elanfreq.c	2003-01-06 12:55:46.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/elanfreq.c	2003-01-06 13:38:14.000000000 +0100
-@@ -31,8 +31,6 @@
- #define REG_CSCIR 0x22 		/* Chip Setup and Control Index Register    */
- #define REG_CSCDR 0x23		/* Chip Setup and Control Data  Register    */
+diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
+--- linux-original/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-01-06 12:55:49.000000000 +0100
++++ linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2003-01-06 13:13:19.000000000 +0100
+@@ -82,12 +82,17 @@
  
--#define SAFE_FREQ 33000		/* every Elan CPU can run at 33 MHz         */
+ 	/* get current state */
+ 	rdmsr(MSR_IA32_THERM_CONTROL, l, h);
+-	l = l >> 1;
+-	l &= 0x7;
 -
- static struct cpufreq_driver *elanfreq_driver;
- 
- /* Module parameter */
-@@ -184,7 +182,7 @@
- 
- 	cpufreq_verify_within_limits(policy, 1000, max_freq);
- 
--	for (i=(sizeof(elan_multiplier)/sizeof(struct s_elan_multiplier) - 1); i>=0; i--)
-+	for (i=7; i>=0; i--)
- 		if ((elan_multiplier[i].clock >= policy->min) &&
- 		    (elan_multiplier[i].clock <= policy->max))
- 			number_states++;
-@@ -192,57 +190,46 @@
- 	if (number_states)
++	if (l & 0x10) {
++		l = l >> 1;
++		l &= 0x7;
++	} else
++		l = DC_DISABLE;
++	
+ 	if (l == newstate) {
+ 		set_cpus_allowed(current, cpus_allowed);
  		return 0;
++	} else if (l == DC_RESV) {
++		printk(KERN_ERR PFX "BIG FAT WARNING: currently in invalid setting\n");
+ 	}
  
--	for (i=(sizeof(elan_multiplier)/sizeof(struct s_elan_multiplier) - 1); i>=0; i--)
-+	for (i=7; i>=0; i--)
- 		if (elan_multiplier[i].clock < policy->max)
- 			break;
+ 	/* notifiers */
+@@ -141,13 +146,18 @@
+ 	unsigned int    i;
+ 	unsigned int    newstate = 0;
+ 	unsigned int    number_states = 0;
++	unsigned int    minstate = 1;
  
- 	policy->max = elan_multiplier[i+1].clock;
+-	if (!cpufreq_p4_driver || !stock_freq || !policy)
++	if (!cpufreq_p4_driver || !stock_freq || 
++	    !policy || !cpu_online(policy->cpu))
+ 		return -EINVAL;
  
-+	cpufreq_verify_within_limits(policy, 1000, max_freq);
++	if (has_N44_O17_errata)
++		minstate = 3;
++
+ 	if (policy->policy == CPUFREQ_POLICY_POWERSAVE)
+ 	{
+-		for (i=8; i>0; i--)
++		for (i=8; i>=minstate; i--)
+ 			if ((policy->min <= ((stock_freq / 8) * i)) &&
+ 			    (policy->max >= ((stock_freq / 8) * i))) 
+ 			{
+@@ -155,7 +165,7 @@
+ 				number_states++;
+ 			}
+ 	} else {
+-		for (i=1; i<=8; i++)
++		for (i=minstate; i<=8; i++)
+ 			if ((policy->min <= ((stock_freq / 8) * i)) &&
+ 			    (policy->max >= ((stock_freq / 8) * i))) 
+ 			{
+@@ -164,25 +174,8 @@
+ 			}
+ 	}
+ 
+-	/* if (number_states == 1) */
+-	{
+-		if (policy->cpu == CPUFREQ_ALL_CPUS) {
+-			for (i=0; i<NR_CPUS; i++)
+-				if (cpu_online(i))
+-					cpufreq_p4_setdc(i, newstate);
+-		} else {
+-			cpufreq_p4_setdc(policy->cpu, newstate);
+-		}
+-	}
+-	/* else {
+-		if (policy->policy == CPUFREQ_POLICY_POWERSAVE) {
+-			min_state = newstate;
+-			max_state = newstate + (number_states - 1);
+-		} else {
+-			max_state = newstate;
+-			min_state = newstate - (number_states - 1);
+-		}
+-	} */
++	cpufreq_p4_setdc(policy->cpu, newstate);
 +
  	return 0;
  }
  
- static int elanfreq_setpolicy (struct cpufreq_policy *policy)
+@@ -190,17 +183,21 @@
+ static int cpufreq_p4_verify(struct cpufreq_policy *policy)
  {
--	unsigned int    number_states = 0;
--	unsigned int    i, j=4;
-+	unsigned int    i;
-+	unsigned int    optimal = 8;
+ 	unsigned int    number_states = 0;
+-	unsigned int    i;
++	unsigned int    i = 1;
  
- 	if (!elanfreq_driver)
+-	if (!cpufreq_p4_driver || !stock_freq || !policy)
++	if (!cpufreq_p4_driver || !stock_freq || 
++	    !policy || !cpu_online(policy->cpu))
  		return -EINVAL;
  
--	for (i=(sizeof(elan_multiplier)/sizeof(struct s_elan_multiplier) - 1); i>=0; i--)
--		if ((elan_multiplier[i].clock >= policy->min) &&
--		    (elan_multiplier[i].clock <= policy->max))
--		{
--			number_states++;
--			j = i;
-+	for (i=0; i<8; i++) {
-+		if ((elan_multiplier[i].clock > policy->max) ||
-+		    (elan_multiplier[i].clock < policy->min))
-+			continue;
-+		switch(policy->policy) {
-+		case CPUFREQ_POLICY_POWERSAVE:
-+			if (optimal == 8)
-+				optimal = i;
-+			break;
-+		case CPUFREQ_POLICY_PERFORMANCE:
-+			optimal = i;
-+			break;
-+		default:
-+			return -EINVAL;
- 		}
--
--	if (number_states == 1) {
--		elanfreq_set_cpu_state(j);
--		return 0;
- 	}
--
--	switch (policy->policy) {
--	case CPUFREQ_POLICY_POWERSAVE:
--		for (i=(sizeof(elan_multiplier)/sizeof(struct s_elan_multiplier) - 1); i>=0; i--)
--			if ((elan_multiplier[i].clock >= policy->min) &&
--			    (elan_multiplier[i].clock <= policy->max))
--				j = i;
--		break;
--	case CPUFREQ_POLICY_PERFORMANCE:
--		for (i=0; i<(sizeof(elan_multiplier)/sizeof(struct s_elan_multiplier) - 1); i++)
--			if ((elan_multiplier[i].clock >= policy->min) &&
--			    (elan_multiplier[i].clock <= policy->max))
--				j = i;
--		break;
--	default:
-+	if ((optimal == 8) || (elan_multiplier[optimal].clock > max_freq))
- 		return -EINVAL;
--	}
+-	if (!cpu_online(policy->cpu))
+-		policy->cpu = CPUFREQ_ALL_CPUS;
+-	cpufreq_verify_within_limits(policy, (stock_freq / 8), stock_freq);
++	cpufreq_verify_within_limits(policy, 
++				     policy->cpuinfo.min_freq, 
++				     policy->cpuinfo.max_freq);
  
--	if (elan_multiplier[j].clock > max_freq)
--		return -EINVAL;
-+	elanfreq_set_cpu_state(optimal);
+-	/* is there at least one state within limit? */
+-	for (i=1; i<=8; i++)
++	if (has_N44_O17_errata)
++		i = 3;
++
++	/* is there at least one state within the limit? */
++	for (; i<=8; i++)
+ 		if ((policy->min <= ((stock_freq / 8) * i)) &&
+ 		    (policy->max >= ((stock_freq / 8) * i)))
+ 			number_states++;
+@@ -209,11 +206,14 @@
+ 		return 0;
  
--	elanfreq_set_cpu_state(j);
+ 	policy->max = (stock_freq / 8) * (((unsigned int) ((policy->max * 8) / stock_freq)) + 1);
++	cpufreq_verify_within_limits(policy, 
++				     policy->cpuinfo.min_freq, 
++				     policy->cpuinfo.max_freq);
  	return 0;
  }
  
-@@ -307,7 +294,7 @@
- 	driver->policy[0].max    = max_freq;
- 	driver->policy[0].policy = CPUFREQ_POLICY_PERFORMANCE;
- 	driver->policy[0].cpuinfo.max_freq = max_freq;
--	driver->policy[0].cpuinfo.min_freq = min_freq;
-+	driver->policy[0].cpuinfo.min_freq = 1000;
- 	driver->policy[0].cpuinfo.transition_latency = CPUFREQ_ETERNAL;
  
- 	elanfreq_driver = driver;
+-int __init cpufreq_p4_init(void)
++static int __init cpufreq_p4_init(void)
+ {	
+ 	struct cpuinfo_x86 *c = cpu_data;
+ 	int cpuid;
+@@ -245,6 +245,16 @@
+ 	}
+ 
+ 	printk(KERN_INFO PFX "P4/Xeon(TM) CPU On-Demand Clock Modulation available\n");
++
++	if (!stock_freq) {
++		if (cpu_khz)
++			stock_freq = cpu_khz;
++		else {
++			printk(KERN_INFO PFX "unknown core frequency - please use module parameter 'stock_freq'\n");
++			return -EINVAL;
++		}
++	}
++
+ 	driver = kmalloc(sizeof(struct cpufreq_driver) +
+ 			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (!driver)
+@@ -252,9 +262,6 @@
+ 
+ 	driver->policy = (struct cpufreq_policy *) (driver + 1);
+ 
+-	if (!stock_freq)
+-		stock_freq = cpu_khz;
+-
+ #ifdef CONFIG_CPU_FREQ_24_API
+ 	for (i=0;i<NR_CPUS;i++) {
+ 		driver->cpu_cur_freq[i] = stock_freq;
+@@ -290,15 +297,16 @@
+ }
+ 
+ 
+-void __exit cpufreq_p4_exit(void)
++static void __exit cpufreq_p4_exit(void)
+ {
+-	u32 l, h;
++	unsigned int i;
+ 
+ 	if (cpufreq_p4_driver) {
++		for (i=0; i<NR_CPUS; i++) {
++			if (cpu_online(i)) 
++				cpufreq_p4_setdc(i, DC_DISABLE);
++		}
+ 		cpufreq_unregister();
+-		/* return back to a non modulated state */
+-		rdmsr(MSR_IA32_THERM_CONTROL, l, h);
+-		wrmsr(MSR_IA32_THERM_CONTROL, l & ~(1<<4), h);
+ 		kfree(cpufreq_p4_driver);
+ 	}
+ }

@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbTD3UFc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 16:05:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTD3UFb
+	id S262403AbTD3UD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 16:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbTD3UD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 16:05:31 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17794 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262444AbTD3UFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 16:05:31 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304302021.h3UKLYlf001981@81-2-122-30.bradfords.org.uk>
-Subject: [Pointless Waffle] Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-To: miller@techsource.com (Timothy Miller)
-Date: Wed, 30 Apr 2003 21:21:34 +0100 (BST)
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3EB02D94.5020105@techsource.com> from "Timothy Miller" at Apr 30, 2003 04:09:56 PM
-X-Mailer: ELM [version 2.5 PL6]
+	Wed, 30 Apr 2003 16:03:59 -0400
+Received: from muss.CIS.mcmaster.ca ([130.113.64.9]:44728 "EHLO
+	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S262403AbTD3UD6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 16:03:58 -0400
+From: Gabriel Devenyi <devenyga@mcmaster.ca>
+To: hermes@gibson.dropbear.id.au
+Subject: [PATCH] Linux 2.5.68 - Fix debug statement after return in devices/net/wireless/arlan.c
+Date: Thu, 1 May 2003 16:13:33 -0400
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305011613.34078.devenyga@mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Was the whole DRM discussion off-topic?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It was certainly ironic that the subject was 'Why DRM exists', when it
-clearly doesn't within the scope of the Linux kernel, and isn't on the
-horizon for the Linux kernel either, which is what this mailing list
-is intended for.
+This patch applies to 2.5.68 and is listed on kbugs.org. The debug statement is never executed becasue it is after a return.
 
-John.
+Please CC me with any discussion.
+- -- 
+Building the Future,
+Gabriel Devenyi
+devenyga@mcmaster.ca
+
+- ---FILE---
+
+- --- linux-2.5.68/drivers/net/wireless/arlan.c	2003-04-19 22:50:06.000000000 -0400
++++ linux-2.5.68-changed/drivers/net/wireless/arlan.c	2003-05-01 15:07:06.000000000 -0400
+@@ -798,9 +798,9 @@
+ 	else
+ 	{
+ 		netif_stop_queue (dev);
+- -		return -1;
+ 		IFDEBUG(ARLAN_DEBUG_TX_CHAIN)
+ 			printk(KERN_ERR "TX TAIL & HEAD full, return, tailStart %d headEnd %d\n", tailStarts, headEnds);
++		return -1;
+ 	}
+ 	priv->out_bytes += length;
+ 	priv->out_bytes10 += length;
+
+- ---ENDFILE---
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+sX/t7I5UBdiZaF4RAqcIAJ9DX4cjmRq7qym+xqOufQ9qctMN4ACeJyIg
+bB90sFAXAQrwY7SxIzosFaM=
+=QDal
+-----END PGP SIGNATURE-----
+

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275277AbRI0F0o>; Thu, 27 Sep 2001 01:26:44 -0400
+	id <S275770AbRI0FaY>; Thu, 27 Sep 2001 01:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275767AbRI0F0d>; Thu, 27 Sep 2001 01:26:33 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:23304 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S275277AbRI0F0P>;
-	Thu, 27 Sep 2001 01:26:15 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200109270526.f8R5Qd209258@saturn.cs.uml.edu>
-Subject: Re: Ethernet Error Correction
-To: clock@atrey.karlin.mff.cuni.cz (Karel Kulhavy)
-Date: Thu, 27 Sep 2001 01:26:39 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010925223437.A21831@atrey.karlin.mff.cuni.cz> from "Karel Kulhavy" at Sep 25, 2001 10:34:37 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S275768AbRI0FaP>; Thu, 27 Sep 2001 01:30:15 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:60940 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S275767AbRI0FaD>;
+	Thu, 27 Sep 2001 01:30:03 -0400
+Date: Thu, 27 Sep 2001 07:28:06 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: [patch] netconsole - log kernel messages over the network.
+ 2.4.10.
+In-Reply-To: <20010926174605.E1140@turbolinux.com>
+Message-ID: <Pine.LNX.4.33.0109270726090.1679-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavy writes:
 
-> Let's say I have two PC's, with ethernet NIC's. An atmospherical optical link
-> (full duplex) is between them, connected via AUI. The optics goes crazy when
-> there is a fog of course. But dropping a single bit in 1500 bytes makes a lot
-> of mess.  There is also unsused src and dest address (12 bytes) which is
-> obvious and superfluous.  What about kicking the address off and putting some
-> error correction codes (like Hamming) into it and putting the cards into
-> promisc mode?  It would make the link work on bigger distance and on thicker
-> mist.  We could even dynamically change the ECC/data ratio for example with
-> Reed Solomon Codes. Ethernet modulation is strong gainst sync dropouts so the
-> bits usually remain their place, just some of them happen to flip. We could
-> also kick the "lenght" field because end of packet is recognized by a pulse
-> longer than 200ns, not neither by ECC nor by the length (am I right?).
+On Wed, 26 Sep 2001, Andreas Dilger wrote:
 
-Do something like RAID 5 over multiple packets. Then you can
-handle cards that just drop corrupt packets.
+> Ok, I read the docs, and this is indeed a target MAC address.  It may
+> still be easier to accept a regular MAC address like
+> target_mac=XX:XX:XX:XX:XX:XX as the module parameter (and a
+> target_ip=A.B.C.D).  In any case, here is a script to automate this
+> (ugly because of the conversions needed).
+
+thanks - i've put this script into the userspace tarball.
+
+	Ingo
+

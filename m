@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263394AbTE3IGj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 04:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTE3IGj
+	id S263380AbTE3IIf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 04:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263398AbTE3IIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 04:06:39 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:41480 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263365AbTE3IGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 04:06:37 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Stephan von Krawczynski <skraw@ithnet.com>, marcelo@conectiva.com.br
+	Fri, 30 May 2003 04:08:35 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:52718 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263380AbTE3IId
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 04:08:33 -0400
 Subject: Re: Undo aic7xxx changes
-Date: Fri, 30 May 2003 10:19:25 +0200
-User-Agent: KMail/1.5.2
-Cc: willy@w.ods.org, gibbs@scsiguy.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <20030526164404.GA11381@alpha.home.local> <20030530100900.768ceeef.skraw@ithnet.com>
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: marcelo@conectiva.com.br, m.c.p@wolk-project.de, willy@w.ods.org,
+       gibbs@scsiguy.com, linux-kernel@vger.kernel.org
 In-Reply-To: <20030530100900.768ceeef.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200305301018.14970.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	 <20030524111608.GA4599@alpha.home.local>
+	 <20030525125811.68430bda.skraw@ithnet.com>
+	 <200305251447.34027.m.c.p@wolk-project.de>
+	 <20030526170058.105f0b9f.skraw@ithnet.com>
+	 <20030526164404.GA11381@alpha.home.local>
+	 <20030530100900.768ceeef.skraw@ithnet.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zaldLFmvQTpz1j8hwrct"
+Organization: Red Hat, Inc.
+Message-Id: <1054282892.4897.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.3 (1.3.3-2) (Preview Release)
+Date: 30 May 2003 10:21:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 May 2003 10:09, Stephan von Krawczynski wrote:
 
-Hi Stephan,
+--=-zaldLFmvQTpz1j8hwrct
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I tried plain rc6 now and have to tell you it does not survive a single day
-> of my usual tests. It freezes during tar from 3ware-driven IDE to
-> aic-driven SDLT. This is identical to all previous rc (and some pre)
-> releases of 2.4.21. So far I can tell you that the only thing that has
-> recently cured this problem is replacing the aic-driver with latest of
-> justins' releases.
-> As plain rc6 does definitely not work I will now switch over to
-> rc6+aic-20030523. Remember that rc3+aic-20030523 already worked quite ok (4
-> days test survived).
-same experience on my boxen (quite much with AIC)
 
-> My personal opinion is a known-to-be-broken 2.4.21 should not be released,
-> as a lot of people only try/use the releases and therefore an immediately
-> released 2.4.22-pre1 with justins driver will not be a good solution.
-ACK!
 
-Maybe we should disable AIC Config option and instead add a comment like:
+> My personal opinion is a known-to-be-broken 2.4.21 should not be released=
+, as a
+> lot of people only try/use the releases and therefore an immediately rele=
+ased
+> 2.4.22-pre1 with justins driver will not be a good solution.
 
-comment 'For AICXXXX, please go to http://people.freebsd.org/~gibbs/linux/'
-comment 'and download the latest tar.gz and unpack these drivers!'
-comment 'After unpacking, enable Config.in option in drivers/scsi/Config.in'
+I think you missed the point entirely before. 2.4.21 CANNOT cause
+regressions most of all. At this point there is no way to know if the
+thing that fixes your machine breaks on 100s others that DO work
+correctly in 2.4.20. Even if it would fix 100s and break 1 it's still
+not acceptable for stable kernel releases.
 
-*scnr* ;)
 
-ciao, Marc
+--=-zaldLFmvQTpz1j8hwrct
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+1xSMxULwo51rQBIRAgMaAJwJ9UKcA4FbN3/ncEjrgFXvpfb8jgCfQlRR
+DWopHjBCwoKOwDev+GKYd7s=
+=NyY6
+-----END PGP SIGNATURE-----
+
+--=-zaldLFmvQTpz1j8hwrct--

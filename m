@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312996AbSDOGk5>; Mon, 15 Apr 2002 02:40:57 -0400
+	id <S312998AbSDOHHf>; Mon, 15 Apr 2002 03:07:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312998AbSDOGk4>; Mon, 15 Apr 2002 02:40:56 -0400
-Received: from [61.149.35.255] ([61.149.35.255]:3599 "HELO linux.tcpip.cxm")
-	by vger.kernel.org with SMTP id <S312996AbSDOGkz>;
-	Mon, 15 Apr 2002 02:40:55 -0400
-Date: Mon, 15 Apr 2002 14:40:48 +0800
-From: hugang <gang_hu@soul.com.cn>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [BUG] kmem_cache_grow.
-Message-Id: <20020415144048.37318357.gang_hu@soul.com.cn>
-Organization: soul
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S313026AbSDOHHe>; Mon, 15 Apr 2002 03:07:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64017 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S312998AbSDOHHe>;
+	Mon, 15 Apr 2002 03:07:34 -0400
+Date: Mon, 15 Apr 2002 09:07:28 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Ivan G." <ivangurdiev@yahoo.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.8 compile bugs
+Message-ID: <20020415070728.GB12608@suse.de>
+In-Reply-To: <02041416483500.07641@cobra.linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hell all:
+On Sun, Apr 14 2002, Ivan G. wrote:
+> 2) 
+> ERROR:
+> ide.c: In function `ide_teardown_commandlist':
+> ide.c:2704: structure has no member named `pci_dev'
+> ide.c: In function `ide_build_commandlist':
+> ide.c:2719: structure has no member named `pci_dev'
+> make[3]: *** [ide.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux-2.5.8/drivers/ide'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.5.8/drivers/ide'
+> make[1]: *** [_subdir_ide] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.5.8/drivers'
+> make: *** [_dir_drivers] Error 2
 
-Problem: first run "find /" , eject and insert pcmcia network's card, the kernel will crash.
+This should fix it.
 
-Kernel oops: at 
-linux/mm/slab.c->kmem_cache_grow.
-        if (in_interrupt() && (flags & SLAB_LEVEL_MASK) != SLAB_ATOMIC)
-                BUG(); 		<-- here.
+--- drivers/ide/ide.c~	2002-04-15 09:05:58.000000000 +0200
++++ drivers/ide/ide.c	2002-04-15 09:06:52.000000000 +0200
+@@ -2701,7 +2701,11 @@
+ 
+ void ide_teardown_commandlist(ide_drive_t *drive)
+ {
++#ifdef CONFIG_BLK_DEV_IDEPCI
+ 	struct pci_dev *pdev= drive->channel->pci_dev;
++#else
++	struct pci_dev *pdev = NULL;
++#endif
+ 	struct list_head *entry;
+ 
+ 	list_for_each(entry, &drive->free_req) {
+@@ -2716,7 +2720,11 @@
+ 
+ int ide_build_commandlist(ide_drive_t *drive)
+ {
++#ifdef CONFIG_BLK_DEV_IDEPCI
+ 	struct pci_dev *pdev= drive->channel->pci_dev;
++#else
++	struct pci_dev *pdev = NULL;
++#endif
+ 	struct ata_request *ar;
+ 	ide_tag_info_t *tcq;
+ 	int i, err;
 
-Can I remove this check ?
------------
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.15
-e2fsprogs              1.27
-pcmcia-cs              3.1.31
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         serial_cs serial isa-pnp pcnet_cs 8390 af_packet parport_pc lp parport usb-uhci usbcore ide-cd cdrom floppy agpgart ospm_thermal ospm_battery ospm_ec ospm_button ospm_ac_adapter ospm_processor ospm_system ospm_busmgr via82cxxx_audio ac97_codec uart401 sound soundcore rtc unix
 -- 
-thanks with regards!
-hugang.
+Jens Axboe
 
-***********************************
-Beijing Soul Technology Co.,Ltd.
-Tel:010-68425741/42/43/44
-Fax:010-68425745
-email:gang_hu@soul.com.cn
-web:http://www.soul.com.cn
-***********************************

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271365AbTGQIeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 04:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271367AbTGQIeQ
+	id S271364AbTGQIci (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 04:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271365AbTGQIci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 04:34:16 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:34030 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S271365AbTGQIeN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 04:34:13 -0400
-Subject: Re: [PATCH] pdcraid and weird IDE geometry
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Walt H <waltabbyh@comcast.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F160965.7060403@comcast.net>
-References: <3F160965.7060403@comcast.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vhYAHY7GALa8FLg1RN9t"
-Organization: Red Hat, Inc.
-Message-Id: <1058431742.5775.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 17 Jul 2003 10:49:02 +0200
+	Thu, 17 Jul 2003 04:32:38 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:3086 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S271364AbTGQIch (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 04:32:37 -0400
+Date: Thu, 17 Jul 2003 10:47:08 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Joel Becker <Joel.Becker@oracle.com>
+cc: Andrew Morton <akpm@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
+       <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+In-Reply-To: <20030717082716.GA19891@ca-server1.us.oracle.com>
+Message-ID: <Pine.LNX.4.44.0307171037070.717-100000@serv>
+References: <20030716184609.GA1913@kroah.com> <20030716130915.035a13ca.akpm@osdl.org>
+ <20030716210253.GD2279@kroah.com> <20030716141320.5bd2a8b3.akpm@osdl.org>
+ <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org>
+ <20030716222015.GB1964@win.tue.nl> <20030716152143.6ab7d7d3.akpm@osdl.org>
+ <20030717014410.A2026@pclin040.win.tue.nl> <20030716164917.2a7a46f4.akpm@osdl.org>
+ <20030717082716.GA19891@ca-server1.us.oracle.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-vhYAHY7GALa8FLg1RN9t
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Thu, 17 Jul 2003, Joel Becker wrote:
 
-On Thu, 2003-07-17 at 04:26, Walt H wrote:
-> compatible with the binary FastTrak.o module. I'm not much of a coder,
-> so if this could be done more efficiently than my attached patch, please
-> let me know. Please CC any replies. Thanks,
+> On Wed, Jul 16, 2003 at 04:49:17PM -0700, Andrew Morton wrote:
+> > Please describe a scenario in which a filesystem which works on current
+> > kernels will, in a 64-bit-dev_t kernel, call init_special_inode() with a
+> > 16:16 encoded device number.
+> 
+> 	Perhaps he's thinking of NFSv2.  If you want to make a device
+> bigger than 8:8...  Personally, I'm happy to ignore NFSv2 for this.
 
-(un)fortionatly it's not valid to use floating point in the kernel.
-Could you try the same thing by using u64 as type instead please ?
+It's not just NFS2, with NFS3 and later it also depends on how many and 
+which bits the server keeps. They usually use the standard major/minor/ 
+makedev macros, so you only get back what the platform supports.
+Splitting dev_t in major/minor numbers can be lots of fun...
 
---=-vhYAHY7GALa8FLg1RN9t
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+bye, Roman
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/FmL+xULwo51rQBIRAiPOAJ9B/WUcWl/E1i0t2KPlmZaWoyf0ogCfeGy4
-RBDP2EvJDJ14bVJuTa4uljQ=
-=6hOo
------END PGP SIGNATURE-----
-
---=-vhYAHY7GALa8FLg1RN9t--

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283057AbRLDLFH>; Tue, 4 Dec 2001 06:05:07 -0500
+	id <S283048AbRLDLBq>; Tue, 4 Dec 2001 06:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283059AbRLDLE5>; Tue, 4 Dec 2001 06:04:57 -0500
-Received: from t2.redhat.com ([199.183.24.243]:55796 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S283057AbRLDLEj>; Tue, 4 Dec 2001 06:04:39 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20011202201946.A7662@thyrsus.com> 
-In-Reply-To: <20011202201946.A7662@thyrsus.com>  <1861.1007341572@kao2.melbourne.sgi.com> 
-To: esr@thyrsus.com
-Cc: Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5 
+	id <S283046AbRLDLBg>; Tue, 4 Dec 2001 06:01:36 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:38040 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S283061AbRLDLBW>;
+	Tue, 4 Dec 2001 06:01:22 -0500
+Date: Tue, 4 Dec 2001 10:59:19 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Christoph Rohland <cr@sap.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Maciej Zenczykowski <maze@druid.if.uj.edu.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Wrapping memory.
+Message-ID: <20011204105919.B18147@flint.arm.linux.org.uk>
+In-Reply-To: <20011204104047.A18147@flint.arm.linux.org.uk> <m3r8qcagt7.fsf@linux.local> <E16AIZ8-0008Re-00@the-village.bc.nu> <12969.1007315617@redhat.com> <m3r8qcagt7.fsf@linux.local> <25163.1007370678@redhat.com> <20011204104047.A18147@flint.arm.linux.org.uk> <7847.1007462704@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 04 Dec 2001 11:04:19 +0000
-Message-ID: <10297.1007463859@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <7847.1007462704@redhat.com>; from dwmw2@infradead.org on Tue, Dec 04, 2001 at 10:45:04AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 04, 2001 at 10:45:04AM +0000, David Woodhouse wrote:
+> Oooh. Can you do that without having phys->virt lookup?
 
-esr@thyrsus.com said:
->  The schedule I heard from Linus at the kernel summit was that both
-> changes  were to go in between 2.5.1 and 2.5.2.   I would prefer
-> sooner than later  because I'm *really* *tired* of maintaining a
-> parallel rulebase.
+Yep.  But only because we have page->mapping->i_mmap_shared.
 
-Is it not possible to write an automatic conversion tool that reads the 
-existing CML1 files and outputs CML2 rules with identical behaviour?
+> And what about mappings in other mms? Or are the ARM caches so broken
+> that you have to flush the whole damn thing on mm switch anyway?
+> VIVT. Urgh.
 
-After all, the only way for the merge of CML2 to be acceptable is to merge
-the tools _first_, without changing the resulting behaviour of the config
-rules, and then to make behavioural changes in later versions.
+Correct. ;(
 
 --
-dwmw2
-
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,143 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289025AbSCGBIo>; Wed, 6 Mar 2002 20:08:44 -0500
+	id <S289114AbSCGBPo>; Wed, 6 Mar 2002 20:15:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289026AbSCGBIf>; Wed, 6 Mar 2002 20:08:35 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:62731 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S289025AbSCGBIY>; Wed, 6 Mar 2002 20:08:24 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] User per-cpu data in softirq.c
-Date: Thu, 07 Mar 2002 12:11:41 +1100
-Message-Id: <E16imRa-0001kr-00@wagner.rustcorp.com.au>
+	id <S289161AbSCGBPf>; Wed, 6 Mar 2002 20:15:35 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:26512 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289114AbSCGBPS>; Wed, 6 Mar 2002 20:15:18 -0500
+Message-ID: <3C86BD44.5010109@us.ibm.com>
+Date: Wed, 06 Mar 2002 17:07:16 -0800
+From: mingming cao <cmm@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rework of /proc/stat
+In-Reply-To: <3C864F07.8050806@linkvest.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+Jean-Eric Cuendet wrote:
 
-This makes tasklet_vec and tasklet_hi_vec static inside softirq.c (the
-only place they are accessed), and makes them __per_cpu_data.
+> 
+> Hi,
+> I've made a new version of IO statistics in kstat that remove the
+> previous limitations of MAX_MAJOR
+> I've made tests on my machine.
+> Could someone test it, please?
+> Feedback welcome.
+> Bye
+> -jec
 
-Thanks,
-Rusty.
+Thank for your attention and help on updating my disk io patch.  Here is 
+the link to the original patch 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100570447604813&w=2.  I
+re-submitted it a while ago against 2.4 kernels and 2.5.2 kernel.  You
+can find patches related to disk io statistics at
+http://lse.sourceforge.net/resource/diskio/diskio.html
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.3-pre6-percpu/include/linux/interrupt.h working-2.5.3-pre6-percpu-tasklet/include/linux/interrupt.h
---- working-2.5.3-pre6-percpu/include/linux/interrupt.h	Thu Jan 17 16:35:24 2002
-+++ working-2.5.3-pre6-percpu-tasklet/include/linux/interrupt.h	Wed Jan 30 12:00:08 2002
-@@ -124,14 +124,6 @@
- 	TASKLET_STATE_RUN	/* Tasklet is running (SMP only) */
- };
- 
--struct tasklet_head
--{
--	struct tasklet_struct *list;
--} __attribute__ ((__aligned__(SMP_CACHE_BYTES)));
--
--extern struct tasklet_head tasklet_vec[NR_CPUS];
--extern struct tasklet_head tasklet_hi_vec[NR_CPUS];
--
- #ifdef CONFIG_SMP
- static inline int tasklet_trylock(struct tasklet_struct *t)
- {
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.3-pre6-percpu/kernel/ksyms.c working-2.5.3-pre6-percpu-tasklet/kernel/ksyms.c
---- working-2.5.3-pre6-percpu/kernel/ksyms.c	Tue Jan 29 09:17:09 2002
-+++ working-2.5.3-pre6-percpu-tasklet/kernel/ksyms.c	Wed Jan 30 12:00:16 2002
-@@ -542,8 +542,6 @@
- EXPORT_SYMBOL(strsep);
- 
- /* software interrupts */
--EXPORT_SYMBOL(tasklet_hi_vec);
--EXPORT_SYMBOL(tasklet_vec);
- EXPORT_SYMBOL(bh_task_vec);
- EXPORT_SYMBOL(init_bh);
- EXPORT_SYMBOL(remove_bh);
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.3-pre6-percpu/kernel/softirq.c working-2.5.3-pre6-percpu-tasklet/kernel/softirq.c
---- working-2.5.3-pre6-percpu/kernel/softirq.c	Tue Jan 29 09:17:09 2002
-+++ working-2.5.3-pre6-percpu-tasklet/kernel/softirq.c	Wed Jan 30 12:34:12 2002
-@@ -145,9 +145,13 @@
- 
- 
- /* Tasklets */
-+struct tasklet_head
-+{
-+	struct tasklet_struct *list;
-+};
- 
--struct tasklet_head tasklet_vec[NR_CPUS] __cacheline_aligned_in_smp;
--struct tasklet_head tasklet_hi_vec[NR_CPUS] __cacheline_aligned_in_smp;
-+static struct tasklet_head tasklet_vec __per_cpu_data;
-+static struct tasklet_head tasklet_hi_vec __per_cpu_data;
- 
- void __tasklet_schedule(struct tasklet_struct *t)
- {
-@@ -155,8 +159,8 @@
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
--	t->next = tasklet_vec[cpu].list;
--	tasklet_vec[cpu].list = t;
-+	t->next = per_cpu(tasklet_vec, cpu).list;
-+	per_cpu(tasklet_vec, cpu).list = t;
- 	cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
- 	local_irq_restore(flags);
- }
-@@ -167,8 +171,8 @@
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
--	t->next = tasklet_hi_vec[cpu].list;
--	tasklet_hi_vec[cpu].list = t;
-+	t->next = per_cpu(tasklet_hi_vec, cpu).list;
-+	per_cpu(tasklet_hi_vec, cpu).list = t;
- 	cpu_raise_softirq(cpu, HI_SOFTIRQ);
- 	local_irq_restore(flags);
- }
-@@ -179,8 +183,8 @@
- 	struct tasklet_struct *list;
- 
- 	local_irq_disable();
--	list = tasklet_vec[cpu].list;
--	tasklet_vec[cpu].list = NULL;
-+	list = per_cpu(tasklet_vec, cpu).list;
-+	per_cpu(tasklet_vec, cpu).list = NULL;
- 	local_irq_enable();
- 
- 	while (list) {
-@@ -200,8 +204,8 @@
- 		}
- 
- 		local_irq_disable();
--		t->next = tasklet_vec[cpu].list;
--		tasklet_vec[cpu].list = t;
-+		t->next = per_cpu(tasklet_vec, cpu).list;
-+		per_cpu(tasklet_vec, cpu).list = t;
- 		__cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
- 		local_irq_enable();
- 	}
-@@ -213,8 +217,8 @@
- 	struct tasklet_struct *list;
- 
- 	local_irq_disable();
--	list = tasklet_hi_vec[cpu].list;
--	tasklet_hi_vec[cpu].list = NULL;
-+	list = per_cpu(tasklet_hi_vec, cpu).list;
-+	per_cpu(tasklet_hi_vec, cpu).list = NULL;
- 	local_irq_enable();
- 
- 	while (list) {
-@@ -234,8 +238,8 @@
- 		}
- 
- 		local_irq_disable();
--		t->next = tasklet_hi_vec[cpu].list;
--		tasklet_hi_vec[cpu].list = t;
-+		t->next = per_cpu(tasklet_hi_vec, cpu).list;
-+		per_cpu(tasklet_hi_vec, cpu).list = t;
- 		__cpu_raise_softirq(cpu, HI_SOFTIRQ);
- 		local_irq_enable();
- 	}
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

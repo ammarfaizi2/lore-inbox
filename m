@@ -1,33 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133113AbRD3FvP>; Mon, 30 Apr 2001 01:51:15 -0400
+	id <S133106AbRD3FYJ>; Mon, 30 Apr 2001 01:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136444AbRD3FvE>; Mon, 30 Apr 2001 01:51:04 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33020 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S133113AbRD3Fu5>;
-	Mon, 30 Apr 2001 01:50:57 -0400
-Date: Mon, 30 Apr 2001 01:50:49 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Emory Watson <demoryw@pacbell.net>
-cc: esr@thyrsus.com, aia21@cam.ac.uk, stoffel@casc.com,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-In-Reply-To: <988609307.21362.0.camel@shade>
-Message-ID: <Pine.GSO.4.21.0104300145050.4113-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135199AbRD3FX7>; Mon, 30 Apr 2001 01:23:59 -0400
+Received: from geos.coastside.net ([207.213.212.4]:36036 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S133106AbRD3FXn>; Mon, 30 Apr 2001 01:23:43 -0400
+Mime-Version: 1.0
+Message-Id: <p05100300b712a75c31b2@[207.213.214.37]>
+Date: Sun, 29 Apr 2001 22:23:46 -0700
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: deregister?
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 10:40 PM -0600 2001-04-29, Paul Fulghum wrote:
+>Andres Salomon wrote:
+>
+>>I'm kind of curious; "deregister" is used quite often in the kernel:
+>>
+>>pcmcia_deregister_client
+>...
+>
+>>matroxfb_dh_deregisterfb
+>>
+>>Not to mention in various comments and documentation.  Deregister,
+>>according to www.m-w.com (and many other dictionaries), is not a word.
+>>Is there some sort of historical significance to this being used, in
+>>place of "unregister"?
+>
+>Linux kernel source vs. the English language.
+>One of them will have to bend...
+>let's get ready to rumble!
+>
+>Now that it has been pointed out it will mildly
+>irritate people (myself included) until it
+>*is* corrected (I guess ignorance was bliss :-)
+
+At 10:03 PM -0400 2001-04-29, Andres Salomon wrote:
+>Americans can spell?  Since when?
+
+OED 2nd Ed:
+
+deregister. v. trans. To remove from a register. Hence 
+deregistration. (first citation 1925)
+
+unregistered. ppl. a. Not entered in a register; unrecorded. (first 
+citation 1604)
+
+The OED has no entry for "unregister".
 
 
-On Sun, 29 Apr 2001, David Emory Watson wrote:
-
-> Al,
-> 
-> I really don't know why you must complain about Eric's sig.  I
-
-Because violating the common standards is a bad thing?  You know, like
-4-lines limit on sig size...  And no, I don't care how many AOL and
-WebTV lusers do the same thing. 
-
+-- 
+/Jonathan Lundell.

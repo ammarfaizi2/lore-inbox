@@ -1,104 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315307AbSDWTFb>; Tue, 23 Apr 2002 15:05:31 -0400
+	id <S315311AbSDWTLr>; Tue, 23 Apr 2002 15:11:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315311AbSDWTFa>; Tue, 23 Apr 2002 15:05:30 -0400
-Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:4100 "EHLO
-	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
-	id <S315307AbSDWTF3>; Tue, 23 Apr 2002 15:05:29 -0400
-Message-ID: <007f01c1eaf9$a63aeb40$7e0aa8c0@bridge>
-From: "Jeremy Jackson" <jerj@coplanar.net>
-To: "Alexander Viro" <viro@math.psu.edu>,
-        "Alvaro Figueroa" <fede2@fuerzag.ulatina.ac.cr>
-Cc: "LKML" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0204231041010.8087-100000@weyl.math.psu.edu>
-Subject: Re: Adding snapshot capability to Linux
-Date: Tue, 23 Apr 2002 12:04:00 -0700
+	id <S315312AbSDWTLq>; Tue, 23 Apr 2002 15:11:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5109 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S315311AbSDWTLp>;
+	Tue, 23 Apr 2002 15:11:45 -0400
+Message-ID: <3CC5B17B.4E9ACA7C@mvista.com>
+Date: Tue, 23 Apr 2002 12:09:47 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Why HZ on i386 is 100 ?
+In-Reply-To: <3CC4861C.F21859A6@mvista.com.suse.lists.linux.kernel> <E16zuPf-0007yD-00@the-village.bc.nu.suse.lists.linux.kernel> <p73g01m994q.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This type of snapshot is very desirable.  It can be done by remounting
-the fs ro, then taking EVMS or LVM snapshot, but you can't do that with open
-files.
-
-For file level COW (not block level),
- I wonder if DMAPI available with SGI's XFS (IRIX & Linux)
-provides the VFS like hooks that could be used to build such a system.
-
-Perhaps it could be implemented on other FS or generically in VFS.  The nice
-thing is it's a standard and already has a working implementation (XFS)
-
-from dmapi man page (oss.sgi.com XFS project):
-
-DESCRIPTION
-dmi is a system interface used to implement the interface defined in the
-X/Open document: Systems Management: Data Storage Management (XDSM) API
-dated February 1997. This interface is made available on Silicon Graphics
-systems by means of the libdm library.
-
-That spec is available from opengroup.org to view online for free.
-
-For a journaling fs cooperation with snapshot while rw,
-the fs must accept a snapshot request,
-pause in flight IO, sync all pending buffers, flush it's log, mark fs clean
-(almost like umount)
-continue the block dev snapshot, mark fs in use, resume io.
-
-Not so bad for journaling fs?  Non journaling would be easier, I think.
-
-How about having all FS export methods for this, and VFS export to
-userspace.
-The holy grail is to generically support consistent online snapshot backup,
-no?
-
-Jeremy
-
------ Original Message -----
-From: "Alexander Viro" <viro@math.psu.edu>
-To: "Alvaro Figueroa" <fede2@fuerzag.ulatina.ac.cr>
-Cc: "LKML" <linux-kernel@vger.kernel.org>
-Sent: Tuesday, April 23, 2002 7:45 AM
-Subject: Re: Adding snapshot capability to Linux
-
-
->
->
-> On 23 Apr 2002, Alvaro Figueroa wrote:
->
-> > > Instead of changing VFS you can probably make a generic stackable FS
-module
-> > > .....that can stack on top of the physical filesystems  and happily
-take
-> > > snapshots at "FS" level :) ! and you can use the FIST to create a
-basic
-> > > stackable FS and then modify it to take care of snapshoting !
+Andi Kleen wrote:
+> 
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> 
+> > > The problem is in accounting (or time slicing if you prefer) where we
+> > > need to start a timer each time a task is context switched to, and stop
+> > > it when the task is switched away.  The overhead is purely in the set up
+> > > and tear down.  MOST of these never expire.
 > >
-> > Since this solution doens't solve Lisbor's request of using it on smb
-> > filesystems, well, you could as well save up all of the programmer
-> > cycles and use EVMS.
-> >
-> > It has a pluggin for treating normal partitions as EVMS objets, so you
-> > don't need to translate them or so; and with EVMS you can even use RW
-> > snapshots.
->
-> You _can't_ get consistent snapshots without cooperation from fs.  LVM,
-> EVMS, whatever.  Only filesystem knows what IO needs to be pushed to
-> make what we have on device consistent and what IO needs to be held
-> back.  Neither VFS nor device driver do not and can not have such
-> knowledge - it depends both on fs layout and on implementation details.
->
+> > Done properly on many platforms a variable tick is very very easy and also
+> > very efficient to handle. X86 is a paticular problem case because the timer
+> > is so expensive to fiddle with
+> 
+> Depends. On modern x86 you can either use the local APIC timer or
+> the mmtimers (ftp://download.intel.com/ial/home/sp/mmts097.pdf -
+> should be in newer x86 chipsets). Both should be better than the
+> 8254 timer and are also not expensive to work with.
+
+I must not be making my self clear :)  The overhead has nothing to do
+with hardware.  It is all timer list insertion and deletion.  The
+problem is that we need to do this at context switch rates, which are
+MUCH higher that tick rates and, even with the O(1) insertion code,
+cause the overhead to increase above the ticked overhead.
+ 
+-g
+> 
+> -Andi
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
->
 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

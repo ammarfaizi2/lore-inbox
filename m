@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbTLKBQh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 20:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbTLKBQh
+	id S264305AbTLKBMK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 20:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTLKBMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 20:16:37 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:13306 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264275AbTLKBQg (ORCPT
+	Wed, 10 Dec 2003 20:12:10 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:59382 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264305AbTLKBMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 20:16:36 -0500
-Message-Id: <200312110116.hBB1GWK07458@zeus.kernel.org>
+	Wed, 10 Dec 2003 20:12:08 -0500
+Message-Id: <200312110112.hBB1C4K06770@zeus.kernel.org>
 Reply-To: "Patrick Noel" <patrick@wineparis.com>
 From: "Patrick Noel" <patrick@wineparis.com>
 To: linux-kernel@vger.kernel.org
 Subject: OUHAOU !!!!!!!!!!!
-Date: Thu, 11 Dec 2003 02:16:25 +0100
+Date: Thu, 11 Dec 2003 02:11:55 +0100
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii";
 	charset="US-ASCII"

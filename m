@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAYTbV>; Thu, 25 Jan 2001 14:31:21 -0500
+	id <S129051AbRAYTlW>; Thu, 25 Jan 2001 14:41:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131831AbRAYTbL>; Thu, 25 Jan 2001 14:31:11 -0500
-Received: from mail48-s.fg.online.no ([148.122.161.48]:14810 "EHLO
-	mail48.fg.online.no") by vger.kernel.org with ESMTP
-	id <S129431AbRAYTbB>; Thu, 25 Jan 2001 14:31:01 -0500
-To: kaih@khms.westfalen.de (Kai Henningsen)
+	id <S129143AbRAYTlM>; Thu, 25 Jan 2001 14:41:12 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:21519 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129051AbRAYTkz>;
+	Thu, 25 Jan 2001 14:40:55 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101251940.WAA10110@ms2.inr.ac.ru>
+Subject: Re: [UPDATE] Zerocopy, last one today I promise :-)
+To: davem@redhat.COM (David S. Miller)
+Date: Thu, 25 Jan 2001 22:40:40 +0300 (MSK)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT?] Coding Style
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCCD@zcard00g.ca.nortel.com>
-	<200101231600.LAA24562@mah21awu.cas.org>
-	<7uYrAAR1w-B@khms.westfalen.de>
-From: Harald Arnesen <gurre@start.no>
-Date: 25 Jan 2001 20:30:18 +0100
-In-Reply-To: <7uYrAAR1w-B@khms.westfalen.de>
-Message-ID: <m3ae8fig51.fsf@basilikum.skogtun.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+In-Reply-To: <14960.22256.322768.447815@pizda.ninka.net> from "David S. Miller" at Jan 25, 1 07:45:00 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kaih@khms.westfalen.de (Kai Henningsen) writes:
+Hello!
 
-> >   void ThisIsMyDumbassFunctionName
-> >
-> > if MUCH more difficult to read than
-> >
-> >   void this_is_my_clear_and_easy_function_name
+>  > What exaclty were the issues with the intel cards and sg+csum?
+>  > 
+>  > Any idea how much work it'd require to surmount them?
 > 
-> I can certainly read the first easier than the second.
+> Getting Intel to release full specs on how to make use of
+> TX hardware checksum assist with the eepro100.
 
-So I assume you don't approve of the new German spelling standard,
-where nouns with capital letters are optional (don't know if it became
-reality, I remember reading that Günther Grass was against it).
+It simply does not exist for 82559* in all the steppings.
+eepro100 is pretty poor device.
 
-For a Norwegian, the second variant is much more readable.
--- 
-Harald Arnesen, Apalløkkveien 23 A, N-0956 Oslo, Norway
+Probably, it exists for card identified as Gamla (D102) (82559 is D101).
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

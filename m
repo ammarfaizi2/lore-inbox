@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265744AbRF1NfP>; Thu, 28 Jun 2001 09:35:15 -0400
+	id <S265752AbRF1Nee>; Thu, 28 Jun 2001 09:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265766AbRF1NfE>; Thu, 28 Jun 2001 09:35:04 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30220 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265744AbRF1Nes>; Thu, 28 Jun 2001 09:34:48 -0400
-Subject: Re: SMP-Board, only 1 CPU, strange Crashes
-To: puckwork@madz.net (Thomas Foerster)
-Date: Thu, 28 Jun 2001 14:34:37 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010628132231Z265729-17720+8653@vger.kernel.org> from "Thomas Foerster" at Jun 28, 2001 03:19:24 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265744AbRF1NeY>; Thu, 28 Jun 2001 09:34:24 -0400
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:4100 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S265752AbRF1NeN>;
+	Thu, 28 Jun 2001 09:34:13 -0400
+Date: Thu, 28 Jun 2001 15:33:57 +0200 (CEST)
+From: Tobias Ringstrom <tori@unhappy.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <mike_phillips@urscorp.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <E15FawW-0006qI-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106281523390.1258-100000@boris.prodako.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15FbwL-0006wW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now the system runs fine for about 1 Week. After than, it oftens "crashes".
-> "crashes" is not realy the thing ... diffrent things happen :
+On Thu, 28 Jun 2001, Alan Cox wrote:
 
-Unfortunately you dont give enough information to even take a wild guess
+> > This would be extremely useful. My laptop has 256mb of ram, but every day
+> > it runs the updatedb for locate. This fills the memory with the file
+> > cache. Interactivity is then terrible, and swap is unnecessarily used. On
+> > the laptop all this hard drive thrashing is bad news for battery life
+>
+> That isnt really down to labelling pages, what you are talking qbout is what
+> you get for free when page aging works right (eg 2.0.39) but don't get in
+> 2.2 - and don't yet (although its coming) quite get right in 2.4.6pre.
 
-> The system is running on 2.4.4-ac18
+Correct, but all pages are not equal.
 
-Do try ac13 as well, there are some glitches in ac14+ with the new mm (ditto
-in 2.4.6pre) that might cause hangs
+The problem with updatedb is that it pushes all applications to the swap,
+and when you get back in the morning, everything has to be paged back from
+swap just because the (stupid) OS is prepared for yet another updatedb
+run.
 
-> Whats happending to this box? I've never had such problems. Is it because of the
-> Dual-Board and the non-smp kernel? (i need to know this, because we can't tolerate any more
-> downtime right now)
+Other bad activities include copying lots of files, tar/untar:ing and CD
+writing.  They all cause unwanted paging, at least for the desktop user.
 
-Dual board with a non SMP kernel is fine. Make sure you have it set up 
-correctly (terminators in place of 2nd cpu if required etc) but I dont think
-its that. It could equally be bad ram, bad cpu etc..
-
-run ac13 for a bit first see what occurs, then maybe memtest86 it
+/Tobias
 

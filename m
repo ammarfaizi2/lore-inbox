@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265898AbUBPRKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 12:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUBPRKJ
+	id S265701AbUBPRb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 12:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265776AbUBPRb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 12:10:09 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:18375 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id S265898AbUBPRJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 12:09:59 -0500
-Subject: Any guides for adding new IDE chipset drivers?
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: Linux Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Hackers Inc
-Message-Id: <1076951082.31859.60.camel@cambridge.braddahead.com>
+	Mon, 16 Feb 2004 12:31:59 -0500
+Received: from main.gmane.org ([80.91.224.249]:32947 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265701AbUBPRb6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 12:31:58 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: mount & fstype auto
+Date: Mon, 16 Feb 2004 18:25:54 +0100
+Message-ID: <c0quq8$8sg$1@sea.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Mon, 16 Feb 2004 17:04:42 +0000
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p508a5635.dip.t-dialin.net
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: de, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-We currently have implemented a simple (PIO) IDE interface on our
-embedded SH based board. The "driver" is just a simple call from
-ide_setup() that twiddles the various values in ide_hwifs to set the
-correct port addresses.
+if fstab contains an entry like
+   /dev/hda5 /mnt/test auto
+and if this get's mounted, the mtab will also contain the fstype "auto".
 
-All this is all well and good and works fine. However I'm looking at
-adding DMA support to the driver to make better use of the hardware.
-I've been looking around the other arch IDE drivers (e.g. the ppc pmac
-driver) which seem to hook into the probe_for_hwifs() and then update
-the hwifs table itself. This makes me wonder am I initialising my driver
-the "correct" way.
+Wouldn't it be reasonable to put the detected fstype in the mtab?
 
-As far as implementing the DMA features is concerned as far as I can
-tell I just need to code up routines for all the various
-hwifs[x].ide_dma* functions and be done with it. Am I missing anything?
+I'm sure there exists a Map somewhere inside the kernel that maps the 
+fstype-string to the appropriate routines. My question is, if this 
+mapping is reversible.
 
-So my questions boil down to:
+My intention is to write a patch for mount that writes the detected 
+fstype into the mtab or writing a patch for updatedb from the slocate 
+package.
 
-Are there any guides for driver writers for what needs doing to add new
-IDE chipset drivers?
+updatedb has a blacklist of fstypes that it won't search for files.
+For both patches i would need to syscall that allows me to query the 
+fstype-string for a given path.
 
-Is there a driver that can be held of as an example of good taste and
-the "right" way to implement a chipset driver?
+Do you see any possibility?
 
-Regards,
-
-
--- 
-Alex, homepage: http://www.bennee.com/~alex/
-"I am not sure what this is, but an `F' would only dignify it."
-		-- English Professor
+Thx
+   Sven
 

@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130037AbQKCANx>; Thu, 2 Nov 2000 19:13:53 -0500
+	id <S130051AbQKCAQm>; Thu, 2 Nov 2000 19:16:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130051AbQKCANm>; Thu, 2 Nov 2000 19:13:42 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:32006 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130063AbQKCANd>; Thu, 2 Nov 2000 19:13:33 -0500
-Message-ID: <3A020319.3384D4FF@transmeta.com>
-Date: Thu, 02 Nov 2000 16:13:13 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: select() bug
-In-Reply-To: <E13rTfB-00023L-00@the-village.bc.nu> <3A01FC44.8A43FE8B@iname.com> <8tsupp$gh8$1@cesium.transmeta.com> <200011022346.PAA01451@pizda.ninka.net> <3A0200F5.2D6F4F70@transmeta.com> <200011022352.PAA02403@pizda.ninka.net>
+	id <S130139AbQKCAQc>; Thu, 2 Nov 2000 19:16:32 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:21488 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S130051AbQKCAQT>;
+	Thu, 2 Nov 2000 19:16:19 -0500
+Date: Thu, 2 Nov 2000 16:16:11 -0800
+From: Greg KH <greg@wirex.com>
+To: Sasi Peter <sape@iq.rulez.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18pre19
+Message-ID: <20001102161610.C2424@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, Sasi Peter <sape@iq.rulez.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20001102132206.B2424@wirex.com> <Pine.LNX.4.10.10011030203590.31286-300000@iq.rulez.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10011030203590.31286-300000@iq.rulez.org>; from sape@iq.rulez.org on Fri, Nov 03, 2000 at 02:08:53AM +0100
+X-Operating-System: Linux 2.4.0-test10 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+On Fri, Nov 03, 2000 at 02:08:53AM +0100, Sasi Peter wrote:
+> On Thu, 2 Nov 2000, Greg KH wrote:
 > 
->    Date: Thu, 02 Nov 2000 16:04:05 -0800
->    From: "H. Peter Anvin" <hpa@transmeta.com>
+> > Could you send the result of /proc/interrupts and 'lspci -v'?
+> > Also, have you tried the alternate UHCI controller driver?
+> > Or tried USB as modules, instead of compiled in?
 > 
->    That's (very) nice, but it does assume there is currently a reader
->    listening.
-> 
-> No, it has no such assumption.
-> 
+> Here you go. I did work w/ the very same hw with pre15.
 
-Oh.  What do you do if there isn't... link up the contents of the write()
-in a kiovec and hold the writer?
+Looks like USB and your sound card is on the same interrupt.  Is there
+any BIOS settings you can make to move these around?
 
-	-hpa
+> I have never really knew what the UHCI JE was all about... So it can be
+> used in place of the original UHCI? I will make a try. (and why JE?)
+
+Long story, short answer: 2 different developers working on support for
+the same device.  Both drivers work better for some people on different
+devices.  JE is the author's initials (Johannes Erdfelt).
+
+Personally for some devices I have I like one version, for others, I
+like the other one.  Now if Johannes would ever fix the QUEUE_BULK bug,
+I would be back to using only one driver :)
+
+Let me know if moving the IRQs helps out.
+
+greg k-h
+
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

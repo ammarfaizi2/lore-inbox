@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbULIR01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbULIR30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbULIR01 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 12:26:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbULIR01
+	id S261560AbULIR30 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 12:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbULIR30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 12:26:27 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:7345 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261480AbULIR0T (ORCPT
+	Thu, 9 Dec 2004 12:29:26 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:50315 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261551AbULIR3I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 12:26:19 -0500
-Message-ID: <41B88AA2.6070603@colorfullife.com>
-Date: Thu, 09 Dec 2004 18:25:54 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Kerrisk <mtk-lkml@gmx.net>
-CC: alan@redhat.com, michael.kerrisk@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: System V semaphore bug in kernel 2.6
-References: <25686.1102607983@www38.gmx.net>
-In-Reply-To: <25686.1102607983@www38.gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Dec 2004 12:29:08 -0500
+Date: Thu, 9 Dec 2004 18:28:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Florian Schmidt <mista.tapas@gmx.net>, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+Message-ID: <20041209172848.GD7975@elte.hu>
+References: <OF8CB9B8EE.C928A668-ON86256F65.0058B4C3@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF8CB9B8EE.C928A668-ON86256F65.0058B4C3@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Kerrisk wrote:
 
->Hello Manfred, Alan,
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+
+> >But you do have set your reference irq (soundcard) to the highest prio
+> >in the PREEMPT_RT case? I just ask to make sure.
 >
->I assume you are still the relevant people to know about 
->this nowadays...
->
->Somewhere in the reworking of the System V semaphore code 
->(ipc/sem.c or nearby) in Linux 2.6, a bug appears to have 
->been introduced.  
->
->  
->
-ipc/sem.c. The change that now semaphores are actively given to the 
-waiting task broke your test.
+> Yes, but then I have ALL the IRQ's at the highest priority (plus a couple
+> other /0 and /1 tasks). [...]
 
-What happens is:
+that is the fundamental problem i believe: your 'CPU loop' gets delayed
+by them.
 
-child 3 does a semaphore operation. It succeeds. update_queue is called:
-- try_atomic_semop checks if it can wake up child 2. Answer: No.
-- try_atomic_semop(): kernel checks if it can wake up child 1. Answer: Yes.
+> [...] Please note, I only use latencytest (an audio application) to
+> get an idea of RT performance on a desktop machine before I consider
+> using the kernel for my real application.
 
-Bug: It must now check again if there is a thread that is waiting for 
-semaphore value==0. This check is now missing. In 2.4, there was another 
-round of update_queue calls just before child 1 returns to user space. 
-That call then wakes up child 1. This call was removed.
+but you never want your real application be delayed by things like IDE
+processing or networking workloads, correct? The only thing that should
+have higher priority than your application is the event thread that
+handles the hardware from which you get events. I.e. the soundcard IRQ
+in your case (plus the timer IRQ thread, because your task is also
+timing out).
 
-One approach to fix that is a loop in update_queue: If a 
-try_atomic_semop call from within update_queue modified the array, then 
-check again from the beginning of the queue.
+i'm not sure what the primary event source for your application is, but
+i bet it's not the IDE irq thread, nor the network IRQ thread.
 
-What do you think? I'll write a patch.
+so you are seeing the _inverse_ of advances in the -RT kernel: it's
+getting better and better at preempting your prio 30 CPU loop with the
+higher-prio RT tasks. I.e. the lower-prio CPU loop gets worse and worse
+latencies.
 
---
-    Manfred
+	Ingo

@@ -1,67 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263712AbUDGPnL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 11:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbUDGPnL
+	id S263713AbUDGPoU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 11:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbUDGPoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 11:43:11 -0400
-Received: from smtp-out1.xs4all.nl ([194.109.24.11]:33029 "EHLO
-	smtp-out1.xs4all.nl") by vger.kernel.org with ESMTP id S263712AbUDGPnB
+	Wed, 7 Apr 2004 11:44:20 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:47109 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S263713AbUDGPoD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 11:43:01 -0400
-In-Reply-To: <m3zn9o58n0.fsf@averell.firstfloor.org>
-References: <1I8up-46J-3@gated-at.bofh.it> <m3zn9o58n0.fsf@averell.firstfloor.org>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-18--34926392"
-Message-Id: <B51842CE-88A7-11D8-A41D-000A95CD704C@wagland.net>
+	Wed, 7 Apr 2004 11:44:03 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Kitt Tientanopajai <kitt@gear.kku.ac.th>
+Subject: Re: 2.6.5 yenta_socket irq 10: nobody cared!
+Date: Wed, 7 Apr 2004 17:41:47 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200404060227.58325.daniel.ritz@gmx.ch> <20040406093510.33c937e3.kitt@gear.kku.ac.th>
+In-Reply-To: <20040406093510.33c937e3.kitt@gear.kku.ac.th>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Cc: Bryan Koschmann - GKT <gktnews@gktech.net>, linux-kernel@vger.kernel.org
-From: Paul Wagland <paul@wagland.net>
-Subject: Re: amd64 questions
-Date: Wed, 7 Apr 2004 17:24:48 +0200
-To: Andi Kleen <ak@muc.de>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
-X-Mailer: Apple Mail (2.613)
+Content-Disposition: inline
+Message-Id: <200404071741.47624.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 06 April 2004 04:35, Kitt Tientanopajai wrote:
+> Hi, 
+> 
+> > this is a known problem with the acer travelmate 361. it reports IRQ 11 for
+> > the O2Micro cardbus bridge when it is in reality IRQ 10.
+> > 
+> > see:
+> > 	http://www.naos.co.nz/hardware/laptop/acer-361evi/x94.html#AEN138
+> > and
+> > 	http://sourceforge.net/tracker/index.php?func=detail&aid=533863&group_id=2405&atid=102405
+> 
+> Thanks for info. I'll try that.
+> 
+> > please give a full dmesg and a lspci -vvvn.
+> > are you using ACPI?
+> 
+> My boot param is "acpi=on pci=noacpi", below is output from dmesg and lspci. 
+> 
+> 
+> kitt
+> 
+> --
+> 
+> $ dmesg
 
---Apple-Mail-18--34926392
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+looks like you need a little workaround in the interuput routing code...please
+apply the attached patch, send dmesg output plus output of dmidecode
+( http://www.nongnu.org/demidecode/ ).
 
 
-On Apr 7, 2004, at 13:29, Andi Kleen wrote:
+on the other side it could be that the o2micro bridge is wrongly programmed.
+what looks a bit weired is that both functions of the o2micro show Pin A
+routed to IRQ 11. this could be wrong. i'm reading the spec now.
 
-> A few programs (namely iptables and ipsec tools) need to be used
-> as 64bit programs because the 32bit emulation doesn't work for them.
-> ipchains works though.
 
-I seem to recall reading that the DM based programs also need to be 64 
-bit, since their 32 bit stuff was also broken?
+do you happen to have the redmond OS on this machine? it would be nice to see
+which interrupt windoze assignes to the o2micro bridge.
 
-The question I have is whether or not this is a kernel bug that should 
-be fixed? As I understand the DM case, fixing it so that 32bit works, 
-then breaks the 64bit interfaces, requiring re-compiles of the DM 
-programs.
+and one more question: any change in the interrupt assignment if you use full ACPI?
 
-Cheers,
-Paul
 
---Apple-Mail-18--34926392
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iD8DBQFAdB1Atch0EvEFvxURApIvAKCADYqxXPWKF+gpkqwbpUErfZEa/ACdE8+f
-zaJDEMTI3VWazTxZqQu7p+0=
-=quHS
------END PGP SIGNATURE-----
-
---Apple-Mail-18--34926392--
+--- 1.36/arch/i386/pci/irq.c	Fri Feb 27 06:48:13 2004
++++ edited/arch/i386/pci/irq.c	Wed Apr  7 13:57:44 2004
+@@ -542,8 +542,6 @@
+ 	r->name = "SIS";
+ 	r->get = pirq_sis_get;
+ 	r->set = pirq_sis_set;
+-	DBG("PCI: Detecting SiS router at %02x:%02x\n",
+-	    rt->rtr_bus, rt->rtr_devfn);
+ 	return 1;
+ }
+ 
+--- 1.17/arch/i386/pci/pci.h	Mon Mar  1 07:20:00 2004
++++ edited/arch/i386/pci/pci.h	Wed Apr  7 13:56:51 2004
+@@ -4,7 +4,7 @@
+  *	(c) 1999 Martin Mares <mj@ucw.cz>
+  */
+ 
+-#undef DEBUG
++#define DEBUG
+ 
+ #ifdef DEBUG
+ #define DBG(x...) printk(x)
 

@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269359AbUINLyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269356AbUINLwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269359AbUINLyY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 07:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUINLxC
+	id S269356AbUINLwl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 07:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269341AbUINLtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 07:53:02 -0400
-Received: from outmx015.isp.belgacom.be ([195.238.2.87]:15282 "EHLO
-	outmx015.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S269327AbUINLtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 07:49:36 -0400
-Message-ID: <4146DB13.1090909@246tNt.com>
-Date: Tue, 14 Sep 2004 13:50:43 +0200
-From: Sylvain Munaut <tnt@246tNt.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040816)
+	Tue, 14 Sep 2004 07:49:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51885 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269327AbUINLsh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 07:48:37 -0400
+Message-ID: <4146DA84.9040707@redhat.com>
+Date: Tue, 14 Sep 2004 07:48:20 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Sylvain Munaut <tnt@246tNt.com>
-Cc: Linux PPC Dev <linuxppc-dev@ozlabs.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>
-Subject: [PATCH 4/9] Small updates for Freescale MPC52xx
-References: <4146D833.8040703@246tNt.com>
-In-Reply-To: <4146D833.8040703@246tNt.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Chris Wright <chrisw@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] close race condition in shared memory mapping/unmapping
+References: <4146041F.2040106@redhat.com> <20040913140101.S1973@build.pdx.osdl.net>
+In-Reply-To: <20040913140101.S1973@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/09/14 00:07:12+02:00 tnt@246tNt.com
-#   ppc: Use interactive console for Freescale MPC52xx when using 
-boot/simple
-#  
-#   Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
-#   Signed-off-by: Sylvain Munaut <tnt246tNt.com>
-#
-# arch/ppc/boot/simple/misc.c
-#   2004/09/14 00:07:01+02:00 tnt@246tNt.com +3 -1
-#   ppc: Use interactive console for Freescale MPC52xx when using 
-boot/simple
-#
-diff -Nru a/arch/ppc/boot/simple/misc.c b/arch/ppc/boot/simple/misc.c
---- a/arch/ppc/boot/simple/misc.c       2004-09-14 12:47:44 +02:00
-+++ b/arch/ppc/boot/simple/misc.c       2004-09-14 12:47:44 +02:00
-@@ -48,7 +48,9 @@
-  * Val Henson has requested that Gemini doesn't wait for the
-  * user to edit the cmdline or not.
-  */
--#if (defined(CONFIG_SERIAL_8250_CONSOLE) || defined(CONFIG_VGA_CONSOLE)) \
-+#if (defined(CONFIG_SERIAL_8250_CONSOLE) \
-+       || defined(CONFIG_VGA_CONSOLE) \
-+       || defined(CONFIG_SERIAL_MPC52xx_CONSOLE)) \
-        && !defined(CONFIG_GEMINI)
- #define INTERACTIVE_CONSOLE    1
- #endif
+Chris Wright wrote:
+> * Neil Horman (nhorman@redhat.com) wrote:
+> 
+>>Hey all-
+>>	Found this the other day poking through the ipc code.  There appears to 
+>>be a race condition in the counter that records how many processes are 
+>>accessing a given shared memory segment.  In most places the shm_nattch 
+>>variable is protected by the shm_ids.sem semaphore, but there are a few 
+>>openings which appear to be able to allow a corruption of this variable 
+>>when run on SMP systems.  I've attached a patch to 2.6.9-rc2 for review. 
+>>  The locking may be a little over-aggressive (I was following examples 
+>>from other points in this file), but I figure better safe than sorry :).
+> 
+> 
+> Are you sure you've got this right?  I thought that the shmid_kernel
+> struct protects shm_nattch with a local (per structure) lock which is
+> embedded in kern_ipc_perm.  Did you find shm_nattch changes w/out
+> shm_lock/shm_unlock around it?  I believe shm_ids.sem is protecting the
+> id allocation, not per object data such as shm_nattch.
+> 
+> thanks,
+> -chris
+You're right, its not correct.  I'm sorry.  I'm looking into a locking 
+bug in 2.4, which does its ipc locking for shared memory very 
+differently.  Since the shared memory code looks simmilar in 2.6, I was 
+making the assumption that the change applied upstram as well, but I 
+don't think thats the case after looking more carefully.  My bad.
+Neil
 
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

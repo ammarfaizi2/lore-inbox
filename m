@@ -1,58 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311403AbSDECxJ>; Thu, 4 Apr 2002 21:53:09 -0500
+	id <S311919AbSDECw7>; Thu, 4 Apr 2002 21:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311917AbSDECw7>; Thu, 4 Apr 2002 21:52:59 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:51420 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S311403AbSDECwn>;
-	Thu, 4 Apr 2002 21:52:43 -0500
-Date: Thu, 4 Apr 2002 18:52:32 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: [QUESTION] How to use interruptible_sleep_on() without races ?
-Message-ID: <20020404185232.B27209@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
+	id <S311917AbSDECwk>; Thu, 4 Apr 2002 21:52:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29702 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311403AbSDECwe>;
+	Thu, 4 Apr 2002 21:52:34 -0500
+Message-ID: <3CAD1142.82527917@zip.com.au>
+Date: Thu, 04 Apr 2002 18:51:46 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: joeja@mindspring.com, linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+In-Reply-To: <3CACEF18.CE742314@zip.com.au> <200204050218.g352ILY32221@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+Richard Gooch wrote:
+> 
+> >       http://www.atnf.csiro.au/people/rgooch/linux/boot-scripts/
+> 
+> Around 20 seconds or less from when the kernel starts init(8) to when
+> my XDM splash screen is up, last time I checked.
 
-	I've got a problem on using interruptible_sleep_on(). I hope
-you will help me fix that ;-)
+eww.  You need a doctored filesystem.
 
-	I want to wait for a task to finish :
-----------------------------------
-	if(my_condition == TRUE)
-		interruptible_sleep_on(&my_wait_queue);
-----------------------------------
+> ...
+> > The theory was lovely.  And I tried all sorts of stuff.  But
+> > the bottom line benefit was only about 10%.  The whole thing
+> > was constrained by buffercache seek time - filesytem metadata.
+> 
+> The problem is that you're not listing the metadata blocks when
+> building the database, right? And that's because Linus didn't want
+> such hackery in the kernel. So instead we got the not-very-useful
+> readahead system call.
 
-	Then, at some point, a timer/BH/soft-irq will do :
--------------------------------
-	my_condition == FALSE;
-	wake_up_interruptible(&my_wait_queue);
--------------------------------
+No, everything was listed.  pagecache, buffercache.  This
+was pre buffercache-in-pagecache.  I tried lots of stuff,
+including intermingling pagecache and buffercache reads
+in strict LBA order, buffercache first, no buffercache at
+all.  Nothing really helped.  Fact is, all those files are
+sprinkled all over the disk and a short seek is pretty much
+as expensive as a long one.
 
-	It seems straightforward, but it doesn't work. There is a race
-condition between the test of the condition and the call to
-sleep_on().
-	I looked at it in every possible way, and I don't see how it
-is possible to use safely interruptible_sleep_on(). And I wonder :
-what's the point of having a function in the kernel if you can't use
-it safely ?
-	As a matter of fact, the TCP code doesn't use
-interruptible_sleep_on() but use some complex code around schedule()
-(and there must be a simpler and cleaner solution for such a simple
-problem).
+The code's at http://www.zip.com.au/~akpm/linux/fboot.tar.gz -
+it includes a demonstration of the ancient art of reading files
+in a kernel module via insmod's standard input :)
 
-	Any comments ?
+> > Oh well.  The best benefit was in fact from launching all
+> > the initscripts in parallel.  Lots of stuff broke because
+> > of the lack of any sort of dependency system, but it was
+> > appreciably quicker.
+> 
+> Of course, my boot scripts do the dependency stuff right (actually,
+> it's the changes I made to simpleinit(8) that make it possible).
 
-	Jean
+Yes, I've looked.  It's nice stuff.  The dependencies are critial.
+
+> > I guess the greatest benefit would come from reorganising the
+> > layout of the root filesystem's data and metadata so the
+> > pagecache prepopulation doesn't have to seek all over the place.
+> 
+> Or being able to preload *everything* in ascending order...
+
+I was preloading everything.  I certainly avoided the thought of
+taking a *copy* of everything and placing it elsewhere on disk.
+Scary coherency problems there.
+
+One thing I did do a while back was to set up a new root filesystem
+on a new disk via `tar cf - | (cd /newplace ; tar xf -)'.  But before
+doing this I nobbled ext2's directory placement algorithm so
+subdirectories in the new fs go in the same blockgroup as the parent.
+This sped boots up quite a bit.  Probably the pagecache preload
+code would work better with that setup.
+
+Still.  Joe tells me (offlist) that his machine is taking
+ages just to get to the "starting init" stage.
+
+-

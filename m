@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265639AbUAGWLv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 17:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265647AbUAGWLv
+	id S265657AbUAGW0e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 17:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265660AbUAGW0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 17:11:51 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:34314 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265639AbUAGWLv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 17:11:51 -0500
-Date: Wed, 7 Jan 2004 17:13:58 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@oddball.prodigy.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Oddness in "make rpm"
-Message-ID: <Pine.LNX.4.44.0401071710550.4123-100000@oddball.prodigy.com>
+	Wed, 7 Jan 2004 17:26:34 -0500
+Received: from mxout.iskon.hr ([213.191.128.10]:55777 "HELO mxout.iskon.hr")
+	by vger.kernel.org with SMTP id S265657AbUAGW0d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 17:26:33 -0500
+X-Remote-IP: 213.191.139.250
+To: linux-kernel@vger.kernel.org
+Subject: iostat - Linux I/O performance monitoring utility
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Wed, 07 Jan 2004 23:26:21 +0100
+Message-ID: <87znczfl9u.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Reasonable Discussion,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I do an RPM make for a Pentium-II processor the result is labeled as 
-i386 and put in the i386 directory. This obviously might be a Redhat 
-thing, or an option I missed.
+iostat v2.0 is out!
 
-Just FYI, obviously I'll take a hint, but I have it on my list of things 
-to fdo over the weekend if not.
+It works flawlessly on both 2.4 & 2.6, compiles on Debian, Redhat, you
+name it... IOW, it's perfect. :)
 
-	-bill
+Looks something like this:
 
+                             extended device statistics                       
+device mgr/s mgw/s    r/s    w/s    kr/s    kw/s   size queue   wait svc_t  %b 
+hde        0  3530    5.0   92.0    20.2 14597.8  150.6  68.1  563.2   6.0  58 
+hdg        0     0    0.0    0.0     0.0     0.0    0.0   0.0    0.0   0.0   0 
+hda        0   105  159.6   69.4   637.7   812.9    6.3  56.0  176.4   4.1  95 
+
+Find it on:  http://linux.inet.hr/
+
+Comments welcome, please Cc: me 'cause I'm not subscribed.
+-- 
+Zlatko

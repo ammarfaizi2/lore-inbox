@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVBBOQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVBBOXO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbVBBOQU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 09:16:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVBBOPt
+	id S262399AbVBBOXO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 09:23:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVBBOXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 09:15:49 -0500
-Received: from alog0535.analogic.com ([208.224.223.72]:16768 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262571AbVBBOOj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 09:14:39 -0500
-Date: Wed, 2 Feb 2005 09:14:53 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Vineet Joglekar <vintya@excite.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       linux-c-programming@vger.kernel.org
-Subject: Re: when and where shall I encrypt dentry?
-In-Reply-To: <20050202134901.9926C3E12@xprdmailfe6.nwk.excite.com>
-Message-ID: <Pine.LNX.4.61.0502020905330.16140@chaos.analogic.com>
-References: <20050202134901.9926C3E12@xprdmailfe6.nwk.excite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 2 Feb 2005 09:23:14 -0500
+Received: from main.gmane.org ([80.91.229.2]:12427 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262441AbVBBOXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 09:23:07 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Richard Hughes <ee21rh@surrey.ac.uk>
+Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
+Date: Wed, 2 Feb 2005 14:20:14 +0000 (UTC)
+Message-ID: <loom.20050202T151831-336@post.gmane.org>
+References: <200502011257.40059.brade@informatik.uni-muenchen.de>  <pan.2005.02.01.20.21.46.334334@surrey.ac.uk> <1107299901.5624.28.camel@gaston> <loom.20050202T134427-571@post.gmane.org> <4200CD15.6080001@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 20.133.0.11 (Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0)
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Con Kolivas <kernel <at> kolivas.org> writes:
 
-The correct place to encrypt or decrypt ANYTHING is
-just before access to the "outside" world, i.e., in the
-case of a file-system, the reads and writes to the
-storage device (disk drive). You are in a world of
-hurt if you intend to encrypt 'data' and directories
-separately.
+> >>I'm not sure how the list of intefaces is probed on this machine, that's
+> >>probably where the problem is.
+> 
+> I've read that people have had this problem go away if they disable this 
+> option:
+> 
+> < >     generic/default IDE chipset support
 
-If you need to use an existing file-system and then
-encrypt it, you use the same technique but your
-"storage device" is a "container file" that you mount
-using the loop device. This allows you to have an
-encrypted file-system below some mount-point and
-a normal file-system above.
+Okay I'll try this tonight. I'm running a stock Fedora kernel at the moment
+(rawhide) so this issue might affect more people than we think.
+ 
+> If you have chipset support for your IDE controller this isn't needed, 
+> and I'd recommend disabling it. The "why" it made the problem go away is 
+> something I can't answer.
 
-FYI, there are existing tools/code that allow one to
-mount an encrypted file-system. Perhaps your masters
-project just got easier?
+Richard.
 
 
-On Wed, 2 Feb 2005, Vineet Joglekar wrote:
 
->
-> Hi all,
->
-> I am trying to add some cryptographic functionality to ext2 file system for my masters project. I am working with kernel 2.4.21
->
-> Along with regular files, I intend to encrypt directory contents too. For reading I guess the function ext2_get_page in fs/ext2/dir.c is used. Hence I can put my decryption routine in that function. Is that correct?
->
-> I was trying to look for the routine which writes the dentry on disk, but was unable to find it. I found out that the function d_instantiate is used to fill in inode information for a dentry, but unable to see when it is written on disk. I suppose that I have to encrypt the dentry just before writing on to the disk, as if i encrypt it before, other functions using it wont be able to access until they decrypt. So please help me with this, that when and where shall I encrypt the directory contents.
->
-> Thanks and regards,
->
-> Vineet
->
-> _______________________________________________
-> Join Excite! - http://www.excite.com
-> The most personalized portal on the Web!
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266285AbTBCMyq>; Mon, 3 Feb 2003 07:54:46 -0500
+	id <S266292AbTBCNHn>; Mon, 3 Feb 2003 08:07:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266286AbTBCMyq>; Mon, 3 Feb 2003 07:54:46 -0500
-Received: from meel.hobby.nl ([212.72.224.15]:37380 "EHLO meel.hobby.nl")
-	by vger.kernel.org with ESMTP id <S266285AbTBCMyp>;
-	Mon, 3 Feb 2003 07:54:45 -0500
-Message-ID: <3E3EBF86.6050000@kader.hobby.nl>
-Date: Mon, 03 Feb 2003 14:14:14 -0500
-From: "l.scheelings" <l.scheelings@kader.hobby.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S266297AbTBCNHm>; Mon, 3 Feb 2003 08:07:42 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:62090 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S266292AbTBCNHl>;
+	Mon, 3 Feb 2003 08:07:41 -0500
+From: b_adlakha@softhome.net
 To: linux-kernel@vger.kernel.org
-Subject: Code: Bad EIP value
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: [OOPS] 2.5.59
+Date: Mon, 03 Feb 2003 06:17:13 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [210.214.82.244]
+Message-ID: <courier.3E3E6BD9.00002221@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there, i have a little shutdown problem. I tried to find the answer 
-on the internet,
-irc channels and so on , but no one there knows. Someone in the mandrake 
-irc channel at freenode.net advised me to turn to you.
+I get his _every_ time I boot : 
 
-I use mandrake dolphin 9.0 download version,
-on an AMD k6 400 3d now, with dfi motherboard, and ami bios.
-when i shutdown after the message
+printing eip:
+c012764a
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c012764a>]    Not tainted
+EFLAGS: 00010093
+EIP is at __find_symbol+0x3e/0x84
+eax: c0354281   ebx: 000007c2   ecx: 00000000   edx: c0412020
+esi: 40c0362e   edi: d0867190   ebp: cf7c5ec4   esp: cf7c5eb8
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 42, threadinfo=cf7c4000 task=cf94b280)
+Stack: cf7c4000 d0866f14 d0867580 cf7c5ee8 c012809f d0867190 cf7c5ee4 
+00000001
+       d0866cd4 d0866f14 0000004b 0000035c cf7c5f18 c01282de d0861f50 
+00000019
+       d0866f14 d0867190 d0867580 d0861f50 0000000f d0867580 00000000 
+0000006f
+Call Trace:
+ [<c012809f>] resolve_symbol+0x2b/0x6c
+ [<c01282de>] simplify_symbols+0x7e/0xe4
+ [<c0128b44>] load_module+0x594/0x7ac
+ [<c0128dd1>] sys_init_module+0x75/0x1c8
+ [<c0108ca3>] syscall_call+0x7/0xb 
 
-powerdown
- 
-i get an error:
-
-EIP: 0050:[<00008865>] Not tainted
-EFLAGS: 00010046
-eax: 0005301 ebx: 00000001 ecx: 00000000 edx: 00000000
-esi: 00008136 edi: 00000296 ebp: 67890000 esp: c8ae7dd0
-ds:  0058 es: 000 ss: 0018
-Process halt cpid: 2559, stackpage+ c8ae70000
-stack: 02968df  81360000 00000000
-          0000000 00000000  81250058
-          c01148dd 00000010
-
-call Trace : [<c01148dd>] [<c0110000>]
-
-Code: Bad EIP value
-
-
-        Is there any direction where is should look for this error?
-and how can i get around it?
-I tried the <linux noapic> at boot but that did not solve this error.
-When i turn off the power after this error and then power up the pc and 
-boot agian
-everythings works as normal. < but wen shutting down the error is there 
-agian.>
-
-Hopefully you can give me some information , so that i can solve this 
-litttle problem.
-
-With lots of greeting from the netherlands,
-
-l.scheelings@kader.hobby.nl
-
-Powered by GNU/linux
-
-
-
-
-
+Code: ac ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 12
+ <6>note: modprobe[42] exited with preempt_count 1
+Debug: sleeping function called from illegal context at 
+include/asm/semaphore.h:119
+Call Trace:
+ [<c0117038>] __might_sleep+0x54/0x5c
+ [<c0136c5b>] remove_shared_vm_struct+0x2b/0x7c
+ [<c013808c>] exit_mmap+0x118/0x15c
+ [<c011750d>] mmput+0x55/0x70
+ [<c011aafb>] do_exit+0x157/0x3e0
+ [<c0109ba7>] die+0x73/0x74
+[<c0114adc>] do_page_fault+0x2dc/0x40e
+[<c0114800>] do_page_fault+0x0/0x40e
+[<c01571b8>] update_atime+0x14/0x98
+[<c012b68f>] do_generic_mapping_read+0x34b/0x358
+[<c012b98b>] __generic_file_aio_read+0x1af/0x1cc
+[<c012b6dc>] file_read_actor+0x0/0x100
+[<c01096cd>] error_code+0x2d/0x38
+[<c013007b>] kmem_cache_create+0xd3/0x454
+[<c012764a>] __find_symbol+0x3e/0x84
+[<c012809f>] resolve_symbol+0x2b/0x6c
+[<c01282de>] simplify_symbols+0x7e/0xe4
+[<c0128b44>] load_module+0x594/0x7ac
+[<c0128dd1>] sys_init_module+0x75/0x1c8
+[<c0108ca3>] syscall_call+0x7/0xb 
 

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310357AbSCLEt2>; Mon, 11 Mar 2002 23:49:28 -0500
+	id <S310400AbSCLEvt>; Mon, 11 Mar 2002 23:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310392AbSCLEtU>; Mon, 11 Mar 2002 23:49:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10255 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310357AbSCLEtM>;
-	Mon, 11 Mar 2002 23:49:12 -0500
-Message-ID: <3C8D88B4.7060508@mandrakesoft.com>
-Date: Mon, 11 Mar 2002 23:48:52 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: "J. Dow" <jdow@earthlink.net>, Linus Torvalds <torvalds@transmeta.com>,
-        LKML <linux-kernel@vger.kernel.org>
+	id <S310392AbSCLEvn>; Mon, 11 Mar 2002 23:51:43 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28936 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310400AbSCLEva>; Mon, 11 Mar 2002 23:51:30 -0500
+Date: Mon, 11 Mar 2002 20:40:13 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@redhat.com>
 Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <Pine.LNX.4.33.0203111741310.8121-100000@home.transmeta.com> <3C8D667F.5040208@mandrakesoft.com> <01a401c1c970$aeb74110$1125a8c0@wednesday> <3C8D71AC.3080305@mandrakesoft.com> <20020312044112.GA18857@codepoet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3C8D8376.8010907@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0203112031460.18739-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
 
->But the minute such a layer is in place, people will begin going
->straight to the sub-low-level raw device layers so they can use
->all the exciting new extended features of their XP370000 quantum
->storage array which needs the special frob-electrons command to
->make it work...
->
+On Mon, 11 Mar 2002, Jeff Garzik wrote:
+> 
+> For the details of the userspace interface (for both ATA and SCSI), my 
+> idea was to use standard read(2) and write(2).
 
-SCSI generic has existed for a while now :)
+I like it, but you have to realize that most, if not all, of the commands 
+really are not a matter of a read or a write, but a "transaction", which 
+is a pair of both (and at least in theory you could have transactions that 
+are more complex than just a "command + result", ie more than just a 
+write("cmd + outdata")+read("status + indata")).
 
-So this is really just catching up.  And WRT the filtering stuff, people 
-are free to use the raw cmd without any filtering at all.  Your choice.
+I agree 100% with the notion of using read/write to do this, but I think
+you need to make it very explicit that we _are_ talking about
+transactions, and that the file descriptor would act as a "transaction
+descriptor" when you do this. The file descriptor is the one that matches
+up the write that started the transaction with the read that gets the
+status of it - thus allowing multiple concurrent transactions in flight.
 
-If you mean bit-banging, see my reply to Oliver (Olivier?).
+And the command has to have some structure, ie it needs to not just be the
+low-level command, but also have the information about the "format" of the
+transaction (so that the generic layer can build up the correct BIO data
+structures for the result, before it actually sees the read itself).
 
-Anyway, Linus's current proposal seems both sane and flexible enough. 
- And the basic infrastructure already exists to shove raw commands onto 
-the request queue.
-
-    Jeff
-
-
-
+			Linus
 

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbQKDAB4>; Fri, 3 Nov 2000 19:01:56 -0500
+	id <S129033AbQKDAPC>; Fri, 3 Nov 2000 19:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132017AbQKDABq>; Fri, 3 Nov 2000 19:01:46 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:9222 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S129066AbQKDABk>;
-	Fri, 3 Nov 2000 19:01:40 -0500
-Message-ID: <3A0351D7.39F0FB14@mandrakesoft.com>
-Date: Fri, 03 Nov 2000 19:01:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
+	id <S129066AbQKDAOv>; Fri, 3 Nov 2000 19:14:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30226 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129033AbQKDAOf>; Fri, 3 Nov 2000 19:14:35 -0500
+Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Sat, 4 Nov 2000 00:14:53 +0000 (GMT)
+Cc: david@linux.com (David Ford), alan@redhat.org (Alan Cox), tytso@mit.edu,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A0329DA.38A90824@mandrakesoft.com> from "Jeff Garzik" at Nov 03, 2000 04:10:50 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: sunol_handa@non.agilent.com
-CC: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: linux support for TCP/IP Task Offload ....
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971A3D977@xsj02.sjs.agilent.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13rqz1-00046G-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sunol_handa@non.agilent.com wrote:
+> > Not unless it was fixed in test10 release.  I have a PC LinkSys dual 10/100 and
+> > 56K card that will kill the machine if you physically pull it out no matter what
+> > cardctl/module steps are taken.
+> > 
+> > It uses the ne2k and serial drivers.
 > 
-> thanx for the information
+> Part of that might be that serial doesn't support hotplug without
+> patching.
+
+Linksys rings a bell with an outstandng 2.2 lockup on pcmcia. I think this might
+be a driver bug ?
+
 > 
-> this ftp site
-> ftp://ftp.inr.ac.ru/ip-routing/zerocopy-sendfile-*.dif
-> is password protected.
-> 
-> do you know what the password is ? or is there a site with same patch which
-> is not password protected.
 
-This site is not password-protected, I just downloaded the referenced
-diff.  Are you trying to download the above URL directly?  You cannot...
-URLs do not have wildcards in them.  Download the following files:
-
-ftp://ftp.inr.ac.ru/ip-routing/README.zerocopy-sendfile
-ftp://ftp.inr.ac.ru/ip-routing/zerocopy-sendfile-001102.dif.gz
-
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUJESff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUJESiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUJESff (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 14:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUJESf0
+	id S263818AbUJESiz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 14:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJESiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 14:35:26 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:47524 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261426AbUJESfJ (ORCPT
+	Tue, 5 Oct 2004 14:38:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19870 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264377AbUJESii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 14:35:09 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Patrick Gefre <pfg@sgi.com>
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-Date: Tue, 5 Oct 2004 11:34:55 -0700
-User-Agent: KMail/1.7
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com> <4162E5F0.30104@sgi.com>
-In-Reply-To: <4162E5F0.30104@sgi.com>
+	Tue, 5 Oct 2004 14:38:38 -0400
+Date: Tue, 5 Oct 2004 11:38:28 -0700
+Message-Id: <200410051838.i95IcSgC006889@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410051134.55652.jbarnes@engr.sgi.com>
+From: Roland McGrath <roland@redhat.com>
+To: Christoph Lameter <clameter@sgi.com>
+X-Fcc: ~/Mail/linus
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] CPU time clock support in clock_* syscalls
+In-Reply-To: Christoph Lameter's message of  Tuesday, 5 October 2004 08:39:46 -0700 <Pine.LNX.4.58.0410050826400.26772@schroedinger.engr.sgi.com>
+X-Shopping-List: (1) Atypical pancakes
+   (2) Dynastic detention cheeses
+   (3) Expectant cotillion detergents
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, October 5, 2004 11:20 am, Patrick Gefre wrote:
-> > These others are outside of my area (well I *might* push
-> > the drivers that are only used by SGI ... but hotplug
-> > and qla1280 are definitely not mine).  So they need to be
-> > split out into separate patches.
->
-> As a general comment, the changes to these files are because of mods in the
-> reorg code - so they are needed for this base but not in the older code.
-> So, in my mind, it is a package - or should be taken as a whole. I can
-> break them out, but I think they need to go together.
+> Your approach means that only a part of the range may be used. 
+> What happens if a pid of say 2^31-10 is used with your API?
 
-Yeah, that's fine, but it's easier to review and integrate if patches to 
-update the API are separate files and mails (e.g. 2/3, 3/3, etc.).  Makes for 
-more detailed changelog comments and makes changes in the bk tree much easier 
-to track.  In general, the smaller, the better.
+That is certainly true.  On a 32-bit machine, a PID value above 2^29-1
+cannot be used, by definition.  So there is no "what happens", it just can't.
+Userland will need to reject huge PIDs before trying to encode them.
+PID_MAX_LIMIT is 2^22, so no actually valid PID can be a problem in practice.
 
-> >   drivers/char/mmtimer.c
->
-> This is Jesse's code. We made an include file change. Is this OK Jesse ?
+> Does this approach take into consideration that the TSC or cputimer may be
+> different on each CPU of a SMP system? 
 
-Yeah, that's fine.
+Yes.  If you consider the methodology I described, you'll see that it does.
+The absolute sched_clock time is never relevant here, so it doesn't matter
+that it differs between CPUs.  I take a sample when the thread gets
+scheduled, and another when it gets descheduled (and perhaps others on the
+timer interrupts in between).  So all I ever use is the difference between
+two samples taken on the same CPU.
 
-> >   drivers/ide/pci/sgiioc4.c
->
-> More Lindent mods. We took out the endian code - not needed anymore.
+> I just reviewed the code and to my surprise the simple things like
+> 
+> clock_gettime(CLOCK_PROCESS_CPUTIME_ID) and
+> clock_gettime(CLOCK_THREAD_CPUTIME_ID) are not supported. 
 
-Sounds like that could be a separate cleanup patch.
+You seem to be confused.  A clockid_t for a CPU clock encodes a PID, which
+can be zero to indicate the current thread or current process.  
 
-> >   drivers/pci/hotplug/Kconfig
->
-> Took out SGI PCI Hotplug. Since there isn't any code behind it - we will
-> add it back in when we submit the code for it.
+> The thread specific time measurements have nothing to do with the posix
+> standard and may best be kept separate.
 
-Sounds good, probably a separate patch too.
+Nonsense.  POSIX defines the notion of CPU clocks for these calls, and that
+is what I have implemented.
+
+Of course glibc is in charge of what the meaning of the POSIX APIs is.
+That is true for every call.
+
 
 Thanks,
-Jesse
+Roland

@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284761AbSADLXi>; Fri, 4 Jan 2002 06:23:38 -0500
+	id <S288604AbSADLb7>; Fri, 4 Jan 2002 06:31:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288602AbSADLX2>; Fri, 4 Jan 2002 06:23:28 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:10376 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S284761AbSADLXX>;
-	Fri, 4 Jan 2002 06:23:23 -0500
-Date: Fri, 4 Jan 2002 14:20:49 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: rwhron <rwhron@earthlink.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <20020104061650.A22264@earthlink.net>
-Message-ID: <Pine.LNX.4.33.0201041412550.4007-100000@localhost.localdomain>
+	id <S288603AbSADLbt>; Fri, 4 Jan 2002 06:31:49 -0500
+Received: from abaddon02.airbus.dasa.de ([193.96.150.5]:47612 "EHLO
+	abaddon02.airbus.dasa.de") by vger.kernel.org with ESMTP
+	id <S287632AbSADLbb>; Fri, 4 Jan 2002 06:31:31 -0500
+Message-ID: <ADC649D6283BD511B2A90008C71E93BF33A432@s02mks8.ham.airbus.dasa.de>
+From: "Bartels, Christian" <Christian.Bartels@airbus.dasa.de>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: 53c810 SCSI controller not accessible on type-2 config PCI [K
+	ernel 2.4.17]
+Date: Fri, 4 Jan 2002 12:30:49 +0100 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>     Non-VGA device: NCR 53c810 (rev 1).
+>>       Medium devsel.  IRQ 10.  Master Capable.  Latency=80.  
+>>       I/O at 0xd000 [0xd001].
 
-On Fri, 4 Jan 2002, rwhron wrote:
+>What does this device look like in 2.2.18 ?
 
-> The second time I ran it, when I was tailing the output the machine
-> seemed to freeze.  (Usually the syscall tests complete very quickly).
-> I got the oops below on a serial console, it scrolled much longer and
-> didn't seem to like the call trace would ever complete, so i rebooted.
+The above was the output of 'cat /proc/pci' under 2.2.18. The
+corresponding output for 2.4.17 is:
 
-the oops shows an infinite page fault, the actual point of fault is not
-visible. To make it visible, could you please apply the following patch to
-your tree and check the serial console? It should now just print a single
-line (showing the faulting EIP) and freeze forever:
+   Bus  0, device   5, function  0:
+     Class 0000: PCI device 1000:0001 (rev 1)
+       IRQ 10
+       Master Capable.  Latency=80.
+       I/O at 0xd000 [0xd0ff]
+       Non-prefetchable 32 bit memory at 0x0 [0xff]
 
-   pagefault at: 12341234. locking up now.
+I had ordered my mail to include first all output from 2.2.18,
+followed by output of 2.4.17.
 
-Please look up the EIP via gdb:
-
-	gdb ./vmlinux
-	list *0x12341234
-
-(for this you'll have to add '-g' to CFLAGS in the top level Makefile.)
-
-> I ran it a third time trying to isolate which test triggered the oops,
-> but the behavior was different again.  The machine got very very slow,
-> but tests would eventually print their output.  The test that
-> triggered the behavior was apparently between pipe11 and the
-> setrlimit01 command below.
-
-i'll try these tests. Does the test use RT scheduling as well?
-
-> It looks like you already have an idea where the problem is.
-> Looking forward to the next patch.  :)
-
-i havent found the bug yet :-|
-
-	Ingo
-
---- linux/arch/i386/mm/fault.c.orig	Fri Jan  4 12:08:41 2002
-+++ linux/arch/i386/mm/fault.c	Fri Jan  4 12:11:09 2002
-@@ -314,6 +314,8 @@
-  * Oops. The kernel tried to access some bad page. We'll have to
-  * terminate things with extreme prejudice.
-  */
-+	printk("pagefault at: %08lx. locking up now.\n", regs->eip);
-+	for (;;) __cli();
-
- 	bust_spinlocks(1);
-
-
+Christian

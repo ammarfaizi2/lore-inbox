@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130581AbRCEBXm>; Sun, 4 Mar 2001 20:23:42 -0500
+	id <S130580AbRCEBXw>; Sun, 4 Mar 2001 20:23:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130582AbRCEBXc>; Sun, 4 Mar 2001 20:23:32 -0500
-Received: from dobit2.rug.ac.be ([157.193.42.8]:61633 "EHLO dobit2.rug.ac.be")
-	by vger.kernel.org with ESMTP id <S130581AbRCEBXU>;
-	Sun, 4 Mar 2001 20:23:20 -0500
-Date: Mon, 5 Mar 2001 02:22:58 +0100 (MET)
-From: Erwin Six <Erwin.Six@rug.ac.be>
-To: linux-kernel@vger.kernel.org
-cc: andrea@suse.de
-Subject: Slight Time drift in linux by division fault 
-Message-ID: <Pine.GSO.4.10.10103050127180.15575-100000@eduserv2.rug.ac.be>
+	id <S130582AbRCEBXm>; Sun, 4 Mar 2001 20:23:42 -0500
+Received: from SMTP-OUT003.ONEMAIN.COM ([63.208.208.73]:9572 "HELO
+	smtp04.mail.onemain.com") by vger.kernel.org with SMTP
+	id <S130580AbRCEBXa>; Sun, 4 Mar 2001 20:23:30 -0500
+Message-ID: <3AA2DD8C.E4C5628C@mcn.net>
+Date: Sun, 04 Mar 2001 17:27:56 -0700
+From: TimO <hairballmt@mcn.net>
+Organization: Don't you mean Disorganization!?
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.3-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOPS-kernel 2.4.3-pre1
+In-Reply-To: <Pine.GSO.4.21.0103030140070.17703-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
+> 
+> On Fri, 2 Mar 2001, TimO wrote:
+> 
+> > eax: 00000000  ebx: 00000000  ecx: 00000000  edx: 00000000
+> [snip]
+> > >>EIP; c0142a52 <get_new_inode+b2/160>   <=====
+> > Trace; c0142ca6 <iget4+b6/d0>
+> > Trace; c0145f01 <proc_get_inode+41/120>
+> > Trace; c014601a <proc_read_super+3a/b0>
+> > Trace; c01349a4 <read_super+104/180>
+> > Trace; c0134f7a <kern_mount+2a/80>
+> > Trace; c0107007 <init+7/110>
+> > Trace; c01074b8 <kernel_thread+28/40>
+> > Code;  c0142a52 <get_new_inode+b2/160>
+> > 00000000 <_EIP>:
+> > Code;  c0142a52 <get_new_inode+b2/160>   <=====
+> [snip]
+> 
+> Lovely. sb->s_op == NULL in iget(). The thing being, proc_read_super()
+> explicitly sets ->s_op to non-NULL. Oh, and that area hadn't changed since
+> 2.4.2, so I'd rather suspect the b0rken build. Can you reproduce it?
+> 
+>                                                         Cheers,
+>                                                                 Al
 
-Hello,
+Not anymore; rm -rf seems to have fixed it (make mrproper didn't). 
+Guess
+I should have tried that before posting.  Don't know how it got screwed
+up; only 2 patches applied to this tree.
 
-I'm a senior Student in electronic Engineering. A lot of my work takes
-place inside the network-part of the kernel, but now I'm confronted with
-time. I designed a hardware-board whitch trys to synchronize
-network-monitors by GPS. Electronicly this board is tested, and it has an
-hardware resolution of about 1 usec (in phase, so in relative time). Now
-I'm writing the device-driver that synchronizes the Linux-time system. If
-I interrupt the kernel at the exact GPS-zero-time. And I watch the
-do_timeoftheday() the seconds increases, but there is also a extra
-increase of +-16 usec each second. So it seams that a linux second takes 
-16usec more than one GPS second. Can I explain this with math? 
+   Thanks,
 
-the cristal inside the computer ticks with a frequency of 1193180 Hz this
-16usec could be an fault of 16ppm whitch is rather big. But 2 diffrent
-systems have the allmost drift (+-2). Or it can be caused by the division
-inside the linux time-system (whitch is possible after you see this
-calculations)
-
-If HZ = 100 then the LATCH of the PIT = (1193180 + HZ/2) / HZ = 11932
-so in 1 sec we have 1193200 ticks of the PIT which causes 100
-timer-interrupts. 1193200 ticks instead of 1193180 means that there are 20
-ticks to mutch inside of each second. or 20 * 1/1193180 = 16.7619 usec. or
-1 second to mutch every 16.5 hours (or 8.8 minutes a year). I've looked
-the PLL closely but I can't find a mechanisme that compensates for this
-problem, maybe I'm looking over it? Indeed 8.8 minutes is mutch, but I
-think if I hadn't use a GPS, I wouldn't notice it.
-
-Why do I suppose the second option? If you play a little bit with the HZ
-parameter, you can let your timeclock drift mutch faster just by taking a
-HZ that has a big 1193180 % HZ. eg. 5000 Hz gives a latch of 291 which
-causes 119500 instead of 1193180 or a drift of 1820 ticks = 1.525 ms!
-
-I have some solutions in mind to compensate this problem, but I have to
-be sure. 
-Can somebody confirm this problem?
-
-Erwin Six
-
-
-
+===============
+-- Tim

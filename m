@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271885AbRH1TOW>; Tue, 28 Aug 2001 15:14:22 -0400
+	id <S271886AbRH1TQC>; Tue, 28 Aug 2001 15:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271886AbRH1TOM>; Tue, 28 Aug 2001 15:14:12 -0400
-Received: from ns.suse.de ([213.95.15.193]:32266 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271885AbRH1TOC>;
-	Tue, 28 Aug 2001 15:14:02 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-In-Reply-To: <20010828180108Z16193-32383+2058@humbolt.nl.linux.org.suse.lists.linux.kernel> <Pine.LNX.4.33.0108281110540.8754-100000@penguin.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Aug 2001 21:14:15 +0200
-In-Reply-To: Linus Torvalds's message of "28 Aug 2001 20:25:12 +0200"
-Message-ID: <oup8zg4j8u0.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S271887AbRH1TPw>; Tue, 28 Aug 2001 15:15:52 -0400
+Received: from relay02.cablecom.net ([62.2.33.102]:47374 "EHLO
+	relay02.cablecom.net") by vger.kernel.org with ESMTP
+	id <S271886AbRH1TPo>; Tue, 28 Aug 2001 15:15:44 -0400
+Message-Id: <200108281916.f7SJG0I01130@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
+To: ptb@it.uc3m.es
+Subject: Re: does the request function block
+Date: Tue, 28 Aug 2001 21:15:59 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <200108281828.UAA02042@nbd.it.uc3m.es>
+In-Reply-To: <200108281828.UAA02042@nbd.it.uc3m.es>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Tuesday 28 August 2001 20:28, you wrote:
+> No they don't. NBD moves the requests to an internal queue when the
+> request function is run. The function does not block. The internal
+> queue is later emptied by another means, in another context.
 
-Regarding kswapd in 2.4.9:
+ok - does 
+	result = sock_sendmsg(sock, &msg, size);
+block? something in the back of my brains sais yes, but i might be
+wrong since i'm new to linux kernel programing. if it does block 
+nbd blocks. it realeases the io_request_lock lock and calls 
+nbd_send_req which calls nbd_xmit and that results in a call to 
+sock_sendmst.
 
-At least something seems to be broken in it. I did run some 900MB processes
-on a 512MB machine with 2.4.9 and kswapd took between 70 and 90% of the CPU
-time.
+in the documention ob the brbd it sais: that the request function 
+is allways called in the context of a process doing I/O the kflushd
+or the kupdate kernel thread.
 
--Andi
+
+
 

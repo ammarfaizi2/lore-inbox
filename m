@@ -1,38 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291277AbSBGUaO>; Thu, 7 Feb 2002 15:30:14 -0500
+	id <S291279AbSBGUbY>; Thu, 7 Feb 2002 15:31:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291282AbSBGU34>; Thu, 7 Feb 2002 15:29:56 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:24641 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S291278AbSBGU3n>; Thu, 7 Feb 2002 15:29:43 -0500
-Date: Thu, 7 Feb 2002 21:34:24 +0100
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Cc: viro@math.psu.edu
-Subject: Re: Warning, 2.5.3 eats filesystems
-Message-ID: <20020207203424.GA2738@chiara.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org, viro@math.psu.edu
-In-Reply-To: <20020206233051.GA503@chiara.cavy.de> <Pine.GSO.4.21.0202061836450.22680-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0202061836450.22680-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.5.0-hc8-current-20020125i (Linux 2.4.18-pre8-m i586)
-Organization: private site in Mannheim/Germany
-X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
+	id <S291280AbSBGUbS>; Thu, 7 Feb 2002 15:31:18 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:49796 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S291279AbSBGUbK>; Thu, 7 Feb 2002 15:31:10 -0500
+Date: Thu, 7 Feb 2002 15:33:54 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: "Perches, Joe" <joe.perches@spirentcom.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: want opinions on possible glitch in 2.4 network error reporti ng
+In-Reply-To: <3C62CB25.75487AD5@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1020207151325.10014A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Feb 06 2002, Alexander Viro wrote:
+On Thu, 7 Feb 2002, Chris Friesen wrote:
 
-> Very interesting.  Which filesystems are mounted (other than ext2) and
-> are you been able to reproduce it on 2.5.3-pre6?
+> "Richard B. Johnson" wrote:
+> > 
+> > On Thu, 7 Feb 2002, Perches, Joe wrote:
+> > [SNIPPED..]
 
-There are only ext2 filesystems available and one cd-rom.
+> 
+> Is there any syscall that can guarantee that a single packet has been sent out
+> over the wire?  Suppose I want to broadcast an ARP packet.  If I make a packet
+> socket and call sendto() on it, I want a guarantee that the packet will make it
+> out onto the wire, or the sendto() should fail.
 
-I installed 2.5.3-pre6 and the machine runs for about 6 hours now
-(heavy load) and no error occured yet.
+No. Look at how it works. You can guarantee that a packet gets into
+the SNIC (Serial Network Interface Controller). If it is congested
+or blocked, the hardware will retry for a number of times (typically 15).
 
--- 
-# Heinz Diehl, 68259 Mannheim, Germany
+However, after that, all bets are off. Note that it is possible for
+a physical link to be disconnected at any time. Your SNIC may be connected
+to a hub or switch so it "thinks" everything is fine. The message went
+out over-the-wire. However, it just fell out the end of a fibre link
+connecting your sub-nets and you will never know it at all.
+
+Physical links are, by definition, not reliable links. To obtain a
+reliable link, you need to establish a "connection". A connection uses
+the basic unreliable UDP and unreliable physical links for lower-level
+transfer, in conjunction with end-points that will continue to do whatever
+is necessary to send/receive buffers of data (not packets). The buffer you
+provide is guaranteed to get there, intact, if you wait long enough. What
+is never guaranteed is the time for the buffer to get to its destination.
+This time may be several days (no joke). This is useful! You can have
+a ftp transfer in progress and have a router crash. After the router
+comes back up, the transfer will continue.
+
+> 
+> UDP failing I can understand (kind of, anyway) but for raw sockets, packet
+> sockets, etc. I think there should be at least some kind of mechanism to
+> bypass
+> all the congestion controls and either shove the packet onto the device's tx
+> buffer or return a failure code.
+> 
+
+See above.
+
+> The possibility of random dropping of packets in the kernel means that an
+> infinite loop on sendto() will chew up the entire machine even if you've only
+> got a 10Mbit/s link.  This seems just wrong.
+>
+
+This is the basic reason why the return-value of sento() should be
+ignored, even though Alan doesn't agree. Basically, if you give
+valid parameters to sendto() (correct socket, pointer to correct
+structure, etc), you can just ignore the return value. Its not useful
+in the overall scheme. If you must make sure that a UDP packet got
+to a receiver, then the receiver must (somehow) hand-shake with you.
+How you do the handshake is entirely up to you. UDP stands for
+User Datagram Protocol. It's a quick-fling out the spicket. How you
+handle lost messages is up to the user.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

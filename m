@@ -1,27 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUEKN3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264721AbUEKNlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264717AbUEKN3j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 09:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264721AbUEKN3j
+	id S264721AbUEKNlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 09:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264724AbUEKNlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 09:29:39 -0400
-Received: from stormdbn.stormnet.co.za ([196.22.196.1]:19156 "EHLO
-	stormdbn.stormnet.co.za") by vger.kernel.org with ESMTP
-	id S264717AbUEKN3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 09:29:37 -0400
-Subject: weird clock problem
-From: Nelis Lamprecht <nelis@brabys.co.za>
-Reply-To: nelis@brabys.co.za
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Brabys Holdings
-Message-Id: <1084282171.8334.46.camel@nelis.brabys.co.za>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 11 May 2004 15:29:31 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 09:41:08 -0400
+Received: from mail45.messagelabs.com ([140.174.2.179]:18077 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S264721AbUEKNlE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 09:41:04 -0400
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-11.tower-45.messagelabs.com!1084282858!2884706
+X-StarScan-Version: 5.2.10; banners=-,-,-
+X-Originating-IP: [141.156.156.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: weird clock problem
+Date: Tue, 11 May 2004 09:40:40 -0400
+Message-ID: <5D3C2276FD64424297729EB733ED1F7605E28AF2@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: weird clock problem
+Thread-Index: AcQ3XFkL90VLBfEPSLWwYMW6ejEijgAAO0IA
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: <nelis@brabys.co.za>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+I also have the same problem running Linux 2.6.5 under VMWARE (latest)
+for WindowsXP.
+
+If I do not sync every five minutes, the begins to drift a lot!
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Nelis Lamprecht
+Sent: Tuesday, May 11, 2004 9:30 AM
+To: linux-kernel@vger.kernel.org
+Subject: weird clock problem
 
 Hi,
 
@@ -50,4 +72,12 @@ Cheers,
 Nelis
 
 ps. Please CC me in on your reply as I am not subscribed.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
 

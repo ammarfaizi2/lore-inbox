@@ -1,38 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270486AbTHQSbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 14:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270489AbTHQSbP
+	id S270483AbTHQSiu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 14:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTHQSiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 14:31:15 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:21376 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270486AbTHQS3s
+	Sun, 17 Aug 2003 14:38:50 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:58537
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270483AbTHQSis
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 14:29:48 -0400
-Date: Sun, 17 Aug 2003 19:29:36 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       gaxt <gaxt@rogers.com>
-Subject: Re: Scheduler activations (IIRC) question
-Message-ID: <20030817182936.GC2822@mail.jlokier.co.uk>
-References: <5.2.1.1.2.20030817072115.0198f398@pop.gmx.net> <5.2.1.1.2.20030816080614.01a0e418@pop.gmx.net> <20030815235431.GT1027@matchmail.com> <200308160149.29834.kernel@kolivas.org> <20030815230312.GD19707@mail.jlokier.co.uk> <20030815235431.GT1027@matchmail.com> <5.2.1.1.2.20030816080614.01a0e418@pop.gmx.net> <5.2.1.1.2.20030817072115.0198f398@pop.gmx.net> <5.2.1.1.2.20030817100457.019d0c70@pop.gmx.net> <5.2.1.1.2.20030817195509.019d2de8@pop.gmx.net>
+	Sun, 17 Aug 2003 14:38:48 -0400
+Date: Sun, 17 Aug 2003 14:38:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [bk patches] add ethtool_ops to net drivers
+Message-ID: <20030817183848.GA18728@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5.2.1.1.2.20030817195509.019d2de8@pop.gmx.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> This, and the continue my slice in some other thread thing is what
-> made me think you'd have to deal with a schedule happening to your
-> worker thread with some kind of handler, and do all kinds of evil
-> things within... basically overloading the entire scheduler for that class.
+Linus,
 
-Ew.  Very nasty.
+In order to maintain backwards compatibility and minimize impact,
+netdev_ops mentioned at KS was scaled back to ethtool_ops.  This allows
+driver-at-a-time replacement often-duplicated ioctl handling code with a
+Linux-style foo_ops set of function pointers.
 
--- Jamie
+Also, I've been waiting on this patch to begin attacking the stack
+usage problems that often occur in ethtool ioctl handlers.  Since gcc
+sums instead of unions disjoint stack scopes (gcc bug #9997), huge
+functions that handle a bunch of ioctls wind up eating way more stack
+space than the programmer (rightfully) intended.  ethtool_ops not
+only makes a driver smaller, but it also neatly eliminates the stack
+usage problem.
+
+I much prefer this scaled back approach, which doesn't break anything,
+and DaveM is ok with it as well.  Please apply.
+
+
+BitKeeper repo:
+
+	bk pull http://gkernel.bkbits.net/ethtool-2.6
+
+Patch is also available from
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test3-bk5-ethtool1.patch.bz2
+
+This will update the following files:
+
+ drivers/net/tg3.c         |  664 +++++++++++++++++++--------------------------
+ include/linux/ethtool.h   |   99 ++++++
+ include/linux/netdevice.h |    9 
+ net/core/Makefile         |    4 
+ net/core/dev.c            |   16 -
+ net/core/ethtool.c        |  672 ++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 1076 insertions(+), 388 deletions(-)
+
+through these ChangeSets:
+
+<jgarzik@redhat.com> (03/08/07 1.1119.10.3)
+   [netdrvr] add SET_ETHTOOL_OPS back-compat hook
+
+<jgarzik@redhat.com> (03/08/07 1.1119.10.2)
+   [netdrvr tg3] convert to using ethtool_ops
+
+<jgarzik@redhat.com> (03/08/07 1.1119.10.1)
+   [netdrvr] add ethtool_ops to struct net_device, and associated infrastructure
+   
+   Contributed by Matthew Wilcox.
+

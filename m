@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbUDAToL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 14:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbUDAToL
+	id S263095AbUDATpP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 14:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbUDATpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 14:44:11 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:1033 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262813AbUDAToJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 14:44:09 -0500
-Date: Thu, 1 Apr 2004 20:44:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Sridhar Samudrala <sri@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_DEBUG_PAGEALLOC and virt_addr_valid()
-Message-ID: <20040401204407.A24608@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Sridhar Samudrala <sri@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0404011105120.1956@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0404011105120.1956@localhost.localdomain>; from sri@us.ibm.com on Thu, Apr 01, 2004 at 11:11:39AM -0800
+	Thu, 1 Apr 2004 14:45:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53979 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263095AbUDATpK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 14:45:10 -0500
+Date: Thu, 1 Apr 2004 14:44:50 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <kenneth.w.chen@intel.com>
+Subject: Re: disable-cap-mlock
+In-Reply-To: <20040401135920.GF18585@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0404011443250.5589-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 11:11:39AM -0800, Sridhar Samudrala wrote:
-> When CONFIG_DEBUG_PAGEALLOC is enabled, i am noticing that virt_addr_valid()
-> (called from sctp_is_valid_kaddr()) is returning true even for freed objects.
-> Is this a bug or expected behavior?
+On Thu, 1 Apr 2004, Andrea Arcangeli wrote:
 
-Generally every use of virt_addr_valid() is a bug.  What are you trying to
-do?
+> This is a lot simpler than the mlock rlimit and this is people really
+> need (not the rlimit). The rlimit thing can still be applied on top of
+> this. This should be more efficient too (besides its simplicity).
+
+What use is this patch ?
+
+One of the main reasons for the mlock rlimit is so that
+security conscious people can let normal users' gpg
+mlock a few pages.
+
+This patch isn't usable for that at all, since switching
+the sysctl on would just open up the system to an easy
+deadlock by any user.  Definately not something any
+security conscious admin would want to enable ...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

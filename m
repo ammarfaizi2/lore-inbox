@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262868AbTIGHUi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 03:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbTIGHUh
+	id S262876AbTIGHXf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 03:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbTIGHXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 03:20:37 -0400
-Received: from dp.samba.org ([66.70.73.150]:42423 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262868AbTIGHUe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 03:20:34 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+	Sun, 7 Sep 2003 03:23:35 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:22882 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262876AbTIGHXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 03:23:33 -0400
+Date: Sun, 7 Sep 2003 03:23:22 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Hugh Dickins <hugh@veritas.com>
+cc: Jamie Lokier <jamie@shareable.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix 
-In-reply-to: Your message of "Fri, 05 Sep 2003 21:54:18 +0100."
-             <20030905205418.GA6019@mail.jlokier.co.uk> 
-Date: Sun, 07 Sep 2003 16:45:58 +1000
-Message-Id: <20030907072034.435C62C308@lists.samba.org>
+Subject: Re: [PATCH 2] Little fixes to previous futex patch
+In-Reply-To: <Pine.LNX.4.44.0309042224240.5364-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0309070322310.17404-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030905205418.GA6019@mail.jlokier.co.uk> you write:
-> Rusty Russell wrote:
-> > Now, if mremap doesn't move the memory, futexes aren't broken, even
-> > without your patch, right?  If it does move, you've got a futex
-> > sitting in invalid memory, no surprise if it doesn't work.
-> 
-> If the mremap doesn't move the memory it's fine.  No surprise :)
-> 
-> If it's moved, then the program isn't broken - it knows it just did an
-> mremap, and it sends the wakeup to the new address.
-> 
-> This makes sense if async futexes are used on an in-memory private
-> database.  But such programs can just use MAP_ANON|MAP_SHARED if they
-> want mremap to work.
 
-wakeup is not a problem: from the kernel's POV, between wakeups the
-futex doesn't exist.
+btw., regarding this fix:
 
-The only real case (ignoring the "one thread FUTEX_WAIT while the
-other mremaps underneath" which is gonna break anyway), is FUTEX_FD, I
-don't see a problem with having to manually move your futex fds in
-this case when the memory underneath them has been remapped.  In fact,
-it'd be surprising if you didn't have to.
+  ChangeSet@1.1179.2.5, 2003-09-06 12:28:20-07:00, hugh@veritas.com
+    [PATCH] Fix futex hashing bugs
 
-> > OTOH, I'm interested in returning EFAULT on waiters when pages are
-> > unmapped, because I realized that stale waiters could "match" live
+why dont we do this:
 
-> Ah, you're right.  Not fixing that is a serious bug.
-> It can happen when an async futex fd is passed to another process.
+                        } else {
+                                /* Make sure to stop if key1 == key2 */
+				if (head1 == head2)
+					break;
+                                list_add_tail(i, head2);
+                                this->key = key2;
+                                if (ret - nr_wake >= nr_requeue)
+                                        break;
+                        }
 
-> ps. There's another bug: shared waiters match inodes, which they don't
-> hold a reference to.  Inodes can be recycled too.  Fix is easy: just
-> need to take an inode reference.
+instead of the current:
 
-Yes.  Invalidate is nice because it catches a programmer mistake.  But
-why not solve the problem by just holding an mm reference, too?
+                        } else {
+                                list_add_tail(i, head2);
+                                this->key = key2;
+                                if (ret - nr_wake >= nr_requeue)
+                                        break;
+                                /* Make sure to stop if key1 == key2 */
+                                if (head1 == head2 && head1 != next)
+                                        head1 = i;
+                        }
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+what's the point in requeueing once, and then exiting the loop by changing
+the loop exit condition variable? You are trying to avoid the lockup but
+the first one ought to be the most straightforward way to do it.
+
+	Ingo
+
+
+

@@ -1,35 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317399AbSGTIT3>; Sat, 20 Jul 2002 04:19:29 -0400
+	id <S313060AbSGTIcA>; Sat, 20 Jul 2002 04:32:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317400AbSGTIT2>; Sat, 20 Jul 2002 04:19:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49681 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317399AbSGTIT2>; Sat, 20 Jul 2002 04:19:28 -0400
-Date: Sat, 20 Jul 2002 09:22:29 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Shane Nay <shane@minirl.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020720092229.A7475@flint.arm.linux.org.uk>
-References: <3D361091.13618.16DC46FB@localhost> <20020718060841.GC12626@kroah.com> <20020718161429.GB15037@kroah.com> <20020720080234Z317396-685+14556@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020720080234Z317396-685+14556@vger.kernel.org>; from shane@minirl.com on Sat, Jul 20, 2002 at 12:41:05AM -0700
+	id <S313628AbSGTIcA>; Sat, 20 Jul 2002 04:32:00 -0400
+Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:22912 "EHLO
+	bluesong.NET") by vger.kernel.org with ESMTP id <S313060AbSGTIb7> convert rfc822-to-8bit;
+	Sat, 20 Jul 2002 04:31:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Jack F. Vogel" <jfv@bluesong.net>
+Reply-To: jfv@bluesong.net
+To: Robert Sinko <RSinko@island.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Wrong CPU count
+Date: Sat, 20 Jul 2002 01:38:23 -0700
+User-Agent: KMail/1.4.1
+References: <628900C9F8A7D51188E000A0C9F3FDFA024FF096@S-NY-EXCH01>
+In-Reply-To: <628900C9F8A7D51188E000A0C9F3FDFA024FF096@S-NY-EXCH01>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207200138.23996.jfv@bluesong.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 20, 2002 at 12:41:05AM -0700, Shane Nay wrote:
-> So, Greg, you mean generic USB-Device support? instead USB-Host 
-> support as is in the main tree.
+On Thursday 18 July 2002 01:07 pm, Robert Sinko wrote:
+> Matt,
+>
+> Thanks for the reply. First, let me say thank you very much for a super web
+> site that helped us sort out issues with the 2650 RAID stuff.
+>
+> I'm not familiar with the HyperThreading concept.
+>
+> Do you know of any docs that discuss this.  I'm particularly concerned with
+> how this impacts the results of monitoring tools such as top.
+>
+> Thanks,
+> Bob
 
-Yep.  I'm going to be providing Greg with access to such a system
-today (hopefully, since I'm getting rather a large number of requests
-for other things people want doing today...)
+Take a look at www.intel.com and search for Hyperthreading, should find
+an article that will help... 
+
+Dont know what 'impact' you're concerned about, top will report the
+two instruction units as two processors and show you what they 
+are doing.
+
+Long as you run a kernel with the appropriate support in it you'll 
+be fine :)
+
+> -----Original Message-----
+> From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
+> Sent: Thursday, July 18, 2002 4:01 PM
+> To: RSinko@island.com; linux-kernel@vger.kernel.org
+> Subject: RE: Wrong CPU count
+>
+> > After upgrading  from kernel 2.4.7-10smp to 2.4.9-34smp using
+> > the Red Hat
+> > RPM downloaded from RH Network, the CPU count on the machine
+> > reported by
+> > dmesg and listed in /proc/cpuinfo was 4 rather than the actual 2.
+> >
+> > This has occured on all 4 Dell 2650's that I've installed
+> > this patch on.  I
+> > don't have any other mult-processor machines available to
+> > test this with.
+>
+> Congratulations, you purchased a fine PowerEdge 2650 with processors which
+> contain HyperThreading technology.  Each physical processor appears as two
+> logical processors.  This behaviour is expected, and correct. :-)
+
+
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Jack F. Vogel		IBM Linux Technology Center
+jfv@us.ibm.com (work)  ||  jfv@bluesong.net (home)

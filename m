@@ -1,65 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284933AbSCKSW4>; Mon, 11 Mar 2002 13:22:56 -0500
+	id <S285850AbSCKSV0>; Mon, 11 Mar 2002 13:21:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285060AbSCKSWr>; Mon, 11 Mar 2002 13:22:47 -0500
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:58006 "EHLO
-	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S284933AbSCKSWc>; Mon, 11 Mar 2002 13:22:32 -0500
-Reply-To: <robertp@ustri.com>
-From: "Robert Pfister" <robertp@ustri.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: VMS File versions (was RE: linux-2.5.4-pre1 - bitkeeper testing)
-Date: Mon, 11 Mar 2002 11:22:21 -0700
-Message-ID: <033101c1c929$b00f7650$1e00a8c0@nomaam>
-MIME-Version: 1.0
+	id <S310375AbSCKSVM>; Mon, 11 Mar 2002 13:21:12 -0500
+Received: from mail.rttinc.com ([139.142.30.71]:26120 "HELO mail.rttinc.com")
+	by vger.kernel.org with SMTP id <S310364AbSCKSVK>;
+	Mon, 11 Mar 2002 13:21:10 -0500
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <200203111540.IAA11492@tstac.esa.lanl.gov>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+  charset="us-ascii"
+From: Brad Pepers <brad@linuxcanada.com>
+Organization: Linux Canada Inc.
+To: linux-kernel@vger.kernel.org
+Subject: Multi-threading
+Date: Mon, 11 Mar 2002 11:20:55 -0700
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020311182111Z310364-889+120750@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There was a message posted by Jim Starkey about his experiences using threads 
+on Linux and the problems debugging them.  It came down to two things:
 
->That is not my recollection.  What I remember is that our system
-admistrator
->set up people's accounts so that the default behaviour was as desired by
->the individual.  This has gotten me curious, so I went out to a storage
-container
->and dug out an old VAX 4000/60 which hasn't run since about 1992.  If it
-works,
->I'll be able to answer with more than vague memories.  At least for VMS
-5.1, which
->is just a bit out of date as the current version is 7.3 or so.  Now, if can
-just
->remember the SYSTEM password. ;-)
+1. Using gdb to debug multi-threaded applications was almost useless because
+   of interactions between the thread model and ptrace.
 
-My recollection is that you could set the version limit on a directory, and
-this would propogate to all the files underneath, unless you explicitly
-changed it.
+2. Linux is missing an atomic use-count mechanism which returns values like
+   the Microsoft InterlockedIncrement/Decrement functions do.
 
->Perhaps others whose VMS experience is more recent than mine can answer
-this question.
->More generally, if the infrastructure for keeping file versions around is
-going
->to be generated for other reasons, having the option to have file versions
-could
->be useful for some people.  I certainly remember people who loved that
-feature,
->but I wasn't one of them.
+I'll include the text of what he wrote below but I was wondering what anyone 
+here could say on the subject.  The code being worked on is the Firebird 
+database with FB2 being the next release.
 
-I liked file versions when I was doing intense development, and it took a
-lot of concentration to keep it all straight. It confused the heck out of
-many people, and most sysadmins ran batch jobs to "purge" every night -- so
-you could only count on versions being available for a limited time.
+-------------------------------------------------------------------------------
+A primary goal of FB2 is to implement fine granuality multi-threading
+to take advantage of multiple processors in an SMP configuration.
+I've been doing quite a bit of work in that general area on a different
+project, and thought I'd share some observations on pitfalls and
+challenges, particularly on Linux and similar systems.
 
-Is anyone working on version support for a Linux filesystem, as well as all
-the utilities that would need to change?
+The first problem is that gdb (and presumably any other debugger)
+can't be used on a multi-threaded system under load.  The problem
+is an unfortunate interaction between ptrace (the Unix debugging
+mechanism) and the Linux implementation of pthreads.  The basic
+ptrace mechanism works this way: a signal intended for the target
+process causes the target process to stall while the signal
+is delivered to the debugging process, which figures out what to
+do, then restarts the target process.  The Linux threading
+mechanism uses a separate OS process for each thread.  Synchronization
+is performed by the pthread mutex calls.  When one thread (process)
+fails to acquire a mutex, it goes to sleep.  When another thread
+releases the mutex, it sends a signal to all sleeping threads
+(in fact, all threads) to wake up and look around.  Unfortunately,
+when the target process/threads are under control of the debugger,
+there is a very complex multi-process dance involving (apparently)
+multiple debugger interactions per wake up.  Kinda like the
+guys who designed the threads didn't talk to the guys who designed
+ptrace or one or the other didn't care.
 
-Robb
+The bottom line is when debugging a multi-threaded application 
+under load on Linux, gdb consumes between 45% and 100% of the
+cpu.  The practical implication is that Linux is not a viable
+debugging platform.  NT, happily, doesn't exhibit the same
+characteristics.
 
+A partial but painful workaround is for the debugging image
+to set up handlers for SIGSEGV and SIGILL to invoke gdb via
+the system() call to attach to the process.  This catches
+crashes, but makes ordinary debugging tedious indeed.
+
+A second problem is implementing a use-count mechanism to
+control object lifetimes in a multi-threaded environment.
+The two alternatives are to use mutexes or other synchronization
+mechanisms to protect all addRef/release calls (very, very
+expensive) or to use interlocked increment/decrement mechanisms.
+Unfortunately, while Microsoft provides intrinsic
+InterlockedIncrement/InterlockedDecrement functions that perform
+atomic multiprocessor interlocked operations that correctly
+return the result of the operation.  Unfortunately, there
+are no such functions available on Linux.  Atomic.h provides
+interlocked increment/decrement, but they don't return values.
+Interestingly enough, Google couldn't find any example of
+the Intel instruction sequences required to implement the
+necessary atomic operations using the GNU assembler dialect.
+
+All this means two things.  First, there is no alternative
+to inline assembler code in FB2.  Distasteful, yes, but get
+used to it.  Second, fine granularity threading is alien
+to Linux, so prepared to be a pioneer in a nasty environment
+without a workable debugger.
+
+Jim Starkey
+----------------------------------------------------------------
+
+-- 
+Brad Pepers
+brad@linuxcanada.com

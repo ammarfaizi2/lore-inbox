@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261617AbSKCD6n>; Sat, 2 Nov 2002 22:58:43 -0500
+	id <S261644AbSKCEDs>; Sat, 2 Nov 2002 23:03:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261616AbSKCD6n>; Sat, 2 Nov 2002 22:58:43 -0500
-Received: from momus.sc.intel.com ([143.183.152.8]:16835 "EHLO
-	momus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S261614AbSKCD60>; Sat, 2 Nov 2002 22:58:26 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC8D3@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Pavel Machek'" <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: RE: [half-joke] Help - someone turned my machine into xt emulatin
-	g 386 using bochs...
-Date: Sat, 2 Nov 2002 20:04:16 -0800 
+	id <S261645AbSKCEDs>; Sat, 2 Nov 2002 23:03:48 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:2011 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261644AbSKCEDr>;
+	Sat, 2 Nov 2002 23:03:47 -0500
+Date: Sat, 2 Nov 2002 23:10:16 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Dax Kelson <dax@gurulabs.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Rusty Russell <rusty@rustcorp.com.au>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "davej@suse.de" <davej@suse.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <Pine.LNX.4.44.0211022101090.20616-100000@mooru.gurulabs.com>
+Message-ID: <Pine.GSO.4.21.0211022306410.25010-100000@steklov.math.psu.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> [Just before "incident", I turned of sharp zaurus; maybe it was
-> connected using usbnet and now uhci is eating all the bandwidht?
-> Anyone seen this before?]
 
-When I was coding the early USB drivers and trying to enable UHCI
-bandwitdth reclamation, that was a very common sympton of it not 
-working as it should ... damn, it took me a while to figure it out,
-and then I felt the most stupid person :) (thanks to Alan Cox, who
-pointed me to the obvious) ...
+On Sat, 2 Nov 2002, Dax Kelson wrote:
 
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
+> On Sat, 2 Nov 2002, Alexander Viro wrote:
+> 
+> > 	<shrug> that can be done without doing anything to filesystem.
+> > Namely, turn current "nosuid" of vfsmount into a mask of capabilities.
+> > Then use bindings instead of links.  *Note* - binary _is_ marked suid,
+> > mask tells which capabilities _not_ to gain.  It's OK - attempt to
+> > link(2) to the thing using binding will see that oldname and newname
+> > are within different vfsmounts, so instead of link to suid-root binary
+> > you get -EXDEV.
+> 
+> Any thoughts on how /usr/bin/(rpm|dpkg) copes with setting up the binding
+> when installing a package?
+
+<shrug> for example, /etc/init.d/foo-bindings.sh and update-rc.d invoked
+in post-install.  Hell knows what RPM equivalent is, but there definitely
+is one...
+

@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129184AbRBRTsf>; Sun, 18 Feb 2001 14:48:35 -0500
+	id <S129192AbRBRTy0>; Sun, 18 Feb 2001 14:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129192AbRBRTs0>; Sun, 18 Feb 2001 14:48:26 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:54023 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129184AbRBRTsM>;
-	Sun, 18 Feb 2001 14:48:12 -0500
+	id <S129247AbRBRTyP>; Sun, 18 Feb 2001 14:54:15 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:64263 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129192AbRBRTyA>;
+	Sun, 18 Feb 2001 14:54:00 -0500
 From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102181948.WAA27407@ms2.inr.ac.ru>
-Subject: Re: SO_SNDTIMEO: 2.4 kernel bugs
-To: chris@scary.beasts.org (Chris Evans)
-Date: Sun, 18 Feb 2001 22:48:00 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <Pine.LNX.4.30.0102181935130.31140-100000@ferret.lmh.ox.ac.uk> from "Chris Evans" at Feb 18, 1 07:37:33 pm
+Message-Id: <200102181953.WAA27509@ms2.inr.ac.ru>
+Subject: Re: MTU and 2.4.x kernel
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sun, 18 Feb 2001 22:53:29 +0300 (MSK)
+Cc: alan@lxorguk.ukuu.org.uk, roger@kea.GRace.CRi.NZ,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E14TVWn-0000vQ-00@the-village.bc.nu> from "Alan Cox" at Feb 15, 1 09:01:21 pm
 X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,21 +21,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-> .. unless that page was partially written, in which case a short write
-> count is returned (rather than a timeout error), and the loop goes around
-> again.
+> Message size != MTU.
 
-sendfile() does not return on partial write and tries to push more
-until error. On fast link it most likely succeeds, so that it is unkillable
-even with SIGKILL.
+Alan, you misunderstand _sense_ of the problem.
 
-
-> Which is good, because SO_SNDTIMEO is an inactivity monitor.
-
-Then why did you blame? 8)8)
-
-I do not think so. It is rather scheduling breaker. If connection
-is idle 99% of time, but wakes each sndtimeo-1usec, it must yuild,
-otherwise thread is lost for production.
+Fragmentation does _not_ work on poor internet more. At all.
+Look at original report. It failed _only_ because his intemediate
+node failed to forward fragmented packets.
 
 Alexey

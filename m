@@ -1,74 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285229AbRL2Szj>; Sat, 29 Dec 2001 13:55:39 -0500
+	id <S285266AbRL2TBt>; Sat, 29 Dec 2001 14:01:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285226AbRL2Sz3>; Sat, 29 Dec 2001 13:55:29 -0500
-Received: from bitmover.com ([192.132.92.2]:37543 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S285229AbRL2Sz0>;
-	Sat, 29 Dec 2001 13:55:26 -0500
-Date: Sat, 29 Dec 2001 10:55:25 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Timothy Covell <timothy.covell@ashavan.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-Message-ID: <20011229105525.C19306@work.bitmover.com>
-Mail-Followup-To: Timothy Covell <timothy.covell@ashavan.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net>; from timothy.covell@ashavan.org on Sat, Dec 29, 2001 at 12:53:39AM -0600
+	id <S285250AbRL2TBc>; Sat, 29 Dec 2001 14:01:32 -0500
+Received: from mail01g.rapidsite.net ([207.158.192.232]:45757 "HELO
+	mail01g.rapidsite.net") by vger.kernel.org with SMTP
+	id <S285226AbRL2TBS>; Sat, 29 Dec 2001 14:01:18 -0500
+Date: Sat, 29 Dec 2001 14:01:02 -0500 (EST)
+From: Peter Hartzler <pete@hartzler.net>
+X-X-Sender: <ph@boink.hartzler.home>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Tim Hockin <thockin@sun.com>
+Subject: Re: [PATCH] eepro100 - need testers
+Message-ID: <Pine.LNX.4.33.0112282134050.2562-100000@boink.hartzler.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Loop-Detect: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29, 2001 at 12:53:39AM -0600, Timothy Covell wrote:
-> 1. The maintainer of this DB would need to receive patches
-> along with patch.lsm and feature.lsm like files from the code 
-> maintainers.   That means  that Linus, Alan, Marcello, Dave 
-> Jones, et al.,  might have to be involved.
-> 
-> 2. DB would be a high volume site (at least that's the idea!)
-> 
-> 3. Would would pay for and maintain it?  (I know, since I'm
-> the one putting forth the idea, it's mine to run with.  However,
-> a. I ain't rich.  b. following from a., I have no bandwidth 24kbps
-> dialup.)
+I just applied Tim Hockin's eepro100 patch of Tue, 04 Dec 2001 against an
+otherwise stock 2.4.17.  Result summary: no joy.  Stock or patched, a ping
+-f against a neighboring machine causes the driver to fail after a short
+while (time < coffee-run) with that old standby:
 
-OK, we've got a prototype of something like this already, I don't claim
-it is ready for prime time, but you can go look at it here:
+	eepro100: wait_for_cmd_done timeout!
 
-	http://bugs.bkbits.net/bugs.html
+Doing the ping -f test with the unpatched OR patched module loaded as:
 
-You can run queries, etc.  
+	modprobe eepro100 debug=6
 
-This is a fairly early version, so be gentle.  The data in it is the
-current BitKeeper bug list (feel free to fix some :-)
+gives very dubious output along the lines of (unpatched module gives
+similar output....):
 
-There are other ways to access the data, both command line and email
-are supported.  Long term, I'd like to make the bug db be an NNTP server
-so you could do everything via a news reader, which would be bitchin'.
+----- cut here -----
 
-If this is a first order approximation of what you want, we'll host
-it here if you like.  We have a T1 line with lots of spare bandwidth
-at the moment.  The machine that you are poking at is the same machine
-which hosts various BK repos, such as the Linux/PPC trees, Ted's linux24
-tree, Ted's e2fsprogs, NTP trees, GregKH's trees, Chris Wright's trees
-(he has a 25 tree based on Ted's 24 tree), Rik's VM tree, among others.
-We haven't talked about this very much because we don't have all the
-nifty sourceforge like indices and statistics, but long term this is
-headed towards something somewhat like a distributed sourceforge.
-We never liked the centralized model that sourceforge has, it becomes
-a single point of failure.
+kernel: eepro100.c: Debug level is 6.
+kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+kernel: eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
+kernel: Found Intel i82557 PCI Speedo, MMIO at 0xff8ff000, IRQ 3.
+kernel: PCI: Found IRQ 3 for device 01:08.0
+kernel: eth0: Intel Corp. 82820 (ICH2) Chipset Ethernet Controller, 00:03:47:0E:62:F3, IRQ 3.
+kernel:   Board assembly 000000-000, Physical connectors present: RJ45
+kernel:   Primary interface chip i82555 PHY #1.
+kernel:   General self-test: passed.
+kernel:   Serial sub-system self-test: passed.
+kernel:   Internal registers self-test: passed.
+kernel:   ROM checksum self-test: passed (0x04f4518b).
+sysctl: net.ipv4.ip_forward = 0
+sysctl: net.ipv4.conf.default.rp_filter = 1
+sysctl: kernel.sysrq = 0
+network: Setting network parameters:  succeeded
+network: Bringing up interface lo:  succeeded
+network: Bringing up interface eth0:  succeeded
+kernel: nterrupt  status=0x0050.
+kernel: tatus=0x0050.
+kernel: tatus=0x0050.
+kernel: <nterrupt  status=0x0050.
+kernel: eth0: exiting interrupt, status=0x0050.
+kernel: <7nterrupt  status=0x0050.
+kernel: nterrupt  status=0x0050.
+kernel: <7rrupt  status=0x4050.
+kernel: <x0050.
+kernel:   status=0x0050.
+kernel: nterrupt  status=0x0050.
+kernel: x2050.
+kernel: x0050.
+kernel: t  status=0x0050.
+kernel: nterrupt  status=0x2050.
+kernel:  status=0x2050.
+kernel: <7x0050.
+kernel: nterrupt  status=0x0050.
+kernel: nterrupt  status=0x0050.
+kernel: <nterrupt  status=0x0050.
+kernel: <x4050.
+kernel: nterrupt  status=0x0050.
+kernel: <7x2050.
+kernel: th0: interrupt  status=0x0050.
+kernel: <x0050.
+kernel: e candidate 39 status 400ca000.
+kernel: nterrupt  status=0x0050.
+kernel: <7status=0x0050.
+kernel: <7nterrupt  status=0x0050.
+kernel: <7h0: interrupt  status=0x0050.
+kernel: .
+kernel: nterrupt, status=0x0050.
+kernel: eepro100: wait_for_cmd_done timeout!
+last message repeated 14 times
+kernel: h0:    396 00000001.
 
-One interesting, perhaps, point is that bugdb is a BitKeeper repository,
-which means you can clone it and take *all* of the data with you,
-unlike sourceforge.  So if you were to become dependent on this and
-we ran out of bandwidth or something, you can clone the bug db and set
-up your own bug server elsewhere.  In general, for both databases and
-source, that's the approach we want, i.e., we're happy to host it here
-to get you started but if you have needs that we can't meet, we'll make
-it easy for you to host elsewhere.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+----- cut here -----
+
+Trying to balance the need to send details versus avoiding list-flood...  
+Let me know if any other bits would be useful.  I wrote a cheezy network
+watchdog script which *should* let me back in from home after the next
+hare-brained experiment... :)
+
+System Info:
+ - Dell Dimension 4100 "EA81510A.10A.0022.P06.0008291722"
+ - BIOS Version A04
+ - i686 800MHz "Pentium(R)III 800EB MHz"
+ - 256M PC133 RAM
+
+ - Hub is 10Mb/s (no easy way to test w/ 100Mb/s hub.)
+ - Int 3 (eth0) is not shared.
+
+ - Fully patched RedHat 7.2
+	gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
+	glibc-2.2.4-19.3 (i386)
+
+Regards,
+
+Pete.
+

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276651AbRJPTwL>; Tue, 16 Oct 2001 15:52:11 -0400
+	id <S276654AbRJPT7B>; Tue, 16 Oct 2001 15:59:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276654AbRJPTwB>; Tue, 16 Oct 2001 15:52:01 -0400
-Received: from ns.suse.de ([213.95.15.193]:33542 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S276651AbRJPTv6>;
-	Tue, 16 Oct 2001 15:51:58 -0400
-Date: Tue, 16 Oct 2001 21:52:28 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Jesper Juhl <juhl@eisenstein.dk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] various minor cleanups against 2.4.13-pre3 - comments
- requested
+	id <S276665AbRJPT6w>; Tue, 16 Oct 2001 15:58:52 -0400
+Received: from ns.caldera.de ([212.34.180.1]:20972 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S276654AbRJPT6l>;
+	Tue, 16 Oct 2001 15:58:41 -0400
+Date: Tue, 16 Oct 2001 21:59:08 +0200
+Message-Id: <200110161959.f9GJx8T03152@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: juhl@eisenstein.dk (Jesper Juhl)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] various minor cleanups against 2.4.13-pre3 - comments requested
+X-Newsgroups: caldera.lists.linux.kernel
 In-Reply-To: <3BCC8C88.58BBCC39@eisenstein.dk>
-Message-ID: <Pine.LNX.4.30.0110162151420.11917-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Oct 2001, Jesper Juhl wrote:
+In article <3BCC8C88.58BBCC39@eisenstein.dk> you wrote:
+> kernel/exec_domain.c :
+>         Contrary to most other files in the kernel source the functions
+> in exec_domain.c are defined with the
+>         return values on a line by themselves. Most places in kernel
+> source have the entire function definition
+>         on a single line (as long as it does not exceed 80 chars in
+> length). So I moved the function definitions
+>         onto a single line.
 
-> 	There's a small typo in the text that's printk()'d to the user - it
-> says "...the boot prom\n" where I believe it should say "...the boot
-> prompt\n".
+NO.  This file is maintained and that style is intentional.
+(BTW, you could compare it to output of scripts/Lindent..)
 
-This one isn't a typo. Its the sparc boot PROM :)
 
-regards,
+> kernel/exec_domain.c : get_exec_domain_list()
+>         The len variable (signed) is compared to PAGE_SIZE (unsigned).
+> Changing len to "unsigned int" avoids
+>         comparison between signed and unsigned.
 
-Dave.
+Looks sane to me.
+
+	Christoph
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,67 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264799AbSLWMb3>; Mon, 23 Dec 2002 07:31:29 -0500
+	id <S264836AbSLWMnm>; Mon, 23 Dec 2002 07:43:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264836AbSLWMb3>; Mon, 23 Dec 2002 07:31:29 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:59855 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264799AbSLWMb2> convert rfc822-to-8bit; Mon, 23 Dec 2002 07:31:28 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: Read this and be ashamed ;) or: Awfull performance loss since 2.4.18 to 2.4.21-pre2
-Date: Mon, 23 Dec 2002 13:39:02 +0100
-User-Agent: KMail/1.4.3
-Cc: Tomas Szepe <szepe@pinerecords.com>,
-       Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-References: <200212221439.28075.m.c.p@wolk-project.de> <20021223120349.GJ12643@louise.pinerecords.com>
-In-Reply-To: <20021223120349.GJ12643@louise.pinerecords.com>
+	id <S264842AbSLWMnm>; Mon, 23 Dec 2002 07:43:42 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:9140 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S264836AbSLWMnk>; Mon, 23 Dec 2002 07:43:40 -0500
+Message-ID: <20021223124456.11836.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212231339.03019.m.c.p@wolk-project.de>
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: akpm@digeo.com, ciarrocchi@linuxmail.org
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 23 Dec 2002 20:44:56 +0800
+Subject: Re: Poor performance with 2.5.52, load and process in D state
+X-Originating-Ip: 62.101.98.215
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 December 2002 13:03, Tomas Szepe wrote:
+From: Andrew Morton <akpm@digeo.com>
+> Paolo Ciarrocchi wrote:
+> > 
+> > From: Andrew Morton <akpm@digeo.com>
+> > > Paolo Ciarrocchi wrote:
+> > > >
+> > > > Hi all,
+> > > > I booted 2.5.52 with the following parmater:
+> > > > apm=off mem=32M (not sure about the amount, anyway I can reproduce
+> > > > the problem for sure with 32M and 40M)
+> > > >
+> > > > Then I tried the osdb (www.osdb.org) benchmark with
+> > > > 40M of data.
+> > > >
+> > > > $./bin/osdb-pg --nomulti
+> > > >
+> > > > the result is that aftwer a few second running top I see the postmaster
+> > > > process in D state and a lot if iowait.
+> > >
+> > > What exactly _is_ the issue?  The machine is achieving 25% CPU utilisation
+> > > in user code, 6-9% in system code.  It is doing a lot of I/O, and is
+> > > getting work done.
+> > 
+> > Ok, I'm back with the results of the osdb test against 2.4.19 and 2.5.52
+> > Both the kernel booted with apm=off mem=40M
+> > osdb ran with 40M of data.
+> > To summarize the results:
+> > 2.4.19 "Single User Test"       806.78 seconds  (0:13:26.78)
+> > 2.5.52 "Single User Test"       3771.85 seconds (1:02:51.85)
+> > 
+> 
+> I could reproduce this.
 
-Hi Tomas,
+And this is good ;-)
 
-> > 2.4.18
-> > 2147483648 bytes transferred in 119.140681 seconds (18024772 bytes/sec)
-> >
-> > 2.4.19
-> > 2147483648 bytes transferred in 140.305836 seconds (15305733 bytes/sec)
->
-> Well I'm getting the numbers the other way round. <g>
-lol, strange.
+> What's happening is that when the test starts up it does a lot of writing
+> which causes 2.4 to do a bunch of swapout.  So for the rest of the test
+> 2.4 has an additional 8MB of cache available.
+> 
+> The problem of write activity causing swapout was fixed in 2.5.  It
+> does not swap out at all in this test.  But this time, we want it to.
+> 
+> End result: 2.4 has ~20 megabytes of cache for the test and 2.5 has ~12
+> megabytes.   The working pagecache set is around 16 MB, so we're right on
+> the edge - it makes 2.5 run 10x slower.  You can get most of this back by
+> boosting /proc/sys/vm/swappiness.  I think the default of 60 is too unswappy
+> really.  I run my machines at 80.
 
-root@codeman:[/] # egrep 'model name|MHz' /proc/cpuinfo
-model name      : Intel(R) Celeron(TM) CPU                1300MHz
-cpu MHz         : 1295.718
+Thank you for the clear explanation, 
+if you want I can run the test with different values of /proc/sys/vm/swappines
+and post the results, let me know it it is a good idea or just a waste of time.
 
-root@codeman:[/] # grep MemTotal /proc/meminfo
-MemTotal:          515056 kB
+ 
+> Tuning swappiness doesn't get all the performance back.  2.5's memory
+> footprint is generally larger - we still need to work that down.
 
-root@codeman:[/proc/ide] # egrep 'Intel|UDMA enabled' /proc/ide/piix 
-                                Intel PIIX4 Ultra 100 Chipset.
-UDMA enabled:   yes              no              no                no 
-UDMA enabled:   5                X               X                 X
+Yes, it seems that 2.5 doesn/t fit very well on box with low memory. 
 
-root@codeman:[/] # hdparm -i /dev/hda
+> If this was a real database server I'd expect that memory would end
+> up getting swapped out anyway.  But it doesn't happen in this test,
+> which is actually quite light in its I/O demands.
 
-/dev/hda:
+Indeed! I thought that booting the box with mem=40M was enought to
+force the machine swapping. Is it this test good to "simulate" the 
+workload of a _real_ database ?
+ 
+> With mem=128m, 2.5 is 10% faster than 2.4.  Some of this is due to
+> the enhancements to copy_*_user() for poorly-aligned copies on Intel
+> CPUs.
 
- Model=MAXTOR 6L060J3, FwRev=A93.0500, SerialNo=663219752652
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
- BuffType=DualPortCache, BuffSize=1819kB, MaxMultSect=16, MultSect=16
- CurCHS=4047/16/255, CurSects=16511760, LBA=yes, LBAsects=117266688
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 udma6 
- AdvancedPM=no WriteCache=enabled
- Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  1 2 3 4 5
+Oh yes, I see it as well.
 
-ciao, Marc
+Thanks,
+             Paolo
+ 
+
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
+
+Powered by Outblaze

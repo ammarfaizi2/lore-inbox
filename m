@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263508AbUJ2URw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263477AbUJ2URy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263508AbUJ2URw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263477AbUJ2UOE
+	id S263477AbUJ2URy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbUJ2UNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:14:04 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:43269 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S263504AbUJ2UJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:09:36 -0400
-Date: Fri, 29 Oct 2004 21:09:07 +0100
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jan Kara <jack@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Configurable Magic Sysrq
-Message-ID: <20041029200907.GB18508@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Jan Kara <jack@suse.cz>,
-	linux-kernel@vger.kernel.org
-References: <20041029093941.GA2237@atrey.karlin.mff.cuni.cz> <20041029024651.1ebadf82.akpm@osdl.org> <20041029101758.GA7278@atrey.karlin.mff.cuni.cz> <20041029032420.327d65dd.akpm@osdl.org>
+	Fri, 29 Oct 2004 16:13:42 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:23185 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S263508AbUJ2UJs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 16:09:48 -0400
+Subject: [PATCH] radeonfb: more initializer fixes
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.61.0410292046380.23014@waterleaf.sonytel.be>
+References: <200410281712.i9SHCxDe025312@hera.kernel.org>
+	 <Pine.GSO.4.61.0410292046380.23014@waterleaf.sonytel.be>
+Date: Fri, 29 Oct 2004 23:11:01 +0300
+Message-Id: <1099080661.9569.0.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029032420.327d65dd.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 03:24:20AM -0700, Andrew Morton wrote:
- > OK, fair enough.  I'll merge the patch if you talk suse into enabling
- > sysrq-T and sysrq-P and sysrq-M by default ;)
- 
-you already have those available if /proc/sys/kernel/sysrq is 0.
+Use 8-bit palette entries for radeonfb and avoid zero-initialization
+as suggested by Geert Uytterhoeven.
 
-alt-scrolllock / ctrl-scrolllock / shift-scrolllock.
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-		Dave
+ radeon_monitor.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+Index: 2.6.10-rc1-mm1/drivers/video/aty/radeon_monitor.c
+===================================================================
+--- 2.6.10-rc1-mm1.orig/drivers/video/aty/radeon_monitor.c	2004-10-29 11:07:54.000000000 +0300
++++ 2.6.10-rc1-mm1/drivers/video/aty/radeon_monitor.c	2004-10-29 23:02:58.854952680 +0300
+@@ -12,9 +12,9 @@
+ 	.xres_virtual	= 640,
+ 	.yres_virtual	= 480,
+ 	.bits_per_pixel = 8,
+-	.red		= { 0, 6, 0 },
+-	.green		= { 0, 6, 0 },
+-	.blue		= { 0, 6, 0 },
++	.red		= { .length = 8 },
++	.green		= { .length = 8 },
++	.blue		= { .length = 8 },
+ 	.activate	= FB_ACTIVATE_NOW,
+ 	.height		= -1,
+ 	.width		= -1,
+
 

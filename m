@@ -1,424 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264197AbTDWSev (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 14:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264199AbTDWSeu
+	id S264215AbTDWSim (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 14:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbTDWSim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 14:34:50 -0400
-Received: from [195.205.16.117] ([195.205.16.117]:1284 "HELO
-	mother.fordon.pl.eu.org") by vger.kernel.org with SMTP
-	id S264197AbTDWSei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 14:34:38 -0400
-Date: Wed, 23 Apr 2003 20:48:47 +0200
-From: "Tomasz Torcz, BG" <zdzichu@irc.pl>
-To: LKML <linux-kernel@vger.redhat.com>
-Subject: [2.5.68] Failed to execute binary (UML); binary compatibility broken?
-Message-ID: <20030423184847.GA802@irc.pl>
-Mail-Followup-To: "Tomasz Torcz, BG" <zdzichu@irc.pl>,
-	LKML <linux-kernel@vger.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="OgqxwSJOaUobr8KG"
+	Wed, 23 Apr 2003 14:38:42 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.46]:25306 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S264215AbTDWSih convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 14:38:37 -0400
+From: DevilKin-LKML <devilkin-lkml@blindguardian.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [2.5.67 - 2.5.68] Hangs on pcmcia yenta_socket initialisation
+Date: Wed, 23 Apr 2003 20:50:39 +0200
+User-Agent: KMail/1.5
+Cc: LKML <linux-kernel@vger.kernel.org>, devilkin-lkml@blindguardian.org
+References: <200304230747.27579.devilkin-lkml@blindguardian.org> <200304231454.18834.devilkin-lkml@blindguardian.org> <1051107787.4195.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1051107787.4195.2.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200304232050.41230.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Wednesday 23 April 2003 16:23, Felipe Alfaro Solana wrote:
+> Could you please try again with this individual and newer PCMCIA patch
+> at http://patches.arm.linux.org.uk/pcmcia-20030421.diff? If you prefer,
+> you can also try with 2.5.68-mm2 which includes the mentioned patch.
 
+Tried the patch against vanilla 2.5.68, gives me this oops:
 
-Hi,
+Linux Kernel Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+Intel PCIC probe: not found.
+PCI: Found IRQ 11 for device 00:03.0
+PCI: Sharing IRQ 11 with 00:03.1
+PCI: Sharing IRQ 11 with 00:07.2
+Yenta IRQ list 0698, PCI irq11
+Socket status: 30000020
+PCI: Found IRQ 11 for device 00:03.1
+PCI: Sharing IRQ 11 with 00:03.0
+PCI: Sharing IRQ 11 with 00:07.2
+Yenta IRQ list 0698, PCI irq11
+Socket status: 30000010
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: excluding 0x800-0x84f 0x868-0x86f
+cs: IO port probe 0x0100-0x04ff: excluding 0x280-0x287 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+Unable to handle kernel paging request at virtual address d10545c0
+ printing eip:
+c01b0368
+*pde = 0fb66067
+*pte = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c01b0368>]    Not tainted
+EFLAGS: 00010286
+EIP is at pci_bus_match+0x18/0xb0
+eax: 00000000   ebx: cf2a8800   ecx: d10545c0   edx: 00000000
+esi: cf2a884c   edi: ffffffed   ebp: c12d284c   esp: ce591e88
+ds: 007b   es: 007b   ss: 0068
+Process pcmcia/0 (pid: 388, threadinfo=ce590000 task=ce6f7300)
+Stack: d109edc8 c01d1abf cf2a884c d109edc8 d109edf8 cf2a884c c02d7ff8 c01d1b5f 
+       cf2a884c d109edc8 cf2a884c c02d7fa0 cf2a8888 c01d1d24 cf2a884c c0282ddf 
+       c02de000 cf2a884c 00000000 cf2a8888 c01d0ef0 cf2a884c cf2a8800 cffd08b4 
+Call Trace:
+ [<d109edc8>] m3_pci_driver+0x28/0xa0 [maestro3]
+ [<c01d1abf>] bus_match+0x2f/0x80
+ [<d109edc8>] m3_pci_driver+0x28/0xa0 [maestro3]
+ [<d109edf8>] m3_pci_driver+0x58/0xa0 [maestro3]
+ [<c01d1b5f>] device_attach+0x4f/0x90
+ [<d109edc8>] m3_pci_driver+0x28/0xa0 [maestro3]
+ [<c01d1d24>] bus_add_device+0x64/0xb0
+ [<c01d0ef0>] device_add+0xd0/0x110
+ [<c01aca6b>] pci_bus_add_devices+0x4b/0xb0
+ [<d116fdad>] cb_alloc+0xad/0xf0 [pcmcia_core]
+ [<d115a17e>] pci_set_socket+0x3e/0x40 [yenta_socket]
+ [<d115d140>] +0x0/0x5a0 [yenta_socket]
+ [<d116c6d1>] state_wait_ready+0x151/0x260 [pcmcia_core]
+ [<d116b9fa>] get_socket_status+0x1a/0x20 [pcmcia_core]
+ [<d116cbae>] sm_do_work+0x5e/0x70 [pcmcia_core]
+ [<c012867f>] worker_thread+0x1ff/0x2e0
+ [<d116cb50>] sm_do_work+0x0/0x70 [pcmcia_core]
+ [<c01168f0>] default_wake_function+0x0/0x20
+ [<c01091c2>] ret_from_fork+0x6/0x14
+ [<c01168f0>] default_wake_function+0x0/0x20
+ [<c0128480>] worker_thread+0x0/0x2e0
+ [<c01071dd>] kernel_thread_helper+0x5/0x18
 
-I've tried to run some specific executable in 2.5.67. This
-executable worked fine with earlier[1] 2.5.x and 2.4.x kernels,
-but it refuses to run with 2.5.67. I thought that it's temporary
-problem and waited to 2.5.68 in hope, that it will be fixed.
-But it won't work with 2.5.68 either.
-
-[1] I did not test it on every earlier kernel. It have
-    stopped working somewhere in 2.5.6x series.
-
-This binary is old Linux version 2.4.18-19um as UML executable.
-It produces:
-
-zdzichu@mth $ ./linux-2.4.18 eth0=tuntap,,,192.168.2.2 umid=balance mem=32M
-
-tracing thread pid = 793
-Linux version 2.4.18-19um (zdzichu@mother) (gcc version 2.95.3 20010315 (release)) #20 sob kwi 27 23:20:06 CEST 2002
-On node 0 totalpages: 8192
-zone(0): 0 pages.
-zone(1): 8192 pages.
-zone(2): 0 pages.
-Kernel command line: eth0=tuntap,,,192.168.2.2 umid=balance mem=32M root=/dev/ubd0
-Calibrating delay loop... 362.52 BogoMIPS
-Memory: 32244k available
-Dentry-cache hash table entries: 4096 (order: 3, 32768 bytes)
-Inode-cache hash table entries: 2048 (order: 2, 16384 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
-Page-cache hash table entries: 8192 (order: 3, 32768 bytes)
-Checking for host processor cmov support...Yes
-Checking for host processor xmm support...No
-Checking that ptrace can change system call numbers...OK
-Checking that host ptys support output SIGIO...Yes
-POSIX conformance testing by UNIFIX
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-Kernel panic: outer trampoline didn't exit with SIGKILL
+Code: 8b 11 85 d2 74 7a 89 f6 83 fa ff 74 2b 0f b7 43 24 39 c2 74 
  
-------
+DK
+- -- 
+San Francisco isn't what it used to be, and it never was.
+		-- Herb Caen
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Details of my host system setup are here:
-http://fordon.pl.eu.org/~zdzichu/my_setup/
+iD8DBQE+puCBpuyeqyCEh60RAoj+AJ97jlGV25k0tMzJFx7SIhRmhVjyKgCeMBRr
+1QyJMJciTYIcNm6odgu+CZk=
+=HVXA
+-----END PGP SIGNATURE-----
 
-If I understand correctly, UML binary is ordinary executable.
-So if it is unable to start, evidently something very important 
-is broken.
-
-UML's kernel config attached.
-
-Please CC me.
--- 
-Tomasz Torcz               RIP is irrevelant. Spoofing is futile.
-zdzichu@irc.-nie.spam-.pl     Your routes will be aggreggated.
-
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=config-balance
-
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_USERMODE=y
-# CONFIG_ISA is not set
-# CONFIG_SBUS is not set
-# CONFIG_PCI is not set
-CONFIG_UID16=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-
-#
-# General Setup
-#
-CONFIG_STDIO_CONSOLE=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-# CONFIG_BINFMT_AOUT is not set
-CONFIG_BINFMT_ELF=y
-# CONFIG_BINFMT_MISC is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=128
-CONFIG_SSL=y
-# CONFIG_HOSTFS is not set
-CONFIG_MCONSOLE=y
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_HOST_2G_2G is not set
-CONFIG_UML_SMP=y
-CONFIG_SMP=y
-CONFIG_CON_ZERO_CHAN="fd:0,fd:1"
-CONFIG_CON_CHAN="xterm"
-CONFIG_SSL_CHAN="pty"
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-
-#
-# Devices
-#
-CONFIG_BLK_DEV_UBD=y
-CONFIG_BLK_DEV_UBD_SYNC=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-# CONFIG_MMAPPER is not set
-CONFIG_UML_SOUND=y
-CONFIG_SOUND=y
-CONFIG_HOSTAUDIO=y
-CONFIG_FD_CHAN=y
-CONFIG_NULL_CHAN=y
-CONFIG_PORT_CHAN=y
-CONFIG_PTY_CHAN=y
-CONFIG_TTY_CHAN=y
-CONFIG_XTERM_CHAN=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-# CONFIG_FILTER is not set
-CONFIG_UNIX=y
-CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-CONFIG_NET_IPIP=y
-CONFIG_NET_IPGRE=m
-# CONFIG_ARPD is not set
-CONFIG_INET_ECN=y
-# CONFIG_SYN_COOKIES is not set
-
-#
-#   IP: Netfilter Configuration
-#
-# CONFIG_IP_NF_CONNTRACK is not set
-# CONFIG_IP_NF_QUEUE is not set
-# CONFIG_IP_NF_IPTABLES is not set
-# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
-# CONFIG_IP_NF_COMPAT_IPFWADM is not set
-CONFIG_IPV6=y
-
-#
-#   IPv6: Netfilter Configuration
-#
-# CONFIG_IP6_NF_QUEUE is not set
-# CONFIG_IP6_NF_IPTABLES is not set
-# CONFIG_KHTTPD is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_LLC is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-CONFIG_IPSEC=y
-CONFIG_IPSEC_IPIP=y
-CONFIG_IPSEC_AH=y
-CONFIG_IPSEC_AUTH_HMAC_MD5=y
-CONFIG_IPSEC_AUTH_HMAC_SHA1=y
-CONFIG_IPSEC_ESP=y
-CONFIG_IPSEC_ENC_3DES=y
-CONFIG_IPSEC_IPCOMP=y
-# CONFIG_IPSEC_DEBUG is not set
-
-#
-# Network device support
-#
-CONFIG_UML_NET=y
-CONFIG_UML_NET_ETHERTAP=y
-CONFIG_UML_NET_TUNTAP=y
-# CONFIG_UML_NET_SLIP is not set
-# CONFIG_UML_NET_DAEMON is not set
-# CONFIG_UML_NET_MCAST is not set
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-CONFIG_TUN=y
-# CONFIG_ETHERTAP is not set
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_SUNLANCE is not set
-# CONFIG_SUNBMAC is not set
-# CONFIG_SUNQE is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_NET_VENDOR_3COM is not set
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-# CONFIG_NET_ISA is not set
-# CONFIG_NET_PCI is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_MYRI_SBUS is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=y
-# CONFIG_PCMCIA_3C589 is not set
-# CONFIG_PCMCIA_3C574 is not set
-# CONFIG_PCMCIA_FMVJ18X is not set
-CONFIG_PCMCIA_PCNET=y
-# CONFIG_PCMCIA_AXNET is not set
-# CONFIG_PCMCIA_NMCLAN is not set
-# CONFIG_PCMCIA_SMC91C92 is not set
-# CONFIG_PCMCIA_XIRC2PS is not set
-# CONFIG_ARCNET_COM20020_CS is not set
-# CONFIG_PCMCIA_IBMTR is not set
-CONFIG_NET_PCMCIA_RADIO=y
-CONFIG_PCMCIA_RAYCS=y
-# CONFIG_PCMCIA_NETWAVE is not set
-# CONFIG_PCMCIA_WAVELAN is not set
-# CONFIG_AIRONET4500_CS is not set
-
-#
-# File systems
-#
-# CONFIG_QUOTA is not set
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-# CONFIG_REISERFS_FS is not set
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_ADFS_FS_RW is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EXT3_FS is not set
-# CONFIG_JBD is not set
-# CONFIG_JBD_DEBUG is not set
-# CONFIG_FAT_FS is not set
-# CONFIG_MSDOS_FS is not set
-# CONFIG_UMSDOS_FS is not set
-# CONFIG_VFAT_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_JFFS_FS is not set
-# CONFIG_JFFS2_FS is not set
-# CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-# CONFIG_ISO9660_FS is not set
-# CONFIG_JOLIET is not set
-# CONFIG_ZISOFS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_NTFS_FS is not set
-# CONFIG_NTFS_RW is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-# CONFIG_DEVFS_DEBUG is not set
-# CONFIG_DEVPTS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_QNX4FS_RW is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=y
-# CONFIG_SYSV_FS is not set
-# CONFIG_UDF_FS is not set
-# CONFIG_UDF_RW is not set
-# CONFIG_UFS_FS is not set
-# CONFIG_UFS_FS_WRITE is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-# CONFIG_NFS_FS is not set
-# CONFIG_NFS_V3 is not set
-# CONFIG_ROOT_NFS is not set
-# CONFIG_NFSD is not set
-# CONFIG_NFSD_V3 is not set
-# CONFIG_SUNRPC is not set
-# CONFIG_LOCKD is not set
-# CONFIG_SMB_FS is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_NCPFS_PACKET_SIGNING is not set
-# CONFIG_NCPFS_IOCTL_LOCKING is not set
-# CONFIG_NCPFS_STRONG is not set
-# CONFIG_NCPFS_NFS_NS is not set
-# CONFIG_NCPFS_OS2_NS is not set
-# CONFIG_NCPFS_SMALLDOS is not set
-# CONFIG_NCPFS_NLS is not set
-# CONFIG_NCPFS_EXTRAS is not set
-# CONFIG_ZISOFS_FS is not set
-# CONFIG_ZLIB_FS_INFLATE is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-# CONFIG_SMB_NLS is not set
-# CONFIG_NLS is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-# CONFIG_BLK_DEV_MD is not set
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-# CONFIG_MD_RAID1 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_MD_MULTIPATH is not set
-# CONFIG_BLK_DEV_LVM is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Kernel hacking
-#
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUGSYM is not set
-# CONFIG_PT_PROXY is not set
-# CONFIG_GPROF is not set
-# CONFIG_GCOV is not set
-
---OgqxwSJOaUobr8KG--

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313918AbSDPVfA>; Tue, 16 Apr 2002 17:35:00 -0400
+	id <S313919AbSDPVmF>; Tue, 16 Apr 2002 17:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313919AbSDPVe7>; Tue, 16 Apr 2002 17:34:59 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:53196 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S313918AbSDPVe6>; Tue, 16 Apr 2002 17:34:58 -0400
-Date: Tue, 16 Apr 2002 23:34:57 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Olaf Fraczyk <olaf@navi.pl>
+	id <S313920AbSDPVmE>; Tue, 16 Apr 2002 17:42:04 -0400
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:65246 "EHLO
+	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S313919AbSDPVmD>; Tue, 16 Apr 2002 17:42:03 -0400
+Date: Tue, 16 Apr 2002 17:48:27 -0400
+To: jjs@lexus.com, akpm@zip.com.au
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-Message-ID: <20020416233457.A1731@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Olaf Fraczyk <olaf@navi.pl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020416074748.GA16657@venus.local.navi.pl>
+Subject: Re: 2.5.8 final - another data point
+Message-ID: <20020416174827.A1845@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 08:12:22AM +0000, Olaf Fraczyk wrote:
-> Hi,
-> I would like to know why exactly this value was choosen.
-> Is it safe to change it to eg. 1024? Will it break anything?
-> What else should I change to get it working:
-> CLOCKS_PER_SEC?
-> Please CC me.
+>>Running dbench 128 on ext2 mounted with delalloc and Andrew's
+>>patches from http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8/
+>>was 7.5x faster than 2.5.8 vanilla and 1.5x faster than
 
-Your uptime wraps to zero after 49 days. I think 'top' gets confused.
+> Wow, good stuff - I'll have to pull those down
 
-Regards,
+Hmm, I had to run e2fsck -f twice on the filesystem that ran
+dbench, tiobench, bonnie++ on nfs, and osdb.  The filesystem
+was showing 52% used and is normally 1% used before/after
+testing.  No big files on the fs. The directory where
+bonnie++ on nfs runs had some temporary directories that
+were not deletable.  A bunch of files/directories were in
+lost+found after e2fsck.  After removing the files, the
+fs was back to 1% used.
 
-bert
+I backed up and did mke2fs in case there was any
+pre-existing/lingering corruption.  So keep your karma
+up and test on a test box. :)
 
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Randy Hron
+

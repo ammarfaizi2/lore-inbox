@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262651AbTI1RjE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 13:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTI1RjE
+	id S262640AbTI1Rdu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 13:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbTI1Rdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 13:39:04 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:27193 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262651AbTI1RjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 13:39:01 -0400
-Date: Sun, 28 Sep 2003 18:38:39 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [bk patches] 2.6.x misc updates
-Message-ID: <20030928173839.GI5507@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20030928144428.GA16477@gtf.org> <20030928164002.GA4931@redhat.com> <3F77140E.2080402@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 28 Sep 2003 13:33:50 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:35853 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262640AbTI1Rdr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 13:33:47 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: CONFIG_I8042
+Date: Mon, 29 Sep 2003 01:31:42 +0800
+User-Agent: KMail/1.5.2
+References: <20030928160314.A1428@flint.arm.linux.org.uk> <20030928161059.B1428@flint.arm.linux.org.uk>
+In-Reply-To: <20030928161059.B1428@flint.arm.linux.org.uk>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F77140E.2080402@pobox.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309290131.42619.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 28, 2003 at 01:02:06PM -0400, Jeff Garzik wrote:
+On Sunday 28 September 2003 23:10, Russell King wrote:
 
- > > > Linus, please do a
- > > > 	bk pull bk://kernel.bkbits.net/jgarzik/misc-2.5
- > > > This will update the following files:
- > > >    * char/agp/amd64-agp: properly suffix 64-bit constants
- > >Please don't touch this. It needs fixing in a different way
- > >for 32bit.
- > 
- > I don't see how the patch could break anything.  It's obviously correct, 
- > even if the overall code isn't great for IA32.
+> Correction - it is due to this change:
+> 
+> | --- 1.7/drivers/input/keyboard/Kconfig  Fri Sep 19 12:51:31 2003
+> | +++ 1.8/drivers/input/keyboard/Kconfig  Sun Sep 21 03:44:11 2003
+> | @@ -13,9 +13,9 @@
+> | 
+> |  config KEYBOARD_ATKBD
+> |         tristate "AT keyboard support" if EMBEDDED || !X86
+> | -       default y if INPUT=y && INPUT_KEYBOARD=y && SERIO=y
+> | -       default m
+> | -       depends on INPUT && INPUT_KEYBOARD && SERIO
+> | +       default y
+> | +       depends on INPUT && INPUT_KEYBOARD
+> | +       select SERIO_I8042
+> |         help
+> |           Say Y here if you want to use a standard AT or PS/2 keyboard. Usually
+> |           you'll need this, unless you have a different type keyboard (USB, ADB
+> 
 
-Actually looking at the spec, the PTEs don't change in 32bit or 64bit
-mode, so it should do the right thing. I take back my objection
-to your change. Go ahead and apply.
+Could there be another menu to select system type when x86
 
-		Dave
+-Standard-PC EMBEDDED=0 X86=1, MMU=1, VID16=1, SBUS=0, GENERIC_ISA_DMA=1
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+  Use this for ease of configuration in most PC applications.
+
+-Custom-PC EMBEDDED=0 X86=0, MMU=1, VID16=1, SBUS=0, GENERIC_ISA_DMA=1
+
+  Use this in specialized PC applications to enable less
+  frequently used configuration options.
+  Beware that this requires more intricate knowledge of PC 
+  hardware and the kernel subsystems
+
+-Embedded EMBEDDED=1 X86=0, MMU=user, VID16=user, SBUS=user, GENERIC_ISA_DMA=user 
+
+  Use this option when running the kernel on an embedded system to
+  maximize configuration capability. This option is generally unsuitable
+  in PC applications.
+
+Regards
+Michael
+

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267198AbTBQRXJ>; Mon, 17 Feb 2003 12:23:09 -0500
+	id <S267221AbTBQRYq>; Mon, 17 Feb 2003 12:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267197AbTBQRXJ>; Mon, 17 Feb 2003 12:23:09 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:52509 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267198AbTBQRXI>;
-	Mon, 17 Feb 2003 12:23:08 -0500
-Message-ID: <3E511CC5.5000700@acm.org>
-Date: Mon, 17 Feb 2003 11:32:53 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Corey Minyard <cminyard@mvista.com>,
-       Werner Almesberger <wa@almesberger.net>,
-       Zwane Mwaikambo <zwane@holomorphy.com>, suparna@in.ibm.com,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-References: <3E4914CA.6070408@mvista.com> <m1of5ixgun.fsf@frodo.biederman.org>	<3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org>	<3E4A70EA.4020504@mvista.com> <20030214001310.B2791@almesberger.net>	<3E4CFB11.1080209@mvista.com> <20030214151001.F2092@almesberger.net>	<3E4D3419.1070207@mvista.com>	<Pine.LNX.4.50.0302141420220.3518-100000@montezuma.mastecende.com>	<20030214164436.H2092@almesberger.net> <3E4D4ADF.3070109@mvista.com>	<m17kc26pxs.fsf@frodo.biederman.org> <3E4FBAD0.4040808@acm.org>	<m1y94f6gnp.fsf@frodo.biederman.org> <3E506460.3010400@acm.org> <m1wujz2x4y.fsf@frodo.biederman.org>
-In-Reply-To: <m1wujz2x4y.fsf@frodo.biederman.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S267224AbTBQRYq>; Mon, 17 Feb 2003 12:24:46 -0500
+Received: from [213.86.99.237] ([213.86.99.237]:38132 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S267221AbTBQRYo>; Mon, 17 Feb 2003 12:24:44 -0500
+Subject: Re: ext3 clings to you like flypaper
+From: David Woodhouse <dwmw2@infradead.org>
+To: James Bourne <jbourne@mtroyal.ab.ca>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.51.0302171014320.8008@skuld.mtroyal.ab.ca>
+References: <78320000.1045465489@[10.10.2.4]>
+	 <1045482621.29000.40.camel@passion.cambridge.redhat.com>
+	 <2460000.1045500532@[10.10.2.4]>
+	 <Pine.LNX.4.51.0302171014320.8008@skuld.mtroyal.ab.ca>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045503270.17498.29.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 17 Feb 2003 17:34:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2003-02-17 at 17:17, James Bourne wrote:
+> > No, but it remounts the disk read-write after it mounts it read-only.
+> > It can switch from ext2 to ext3 at that point.
+> 
+> This is a function of your distribution.  The
+> init scripts *should* read /etc/fstab after the kernel mounts /
+> ro and then remount / rw with whatever other options are specified.
 
-So the semantics of the shutdown method is: "You are being called at 
-reboot or halt time, no other processes are running or will ever run, 
-quiesce the device, but do nothing else".  Then obviously, it's exactly 
-what we need, if you can get the device driver writers to implement it.
+No. You can't remount between ext2 and ext3 like you can for ro/rw.
+You'd have to unmount it completely and remount it.
 
-It would be very nice to have documentation on this (and the rest of the 
-driver model, too).  The docs in the kernel don't give a big picture.  
-In fact, just reading the docs give you no idea what a driver model is.  
-Does some other source of documentation exist?
-
-device_shutdown() claims a semaphore for some reason, though.  I suspect 
-it's not necessary.
-
-- -Corey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+URzCIXnXXONXERcRAhmgAKCIan40sZy389m9FS/ESkH96v3efACgrwx5
-hsU4LWh+FigmWx9RlejSix8=
-=AMdY
------END PGP SIGNATURE-----
-
-
+-- 
+dwmw2

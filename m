@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313818AbSEEX2i>; Sun, 5 May 2002 19:28:38 -0400
+	id <S313819AbSEEXfA>; Sun, 5 May 2002 19:35:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313819AbSEEX2h>; Sun, 5 May 2002 19:28:37 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:57765 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S313818AbSEEX2g>;
-	Sun, 5 May 2002 19:28:36 -0400
-Date: Mon, 6 May 2002 01:28:36 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200205052328.BAA12076@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.13 floppy driver is broken
+	id <S313827AbSEEXfA>; Sun, 5 May 2002 19:35:00 -0400
+Received: from mnh-1-26.mv.com ([207.22.10.58]:8 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S313819AbSEEXe7>;
+	Sun, 5 May 2002 19:34:59 -0400
+Message-Id: <200205060036.TAA03815@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: hugang <gang_hu@soul.com.cn>
+cc: glonnon@ridgerun.com, Pavel Machek <pavel@suse.cz>, seasons@fornax.hu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATH] Port software to UML. 
+In-Reply-To: Your message of "Sun, 05 May 2002 21:48:19 +0800."
+             <20020505214819.19cb9a86.gang_hu@soul.com.cn> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 05 May 2002 19:36:44 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are at least two major problems with drivers/block/floppy.c
-in 2.5.13:
+gang_hu@soul.com.cn said:
+>   Now I try port software to UML(user mode linux). 
 
-1. Writing to /dev/fd0 fails with EROFS from open().
-   The driver's open() method relies on revalidate() having read the
-   first block and sensed whether the floppy is writable or not.
-   But this code was #if:ed out (lines 3883-3903) in 2.5.13, causing
-   open() to think the floppy is write-protected and return -EROFS.
-   Simply removing the #if 0 doesn't work since some of the code
-   in there no longer compiles in 2.5.13.
-   A workaround is to read from /dev/fd0 before writing.
+I should have mentioned in my last message that swsusp would be very cool
+to port to UML and I'd love to see it working.  There are lots of interesting
+things that you'd be able to do as a result.
 
-2. The data written is seriously corrupted. I compared a bzImage
-   written to /dev/fd0 with 2.4.19-pre8 and 2.5.13. The first 9K was Ok,
-   but then 2.5.13 wrote data starting from offset 8K in the input.
-   I checked if the remaining data was simply shifted 1K, but that
-   was not the case: there are other differences (the next one at
-   offset 18K) but I haven't fully analysed the pattern.
-   I suspect there's some kind of block size confusion error.
+You just need to understand UML internals enough to save and restore all
+of UML's host state, not just the memory image.
 
-/Mikael
+				Jeff
+

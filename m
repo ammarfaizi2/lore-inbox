@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265065AbUFGVOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265073AbUFGVWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265065AbUFGVOU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 17:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265067AbUFGVOT
+	id S265073AbUFGVWj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 17:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbUFGVWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 17:14:19 -0400
-Received: from mail.scienion.de ([141.16.81.54]:3730 "EHLO
-	server03.hq.scienion.de") by vger.kernel.org with ESMTP
-	id S265065AbUFGVOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 17:14:03 -0400
-Message-ID: <40C4DA94.2090102@scienion.de>
-Date: Mon, 07 Jun 2004 23:13:56 +0200
-From: Sebastian Kloska <kloska@scienion.de>
-Reply-To: kloska@scienion.de
-Organization: Scienion AG
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-       psycho@albatross.co.nz, hugh@veritas.com, Matt_Domsch@dell.com
-Subject: Re: APM realy sucks on 2.6.x
-References: <40C0E91D.9070900@scienion.de>	 <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de>	 <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de>	 <20040607144841.GD1467@elf.ucw.cz> <1086638000.2220.8.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1086638000.2220.8.camel@teapot.felipe-alfaro.com>
-X-MIMETrack: Itemize by SMTP Server on SrvW2k01/Scienion(Release 6.5.1|January 28, 2004) at
- 07.06.2004 23:23:00,
-	Serialize by Router on SrvW2k01/Scienion(Release 6.5.1|January 28, 2004) at
- 07.06.2004 23:23:07,
-	Serialize complete at 07.06.2004 23:23:07
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Jun 2004 17:22:39 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:32984 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S265073AbUFGVWg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 17:22:36 -0400
+Date: Mon, 7 Jun 2004 23:23:03 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>,
+       greg kh <greg@kroah.com>, Chris McDermott <lcm@us.ibm.com>
+Subject: [PATCH 3/3] fix for small xloops [Was: Re: Too much error in __const_udelay() ?]
+Message-ID: <20040607212303.GC23106@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	john stultz <johnstul@us.ibm.com>,
+	lkml <linux-kernel@vger.kernel.org>,
+	george anzinger <george@mvista.com>, greg kh <greg@kroah.com>,
+	Chris McDermott <lcm@us.ibm.com>
+References: <1086419565.2234.133.camel@cog.beaverton.ibm.com> <20040605152326.GA11239@dominikbrodowski.de> <1086635568.2234.171.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1086635568.2234.171.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi Felipe ....
+The const_udelay calculation relies on the "overflow" of the lower 32 bits
+of the mull operation. What's in the lower 32 bits is "cut off", so that a
+"rounding down" phenomenon exists. For large arguments to {n,u}delay, this does
+not matter, as udelay and ndelay round _up_ themselves. However, for small
+delays (for cyclone timer: up to 20ns; for pmtmr-based delay timer it's even
+up to 1500ns or 1us) it _is_ a critical error. Empirical testing has shown that
+it happens only (for usual values of loops_per_jiffies) if xloops is lower or
+equal to six. Let's be safe, and double that value, and add one xloop if
+xloop is smaller than 13.
 
-  Lucky one ...
+Signed-off-by: Dominik Brodowski <linux@brodo.de>
 
-  I do not even use PCMCIA and don't have the stuff
-  compiled in or use the modules ... but the reaction
-  to echo -n '3' >/proc/acpi/sleep is weired.
-
-  Somthing like (1) The first time nothing happens
-  and (2) On the second run the machine reboots....
-
-
-  Up until now I've been slowly upgrading my kernel
-  from minimal functionality to almost perfect
-
-  now USB, and ALSA has been added to the kernel
-  and I still can suspend/resume....
-
-  Now of cause I'm wandering what actually triggers
-  the crash ....
-
-  That might take some time ....
-
-  Thanks for the tip
-
-  Sebastian
-
-Felipe Alfaro Solana wrote:
-> On Mon, 2004-06-07 at 16:48 +0200, Pavel Machek wrote:
-> 
-> 
->>HP sells compaq nx5000 notebooks with Linux preloaded. Unfortunately
->>suspend-to-RAM is not there (IIRC). That's because suspend-to-RAM is
->>hard to do with ACPI.
-> 
-> 
-> It took some time for me to work, but now ACPI S3 (suspend to RAM) is
-> finally working for me (I have been trying it since 2.4.22 with no
-> luck). Only one thing is required before suspending:
-> 
-> # modprobe ds
-> # cardctl eject
-> 
-> This ejects my CardBus NIC before going to sleep. Not doing so, causes
-> the system to freeze when resuming.
-> 
-
+diff -ruN linux-original/arch/i386/lib/delay.c linux/arch/i386/lib/delay.c
+--- linux-original/arch/i386/lib/delay.c	2004-06-07 23:02:02.472656160 +0200
++++ linux/arch/i386/lib/delay.c	2004-06-07 22:55:40.063791144 +0200
+@@ -34,6 +34,8 @@
+ 	__asm__("mull %0"
+ 		:"=d" (xloops), "=&a" (d0)
+ 		:"1" (xloops),"0" (current_cpu_data.loops_per_jiffy * HZ));
++	if (unlikely(xloops < 13))
++		xloops++;
+         __delay(xloops);
+ }
+ 

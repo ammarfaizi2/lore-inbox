@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265896AbRF3MDC>; Sat, 30 Jun 2001 08:03:02 -0400
+	id <S265904AbRF3MLM>; Sat, 30 Jun 2001 08:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265897AbRF3MCw>; Sat, 30 Jun 2001 08:02:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14089 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265896AbRF3MCe>;
-	Sat, 30 Jun 2001 08:02:34 -0400
-Date: Sat, 30 Jun 2001 13:02:32 +0100
+	id <S265906AbRF3MLC>; Sat, 30 Jun 2001 08:11:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34057 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265904AbRF3MKx>;
+	Sat, 30 Jun 2001 08:10:53 -0400
+Date: Sat, 30 Jun 2001 13:10:50 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, kaos@ocs.com.au,
-        linux-kernel@vger.kernel.org
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
 Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
-Message-ID: <20010630130232.C12788@flint.arm.linux.org.uk>
-In-Reply-To: <20010630125855.B12788@flint.arm.linux.org.uk> <E15GJR8-0001xJ-00@the-village.bc.nu>
+Message-ID: <20010630131050.D12788@flint.arm.linux.org.uk>
+In-Reply-To: <20010630102024.A12009@flint.arm.linux.org.uk> <3465.993901530@ocs3.ocs-net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15GJR8-0001xJ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Jun 30, 2001 at 01:01:18PM +0100
+In-Reply-To: <3465.993901530@ocs3.ocs-net>; from kaos@ocs.com.au on Sat, Jun 30, 2001 at 09:45:30PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 30, 2001 at 01:01:18PM +0100, Alan Cox wrote:
-> No we are talking about Config.in scripts
+On Sat, Jun 30, 2001 at 09:45:30PM +1000, Keith Owens wrote:
+> CONFIG_bar can be undefined, not 'n'.  While that can cause problems,
+> it is also valid config code.  If I interpret AC's cryptic comments
+> correctly, there may be code which assumes that undefined variables are
+> just that, undefined.  Setting all variables to 'n' initially by Adam's
+> script will break such code.
 
-No.  My comment was in reply to your specific case 2 of dep_tristate.
-There were no if statements in there.
+Agreed.   The person who should know for sure how the configuration system
+works is ESR.
+
+> I still think this is the best approach, against 2.4.5-ac22.
+
+One small concern - does it work properly with xconfig and menuconfig?
+I seem to remember that they re-evaluate choices, and I have this feeling
+that I've seen unselectable symbols caused by define_bool SYM n type stuff.
+
+Note also that we in the ARM port currently have 43 such symbols in either
+Linus' or my tree, and there are getting on for 90 such symbols in existence
+throughout the ARM trees.  (There are around 90 registered ARM machine types
+at the moment, each one has their own CONFIG symbol).
+
+Your config.in file could get very large. ;)
 
 --
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

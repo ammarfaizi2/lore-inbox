@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbTABKa0>; Thu, 2 Jan 2003 05:30:26 -0500
+	id <S261292AbTABKcZ>; Thu, 2 Jan 2003 05:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261292AbTABKa0>; Thu, 2 Jan 2003 05:30:26 -0500
-Received: from gate.mvhi.com ([195.224.96.166]:1546 "EHLO gate.mvhi.com")
-	by vger.kernel.org with ESMTP id <S261290AbTABKaZ>;
-	Thu, 2 Jan 2003 05:30:25 -0500
-Message-ID: <15892.5819.765394.237342@devel19.axiom.internal>
-Date: Thu, 2 Jan 2003 10:38:51 +0000
-From: Peter.Benie@mvhi.com (Peter Benie)
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Does cli() need to be called before reading avenrun?
-In-Reply-To: <1041468799.1126.8.camel@icbm>
-References: <15891.35418.412034.594225@server.axiom.internal>
-	<1041468799.1126.8.camel@icbm>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+	id <S261310AbTABKcZ>; Thu, 2 Jan 2003 05:32:25 -0500
+Received: from dp.samba.org ([66.70.73.150]:745 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261292AbTABKcY>;
+	Thu, 2 Jan 2003 05:32:24 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rusty@rustcorp.com.au, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, ak@suse.de,
+       paulus@samba.org, rmk@arm.linux.org.uk
+Subject: Re: [PATCH] Modules 3/3: Sort sections 
+In-reply-to: Your message of "Wed, 01 Jan 2003 21:15:36 -0800."
+             <20030101.211536.121172392.davem@redhat.com> 
+Date: Thu, 02 Jan 2003 21:35:54 +1100
+Message-Id: <20030102104053.ABF0C2C0FD@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love writes ("Re: Does cli() need to be called before reading avenrun?"):
-> On Wed, 2003-01-01 at 19:39, Peter Benie wrote:
-> > In kernel 2.4, in sys_sysinfo(), the code reads:
-> > 
-> >    cli();
-> >    val.uptime = jiffies / HZ;
-> > 
-> >    val.loads[0] = avenrun[0] << (SI_LOAD_SHIFT - FSHIFT);
-> >    val.loads[1] = avenrun[1] << (SI_LOAD_SHIFT - FSHIFT);
-> >    val.loads[2] = avenrun[2] << (SI_LOAD_SHIFT - FSHIFT);
-> > 
-> >    val.procs = nr_threads-1;
-> >    sti();
-> > 
-> > In loadavg_read_proc, the code is in essence the same, except that it
-> > isn't wrapped in cli/sti.  
-> > 
-> > Is there a reason for the cli?
+In message <20030101.211536.121172392.davem@redhat.com> you write:
+>    From: Richard Henderson <rth@twiddle.net>
+>    Date: Wed, 1 Jan 2003 20:58:36 -0800
 > 
-> The reason we need some sort of protection is that there are the three
-> array entries, so we need to make sure we read all three atomically (not
-> that its a huge deal if we do not).
+>    On Wed, Jan 01, 2003 at 08:50:03PM -0800, David S. Miller wrote:
+>    > I think this is to get .foo.init sections.
+>    
+>    Obviously.  Perhaps the question was worded badly.  Instead read
+>    it as "Why don't we force this to be called .init.foo instead?"
+> 
+> This new naming order was created recently, but I forget the reason.
+> It used to be .init.foo
 
-This is exactly what I have my doubts about. These are three load
-averages with different time constants - it isn't meaningful to
-compare them so it doesn't matter if they are not sampled at exactly
-the same time.
+No, it used to be .foo.init, but -ffunction-sections calls its
+functions <funcname>.init, so it was changed to .init.foo.
 
-What caused me to look at this code is was a complaint in the exim
-source about how long sysinfo() took compared with reading
-/proc/loadavg - the difference is a factor of 100 which is large
-enough to seriously affect exim's performance. This looks like a
-possible cause.
-
-Peter
+Of course, the simpler prefix test should now be sufficient.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

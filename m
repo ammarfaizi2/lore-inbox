@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130445AbRBAReZ>; Thu, 1 Feb 2001 12:34:25 -0500
+	id <S129858AbRBAReo>; Thu, 1 Feb 2001 12:34:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130229AbRBAReP>; Thu, 1 Feb 2001 12:34:15 -0500
-Received: from marvin.cdf.toronto.edu ([128.100.31.3]:57305 "HELO
-	marvin.cdf.toronto.edu") by vger.kernel.org with SMTP
-	id <S129528AbRBARdx>; Thu, 1 Feb 2001 12:33:53 -0500
-Date: Thu, 1 Feb 2001 12:33:49 -0500 (EST)
-From: <apark@cdf.toronto.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2.16 3c90x ?
-Message-ID: <Pine.GSO.4.30.0102011220540.5429-100000@marvin.cdf>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130654AbRBAReZ>; Thu, 1 Feb 2001 12:34:25 -0500
+Received: from [213.209.134.221] ([213.209.134.221]:40441 "EHLO
+	pluto.agb.tuxia") by vger.kernel.org with ESMTP id <S130212AbRBAReM>;
+	Thu, 1 Feb 2001 12:34:12 -0500
+Date: Thu, 1 Feb 2001 18:32:31 +0100
+From: Juergen Schneider <juergen.schneider@tuxia.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+Message-ID: <20010201183231.A373@tuxia.com>
+Reply-To: Juergen Schneider <juergen.schneider@tuxia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+Organization: TUXIA Deutschland GmbH
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello everybody,
 
-Just wondering...  How safe is it to switch from 10Mbit network to
-100Mbit network while the machine is up?
+I've created a patch for kernel 2.4.1 that adds some fancy options for
+the framebuffer console driver concerning the boot logo.
+I've added logo animation and logo centering.
+People may find this not very useful but nice to look at. :-)
 
-I have two cables - one leading to 10Mbit network and the other 100Mbit
-when I switched the cables (I can guarantee that there was no routing issue)
-from 10Mbit to 100Mbit while machine was up, it just froze solid.
+It can be downloaded from:
+   <ftp://ftp.tuxia.com/pub/linux/tuxia/anim-logo/AnimLogo.tgz>
 
-I'm using 3Com 3c905C Tornado network card and the corresponding driver
-is 3c90x.
+With this tar ball comes the patch for kernel 2.4.1 and a small
+program called xpm2splash to create animated linux_logo.h files
+from XPM files.
+The patch also contains an animated boot logo (that's why it is
+so big).
+It is the dancing penguin I've taken from the apache default
+configuration of a SuSE 6.4 distribution.
+(BTW who created this nice animation???)
 
-Thanks
+So, try it and send your comments.
 
--A
+Juergen Schneider
 
+PS: The patch should work with kernel 2.4.0 too.
+
+PPS: Our FTP server seems to have some problems with the "ls"
+     command. You should use "ls -l" or "dir" to get a
+     directory listing. Sorry for that.
+
+-- 
+Dipl.-Inf. Juergen Schneider                    <juergen.schneider@tuxia.com>
+TUXIA Deutschland GmbH
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

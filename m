@@ -1,76 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266868AbTBLEm0>; Tue, 11 Feb 2003 23:42:26 -0500
+	id <S266809AbTBLEqz>; Tue, 11 Feb 2003 23:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266917AbTBLEm0>; Tue, 11 Feb 2003 23:42:26 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:15548 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S266868AbTBLEmZ>;
-	Tue, 11 Feb 2003 23:42:25 -0500
-Date: Wed, 12 Feb 2003 15:51:58 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: David Mosberger <davidm@hpl.hp.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linus <torvalds@transmeta.com>
-Subject: [PATCH][COMPAT] compat_sys_futex 2/7 ia64
-Message-Id: <20030212155158.75d2cbf7.sfr@canb.auug.org.au>
-In-Reply-To: <20030212154716.7c101942.sfr@canb.auug.org.au>
-References: <20030212154716.7c101942.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S266851AbTBLEqz>; Tue, 11 Feb 2003 23:46:55 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:34463 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266809AbTBLEqw>; Tue, 11 Feb 2003 23:46:52 -0500
+Date: Wed, 12 Feb 2003 10:42:05 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.60] dcachebench sleeps
+Message-ID: <20030212104205.B1261@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20030211181807.A1261@in.ibm.com> <b2blj5$1bp$1@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <b2blj5$1bp$1@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Feb 12, 2003 at 12:48:05AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+On Wed, Feb 12, 2003 at 12:48:05AM +0000, Linus Torvalds wrote:
+> In article <20030211181807.A1261@in.ibm.com>,
+> Maneesh Soni  <maneesh@in.ibm.com> wrote:
+> >
+> >With 2.5.60, dcachebench no more completes. All threads
+> >go to sleep as below. Last time I tested was with an intermediated BK diff 
+> >(diff-bk-030204-2.5.59) and it was working fine. 
+> 
+> This should be fixed in the current BK tree. And for the non-BK-users,
+> here's the relevant changeset..
+> 
+> 		Linus
 
-Here is the ia64 part of the patch.  I needed to expand the ia32 syscall
-table as the syscall number for sys_futex on ia32 is 240. I hope I guessed
-correctly :-)
+
+Yes.. this fixes the dcachebench problem.
+
+Thanks,
+Maneesh
+
+
+ 
+> ---
+> # This is a BitKeeper generated patch for the following project:
+> # Project Name: Linux kernel tree
+> # This patch format is intended for GNU patch command version 2.5 or higher.
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.997.1.20 -> 1.997.1.21
+> #	     kernel/signal.c	1.67    -> 1.68   
+> #
+> # The following is the BitKeeper ChangeSet Log
+> # --------------------------------------------
+> # 03/02/11	torvalds@home.transmeta.com	1.997.1.21
+> # If we set TIF_SIGPENDING for SIGCONT, we have to wake up any sleeping
+> # tasks (even if we don't otherwise need to wake anything up), since
+> # otherwise later signals would see that signals are already pending and
+> # wouldn't cause wakeups.
+> # --------------------------------------------
+> #
+> diff -Nru a/kernel/signal.c b/kernel/signal.c
+> --- a/kernel/signal.c	Tue Feb 11 12:13:43 2003
+> +++ b/kernel/signal.c	Tue Feb 11 12:13:43 2003
+> @@ -619,6 +619,7 @@
+>  		rm_from_queue(SIG_KERNEL_STOP_MASK, &p->signal->shared_pending);
+>  		t = p;
+>  		do {
+> +			unsigned int state;
+>  			rm_from_queue(SIG_KERNEL_STOP_MASK, &t->pending);
+>  			
+>  			/*
+> @@ -635,9 +636,12 @@
+>  			 * Wake up the stopped thread _after_ setting
+>  			 * TIF_SIGPENDING
+>  			 */
+> -			if (!sigismember(&t->blocked, SIGCONT))
+> +			state = TASK_STOPPED;
+> +			if (!sigismember(&t->blocked, SIGCONT)) {
+>  				set_tsk_thread_flag(t, TIF_SIGPENDING);
+> -			wake_up_state(t, TASK_STOPPED);
+> +				state |= TASK_INTERRUPTIBLE;
+> +			}
+> +			wake_up_state(t, state);
+>  
+>  			t = next_thread(t);
+>  		} while (t != p);
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.5.60-32bit.1/arch/ia64/ia32/ia32_entry.S 2.5.60-32bit.2/arch/ia64/ia32/ia32_entry.S
---- 2.5.60-32bit.1/arch/ia64/ia32/ia32_entry.S	2003-02-11 09:39:10.000000000 +1100
-+++ 2.5.60-32bit.2/arch/ia64/ia32/ia32_entry.S	2003-02-11 12:21:56.000000000 +1100
-@@ -428,6 +428,26 @@
- 	data8 sys_ni_syscall
- 	data8 sys_ni_syscall
- 	data8 sys_ni_syscall
-+	data8 sys_ni_syscall	/* 230 */
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall	/* 235 */
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 compat_sys_futex	/* 240 */
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall	/* 245 */
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
-+	data8 sys_ni_syscall
- 	/*
- 	 *  CAUTION: If any system calls are added beyond this point
- 	 *	then the check in `arch/ia64/kernel/ivt.S' will have
-diff -ruN 2.5.60-32bit.1/arch/ia64/kernel/ivt.S 2.5.60-32bit.2/arch/ia64/kernel/ivt.S
---- 2.5.60-32bit.1/arch/ia64/kernel/ivt.S	2003-02-11 09:39:11.000000000 +1100
-+++ 2.5.60-32bit.2/arch/ia64/kernel/ivt.S	2003-02-11 12:21:56.000000000 +1100
-@@ -848,7 +848,7 @@
- 	alloc r15=ar.pfs,0,0,6,0	// must first in an insn group
- 	;;
- 	ld4 r8=[r14],8		// r8 == eax (syscall number)
--	mov r15=230		// number of entries in ia32 system call table
-+	mov r15=250		// number of entries in ia32 system call table
- 	;;
- 	cmp.ltu.unc p6,p7=r8,r15
- 	ld4 out1=[r14],8	// r9 == ecx
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

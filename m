@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbTLCI67 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 03:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbTLCI4r
+	id S264530AbTLCIw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 03:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbTLCIvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 03:56:47 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:37330 "EHLO
+	Wed, 3 Dec 2003 03:51:33 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:22738 "EHLO
 	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264520AbTLCItz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 03:49:55 -0500
-Date: Wed, 03 Dec 2003 00:51:44 -0800
+	id S264516AbTLCItf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 03:49:35 -0500
+Date: Wed, 03 Dec 2003 00:51:24 -0800
 From: inaky.perez-gonzalez@intel.com
 To: linux-kernel@vger.kernel.org
 Cc: inaky.perez-gonzalez@intel.com, robustmutexes@lists.osdl.org
-Subject: [RFC/PATCH] FUSYN 7/10: user space fuqueues
-Message-ID: <0312030051.Ob6baaZaVdoaadcb7aFddcAapcfc8apb25502@intel.com>
+Subject: [RFC/PATCH] FUSYN 3/10: Support for i386
+Message-ID: <0312030051.2cXcpbxaubwb8cwcBbMcub4bqdKd5bkd25502@intel.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-In-Reply-To: <0312030051.naObFdpbMdgaLbwdZcPdtajdwahaEb4d25502@intel.com>
+In-Reply-To: <0312030051.TaDc4aQalbOdPa~b8ddbVaScuaBavded25502@intel.com>
 X-Mailer: patchbomb 0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- ufuqueue.c |  236 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 236 insertions(+)
+ arch/i386/kernel/entry.S  |    5 +++
+ include/asm-i386/fulock.h |   69 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/unistd.h |    7 ++++
+ 3 files changed, 80 insertions(+), 1 deletion(-)
 
+--- linux/arch/i386/kernel/entry.S:1.1.1.6	Sat Nov 15 01:38:16 2003
++++ linux/arch/i386/kernel/entry.S	Fri Nov 21 13:25:56 2003
+@@ -906,6 +906,11 @@
+ 	.long sys_utimes
+  	.long sys_fadvise64_64
+ 	.long sys_ni_syscall	/* sys_vserver */
++	.long sys_ufulock_lock
++	.long sys_ufulock_unlock	/* 275 */
++	.long sys_ufulock_consistency
++	.long sys_ufuqueue_wait        
++	.long sys_ufuqueue_wake	     /* 278 */
+ 
+ nr_syscalls=(.-sys_call_table)/4
+ 
 --- /dev/null	Tue Dec  2 20:07:55 2003
-+++ linux/kernel/ufuqueue.c	Wed Nov 19 17:32:07 2003
-@@ -0,0 +1,236 @@
++++ linux/include/asm-i386/fulock.h	Tue Nov 18 11:51:06 2003
+@@ -0,0 +1,69 @@
 +
 +/*
 + * Fast User real-time/pi/pp/robust/deadlock SYNchronization
@@ -40,227 +56,77 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 + * Please refer to Documentation/fusyn.txt for more info.
 + */
 +
-+#include <linux/sched.h>
-+#include <linux/init.h>
-+#include <linux/highmem.h>   /* kmap_atomic() */
-+#include <linux/vlocator.h>
-+#include <linux/fuqueue.h>
++#ifndef __asm_i386_fulock_h__
++#define __asm_i386_fulock_h__
 +
-+extern signed long ufu_timespec2jiffies (const struct timespec __user *);
-+static struct fuqueue_ops ufuqueue_ops;
++    /* fulock value / state; anything that is not this is a PID that
++     * currently owns the fulock. */
 +
-+/** Slab for allocation of 'struct ufuqueue's. */
-+static kmem_cache_t *ufuqueue_slab; 
-+
-+/** A ufuqueue, tied to a user-space vm address. */
-+struct ufuqueue {
-+	struct fuqueue fuqueue;
-+	struct vlocator vlocator;
++enum vfulock {
++	VFULOCK_UNLOCKED  = 0x00000000,	/* Unlocked */
++	VFULOCK_KCO	  = 0xfffffffd,	/* KCO: kernel controls ownership */
++	VFULOCK_DEAD	  = 0xfffffffe,	/* KCO: dead, kernel controls ownership */
++	VFULOCK_NR	  = 0xffffffff	/* KCO: fulock is not-recoverable */
 +};
 +
 +
-+/** Initialize an @ufuqueue (for slab object construction). */
++#ifdef __KERNEL__
++
++/**
++ * [User usable] Atomic compare and swap.
++ *
++ * Used for locking a vfulock.
++ *
++ * @value     Pointer to the value to compare and swap.
++ * @old_value Value that *value has to have for the swap to occur.
++ * @new_value New value to set it *value == old_value.
++ * @return    !0 if the swap succeeded. 0 if failed.
++ */
 +static inline
-+void ufuqueue_ctor (void *obj, kmem_cache_t *slab, unsigned long flags)
++unsigned vfulock_acas (volatile unsigned *value,
++		       unsigned old_value, unsigned new_value)
 +{
-+	struct ufuqueue *ufuqueue = obj;
-+	__fuqueue_init (&ufuqueue->fuqueue, &ufuqueue_ops);
-+	vlocator_init (&ufuqueue->vlocator);
-+}
-+
-+
-+/** Allocate an ufuqueue maintaining debug-allocation counts. */
-+static __inline__
-+struct vlocator * ufuqueue_alloc (void)
-+{
-+	struct ufuqueue *ufuqueue;
-+	ufuqueue = kmem_cache_alloc (ufuqueue_slab, GFP_KERNEL);
-+	if (DEBUG > 0 && ufuqueue != NULL)
-+		ldebug (1, "ufuqueue %p allocated, total: %d\n",
-+			ufuqueue, allocated_inc());
-+	return &ufuqueue->vlocator;
++	unsigned result;
++	asm __volatile__ (
++		"lock cmpxchg %3, %1"
++		: "=a" (result), "+m" ((*value))
++		: "a" (old_value), "r" (new_value)
++		: "memory");
++	return result == old_value;
 +}
 +
 +
 +/**
-+ * Create a ufuqueue that is going to be inserted to the hash
-+ * [called from vlocator.c:vl_locate() throught the vlocator ops]
-+ */
-+static
-+void ufuqueue_create (struct vlocator *vl, struct page *page,
-+		      const union futex_key *key, unsigned flags)
-+{
-+	memcpy (&vl->key, key, sizeof (*key));
-+	get_key_refs (&vl->key);
-+}
-+
-+
-+/** Free an ufuqueue maintaining debug-allocation counts. */
-+static __inline__
-+void ufuqueue_release (struct vlocator *vl)
-+{
-+	drop_key_refs (&vl->key);
-+}
-+
-+
-+/** Free an ufuqueue maintaining debug-allocation counts. */
-+static __inline__
-+void ufuqueue_free (struct vlocator *vl)
-+{
-+	struct ufuqueue *ufuqueue =
-+		container_of (vl, struct ufuqueue, vlocator);
-+	kmem_cache_free (ufuqueue_slab, ufuqueue);
-+	if (DEBUG > 0 && ufuqueue != NULL)
-+		ldebug (1, "ufuqueue %p freed, total: %d\n",
-+			ufuqueue, allocated_dec());
-+}
-+
-+
-+struct vlocator_ops ufuqueue_vops = {
-+	.alloc = ufuqueue_alloc,
-+	.create = ufuqueue_create,
-+	.release = ufuqueue_release,
-+	.free = ufuqueue_free
-+};
-+
-+
-+/**
-+ * Wait on a fuqueue
++ * Set an ufulock's associated value.
 + *
-+ * @_vfuqueue: address in user space of the condvar
-+ * @cond_flags: flags for the conditional variable
-+ * @_vfulock: address in user space of the fulock.
-+ * @lock_flags: flags for the fulock.
-+ * @_timeout: timeout information [see sys_ufulock_lock()]
++ * @vfulock: Pointer to the address of the ufulock to contain for.
++ * @value:    New value to assign.
 + *
-+ * This is just a thin shell that locates the kernel descriptors for
-+ * the condvar and the lock and then handles the work to
-+ * ufuqueue_wait().
++ * Wrapper for arch-specific idiosyncrasies when setting a value that
++ * is shared across different address mappings.
 + */
-+asmlinkage
-+int sys_ufuqueue_wait (volatile unsigned __user *_vfuqueue,
-+		       unsigned val, struct timespec __user *_timeout)
++static inline
++void vfulock_set (volatile unsigned *vfulock, unsigned value)
 +{
-+	int result = -EINVAL;
-+	struct ufuqueue *ufuqueue;
-+	struct page *page;
-+	char *page_kmap;
-+	volatile unsigned *vfuqueue;
-+	unsigned new_val;
-+	struct vlocator *vl;
-+	signed long timeout;
-+        struct fuqueue_waiter w;
-+		
-+	ftrace ("(%p, %x, %p)\n", _vfuqueue, val, _timeout);
-+	might_sleep();
-+
-+	/* ufuqueue: pin pages, get keys, look up/allocate, refcount */
-+	result = vl_locate (&page, &vl, &ufuqueue_vops, _vfuqueue, 0);
-+	if (unlikely (result < 0))
-+		goto out;
-+	ufuqueue = container_of (vl, struct ufuqueue, vlocator);
-+	/* We are going to lock the ufuqueue, so get the timeout first */
-+	timeout = ufu_timespec2jiffies (_timeout);
-+	result = (int) timeout;
-+	if (timeout < 0)
-+		goto out_put_vl;
-+	
-+	spin_lock_irq (&ufuqueue->fuqueue.lock);
-+	__fuqueue_wait_queue (&ufuqueue->fuqueue, &w);
-+	/* Now, are we ok with the value? */
-+	page_kmap = kmap_atomic (page, KM_IRQ0);
-+	vfuqueue = (volatile unsigned *)page_kmap + (vl->key.both.offset & ~1);
-+	new_val = *vfuqueue;
-+	kunmap_atomic (page_kmap, KM_IRQ0);
-+	result = -EWOULDBLOCK;
-+	if (val != new_val)
-+		goto out_unqueue;
-+	/* ok, go ahead and wait (it will unlock and restore irqs/preempt */
-+	return __fuqueue_wait_block (&ufuqueue->fuqueue, &w, timeout);
-+
-+out_unqueue:
-+	__fuqueue_wait_unqueue (&w, 0);
-+	spin_unlock_irq (&ufuqueue->fuqueue.lock);
-+out_put_vl:
-+	vl_put (vl);
-+	put_page (page);
-+out:
-+	return result;
++	*vfulock = value;
 +}
 +
-+	
-+/**
-+ * Wake up waiters of a fuqueue
-+ *
-+ * @_vfuqueue: pointer to the fuqueue
-+ * @howmany: number of waiters to wake up
-+ * @code: code to return to the waiters [default it to zero]
-+ * @returns: 0 if ok, < 0 errno code on error.
-+ */
-+asmlinkage
-+int sys_ufuqueue_wake (volatile unsigned __user *_vfuqueue,
-+		       size_t howmany, int code)
-+{
-+	int result;
-+	struct vlocator *vl;
-+	struct ufuqueue *ufuqueue;
-+	
-+	ftrace ("(%p, %u)\n", _vfuqueue, howmany);
-+	might_sleep();
-+	
-+	/* ufuqueue: get keys, look up (don't allocate), refcount */
-+	result = vl_locate (NULL, &vl, NULL, _vfuqueue, 0);
-+	if (result < 0)
-+		goto out;
-+	ufuqueue = container_of (vl, struct ufuqueue, vlocator);
-+	/* Wake'en up */
-+	spin_lock_irq (&ufuqueue->fuqueue.lock);
-+	__fuqueue_wake (&ufuqueue->fuqueue, howmany, code);
-+	spin_unlock_irq (&ufuqueue->fuqueue.lock);
-+	vl_put (vl);
-+	result = 0;
-+out:
-+	return result;
-+}
-+
-+
-+/** Initialize the ufuqueue subsystem. */
-+static
-+int __init subsys_ufuqueue_init (void)
-+{
-+	ufuqueue_slab = kmem_cache_create ("ufuqueue", sizeof (struct ufuqueue),
-+					  0, 0, ufuqueue_ctor, NULL);
-+	if (ufuqueue_slab == NULL) 
-+		panic ("ufuqueue_init(): "
-+		       "Unable to initialize ufuqueue slab allocator.\n");
-+	return 0;
-+}
-+__initcall (subsys_ufuqueue_init);
-+
-+
-+/* Adaptors for fulock operations */
-+static
-+void ufuqueue_put (struct fuqueue *fuqueue) 
-+{
-+	struct ufuqueue *ufuqueue =
-+		container_of (fuqueue, struct ufuqueue, fuqueue);
-+	vl_put (&ufuqueue->vlocator);
-+}
-+
-+static
-+void ufuqueue_get (struct fuqueue *fuqueue) 
-+{
-+	struct ufuqueue *ufuqueue =
-+		container_of (fuqueue, struct ufuqueue, fuqueue);
-+	vl_get (&ufuqueue->vlocator);
-+}
-+
-+/** Ufuqueue operations */
-+static
-+struct fuqueue_ops ufuqueue_ops = {
-+	.get = ufuqueue_get,
-+	.put = ufuqueue_put,
-+	.wait_cancel = __fuqueue_wait_cancel,
-+	.chprio = __fuqueue_chprio
-+};
-+
++#endif /* #ifdef __KERNEL__ */
++#endif /* #ifndef __asm_i386_fulock_h__ */
+--- linux/include/asm-i386/unistd.h:1.1.1.5	Mon Oct 20 13:55:33 2003
++++ linux/include/asm-i386/unistd.h	Fri Nov 21 13:26:01 2003
+@@ -279,8 +279,13 @@
+ #define __NR_utimes		271
+ #define __NR_fadvise64_64	272
+ #define __NR_vserver		273
++#define __NR_ufulock_lock	274
++#define __NR_ufulock_unlock	275
++#define __NR_ufulock_consistency	276
++#define __NR_ufuqueue_wait	277
++#define __NR_ufuqueue_wake	278
+ 
+-#define NR_syscalls 274
++#define NR_syscalls 279
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 

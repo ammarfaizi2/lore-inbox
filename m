@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313117AbSC1J3F>; Thu, 28 Mar 2002 04:29:05 -0500
+	id <S313120AbSC1JaP>; Thu, 28 Mar 2002 04:30:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313115AbSC1J24>; Thu, 28 Mar 2002 04:28:56 -0500
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:32201 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S313118AbSC1J2l>; Thu, 28 Mar 2002 04:28:41 -0500
-Date: Thu, 28 Mar 2002 10:28:32 +0100 (CET)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeremy Jackson <jerj@coplanar.net>, Andre Hedrick <andre@linux-ide.org>,
-        Benjamin LaHaise <bcrl@redhat.com>,
-        Erik Andersen <andersen@codepoet.org>, Jos Hulzink <josh@stack.nl>,
-        jw schultz <jw@pegasys.ws>, <linux-kernel@vger.kernel.org>
-Subject: Re: IDE and hot-swap disk caddies
-In-Reply-To: <E16qWI0-0007Hb-00@the-village.bc.nu>
-Message-Id: <Pine.LNX.4.44.0203281026440.24196-100000@phobos>
+	id <S313119AbSC1JaG>; Thu, 28 Mar 2002 04:30:06 -0500
+Received: from vaak.stack.nl ([131.155.140.140]:39174 "HELO mailhost.stack.nl")
+	by vger.kernel.org with SMTP id <S313118AbSC1J3r>;
+	Thu, 28 Mar 2002 04:29:47 -0500
+Date: Thu, 28 Mar 2002 10:29:45 +0100 (CET)
+From: Jos Hulzink <josh@stack.nl>
+To: Erik Andersen <andersen@codepoet.org>
+Cc: Andre Hedrick <andre@linux-ide.org>, jw schultz <jw@pegasys.ws>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: DE and hot-swap disk caddies
+In-Reply-To: <20020328001709.GA16582@codepoet.org>
+Message-ID: <20020328102239.N5099-100000@toad.stack.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Mar 2002, Alan Cox wrote:
+On Wed, 27 Mar 2002, Erik Andersen wrote:
 
-> > -PCMCIA has electrical hot swap support...?
+> Ok.  How about my laptop?  I have an ATAPI zip drive I can plug
+> in instead of a second battery.  It is the only device on the
+> second IDE bus (hdc).  In windows there is a little hotplug
+> utility thing one runs before unplugging the zip drive.  In Linux
+> I currently have to reboot if I want the ide-floppy driver to see
+> the device...  I'm willing to bet that Dell has done mysterious
+> stuff to make the electrical part work.  It would sure be nice if
+> I could ask the ide driver to kindly re-scan for /dev/hdc now.
+>
+> Is whatever windows is doing when I hotplug my zip drive somehow
+> unsafe, such that supporting the same functionality on Linux is
+> somehow a Bad Thing(tm)?
 
-> Yes - but PCMCIA is effectively hot swap ISA bus, the controller is on
-> the pcmcia card - different ball game
+Erik,
 
-It would be cool if that were unified. The Amiga people use 1:1 adaptors
-for CD-ROMs (besides, the PCMCIA port in the Amiga is the second IDE
-channel)...
+I can't say from here. My guess is that the chipset has an extension to
+the ATA standard that allows hot plugging. Your CDrom behaves like a
+normal IDE device, which doesn't mean it is one :) For your hotpluggable
+device support, we'll need info about the chipset your laptop uses, and
+the cdrom drive. Maybe Dell is willing to help us out here.
 
-   Simon
+Jos
 
--- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: 040E B5F7 84F1 4FBC CEAD  ADC6 18A0 CC8D 5706 A4B4
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
 

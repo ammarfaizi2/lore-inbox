@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281016AbRKGVpo>; Wed, 7 Nov 2001 16:45:44 -0500
+	id <S281020AbRKGVsI>; Wed, 7 Nov 2001 16:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281015AbRKGVpU>; Wed, 7 Nov 2001 16:45:20 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:33543 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S281006AbRKGVof>;
-	Wed, 7 Nov 2001 16:44:35 -0500
-Message-ID: <3BE9AB3A.DFC6855F@lexus.com>
-Date: Wed, 07 Nov 2001 13:44:27 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rpjday <rpjday@mindspring.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.4.14 compiling fail for loop device
-In-Reply-To: <Pine.LNX.4.33.0111070656540.4140-100000@localhost.localdomain>
+	id <S280954AbRKGVqj>; Wed, 7 Nov 2001 16:46:39 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:47867 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280980AbRKGVqL>;
+	Wed, 7 Nov 2001 16:46:11 -0500
+Date: Wed, 7 Nov 2001 14:45:55 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 vs resizerfs vs xfs
+Message-ID: <20011107144555.N5922@lynx.no>
+Mail-Followup-To: Ville Herva <vherva@niksula.hut.fi>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E161UYR-0004S5-00@the-village.bc.nu> <E161Vbf-0000m9-00@lilac.csi.cam.ac.uk> <20011107213837.F26218@niksula.cs.hut.fi> <E161ZYW-0006ky-00@mauve.csi.cam.ac.uk> <20011107141157.L5922@lynx.no> <20011107233731.N1504@niksula.cs.hut.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011107233731.N1504@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Wed, Nov 07, 2001 at 11:37:31PM +0200
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rpjday wrote:
+On Nov 07, 2001  23:37 +0200, Ville Herva wrote:
+> On Wed, Nov 07, 2001 at 02:11:57PM -0700, [Andreas Dilger] said:
+> > If you have an open but unlinked file, then ext3 will delete this file at
+> > mount/fsck time (unlike reiserfs which leaves it around wasting space).
+> 
+> Is this really still true for reiserfs? Is there a way to get rid of them?
+> reiserfsck? I had this vague impression that this bug had been dealt with
 
-> On Wed, 7 Nov 2001, J Sloan wrote:
->
-> > "Mohammad A. Haque" wrote:
-> >
-> > > On Wednesday, November 7, 2001, at 03:49 PM, Roeland Th. Jansen wrote:
-> > >
-> > > > when mounting an EFS cd on the loop it also froze. this is _without_
-> > > > removing the lines. ...
-> > >
-> > > I'm a little confused. How did you even get a working kernel (or module)
-> > > without removing the lines?
-> > >
-> >
-> > Probably compiled it modular -
->
-> if you try to compile it modular, the "make modules" will work, but
-> the "make modules_install" will choke after copying the modules under
-> /lib/modules when it tries to run the final "depmod" at the end.
->
-> so, yes, i'm curious -- how did he get a final kernel and modules
-> without removing those lines?
+It may be fixed by now, but it wasn't for a long time.  I'm not sure what
+reiserfs patches are in the stock kernel anymore.
 
-I got a kernel and modules without removing those
-lines - it complains at depmod, but the kernel and
-modules do build and install -
-
-I didn't ever boot to that kernel since the warning
-bothered me, and I fixed the source and recompiled
-before booting into 2.4.14 -
-
-cu
-
-jjs
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

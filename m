@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUHELsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUHELwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267648AbUHELsw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 07:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUHELsw
+	id S267651AbUHELwd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 07:52:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267657AbUHELwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 07:48:52 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:1784 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S267648AbUHELss
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 07:48:48 -0400
-Subject: Re:  secure computing for 2.6.7
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: flx@msu.ru
-Cc: Hans Reiser <reiser@namesys.com>, andrea@cpushare.com,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040803210239.GB7236@alias.nmd.msu.ru>
-References: <20040704173903.GE7281@dualathlon.random>
-	 <40EC4E96.9090800@namesys.com>
-	 <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
-	 <20040803210239.GB7236@alias.nmd.msu.ru>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1091706433.11061.9.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 5 Aug 2004 07:52:19 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:40913 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267653AbUHELt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 07:49:56 -0400
+Date: Thu, 5 Aug 2004 13:49:49 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, perex@suse.cz
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: 2.6.8-rc3-mm1: ALSA: vortex_asXtalkGainsAllChan multiple definitions
+Message-ID: <20040805114949.GE2746@fs.tum.de>
+References: <20040805031918.08790a82.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 05 Aug 2004 07:47:13 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-03 at 17:02, Alexander Lyamin wrote:
-> convinience ? speed ?
-> 
-> 
-> RBAC is a Good Thing, but I wonder if it could provide throughout syntax analysis
-> for vfs related syscalls. As it is now.
-> 
-> At least what declared in their docs, fs-wise they are somewhat like this
-> 
-> Macro Name	Description
-> stat_file_perms	Permissions to call stat or access on a file.
-> x_file_perms	Permissions to execute a file.
-> r_file_perms	Permissions to read a file.
-> rx_file_perms	Permissions to read and execute a file.
-> rw_file_perms	Permissions to read and write a file.
-> ra_file_perms	Permissions to read and append to a file.
-> link_file_perms	Permissions to link, unlink, or rename a file.
-> create_file_perms	Permissions to create, access, and delete a file.
-> r_dir_perms	Permissions to read and search a directory.
-> rw_dir_perms	Permissions to read and modify a directory.
-> ra_dir_perms	Permissions to read and add entries to a directory.
-> create_dir_perms	Permissions to create, access, and delete a directory.
-> mount_fs_perms	Permissions to mount and unmount a filesystem.
+On Thu, Aug 05, 2004 at 03:19:18AM -0700, Andrew Morton wrote:
+>...
+> All 450 patches
+>...
+> bk-alsa.patch
+>...
 
-I'm not sure I understand what you are trying to say.  What you list
-above are common sets of permissions defined as macros for convenience,
-but you still have the freedom to specify individual permissions.
-  
+The following compile error is still present in 2.6.8-rc3-mm1:
+
+<--  snip  -->
+
+...
+  CC      sound/pci/au88x0/au8810.o
+  CC      sound/pci/au88x0/au8820.o
+  CC      sound/pci/au88x0/au8830.o
+  LD      sound/pci/au88x0/snd-au8810.o
+  LD      sound/pci/au88x0/snd-au8820.o
+  LD      sound/pci/au88x0/snd-au8830.o
+  LD      sound/pci/au88x0/built-in.o
+sound/pci/au88x0/snd-au8830.o(.rodata+0xd46): multiple definition of 
+`vortex_asXtalkGainsAllChan'
+sound/pci/au88x0/snd-au8810.o(.rodata+0xb66): first defined here
+make[3]: *** [sound/pci/au88x0/built-in.o] Error 1
+
+<--  snip  -->
+
+
+cu
+Adrian
+
 -- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

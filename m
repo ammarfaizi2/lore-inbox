@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270847AbRHNUwx>; Tue, 14 Aug 2001 16:52:53 -0400
+	id <S270844AbRHNUvx>; Tue, 14 Aug 2001 16:51:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270843AbRHNUwn>; Tue, 14 Aug 2001 16:52:43 -0400
-Received: from mail2.aracnet.com ([216.99.193.35]:50181 "EHLO
-	mail2.aracnet.com") by vger.kernel.org with ESMTP
-	id <S270841AbRHNUwc>; Tue, 14 Aug 2001 16:52:32 -0400
-Date: Tue, 14 Aug 2001 13:52:35 -0700 (PDT)
-From: Paul Buder <paulb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <hiryuu@envisiongames.net>
-Subject: tmpfs works! was Large ramdisk crashes 2.4.8
-Message-ID: <Pine.LNX.4.33.0108141350340.15748-100000@shell1.aracnet.com>
+	id <S270843AbRHNUvn>; Tue, 14 Aug 2001 16:51:43 -0400
+Received: from shad0w.dial.nildram.co.uk ([195.112.18.51]:57097 "EHLO
+	mail.shad0w.org.uk") by vger.kernel.org with ESMTP
+	id <S270845AbRHNUvc>; Tue, 14 Aug 2001 16:51:32 -0400
+Date: Tue, 14 Aug 2001 21:54:09 +0100 (BST)
+From: Chris Crowther <chrisc@shad0w.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CDP handler for linux
+In-Reply-To: <E15Wkcc-0001r2-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108142137300.3810-100000@monolith.shad0w.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian <hiryuu@envisiongames.net> writes:
+On Tue, 14 Aug 2001, Alan Cox wrote:
 
->Not that this condition should occur, but is this task something that
->could be done in tmpfs?  Does tmpfs exhibit the same problems?
+> It looks well written. I do have only one question, other than "because
+> I wanted to learn how to do it this way", is there a reason for putting
+> this into kernel space not a daemon ?
 
-I hadn't heard of tmpfs but it seems to work great.  There doesn't
-seem to be much documentation on it though.  I need two ram filesystems
-in my box, and no hard disk. It boots off cdrom.  So with a 128 meg
-experimental box I tried the following.
+	Hmm, looking at CDP there isn't really any reason to put it in
+userspace either, it doesn't need to be configured, it doesn't pass
+anything the way of the user, except by way of the output of (currently)
+/proc/net/cdp_neighbors, and it doesn't need the user to interact with it
+either - it just sits there, collecting and sending information.  The only
+thing you would really need in userspace, would be tools to read
+information from the cdp handler if you wanted to do more than just look
+at the neighbor summary.  I can't see any real advantages of running it as
+a daemon as opposed to a kernel component.
 
-swapoff -a
-mount -t tmpfs -osize=35M /dev/shm1 /mnt1
-mount -t tmpfs -osize=35M /dev/shm2 /mnt2
-dd if=/dev/zero of=/mnt1/junk bs=1024000 count=100
-dd if=/dev/zero of=/mnt2/junk bs=1024000 count=100
+	This said, if the consesus is that it belongs in userspace, I
+shall set about porting the code over to a dameon and possibly maintaing
+the kernel patch as a secondary "hobby project".
 
-It seems to work but I'm a little worried about the /dev/shm1 and 2.
-It doesn't seem to matter if they even exist or not, they don't seem to
-do anything.  Is this just placeholder candy for fstab and the mount
-command, or am I missing something?
-
-
-
-
->	-- Brian
-
->On Saturday 11 August 2001 04:10 pm, Paul Buder wrote:
->> A large ramdisk will either crash or make useless a
->> 2.4.8 kernel.  I did the following.
->>
->> I cleared out buffered memory by running this till it
->> appropiately died.
->> perl -e "$x='x' x 10000 while 1"
->>
->> top then said I was using 7 megs of ram on my 128 meg box.
-
+-- 
+Chris "_Shad0w_" Crowther
+chrisc@shad0w.org.uk
+http://www.shad0w.org.uk/
 

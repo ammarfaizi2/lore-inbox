@@ -1,377 +1,226 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131550AbRCQFfx>; Sat, 17 Mar 2001 00:35:53 -0500
+	id <S131554AbRCQGSa>; Sat, 17 Mar 2001 01:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131554AbRCQFfo>; Sat, 17 Mar 2001 00:35:44 -0500
-Received: from Xenon.Stanford.EDU ([171.64.66.201]:689 "EHLO
-	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S131550AbRCQFfa>; Sat, 17 Mar 2001 00:35:30 -0500
-Date: Fri, 16 Mar 2001 21:34:44 -0800
-From: Andy Chou <acc@CS.Stanford.EDU>
+	id <S131557AbRCQGSU>; Sat, 17 Mar 2001 01:18:20 -0500
+Received: from elaine23.Stanford.EDU ([171.64.15.98]:40355 "EHLO
+	elaine23.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S131554AbRCQGSR>; Sat, 17 Mar 2001 01:18:17 -0500
+Date: Fri, 16 Mar 2001 22:17:30 -0800
+From: Seth Andrew Hallem <shallem@Stanford.EDU>
 To: linux-kernel@vger.kernel.org
-Cc: mc@CS.Stanford.EDU
-Subject: [CHECKER] 16 potential locking bugs in 2.4.1
-Message-ID: <20010316213444.A3592@Xenon.Stanford.EDU>
-Reply-To: acc@CS.Stanford.EDU
+Subject: Potential free/use-after-free bugs
+Message-ID: <20010316221730.B17586@elaine23.stanford.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.1.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some more results from the MC project.  These are 16 errors found
-in 2.4.1 related to inconsistent use of locks.  As usual, if you can
-verify any of these or show that they are false positives, please let us
-know by CC'ing mc@cs.stanford.edu.
+Hello,
 
--Andy Chou
+I am another student of Dawson Engler's working on the meta-level
+compilation project.  I have just finished processing the results of a
+checker which looks for double frees and use-after-frees.  I think we have
+found 12-14 bugs.  I also have some questions regarding skbs.  Our checker
+found a lot of instances where the skb is freed, then its length field is
+accessed.  I have included an example location below.  Is this a bug or
+not?  It appears that the length field is not cleared as the skbs are
+referenced counted and the state clearing leaves the length alone.  I am
+unsure as to whether this is a bug, bad practice, or just fine, though.
+Any help would be appreciated.  Thanks.
 
-PS.  I noticed that many of the locking errors I sent out previously for
-2.3.99-pre6 were fixed.  Others remain still, and some of these may have
-been reported earlier.
+Seth Hallem
 
-Where the bugs are:
+==========================================================================
+[BUG] Returns a freed pointer.  Probably bad but I'm not sure.
+/home/shallem/oses/linux/2.4.1/fs/proc/generic.c:438:proc_symlink:
+ERROR:FREE:430:438: WARN: Use-after-free of "ent"! set by 'kfree':430
 
-+---------------------------------+----------------------------+
-| file                            | fn                         |
-+---------------------------------+----------------------------+
-| drivers/char/cyclades.c         | cyy_interrupt              |
-| drivers/i2o/i2o_block.c         | i2ob_del_device            |
-| drivers/media/video/saa7110.c   | saa7110_write_block        |
-| drivers/mtd/cfi_cmdset_0001.c   | cfi_intelext_suspend       |
-| drivers/mtd/cfi_cmdset_0002.c   | cfi_amdext_suspend         |
-| drivers/net/de4x5.c             | de4x5_interrupt            |
-| drivers/net/pcmcia/wavelan_cs.c | wavelan_get_wireless_stats |
-| drivers/net/sk98lin/skge.c      | SkGeChangeMtu              |
-| drivers/net/wan/lmc/lmc_main.c  | lmc_ioctl                  |
-| drivers/net/wan/lmc/lmc_main.c  | lmc_watchdog               |
-| drivers/scsi/qla1280.c          | qla1280_intr_handler       |
-| drivers/sound/cmpci.c           | cm_midi_release            |
-| drivers/sound/trident.c         | trident_release            |
-| fs/coda/psdev.c                 | coda_psdev_open            |
-| fs/nfsd/vfs.c                   | nfsd_link                  |
-| fs/nfsd/vfs.c                   | nfsd_symlink               |
-+---------------------------------+----------------------------+
-
-Listing:
------------------------------------------------------------------------------
-[BUG]
-/u2/acc/oses/linux/2.3.99-pre6/drivers/net/sk98lin/skge.c:2511:SkGeChangeMtu: ERROR:LOCK:2418:2511: Inconsistent
-lock using `spin_lock':2418
-
-Flags variable re-used.
-
-static int SkGeChangeMtu(struct net_device *dev, int NewMtu)
-{
-	...
---> Use "Flags"
-	spin_lock_irqsave(&pAC->SlowPathLock, Flags);
-	SkEventQueue(pAC, SKGE_RLMT, SK_RLMT_STOP, EvPara);
-	SkEventDispatcher(pAC, pAC->IoBase);
-
-	for (i=0; i<pAC->GIni.GIMacsFound; i++) {
---> Re-use of "Flags"
-		spin_lock_irqsave(
-			&pAC->TxPort[i][TX_PRIO_LOW].TxDesRingLock,
-Flags);
-	}
-	...
-	for (i=pAC->GIni.GIMacsFound-1; i>=0; i--) {
---> Restore bogus "Flags"
-		spin_unlock_irqrestore(
-			&pAC->TxPort[i][TX_PRIO_LOW].TxDesRingLock,
-Flags);
-	}
-
---> Restore bogus "Flags" again
-	spin_unlock_irqrestore(&pAC->SlowPathLock, Flags);
-	
-	return 0;
-} /* SkGeChangeMtu */
-
-
------------------------------------------------------------------------------
-[BUG] error condition
-/u2/acc/oses/linux/2.4.1/drivers/i2o/i2o_block.c:1496:i2ob_del_device: ERROR:LOCK:1416:1496: Inconsistent
-lock using `spin_lock':1416
-
-void i2ob_del_device(struct i2o_controller *c, struct i2o_device *d)
-{	
---> Lock
-	spin_lock_irqsave(&io_request_lock, flags);
-	...
-	if(unit >= MAX_I2OB<<4)
-	{
-		printk(KERN_ERR "i2ob_del_device called, but not in dev
-table!\n");
---> Forgot to unlock
-		return;
-	}
-	...
-}
-
------------------------------------------------------------------------------
-[BUG] GEM continue statement causes potential double lock
-/u2/acc/oses/linux/2.4.1/drivers/char/cyclades.c:1174:cyy_interrupt: ERROR:LOCK:1174:1174: Double
-lock using `spin_lock':1174
-
-static void
-cyy_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-{
-    do{
-        had_work = 0;
-        for ( chip = 0 ; chip < cinfo->num_chips ; chip ++) {
-	    ...
-            while ( (status = cy_readb(base_addr+(CySVRR<<index))) !=
-0x00) {
-		...
-                if (status & CySRReceive) { /* reception interrupt */
-		    ...
---> Lock
-		    spin_lock(&cinfo->card_lock);
-		    ...
-                    if(info->tty == 0){
-			...
-                    }else{ /* there is an open port for this data */
-			...
-                        if ( j == CyIVRRxEx ) { /* exception */
-			    ...
-                            if(data & info->ignore_status_mask){
-				info->icount.rx++;
---> May cause double lock?
-                                continue;
-                            }
-                            if (tty->flip.count < TTY_FLIPBUF_SIZE){
-
-
------------------------------------------------------------------------------
-[BUG] forgot to unlock
-/u2/acc/oses/linux/2.4.1/drivers/media/video/saa7110.c:92:saa7110_write_block: ERROR:LOCK:79:92: Inconsistent
-lock using `spin_lock':79
-
-static
-int saa7110_write_block(struct saa7110* decoder, unsigned const char
-*data, unsigned int len)
-{
---> Lock
-	LOCK_I2C_BUS(decoder->bus);
-        i2c_start(decoder->bus);
-        i2c_sendbyte(decoder->bus,decoder->addr,I2C_DELAY);
-	while (len-- > 0) {
-                if (i2c_sendbyte(decoder->bus,*data,0)) {
-                        i2c_stop(decoder->bus);
---> Missing Unlock?
-                        return -EAGAIN;
-                }
-		decoder->reg[subaddr++] = *data++;
-        }
-
------------------------------------------------------------------------------
-[BUG] GEM an off-by-one error?
-/u2/acc/oses/linux/2.4.1/drivers/mtd/cfi_cmdset_0001.c:833:cfi_intelext_suspend: ERROR:LOCK:806:833: Double
-lock using `spin_lock':806
-
-static int cfi_intelext_suspend(struct mtd_info *mtd)
-{
-	...
-	for (i=0; !ret && i<cfi->numchips; i++) {
-		chip = &cfi->chips[i];
-
---> Lock
-		spin_lock_bh(chip->mutex);
-
-		switch(chip->state) {
-		    ...
-		default:
---> This leaves cfi->chips[i].mutex locked, exits switch statement,
-increments i
-			ret = -EAGAIN;
-			break;
-		}
-	}
-
-	/* Unlock the chips again */
-
-	for (i--; i >=0; i--) {
-		chip = &cfi->chips[i];
-
---> Double lock: decrements i, then re-locks the previous
-cfi->chips[i].mutex
-		spin_lock_bh(chip->mutex);
-		...
+Start --->
+		kfree(ent);
+		goto out;
 	}
 	
-	return ret;
-}
-
------------------------------------------------------------------------------
-[BUG] cut-and-paste same as the other bug above
-/u2/acc/oses/linux/2.4.1/drivers/mtd/cfi_cmdset_0002.c:569:cfi_amdext_suspend: ERROR:LOCK:542:569: Double
-lock using `spin_lock':542
------------------------------------------------------------------------------
-[BUG] leave locked and intr disabled on bus error
-/u2/acc/oses/linux/2.4.1/drivers/net/de4x5.c:1665:de4x5_interrupt: ERROR:LOCK:1631:1665: Inconsistent
-lock using `spin_lock':1631
-
-static void
-de4x5_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-{
-    ...
---> Lock
-    spin_lock(&lp->lock);
-    ...	
-    for (limit=0; limit<8; limit++) {
-	...	    
-	if (sts & STS_SE) {              /* Bus Error */
-	    STOP_DE4X5;
-	    printk("%s: Fatal bus error occurred, sts=%#8x, device
-stopped.\n",
-		   dev->name, sts);
---> Missing unlock?
-	    return;
-	}
-    }
-
------------------------------------------------------------------------------
-[BUG] error condition
-/u2/acc/oses/linux/2.4.1/drivers/net/pcmcia/wavelan_cs.c:2561:wavelan_get_wireless_stats: ERROR:LOCK:2528:2561: Inconsistent
-lock using `spin_lock':2528
-
-static iw_stats *
-wavelan_get_wireless_stats(device *	dev)
-{
-  ...
---> Lock
-  spin_lock_irqsave (&lp->lock, flags);
-
-  if(lp == (net_local *) NULL)
---> Missing unlock?
-    return (iw_stats *) NULL;
-
------------------------------------------------------------------------------
-[BUG] the LMC_COPY_TO_USER, LMC_COPY_FROM_USER macros can return, holding
-lock
-/u2/acc/oses/linux/2.4.1/drivers/net/wan/lmc/lmc_main.c:644:lmc_ioctl: ERROR:LOCK:171:644: Inconsistent
-lock using `spin_lock':171
------------------------------------------------------------------------------
-[BUG] error condition
-/u2/acc/oses/linux/2.4.1/drivers/net/wan/lmc/lmc_main.c:823:lmc_watchdog: ERROR:LOCK:661:823: Inconsistent
-lock using `spin_lock':661
-
-/* the watchdog process that cruises around */
-static void lmc_watchdog (unsigned long data) /*fold00*/
-{
---> Lock
-    spin_lock_irqsave(&sc->lmc_lock, flags);
-
-    if(sc->check != 0xBEAFCAFE){
-        printk("LMC: Corrupt net_device stuct, breaking out\n");
---> Missing unlock?
-        return;
-    }
-
------------------------------------------------------------------------------
-[BUG] error condition
-/u2/acc/oses/linux/2.4.1/drivers/scsi/qla1280.c:1594:qla1280_intr_handler: ERROR:LOCK:1522:1594: Inconsistent
-lock using `spin_lock':1522
-
-void qla1280_intr_handler(int irq, void *dev_id, struct pt_regs *regs)
-{
---> Lock
-    spin_lock_irqsave(&io_request_lock, cpu_flags);
-    if(test_and_set_bit(QLA1280_IN_ISR_BIT, &ha->flags))
-    {
-        COMTRACE('X')
---> Missing unlock?
-        return;
-    }
-
------------------------------------------------------------------------------
-[BUG] error condition
-/u2/acc/oses/linux/2.4.1/drivers/sound/cmpci.c:2073:cm_midi_release: ERROR:LOCK:2058:2073: Inconsistent
-lock using `lock_kernel':2058
-
-static int cm_midi_release(struct inode *inode, struct file *file)
-{
---> Lock
-	lock_kernel();
-	if (file->f_mode & FMODE_WRITE) {
-		add_wait_queue(&s->midi.owait, &wait);
-		for (;;) {
-			set_current_state(TASK_INTERRUPTIBLE);
-			...
-			if (file->f_flags & O_NONBLOCK) {
-				remove_wait_queue(&s->midi.owait, &wait);
-				set_current_state(TASK_RUNNING);
---> Missing unlock?
-				return -EBUSY;
-			}
-
------------------------------------------------------------------------------
-[BUG] GEM return hidden in macro
-/u2/acc/oses/linux/2.4.1/drivers/sound/trident.c:2165:trident_release: ERROR:LOCK:2130:2165: Inconsistent
-lock using `lock_kernel':2130
-
-static int trident_release(struct inode *inode, struct file *file)
-{
---> Lock
-	lock_kernel();
-	...
---> Macro may return
-	VALIDATE_STATE(state);
-
------------------------------------------------------------------------------
-[BUG] error condition
-/u2/acc/oses/linux/2.4.1/fs/coda/psdev.c:313:coda_psdev_open: ERROR:LOCK:290:313: Inconsistent
-lock using `lock_kernel':290
-
-static int coda_psdev_open(struct inode * inode, struct file * file)
-{
---> Lock
-	lock_kernel();
-	...
-	if(idx >= MAX_CODADEVS)
---> Missing unlock?
-		return -ENODEV;
-	...
-	if(vcp->vc_inuse)
---> Missing unlock?
-		return -EBUSY;
-	
------------------------------------------------------------------------------
-[BUG] goto jumps out without unlocking
-/u2/acc/oses/linux/2.4.1/fs/nfsd/vfs.c:1166:nfsd_symlink: ERROR:LOCK:1136:1166: Inconsistent
-lock using `fh_lock':1136
-
-int
-nfsd_symlink(struct svc_rqst *rqstp, struct svc_fh *fhp,
-				char *fname, int flen,
-				char *path,  int plen,
-				struct svc_fh *resfhp,
-				struct iattr *iap)
-{
-	...
---> Lock
-	fh_lock(fhp);
-	...
-	if (IS_ERR(dnew))
---> Jump
-		goto out_nfserr;
-	...
 out:
---> Missing unlock?
-	return err;
-
-out_nfserr:
-	err = nfserrno(err);
---> Jump
-	goto out;
+Error --->
+	return ent;
+}
 
 
------------------------------------------------------------------------------
-[BUG] goto jumps out with lock
-/u2/acc/oses/linux/2.4.1/fs/nfsd/vfs.c:1227:nfsd_link: ERROR:LOCK:1199:1227: Inconsistent
-lock using `fh_lock':1199
+[BUG] Potential double or more free.
+/home/shallem/oses/linux/2.4.1/drivers/usb/serial/belkin_sa.c:236:belkin_sa_shutdown:
+ERROR:FREE:237:236: Use-after-free of 'private'! set by 'kfree':237
 
-Same as above bug.
+		}
+		/* My special items, the standard routines free my urbs */
+		if (serial->port->private)
+Error --->
+Start --->
+			kfree(serial->port->private);
+	}
 
+[BUG] Copy paste of above potential bug.
+/home/shallem/oses/linux/2.4.1/drivers/usb/serial/mct_u232.c:277:mct_u232_shutdown:
+ERROR:FREE:278:277: Use-after-free of 'private'! set by 'kfree':278
+
+[BUG]
+/home/shallem/oses/linux/2.4.1/drivers/sound/sound_core.c:178:sound_insert_unit:
+ERROR:FREE:171:178: Use-after-free of 's'! set by 'kfree':171
+
+	if(r<0)
+Start --->
+		kfree(s);
+	if (r == low)
+		sprintf (name_buf, "%s", name);
+	else
+		sprintf (name_buf, "%s%d", name, (r - low) / SOUND_STEP);
+	s->de = devfs_register (devfs_handle, name_buf,
+				DEVFS_FL_NONE, SOUND_MAJOR, s->unit_minor,
+Error --->
+				S_IFCHR | mode, fops, NULL);
+	return r;
+
+
+[BUG] Might be okay, but probably not a good idea.  Seems to put scb on
+the free list, then derefs it in the call to ips_send_cmd.  Okay if this
+is not interruptible?
+/home/shallem/oses/linux/2.4.1/drivers/scsi/ips.c:2839:ips_next:
+ERROR:FREE:2818:2839: WARN: Use-after-free of "scb"! set by
+'ips_freescb':2818
+Start --->
+         ips_freescb(ha, scb);
+         break;
+      case IPS_SUCCESS_IMM:
+         if (scb->scsi_cmd) {
+
+	... DELETED lines ...
+
+         IPS_QUEUE_LOCK(&ha->copp_waitlist);
+         continue;
+      }
+
+Error --->
+      ret = ips_send_cmd(ha, scb);
+
+      if (ret == IPS_SUCCESS) {
+
+[BUG] same as above.
+/home/shallem/oses/linux/2.4.1/drivers/scsi/ips.c:2839:ips_next:
+ERROR:FREE:2827:2839: WARN: Use-after-free of "scb"! set by
+'ips_freescb':2827
+
+[BUG] lapbeth_prev is dereferenced on the next iteration through the loop.
+/home/shallem/oses/linux/2.4.1/drivers/net/wan/lapbether.c:116:lapbeth_check_devices:
+ERROR:FREE:113:116: WARN: Use-after-free of "lapbeth"! set by 'kfree':113
+
+Start --->
+			kfree(lapbeth);
+		}
+
+Error --->
+		lapbeth_prev = lapbeth;
+	}	
+
+[BUG] bpq is freed, assigned to another variable (bpq_prev), then
+dereferenced on the next time through the loop.  Analogous to above case
+with lapbeth_prev.
+/home/shallem/oses/linux/2.4.1/drivers/net/hamradio/bpqether.c:196:bpq_check_devices:
+ERROR:FREE:193:196: WARN: Use-after-free of "bpq"! set by 'kfree':193
+
+[BUG] Derefs dev on next iteration unless dev is set to NULL.
+/home/shallem/oses/linux/2.4.1/drivers/net/sundance.c:1233:sundance_remove1:
+ERROR:FREE:1243:1233: Use-after-free of 'dev'! set by 'kfree':1243
+	
+Error --->
+	while (dev) {
+		struct netdev_private *np = (void *)(dev->priv);
+		unregister_netdev(dev);
+#ifdef USE_IO_OPS
+		release_region(dev->base_addr, 
+pci_id_tbl[np->chip_id].io_size);
+#else
+		release_mem_region(pci_resource_start(pdev, 1),
+				   pci_id_tbl[np->chip_id].io_size);
+		iounmap((char *)(dev->base_addr));
+#endif
+Start --->
+		kfree(dev);
+	}
+
+[BUG]
+/home/shallem/oses/linux/2.4.1/drivers/net/rcpci45.c:1265:RC_allocate_and_post_buffers:
+ERROR:FREE:1264:1265: Use-after-free of 'p'! set by 'kfree':1264
+
+Start --->
+    kfree(p);
+Error --->
+    return(p[0]);                /* return the number of posted buffers */
+}
+
+[BUG]
+/home/shallem/oses/linux/2.4.1/drivers/net/irda/nsc-ircc.c:319:nsc_ircc_open:
+ERROR:FREE:318:319: Use-after-free of 'self'! set by 'kfree':318
+
+Start --->
+		kfree(self);
+Error --->
+		kfree(self->rx_buff.head);
+		return -ENOMEM;
+
+[BUG] The use of p is fine, but the derefs of p right after that probably
+are not.  This is not as serious because it is in a print statement in an
+error case.
+/home/shallem/oses/linux/2.4.1/drivers/char/rio/rio_linux.c:1038:rio_init_datastructures:
+ERROR:FREE:1035:1038: WARN: Use-after-free of "p"! set by 'kfree':1035
+
+ free3:kfree (p->RIOPortp);
+ free2:kfree (p->RIOHosts);
+Start --->
+ free1:kfree (p);
+ free0:
+  rio_dprintk (RIO_DEBUG_INIT, "Not enough memory! %p %p %p %p %p\n", 
+Error --->
+               p, p->RIOHosts, p->RIOPortp, rio_termios, rio_termios);
+  return -ENOMEM;
+
+[BUG] See code following next error.
+/home/shallem/oses/linux/2.4.1/drivers/block/cciss.c:668:cciss_ioctl:
+ERROR:FREE:664:668: Use-after-free of 'buff'! set by 'kfree':664
+
+[BUG] Potential double free of c.
+/home/shallem/oses/linux/2.4.1/drivers/block/cciss.c:667:cciss_ioctl:
+ERROR:FREE:663:667: WARN: Use-after-free of "c"! set by 'cmd_free':663
+
+          {
+            cmd_free(NULL, c);
+Start --->
+            kfree(buff);
+          }
+      }
+		cmd_free(NULL, c);
+Error --->
+    if (buff != NULL)
+      kfree(buff);
+
+
+[QUESTION] It appears that the len field is not cleared out by
+dev_kfree_skb_any.  Is this true in general of the skb freeing functions?
+It appears that the data field is also not cleared (except potentially by
+the destructor function?).  Are there any other fields which are okay to 
+use?
+Also is it always bad to double free an skb, or is there some idiomatic
+way to determine the current reference count on the skb?  Thanks for the
+help.
+/home/shallem/oses/linux/2.4.1/drivers/atm/iphase.c:1323:rx_dle_intr:
+ERROR:FREE:1321:1323: Use-after-free of 'skb'! set by
+'dev_kfree_skb_any':1321
+
+          {
+             atomic_inc(&vcc->stats->rx_err);
+Start --->
+             dev_kfree_skb_any(skb);
+#if LINUX_VERSION_CODE >= 0x20312
+Error --->
+             atm_return(vcc, atm_guess_pdu2truesize(skb->len));

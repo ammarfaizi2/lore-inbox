@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264990AbTGSJMO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 05:12:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbTGSJMO
+	id S265652AbTGSJPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 05:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267952AbTGSJPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 05:12:14 -0400
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:11420 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264990AbTGSJMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 05:12:14 -0400
-Date: Sat, 19 Jul 2003 11:27:10 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test1: Promise 20265(R) driver appears to crash on boot
-Message-ID: <20030719092709.GD10252@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Jul 2003 05:15:16 -0400
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:36768 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S265652AbTGSJPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 05:15:13 -0400
+From: Richard Drummond <lists@rcdrummond.net>
+Reply-To: lists@rcdrummond.net
+Organization: Private
+To: <linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] [PATCH] Big-endian fixes for tdfxfb in 2.4.21
+Date: Sat, 19 Jul 2003 04:34:08 -0500
+User-Agent: KMail/1.5.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200307190131.46394.lists@rcdrummond.net>
+In-Reply-To: <200307190131.46394.lists@rcdrummond.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307190434.08829.lists@rcdrummond.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Saturday 19 July 2003 01:39 am, Richard Drummond wrote:
+> I've tested this patch extensively both on a Voodoo3 and a Voodoo4 . . .
 
-I used 2.6.0-test1, without Promise driver, and got into init.
+Ooops. I apologize. It turns out that I didn't test this as thoroughly as I 
+had thought. Although the Voodoo3 works perfectly, 16-bit and 32-bit modes  
+are still broken on the Voodoo4.
 
-I then figured I'd forgotten the Promise driver, so I enabled it (linked
-in) and the kernel crashes on boot since (tries to kill init).
+Does anybody have docs on the Voodoo4/5 or know how byte-swizzling woks on 
+these cards? It definitely doesn't behave the same as the Voodoo3 . . .
 
-Is this a know bug or should I post detailed crash dump information
-(serial console is available -- does anyone have links to 3Com-based
-ethernet kernel crash dumps with Linux 2.6?).
+If nobody objects, the patch I posted previously should still be applied to 
+2.4 since it does fix all the endian problems in tdfxfb with the Voodoo3.
 
--- 
-Matthias Andree
+Cheers,
+Rich
+

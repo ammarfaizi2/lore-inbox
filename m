@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314278AbSD0QaY>; Sat, 27 Apr 2002 12:30:24 -0400
+	id <S314280AbSD0Qap>; Sat, 27 Apr 2002 12:30:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314280AbSD0QaY>; Sat, 27 Apr 2002 12:30:24 -0400
-Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:20022 "EHLO
-	carey-server.stronghold.to") by vger.kernel.org with ESMTP
-	id <S314278AbSD0QaW>; Sat, 27 Apr 2002 12:30:22 -0400
-Message-Id: <4.3.2.7.2.20020427120007.03a57800@mail.strongholdtech.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 27 Apr 2002 12:35:52 -0400
-To: tanner@real-time.com
-From: "Nicolae P. Costescu" <nick@strongholdtech.com>
-Subject: Re: BIOS says MP, kernel says XP was PROBLEM: Dual (2) AMD
-  ATHLON MP 1900+ CPUs gives APIC error on CPU[0]: 00(02)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E171U0D-0008PV-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S314282AbSD0Qao>; Sat, 27 Apr 2002 12:30:44 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:19594 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S314280AbSD0Qan>;
+	Sat, 27 Apr 2002 12:30:43 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 27 Apr 2002 18:30:42 +0200 (MEST)
+Message-Id: <UTC200204271630.g3RGUgF04840.aeb@smtp.cwi.nl>
+To: davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.x-dj and SCSI error handling.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The behavior you originally described, and the bootup output (where the 
-kernel reports the CPUs as XPs) might indicate you're really running XPs.
+> The recent patch from Christoph Hellwig which kills off
+> the last remaining remnants of the old style SCSI error handling.
+> ...
 
-Especially the part where the system runs fine when only 1 CPU is 
-installed. That's what a lot of XP users report.
+Is the new scsi-eh generally regarded as a good thing?
 
-I know you checked the box, but maybe to be sure you can emove the heatsink 
-(make sure you have spare thermal compound handy for when you replace it) 
-and check on the core, is it a 1900XP or 1900MP.
+(Personally I have only bad experiences with it.
+Usually commented it out, otherwise its error handling
+would kill my box as soon as a SCSI error occurred.
+I vastly prefer an error return "I/O error"
+above a long series (several minutes) of retries,
+device resets, bus resets making the machine entirely
+unusable during this time, and often causing an oops
+in the end, killing off the machine entirely.
+However, I have no recent experiences here.)
 
-I have several Tyan 2466N and 2466N-4M and all report the CPUs as 1900+ MPs 
-when the kernel boots.
+Andries
 
-Another user reported stability issues that turned out to be his MP CPUs. 
-He was able to move them to other motherboards and cause the stability 
-problems. In the end he had to swap CPUs. I'll ask him to email you 
-directly perhaps he can help. He has your motherboard as well.
-
-
-
-****************************************************
-Nicolae P. Costescu, Ph.D.  / Senior Developer
-Stronghold Technologies
-46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
-Tel: 571-434-1472 / Fax: 571-434-1478
 

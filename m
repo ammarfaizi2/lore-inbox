@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUG1GZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUG1G1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266183AbUG1GZT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 02:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUG1GZT
+	id S261375AbUG1G1T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 02:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUG1G1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 02:25:19 -0400
-Received: from mailhub2.uq.edu.au ([130.102.149.128]:60434 "EHLO
-	mailhub2.uq.edu.au") by vger.kernel.org with ESMTP id S266183AbUG1GZP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 02:25:15 -0400
-From: Ben Hoskings <s4010227@student.uq.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs)
-Date: Wed, 28 Jul 2004 16:25:04 +1000
-User-Agent: KMail/1.6.2
-References: <E1Bouyq-0001OQ-00@calista.eckenfels.6bone.ka-ip.net>
-In-Reply-To: <E1Bouyq-0001OQ-00@calista.eckenfels.6bone.ka-ip.net>
-MIME-Version: 1.0
+	Wed, 28 Jul 2004 02:27:19 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:32131 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261375AbUG1G1K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 02:27:10 -0400
+Date: Wed, 28 Jul 2004 06:55:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
+       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
+Message-ID: <20040728045517.GB14363@elte.hu>
+References: <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040727162759.GA32548@elte.hu> <1090967441.1835.2.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407281625.05083.s4010227@student.uq.edu.au>
+In-Reply-To: <1090967441.1835.2.camel@teapot.felipe-alfaro.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 July 2004 12:12, Bernd Eckenfels wrote:
-> In article <200407261138.55020.ben@jeeves.gotdns.org> you wrote:
-> > I think the idea of forking off certain releases in the 2.6.x.0 form, to
-> > only recieve bugfixes and security updates, is a very good idea.
->
-> Leave that to the vendors, they already do that.
->
-> Whats wrong with adding features which touch major parts of the code only
-> to 2.7, and perhaps bacport them if they proof to be worth it?
 
-I guess it's pretty similar in practice. I brought it up because the idea of 
-freezing releases at 2.6.x.0 is more fine-grained, and as such it seemed to 
-me that it would be less of a maintenance overhead.
+* Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
 
-Although labels aside, I suppose the two systems are acheiving the same thing 
-in the end.
+> I've seen an oops on my P4 machine when booting with voluntary-
+> preempt=3, but not with voluntary-preempt<3. I think it's related to
+> the serial controller (IRQ3 and IRQ4). Please, see attached dmesg.
 
->
-> Greetings
-> Bernd
+do you mean this one:
 
---
-	Ben
+> irq event 4: bogus return value ffffffff
+>  [<c0105b7e>] __report_bad_irq+0x24/0x7d
+>  [<c0105c3e>] note_interrupt+0x49/0x88
+>  [<c02bb3c2>] schedule+0x222/0x48d
+>  [<c0105f05>] do_hardirq+0x10f/0x191
+>  [<c0123cb5>] irqd+0x0/0xad
+>  [<c0123d55>] irqd+0xa0/0xad
+>  [<c0130010>] kthread+0x7c/0xa4
+>  [<c012ff94>] kthread+0x0/0xa4
+>  [<c0102249>] kernel_thread_helper+0x5/0xb
+> handlers:
+
+this isnt an oops, it is essentially just a warning. I am too getting
+this a couple of times during bootup when using the serial console.
+
+irqd changes timings and apparently in this case the serial IRQ line
+gets deregistered for some amount of time while the hw still produces an
+interrupt. (it might also be an irqd bug, but all seems to be functional
+and i have no problems using the serial console.)
+
+so unless you see some instability later on (or see a large flood of
+such messages), you can disregard this warning.
+
+	Ingo

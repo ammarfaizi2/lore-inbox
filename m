@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbREOPpM>; Tue, 15 May 2001 11:45:12 -0400
+	id <S262805AbREOPxC>; Tue, 15 May 2001 11:53:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262797AbREOPow>; Tue, 15 May 2001 11:44:52 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:46349
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S262796AbREOPol>; Tue, 15 May 2001 11:44:41 -0400
-Date: Tue, 15 May 2001 11:43:19 -0400
-From: Chris Mason <mason@suse.com>
-To: Samium Gromoff <_deepfire@mail.ru>,
-        "Vladimir V. Saveliev" <monstr@namesys.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: ReiserFS 2.4.4/3.x.0k-pre2
-Message-ID: <1078540000.989941399@tiny>
-In-Reply-To: <E14zc0K-0000ya-00@f6.mail.ru>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S262802AbREOPww>; Tue, 15 May 2001 11:52:52 -0400
+Received: from m446-mp1-cvx1a.col.ntl.com ([213.104.69.190]:4481 "EHLO
+	[213.104.69.190]") by vger.kernel.org with ESMTP id <S262803AbREOPwf>;
+	Tue, 15 May 2001 11:52:35 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <Pine.LNX.4.21.0105142332550.23955-100000@penguin.transmeta.com>
+From: John Fremlin <chief@bandits.org>
+Date: 15 May 2001 16:51:58 +0100
+In-Reply-To: <Pine.LNX.4.21.0105142332550.23955-100000@penguin.transmeta.com> (Linus Torvalds's message of "Mon, 14 May 2001 23:41:15 -0700 (PDT)")
+Message-ID: <m27kzi4nkx.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
+[...]
 
-On Tuesday, May 15, 2001 02:24:36 PM +0400 Samium Gromoff
-<_deepfire@mail.ru> wrote:
+> Nobody really uses it because it would require you to add a line or
+> two to your init scripts to pick up the major number from
+> /proc/devices, and that's obviously too hard. Much better to just
+> hardcode randome numbers, right?
 
->           Hello,
->      I`m still experiencing file tail corruptions
->   on subj.
->      And more: after i had restored bblocked patrition
->   (by relying on drive`s ability to remap bblks on
->   write by wroting small modification of debugreiserfs
->   which zeroified all bblks), i had _runtime_ tail
->    corruptions of the mc`s dir hotlist which i tried 
->    to rewrite again and again.
->   i found, that "sync"ing after modifying helps to keep
->   file fine, so it does until now.
+And thereby avoid using procfs. Hardcoding is the way the BSDs seem to
+be going.
 
-Hmmm, are you sure the disk is good now?
+Clueless suggestion: I suppose you could allocate numbers on kernel
+build or something.
 
-What kinds of things are you doing on the files where you see tail
-corruptions?  Can you reliably reproduce the corruption?
+[...]
 
--chris
+-- 
 
+	http://ape.n3.net

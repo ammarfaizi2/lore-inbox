@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292248AbSBOWqv>; Fri, 15 Feb 2002 17:46:51 -0500
+	id <S292255AbSBOWrx>; Fri, 15 Feb 2002 17:47:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292254AbSBOWqo>; Fri, 15 Feb 2002 17:46:44 -0500
-Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:42696 "EHLO
-	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S292248AbSBOWnV>; Fri, 15 Feb 2002 17:43:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: esr@thyrsus.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Disgusted with kbuild developers
-Date: Fri, 15 Feb 2002 17:44:09 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Dave Jones <davej@suse.de>,
+	id <S292242AbSBOWqr>; Fri, 15 Feb 2002 17:46:47 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:17939
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S292253AbSBOWq3>; Fri, 15 Feb 2002 17:46:29 -0500
+Date: Fri, 15 Feb 2002 17:19:52 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Larry McVoy <lm@work.bitmover.com>,
         Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20020215155946.B14083@thyrsus.com> <E16bqC7-0004Mj-00@the-village.bc.nu> <20020215164610.A14418@thyrsus.com>
-In-Reply-To: <20020215164610.A14418@thyrsus.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020215224321.GDLK22967.femail28.sdc1.sfba.home.com@there>
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020215171952.D15406@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020215141433.B11369@thyrsus.com> <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com> <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <200202152209.g1FM9PZ00855@vindaloo.ras.ucalgary.ca> <20020215165029.C14418@thyrsus.com> <20020215232700.M27880@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020215232700.M27880@suse.de>; from davej@suse.de on Fri, Feb 15, 2002 at 11:27:00PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 February 2002 04:46 pm, Eric S. Raymond wrote:
+Dave Jones <davej@suse.de>:
+>  The point being made is that you constantly refuse to listen.
+>  You ask for an opinion, and when something comes back that isn't
+>  what you expect, you run off and write something completely 
+>  different just to appease some fabled Aunt Tilley, then come
+>  back and say "Ok, how about now?".
 
-> Alan, don't talk to me about "proof of concept".  Tell me about a
-> production-quality system, proven in use by people like Embedsys,
-> Webmachines, and the Compache project.  Tell me you can duplicate what
-> CML2 does successfully before you run around implying my design
-> assumptions are full of crap.
+I honestly don't undestand how this myth got started, Dave.
 
-Eric, step back a sec.  Deep breaths.
+>From my point of view, I have been busting my ass trying to *extract*
+requirements from Linus and other people with a stake.  What guidance
+I get is vague and contradictory.  My proposals to address it get ignored.
+Everything I do right gets written off and teensy side issues get 
+inflated into monsters.
 
-Nobody ever said CML1 had to be able to serve projects other than 
-linux-kernel.  The fact CML2 can is nice, but irrelevant.  That argument goes 
-nowhere.
-
-The amount of time you've invested in your code isn't particularly 
-interesting to anybody but you, except as an unreliable yardstick of how long 
-it might take to duplicate things.  The "genius from mars" technique might be 
-able to come up with an even better way in a week, you never know.  (Even a 
-really hard problem space can be elegantly solved out of left field.  It's 
-not likely, but you never know.)
-
-The other side of the argument is that a proof of concept is not the same 
-thing as actually solving the problem.  You have working code.  Several other 
-people have unimplemented theoretical proposals, tests, and prototypes that 
-don't actually do anything useful as of yet.  That's the main argument you 
-should probably be making.
-
-If people want to prove Eric wrong, then make CML1 work well.  If you believe 
-it's not as hard a problem as he says it is, then by all means prove him 
-wrong.  Arguing about how hard the problem really would be to solve, without 
-actually solving it...  Why?
-
-Rob
+It's utterly maddening to hear people accuse me of not listening when
+I spend so damn much effort trying to do what they want for so little
+reward...
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

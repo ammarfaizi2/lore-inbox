@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbTI2A05 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 20:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTI2A04
+	id S261950AbTI2Ar6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 20:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbTI2Ar6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 20:26:56 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:22278 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S261940AbTI2A0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 20:26:55 -0400
-Date: Sun, 28 Sep 2003 21:32:30 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: netdev@oss.sgi.com, davem@redhat.com, pekkas@netcore.fi,
-       lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-Message-ID: <20030929003229.GM1039@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Adrian Bunk <bunk@fs.tum.de>, netdev@oss.sgi.com, davem@redhat.com,
-	pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20030928225941.GW15338@fs.tum.de> <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de> <20030928233909.GG1039@conectiva.com.br> <20030929001439.GY15338@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030929001439.GY15338@fs.tum.de>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Sep 2003 20:47:58 -0400
+Received: from hibernia.jakma.org ([213.79.33.168]:42118 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S261950AbTI2Ar5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 20:47:57 -0400
+Date: Mon, 29 Sep 2003 01:47:23 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Steven Cole <elenstev@mesatop.com>
+cc: Larry McVoy <lm@bitmover.com>, Timothy Miller <miller@techsource.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+In-Reply-To: <200309272113.18030.elenstev@mesatop.com>
+Message-ID: <Pine.LNX.4.56.0309290139260.19081@fogarty.jakma.org>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com>
+ <20030910151238.GC32321@work.bitmover.com> <Pine.LNX.4.56.0309280249030.19081@fogarty.jakma.org>
+ <200309272113.18030.elenstev@mesatop.com>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Sep 29, 2003 at 02:14:39AM +0200, Adrian Bunk escreveu:
-> On Sun, Sep 28, 2003 at 08:39:10PM -0300, Arnaldo Carvalho de Melo wrote:
-> What about the following solution (the names and help texts for the
-> config options might not be optimal, I hope you understand the
-> intention):
-> 
-> config IPV6_SUPPORT
-> 	bool "IPv6 support"
-> 
-> config IPV6_ENABLE
-> 	tristate "enable IPv6"
-> 	depends on IPV6_SUPPORT
-> 
-> IPV6_SUPPORT changes structs etc. and IPV6_ENABLE is responsible for 
-> ipv6.o .
+On Sat, 27 Sep 2003, Steven Cole wrote:
 
-Humm, and the idea is? This seems confusing, could you elaborate on why such
-scheme is a good thing?
+> Since Larry is off doing other things for the next week and a half,
+> I'll attemt to to answer that for him.  Larry was possibly
+> referring to IRIX scaling to 1024 CPUs, e.g. the "Chapman" machine,
+> mentioned here:
+> http://www.sgi.com/company_info/awards/03_computerworld.html
 
-- Arnaldo
+An Origin 3k, Altix is essentially the Origin 3k architecture but
+engineered around Itanic CPU boards. :)
+
+> It appears that SGI is working to scale the Altix to 128 CPUs on Linux.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106323064611280&w=2
+
+Working to? Nah, they did that a long time ago:
+
+	http://mail.nl.linux.org/linux-mm/2001-03/msg00004.html
+
+They've had another 2.5 years since to further work on Linux 
+scaleability.
+
+"SGI Altix 3000 superclusters scale up to hundreds of processors."
+
+So, either they've already run Linux on Altix or Origin internally
+with hundreds of CPUs or they're fairly confident there arent any
+major problems they couldnt sort out in the time it would take to
+build, test and deliver a hundred+ node Altix.
+
+> Steven
+> -
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+I owe the public nothing.
+		-- J.P. Morgan

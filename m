@@ -1,77 +1,185 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281083AbRKTOwT>; Tue, 20 Nov 2001 09:52:19 -0500
+	id <S281084AbRKTOxt>; Tue, 20 Nov 2001 09:53:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281084AbRKTOwK>; Tue, 20 Nov 2001 09:52:10 -0500
-Received: from jalon.able.es ([212.97.163.2]:25812 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S281083AbRKTOvu>;
-	Tue, 20 Nov 2001 09:51:50 -0500
-Date: Tue, 20 Nov 2001 15:51:43 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: James A Sutherland <jas88@cam.ac.uk>
-Cc: Remco Post <r.post@sara.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Swap
-Message-ID: <20011120155143.A4597@werewolf.able.es>
-In-Reply-To: <200111191051.LAA04099@zhadum.sara.nl> <E165oY1-0006Db-00@mauve.csi.cam.ac.uk>
+	id <S281087AbRKTOxa>; Tue, 20 Nov 2001 09:53:30 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:32919
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S281084AbRKTOxT>; Tue, 20 Nov 2001 09:53:19 -0500
+Date: Tue, 20 Nov 2001 09:50:18 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Configure.help missing entries list
+Message-ID: <20011120095018.A25289@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E165oY1-0006Db-00@mauve.csi.cam.ac.uk>; from jas88@cam.ac.uk on Mon, Nov 19, 2001 at 14:33:22 +0100
-X-Mailer: Balsa 1.2.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It's down to 145 entries from 167 last week, thanks mostly to David Woodhouse
+documenting the new MTD symbols.  Please do what you can to empty this list
+by sending me help entries.
 
-On 20011119 James A Sutherland wrote:
->On Monday 19 November 2001 10:51 am, Remco Post wrote:
->> --8<--
->>
->> > Except that openoffice and mozilla can be swapped out in BOTH cases: the
->> > kernel can discard mapped pages and reread as needed, whether you have a
->> > swap partition or not.
->>
->> No they can't without swap, nothing can be SWAPPED out. The code pages can
->> be paged out (discarded), but no SWAPPING takes place.
->
->OK, s/swapped/paged/.
->
-
-Not so OK.
-
-AFAIK, that is all a question of names. All is the same. Old systems
-like MacOS do SWAP, because when they send something to disk they send the
-whole app with its data space to disk. Linux does not send a whole app to
-disk, but individual pages, so it does SWAP AT PAGE LEVEL, or paging. When
-a page is deleted for one executable (because we can re-read it from on-disk
-binary), it is discarded, not paged out. A page is paged-out if it is written
-to disk.
-So _swaping_ and _paging_ are the same, but with different granularity.
-
-(of course, flame and correct me if I'm wrong...)
-
->> > Whereas without swapspace, only the read-only mapped pages can be swapped
->> > out.
->>
-
-They are not swapped-out, just discarded to be re-read.
-
->
->By your definition, Linux does not swap, ever. It only "pages". This is what 
->I was referring to as swapping, since this involves the SWAPspace/partition, 
->rather than PAGEfile :)
->
-
-It is the same. You can page-out (because Linux never do swap, as the process
-of sending a whole app to disk), to an specially formatted partition or to
-a file. If you are going to be pedantic, linux really uses _page_partitions_
-and _page_files_, instead of swap-partitions and swap-files.
-
-BTW, there is soft for mac that changes the swap algorithm from app level to
-page level and they called it "RamDoubler", and people still thinks its
-magic...
-
+ALPHA_EV67
+ARCH_ANAKIN
+ARCH_CAMELOT
+ARCH_CDB89712
+ARCH_CLEP7312
+ARCH_CLPS711X
+ARCH_CLPS7500
+ARCH_CO285
+ARCH_EDB7211
+ARCH_FOOTBRIDGE
+ARCH_INTEGRATOR
+ARCH_SA1100
+ARCH_SHARK
+ARC_CONSOLE
+ATM_LANAI
+AU1000_SERIAL_CONSOLE
+AU1000_UART
+BLK_DEV_IT8172
+BLK_DEV_Q40IDE
+CPU_ARM1020_D_CACHE_ON
+CPU_ARM1020_FORCE_WRITE_THROUGH
+CPU_ARM1020_I_CACHE_ON
+CPU_ARM1020_ROUND_ROBIN
+CPU_ARM920_CPU_IDLE
+CPU_ARM920_D_CACHE_ON
+CPU_ARM920_I_CACHE_ON
+CPU_ARM920_WRITETHROUGH
+CPU_ARM926T
+CPU_ARM926_CPU_IDLE
+CPU_ARM926_D_CACHE_ON
+CPU_ARM926_I_CACHE_ON
+CPU_ARM926_ROUND_ROBIN
+CPU_ARM926_WRITETHROUGH
+CPU_FREQ
+DASD_AUTO_DIAG
+DASD_AUTO_ECKD
+DASD_AUTO_FBA
+EFI_VARS
+EP7211_IR
+EP72XX_ROM_BOOT
+ETRAX_ETHERNET_LPSLAVE
+ETRAX_ETHERNET_LPSLAVE_HAS_LEDS
+ETRAX_NETWORK_LED_ON_WHEN_ACTIVITY
+ETRAX_NETWORK_LED_ON_WHEN_LINK
+ETRAX_POWERBUTTON_BIT
+ETRAX_ROOT_DEVICE
+ETRAX_SERIAL_PORT0
+ETRAX_SHUTDOWN_BIT
+ETRAX_SOFT_SHUTDOWN
+EUROTECH_WDT
+EVB_PCI1
+FB_TX3912
+FORWARD_KEYBOARD
+GEN_RTC
+GSC_DINO
+HWC_CPI
+I2C_ALGO8XX
+I2C_PPC405_ADAP
+I2C_PPC405_ALGO
+I2C_RPXLITE
+IA64_GRANULE_16MB
+IA64_GRANULE_64MB
+IA64_SGI_SN_DEBUG
+IA64_SGI_SN_SIM
+IT8172_REVC
+IT8172_SCR0
+IT8172_SCR1
+IT8172_TUNING
+ITE_I2C_ADAP
+ITE_I2C_ALGO
+LASI_82596
+LP486E
+MAPLE_KEYBOARD
+MAPLE_MOUSE
+MEMORY_SET
+MEMORY_SIZE
+MIPS_AU1000_ENET
+MTD_ARM_INTEGRATOR
+PCIBA
+PCI_PERMEDIA
+PCMCIA_AXNET
+PCMCIA_XIRCOM
+PFAULT
+PHONE_IXJ_PCMCIA
+PPPOATM
+PROFILE
+PROFILE_SHIFT
+SA1100_ADSBITSY
+SA1100_CERF_16MB
+SA1100_CERF_32MB
+SA1100_CERF_64MB
+SA1100_CERF_8MB
+SA1100_CERF_CPLD
+SA1100_CERF_FLASH_16MB
+SA1100_CERF_FLASH_32MB
+SA1100_CERF_FLASH_8MB
+SA1100_EXTENEX1
+SA1100_EXTENEX1_16MB
+SA1100_FIR
+SA1100_FREEBIRD
+SA1100_GRAPHICSMASTER
+SA1100_HUW_WEBPANEL
+SA1100_ITSY
+SA1100_JORNADA720
+SA1100_OMNIMETER
+SA1100_PFS168
+SA1100_PLEB
+SA1100_SHERMAN
+SA1100_SIMPAD
+SA1100_YOPY
+SCSI_DECSII
+SCSI_LASI
+SCSI_QLOGIC_FC_FIRMWARE
+SCSI_SIM
+SERIAL_21285_OLD
+SERIAL_SGI_L1_PROTOCOL
+SERIAL_TX3912
+SERIAL_TX3912_CONSOLE
+SGIWD93_SCSI
+SHARED_KERNEL
+SH_PCIDMA_NONCOHERENT
+SIMETH
+SIM_SERIAL
+SOUND_CMPCI_FM
+SOUND_CMPCI_FMIO
+SOUND_CMPCI_LINE_BASS
+SOUND_CMPCI_LINE_REAR
+SOUND_CMPCI_MIDI
+SOUND_CMPCI_MPUIO
+SOUND_CMPCI_SPDIFINVERSE
+SOUND_VRC5477
+ST40_LMI_MEMORY
+SYSCLK_100
+SYSCLK_75
+SYSCLK_83
+TULIP_MMIO
+UCODE_PATCH
+USB_STORAGE_DATAFAB
+USB_STORAGE_HP8200e
+USB_STORAGE_JUMPSHOT
+USERIAL
+VETH
+VIA_RHINE_MMIO
+VIDEO_ZORAN_DC10
+VIDEO_ZORAN_LML33
+VLAN_8021Q
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.15-pre6-beo #1 SMP Sun Nov 18 10:25:01 CET 2001 i686
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Certainly one of the chief guarantees of freedom under any government,
+no matter how popular and respected, is the right of the citizens to
+keep and bear arms.  [...] the right of the citizens to bear arms is
+just one guarantee against arbitrary government and one more safeguard
+against a tyranny which now appears remote in America, but which
+historically has proved to be always possible.
+        -- Hubert H. Humphrey, 1960

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264749AbSK0UYj>; Wed, 27 Nov 2002 15:24:39 -0500
+	id <S264771AbSK0UfG>; Wed, 27 Nov 2002 15:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264756AbSK0UYj>; Wed, 27 Nov 2002 15:24:39 -0500
-Received: from pat.uio.no ([129.240.130.16]:56464 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S264749AbSK0UYi>;
-	Wed, 27 Nov 2002 15:24:38 -0500
+	id <S264779AbSK0UfG>; Wed, 27 Nov 2002 15:35:06 -0500
+Received: from pat.uio.no ([129.240.130.16]:38034 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S264771AbSK0UfF>;
+	Wed, 27 Nov 2002 15:35:05 -0500
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
+       Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       NFS maillist <nfs@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: htree+NFS (NFS client bug?)
+References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com>
+	<20021127133318.GA8117@think.thunk.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 27 Nov 2002 21:42:14 +0100
+In-Reply-To: <20021127133318.GA8117@think.thunk.org>
+Message-ID: <shsfztmeod5.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15845.11182.384531.599421@charged.uio.no>
-Date: Wed, 27 Nov 2002 21:31:42 +0100
-To: Christian Reis <kiko@async.com.br>
-Cc: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19+trond and diskless locking problems
-In-Reply-To: <20021127150828.A12120@blackjesus.async.com.br>
-References: <20021003184418.K3869@blackjesus.async.com.br>
-	<shsy99f16np.fsf@charged.uio.no>
-	<20021003202602.M3869@blackjesus.async.com.br>
-	<15772.60202.510717.850059@charged.uio.no>
-	<20021120120223.A15034@blackjesus.async.com.br>
-	<15835.49194.109931.227732@charged.uio.no>
-	<20021126224123.A9660@blackjesus.async.com.br>
-	<15844.7306.735524.133781@charged.uio.no>
-	<20021127150828.A12120@blackjesus.async.com.br>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christian Reis <kiko@async.com.br> writes:
+>>>>> " " == Theodore Ts'o <tytso@mit.edu> writes:
 
-     > What can I do to help further debug the issue? Try another
-     > kernel version on clients? Server? This is giving me a
-     > headache.. :-/
+     > Well, even if the NFS server is generating bad cookies (and
+     > that may be possible), the NFS client should be more robust and
+     > not spin in a loop forever.
 
-Try to give us a dump of the server lock manager activity when this
-problem occurs. Try to do
+No. In this case, the problem appears to be that the cookie issued by
+the server for the end of directory case is not unique.
 
-echo "217" >/proc/sys/sunrpc/nlm_debug
-
-on the server just before the client issues a lock.
+If userland calls an extra 'readdir()' after EOF is reached, then as
+far as the client is concerned, this sort of thing cannot be
+distinguished from readdir()+seekdir()+readdir()..
 
 Cheers,
   Trond

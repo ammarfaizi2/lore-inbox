@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280095AbRJaHYR>; Wed, 31 Oct 2001 02:24:17 -0500
+	id <S280096AbRJaIBs>; Wed, 31 Oct 2001 03:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280096AbRJaHX6>; Wed, 31 Oct 2001 02:23:58 -0500
-Received: from zero.tech9.net ([209.61.188.187]:54540 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S280095AbRJaHXu>;
-	Wed, 31 Oct 2001 02:23:50 -0500
-Subject: [PATCH][CFT] updated preempt-kernel
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.28.13.59 (Preview Release)
-Date: 31 Oct 2001 02:24:35 -0500
-Message-Id: <1004513076.1209.16.camel@phantasy>
+	id <S280101AbRJaIBj>; Wed, 31 Oct 2001 03:01:39 -0500
+Received: from due.stud.ntnu.no ([129.241.56.71]:60945 "HELO due.stud.ntnu.no")
+	by vger.kernel.org with SMTP id <S280096AbRJaIBc>;
+	Wed, 31 Oct 2001 03:01:32 -0500
+Date: Wed, 31 Oct 2001 09:01:25 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: J Sloan <jjs@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel EEPro 100 with kernel drivers
+Message-ID: <20011031090125.B10751@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <3BDCD06E.8AF8FF69@pobox.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BDCD06E.8AF8FF69@pobox.com>; from jjs@pobox.com on Sun, Oct 28, 2001 at 07:43:42PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Penguins Rejoice:  An updated preemptible kernel patch 
+J Sloan:
+> We found that using the intel e100 driver
+> instead of the eepro100 eliminates these
+> errors - YMMV of course -
 
-Available now at 
-	http://tech9.net/rml/linux
-for kernels 2.4.14-pre5, 2.4.13-ac5, 2.4.13, and 2.4.12. 
+I've now tried the Intel driver, no help, still get the NFS timeouts (the
+intel driver doesn't output anything to dmesg, so it's no way of telling if
+the same things occur as in the eepro100 stock-kernel driver). 
 
-First, an optimization: we redesigned the preemption counter code to not
-use atomic operators.  This non-atomicity should result in a modest
-performance gain. 
+This is how I do the test:
 
-Second, we have a mailing list at kpreempt-tech@lists.sourceforge.net
-(see sf.net/projects/kpreempt) where we discuss technical issues and the
-occasional odd-bug is reported.  Anyone with such interests is welcome. 
+NFS share a filesystem
+NFS mount it on another box (not running intel e100 nic)
+Start bonnie++ on the box that has mounted the nfs share
 
-Third, we have ARM support (in need of much testing) by Nico Pitre! 
-You will need kernel 2.4.12-ac6, Russell's ARM patch available at 
-	ftp://ftp.arm.linux.org.uk/pub/armlinux/source/kernel-patches/v2.4/patch-2.4.12-ac6-rmk1.gz
-the corresponding preempt-kernel patch available at 
-	http://tech9.net/rml/linux/preempt-kernel-rml-2.4.12-ac6-1.patch
-and finally the ARM-specific patch available at 
-	ftp://ftp.arm.linux.org.uk/pub/linux/arm/people/nico/diff-2.4.12-ac6-rmk1-preempt.gz
+After 10-20mins, the first NFS timeout comes (which means the card is out of
+resources, and "halts" for a bit). When the card becomes out of resources,
+it seems like it uses a few minutes before it comes online again, no wonder
+why, tho.
 
-Finally, the partial change log since the last public post: 
+Has anyone got any suggestions on how to start tracking down, and maybe
+fixing this problem?  Or, is this a hardware error?  Or maybe a firmware
+error?  Should I start contacting Dell and tell them that's there's a
+possible error in their PowerEdge 2550-series?
 
-20011030 
-- convert to non-atomic model: 
-	o preempt_count is now an int 
-	o memory validating is down via barrier() 
-	o this removes many of the macros 
-	o not using atomic ops should gain us some speed ... 
-- rename preempt_is_disable to preempt_is_disabled 
-- remove some extraneous ifdefs 
-- compile preempt_count into the task_struct regardless of 
-  whether CONFIG_PREEMPT is set.  This way the offsets do 
-  not change depending on whether preemption is set. 
-- rediff all the patches off one codebase to insure no ambiguities, 
-  however I may introduce a typo since the trees do differ. 
-- update tty race fix 
-
-20011021 
-- add a Documentation/preempt-locking.txt 
-- merge fix to protect tty race on console close.  this isn't our 
-  problem but preempt induces it.  will try to merge into mainline. 
-
-Enjoy. 
-
-	Robert Love
-
+-- 
+Thomas

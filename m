@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261951AbTCaXvO>; Mon, 31 Mar 2003 18:51:14 -0500
+	id <S261935AbTCaXrd>; Mon, 31 Mar 2003 18:47:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261952AbTCaXvN>; Mon, 31 Mar 2003 18:51:13 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:32461 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S261951AbTCaXvM>;
-	Mon, 31 Mar 2003 18:51:12 -0500
-Date: Mon, 31 Mar 2003 16:02:12 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: piggin@cyberone.com.au, helgehaf@aitel.hist.no, erik@hensema.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-Message-Id: <20030331160212.57a9646c.akpm@digeo.com>
-In-Reply-To: <20030401013258.G626@nightmaster.csn.tu-chemnitz.de>
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
-	<20030328231248.GH5147@zaurus.ucw.cz>
-	<slrnb8gbfp.1d6.erik@bender.home.hensema.net>
-	<3E8845A8.20107@aitel.hist.no>
-	<3E88BAF9.8040100@cyberone.com.au>
-	<20030331144500.17bf3a2e.akpm@digeo.com>
-	<20030401013258.G626@nightmaster.csn.tu-chemnitz.de>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Apr 2003 00:02:29.0748 (UTC) FILETIME=[FC9A7B40:01C2F7E1]
+	id <S261937AbTCaXrc>; Mon, 31 Mar 2003 18:47:32 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:31638 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S261935AbTCaXrb>; Mon, 31 Mar 2003 18:47:31 -0500
+Date: Mon, 31 Mar 2003 15:58:48 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: whitney@math.berkeley.edu
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.65: Caching MSR_IA32_SYSENTER_CS kills dosemu
+In-Reply-To: <Pine.LNX.4.44.0303311122070.5431-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0303311551040.2220-100000@mf1.private>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> wrote:
->
-> On Mon, Mar 31, 2003 at 02:45:00PM -0800, Andrew Morton wrote:
-> > It could have pretty bad failure modes.  Short-lived files in /tmp now
-> > perform writeout, which needs to be waited on when those files are removed.
+On Mon, 31 Mar 2003, Linus Torvalds wrote:
+
+> On Mon, 31 Mar 2003, Wayne Whitney wrote:
+> >
+> > I run dosemu 1.0.2.1 on the 2.5.x kernels.  Upgrading from 2.5.64 to
+> > 2.5.65 (or 2.5.66) causes dosemu to no longer work:  it locks up the
+> > machine shortly after I run it.
 > 
-> /tmp is not a problem, because this can be fixed by using tmpfs
-> (I use 2GB of it with 1GB of RAM).
+> There appears to be at least one bug (that is longstanding but might be 
+> made worse by the MSR stuff). However, that one should matter only with 
+> preemption enabled. What's your configuration?
 
-I don't.   These files get unlinked before they hit disk.
+UP with preempt.  2.5.66 with the patch you sent still locks up.  I should
+mention that I am running two copies of a hacked XFree86 on two different
+sets of KVM hardware, but that doesn't require any kernel patches (well, a
+small one to the input layer).
 
-> The disk is idle, so this is not about performance, but power
-> consumption. Spinning up a disk costs around 1-2 seconds, so you
-> should come in with at least the amount of data you write in 1-2
-> seconds for a spun down disk.
+> Also, do you actually have a new library that uses SYSENTER (ie recent 
+> redhat beta), and whct kind of CPU do you have?
 
-The requirements for portable computers are totally different.  You'd turn
-the whole thing off for them.
+Well, I have glibc-2.3.1-51, from RedHat Rawhide February 20, so it sounds
+like that uses SYSENTER.  The CPU is an Althon XP, stepping 6-6-2.
+
+Cheers, Wayne
+
 

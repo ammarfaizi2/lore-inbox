@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268926AbSIRVmk>; Wed, 18 Sep 2002 17:42:40 -0400
+	id <S268631AbSIRVfo>; Wed, 18 Sep 2002 17:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269043AbSIRVmk>; Wed, 18 Sep 2002 17:42:40 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:1800 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268926AbSIRVmj>;
-	Wed, 18 Sep 2002 17:42:39 -0400
-Date: Wed, 18 Sep 2002 14:47:41 -0700
-From: Greg KH <greg@kroah.com>
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux hot swap support
-Message-ID: <20020918214741.GI10970@kroah.com>
-References: <180577A42806D61189D30008C7E632E8793A6B@boca213a.boca.ssc.siemens.com>
-Mime-Version: 1.0
+	id <S268915AbSIRVfo>; Wed, 18 Sep 2002 17:35:44 -0400
+Received: from packet.digeo.com ([12.110.80.53]:20733 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268631AbSIRVfn>;
+	Wed, 18 Sep 2002 17:35:43 -0400
+Message-ID: <3D88F2D7.DD8519E6@digeo.com>
+Date: Wed, 18 Sep 2002 14:40:39 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>
+CC: linux-kernel@vger.kernel.org, riel@conectiva.com.br
+Subject: Re: [BENCHMARK] contest results for 2.5.36
+References: <1032360386.3d8891c2bc3d3@kolivas.net> <3D88ACB6.6374E014@digeo.com> <1032383868.3d88ed7c4cf2d@kolivas.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <180577A42806D61189D30008C7E632E8793A6B@boca213a.boca.ssc.siemens.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Sep 2002 21:40:39.0053 (UTC) FILETIME=[07B1FBD0:01C25F5C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 18, 2002 at 05:37:50PM -0400, Bloch, Jack wrote:
-> At the moment, I only support removal. The way it works is as follows.
+Con Kolivas wrote:
 > 
-> Upon system start up my device driver detects all of the boards which are
-> present (I support up to six). For each board it allocates the necessary I/O
-> lists memory needed for operation. All addresses are then mapped to user
-> space with a mmap interface. Now, all HW is accessible from user space. For
-> each device, an ISR is installed. As soon as the ejector handle for a
-> particular device is opened, the board (which is a Motorola 68060 based
-> board) issues an interrupt to me. I will shut this board down and
-> de-allocate any of the previously reserved resources. What is not so easy is
-> to perform the insert. I thought about allocating memory becessary for a
-> maximum configuration, but I would still need to get the insertion event.
-> But anyway  since our device (even though it has multiple boards internally)
-> is seen as a monolithic device from the main controlling host, the loss of a
-> single board causes it to be taken out of service.
+> Quoting Andrew Morton <akpm@digeo.com>:
+> 
+> [snip..]
+> 
+> > page_add/remove_rmap.  Be interesting to test an Alan kernel too.
+> 
+> Just tell me which ones to test and I'll happily throw them in too.
 
-Hm, you might want to take a look at the cPCI patches from Scott Murray,
-he has a solution for the resource and insertion problem that will
-probably work for you.  You can find the patches on the pcihpd-discuss
-mailing list, and I think they were also posted to lkml in the past too.
-He's working on cleaning them up a bit for inclusion in the main kernel
-tree.
+That's OK - you're already doing -rmap.  I just can't read.
 
-Hope this helps,
+> ...
+> > If the IO load was against the same disk 2.5 _should_ have sucked,
+> > due to the writes-starves-reads problem which we're working on.  So
+> > I assume it was against a different disk.  In which case 2.5 should not
+> > have shown these improvements, because all the fixes for this are still
+> > in -mm.  hm.  Helpful, aren't I?
+> 
+> It's the same disk. These are the correct values after I've fixed all known
+> problems in contest. I need someone else to try contest with a different disk.
+> Helpful? This is all new so it will take a while for _anyone_ to understand
+> exactly what's going on I'm sure. Since we haven't had incremental benchmarks
+> till now, who knows what it was that made IO full mem drop from 146 to 74 in the
+> first place?
 
-greg k-h
+Strange.  2.5 should have done badly.  There are many variables...
+
+We're on top of the VM latency problems now.  Jens is moving ahead
+with the deadline scheduler which appears to provide nice linear
+tunability of the read-versus-write policy.  Once we sort out the
+accidental writes-starve-read problem we'll do well at this.

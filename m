@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbRETPaM>; Sun, 20 May 2001 11:30:12 -0400
+	id <S262044AbRETPew>; Sun, 20 May 2001 11:34:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262038AbRETPaC>; Sun, 20 May 2001 11:30:02 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:14602 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262036AbRETP3s>; Sun, 20 May 2001 11:29:48 -0400
-Date: Sun, 20 May 2001 17:29:48 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: question: permission checking for network filesystem
-Message-ID: <20010520172948.A27935@artax.karlin.mff.cuni.cz>
+	id <S262045AbRETPem>; Sun, 20 May 2001 11:34:42 -0400
+Received: from t2.redhat.com ([199.183.24.243]:60403 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262044AbRETPea>; Sun, 20 May 2001 11:34:30 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010520111856.C3431@thyrsus.com> 
+In-Reply-To: <20010520111856.C3431@thyrsus.com>  <20010518114922.C14309@thyrsus.com> <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com> 
+To: esr@thyrsus.com
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: CML2 design philosophy heads-up 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Sun, 20 May 2001 16:34:26 +0100
+Message-ID: <15823.990372866@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm trying to impelemnt a lightweight network filesystem and ran into
-trouble implementing lookup, permissions and open.
+esr@thyrsus.com said:
+> I don't understand this request.  I have no concept of `advisory'
+> dependencies. What are you talking about?   Is my documentation
+> horribly unclear? 
 
-The protocol requires me to specify open mode in it's open command. The
-open mode has 4 bits: read, write, append and execute. But I can't tell
-execution from read in file_operations->open. I could send the open command
-from the inode_operations->permission, but this does not solve the problem,
-as I can't find weather to count the new file descriptor as reader or
-executer (I have to know that when closing the file).
+By 'dependency' I refer to the case where the value of one symbol is derived
+entirely from, or the range of possible values is limited by, the value of
+another symbol.
 
-The server always checks permission on the actual request, so I can't open
-the file for reading, when it should be open for execution.
+There are differing reasons for this, which should be treated entirely 
+separately.
 
-Could anyone see a solution other than adding a flags to open mode (say
-O_EXEC and O_EXEC_LIB), that would be added to the dentry_open in open_exec
-and sys_uselib? I don't like the idea of pathing vfs for this.
+On one hand you have dependencies which are present to make life easier for 
+Aunt Tillie, by refraining from confusing her with strange questions to 
+which the answer is _probably_ 'no'. Like the question of whether she has 
+an IDE controller on her MVME board.
 
-If it has to be patched, what kind of patch has a chance to get into 2.4
-series kernel?
+One the other hand, you have the dependencies present in the existing CML1
+configuration, which are _absolute_ dependencies - which specify for example
+that you cannot enable support for PCI peripherals if !CONFIG_PCI, etc.
+These dependencies are there to prevent you from enabling combinations of
+options which are utterly meaningless, and usually won't even compile.
 
-There is another thing with lookup. The protocol allows looking up and
-opening a file in one command. Unfortunately there are some file-type
-checks between i_ops->lookup and f_ops->open that force me to wait on the
-lookup to finish before I can open. I think these checks could be done by
-simply having the f_ops->open set correctly (thinks like not opening
-directory for write). But I do not expect these to change before 2.5,
-right?
+The former type of dependency should^HMUST be optional. Those who know what
+they're doing will want to turn them off. I see a lot of boards based on
+some reference design or other but with a few tweaks and added or removed
+devices - that's what the reference designs are there for; after all. 
 
-Thanks in advance.
+By making a distinction between the two types of dependency in the
+configuration language, you can pander to Aunt Tillie without actually
+getting on the tits of those who don't wish to be arbitrarily restricted
+from enabling support for the device they _know_ is present because they
+just soldered it to the blinkin' circuit board. :)
 
-Bulb
+--
+dwmw2
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+

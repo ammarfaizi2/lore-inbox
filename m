@@ -1,103 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261680AbSI0Js1>; Fri, 27 Sep 2002 05:48:27 -0400
+	id <S261682AbSI0Jyu>; Fri, 27 Sep 2002 05:54:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261681AbSI0Js1>; Fri, 27 Sep 2002 05:48:27 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:38870 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261680AbSI0Js0>;
-	Fri, 27 Sep 2002 05:48:26 -0400
-Date: Fri, 27 Sep 2002 15:28:34 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.38-mm3
-Message-ID: <20020927152833.D25021@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020926124244.GO3530@holomorphy.com> <Pine.LNX.4.44.0209260926480.1819-100000@montezuma.mastecende.com> <20020926133919.GQ3530@holomorphy.com> <20020927135743.B25021@in.ibm.com> <20020927092020.GS3530@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020927092020.GS3530@holomorphy.com>; from wli@holomorphy.com on Fri, Sep 27, 2002 at 02:20:20AM -0700
+	id <S261683AbSI0Jyu>; Fri, 27 Sep 2002 05:54:50 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:16349 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S261682AbSI0Jyt>;
+	Fri, 27 Sep 2002 05:54:49 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: "Andre Hedrick" <andre@linux-ide.org>,
+       "David S. Miller" <davem@redhat.com>
+Cc: <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>,
+       <torvalds@transmeta.com>
+Subject: Re: [RFC] {read,write}s{b,w,l} or iobarrier_*()
+Date: Fri, 27 Sep 2002 11:59:48 +0200
+Message-Id: <20020927095948.5033@192.168.4.1>
+In-Reply-To: <Pine.LNX.4.10.10209261951560.13669-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10209261951560.13669-100000@master.linux-ide.org>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 02:20:20AM -0700, William Lee Irwin III wrote:
-> On Fri, Sep 27, 2002 at 01:57:43PM +0530, Dipankar Sarma wrote:
-> > What application were you all running ?
-> > Thanks
-> 
-> Basically, the workload on my "desktop" system consists of numerous ssh
-> sessions in and out of the machine, half a dozen IRC clients, xmms,
-> Mozilla, and X overhead.
+>
+>Now if we expand the issue into Jeff's world of the net-stack drivers, he
+>banged me over the head with the issue of "pci-posting delays".  Ben got
+>his shots in also about the issue, too.  Thus the resulting io_barrier
+>additions by Ben to the original ATA-driver transformation, can be extened
+>to the Net-Drivers.  Oh and the slope is increasing fast now.
 
-Ok, from a relatively idle system (4CPU) running SMP kernel -
+Actually, the iobarrier is a slightly different issue, it's not
+related pci posting delays. (The only sane way to deal with them
+is to do a read() from the same bus path).
 
-    18 fget                                       0.2250
-0           0.00        c013d460:       push   %ebx
-0           0.00        c013d461:       mov    $0xffffe000,%edx
-0           0.00        c013d466:       mov    %eax,%ecx
-0           0.00        c013d468:       and    %esp,%edx
-0           0.00        c013d46a:       mov    (%edx),%eax
-1           5.56        c013d46c:       mov    0x674(%eax),%ebx
-1           5.56        c013d472:       lea    0x4(%ebx),%eax
-0           0.00        c013d475:       lock subl $0x1,(%eax)
-3          16.67        c013d479:       js     c013d61b <.text.lock.file_table+0x30>
-0           0.00        c013d47f:       mov    (%edx),%eax
-1           5.56        c013d481:       mov    0x674(%eax),%edx
-0           0.00        c013d487:       xor    %eax,%eax
-0           0.00        c013d489:       cmp    0x8(%edx),%ecx
-0           0.00        c013d48c:       jae    c013d494 <fget+0x34>
-0           0.00        c013d48e:       mov    0x14(%edx),%eax
-0           0.00        c013d491:       mov    (%eax,%ecx,4),%eax
-0           0.00        c013d494:       test   %eax,%eax
-0           0.00        c013d496:       je     c013d49c <fget+0x3c>
-0           0.00        c013d498:       lock incl 0x14(%eax)
-0           0.00        c013d49c:       lock incl 0x4(%ebx)
-5          27.78        c013d4a0:       pop    %ebx
-0           0.00        c013d4a1:       ret
-7          38.89        c013d4a2:       lea    0x0(%esi,1),%esi
+The iobarrier's are a CPU-specific things that basically tell the
+CPU not to re-order accesses around the barrier. This is necessary
+for reads & writes to IO locations to be done in the order they
+are written and not be speculated on CPUs that can do that sort
+of things (PPC is one). By default, IO macros like {in,out}* and
+{read,write}* do that implicitely (at least the PPC impl. of them
+does the barriers) in addition to byteswap. But the raw_* versions
+that we would need to avoid byteswap in implementing MMIO insw/outsw
+also don't do the barriers, thus the macro I had to add.
 
-I tried an SMP kernel on 1 CPU -
+Anyway, looks like we finally agree on getting {read,write}s{b,w,l}
+in. I'll post a patch implementing them for PPC by tomorrow. That
+will make things easier for IDE and possibly other drivers as well.
 
-    15 fget                                       0.1875
-0           0.00        c013d460:       push   %ebx
-2          13.33        c013d461:       mov    $0xffffe000,%edx
-0           0.00        c013d466:       mov    %eax,%ecx
-0           0.00        c013d468:       and    %esp,%edx
-0           0.00        c013d46a:       mov    (%edx),%eax
-0           0.00        c013d46c:       mov    0x674(%eax),%ebx
-0           0.00        c013d472:       lea    0x4(%ebx),%eax
-0           0.00        c013d475:       lock subl $0x1,(%eax)
-3          20.00        c013d479:       js     c013d61b <.text.lock.file_table+0x30>
-0           0.00        c013d47f:       mov    (%edx),%eax
-0           0.00        c013d481:       mov    0x674(%eax),%edx
-0           0.00        c013d487:       xor    %eax,%eax
-0           0.00        c013d489:       cmp    0x8(%edx),%ecx
-0           0.00        c013d48c:       jae    c013d494 <fget+0x34>
-0           0.00        c013d48e:       mov    0x14(%edx),%eax
-0           0.00        c013d491:       mov    (%eax,%ecx,4),%eax
-0           0.00        c013d494:       test   %eax,%eax
-0           0.00        c013d496:       je     c013d49c <fget+0x3c>
-0           0.00        c013d498:       lock incl 0x14(%eax)
-0           0.00        c013d49c:       lock incl 0x4(%ebx)
-4          26.67        c013d4a0:       pop    %ebx
-0           0.00        c013d4a1:       ret    
-6          40.00        c013d4a2:       lea    0x0(%esi,1),%esi
+BTW. Jeff: the tulip patch don't really need those explicit
+barriers from what I understand of it, you can probably merge the
+patch without them.
 
-The counts are off by one.
+Ben.
 
-With a UP kernel, I see that fget() cost is negligible.
-So it is most likely the atomic operations for rwlock acquisition/release
-in fget() that is adding to its cost. Unless of course my sampling
-is too less.
 
-Please try running the files_struct_rcu patch where fget() is lockfree
-and let me know what you see.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+
+

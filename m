@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbTKZXOa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 18:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTKZXOa
+	id S264368AbTKZXOl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 18:14:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTKZXOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 18:14:30 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:61591 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264367AbTKZXO3 (ORCPT
+	Wed, 26 Nov 2003 18:14:41 -0500
+Received: from [212.35.254.18] ([212.35.254.18]:24770 "EHLO mail2.midnet.co.uk")
+	by vger.kernel.org with ESMTP id S264368AbTKZXOj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 18:14:29 -0500
-Date: Wed, 26 Nov 2003 15:13:52 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Andi Kleen <ak@suse.de>
+	Wed, 26 Nov 2003 18:14:39 -0500
+Date: Wed, 26 Nov 2003 23:14:39 +0000
+From: Tim Kelsey <accent0@mail2.midnet.co.uk>
+To: Tim Kelsey <tk@midnet.co.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-Message-Id: <20031126151352.160b4734.davem@redhat.com>
-In-Reply-To: <20031126235641.36fd71c1.ak@suse.de>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>
-	<20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
-	<p73fzgbzca6.fsf@verdi.suse.de>
-	<20031126113040.3b774360.davem@redhat.com>
-	<3FC505F4.2010006@google.com>
-	<20031126120316.3ee1d251.davem@redhat.com>
-	<20031126232909.7e8a028f.ak@suse.de>
-	<20031126143620.5229fb1f.davem@redhat.com>
-	<20031126235641.36fd71c1.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Subject: Re: Help building module for 2.6.0
+Message-Id: <20031126231439.297344aa.accent0@mail2.midnet.co.uk>
+In-Reply-To: <20031126230550.37785544.tk@midnet.co.uk>
+References: <20031126230550.37785544.tk@midnet.co.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Nov 2003 23:56:41 +0100
-Andi Kleen <ak@suse.de> wrote:
+On Wed, 26 Nov 2003 23:05:50 +0000
+Tim Kelsey <tk@midnet.co.uk> wrote:
 
-> On Wed, 26 Nov 2003 14:36:20 -0800
-> "David S. Miller" <davem@redhat.com> wrote:
+> ok im trying to build a kernel module (my first :) ) when i build it on a 2.4 box everything is fine when i build it on my laptop running 2.6.0-t10 it builds fine but when i try and insmod it i get 
 > 
-> > I don't think this is acceptable.  It's important that all
-> > of the timestamps are as accurate as they were before.
+> sh$ insmod ./hgn.o 
+> insmod: error inserting './hgn.o': -1 Invalid module format
 > 
-> I disagree on that. The window is small and slowing down 99.99999% of all 
-> users who never care about this for this extremely obscure
-> misdesigned API does not make  much sense to me.
+> I have attached my Makefile. Please could some one tell me if this is due to the way i compile the module (my guess) or if it is likly caused by my code. Any pointers would be welcome.
+> 
+> Thnx for any help
+> Tim Kelsey
+> 
+> 
+> p.s. I know this is kind of like walking into a filharmonic auchestra with a waveing a tin drum :P so if there is a more apropriate place to post this kind of question pls let me know.
 
-We can't change behavior like this.  Every time we've tried to
-do it, we've been burnt.  Remember nonlocal-bind?
+*blush* this time i even included the make file, *goes to find much needed coffee* (sorry about poor spelling)
+
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288571AbSADJrw>; Fri, 4 Jan 2002 04:47:52 -0500
+	id <S288572AbSADJtc>; Fri, 4 Jan 2002 04:49:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288572AbSADJrm>; Fri, 4 Jan 2002 04:47:42 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:18567 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288571AbSADJre>;
-	Fri, 4 Jan 2002 04:47:34 -0500
-Date: Fri, 4 Jan 2002 12:44:57 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <Pine.LNX.4.40.0201040000070.18636-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.33.0201041242500.2247-100000@localhost.localdomain>
+	id <S288562AbSADJtX>; Fri, 4 Jan 2002 04:49:23 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:28058 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S288573AbSADJtJ>; Fri, 4 Jan 2002 04:49:09 -0500
+Message-ID: <XFMail.20020104104843.R.Oehler@GDImbH.com>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20020104094546.O8673@suse.de>
+Date: Fri, 04 Jan 2002 10:48:43 +0100 (MET)
+From: R.Oehler@GDImbH.com
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: kernel 2.4.17 crashes on SCSI-errors
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Keith Owens <kaos@ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 4 Jan 2002, David Lang wrote:
+On 04-Jan-2002 Jens Axboe wrote:
+>> kernel BUG at /usr/src/linux-2.4.17-Dbg/include/asm/pci.h:147!
+>> from [aic7xxx]ahc_linux_run_device_queue+0x39d
+> 
+> aic7xxx is calling pci_map_sg on either an unitialized scatterlist, or
+> maybe just specifying too many segments. try and add a printk to print
+> 'i' before the BUG() at line 147 in include/asm-i386/pci.h
 
-> Ingo,
-> back in the 2.4.4-2.4.5 days when we experimented with the
-> child-runs-first scheduling patch we ran into quite a few programs that
-> died or locked up due to this. (I had a couple myself and heard of others)
+Line 147 now reads: {printk("nents=%d, i=%d\n",nents,i); BUG();}
+and syslog buf yields:
 
-hm, Andrea said that the only serious issue was in the sysvinit code,
-which should be fixed in any recent distro. Andrea?
+<4>Incorrect number of segments after building list.
+<4>nents=3, i=1.
+<4>kernel BUG at /usr/src/linux-2.4.17-Dbg/include/asm/pci.h:147!
 
-> try switching this back to the current behaviour and see if the
-> lockups still happen.
 
-there must be some other bug as well, the child-runs-first scheduling can
-cause lockups, but it shouldnt cause oopes.
+Regards,
+        Ralf
 
-	Ingo
+ -----------------------------------------------------------------
+|  Ralf Oehler
+|  GDI - Gesellschaft fuer Digitale Informationstechnik mbH
+|
+|  E-Mail:      R.Oehler@GDImbH.com
+|  Tel.:        +49 6182-9271-23 
+|  Fax.:        +49 6182-25035           
+|  Mail:        GDI, Bensbruchstraﬂe 11, D-63533 Mainhausen
+|  HTTP:        www.GDImbH.com
+ -----------------------------------------------------------------
+
+time is a funny concept
 

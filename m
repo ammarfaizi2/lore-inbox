@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281555AbRLAKbw>; Sat, 1 Dec 2001 05:31:52 -0500
+	id <S281558AbRLAKeN>; Sat, 1 Dec 2001 05:34:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281556AbRLAKbn>; Sat, 1 Dec 2001 05:31:43 -0500
-Received: from [213.96.124.18] ([213.96.124.18]:50666 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S281555AbRLAKbX>;
-	Sat, 1 Dec 2001 05:31:23 -0500
-Date: Sat, 1 Dec 2001 11:31:15 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Tweaking The Kernel
-Message-ID: <20011201113115.B1952@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3C085A49.2DD36384@starband.net>
+	id <S284047AbRLAKeE>; Sat, 1 Dec 2001 05:34:04 -0500
+Received: from news.heim1.tu-clausthal.de ([139.174.234.200]:4413 "EHLO
+	neuemuenze.heim1.tu-clausthal.de") by vger.kernel.org with ESMTP
+	id <S281558AbRLAKdx>; Sat, 1 Dec 2001 05:33:53 -0500
+Date: Sat, 1 Dec 2001 11:34:00 +0100
+From: Sven.Riedel@tu-clausthal.de
+To: Ville Herva <vherva@viasys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
+Message-ID: <20011201113400.A629@moog.heim1.tu-clausthal.de>
+In-Reply-To: <20011201115803.B10839@viasys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3C085A49.2DD36384@starband.net>
+In-Reply-To: <20011201115803.B10839@viasys.com>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 30 November 2001, at 23:19:21 -0500,
-war wrote:
+On Sat, Dec 01, 2001 at 11:58:03AM +0200, Ville Herva wrote:
+> - how come anyone else is not seeing this corruption (Abit KT7A, nevermind 
+>   HPT370 is fairly popular)?
 
-> Does anyone have a web page or doc which explains how to tweak all of
-> the /proc/sys settings?
-> Like /proc/sys/vm/ settingsm etc?
-> 
-It seems that powetweak (powertweak.sourceforge.net) has descriptions
-for many of this tunable parameters. Some others are documented under
-/usr/src/linux/kernel/Documentation, some others seem not to be
-documented at all, but maybe a look at the sources would be helpful.
+A friend of mine had an IBM DLTA drive attached to his HPT370
+controller, and this combination proved to produce a whole lot of drive
+errors (I can confirm this first hand), which went away after attaching
+the drive to the main motherboard controller.
+I can't say anything about data corruption though - I just asked him and
+he said he didn't know of any, but that doesn't mean it didn't happen.
 
+Regs,
+Sven
 -- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
-
+Sven Riedel                      sr@gimp.org
+Osteroeder Str. 6 / App. 13      sven.riedel@tu-clausthal.de
+38678 Clausthal                  "Call me bored, but don't call me boring."
+                                 - Larry Wall 

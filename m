@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130847AbQLEWbh>; Tue, 5 Dec 2000 17:31:37 -0500
+	id <S130287AbQLEWtG>; Tue, 5 Dec 2000 17:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130877AbQLEWb2>; Tue, 5 Dec 2000 17:31:28 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:774 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130847AbQLEWbT>; Tue, 5 Dec 2000 17:31:19 -0500
-Date: Tue, 5 Dec 2000 16:00:15 -0600
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.0-test12-pre5] optimized get_empty_filp()
-Message-ID: <20001205160014.G6567@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.21.0012051754450.1493-100000@penguin.homenet>
+	id <S130783AbQLEWs4>; Tue, 5 Dec 2000 17:48:56 -0500
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:47117 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S130287AbQLEWsm>; Tue, 5 Dec 2000 17:48:42 -0500
+Date: Tue, 5 Dec 2000 15:18:13 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: 2.2.18pre24 - forgotten symbols
+Message-ID: <20001205151813.A1062@mail.harddata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0012051754450.1493-100000@penguin.homenet>; from tigran@veritas.com on Tue, Dec 05, 2000 at 05:57:53PM +0000
-From: Peter Samuelson <peter@cadcamlab.org>
+X-Mailer: Mutt 0.95.5us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With an SMP kernel one gets, in particular,
 
-[Tigran Aivazian]
-> The only reason one could think of was to "hold the lock for as short
-> time as possible" but a minute's thought reveals that such reason is
-> invalid (i.e. one is more likely to waste time spinning on the lock
-> than to save it by dropping/retaking it, given the relative duration
-> of the instructions we execute there without the lock).
+depmod: *** Unresolved symbols in /lib/modules/2.2.18pre24/misc/agpgart.o
+depmod:         smp_call_function
+depmod:         smp_num_cpus
 
-If there is no contention, you do not spin, no time wasted
+The machine affected is actually Alpha but likely this is not relevant.
 
-If there *is* contention, you deserialize the routine just a little
-bit, which is generally a Good Thing.
-
-Whether a memset of 92 bytes (on 32-bit arch), plus an atomic_set(),
-are worth deserializing, I do not know.
-
-Peter
+   Michal
+   michal@harddata.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

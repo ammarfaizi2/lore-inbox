@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280387AbRKXW3w>; Sat, 24 Nov 2001 17:29:52 -0500
+	id <S280410AbRKXWab>; Sat, 24 Nov 2001 17:30:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280402AbRKXW3d>; Sat, 24 Nov 2001 17:29:33 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49673 "EHLO
+	id <S280426AbRKXWaW>; Sat, 24 Nov 2001 17:30:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50697 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280387AbRKXW3P>; Sat, 24 Nov 2001 17:29:15 -0500
+	id <S280410AbRKXWaP>; Sat, 24 Nov 2001 17:30:15 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.4.15 - syslinux no longer works (File system problem?)
-Date: 24 Nov 2001 14:28:44 -0800
+Subject: Re: is 2.4.15 really available at www.kernel.org?
+Date: 24 Nov 2001 14:29:53 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tp6us$mh7$1@cesium.transmeta.com>
-In-Reply-To: <20011124111956.55298.qmail@web10402.mail.yahoo.com>
+Message-ID: <9tp711$min$1@cesium.transmeta.com>
+In-Reply-To: <2450.1006608941@ocs3.intra.ocs.com.au> <200111241356.fAODuIb30257@ns.caldera.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,20 +21,25 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011124111956.55298.qmail@web10402.mail.yahoo.com>
-By author:    =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Followup to:  <200111241356.fAODuIb30257@ns.caldera.de>
+By author:    Christoph Hellwig <hch@ns.caldera.de>
 In newsgroup: linux.dev.kernel
+>
+> In article <2450.1006608941@ocs3.intra.ocs.com.au> you wrote:
+> > kbuild 2.5 has standard support for running user specific install
+> > scripts after installing the bootable kernel and modules.  That is, the
+> > "update my bootloader" phase can be automated and will propagate from
+> > one .config to the next when you make oldconfig.
 > 
-> Yes, syslinux no longer works, every files will have a
-> length of zero and the floppy can not boot. However if
-> run df it still report that the floppy is occupied
-> some bytes exactly equal to the size of the file I
-> copied onto floppy. ls shows every file has zero.
-> 
-> What can I do ?
+> Never 2.4 kernels already try to excecute ~/bin/installkernel in the
+> 'make install' pass on i386.
 > 
 
-2.4.15 eats files.  DON'T USE IT.
+Or you can just put in your /sbin/installkernel:
+
+if [ -x $HOME/bin/installkernel ]; then
+  exec $HOME/bin/installkernel "$@"
+fi
 
 	-hpa
 -- 

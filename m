@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVAHAW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVAGWiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbVAHAW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 19:22:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVAHAUK
+	id S261672AbVAGWiY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVAGWcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 19:20:10 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:48611 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261713AbVAGXTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 18:19:55 -0500
-Subject: Re: [PATCH 2.6] cciss typo fix
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: mike.miller@hp.com
-Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050107230103.GB26037@beardog.cca.cpqcorp.net>
-References: <20050107230103.GB26037@beardog.cca.cpqcorp.net>
-Content-Type: text/plain
-Date: Fri, 07 Jan 2005 18:19:28 -0500
-Message-Id: <1105139968.4151.26.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 17:32:42 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:55235 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S261678AbVAGW0m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:26:42 -0500
+Message-Id: <200501072226.j07MQX1E019627@localhost.localdomain>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       arjanv@redhat.com, mingo@elte.hu, chrisw@osdl.org,
+       alan@lxorguk.ukuu.org.uk, joq@io.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
+In-reply-to: Your message of "Fri, 07 Jan 2005 22:10:59 GMT."
+             <20050107221059.GA17392@infradead.org> 
+Date: Fri, 07 Jan 2005 17:26:32 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.197.185.179] at Fri, 7 Jan 2005 16:26:34 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 17:01 -0600, mike.miller@hp.com wrote:
-> -		*total_size = be32_to_cpu(*((__be32 *) &buf->total_size[0]))+1;
-> -		*block_size = be32_to_cpu(*((__be32 *) &buf->block_size[0]));
-> +		*total_size = be32_to_cpu(*((__u32 *) &buf->total_size[0]))+1;
-> +		*block_size = be32_to_cpu(*((__u32 *) &buf->block_size[0]));
+>So to make forward progress I'd like the audio people to confirm whether
+>the mlock bits in 2.6.9+ do help that half of their requirement first
 
-I don't think that's a typo.  It was introduced by this patch:
+it does, although it would be nicer to not have two separate
+components to administering the usability of realtime applications.
 
-ChangeSet 1.1988.24.79 2004/10/06 07:55:02 viro@www.linux.org.uk
-  [PATCH] cciss endianness and iomem annotations
- 
-The idea being that BE and LE numbers should be annotated differently,
-so the __be32 annotations look correct to me.  I think sparse will warn
-if you make this change.
+>(and if not find a way to fix it) and then tackle the scheduling part.
+>For that one I really wonder whether the combination of the now actually
+>working nicelevels (see Mingo's post) and a simple wrapper for the really
+>high requirements cases doesn't work.
 
-James
+Jack already posted results: the nice levels are massively inferior as
+they currently stand.
 
+The wrapper is incredibly inconvenient for applications: when you use
+JACK, start clients would require a different command depending on
+whether JACK is using RT mode or not. That is extremely inelegant, and
+its why we've developed these solutions (caps+jackstart for 2.4,
+"realtime" LSM for 2.6).
+
+--p
 

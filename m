@@ -1,41 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbTB0Iwu>; Thu, 27 Feb 2003 03:52:50 -0500
+	id <S262449AbTB0JBv>; Thu, 27 Feb 2003 04:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbTB0Iwu>; Thu, 27 Feb 2003 03:52:50 -0500
-Received: from elixir.e.kth.se ([130.237.48.5]:10 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S262201AbTB0Iwu>;
-	Thu, 27 Feb 2003 03:52:50 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.62 + ide + netboot
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 27 Feb 2003 10:03:08 +0100
-Message-ID: <yw1x8yw2umcz.fsf@manganonaujakasit.e.kth.se>
+	id <S262452AbTB0JBv>; Thu, 27 Feb 2003 04:01:51 -0500
+Received: from dsl-212-144-205-077.arcor-ip.net ([212.144.205.77]:24961 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id <S262449AbTB0JBu> convert rfc822-to-8bit; Thu, 27 Feb 2003 04:01:50 -0500
+From: Dominik Kubla <dominik@kubla.de>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Subject: Re: About /etc/mtab and /proc/mounts
+Date: Thu, 27 Feb 2003 10:11:59 +0100
+User-Agent: KMail/1.5
+Cc: Miles Bader <miles@gnu.org>, DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030219112111.GD130@DervishD> <200302270808.21035.dominik@kubla.de> <3E5DC86C.93AFA6CB@daimi.au.dk>
+In-Reply-To: <3E5DC86C.93AFA6CB@daimi.au.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200302271012.02283.dominik@kubla.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 27 February 2003 09:12, Kasper Dupont wrote:
+> Dominik Kubla wrote:
+> > I would recommend to replace /etc/mtab with a pseudo-FS like Sun did
+> > for /etc/mnttab:
+...
+> How does that thing behave? I have considered a /proc/mtab implementation,
+> that might be slightly similar. 
 
-I'm having some problems with booting linux 2.5.62 over network on an
-Alpha system with aboot 0.9.
+Quoting the Solaris 8 man page:
 
-The problem is that if the uncompressed kernel is bigger than ~2.6 MB
-the kernel will not boot, but instead falls back to SRM with a message
-stating that "kernel stack invalid".  Does this mean that the stack
-was overwritten with kernel code?
+File Formats                                            mnttab(4)
 
-Now, the only way I can make the kernel small enough to boot is by
-leaving out IDE support.  This would be fine if weren't for the fact
-that IDE can't be built as modules.  I don't have the exact errors
-here, but I can send them on request.
+NAME
+     mnttab - mounted file system table
 
-What needs to be changed to make more room for the kernel image?  Is
-it aboot that defines this, or is it somewhere in the kernel sources?
+DESCRIPTION
+     The file /etc/mnttab is really a file system  that  provides
+     read-only  access  to  the table of mounted file systems for
+     the current host. /etc/mnttab is read by programs using  the
+     routines  described in getmntent(3C). Mounting a file system
+     adds an entry to this table.  Unmounting  removes  an  entry
+     from  this table. Remounting a file system causes the infor-
+     mation in the mounted file system table  to  be  updated  to
+     reflect any changes caused by the remount. The list is main-
+     tained by the kernel in order of mount time.  That  is,  the
+     first  mounted file system is first in the list and the most
+     recently mounted file system is  last.  When  mounted  on  a
+     mount  point  the file system appears as a regular file con-
+     taining the current mnttab information.
+[...]
+NOTES
+     The snapshot of the mnttab information is taken any  time  a
+     read(2)  is  performed  at  offset  0 (the beginning) of the
+     mnttab file. The file modification time returned by  stat(2)
+     for  the  mnttab  file  is  the  time  of the last change to
+     mounted file  system  information.  A  poll(2)  system  call
+     requesting  a POLLRDBAND event can be used to block and wait
+     for the system's mounted file system information to be  dif-
+     ferent  from  the most recent snapshot since the mnttab file
+     was opened.
 
-Is anyone fixing IDE as modules?  This is broken in 2.4 kernels too.
-
+Regards,
+  Dominik Kubla
 -- 
-Måns Rullgård
-mru@users.sf.net
+"What this  country needs is  a short, victorious war  to stem the  tide of
+revolution." (V.K. von Plehve, Russian Minister  of Interior on the  eve of
+the Russo-Japanese war.)
+

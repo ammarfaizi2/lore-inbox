@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264878AbUEKQlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264855AbUEKQmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264878AbUEKQlb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUEKQlT
+	id S264855AbUEKQmp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 12:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264871AbUEKQmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:41:19 -0400
-Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:10745 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S264871AbUEKQhr
+	Tue, 11 May 2004 12:42:45 -0400
+Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:10489 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S264855AbUEKQhi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:37:47 -0400
-Date: Wed, 12 May 2004 01:37:45 +0900
-Message-ID: <m2pt9arkbq.wl%ysato@users.sourceforge.jp>
+	Tue, 11 May 2004 12:37:38 -0400
+Date: Wed, 12 May 2004 01:37:36 +0900
+Message-ID: <m2r7tqrkbz.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH} H8/300 update (9/9) more cleanup
+Subject: [PATCH} H8/300 update (8/9) delete headers
 User-Agent: Wanderlust/2.11.24 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,531 +23,307 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- gcc-3.4 warning fix.
-- io access address fix.
-- cleanup code.
+- Delete obsolute header files
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nru linux-2.6.6/arch/h8300/kernel/process.c linux-2.6.6-h8300/arch/h8300/kernel/process.c
---- linux-2.6.6/arch/h8300/kernel/process.c	2004-05-11 14:30:44.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/kernel/process.c	2004-05-11 19:20:48.000000000 +0900
-@@ -55,9 +55,9 @@
- {
- 	while(1) {
- 		if (need_resched()) {
--			sti();
-+			local_irq_enable();
- 			__asm__("sleep");
--			cli();
-+			local_irq_disable();
- 		}
- 		schedule();
- 	}
-@@ -112,14 +112,13 @@
+diff -Nru linux-2.6.6/arch/h8300/Makefile linux-2.6.6-h8300/arch/h8300/Makefile
+--- linux-2.6.6/arch/h8300/Makefile	2004-01-09 15:59:10.000000000 +0900
++++ linux-2.6.6-h8300/arch/h8300/Makefile	2004-04-12 21:09:47.000000000 +0900
+@@ -62,12 +62,7 @@
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=$(boot)
  
- void show_regs(struct pt_regs * regs)
- {
--	printk("\n");
--	printk("PC: %08lx  Status: %02x\n",
-+	printk("\nPC: %08lx  Status: %02x",
- 	       regs->pc, regs->ccr);
--	printk("ORIG_ER0: %08lx ER0: %08lx ER1: %08lx\n",
-+	printk("\nORIG_ER0: %08lx ER0: %08lx ER1: %08lx",
- 	       regs->orig_er0, regs->er0, regs->er1);
--	printk("ER2: %08lx ER3: %08lx ER4: %08lx ER5: %08lx\n",
-+	printk("\nER2: %08lx ER3: %08lx ER4: %08lx ER5: %08lx",
- 	       regs->er2, regs->er3, regs->er4, regs->er5);
--	printk("ER6' %08lx ",regs->er6);
-+	printk("\nER6' %08lx ",regs->er6);
- 	if (user_mode(regs))
- 		printk("USP: %08lx\n", rdusp());
- 	else
-diff -Nru linux-2.6.6/arch/h8300/kernel/traps.c linux-2.6.6-h8300/arch/h8300/kernel/traps.c
---- linux-2.6.6/arch/h8300/kernel/traps.c	2004-05-11 14:30:44.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/kernel/traps.c	2004-05-11 19:20:48.000000000 +0900
-@@ -156,8 +156,14 @@
- 	printk("\n");
- }
- 
-+void show_trace_task(struct task_struct *tsk)
-+{
-+	show_stack(tsk,(unsigned long *)tsk->thread.esp0);
-+}
-+
- void dump_stack(void)
- {
- 	show_stack(NULL,NULL);
- }
-+
- EXPORT_SYMBOL(dump_stack);
-diff -Nru linux-2.6.6/arch/h8300/mm/init.c linux-2.6.6-h8300/arch/h8300/mm/init.c
---- linux-2.6.6/arch/h8300/mm/init.c	2004-05-11 14:30:25.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/mm/init.c	2004-04-08 01:11:58.000000000 +0900
-@@ -162,7 +162,7 @@
- 	unsigned long end_mem   = memory_end; /* DAVIDM - this must not include kernel stack at top */
- 
- #ifdef DEBUG
--	printk("Mem_init: start=%lx, end=%lx\n", start_mem, end_mem);
-+	printk(KERN_DEBUG "Mem_init: start=%lx, end=%lx\n", start_mem, end_mem);
- #endif
- 
- 	end_mem &= PAGE_MASK;
-@@ -179,7 +179,7 @@
- 	initk = (&__init_begin - &__init_end) >> 10;
- 
- 	tmp = nr_free_pages() << PAGE_SHIFT;
--	printk("Memory available: %luk/%luk RAM, %luk/%luk ROM (%dk kernel code, %dk data)\n",
-+	printk(KERN_INFO "Memory available: %luk/%luk RAM, %luk/%luk ROM (%dk kernel code, %dk data)\n",
- 	       tmp >> 10,
- 	       len >> 10,
- 	       (rom_length > 0) ? ((rom_length >> 10) - codek) : 0,
-@@ -223,7 +223,7 @@
- 		free_page(addr);
- 		totalram_pages++;
- 	}
--	printk("Freeing unused kernel memory: %ldk freed (0x%x - 0x%x)\n",
-+	printk(KERN_INFO "Freeing unused kernel memory: %ldk freed (0x%x - 0x%x)\n",
- 			(addr - PAGE_ALIGN((long) &__init_begin)) >> 10,
- 			(int)(PAGE_ALIGN((unsigned long)(&__init_begin))),
- 			(int)(addr - PAGE_SIZE));
-diff -Nru linux-2.6.6/arch/h8300/platform/h8300h/aki3068net/timer.c linux-2.6.6-h8300/arch/h8300/platform/h8300h/aki3068net/timer.c
---- linux-2.6.6/arch/h8300/platform/h8300h/aki3068net/timer.c	2004-05-11 14:30:09.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/platform/h8300h/aki3068net/timer.c	2004-04-12 21:09:47.000000000 +0900
-@@ -25,12 +25,19 @@
- 
- #define CMFA 6
- 
-+#define CMIEA 0x40
-+#define CCLR_CMA 0x08
-+#define CLK_DIV8192 0x03
-+
-+#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192 /* Timer input freq. */
-+
- void __init platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
- {
--	ctrl_outb(H8300_TIMER_COUNT_DATA,TCORA2);
--	ctrl_outb(0x00,_8TCSR2);
--	request_irq(40,timer_int,0,"timer",0);
--	ctrl_outb(0x40|0x08|0x03,_8TCR2);
-+	/* setup 8bit timer ch2 */
-+	ctrl_outb(H8300_TIMER_FREQ / HZ, TCORA2);      /* set interval */
-+	ctrl_outb(0x00, _8TCSR2);                      /* no output */
-+	request_irq(40, timer_int, 0, "timer", 0);
-+	ctrl_outb(CMIEA|CCLR_CMA|CLK_DIV8192, _8TCR2); /* start count */
- }
- 
- void platform_timer_eoi(void)
-diff -Nru linux-2.6.6/arch/h8300/platform/h8300h/generic/timer.c linux-2.6.6-h8300/arch/h8300/platform/h8300h/generic/timer.c
---- linux-2.6.6/arch/h8300/platform/h8300h/generic/timer.c	2004-05-11 14:30:25.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/platform/h8300h/generic/timer.c	2004-04-12 21:09:47.000000000 +0900
-@@ -22,22 +22,23 @@
- 
- #include <linux/timex.h>
- 
--extern int request_irq_boot(unsigned int,
--		             irqreturn_t (*handler)(int, void *, struct pt_regs *),
--		             unsigned long, const char *, void *);
+-prepare: include/asm-$(ARCH)/machine-depend.h include/asm-$(ARCH)/asm-offsets.h
 -
+-include/asm-$(ARCH)/machine-depend.h: include/asm-$(ARCH)/$(BOARD)/machine-depend.h
+-	$(Q)ln -sf $(BOARD)/machine-depend.h \
+-                   include/asm-$(ARCH)/machine-depend.h
+-	@echo '  Create include/asm-$(ARCH)/machine-depend.h'
++prepare: include/asm-$(ARCH)/asm-offsets.h
+ 
+ include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
+ 				   include/asm include/linux/version.h
+@@ -81,4 +76,4 @@
+   echo  'vmlinux.srec - Create srec binary'
+ endef
+ 
+-CLEAN_FILES += include/asm-$(ARCH)/asm-offsets.h include/asm-$(ARCH)/machine-depend.h
++CLEAN_FILES += include/asm-$(ARCH)/asm-offsets.h
+diff -Nru linux-2.6.6/include/asm-h8300/aki3068net/machine-depend.h linux-2.6.6-h8300/include/asm-h8300/aki3068net/machine-depend.h
+--- linux-2.6.6/include/asm-h8300/aki3068net/machine-depend.h	2004-05-11 14:30:12.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/aki3068net/machine-depend.h	1970-01-01 09:00:00.000000000 +0900
+@@ -1,29 +0,0 @@
+-/* AE-3068 board depend header */
 -
- #if defined(CONFIG_H83007) || defined(CONFIG_H83068)
- #include <asm/regs306x.h>
- #define CMFA 6
- 
-+#define CMIEA 0x40
-+#define CCLR_CMA 0x08
-+#define CLK_DIV8192 0x03
-+
-+#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192 /* Timer input freq. */
-+
- int platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
- {
--	ctrl_outb(H8300_TIMER_COUNT_DATA,TCORA2);
--	ctrl_outb(0x00,_8TCSR2);
--	request_irq(40,timer_int,0,"timer",0);
--	ctrl_outb(0x40|0x08|0x03,_8TCR2);
--	return 0;
-+	/* setup 8bit timer ch2 */
-+	ctrl_outb(H8300_TIMER_FREQ / HZ, TCORA2);      /* set interval */
-+	ctrl_outb(0x00, _8TCSR2);                      /* no output */
-+	request_irq(40, timer_int, 0, "timer", 0);
-+	ctrl_outb(CMIEA|CCLR_CMA|CLK_DIV8192, _8TCR2); /* start count */
- }
- 
- void platform_timer_eoi(void)
-@@ -46,7 +47,7 @@
- }
- #endif
- 
+-/* TIMER rate define */
+-#ifdef H8300_TIMER_DEFINE
+-#define H8300_TIMER_COUNT_DATA 20000*10/8192
+-#define H8300_TIMER_FREQ 20000*1000/8192
+-#endif
+-
+-/* AE-3068 RTL8019AS Config */
+-#ifdef H8300_NE_DEFINE
+-
+-#define NE2000_ADDR		0x200000
+-#define NE2000_IRQ              5
+-#define	NE2000_BYTE		volatile unsigned short
+-
+-#define WCRL                    0xfee023
+-#define MAR0A                   0xffff20
+-#define ETCR0A                  0xffff24
+-#define DTCR0A                  0xffff27
+-#define MAR0B                   0xffff28
+-#define DTCR0B                  0xffff2f
+-
+-#define H8300_INIT_NE()                  \
+-do {                                     \
+-	wordlength = 1;                  \
+-        outb_p(0x48, ioaddr + EN0_DCFG); \
+-} while(0)
+-
+-#endif
+diff -Nru linux-2.6.6/include/asm-h8300/edosk2674/machine-depend.h linux-2.6.6-h8300/include/asm-h8300/edosk2674/machine-depend.h
+--- linux-2.6.6/include/asm-h8300/edosk2674/machine-depend.h	2004-01-09 16:00:12.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/edosk2674/machine-depend.h	1970-01-01 09:00:00.000000000 +0900
+@@ -1,70 +0,0 @@
+-/* EDOSK2674 board depend header */
+-
+-/* TIMER rate define */
+-#ifdef H8300_TIMER_DEFINE
+-#define H8300_TIMER_COUNT_DATA 33000*10/8192
+-#define H8300_TIMER_FREQ 33000*1000/8192
+-#endif
+-
+-/* EDOSK-2674R SMSC Network Controler Target Depend impliments */
+-#ifdef H8300_SMSC_DEFINE
+-
+-#define SMSC_BASE 0xf80000
+-#define SMSC_IRQ 16
+-
+-/* sorry quick hack */
+-#if defined(outw)
+-# undef outw
+-#endif
+-#define outw(d,a) edosk2674_smsc_outw(d,(volatile unsigned short *)(a))
+-#if defined(inw)
+-# undef inw
+-#endif
+-#define inw(a) edosk2674_smsc_inw((volatile unsigned short *)(a))
+-#if defined(outsw)
+-# undef outsw
+-#endif
+-#define outsw(a,p,l) edosk2674_smsc_outsw((volatile unsigned short *)(a),p,l)
+-#if defined(insw)
+-# undef insw
+-#endif
+-#define insw(a,p,l) edosk2674_smsc_insw((volatile unsigned short *)(a),p,l)
+-
+-static inline void edosk2674_smsc_outw(
+-	unsigned short d,
+-	volatile unsigned short *a
+-	)
+-{
+-	*a = (d >> 8) | (d << 8);
+-}
+-
+-static inline unsigned short edosk2674_smsc_inw(
+-	volatile unsigned short *a
+-	)
+-{
+-	unsigned short d;
+-	d = *a;
+-	return (d >> 8) | (d << 8);
+-}
+-
+-static inline void edosk2674_smsc_outsw(
+-	volatile unsigned short *a,
+-	unsigned short *p,
+-	unsigned long l
+-	)
+-{
+-	for (; l != 0; --l, p++)
+-		*a = *p;
+-}
+-
+-static inline void edosk2674_smsc_insw(
+-	volatile unsigned short *a,
+-	unsigned short *p,
+-	unsigned long l
+-	)
+-{
+-	for (; l != 0; --l, p++)
+-		*p = *a;
+-}
+-
+-#endif
+diff -Nru linux-2.6.6/include/asm-h8300/generic/machine-depend.h linux-2.6.6-h8300/include/asm-h8300/generic/machine-depend.h
+--- linux-2.6.6/include/asm-h8300/generic/machine-depend.h	2004-01-09 15:59:19.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/generic/machine-depend.h	1970-01-01 09:00:00.000000000 +0900
+@@ -1,17 +0,0 @@
+-/* machine depend header */
+-
+-/* TIMER rate define */
+-#ifdef H8300_TIMER_DEFINE
+-#include <linux/config.h>
+-#if defined(CONFIG_H83007) || defined(CONFIG_H83068) || defined(CONFIG_H8S2678)
+-#define H8300_TIMER_COUNT_DATA CONFIG_CPU_CLOCK*10/8192
+-#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192
+-#endif
+-
+-#if defined(CONFIG_H8_3002) || defined(CONFIG_H83048)
+-#define H8300_TIMER_COUNT_DATA  CONFIG_CPU_CLOCK*10/8
+-#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8
+-#endif
+-
+-#endif
+-
+diff -Nru linux-2.6.6/include/asm-h8300/generic/timer_rate.h linux-2.6.6-h8300/include/asm-h8300/generic/timer_rate.h
+--- linux-2.6.6/include/asm-h8300/generic/timer_rate.h	2004-01-09 16:00:03.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/generic/timer_rate.h	1970-01-01 09:00:00.000000000 +0900
+@@ -1,15 +0,0 @@
+-#include <linux/config.h>
+-
+-#if defined(CONFIG_H83007) || defined(CONFIG_H83068) || defined(CONFIG_H8S2678)
+-#define H8300_TIMER_COUNT_DATA CONFIG_CPU_CLOCK*10/8192
+-#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192
+-#endif
+-
 -#if defined(H8_3002) || defined(CONFIG_H83048)
-+#if defined(CONFIG_H83002) || defined(CONFIG_H83048)
- /* FIXME! */
- #define TSTR 0x00ffff60
- #define TSNC 0x00ffff61
-@@ -54,6 +55,7 @@
- #define TFCR 0x00ffff63
- #define TOER 0x00ffff90
- #define TOCR 0x00ffff91
-+/* ITU0 */
- #define TCR  0x00ffff64
- #define TIOR 0x00ffff65
- #define TIER 0x00ffff66
-@@ -62,23 +64,28 @@
- #define GRA  0x00ffff6a
- #define GRB  0x00ffff6c
- 
-+#define CCLR_CMGRA 0x20
-+#define CLK_DIV8 0x03
-+
-+#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8 /* Timer input freq. */
-+
- int platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
- {
--	*(unsigned short *)GRA= H8300_TIMER_COUNT_DATA;
--	*(unsigned short *)TCNT=0;
--	ctrl_outb(0x23,TCR);
--	ctrl_outb(0x00,TIOR);
--	request_timer_irq(26,timer_int,0,"timer",0);
--	ctrl_outb(inb(TIER) | 0x01,TIER);
--	ctrl_outb(inb(TSNC) & ~0x01,TSNC);
--	ctrl_outb(inb(TMDR) & ~0x01,TMDR);
--	ctrl_outb(inb(TSTR) | 0x01,TSTR);
-+	*(unsigned short *)GRA= H8300_TIMER_FREQ / HZ;  /* set interval */
-+	*(unsigned short *)TCNT=0;                      /* clear counter */
-+	ctrl_outb(0x80|CCLR_CMGRA|CLK_DIV8, TCR);       /* set ITU0 clock */
-+	ctrl_outb(0x88, TIOR);                          /* no output */
-+	request_irq(26, timer_int, 0, "timer", 0);
-+	ctrl_outb(0xf9, TIER);                          /* compare match GRA interrupt */
-+	ctrl_outb(ctrl_inb(TSNC) & ~0x01, TSNC);        /* ITU0 async */
-+	ctrl_outb(ctrl_inb(TMDR) & ~0x01, TMDR);        /* ITU0 normal mode */
-+	ctrl_outb(ctrl_inb(TSTR) | 0x01, TSTR);         /* ITU0 Start */
- 	return 0;
- }
- 
- void platform_timer_eoi(void)
- {
--	ctrl_outb(inb(TSR) & ~0x01,TSR);
-+	ctrl_outb(ctrl_inb(TSR) & ~0x01,TSR);
- }
- #endif
- 
-diff -Nru linux-2.6.6/arch/h8300/platform/h8300h/h8max/timer.c linux-2.6.6-h8300/arch/h8300/platform/h8300h/h8max/timer.c
---- linux-2.6.6/arch/h8300/platform/h8300h/h8max/timer.c	2004-05-11 14:30:09.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/platform/h8300h/h8max/timer.c	2004-04-12 21:09:47.000000000 +0900
-@@ -25,12 +25,19 @@
- 
- #define CMFA 6
- 
-+#define CMIEA 0x40
-+#define CCLR_CMA 0x08
-+#define CLK_DIV8192 0x03
-+
-+#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192 /* Timer input freq. */
-+
- void __init platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
- {
--	ctrl_outb(H8300_TIMER_COUNT_DATA,TCORA2);
--	ctrl_outb(0x00,_8TCSR2);
--	request_irq(40,timer_int,0,"timer",0);
--	ctrl_outb(0x40|0x08|0x03,_8TCR2);
-+	/* setup 8bit timer ch2 */
-+	ctrl_outb(H8300_TIMER_FREQ / HZ, TCORA2);      /* set interval */
-+	ctrl_outb(0x00, _8TCSR2);                      /* no output */
-+	request_irq(40, timer_int, 0, "timer", 0);
-+	ctrl_outb(CMIEA|CCLR_CMA|CLK_DIV8192, _8TCR2); /* start count */
- }
- 
- void platform_timer_eoi(void)
-diff -Nru linux-2.6.6/arch/h8300/platform/h8300h/ptrace_h8300h.c linux-2.6.6-h8300/arch/h8300/platform/h8300h/ptrace_h8300h.c
---- linux-2.6.6/arch/h8300/platform/h8300h/ptrace_h8300h.c	2004-05-11 14:30:44.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/platform/h8300h/ptrace_h8300h.c	2004-05-11 21:04:14.000000000 +0900
-@@ -246,11 +246,13 @@
- 					return (unsigned short *)addr;
- 				case relb:
- 					if ((inst = 0x55) || isbranch(child,inst & 0x0f))
--						(unsigned char *)pc += (signed char)(*fetch_p);
-+						pc = (unsigned short *)((unsigned long)pc + 
-+								       ((signed char)(*fetch_p)));
- 					return pc+1; /* skip myself */
- 				case relw:
- 					if ((inst = 0x5c) || isbranch(child,(*fetch_p & 0xf0) >> 4))
--						(unsigned char *)pc += (signed short)(*(pc+1));
-+						pc = (unsigned short *)((unsigned long)pc +
-+								       ((signed short)(*(pc+1))));
- 					return pc+2; /* skip myself */
- 				}
- 			}
-diff -Nru linux-2.6.6/arch/h8300/platform/h8s/edosk2674/timer.c linux-2.6.6-h8300/arch/h8300/platform/h8s/edosk2674/timer.c
---- linux-2.6.6/arch/h8300/platform/h8s/edosk2674/timer.c	2004-05-11 14:30:09.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/platform/h8s/edosk2674/timer.c	2004-04-12 21:09:47.000000000 +0900
-@@ -1,5 +1,5 @@
- /*
-- *  linux/arch/h8300/platform/h8s/generic/timer.c
-+ *  linux/arch/h8300/platform/h8s/edosk2674/timer.c
-  *
-  *  Yoshinori Sato <ysato@users.sourceforge.jp>
-  *
-@@ -23,25 +23,28 @@
- #include <asm/irq.h>
- #include <asm/regs267x.h>
- 
--#define REGS(regs) __REGS(regs)
--#define __REGS(regs) #regs
-+#define CMFA 6
- 
--int __init platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
-+#define CMIEA 0x40
-+#define CCLR_CMA 0x08
-+#define CLK_DIV8192 0x03
-+
-+#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192 /* Timer input freq. */
-+
-+void __init platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
- {
--	unsigned char mstpcrl;
--	mstpcrl = ctrl_inb(MSTPCRL);                  /* Enable timer */
--	mstpcrl &= ~0x01;
--	ctrl_outb(mstpcrl,MSTPCRL);
--	ctrl_outb(H8300_TIMER_COUNT_DATA,_8TCORA1);
--	ctrl_outb(0x00,_8TCSR1);
--	request_irq(76,timer_int,0,"timer",0);
--	ctrl_outb(0x40|0x08|0x03,_8TCR1);
--	return 0;
-+	/* 8bit timer module enabled */
-+	ctrl_outb(ctrl_inb(MSTPCRL) & ~0x01, MSTPCRL);
-+	/* setup 8bit timer ch1 */
-+	ctrl_outb(H8300_TIMER_FREQ / HZ, _8TCORA1);      /* set interval */
-+	ctrl_outb(0x00, _8TCSR1);                        /* no output */
-+	request_irq(76, timer_int, 0, "timer" ,0);
-+	ctrl_outb(CMIEA|CCLR_CMA|CLK_DIV8192, _8TCR1);   /* start count */
- }
- 
- void platform_timer_eoi(void)
- {
--        __asm__("bclr #6,@" REGS(_8TCSR1) ":8");
-+	*(volatile unsigned char *)_8TCSR1 &= ~(1 << CMFA);
- }
- 
- void platform_gettod(int *year, int *mon, int *day, int *hour,
-diff -Nru linux-2.6.6/arch/h8300/platform/h8s/generic/timer.c linux-2.6.6-h8300/arch/h8300/platform/h8s/generic/timer.c
---- linux-2.6.6/arch/h8300/platform/h8s/generic/timer.c	2004-05-11 14:30:09.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/platform/h8s/generic/timer.c	2004-04-12 21:09:47.000000000 +0900
-@@ -23,18 +23,28 @@
- #include <asm/irq.h>
- #include <asm/regs267x.h>
- 
--int platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
-+#define CMFA 6
-+
-+#define CMIEA 0x40
-+#define CCLR_CMA 0x08
-+#define CLK_DIV8192 0x03
-+
-+#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192 /* Timer input freq. */
-+
-+void __init platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
- {
--	ctrl_outb(H8300_TIMER_COUNT_DATA,_8TCORA1);
--	ctrl_outb(0x00,_8TCSR1);
--	request_irq(76,timer_int,0,"timer",0);
--	ctrl_outb(0x40|0x08|0x03,_8TCR1);
--	return 0;
-+	/* 8bit timer module enabled */
-+	ctrl_outb(ctrl_inb(MSTPCRL) & ~0x01, MSTPCRL);
-+	/* setup 8bit timer ch1 */
-+	ctrl_outb(H8300_TIMER_FREQ / HZ, _8TCORA1);      /* set interval */
-+	ctrl_outb(0x00, _8TCSR1);                        /* no output */
-+	request_irq(76, timer_int, 0, "timer" ,0);
-+	ctrl_outb(CMIEA|CCLR_CMA|CLK_DIV8192, _8TCR1);   /* start count */
- }
- 
- void platform_timer_eoi(void)
- {
--        __asm__("bclr #6,@0xffffb3:8");
-+	*(volatile unsigned char *)_8TCSR1 &= ~(1 << CMFA);
- }
- 
- void platform_gettod(int *year, int *mon, int *day, int *hour,
-diff -Nru linux-2.6.6/include/asm-h8300/io.h linux-2.6.6-h8300/include/asm-h8300/io.h
---- linux-2.6.6/include/asm-h8300/io.h	2004-05-11 14:30:47.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/io.h	2004-05-11 21:28:11.000000000 +0900
-@@ -76,7 +76,7 @@
- 	return (*(volatile unsigned char *)ABWCR & (1 << ((addr >> 21) & 7))) == 0;
- }
- 
--static inline void io_outsb(unsigned int addr, void *buf, int len)
-+static inline void io_outsb(unsigned int addr, const void *buf, int len)
- {
- 	volatile unsigned char  *ap_b = (volatile unsigned char *) addr;
- 	volatile unsigned short *ap_w = (volatile unsigned short *) addr;
-@@ -91,7 +91,7 @@
- 	}
- }
- 
--static inline void io_outsw(unsigned int addr, void *buf, int len)
-+static inline void io_outsw(unsigned int addr, const void *buf, int len)
- {
- 	volatile unsigned short *ap = (volatile unsigned short *) addr;
- 	unsigned short *bp = (unsigned short *) buf;
-@@ -99,25 +99,29 @@
- 		*ap = *bp++;
- }
- 
--static inline void io_outsl(unsigned int addr, void *buf, int len)
-+static inline void io_outsl(unsigned int addr, const void *buf, int len)
- {
- 	volatile unsigned int *ap = (volatile unsigned int *) addr;
--	unsigned int *bp = (unsigned int *) buf;
-+	unsigned long *bp = (unsigned long *) buf;
- 	while (len--)
- 		*ap = *bp++;
- }
- 
- static inline void io_insb(unsigned int addr, void *buf, int len)
- {
--	volatile unsigned char  *ap;
-+	volatile unsigned char  *ap_b;
-+	volatile unsigned short *ap_w;
- 	unsigned char *bp = (unsigned char *) buf;
- 
--	if(h8300_buswidth(addr))
--		ap = (volatile unsigned char *)(addr ^ 1);
--	else
--		ap = (volatile unsigned char *)addr;
--	while (len--)
--		*bp++ = *ap;
-+	if(h8300_buswidth(addr)) {
-+		ap_w = (volatile unsigned short *)(addr & ~1);
-+		while (len--)
-+			*bp++ = *ap_w & 0xff;
-+	} else {
-+		ap_b = (volatile unsigned char *)addr;
-+		while (len--)
-+			*bp++ = *ap_b;
-+	}
- }
- 
- static inline void io_insw(unsigned int addr, void *buf, int len)
-@@ -131,7 +135,7 @@
- static inline void io_insl(unsigned int addr, void *buf, int len)
- {
- 	volatile unsigned int *ap = (volatile unsigned int *) addr;
--	unsigned int *bp = (unsigned int *) buf;
-+	unsigned long *bp = (unsigned long *) buf;
- 	while (len--)
- 		*bp++ = *ap;
- }
-@@ -145,10 +149,10 @@
- #define memcpy_fromio(a,b,c)	memcpy((a),(void *)(b),(c))
- #define memcpy_toio(a,b,c)	memcpy((void *)(a),(b),(c))
- 
--#define inb(addr)    ((h8300_buswidth(addr))?readb((addr) ^ 1) & 0xff:readb(addr))
-+#define inb(addr)    ((h8300_buswidth(addr))?readw((addr) & ~1) & 0xff:readb(addr))
- #define inw(addr)    _swapw(readw(addr))
- #define inl(addr)    _swapl(readl(addr))
--#define outb(x,addr) ((void)((h8300_buswidth(addr) && ((addr) & 1))?writew(x,addr):writeb(x,addr)))
-+#define outb(x,addr) ((void)((h8300_buswidth(addr) && ((addr) & 1))?writew(x,(addr) & ~1):writeb(x,addr)))
- #define outw(x,addr) ((void) writew(_swapw(x),addr))
- #define outl(x,addr) ((void) writel(_swapl(x),addr))
- 
-diff -Nru linux-2.6.6/include/asm-h8300/semaphore.h linux-2.6.6-h8300/include/asm-h8300/semaphore.h
---- linux-2.6.6/include/asm-h8300/semaphore.h	2004-01-09 15:59:33.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/semaphore.h	2004-05-11 21:28:11.000000000 +0900
-@@ -96,7 +96,7 @@
- 	__asm__ __volatile__(
- 		"stc ccr,r3l\n\t"
- 		"orc #0x80,ccr\n\t"
--		"mov.l %0, er1\n\t"
-+		"mov.l %2, er1\n\t"
- 		"dec.l #1,er1\n\t"
- 		"mov.l er1,%0\n\t"
- 		"bpl 1f\n\t"
-@@ -107,8 +107,8 @@
- 		"1:\n\t"
- 		"ldc r3l,ccr\n"
- 		"2:"
--		: "+m"(*count)
--		: "g"(sem)
-+		: "=m"(*count)
-+		: "g"(sem),"m"(*count)
- 		: "cc",  "er1", "er2", "er3");
- }
- 
-@@ -125,7 +125,7 @@
- 	__asm__ __volatile__(
- 		"stc ccr,r1l\n\t"
- 		"orc #0x80,ccr\n\t"
--		"mov.l %1, er2\n\t"
-+		"mov.l %3, er2\n\t"
- 		"dec.l #1,er2\n\t"
- 		"mov.l er2,%1\n\t"
- 		"bpl 1f\n\t"
-@@ -137,8 +137,8 @@
- 		"ldc r1l,ccr\n\t"
- 		"sub.l %0,%0\n\t"
- 		"2:\n\t"
--		: "=r" (count),"+m" (*count)
--		: "g"(sem)
-+		: "=r" (count),"=m" (*count)
-+		: "g"(sem),"m"(*count)
- 		: "cc", "er1", "er2", "er3");
- 	return (int)count;
- }
-@@ -155,7 +155,7 @@
- 	__asm__ __volatile__(
- 		"stc ccr,r3l\n\t"
- 		"orc #0x80,ccr\n\t"
--		"mov.l %0,er2\n\t"
-+		"mov.l %3,er2\n\t"
- 		"dec.l #1,er2\n\t"
- 		"mov.l er2,%0\n\t"
- 		"bpl 1f\n\t"
-@@ -171,8 +171,8 @@
- 		"ldc r3l,ccr\n\t"
- 		"sub.l %1,%1\n"
- 		"2:"
--		: "+m" (*count),"=r"(count)
--		: "g"(sem)
-+		: "=m" (*count),"=r"(count)
-+		: "g"(sem),"m"(*count)
- 		: "cc", "er1","er2", "er3");
- 	return (int)count;
- }
-@@ -195,7 +195,7 @@
- 	__asm__ __volatile__(
- 		"stc ccr,r3l\n\t"
- 		"orc #0x80,ccr\n\t"
--		"mov.l %0,er1\n\t"
-+		"mov.l %2,er1\n\t"
- 		"inc.l #1,er1\n\t"
- 		"mov.l er1,%0\n\t"
- 		"ldc r3l,ccr\n\t"
-@@ -205,8 +205,8 @@
- 		"mov.l %1,er0\n\t"
- 		"jsr @___up\n"
- 		"1:"
--		: "+m"(*count)
--		: "g"(sem)
-+		: "=m"(*count)
-+		: "g"(sem),"m"(*count)
- 		: "cc", "er1", "er2", "er3");
- }
- 
-diff -Nru linux-2.6.6/include/asm-h8300/timex.h linux-2.6.6-h8300/include/asm-h8300/timex.h
---- linux-2.6.6/include/asm-h8300/timex.h	2004-01-09 15:59:33.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/timex.h	2004-04-13 01:41:33.000000000 +0900
-@@ -6,11 +6,7 @@
- #ifndef _ASM_H8300_TIMEX_H
- #define _ASM_H8300_TIMEX_H
- 
--#define H8300_TIMER_DEFINE
--#include <asm/machine-depend.h>
--#undef  H8300_TIMER_DEFINE
+-#define H8300_TIMER_COUNT_DATA  CONFIG_CPU_CLOCK*10/8
+-#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8
+-#endif
 -
--#define CLOCK_TICK_RATE H8300_TIMER_FREQ
-+#define CLOCK_TICK_RATE CONFIG_CPU_CLOCK*1000/8192 /* Timer input freq. */
- #define CLOCK_TICK_FACTOR	20	/* Factor of both 1000000 and CLOCK_TICK_RATE */
- #define FINETUNE ((((((long)LATCH * HZ - CLOCK_TICK_RATE) << SHIFT_HZ) * \
- 	(1000000/CLOCK_TICK_FACTOR) / (CLOCK_TICK_RATE/CLOCK_TICK_FACTOR)) \
+-#if !defined(H8300_TIMER_COUNT_DATA)
+-#error illigal configuration
+-#endif
+diff -Nru linux-2.6.6/include/asm-h8300/h8300_smsc.h linux-2.6.6-h8300/include/asm-h8300/h8300_smsc.h
+--- linux-2.6.6/include/asm-h8300/h8300_smsc.h	2004-01-09 16:00:13.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/h8300_smsc.h	1970-01-01 09:00:00.000000000 +0900
+@@ -1,20 +0,0 @@
+-/****************************************************************************/
+-
+-/*
+- *	h8300_smsc.h -- SMSC in H8/300H and H8S Evalution Board.
+- *      
+- *	(C) Copyright 2003, Yoshinori Sato <ysato@users.sourceforge.jp>
+- */
+-
+-/****************************************************************************/
+-#ifndef	h8300smsc_h
+-#define	h8300smsc_h
+-/****************************************************************************/
+-
+-/* Such a description is OK ? */
+-#define H8300_SMSC_DEFINE
+-#include <asm/machine-depend.h>
+-#undef  H8300_SMSC_DEFINE
+-
+-/****************************************************************************/
+-#endif	/* h8300smsc_h */
+diff -Nru linux-2.6.6/include/asm-h8300/h8max/machine-depend.h linux-2.6.6-h8300/include/asm-h8300/h8max/machine-depend.h
+--- linux-2.6.6/include/asm-h8300/h8max/machine-depend.h	2004-05-11 14:30:12.000000000 +0900
++++ linux-2.6.6-h8300/include/asm-h8300/h8max/machine-depend.h	1970-01-01 09:00:00.000000000 +0900
+@@ -1,100 +0,0 @@
+-/* H8MAX board depend header */
+-
+-/* TIMER rate define */
+-#ifdef H8300_TIMER_DEFINE
+-#define H8300_TIMER_COUNT_DATA 25000*10/8192
+-#define H8300_TIMER_FREQ 25000*1000/8192
+-#endif
+-
+-/* H8MAX RTL8019AS Config */
+-#ifdef H8300_NE_DEFINE
+-
+-#define NE2000_ADDR		0x800600
+-#define NE2000_IRQ              4
+-#define NE2000_IRQ_VECTOR	(12 + NE2000_IRQ)
+-#define	NE2000_BYTE		volatile unsigned short
+-
+-/* sorry quick hack */
+-#if defined(outb)
+-# undef outb
+-#endif
+-#define outb(d,a)               h8max_outb((d),(a) - NE2000_ADDR)
+-#if defined(inb)
+-# undef inb
+-#endif
+-#define inb(a)                  h8max_inb((a) - NE2000_ADDR)
+-#if defined(outb_p)
+-# undef outb_p
+-#endif
+-#define outb_p(d,a)             h8max_outb((d),(a) - NE2000_ADDR)
+-#if defined(inb_p)
+-# undef inb_p
+-#endif
+-#define inb_p(a)                h8max_inb((a) - NE2000_ADDR)
+-#if defined(outsw)
+-# undef outsw
+-#endif
+-#define outsw(a,p,l)            h8max_outsw((a) - NE2000_ADDR,(unsigned short *)p,l)
+-#if defined(insw)
+-# undef insw
+-#endif
+-#define insw(a,p,l)             h8max_insw((a) - NE2000_ADDR,(unsigned short *)p,l)
+-#if defined(outsb)
+-# undef outsb
+-#endif
+-#define outsb(a,p,l)            h8max_outsb((a) - NE2000_ADDR,(unsigned char *)p,l)
+-#if defined(insb)
+-# undef insb
+-#endif
+-#define insb(a,p,l)             h8max_insb((a) - NE2000_ADDR,(unsigned char *)p,l)
+-
+-#define H8300_INIT_NE()                  \
+-do {                                     \
+-	wordlength = 2;                  \
+-	h8max_outb(0x49, ioaddr + EN0_DCFG); \
+-	SA_prom[14] = SA_prom[15] = 0x57;\
+-} while(0)
+-
+-static inline void h8max_outb(unsigned char d,unsigned char a)
+-{
+-	*(unsigned short *)(NE2000_ADDR + (a << 1)) = d;
+-}
+-
+-static inline unsigned char h8max_inb(unsigned char a)
+-{
+-	return *(unsigned char *)(NE2000_ADDR + (a << 1) +1);
+-}
+-
+-static inline void h8max_outsw(unsigned char a,unsigned short *p,unsigned long l)
+-{
+-	unsigned short d;
+-	for (; l != 0; --l, p++) {
+-		d = (((*p) >> 8) & 0xff) | ((*p) << 8);
+-		*(unsigned short *)(NE2000_ADDR + (a << 1)) = d;
+-	}
+-}
+-
+-static inline void h8max_insw(unsigned char a,unsigned short *p,unsigned long l)
+-{
+-	unsigned short d;
+-	for (; l != 0; --l, p++) {
+-		d = *(unsigned short *)(NE2000_ADDR + (a << 1));
+-		*p = (d << 8)|((d >> 8) & 0xff);
+-	}
+-}
+-
+-static inline void h8max_outsb(unsigned char a,unsigned char *p,unsigned long l)
+-{
+-	for (; l != 0; --l, p++) {
+-		*(unsigned short *)(NE2000_ADDR + (a << 1)) = *p;
+-	}
+-}
+-
+-static inline void h8max_insb(unsigned char a,unsigned char *p,unsigned long l)
+-{
+-	for (; l != 0; --l, p++) {
+-		*p = *((unsigned char *)(NE2000_ADDR + (a << 1))+1);
+-	}
+-}
+-
+-#endif

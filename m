@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUBTWkW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 17:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUBTWkW
+	id S261425AbUBTWlE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 17:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUBTWlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 17:40:22 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:27613 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261405AbUBTWkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 17:40:11 -0500
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-From: Christophe Saout <christophe@saout.de>
-To: James Morris <jmorris@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040220185340.GA14358@leto.cs.pocnet.net>
-References: <20040219170228.GA10483@leto.cs.pocnet.net>
-	 <20040219111835.192d2741.akpm@osdl.org>
-	 <20040220171427.GD9266@certainkey.com>
-	 <20040220185340.GA14358@leto.cs.pocnet.net>
+	Fri, 20 Feb 2004 17:41:04 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:943 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261335AbUBTWkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 17:40:40 -0500
+Subject: [PATCH] 1/2 Make insert_resource work for alder IOAPIC resources
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1077316812.24726.5.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 20 Feb 2004 23:40:13 +0100
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 20 Feb 2004 14:40:35 -0800
+Message-Id: <1077316836.1886.8.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+This is a necessary precursor patch for getting the Intel Alder
+motherboard working (it has a PCI device corresponding to the IO-APIC
+which has to be forcibly inserted into the machine's reserved memory
+region).
 
-> The crypto_hmac_init part could be done in the dm target constructor
-> once and then call crypto_hmac_update and crypto_hmac_final in the
-> iv_generator but this would require some cryptoapi hacking which I'm
-> not too happy about. I would like to make a copy of the tfm (including
-> the private context) on the stack and then operate on that copy for
-> crypto_hmac_update and crypto_hmac_final.
-> 
-> Can I have a function to return the tfm size so I can do a memcpy
-> to a variable on the stack? I could get rid of the mutex too then.
+Eric Biederman was going to come up with a more comprehensive fix, but
+in the meantime, this is the minimum necessary to get insert_resource to
+work when the covering region is larger than the resource being
+inserted.
 
-What do you think of this?
+James
 
-I would like to copy the tfm onto the stack so that I can
-a) compute the hmac on several CPUs at the same time without locking
-b) reuse a precomputed tfm from just after crypt_hmac_init
-
+===== kernel/resource.c 1.20 vs edited =====
+--- 1.20/kernel/resource.c	Wed Feb 18 19:43:09 2004
++++ edited/kernel/resource.c	Fri Feb 20 14:40:12 2004
+@@ -306,11 +306,12 @@
+  *
+  * Returns 0 on success, -EBUSY if the resource can't be inserted.
+  *
+- * This function is equivalent of request_resource when no
+- * conflict happens. If a conflict happens, and the conflicting
+- * resources entirely fit within the range of the new resource,
+- * then the new resource is inserted and the conflicting resources
+- * become childs of the new resource. 
++ * This function is equivalent of request_resource when no conflict
++ * happens. If a conflict happens, and the conflicting resources
++ * entirely fit within the range of the new resource, then the new
++ * resource is inserted and the conflicting resources become childs of
++ * the new resource.  Otherwise the new resource becomes the child of
++ * the conflicting resource
+  */
+ int insert_resource(struct resource *parent, struct resource *new)
+ {
+@@ -318,6 +319,7 @@
+ 	struct resource *first, *next;
+ 
+ 	write_lock(&resource_lock);
++ begin:
+ 	first = __request_resource(parent, new);
+ 	if (!first)
+ 		goto out;
+@@ -331,8 +333,10 @@
+ 			break;
+ 
+ 	/* existing resource overlaps end of new resource */
+-	if (next->end > new->end)
+-		goto out;
++	if (next->end > new->end) {
++		parent = next;
++		goto begin;
++	}
+ 
+ 	result = 0;
+ 
 

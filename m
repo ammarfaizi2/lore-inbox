@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265325AbSKFN7V>; Wed, 6 Nov 2002 08:59:21 -0500
+	id <S265327AbSKFOAR>; Wed, 6 Nov 2002 09:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265327AbSKFN7U>; Wed, 6 Nov 2002 08:59:20 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7809 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265325AbSKFN7T>; Wed, 6 Nov 2002 08:59:19 -0500
-Date: Wed, 6 Nov 2002 09:07:34 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Marc A. Volovic" <marc@bard.org.il>
-cc: Pannaga Bhushan <bhushan@multitech.co.in>, linux-kernel@vger.kernel.org
-Subject: Re: A hole in kernel space!
-In-Reply-To: <20021106134935.GA24234@glamis.bard.org.il>
-Message-ID: <Pine.LNX.3.95.1021106085810.3962A-100000@chaos.analogic.com>
+	id <S265332AbSKFOAR>; Wed, 6 Nov 2002 09:00:17 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:35589 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S265327AbSKFOAP>; Wed, 6 Nov 2002 09:00:15 -0500
+Date: Wed, 6 Nov 2002 15:06:41 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Jens Axboe <axboe@suse.de>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 vi .config ; make oldconfig not working
+In-Reply-To: <20021105172110.GB1830@suse.de>
+Message-ID: <Pine.LNX.4.44.0211061457370.13258-100000@serv>
+References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com>
+ <20021105171409.GA1137@suse.de> <3DC7FD95.5000903@pobox.com>
+ <20021105172110.GB1830@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Nov 2002, Marc A. Volovic wrote:
+Hi,
 
-> Quoth Pannaga Bhushan:
-> 
-> > Hi all,
-> >         I am looking for a setup where I need to have a certain amount
-> > of data always available to the kernel. The size of data I am looking at
-> > is abt
-> > 40MB(preferably, but I will settle for 20MB too) . So the normal kmalloc
-> 
-> I wrote a driver which steals a certain amount of memory from the kernel
-> and makes it available to userspace (somewhat like the rd driver).
-> If you want - I can send it to you.
-> 
-> It exports a small device hierarchy which can be read, written and
-> mmap'ed. The memory is contiguous. Not VERY elegant, but works quite
-> well.
-> 
-> The driver steals a certain amount of memory from the kernel at boot
-> time, a-la the mem= parameter. I have used "holes" of up to 1GB in size.
-> 
-> 
-> Marc
+On Tue, 5 Nov 2002, Jens Axboe wrote:
 
-You know, I hope, that you can kmalloc(GFP_KERNEL) something in
-init_module() and it will always be resident in the kernel until
-you kfree() it in cleanup_module(). You do not have to
-allocate/deallocate every time your module does something.
+> > >axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+> > >641:CONFIG_NFSD_V4=y
+> > >axboe@burns:[.]linux-2.5-deadline-rbtree $ vi .config
+> > >axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+> > >641:CONFIG_NFSD_V4=n
+> > >
+> > 
+> > '=n' is wrong, that should be "# CONFIG_NFSD_V4 is not set" still...
+> 
+> Why is that wrong? It worked before.
 
-If you need a physical location, mmap() and ioremap() take care
-of that. With these capabilities, I don't think you need "holes"
-even if you are trying to map-out bad RAM. I think you need to
-re-think your requirements. 
+It was not documented and I only implemented that was documented. :)
+It's of course no problem to change that.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
+bye, Roman
 

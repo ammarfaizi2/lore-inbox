@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293041AbSCFCBj>; Tue, 5 Mar 2002 21:01:39 -0500
+	id <S293046AbSCFCFI>; Tue, 5 Mar 2002 21:05:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293046AbSCFCBZ>; Tue, 5 Mar 2002 21:01:25 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:8459 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S293041AbSCFCAR>; Tue, 5 Mar 2002 21:00:17 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 5 Mar 2002 18:03:46 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores) 
-In-Reply-To: <E16iQVe-0005ss-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0203051803030.1475-100000@blue1.dev.mcafeelabs.com>
+	id <S293047AbSCFCE6>; Tue, 5 Mar 2002 21:04:58 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:978 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S293046AbSCFCEq>;
+	Tue, 5 Mar 2002 21:04:46 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15493.31034.461025.106304@napali.hpl.hp.com>
+Date: Tue, 5 Mar 2002 18:04:42 -0800
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@napali.hpl.hp.com, sp@scali.com, adam@yggdrasil.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Does kmalloc always return address below 4GB?
+In-Reply-To: <20020305.175238.102577593.davem@redhat.com>
+In-Reply-To: <15492.62946.952197.632931@napali.hpl.hp.com>
+	<20020305.170909.78708394.davem@redhat.com>
+	<15493.29045.798709.577904@napali.hpl.hp.com>
+	<20020305.175238.102577593.davem@redhat.com>
+X-Mailer: VM 7.01 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Rusty Russell wrote:
+>>>>> On Tue, 05 Mar 2002 17:52:38 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
 
-> In message <Pine.LNX.4.44.0203051433400.1475-100000@blue1.dev.mcafeelabs.com> y
-> ou write:
-> > On Tue, 5 Mar 2002, Rusty Russell wrote:
-> >
-> > > +	pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
-> > > +
-> > > +	/* Must be "naturally" aligned, and not on page boundary. */
-> > > +	if ((pos_in_page % __alignof__(atomic_t)) != 0
-> > > +	    || pos_in_page + sizeof(atomic_t) > PAGE_SIZE)
-> > > +		return -EINVAL;
-> >
-> > How can this :
-> >
-> > 	(pos_in_page % __alignof__(atomic_t)) != 0
-> >
-> > to be false, and together this :
-> >
-> > 	pos_in_page + sizeof(atomic_t) > PAGE_SIZE
-> >
-> > to be true ?
->
-> You're assuming that __alignof__(atomic_t) = N * sizeof(atomic_t),
-> where N is an integer.
->
-> If alignof == 1, and sizeof == 4, you lose.  I prefer to be
-> future-proof.
->
-> This means I should clarify the comment...
+  DaveM> So when someone tells me "on ia64, with 8gb ram, my eepro100
+  DaveM> card gets really crap performance under any load" I will
+  DaveM> explain the above to them and let them know that the
+  DaveM> performance sucks because the ia64 folks refuse to integrate
+  DaveM> this bug fix :-)
 
-No i should do less things at a time :-(
+I think you're ignoring disk I/O.
 
+I'm not terribly interested in revisiting this topic.  If you care,
+take it up with the folks that build the chips without hardware I/O
+TLB.  They are the ones with the vested interest. ;-)
 
-
-- Davide
-
-
+	--david

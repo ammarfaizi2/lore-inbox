@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262937AbTHaWeG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 18:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbTHaWeG
+	id S263036AbTHaWvY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 18:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263042AbTHaWvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 18:34:06 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:23193 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262937AbTHaWeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 18:34:03 -0400
-Message-ID: <3F527C63.7090805@kegel.com>
-Date: Sun, 31 Aug 2003 15:53:23 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: staelin@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: LMbench as gcc performance regression test?
-References: <3F51A201.8090108@kegel.com> <20030831140037.GA16620@work.bitmover.com> <3F520773.1070907@kegel.com> <20030831145956.GE23783@work.bitmover.com>
-In-Reply-To: <20030831145956.GE23783@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Aug 2003 18:51:24 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:13961 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263036AbTHaWt6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 18:49:58 -0400
+Date: Sun, 31 Aug 2003 23:49:37 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, lm@bitmover.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030831224937.GA29239@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <20030829154101.GB16319@work.bitmover.com> <20030829230521.GD3846@matchmail.com> <20030830221032.1edf71d0.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030830221032.1edf71d0.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> Here is some background, pick a benchmark and play with it and see if
-> you can convince yourself of anything.  The basic idea is to run the
-> benchmark TRIES times for $ENOUGH milliseconds.  TRIES is set to an odd
-> number in bench.h because we sort the results and take the midpoint and
-> print that as the result. 
+David S. Miller wrote:
+> On Fri, 29 Aug 2003 16:05:21 -0700
+> Mike Fedyk <mfedyk@matchmail.com> wrote:
+> 
+> > Does this mean that userspace has to take into consideration that the isn't
+> > coherent for adjacent small memory accesses on sparc?  What could happen if
+> > it doesn't, or does it need to at all?
+> 
+> For shared memory, we enforce the correct mapping alignment
+> so that coherency issues don't crop up.
+> 
+> How does this program work?  I haven't taken a close look
+> at it.  Does it use MAP_SHARED or IPC shm?
 
-It seems lat_pipe never does any median smoothing; it always sets TRIES to 1.
-However, at least on the fairly quiet embedded system I'm testing on,
-smoothing samples taken within a single run wouldn't make
-a huge difference.  Any smoothing you get with that would be swamped by
-the fact that lat_pipe's result has a bimodal distribution only one of whose
-peaks shows up in any one run.
-This sure sounds like the kind of thing page coloring is
-supposed to solve; has anyone observed page coloring improving
-the repeatability of the lat_pipe benchmark?
+It uses POSIX shared memory and (necessarily) MAP_SHARED, which
+doesn't constrain the mapping alignment.
 
-(There's no median smoothing in lat_pipe.c, I think, because it passes
-a value >= 1000000 as the 2nd arg of BENCH:
-                 BENCH(doit(p2[0], p1[1]), SHORT);
-BENCH computes the number of samples to take the median of as
-         __N = (get_enough(1000000) <= 100000) ? TRIES : 1;
-get_enough() will always return at least what it is passed,
-thus __N will always be 1.  It sure was whenever I printed it out, too.
-This seems to be the case for the following tests:
-bw_pipe  bw_tcp  bw_unix
-lat_fcntl lat_fifo lat_pipe lat_rpc lat_tcp lat_udp lat_unix)
-- Dan
+I had wondered if some kernels used page faults to maintain coherence
+between multiple shared mappings of the same file.  It's one of the
+things the program checks, and I have seen it mentioned on l-k, which
+made me think it might be implemented.  None of the results for any
+architecture show it, though.
 
--- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+If userspace does create multiple shared mappings at non-coherent
+offsets, what is the recommended method for switching between
+accessing one page (or page cluster?) and accessing the other.  Is it
+msync(), a special system call to flush parts of the data cache, a
+machine instruction, or something else?
 
+Thanks,
+-- Jamie
+
+
+
+ps. The program has code to try IPC shm instead.  Change "#ifdef
+SHM_DIR_PREFIX" in __page_alias_map to "#if 0", and add
+-DHAVE_SYSV_SHM to the GCC command line.  It should fail the same test
+sizes with a different message.

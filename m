@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbUCCUFO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 15:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUCCUFO
+	id S261156AbUCCUG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 15:06:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbUCCUG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 15:05:14 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:6407 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261153AbUCCUFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 15:05:09 -0500
-Subject: Re: [QUESTION/PROPOSAL] udev (fwd)
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-hotplug-devel@vger.kernel.org, greg@kroach.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0403032023090.1319@alpha.polcom.net>
-References: <Pine.LNX.4.58.0403032023090.1319@alpha.polcom.net>
-Content-Type: text/plain
-Message-Id: <1078344278.1113.15.camel@teapot.felipe-alfaro.com>
+	Wed, 3 Mar 2004 15:06:56 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:2983 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261156AbUCCUGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 15:06:54 -0500
+Date: Wed, 3 Mar 2004 14:59:37 -0500
+From: Ben Collins <bcollins@debian.org>
+To: kai.engert@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Update on ieee1394 trouble with latest 2.4.x
+Message-ID: <20040303195937.GG1078@phunnypharm.org>
+References: <404635E6.50409@kuix.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Wed, 03 Mar 2004 21:04:38 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <404635E6.50409@kuix.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-03 at 20:27, Grzegorz Kulewski wrote:
-
-> If I understand well, currently, when kernel detects new device, it 
-> creates all important files in /sys for it, excluding device file.
+On Wed, Mar 03, 2004 at 08:45:42PM +0100, Kai Engert wrote:
+> A couple of days ago I posted a report about my problems with ieee1394 
+> mass storage devices to the list. Here is an update.
 > 
-> So, (sorry if it was asked 100000000 times...
-> ... but) why when kernel detects new device or module is loaded, no device 
-> file in sysfs is created? The device files in /dev would be only links to 
-> these in /sys. 
+> Meanwhile Ben Collins contacted me and recommend me to try out some sbp2 
+> module options.
 > 
-> This way we could stop care about major/minor numbers and leave it to sysfs...
-> And it maybe could decrease the possible races related to udev because it 
-> would only create or remove links to files in /sys.
-> 
-> Programs will be able to easily find, for what device and where located in 
-> system (buses, etc.) the device file in /dev is - with readlink.
-> 
-> And it should make the entire process more clear.
+> It turned out the "stall and timeout" problem can be suppressed by using 
+> the sbp2_serialize_io=1 module param when loading module sbp2. This 
+> works for me with several devices I have tested.
 
-This is more or less how Solaris works... In Solaris, /dev entries are
-just symlinks to entries under the /devices tree which is much like
-/sys: a tree-like structure which is composed of buses, devices et all.
+I think I may end up making this the default for this option in 2.4.
 
-This is a feature I've always liked from Solaris.
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

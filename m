@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264083AbTFVIpm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 04:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTFVIpm
+	id S264328AbTFVIr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 04:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTFVIr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 04:45:42 -0400
-Received: from smtp03.web.de ([217.72.192.158]:27427 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S264083AbTFVIpl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 04:45:41 -0400
-Date: Sun, 22 Jun 2003 11:19:11 +0200
-From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
-To: Steven French <sfrench@us.ibm.com>
+	Sun, 22 Jun 2003 04:47:29 -0400
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:21940 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S264328AbTFVIrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 04:47:23 -0400
+Date: Sun, 22 Jun 2003 10:02:23 +0100
+From: Dave Bentham <dave.bentham@ntlworld.com>
+To: Adam Majer <adamm@galacticasoftware.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [CIFS] Fix compile warning for fs/cifs/cifsfs.c
-Message-Id: <20030622111911.33c1d041.l.s.r@web.de>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: kernel 2.4.21 crash
+Message-Id: <20030622100223.13c25efb.dave.bentham@ntlworld.com>
+In-Reply-To: <20030622034132.GA4854@galacticasoftware.com>
+References: <200306162148.h5GLmXsN002578@telekon.davesnet>
+	<20030622034132.GA4854@galacticasoftware.com>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 21 Jun 2003 22:41:32 -0500
+Adam Majer <adamm@galacticasoftware.com> wrote:
 
-this patch fixes a compile warning about incompatible types in
-fs/cifs/cifsfs.c in cifs_statfs(). This function is called with
-a pointer to a struct kstatfs, so let's propagate this type into
-the helper function.
+> On Mon, Jun 16, 2003 at 10:48:33PM +0100, dave.bentham@ntlworld.com
+> wrote:
+> > Hello
+> > 
+> > But there seems to be a major failure when the computer just stops
+> > with no warning. Two scenarios that seem to repeat it include
+> > starting Loki's Heretic2 off, and mounting the CDRW drive via
+> > WindowMaker dock app. I cannot do anything when this happens; can't
+> > hotkey out of X, can't telnet to it from my other networked PC. I
+> > have to power down and back up.
+> 
+> There was something like this posted on the list a few days ago.
+> Someone said that it has to do with IDE-SCSI timing or what not. That
+> is, try if you can reproduce it without the ide-scsi driver in the
+> kernel..
 
-René
+You may be right - I turned off SCSI support in the kernel and removed
+the'hdd=ide-scsi' boot appendage and I could mount the CDRW ok.
 
+I'll try and find the history of this known bug.
 
+> 
+> > It seems to be a few seconds after the trigger that the lock up
+> > occurs, and also it starts flashing the keyboard Caps Lock and
+> > Scroll Lock LEDs in step at about 1 Hz. I'm sure its trying to tell
+> > me something...
+> 
+> That means the kernel detected something evil (oops caused by null
+> pointer access, etc...). Sicne the leds are still flashing, at least
+> the kernel is not totally dead. :)
+> 
 
-diff -u ./fs/cifs/cifsproto.h~ ./fs/cifs/cifsproto.h
---- ./fs/cifs/cifsproto.h~	2003-06-22 10:04:00.000000000 +0200
-+++ ./fs/cifs/cifsproto.h	2003-06-22 10:52:06.000000000 +0200
-@@ -137,7 +137,7 @@
- 			const char *old_path, const struct nls_table *nls_codepage, 
- 			unsigned int *pnum_referrals, unsigned char ** preferrals);
- extern int CIFSSMBQFSInfo(const int xid, struct cifsTconInfo *tcon,
--			struct statfs *FSData,
-+			struct kstatfs *FSData,
- 			const struct nls_table *nls_codepage);
- extern int CIFSSMBQFSAttributeInfo(const int xid,
- 			struct cifsTconInfo *tcon,
-diff -u ./fs/cifs/cifssmb.c~ ./fs/cifs/cifssmb.c
---- ./fs/cifs/cifssmb.c~	2003-06-14 21:18:01.000000000 +0200
-+++ ./fs/cifs/cifssmb.c	2003-06-22 10:51:30.000000000 +0200
-@@ -1782,7 +1782,7 @@
- 
- int
- CIFSSMBQFSInfo(const int xid, struct cifsTconInfo *tcon,
--	       struct statfs *FSData, const struct nls_table *nls_codepage)
-+	       struct kstatfs *FSData, const struct nls_table *nls_codepage)
- {
- /* level 0x103 SMB_QUERY_FILE_SYSTEM_INFO */
- 	TRANSACTION2_QFSI_REQ *pSMB = NULL;
+It may as well be totally dead!!!
 
-
+Thanks
+Dave

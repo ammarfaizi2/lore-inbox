@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264649AbSLMMM5>; Fri, 13 Dec 2002 07:12:57 -0500
+	id <S264638AbSLMMMJ>; Fri, 13 Dec 2002 07:12:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264672AbSLMMM5>; Fri, 13 Dec 2002 07:12:57 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:904 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S264649AbSLMMMt>;
-	Fri, 13 Dec 2002 07:12:49 -0500
-Date: Fri, 13 Dec 2002 12:20:17 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Rod Van Meter <Rod.VanMeter@nokia.com>, linux-kernel@vger.kernel.org
-Subject: Re: massive compile failures w/ 2.5.51 on RH8.0
-Message-ID: <20021213122017.GC31187@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Rod Van Meter <Rod.VanMeter@nokia.com>,
-	linux-kernel@vger.kernel.org
-References: <20021213002750.GB18156@suse.de> <Pine.LNX.4.33L2.0212122140500.21077-100000@dragon.pdx.osdl.net>
+	id <S264644AbSLMMMI>; Fri, 13 Dec 2002 07:12:08 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:41659 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264638AbSLMMMI>;
+	Fri, 13 Dec 2002 07:12:08 -0500
+Date: Fri, 13 Dec 2002 18:02:41 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: John Levon <levon@movementarian.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Notifier for significant events on i386
+Message-ID: <20021213180241.A23046@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+References: <1039471369.1055.161.camel@dell_ss3.pdx.osdl.net> <20021211165153.A17546@in.ibm.com> <20021211111639.GJ9882@holomorphy.com> <20021211171337.A17600@in.ibm.com> <20021211202727.GF20735@compsoc.man.ac.uk> <1039641336.18587.30.camel@irongate.swansea.linux.org.uk> <1039652384.1649.17.camel@dell_ss3.pdx.osdl.net> <20021212130406.A20253@in.ibm.com> <1039715615.1649.80.camel@dell_ss3.pdx.osdl.net> <20021212175804.GA15860@compsoc.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0212122140500.21077-100000@dragon.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021212175804.GA15860@compsoc.man.ac.uk>; from levon@movementarian.org on Thu, Dec 12, 2002 at 05:58:04PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 12, 2002 at 09:42:39PM -0800, Randy.Dunlap wrote:
-
- > and some of these may have patches available for them on lkml.
- > I know that intermezzo does, from Peter Braam, with a small
- > follow-up by me, so it's fixable if you want it.  Surely (Rod ;).
-
->From reading bugzilla #11, it seems even with your additional
-patch intermezzo still has problems..
-
-		Dave
+On Thu, Dec 12, 2002 at 05:58:04PM +0000, John Levon wrote:
+> On Thu, Dec 12, 2002 at 09:53:35AM -0800, Stephen Hemminger wrote:
+> 
+> > The use of notifier today is limited to things that can't sleep. As far
+> 
+> kernel/profile.c
+> 
+> You'd have to move that to a different API if you want to force notifier
+> callbacks non-sleepable
+> 
+Yes, indeed most of the existing notifiers potentially sleep. That is why
+I think we should, may be, leave the existing notifiers alone. Add a
+notifier_call_chain_safe() and use that to run trap1/trap3/NMI etc 
+notifiers.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

@@ -1,252 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262534AbUJ0RY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbUJ0R1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262534AbUJ0RY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 13:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUJ0RY2
+	id S262575AbUJ0R1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 13:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUJ0R0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 13:24:28 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:26907 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262554AbUJ0RTJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 13:19:09 -0400
-Date: Wed, 27 Oct 2004 21:19:07 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Linus Torvalds <torvalds@osdl.org>, olh@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix O= build
-Message-ID: <20041027191907.GA8431@mars.ravnborg.org>
-Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
-	Linus Torvalds <torvalds@osdl.org>, olh@suse.de,
-	linux-kernel@vger.kernel.org
-References: <20041027130806.GI3450@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041027130806.GI3450@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6i
+	Wed, 27 Oct 2004 13:26:47 -0400
+Received: from mail4.utc.com ([192.249.46.193]:3473 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S262558AbUJ0RVp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 13:21:45 -0400
+Message-ID: <417FD915.304@cybsft.com>
+Date: Wed, 27 Oct 2004 12:21:25 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com>	 <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com>	 <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com>	 <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com>	 <20041027150548.GA11233@elte.hu>	 <1098889994.1448.14.camel@krustophenia.net>	 <20041027151701.GA11736@elte.hu> <1098897241.8596.5.camel@krustophenia.net>
+In-Reply-To: <1098897241.8596.5.camel@krustophenia.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 02:08:06PM +0100, Matthew Wilcox wrote:
+Lee Revell wrote:
+> On Wed, 2004-10-27 at 17:17 +0200, Ingo Molnar wrote:
 > 
-> Olaf tells me make O= has been broken for a week.  Here's the patch I've
-> been using to fix it:
+>>>Here is a more up to date version of the rtc-debug patch:
+>>>
+>>>http://lkml.org/lkml/2004/9/9/307
+>>>
+>>>There is still a bit of 2.4 cruft in there but it works well.  Maybe
+>>>this could be included in future patches.
+>>
+>>the most natural point of inclusion would be Andrew's -mm tree i think
+>>:-)
+>>
 > 
-> diff -urpNX dontdiff linus-2.6/usr/Makefile parisc-2.6/usr/Makefile
-> --- linus-2.6/usr/Makefile	Thu Oct 21 14:40:04 2004
-> +++ parisc-2.6/usr/Makefile	Thu Oct 21 15:10:40 2004
-> @@ -8,7 +8,7 @@ clean-files := initramfs_data.cpio.gz
->  # If you want a different list of files in the initramfs_data.cpio
->  # then you can either overwrite the cpio_list in this directory
->  # or set INITRAMFS_LIST to another filename.
-> -INITRAMFS_LIST := $(obj)/initramfs_list
-> +INITRAMFS_LIST := $(srctree)/$(obj)/initramfs_list
+> 
+> Well I suspect from looking at the comments :-) that he would not
+> include it in its current form due to the way it just checks whether the
+> process opening the RTC is called "amlat" and updates the RTC histogram
+> if so.  I am not sure what a clean way to do this would be, maybe an
+> ioctl()?
+> 
+> Anyway I am generating a cleaned up version of the patch agaqinst
+> 2.6.9-mm1.
+> 
+> Lee
+> 
 
-Good as workaround.
-I have the following patch in my tree and I expect it to show up
-in linus' tree soon. It's already in latest -mm.
+Actually if you are cleaning it up anyway, could you fix it to work with 
+Ingo's changes to rtc.c? If not I will be glad to do it. Up until one of 
+the last couple of versions of RT PREEMPT it applied cleanly, but I just 
+tried it and it failed.
 
-	Sam
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/10/27 00:07:03+02:00 sam@mars.ravnborg.org 
-#   kbuild/usr: initramfs list fixed and simplified
-#   
-#   Moving logic to scripts/gen_initramfs_list.sh make a nice cleanup in
-#   usr/Makefile.
-#   A new initramfs image will be generated if the initramfs_list file changes.
-#   This patch also fixes the bug with make O=..
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# usr/Makefile
-#   2004/10/27 00:06:46+02:00 sam@mars.ravnborg.org +9 -20
-#   Simplify - logic moved to gen_initramfs_list.sh script
-# 
-# scripts/gen_initramfs_list.sh
-#   2004/10/27 00:06:46+02:00 sam@mars.ravnborg.org +35 -16
-#   Moved logic to this file.
-#   It now handles both dirs, files and no input given.
-#   For invalid input print error and boild out.
-# 
-# scripts/Makefile.lib
-#   2004/10/27 00:06:46+02:00 sam@mars.ravnborg.org +27 -0
-#   Added filechk - copy from top level Makefile
-# 
-# BitKeeper/etc/ignore
-#   2004/10/27 00:06:24+02:00 sam@mars.ravnborg.org +1 -0
-#   added usr/initramfs_list
-# 
-# BitKeeper/deleted/.del-initramfs_list~e02c62efaa478389
-#   2004/10/27 00:02:17+02:00 sam@mars.ravnborg.org +0 -0
-#   Delete: usr/initramfs_list
-# 
-diff -Nru a/scripts/Makefile.lib b/scripts/Makefile.lib
---- a/scripts/Makefile.lib	2004-10-27 00:07:50 +02:00
-+++ b/scripts/Makefile.lib	2004-10-27 00:07:50 +02:00
-@@ -232,3 +232,30 @@
- # Usage:
- # $(Q)$(MAKE) $(build)=dir
- build := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.build obj
-+
-+# filechk is used to check if the content of a generated file is updated.
-+# Sample usage:
-+# define filechk_sample
-+#	echo $KERNELRELEASE
-+# endef
-+# version.h : Makefile
-+#	$(call filechk,sample)
-+# The rule defined shall write to stdout the content of the new file.
-+# The existing file will be compared with the new one.
-+# - If no file exist it is created
-+# - If the content differ the new file is used
-+# - If they are equal no change, and no timestamp update
-+
-+define filechk
-+	$(Q)set -e;				\
-+	echo '  CHK     $@';			\
-+	mkdir -p $(dir $@);			\
-+	$(filechk_$(1)) $(2) > $@.tmp;		\
-+	if [ -r $@ ] && cmp -s $@ $@.tmp; then	\
-+		rm -f $@.tmp;			\
-+	else					\
-+		echo '  UPD     $@';		\
-+		mv -f $@.tmp $@;		\
-+	fi
-+endef
-+
-diff -Nru a/scripts/gen_initramfs_list.sh b/scripts/gen_initramfs_list.sh
---- a/scripts/gen_initramfs_list.sh	2004-10-27 00:07:50 +02:00
-+++ b/scripts/gen_initramfs_list.sh	2004-10-27 00:07:50 +02:00
-@@ -2,25 +2,26 @@
- # Copyright (C) Martin Schlemmer <azarah@nosferatu.za.org>
- # Released under the terms of the GNU GPL
- #
--# A script to generate newline separated entries (to stdout) from a directory's
--# contents suitable for use as a cpio_list for gen_init_cpio.
-+# Generate a newline separated list of entries from the file/directory pointed
-+# out by the environment variable: CONFIG_INITRAMFS_SOURCE
- #
--# Arguements: $1 -- the source directory
-+# If CONFIG_INITRAMFS_SOURCE is non-existing then generate a small dummy file.
-+#
-+# The output is suitable for gen_init_cpio as found in usr/Makefile.
- #
- # TODO:  Add support for symlinks, sockets and pipes when gen_init_cpio
- #        supports them.
- 
--usage() {
--	echo "Usage: $0 initramfs-source-dir"
--	exit 1
-+simple_initramfs() {
-+	cat <<-EOF
-+		# This is a very simple initramfs
-+
-+		dir /dev 0755 0 0
-+		nod /dev/console 0600 0 0 c 5 1
-+		dir /root 0700 0 0
-+	EOF
- }
- 
--srcdir=$(echo "$1" | sed -e 's://*:/:g')
--
--if [ "$#" -gt 1 -o ! -d "${srcdir}" ]; then
--	usage
--fi
--
- filetype() {
- 	local argv1="$1"
- 
-@@ -76,9 +77,27 @@
- 	return 0
- }
- 
--find "${srcdir}" -printf "%p %m %U %G\n" | \
--while read x; do
--	parse ${x}
--done
-+if [ -z $1 ]; then
-+	simple_initramfs
-+elif [ -f $1 ]; then
-+	cat $1
-+elif [ -d $1 ]; then
-+	srcdir=$(echo "$1" | sed -e 's://*:/:g')
-+	dirlist=$(find "${srcdir}" -printf "%p %m %U %G\n" 2>/dev/null)
-+
-+	# If $dirlist is only one line, then the directory is empty
-+	if [  "$(echo "${dirlist}" | wc -l)" -gt 1 ]; then
-+		echo "${dirlist}" | \
-+		while read x; do
-+			parse ${x}
-+		done
-+	else
-+		# Failsafe in case directory is empty
-+		simple_initramfs
-+	fi
-+else
-+	echo "  $0: Cannot open '$1' (CONFIG_INITRAMFS_SOURCE)" >&2
-+	exit 1
-+fi
- 
- exit 0
-diff -Nru a/usr/Makefile b/usr/Makefile
---- a/usr/Makefile	2004-10-27 00:07:50 +02:00
-+++ b/usr/Makefile	2004-10-27 00:07:50 +02:00
-@@ -3,7 +3,7 @@
- 
- hostprogs-y  := gen_init_cpio
- 
--clean-files := initramfs_data.cpio.gz
-+clean-files := initramfs_data.cpio.gz initramfs_list
- 
- # If you want a different list of files in the initramfs_data.cpio
- # then you can either overwrite the cpio_list in this directory
-@@ -23,28 +23,17 @@
- # Commented out for now
- # initramfs-y := $(obj)/root/hello
- 
--quiet_cmd_gen_list = GEN_INITRAMFS_LIST $@
--      cmd_gen_list = $(shell \
--        if test -f $(CONFIG_INITRAMFS_SOURCE); then \
--	  if [ $(CONFIG_INITRAMFS_SOURCE) != $@ ]; then \
--	    echo 'cp -f $(CONFIG_INITRAMFS_SOURCE) $@'; \
--	  else \
--	    echo 'echo Using shipped $@'; \
--	  fi; \
--	elif test -d $(CONFIG_INITRAMFS_SOURCE); then \
--	  echo 'scripts/gen_initramfs_list.sh $(CONFIG_INITRAMFS_SOURCE) > $@'; \
--	else \
--	  echo 'echo Using shipped $@'; \
--	fi)
--
--
--$(INITRAMFS_LIST): FORCE
--	$(call cmd,gen_list)
-+filechk_initramfs_list = $(CONFIG_SHELL) \
-+ $(srctree)/scripts/gen_initramfs_list.sh $(CONFIG_INITRAMFS_SOURCE)
-+			   
-+$(obj)/initramfs_list: FORCE
-+	$(call filechk,initramfs_list)
- 
- quiet_cmd_cpio = CPIO    $@
--      cmd_cpio = ./$< $(INITRAMFS_LIST) > $@
-+      cmd_cpio = ./$< $(obj)/initramfs_list > $@
- 
--$(obj)/initramfs_data.cpio: $(obj)/gen_init_cpio $(initramfs-y) $(INITRAMFS_LIST) FORCE
-+$(obj)/initramfs_data.cpio: $(obj)/gen_init_cpio \
-+                            $(initramfs-y) $(obj)/initramfs_list FORCE
- 	$(call if_changed,cpio)
- 
- targets += initramfs_data.cpio
-diff -Nru a/usr/initramfs_list b/usr/initramfs_list
---- a/usr/initramfs_list	2004-10-27 00:07:50 +02:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,5 +0,0 @@
--# This is a very simple initramfs - mostly preliminary for future expansion
--
--dir /dev 0755 0 0
--nod /dev/console 0600 0 0 c 5 1
--dir /root 0700 0 0
+kr

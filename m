@@ -1,65 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318935AbSICVm1>; Tue, 3 Sep 2002 17:42:27 -0400
+	id <S318938AbSICVoH>; Tue, 3 Sep 2002 17:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318937AbSICVm1>; Tue, 3 Sep 2002 17:42:27 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:59028 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S318935AbSICVm0>;
-	Tue, 3 Sep 2002 17:42:26 -0400
-Message-ID: <3D752DA3.6030000@colorfullife.com>
-Date: Tue, 03 Sep 2002 23:46:11 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Terence Ripperda <TRipperda@nvidia.com>, linux-kernel@vger.kernel.org
-Subject: Re: lockup on Athlon systems, kernel race condition?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318941AbSICVoH>; Tue, 3 Sep 2002 17:44:07 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:31240 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S318938AbSICVoF>;
+	Tue, 3 Sep 2002 17:44:05 -0400
+Date: Tue, 3 Sep 2002 23:48:32 +0200
+Message-Id: <200209032148.g83LmWU14950@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: david.lang@digitalinsight.com
+Subject: (fwd) Re: [RFC] mount flag "direct"
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Terence Ripperda wrote:
->> 
->> ...
->>
->> asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
->> {
->>         struct file * filp;
->>         unsigned int flag;
->>         int on, error = -EBADF;
->> 
->>         filp = fget(fd);
->>         if (!filp)
->>                 goto out;
->>         error = 0;
->>         lock_kernel();    <====
-Which compiler to you use, and which kernel? Which additional patches?
+Sorry I'm getting behind with the mail. Meetings, and I'm flying
+towmorrow.
 
-With my 2.4.20-pre4-ac1 kernel, the lock_kernel is at offset +3a, 
-according to your dump it's at +6a.
-
->>         switch (cmd) {
+> On Tue, 3 Sep 2002, Peter T. Breuer wrote:
+> > If it doesn't cause the data to be read twice, then it ought to, and
+> > I'll fix it (given half a clue as extra pay ..:-)
 > 
-> This CPU is spinning, waiting for kernel_flag.  It will take the IPI
-> and the other CPU's smp_call_function() will succeed.
-> 
-> Possibly the IPI has got lost - seems that this is a popular failure mode
-> for flakey chipsets/motherboards.
-> 
-> Or someone has called sys_ioctl() with interrupts disabled.  That's very
-> doubtful.
+> writing then reading the same file may cause it to be read from the disk,
+> but reading /foo/bar then reading /foo/bar again will not cause two reads
+> of all data.
 
-Is it possible to display the cpu registers with kdb? Could you check 
-that the interrupts are enabled?
+Hmm. I just did a quick check on 2.5.31, and to me it looks as though
+two consequtive reads BOTH drop through to the driver. Yes, I am
+certain - I've repeated the experiment 4 times reading the same 400K,
+and each time the block driver registers 400 read requests.
 
-I'd add a quick test into sys_ioctl() or lock_kernel: save_flags, and 
-check that bit 9 is always enabled. Check __global_cli for sample code.
-The X server probably runs with enough priveledges to disable the 
-interrupts, perhaps it's doing something stupid.
+> some filesystems go to a lot fo work to orginize the metadata in
+> particular in memory to access things more efficiantly, you will have to
+> go into each filesystem and modify them to not do this.
 
---
-	Manfred
+Well, I'll have to divert them. Is there not some trick that can be
+used? A bitmap mmapped to the device, if that's not nonsensical in
+kernel space?
 
+> in addition you will have lots of potential races as one system reads a
+> block of data, modifies it, then writes it while the other system does the
 
+Uh, I am confident that there can  be no races with respect to data
+writes provided I manage to make the VFS operations atomic via
+appropriate shared locking. What one has to get rid of is cached
+metadata state. I'm open to suggestions.
+
+> yes this is stuff that could be added to all filesystems, but will the
+> filesystem maintainsers let you do this major surgery to their systems?
+
+Depends how a patch looks, I guess.
+
+> for example the XFS and JFS teams are going to a lot of effort to maintain
+> their systems to be compatable with other OS's, they probably won't
+
+Yes.
+
+> appriciate all the extra conditionals that you will need to put in to
+> do all of this.
+
+I don't see any conditionals. These will be methods, i.e. redirects.
+Anyway, what's an if test between friends :-).
+
+> even for ext2 there are people (including linus I believe) that are saying
+> that major new features should not be added to ext2, but to a new
+
+I agree! But I wouldn't see adding VFS ops to replace FS-specific
+code as a new feature, rather a consolidation of common codes.
+
+> filesystem forked off of ext2 (ext3 for example or a fork of it).
+
+Peter

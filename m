@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261628AbREZQg5>; Sat, 26 May 2001 12:36:57 -0400
+	id <S261965AbREZQmR>; Sat, 26 May 2001 12:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261948AbREZQgr>; Sat, 26 May 2001 12:36:47 -0400
-Received: from rhenium.btinternet.com ([194.73.73.93]:36774 "EHLO rhenium")
-	by vger.kernel.org with ESMTP id <S261628AbREZQgb>;
-	Sat, 26 May 2001 12:36:31 -0400
-Date: Sat, 26 May 2001 17:37:11 +0100 (BST)
-From: Dave Gilbert <gilbertd@treblig.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5: Duplicate PCI devices
-Message-ID: <Pine.LNX.4.10.10105261728200.750-100000@tardis.home.dave>
+	id <S261978AbREZQmH>; Sat, 26 May 2001 12:42:07 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:42505 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261965AbREZQmA>;
+	Sat, 26 May 2001 12:42:00 -0400
+Date: Sat, 26 May 2001 12:18:07 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.5
+In-Reply-To: <Pine.LNX.4.21.0105260806430.3648-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105261217080.30264-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  (On Alpha LX164, 2.4.5,built with Gcc 3.0 from CVS and binutils 2.9.11)
+On Sat, 26 May 2001, Linus Torvalds wrote:
+> On Sat, 26 May 2001, Rik van Riel wrote:
+> > 
+> > O, that part is fixed by the patch that Linus threw away
+> > yesterday ;)
+> 
+> Rik, I threw away the parts of the patch that were bad and obvious
+> band-aids, and it was hard to tell whether any of your patch was a
+> "real" fix as opposed to just making more reservations.
 
-This seems to be running fine, but I've noticed that 'lspci' is listing
-all devices twice:
+1) Remove GFP_BUFFER and HIGHMEM related deadlocks, by letting
+   these allocations fail instead of looping forever in
+   __alloc_pages() when they cannot make any progress there.
 
-00:06.0 SCSI storage controller: Adaptec AIC-7861 (rev 01)
-00:06.0 SCSI storage controller: Adaptec AIC-7861 (rev 01)
-00:07.0 Ethernet controller: Digital Equipment Corporation DECchip 21041
-[Tulip Pass 3] (rev 21)
-00:07.0 Ethernet controller: Digital Equipment Corporation DECchip 21041
-[Tulip Pass 3] (rev 21)
-00:08.0 Non-VGA unclassified device: Intel Corporation 82378IB [SIO ISA
-Bridge] (rev 43)
-00:08.0 Non-VGA unclassified device: Intel Corporation 82378IB [SIO ISA
-Bridge] (rev 43)
-00:09.0 VGA compatible controller: 3Dfx Interactive, Inc.: Unknown device
-0005 (rev 01)
-00:09.0 VGA compatible controller: 3Dfx Interactive, Inc.: Unknown device
-0005 (rev 01)
-00:0b.0 IDE interface: CMD Technology Inc PCI0646 (rev 01)
-00:0b.0 IDE interface: CMD Technology Inc PCI0646 (rev 01)
+It's the changes to __alloc_pages(), where we don't loop forever
+but fail the allocation.
 
-/proc/pci seems to be only listing it once.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-(dmesg on http://www.treblig.org/debug/2.4.5.dmesg )
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Dave
--- 
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+
 

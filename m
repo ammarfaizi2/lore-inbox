@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbUK0ERw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbUK0ERx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbUK0ERw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 23:17:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUK0D7D
+	id S262226AbUK0ERx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 23:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbUK0D7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:59:03 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:42947 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262448AbUKZTaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 22:59:18 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:4767 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262351AbUKZTaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 26 Nov 2004 14:30:46 -0500
-Date: Thu, 25 Nov 2004 19:12:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: Suspend 2 merge: 10/51: Exports for suspend built as modules.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge:L 12/51: Disable OOM killer when suspending.
-Message-ID: <20041125181208.GC1417@openzaurus.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101294601.5805.237.camel@desktop.cunninghams>
+In-Reply-To: <20041125180725.GB1417@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101294252.5805.228.camel@desktop.cunninghams>
+	 <20041125180725.GB1417@openzaurus.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101418822.27250.26.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101294601.5805.237.camel@desktop.cunninghams>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 08:40:22 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-> When preparing the image, suspend eats all the memory in sight, both to
-> reduce the image size and to improve the reliability of our stats (We've
-> worked hard to make it work reliably under heavy load - 100+). Of course
-> this can result in the OOM killer being triggered, so this simple test
-> stops that happening.
+On Fri, 2004-11-26 at 05:07, Pavel Machek wrote:
+> Hi!
+> 
+> > The sys_ functions are exported because a while ago, people suggested I
+> > use /dev/console to output text that doesn't need to be logged, and I
+> > also use /dev/splash for the bootsplash support. These functions were
+> 
+> Well, we don't do ascii-art on kernel boot and I do not see why we should do it
+> on suspend. Distributions will love bootsplash integration, but it should stay as a separate
+> patch.
 
-andrew's shrink_all_memory should enable you to free memory without
-hacking OOM killer, no?
+It's modular, so no problem there.
 
-If shrink_all_memory is broken... fix it.
-				Pavel
+> See swsusp1... it has percentage printing, and I think it should
+> be possible to make it look good enough.
 
-> +	if (test_suspend_state(SUSPEND_FREEZER_ON))
-> +		return;
-> +	
+We can always make a tex_ mode_for_Pavel plugin :>
+	
+> Why do you need sys_mkdir?
 
-Hmm, yes, something like this migh be usefull for BUG_ONs etc...
-For consistency, right name is probably in_suspend(void).
+The text mode plugin is using it to make /dev (if it doesn't exist) so
+it can try to mount devfs (if necessary) and open /dev/console to do the
+output. I'd love to just use vt_console_print, but those who know better
+then me said to use /dev/console...
 
-				Pavel
+Regards,
+
+Nigel
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

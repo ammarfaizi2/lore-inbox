@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266433AbRGCFLb>; Tue, 3 Jul 2001 01:11:31 -0400
+	id <S266435AbRGCFLz>; Tue, 3 Jul 2001 01:11:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266414AbRGCFLV>; Tue, 3 Jul 2001 01:11:21 -0400
-Received: from 35.roland.net ([65.112.177.35]:1296 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S265473AbRGCFLE>;
-	Tue, 3 Jul 2001 01:11:04 -0400
-Message-ID: <000301c1037e$95897220$bb1cfa18@JimWS>
+	id <S265473AbRGCFLW>; Tue, 3 Jul 2001 01:11:22 -0400
+Received: from 35.roland.net ([65.112.177.35]:2320 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S266433AbRGCFLL>;
+	Tue, 3 Jul 2001 01:11:11 -0400
+Message-ID: <000101c1037e$94c5d400$bb1cfa18@JimWS>
 From: "Jim Roland" <jroland@roland.net>
-To: "H. Peter Anvin" <hpa@zytor.com>, "Hua Zhong" <huaz@cs.columbia.edu>
+To: "Jesse Pollard" <pollard@tomcat.admin.navo.hpc.mil>,
+        <jesse@cats-chateau.net>, <kmw@rowsw.com>, "J Sloan" <jjs@mirai.cx>
 Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200107021756.NAA24717@razor.cs.columbia.edu>
-Subject: Re: Uncle Sam Wants YOU! 
-Date: Mon, 2 Jul 2001 13:36:24 -0500
+In-Reply-To: <200107021509.KAA52993@tomcat.admin.navo.hpc.mil>
+Subject: Re: Uncle Sam Wants YOU!
+Date: Mon, 2 Jul 2001 13:31:56 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -24,33 +25,75 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I confronted @Home's tech support, and they're programmed to say "server"
-but even tier-2 had no idea what it actually meant that I could and could
-not do.  Go figure.
 
 ----- Original Message -----
-From: "Hua Zhong" <huaz@cs.columbia.edu>
-To: "H. Peter Anvin" <hpa@zytor.com>
+From: "Jesse Pollard" <pollard@tomcat.admin.navo.hpc.mil>
+To: <jroland@roland.net>; <jesse@cats-chateau.net>; <kmw@rowsw.com>; "J
+Sloan" <jjs@mirai.cx>
 Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, July 02, 2001 12:56 PM
+Sent: Monday, July 02, 2001 10:09 AM
 Subject: Re: Uncle Sam Wants YOU!
 
 
-> -> From "H. Peter Anvin" <hpa@zytor.com> :
-> > When I got Pac*Smell DSL, the installer guy (who seemed to be a
-> > relatively clueful type) said "and [the contract] says you're not
-> > allowed to run a server... but who'd know?"
+> "Jim Roland" <jroland@roland.net>:
+> > From: "Jesse Pollard" <jesse@cats-chateau.net>
+> > To: <kmw@rowsw.com>; "Kurt Maxwell Weber" <kmw@rowsw.com>; "J Sloan"
+> > <jjs@mirai.cx>
+> > Cc: <linux-kernel@vger.kernel.org>
+> > Sent: Sunday, July 01, 2001 3:03 PM
+> > Subject: Re: Uncle Sam Wants YOU!
+> >
+> >
+> > [snip]
+> > > >In that case, I have the following options:
+> > > >1) Start my own ISP
+> > >
+> > > Only if the upstream provider doesn't require you to use windows.
+> > >
+> > > >2) Use Windows XP
+> > > >3) Not use Windows XP and not be able to use my current ISP
+> > > >4) Go to a different ISP
+> > >
+> > > You may not be able to find another. It took me a year. I gave up. I
+was
+> > > fortunate that Verio doesn't care what you have... though if you use
+> > > the dialup or basic dsl, MS is it, or no real support.
+> > >
+> > > >I'll just have to decide which I value more.  As long as I won't be
+> > killed
+> > > >for using a different OS, I still have a choice.
+> > >
+> > > No, but you might be forced out of a job.
+> >
+> > In one of the large metro areas in which I live, there are a LOT of ISPs
+> > that do not require you to use Windows, but will not support you beyond
+the
+> > IP layer if you don't.  Use linux, install PPP with MS-CHAPv2 (with or
+> > without MPPE) for your dialup connection and it works just fine on a
+> > Winblows-only ISP.  DSL or Cable, just acquire your actual IP settings
+> > program a Linksys router/hub box and be done with it.
 >
-> ..and please define "server".  Does it mean that you can not run any
-programs
-> listening on a port and accepting incoming connections or datagrams? :-)
+> Better re-read the fine print on the "fair-use" statement. BOTH DSL and
+> Cable, or dialup (New Orleans at least) will disconnect you if you run ANY
+> unattended operation (if they determine it IS unattended). No daemon
+services.
+> No routing/NAT (unless they do it). No remote login. No mail. DHCP
+reconfig
+> between 4 and 8 hours (or whenever they choose to).
 >
+> They will let you plug in, but will not provide any support (even TCP/IP
+is
+> not assured).
 >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+TCP/IP is assured, in the case of my @Home service, they provide me with the
+transport layer and settings (IP, subnet, etc) but no software support.
+That is a provider choice, and I have no problem with it.  Microsoft does
+not (and will never) control the transport layer.  Doing so will kill Cisco
+routers, etc.  Being an ISP myself, there is absolutely nothing Microsoft
+can say or do to force me to support only them.  If XP clients don't work
+with my service, give someone a little while and there will be a plug-in or
+patch that allows XP to run with standard service.  As I said, they can do
+nothing for force me to move over to only Microsoft support.  I am Linux,
+and I'm only a small-guy.
 

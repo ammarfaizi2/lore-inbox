@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268906AbRHBMWE>; Thu, 2 Aug 2001 08:22:04 -0400
+	id <S268905AbRHBMXe>; Thu, 2 Aug 2001 08:23:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268905AbRHBMVy>; Thu, 2 Aug 2001 08:21:54 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29712 "EHLO
+	id <S268908AbRHBMXZ>; Thu, 2 Aug 2001 08:23:25 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30224 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268906AbRHBMVg>; Thu, 2 Aug 2001 08:21:36 -0400
-Subject: Re: 3ware Escalade problems
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Thu, 2 Aug 2001 13:22:15 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ransom@cfa.harvard.edu (Scott Ransom),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010801185836.B22548@vger.timpanogas.org> from "Jeff V. Merkey" at Aug 01, 2001 06:58:36 PM
+	id <S268905AbRHBMXN>; Thu, 2 Aug 2001 08:23:13 -0400
+Subject: Re: SMP possible with AMD CPUs?
+To: pgallen@randomlogic.com (Paul G. Allen)
+Date: Thu, 2 Aug 2001 13:24:52 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <no.id> from "Paul G. Allen" at Aug 01, 2001 06:55:21 PM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15SHUV-0000SM-00@the-village.bc.nu>
+Message-Id: <E15SHX2-0000SZ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you have an adapter, install it, dumop and gendisk head, and take a 
-> look at what's happening.  I am seeing drives being reported with 0 
-> block lengths and other wierdness.    
+> 	a. The IDE is no longer a 7409 PCI ID but 7411 so it operates as a generic IDE (slow as hell).
+[Should run full UDMA in -ac]
 
-Looks fine to me. However if you are seeing 0 block length drives reported
-thats tw_scsiop_read_capacity_complete() causing the sd.c code to do
-something daft.
+> 	b. The AGP is now ID 700C and is not detected unless the agpgart driver is loaded with agp_try_unsupported=1.
+
+Send me the relevant pci idents and I'll add it
+
+> 	d. The PCI bridge ID is different and (again) operates in a generic modeAgain send me the ids
+> 	e. The Host bridge ID is now 700C and operates in a generic mode.
+
+Send me the idents for these two
+
+> 3. The BIOS (apparently) doesn't setup the MTRR properly on both CPUs making mtrr bitch about a mismatch.
+
+The mtrr driver fixups should cure that - its a common bios bug.
 
 Alan

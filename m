@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130095AbQLATHn>; Fri, 1 Dec 2000 14:07:43 -0500
+	id <S130127AbQLATKc>; Fri, 1 Dec 2000 14:10:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130127AbQLATHe>; Fri, 1 Dec 2000 14:07:34 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12378 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130095AbQLATHY>; Fri, 1 Dec 2000 14:07:24 -0500
-Subject: Re: IP fragmentation (DF) and ip_no_pmtu_disc in 2.2 vs 2.4
-To: navarro@mcs.anl.gov (JP Navarro)
-Date: Fri, 1 Dec 2000 18:36:42 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A27EDF5.6060609@mcs.anl.gov> from "JP Navarro" at Dec 01, 2000 12:29:09 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E141v36-0000Zg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S130147AbQLATKW>; Fri, 1 Dec 2000 14:10:22 -0500
+Received: from mail2.uni-bielefeld.de ([129.70.4.90]:3877 "EHLO
+	mail.uni-bielefeld.de") by vger.kernel.org with ESMTP
+	id <S130127AbQLATKK>; Fri, 1 Dec 2000 14:10:10 -0500
+Date: Fri, 01 Dec 2000 18:38:03 +0000
+From: Marc Mutz <Marc@Mutz.com>
+Subject: Re: [uPATCH] Re: Questions about Kernel 2.4.0.*
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: Android <android@turbosport.com>, linux-kernel@vger.kernel.org
+Message-id: <3A27F00B.4A431099@Mutz.com>
+Organization: University of Bielefeld - Dep. of Mathematics / Dep. of Physics
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17i10-0001 i586)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
+In-Reply-To: <001c01c05a86$45bb6380$19211518@vnnys1.ca.home.com>
+ <20001130060732.A14250@wire.cadcamlab.org> <3A27CB48.38A1907C@Mutz.com>
+ <14887.60824.271322.811343@wire.cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With 2.4.0-test11, when ip_no_pmtu_disc is still 0/false we're seeing 
-> outbound udp packets with the IP DF bit set.  Is this change in default 
-> behavior a fix or a break?
+Peter Samuelson wrote:
+> 
+<snip>
+> +TOPDIR := $(shell pwd -P)
+<snip>
 
-Its a change in behaviour 
+That is specific to the bash builtin 'pwd'. GNU sh-util's pwd does not
+know that option (at least not my version, which is: "pwd (GNU sh-utils)
+1.16")
 
-> So, it appears that 2.4 fixed a problem with 2.2, correct?
-> [stop non expert thinking]
+I just wanted to note that...
 
-2.2 only supports it for TCP
+Marc
 
-> Intel PXE uses tftp to download boot images and discards IP packets with 
-> the DF bit set; so a tftpd server on 2.4 with the default 
+-- 
+Marc Mutz <Marc@Mutz.com>     http://EncryptionHOWTO.sourceforge.net/
+University of Bielefeld, Dep. of Mathematics / Dep. of Physics
 
-Then Intel PXE is buggy and you should go spank whoever provided it as well
-as doing the workarounds. Supporting received frames with DF set is mandatory.
+PGP-keyID's:   0xd46ce9ab (RSA), 0x7ae55b9e (DSS/DH)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

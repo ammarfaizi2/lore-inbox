@@ -1,79 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270669AbTHAFlr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 01:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275037AbTHAFlr
+	id S270673AbTHAFzu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 01:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270674AbTHAFzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 01:41:47 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:10484 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S270669AbTHAFlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 01:41:45 -0400
-Subject: Re: Emulating i486 on i386 (was: TSCs are a no-no on i386)
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030731153337.GB1873@lug-owl.de>
-References: <1059595260.10447.6.camel@dhcp22.swansea.linux.org.uk>
-	 <20030730203318.GH1873@lug-owl.de> <20030731002230.GE22991@fs.tum.de>
-	 <20030731062252.GM1873@lug-owl.de>
-	 <20030731071719.GA26249@alpha.home.local>
-	 <20030731113838.GU1873@lug-owl.de>
-	 <1059652268.16608.8.camel@dhcp22.swansea.linux.org.uk>
-	 <20030731121448.GW1873@lug-owl.de> <20030731130130.GY1873@lug-owl.de>
-	 <1059664158.5031.26.camel@workshop.saharacpt.lan>
-	 <20030731153337.GB1873@lug-owl.de>
-Content-Type: text/plain
-Message-Id: <1059716275.5032.31.camel@workshop.saharacpt.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 01 Aug 2003 07:37:55 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Aug 2003 01:55:50 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:60289 "HELO
+	longlandclan.hopto.org") by vger.kernel.org with SMTP
+	id S270673AbTHAFzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 01:55:48 -0400
+Message-ID: <3F2A00E1.1050701@longlandclan.hopto.org>
+Date: Fri, 01 Aug 2003 15:55:45 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: fun or real: proc interface for module handling?
+References: <20030731121248.GQ264@schottelius.org> <yw1xptjqub7q.fsf@users.sourceforge.net> <20030731231501.GC23607@pegasys.ws>
+In-Reply-To: <20030731231501.GC23607@pegasys.ws>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-31 at 17:33, Jan-Benedict Glaw wrote:
-> On Thu, 2003-07-31 17:09:19 +0200, Martin Schlemmer <azarah@gentoo.org>
-> wrote in message <1059664158.5031.26.camel@workshop.saharacpt.lan>:
-> > On Thu, 2003-07-31 at 15:01, Jan-Benedict Glaw wrote:
-> > > On Thu, 2003-07-31 14:14:48 +0200, Jan-Benedict Glaw <jbglaw@lug-owl.de>
-> > > wrote in message <20030731121448.GW1873@lug-owl.de>:
-> > > > On Thu, 2003-07-31 12:51:09 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk>
-> > > > wrote in message <1059652268.16608.8.camel@dhcp22.swansea.linux.org.uk>:
-> > > > > On Iau, 2003-07-31 at 12:38, Jan-Benedict Glaw wrote:
-> > > So there we are. Thanks to someone who pointed me to LD_DEBUG et al., I
-> > > see that my _init() is called too late:
-> > > 
-> > > amtus:~/sigill_catcher# LD_DEBUG=all LD_VERBOSE=1
-> > > LD_PRELOAD=./libsigill.so apt-get update 2> ld_infos                                 
-> > > Illegal instruction
-> > > amtus:~/sigill_catcher# grep 'calling init' ld_infos 
-> > > 00691:  calling init: /lib/libc.so.6
-> > > 00691:  calling init: /lib/libdl.so.2
-> > > 00691:  calling init: /lib/libgcc_s.so.1
-> > > 00691:  calling init: /lib/libm.so.6
-> > > 00691:  calling init: /usr/lib/libstdc++.so.5
-> > > 
-> > > As I guessed, libstdc++5's _init() is called before mine (LD_PRELOADed)
-> > > _init() function and thus, I cannot intercept this SIGILL, as it
-> > > seems...
-> > > 
-> > 
-> > You could do what we do with our path sandbox - basically you
-> > use a wrapper that setup the environment (prob not needed in
-> > your case), and then spawn bash with our sandbox lib preloaded,
-> > which then calls whatever should be 'path sandboxed'.
-> 
-> Care to send some URL? I haven't found it ad hoc by Google...
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-http://www.gentoo.org/cgi-bin/viewcvs.cgi/portage/src/sandbox-1.1/?cvsroot=gentoo-src
+On Thu, Jul 31, 2003 at 02:34:01PM +0200, Måns Rullgård wrote:
 
+| Nico Schottelius <nico-kernel@schottelius.org> writes:
+| > Modul options could be passed my
+| >   echo "psmouse_noext=1" > /proc/mods/psmouse/options
+| > which would also make it possible to change module options while
+running..
+|
+| How would options be passed when loading?  Some modules require that
+| to load properly.
 
-Cheers,
+Possibility, why not just have a file, /proc/mods/initial, that you
+write the initial kernel module options to, e.g.
 
--- 
-Martin Schlemmer
-Gentoo Linux Developer, Desktop Team
-Cape Town, South Africa
+# echo "ne2000 io=0x300 irq=11" > /proc/mods/initial
+
+Then you load the module using:
+
+# mkdir /proc/mods/ne2000/
+
+although you could skip this necessity and just load the module when
+someone writes to /proc/mods/initial.
+
+Just a thought.
+
+- --
++-------------------------------------------------------------+
+| Stuart Longland           stuartl at longlandclan.hopto.org |
+| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
+| I haven't lost my mind - it's backed up on a tape somewhere |
+| Griffith Student No:           Course: Bachelor/IT (Nathan) |
++-------------------------------------------------------------+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/KgDhIGJk7gLSDPcRAngeAJ4mUbQGQaijQbelNW8/6nXkdT+P+wCfUJ3U
+I6J5l/5TS3UTrQlJb/D86YM=
+=MIdk
+-----END PGP SIGNATURE-----
 

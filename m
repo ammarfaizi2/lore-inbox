@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130003AbQLATBv>; Fri, 1 Dec 2000 14:01:51 -0500
+	id <S129815AbQLATGM>; Fri, 1 Dec 2000 14:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130027AbQLATBm>; Fri, 1 Dec 2000 14:01:42 -0500
-Received: from cliff.mcs.anl.gov ([140.221.9.17]:54147 "EHLO mcs.anl.gov")
-	by vger.kernel.org with ESMTP id <S130003AbQLATB2>;
-	Fri, 1 Dec 2000 14:01:28 -0500
-Message-ID: <3A27EDF5.6060609@mcs.anl.gov>
-Date: Fri, 01 Dec 2000 12:29:09 -0600
-From: JP Navarro <navarro@mcs.anl.gov>
-Organization: Argonne National Laboratory
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; m18) Gecko/20001108 Netscape6/6.0
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: IP fragmentation (DF) and ip_no_pmtu_disc in 2.2 vs 2.4
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S129789AbQLATGC>; Fri, 1 Dec 2000 14:06:02 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:40323 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129465AbQLATFt>;
+	Fri, 1 Dec 2000 14:05:49 -0500
+Date: Fri, 1 Dec 2000 10:19:44 -0800
+Message-Id: <200012011819.KAA02951@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: andrea@suse.de
+CC: ink@jurassic.park.msu.ru, ezolt@perf.zko.dec.com, axp-list@redhat.com,
+        rth@twiddle.net, Jay.Estabrook@compaq.com,
+        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
+        wcarr@perf.zko.dec.com, linux-alpha@vger.kernel.org
+In-Reply-To: <20001201151842.C30653@athlon.random> (message from Andrea
+	Arcangeli on Fri, 1 Dec 2000 15:18:42 +0100)
+Subject: Re: mm->context[NR_CPUS] and pci fix check [was Re: Alpha SCSI error on 2.4.0-test11]
+In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random> <20001201145619.A553@jurassic.park.msu.ru> <20001201151842.C30653@athlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.2.17 when /proc/sys/net/ipv4/ip_no_pmtu_disc is 0/false we're 
-seeing outbound udp packets with the IP DF (don't fragment) bit clear. 
-With 2.4.0-test11, when ip_no_pmtu_disc is still 0/false we're seeing 
-outbound udp packets with the IP DF bit set.  Is this change in default 
-behavior a fix or a break?
+   Date: 	Fri, 1 Dec 2000 15:18:42 +0100
+   From: Andrea Arcangeli <andrea@suse.de>
 
-[start non expert thinking]
-ip_no_pmtu_disc = 0/false means that we DO want MTU discovery.
-ip_no_pmtu_disc = 1/true means that we DON't want MTU discovery.
-to do MTU discovery you want DF set, so if fragmenting is necessary to 
-reach your target you get an unreachable error and can try smaller MTUs.
+   I'm still left the #ifdef __alpha__ around the context[NR_CPUS] to
+   avoid breakage of other archs but that should be probably removed:
+   any CPU with per-CPU ASNs like alpha needs per-CPU per-MM context
+   information to avoid wasting ASNs when the task migrate CPU or with
+   threads.
 
-So, it appears that 2.4 fixed a problem with 2.2, correct?
-[stop non expert thinking]
+I would instead suggest to declare 'context' to be of an arch-specific
+defined type, much like "thread_struct" is.
 
-The problem that led us to notice this behavior was:
+For example, I don't need NR_CPUS contexts in the mm_struct on
+sparc64, my allocation just works differently, so I shouldn't eat
+all the space.
 
-Intel PXE uses tftp to download boot images and discards IP packets with 
-the DF bit set; so a tftpd server on 2.4 with the default 
-ip_no_pmtu_disc set to 0/false can't serve tftp to PXE. Changing 
-ip_no_pmtu_disc to 1/true "fixes it". One problem is that we'd rather 
-have our tftpd server w/ 2.4 configured for mtu discovery.
-
-We've tried to setsockopt(sock, SOL_IP, IP_MTU_DISCOVER, ...) with the 
-IP_PMTUDISC_DONT option but can't make it work. How does one change MTU 
-discovery and/or the don't fragment bit on a single socket?
-
-
-JP Navarro
--- 
-John-Paul Navarro                                      (630) 252-1233
-Mathematics & Computer Science Division
-Argonne National Laboratory                       navarro@mcs.anl.gov
-Argonne, IL 60439                     http://www.mcs.anl.gov/~navarro
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

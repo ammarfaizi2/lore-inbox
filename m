@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275815AbRI1D1z>; Thu, 27 Sep 2001 23:27:55 -0400
+	id <S275816AbRI1DlT>; Thu, 27 Sep 2001 23:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275814AbRI1D1p>; Thu, 27 Sep 2001 23:27:45 -0400
-Received: from [64.225.255.11] ([64.225.255.11]:14543 "EHLO
-	imta02a2.registeredsite.com") by vger.kernel.org with ESMTP
-	id <S275812AbRI1D13>; Thu, 27 Sep 2001 23:27:29 -0400
-Message-Id: <4.3.2.7.2.20010927233132.00b75ee0@pop.registeredsite.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Thu, 27 Sep 2001 23:31:55 -0400
-To: Alex Cruise <acruise@infowave.com>, "'Randy.Dunlap'" <rddunlap@osdlab.org>
-From: "Lewin A.R.W. Edwards" <larwe@larwe.com>
-Subject: RE: apm suspend broken in 2.4.10
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <6B90F0170040D41192B100508BD68CA1015A81B2@earth.infowave.co
- m>
+	id <S275820AbRI1DlB>; Thu, 27 Sep 2001 23:41:01 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:4386 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S275816AbRI1Dk5>; Thu, 27 Sep 2001 23:40:57 -0400
+Date: Thu, 27 Sep 2001 23:40:23 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org
+Subject: Re: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works in 2.4.4
+Message-ID: <20010927234023.A16753@devserv.devel.redhat.com>
+In-Reply-To: <200109042234.AAA28635@harpo.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109042234.AAA28635@harpo.it.uu.se>; from mikpe@csd.uu.se on Wed, Sep 05, 2001 at 12:34:57AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Date: Wed, 5 Sep 2001 00:34:57 +0200 (MET DST)
+> From: Mikael Pettersson <mikpe@csd.uu.se>
+> To: zaitcev@redhat.com
+> Cc: Floydsmith@aol.com, linux-kernel@vger.kernel.org,
+>    linux-tape@vger.kernel.org
 
->Sep 27 19:39:09 onus kernel: awc: APM Suspend vetoed by:
->Sep 27 19:39:09 onus kernel:   type = 1 id = 1104151299 callback =
->-1072064644 data = 0 flags = 0 state = 0 prev_state = 0
->
->1104151299 is 0x41D00303, which if you consult your include/linux/pm.h
->(PM_SYS_DEV = 1, PM_SYS_KBC = 0x41d00303), would seem AFAICT to indicate
->that it's the keyboard driver--or something upstream of it--who's vetoing my
->suspend.  Am I crazy?
+> >> - block size: The 2.4 ide-tape driver only works reliably if you
+> >>   write data with the correct block size. If you don't write full
+> >>   blocks the last block of data may not be readable.
+> >
+> >I fixed that some time ago, it's in current -ac
+> >if not in Linus's tree.
+> 
+> Sorry, but that's not correct. I just ran a test, and the bug is
+> still there in 2.4.9-ac7. Maybe you're thinking of some other bug?
 
-Maybe something to do with A20 switching?
+OK, perhaps you are right. I received a credible report from
+Ed Tomlinson that the "reading the last block" bug is in 2.4.10.
 
+It seems that either I fixed something else with the same symptoms
+or I fixed it improperly. Unfortunately, I cannot reproduce it.
 
--- Lewin A.R.W. Edwards
-Embedded Engineer, Digi-Frame Inc.
-Work: http://www.digi-frame.com/
-Tel (914) 937-4090 9am-6:30pm M-F ET
-Personal: http://www.larwe.com/ http://www.zws.com/
+By the way, why does everyone insist on using ide-tape?
+It seems to be broken beyond any repair by injection of
+lethal poison marked "OnStream Support" (not that it was brilliant
+before, but that was the last nail in the coffin). Just use ide-scsi
+and be done with it. I really do not enjoy reading ide-tape.c.
 
-
+-- Pete

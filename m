@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268230AbUG2QgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUG2Qmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268230AbUG2QgW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 12:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUG2QBt
+	id S267561AbUG2Qmo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 12:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268276AbUG2Qgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 12:01:49 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:17116 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267752AbUG2Pzc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 11:55:32 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Subject: Re: Oops in find_busiest_group(): 2.6.8-rc1-mm1
-Date: Thu, 29 Jul 2004 08:49:42 -0700
-User-Agent: KMail/1.6.2
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Paul Jackson <pj@sgi.com>,
-       haveblue@us.ibm.com, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org, Jesse Barnes <jbarnes@sgi.com>
-References: <1089871489.10000.388.camel@nighthawk> <4108D349.1030209@yahoo.com.au> <20040729153510.GB1141@sgi.com>
-In-Reply-To: <20040729153510.GB1141@sgi.com>
+	Thu, 29 Jul 2004 12:36:35 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26555 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S264937AbUG2QCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 12:02:03 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
+       jbarnes@engr.sgi.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <16734.1090513167@ocs3.ocs.com.au>
+	<20040725235705.57b804cc.akpm@osdl.org>
+	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
+	<200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
+	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
+	<20040728133337.06eb0fca.akpm@osdl.org>
+	<1091044742.31698.3.camel@localhost.localdomain>
+	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
+	<20040728164457.732c2f1d.akpm@osdl.org>
+	<m1d62f6351.fsf@ebiederm.dsl.xmission.com>
+	<20040728180954.1f2baed9.akpm@osdl.org>
+	<m1u0vr4luo.fsf@ebiederm.dsl.xmission.com>
+	<138620000.1091110702@[10.10.2.4]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Jul 2004 10:01:18 -0600
+In-Reply-To: <138620000.1091110702@[10.10.2.4]>
+Message-ID: <m1pt6ekdkh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407290849.42271.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, July 29, 2004 8:35 am, Dimitri Sivanich wrote:
-> Here's a patch to 2.6.8-rc2-mm1 that allows things to work:
->
-> --- sched.c.old 2004-07-29 10:11:00.000000000 -0500
-> +++ sched.c     2004-07-29 10:27:58.000000000 -0500
-> @@ -3770,8 +3770,6 @@ __init static void arch_init_sched_domai
->                 cpumask_t nodemask = node_to_cpumask(cpu_to_node(i));
->
->  #ifdef CONFIG_NUMA
-> -               if (i != first_cpu(sd->groups->cpumask))
-> -                       continue;
->                 sd = &per_cpu(node_domains, i);
->                 group = cpu_to_node_group(i);
->                 *sd = SD_NODE_INIT;
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-Yep, this was a merge error.  I posted it as the first reply (f1rst p0st!) to 
-Andrew's 2.6.8-rc2-mm1 announcement.  Sorry for the trouble, my last patch 
-didn't include it, but there was some confusion since there were several 
-fixes to the scheduler code posted to Nick's 'consolidate sched domains' 
-thread.
+> IIRC, what Adam did is to relocate the bottom 16MB of mem into the
+> reserved buffer and execute into the bottom 16MB. Yes, that probably does
+> leave some DMA issues that we should fix up as you suggest above, but I
+> think it's good enough for a first pass at the problem.
 
-Jesse
+Probably.  I have witnessed network RX causing memory corruption,
+before the kexec code started downing the network interfaces on
+the user space side. I suspect data capture from sound cards or
+video capture cards would have the same issue.  
+
+The way I have observed this in the past is to kexec memtest86,
+on a machine with known good memory, and then attempt to ping it :)
+
+What especially worries me about the low 16MB is that it is the
+DMA zone for ISA devices.  Old sound cards in particular.  Most
+of that is output but....   
+
+Eric

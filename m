@@ -1,68 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318135AbSGMJhZ>; Sat, 13 Jul 2002 05:37:25 -0400
+	id <S318136AbSGMJ7S>; Sat, 13 Jul 2002 05:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318134AbSGMJhY>; Sat, 13 Jul 2002 05:37:24 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:58304 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S318135AbSGMJhX>;
-	Sat, 13 Jul 2002 05:37:23 -0400
-Message-Id: <200207130940.g6D9e3g02976@zeus.kernel.org>
-From: "seeindesign" <seeindesign@hanmail.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: =?ISO-8859-1?Q?=C0=DA=BD=C5=C0=D6=B0=D4?= =?ISO-8859-1?Q?=B8=ED=C7=D4=C0=BB?= =?ISO-8859-1?Q?=B3=BB=B9=CC=BC=BC=BF=E4~(=B1=E2=BE=F7=B7=CE=B0=ED,=C8=A8=C6=E4=C0=CC=C1=F6?= =?ISO-8859-1?Q?=C0=FA=B7=C5=C7=CF=B0=D4?=)=?ISO-8859-1?Q?[=B1=A4=B0=ED]?=
+	id <S318137AbSGMJ7R>; Sat, 13 Jul 2002 05:59:17 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:21515 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S318136AbSGMJ7P>; Sat, 13 Jul 2002 05:59:15 -0400
+Date: Sat, 13 Jul 2002 11:28:22 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Richard J Moore <richardj_moore@uk.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  July 10, 2002
+Message-ID: <20020713112822.D758@nightmaster.csn.tu-chemnitz.de>
+References: <OFECA8B235.6959642F-ON85256BF3.006A387F@portsmouth.uk.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-2022-KR"
-Date: Sat, 13 Jul 2002 18:40:06 +0900
-Reply-To: "seeindesign" <seeindesign@hanmail.net>
-X-Priority: 1 (Highest)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <OFECA8B235.6959642F-ON85256BF3.006A387F@portsmouth.uk.ibm.com>; from richardj_moore@uk.ibm.com on Thu, Jul 11, 2002 at 09:34:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ø¯ƒ° æ ¥¬ ∏ﬁ¿œ¿Ãæ˙¥Ÿ∏È ªÁ∞˙µÂ∏≥¥œ¥Ÿ.
-¿Ã ∏ﬁ¿œ¿∫ ¿œ»∏º∫¿Ãπ«∑Œ ¥ŸΩ√ ∏ﬁ¿œ¿Ã ∞°¥¬ ¿œ¿∫ æ¯¿ª ∞Õ¿‘¥œ¥Ÿ.
-------------------------------------------------
+On Thu, Jul 11, 2002 at 09:34:37PM +0100, Richard J Moore wrote:
+> 
+>    message uniqueness is not guaranteed
+>    message content is not complete for automation purposes
+>    some of the most serious error message have the least useful content
+>    many messages are issued using multiple printks and on an MP system can
+>    have their text interleaved
+>    there's no national language support
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[1]
+>    embedded systems are not well catered for
+>    message recognition and parsing is haphazard
 
-»∏ªÁ¿« 'CI' ø° ¥Î«ÿº≠¥¬ ª˝∞¢«ÿ ∫∏ºÃΩ¿¥œ±Ó?
-¥Î±‚æ˜∫Œ≈Õ ¿€¿∫ ∫•√≥ ±‚æ˜±Ó¡ˆ, ¥´∏∏ µπ∏Æ∏È ∫∏¿Ã¥¬ ∞Õ¿Ã
-±‚æ˜ ¿ÃπÃ¡ˆ∏¶ «•«ˆ«— ∑Œ∞Ì µ¿⁄¿Œ¿Ã≥™ ∏∂≈©¿‘¥œ¥Ÿ.   
-«œ¡ˆ∏∏, »∏ªÁ∏¶ øÓøµ«œ¥¬µ• ¿÷æÓº≠ ±◊∑± ∫Œ∫–¿∫ ∫∞∑Œ ∞¸Ω…¿ª
-µŒ¡ˆ æ ¿∏Ω√∞≈≥™ ¥Î∞≠ ∏∏µÈæÓ ªÁøÎ«œΩ√¥¬ ∞ÊøÏ∞° ∏πΩ¿¥œ¥Ÿ. 
-±◊ ¿Ã¿Ø¥¬ ¡ﬂø‰º∫¿ª ∏∏£∞≈≥™, ¡¶¿€∫ÒøÎ¿Ã ∏∏∏∏ƒ° æ ±‚
-∂ßπÆ¿Ã∞⁄¡“.
-¿Œ≈Õ≥› ªÁ¿Ã∆Æ∏¶ µ⁄¡Æ∫¡µµ, ¡¶¿€«œ∑¡∏È ºˆπÈ∏∏ø¯ø°º≠
-ºˆ√µ∏∏ø¯±Ó¡ˆ µÂ¥¬ Ω«¡§¿‘¥œ¥Ÿ.¿€¿∫ ∑Œ∞Ì¿ÃπÃ¡ˆø° ∏π¿∫ ≈ı¿⁄¥¬
-« ø‰ æ¯¥Ÿ∞Ì ∏ª«œΩ ¥œ±Ó?  
-  
-∑Œ∞Ì¥¬ ±‚æ˜¿« ø™ªÁ, ¿Ã≥‰, ∏Ò«• µÓ¿ª «‘√‡«œ∞Ì ¿÷¥¬ ±‚æ˜¿«
-æÛ±º¿‘¥œ¥Ÿ. 
-∏Ì«‘ «œ≥™∏¶ ∞«≥Ÿ¥Ÿ∞Ì «ÿµµ ∑Œ∞Ìø° µ˚∂Ûº≠ ±‚æ˜∞˙ ¥Î«•∞° ¡÷¥¬
-¿ÃπÃ¡ˆ¿« ¬˜¿Ã¥¬ ∏≈øÏ ≈Æ¥œ¥Ÿ. 
-±◊∑± ¿«πÃø°º≠ µ˚∑Œ ±§∞Ì∏¶ «œ¡ˆ æ ¥ı∂Ûµµ, ∑Œ∞Ì∞° ¡÷¥¬
-±§∞Ì¿˚ ¿ÃπÃ¡ˆ »ø∞˙¥¬ æˆ√ª≥≥¥œ¥Ÿ. 
-∏∂ƒ…∆√ø° πﬂ»÷«œ¥¬ »øøÎº∫.. πŸ∑Œ ±◊∞Õ¿Ã¡“. 
-±◊∑°º≠ ¥Î±‚æ˜µÈ¿Ã æˆ√ª≥≠ µ∑¿ª µÈø©∞°∏Á, ∑Œ∞Ì∏¶ πŸ≤Ÿ¥¬
-∞Õ¿‘¥œ¥Ÿ. 
-'º±∞Ê'¿Ã∂Û¥¬ »∏ªÁ∞° ¿÷æ˙¡“? ∫∞∑Œ ¥Î¥‹«— »∏ªÁ∂Û¥¬ ¥¿≥¶¿Ã æ»
-µÈæ˙¡ˆ∏∏, 'SK'∑Œ ∑Œ∞Ì∏¶ πŸ≤Ÿ∞Ì  
-¥Î±‚æ˜¿Ã∂Û¥¬ ¿ÃπÃ¡ˆ∏¶ »ÆΩ«»˜ Ω…æÓ ¡÷¡ˆ æ æ“Ω¿¥œ±Ó? 
-¿Ã¡¶ CI¥¬ π´Ωº ªÁæ˜¿ª Ω√¿€«œ¥¯¡ˆ π›µÂΩ√ « ø‰«— ø‰º“∞°
-µ«æ˙Ω¿¥œ¥Ÿ. 
-  
-±◊∑Ø≥™, ∫∏≈Î ±‚æ˜ø°º≠ ªÛ¥Á ∫ÒøÎ¿ª CI¡¶¿€ø° ≈ı¿⁄«œ±‚∂ı Ω¨øÓ
-¿œ¿Ã æ∆¥’¥œ¥Ÿ. 
-∂ßπÆø° CI¥¬ ¥Î±‚æ˜¿Ã æ∆¥œ∏È æˆµŒµµ ∏¯ ≥æ ¿œ¿Ã∂Û∞Ì
-ª˝∞¢«œΩ√¥¬ ∫–¿Ã ∏π¿∏Ω« ¡ˆµµ ∏∏®¥œ¥Ÿ.  
-±◊∑°º≠, ¡ﬂø‰º∫¿ª æ∆Ω√∏Èº≠µµ ¥Î∫Œ∫– ¡˜¡¢ ∏∏µÂΩ√∞≈≥™ ±◊≥…
-º≠√º∏¶ «—∞°¡ˆ º±¡§«ÿ ªÁøÎ«œΩ√∞‘ µÀ¥œ¥Ÿ. 
-  
-ææ¿Œµ¿⁄¿Œø°º≠¥¬ ∫“« ø‰«— ∫ÒøÎ¿ª √÷¥Î«— ¿˝∞®«œΩ√µµ∑œ, 
-« ø‰«— ∫Œ∫–∏∏ ¿«∑⁄∞° ∞°¥…«œ∞‘ ∞Ë»π«œø¥Ω¿¥œ¥Ÿ. 
-« ø‰«œ¡ˆ æ ¿ª ºˆ ¿÷¥¬ ¬˜∑Æ, ¿Ø¥œ∆˚ µÓ¿∫ ¡¶ø‹«œ∞Ì, ªÛ¥„ »ƒ
-≤¿ « ø‰«œΩ≈ ∫Œ∫–∏∏ √÷º“∫ÒøÎ¿∏∑Œ ¡¶¿€«ÿ µÂ∏≥¥œ¥Ÿ. 
-¿«∑⁄Ω√ ¡˜¡¢ √£æ∆∫À∞Ì ¿⁄ºº«— ªÛ¥„¿ª «ÿµÂ∏Æ∞⁄Ω¿¥œ¥Ÿ. 
+[1] Should stay like this. Or at least only the original message
+should go to the log file.
 
+Just an example:
 
-http://www.see-in.com/
+Huch? Sytemkernseite konnte nicht an Adresse 1098bf00 eingeblendet werden.
+current->tss.cr3 = 0062d000, %cr3 = 0062d000
+*pde = 00000000
+Huch: 0002
+Prozessor:    0
+EIP:    0010:[oops:_oops+16/3868]
+EFLAGS: 00010212
+eax: 315e97cc   ebx: 003a6f80
+ecx: 001be77b   edx: 00237c0c
+esi: 00000000   edi: bffffdb3
+ebp: 00589f90   esp: 00589f8c
+ds: 0018   es: 0018   fs: 002b
+gs: 002b   ss: 0018
+Prozeﬂ oops_test (pid: 3374,
+Prozeﬂnummer: 21, Kellerseite=00589000)
+Keller: 315e97cc 00589f98 0100b0b4 bffffed4 0012e38e 00240c64 003a6f80 00000001
 
-πÆ¿«   ejkim@see-in.com
+This is only German, which is very similiar to whose character
+set is a slight superset of the characterset in UK/US.
+
+Now consider the same message in Chinese (20.000 possible
+characters), Hebrew (right to left and 'strange' characters), 
+Arabic (right to left, strange rules for composing connections
+between the characters, which even Micro$oft was unable to get
+right) and many more fun.
+
+So the driver writer has get his debugging messages translated
+somehow and than he has to ask the translation serices again to
+translate the bug report from the user.
+
+Sorry, this sounds like someone is looking for a market niche
+for getting more money instead of getting real problems solved.
+
+Communication requires a common language. This is English for
+Problems regarding Linux kernel development and maintenance.
+Anything else would slow down both, because of added complexity.
+
+Regards
+
+Ingo Oeser, who thinks i18ned user space messages are enough
+pain in the ass.
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

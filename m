@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRAXHvr>; Wed, 24 Jan 2001 02:51:47 -0500
+	id <S129764AbRAXIF0>; Wed, 24 Jan 2001 03:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129776AbRAXHvh>; Wed, 24 Jan 2001 02:51:37 -0500
-Received: from piglet.twiddle.net ([207.104.6.26]:2565 "EHLO
-	piglet.twiddle.net") by vger.kernel.org with ESMTP
-	id <S129742AbRAXHv1>; Wed, 24 Jan 2001 02:51:27 -0500
-Date: Tue, 23 Jan 2001 23:51:15 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Russell King <rmk@arm.linux.org.uk>, Hubert Mantel <mantel@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Compatibility issue with 2.2.19pre7
-Message-ID: <20010123235115.A14786@twiddle.net>
-In-Reply-To: <20010110163158.F19503@athlon.random> <200101102209.f0AM9N803486@flint.arm.linux.org.uk> <20010111005924.L29093@athlon.random>
-Mime-Version: 1.0
+	id <S129846AbRAXIFH>; Wed, 24 Jan 2001 03:05:07 -0500
+Received: from colorfullife.com ([216.156.138.34]:34308 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129764AbRAXIFA>;
+	Wed, 24 Jan 2001 03:05:00 -0500
+Message-ID: <3A6E0CEA.ABD620F8@colorfullife.com>
+Date: Tue, 23 Jan 2001 23:59:54 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: dwd@bell-labs.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
+In-Reply-To: <3A6E02E6.B3261E1@colorfullife.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20010111005924.L29093@athlon.random>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2001 at 12:59:24AM +0100, Andrea Arcangeli wrote:
-> What I said is that I can write this C code:
-> 
-> 	int x[2], * p = (int *) (((char *) &x)+1);
-> 	main()
-> 	{
-> 		*p = 0;
-> 	}
-> 
-> This is legal C code.
+I checked RFC793, and AFAICS Solaris is the culprit:
+it sends out invalid packets, Linux ignores them and thus Linux doesn't
+receive acks.
 
-Err, no.  This is not "legal" by any stretch of the imagination.
-This code has undefined behaviour.
+Which Solaris version do you use?
 
-As such, it may work, it may sigbus, it may write data at some
-address unrelated to "x", or it may start World War III (with
-appropriate hardware attached).
+* The last valid ack from the Solaris computer is for byte 1583721, win
+8760 (line 2078)
 
-We aren't even obliged to allow this to compile.
+* No packet after line 2078 from the Solaris computer passed the
+acceptability test from RFC793, page 69. Thus Linux ignores these
+packets completely.
 
+* Linux sends out packets up to 1591021:1592481(1460) without receiving
+_valid_ acks, then it begins to retry 1583721:1585181(1460) every 2
+seconds until the end of the tcpdump.
 
-r~
+--	
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

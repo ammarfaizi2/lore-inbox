@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVCKQSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVCKQTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVCKQSd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 11:18:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVCKQSd
+	id S261189AbVCKQTo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 11:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVCKQTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 11:18:33 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:5898 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261188AbVCKQSR
+	Fri, 11 Mar 2005 11:19:43 -0500
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:18641 "EHLO
+	yoda.timesys") by vger.kernel.org with ESMTP id S261189AbVCKQT0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 11:18:17 -0500
-Message-Id: <200503111849.j2BImsJp003370@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Adrian Bunk <bunk@stusta.de>
-cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 4/9] UML - Export gcov symbol based on gcc version 
-In-Reply-To: Your message of "Thu, 10 Mar 2005 23:53:40 +0100."
-             <20050310225340.GD3205@stusta.de> 
-References: <200503100216.j2A2G2DN015232@ccure.user-mode-linux.org>  <20050310225340.GD3205@stusta.de> 
+	Fri, 11 Mar 2005 11:19:26 -0500
+Date: Fri, 11 Mar 2005 11:19:23 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Scott Wood <scott@gw.timesys.com>, linux-kernel@vger.kernel.org,
+       manas.saksena@timesys.com
+Subject: Re: [PATCH] realtime-preempt: update inherited priorities on setscheduler
+Message-ID: <20050311161923.GA4518@yoda.timesys>
+References: <20050310212116.GA2420@yoda.timesys> <20050311093607.GB19954@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 11 Mar 2005 13:48:54 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+In-Reply-To: <20050311093607.GB19954@elte.hu>
+User-Agent: Mutt/1.5.4i
+From: Scott Wood <scott@gw.timesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bunk@stusta.de said:
-> This patch is still wrong.
-> It seems my comment on this [1] was lost:
-> <--  snip  -->
-> This line has to be something like
-> ( (__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4)
-> && \
->    HEAVILY_PATCHED_SUSE_GCC ) 
+On Fri, Mar 11, 2005 at 10:36:07AM +0100, Ingo Molnar wrote:
+> 
+> * Scott Wood <scott@gw.timesys.com> wrote:
+> 
+> > -	p->prio = effective_prio(p);
+> > +	/* Don't overwrite an inherited RT priority with the static
+> > +	   RT priority. */
+> > +
+> > +	if (!rt_task(p))
+> > +		p->prio = effective_prio(p);
+> 
+> are you sure this is needed? The -RT code currently does this:
+> 
+>  static int effective_prio(task_t *p)
+>  {
+>          if (rt_task(p))
+>                  return p->prio;
+>          return __effective_prio(p);
+>  }
 
-> I hope SuSE has added some #define to distinguish what they call  "gcc
-> 3.3.4" from GNU gcc 3.3.4 
+I must have read-then-misremembered it as recalculating the prio from
+rt_priority, or else been worried about some race that doesn't appear
+possible.  The change isn't needed.
 
-It wasn't lost - I am just disinclined to cater to distros making their
-gcc lie about its version.
-
-				Jeff
-
+-Scott

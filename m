@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287966AbSA2Agk>; Mon, 28 Jan 2002 19:36:40 -0500
+	id <S287862AbSA2AjU>; Mon, 28 Jan 2002 19:39:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288012AbSA2AgY>; Mon, 28 Jan 2002 19:36:24 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:61346 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S287966AbSA2AgB>;
-	Mon, 28 Jan 2002 19:36:01 -0500
-Date: Mon, 28 Jan 2002 16:33:33 -0800
+	id <S288012AbSA2AjM>; Mon, 28 Jan 2002 19:39:12 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:63395 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S287862AbSA2Aiz>;
+	Mon, 28 Jan 2002 19:38:55 -0500
+Date: Mon, 28 Jan 2002 16:36:22 -0800
 From: Russ Weight <rweight@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
-Subject: [RFC] [PATCH] Scalable CPU bitmasks
-Message-ID: <20020128163333.A9744@us.ibm.com>
+Subject: [RFC] [PATCH] Scalable phys_cpu_present_map implementation
+Message-ID: <20020128163622.B9744@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,299 +22,229 @@ Hi,
 
 	This patch applies to the 2.5.2 kernel.
 
-	This patch implements a scalable bitmask specifically
-for tracking CPUs. It consists of a single file which simply
-adds a new datatype and supporting functions.  It allows for
-future expansion to a CPU count which is not confined to the
-bit-size of (unsigned long).  The new datatype (cpumap_t) and
-supporting functions are optimized at compile-time according to
-the definition of NR_CPUS.
+***	Please refer to my previous e-mail entitled:
+***	"[RFC] [PATCH] Scalable CPU bitmasks".
 
-	While systems with more than 32 processors are still
-out in the future, these interfaces provide a path for gradual
-code migration. One of the primary goals is to provide current
-functionality without affecting performance.
+	This patch modifies the phys_cpu_present_map bitmask to
+be a "scalable CPU bitmask".  The datatype is changed to cpumap_t,
+and all accesses to the bitmask are done through the appropriate
+supporting functions.
 
-	A preliminary list of global CPU bitmasks which _could_
-migrate to this new datatype are listed below.
-
-	phys_cpu_present_map
-	cpu_initialized
-	wait_init_idle
-	cpu_online_map/cpu_present_mask
-	cpu_callin_map
-	cpu_callout_map
-
-***	I have been working on patches for some of these bitmasks,
-***	and will send out the one for phys_cpu_present_map as an
-***	example.
-
-	One question that has arisen is whether or not a more
-generic datatype and interface set could be provided for bitmasks
-in general.  I considered this, but could not find sufficient
-justification for doing so. However, it would be very easy to
-break out the generic portions of these functions into lower-level
-primitives that could be more generally used.
-
-NOTE:	The cpumap_to_ulong() and cpumap_ulong_to_cpumap() interfaces
-	are provided specifically for migration. In their current form,
-	they call BUG() if NR_CPUS is defined to be greater than the
-	bit-size of (unsigned long).
-
-Your comments are welcome! Please let me know what you think...
+	Please send comments!
 
 -- 
 Russ Weight (rweight@us.ibm.com)
 Linux Technology Center
 
 
-diff -u lx252.pure/include/linux/cpumap.h linux/include/linux/cpumap.h
---- lx252.pure/include/linux/cpumap.h	Thu Jan 24 16:17:32 2002
-+++ linux/include/linux/cpumap.h	Fri Jan 25 16:40:44 2002
-@@ -0,0 +1,246 @@
-+/*
-+ * cpumap_t data type and supporting functions
-+ *
-+ * Copyright (c) 2001 IBM Corp.
-+ *
-+ *	01/25/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+#ifndef __LINUX_CPUMAP_H
-+#define __LINUX_CPUMAP_H
+diff -u cpumap/include/asm-i386/smp.h linux/include/asm-i386/smp.h
+--- cpumap/include/asm-i386/smp.h	Mon Jan 21 16:28:09 2002
++++ linux/include/asm-i386/smp.h	Mon Jan 21 16:25:32 2002
+@@ -8,6 +8,7 @@
+ #include <linux/config.h>
+ #include <linux/threads.h>
+ #include <linux/ptrace.h>
++#include <linux/cpumap.h>
+ #endif
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+@@ -53,7 +54,7 @@
+  */
+  
+ extern void smp_alloc_memory(void);
+-extern unsigned long phys_cpu_present_map;
++extern cpumap_t phys_cpu_present_map;
+ extern unsigned long cpu_online_map;
+ extern volatile unsigned long smp_invalidate_needed;
+ extern int pic_mode;
+diff -u cpumap/include/asm-i386/mpspec.h linux/include/asm-i386/mpspec.h
+--- cpumap/include/asm-i386/mpspec.h	Mon Jan 21 16:28:09 2002
++++ linux/include/asm-i386/mpspec.h	Mon Jan 21 16:25:32 2002
+@@ -1,6 +1,8 @@
+ #ifndef __ASM_MPSPEC_H
+ #define __ASM_MPSPEC_H
+ 
++#include <linux/cpumap.h>
 +
-+#ifdef CONFIG_SMP
-+ #include <asm/types.h>
-+ #define CPUMAP_SIZE       ((NR_CPUS + BITS_PER_LONG - 1) / BITS_PER_LONG)
-+#else
-+ #define CPUMAP_SIZE       1
+ /*
+  * Structure definitions for SMP machines following the
+  * Intel Multiprocessing Specification 1.1 and 1.4.
+@@ -201,7 +203,7 @@
+ extern int mp_bus_id_to_pci_bus [MAX_MP_BUSSES];
+ 
+ extern unsigned int boot_cpu_physical_apicid;
+-extern unsigned long phys_cpu_present_map;
++extern cpumap_t phys_cpu_present_map;
+ extern int smp_found_config;
+ extern void find_smp_config (void);
+ extern void get_smp_config (void);
+diff -u cpumap/arch/i386/kernel/process.c linux/arch/i386/kernel/process.c
+--- cpumap/arch/i386/kernel/process.c	Mon Jan  7 12:55:17 2002
++++ linux/arch/i386/kernel/process.c	Mon Jan 21 16:25:32 2002
+@@ -371,7 +371,7 @@
+ 		   if its not, default to the BSP */
+ 		if ((reboot_cpu == -1) ||  
+ 		      (reboot_cpu > (NR_CPUS -1))  || 
+-		      !(phys_cpu_present_map & (1<<cpuid))) 
++		      !(cpumap_test_bit(cpuid, phys_cpu_present_map))) 
+ 			reboot_cpu = boot_cpu_physical_apicid;
+ 
+ 		reboot_smp = 0;  /* use this as a flag to only go through this once*/
+diff -u cpumap/arch/i386/kernel/io_apic.c linux/arch/i386/kernel/io_apic.c
+--- cpumap/arch/i386/kernel/io_apic.c	Tue Nov 13 17:28:41 2001
++++ linux/arch/i386/kernel/io_apic.c	Mon Jan 21 16:25:32 2002
+@@ -1006,7 +1006,8 @@
+ static void __init setup_ioapic_ids_from_mpc (void)
+ {
+ 	struct IO_APIC_reg_00 reg_00;
+-	unsigned long phys_id_present_map = phys_cpu_present_map;
++	unsigned long phys_id_present_map =
++			cpumap_to_ulong(phys_cpu_present_map);
+ 	int apic;
+ 	int i;
+ 	unsigned char old_id;
+diff -u cpumap/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
+--- cpumap/arch/i386/kernel/smpboot.c	Mon Jan  7 12:55:17 2002
++++ linux/arch/i386/kernel/smpboot.c	Mon Jan 21 16:25:32 2002
+@@ -978,6 +978,9 @@
+ void __init smp_boot_cpus(void)
+ {
+ 	int apicid, cpu, bit;
++#ifdef SMP_DEBUG
++	char buf[CPUMAP_BUFSIZE];
 +#endif
-+
-+#ifndef __ASSEMBLY__
-+#include <linux/bitops.h>
-+typedef unsigned long cpumap_t[CPUMAP_SIZE];
-+
-+/*
-+ * The cpumap_to_ulong() and cpumap_ulong_to_cpumap() functions
-+ * are provided primarily for migration to the cpumap_t datatype.
-+ * As currently defined, they are only valid for CPUMAP_SIZE==1.
-+ */
-+static inline unsigned long cpumap_to_ulong(cpumap_t cpumap)
-+{
-+#if CPUMAP_SIZE > 1
-+	BUG();	/* Not supported */
-+	return 0;
-+#else
-+	return cpumap[0];
-+#endif
-+}
-+
-+static inline void cpumap_ulong_to_cpumap(unsigned long bitmap, cpumap_t cpumap)
-+{
-+#if CPUMAP_SIZE > 1
-+	BUG();	/* Not supported */
-+#else
-+	cpumap[0] = bitmap;
-+#endif
-+}
-+
-+
-+/*
-+ * The first set of interfaces are the same for SMP and UP.
-+ */
-+static inline void cpumap_clear_bit(int nr, cpumap_t cpumap)
-+{
-+	if (nr < NR_CPUS) {
-+		clear_bit(nr, cpumap);
-+	} else {
-+		BUG();
-+	}
-+}
-+
-+static inline void cpumap_set_bit(int nr, cpumap_t cpumap)
-+{
-+	if (nr < NR_CPUS) {
-+		set_bit(nr, cpumap);
-+	} else {
-+		BUG();
-+	}
-+}
-+
-+static inline int cpumap_test_and_set_bit(int nr, cpumap_t cpumap)
-+{
-+	if (nr < NR_CPUS) {
-+		return test_and_set_bit(nr, cpumap);
-+	} else {
-+		BUG();
-+		return -1;
-+	}
-+}
-+
-+/*
-+ * Return 1 (non-zero) if they are equal, 0 if not equal
-+ */
-+static inline int cpumap_test_bit(int nr, cpumap_t cpumap)
-+{
-+	if (nr < NR_CPUS) {
-+		return test_bit(nr, cpumap);
-+	} else {
-+		return 0;
-+	}
-+}
-+
-+/*
-+ * The following interfaces are optimized for the case where
-+ * CPUMAP_SIZE==1 (i.e. a single unsigned long). The single
-+ * CPU case falls into the CPUMAP_SIZE==1 case.
-+ */
-+static inline void cpumap_clear_mask(cpumap_t cpumap)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		cpumap[i] = 0UL;
-+	}
-+#else
-+	cpumap[0] = 0;
-+#endif
-+}
-+
-+static inline int cpumap_is_empty(cpumap_t map)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		if (map[i] !=  0) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+#else
-+	return (map[0] == 0);
-+#endif
-+}
-+
-+/*
-+ * Return 1 (non-zero) if they are equal, 0 if not equal
-+ */
-+static inline int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		if (map1[i] !=  map2[i]) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+#else
-+	return (map1[0] ==  map2[0]);
-+#endif
-+}
-+
-+#if (NR_CPUS % BITS_PER_LONG)
-+#define	CPUMAP_FILLMASK	((1 << (NR_CPUS % BITS_PER_LONG)) -1)
-+#else
-+#define	CPUMAP_FILLMASK	(~0UL)
-+#endif
-+
-+static inline void cpumap_fill(cpumap_t cpumap)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+
-+	for (i = 0; i < (CPUMAP_SIZE - 1); i++) {
-+		cpumap[i] = ~0UL;
-+	}
-+	cpumap[CPUMAP_SIZE - 1] = CPUMAP_FILLMASK;
-+#else
-+	cpumap[0] = CPUMAP_FILLMASK;
-+#endif
-+}
-+
-+/*
-+ * The following interfaces are optimized for the case where
-+ * CPUMAP_SIZE==1 (i.e. a single unsigned long).
-+ */
-+static inline void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		destmap[i] = srcmap[i];
-+	}
-+#else
-+	destmap[0] = srcmap[0];
-+#endif
-+}
-+
-+static inline void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result)
-+{
-+#if CPUMAP_SIZE > 1
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		result[i] = map1[i] & map2[i];
-+	}
-+#else
-+	result[0] = map1[0] & map2[0];
-+#endif
-+}
-+
-+/*
-+ * The following macros and functions are used to format
-+ * a cpumap_t object for display. This function knows the 
-+ * minimum size required, which is provided as CPUMAP_BUFSIZE.
-+ *
-+ * The CPUMAP_BUFSIZE is an exact calcuation of the byte count
-+ * required to display a cpumap_t object.
-+ */
-+
-+#define CPUMAP_BUFSIZE (((sizeof(long) * 2) + 1) * CPUMAP_SIZE + 2)
-+
-+#if BITS_PER_LONG > 32
-+#define CPUMAP_FORMAT_STR	"%016lx"
-+#else
-+#define CPUMAP_FORMAT_STR	"%08lx"
-+#endif
-+
-+static inline char *cpumap_format(cpumap_t map, char *buf, int size)
-+{
-+	if (size < CPUMAP_BUFSIZE) {
-+		BUG();
-+	}
-+
-+#if CPUMAP_SIZE > 1
-+	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[CPUMAP_SIZE-1]);
-+	{
-+		int i;
-+		char *p = buf + strlen(buf);
-+		for (i = CPUMAP_SIZE-2; i >= 0; i--, p += (sizeof(long) + 1)) {
-+			sprintf(p, " " CPUMAP_FORMAT_STR, map[i]);
-+		}
-+	}
-+#else
-+	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[0]);
-+#endif
-+	return(buf);
-+}
-+
-+#endif /* __ASSEMBLY__ */
-+#endif /* __LINUX_CPUMAP_H */
+ 
+         if (clustered_apic_mode) {
+                 /* remap the 1st quad's 256k range for cross-quad I/O */
+@@ -1030,7 +1033,9 @@
+ #ifndef CONFIG_VISWS
+ 		io_apic_irqs = 0;
+ #endif
+-		cpu_online_map = phys_cpu_present_map = 1;
++		cpu_online_map = 1;
++		cpumap_clear_mask(phys_cpu_present_map);
++		cpumap_set_bit(0, phys_cpu_present_map);
+ 		smp_num_cpus = 1;
+ 		if (APIC_init_uniprocessor())
+ 			printk(KERN_NOTICE "Local APIC not detected."
+@@ -1044,10 +1049,10 @@
+ 	 * Makes no sense to do this check in clustered apic mode, so skip it
+ 	 */
+ 	if (!clustered_apic_mode && 
+-	    !test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map)) {
++	    !cpumap_test_bit(boot_cpu_physical_apicid, phys_cpu_present_map)) {
+ 		printk("weird, boot CPU (#%d) not listed by the BIOS.\n",
+ 							boot_cpu_physical_apicid);
+-		phys_cpu_present_map |= (1 << hard_smp_processor_id());
++		cpumap_set_bit(hard_smp_processor_id(), phys_cpu_present_map);
+ 	}
+ 
+ 	/*
+@@ -1061,7 +1066,9 @@
+ #ifndef CONFIG_VISWS
+ 		io_apic_irqs = 0;
+ #endif
+-		cpu_online_map = phys_cpu_present_map = 1;
++		cpu_online_map = 1;
++		cpumap_clear_mask(phys_cpu_present_map);
++		cpumap_set_bit(0, phys_cpu_present_map);
+ 		smp_num_cpus = 1;
+ 		goto smp_done;
+ 	}
+@@ -1077,7 +1084,9 @@
+ #ifndef CONFIG_VISWS
+ 		io_apic_irqs = 0;
+ #endif
+-		cpu_online_map = phys_cpu_present_map = 1;
++		cpu_online_map = 1;
++		cpumap_clear_mask(phys_cpu_present_map);
++		cpumap_set_bit(0, phys_cpu_present_map);
+ 		smp_num_cpus = 1;
+ 		goto smp_done;
+ 	}
+@@ -1095,7 +1104,8 @@
+ 	 * bits 0-3 are quad0, 4-7 are quad1, etc. A perverse twist on the 
+ 	 * clustered apic ID.
+ 	 */
+-	Dprintk("CPU present map: %lx\n", phys_cpu_present_map);
++	Dprintk("CPU present map: %s\n",
++		cpumap_format(phys_cpu_present_map, buf, CPUMAP_BUFSIZE));
+ 
+ 	for (bit = 0; bit < NR_CPUS; bit++) {
+ 		apicid = cpu_present_to_apicid(bit);
+@@ -1105,7 +1115,7 @@
+ 		if (apicid == boot_cpu_apicid)
+ 			continue;
+ 
+-		if (!(phys_cpu_present_map & (1 << bit)))
++		if (!(cpumap_test_bit(bit, phys_cpu_present_map)))
+ 			continue;
+ 		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
+ 			continue;
+@@ -1116,7 +1126,7 @@
+ 		 * Make sure we unmap all failed CPUs
+ 		 */
+ 		if ((boot_apicid_to_cpu(apicid) == -1) &&
+-				(phys_cpu_present_map & (1 << bit)))
++				(cpumap_test_bit(bit, phys_cpu_present_map)))
+ 			printk("CPU #%d not responding - cannot use it.\n",
+ 								apicid);
+ 	}
+diff -u cpumap/arch/i386/kernel/apic.c linux/arch/i386/kernel/apic.c
+--- cpumap/arch/i386/kernel/apic.c	Mon Jan  7 12:55:17 2002
++++ linux/arch/i386/kernel/apic.c	Mon Jan 21 16:25:32 2002
+@@ -279,7 +279,7 @@
+ 	 * This is meaningless in clustered apic mode, so we skip it.
+ 	 */
+ 	if (!clustered_apic_mode && 
+-	    !test_bit(GET_APIC_ID(apic_read(APIC_ID)), &phys_cpu_present_map))
++	    !cpumap_test_bit(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map))
+ 		BUG();
+ 
+ 	/*
+@@ -1113,7 +1113,8 @@
+ 
+ 	connect_bsp_APIC();
+ 
+-	phys_cpu_present_map = 1;
++	cpumap_clear_mask(phys_cpu_present_map);
++	cpumap_set_bit(0, phys_cpu_present_map);
+ 	apic_write_around(APIC_ID, boot_cpu_physical_apicid);
+ 
+ 	apic_pm_init2();
+diff -u cpumap/arch/i386/kernel/mpparse.c linux/arch/i386/kernel/mpparse.c
+--- cpumap/arch/i386/kernel/mpparse.c	Fri Nov  9 14:58:18 2001
++++ linux/arch/i386/kernel/mpparse.c	Mon Jan 21 16:25:32 2002
+@@ -61,7 +61,7 @@
+ static unsigned int num_processors;
+ 
+ /* Bitmask of physically existing CPUs */
+-unsigned long phys_cpu_present_map;
++cpumap_t phys_cpu_present_map;
+ 
+ /*
+  * Intel MP BIOS table parsing routines:
+@@ -224,9 +224,10 @@
+ 	ver = m->mpc_apicver;
+ 
+ 	if (clustered_apic_mode) {
+-		phys_cpu_present_map |= (logical_apicid&0xf) << (4*quad);
++		int cpuid = ffs(logical_apicid&0xf) - 1 + (4*quad);
++		cpumap_set_bit(cpuid, phys_cpu_present_map);
+ 	} else {
+-		phys_cpu_present_map |= 1 << m->mpc_apicid;
++		cpumap_set_bit(m->mpc_apicid, phys_cpu_present_map);
+ 	}
+ 	/*
+ 	 * Validate version
+@@ -819,7 +820,7 @@
+ {
+ 	smp_found_config = 1;
+ 
+-	phys_cpu_present_map |= 2; /* or in id 1 */
++	cpumap_set_bit(1, phys_cpu_present_map);
+ 	apic_version[1] |= 0x10; /* integrated APIC */
+ 	apic_version[0] |= 0x10;
+ 
+
+

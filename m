@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290303AbSBOR0b>; Fri, 15 Feb 2002 12:26:31 -0500
+	id <S290228AbSBOR1l>; Fri, 15 Feb 2002 12:27:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290228AbSBOR0V>; Fri, 15 Feb 2002 12:26:21 -0500
-Received: from bitmover.com ([192.132.92.2]:17291 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290293AbSBORZ5>;
-	Fri, 15 Feb 2002 12:25:57 -0500
-Date: Fri, 15 Feb 2002 09:25:56 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>,
-        dirk.hohndel@intel.com
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020215092556.G8353@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Eric S. Raymond" <esr@thyrsus.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linux-Kernel list <linux-kernel@vger.kernel.org>,
-	dirk.hohndel@intel.com
-In-Reply-To: <3C6D3D9A.565EC59D@mandrakesoft.com> <20020215115147.A7528@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020215115147.A7528@thyrsus.com>; from esr@thyrsus.com on Fri, Feb 15, 2002 at 11:51:47AM -0500
+	id <S290306AbSBOR10>; Fri, 15 Feb 2002 12:27:26 -0500
+Received: from mg01.austin.ibm.com ([192.35.232.18]:55749 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S290293AbSBOR01>; Fri, 15 Feb 2002 12:26:27 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+Subject: [ANNOUNCE] EVMS Release 0.9.1 (Beta)
+Date: Fri, 15 Feb 2002 11:22:27 -0600
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+To: evms-devel@lists.sourceforge.net
+Cc: evms-announce@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-Id: <02021511222701.19048@boiler>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 11:51:47AM -0500, Eric S. Raymond wrote:
-> Jeff Garzik <jgarzik@mandrakesoft.com>:
-> > I would find this pathetic, if it didn't make me so mad.
-> > Making an end run around the system, are we, Eric?
-> 
-> What "system" would you be referring to, anyway, Jeff?  Is there some
-> reason a respected open-source developer like Dirk who has concerns
-> should not have a conversation with Linus to address problems he thinks
-> are significant?  Is there some reason I should not have asked the kbuild
-> team members to give him appropriate background?
+The EVMS team is announcing its second beta series release. Package 0.9.1 
+of the Enterprise Volume Management System is now available for download at 
+the project web site:
+http://www.sf.net/projects/evms
 
-Yeah, there is.  The point of *open* source is that it is *open*, Eric.
-Jeff, if I understand him correctly, is making the point that if a
-system can't stand up to public scrutiny, trying to get it in by private
-campaigning is lame, not the open source way, and a little bit sleazy.
+Highlights for version 0.9.1:
 
-The open source development model depends on peer review, you might go
-back and read some of your many essays on the topic.  Don't you take
-commercial companies to task for doing exactly what you are doing?
-Your actions are confusing, do your writings apply to other people but
-not to you?  If there is some misunderstanding about your actions,
-please clear it up.  If not, practice what you preach.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+v0.9.1 - 2/15/02
+- GUI
+  - New dialog help windows.
+  - Support for mkfs, unmkfs, fsck, and defrag operations as provided
+    by FSIMs.
+  - Better descriptions of selection lists.
+  - Display mount points in the Volumes view.
+  - Display a startup/splash window during engine discovery.
+  - Lots of UI cleanup and bug fixes.
+- Text-mode UI
+  - Fixed support for adding/removing objects to/from containers.
+  - Now supports same command line options as the GUI.
+- Segment Manager
+  - Recognizes BSD, Solaris-x86, and Unixware partitions in the engine.
+- MD Plugin
+  - RAID 4/5 kernel support.
+    - Supports failover to spare disk or running in degraded mode.
+    - Limited testing so far - be gentle.
+  - RAID 4/5 creation and deletion.
+  - Hot add/remove support for RAID-1.
+- AIX Plugin
+  - Complete region discovery in the engine.
+- LVM Plugin
+  - Fixed some potential memory overwrite bugs in the engine.
+- LVM Utilities
+  - Removed evms_pvcreate and evms_pvremove. No longer necessary to
+    explicitly create PVs before creating or expanding VGs, or to
+    explicitly remove PVs after removing or shrinking VGs.
+- Kernel
+  - Improved support for removable and hot-pluggable media.
+  - Improved support for building EVMS as kernel modules.
+
+
+Kevin Corry
+corryk@us.ibm.com
+Enterprise Volume Management System
+http://www.sf.net/projects/evms

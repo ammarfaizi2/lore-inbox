@@ -1,103 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267357AbUHTFHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUHTDUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267357AbUHTFHw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 01:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUHTFHw
+	id S266274AbUHTDUW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 23:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUHTDUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 01:07:52 -0400
-Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:13404 "EHLO
-	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S267357AbUHTFHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 01:07:19 -0400
-Message-ID: <41258706.1050103@blueyonder.co.uk>
-Date: Fri, 20 Aug 2004 06:07:18 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+	Thu, 19 Aug 2004 23:20:22 -0400
+Received: from mail024.syd.optusnet.com.au ([211.29.132.242]:64485 "EHLO
+	mail024.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266427AbUHTDUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 23:20:07 -0400
+Message-ID: <41256DC9.7070500@kolivas.org>
+Date: Fri, 20 Aug 2004 13:19:37 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm2 make ?config fails
-References: <41251DCC.9070601@blueyonder.co.uk>
-In-Reply-To: <41251DCC.9070601@blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Aug 2004 05:07:40.0600 (UTC) FILETIME=[9E280380:01C48673]
+To: Kurt Garloff <garloff@suse.de>
+Cc: Chris Mason <mason@suse.com>, Jens Axboe <axboe@suse.de>,
+       Greg Afinogenov <antisthenes@inbox.ru>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] bio_uncopy_user mem leak
+References: <1092909598.8364.5.camel@localhost> <412489E5.7000806@kolivas.org> <1092923494.12138.1667.camel@watt.suse.com> <20040819195521.GC12363@tpkurt.garloff.de>
+In-Reply-To: <20040819195521.GC12363@tpkurt.garloff.de>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigD305633E8292762E3363D00B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FIXED! I had some header file in /usr/include that was mangled.
-Regards
-Sid.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigD305633E8292762E3363D00B
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sid Boyce wrote:
+Kurt Garloff wrote:
+> Hi Chris,
+> 
+> On Thu, Aug 19, 2004 at 09:51:34AM -0400, Chris Mason wrote:
+> 
+>>On Thu, 2004-08-19 at 07:07, Con Kolivas wrote:
+>>
+>>>Ok I just tested this patch discretely and indeed the memory leak goes 
+>>>away but it still produces coasters so something is still amuck. Just as 
+>>>a data point; burning DVDs and data cds is ok. Burning audio *and 
+>>>videocds* is not.
+>>
+>>It might be the cold medicine talking, but I think we need something
+>>like this.  gcc tested it for me, beyond that I make no promises....
+>>
+>>--- l/fs/bio.c.1	2004-08-19 09:36:13.596858736 -0400
+>>+++ l/fs/bio.c	2004-08-19 09:47:46.392537784 -0400
+>>@@ -454,6 +454,7 @@
+>> 	 */
+>> 	if (!ret) {
+>> 		if (!write_to_vm) {
+>>+			unsigned long p = uaddr;
+>> 			bio->bi_rw |= (1 << BIO_RW);
+>> 			/*
+>> 	 		 * for a write, copy in data to kernel pages
+>>@@ -462,8 +463,9 @@
+>> 			bio_for_each_segment(bvec, bio, i) {
+>> 				char *addr = page_address(bvec->bv_page);
+>> 
+>>-				if (copy_from_user(addr, (char *) uaddr, bvec->bv_len))
+>>+				if (copy_from_user(addr, (char *) p, bvec->bv_len))
+>> 					goto cleanup;
+>>+				p += bvec->bv_len;
+>> 			}
+>> 		}
+>> 
+> 
+> 
+> Hmm, that patch would make a lot of sense to me.
+> 
+> It matches the problem description; burning data CDs, we don't
+> use bounce buffers, so that does not use this code path. Here,
+> it looks like we copied the same userspace page again and again
+> into a multisegment BIO. Ouch!
+> 
+> Not yet tested either :-(
 
-> make xconfig/config/menuconfig/oldconfig - SuSE 9.1 Athlon 3000+. All 
-> is fine on x86_64 Athlon 3000+ laptop with SuSE 9.1 x86_64.
-> barrabas:/usr/src/linux-2.6.8.1-mm2 # make mrproper
->  CLEAN   scripts/basic
->  CLEAN   scripts/kconfig
->  CLEAN   .config .config.old
-> barrabas:/usr/src/linux-2.6.8.1-mm2 # make xconfig
->  HOSTCC  scripts/basic/fixdep
-> scripts/basic/fixdep.c: In function `do_config_file':
-> scripts/basic/fixdep.c:275: warning: implicit declaration of function 
-> `close'
->  HOSTCC  scripts/basic/split-include
-> scripts/basic/split-include.c: In function `main':
-> scripts/basic/split-include.c:97: warning: implicit declaration of 
-> function `chdir'
->  HOSTCC  scripts/basic/docproc
-> scripts/basic/docproc.c: In function `exec_kernel_doc':
-> scripts/basic/docproc.c:84: warning: implicit declaration of function 
-> `fork'
-> scripts/basic/docproc.c:89: warning: implicit declaration of function 
-> `execvp'
->  SHIPPED scripts/kconfig/zconf.tab.h
->  HOSTCC  scripts/kconfig/conf.o
-> scripts/kconfig/conf.c: In function `main':
-> scripts/kconfig/conf.c:498: warning: implicit declaration of function 
-> `isatty'
-> sed < scripts/kconfig/lkc_proto.h > scripts/kconfig/lkc_defs.h 
-> 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
->  HOSTCC  scripts/kconfig/kconfig_load.o
->  HOSTCC  scripts/kconfig/mconf.o
-> scripts/kconfig/mconf.c: In function `init_wsize':
-> scripts/kconfig/mconf.c:116: error: `STDIN_FILENO' undeclared (first 
-> use in this function)
-> scripts/kconfig/mconf.c:116: error: (Each undeclared identifier is 
-> reported only once
-> scripts/kconfig/mconf.c:116: error: for each function it appears in.)
-> scripts/kconfig/mconf.c: In function `exec_conf':
-> scripts/kconfig/mconf.c:223: warning: implicit declaration of function 
-> `pipe'
-> scripts/kconfig/mconf.c:224: warning: implicit declaration of function 
-> `fork'
-> scripts/kconfig/mconf.c:227: warning: implicit declaration of function 
-> `dup2'
-> scripts/kconfig/mconf.c:228: warning: implicit declaration of function 
-> `close'
-> scripts/kconfig/mconf.c:230: warning: implicit declaration of function 
-> `execv'
-> scripts/kconfig/mconf.c:231: warning: implicit declaration of function 
-> `_exit'
-> scripts/kconfig/mconf.c:238: warning: implicit declaration of function 
-> `read'
-> scripts/kconfig/mconf.c: In function `conf':
-> scripts/kconfig/mconf.c:441: warning: implicit declaration of function 
-> `unlink'
-> scripts/kconfig/mconf.c: In function `show_textbox':
-> scripts/kconfig/mconf.c:551: warning: implicit declaration of function 
-> `write'
-> make[1]: *** [scripts/kconfig/mconf.o] Error 1
-> make: *** [xconfig] Error 2
->
-> Regards
-> Sid.
->
+Ok looks like your cold medicine is working well for you ;-). This patch 
+on top of the other patch has the memory freeing _and_ burns good cds. 
+Well done. I only tested with a video cd. Can someone confirm audio cd 
+(although it seems obvious it would help both).
 
+Andrew did you threaten to make a 2.6.8.2 since 2.6.8{,.1} cannot safely 
+burn an audio cd?
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-=====LINUX ONLY USED HERE=====
+Cheers,
+Con
 
+--------------enigD305633E8292762E3363D00B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBJW3MZUg7+tp6mRURAoYcAJ9AuBfCGLSrWzvBkgG5ZgkJpE5MLgCeNTi3
+aouezZ5R1ZtS56HdKA6r1X8=
+=dili
+-----END PGP SIGNATURE-----
+
+--------------enigD305633E8292762E3363D00B--

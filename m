@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268714AbUJKHOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268722AbUJKHQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268714AbUJKHOr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 03:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268717AbUJKHOr
+	id S268722AbUJKHQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 03:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268717AbUJKHQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 03:14:47 -0400
-Received: from colino.net ([213.41.131.56]:48636 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S268714AbUJKHOp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 03:14:45 -0400
-Date: Mon, 11 Oct 2004 09:14:11 +0200
-From: Colin Leroy <colin@colino.net>
+	Mon, 11 Oct 2004 03:16:57 -0400
+Received: from xpress101121.htc.net ([216.114.101.121]:11021 "HELO
+	kamsoft.com.pl") by vger.kernel.org with SMTP id S268722AbUJKHQz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 03:16:55 -0400
+Message-ID: <7e7201c4af62$14d90f10$be71dc15@kamsoft.com.pl>
+From: "Janie A. Silver" <janiea.silvergq@ratp.fr>
 To: linux-kernel@vger.kernel.org
-Subject: Re: possible GPL violation by Free
-Message-ID: <20041011091411.1335746c@pirandello>
-X-Mailer: Sylpheed-Claws 0.9.12cvs122.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1097456379.27877.51.camel@frenchenigma>
-In-Reply-To: <1097456379.27877.51.camel@frenchenigma>
+Subject: Get  =?ISO-8859-1?Q?=20v=ECagra?= for a great price.
+Date: Mon, 11 Oct 2004 07:15:56 +0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-> Initiating SYN Stealth Scan against XX.XX.XX.254 [1660 ports] at 20:23
-> PORT    STATE SERVICE
-> 22/tcp  open  ssh
-> 199/tcp open  smux
-> MAC Address: 00:07:XX:XX:XX:XX (Freebox SA)
-> Device type: general purpose
-> Running: Linux 2.4.X|2.5.X
-> OS details: Linux 2.4.0 - 2.5.20
+We have a new offer for you. Buy cheap Vìagra through our online store.
+- Private online ordering 
+- No prescription required
+- World wide shipping
 
-I think you just scanned the router, or whatever network appliance it is,
-behind the freebox :-)
+Order your drugs offshore and save over 70%!
 
-The freebox is quite transparent when it's plugged to the network. Try to 
-just plug in to your computer and assign it an IP using arp -s...
+Click here: http://zap-internet.com/meds/
 
-(not sure, however)
--- 
-Colin
+Best regards,
+Donald Cunfingham
+
+
+
+No thanks: http://zap-internet.com/rm.html
+

@@ -1,77 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266655AbUGMVz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266898AbUGMV6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266655AbUGMVz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 17:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266866AbUGMVz6
+	id S266898AbUGMV6D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 17:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266904AbUGMV6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 17:55:58 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:30469 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266655AbUGMVzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 17:55:19 -0400
-Message-ID: <40F45FF9.8030702@techsource.com>
-Date: Tue, 13 Jul 2004 18:19:37 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Adrian Bunk <bunk@fs.tum.de>, Arjan van de Ven <arjanv@redhat.com>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Jakub Jelinek <jakub@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GCC 3.4 and broken inlining.
-References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au> <20040708120719.GS21264@devserv.devel.redhat.com> <20040708205225.GI28324@fs.tum.de> <20040708210925.GA13908@devserv.devel.redhat.com> <1089324501.3098.9.camel@nigel-laptop.wpcb.org.au> <20040709062403.GA15585@devserv.devel.redhat.com> <20040710012117.GA28324@fs.tum.de> <20040710023045.GD21066@holomorphy.com>
-In-Reply-To: <20040710023045.GD21066@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 Jul 2004 17:58:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36245 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266898AbUGMV4n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 17:56:43 -0400
+Date: Tue, 13 Jul 2004 14:56:28 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: <Stuart_Hayes@Dell.com>
+Cc: <whbeers@mbio.ncsu.edu>, <david-b@pacbell.net>, <olh@suse.de>,
+       <Gary_Lerhaupt@Dell.com>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>, zaitcev@redhat.com
+Subject: Re: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
+Message-Id: <20040713145628.27ae43e7@lembas.zaitcev.lan>
+In-Reply-To: <7A8F92187EF7A249BF847F1BF4903C046304CF@ausx2kmpc103.aus.amer.dell.com>
+References: <7A8F92187EF7A249BF847F1BF4903C046304CF@ausx2kmpc103.aus.amer.dell.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 Jul 2004 15:52:43 -0500
+<Stuart_Hayes@Dell.com> wrote:
 
+> the "OS wants the controller" bit is getting written to 1 (first part of
+> the Linux write, which the system broke into pieces)
 
-William Lee Irwin III wrote:
-> On Fri, Jul 09, 2004 at 08:24:03AM +0200, Arjan van de Ven wrote:
-> 
->>>one thing to note is that you also need to monitor stack usage then :)
->>>inlining somewhat blows up stack usage so do monitor it...
-> 
-> 
-> On Sat, Jul 10, 2004 at 03:21:17AM +0200, Adrian Bunk wrote:
-> 
->>How could inlining increase stack usage?
-> 
-> 
-> As more variables go into scope, gcc's stack slot allocation bug bites
-> progressively harder and stackspace requirements grow without bound.
+If something breaks word writes into pieces, all hell breaks lose.
+I don't believe it can happen.
 
+I hit regressions when we implemented the proper handoff as requested
+by Stuart @Dell, so I think for the moment the right thing would be this:
 
-Blah... you should see what Sun's compiler does with volatiles.
+--- linux-2.4.21-15.18.EL/drivers/usb/host/ehci-hcd.c	2004-07-01
+08:07:56.000000000 -0700
++++ linux-2.4.21-15.18-usb/drivers/usb/host/ehci-hcd.c	2004-07-08
+15:15:05.944863675 -0700
+@@ -302,7 +302,8 @@
+ 		if (cap & (1 << 16)) {
+ 			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n",
+ 				where, cap);
+-			return 1;
++			pci_write_config_dword (ehci->hcd.pdev, where, 0);
++			return 0;
+ 		} 
+ 		ehci_dbg (ehci, "BIOS handoff succeeded\n");
+ 	}
 
-Imagine you have some pointers like this:
+Essentially, here I insist on doing the right thing with cap|=(1<<24),
+which fixes Dell boxes which implement proper handoff, but then if we
+time out as on Thinkpads, write zero as the old code did (probably
+pointless, but just to be safe) and continue.
 
-volatile int *a, *b, *c, *d, *e;
+David, any comment?
 
-And they are all valid pointers.
-
-And then you have an expression like this:
-
-x = ((((*a + *b) + *c) + *d) + *e);
-
-Since *a and *b are volatile, the Sun compiler thinks that the sum of 
-the two is also volatile, allocates stack space for it.  It computes (*a 
-+ *b), stores it on the stack, and then loads it back from the stack, 
-and then computes that plus *c, stores that result on the stack, then 
-reloads it, etc.
-
-I had a case where pointers had to be volatile, because I needed the 
-memory space (over PCI) read at the right point in the code, and I 
-needed to do some math on what was read.  I had 32 lines of code each of 
-which got allocated 5 temporary variables on the stack, for absolutely 
-no good reason.  The solution was to cast away the volatile a la ((int)*a).
-
-Now, we all know that it makes no sense for the sum of two volatiles to 
-also be volatile.  Once *a and *b are dereferenced and their sum 
-computed, the sum isn't going to change, and it isn't even an lvalue, so 
-nothing can modify it!
-
-So, you want to talk about bugs.... give GCC a little slack.  :)
-
+-- Pete

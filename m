@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVCIVfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVCIVha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262471AbVCIVfv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVCIVaX
+	id S261655AbVCIVha (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:37:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVCIVgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:30:23 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:58311 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262409AbVCIV0r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:26:47 -0500
-Date: Thu, 10 Mar 2005 02:57:32 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
+	Wed, 9 Mar 2005 16:36:15 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:17650 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261655AbVCIVfP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:35:15 -0500
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: suparna@in.ibm.com, Daniel McNeil <daniel@osdl.org>,
+       sebastien.dugue@bull.net, "linux-aio@kvack.org" <linux-aio@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: inode cache, dentry cache, buffer heads usage
-Message-ID: <20050309212732.GA5036@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com>
+In-Reply-To: <20050309115348.2b86b765.akpm@osdl.org>
+References: <1110189607.11938.14.camel@frecb000686>
+	 <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com>
+	 <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110324434.6521.23.camel@ibm-c.pdx.osdl.net>
+	 <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050309040757.GY27331@ca-server1.us.oracle.com>
+	 <20050309152047.GA4588@in.ibm.com>  <20050309115348.2b86b765.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1110403885.24286.216.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Mar 2005 13:31:26 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 10:55:58AM -0800, Badari Pulavarty wrote:
-> Hi,
+On Wed, 2005-03-09 at 11:53, Andrew Morton wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> >
+> >  > 	Solaris, which does forcedirectio as a mount option, actually
+> >  > will do buffered I/O on the trailing part.  Consider it like a bounce
+> >  > buffer.  That way they don't DMA the trailing data and succeed the I/O.
+> >  > The I/O returns actual bytes till EOF, just like read(2) is supposed to.
+> >  > 	Either this or a fully DMA'd number 4 is really what we should
+> >  > do.  If security can only be solved via a bounce buffer, who cares?  If
+> >  > the user created themselves a non-aligned file to open O_DIRECT, that's
+> >  > their problem if the last part-sector is negligably slower.
+> > 
+> >  If writes/truncates take care of zeroing out the rest of the sector
+> >  on disk, might we still be OK without having to do the bounce buffer
+> >  thing ?
 > 
-> We have a 8-way P-III, 16GB RAM running 2.6.8-1. We use this as
-> our server to keep source code, cscopes and do the builds.
-> This machine seems to slow down over the time. One thing we
-> keep noticing is it keeps running out of lowmem. Most of 
-> the lowmem is used for ext3 inode cache + dentry cache +
-> bufferheads + Buffers. So we did 2:2 split - but it improved
-> thing, but again run into same issues.
+> We can probably rely on the rest of the sector outside i_size being zeroed
+> anyway.  Because if it contains non-zero gunk then the fs already has a
+> problem, and the user can get at that gunk with an expanding truncate and
+> mmap() anyway.
 > 
-> So, why is these slab cache are not getting purged/shrinked even
-> under memory pressure ? (I have seen lowmem as low as 6MB). What
-> can I do to keep the machine healthy ?
 
-How does /proc/sys/fs/dentry-state look when you run low on lowmem ?
+Rest of the sector or rest of the block ? Are you implying that, we
+already do this, so there is no problem reading beyond EOF to user
+buffer ? Or we need to zero out the userbuffer beyond EOF ?
 
-Thanks
-Dipankar
+
+Thanks,
+Badari
+
+

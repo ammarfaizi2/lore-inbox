@@ -1,103 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbSLYQJa>; Wed, 25 Dec 2002 11:09:30 -0500
+	id <S262210AbSLYRLA>; Wed, 25 Dec 2002 12:11:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262210AbSLYQJ3>; Wed, 25 Dec 2002 11:09:29 -0500
-Received: from dsl2-09018-wi.customer.centurytel.net ([209.206.215.38]:5537
-	"HELO thomasons.org") by vger.kernel.org with SMTP
-	id <S261900AbSLYQJ2> convert rfc822-to-8bit; Wed, 25 Dec 2002 11:09:28 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: scott thomason <scott@thomasons.org>
-Reply-To: scott@thomasons.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
-Date: Wed, 25 Dec 2002 10:17:41 -0600
-User-Agent: KMail/1.4.3
-References: <200212200850.32886.conman@kolivas.net> <200212241626.26478.scott@thomasons.org> <200212251829.33553.conman@kolivas.net>
-In-Reply-To: <200212251829.33553.conman@kolivas.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212251017.41813.scott@thomasons.org>
+	id <S262224AbSLYRLA>; Wed, 25 Dec 2002 12:11:00 -0500
+Received: from f89.sea2.hotmail.com ([207.68.165.89]:39440 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S262210AbSLYRK7>;
+	Wed, 25 Dec 2002 12:10:59 -0500
+X-Originating-IP: [130.54.29.179]
+From: "hua xu" <xuhua18@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem: do_ioctl() doesn't work well on setting txpower
+Date: Wed, 25 Dec 2002 17:11:36 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp; format=flowed
+Message-ID: <F89pcnvy3JdZZzxTS2U0001dbed@hotmail.com>
+X-OriginalArrivalTime: 25 Dec 2002 17:11:37.0114 (UTC) FILETIME=[AED50FA0:01C2AC38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 December 2002 01:29 am, Con Kolivas wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> On Wed, 25 Dec 2002 09:26 am, scott thomason wrote:
-> > My experiences to add to the pot...I started by booting
-> > 2.5.52-mm2 and launching KDE3. I have a dual AMD MP2000+, 1GB
-> > RAM, with most of the data used below on striped/RAID0 ATA/133
-> > drives. Taking Andrew's advice, I created a continuous load with:
-> >
-> >     while [ 1 ]; do ( make -j4 clean; make -j4 bzImage ); done
-> >
-> > ...in a kernel tree, then sat down for a leisurely email and web
-> > cruising session. After about fifteen minutes, it became apparent
-> > I wasn't suffering any interactive slowdown. So I increased the
-> > load:
-> >
-> >     while [ 1 ]; do ( make -j8 clean; make -j8 bzImage ); done
-> >     while [ 1 ]; do ( cp dump1 dump2; rm dump2; sync ); done
-> >
-> > ...where file "dump1" is 100MB. Now we're seeing some impact :)
-> >
-> >  To combat this I tried:
-> >
-> >     echo 3000 > starvation_limit
-> >     echo 4 > interactive_delta
-> >     echo 200 max_timeslice
-> >     echo 20 min_timeslice
-> >
-> > This works pretty well. The "spinning envelope" on the email
-> > monitor of gkrellm actually corresponds quite nicely with the
-> > actual feel of my system, so after awhile, I just sat back and
-> > observed it. Both the tactile response and the gkrellm
-> > obervations show this: it's common to experience maybe a .1--.3
-> > second lag every 2 or 3 seconds with this load, with maybe the
-> > odd .5 second lag occurring once or twice a minute. Watching the
-> > compile job in the background scroll by, I noticed that there are
-> > times when it comes to a dead stop. The next step, I guess, needs
-> > to be a ConTest with the final settings...
-> >
-> > child_penalty: 95
-> >
-> > exit_weight: 3
-> >
-> > interactive_delta: 4
-> >
-> > max_sleep_avg: 2000
-> >
-> > max_timeslice: 300
-> >
-> > min_timeslice: 10
-> >
-> > parent_penalty: 100
-> >
-> > prio_bonus_ratio: 25
-> >
-> > starvation_limit: 3000
->
-> Scott
->
-> These don't correspond to your values listed above. Typo?
->
-> Con
+       I have a problem on setting txpower in the kernel module, and I wish 
+to be personally CC'ed the answers/comments posted to the list in response. 
 
-Yes, sorry. The values listed concisely are correct, IOW:
+       It is the first time for me to make a kernel module in order to 
+manage txpower.I am using Vine Linux 2.4.18-0v13 and wireless LAN card is 
+CISCO AIRONET 350 whose txpower can be change in 3 levels.  Following is my 
+problem in the kernel programming.
+	With CISCO LAN card, I can change the txpower by the command: iwconfig, 
+however, in my kernel programming, I am using do_ioctl() intending to set 
+txpower. There are two aspects on my problem. One aspect is that when I set 
+wrq.u.txpower.value which I am intended to change, and do the do_ioctl(). 
+After complying the kernel module, the wireless LAN card just turned off 
+its txpower but the value is not changed. Then when I set 
+wrq.u.txpower.diabled trying to keep txpower on, I got the error message (I 
+am using $BEF(Brrno$BG(Band the result is $BK(B2). On the other hand, in my 
+programming, I can set bitrate without any problem and can also get the 
+txpower and bitrate information using do_ioctl(). I have tried to set 
+wrq.u.data.pointer, wrq.u.data.length, and wrq.u.data.flags and used 
+different values for the setting of txpower parameters, but they seemed no 
+effect. 
+         Is there any clue for solving my problem ? I would very appreciate 
+for any help.
+ 	Following is the parts of my programming:
 
-child_penalty: 95
-exit_weight: 3
-interactive_delta: 4
-max_sleep_avg: 2000
-max_timeslice: 200
-min_timeslice: 20
-parent_penalty: 100
-prio_bonus_ratio: 25
-starvation_limit: 3000
+int set_txpower()
+{
+    int errno;
+    mm_segment_t oldfs;
+    struct interface_list_entry *dest_interface;
+    struct net_device *dev;
+    struct iwreq		wrq;
 
-Now I need to fire up a ConTest, then off to Christmas with Grandma 
-and the kids! Merry Christmas to all!
----scott
+      strncpy(wrq.ifr_name,dest_interface->dev->name,IFNAMSIZ);       
+      
+	//the part of setting  the tx power		
+			wrq.u.txpower.value= 1;           
+                            wrq.u.txpower.disabled=0;
+	                oldfs = get_fs();                         
+                         set_fs(KERNEL_DS);
+                         
+errno=dest_interface->dev->do_ioctl(dest_interface->dev, (struct ifreq * ) 
+&wrq,SIOCSIWTXPOW);
+                         set_fs(oldfs);
+                         if(errno<0)
+                        { printk( "Error with SIOCSIWTXPOW\n");
+			  printk("ERRNO: %d \n",errno);
+                           }
+                       else
+   			printk("setting is OK\n\n");
+
+      //the part of setting bitrate and it works without any problem//
+	wrq.u.bitrate.value= 1;                   	
+	 oldfs = get_fs();                      
+         set_fs(KERNEL_DS);
+         errno=dest_interface->dev->do_ioctl(dest_interface->dev, (struct 
+ifreq * ) &wrq,SIOCSIWRATE);
+         set_fs(oldfs);
+}
+
+
+_________________________________________________________________
+$B2q0wEPO?$OL5NA(B  $B=<<B$7$?=PIJ%"%$%F%`$J$i(B MSN $B%*!<%/%7%g%s(B  
+http://auction.msn.co.jp/ 
 

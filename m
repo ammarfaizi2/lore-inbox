@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130872AbRCFCOu>; Mon, 5 Mar 2001 21:14:50 -0500
+	id <S130871AbRCFCRA>; Mon, 5 Mar 2001 21:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130873AbRCFCOl>; Mon, 5 Mar 2001 21:14:41 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6663
-	"EHLO gateway.matchmail.com") by vger.kernel.org with ESMTP
-	id <S130872AbRCFCOY>; Mon, 5 Mar 2001 21:14:24 -0500
-Message-ID: <3AA447EA.CE0EC7AC@matchmail.com>
-Date: Mon, 05 Mar 2001 18:14:02 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S130869AbRCFCQu>; Mon, 5 Mar 2001 21:16:50 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13831 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130871AbRCFCQk>; Mon, 5 Mar 2001 21:16:40 -0500
+Subject: Re: Linux 2.4.2ac12
+To: ksi@cyberbills.com (Sergey Kubushin)
+Date: Tue, 6 Mar 2001 02:19:41 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31ksi3.0103051808160.28775-100000@nomad.cyberbills.com> from "Sergey Kubushin" at Mar 05, 2001 06:10:25 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Shane Wegner <shane@cm.nu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE trouble under 2.2.19pre16 with Hedrick's IDE patch
-In-Reply-To: <20010304171528.A4966@cm.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14a74i-0008I8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shane Wegner wrote:
+> May be. But it's not a reason to use the _OBSOLETE_ library. At least the
+> current one should be used...
 > 
-> Hi,
-> 
-> Whenever I write a substantial amount of data (200mb) to
-> disk, I get these messages.  The disks lock for about 10
-> seconds and then come back for about 10 seconds again.
-> This continues until the data is successfully written.
-> 
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> hde: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> hde: DMA disabled
-It looks like you have set your drive for a dma mode it doesn't support.
+> Here comes the patch to use current libdb-3...
 
-HTH
+Not all vendors ship db3. I'm not sure its a stunning improvement, but its
+the right first step. Will apply
 
-Mike

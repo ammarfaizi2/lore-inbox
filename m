@@ -1,145 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbUDCTsf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 14:48:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUDCTsf
+	id S261906AbUDCTuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 14:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUDCTuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 14:48:35 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42155 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261904AbUDCTsa convert rfc822-to-8bit (ORCPT
+	Sat, 3 Apr 2004 14:50:46 -0500
+Received: from [80.72.36.106] ([80.72.36.106]:9668 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S261906AbUDCTu1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 14:48:30 -0500
-To: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-References: <20040320083411.GA25934@wohnheim.fh-wedel.de>
-	<s5gznab4lhm.fsf@patl=users.sf.net>
-	<20040320152328.GA8089@wohnheim.fh-wedel.de>
-	<20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net>
-	<20040329231635.GA374@elf.ucw.cz>
-	<20040402165440.GB24861@wohnheim.fh-wedel.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Apr 2004 12:47:58 -0700
-In-Reply-To: <20040402165440.GB24861@wohnheim.fh-wedel.de>
-Message-ID: <m1isggonbl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Sat, 3 Apr 2004 14:50:27 -0500
+Date: Sat, 3 Apr 2004 21:50:21 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.[45]-.*: weird behavior
+In-Reply-To: <200404032122.54823.rjwysocki@sisk.pl>
+Message-ID: <Pine.LNX.4.58.0404032135230.15963@alpha.polcom.net>
+References: <200404032122.54823.rjwysocki@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
+On Sat, 3 Apr 2004, R. J. Wysocki wrote:
 
-> On Tue, 30 March 2004 01:16:35 +0200, Pavel Machek wrote:
-> > 
-> > I think they *should* have separate permissions.
+> Hi,
 > 
-> That makes the count 2:2.  I'll continue to follow the simple solution
-> for some time, but wouldn't like to have it included for now (or ever?)
+> For quite some time I've been observing strange keyboard problems with the 
+> kernels 2.6.4 and above.  Namely, in a GUI, the keyboard (which is a PS/2) 
+> sometimes seems to get "locked" for some time (usually for a couple of 
+> seconds) even if there's no any process running in the background (of course 
+> there are some processes in the background but they are all sleeping).  By 
+> saying "locked" I mean that the kernel does not seem to accept any keyboard 
+> input whatsoever at that time, but after the kayboard gets "unclocked" it 
+> properly passes all of the characters typed in the meantime to applications.
 > 
-> > Also it should be possible to have file with 2 hardlinks cowlinked
-> > somewhere, and possibly make more hardlinks of that one... Having
-> > pointer to another inode in place where direct block pointers normally
-> > are should be enough (thinking ext2 here).
+> Moreover, it often takes more time to "unlock" the keyboard (up to 30 sec. or 
+> so), in which case I can speed up the proccess by switchig windows with a 
+> mouse (usually it is sufficient to switch once to another window, but 
+> sometimes more window switching is necessary).
 > 
-> All right, you are proposing hell.  I've tried to think through all
-> possibilities and was too scared to continue.  So limitation is that
-> cowlinks and hardlinks are mutually exclusive, which eliminated all
-> problems.
+> Some days ago I noticed that similar problem occured for example when I tried 
+> to unpack the kernel source: the tar process had apparently been suspended 
+> for several times for up to 10 sec., so it took more than approx. 3 min. to 
+> unpack the source (usually it takes no more than 30 sec.).  There were not 
+> any processes running in the background, though.
+> 
+> I noticed that this happened after updatedb had finished so I tried to 
+> recreate this by running updatedb once again and than unpacking the kernel 
+> once again and the problem reappeared.  I'd run top before and I found that 
+> the CPUs were spending 90+ percent of the time on IO-wait (the system is a 
+> dual AMD64 w/ NUMA w/o kernel preemption).  Strange.
+> 
+> I thought it was accidental (the kernel was 2.6.5-rc3-mm2), but yesterday I 
+> noticed that the keyboard "locking" occured even more often after I had 
+> installed the 2.6.5-rc3-mm4 kernel (it happened after the machine had been - 
+> seemingly - idle for some time).  I ran top and that's what it showed me:
+> 
+> top - 23:14:39 up  3:21,  1 user,  load average: 1.24, 1.12, 1.05
+> Tasks: 111 total,   1 running, 110 sleeping,   0 stopped,   0 zombie
+> Cpu(s):   0.5% user,   0.0% system,   0.0% nice,  50.0% idle,  49.5% IO-wait
+> Mem:   1030060k total,  1000820k used,    29240k free,    18724k buffers
+> Swap:  1050608k total,     3520k used,  1047088k free,    50168k cached
+> 
+> and it had been showing similar things for a minute or so, which is a kind of 
+> weird, IMHO.  I mean, the only running process was the top itself, so I don't 
+> get the 49.5% IO-wait.
+> 
+> Then I thought it was a NUMA-related issue but today I had the "keyboard 
+> locking problem" on a Celeron (Coppermine)-based laptop running the 2.6.5-rc3 
+> with exactly the same symptoms (apparantly, the kernel stopped accepting the 
+> keyboard input or at least passing it to applications - I couldn't even 
+> switch from X to a console - and then, when I closed some windows with a 
+> mouse preparing the system for reboot, the keyboard got "unlocked" and it 
+> started to work as usual).  So, there are two different (though a bit 
+> similar) architectures affected, it seems.
+> 
+> Now, can you please tell me what may cause such a behavior?  I really would 
+> like to narrow it, so please tell me what I can do for this purpose (I've no 
+> idea whatsoever).
 
-Sounds like a simple place to start.
+Hi,
 
-> If you really want cowlinks and hardlinks to be intermixed freely, I'd
-> happily agree with you as soon as you can define the behaviour for all
-> possible cases in a simple document and none of them make me scared
-> again.  Show me that it is possible and makes sense.
+Maybe you should make profile of the running kernel on both configurations 
+to find what functions are called most often?
 
-Concise summary:
-- (indirection inodes) solve the hard link problem.
-- Don't share the page cache between cow copies.
+Can you attach config files for both the AMD64 and the laptop?
 
-For intermixing hard links and cow copy operations a single extra layer
-of indirection solves the problem.  The cow files point to an (indirection)
-inode that holds the hard link count, the real inode number and possibly 
-a few extra things like permissions.  Except for never being pointed
-at by a directory entry the real inode works like normal.  The link
-count of the real inode is the number of indirection inodes pointing
-at it.
-
-Caching issues are more subtle.  The pathological case is a read only
-mapping of the cow file, that expects to see the mapping changed by
-some other process writing to the file.  Not sharing page cache
-entries between cow copies solves this problem.
-
-Once page cache entries are distinct it is possible to move the
-trigger down from an open with intent to write, to the first
-actual write operation.  In aops->prepare_write from sys_write,
-and aops->writepage from the mmap version.
-
-And a few scenarios to hopefully make things clear.
-
-So your fs starts out as:
-
-/file1 -> ino1 (link count 2) -> data block #1
-/file2 -> ino1 (link count 2) -> data block #1
-
-file1 is only 4K long, so I only need to describe one data block.
-
-Actions:
-
-cowcopy(file2, file3):
-
-/file1 -> ino1 (link count 2) -> ino2 (link count 2) -> data block #1
-/file2 -> ino1 (link count 2) -> ino2 (link count 2) -> data block #1
-/file3 -> ino3 (link count 1) -> ino2 (link count 2) -> data block #1
-
-
-copyfile(file3, file4):
-
-/file1 -> ino1 (link count 2) -> ino2 (link count 3) -> data block #1
-/file2 -> ino1 (link count 2) -> ino2 (link count 3) -> data block #1
-/file3 -> ino3 (link count 1) -> ino2 (link count 3) -> data block #1
-/file4 -> ino4 (link count 1) -> ino2 (link count 3) -> data block #1
-
-unlink(file2):
-
-/file1 -> ino1 (link count 1) -> ino2 (link count 3) -> data block #1
-/file3 -> ino3 (link count 1) -> ino2 (link count 3) -> data block #1
-/file4 -> ino4 (link count 1) -> ino2 (link count 3) -> data block #1
-
-link(file4, file5):
-
-/file1 -> ino1 (link count 1) -> ino2 (link count 3) -> data block #1
-/file3 -> ino3 (link count 1) -> ino2 (link count 3) -> data block #1
-/file4 -> ino4 (link count 2) -> ino2 (link count 3) -> data block #1
-/file5 -> ino4 (link count 2) -> ino2 (link count 3) -> data block #1
-
-write(file3):
-
-/file1 -> ino1 (link count 1) -> ino2 (link count 2) -> data block #1
-/file3 -> ino3 (link count 1) -> data block #2
-/file4 -> ino4 (link count 2) -> ino2 (link count 2) -> data block #1
-/file5 -> ino4 (link count 2) -> ino2 (link count 2) -> data block #1
-
-write(file5):
-
-/file1 -> ino1 (link count 1) -> ino2 (link count 1) -> data block #1
-/file3 -> ino3 (link count 1) -> data block #2
-/file4 -> ino4 (link count 2) -> data block #3
-/file5 -> ino4 (link count 2) -> data block #3
-
-write(file1):
-
-/file1 -> ino1 (link count 1) -> data block #1 (with modified contents)
-/file3 -> ino3 (link count 1) -> data block #2
-/file4 -> ino4 (link count 2) -> data block #3
-/file5 -> ino4 (link count 2) -> data block #3
+And can you reproduce this problem with 2.6.2-rc2-mm? or 2.6.2-mm? 
+kernels? They are working for me and my friend well on all machines (with 
+some minor issues) while >=2.6.4-mm? are broken on nearly all 
+configurations (because of different, often unrelated reasons).
 
 
-Does this make things clear?
+regards
 
-Eric
+Grzegorz Kulewski
+

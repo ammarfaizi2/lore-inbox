@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278258AbRJWUp4>; Tue, 23 Oct 2001 16:45:56 -0400
+	id <S278221AbRJWUpG>; Tue, 23 Oct 2001 16:45:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278265AbRJWUpr>; Tue, 23 Oct 2001 16:45:47 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5507 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S278258AbRJWUpj>; Tue, 23 Oct 2001 16:45:39 -0400
-Date: Tue, 23 Oct 2001 16:46:09 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Werner Almesberger <wa@almesberger.net>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Q] pivot_root and initrd
-In-Reply-To: <20011023223706.A8463@almesberger.net>
-Message-ID: <Pine.LNX.3.95.1011023164253.21024A-100000@chaos.analogic.com>
+	id <S278258AbRJWUo4>; Tue, 23 Oct 2001 16:44:56 -0400
+Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:53670 "EHLO
+	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S278221AbRJWUoi>; Tue, 23 Oct 2001 16:44:38 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Patrick Mochel <mochel@osdl.org>,
+        <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+Date: Tue, 23 Oct 2001 22:22:58 +0200
+Message-Id: <20011023202258.5598@smtp.wanadoo.fr>
+In-Reply-To: <p05100303b7fb36bf20f5@[207.213.214.37]>
+In-Reply-To: <p05100303b7fb36bf20f5@[207.213.214.37]>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Oct 2001, Werner Almesberger wrote:
+>"Stop accepting new requests" is nontrivial as well, in the general 
+>case. New requests that can't be discarded need to be queued 
+>somewhere. Whose responsibility is that? Ideally at some point where 
+>a queue already exists, possibly in the requester.
 
-> H. Peter Anvin wrote:
-> > The right thing is to get rid of the old initrd compatibility cruft,
-> > but that's a 2.5 change.
-> 
-> Yes, change_root is obsolete (and relies on assumptions that are no
-> longer valid in several cases), and there has been plenty of time for
-> distributors to switch. An early funeral in 2.5 is a good idea.
+Some driver already handle queues. In the case of network driver, just
+stop your network queue and stop accepting incoming packets. If your
+driver is too simple to have queues, a simple semaphore on entry points
+can often be enough. You shouldn't deadlock as you are not supposed to
+re-enter a sleeping driver in step 2.
 
-Hmm. I need to install a SCSI driver, presumably from initrd
-RAM disk as currently works. Will the new pivot-root be transparent?
+The above, is ensured by the tree layout which does the dependency
+ordering. You might have slightly off-tree dependencies, like I have
+in a couple of case on macs. But I figured that all of them could be
+handled as special case in some parent nodes without beeing that
+dirty (in most case, those are Apple specific ASICs containing devices
+with inter-deps, and the workaround is to move some devices sleep code
+to the node of the ASIC itself).
 
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+Ben.
 
 

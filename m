@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129094AbRBLLvq>; Mon, 12 Feb 2001 06:51:46 -0500
+	id <S129107AbRBLMJz>; Mon, 12 Feb 2001 07:09:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129107AbRBLLvg>; Mon, 12 Feb 2001 06:51:36 -0500
-Received: from ns.suse.de ([213.95.15.193]:774 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129094AbRBLLvV>;
-	Mon, 12 Feb 2001 06:51:21 -0500
-Date: Mon, 12 Feb 2001 12:51:15 +0100
-From: Olaf Hering <olh@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, autofs@linux.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: race in autofs / nfs
-Message-ID: <20010212125115.B30552@suse.de>
-In-Reply-To: <20010211211701.A7592@suse.de> <3A86F6AA.1416F479@transmeta.com> <shsbss8i8iq.fsf@charged.uio.no> <20010212111448.A28932@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010212111448.A28932@suse.de>; from olh@suse.de on Mon, Feb 12, 2001 at 11:14:48AM +0100
+	id <S130677AbRBLMJq>; Mon, 12 Feb 2001 07:09:46 -0500
+Received: from innerfire.net ([208.181.73.33]:45831 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S129760AbRBLMJc>;
+	Mon, 12 Feb 2001 07:09:32 -0500
+Date: Mon, 12 Feb 2001 04:10:57 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Pavel Machek <pavel@suse.cz>
+cc: Roberto Diaz <rdiazmartin@vivaldi.ddts.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-legal@nl.linux.org,
+        Roberto Diaz <rdiazmartin@vivaldi.net.dhis.org>,
+        linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
+        Guido Socher <guido@bearix.oche.de>
+Subject: Re: Software Mestizo Manifesto
+In-Reply-To: <20010211210818.G3748@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.10.10102120405260.6547-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 12, Olaf Hering wrote:
+On Sun, 11 Feb 2001, Pavel Machek wrote:
 
-> On Mon, Feb 12, Trond Myklebust wrote:
+> Hi!
 > 
-> > >>>>> " " == H Peter Anvin <hpa@transmeta.com> writes:
+> > > > > Your "ethical" statement is incompatible with the GPL.
+> > > 
+> > > I disagree. Its a statement. Its a request. It says 'advice'. Anyone is
+> > > entitled to advise how to use GPL software. The only issue is if someone
+> > > chooses to require it is not used by XYZ person. 
 > > 
-> >      > Olaf Hering wrote:
-> >     >>
-> >     >> Hi,
-> >     >>
-> >     >> there is a race in 2.4.1 and 2.4.2-pre3 in autofs/nfs.  When
-> >     >> the cwd is on the nfs mounted server (== busy) and you try to
-> >     >> reboot the shutdown hangs in "rcautofs stop". I can reproduce
-> >     >> it everytime.
-> >     >>
-> > 
-> >      > Sounds like an NFS bug in umount.
-> > 
-> > Or a dcache bug: the above points to a corruption of the mnt_count
-> > which is supposed to be > 0 if the partition is in use. I'm seeing a
-> > similar leak for ext2 partitions (not involving autofs or NFS).
+> > Please.. I am not lawyer... my intention were good, just to give authors
+> > the freedom to say "hey please dont drop a nuclear weapon in my city using
+> > my software" just that..
 > 
-> (hmm, it loads autofs and not autofs4 on 7.0?)
+> You may say "please don't drop nuclear weapon". You may *not* say "you
+> must not drop nuclear weapon", that would violate GPL.
+> 
+								Pavel
 
-The autofs4.o is the culprit, it works perfect with autofs.o.
+"For all our friends who wish to rid the world of other races.  This
+software is best operated with the computer plugged directly into the high
+voltage lines outside your house ..."
 
-What would happen if I stick with autofs.o now?
-The docu recommends autofs4 in modules.conf.
+	Gerhard
 
 
+--
+Gerhard Mack
 
-Gruss Olaf
+gmack@innerfire.net
 
--- 
- $ man clone
+<>< As a computer I find your faith in technology amusing.
 
-BUGS
-       Main feature not yet implemented...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

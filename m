@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316621AbSGGXFO>; Sun, 7 Jul 2002 19:05:14 -0400
+	id <S316623AbSGGXM3>; Sun, 7 Jul 2002 19:12:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316623AbSGGXFO>; Sun, 7 Jul 2002 19:05:14 -0400
-Received: from pD952ABA4.dip.t-dialin.net ([217.82.171.164]:49360 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316621AbSGGXFN>; Sun, 7 Jul 2002 19:05:13 -0400
-Date: Sun, 7 Jul 2002 17:07:40 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Thunder from the hill <thunder@ngforever.de>, Greg KH <greg@kroah.com>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: BKL removal
-In-Reply-To: <3D28C3F0.7010506@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0207071702120.10105-100000@hawkeye.luckynet.adm>
+	id <S316629AbSGGXM2>; Sun, 7 Jul 2002 19:12:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61456 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316623AbSGGXM2>;
+	Sun, 7 Jul 2002 19:12:28 -0400
+Message-ID: <3D28CCF5.197E909C@zip.com.au>
+Date: Sun, 07 Jul 2002 16:21:25 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: truncate_list_pages() page lock confusion and BUG
+References: <3C88087A.2030704@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, 7 Jul 2002, Dave Hansen wrote:
-> Old Blue?  23 isn't _that_ old!
-
-Obviously, you never read that book about the IBM s/370 named
-"Old Blue"...
-
-> BKL use isn't right or wrong -- it isn't a case of creating a deadlock 
-> or a race.  I'm picking a relatively random function from "grep -r 
-> lock_kernel * | grep /usb/".  I'll show what I think isn't optimal 
-> about it.
+Dave Hansen wrote:
 > 
-> "up" is a local variable.  There is no point in protecting its 
-> allocation.  If the goal is to protect data inside "up", there should 
-> probably be a subsystem-level lock for all "struct uhci_hcd"s or a 
-> lock contained inside of the structure itself.  Is this the kind of 
-> example you're looking for?
+> I'm getting BUG()s from page_alloc.c:109 in 2.5.6-pre2
+> 
+> truncate_list_pages() contains
+> 
+> failed = TryLockPage(page);
+> 
+> The page should always be locked when I get past there
+> 
+> shortly after this, truncate_complete_page() can be called
+> 
+> truncate_complete_page() calls:
+>          remove_inode_page(page);
+>               if (!PageLocked(page))
+>                  PAGE_BUG(page);
+> followed immediately by
+>          page_cache_release(page);
+>              calls __free_pages_ok(page, 0);
+>                  if (PageLocked(page))
+>                     BUG();
+> 
+> So, it appears that when truncate_complete_page() is called, it is a BUG
+> if the page is unlocked in remove_inode_page(), or locked in
+> page_cache_release().   What am I missing?  Actual bug follows:
+> 
 
-So the BKL isn't wrong here, but incorrectly used?
+The page should not be actually freed by truncate_complete_page().
+See how truncate_list_pages() has bumped its refcount?
 
-Is it really okay to "lock the whole kernel" because of one struct file? 
-This brings us back to spinlocks...
+If the page is successfully truncated then the actual freeing
+occurs in the page_cache_release() in truncate_list_pages(),
+after the page has been unlocked.
 
-You're possibly right about this one. What did Greg K-H say?
+Looks like the page refcount has suffered an extra decrement
+somewhere.  You're hitting this on the not-very-tested 
+generic_file_write() error path.  But it all looks to be OK.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
 
+2.5.6 is awfully ancient.
+
+-

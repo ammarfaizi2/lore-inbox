@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132610AbQLQO7u>; Sun, 17 Dec 2000 09:59:50 -0500
+	id <S131495AbQLQPFm>; Sun, 17 Dec 2000 10:05:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132666AbQLQO7k>; Sun, 17 Dec 2000 09:59:40 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:46755 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132610AbQLQO72>; Sun, 17 Dec 2000 09:59:28 -0500
-Date: Sun, 17 Dec 2000 14:29:01 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Jani Monoses <jani@virtualro.ic.ro>
+	id <S132666AbQLQPFd>; Sun, 17 Dec 2000 10:05:33 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:56330 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S131495AbQLQPFZ>;
+	Sun, 17 Dec 2000 10:05:25 -0500
+Date: Sun, 17 Dec 2000 15:34:53 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: linux-fsdevel@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] docbook fix kmod.c
-Message-ID: <20001217142901.B22587@redhat.com>
-In-Reply-To: <Pine.LNX.4.10.10012161725040.11062-100000@virtualro.ic.ro>
+Subject: Monitoring filesystems / blockdevice for errors
+Message-ID: <20001217153453.O5323@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012161725040.11062-100000@virtualro.ic.ro>; from jani@virtualro.ic.ro on Sat, Dec 16, 2000 at 05:26:09PM +0200
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 05:26:09PM +0200, Jani Monoses wrote:
+Good morning,
 
-> 	kernel-api.tmpl references the exported functions of kmod.c but
-> there are none.
+currently, there is no way for an external application to monitor whether a
+filesystem or underlaying block device has hit an error condition - internal
+inconsistency, read or write error, whatever.
 
-There are: hotplug_path, exec_usermodehelper, call_usermodehelper,
-request_module.
+Short of parsing syslog messages, which isn't particularly great.
 
-Try adding kmod.c to APISOURCES in the Makefile.
+This is necessary for server monitoring in general.
 
-Tim.
-*/
+I don't have a real idea how this could be added, short of adding a field to
+/proc/partitions (error count) or something similiar.
+
+Comments?
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

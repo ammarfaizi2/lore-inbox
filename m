@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281849AbRKRD7U>; Sat, 17 Nov 2001 22:59:20 -0500
+	id <S281851AbRKRELB>; Sat, 17 Nov 2001 23:11:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281850AbRKRD7J>; Sat, 17 Nov 2001 22:59:09 -0500
-Received: from mta3.fibertel.com.ar ([24.232.0.163]:58285 "EHLO
-	mail.fibertel.com.ar") by vger.kernel.org with ESMTP
-	id <S281849AbRKRD7F>; Sat, 17 Nov 2001 22:59:05 -0500
-Message-ID: <003a01c16fe5$088ae9c0$0200000a@home>
-From: "Norberto Bensa" <nbensa@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: tmpfs?
-Date: Sun, 18 Nov 2001 00:56:37 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S281852AbRKREKu>; Sat, 17 Nov 2001 23:10:50 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:62578 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281851AbRKREKe>; Sat, 17 Nov 2001 23:10:34 -0500
+Date: Sun, 18 Nov 2001 05:10:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: ehrhardt@mathematik.uni-ulm.de, linux-kernel@vger.kernel.org
+Subject: Re: VM-related Oops: 2.4.15pre1
+Message-ID: <20011118051023.A25232@athlon.random>
+In-Reply-To: <20011116142344.A7316@netnation.com> <20011117225327.5368.qmail@thales.mathematik.uni-ulm.de> <200111180312.fAI3CpG01076@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200111180312.fAI3CpG01076@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 17, 2001 at 07:12:51PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, Nov 17, 2001 at 07:12:51PM -0800, Linus Torvalds wrote:
+> In article <20011117225327.5368.qmail@thales.mathematik.uni-ulm.de> you write:
+> >
+> >I think this one liner (diffed against 2.4.14) could fix this Oops:
+> 
+> It really shouldn't matter - at that point we have the page locked, and
 
-I've configured my kernel (2.4.13-ac8) to use tmpfs, but it seems that it
-only uses half my physical memory (64 of 128MB).
+I also agree the patch shouldn't matter, but one suspect thing is the
+fact add_to_swap_cache goes to clobber in a non atomic manner the page
+lock. so yes, we hold the page lock both in swap_out and in
+shrink_cache, but swap_out can drop it for a moment and then later
+pretend to be the onwer again without a real trylock.
 
->From Configure/help
-/*
-    Tmpfs is a file system which keeps all files in virtual memory.
-
-    In contrast to RAM disks, which get allocated a ficed aount of physical
-RAM, tmps grows and shrinks to accommodate the files it contains and is able
-to swap unneeded pages out to swap space.
-*/
-
-Well, it doesn't grows, neither shrinks, but maybe it's only me because I'm
-a newbie with this. How does tmpfs works, and how do I configure it
-correctly.
-
-Thank you in advance,
-Norberto
-
-
+Andrea

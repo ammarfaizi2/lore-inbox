@@ -1,72 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbUANWph (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 17:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUANWph
+	id S265583AbUANWsi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 17:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbUANWsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 17:45:37 -0500
-Received: from dci.doncaster.on.ca ([66.11.168.194]:1486 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S264894AbUANWp1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 17:45:27 -0500
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Serial ATA (SATA) for Linux status report
-References: <20031203204445.GA26987@gtf.org>
-Date: 14 Jan 2004 17:18:34 -0500
-In-Reply-To: <20031203204445.GA26987@gtf.org>
-Message-ID: <87hdyyxjgl.fsf@stark.xeocode.com>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Jan 2004 17:48:00 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:51846 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264929AbUANWrr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 17:47:47 -0500
+Date: Wed, 14 Jan 2004 14:49:46 -0800
+From: inaky.perez-gonzalez@intel.com
+To: linux-kernel@vger.kernel.org
+Cc: inaky.perez-gonzalez@intel.com, robustmutexes@lists.osdl.org
+Subject: [RFC/PATCH] FUSYN Realtime & Robust mutexes for Linux try 2.1
+Message-ID: <0401141449.CaWdGcXb9b6caaodvdxcqcwdkc7cOazb9031@intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: patchbomb 0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+This code proposes an implementation of kernel based mutexes,
+taking ideas from the actual implementations using futexes
+(namely NPTL), intending to solve its limitations (see doc) and
+adding some features, such as real-time behavior, priority
+inheritance and protection, deadlock detection and robustness.
 
-> Intel ICH5
->
-> Issue #2: Excessive interrupts are seen in some configurations.
+Please look at the first patch, containing the documentation
+for information on how is it implemented.
 
-I guess I'm seeing this problem. I'm trying to get my P4P800 motherboard with
-an ICH5 chipset working completely. So far I've been living without the cdrom
-or DVD players. I see lots of other posts on linux-kernel about the same
-problems:
+High level changelog since release 2.0:
 
-Whenever I try to access the cdrom my system becomes unusable. Due to high
-interrupts, typically over 150k/s. I thought libata would help, but I don't
-understand how to use the PATA drive and the cdrom drives while I'm using it.
+- Fix docs, document the convoy phenomenon.
 
-The situation is that I have two SATA drives, a PATA drive and two cdrom
-drives (actually one CD burner and one DVD drive). They are 
+- Fix bugs in maintiaining the state of the ufulock when
+switching back and forth to "fast-path mode".
 
-Primary Master:   PATA Drive
-Secondary Master: CD Burner
-Secondary Slave:  DVD-Rom
-SATA-1:           SATA Drive
-SATA-2:           SATA Drive
+- Added a few ioctl-like commands for querying state of the
+ufulock as well as destruction.
 
-I've tried 2.4.23pre4 (no libata), 2.6.1 (IDE drivers), and 2.6.1 (with scsi
-libata drivers) with the following results:
+- Add KCO mode, where the fast path is not available. This can
+be used by architectures that don't have
+compare-and-exchange. As well, it is the foundation for
+priority protection.  All tests pass, and seems to work
+[although didn't have too much time to go over it].
 
-2.4.23pre4: as soon as the cdrom is touched I see bursts of 150k interrupts
-    per second and the system becomes unresponsive momentarily every few
-    seconds.
+- Ported to 2.6.1 (basing it on mm2 to get kgdb goodies);
+patches vanilla ok; however, you will get a couple of rejects
+in kernel/Makefile -- it expects a line with ktrhead.o [just
+make sure the line with all the fuqueue stuff is there].
 
-2.6.1 with regular IDE drivers: same as above except the system feels
-    responsive except for disk i/o. I see printks of "Disabling interrupt #18"
-    and all disk i/o freezes for a few seconds.
+Still to-do:
 
-2.6.1 with scsi ata_piix driver: the SATA drives show up and work fine but the
-    PATA drive and the cdroms doesn't show up at all. This is true even when I
-    compile with the CONFIG_IDE, CONFIG_BLK_DEV_IDE, and CONFIG_BLK_DEV_IDECD
-    enabled.
+- Ugly bug triggered by running rtnptl-test-misc::str03 with:
 
+$ (ulimit -s 32; time ./str03 -b5 -d5 > /tmp/kk)
 
--- 
-greg
+[triggers inconsistency warning on NPTL patched with the rtnptl
+patch].
+
+- Finish implementing priority protection; this requires the
+changes to implement priority inheritance with SCHED_NORMAL
+tasks--need to find a way to have kind of an 'effective'
+priority vs the original one that is not too invasive.
+
+- Add a flag to the passing of timeout information to indicate
+if it is relative or absolute, and as we are there, the clock
+source. This way we avoid a costly kernel access in
+pthread_mutex_timelock() and friends.
+
+- Need to rename VFULOCK_KCO to VFULOCK_WP, to reduce confusions
+with the KCO mode [that was _a_ mistake].
+
+- Wipe out debug stuff (when not needed any more)
+
+- research using single bit mode for fast-path on arches without
+compare-and-exchange but with test-and-set bit.
+
+- Add CONFIG option to compile out parts or all.
+
+- Call __fuqueue_wait_cancel() into try_to_wake_up?
+
+- unlock()-to-task, as suggested by Jamie...is it really needed?
+
+- Research more into safe static allocation as proposed by Scott
+Wood--the basic idea has a bunch of problems, mainly that it
+kills caching and some others, but needs further research.
+
+Did I miss anything?
+
+The patch is split in the following parts:
+
+1/10: documentation files
+2/10: modifications to the core
+3/10: Support for i386
+4/10: Support for ia64
+5/10: kernel fuqueues
+6/10: user space/kernel space tracker
+7/10: user space fuqueues
+8/10: kernel fulocks
+9/10: stub for priority protection
+10/10: user space fulocks
+
+We have a site at http://developer.osdl.org/dev/robustmutexes
+with references to all the releases, test code and NPTL
+modifications (rtnptl) to use this code. As well, the patch
+is there in a single file, in case you don't want to paste
+them manually.
 

@@ -1,107 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbVCPKj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVCPKld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262346AbVCPKj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 05:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVCPKj3
+	id S262351AbVCPKld (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 05:41:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVCPKld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 05:39:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:11737 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262338AbVCPKhu (ORCPT
+	Wed, 16 Mar 2005 05:41:33 -0500
+Received: from fire.osdl.org ([65.172.181.4]:56997 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262347AbVCPKky (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 05:37:50 -0500
-Date: Wed, 16 Mar 2005 02:36:12 -0800 (PST)
-From: Paul Jackson <pj@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Simon Derr <Simon.Derr@bull.net>, Jack Steiner <steiner@sgi.com>,
-       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Message-Id: <20050316103615.6322.46456.sendpatchset@sam.engr.sgi.com>
-Subject: [Patch] cpusets mems generation deadlock fix
+	Wed, 16 Mar 2005 05:40:54 -0500
+Date: Wed, 16 Mar 2005 02:40:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: rostedt@goodmis.org, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
+Message-Id: <20050316024022.6d5c4706.akpm@osdl.org>
+In-Reply-To: <20050316101906.GA17328@elte.hu>
+References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
+	<Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
+	<20050315120053.GA4686@elte.hu>
+	<Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
+	<20050315133540.GB4686@elte.hu>
+	<Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+	<20050316085029.GA11414@elte.hu>
+	<20050316011510.2a3bdfdb.akpm@osdl.org>
+	<20050316095155.GA15080@elte.hu>
+	<20050316020408.434cc620.akpm@osdl.org>
+	<20050316101906.GA17328@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The cpuset code to update mems_generation could (in theory)
-deadlock on cpuset_sem if it needed to allocate some memory
-while creating (mkdir) or removing (rmdir) a cpuset, so already
-held cpuset_sem.  Some other process would have to mess with
-this tasks cpuset memory placement at the same time.
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > >  > There's a little lock ranking diagram in jbd.h which tells us that
+> > >  > these locks nest inside j_list_lock and j_state_lock.  So I guess
+> > >  > you'll need to turn those into semaphores.
+> > > 
+> > >  indeed. I did this (see the three followup patches, against BK-curr),
+> > >  and it builds/boots/works just fine on an ext3 box. Do we want to try
+> > >  this in -mm?
+> > 
+> > ooh, I'd rather not.  I spent an intense three days removing all the
+> > sleeping locks from ext3 (and three months debugging the result). 
+> > Ended up gaining 1000% on 16-way.
+> > 
+> > Putting them back in will really hurt the SMP performance.
+> 
+> seems like turning the bitlocks into spinlocks is the best option then. 
+> We'd need one lock in buffer_head (j_state_lock, renamed to something
+> more sensible like b_private_lock), and one lock in journal_head
+> (j_list_lock) i guess.
 
-We avoid this possible deadlock by always updating mems_generation
-after we grab cpuset_sem on such operations, before we risk any
-operations that might require memory allocation.
+Those two are in the journal, actually.  You refer to jbd_lock_bh_state()
+and jbd_lock_bh_journal_head().  I think they both need to be in the
+buffer_head.  jbd_lock_bh_journal_head() can probably go away (just use
+caller's jbd_lock_bh_state()).
 
-Applies to top of Linus's bk tree (post 2.6.11)
+Or make them global, or put them in the journal.
 
-Thanks to Jack Steiner <steiner@sgi.com> for noticing this.
+> How much would the +4/+8 bytes size increase in
+> buffer_head [on SMP] be frowned upon? 
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
-===================================================================
---- 2.6.12-pj.orig/kernel/cpuset.c	2005-03-16 01:05:33.000000000 -0800
-+++ 2.6.12-pj/kernel/cpuset.c	2005-03-16 01:14:51.000000000 -0800
-@@ -505,6 +505,35 @@ static void guarantee_online_mems(const 
- }
- 
- /*
-+ * Refresh current tasks mems_allowed and mems_generation from
-+ * current tasks cpuset.  Call with cpuset_sem held.
-+ *
-+ * Be sure to call refresh_mems() on any cpuset operation which
-+ * (1) holds cpuset_sem, and (2) might possibly alloc memory.
-+ * Call after obtaining cpuset_sem lock, before any possible
-+ * allocation.  Otherwise one risks trying to allocate memory
-+ * while the task cpuset_mems_generation is not the same as
-+ * the mems_generation in its cpuset, which would deadlock on
-+ * cpuset_sem in cpuset_update_current_mems_allowed().
-+ *
-+ * Since we hold cpuset_sem, once refresh_mems() is called, the
-+ * test (current->cpuset_mems_generation != cs->mems_generation)
-+ * in cpuset_update_current_mems_allowed() will remain false,
-+ * until we drop cpuset_sem.  Anyone else who would change our
-+ * cpusets mems_generation needs to lock cpuset_sem first.
-+ */
-+
-+static void refresh_mems(void)
-+{
-+	struct cpuset *cs = current->cpuset;
-+
-+	if (current->cpuset_mems_generation != cs->mems_generation) {
-+		guarantee_online_mems(cs, &current->mems_allowed);
-+		current->cpuset_mems_generation = cs->mems_generation;
-+	}
-+}
-+
-+/*
-  * is_cpuset_subset(p, q) - Is cpuset p a subset of cpuset q?
-  *
-  * One cpuset is a subset of another if all its allowed CPUs and
-@@ -1224,6 +1253,7 @@ static long cpuset_create(struct cpuset 
- 		return -ENOMEM;
- 
- 	down(&cpuset_sem);
-+	refresh_mems();
- 	cs->flags = 0;
- 	if (notify_on_release(parent))
- 		set_bit(CS_NOTIFY_ON_RELEASE, &cs->flags);
-@@ -1277,6 +1307,7 @@ static int cpuset_rmdir(struct inode *un
- 	/* the vfs holds both inode->i_sem already */
- 
- 	down(&cpuset_sem);
-+	refresh_mems();
- 	if (atomic_read(&cs->count) > 0) {
- 		up(&cpuset_sem);
- 		return -EBUSY;
-@@ -1433,8 +1464,7 @@ void cpuset_update_current_mems_allowed(
- 		return;		/* task is exiting */
- 	if (current->cpuset_mems_generation != cs->mems_generation) {
- 		down(&cpuset_sem);
--		guarantee_online_mems(cs, &current->mems_allowed);
--		current->cpuset_mems_generation = cs->mems_generation;
-+		refresh_mems();
- 		up(&cpuset_sem);
- 	}
- }
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+It wouldn't be the end of the world.  I'm not clear on what bits of the
+rt-super-low-latency stuff is intended for mainline though?

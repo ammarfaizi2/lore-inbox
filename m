@@ -1,83 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263358AbTEYP4g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 11:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTEYP4g
+	id S263418AbTEYQMT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 12:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbTEYQMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 11:56:36 -0400
-Received: from pimout4-ext.prodigy.net ([207.115.63.103]:26580 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S263358AbTEYP4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 11:56:34 -0400
-From: dan carpenter <d_carpenter@sbcglobal.net>
-To: "Paulo Andre'" <l16083@alunos.uevora.pt>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: Question on verify_area() and friends wrt
-Date: Sun, 25 May 2003 00:46:31 +0200
-User-Agent: KMail/1.5.1
-Cc: kernel-janitor-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20030525124625.4dedc758.l16083@alunos.uevora.pt> <20030525130706.B9127@infradead.org> <20030525145319.6f66a8aa.l16083@alunos.uevora.pt>
-In-Reply-To: <20030525145319.6f66a8aa.l16083@alunos.uevora.pt>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200305250045.19458.d_carpenter@sbcglobal.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 25 May 2003 12:12:19 -0400
+Received: from mcmmta1.mediacapital.pt ([193.126.240.146]:25034 "EHLO
+	mcmmta1.mediacapital.pt") by vger.kernel.org with ESMTP
+	id S263418AbTEYQMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 12:12:17 -0400
+Date: Sun, 25 May 2003 17:25:49 +0100
+From: "Paulo Andre'" <fscked@iol.pt>
+Subject: [PATCH] Check copy_*_user return value in drivers/block/scsi_ioctl.c
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <20030525172549.7df834f9.fscked@iol.pt>
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: multipart/mixed; boundary="Boundary_(ID_aPORyv4WFVOcyUpReFAB3Q)"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 May 2003 03:53 pm, Paulo Andre' wrote:
-> Christoph Hellwig <hch@infradead.org> wrote:
-> > verify_area only does some checks so you need to check the return
-> > value from copy_to_user.  You could switch to __copy_to_user, though.
->
-> Why would __copy_to_user be a good choice? AFAIK, __copy_to_user does no
-> validy checks (as opposed to copy_to_user which does access_ok()) so,
-> considering verify_area() does only some checks, one could argue that
-> there's even less checking done if using __copy_to_user. Where am I
-> interpreting this wrong (as I certainly am) ?
->
+This is a multi-part message in MIME format.
 
-copy_to_user() does the equivelent of a verify_area().  __copy_to_user() 
-doesn't 
-make the verify_area() check.If a function is going to be making a lot of 
-copies to 
-the same area, it makes sense to just do one verify_area() and use 
-__copy_to_user().
-Both copy_to_user() and __copy_to_user() can fail even though the 
-verify_area() 
-checks pass.
+--Boundary_(ID_aPORyv4WFVOcyUpReFAB3Q)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 
-In this case there is only one copy to each area so it doesn't really make
-sense to use __copy_to_user().
+Hi Jens,
 
-My patch would look like this:
+Please find attached a trivial patch that checks both
+copy_to_user() and copy_from_user() returns values in scsi_ioctl.c,
+returning accordinly in case of a transfer error.
 
---- net/bluetooth/hci_core.c.orig       2003-05-25 00:25:16.000000000 +0200
-+++ net/bluetooth/hci_core.c    2003-05-25 00:25:34.000000000 +0200
-@@ -431,14 +431,14 @@
+Please review.
+
+
+		Paulo Andre'
+
+
+
+
+--Boundary_(ID_aPORyv4WFVOcyUpReFAB3Q)
+Content-type: text/plain; name=patch-scsi_ioctl.c.diff
+Content-transfer-encoding: 7BIT
+Content-disposition: attachment; filename=patch-scsi_ioctl.c.diff
+
+--- scsi_ioctl.c.orig	2003-05-25 16:42:22.000000000 +0100
++++ scsi_ioctl.c	2003-05-25 16:59:44.000000000 +0100
+@@ -213,7 +213,8 @@
  
-        BT_DBG("num_rsp %d", ir.num_rsp);
+ 			nr_sectors = bytes >> 9;
+ 			if (writing)
+-				copy_from_user(buffer,hdr.dxferp,hdr.dxfer_len);
++				if (copy_from_user(buffer,hdr.dxferp,hdr.dxfer_len))
++					goto efault;
+ 			else
+ 				memset(buffer, 0, hdr.dxfer_len);
+ 		}
+@@ -225,7 +226,8 @@
+ 	 * fill in request structure
+ 	 */
+ 	rq->cmd_len = hdr.cmd_len;
+-	copy_from_user(rq->cmd, hdr.cmdp, hdr.cmd_len);
++	if (copy_from_user(rq->cmd, hdr.cmdp, hdr.cmd_len))
++		goto efault;
+ 	if (sizeof(rq->cmd) != hdr.cmd_len)
+ 		memset(rq->cmd + hdr.cmd_len, 0, sizeof(rq->cmd) - hdr.cmd_len);
  
--       if (!verify_area(VERIFY_WRITE, ptr, sizeof(ir) + 
--                       (sizeof(struct inquiry_info) * ir.num_rsp))) {
--               copy_to_user(ptr, &ir, sizeof(ir));
--               ptr += sizeof(ir);
--               copy_to_user(ptr, buf, sizeof(struct inquiry_info) * 
-ir.num_rsp);
--       } else 
-+       if (copy_to_user(ptr, &ir, sizeof(ir))) {
-                err = -EFAULT;
--
-+               goto free:
-+       }
-+       ptr += sizeof(ir);
-+       if (copy_to_user(ptr, buf, sizeof(struct inquiry_info) * ir.num_rsp))
-+               err = -EFAULT;
-+free:
-        kfree(buf);
+@@ -286,17 +288,23 @@
  
- done:
+ 	blk_put_request(rq);
+ 
+-	copy_to_user(uptr, &hdr, sizeof(*uptr));
++	if (copy_to_user(uptr, &hdr, sizeof(*uptr)))
++		goto efault;
+ 
+ 	if (buffer) {
+ 		if (reading)
+-			copy_to_user(hdr.dxferp, buffer, hdr.dxfer_len);
++			if (copy_to_user(hdr.dxferp, buffer, hdr.dxfer_len))
++				goto efault;
+ 
+ 		kfree(buffer);
+ 	}
+ 	/* may not have succeeded, but output values written to control
+ 	 * structure (struct sg_io_hdr).  */
+ 	return 0;
++efault:
++	if (buffer)
++		kfree(buffer);
++	return -EFAULT;
+ }
+ 
+ #define FORMAT_UNIT_TIMEOUT		(2 * 60 * 60 * HZ)
 
-
+--Boundary_(ID_aPORyv4WFVOcyUpReFAB3Q)--

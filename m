@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131237AbQLUXaV>; Thu, 21 Dec 2000 18:30:21 -0500
+	id <S129697AbQLUXab>; Thu, 21 Dec 2000 18:30:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131199AbQLUXaB>; Thu, 21 Dec 2000 18:30:01 -0500
-Received: from [199.239.160.155] ([199.239.160.155]:46341 "EHLO
-	tenchi.datarithm.net") by vger.kernel.org with ESMTP
-	id <S129697AbQLUX3w>; Thu, 21 Dec 2000 18:29:52 -0500
-Date: Thu, 21 Dec 2000 15:08:45 -0800
-From: Robert Read <rread@datarithm.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Sourav Sen <sourav@csa.iisc.ernet.in>, linux-kernel@vger.kernel.org
-Subject: Re: Wiring down Pages
-Message-ID: <20001221150845.I24558@tenchi.datarithm.net>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Sourav Sen <sourav@csa.iisc.ernet.in>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.3.96.1001222011552.20552A-100000@kohinoor.csa.iisc.ernet.in> <Pine.LNX.4.21.0012211845070.1613-100000@duckman.distro.conectiva>
+	id <S131521AbQLUXaW>; Thu, 21 Dec 2000 18:30:22 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:11853
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129697AbQLUXaK>; Thu, 21 Dec 2000 18:30:10 -0500
+Date: Thu, 21 Dec 2000 23:59:37 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cleanup (PCI API and general) of drivers/net/rcpci.c (240t13p3)
+Message-ID: <20001221235937.F611@jaquet.dk>
+In-Reply-To: <20001221233805.E611@jaquet.dk> <E149EUA-0003iN-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0012211845070.1613-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Thu, Dec 21, 2000 at 06:46:33PM -0200
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <E149EUA-0003iN-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 21, 2000 at 10:46:52PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2000 at 06:46:33PM -0200, Rik van Riel wrote:
+On Thu, Dec 21, 2000 at 10:46:52PM +0000, Alan Cox wrote:
+> > o The driver currently allocates irqs during its initialization
+> >   instead of postponing it until it is opened for use. Is there
+> >   a reason for this?
 > 
-> page_cache_drop(page); <= removes your extra count
+> Shouldnt be - its an I2O network interface with some extra bits for
+> the cryptoconfig
 
-I can't find that function, do you mean page_cache_free() and
-page_cache_release(), both are aliases for __free_page(). Maybe we
-need another alias. :)
+OK. I'll move the resource de-/allocation to the open/close call then 
+and post a new patch in a few days.
+-- 
+        Rasmus(rasmus@jaquet.dk)
 
-Should non-page cache related code use get_page() and __free_page()
-directly?  Or should the page_cache_* macros be used everywhere?
-
-robert
+Gates' Law: Every 18 months, the speed of software halves
+  -- Anonymous
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

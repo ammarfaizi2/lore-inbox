@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129392AbQKVVaM>; Wed, 22 Nov 2000 16:30:12 -0500
+        id <S131474AbQKVVhZ>; Wed, 22 Nov 2000 16:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130671AbQKVVaC>; Wed, 22 Nov 2000 16:30:02 -0500
-Received: from d14144.dtk.chello.nl ([213.46.14.144]:8328 "EHLO
-        amadeus.home.nl") by vger.kernel.org with ESMTP id <S129392AbQKVV34>;
-        Wed, 22 Nov 2000 16:29:56 -0500
-Message-Id: <m13ygzS-000OZ3C@amadeus.home.nl>
-Date: Wed, 22 Nov 2000 21:59:38 +0100 (CET)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: law@sgi.com (LA Walsh)
-Subject: Re: include conventions /usr/include/linux/sys ?
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHOEKLCJAA.law@sgi.com>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+        id <S131473AbQKVVhP>; Wed, 22 Nov 2000 16:37:15 -0500
+Received: from roc-24-93-10-55.rochester.rr.com ([24.93.10.55]:62716 "EHLO
+        suzaku.fynet.org") by vger.kernel.org with ESMTP id <S131214AbQKVVhE>;
+        Wed, 22 Nov 2000 16:37:04 -0500
+Message-ID: <3A1C3523.A111CDD9@fsc-usa.com>
+Date: Wed, 22 Nov 2000 16:05:39 -0500
+From: Brian Kress <kressb@fsc-usa.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: /proc/partitions for LVM
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <NBBBJGOOMDFADJDGDCPHOEKLCJAA.law@sgi.com> you wrote:
-> Linus has mentioned a desire to move kernel internal interfaces into
-> a separate kernel include directory.  In creating some code, I'm wondering
-> what the name of this should/will be.  Does it follow that convention
-> would point toward a linux/sys directory?
+	Question about /proc/partitions and LVM.  LVM devices in 
+/proc/partitions currently show up as lvma, lvmb, etc, depending on
+their device number.  This breaks things like mount by filesystem
+name.  Back when LVM existed as a patch, I believe there was some
+support in fs/partitions/check.c for showing the proper name for
+the device (something like <vgname>/<lvname>).  
+	Are their any plans for something like this to be added
+or is their a reason it was taken out?
 
-I would vote for
 
-include/linux		-	 exported interfaces
-include/kernel		-	 kernel internal interfaces
-include/asm		- 	 kernel internal/archspecific interfaces
+	BTW, 2.4.0-test11 is the first "perfect" kernel for me.  It
+finally has everything I use working correctly.  (well, with a 
+small raid5 patch, anyway).
 
-Greetings,
-   Arjan van de Ven
+
+Brian Kress
+kressb@fsc-usa.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

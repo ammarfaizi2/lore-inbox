@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbULIXXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbULIXZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbULIXXO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 18:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbULIXXO
+	id S261670AbULIXZq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 18:25:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbULIXZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 18:23:14 -0500
-Received: from blaster.systems.pipex.net ([62.241.163.7]:44244 "EHLO
-	blaster.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S261667AbULIXXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 18:23:00 -0500
-Date: Thu, 9 Dec 2004 23:24:05 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@ezer.homenet
-To: linux-ia64@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch-2.6.x] fix for make clean and make mrproper
-Message-ID: <Pine.LNX.4.61.0412092320460.6269@ezer.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 9 Dec 2004 18:25:46 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:8353 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261670AbULIXZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 18:25:39 -0500
+Date: Thu, 9 Dec 2004 15:25:27 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] udev 048 release
+Message-ID: <20041209232527.GA6604@kroah.com>
+References: <20041208185856.GA26734@kroah.com> <20041208192810.GA28374@kroah.com> <20041208194618.GA28810@kroah.com> <200412092147.14234.andrew@walrond.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412092147.14234.andrew@walrond.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Dec 09, 2004 at 09:47:14PM +0000, Andrew Walrond wrote:
+> On Wednesday 08 Dec 2004 19:46, Greg KH wrote:
+> >
+> > Ok, version 048 has been released to fix the build errors for the
+> > extras/ directory.  It's available at
+> >  kernel.org/pub/linux/utils/kernel/hotplug/udev-048.tar.gz
+> >
+> 
+> I've built a boot cd with linux-2.6.10-rc3, udev 048 and latest hotplug.
+> 
+> When I boot a machine with my CD, udev doesn't create /dev/hda
+> I can't fathom why. Any reasons why it wouldn't create it?
 
-On IA64 architecture the "make clean" does not correspond to its 
-definition:
+Does /sys/block/hda exist?
 
-# make clean     Delete most generated files
-#                Leave enough to build external modules
+Did you run udevstart as part of your boot process after init happens?
 
-because it deletes include/asm-ia64/offsets.h file which can easily be 
-included by a module, e.g. via this header path:
+thanks,
 
-In file included from include/linux/thread_info.h:21,
-                  from include/linux/spinlock.h:12,
-                  from include/linux/capability.h:45,
-                  from include/linux/sched.h:7,
-                  from include/asm/uaccess.h:37,
-
-So the fix is to remove this file from CLEAN_FILES and add it to 
-MRPROPER_FILES, so that it is NOT removed by "make clean" and removed by 
-"make mrproper". The patch is enclosed.
-
-Kind regards
-Tigran
-
---- arch/ia64/Makefile.0	2004-12-08 23:19:44.429993868 +0000
-+++ arch/ia64/Makefile	2004-12-08 23:18:57.238588196 +0000
-@@ -87,7 +87,9 @@
-  archclean:
-  	$(Q)$(MAKE) $(clean)=$(boot)
-
--CLEAN_FILES += include/asm-ia64/.offsets.h.stamp include/asm-ia64/offsets.h vmlinux.gz bootloader
-+CLEAN_FILES += include/asm-ia64/.offsets.h.stamp vmlinux.gz bootloader
-+
-+MRPROPER_FILES += include/asm-ia64/offsets.h
-
-  prepare: include/asm-ia64/offsets.h
-
+greg k-h

@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbULSMqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbULSNgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbULSMqU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 07:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbULSMqU
+	id S261271AbULSNgM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 08:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbULSNgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 07:46:20 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32517 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261170AbULSMqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 07:46:16 -0500
-Date: Sun, 19 Dec 2004 13:46:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel oops on 2.6.3
-Message-ID: <20041219124610.GP21288@stusta.de>
-References: <200412161650.44171.m.watts@eris.qinetiq.com>
+	Sun, 19 Dec 2004 08:36:11 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:30444 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261271AbULSNgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 08:36:10 -0500
+Date: Sun, 19 Dec 2004 13:36:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] cdu31a - more fixes
+Message-ID: <20041219133607.GA599@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ondrej Zary <linux@rainbow-software.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41C4BD54.2060703@rainbow-software.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200412161650.44171.m.watts@eris.qinetiq.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <41C4BD54.2060703@rainbow-software.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 04:50:44PM +0000, Mark Watts wrote:
-> 
-> One of my servers (Running Mandrake 10.0/2.6.3) has taken to giving the 
-> following oops whenever certian scripts are run:
->...
-> I'd rather not have to upgrade the kernel, although if it is a kernel issue I 
-> may have to.
+> +#define RETURN_UP(retval) do {up(&sony_sem); return (retval);} while(0)
 
-2.6.3 is very old, and it would only be interesting for linux-kernel if 
-the problem was still present in recent unmodified ftp.kernel.org 
-kernels.
-
-> Regards,
-> 
-> Mark.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Please don't use such obsfucation macros.  Instead use gotos in the
+functions to haev a single exit path that releases the lock.
 

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbSJLRop>; Sat, 12 Oct 2002 13:44:45 -0400
+	id <S261312AbSJLRyp>; Sat, 12 Oct 2002 13:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261312AbSJLRop>; Sat, 12 Oct 2002 13:44:45 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:30898 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261310AbSJLRoo>; Sat, 12 Oct 2002 13:44:44 -0400
-Subject: Strange patch to the Z85230 driver.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Oct 2002 19:02:29 +0100
-Message-Id: <1034445749.15067.6.camel@irongate.swansea.linux.org.uk>
+	id <S261313AbSJLRyp>; Sat, 12 Oct 2002 13:54:45 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:59284 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S261312AbSJLRyo>;
+	Sat, 12 Oct 2002 13:54:44 -0400
+Date: Sat, 12 Oct 2002 20:00:32 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alastair Stevens <alastair@camlinux.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Small oddity of the week: 2.4.20-pre
+Message-ID: <20021012180032.GA22980@win.tue.nl>
+References: <1034431251.2688.64.camel@dolphin.entropy.net> <20021012171642.GA22969@win.tue.nl> <1034443816.10850.70.camel@dolphin.entropy.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1034443816.10850.70.camel@dolphin.entropy.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are DMA ring buffers for ISA DMA, they do not need to be zeroed. 
+On Sat, Oct 12, 2002 at 06:30:15PM +0100, Alastair Stevens wrote:
+> > >     fdisk -l | grep -w "/dev/hda6"
+> > > 
+> > > For some reason, this now produces, entirely at _random_, either one or
+> > > two lines of output! It was the duplicated output that broke Mindi.
+> 
+> Here's a typical output:
+> 
+> 1 root@dolphin:/home/alastair> fdisk -l | grep -w "/dev/hda6"
+> /dev/hda6          4419      4749   2658726   83  Linux
+> /dev/hda6          4419      4749   2658726   83  Linux
+> 2 root@dolphin:/home/alastair> fdisk -l | grep -w "/dev/hda6"
+> /dev/hda6          4419      4749   2658726   83  Linux
+> 3 root@dolphin:/home/alastair> fdisk -l | grep -w "/dev/hda6"
+> /dev/hda6          4419      4749   2658726   83  Linux
+> 4 root@dolphin:/home/alastair> fdisk -l | grep -w "/dev/hda6"
+> /dev/hda6          4419      4749   2658726   83  Linux
+> 
+> ie - the first time, it gives me two repeated lines. This appears to be
+> random. In a clean terminal, it'll sometimes give me only the one line
+> on the first run, and then do two lines multiple times....
 
-diff -Nru a/drivers/net/wan/z85230.c b/drivers/net/wan/z85230.c
---- a/drivers/net/wan/z85230.c	Fri Oct 11 21:22:51 2002
-+++ b/drivers/net/wan/z85230.c	Fri Oct 11 21:22:51 2002
-@@ -889,12 +889,12 @@
- 	if(c->mtu  > PAGE_SIZE/2)
- 		return -EMSGSIZE;
- 	 
--	c->rx_buf[0]=(void *)get_free_page(GFP_KERNEL|GFP_DMA);
-+	c->rx_buf[0]=(void *)get_zeroed_page(GFP_KERNEL|GFP_DMA);
- 	if(c->rx_buf[0]==NULL)
- 		return -ENOBUFS;
- 	c->rx_buf[1]=c->rx_buf[0]+PAGE_SIZE/2;
- 	
--	c->tx_dma_buf[0]=(void *)get_free_page(GFP_KERNEL|GFP_DMA);
-+	c->tx_dma_buf[0]=(void *)get_zeroed_page(GFP_KERNEL|GFP_DMA);
- 	if(c->tx_dma_buf[0]==NULL)
- 	{
- 		free_page((unsigned long)c->rx_buf[0]);
-@@ -1079,7 +1079,7 @@
- 	if(c->mtu  > PAGE_SIZE/2)
- 		return -EMSGSIZE;
- 	 
--	c->tx_dma_buf[0]=(void *)get_free_page(GFP_KERNEL|GFP_DMA);
-+	c->tx_dma_buf[0]=(void *)get_zeroed_page(GFP_KERNEL|GFP_DMA);
- 	if(c->tx_dma_buf[0]==NULL)
- 		return -ENOBUFS;
- 
+Could it be that you have statistics garbage in /proc/partitions?
+That will break fdisk.

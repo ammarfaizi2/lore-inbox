@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272359AbTGYWJz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 18:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272366AbTGYWJz
+	id S272367AbTGYWUK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 18:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272368AbTGYWUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 18:09:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:24485 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S272359AbTGYWJy (ORCPT
+	Fri, 25 Jul 2003 18:20:10 -0400
+Received: from pc-62-31-11-105-bf.blueyonder.co.uk ([62.31.11.105]:10934 "HELO
+	prozac") by vger.kernel.org with SMTP id S272367AbTGYWUA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 18:09:54 -0400
-Date: Fri, 25 Jul 2003 15:22:21 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Harald Welte <laforge@netfilter.org>
-Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: Update: [PATCH 2.6] iptables MIRROR target fixes
-Message-Id: <20030725152221.1b751bd0.davem@redhat.com>
-In-Reply-To: <20030725205242.GH3244@sunbeam.de.gnumonks.org>
-References: <20030719142648.GS32475@sunbeam.de.gnumonks.org>
-	<20030725205242.GH3244@sunbeam.de.gnumonks.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Fri, 25 Jul 2003 18:20:00 -0400
+Subject: Re: froom assembly to C in boot code
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: koala.gnu@tiscalinet.it
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F217154.30004@tiscalinet.it>
+References: <3F217154.30004@tiscalinet.it>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QSsSZW8RcscldMPmhNCk"
+Message-Id: <1059172509.16255.2.camel@sherbert>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 25 Jul 2003 23:35:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jul 2003 22:52:42 +0200
-Harald Welte <laforge@netfilter.org> wrote:
 
-> On Sat, Jul 19, 2003 at 04:26:48PM +0200, Harald Welte wrote:
-> 
-> > This is the first of my 2.6 merge of the recent bugfixes (all tested
-> > against 2.6.0-test1).  You might need to apply them incrementally
-> > (didn't test it in a different order).
-> 
-> Unfortunately I introduced a typo during the merge (which in turn
-> introduced a new bug).
-> 
-> Please incrementially apply the following patch, thanks.
+--=-QSsSZW8RcscldMPmhNCk
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-All 2.6.x netfilter patches applied, thanks.
+On Fri, 2003-07-25 at 19:05, Koala GNU wrote:
+> Hi all,
+>=20
+> I forward to the lkml a mail I posted on kernelnewbies hoping someone of=20
+> you can help me.
+> -------------------------------------------------------------------------=
+------------------------------------------------
+
+Try post on alt.os.development they are usually a useful crowd for this
+kind of thing.
+
+PS. If you want to write your own kernel, you are probably best making a
+multiboot kernel that can be loaded by grub. Saves a lot of heartache...
+
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+
+--=-QSsSZW8RcscldMPmhNCk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/IbCdkbV2aYZGvn0RAhGYAJ9b2weSaM2q7AfqEaX2OC6ZlNURjACfcHNg
+kicb6YNz5pP2dnX38Xtk22g=
+=2FGb
+-----END PGP SIGNATURE-----
+
+--=-QSsSZW8RcscldMPmhNCk--
+

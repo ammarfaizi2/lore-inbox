@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277924AbRJIT1y>; Tue, 9 Oct 2001 15:27:54 -0400
+	id <S277927AbRJITdE>; Tue, 9 Oct 2001 15:33:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277925AbRJIT1p>; Tue, 9 Oct 2001 15:27:45 -0400
-Received: from nsd.mandrakesoft.com ([216.71.84.35]:49172 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S277924AbRJIT1b>; Tue, 9 Oct 2001 15:27:31 -0400
-Date: Tue, 9 Oct 2001 14:27:46 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Rui Sousa <rui.p.m.sousa@clix.pt>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        emu10k1-devel@opensource.creative.com
-Subject: Re: [Emu10k1-devel] Re: Emu10k1 driver update
-In-Reply-To: <Pine.LNX.4.33.0110092100040.3012-100000@sophia-sousar2.nice.mindspeed.com>
-Message-ID: <Pine.LNX.3.96.1011009142129.9171H-100000@mandrakesoft.mandrakesoft.com>
+	id <S277928AbRJITcy>; Tue, 9 Oct 2001 15:32:54 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6272 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S277927AbRJITco>; Tue, 9 Oct 2001 15:32:44 -0400
+Date: Tue, 9 Oct 2001 15:30:01 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Chris Siebenmann <cks@utcc.utoronto.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Breaking system configuration in stable kernels
+In-Reply-To: <Pine.LNX.3.96.1011009144430.31112A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.3.95.1011009151209.3636A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, Rui Sousa wrote:
-> On Tue, 9 Oct 2001, Jeff Garzik wrote:
-> From what I see doing locking with a spinlock is quite tricky.
-> 
->  codec->read_mixer = ac97_read_mixer;  //can be called holding spinlock
->  codec->write_mixer = ac97_write_mixer; //can be called holding spinlock
->  codec->recmask_io = ac97_recmask_io;
->  codec->mixer_ioctl = ac97_mixer_ioctl; //in general can't be called
-> holding spinlock
-> 
-> and ac97_mixer_ioctl() itself calls ac97_read/write_mixer().
-> 
-> A semaphore on the mixer device open function would do just fine If I
-> didn't had an interrupt handler also touching the ac97_codec...
+On Tue, 9 Oct 2001, Bill Davidsen wrote:
 
-Yep, that's how the via audio problem was solved, with a mixer
-semaphore.  Having your interrupt handler touch ac97_codec definitely
-complicates things beyond that simple solution, though.  If your only
-concern is the intr handler you could create a dont-touch-ac97-in-intr
-flag, and set that flag (only) via spin_lock_irq.  Then you don't
-have to stay inside a spinlock the entire time.
+> On Mon, 8 Oct 2001, Chris Siebenmann wrote:
+> 
+> > You write:
+> > |   I've beaten this dead horse before, but Linux will not look to
+> > | management like a viable candidate for default o/s until whoever releases
 
-	Jeff
+Then educate "management". Have them use another Operating System.
+Try Microsoft Windows-2000/Professional. I've got it on my lap-top.
+It has never crashed so it's pretty good by Microsoft standards.
+However, I just finished downloading the latest Linux-kernel by
+using FTP on that machine. I didn't want to tie up this machine.
+I started the download at about 11:00 this morning. It finished
+around 3:00 this afternoon. We have a 1.3 GHz fiber link and the LAN
+is 100 MB/s. Pretty good for something that usually takes 5 minutes
+on Linux.
 
+As I see it, you get the chance to complain about some poor performance
+because you don't have anything to compare present performance against.
+So, you upgrade to a minimally-tested kernel and complain that it's
+not a "viable candidate for default o/s..." -your words. Guess what,
+this complaint will always fall upon deaf ears.
+
+What will help get your bleeding-edge kernel stable, is a bug report,
+a performance report, and sometimes even a "Hey... This one works great!".
+
+Don't ever expect the kernel's internals to remain constant. This means
+that you will have to modify any of your custom modules for each and
+every kernel you download.
+
+You can expect the API to remain constant. If it doesn't you have
+a valid beef. Otherwise, you will be talking to the forest. 
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

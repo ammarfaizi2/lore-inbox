@@ -1,101 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbSLTTyP>; Fri, 20 Dec 2002 14:54:15 -0500
+	id <S265222AbSLTTzE>; Fri, 20 Dec 2002 14:55:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265222AbSLTTyO>; Fri, 20 Dec 2002 14:54:14 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:33008 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S265177AbSLTTyM>;
-	Fri, 20 Dec 2002 14:54:12 -0500
-Message-ID: <3E03772A.D5D85171@mvista.com>
-Date: Fri, 20 Dec 2002 12:01:46 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S265247AbSLTTzE>; Fri, 20 Dec 2002 14:55:04 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:21254 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265222AbSLTTy6>; Fri, 20 Dec 2002 14:54:58 -0500
+Date: Fri, 20 Dec 2002 20:03:00 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: vesafb no longer works on 2.5.50/51
+In-Reply-To: <20021212192937.GA132@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0212202002270.8777-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH]Timer list init is done AFTER use
-References: <3E02D81F.13A5A59D@mvista.com> <3E02F073.BF57207C@digeo.com> <3E0350CA.6B99F722@mvista.com> <3E0370C1.21909EF5@digeo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> george anzinger wrote:
-> >
-> > Andrew Morton wrote:
-> > >
-> > > george anzinger wrote:
-> > > >
-> > > > On SMP systems the timer list init is done by way of a
-> > > > cpu_notifier call.  This has two problems:
-> > > >
-> > > > 1.) Timers are started WAY before the cpu_notifier call
-> > > > chain is executed.  In particular the console blanking timer
-> > > > is deleted and inserted every time printk() is called.  That
-> > > > this does not fail is only because the kernel has yet to
-> > > > protect location zero.
-> > >
-> > > But init_timers() directly calls timer_cpu_notify(), which directly
-> > > calls init_timers_cpu().
-> > >
-> > > So your patch appears to be a no-op for the boot CPU.
-> >
-> > That is correct.  The problem is when cpu_init is called for
-> > the secondary cpus.  It almost immediately calls printk.
-> 
-> OK.  So until that CPU sees it bit come on in smp_commenced_mask()
-> it's not allowed to assume that it is running yet.
-> 
-> > ...
-> > My comments here are a wonderment if
-> > this is the right thing to do when doing a hot swap of the
-> > cpu.  I sort of doubt that this is correct.
-> 
-> I agree.  And from a quick read it does seem that ia32 is
-> doing the right thing apart from calling printk.
-> 
-> I don't think we should make changes to the timer code because
-> who knows what assumptions other console drivers could be making?
-> 
-> I don't think we should carefully remove all printk() calls because
-> printk() is supposed to be robust, and always callable.
-> 
-> The logical thing is to implement arch_consoles_callable().  Does
-> this look workable?
 
-I am not sure.  The first question is when does the online
-bit get set for cpu 0.  The next is that it does inhibit a
-rather large block of printks.  Is this ok?
+> On one of my machines, vesafb no longer works in 2.5.51 (other machine
+> is okay?!).
+> 
+> Everything is okay, except I can not see anything on the display.
+> 
+> 2.4. (vesafb works):
+> vesafb: framebuffer at 0xee000000, mapped to 0xd080d000, size 8192k
+> vesafb: mode is 1024x768x16, linelength=2048, pages=4
+> vesafb: protected mode interface info at c000:7652
+> vesafb: scrolling: redraw
+> vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
+> 
+> 2.5.51 (vesafb does not work):
+> vesafb: framebuffer at 0xee000000, mapped to 0xd0815000, size 8192k
+> vesafb: mode is 1024x768x16, linelength=2048, pages=4
+> vesafb: protected mode interface info at c000:7652
+> vesafb: scrolling: redraw
+> vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
 
-Mind you, I have not tried it yet...
+Can you try my patch to cfbimgblt.c in another post to see if that fixes 
+teh problem.
 
--g
-> 
-> --- 25/kernel/printk.c~ga       Fri Dec 20 11:32:05 2002
-> +++ 25-akpm/kernel/printk.c     Fri Dec 20 11:33:14 2002
-> @@ -43,7 +43,11 @@
->  #define LOG_BUF_MASK   (LOG_BUF_LEN-1)
-> 
->  #ifndef arch_consoles_callable
-> -#define arch_consoles_callable() (1)
-> +/*
-> + * Some console drivers may assume that per-cpu resources have been allocated.
-> + * So don't allow them to be called by this CPU until it is officially up.
-> + */
-> +#define arch_consoles_callable() cpu_online(smp_processor_id())
->  #endif
-> 
->  /* printk's without a loglevel use this.. */
-> 
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml

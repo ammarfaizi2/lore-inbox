@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUGZVzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265823AbUGZV65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbUGZVzL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 17:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265544AbUGZVzL
+	id S265823AbUGZV65 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 17:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUGZV65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 17:55:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54431 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265521AbUGZVzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 17:55:02 -0400
-Date: Mon, 26 Jul 2004 14:53:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: dgilbert@interlog.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
-Message-Id: <20040726145319.7cd97290.akpm@osdl.org>
-In-Reply-To: <200407141216.i6ECGHxg008332@harpo.it.uu.se>
-References: <200407141216.i6ECGHxg008332@harpo.it.uu.se>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 26 Jul 2004 17:58:57 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:54918 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265823AbUGZV6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 17:58:55 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-J3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com, lenar@vision.ee,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040726203634.GA26096@elte.hu>
+References: <20040713122805.GZ21066@holomorphy.com>
+	 <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com>
+	 <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe>
+	 <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe>
+	 <20040726083537.GA24948@elte.hu> <20040726125750.5e467cfd.akpm@osdl.org>
+	 <20040726203634.GA26096@elte.hu>
+Content-Type: text/plain
+Message-Id: <1090879146.1094.17.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 26 Jul 2004 17:59:07 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
->
-> gcc-3.4.1 errors out in 2.6.8-rc1-mm1 at drivers/scsi/sg.c:
+On Mon, 2004-07-26 at 16:36, Ingo Molnar wrote:
+> * Andrew Morton <akpm@osdl.org> wrote:
 > 
-> drivers/scsi/sg.c: In function `sg_ioctl':
-> drivers/scsi/sg.c:209: sorry, unimplemented: inlining failed in call to 'sg_jif_to_ms': function body not available
-> drivers/scsi/sg.c:930: sorry, unimplemented: called from here
-> make[2]: *** [drivers/scsi/sg.o] Error 1
-> make[1]: *** [drivers/scsi] Error 2
-> make: *** [drivers] Error 2
+> > The bigger this thing gets, the more worried I get.  Sometime this is
+> > going to need to be split up into individual fixes, and they need to
+> > be based upon an overall approach which we haven't yet settled on.
 > 
-> sg_jif_to_ms() is marked inline but used defore its function
-> body is available. Moving it nearer the top of sg.c (together
-> with sg_ms_to_jif() for consistency) fixes the problem.
+> i will do that splitup. Right now i'm simply mapping how widespread the
+> problem is and what type of fixes we need. The situation isnt all that
+> bad but we might need (an optional) mechanism to make softirqs
+> synchronous. All of this stuff is nicely modular and i'll do a splitup
+> post 2.6.8 (i dont think we want to disturb 2.6.8 with any of this).
 > 
->...
->  static int
-> +sg_ms_to_jif(unsigned int msecs)
-> +{
-> +	if ((UINT_MAX / 2U) < msecs)
-> +		return INT_MAX;	/* special case, set largest possible */
-> +	else
-> +		return ((int) msecs <
-> +			(INT_MAX / 1000)) ? (((int) msecs * HZ) / 1000)
-> +		    : (((int) msecs / 1000) * HZ);
-> +}
-> +
-> +static inline unsigned
-> +sg_jif_to_ms(int jifs)
-> +{
-> +	if (jifs <= 0)
-> +		return 0U;
-> +	else {
-> +		unsigned int j = (unsigned int) jifs;
-> +		return (j <
-> +			(UINT_MAX / 1000)) ? ((j * 1000) / HZ) : ((j / HZ) *
-> +								  1000);
-> +	}
-> +}
-> +
 
+>From a user's perspective, and based on my own testing, I do not see the
+patch having to get much bigger, the vast majority of the hot spots have
+been fixed, and the patch remains quite comprehensible even to someone
+with a sketchy knowledge of the kernel.  There is only one issue I can
+think of that has not been addressed at all (the PS/2 Caps Lock issue). 
+All that seems to remain are tweaks to individual fixes that are already
+in the patch.
 
-We have standard jiffies_to_msecs() and msecs_to_jiffies() functions in
-include/linux/time.h.  Can we please make these sg-private versions go away
-altogether?
+Lee
 

@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbUKWMVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262548AbUKWMVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbUKWMVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 07:21:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUKWMUj
+	id S262548AbUKWMVm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 07:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbUKWMUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 07:20:39 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:53440 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262552AbUKWMTj (ORCPT
+	Tue, 23 Nov 2004 07:20:32 -0500
+Received: from gate.corvil.net ([213.94.219.177]:5383 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S262530AbUKWMT3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 07:19:39 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Roland Dreier <roland@topspin.com>
-Subject: Re: [PATCH][RFC/v1][0/12] Initial submission of InfiniBand patches for review
-Date: Tue, 23 Nov 2004 13:13:57 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-References: <20041122713.Nh0zRPbm8qA0VBxj@topspin.com>
-In-Reply-To: <20041122713.Nh0zRPbm8qA0VBxj@topspin.com>
+	Tue, 23 Nov 2004 07:19:29 -0500
+Message-ID: <41A32ABC.1090000@draigBrady.com>
+Date: Tue, 23 Nov 2004 12:19:08 +0000
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-Id: <200411231313.57758.arnd@arndb.de>
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_FmyoBDeUP2CJrPV";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+To: Nix <nix@esperi.org.uk>
+CC: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: Stupid question
+References: <200411212045.51606.gene.heskett@verizon.net>	<41A1F881.1000900@draigBrady.com>	<200411221058.22276.gene.heskett@verizon.net> <87653wydi7.fsf@amaterasu.srvr.nix>
+In-Reply-To: <87653wydi7.fsf@amaterasu.srvr.nix>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nix wrote:
+> On 23 Nov 2004, Gene Heskett yowled:
+> 
+>>On Monday 22 November 2004 09:32, P@draigBrady.com wrote:
+>>
+>>>Gene Heskett wrote:
+>>>
+>>>>Greetings;
+>>>>
+>>>>Silly Q of the day probably, but what do I set in a Makefile for
+>>>>the -march=option for building on a 233 mhz Pentium 2?
+>>>
+>>>http://www.pixelbeat.org/scripts/gcccpuopt
+>>
+>>Thanks very much.  Obviously someone else needed to scratch this itch 
+>>too.  This should produce the correct results when running on the 
+>>target machine.  Here, it produces this:
+>>[root@coyote CIO-DIO96]# sh ../gcccpuopt
+>> -march=athlon-xp -mfpmath=sse -msse -mmmx -m3dnow
+> 
+> 
+> ... which is peculiar, as -mmmx -msse is redundant, as is -mmmx -m3dnow,
+> and all three of those flags are the end are implied by -march=athlon-xp
+> anyway.
+> 
+> (-mfpmath=sse *is* useful on non-64-bit platforms, though.)
 
---Boundary-02=_FmyoBDeUP2CJrPV
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I added those in so that they were explicit.
+They do no harm. I had a version that didn't print
+these redundant options but got many requests
+about whether they were needed. You can't win.
 
-On Maandag 22 November 2004 16:13, Roland Dreier wrote:
-> I'm very happy to be able to post an initial version of InfiniBand
-> patches for review.=20
-
-Patches 1, 3 and 5 didn't make it to lkml. Did you hit the 100kb size
-limit for mails?
-
-	Arnd <><
-
-
-
---Boundary-02=_FmyoBDeUP2CJrPV
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBoymF5t5GS2LDRf4RAmTYAJ43AKAey+mdsQbHBI7R9y22ZbPIqQCgjv/G
-S60Io+tmkFYHLcngGsM582U=
-=u6C8
------END PGP SIGNATURE-----
-
---Boundary-02=_FmyoBDeUP2CJrPV--
+Pádraig.

@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVCOUkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVCOUwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVCOUkW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 15:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVCOUIR
+	id S261891AbVCOUwp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 15:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVCOUtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 15:08:17 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:9692 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261881AbVCOUGx (ORCPT
+	Tue, 15 Mar 2005 15:49:39 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:54397 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261897AbVCOUsn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 15:06:53 -0500
-Date: Tue, 15 Mar 2005 21:06:53 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Changes to the driver model class code.
-Message-ID: <20050315200653.GA3068@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	linux-usb-devel@lists.sourceforge.net,
-	Kay Sievers <kay.sievers@vrfy.org>
-References: <20050315170834.GA25475@kroah.com> <20050315190847.GA1870@isilmar.linta.de> <20050315195121.GA27408@kroah.com>
+	Tue, 15 Mar 2005 15:48:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=aeKib/mQ3odnO580mkQ7vpgWdviTtLTt+XRY8QTezbylrf292nvY7Kg5beJtbQ8jvEXbcJkVTZLDpsdcZSfX9Dsj3eSxyjpxoxEYl6O+79HOK9O0IBkRABHapD6C+T0tH2GZoruCT2Zsiy2r7R23lO5RZ76H/KCIg9XiWygq0Z8=
+Message-ID: <d120d50005031512485125db18@mail.gmail.com>
+Date: Tue, 15 Mar 2005 15:48:32 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: [RFC] Changes to the driver model class code.
+Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
+In-Reply-To: <200503151235.02934.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050315195121.GA27408@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050315170834.GA25475@kroah.com>
+	 <20050315195121.GA27408@kroah.com>
+	 <d120d50005031512143929e39f@mail.gmail.com>
+	 <200503151235.02934.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 11:51:21AM -0800, Greg KH wrote:
-> > Also, it seems to me that you view the class subsystem to be too closely
-> > related to /dev entries -- and for these /dev entries class_simple was
-> > introduced, IIRC. However, /dev is not the reason the class subsystem was 
-> > introduced for -- instead, it describes _types_ of devices which want to
-> > share (userspace and in-kernel) interfaces.
+On Tue, 15 Mar 2005 12:35:02 -0800, David Brownell <david-b@pacbell.net> wrote:
+> On Tuesday 15 March 2005 12:14 pm, Dmitry Torokhov wrote:
+> >
+> > It looks to me (and I might be wrong) that USB was never really
+> > integrated into the driver model. It was glued with it but the driver
+> > model came after most of the domain was defined, and it did not get to
+> > be "bones" of the subsystem. This is why it is so easy to deatch it.
 > 
-> I agree, I know it isn't directly related to /dev entries, but that _is_
-> the most common usage of it, so I can't ignore it :)
+> That doesn't seem accurate to me.  Are you thinking maybe about
+> just how it uses the class device stuff?  Like the rest of the
+> class device support (for all busses!) that did indeed come later.
+> You may recall that the first versions of the driver model had
+> more or less a big "fixme" where class devices sat...  Or are
+> you maybe thinking about peripheral side (not host side) USB?
+> 
+> But the "struct device" core of the driver model sure looks like
+> the bones of USB to me.  Host controllers, hubs, devices, and
+> interfaces all use it well, behave well with hot-unplug (which
+> is more than many subsystems can say even in 2.6.11!), and even
+> handling funky cases like drivers needing to bind to multiple
+> interfaces on one device.  That last took quite a while to land,
+> it involved ripping out the last pre-driver-model binding code.
+> 
 
-I did not say "ignore". Having the new interface available (patches 1-3)
-seems to be a sensible thing to do. Removing the so-called "old" api
-(patches 4-x) is a different topic, though.
+David,
 
-> Anyway, it's very simple to convert over to using the new functions, and
-> still have all of your sysfs and reference counting functionality.  See
-> the USB patch that I posted in this series as an example of how to do
-> this.  Just use a kref and a pointer to the class_device.  You have all
-> of the previous functionality that you needed before right there.
+I was not criticizing the code, not at all, I was commenting on
+evolution of the code (at least the way I perceive it). The fact that
+there is (or was until recently) pre-driver-model binding code shows
+that merging is still ongoing and this fact makes reversing the
+process easier.
 
-However, you need to do it in _addition_ -- you don't get it "for free" if
-using struct class. Which means prgrammers need to think of two things
-instead of one. And that's bad(TM).
-
-Also, the lack of proper reference counting in several parts of the kernel
-is proof enough that there's need to "encourage" reference counting. And
-that's something the class subsystem did and does by providing easy
-"embedded" reference counting, by warning on missing !release functions etc.
-
-> class interfaces are not going away, there's a good need for them like
-> you have pointed out.  I'm not expecting to just delete those api
-> functions tomorrow, but slowly phase out the use of them over time, and
-> hopefully, eventually get rid of them.  I think that with my USB host
-> controller patch, I've proved that they are not as needed as you might
-> think they were.
-
-Indeed, such _workarounds_ are possible. A patch which converts pcmcia to
-this new infrastructure would be quite trivial to write. However: I think we
-should NOT do it. As it is a workaround to the more elegant solution the
-"old" class API alllowed for.
-
-> It's easy to make a complex, powerful, all-singing-all-dancing api.
-> That's what we have today.  It's hard to make such an api easy to use,
-> that's what we need to realize and start to fix.  This is the first of
-> such steps to try to achieve this.
-
-Math is hard, so let's go shopping. The "I want a /dev-entry"-api may get 
-easier with your patches 1-3. With your patch 4 there is no improvement in
-this area, however the "I want sane device-related reference counting"-api
-will be much more difficult to get right.
-
-Thanks,
-	Dominik
+-- 
+Dmitry

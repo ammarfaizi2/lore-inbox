@@ -1,74 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265806AbTAOHaN>; Wed, 15 Jan 2003 02:30:13 -0500
+	id <S265777AbTAOH2u>; Wed, 15 Jan 2003 02:28:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265815AbTAOHaN>; Wed, 15 Jan 2003 02:30:13 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:55265 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265806AbTAOHaL>; Wed, 15 Jan 2003 02:30:11 -0500
-Date: Tue, 14 Jan 2003 23:38:55 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-cc: "'Zwane Mwaikambo'" <zwane@holomorphy.com>,
-       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
-       "'haveblue@us.ibm.com'" <haveblue@us.ibm.com>
-Subject: Re: [BUG] SLAB.C:1617-error on boot
-Message-ID: <827790000.1042616334@titus>
-In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C022BD900@usslc-exch-4.slc.unisys.com>
-References: <3FAD1088D4556046AEC48D80B47B478C022BD900@usslc-exch-4.slc.unisys.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S265786AbTAOH2t>; Wed, 15 Jan 2003 02:28:49 -0500
+Received: from dp.samba.org ([66.70.73.150]:41419 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265777AbTAOH2t>;
+	Wed, 15 Jan 2003 02:28:49 -0500
+Date: Wed, 15 Jan 2003 18:38:46 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Squash warnings in init/do_mounts.c
+Message-ID: <20030115073846.GG9789@zax.zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's just a warning ... I thing you'll find more info logged
-on http://bugme.osdl.org ... I've been hitting that for ages
-with no ill effects ;-)
+Marcelo, please apply: this patch squashes some incorrect format
+designator warnings in init/do_mounts.c.  These seem to have been
+fixed already in 2.5.
 
---On Tuesday, January 14, 2003 22:13:26 -0600 "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com> wrote:
-
-> I get the error below consistently on boot with 2.5.58. Didn't see it with
-> 2.5.56 (skipped 2.5.57).
-> 
-> .............................
-> Detected 1899.559 MHz processor.
-> 
-> Console: colour VGA+ 80x25
-> 
-> Calibrating delay loop... 3702.78 BogoMIPS
-> 
-> Memory: 3952476k/3997504k available (2436k kernel code, 43892k reserved,
-> 1280k data, 132k init, 3080000k highmem)
-> 
-> Debug: sleeping function called from illegal context at mm/slab.c:1617
-> 
-> Call Trace:
-> 
->  [<c013b09c>] kmem_cache_alloc+0x74/0x76
-> 
->  [<c013a2ca>] kmem_cache_create+0x72/0x5be
-> 
->  [<c0105000>] _stext+0x0/0x56
-> 
-> 
-> Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes)
-> 
-> Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes)
-> 
-> ................
-> 
-> 
-> --Natalie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+diff -urN /home/dgibson/kernel/linuxppc_2_4_devel/init/do_mounts.c linux-bartholomew/init/do_mounts.c
+--- /home/dgibson/kernel/linuxppc_2_4_devel/init/do_mounts.c	2002-12-04 10:44:51.000000000 +1100
++++ linux-bartholomew/init/do_mounts.c	2003-01-15 17:42:29.000000000 +1100
+@@ -593,7 +593,7 @@
+ 		rd_blocks >>= 1;
+ 
+ 	if (nblocks > rd_blocks) {
+-		printk("RAMDISK: image too big! (%d/%d blocks)\n",
++		printk("RAMDISK: image too big! (%d/%lu blocks)\n",
+ 		       nblocks, rd_blocks);
+ 		goto done;
+ 	}
+@@ -620,11 +620,11 @@
+ 		goto done;
+ 	}
+ 
+-	printk(KERN_NOTICE "RAMDISK: Loading %d blocks [%d disk%s] into ram disk... ", 
++	printk(KERN_NOTICE "RAMDISK: Loading %d blocks [%ld disk%s] into ram disk... ", 
+ 		nblocks, ((nblocks-1)/devblocks)+1, nblocks>devblocks ? "s" : "");
+ 	for (i=0; i < nblocks; i++) {
+ 		if (i && (i % devblocks == 0)) {
+-			printk("done disk #%d.\n", i/devblocks);
++			printk("done disk #%ld.\n", i/devblocks);
+ 			rotate = 0;
+ 			if (close(in_fd)) {
+ 				printk("Error closing the disk.\n");
+@@ -636,7 +636,7 @@
+ 				printk("Error opening disk.\n");
+ 				goto noclose_input;
+ 			}
+-			printk("Loading disk #%d... ", i/devblocks+1);
++			printk("Loading disk #%ld... ", i/devblocks+1);
+ 		}
+ 		read(in_fd, buf, BLOCK_SIZE);
+ 		write(out_fd, buf, BLOCK_SIZE);
 
 
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

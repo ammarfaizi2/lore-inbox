@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315458AbSHAPf3>; Thu, 1 Aug 2002 11:35:29 -0400
+	id <S315459AbSHAPfs>; Thu, 1 Aug 2002 11:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315459AbSHAPf3>; Thu, 1 Aug 2002 11:35:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:10992 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315458AbSHAPf2>; Thu, 1 Aug 2002 11:35:28 -0400
-Subject: Re: [patch] vm86: Clear AC on INT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: root@chaos.analogic.com
-Cc: Kasper Dupont <kasperd@daimi.au.dk>, stas.orel@mailcity.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020801105021.26692A-100000@chaos.analogic.com>
-References: <Pine.LNX.3.95.1020801105021.26692A-100000@chaos.analogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Aug 2002 17:52:30 +0100
-Message-Id: <1028220750.15022.67.camel@irongate.swansea.linux.org.uk>
+	id <S315463AbSHAPfs>; Thu, 1 Aug 2002 11:35:48 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:30996 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315459AbSHAPfq>; Thu, 1 Aug 2002 11:35:46 -0400
+Date: Thu, 1 Aug 2002 17:39:11 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Terrible VM in 2.4.19rc3aa4 once again?
+Message-ID: <20020801153911.GC1132@dualathlon.random>
+References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek> <20020709005025.B1745@mail.muni.cz> <20020708225816.GA1948@werewolf.able.es> <20020709124807.D1510@mail.muni.cz> <20020710163422.GB2513@dualathlon.random> <20020801113124.GA755@mail.muni.cz> <20020801140348.GM1132@dualathlon.random> <20020801141940.GB755@mail.muni.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020801141940.GB755@mail.muni.cz>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 16:15, Richard B. Johnson wrote:
-> Alignment-check does not exist in real mode. Therefore AC flags
-> mean nothing. In fact, you can't even access more than 16 bits
-> of the flags register in real mode, even by playing tricks
-> (pushf pushes only 16 bits, even if you prefix it with 0x66).
+On Thu, Aug 01, 2002 at 04:19:40PM +0200, Lukas Hejtmanek wrote:
+> On Thu, Aug 01, 2002 at 04:03:48PM +0200, Andrea Arcangeli wrote:
+> > you can use elvtune, in my more recent trees I returned in sync with
+> > mainline with the parameters to avoid being penalized in the benchmarks,
+> > but if you need lower latency you can execute stuff like this by yourself.
+> > 
+> > 	elvtune -r 10 -w 20 /dev/hd[abcd] /dev/sd[abcd]
+> > 
+> > etc... (hda or hda[1234] will be the same, it only care about disks)
+> > 
+> > the smaller the lower latency you will get. In particular you care about
+> > the read latency, so the -r parameters is the one that has to be small
+> > for you, writes can be as well big.
+> 
+> Hmm however I think i/o subsystem should allow parallel reading/writing don't
+> you think?
 
-The kernel using virtual 8086 mode, not real mode. In Virtual 8086 mode
-the alignment trap is enforced and honoured.
+of course it does, what you're tuning is the "how many requests can
+delay a read request" or "how many requests can delay a write request"?
 
+it's not putting synchronous barriers, it only controls the ordering.
+
+If a read requests can ba passed by 10mbytes of data you will
+potentially read one block every 10mbyte written to disk. Of course
+there will be less seeks and the global workload will be faster (faster
+at least for most cases), but your read latency will be very very bad.
+
+You can see the default values by not passing arguments to elvtune IIRC.
+
+Andrea

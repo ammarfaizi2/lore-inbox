@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268194AbTALBky>; Sat, 11 Jan 2003 20:40:54 -0500
+	id <S268193AbTALBqQ>; Sat, 11 Jan 2003 20:46:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268196AbTALBky>; Sat, 11 Jan 2003 20:40:54 -0500
-Received: from FORT-POINT-STATION.MIT.EDU ([18.7.7.76]:59807 "EHLO
-	fort-point-station.mit.edu") by vger.kernel.org with ESMTP
-	id <S268194AbTALBkx>; Sat, 11 Jan 2003 20:40:53 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: Linus BK tree crashes with PANIC: INIT: segmentation violation
-References: <Pine.LNX.4.44.0301101424590.1193-100000@penguin.transmeta.com>
-From: Derek Atkins <warlord@MIT.EDU>
-Date: 11 Jan 2003 20:49:39 -0500
-In-Reply-To: <Pine.LNX.4.44.0301101424590.1193-100000@penguin.transmeta.com>
-Message-ID: <sjm1y3j3znw.fsf@kikki.mit.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268196AbTALBqQ>; Sat, 11 Jan 2003 20:46:16 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:44366 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S268193AbTALBqP>; Sat, 11 Jan 2003 20:46:15 -0500
+Date: Sun, 12 Jan 2003 02:54:56 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Linux kernel list <linux-kernel@vger.kernel.org>
+Cc: "Harm v.d. Heijden" <H.v.d.Heijden@phys.tue.nl>
+Subject: Re: [PATCH] sl82c105 driver update
+Message-ID: <20030112015456.GI9153@nbkurt.casa-etp.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	"Harm v.d. Heijden" <H.v.d.Heijden@phys.tue.nl>
+References: <1042302798.525.66.camel@zion.wanadoo.fr> <20030111223231.B21505@flint.arm.linux.org.uk> <1042325055.525.153.camel@zion.wanadoo.fr> <20030111234819.A17524@ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FUFe+yI/t+r3nyH4"
+Content-Disposition: inline
+In-Reply-To: <20030111234819.A17524@ucw.cz>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.19-UL1 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+--FUFe+yI/t+r3nyH4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> >         1) PANIC: INIT: ...
-> >         2) String of Oopses
-> >         3) Working Tree.
-> > 
-> > The changeover from 2-3 is approximately December 30 (see my previous
-> > post).
-> 
-> I was hoping for a exact changset, your post didn't seem to be 100% sure.
+Hi Vojtech,
 
-The 'String of oopses' was a red herring.  It was fixed sometime in early
-January.  The PANIC: INIT: problem, however, is real, and was introduced
-by the following ChangeSet on January 7:
+On Sat, Jan 11, 2003 at 11:48:19PM +0100, Vojtech Pavlik wrote:
+> Correct, and it seems that if you have automatic DMA disabled in the
+> kernel and then use hdparm -d1, this leads to a lot of trouble.
 
-D 1.972 03/01/07 10:08:55-08:00 torvalds@home.transmeta.com 15824 15815 2/0/1
-P ChangeSet
-C Move x86 signal handler return stub to the vsyscall page,
-C and stop honoring the SA_RESTORER information.
-C 
-C This will prepare us for alternate signal handler returns.
+Ack, that's the problem I reported to you the other day, if I'm not mistake=
+n.
+-d1 -Xwhatever worked, just -d1 not.
 
-If I build a kernel WITH this changeset it fails; if I build a kernel
-at 1.971 (bjorn_helgaas's i810/i830 AGP patches) the kernel works just
-fine.
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers                        SuSE Labs
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
 
-So, something in your changes to kernel/sysenter.c or kernel/signal.c
-causes INIT to PANIC and fail.
+--FUFe+yI/t+r3nyH4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-So, what would you like me to test, now?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
--derek
+iD8DBQE+IMrwxmLh6hyYd04RAhLFAKC2jrp+pLeaqBPAD4+YahfVceQHUwCgq5jH
+rBt6fr+npfxorh/DRB2+Dco=
+=eGHY
+-----END PGP SIGNATURE-----
 
--- 
-       Derek Atkins, SB '93 MIT EE, SM '95 MIT Media Laboratory
-       Member, MIT Student Information Processing Board  (SIPB)
-       URL: http://web.mit.edu/warlord/    PP-ASEL-IA     N1NWH
-       warlord@MIT.EDU                        PGP key available
+--FUFe+yI/t+r3nyH4--

@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267336AbSKPSmw>; Sat, 16 Nov 2002 13:42:52 -0500
+	id <S267332AbSKPSjz>; Sat, 16 Nov 2002 13:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267334AbSKPSmw>; Sat, 16 Nov 2002 13:42:52 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:58586 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S267333AbSKPSmv>; Sat, 16 Nov 2002 13:42:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arndb@de.ibm.com>
-Reply-To: Arnd Bergmann <ibm.com@arndb.de>
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-Subject: Re: [RFC][PATCH] move dma_mask into struct device
-Date: Sat, 16 Nov 2002 21:46:46 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Scsi <linux-scsi@vger.kernel.org>
-References: <200211161812.gAGICj604696@localhost.localdomain>
-In-Reply-To: <200211161812.gAGICj604696@localhost.localdomain>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211162145.44304.arndb@de.ibm.com>
+	id <S267333AbSKPSjz>; Sat, 16 Nov 2002 13:39:55 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:50321 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267332AbSKPSjy>;
+	Sat, 16 Nov 2002 13:39:54 -0500
+Date: Sat, 16 Nov 2002 19:46:22 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Con Kolivas <conman@kolivas.net>
+Subject: Re: 2.[45] fixes for design locking bug in wait_on_page/wait_on_buffer/get_request_wait
+Message-ID: <20021116184622.GJ31697@dualathlon.random>
+References: <200211161657.51357.m.c.p@wolk-project.de> <200211161810.23039.m.c.p@wolk-project.de> <20021116173224.GG31697@dualathlon.random> <200211161841.59889.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211161841.59889.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 16 November 2002 19:12, J.E.J. Bottomley wrote:
+On Sat, Nov 16, 2002 at 06:43:36PM +0100, Marc-Christian Petersen wrote:
+> On Saturday 16 November 2002 18:32, Andrea Arcangeli wrote:
+> 
+> Hi Andrea,
+> 
+> > you may want to try with this setting that helps with very slow devices:
+> > 	echo 2 500 0 0 500 3000 3 1 0 > /proc/sys/vm/bdflush
+> >
+> > or also with my current default tuned for high performance:
+> > 	echo 50 500 0 0 500 3000 60 20 > /proc/sys/vm/bdflush
+> I've tested both without any changes, "pausings" are still there.
+> 
+> > you may have too many dirty buffers around and you end running at disk
+> > speed at every memory allocation, the first setting will decrease the
+> > amount of dirty buffers dramatically, if you still have significant
+> > slowdown with the first setting above, it's most probably only the usual
+> > elevator issue.
+> Seems so.
+> 
+> So I have to use 2.4.18 until there is a real proper fix for that.
 
-> No...look at what you've done.  Now SCSI has to know about every bus type
-> on every architecture; that's an extreme layering violation. 
-> architecture/bus types are generally only defined for the arch (PCI being
-> the exception), so now the additions have to be #ifdef'd just so it will
-> compile..
+just to make a quick test, can you try an hack like this combined with a
+setting of elvtune -r 128 -w 256 on top of 2.4.20rc1?
 
-Right, the definitions for how to get the dma_mask out of a bus specific
-device don't belong into the generic header file.
-Still, each host driver knows how to find the dma_mask if any, so
-it can easily set the field in the Scsi_Host. Existing pci host
-adapter drivers can keep using scsi_set_pci_device(), others
-can just as well do it themselves.
+--- x/drivers/block/ll_rw_blk.c.~1~	Sat Nov  2 19:45:33 2002
++++ x/drivers/block/ll_rw_blk.c	Sat Nov 16 19:44:20 2002
+@@ -432,7 +432,7 @@ static void blk_init_free_list(request_q
+ 
+ 	si_meminfo(&si);
+ 	megs = si.totalram >> (20 - PAGE_SHIFT);
+-	nr_requests = 128;
++	nr_requests = 16;
+ 	if (megs < 32)
+ 		nr_requests /= 2;
+ 	blk_grow_request_list(q, nr_requests);
 
-	Arnd <><
+
+
+Andrea

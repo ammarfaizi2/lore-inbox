@@ -1,34 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310403AbSCBQ6h>; Sat, 2 Mar 2002 11:58:37 -0500
+	id <S310402AbSCBR0R>; Sat, 2 Mar 2002 12:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310404AbSCBQ61>; Sat, 2 Mar 2002 11:58:27 -0500
-Received: from mustard.heime.net ([194.234.65.222]:19919 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S310403AbSCBQ6P>; Sat, 2 Mar 2002 11:58:15 -0500
-Date: Sat, 2 Mar 2002 17:58:13 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+	id <S310404AbSCBR0H>; Sat, 2 Mar 2002 12:26:07 -0500
+Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:6591 "EHLO
+	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
+	id <S310402AbSCBRZ7>; Sat, 2 Mar 2002 12:25:59 -0500
+Date: Sat, 2 Mar 2002 18:27:51 +0100
+Message-ID: <vines.sxdD+LiEUwA@SZKOM.BFS.DE>
+X-Priority: 3 (Normal)
 To: <linux-kernel@vger.kernel.org>
-Subject: PDC20269 support?
-Message-ID: <Pine.LNX.4.30.0203021755410.31270-100000@mustard.heime.net>
+From: <WHarms@bfs.de> (Walter Harms)
+Reply-To: <WHarms@bfs.de>
+Subject: maintainer for raw.c ??
+X-Incognito-SN: 25185
+X-Incognito-Version: 5.1.0.84
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+hi list,
+Who takes care of the raw-device section ?
+I have a cleanup patch.
+neither MAINTAINERS nor raw.c provide a hint (couldnt find one).
 
-I saw there were some -ac merging in 2.4.19-pre2, so I thought - perhaps
-the pdc20269 support was merged ...
-
-it's not
-
-Does anyone know when this'll happen?
-
---
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+walter
 
 

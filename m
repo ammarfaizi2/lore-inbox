@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268756AbTBZOQQ>; Wed, 26 Feb 2003 09:16:16 -0500
+	id <S268754AbTBZONo>; Wed, 26 Feb 2003 09:13:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268759AbTBZOQQ>; Wed, 26 Feb 2003 09:16:16 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:14333 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S268756AbTBZOQP>;
-	Wed, 26 Feb 2003 09:16:15 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15964.52883.370949.237446@gargle.gargle.HOWL>
-Date: Wed, 26 Feb 2003 15:26:27 +0100
-To: davej@codemonkey.org.uk
+	id <S268755AbTBZONo>; Wed, 26 Feb 2003 09:13:44 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:12188 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S268754AbTBZONn> convert rfc822-to-8bit; Wed, 26 Feb 2003 09:13:43 -0500
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Enabling L2 cache for overdrive CPUs.
-In-Reply-To: <200302261349.h1QDn0Bh002816@deviant.impure.org.uk>
-References: <200302261349.h1QDn0Bh002816@deviant.impure.org.uk>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
+	<b3i4nv$sud$1@news.cistron.nl> <87u1er71d0.fsf@goat.bogus.local>
+	<yw1xwujn2t0v.fsf@manganonaujakasit.e.kth.se>
+	<87el5v6xvj.fsf@goat.bogus.local>
+	<yw1xn0kjdxv4.fsf@manganonaujakasit.e.kth.se>
+	<8765r76u0c.fsf@goat.bogus.local>
+	<yw1xlm03uoz4.fsf@manganonaujakasit.e.kth.se>
+From: Olaf Dietsche <olaf.dietsche@t-online.de>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: About /etc/mtab and /proc/mounts
+Date: Wed, 26 Feb 2003 15:23:33 +0100
+In-Reply-To: <yw1xlm03uoz4.fsf@manganonaujakasit.e.kth.se> (mru@users.sourceforge.net's
+ message of "26 Feb 2003 14:54:23 +0100")
+Message-ID: <87znoj5dei.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davej@codemonkey.org.uk writes:
- > Some CPU overdrives (such as those made by powerleap) mean
- > that we get a CPU with L2 cache disabled by default, and
- > a BIOS that doesn't know how to turn it on.
- > The patch below is untested, and I'd like some feedback
- > from folks (preferably those with these wacky overdrives,
- > but also from regular intel CPUs too - disable L2 in your
- > bios and try booting with 'enable-l2' and see what happens).
-...
- > +	cr0 = read_cr0();
- > +	cr0 |= 1<<30;
- > +	write_cr0 (cr0);
- > +
- > +	rdmsr (0x11e, lo, hi);
- > +	lo |= 0x40101;
- > +	wrmsr (0x11e, lo, hi);
- > +
- > +	cr0 &= ~(1<<30);
- > +	write_cr0 (cr0);
- > +
- > +	wbinvd();
+mru@users.sourceforge.net (Måns Rullgård) writes:
 
-Ugh. Is this for the PII overdrive for PPro socket or what?
+> What does your /proc/mounts look like when the cdrom is mounted?  Are
 
-Seems awfully dangerous to have a __setup() clobber MSRs without
-checking the cpuid first. 
-Shouldn't this be in the CPU detection/quirks code instead?
-It already contains stuff similar to this.
+$ grep cdrom /proc/mounts
+/dev/hdb/0 /cdrom iso9660 ro,nosuid,nodev,noexec 0 0
 
-/Mikael
+> you using a standard mount, or something hacked up by RH or others?
+
+Debian unstable, but I didn't upgrade mount for quite some time.
+
+$ dpkg -l mount
+ii  mount            2.11n-4          Tools for mounting and manipulating filesystems.
+
+Regards, Olaf.

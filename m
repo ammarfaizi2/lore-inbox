@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVBKRFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVBKRHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbVBKRFb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 12:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVBKRFb
+	id S262276AbVBKRHN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 12:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbVBKRHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 12:05:31 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5628 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262274AbVBKRFW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 12:05:22 -0500
-Subject: Interrupt starvation points
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1108141521.21940.44.camel@dhcp153.mvista.com>
+	Fri, 11 Feb 2005 12:07:13 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:6478 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S262276AbVBKRG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 12:06:59 -0500
+Date: Fri, 11 Feb 2005 09:06:40 -0800
+From: Greg KH <gregkh@suse.de>
+To: Kasper Sandberg <lkml@metanurb.dk>
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+Message-ID: <20050211170640.GB16074@suse.de>
+References: <20050211004033.GA26624@suse.de> <20050211005258.GB26890@kroah.com> <1108085445.12935.0.camel@localhost> <1108104083.32129.0.camel@localhost.localdomain> <1108122427.12911.0.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Feb 2005 09:05:21 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1108122427.12911.0.camel@localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        I found some points during schedule when interrupts are off for
-long periods . These two patches seem to help. One enables interrupts
-inside schedule() , so that interrupts are enabled after each
-need-resched loop, then disabled again before __schedule() is called. 
+On Fri, Feb 11, 2005 at 12:47:07PM +0100, Kasper Sandberg wrote:
+> On Thu, 2005-02-10 at 22:41 -0800, Greg KH wrote:
+> > On Fri, 2005-02-11 at 02:30 +0100, Kasper Sandberg wrote:
+> > > hey greg
+> > > 
+> > > i remember for some months back, you posted something similar.. is this
+> > > a version thats ready for use? if it is! im gonna use it! :D
+> > 
+> > Yes, this is that version, cleaned up and given a proper build system,
+> > and even tested on my machines here :)
+> ah cool. and in that case, you probably also have ebuilds for it, if you
+> do, please post them somewhere :)
 
-        The other patch enabled interrupt before calling up on
-kernel_sem ..This one could use some thinking over. I did this cause
-up() is very expensive on ARM , and combined with the looping above
-interrupts can stay off for a long time .. 
+I don't have an ebuild for it yet, but it's on my list to get done.  And
+when I do so, it will just show up in the normal gentoo tree.  The main
+"issue" with this is I need to create a virtual for the hotplug service
+so it doesn't conflict with the existing hotplug package.  Not a big
+deal, just not as simple as adding a single ebuild to the tree.
 
+thanks,
 
-Daniel
-
-
-Index: linux-2.6.10/kernel/sched.c
-===================================================================
---- linux-2.6.10.orig/kernel/sched.c	2005-02-08 22:32:48.000000000 +0000
-+++ linux-2.6.10/kernel/sched.c	2005-02-08 22:33:58.000000000 +0000
-@@ -3038,9 +3038,10 @@
- 		send_sig(SIGUSR2, current, 1);
- 	}
- 	do {
-+		local_irq_disable();
- 		__schedule();
-+		local_irq_enable(); // TODO: do sti; ret
- 	} while (unlikely(test_thread_flag(TIF_NEED_RESCHED)));
--	local_irq_enable(); // TODO: do sti; ret
- }
- 
- EXPORT_SYMBOL(schedule);
-
-
-Index: linux-2.6.10/lib/kernel_lock.c
-===================================================================
---- linux-2.6.10.orig/lib/kernel_lock.c	2005-02-08 18:16:30.000000000 +0000
-+++ linux-2.6.10/lib/kernel_lock.c	2005-02-08 22:53:09.000000000 +0000
-@@ -114,7 +114,9 @@
- 
- void __lockfunc __release_kernel_lock(void)
- {
-+	local_irq_enable();
- 	up(&kernel_sem);
-+	local_irq_disable();
- }
- 
- /*
-
-
-
-
+greg k-h

@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVDFMJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVDFMON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVDFMJt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 08:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVDFMC5
+	id S262177AbVDFMON (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 08:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVDFMLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 08:02:57 -0400
-Received: from host217-40-213-68.in-addr.btopenworld.com ([217.40.213.68]:16857
-	"EHLO SERRANO.CAM.ARTIMI.COM") by vger.kernel.org with ESMTP
-	id S262143AbVDFL4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 07:56:20 -0400
-From: "Dave Korn" <dave.korn@artimi.com>
-To: "'Dave Korn'" <dave.korn@artimi.com>,
-       "'Denis Vlasenko'" <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "'Christophe Saout'" <christophe@saout.de>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, "'Jan Hubicka'" <hubicka@ucw.cz>,
-       "'Gerold Jury'" <gerold.ml@inode.at>, <jakub@redhat.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       <gcc@gcc.gnu.org>
-Subject: RE: [BUG mm] "fixed" i386 memcpy inlining buggy
-Date: Wed, 6 Apr 2005 12:56:14 +0100
+	Wed, 6 Apr 2005 08:11:10 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:56999 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262180AbVDFMJh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 08:09:37 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>,
+       Paulo Marques <pmarques@grupopie.com>
+Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
+Date: Wed, 6 Apr 2005 15:09:24 +0300
+User-Agent: KMail/1.5.4
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <4252BC37.8030306@grupopie.com> <20050405180007.GD12536@wohnheim.fh-wedel.de>
+In-Reply-To: <20050405180007.GD12536@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <SERRANOEKRuYDlrjbud0000007e@SERRANO.CAM.ARTIMI.COM>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcU6mMx7UselsSWPRcmlLlhiWHQ0KAAAMLGQAAFhoWAAAB5CoA==
-Message-ID: <SERRANOOlbcrYP0QzBx00000080@SERRANO.CAM.ARTIMI.COM>
-X-OriginalArrivalTime: 06 Apr 2005 11:56:21.0809 (UTC) FILETIME=[A6885210:01C53A9F]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504061509.24075.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----Original Message----
->From: Dave Korn
->Sent: 06 April 2005 12:53
-
-> ----Original Message----
->> From: Dave Korn
->> Sent: 06 April 2005 12:13
+On Tuesday 05 April 2005 21:00, Jörn Engel wrote:
+> On Tue, 5 April 2005 17:26:31 +0100, Paulo Marques wrote:
+> > 
+> > Would this be a good thing to clean up, or isn't it worth the effort at all?
 > 
->> ----Original Message----
->>> From: Dave Korn
->>> Sent: 06 April 2005 12:06
->> 
->> 
->>   Me and my big mouth.
->> 
->>   OK, that one does work.
->> 
->>   Sorry for the outburst.
->> 
-> 
-> 
-> .... well, actually, maybe it doesn't after all.
-> 
-> 
->   What's that uninitialised variable ecx doing there eh?
+> I would welcome such a stream of patches.  But in spite of the calloc
+> interface being rather stupid, I'd prefer to see patches with kcalloc
+> instead of kmalloc_zero.
 
-  Oh, I see, it's there as an output so it can be matched as an input by the
-"0" constraint.
+kcalloc call will have three params pushed on stack. in 99% of cases
+it could be done with two. If anyone's going to do it, please create
+and use
 
-  Ok, guess it does.
+void *kzalloc(size, gfp_mask)
 
-
-    cheers,
-      DaveK
--- 
-Can't think of a witty .sigline today....
+or zalloc, kmalloc_zero... whatever.
+--
+vda
 

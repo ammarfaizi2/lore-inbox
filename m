@@ -1,39 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265678AbUA1Awi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 19:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265687AbUA1Awg
+	id S265680AbUA1Ao4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 19:44:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUA1Ao4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 19:52:36 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:26887 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265678AbUA1Awf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 19:52:35 -0500
-Date: Wed, 28 Jan 2004 00:52:33 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: thockin@sun.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
+	Tue, 27 Jan 2004 19:44:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34789 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265680AbUA1Aow (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 19:44:52 -0500
+Date: Tue, 27 Jan 2004 16:46:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: thockin@sun.com
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
 Subject: Re: NGROUPS 2.6.2rc2
-Message-ID: <20040128005233.A22886@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, thockin@sun.com, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-References: <20040127225311.GA9155@sun.com> <20040127164615.38fd992e.akpm@osdl.org>
+Message-Id: <20040127164615.38fd992e.akpm@osdl.org>
+In-Reply-To: <20040127225311.GA9155@sun.com>
+References: <20040127225311.GA9155@sun.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040127164615.38fd992e.akpm@osdl.org>; from akpm@osdl.org on Tue, Jan 27, 2004 at 04:46:15PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 04:46:15PM -0800, Andrew Morton wrote:
-> rant.  We have soooo many syscalls declared in .c files.  We had a bug due
-> to this a while back.  Problem is, we have no anointed header in which to
-> place them.  include/linux/syscalls.h would suit.  And unistd.h for
-> arch-specific syscalls.  But that's not appropriate to this patch.
+Tim Hockin <thockin@sun.com> wrote:
+>
+> Attached is a patch to remove the NGROUPS limit (again).
 
-I did that in the linux-abi patch for 2.4 and even submitted it a few
-times before 2.5 forked, but Linus didn't seem to like it.
++/* export the group_info to a user-space array */
++static int groups_to_user(gid_t *grouplist, struct group_info __user *info)
++{
++	int i;
++	int count = info->ngroups;
++
++	for (i = 0; i < info->nblocks; i++) {
++		int cp_count = min(NGROUPS_BLOCK, count);
++		int off = i * NGROUPS_BLOCK;
++		int len = cp_count * sizeof(*grouplist);
++
++		if (copy_to_user(grouplist+off, info->blocks[i], len))
++			return -EFAULT;
++
+
+This had me thorougly confused for a while ;) The __user tag here should
+apply to grouplist, not to info.
+
+
++static int groups16_to_user(old_gid_t __user *grouplist,
++    struct group_info *info)
++{
++	int i;
++	old_gid_t group;
++
++	if (info->ngroups > TASK_SIZE/sizeof(group))
++		return -EFAULT;
++	if (!access_ok(VERIFY_WRITE, grouplist, info->ngroups * sizeof(group)))
++		return -EFAULT;
+
+Why are many functions playing with TASK_SIZE?
+
+--- 1.2/fs/nfsd/auth.c	Tue Jun 17 16:31:29 2003
++++ edited/fs/nfsd/auth.c	Tue Jan 27 12:40:02 2004
+@@ -10,12 +10,15 @@
+ #include <linux/sunrpc/svcauth.h>
+ #include <linux/nfsd/nfsd.h>
+ 
++extern asmlinkage long sys_setgroups(int gidsetsize, gid_t *grouplist);
++
+
+rant.  We have soooo many syscalls declared in .c files.  We had a bug due
+to this a while back.  Problem is, we have no anointed header in which to
+place them.  include/linux/syscalls.h would suit.  And unistd.h for
+arch-specific syscalls.  But that's not appropriate to this patch.
 

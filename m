@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263330AbSKDOKy>; Mon, 4 Nov 2002 09:10:54 -0500
+	id <S264679AbSKDOOp>; Mon, 4 Nov 2002 09:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264678AbSKDOKy>; Mon, 4 Nov 2002 09:10:54 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:50443 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S263330AbSKDOKx>;
-	Mon, 4 Nov 2002 09:10:53 -0500
-Message-ID: <3DC68148.3070307@domdv.de>
-Date: Mon, 04 Nov 2002 15:16:40 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.20rc1 compile fix for t128.c
-References: <3DC67810.9010704@domdv.de> <1036419832.1106.50.camel@irongate.swansea.linux.org.uk>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264682AbSKDOOp>; Mon, 4 Nov 2002 09:14:45 -0500
+Received: from thunk.org ([140.239.227.29]:61854 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S264680AbSKDOOo>;
+	Mon, 4 Nov 2002 09:14:44 -0500
+Date: Mon, 4 Nov 2002 09:21:06 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: an updated post-halloween doc.
+Message-ID: <20021104142105.GA9197@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20021101204832.GA3718@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021101204832.GA3718@suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[forgot to cc lkml]
+On Fri, Nov 01, 2002 at 08:48:32PM +0000, Dave Jones wrote:
+> EXT3 Htree support.
+> ~~~~~~~~~~~~~~~~~~~
+> - The ext3 filesystem has gained indexed directory support, which offers
+>   considerable performance gains when used on filesystems with large directories.
+> - In order to use the htree feature, you need at least version 1.29 of e2fsprogs.
 
-Alan Cox wrote:
-> On Mon, 2002-11-04 at 13:37, Andreas Steinmetz wrote:
-> 
->>The attached patch fixes a section type conflict error.
-> 
-> 
-> Which compiler is showing this problem ?
-> 
+Hi Dave,
 
-gcc 3.2
+Could you please change this to read version 1.30 of e2fsprogs?  There
+were some rare conditions where e2fsck could get confused with htree
+directories in e2fsprogs 1.29 that were fixed in 1.30.  None of the
+htree-related e2fsck bugs in 1.29 were catastrophic in the sense of
+causing data loss, but they might cause confusion and spurious kernel
+bug reports.
 
-> 
->>--- ./drivers/scsi/t128.c.orig	2002-11-04 14:21:30.000000000 +0100
->>+++ ./drivers/scsi/t128.c	2002-11-04 14:21:47.000000000 +0100
->>@@ -145,7 +145,7 @@
->> static const struct signature {
->> 	const char *string;
->> 	int offset;
->>-} signatures[] __initdata = {
->>+} signatures[] = {
->> 	{"TSROM: SCSI BIOS, Version 1.12", 0x36},
-> 
-> 
-> Far better to lose the const
-> 
+Thanks!!
 
-any way you please.
-
-> 
-
--- 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
-
+						- Ted

@@ -1,82 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbTKHCsW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 21:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbTKHCsV
+	id S261484AbTKHCjw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 21:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbTKHCjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 21:48:21 -0500
-Received: from web21010.mail.yahoo.com ([216.136.227.64]:52905 "HELO
-	web21010.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261546AbTKHCsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 21:48:20 -0500
-Message-ID: <20031108024819.25606.qmail@web21010.mail.yahoo.com>
-Date: Fri, 7 Nov 2003 18:48:19 -0800 (PST)
-From: Itay Ben-Yaacov <nib_maps@yahoo.com>
-Subject: Re: 2.6.0_test6: CONFIG_I8K produces wrong/no keycodes for specialbuttons
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 7 Nov 2003 21:39:52 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:5650 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S261484AbTKHCjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 21:39:47 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: alpha@steudten.com (Thomas Steudten), Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG Missing define] 2.6.0-test 9-bk11: ALPHA:  missing asm/mca.h
+Organization: Core
+In-Reply-To: <3FABD32A.9090601@steudten.com>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.22-1-686-smp (i686))
+Message-Id: <E1AIIzZ-0002oE-00@gondolin.me.apana.org.au>
+Date: Sat, 08 Nov 2003 13:38:25 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Steudten <alpha@steudten.com> wrote:
+> 
+> Andrew Morton wrote:
+> 
+>> Thomas Steudten <alpha@steudten.com> wrote:
+>> 
+>>>This problem ist still there in -test9..
+>>>
+>>>In file included from drivers/net/3c509.c:77:
+>>>include/linux/mca.h:15:21: asm/mca.h: No such file or directory
+>
+> Problem still there in -bk11. Who can fix this in the kernel
+> source code?
 
-Hi,
-
-I have a Dell I8200 as well.  I tried to dig into this a bit, and came up with the following.  
-The basic problem is the new (wrt 2.4) mandatory passage through the input layer.
-In 2.4, under X, the keyboard was in RAW mode, and the server got the scancodes and did whatever
-it did with them.  In a vt, the keyboard is in XLATE mode, and complains it cannot process these
-keys, but who cares.
-
-Now, in 2.6, the keyboard ALWAYS translates keys, passes them translated through the input layer,
-and on the other side, if we are under X, it un-translates them to emulate the good old RAW mode. 
-So thhere are two issues:  first, atkbd.c must be taught how to translate these keys to something
-meaningful.  Since in 2.4 they are not translated at all, I just had to come up with SOMETHING.  I
-am not sure these are the best keycodes to translate to, but they will do for the time being. 
-Then, keyboard.c must be taught how to un-translate these back to the good old e0 01 -- e0 04.
-
-So check tou the patch below and tell me what you think.
-
-Thanks,
-Itay
-
-
-diff -u -r linux-2.6.0-test9/drivers/char/keyboard.c linux-2.6.0-test9.new/drivers/char/keyboard.c
---- linux-2.6.0-test9/drivers/char/keyboard.c	2003-10-25 14:43:27.000000000 -0400
-+++ linux-2.6.0-test9.new/drivers/char/keyboard.c	2003-11-06 21:33:00.000000000 -0500
-@@ -944,7 +944,7 @@
- 	 80, 81, 82, 83, 43, 85, 86, 87, 88,115,119,120,121,375,123, 90,
- 	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
- 	367,288,302,304,350, 92,334,512,116,377,109,111,373,347,348,349,
--	360, 93, 94, 95, 98,376,100,101,321,316,354,286,289,102,351,355,
-+	360,257,258,259,260,376,100,101,321,316,354,286,289,102,351,355,
- 	103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
- 	291,108,381,281,290,272,292,305,280, 99,112,257,258,359,270,114,
- 	118,117,125,374,379,115,112,125,121,123,264,265,266,267,268,269,
-diff -u -r linux-2.6.0-test9/drivers/input/keyboard/atkbd.c
-linux-2.6.0-test9.new/drivers/input/keyboard/atkbd.c
---- linux-2.6.0-test9/drivers/input/keyboard/atkbd.c	2003-10-25 14:44:30.000000000 -0400
-+++ linux-2.6.0-test9.new/drivers/input/keyboard/atkbd.c	2003-11-06 21:04:46.000000000 -0500
-@@ -65,13 +65,13 @@
- 	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,255,
- 	  0,  0, 92, 90, 85,  0,137,  0,  0,  0,  0, 91, 89,144,115,  0,
--	217,100,255,  0, 97,165,164,  0,156,  0,  0,140,115,  0,  0,125,
--	173,114,  0,113,152,163,151,126,128,166,  0,140,  0,147,  0,127,
-+	217,100,255,  0, 97,165,130,  0,156,  0,  0,140,115,  0,131,125,
-+	173,114,  0,113,152,163,132,126,128,166,  0,140,  0,147,  0,127,
- 	159,167,115,160,164,  0,  0,116,158,  0,150,166,  0,  0,  0,142,
- 	157,  0,114,166,168,  0,  0,213,155,  0, 98,113,  0,163,  0,138,
- 	226,  0,  0,  0,  0,  0,153,140,  0,255, 96,  0,  0,  0,143,  0,
- 	133,  0,116,  0,143,  0,174,133,  0,107,  0,105,102,  0,  0,112,
--	110,111,108,112,106,103,  0,119,  0,118,109,  0, 99,104,119
-+	110,111,108,112,106,103,129,119,  0,118,109,  0, 99,104,119
- };
+I don't know.  But here is a different approach which hides the
+ifdef stuff in mca*.h.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+Index: kernel-source-2.5/include/linux/mca-legacy.h
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/include/linux/mca-legacy.h,v
+retrieving revision 1.1.1.3
+retrieving revision 1.3
+diff -u -r1.1.1.3 -r1.3
+--- kernel-source-2.5/include/linux/mca-legacy.h	8 Oct 2003 19:24:51 -0000	1.1.1.3
++++ kernel-source-2.5/include/linux/mca-legacy.h	26 Oct 2003 04:50:38 -0000	1.3
+@@ -7,6 +7,7 @@
+ #ifndef _LINUX_MCA_LEGACY_H
+ #define _LINUX_MCA_LEGACY_H
  
- static unsigned char atkbd_set3_keycode[512] = {
-
-
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree
++#include <linux/config.h>
+ #include <linux/mca.h>
+ 
+ #warning "MCA legacy - please move your driver to the new sysfs api"
+@@ -24,7 +25,7 @@
+  */
+ #define MCA_NOTFOUND	(-1)
+ 
+-
++#ifdef CONFIG_MCA
+ 
+ /* Returns the slot of the first enabled adapter matching id.  User can
+  * specify a starting slot beyond zero, to deal with detecting multiple
+@@ -70,3 +71,4 @@
+ extern void mca_write_pos(int slot, int reg, unsigned char byte);
+ 
+ #endif
++#endif
+Index: kernel-source-2.5/include/linux/mca.h
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/include/linux/mca.h,v
+retrieving revision 1.4
+retrieving revision 1.6
+diff -u -r1.4 -r1.6
+--- kernel-source-2.5/include/linux/mca.h	11 Oct 2003 06:29:27 -0000	1.4
++++ kernel-source-2.5/include/linux/mca.h	26 Oct 2003 04:50:38 -0000	1.6
+@@ -6,6 +6,10 @@
+ #ifndef _LINUX_MCA_H
+ #define _LINUX_MCA_H
+ 
++#include <linux/config.h>
++
++#ifdef CONFIG_MCA
++
+ /* FIXME: This shouldn't happen, but we need everything that previously
+  * included mca.h to compile.  Take it out later when the MCA #includes
+  * are sorted out */
+@@ -149,4 +153,5 @@
+ }
+ #endif
+ 
++#endif /* CONFIG_MCA */
+ #endif /* _LINUX_MCA_H */

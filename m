@@ -1,38 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266780AbUF3QWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266766AbUF3QcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266780AbUF3QWo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 12:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266755AbUF3QOS
+	id S266766AbUF3QcH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 12:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266768AbUF3QcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 12:14:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:27627 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266767AbUF3QNj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 12:13:39 -0400
-Subject: Re: [PATCH] ide-taskfile.c fixups/cleanups part #2 [4/9]
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-ide@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200406301725.05181.bzolnier@elka.pw.edu.pl>
-References: <200406301725.05181.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Message-Id: <1088611825.1921.18.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 30 Jun 2004 11:10:25 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jun 2004 12:32:07 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:15067 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S266766AbUF3QcF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 12:32:05 -0400
+Message-Id: <200406301632.i5UGW3Ai011182@localhost.localdomain>
+To: Jakub Jelinek <jakub@redhat.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.X, NPTL, SCHED_FIFO and JACK 
+In-reply-to: Your message of "Wed, 30 Jun 2004 11:26:52 EDT."
+             <20040630152651.GW21264@devserv.devel.redhat.com> 
+Date: Wed, 30 Jun 2004 12:32:03 -0400
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [141.152.253.159] at Wed, 30 Jun 2004 11:32:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-30 at 10:25, Bartlomiej Zolnierkiewicz wrote:
-> [PATCH] ide: remove BUSY check from task_in_intr() (CONFIG_IDE_TASKFILE_IO=n)
-> 
-> We shouldn't ever get there if drive is busy and we can't start transfer
-> in this case.  ide-disk.c:read_intr() also doesn't check for BUSY_STAT bit.
+>One thing to note is that NPTL defaults to PTHREAD_INHERIT_SCHED
+>while LinuxThreads defaults to PTHREAD_EXPLICIT_SCHED.
+>So, if you care about what scheduling created threads will have
+>and want it to work with both NPTL and LinuxThreads, you want
+>pthread_attr_setinheritsched (&attr, PTHREAD_*_SCHED);
+>explicitely.
 
-What if we have a shared interrupt with another device ?
+But since we always set the scheduling class explicitly, should the
+inherited scheduler class make any difference?
 
-Ben.
-
-
+--p

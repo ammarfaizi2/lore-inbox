@@ -1,79 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbUKHSzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbUKHSvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbUKHSzS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUKHSyp
+	id S261166AbUKHSvd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:51:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUKHSvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 13:54:45 -0500
-Received: from mail2.epfl.ch ([128.178.50.133]:4625 "HELO mail2.epfl.ch")
-	by vger.kernel.org with SMTP id S261194AbUKHSwv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 13:52:51 -0500
-Date: Mon, 8 Nov 2004 19:52:49 +0100
-From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Grzegorz Kulewski <kangur@polcom.net>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why my computer freeze completely with xawtv ?
-Message-ID: <20041108185249.GK5360@magma.epfl.ch>
-References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch> <418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org> <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net> <87bre88zt8.fsf@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 8 Nov 2004 13:51:24 -0500
+Received: from chello083144090118.chello.pl ([83.144.90.118]:64774 "EHLO
+	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S261166AbUKHSnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 13:43:18 -0500
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
+Subject: Re: [2.6 patch] kill IN_STRING_C
+Date: Mon, 8 Nov 2004 19:43:20 +0100
+User-Agent: KMail/1.7.1
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <87bre88zt8.fsf@bytesex.org>
-User-Agent: Mutt/1.5.6i
-Content-Transfer-Encoding: 8BIT
+Message-Id: <200411081943.21310.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 10:17:39AM +0100, Gerd Knorr wrote:
+On Monday 08 of November 2004 19:31, you wrote:
+> On Mon, Nov 08, 2004 at 07:04:13PM +0100, Pawe?? Sikora wrote:
+> > On Monday 08 of November 2004 17:31, you wrote:
+> > > On Mon, Nov 08, 2004 at 05:19:35PM +0100, Andi Kleen wrote:
+> > > > > Rethinking it, I don't even understand the sprintf example in your
+> > > > > changelog entry - shouldn't an inclusion of kernel.h always get it
+> > > > > right?
+> > > >
+> > > > Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str)
+> > > > transparently.
+> > >
+> > > Which gcc is "Newer"?
+> > >
+> > > My gcc 3.4.2 didn't show this problem.
+> >
+> > #include <stdio.h>
+> > #include <string.h>
+> > char buf[128];
+> > void test(char *str)
+> > {
+> >     sprintf(buf, "%s", str);
+> > }
+> >...
+> >         jmp     strcpy
+> >...
+>
+> This is the userspace example.
+>
+> The kernel example is:
+>
+> #include <linux/string.h>
+> #include <linux/kernel.h>
+>
+> char buf[128];
+> void test(char *str)
+> {
+>   sprintf(buf, "%s", str);
+> }
+>
+>
+> This results with gcc-3.4 (GCC) 3.4.2 (Debian 3.4.2-3) in:
+>
+>         .file   "test.c"
+>         .section        .rodata.str1.1,"aMS",@progbits,1
+> .LC0:
+>         .string "%s"
+>         .text
+>         .p2align 4,,15
+> .globl test
+>         .type   test, @function
+> test:
+>         pushl   %eax
+>         pushl   $.LC0
+>         pushl   $buf
+>         call    sprintf
+>         addl    $12, %esp
+>         ret
+>         .size   test, .-test
+> .globl buf
+>         .bss
+>         .align 32
+>         .type   buf, @object
+>         .size   buf, 128
+> buf:
+>         .zero   128
+>         .section        .note.GNU-stack,"",@progbits
+>         .ident  "GCC: (GNU) 3.4.2 (Debian 3.4.2-3)"
 
-> Well, if it happens almost independant of the kernel/driver version it
-> most likely is buggy hardware.  I can't do much about it ...
+[~/rpm/BUILD] # cat sp.c
 
-? Why couldn't it be a bug present in all kernels/drivers ?
-Under bugs.gentoo.org there are quiete a lots of those, for example
-http://bugs.gentoo.org/show_bug.cgi?id=64728 and google can show a lots
-more.
+#include <linux/string.h>
+#include <linux/kernel.h>
 
-> Well known example are some via chipsets which have trouble with
-> multiple devices doing DMA at the same time (those tend to run stable
-> with bttv once you've turned off ide-dma ...).
+char buf[128];
+void test(char *str)
+{
+    sprintf(buf, "%s", str);
+}
 
-I had those xawtv crash with an SCSI only system, and on all my
-MB/CPU/RAM test I doubt that all hardware configuration were buggy.
+[~/rpm/BUILD] # gcc -Wall sp.c -S -O2 -fomit-frame-pointer -mregparm=3
+                    -nostdinc -isystem /usr/src/linux/include
 
-> Getting broken hardware run stable and fast is black magic.  You can
-> try these (if that happens to help we can put that info into the pci
-> quirks btw.):
-> 
->   eskarina kraxel ~# modinfo bttv | grep "pci config"
->   parm: vsfx:set VSFX pci config bit [yet another chipset flaw workaround]
->   parm: triton1:set ETBF pci config bit [enable bug compatibility for triton1 + others]
-> 
-> Otherwise BIOS updates, obscure BIOS settings, shuffling cards in PCI
-> slots, enable/disable ACPI and/or APIC, whatelse may or may not help.
-> 
-> See also Documentation/video4linux/bttv/README.freeze
+sp.c: In function `test':
+sp.c:7: warning: implicit declaration of function `sprintf'
 
-I only have DVB hardware, is that also considered as bttv ?
-I have tried a lots of different configuration, with or without fb,
-playing in the BIOS, pre-empt/no, ACPI/noACPI ... no change at all.
+[~/rpm/BUILD] # cat sp.s
 
-Some things I have noticed : xawtv and kdetv don't need CPU to achieve
-the best quality I know about BUT they make the system crash.
-kvdr and tvtime needs lots of time and there quality are really lower
-than the two others, BUT they don't crash my system.
+        .file   "sp.c"
+        .text
+        .p2align 4,,15
+.globl test
+        .type   test, @function
+test:
+        movl    %eax, %edx
+        movl    $buf, %eax
+        jmp     strcpy
+        .size   test, .-test
+        .comm   buf,128,32
+        .section        .note.GNU-stack,"",@progbits
+        .ident  "GCC: (GNU) 3.4.3 (PLD Linux)"
 
-I can't speak about xawdecode because I am not able to run it under
-amd64... neither zapping.
 
-What I do now is to stop xawtv before doing a large copy of files...
+What now?
 
-I would happily try any suggestion :-)
-
-Thank you very much,
 -- 
-	Grégoire Favre
-________________________________________________________________________
-http://magma.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+
+                           #define say(x) lie(x)

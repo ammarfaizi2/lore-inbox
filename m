@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293396AbSCACh3>; Thu, 28 Feb 2002 21:37:29 -0500
+	id <S310280AbSCACE7>; Thu, 28 Feb 2002 21:04:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310316AbSCACbW>; Thu, 28 Feb 2002 21:31:22 -0500
-Received: from dsl-213-023-038-171.arcor-ip.net ([213.23.38.171]:36240 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S310329AbSCAC2C>;
-	Thu, 28 Feb 2002 21:28:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: read_proc issue
-Date: Wed, 27 Feb 2002 04:19:35 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Val Henson <val@nmt.edu>, "Randy.Dunlap" <rddunlap@osdl.org>,
-        Laurent <laurent@augias.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020227140432.L20918@boardwalk> <E16gBps-0005wa-00@the-village.bc.nu> <20020228000532.GA8858@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20020228000532.GA8858@arthur.ubicom.tudelft.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16fucy-0004vi-00@starship.berlin>
+	id <S310323AbSCACDC>; Thu, 28 Feb 2002 21:03:02 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:34524 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S310296AbSCACBM>;
+	Thu, 28 Feb 2002 21:01:12 -0500
+Date: Thu, 28 Feb 2002 21:00:26 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
+        matthew@hairy.beasts.org, bcrl@redhat.com, david@mysql.com,
+        wli@holomorphy.com, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+Message-ID: <20020228210026.A3070@elinux01.watson.ibm.com>
+In-Reply-To: <E16eT9h-0000kE-00@wagner.rustcorp.com.au> <20020225100025.A1163@elinux01.watson.ibm.com> <20020227112417.3a302d31.rusty@rustcorp.com.au> <20020227105311.C838@elinux01.watson.ibm.com> <20020228162422.A947@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020228162422.A947@twiddle.net>; from rth@twiddle.net on Thu, Feb 28, 2002 at 04:24:22PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 28, 2002 01:05 am, Erik Mouw wrote:
-> On Wed, Feb 27, 2002 at 09:42:04PM +0000, Alan Cox wrote:
-> > > I've encountered this problem before, too.  What is the "One True Way"
-> > > to do this cleanly?  In other words, if you want to do a calculation
-> > > once every time someone runs "cat /proc/foo", what is the cleanest way
-> > > to do that?  The solution we came up with was to check the file offset
-> > > and only do the calculation if offset == 0, which seems pretty
-> > > hackish.
-> > 
-> > Another approach is to do the calculation open and remember it in per
-> > fd private data. You can recover that and free it on release. It could
-> > even be a buffer holding the actual "content"
+On Thu, Feb 28, 2002 at 04:24:22PM -0800, Richard Henderson wrote:
+> On Wed, Feb 27, 2002 at 10:53:11AM -0500, Hubertus Franke wrote:
+> > As stated above, I allocate a kernel object <kulock_t> on demand and
+> > hash it. This way I don't have to pin any user address. What does everybody
+> > think about the merit of this approach versus the pinning approach?
+> [...]
+> > In your case, can the lock be allocated at different
+> > virtual addresses in the various address spaces.
 > 
-> It might also be an idea to export proc_calc_metrics() from
-> fs/proc/proc_misc.c because quite a lot of code actually tries to do
-> exactly the same.
+> I think this is a relatively important feature.  It may not be
+> possible to use the same virtual address in different processes.
+> 
+> 
+> r~
 
-Look at all the parameters, they're trying to be a struct.  How about
-cleaning it up before exporting?
+I think so too. However let me point that Linus's initial recommendation
+of a handle, comprised of a kernel pointer and a signature also has
+that property.
+Just pointing out the merits of the various approaches.
 
--- 
-Daniel
+-- Hubertus
+

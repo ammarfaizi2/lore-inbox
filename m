@@ -1,83 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286373AbRL0RUq>; Thu, 27 Dec 2001 12:20:46 -0500
+	id <S286375AbRL0R05>; Thu, 27 Dec 2001 12:26:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286374AbRL0RU1>; Thu, 27 Dec 2001 12:20:27 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:55544 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S286373AbRL0RUP>;
-	Thu, 27 Dec 2001 12:20:15 -0500
-Date: Thu, 27 Dec 2001 10:18:46 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: andersg@0x63.nu
-Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, lvm-devel@sistina.com
-Subject: Re: [lvm-devel] Re: lvm in 2.5.1
-Message-ID: <20011227101846.B12868@lynx.no>
-Mail-Followup-To: andersg@0x63.nu, Jens Axboe <axboe@suse.de>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-	lvm-devel@sistina.com
-In-Reply-To: <20011227084304.GA26255@h55p111.delphi.afb.lu.se> <3C2AEADB.24BEFE94@zip.com.au> <20011227122520.GA2194@h55p111.delphi.afb.lu.se> <20011227135453.GA5803@h55p111.delphi.afb.lu.se> <20011227162019.C1730@suse.de> <20011227160232.GA11106@h55p111.delphi.afb.lu.se>
+	id <S286379AbRL0R0r>; Thu, 27 Dec 2001 12:26:47 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:2564 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S286375AbRL0R0d>; Thu, 27 Dec 2001 12:26:33 -0500
+Date: Thu, 27 Dec 2001 18:25:35 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Dana Lacoste <dana.lacoste@peregrine.com>,
+        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+Message-ID: <20011227172535.GP1746@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20011227165752.A19618@flint.arm.linux.org.uk> <Pine.LNX.4.33L.0112271509570.12225-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011227160232.GA11106@h55p111.delphi.afb.lu.se>; from andersg@0x63.nu on Thu, Dec 27, 2001 at 05:02:32PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <Pine.LNX.4.33L.0112271509570.12225-100000@duckman.distro.conectiva>
+User-Agent: Mutt/1.3.24i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 27, 2001  17:02 +0100, andersg@0x63.nu wrote:
-> you mean like this?
+On Thu, Dec 27, 2001 at 03:11:01PM -0200, Rik van Riel wrote:
+> On Thu, 27 Dec 2001, Russell King wrote:
 > 
-> -- 
+> > I envy Alan, Linus, and Marcelo for having the ability to silently
+> > drop patches and wait for resends.
 > 
-> //anders/g
-> 
-> diff -ru linux-2.5.2-pre2/drivers/md/lvm.c linux-2.5.2-pre2-lvmfix/drivers/md/lvm.c
-> --- linux-2.5.2-pre2/drivers/md/lvm.c	Thu Dec 27 08:28:39 2001
-> +++ linux-2.5.2-pre2-lvmfix/drivers/md/lvm.c	Thu Dec 27 16:43:52 2001
-> @@ -1533,8 +1549,10 @@
->  			}
->  			vg_ptr->lv[l] = NULL;
->  			/* only create original logical volumes for now */
-> -			if (lvm_do_lv_create(minor, lv.lv_name, &lv) != 0) {
-> +			if (lvm_do_lv_create(minor, tmplv->lv_name, tmplv) != 0) {
->  				lvm_do_vg_remove(minor);
-> +				vfree(snap_lv_ptr);
-> +				kfree(tmplv);
->  				return -EFAULT;
->  			}
->  		}
+> I'm not going to resend more than twice. If after that
+> a critical bugfix isn't applied, I'll put it in our
+> kernel RPM and the rest of the world has tough luck.
 
-How about re-doing this to look more like:
+There is a difference between critical bugfixes and patches that don't
+do the Right Thing [tm]. I've never seen Russell dropping the former.
 
-				lvm_do_vg_remove(minor);
-				ret = -EFAULT;
-				goto exit_lv;
-			}
-		}
-.
-.
-.
-	vg_count++;
 
-	MOD_INC_USE_COUNT;
+Erik
 
-	/* let's go active */
-	vg_ptr->vg_status |= VG_ACTIVE;
-
-exit_lv:
-	kfree(tmplv);
-exit_snap:
-	vfree(snap_lv_ptr);
-
-	return ret;
-}
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

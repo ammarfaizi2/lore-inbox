@@ -1,66 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318386AbSGRXFA>; Thu, 18 Jul 2002 19:05:00 -0400
+	id <S318377AbSGRXER>; Thu, 18 Jul 2002 19:04:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318388AbSGRXFA>; Thu, 18 Jul 2002 19:05:00 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:15116 "EHLO
+	id <S318386AbSGRXER>; Thu, 18 Jul 2002 19:04:17 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:13580 "EHLO
 	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S318386AbSGRXE4>; Thu, 18 Jul 2002 19:04:56 -0400
-Date: Thu, 18 Jul 2002 16:07:40 -0700 (PDT)
+	id <S318377AbSGRXER>; Thu, 18 Jul 2002 19:04:17 -0400
+Date: Thu, 18 Jul 2002 16:07:06 -0700 (PDT)
 From: James Simmons <jsimmons@transvirtual.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Link errors with CONFIG_VT=n, CONFIG_SYSRQ=y
-In-Reply-To: <20020717152929.A5856@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207181607270.16453-100000@www.transvirtual.com>
+To: Andi Kleen <ak@suse.de>
+cc: Matthew Wilcox <willy@debian.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.26 broken on headless boxes
+In-Reply-To: <p73adopurv4.fsf@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.44.0207181604140.16453-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Fixed :-)
+> I also see similar problems on x86-64 in 2.5.25.  The kernel quickly crashes
+> when trying to return from opost_write() because something below has zeroed
+> out the stack (with serial console and vga console and early console enabled)
+> I have not tried it with 2.5.26 yet.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
-
-On Wed, 17 Jul 2002, Russell King wrote:
-
-> lkml, James,
->
-> When building 2.5.26 with CONFIG_VT=n and CONFIG_SYSRQ=y, the resulting
-> kernel can't be linked:
->
-> drivers/built-in.o: In function `sysrq_handle_unraw':
-> drivers/built-in.o(.text+0x14694): undefined reference to `fg_console'
-> drivers/built-in.o(.text+0x14698): undefined reference to `kbd_table'
->
-> The following is a work-around for this problem.  There is probably
-> a cleaner solution to this.
->
-> --- orig/drivers/char/sysrq.c	Wed Jul 17 15:10:39 2002
-> +++ linux/drivers/char/sysrq.c	Wed Jul 17 15:27:18 2002
-> @@ -81,10 +81,12 @@
->  static void sysrq_handle_unraw(int key, struct pt_regs *pt_regs,
->  			       struct tty_struct *tty)
->  {
-> +#ifdef CONFIG_VT
->  	struct kbd_struct *kbd = &kbd_table[fg_console];
->
->  	if (kbd)
->  		kbd->kbdmode = VC_XLATE;
-> +#endif
->  }
->  static struct sysrq_key_op sysrq_unraw_op = {
->  	handler:	sysrq_handle_unraw,
->
-> --
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
->              http://www.arm.linux.org.uk/personal/aboutme.html
->
+It is the result of registering the console device first for printk and
+then later registering the tty device. Eventually I like to be able to
+have VT_CONSOLE independent of CONFIG_VT so we could have a light weight
+printk. The goal is register tty device once we find a keyboard of some
+kind.
 

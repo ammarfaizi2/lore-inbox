@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314096AbSHFRXS>; Tue, 6 Aug 2002 13:23:18 -0400
+	id <S313898AbSHFRXL>; Tue, 6 Aug 2002 13:23:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSHFRXS>; Tue, 6 Aug 2002 13:23:18 -0400
-Received: from web13003.mail.yahoo.com ([216.136.174.13]:14721 "HELO
-	web13003.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314096AbSHFRXR>; Tue, 6 Aug 2002 13:23:17 -0400
-Message-ID: <20020806172654.11895.qmail@web13003.mail.yahoo.com>
-Date: Tue, 6 Aug 2002 10:26:54 -0700 (PDT)
-From: James Simmons <captain_delete@yahoo.com>
-Subject: Re: [PATCH] 5: 2.5.29-matrox
-To: Russell King <rmk@arm.linux.org.uk>, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       James Simmons <jsimmons@transvirtual.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E17b3Ro-0006wN-00@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314096AbSHFRXL>; Tue, 6 Aug 2002 13:23:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:25295 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S313898AbSHFRXK>;
+	Tue, 6 Aug 2002 13:23:10 -0400
+Date: Tue, 06 Aug 2002 10:13:08 -0700 (PDT)
+Message-Id: <20020806.101308.30924385.davem@redhat.com>
+To: jt@hpl.hp.com, jt@bougret.hpl.hp.com
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: Linux 2.4.20-pre1
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020806171736.GC11313@bougret.hpl.hp.com>
+References: <20020806002126.GA10585@bougret.hpl.hp.com>
+	<Pine.LNX.4.44.0208060933070.7302-100000@freak.distro.conectiva>
+	<20020806171736.GC11313@bougret.hpl.hp.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+   Date: Tue, 6 Aug 2002 10:17:36 -0700
+   
+   	The second thing that bugs me is that because those patches
+   pass behind my back, they won't get applied to *both* 2.4.X and
+   2.5.X. Because of that, keeping 2.4.X and 2.5.X in synch is an
+   exercise in futility.
 
-> This patch has been verified to apply cleanly to
-> 2.5.30
-> 
-> Obvious bug descovered by Dirk Uffmann, patch ARM
-> Linux patch system, id 1129/1.
-> 
-> Dirk says:
-> 
->   Patch already discussed with Petr Vandrovec. Gave
-> his o.k. to it.
+This is an old topic.  If cleanups get submitted they are going
+to go in.  If this means that someone has to redo a patch, that
+is just a part of life.
 
-Added to fbdev BK. Will be pushing soon.
+Nobody is "above the law", sort of speak, when it comes to these
+things.  Cleanups and compile warning fixes are not required to
+go through the maintainer of a piece of code.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Health - Feel better, live better
-http://health.yahoo.com
+About IRDA wrt. 2.4.x vs 2.5.x, it requires a partial rewrite in 2.5.x
+anyways so don't get worked up over it :)

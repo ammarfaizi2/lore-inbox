@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284678AbRLEUSq>; Wed, 5 Dec 2001 15:18:46 -0500
+	id <S284677AbRLEUS1>; Wed, 5 Dec 2001 15:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284663AbRLEUS3>; Wed, 5 Dec 2001 15:18:29 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:52870 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S284676AbRLEURo>;
-	Wed, 5 Dec 2001 15:17:44 -0500
-Date: Wed, 05 Dec 2001 12:17:00 -0800 (PST)
-Message-Id: <20011205.121700.88471929.davem@redhat.com>
-To: rth@redhat.com
-Cc: davidm@hpl.hp.com, schwab@suse.de, linux-ia64@linuxia64.org,
-        marcelo@conectiva.com.br, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: alpha bug in signal handling
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011205085808.A8634@redhat.com>
-In-Reply-To: <20011204190048.B8179@redhat.com>
-	<20011205.032304.102576056.davem@redhat.com>
-	<20011205085808.A8634@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S284663AbRLEUQ7>; Wed, 5 Dec 2001 15:16:59 -0500
+Received: from leeloo.zip.com.au ([203.12.97.48]:20232 "EHLO
+	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
+	id <S284645AbRLEUQq>; Wed, 5 Dec 2001 15:16:46 -0500
+Message-ID: <3C0E809B.49D659A4@zip.com.au>
+Date: Wed, 05 Dec 2001 12:16:27 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: io scheduling / serializing io requests / readahead
+In-Reply-To: <Pine.LNX.4.30.0112051824120.2754-100000@mustard.heime.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Richard Henderson <rth@redhat.com>
-   Date: Wed, 5 Dec 2001 08:58:08 -0800
-   
-   It doesn't.  But it also prevents the IPI from being recognized
-   until we are back in userland.  Apparently DMT had a test case
-   that failed without disabling interrupts; I didn't see it myself.
+Roy Sigurd Karlsbakk wrote:
+> 
+> hi
+> 
+> Are there any ways to tell Linux to use some sort of readahead
+> functionality that'll give me the ability to schedule I/O more loosely, so
+> some 100 files can be read concurrently without ruining the system by
+> seeking all the time?
 
-I would like to see this test case :-)
+There's a new system call sys_readhead() which may provide what you
+want.
+
+A simple alternative is to just cat each file, one at a time
+onto /dev/null before the application starts up.
+
+> I've tried to alter /proc/sys/vm/(min|max)-readahead, but it doesn't have
+> any effect...
+> 
+
+Yup.  We covered that in the other thread.

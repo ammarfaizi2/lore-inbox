@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129953AbRB0Xei>; Tue, 27 Feb 2001 18:34:38 -0500
+	id <S129957AbRB0XfR>; Tue, 27 Feb 2001 18:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129957AbRB0Xe2>; Tue, 27 Feb 2001 18:34:28 -0500
-Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:23729 "HELO
-	localdomain") by vger.kernel.org with SMTP id <S129953AbRB0XeR>;
-	Tue, 27 Feb 2001 18:34:17 -0500
-Message-ID: <XFMail.20010227153558.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20010227232854.Z13721@redhat.com>
-Date: Tue, 27 Feb 2001 15:35:58 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Tim Waugh <twaugh@redhat.com>
-Subject: Re: timing out on a semaphore
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <andrewm@uow.edu.au>
+	id <S129958AbRB0Xe6>; Tue, 27 Feb 2001 18:34:58 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:13979 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129957AbRB0Xey>;
+	Tue, 27 Feb 2001 18:34:54 -0500
+Date: Wed, 28 Feb 2001 00:34:51 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200102272334.AAA14943.aeb@vlet.cwi.nl>
+To: dwguest@win.tue.nl, garloff@suse.de
+Subject: Re: ISO-8859-1 completeness of kernel fonts?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> kbd-1.05 comes with sun12x22.psfu, which essentially is the kernel font
+>> together with a unimap.
 
-On 27-Feb-2001 Tim Waugh wrote:
-> On Tue, Feb 27, 2001 at 10:40:35PM +0000, Andrew Morton wrote:
-> 
->> 1: Your code is leaving the semaphore in a down'ed state
->>    somehow.
-> 
-> This was probably it.  I don't know why it works for me but not some
-> other people though. :-/
+> Note, that I also have a SuSE12x22 font, which is based on the Sun font,
+> some charcaters slightly changed and added lots of 8859-1 symbols.
+> Isn't it included in kbd-1.04 and later, Andries?
 
-UP vs. MP ?
+It may be that that is the one called sun12x22.psfu in kbd-1.05.
+I think I first took your first version and later replaced it
+with your latest version. Perhaps I did some work on it myself
+as well, but maybe that was first for kbd-1.06. There was also
+a Polish contribution for kbd-1.06, so the 1.06 version will have
+a few more symbols, I think.
 
-
-
-- Davide
+Andries
 

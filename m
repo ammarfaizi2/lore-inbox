@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVCCLOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVCCLSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbVCCLOv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 06:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVCCLOM
+	id S261623AbVCCLSq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 06:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVCCLRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:14:12 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14864 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261582AbVCCLN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 06:13:56 -0500
-Date: Thu, 3 Mar 2005 12:13:50 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
+	Thu, 3 Mar 2005 06:17:02 -0500
+Received: from router.activetools.si ([213.250.28.33]:51097 "EHLO vafel.at.lan")
+	by vger.kernel.org with ESMTP id S261623AbVCCLOL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 06:14:11 -0500
+Subject: [PATCH] initialize a spin lock in gianfar driver
+From: Jaka =?iso-8859-2?Q?Mo=E8nik?= <jaka@activetools.si>
+To: kumar.gala@freescale.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386: unexport dmi_get_system_info
-Message-ID: <20050303111350.GM4608@stusta.de>
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 03 Mar 2005 12:13:56 +0100
+Message-Id: <1109848436.29455.33.camel@x.at.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't found any possible modular usage of dmi_get_system_info in the 
-kernel.
+Initialize the mdio_lock spin lock in mii_info struct, which is
+otherwise accessed prior to initialization.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Jaka Močnik <jaka@activetools.si>
 
----
+--- linux-2.6.11/drivers/net/gianfar.c	2005-03-03 10:36:51.000000000 +0100
++++ linux-2.6.11-sgn/drivers/net/gianfar.c	2005-03-03 10:36:38.822996013 +0100
+@@ -377,6 +377,8 @@
+ 			ADVERTISED_1000baseT_Full);
+ 	mii_info->autoneg = 1;
 
-This patch was already sent on:
-- 21 Jan 2005
++	spin_lock_init(&mii_info->mdio_lock);
++
+ 	mii_info->mii_id = priv->einfo->phyid;
 
---- linux-2.6.11-rc1-mm2-full/arch/i386/kernel/dmi_scan.c.old	2005-01-20 23:37:44.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/i386/kernel/dmi_scan.c	2005-01-20 23:37:52.000000000 +0100
-@@ -487,4 +487,3 @@
- 	return dmi_ident[field];
- }
- 
--EXPORT_SYMBOL(dmi_get_system_info);
+ 	mii_info->dev = dev;
+

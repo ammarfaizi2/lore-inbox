@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280450AbRKODEb>; Wed, 14 Nov 2001 22:04:31 -0500
+	id <S280709AbRKODWr>; Wed, 14 Nov 2001 22:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280480AbRKODEV>; Wed, 14 Nov 2001 22:04:21 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:21626 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S280450AbRKODEF>; Wed, 14 Nov 2001 22:04:05 -0500
-Date: Thu, 15 Nov 2001 04:03:53 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Terje Eggestad <terje.eggestad@scali.no>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: O_DIRECT broken in stock 2.4.13
-Message-ID: <20011115040352.V1381@athlon.random>
-In-Reply-To: <1005747508.1310.3.camel@pc-16.office.scali.no> <20011114125048.A32600@figure1.int.wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011114125048.A32600@figure1.int.wirex.com>; from chris@wirex.com on Wed, Nov 14, 2001 at 12:50:48PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S280609AbRKODWh>; Wed, 14 Nov 2001 22:22:37 -0500
+Received: from a23096.upc-a.chello.nl ([62.163.23.96]:49541 "EHLO ds9.galaxy")
+	by vger.kernel.org with ESMTP id <S280606AbRKODWf>;
+	Wed, 14 Nov 2001 22:22:35 -0500
+Date: Thu, 15 Nov 2001 04:22:33 +0100 (CET)
+From: Jos Nouwen <josn@josn.myip.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: rootfs on USB storage device
+Message-ID: <Pine.LNX.4.31.0111150349090.24081-100000@ds9.galaxy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14, 2001 at 12:50:48PM -0800, Chris Wright wrote:
-> * Terje Eggestad (terje.eggestad@scali.no) wrote:
-> > Hi 
-> > 
-> > open( , O_DIRECT) succeds, fcntl set and unset of the O_DIRECT flag is
-> > ok, but I get buffered writes anyway. 
-> > 
-> > This works in 2.4.10 
-> 
-> iirc, this was disabled shortly after 2.4.10 (like 2.4.11-pre1 or 2).
-> i believe the flag is still valid, however, i think the direct_io internals 
-> were removed.
+Since I own a USB Pen Drive, which is perfectly working under Linux, I
+wanted to put a linux rescue system on it. But for some reason it wont
+work.
 
-Yes, I fixed it in my tree.
+I linked in everything neccesary to boot from it: CONFIG_USB,
+CONFIG_USB_DEVICEFS, CONFIG_USB_UHCI, CONFIG_USB_STORAGE, CONFIG_SCSI,
+CONFIG_BLK_DEV_SD, CONFIG_EXT2_FS. I'm using kernel 2.4.15-pre4.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.15pre1aa1/00_o_direct-4
+The problem is that the pendrive gets detected AFTER the kernel tries to
+mount the root fs. Checking init/main.c and entering some debug lines
+learns that the USB device gets detected when, in function init(), the
+console gets opened: 'open("/dev/console", O_RDWR, 0)'. Immediately after
+that, the 'init' program will be exec-ed. At the time of the 'open()'
+call, the kernel printk()'s "hub.c: USB new device connect on bus1/1,
+assigned device number 2", which is obviously the pendrive. It is
+correctly registered, and a SCSI disk is emulated. But too late..
 
-Please Linus or Marcelo apply the above patch to the kernel.
+Does anybody have a clue as to what the USB bus has to do with
+/dev/console?
 
-Andrea
+Thanks for any help,
+Jos Nouwen.
+

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263580AbUJ2Wix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263557AbUJ2Wct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263580AbUJ2Wix (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 18:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUJ2Wde
+	id S263557AbUJ2Wct (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 18:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUJ2Wax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 18:33:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34006 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261446AbUJ2W1U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 18:27:20 -0400
-Date: Fri, 29 Oct 2004 18:26:12 -0400
-From: Dave Jones <davej@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove duplicate includes (fwd)
-Message-ID: <20041029222612.GI23841@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-References: <20041029214717.GW6677@stusta.de>
+	Fri, 29 Oct 2004 18:30:53 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:4916 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S263530AbUJ2WSi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 18:18:38 -0400
+Subject: Re: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP
+	kernel
+From: Paul Fulghum <paulkf@microgate.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Tim_T_Murphy@Dell.com, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041029212029.I31627@flint.arm.linux.org.uk>
+References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC4@ausx2kmps304.aus.amer.dell.com>
+	 <20041029212029.I31627@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1099088289.5965.2.camel@at2.pipehead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029214717.GW6677@stusta.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 29 Oct 2004 17:18:09 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 11:47:17PM +0200, Adrian Bunk wrote:
+On Fri, 2004-10-29 at 15:20, Russell King wrote:
+> At a guess, you've enabled "low latency" setting on this port ?
 
- > --- linux-2.6.9-mm1-full/drivers/cpufreq/cpufreq_ondemand.c.old	2004-10-22 21:37:33.000000000 +0200
- > +++ linux-2.6.9-mm1-full/drivers/cpufreq/cpufreq_ondemand.c	2004-10-22 21:52:35.000000000 +0200
- > @@ -26,7 +26,6 @@
- >  #include <linux/kmod.h>
- >  #include <linux/workqueue.h>
- >  #include <linux/jiffies.h>
- > -#include <linux/config.h>
- >  #include <linux/kernel_stat.h>
- >  #include <linux/percpu.h>
+Ah, that would explain the problem better than
+the code path I saw (flip buffer full).
+The problem is still the same: calling the flip
+work routine from the ISR, which calls through
+N_TTY receive_buf->flush_chars->start_tx.
 
-Not only was this duplicated, but its also unnecessary as
-there are no CONFIG_ options in that file.
-You may want to add that checking to your script too.
-
-I've killed them both in cpufreq-bk
-
-thanks,
-
-		Dave
+-- 
+Paul Fulghum
+paulkf@microgate.com
 
 

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbTI1NCu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 09:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbTI1NCu
+	id S262582AbTI1NJd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 09:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbTI1NI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 09:02:50 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:53014 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262551AbTI1NCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 09:02:48 -0400
-Date: Sun, 28 Sep 2003 14:55:20 +0200
-Message-Id: <200309281255.h8SCtKXU005492@callisto.of.borg>
+	Sun, 28 Sep 2003 09:08:28 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:52260 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262576AbTI1NG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 09:06:28 -0400
+Date: Sun, 28 Sep 2003 14:55:42 +0200
+Message-Id: <200309281255.h8SCtgsb005684@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 302] Q40/Q60 interrupts
+Subject: [PATCH 336] Generic serial warning
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Q40/Q60: Fix warnings, add diagnostic message (from Richard Zidlicky)
+Generic serial: jiffies are unsigned long
 
---- linux-2.6.0-test6/arch/m68k/q40/q40ints.c	Thu Sep  4 13:47:37 2003
-+++ linux-m68k-2.6.0-test6/arch/m68k/q40/q40ints.c	Tue Sep  9 14:55:32 2003
-@@ -200,7 +200,9 @@
- 
- irqreturn_t q40_process_int (int level, struct pt_regs *fp)
+--- linux-2.6.0-test6/drivers/char/generic_serial.c	Tue Sep  9 10:12:33 2003
++++ linux-m68k-2.6.0-test6/drivers/char/generic_serial.c	Sun Sep 28 14:27:37 2003
+@@ -348,7 +348,7 @@
+ static int gs_wait_tx_flushed (void * ptr, int timeout) 
  {
--  printk("unexpected interrupt %x\n",level);
-+  printk("unexpected interrupt vec=%x, pc=%lx, d0=%lx, d0_orig=%lx, d1=%lx, d2=%lx\n",
-+          level, fp->pc, fp->d0, fp->orig_d0, fp->d1, fp->d2);
-+  printk("\tIIRQ_REG = %x, EIRQ_REG = %x\n",master_inb(IIRQ_REG),master_inb(EIRQ_REG));
-   return IRQ_HANDLED;
- }
+ 	struct gs_port *port = ptr;
+-	long end_jiffies;
++	unsigned long end_jiffies;
+ 	int jiffies_to_transmit, charsleft = 0, rv = 0;
+ 	int rcib;
  
 
 Gr{oetje,eeting}s,

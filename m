@@ -1,81 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbTJPVcu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 17:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbTJPVcu
+	id S263150AbTJPVni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 17:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTJPVm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 17:32:50 -0400
-Received: from [193.138.115.2] ([193.138.115.2]:28690 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S263227AbTJPVcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 17:32:48 -0400
-Date: Thu, 16 Oct 2003 23:30:23 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Peter Bergner <bergner@vnet.ibm.com>
-cc: linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Re: [BUG][PATCH] fs/binfmt_elf.c:load_elf_binary() doesn't verify
- interpreter arch
-In-Reply-To: <3F8F07FA.1030006@vnet.ibm.com>
-Message-ID: <Pine.LNX.4.56.0310162308550.3186@jju_lnx.backbone.dif.dk>
-References: <3F8F07FA.1030006@vnet.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Oct 2003 17:42:27 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52997 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263256AbTJPVlj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 17:41:39 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH][2.6] No swapping on memory backed swapfiles
+Date: 16 Oct 2003 21:31:46 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bmn2o2$il9$1@gatekeeper.tmr.com>
+References: <20031013011117.103de5e7.akpm@osdl.org> <200310130832.h9D8WJ4g000157@81-2-122-30.bradfords.org.uk>
+X-Trace: gatekeeper.tmr.com 1066339906 19113 192.168.12.62 (16 Oct 2003 21:31:46 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200310130832.h9D8WJ4g000157@81-2-122-30.bradfords.org.uk>,
+John Bradford  <john@grabjohn.com> wrote:
+| Quote from Andrew Morton <akpm@osdl.org>:
+| > Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+| > >
+| > > +	bdi = mapping->backing_dev_info;
+| > >  +	if (bdi->memory_backed)
+| > >  +		goto bad_swap;
+| > >  +
+| > 
+| > I guess that makes sense, although someone might want to swap onto a
+| > ramdisk-backed file just for some testing purpose.
+| 
+| Or because some RAM is slower than the rest.  This came up a while ago
+| on the list.
 
-
-On Thu, 16 Oct 2003, Peter Bergner wrote:
-
-> In fs/binfmt_elf.c:load_elf_binary() (both 2.6 and 2.4), there is some minimal
-> checking whether the interpreter it's about to load/run is a valid ELF file,
-> but it fails to check whether the interpreter is of the correct arch.
-> We ran into this when a borked powerpc64-linux toolchain set the interpreter
-> on our 64-bit app to our 32-bit ld.so.  Executing the app caused the kernel to
-> really chew up memory.  I'm assuming x86_64 and sparc64 might possibly see
-> the same behavior.
->
-> A patch against 2.6 is attached below for review (although it applies with some
-> fuzz on 2.4).  Note I'm not sure of the history behind INTERPRETER_AOUT, so I
-> added the test for INTERPRETER_ELF so as not to change it's behavior in case
-> someone still relies on it.
->
-> As an aside, it seems the elf_check_arch() macros should really be checking
-> for more than a valid e_machine value.  I'd think checking one or more of the
-> e_ident[EI_CLASS], e_ident[EI_DATA] and e_ident[EI_OSABI] values would be
-> required as well, no?
->
-
-I've been looking at binfmt_elf.c myself as well, and I've noticed that
-there are a few things it doesn't check, like:
-
-e_version
-(only one ELF version exists, but why not check anyway,
-might catch a corrupted executable or when new ELF versions /do/ appear
-the code to reject formats not supported is in place - seems right to me
-to check it - basic sanity check)
-
-e_ehsize
-(Linux seems to ignore this. It's there to validate that the ELF header
-has the correct size - why not check?  Again, this might catch corrupted
-executables. Seems like the prudent thing to do, to me)
-
-I seem to remember a few other things that could be checked that currently
-are not, but I can't remember those off the top of my head (I need to go
-re-read ftp://tsx.mit.edu/pub/linux/packages/GCC/ELF.doc.tar.gz)
-
-I've been thinking of trying to fix binfmt_elf.c up a bit to do as much
-validation as possible (seems to me that the more checking we do the safer
-we'll be - I don't se any reason /not/ to check), but I have not yet
-gotten my head wrapped around enough of the code to actually write a patch
-yet.
-
-I don't really know what the purpose of this reply is other than to say
-that you're not the only one approaching this, and that if you need
-someone to test patches, then I don't mind doing that.. :)
-
-
-Regards,
-
-Jesper Juhl
-
+Something on my "learn how to..." list, I have some systems which are
+setup to cache only the first 64MB, and I bet they would run a lot
+faster if the rest were used as swap. It is definitely faster with
+mem=64 than letting the CPU beat the whole memory.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

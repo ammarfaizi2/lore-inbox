@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262433AbSJESEy>; Sat, 5 Oct 2002 14:04:54 -0400
+	id <S262437AbSJESU2>; Sat, 5 Oct 2002 14:20:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262434AbSJESEy>; Sat, 5 Oct 2002 14:04:54 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:41743
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262433AbSJESEx> convert rfc822-to-8bit; Sat, 5 Oct 2002 14:04:53 -0400
-Subject: Re: Unable to kill processes in D-state
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20021005090705.GA18475@stud.ntnu.no>
-References: <20021005090705.GA18475@stud.ntnu.no>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Oct 2002 14:11:02 -0400
-Message-Id: <1033841462.1247.3716.camel@phantasy>
+	id <S262439AbSJESU2>; Sat, 5 Oct 2002 14:20:28 -0400
+Received: from bitmover.com ([192.132.92.2]:51584 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262437AbSJESU1>;
+	Sat, 5 Oct 2002 14:20:27 -0400
+Date: Sat, 5 Oct 2002 11:25:52 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+Message-ID: <20021005112552.A9032@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ben Collins <bcollins@debian.org>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <20021004140802.E24148@work.bitmover.com> <20021005175437.GK585@phunnypharm.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021005175437.GK585@phunnypharm.org>; from bcollins@debian.org on Sat, Oct 05, 2002 at 01:54:37PM -0400
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-05 at 05:07, Thomas Langås wrote:
+On Sat, Oct 05, 2002 at 01:54:37PM -0400, Ben Collins wrote:
+> Larry, I develop for the Subversion project. Does that mean my license
+> to use bitkeeper is revoked?
 
-> We have a fairly large installation on-campus, and we have some problems
-> with the current linux-kernel (and older ones) - namely that processes
-> entering D-state will stay there forever (given that the right event got
-> them there in the first place).  This right event is killing the 
-> autofs-daemon.  Doing this will result in heavy load because of lots
-> of D-state processes, and you can't kill any of the D-state processes.
-> Why shouldn't one be able to kill processes that has entered D-state?
-> We have to reboot our servers to get rid of this problem, and it's
-> rather annoying.
+Yes.  It has been since we shipped that license or when you started working
+on Subversion, whichever came last.
 
-Because they are in uninterruptible sleep.  They are doing something
-important, presumably in a critical section, and have no wake-up path
-for signals or errors.
+> I've also been wanting to use bitkeeper to create a Subversion mirror of
+> the kernel repository, but I suspect that my usage falls seriously into
+> this category, as my reasons for doing so are three-fold; allow access
+> to the bkbits repo to folks who don't want to use bk, but with all the
+> joys of an SCM (history, changesets, etc.); stress test Subversion
+> against a real-world high-activity repo; promote Subversion.
+> 
+> Would it be your intention that your license disallow my type of work? I
+> think it does.
 
-Finally, they probably hold a semaphore.  In short, you cannot kill
-them, nor would you want to.
+You bet it does.  The Subversion folks would like nothing better than
+to displace BK.  That's fine, but they don't get to use BK to do it.
+You're absolutely correct that you could use BK to make Subversion better.
+It is not our job to help you make Subversion better and we've made that
+clear for a long time.
 
-I would simplify the question and ask why are you killing the autofs
-daemon?  Clearly this is a recipe for disaster.
+We're a business.  We're a business which happens to be committed to
+helping the kernel team because we think that the kernel is vital to
+the world at large.  Helping the kernel absolutely does not translate
+to helping people who happen to be our competitors.  By your own 
+description and by our experience with you, you would be a competitor.
 
-	Robert Love
+And since we're here, I'll take this opportunity to remind you that when I
+asked about getting a netwinder so I could support the ARM folks, you were
+the guy who sent me mail saying you had some that you weren't using and
+that we couldn't have one because you didn't like our license.  If I recall
+it was either that mail exchange or a subsequent one in which you made it
+clear that you were working on Subversion so Subversion could replace BK.
 
-
+You're the guy that refused to help us help the community.  And you made
+it clear that you'd be delighted if Subversion was made good enough to
+replace BK and you were working towards that goal.  I can't imagine a
+better example of someone who we absolutely do not want to support and
+do not want using BK.  I am explicitly stating that it is our view that
+your use of BK is violation of our license.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

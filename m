@@ -1,56 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130970AbRBPWoN>; Fri, 16 Feb 2001 17:44:13 -0500
+	id <S129066AbRBPWwP>; Fri, 16 Feb 2001 17:52:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131177AbRBPWoC>; Fri, 16 Feb 2001 17:44:02 -0500
-Received: from sub19-210.member.dsl-only.net ([63.105.19.210]:12548 "HELO
-	thalvors.miralink.com") by vger.kernel.org with SMTP
-	id <S130970AbRBPWnq>; Fri, 16 Feb 2001 17:43:46 -0500
-Date: Fri, 16 Feb 2001 14:43:33 -0800 (PST)
-From: Tracy Camp <campt@thalvors.miralink.com>
-To: linux-kernel@vger.kernel.org
-Subject: Assistance in understanding this...?
-Message-ID: <Pine.LNX.4.21.0102161433340.582-100000@thalvors.miralink.com>
+	id <S129069AbRBPWwF>; Fri, 16 Feb 2001 17:52:05 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:44038 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S129066AbRBPWvw>; Fri, 16 Feb 2001 17:51:52 -0500
+Date: Fri, 16 Feb 2001 14:51:43 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: Dennis <dennis@etinc.com>
+Cc: <jesse@cats-chateau.net>, Andrew Scott <A.J.Scott@casdn.neu.edu>,
+        Andrew Scott <A.J.Scott@casdn.neu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>
+Message-ID: <Pine.LNX.4.30.0102161451340.8826-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm developing a driver that performs some 'formatting' of sorts on a scsi
-block device as part of the initialization process.  This involves
-writting a long series of non-contiguous blocks to a disk device -
-something akin to:
 
-for(i =0; i < NUM_BLOCKS; i++) {
-	bh = getblk(i * offset_size);
-	memcpy(bh->b_data,&somestructure,sizeof(struct somestruct));
-	mark_buffer_dirty(bh);
-	ll_rw_block(bh, WRITE,1);
-	wait_on_buffer(bh);
-	brelse(bh);
-	}
+ROTFL, man this guy is funny.
 
-the kernel here I should mention is stock 2.4.0
 
-This all works fine it seems, except that after awhile the system becomes
-very fragile and eventually panic's with a NULL pointer derefrence.  This
-presumeably occurs because of a resource shortage.  Thing I'm not
-understand is how doing the above even for a large value of NUM_BLOCKS
-creates a resource shortage.  I'm obviously missing something here....
 
-This is typically triggered by running any external program, (ie. vi, top,
-or gcc seem to work fine for this). and the only noticable thing is that
-the memory allocated to buffers grows to be pretty much all memory except
-for the last two megs - this seems normal?  I can capture some of the
-panic/dumps if anyone thinks they might be of interest.  
+On Fri, 16 Feb 2001, Dennis wrote:
 
-Ideas?
+> At 02:48 PM 02/16/2001, Jesse Pollard wrote:
+> >On Fri, 16 Feb 2001, Andrew Scott wrote:
+> > >On 15 Feb 2001, at 9:49, fsnchzjr wrote:
+> > >
+> > >> Watch Microsoft's Jim Allchin go Linux-bashing!!!
+> > >> Nice little article on how we're all going to die of herpes from our
+> > >> repeated exposition to Linux...
+> > >>
+> > http://news.cnet.com/investor/news/newsitem/0-9900-1028-4825719-RHAT.html?ta
+> > >> g=ltnc
+> > >
+> > >That's about as self-serving a statement as I've ever seen. If this
+> > >'Jim Alchin' actually believes what he's saying, he's got to be one
+> > >of the worlds biggest fools, and if he doesn't believe what he's
+> > >saying, well there aren't too many words that would accurately
+> > >describe what he is.
+> > >
+> > >It's pretty funny in some ways, e.g. "We can build a better product
+> > >than Linux...", which begs the question, "Well, why don't you?".
+> > >Perhaps it costs too much?
+>
+> objective, arent we?
+>
+> There is much truth to the concept, although Microsoft should not be ones
+> to comment on it as such.
+>
+> For example, if there were six different companies that marketed ethernet
+> drivers for the eepro100, you'd have a choice of which one to buy..perhaps
+> with different "features" that were of value to you. Instead, you have
+> crappy GPL code that locks up under load, and its not worth spending
+> corporate dollars to fix it because you have to give away your work for
+> free under GPL. And since there is a "free" driver that most people can
+> use, its not worth building a better mousetrap either because the market is
+> too small. So, the handful of users with problems get to "fit it
+> themselves", most of whom cant of course.
+>
+> Theres also the propensity for mediocre stuff to get into the kernel
+> because some half-baked programmer was willing to contribute some code. The
+> 50% of the kernel that remains "experimental" ad infinitum is evidence of that.
+>
+> The biggest thing that the linux community does to stifle innovation is to
+> bash commercial vendors trying to make a profit by whining endlessly about
+> "sourceless" distributions and recommending "open-source" solutions even
+> when they are wholly inferior. You're only hurting yourselves in the long
+> run. In that respect MS is correct, because those with the dollars to
+> innovate will stay away.
+>
+> DB
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-t.
-
-Tracy Camp
-Product Development
-Miralink Corp.PDX
-Portland OR
-503-223-3140
+-- 
+David D.W. Downey - RHCE
+Consulting Engineer
+Ensim Corporation - Sunnyvale, CA
 

@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265777AbUGMUGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265774AbUGMUJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265777AbUGMUGh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 16:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265790AbUGMUGh
+	id S265774AbUGMUJH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 16:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUGMUJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 16:06:37 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:12781 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265777AbUGMUGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 16:06:34 -0400
-Subject: Re: question about ramdisk
-From: Lee Revell <rlrevell@joe-job.com>
-To: lya755@ece.northwestern.edu
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1089727279.40f3eb2f82a6c@core.ece.northwestern.edu>
-References: <1089651469.40f2c30d44364@core.ece.northwestern.edu>
-	 <ccugqu$tun$1@terminus.zytor.com>
-	 <1089727279.40f3eb2f82a6c@core.ece.northwestern.edu>
-Content-Type: text/plain
-Message-Id: <1089749203.22026.17.camel@mindpipe>
+	Tue, 13 Jul 2004 16:09:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49565 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265774AbUGMUJD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 16:09:03 -0400
+Date: Tue, 13 Jul 2004 16:14:45 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: haiquy@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.27-rc3 __alloc_pages: 3-order allocation failed (gfp=0x20/0)
+Message-ID: <20040713191445.GB9655@logos.cnet>
+References: <Pine.LNX.4.53.0407132101340.437@linuxcd>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 13 Jul 2004 16:06:44 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0407132101340.437@linuxcd>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Unix Internals", by Uresh Vahalia (sp?).  This book went everywhere I
-did for a year.  I cannot praise it highly enough.  Read that, then get
-Robert Love's 'Linux Kernel Programming'.
+On Tue, Jul 13, 2004 at 09:07:55PM +0000, haiquy@yahoo.com wrote:
+> 
+> Hi,
+> 
+> I got a lot such errors log when run dmesg and the rpogram cdda2wav seems stop
+> extracting audio cds
+> 
+> Some others log like:
+> 
+> scsi : aborting command due to timeout : pid 3260, scsi0, channel 0, id 1, lun 0 0x00 00 00 00 00 00
+> scsi : aborting command due to timeout : pid 3260, scsi0, channel 0, id 1, lun 0 0x00 00 00 00 00 00
+> SCSI host 0 abort (pid 3260) timed out - resetting
+> SCSI bus is being reset for host 0 channel 0.
+> SCSI host 0 channel 0 reset (pid 3260) timed out - trying harder
+> SCSI bus is being reset for host 0 channel 0.
+> scsi : aborting command due to timeout : pid 3256, scsi0, channel 0, id 1, lun 0 0xbe 04 00 00 00 00 00 00 4b 10 00 00
+> hdd: lost interrupt
+> 
+> I use ide-scsi for ide cdrom as cdda2wav requires this. If I use normal ide-cd
+> and use cdparanoia it works as normal.
+> 
+> What should I do to help debuging this problem?
 
-Lee
+Hi Steve,
 
-On Tue, 2004-07-13 at 10:01, lya755@ece.northwestern.edu wrote:
-> Thank you! Can you pls tell me where I can find related references? I've been 
-> looking into several books about kernel and part of the kernel code, but no 
-> luck so far.. 
-> 
-> Thanks for any comments!
-> 
-> Quoting "H. Peter Anvin" <hpa@zytor.com>:
-> 
-> > Followup to:  <1089651469.40f2c30d44364@core.ece.northwestern.edu>
-> > By author:    lya755@ece.northwestern.edu
-> > In newsgroup: linux.dev.kernel
-> > >
-> > > Hi all,
-> > > 
-> > > I am learning linux kernel and have a question about ramdisk. When loading
-> > an 
-> > > executable in ramdisk, is the kernel loading the code all at a time to
-> > memory 
-> > > and then execute, or is it loading only a page at one time and generating a
-> > 
-> > > page fault to fetch another page?
-> > > 
-> > > Thanks for any comments! Waiting desprately for your help.
-> > > 
-> > 
-> > Neither.  The code is already in RAM.  It's mapped into the process
-> > address space and run in place.
-> > 
-> > 	-hpa
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> 
-> 
-> _________________________________________________________
-> This message was sent through the NU ECE webmail gateway.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+The "3-order allocation failures" should not be a problem - its just 
+the ide-scsi driver trying to allocate a big scatter-gather list of 8 pages,
+it fails then tries to allocate "smaller pieces" (4 pages then if that fails 
+1 page of memory). 
+
+Now the problem is the ide-scsi timeout's -- I really have not much of 
+an idea what could be going wrong there.
 

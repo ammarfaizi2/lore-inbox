@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbTI1NSc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 09:18:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbTI1NHg
+	id S262546AbTI1N1u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 09:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbTI1NG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 09:07:36 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:17722 "EHLO
+	Sun, 28 Sep 2003 09:06:59 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:59459 "EHLO
 	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262566AbTI1NGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 09:06:12 -0400
-Date: Sun, 28 Sep 2003 14:55:29 +0200
-Message-Id: <200309281255.h8SCtTje005576@callisto.of.borg>
+	id S262567AbTI1NGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 09:06:15 -0400
+Date: Sun, 28 Sep 2003 14:55:28 +0200
+Message-Id: <200309281255.h8SCtS0g005570@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 317] Atari Bionet Ethernet is broken
+Subject: [PATCH 316] Amiga GVP-II SCSI is broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atari Bionet Ethernet is broken (needs netif updates and broken ACSI)
+Amiga GVP-II SCSI is broken (needs SCSI device list updates and
+gvp11_bus_reset())
 
---- linux-2.6.0-test6/drivers/net/Kconfig	Tue Sep  9 10:12:56 2003
-+++ linux-m68k-2.6.0-test6/drivers/net/Kconfig	Thu Sep 18 04:46:36 2003
-@@ -426,7 +426,7 @@
+--- linux-2.6.0-test6/drivers/scsi/Kconfig	Tue Sep  9 10:13:04 2003
++++ linux-m68k-2.6.0-test6/drivers/scsi/Kconfig	Thu Sep 18 05:14:16 2003
+@@ -1562,7 +1562,7 @@
  
- config ATARI_BIONET
- 	tristate "BioNet-100 support"
--	depends on NETDEVICES && ATARI && ATARI_ACSI!=n
-+	depends on NETDEVICES && ATARI && ATARI_ACSI!=n && BROKEN
- 	help
- 	  Say Y to include support for BioData's BioNet-100 Ethernet adapter
- 	  for the ACSI port. The driver works (has to work...) with a polled
+ config GVP11_SCSI
+ 	tristate "GVP Series II WD33C93A support"
+-	depends on ZORRO && SCSI
++	depends on ZORRO && SCSI && BROKEN
+ 	---help---
+ 	  If you have a Great Valley Products Series II SCSI controller,
+ 	  answer Y. Also say Y if you have a later model of GVP SCSI
 
 Gr{oetje,eeting}s,
 

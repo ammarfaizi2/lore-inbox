@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271628AbRHUKE7>; Tue, 21 Aug 2001 06:04:59 -0400
+	id <S271633AbRHUKJJ>; Tue, 21 Aug 2001 06:09:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271629AbRHUKEt>; Tue, 21 Aug 2001 06:04:49 -0400
-Received: from NET.WAU.NL ([137.224.10.12]:64783 "EHLO net.wau.nl")
-	by vger.kernel.org with ESMTP id <S271628AbRHUKEb>;
-	Tue, 21 Aug 2001 06:04:31 -0400
-Date: Tue, 21 Aug 2001 12:04:46 +0200
-From: Olivier Sessink <olivier@lx.student.wau.nl>
-Subject: NFS client doesn't reconnect to server - processes all hang
-To: linux-kernel@vger.kernel.org
-Message-id: <20010821120446.C5108@fender.fakenet>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-disposition: inline
-X-MSMail-priority: High
-User-Agent: Mutt/1.2.5i
-X-System-Uptime: 11:17am  up 8 days, 13:37,  2 users,  load average: 7.00,
- 7.00, 6.97
-X-Reverse-Engineered: High priority for sending SMS messages
+	id <S271631AbRHUKI7>; Tue, 21 Aug 2001 06:08:59 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:11278 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S271630AbRHUKIx>;
+	Tue, 21 Aug 2001 06:08:53 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Juha =?ISO-8859-1?Q?Yrj=F6l=E4?= <jyrjola@cc.hut.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.9 emu10k1 circular dependency
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 21 Aug 2001 20:09:02 +1000
+Message-ID: <2271.998388542@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+2.4.9 drivers/sound/emu10k1/passthrough.h includes hwaccess.h which
+includes passthrough.h.  Since passthrough.h is only called from two
+sources, both of which already include hwaccess.h, remove hwaccess.h
+from passthrough.h and remove passthrough.h from the sources.
 
-accidently a NFS server (linux 2.4.8, Debian Woody, NFS-kernel server) was
-shut down for a night, and one client (linux 2.2.19, Debian Potato) had
-processes using a mounted export from that server.
-
-Those processes are in State:  D (disk sleep) (according to
-/proc/7434/status) and should be running again after the server is up
-again. It was mounted without initr or soft, so the processes can't be
-killed.
-
-The server is up already for two days, and I can mount new exports from the
-server, but that specific mount is still not alive, and 9 processes are
-still waiting for it. How do I force the NFS client to bring that mount up?
-How do I debug the current state to find out why the client thinks the
-server is not up yet?
-
-dmesg shows: nfs: task 21156 can't get a request slot 
-so the client thinks the server is not responding.., but I can mount other
-exports from that same server...........
-
-any help/info/links is very much appreciated
-
-regards,
-	Olivier
+Index: 9.1/drivers/sound/emu10k1/audio.c
+--- 9.1/drivers/sound/emu10k1/audio.c Tue, 21 Aug 2001 16:48:26 +1000 kaos (linux-2.4/M/b/33_audio.c 1.3.2.1.1.1.1.4 644)
++++ 9.1(w)/drivers/sound/emu10k1/audio.c Tue, 21 Aug 2001 20:07:15 +1000 kaos (linux-2.4/M/b/33_audio.c 1.3.2.1.1.1.1.4 644)
+@@ -49,7 +49,6 @@
+ #include "irqmgr.h"
+ #include "audio.h"
+ #include "8010.h"
+-#include "passthrough.h"
+ 
+ static void calculate_ofrag(struct woinst *);
+ static void calculate_ifrag(struct wiinst *);
+Index: 9.1/drivers/sound/emu10k1/passthrough.h
+--- 9.1/drivers/sound/emu10k1/passthrough.h Mon, 13 Aug 2001 14:14:10 +1000 kaos (linux-2.4/Q/e/0_passthroug 1.1.1.1 644)
++++ 9.1(w)/drivers/sound/emu10k1/passthrough.h Tue, 21 Aug 2001 20:07:33 +1000 kaos (linux-2.4/Q/e/0_passthroug 1.1.1.1 644)
+@@ -32,7 +32,6 @@
+ #ifndef _PASSTHROUGH_H
+ #define _PASSTHROUGH_H
+ 
+-#include "hwaccess.h"
+ #include "audio.h"
+ 
+ /* number of 16-bit stereo samples in XTRAM buffer */
+Index: 9.1/drivers/sound/emu10k1/passthrough.c
+--- 9.1/drivers/sound/emu10k1/passthrough.c Sat, 11 Aug 2001 14:45:11 +1000 kaos (linux-2.4/Q/e/1_passthroug 1.1 644)
++++ 9.1(w)/drivers/sound/emu10k1/passthrough.c Tue, 21 Aug 2001 20:07:25 +1000 kaos (linux-2.4/Q/e/1_passthroug 1.1 644)
+@@ -47,7 +47,6 @@
+ #include "irqmgr.h"
+ #include "audio.h"
+ #include "8010.h"
+-#include "passthrough.h"
+ 
+ static void pt_putsamples(struct pt_data *pt, u16 *ptr, u16 left, u16 right)
+ {
 

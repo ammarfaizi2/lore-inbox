@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318780AbSICXjw>; Tue, 3 Sep 2002 19:39:52 -0400
+	id <S318983AbSICX6i>; Tue, 3 Sep 2002 19:58:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318968AbSICXjw>; Tue, 3 Sep 2002 19:39:52 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:23054 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S318780AbSICXjw>;
-	Tue, 3 Sep 2002 19:39:52 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209032344.g83NiEc29471@oboe.it.uc3m.es>
-Subject: Re: (fwd) Re: [RFC] mount flag "direct"
-In-Reply-To: <1031093579.1073.6.camel@bip> from Xavier Bestel at "Sep 4, 2002
- 00:52:58 am"
-To: Xavier Bestel <xavier.bestel@free.fr>
-Date: Wed, 4 Sep 2002 01:44:14 +0200 (MET DST)
-Cc: ptb@it.uc3m.es, Anton Altaparmakov <aia21@cantab.net>,
-       david.lang@digitalinsight.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S318988AbSICX6i>; Tue, 3 Sep 2002 19:58:38 -0400
+Received: from mnh-1-16.mv.com ([207.22.10.48]:56581 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318983AbSICX6h>;
+	Tue, 3 Sep 2002 19:58:37 -0400
+Message-Id: <200209040107.UAA03954@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org
+Subject: __pa(vmalloc()) considered harmful?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 03 Sep 2002 20:07:05 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Xavier Bestel wrote:"
-[Charset ISO-8859-15 unsupported, filtering to ASCII...]
-> Le mer 04/09/2002 _ 00:42, Peter T. Breuer a _crit :
-> 
-> > Let's maintain a single bit in the superblock that says whether  any
-> > directory structure or whatever else we're worried about has been
-> > altered (ecch, well, it has to be a timestamp, never mind ..). Before
-> > every read we check this "bit" ondisk. If it's not set, we happily dive
-> > for our data where we expect to find it. Otherwise we go through the
-> > rigmarole you describe.
-> 
-> Won't work. You would need an atomic read-and-write operation for that
+It sure doesn't make sense to me, but that's effectively what 
+elf_kcore_store_hdr does:
 
-I'm proposing (elsewhere) that I be allowed to generate special block-layer
-requests from VFS, which act as "tags" to impose order on other requests
-at the shared disk resource. But ...
+	for (m=vmlist; m; m=m->next) {
+		[ snip ]
+		phdr->p_paddr	= __pa(m->addr);
+		[ snip ]
+	}
 
-> (read previous timestamp and write a special timestamp meaning
-> "currently writing this block"), and you don't have that.
+This doesn't actually hurt when __pa(addr) == addr - $SOMETHING, but it
+does produce meaningless numbers.
 
-I believe we only have to write it when we change metadata, and
-read it when we are about to use cached metadata. Racing to write it
-doesn't matter, since the most recent wins, which is what we want.
+It does hurt when your __pa() is something more complicated and it can
+tell that it's being asked to do something stupid.
 
-Umm .. there is a bad race to read. We can read, think nothing has
-changed, then read and find things shifted out from under. We need
-to take a FS global lock when reading! Umm. No. We need to take
-a global lock against changing metadata when reading, not against
-arbitrary changes. And that can be done by issuing a tag request.
+So what's p_paddr supposed to be, anyway?
 
-It's late.
+				Jeff
 
-Peter

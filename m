@@ -1,112 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261277AbSJCNME>; Thu, 3 Oct 2002 09:12:04 -0400
+	id <S263265AbSJCNSW>; Thu, 3 Oct 2002 09:18:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261278AbSJCNME>; Thu, 3 Oct 2002 09:12:04 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:46300 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261277AbSJCNMC>;
-	Thu, 3 Oct 2002 09:12:02 -0400
-Date: Thu, 3 Oct 2002 15:17:18 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: jbradford@dial.pipex.com
-Cc: Vojtech Pavlik <vojtech@suse.cz>, tori@ringstrom.mine.nu,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40: AT keyboard input problem
-Message-ID: <20021003151718.A39115@ucw.cz>
-References: <20021003144319.A38785@ucw.cz> <200210031320.g93DKnqx000460@darkstar.example.net>
+	id <S263261AbSJCNSW>; Thu, 3 Oct 2002 09:18:22 -0400
+Received: from unthought.net ([212.97.129.24]:9445 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S263253AbSJCNST>;
+	Thu, 3 Oct 2002 09:18:19 -0400
+Date: Thu, 3 Oct 2002 15:23:50 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: AARGH! Please help. IDE controller fsckup
+Message-ID: <20021003132349.GE7350@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	Kernel mailing list <linux-kernel@vger.kernel.org>,
+	linux-raid@vger.kernel.org
+References: <200210021516.46668.roy@karlsbakk.net> <200210031225.11283.roy@karlsbakk.net> <20021003114020.GD7350@unthought.net> <200210031513.28459.roy@karlsbakk.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210031320.g93DKnqx000460@darkstar.example.net>; from jbradford@dial.pipex.com on Thu, Oct 03, 2002 at 02:20:48PM +0100
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200210031513.28459.roy@karlsbakk.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 02:20:48PM +0100, jbradford@dial.pipex.com wrote:
-> > > i8042.c: 00 <- i8042 (interrupt, kbd, 1) [138631]
-> > > atkbd.c: Unknown key (set 2, scancode 0x0, on isa0060/serio0) pressed.
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [199889]
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [199972]
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [199974]
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [200469]
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [200554]
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [200555]
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [200922]
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [201024]
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [201025]
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [201415]
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [201516]
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [201518]
-> > 
-> > Obviously, the keyboard doesn't know how to send these keys in Set 2.
+On Thu, Oct 03, 2002 at 03:13:28PM +0200, Roy Sigurd Karlsbakk wrote:
+> > > I have used presistent superblocks, but md0,1,2,3 will be differently
+> > > ordered if I change the disk order... At least I think so. It surely
+> > > didn't work.
+> >
+> > No. md0 would stay md0.  This is another effect of using superblocks,
+> > and in fact this is also (ironically) more or less the only argument
+> > *against* using them   :)
+> >
+> > (Imagine inserting a disk which knows that it is disk 0 of md0 into some
+> > machine that already has a perfectly fine md0 running)
 > 
-> Ah, OK, so I need to force it to use Set 3 by default.  Passing atkbd_set=3 on it's own didn't seem to work, (only works with i8042_direct).
+> ok. so. theoretically - as long as the system finds all 16 drives, I should be 
+> able to shuffle them around and attach them to whichever controller there is? 
+> right?
 
-Yes, set 3 can only work correctly with atkbd_direct also specified.
+It will not reattach your disks (you need to move cables to do that),
+but it will know "First disk of md0" from "Second disk of md0"
+regardless of whether those disks are /dev/hda or /dev/sdg.
 
-> > > i8042.c: 0e <- i8042 (interrupt, kbd, 1) [37041]
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [37142]
-> > > i8042.c: 0e <- i8042 (interrupt, kbd, 1) [37143]
-> > > i8042.c: 85 <- i8042 (interrupt, kbd, 1) [41289]
-> > > atkbd.c: Unknown key (set 3, scancode 0x85, on isa0060/serio0) pressed.
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [41382]
-> > > i8042.c: 85 <- i8042 (interrupt, kbd, 1) [41384]
-> > > atkbd.c: Unknown key (set 3, scancode 0x85, on isa0060/serio0) released.
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [42385]
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [42478]
-> > > i8042.c: 29 <- i8042 (interrupt, kbd, 1) [42480]
-> > > i8042.c: 86 <- i8042 (interrupt, kbd, 1) [43519]
-> > > atkbd.c: Unknown key (set 3, scancode 0x86, on isa0060/serio0) pressed.
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [43596]
-> > > i8042.c: 86 <- i8042 (interrupt, kbd, 1) [43598]
-> > > atkbd.c: Unknown key (set 3, scancode 0x86, on isa0060/serio0) released.
-> > > i8042.c: 87 <- i8042 (interrupt, kbd, 1) [45273]
-> > > atkbd.c: Unknown key (set 3, scancode 0x87, on isa0060/serio0) pressed.
-> > > i8042.c: f0 <- i8042 (interrupt, kbd, 1) [45366]
-> > > i8042.c: 87 <- i8042 (interrupt, kbd, 1) [45367]
-> > > atkbd.c: Unknown key (set 3, scancode 0x87, on isa0060/serio0) released.
-> > 
-> > And it is happy in Set 3.
-> 
-> Seems like it, yes.
-> 
-> > Do you by any chance know the names of the unknown keys so that I could
-> > add them to the Set 3 default scancode map?
-> 
-> All I can tell you is a translation of what is written on the scancode 0x87 key on this particular keyboard:
-> 
-> 'Hiragana/Roma_characters'
-> 
-> I can't translate the characters on the other keys.
-> 
-> However, somebody else might be able to - I found this diagram of the keyboard:
-> 
-> http://www.pfu.co.jp/hhkeyboard/kb_collection/ibm5576-002.gif
-> 
-> The legends on the bottom row of keys are exactly the same as on my keyboard, and from left to right, they have the following functions:
-> 
-> Control
-> ALT, (it says, 'Kanji/Katakana/Kanji???', but works as ALT)
-> Scancode 0x85
-> Space bar
-> Scancode 0x86
-> Scancode 0x87, (it says, 'Hiragana/Roma characters')
-> ALT GR
-> Control
-> 
-> Sorry I can't be more help than that :-).
+You can shuffle your disks around as much as you please.  When the RAID
+code looks at your disks, it will read their superblocks and correctly
+make the first disk of md0 the first disk of md0, and so forth,
+regardless of the actual device name of the disk.
 
-Well, I maybe just will use the keycodes KEY_INTL1,2,... or KEY_LANG1,2,.. :)
-
-Thanks!
-
-> > > Interestingly, I wasn't able to reproduce the bashing multiple keys
-> > > error, using i8042_direct or atkbd_set=3.
-> > 
-> > Yes, it can only happen without i8042_direct.
 > 
-> Ah, OK, cool.
+> ok.
+> 
+> now, I've replaced the faulty controller, and booting up. the new controller 
+> is also (like the old one) a CMD649...
+> 
+
+RAID doesn't care about controllers.
+
+RAID without persistent superblocks cares about disk device names.
+
+RAID with persistent superblocks don't care about disk device names.
+
+> hæ?
+
+Øh?
+
+> 
+> it works. but it surely didn't work last time...
+> 
+
+Good for you  :)
+
+> thanks
+> 
+> > > But ... with persistent superblock - is it possible to fsckup the raid?
+> >
+> > You're root, it is indeed possible  :)
+> 
+> er - yes. I more meant like 'automagically'
+
+It will only automagically screw up your arrays if you shuffle disks
+between machines (mix several RAID arrays from other systems in one
+system)  (you can of course move all your disks to one new machine, if
+it has none of it's original RAIDed disks left).
+
+Just don't mix disks with persistent superblocks from multiple machines
+into one single machine.  Unless you know exactly what you're doing.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

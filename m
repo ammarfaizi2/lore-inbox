@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317535AbSGESmo>; Fri, 5 Jul 2002 14:42:44 -0400
+	id <S317536AbSGESmm>; Fri, 5 Jul 2002 14:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317537AbSGESmn>; Fri, 5 Jul 2002 14:42:43 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:10761 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317535AbSGESml>; Fri, 5 Jul 2002 14:42:41 -0400
-Date: Fri, 5 Jul 2002 15:43:42 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH][TRIVIAL] spelling fix for page-writeback.c
-Message-ID: <Pine.LNX.4.44L.0207051542380.8346-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317537AbSGESml>; Fri, 5 Jul 2002 14:42:41 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:16004 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S317536AbSGESml>; Fri, 5 Jul 2002 14:42:41 -0400
+Date: Fri, 5 Jul 2002 21:45:03 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: prevent breaking a chroot() jail?
+Message-ID: <20020705184503.GQ1548@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	linux-kernel@vger.kernel.org
+References: <1025877004.11004.59.camel@zaphod> <ag4nob$sgq$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ag4nob$sgq$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Jul 05, 2002 at 11:15:39AM -0700, you [H. Peter Anvin] wrote:
+> 
+> This sounds like a job for [dum de dum dum] capabilities... remember,
+> on Linux root hasn't been almighty for a very long time, it's just a
+> matter of which capabilities you retain.  Of course, if you really
+> want to be safe, you might end up with a rather castrated root inside
+> the chroot shell.
+> 
+> If you really want to jail something, use UML.
 
-I found this spelling fix in Craig Kulesa's minimal rmap patch.
+ISTR UML had some security problems (guest processes being able to disrupt
+host processes or just guest processes being able to disrupt other guest
+processes). Have those been resolved yet? 
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Do people use it in production? Last I heard someone had evaluated it, it
+had ended up consuming way too much CPU per "jail" for whatever reason.
+Perhaps things are better already...
 
 
+-- v --
 
-diff -Nru a/mm/page-writeback.c b/mm/page-writeback.c
---- a/mm/page-writeback.c	Fri Jul  5 15:42:39 2002
-+++ b/mm/page-writeback.c	Fri Jul  5 15:42:39 2002
-@@ -336,7 +336,7 @@
-  * If a page is already under I/O, generic_writepages() skips it, even
-  * if it's dirty.  This is desirable behaviour for memory-cleaning writeback,
-  * but it is INCORRECT for data-integrity system calls such as fsync().  fsync()
-- * and msync() need to guarentee that all the data which was dirty at the time
-+ * and msync() need to guarantee that all the data which was dirty at the time
-  * the call was made get new I/O started against them.  The way to do this is
-  * to run filemap_fdatawait() before calling filemap_fdatawrite().
-  *
-
+v@iki.fi

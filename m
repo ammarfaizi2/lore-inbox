@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbUKWGga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbUKWGjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbUKWGga (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 01:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbUKWGga
+	id S262195AbUKWGjs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 01:39:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbUKWGjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 01:36:30 -0500
-Received: from fmr13.intel.com ([192.55.52.67]:6355 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261460AbUKWGeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 01:34:14 -0500
-Subject: [BKPATCH] ACPI for 2.4
-From: Len Brown <len.brown@intel.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@stimpy.netroedge.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1101191641.20006.454.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 23 Nov 2004 01:34:02 -0500
+	Tue, 23 Nov 2004 01:39:47 -0500
+Received: from dialpool1-94.dial.tijd.com ([62.112.10.94]:30592 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S262195AbUKWGgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 01:36:40 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.10-rc2] XFS filesystem corruption
+Date: Tue, 23 Nov 2004 07:36:32 +0100
+User-Agent: KMail/1.7.1
+Cc: Eric Sandeen <sandeen@sgi.com>, linux-xfs@oss.sgi.com
+References: <200411221530.30325.lkml@kcore.org> <41A27784.70505@sgi.com>
+In-Reply-To: <41A27784.70505@sgi.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart18057779.UHHbBsppzQ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200411230736.36106.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, please do a 
+--nextPart18057779.UHHbBsppzQ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-	bk pull bk://linux-acpi.bkbits.net/24-latest-release
+On Tuesday 23 November 2004 00:34, Eric Sandeen wrote:
+> The trigger was a bad magic number related to directories... hard to say
+> what happened in the first place.  Can you send the output from
+> xfs_repair, that might offer some hints.
 
-	This should address the "Linux 2.4.28 breaks lm_sensors"
-	issue.  It is an exact bkimport from 2.6.
+Sorry, but as a repair was very urgent, I didn't really think of saving the=
+=20
+xfs_repair output.. My bad I guess.
 
-thanks,
--Len
+Jan
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/24-latest-release/acpi-20040326-24-latest-release.diff.gz
+=2D-=20
+The seven year itch comes from fooling around during the fourth, fifth,
+and sixth years.
 
-This will update the following files:
+--nextPart18057779.UHHbBsppzQ
+Content-Type: application/pgp-signature
 
- drivers/acpi/motherboard.c |   20 ++++++++++++++++----
- 1 files changed, 16 insertions(+), 4 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-through these ChangeSets:
+iD8DBQBBotp0UQQOfidJUwQRAroHAJ9PVu61ukGBeK9fC1jAo1I+7/4qlACfWH1M
+FETWXeiD2T0YLezrEKE4HLs=
+=46YF
+-----END PGP SIGNATURE-----
 
-<len.brown@intel.com> (04/11/22 1.1458.1.8)
-   [ACPI] BIOS workaround allowing devices to use reserved IO ports
-   Author: David Shaohua Li
-   http://bugzilla.kernel.org/show_bug.cgi?id=3049
-
-
-
-
+--nextPart18057779.UHHbBsppzQ--

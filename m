@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbTEMGbx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 02:31:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbTEMGbx
+	id S263202AbTEMGax (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 02:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbTEMGaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 02:31:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:19154 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263227AbTEMGbt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 02:31:49 -0400
-Date: Tue, 13 May 2003 08:44:31 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5 ide 48-bit usage
-Message-ID: <20030513064431.GN17033@suse.de>
-References: <20030507175033.GR823@suse.de> <Pine.SOL.4.30.0305072119530.27561-100000@mion.elka.pw.edu.pl> <20030507201949.GW823@suse.de> <20030508075609.GJ823@suse.de> <1052391717.10037.5.camel@dhcp22.swansea.linux.org.uk> <20030508120145.GR823@suse.de> <20030512214123.GA3849@matchmail.com>
+	Tue, 13 May 2003 02:30:52 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:63361 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263202AbTEMGa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 02:30:28 -0400
+Date: Mon, 12 May 2003 23:44:15 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [RFC][TTY] callout removal
+Message-Id: <20030512234415.11453a9c.akpm@digeo.com>
+In-Reply-To: <20030513062332.GW10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030513062332.GW10374@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030512214123.GA3849@matchmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 May 2003 06:43:08.0561 (UTC) FILETIME=[EA33C010:01C3191A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12 2003, Mike Fedyk wrote:
-> On Thu, May 08, 2003 at 02:01:45PM +0200, Jens Axboe wrote:
-> > On Thu, May 08 2003, Alan Cox wrote:
-> > > On Iau, 2003-05-08 at 08:56, Jens Axboe wrote:
-> > > > That part is added, I still kept it at 65535 though akin to how we don't
-> > > > use that last sector in 28-bit commands either. For 48-bit commands this
-> > > > is totally irelevant, 32MiB or 32MiB-512b doesn't matter either way.
-> > > 
-> > > Actually I changed the LBA28 code to use the last sector a while ago. It
-> > > has (unsuprisingly) caused zero problems because other OS's also
-> > > generate such requests.
-> > 
-> > That's great, if you remember that was my requirement for usage of the
-> > last sector, that the Other OS used it. If it does, it can't be buggy.
-> 
-> Yes, there is documentation in ntfs-tools about the kernel not being able to
-> address the last sector like the Other OS does, and recommending to run
-> chkdsk immediately after creating a new ntfs volume under Linux...
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+>
+>         if ((tty->driver.type == TTY_DRIVER_TYPE_SERIAL) &&
+>              (tty->driver.subtype == SERIAL_TYPE_CALLOUT)) {
+>                  printk("Warning, %s opened, is a deprecated tty "
+>                         "callout device\n", tty_name(tty, buf));
 
-Completely different thing :-)
+google says that one person hit this in 1998.   That's it.
 
-In my mail, 'the last sector' means issuing ata commands with 255 or 256
-(the last one) sectors. 256 is special because it requires 0 for number
-of sectors, since it's a byte value.
+The current message is
 
--- 
-Jens Axboe
+	printk(KERN_WARNING "tty_io.c: "
+		"process %d (%s) used obsolete /dev/%s - "
+		"update software to use /dev/ttyS%d\n",
 
+and google("update software to use") == 201, spread across 1999-2001.
+
+Kill it.

@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbUB2Gg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 01:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUB2Ge4
+	id S261987AbUB2GkW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 01:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUB2GiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 01:34:56 -0500
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:45479 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261988AbUB2Gen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 01:34:43 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Manuel Estrada Sainz <ranty@ranty.pantax.net>
-Subject: Re: [PATCH] request_firmware(): fixes and polishing.
-Date: Sun, 29 Feb 2004 01:30:47 -0500
-User-Agent: KMail/1.6
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       jt@hpl.hp.com, Simon Kelley <simon@thekelleys.org.uk>
-References: <10776728882704@kroah.com>
-In-Reply-To: <10776728882704@kroah.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 29 Feb 2004 01:38:08 -0500
+Received: from gate.crashing.org ([63.228.1.57]:3774 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261987AbUB2Ggd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 01:36:33 -0500
+Subject: Re: [PATCH] ppc64: Add iommu=on for enabling DART on small-mem
+	machines
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Olof Johansson <olof@austin.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>
+In-Reply-To: <40417E66.3060707@matchmail.com>
+References: <Pine.A41.4.44.0402280818060.43148-100000@forte.austin.ibm.com>
+	 <40417E66.3060707@matchmail.com>
+Content-Type: text/plain
+Message-Id: <1078036010.10826.34.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 29 Feb 2004 17:26:50 +1100
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402290130.47960.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 February 2004 08:34 pm, Manuel Estrada Sainz wrote:
-> 
->  Hi,
-> 
->  Please apply.
-> 
->  Dmitry Torokhov has been criticizing my code for some days (Thanks Dmitry),
->  and here is the result. It should be ready for -mm tree.
->  
->  Simon Kelly tested the patch series and reported improvement with some
->  problems he was having.
-> 
 
-I have couple more fixes to the firmware loader class:
+> And maybe even some generic code? :-D
 
-firmware-pin_module.patch:
-  - we need to pin the firmware module if we successfully registered firmware
-    class device and "put" it in device re4lease function otherwise the
-    module could be unloaded too early. Consider:
-    - some module requests firmware
-    - firmware loader registers class device and calls hotplug
-    - userspace hangs keeping 
-    - firmware loader times out
-    - the calls module is unloaded. Now firmware loader has 0 refcount and
-      cazn be unloaded as well leaving device class behind.
-    Am I seeing things?
+No. It's not possible, at least not at this point. The decision of
+allocating the DART space or not (and thus eventually stripping the
+max available memory) is done very early. So early that the kernel
+isn't yet running at it's link location ;) So the kind of code we
+can actually run at this point is limited, with various tweaks to
+deal with the relocation issue.
 
-firmware-hotplug.patch
-  - I stll think that we sould not call userspace until we registered all
-    necessary attributes. Now that Greg put my changes to kobject in mainline
-    ist very easy -  just inhibit hotplug handler until we are ready and call
-    kobject_hitplug by ourselves.
+It's not very pretty, I hope we can improve that later, but that
+is not something that will happen in the upcoming weeks .
 
-Please comment.
+Ben.
 
--- 
-Dmitry
+

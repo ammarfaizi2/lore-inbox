@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267314AbRGZL6H>; Thu, 26 Jul 2001 07:58:07 -0400
+	id <S267732AbRGZMEh>; Thu, 26 Jul 2001 08:04:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267732AbRGZL54>; Thu, 26 Jul 2001 07:57:56 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11788 "EHLO
+	id <S267739AbRGZME1>; Thu, 26 Jul 2001 08:04:27 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15116 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267314AbRGZL5q>; Thu, 26 Jul 2001 07:57:46 -0400
-Subject: Re: IGMP join/leave time variability
-To: nat.ersoz@myrio.com (Nat Ersoz)
-Date: Thu, 26 Jul 2001 12:59:01 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Nat Ersoz" at Jul 25, 2001 07:04:32 PM
+	id <S267732AbRGZMEN>; Thu, 26 Jul 2001 08:04:13 -0400
+Subject: Re: 2.4.7 cyclades-Y crash
+To: kas@informatics.muni.cz (Jan Kasprzak)
+Date: Thu, 26 Jul 2001 13:05:24 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010726130354.A1024@informatics.muni.cz> from "Jan Kasprzak" at Jul 26, 2001 01:03:54 PM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15PjnB-0003bw-00@the-village.bc.nu>
+Message-Id: <E15PjtM-0003e6-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> ASAP with respect to the user mode calls.
-> 1. What would be the harm if I set IGMP_Initial_Report_Delay to something
-> very small like 5 to 10 (jiffies)?  No need for net_random() I'de expect in
-> that case?
+> Alan Cox wrote:
+> : > connected to 16-port box). The 2.4.7 kernel crashes when initializing the
+> : > cyclades driver (either as a module or a built-in driver). I've tried
+> : > the stock kernel from Red Hat 7.1, and the cyclades.o module causes the
+> : > system to lock up when loaded.
+> : 
+> : Is this an SMP box ?
+> 
+> 	No. Pentium 233 MMX, 32M RAM, RedHat 7.1. Can this be a compiler
+> problem?
 
-Read the IGMP RFC documents they discuss in detail the cases where time
-delays and randomness are needed and important. 
+Don't think so. The reason I asked was there were locking fixes to it, but
+they wouldnt impact non SMP users. Does 2.4.6 work ?

@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbUKMLZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbUKML4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbUKMLZn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 06:25:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbUKMLZn
+	id S262631AbUKML4H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 06:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbUKML4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 06:25:43 -0500
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:47028 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S261429AbUKMLZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 06:25:33 -0500
-Date: Sat, 13 Nov 2004 12:22:35 +0100
-From: Guido Guenther <agx@sigxcpu.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, adaplas@pol.net,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
-Message-ID: <20041113112234.GA5523@bogon.ms20.nix>
-References: <200411080521.iA85LbG6025914@hera.kernel.org> <200411090402.22696.adaplas@hotpop.com> <Pine.LNX.4.58.0411081211270.2301@ppc970.osdl.org> <200411090608.02759.adaplas@hotpop.com> <Pine.LNX.4.58.0411081422560.2301@ppc970.osdl.org> <20041112125125.GA3613@bogon.ms20.nix> <Pine.LNX.4.58.0411120755570.2301@ppc970.osdl.org> <20041112191852.GA4536@bogon.ms20.nix> <1100309972.20511.103.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100309972.20511.103.camel@gaston>
-User-Agent: Mutt/1.5.6i
+	Sat, 13 Nov 2004 06:56:07 -0500
+Received: from mail8.spymac.net ([195.225.149.8]:41895 "EHLO mail8")
+	by vger.kernel.org with ESMTP id S262631AbUKML4C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 06:56:02 -0500
+Message-ID: <41960458.7010404@spymac.com>
+Date: Sat, 13 Nov 2004 13:55:52 +0100
+From: Gunther Persoons <gunther_persoons@spymac.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
+References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <41951380.2080801@spymac.com> <20041112201936.GA15133@elte.hu>
+In-Reply-To: <20041112201936.GA15133@elte.hu>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 13, 2004 at 12:39:32PM +1100, Benjamin Herrenschmidt wrote:
-> On Fri, 2004-11-12 at 20:18 +0100, Guido Guenther wrote:
-> 
-> > O.k., it was the __raw_{write,read}b which broke things, not the
-> > "alignment". This one works:
-> > 
-> > diff -u -u linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h
-> > --- linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h	2004-11-12 13:42:54.000000000 +0100
-> > +++ linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h	2004-11-12 17:39:22.000000000 +0100
-> > @@ -75,8 +75,8 @@
-> >   */
-> >  #include <asm/io.h>
-> >  
-> > -#define NV_WR08(p,i,d)  (__raw_writeb((d), (void __iomem *)(p) + (i)))
-> > -#define NV_RD08(p,i)    (__raw_readb((void __iomem *)(p) + (i)))
-> > +#define NV_WR08(p,i,d)  (writeb((d), (void __iomem *)(p) + (i)))
-> > +#define NV_RD08(p,i)    (readb((void __iomem *)(p) + (i)))
-> 
-> Interesting. The only difference here should be barriers. I hate the
-> lack of barriers in that driver ... I'm not sure the driver may not have
-Yes, it's a real pain. Missing barriers in RIVA_FIFO_FREE caused lots of
-lockups, until I found them in your 2.4 tree.
+Ingo Molnar wrote:
 
-> other bugs related to the lack of them in the 16 and 32 bits accessors.
-> It does use non-barrier version on purpose in some accel ops though,
-> when filling the fifo with pixels, but that's pretty much the only case
-> where it makes sense.
-> 
-> > There aren't any, I actually attached the wrong patch. The non-working
-> > version has __raw_{read,write}b8 instead of {read,write}b8. In 2.6.9
-> > riva_hw.h used {in,out}_8 for NV_{RD,WR}08 so using the "non-raw"
-> > writeb/readb now looks correct since these map to {in,out}_8 now.
-> 
-> {in,out}_8 are ppc-specific things that are identical to readb/writeb
-> indeed, with barriers.
-In 2.6.10-rc1-mm5 {in,out}_8 and read/writeb are exactly identical, only
-__raw_{read,write}b is different. So you mean __raw_{read,write}b in the
-above? (no nitpicking, just want to be sure I understand this
-correctly).
-Cheers,
- -- Guido
+>* Gunther Persoons <gunther_persoons@spymac.com> wrote:
+>
+>  
+>
+>>I cant use my pcmcia wireless network card with this version, i can
+>>use it with V0.7.25-0. dhcpcd and ifconfig lock when i try to use
+>>them.  config attached.
+>>    
+>>
+>
+>extremely weird - there simply was no change between -0 and -1 that
+>could have affected it. If you do this on the -1 kernel:
+>
+>	echo 0 > /proc/sys/kernel/preempt_wakeup_timing
+>	echo 1 > /proc/sys/kernel/debug_direct_keyboard
+>
+>then you'll get precisely the -0 kernel, bit for bit. (plus the symbol
+>export fix in rtc.ko, which should have zero relevance to your setup.)
+>
+>[note that debug_direct_keyboard is dangerous.]
+>
+>so i believe the explanation has to be something else:
+>
+> - are you sure the build is correct?
+>
+> - are you sure it still works with the -0 kernel, maybe the bug is 
+>   transient?
+>
+>	Ingo
+>
+>  
+>
+Removing every software update i did between 25.0 and 25.1 resolved the 
+problem, i think there was something with my gentoo init scripts. 
+Although 25.0 was working fine with the software updates. I am now going 
+to reinstall the updates one by one to see which one caused it.

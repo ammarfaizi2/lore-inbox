@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317717AbSGVRgn>; Mon, 22 Jul 2002 13:36:43 -0400
+	id <S317709AbSGVRfl>; Mon, 22 Jul 2002 13:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317718AbSGVRgn>; Mon, 22 Jul 2002 13:36:43 -0400
-Received: from real.realitydiluted.com ([208.242.241.164]:17368 "EHLO
-	real.realitydiluted.com") by vger.kernel.org with ESMTP
-	id <S317717AbSGVRgm>; Mon, 22 Jul 2002 13:36:42 -0400
-Message-ID: <3D3C435F.7080603@realitydiluted.com>
-Date: Mon, 22 Jul 2002 12:39:43 -0500
-From: "Steven J. Hill" <sjhill@realitydiluted.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-MIME-Version: 1.0
-To: Karol Olechowskii <karol_olechowski@acn.waw.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Athlon XP 1800+ segemntation fault
-References: <20020722133259.A1226@acc69-67.acn.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317715AbSGVRfk>; Mon, 22 Jul 2002 13:35:40 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:7431 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317709AbSGVRfk>; Mon, 22 Jul 2002 13:35:40 -0400
+Date: Mon, 22 Jul 2002 18:38:44 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Dike <jdike@karaya.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       jdike@ccure.karaya.com
+Subject: Re: [PATCH] UML - part 1 of 2
+Message-ID: <20020722183844.A8526@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Dike <jdike@karaya.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, jdike@ccure.karaya.com
+References: <200207221715.MAA03040@ccure.karaya.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200207221715.MAA03040@ccure.karaya.com>; from jdike@karaya.com on Mon, Jul 22, 2002 at 12:15:29PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karol Olechowskii wrote:
-> 
-> Few days ago I've bought new processor Athlon XP 1800+ to my computer
-> (MSI K7D Master with 256 MB PC2100 DDR).Before that I've got Athlon ThunderBird
-> 900 processor and everything had been working well till I change to the new one.
-> Now for every few minutes I've got segmetation fault or immediate system reboot.
-> Could anyone tell me what's goin' on?
-> 
-I too have the MSI K7D Master. As Alan mentioned, the 2.4.19-rc2-ac2
-patch works fine. My machine has been rock solid and I'm running dual
-XP 2000+. However, I'm running Radeon 8500 (I refused to give my money
-to a company that doesn't release it's drivers). Bad memory is a
-possibility, so run 'memtest' and see what happens as mentioned by
-others. Also, I suggest you upgrade to v1.3 of the MSI 6501 BIOS which
-is always a good idea. As far as your X crashes, you might try building
-the latest X out of CVS and see if that helps at all, but it looks
-like memory problems. Spend the money and buy good name brand like
-Micron/Crucial has been good for me. Just my $0.02.
+On Mon, Jul 22, 2002 at 12:15:29PM -0500, Jeff Dike wrote:
+> include/linux/linkage.h -
+> 	UML needs FASTCALL defined as regparm(3), too.
 
--Steve
+The fastcall definition should go into an asm/ header instead of such hacks..
+
+the disk accounting stuff is also bogus - instead of wasting ram with
+huge array it should rather be dynamically-allocated in a per-disk
+structure..
 

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129598AbRCZWbK>; Mon, 26 Mar 2001 17:31:10 -0500
+	id <S129486AbRCZWnj>; Mon, 26 Mar 2001 17:43:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129618AbRCZWa7>; Mon, 26 Mar 2001 17:30:59 -0500
-Received: from snark.tuxedo.org ([207.106.50.26]:14345 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S129598AbRCZWar>;
-	Mon, 26 Mar 2001 17:30:47 -0500
-Date: Mon, 26 Mar 2001 17:33:52 -0500
-Message-Id: <200103262233.f2QMXqm21750@snark.thyrsus.com>
-From: "Eric S. Raymond" <esr@snark.thyrsus.com>
-To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: CML2 0.9.7 is available
+	id <S129509AbRCZWn3>; Mon, 26 Mar 2001 17:43:29 -0500
+Received: from river.it.gvsu.edu ([148.61.1.16]:46021 "EHLO river.it.gvsu.edu")
+	by vger.kernel.org with ESMTP id <S129486AbRCZWnL>;
+	Mon, 26 Mar 2001 17:43:11 -0500
+Message-ID: <3ABFC5A7.8090202@lycosmail.com>
+Date: Mon, 26 Mar 2001 17:41:43 -0500
+From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac20 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Sane Architectures
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 0.9.7: Mon Mar 26 16:55:48 EST 2001
-	* Can now configure everything except the CONFIG_-less CRIS symbols.
-	* Prefix-stripping for backward compatibility with, e.g. CONFIG_3C515.
-	* Resolve all FIXMES, including Andre Hedrick's IDE vendor stuff.
+Are there any architectures that are simple (sane) to implement sftw on? 
+The i386 is plagued by it's 16-bit (arguably its 8 or even 4 bit) past. 
+The HP-PARISC has its brokenness, PPC isn't that great either from what 
+I've heard. And the list goes on.
 
-CML2 can now configure symbols with leading numerics, removing the
-last remaining CML1 compatibility problem.  Once the CRIS-architecture
-symbols are brought into conformance with the CML1 spec, CML2 will
-be able to completely configure a stock kernel tree.  All known gaps
-in the CML1 translation have been fixed.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Now I will I admit that I am likely wrong, and can expect some flamage 
+for this. This is intended as a curiousity about something decent.
 
-The abortion rights and gun control debates are twin aspects of a deeper
-question --- does an individual ever have the right to make decisions
-that are literally life-or-death?  And if not the individual, who does?
+This can include architectures like the IA64 & the upcoming x86-64. Just 
+looking for something with lots of GPR's, sane MM support, etc.
+
+Takers
+
+(Borrowing asbestos suit from my uncle)
+

@@ -1,309 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262723AbTCTWgn>; Thu, 20 Mar 2003 17:36:43 -0500
+	id <S263062AbTCTW67>; Thu, 20 Mar 2003 17:58:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262722AbTCTWY3>; Thu, 20 Mar 2003 17:24:29 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:40709 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262704AbTCTWVj>;
-	Thu, 20 Mar 2003 17:21:39 -0500
-Subject: Re: [PATCH] i2c driver changes for 2.5.65
-In-reply-to: <10481995733467@kroah.com>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-From: Greg KH <greg@kroah.com>
-Content-Type: text/plain; charset=US-ASCII
-Mime-version: 1.0
-Date: Thu, 20 Mar 2003 14:32 -0800
-Message-id: <1048199573873@kroah.com>
-X-mailer: gregkh_patchbomb
+	id <S263151AbTCTW66>; Thu, 20 Mar 2003 17:58:58 -0500
+Received: from mail.casabyte.com ([209.63.254.226]:57617 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP
+	id <S263062AbTCTW6c>; Thu, 20 Mar 2003 17:58:32 -0500
+From: "Robert White" <rwhite@casabyte.com>
+To: "Cigol C" <linuxppp@indiainfo.com>, <cfowler@outpostsentinel.com>
+Cc: <EdV@macrolink.com>, <linux-serial@vger.kernel.org>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: RS485 communication
+Date: Thu, 20 Mar 2003 15:09:02 -0800
+Message-ID: <PEEPIDHAKMCGHDBJLHKGGEBJCEAA.rwhite@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20030317054152.7512.qmail@indiainfo.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1143.1.12, 2003/03/20 11:15:57-08:00, greg@kroah.com
+I don't know if I answered this already...
 
-[PATCH] i2c i2c-amd756.c: remove some #ifdefs and fix all printk() to use dev_*().
+No.
 
-Also some minor whitespace cleanups.
+There is no "SOCK_PACKET" defined for the RS485 (serial) driver.  The users
+comment about using SOCK_PACKET was made with respect to an Ethernet chip
+(and by extension driver).  You DON't HAVE a socket call interface until you
+have gotten the IP up and running via PPP or some such.
+
+To do IP over RS485 you need to use PPP (or something similar).
+
+Any PPP daemon (instance) talks to exactly one other PPP daemon.  No
+exceptions.  "Point to Point Protocol".
+
+RS485 with only two participants is nearly indistinguishable from RS232 (as
+far as an application space entity like pppd is concerned.)
+
+If there are more than two participants on the RS485 bus then you need to
+write something to run between the RS485 driver and the multiple pppd(s) to
+make sure that the PPP daemons run in pairs and only see data intended for
+one another.  (To the best of my knowledge) Nothing currently exists in the
+commons that does this for you.  [I am sure someone has wrote this for some
+purpose sometime, but I know of no source for it.]
+
+No shortcuts.
+No magic settings hiding somewhere in PPPd.
+
+You have exactly two-point-two choices.
+
+Choice 1:  Write a master/slaves arbiter and multiplexor.
+
+Choice 1.1: find someone who already wrote one that exposes a nice bunch of
+pty(s) to the application space.
+
+Choice 2: Go buy hardware (c.f. an Ethernet card [or chip if you are
+designing custom hardware])
+
+Choice 2.1: put only two machines on any RS485 bus (e.g. buy one RS485 port
+per peer).
+
+That's it.  Sorry... 8-)
+
+Rob.
+
+-----Original Message-----
+From: Cigol C [mailto:linuxppp@indiainfo.com]
+Sent: Sunday, March 16, 2003 9:42 PM
+To: cfowler@outpostsentinel.com; rwhite@casabyte.com
+Cc: EdV@macrolink.com; 'Linux PPP'; linux-serial@vger.kernel.org;
+'linux-kernel'
+Subject: RE: RS485 communication
 
 
- drivers/i2c/busses/i2c-amd756.c |  142 +++++++++++++++++++---------------------
- 1 files changed, 70 insertions(+), 72 deletions(-)
 
+Thannks for the info. Can i acheive IP over RS485 if i use SOCK_PACKET. I
+need some more info on this if u could provide that. If this option is set
+in the socket call will i have an option the choose the hardware interface.
 
-diff -Nru a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
---- a/drivers/i2c/busses/i2c-amd756.c	Thu Mar 20 12:54:12 2003
-+++ b/drivers/i2c/busses/i2c-amd756.c	Thu Mar 20 12:54:12 2003
-@@ -35,6 +35,8 @@
-    Note: we assume there can only be one device, with one SMBus interface.
- */
- 
-+/* #define DEBUG 1 */
-+
- #include <linux/version.h>
- #include <linux/module.h>
- #include <linux/pci.h>
-@@ -46,44 +48,42 @@
- #include <linux/init.h>
- #include <asm/io.h>
- 
--#define DRV_NAME	"i2c-amd756"
--
- /* AMD756 SMBus address offsets */
--#define SMB_ADDR_OFFSET        0xE0
--#define SMB_IOSIZE             16
--#define SMB_GLOBAL_STATUS      (0x0 + amd756_ioport)
--#define SMB_GLOBAL_ENABLE      (0x2 + amd756_ioport)
--#define SMB_HOST_ADDRESS       (0x4 + amd756_ioport)
--#define SMB_HOST_DATA          (0x6 + amd756_ioport)
--#define SMB_HOST_COMMAND       (0x8 + amd756_ioport)
--#define SMB_HOST_BLOCK_DATA    (0x9 + amd756_ioport)
--#define SMB_HAS_DATA           (0xA + amd756_ioport)
--#define SMB_HAS_DEVICE_ADDRESS (0xC + amd756_ioport)
--#define SMB_HAS_HOST_ADDRESS   (0xE + amd756_ioport)
--#define SMB_SNOOP_ADDRESS      (0xF + amd756_ioport)
-+#define SMB_ADDR_OFFSET		0xE0
-+#define SMB_IOSIZE		16
-+#define SMB_GLOBAL_STATUS	(0x0 + amd756_ioport)
-+#define SMB_GLOBAL_ENABLE	(0x2 + amd756_ioport)
-+#define SMB_HOST_ADDRESS	(0x4 + amd756_ioport)
-+#define SMB_HOST_DATA		(0x6 + amd756_ioport)
-+#define SMB_HOST_COMMAND	(0x8 + amd756_ioport)
-+#define SMB_HOST_BLOCK_DATA	(0x9 + amd756_ioport)
-+#define SMB_HAS_DATA		(0xA + amd756_ioport)
-+#define SMB_HAS_DEVICE_ADDRESS	(0xC + amd756_ioport)
-+#define SMB_HAS_HOST_ADDRESS	(0xE + amd756_ioport)
-+#define SMB_SNOOP_ADDRESS	(0xF + amd756_ioport)
- 
- /* PCI Address Constants */
- 
- /* address of I/O space */
--#define SMBBA     0x058		/* mh */
--#define SMBBANFORCE     0x014
-+#define SMBBA		0x058		/* mh */
-+#define SMBBANFORCE	0x014
- 
- /* general configuration */
--#define SMBGCFG   0x041		/* mh */
-+#define SMBGCFG		0x041		/* mh */
- 
- /* silicon revision code */
--#define SMBREV    0x008
-+#define SMBREV		0x008
- 
- /* Other settings */
--#define MAX_TIMEOUT 500
-+#define MAX_TIMEOUT	500
- 
- /* AMD756 constants */
--#define AMD756_QUICK        0x00
--#define AMD756_BYTE         0x01
--#define AMD756_BYTE_DATA    0x02
--#define AMD756_WORD_DATA    0x03
--#define AMD756_PROCESS_CALL 0x04
--#define AMD756_BLOCK_DATA   0x05
-+#define AMD756_QUICK		0x00
-+#define AMD756_BYTE		0x01
-+#define AMD756_BYTE_DATA	0x02
-+#define AMD756_WORD_DATA	0x03
-+#define AMD756_PROCESS_CALL	0x04
-+#define AMD756_BLOCK_DATA	0x05
- 
- 
- static unsigned short amd756_ioport = 0;
-@@ -101,36 +101,36 @@
- 	schedule_timeout(amount);
- }
- 
--#define GS_ABRT_STS (1 << 0)
--#define GS_COL_STS (1 << 1)
--#define GS_PRERR_STS (1 << 2)
--#define GS_HST_STS (1 << 3)
--#define GS_HCYC_STS (1 << 4)
--#define GS_TO_STS (1 << 5)
--#define GS_SMB_STS (1 << 11)
--
--#define GS_CLEAR_STS (GS_ABRT_STS | GS_COL_STS | GS_PRERR_STS | \
--  GS_HCYC_STS | GS_TO_STS )
--
--#define GE_CYC_TYPE_MASK (7)
--#define GE_HOST_STC (1 << 3)
--#define GE_ABORT (1 << 5)
-+#define GS_ABRT_STS	(1 << 0)
-+#define GS_COL_STS	(1 << 1)
-+#define GS_PRERR_STS	(1 << 2)
-+#define GS_HST_STS	(1 << 3)
-+#define GS_HCYC_STS	(1 << 4)
-+#define GS_TO_STS	(1 << 5)
-+#define GS_SMB_STS	(1 << 11)
-+
-+#define GS_CLEAR_STS	(GS_ABRT_STS | GS_COL_STS | GS_PRERR_STS | \
-+			 GS_HCYC_STS | GS_TO_STS )
-+
-+#define GE_CYC_TYPE_MASK	(7)
-+#define GE_HOST_STC		(1 << 3)
-+#define GE_ABORT		(1 << 5)
- 
- 
--static int amd756_transaction(void)
-+static int amd756_transaction(struct i2c_adapter *adap)
- {
- 	int temp;
- 	int result = 0;
- 	int timeout = 0;
- 
--	pr_debug(DRV_NAME
--	       ": Transaction (pre): GS=%04x, GE=%04x, ADD=%04x, DAT=%04x\n",
--	       inw_p(SMB_GLOBAL_STATUS), inw_p(SMB_GLOBAL_ENABLE),
--	       inw_p(SMB_HOST_ADDRESS), inb_p(SMB_HOST_DATA));
-+	dev_dbg(&adap->dev, ": Transaction (pre): GS=%04x, GE=%04x, ADD=%04x, "
-+		"DAT=%04x\n", inw_p(SMB_GLOBAL_STATUS),
-+		inw_p(SMB_GLOBAL_ENABLE), inw_p(SMB_HOST_ADDRESS),
-+		inb_p(SMB_HOST_DATA));
- 
- 	/* Make sure the SMBus host is ready to start transmitting */
- 	if ((temp = inw_p(SMB_GLOBAL_STATUS)) & (GS_HST_STS | GS_SMB_STS)) {
--		pr_debug(DRV_NAME ": SMBus busy (%04x). Waiting... \n", temp);
-+		dev_dbg(&adap->dev, ": SMBus busy (%04x). Waiting... \n", temp);
- 		do {
- 			amd756_do_pause(1);
- 			temp = inw_p(SMB_GLOBAL_STATUS);
-@@ -138,7 +138,7 @@
- 		         (timeout++ < MAX_TIMEOUT));
- 		/* If the SMBus is still busy, we give up */
- 		if (timeout >= MAX_TIMEOUT) {
--			pr_debug(DRV_NAME ": Busy wait timeout (%04x)\n", temp);
-+			dev_dbg(&adap->dev, ": Busy wait timeout (%04x)\n", temp);
- 			goto abort;
- 		}
- 		timeout = 0;
-@@ -155,46 +155,46 @@
- 
- 	/* If the SMBus is still busy, we give up */
- 	if (timeout >= MAX_TIMEOUT) {
--		pr_debug(DRV_NAME ": Completion timeout!\n");
-+		dev_dbg(&adap->dev, ": Completion timeout!\n");
- 		goto abort;
- 	}
- 
- 	if (temp & GS_PRERR_STS) {
- 		result = -1;
--		pr_debug(DRV_NAME ": SMBus Protocol error (no response)!\n");
-+		dev_dbg(&adap->dev, ": SMBus Protocol error (no response)!\n");
- 	}
- 
- 	if (temp & GS_COL_STS) {
- 		result = -1;
--		printk(KERN_WARNING DRV_NAME " SMBus collision!\n");
-+		dev_warn(&adap->dev, " SMBus collision!\n");
- 	}
- 
- 	if (temp & GS_TO_STS) {
- 		result = -1;
--		pr_debug(DRV_NAME ": SMBus protocol timeout!\n");
-+		dev_dbg(&adap->dev, ": SMBus protocol timeout!\n");
- 	}
- 
- 	if (temp & GS_HCYC_STS)
--		pr_debug(DRV_NAME " SMBus protocol success!\n");
-+		dev_dbg(&adap->dev, " SMBus protocol success!\n");
- 
- 	outw_p(GS_CLEAR_STS, SMB_GLOBAL_STATUS);
- 
- #ifdef DEBUG
- 	if (((temp = inw_p(SMB_GLOBAL_STATUS)) & GS_CLEAR_STS) != 0x00) {
--		pr_debug(DRV_NAME
--		         ": Failed reset at end of transaction (%04x)\n", temp);
-+		dev_dbg(&adap->dev,
-+			": Failed reset at end of transaction (%04x)\n", temp);
- 	}
--
--	pr_debug(DRV_NAME
--		 ": Transaction (post): GS=%04x, GE=%04x, ADD=%04x, DAT=%04x\n",
--		 inw_p(SMB_GLOBAL_STATUS), inw_p(SMB_GLOBAL_ENABLE),
--		 inw_p(SMB_HOST_ADDRESS), inb_p(SMB_HOST_DATA));
- #endif
- 
-+	dev_dbg(&adap->dev,
-+		": Transaction (post): GS=%04x, GE=%04x, ADD=%04x, DAT=%04x\n",
-+		inw_p(SMB_GLOBAL_STATUS), inw_p(SMB_GLOBAL_ENABLE),
-+		inw_p(SMB_HOST_ADDRESS), inb_p(SMB_HOST_DATA));
-+
- 	return result;
- 
-  abort:
--	printk(KERN_WARNING DRV_NAME ": Sending abort.\n");
-+	dev_warn(&adap->dev, ": Sending abort.\n");
- 	outw_p(inw(SMB_GLOBAL_ENABLE) | GE_ABORT, SMB_GLOBAL_ENABLE);
- 	amd756_do_pause(100);
- 	outw_p(GS_CLEAR_STS, SMB_GLOBAL_STATUS);
-@@ -211,7 +211,7 @@
- 	/** TODO: Should I supporte the 10-bit transfers? */
- 	switch (size) {
- 	case I2C_SMBUS_PROC_CALL:
--		pr_debug(DRV_NAME ": I2C_SMBUS_PROC_CALL not supported!\n");
-+		dev_dbg(&adap->dev, ": I2C_SMBUS_PROC_CALL not supported!\n");
- 		/* TODO: Well... It is supported, I'm just not sure what to do here... */
- 		return -1;
- 	case I2C_SMBUS_QUICK:
-@@ -266,7 +266,7 @@
- 	/* How about enabling interrupts... */
- 	outw_p(size & GE_CYC_TYPE_MASK, SMB_GLOBAL_ENABLE);
- 
--	if (amd756_transaction())	/* Error in transaction */
-+	if (amd756_transaction(adap))	/* Error in transaction */
- 		return -1;
- 
- 	if ((read_write == I2C_SMBUS_WRITE) || (size == AMD756_QUICK))
-@@ -334,7 +334,7 @@
- 	u8 temp;
- 	
- 	if (amd756_ioport) {
--		printk(KERN_ERR DRV_NAME ": Only one device supported. "
-+		dev_err(&pdev->dev, ": Only one device supported. "
- 		       "(you have a strange motherboard, btw..)\n");
- 		return -ENODEV;
- 	}
-@@ -351,8 +351,8 @@
- 
- 		pci_read_config_byte(pdev, SMBGCFG, &temp);
- 		if ((temp & 128) == 0) {
--			printk(KERN_ERR DRV_NAME
--			       ": Error: SMBus controller I/O not enabled!\n");
-+			dev_err(&pdev->dev,
-+				": Error: SMBus controller I/O not enabled!\n");
- 			return -ENODEV;
- 		}
- 
-@@ -364,16 +364,14 @@
- 	}
- 
- 	if (!request_region(amd756_ioport, SMB_IOSIZE, "amd756-smbus")) {
--		printk(KERN_ERR DRV_NAME
--		       ": SMB region 0x%x already in use!\n", amd756_ioport);
-+		dev_err(&pdev->dev, ": SMB region 0x%x already in use!\n",
-+			amd756_ioport);
- 		return -ENODEV;
- 	}
- 
--#ifdef DEBUG
- 	pci_read_config_byte(pdev, SMBREV, &temp);
--	printk(KERN_DEBUG DRV_NAME ": SMBREV = 0x%X\n", temp);
--	printk(KERN_DEBUG DRV_NAME ": AMD756_smba = 0x%X\n", amd756_ioport);
--#endif
-+	dev_dbg(&pdev->dev, ": SMBREV = 0x%X\n", temp);
-+	dev_dbg(&pdev->dev, ": AMD756_smba = 0x%X\n", amd756_ioport);
- 
- 	/* set up the driverfs linkage to our parent device */
- 	amd756_adapter.dev.parent = &pdev->dev;
-@@ -383,8 +381,8 @@
- 
- 	error = i2c_add_adapter(&amd756_adapter);
- 	if (error) {
--		printk(KERN_ERR DRV_NAME
--		       ": Adapter registration failed, module not inserted.\n");
-+		dev_err(&pdev->dev,
-+			": Adapter registration failed, module not inserted.\n");
- 		goto out_err;
- 	}
- 
+----- Original Message -----
+From: Chris Fowler
+Date: 15 Mar 2003 10:42:53 -0500
+To: Robert White
+Subject: RE: RS485 communication
+
+> I think using SOCK_PACKET an an ethernet chip may be the best choice.
+> You can use IP or you can use RWP (Rober White Protocol).
+>
+>
+> On Sat, 2003-03-15 at 03:07, Robert White wrote:
+> > Yes, that, but that is only part of it.
+> >
+> > The RS485 is a proper bus, so this custom program (or programs) will
+have to
+> > act as full bus arbiters and a kind of router. Each PPP daemon must
+receive
+> > ONLY the data that its peer daemon transmits. That means that each slave
+> > must know to ignore the data not destined for it. Further, the master,
+> > which would have multiple PPP instances running on it, will need to
+decide
+> > which of those instances get which of the receiving bytes.
+> >
+> > So just like an Ethernet transceiver puts a protocol frame around the
+data
+> > to get it to the destination, the transport program will have to put
+> > envelopes around the data. THEN the master transport program will tell
+each
+> > slave when and how many of its envelopes it may send. The only way that
+can
+> > work (because there is no "ring" you can't pass a "token") is for the
+master
+> > to ask each slave in turn: "Got anything to send?"
+> >
+> > This usually devolves to a sequence of "#1, say your piece", "#2 say
+your
+> > piece" etc. That is a very bad performance model.
+> >
+> > So every frame of data will need to be arbitrarily wide, meaning a
+length
+> > code, and will need an in-multiplexor address.
+> >
+> > So the master, for instance, will say "slave 1, go". The slave 1 will
+send
+> > a packet (not necessarily a PPP packet, as the multiplexor will have
+> > overhead data etc.)
+> >
+> > The master will look at the address and decide which local pty the data
+is
+> > for and send it there. (Think a simple byte pump here)
+> >
+> > When that pty has response data, and when the master says "slave 0 (e.g.
+me)
+> > go" it will frame a message that slave #1 will receive and put through
+to
+> > its local pty. Slave 1 also has the job of ignoring data for slaves 2
+> > through N and the Master (Slave 0).
+> >
+> > In short, he has to write a distributed application that pumps data into
+and
+> > out of a broadcast medium, and makes sure that each participant gets
+only
+> > the data intended for itself. (This is what both the Ethernet hardware
+> > layer, and the IP protocols do.)
+> >
+> > In communications you almost always put protocols inside of protocols to
+> > some significant depth.
+> >
+> > For instance, when you play Unreal Tournament 2003:
+> > Unreal Tournament's data is carried by UDP,
+> > The UDP is carried by IP,
+> > The IP is carried by the Ethernet hardware access layer (raw Ethernet),
+> > Those packets may go to your cable modem which either wraps the Ethernet
+> > hardware packets or decodes them and reencodes the IP into whatever it
+> > does.
+> >
+> > >From there, if your cable modem is doing PPPoE there are even more
+layers.
+> >
+> > This guy will only have to write a multiplexing layer, but it won't be
+fun.
+> >
+> > Then again, the Ethernet people have done all that, which is why it is
+> > cheaper and easier to just get the Ethernet hardware and use it.
+> >
+> > Rob.
+> >
+> > -----Original Message-----
+> > From: Chris Fowler [mailto:cfowler@outpostsentinel.com]
+> > Sent: Thursday, March 13, 2003 3:31 PM
+> > To: Robert White
+> > Cc: Ed Vance; 'Linux PPP'; linux-serial@vger.kernel.org; 'linux-kernel'
+> > Subject: RE: RS485 communication
+> >
+> >
+> > Are you saying that for him to to use PPPD that he will have to write a
+> > program that will run on a master and tell all the slave nodes when they
+> > can transmit their data. In this case it would be ppp data. Hopfully
+> > in block sizes that are at least the size of the MTU ppp is running.
+> >
+> > Chris
+> >
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-serial" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at http://vger.kernel.org/majordomo-info.html
+--
+______________________________________________
+http://www.indiainfo.com
+Now with POP3/SMTP access for only US$14.95/yr
+
+Powered by Outblaze
 

@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261719AbTCQOvd>; Mon, 17 Mar 2003 09:51:33 -0500
+	id <S261727AbTCQPAS>; Mon, 17 Mar 2003 10:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261720AbTCQOvd>; Mon, 17 Mar 2003 09:51:33 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:18324 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id <S261719AbTCQOvc>; Mon, 17 Mar 2003 09:51:32 -0500
-Date: Mon, 17 Mar 2003 10:02:21 -0500 (EST)
-From: Rik van Riel <riel@surriel.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Paul Albrecht <palbrecht@uswest.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 vm, program load, page faulting, ...
-In-Reply-To: <002401c2eb78$cca714e0$d5bb0243@oemcomputer>
-Message-ID: <Pine.LNX.4.44.0303171001030.2571-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261728AbTCQPAS>; Mon, 17 Mar 2003 10:00:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11754 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261727AbTCQPAQ>;
+	Mon, 17 Mar 2003 10:00:16 -0500
+Date: Mon, 17 Mar 2003 15:11:08 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: Andreas Dilger <adilger@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
+Subject: Re: [Ext2-devel] [PATCH] distributed counters for ext2 to avoid group scaning
+Message-ID: <20030317151108.GC28607@parcelfarce.linux.theplanet.co.uk>
+References: <m3el5773to.fsf@lexa.home.net> <20030316104447.D12806@schatzie.adilger.int> <m3bs0bugca.fsf@lexa.home.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3bs0bugca.fsf@lexa.home.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Mar 2003, Paul Albrecht wrote:
+On Mon, Mar 17, 2003 at 12:55:17AM +0300, Alex Tomas wrote:
+> > Also, while your goal is to reduce cache ping-pong between CPUs, we will
+> > now have cache ping-pong for the "diff" array.  We need to do per-cpu
+> > values or make each value cacheline aligned to avoid ping-pong.
+> 
+> yes, you're right. fixed
 
-> ... Why does the kernel page fault on text pages, present in the page
-> cache, when a program starts? Couldn't the pte's for text present in the
-> page cache be resolved when they're mapped to memory?
+Um.  But ... let's say I'm on a P4 box running a distro kernel.  I suspect
+most distros will set NR_CPUs to 8.  So that's 128 byte cachelines * 8 CPUs
+gives 1024 bytes -- 1k.  Per dcounter (never mind the size of seqlock or
+dc_base/dc_min):
 
-The mmap() syscall only sets up the VMA info, it doesn't
-fill in the page tables. That only happens when the process
-page faults.
+> +struct dcounter_diff {
+> +	long dd_value; 
+> +} ____cacheline_aligned_in_smp;
+> +
+> +struct dcounter {
+> +	long dc_base;
+> +	long dc_min;
+> +	struct dcounter_diff dc_diff[NR_CPUS];
+> +	seqlock_t dc_lock;
+> +};
 
-Note that filling in a bunch of page table entries mapping
-already present pagecache pages at exec() time might be a
-good idea.  It's just that nobody has gotten around to that
-yet...
+> +++ edited/include/linux/ext2_fs_sb.h	Mon Mar 17 00:12:00 2003
+>  	struct ext2_bg_info *s_bgi;
+> +	struct dcounter free_blocks_dc;
+> +	struct dcounter free_inodes_dc;
+> +	struct dcounter dirs_dc;
 
+And then we have 3 of these (an additional 3k..).  Per blockgroup.
+My 4GB / has 30 blockgroups; my 30GB /home has 232.  So that's a little
+under 8 per GB.  My _laptop_ has a 40GB drive, so that's on the order
+of 320 blockgroups -- almost an additional megabyte of ram consumed for
+these counters.
+
+Maybe it makes big boxes go faster, but this makes my dual CPU desktop 
+go slower, and that's not acceptable.
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

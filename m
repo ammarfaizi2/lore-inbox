@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278367AbRJMTQr>; Sat, 13 Oct 2001 15:16:47 -0400
+	id <S278369AbRJMTXr>; Sat, 13 Oct 2001 15:23:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278368AbRJMTQc>; Sat, 13 Oct 2001 15:16:32 -0400
-Received: from adsl-64-109-204-69.milwaukee.wi.ameritech.net ([64.109.204.69]:4084
-	"HELO alphaflight.d6.dnsalias.org") by vger.kernel.org with SMTP
-	id <S278367AbRJMTQP>; Sat, 13 Oct 2001 15:16:15 -0400
-Date: Sat, 13 Oct 2001 14:16:34 -0500
-From: "M. R. Brown" <mrbrown@0xd6.org>
-To: Patrick McFarland <unknown@panax.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mutt stuff
-Message-ID: <20011013141634.H4471@0xd6.org>
-In-Reply-To: <20011013140825.K249@localhost>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CNfT9TXqV7nd4cfk"
-Content-Disposition: inline
-In-Reply-To: <20011013140825.K249@localhost>
-User-Agent: Mutt/1.3.22i
+	id <S278374AbRJMTXh>; Sat, 13 Oct 2001 15:23:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16141 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278373AbRJMTXZ>; Sat, 13 Oct 2001 15:23:25 -0400
+Date: Sat, 13 Oct 2001 12:23:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Security question: "Text file busy" overwriting executables but
+ not shared libraries?
+In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---CNfT9TXqV7nd4cfk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sat, 13 Oct 2001, Jamie Lokier wrote:
+>
+> In fact it was proposed here on this list years ago, and I think you
+> argued against it (TLB flush costs).  The costs and kernel
+> infrastructure have changed and maybe the idea could be revisited now.
 
-* Patrick McFarland <unknown@panax.com> on Sat, Oct 13, 2001:
+It's still not entirely unlikely that doing VM mappings is simply more
+expensive than just doing a memcpy. The TLB invalidate is only part of the
+issue - you also have the page table walk, the VM lock, and the fact that
+PAGE_COPY itself ends up being overhead.
 
-> Gah, this cc stuff is annoying, anyone have a mutt script to auto-cc this=
- to conform to more linux-kernel standards?
->=20
+Which is why the PAGE_COPY kind of read() optimization is _probably_ only
+worth it if the user asks for it directly (or automatically only for large
+reads together with single-threaded applications).
 
-Use shift-R when replying.
+The explicit flag is probably a good idea also because of usage patterns
+(PAGE_COPY is a slowdown _if_ the file is actually written to or even
+mapped shared).
 
-M. R.
+		Linus
 
---CNfT9TXqV7nd4cfk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE7yJMSaK6pP/GNw0URAjLaAJ9pf+FrWCvjneDiyIC14hFYhA4b9wCfUkHL
-iMj5derUB946Q2gceaCNL4k=
-=+0dP
------END PGP SIGNATURE-----
-
---CNfT9TXqV7nd4cfk--

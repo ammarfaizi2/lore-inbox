@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130525AbQLBVPi>; Sat, 2 Dec 2000 16:15:38 -0500
+	id <S130440AbQLBV3U>; Sat, 2 Dec 2000 16:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130468AbQLBVP2>; Sat, 2 Dec 2000 16:15:28 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:34868 "EHLO
-	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S130525AbQLBVPW>; Sat, 2 Dec 2000 16:15:22 -0500
-Message-ID: <3A295F27.D356DC91@linux.com>
-Date: Sat, 02 Dec 2000 12:44:23 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S130449AbQLBV3K>; Sat, 2 Dec 2000 16:29:10 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19972 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130440AbQLBV3B>; Sat, 2 Dec 2000 16:29:01 -0500
+Message-ID: <3A29624B.4577287A@transmeta.com>
+Date: Sat, 02 Dec 2000 12:57:47 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-To: Igmar Palsenberg <maillist@chello.nl>
-CC: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
-        Matthew Kirkwood <matthew@hairy.beasts.org>, folkert@vanheusden.com,
-        "Theodore Y Ts'o" <tytso@mit.edu>,
-        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
-Subject: Re: /dev/random probs in 2.4test(12-pre3)
-In-Reply-To: <Pine.LNX.4.21.0012022233440.11907-100000@server.serve.me.nl>
-Content-Type: multipart/mixed;
- boundary="------------19F3DEECCACA37F26C51E5F2"
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.4.0-test12-pre3] microcode update for P4 (fwd)
+In-Reply-To: <Pine.LNX.4.21.0012022049430.933-100000@penguin.homenet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------19F3DEECCACA37F26C51E5F2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Tigran Aivazian wrote:
+> 
+> On Sat, 2 Dec 2000, H. Peter Anvin wrote:
+> 
+> > Alan Cox wrote:
+> > >
+> > > > Please call these MSR_* instead, "IA32_*" isn't very descriptive,
+> > > > besides, the preferred prefix in existing locations in the Linux
+> > > > kernel is "X86_", e.g. X86_EFLAGS_IF or X86_CR4_PSE.  I think there
+> > >
+> > > I think I agree with Tigran's naming. These are IA32 registers not X86 ones ;)
+> >
+> > They are MSRs, most of all.  His naming didn't reflect that, and quite
+> > frankly, I'd much rather use the names (all starting with MSR_) that the
+> > Intel documentation uses.
+> >
+> 
+> Peter,
+> 
+> you probably missed the message I sent to you earlier. I have already
+> explained that I did use the names which Intel documentation uses. You may
+> have an old (Pentium III) version of the manual but the current
+> (P4) is already available (albeit a preliminary) and that is what I used
+> as a guidance.
+> 
+> It makes sense to check the facts before stating the same wrong statement
+> twice.
+> 
 
-> Making /dev/random block if the amount requirements aren't met makes sense
-> to me. If I request x bytes of random stuff, and get less, I probably
-> reread /dev/random. If it's entropy pool is exhausted it makes sense to be
-> to block.
+OK, fair enough.  Let me make a new statement then: I suggest we preface
+these with MSR_ anyway so we can tell what they really are.
 
-This is the job of the program accessing /dev/random.  Open it blocking or
-non-blocking and read until you satisfy your read buffer.
+	-hpa
 
--d
-
-
---------------19F3DEECCACA37F26C51E5F2
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-url:www.blue-labs.org
-adr:;;;;;;
-version:2.1
-email;internet:david@blue-labs.org
-title:Blue Labs Developer
-note;quoted-printable:GPG key: http://www.blue-labs.org/david@nifty.key=0D=0A
-x-mozilla-cpt:;9952
-fn:David Ford
-end:vcard
-
---------------19F3DEECCACA37F26C51E5F2--
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

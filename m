@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261614AbSI0DVa>; Thu, 26 Sep 2002 23:21:30 -0400
+	id <S261613AbSI0DUC>; Thu, 26 Sep 2002 23:20:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261615AbSI0DVa>; Thu, 26 Sep 2002 23:21:30 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:16575 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S261614AbSI0DV3>;
-	Thu, 26 Sep 2002 23:21:29 -0400
-Message-ID: <1033097205.3d93cff5703ac@kolivas.net>
-Date: Fri, 27 Sep 2002 13:26:45 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: linux-kernel@vger.kernel.org
-Subject: [BENCHMARK] 2.4.20-pre8 contest results
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S261614AbSI0DUC>; Thu, 26 Sep 2002 23:20:02 -0400
+Received: from thunk.org ([140.239.227.29]:9889 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S261613AbSI0DUB>;
+	Thu, 26 Sep 2002 23:20:01 -0400
+Date: Thu, 26 Sep 2002 23:24:38 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Ryan Cumming <ryan@completely.kicks-ass.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Message-ID: <20020927032438.GA16159@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ryan Cumming <ryan@completely.kicks-ass.org>,
+	linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <200209261553.07593.ryan@completely.kicks-ass.org> <20020926235741.GC10551@think.thunk.org> <200209261800.27582.ryan@completely.kicks-ass.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209261800.27582.ryan@completely.kicks-ass.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 26, 2002 at 06:00:23PM -0700, Ryan Cumming wrote:
+>
+> > That's the only
+> > thing that would explain the "write access enabled during recovery of
+> > readonly filesystem" warning message.  That message means that
+> > /dev/hda2 was readonly because the mount command *requested* that it
+> > be mounted read-only, not because of some error.
+> Would init remounting the filesystem read-only before a reboot explain that? 
+> 11:49 is around the time I came to check my mail.
 
+No, it doesn't.  The message "Filesystem recorded error from previous
+mount" can only happen on an initial mount (which from the other
+messages must have been a read-only mount), or on remount of a
+read-only mount to a read-write mount.  Remounting read-only wouldn't
+explain these syslogs.
 
-Here are the contest (http://contest.kolivas.net) results for 2.4.20-pre8
-compared to previous kernels.
-
-noload:
-Kernel                  Time            CPU             Ratio
-2.4.19                  70.42           99%             1.00
-2.4.20-pre7             70.37           99%             1.00
-2.4.20-pre8             70.47           99%             1.00
-
-process_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  85.21           80%             1.21
-2.4.20-pre7             86.02           80%             1.22
-2.4.20-pre8             86.65           80%             1.23
-
-io_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  165.56          45%             2.35
-2.4.20-pre7             195.32          38%             2.77
-2.4.20-pre8             167.14          45%             2.37
-
-mem_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  100.70          76%             1.43
-2.4.20-pre7             102.83          75%             1.46
-2.4.20-pre8             102.14          76%             1.45
-
-There's no significant change since 2.4.19 which is what we'd expect.
-
-Con.
+						- Ted

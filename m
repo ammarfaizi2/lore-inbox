@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbTFBUgo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 16:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTFBUgo
+	id S262390AbTFBUl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 16:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTFBUl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 16:36:44 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:26120 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261888AbTFBUgn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 16:36:43 -0400
-Date: Mon, 2 Jun 2003 22:49:55 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [patch] epoll race fix for 2.5 ...
-Message-ID: <20030602204955.GC10750@alpha.home.local>
-References: <Pine.LNX.4.55.0305311458260.11255@bigblue.dev.mcafeelabs.com> <200306022242.22879.m.c.p@wolk-project.de>
+	Mon, 2 Jun 2003 16:41:29 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:7370 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262390AbTFBUl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 16:41:27 -0400
+Date: Mon, 2 Jun 2003 22:54:41 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: matsunaga <matsunaga_kazuhisa@yahoo.co.jp>, linux-mtd@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
+Message-ID: <20030602205441.GA30619@wohnheim.fh-wedel.de>
+References: <20030530144959.GA4736@wohnheim.fh-wedel.de> <002901c32919$ddc37000$570486da@w0a3t0> <20030602153656.GA679@wohnheim.fh-wedel.de> <1054568407.20369.382.camel@passion.cambridge.redhat.com> <20030602155353.GB679@wohnheim.fh-wedel.de> <1054569564.20369.385.camel@passion.cambridge.redhat.com> <20030602163704.GC679@wohnheim.fh-wedel.de> <1054582573.22361.6.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200306022242.22879.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1054582573.22361.6.camel@imladris.demon.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marc,
-
-On Mon, Jun 02, 2003 at 10:42:22PM +0200, Marc-Christian Petersen wrote:
-> On Monday 02 June 2003 22:27, Davide Libenzi wrote:
+On Mon, 2 June 2003 20:36:13 +0100, David Woodhouse wrote:
 > 
-> Hi Davide,
-> 
-> > The was a race triggered by heavy MT usage that could have caused
-> > processes in D state. Bad Davide, bad ...
-> > Also, the semaphore is now per-epoll-fd and not global. Plus some comment
-> > adjustment.
-> > Updated patches for 2.4.{20,21-rc6} are here :
-> > http://www.xmailserver.org/linux-patches/nio-improve.html#patches
-> is it just me or am I too silly to follow your release name changes? ;)
+> I was concerned briefly that the allocation could happen when we're
+> trying to evict a page on memory pressure -- but in fact that's
+> virtually impossible since you'd have to mount the file system and mmap
+> your file without actually writing anything to the block device.
 
-Do like me : download the latest of each name, and compare the sizes, then
-the dates of the files inside the diffs, and you'll find that epoll-lt is the
-newer :-)
+Right.  If someone gets into memory pressure before ever writing to
+the device, there should be other problems in the system anyway.  No
+need to fix something that is already broken elsewhere.
 
-Cheers,
-Willy
+> And anyway, refer to earlier comments about anyone using the naïve
+> read/erase/modify/writeback mtdblock translation layer for writing in
+> production wanting to be shot for it :)
 
+Right!
+
+Jörn
+
+-- 
+More computing sins are committed in the name of efficiency (without
+necessarily achieving it) than for any other single reason - including
+blind stupidity.
+-- W. A. Wulf 

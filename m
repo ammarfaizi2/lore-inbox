@@ -1,225 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263528AbTLXKog (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 05:44:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbTLXKog
+	id S263537AbTLXKvO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 05:51:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263545AbTLXKvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 05:44:36 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7430 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263528AbTLXKoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 05:44:30 -0500
-Date: Wed, 24 Dec 2003 10:44:26 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>, linux-pcmcia@lists.infradead.org,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 8/7] more CardServices() removals (drivers/serial)
-Message-ID: <20031224104426.B11040@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-pcmcia@lists.infradead.org,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	Wed, 24 Dec 2003 05:51:14 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:49899 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263537AbTLXKvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 05:51:12 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jim Lawson <jim+linux-kernel@jimlawson.org>
+Date: Wed, 24 Dec 2003 21:51:00 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16361.28564.275984.580859@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0, SiI3112, md raid1 problem: bio too big device (128 > 15)
+In-Reply-To: message from Jim Lawson on Tuesday December 23
+References: <Pine.LNX.4.58.0312232253140.7841@infocalypse.jimlawson.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, this is the last patch for removal of CardServices()
+On Tuesday December 23, jim+linux-kernel@jimlawson.org wrote:
+> Hi all,
+> 
+> I am having trouble creating a raid1 array under 2.6.0.  I am able to
+> create raid0 and raid5 mds, but raid1s fail with "bio too big device hde3
+> (128 > 15)", which doesn't tell me a lot.  I can see it's in
+> drivers/block/ll_rw_blk.c, right at the boundary with the device driver,
+> but I'm not enough of a kernel wonk to find out a lot more.
 
---- orig/drivers/serial/serial_cs.c	Sun Sep 28 09:55:09 2003
-+++ linux/drivers/serial/serial_cs.c	Tue Dec 23 14:58:23 2003
-@@ -149,9 +149,9 @@
- 		info->link.dev = NULL;
- 
- 		if (!info->slave) {
--			CardServices(ReleaseConfiguration, info->link.handle);
--			CardServices(ReleaseIO, info->link.handle, &info->link.io);
--			CardServices(ReleaseIRQ, info->link.handle, &info->link.irq);
-+			pcmcia_release_configuration(info->link.handle);
-+			pcmcia_release_io(info->link.handle, &info->link.io);
-+			pcmcia_release_irq(info->link.handle, &info->link.irq);
- 		}
- 
- 		info->link.state &= ~DEV_CONFIG;
-@@ -211,7 +211,7 @@
- 	client_reg.event_handler = &serial_event;
- 	client_reg.Version = 0x0210;
- 	client_reg.event_callback_args.client_data = link;
--	ret = CardServices(RegisterClient, &link->handle, &client_reg);
-+	ret = pcmcia_register_client(&link->handle, &client_reg);
- 	if (ret != CS_SUCCESS) {
- 		cs_error(link->handle, RegisterClient, ret);
- 		serial_detach(link);
-@@ -256,7 +256,7 @@
- 	serial_remove(link);
- 
- 	if (link->handle) {
--		ret = CardServices(DeregisterClient, link->handle);
-+		ret = pcmcia_deregister_client(link->handle);
- 		if (ret != CS_SUCCESS)
- 			cs_error(link->handle, DeregisterClient, ret);
- 	}
-@@ -306,10 +306,10 @@
- 	i = CardServices(fn, handle, tuple);
- 	if (i != CS_SUCCESS)
- 		return CS_NO_MORE_ITEMS;
--	i = CardServices(GetTupleData, handle, tuple);
-+	i = pcmcia_get_tuple_data(handle, tuple);
- 	if (i != CS_SUCCESS)
- 		return i;
--	return CardServices(ParseTuple, handle, tuple, parse);
-+	return pcmcia_parse_tuple(handle, tuple, parse);
- }
- 
- #define first_tuple(a, b, c) get_tuple(GetFirstTuple, a, b, c)
-@@ -330,7 +330,7 @@
- 	int i, j, try;
- 
- 	/* If the card is already configured, look up the port and irq */
--	i = CardServices(GetConfigurationInfo, handle, &config);
-+	i = pcmcia_get_configuration_info(handle, &config);
- 	if ((i == CS_SUCCESS) && (config.Attributes & CONF_VALID_CLIENT)) {
- 		ioaddr_t port = 0;
- 		if ((config.BasePort2 != 0) && (config.NumPorts2 == 8)) {
-@@ -367,9 +367,7 @@
- 				link->io.BasePort1 = cf->io.win[0].base;
- 				link->io.IOAddrLines = (try == 0) ?
- 				    16 : cf->io.flags & CISTPL_IO_LINES_MASK;
--				i =
--				    CardServices(RequestIO, link->handle,
--						 &link->io);
-+				i = pcmcia_request_io(link->handle, &link->io);
- 				if (i == CS_SUCCESS)
- 					goto found_port;
- 			}
-@@ -389,8 +387,7 @@
- 			for (j = 0; j < 5; j++) {
- 				link->io.BasePort1 = base[j];
- 				link->io.IOAddrLines = base[j] ? 16 : 3;
--				i = CardServices(RequestIO, link->handle,
--						 &link->io);
-+				i = pcmcia_request_io(link->handle, &link->io);
- 				if (i == CS_SUCCESS)
- 					goto found_port;
- 			}
-@@ -406,14 +403,14 @@
- 		return -1;
- 	}
- 
--	i = CardServices(RequestIRQ, link->handle, &link->irq);
-+	i = pcmcia_request_irq(link->handle, &link->irq);
- 	if (i != CS_SUCCESS) {
- 		cs_error(link->handle, RequestIRQ, i);
- 		link->irq.AssignedIRQ = 0;
- 	}
- 	if (info->multi && (info->manfid == MANFID_3COM))
- 		link->conf.ConfigIndex &= ~(0x08);
--	i = CardServices(RequestConfiguration, link->handle, &link->conf);
-+	i = pcmcia_request_configuration(link->handle, &link->conf);
- 	if (i != CS_SUCCESS) {
- 		cs_error(link->handle, RequestConfiguration, i);
- 		return -1;
-@@ -433,7 +430,7 @@
- 	config_info_t config;
- 	int i, base2 = 0;
- 
--	i = CardServices(GetConfigurationInfo, handle, &config);
-+	i = pcmcia_get_configuration_info(handle, &config);
- 	if (i != CS_SUCCESS) {
- 		cs_error(handle, GetConfigurationInfo, i);
- 		return -1;
-@@ -458,7 +455,7 @@
- 			link->io.BasePort1 = cf->io.win[0].base;
- 			link->io.IOAddrLines =
- 			    cf->io.flags & CISTPL_IO_LINES_MASK;
--			i = CardServices(RequestIO, link->handle, &link->io);
-+			i = pcmcia_request_io(link->handle, &link->io);
- 			base2 = link->io.BasePort1 + 8;
- 			if (i == CS_SUCCESS)
- 				break;
-@@ -478,9 +475,7 @@
- 				link->io.BasePort2 = cf->io.win[1].base;
- 				link->io.IOAddrLines =
- 				    cf->io.flags & CISTPL_IO_LINES_MASK;
--				i =
--				    CardServices(RequestIO, link->handle,
--						 &link->io);
-+				i = pcmcia_request_io(link->handle, &link->io);
- 				base2 = link->io.BasePort2;
- 				if (i == CS_SUCCESS)
- 					break;
-@@ -494,7 +489,7 @@
- 		return -1;
- 	}
- 
--	i = CardServices(RequestIRQ, link->handle, &link->irq);
-+	i = pcmcia_request_irq(link->handle, &link->irq);
- 	if (i != CS_SUCCESS) {
- 		printk(KERN_NOTICE
- 		       "serial_cs: no usable port range found, giving up\n");
-@@ -506,7 +501,7 @@
- 		link->conf.Present |= PRESENT_EXT_STATUS;
- 		link->conf.ExtStatus = ESR_REQ_ATTN_ENA;
- 	}
--	i = CardServices(RequestConfiguration, link->handle, &link->conf);
-+	i = pcmcia_request_configuration(link->handle, &link->conf);
- 	if (i != CS_SUCCESS) {
- 		cs_error(link->handle, RequestConfiguration, i);
- 		return -1;
-@@ -543,9 +538,6 @@
- 
- ======================================================================*/
- 
--#define CS_CHECK(fn, args...) \
--while ((last_ret=CardServices(last_fn=(fn), args))!=0) goto cs_failed
--
- void serial_config(dev_link_t * link)
- {
- 	client_handle_t handle = link->handle;
-@@ -619,10 +611,18 @@
- 
- 	if (info->manfid == MANFID_IBM) {
- 		conf_reg_t reg = { 0, CS_READ, 0x800, 0 };
--		CS_CHECK(AccessConfigurationRegister, link->handle, &reg);
-+		last_ret = pcmcia_access_configuration_register(link->handle, &reg);
-+		if (last_ret) {
-+			last_fn = AccessConfigurationRegister;
-+			goto cs_failed;
-+		}
- 		reg.Action = CS_WRITE;
- 		reg.Value = reg.Value | 1;
--		CS_CHECK(AccessConfigurationRegister, link->handle, &reg);
-+		last_ret = pcmcia_access_configuration_register(link->handle, &reg);
-+		if (last_ret) {
-+			last_fn = AccessConfigurationRegister;
-+			goto cs_failed;
-+		}
- 	}
- 
- 	link->dev = &info->node[0];
-@@ -668,16 +668,15 @@
- 		/* Fall through... */
- 	case CS_EVENT_RESET_PHYSICAL:
- 		if ((link->state & DEV_CONFIG) && !info->slave)
--			CardServices(ReleaseConfiguration, link->handle);
-+			pcmcia_release_configuration(link->handle);
- 		break;
- 
- 	case CS_EVENT_PM_RESUME:
- 		link->state &= ~DEV_SUSPEND;
- 		/* Fall through... */
- 	case CS_EVENT_CARD_RESET:
- 		if (DEV_OK(link) && !info->slave)
--			CardServices(RequestConfiguration, link->handle,
--				     &link->conf);
-+			pcmcia_request_configuration(link->handle, &link->conf);
- 		break;
- 	}
- 	return 0;
+This is a raid1 bug.
+Some block devices have limits on the sizes of io requests that they
+can handle, and advertise these limits with ->max_sectors and
+->merge_bvec_fn (and a few others).  Any device MUST be able to accept
+a single page IO at any offset.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+When raid1 does a 'resync' it does all IO in 64K requests, ignoring
+the restrictions.
+Getting raid1 resync to handle the restrictions is non-trivial (I have
+code, but it is still buggy).
+
+A simple interim fix is to replace
+
+#define RESYNC_BLOCK_SIZE (64*1024)
+
+with
+
+#define RESYNC_BLOCK_SIZE PAGE_SIZE
+
+NeilBrown

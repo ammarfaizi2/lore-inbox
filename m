@@ -1,123 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266161AbUGTTyC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266147AbUGTTyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266161AbUGTTyC (ORCPT <rfc822;willy@w.ods.org>);
+	id S266147AbUGTTyC (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 20 Jul 2004 15:54:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUGTTxo
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUGTTxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:53:44 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35576 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266161AbUGTTuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 15:50:23 -0400
-Date: Tue, 20 Jul 2004 21:50:12 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Steve Lord <lord@xfs.org>
-Cc: linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com, nathans@sgi.com,
-       Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL and XFS on 4KSTACKS=n
-Message-ID: <20040720195012.GN14733@fs.tum.de>
-References: <20040720114418.GH21918@email.archlab.tuwien.ac.at> <40FD0A61.1040503@xfs.org> <40FD2E99.20707@mnsu.edu>
+	Tue, 20 Jul 2004 15:53:13 -0400
+Received: from cantor.suse.de ([195.135.220.2]:10922 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266208AbUGTTwT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 15:52:19 -0400
+Subject: Re: Processes stuck in unkillable D state (now seen in 2.6.7-mm6)
+From: Chris Mason <mason@suse.com>
+To: Rob Mueller <robm@fastmail.fm>, wli@holomorphy.com, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <009e01c46849$f2e85430$9aafc742@ROBMHP>
+References: <00f601c46539$0bdf47a0$e6afc742@ROBMHP>
+	 <1089377936.3956.148.camel@watt.suse.com>
+	 <009e01c46849$f2e85430$9aafc742@ROBMHP>
+Content-Type: text/plain
+Message-Id: <1090353111.23350.8.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40FD2E99.20707@mnsu.edu>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 20 Jul 2004 15:51:52 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 20, 2004 at 09:39:21AM -0500, Jeffrey E. Hundstad wrote:
-> Steve Lord wrote:
+On Mon, 2004-07-12 at 15:53, Rob Mueller wrote:
+
+> Here's the relevant stuck proc.
 > 
-> >Don't use 4K stacks and XFS. What you hit here is a path where the
-> >filesystem is getting full and it needs to free some reserved space
-> >by flushing cached data which is using reserved extents. Reserved
-> >extents do not yet have an on disk address and they include a
-> >reservation for the worst case metadata usage. Flushing them will
-> >get you room back.
-> >
-> >As you can see, it is a pretty deep call stack, most of XFS is going
-> >to work just fine with a 4K stack, but there are end cases like
-> >this one which will just not fit.
+> imapd         D E17BE6E0     0  3761      1               10291 (NOTLB)
+> e11c3bc8 00000086 00000020 e17be6e0 c1372d20 00000246 00000220 f7e12380
+>        00000020 c0136667 c42c6da0 00000001 00000d74 bbfe8a6a 0000040d 
+> c42c6da0
+>        f7f91140 e17be6e0 e17be890 f78cd9cc 00000003 f78cd9cc f78cd9cc 
+> c025d2cc
+> Call Trace:
+>  [<c0136667>] kmem_cache_alloc+0x57/0x70
+>  [<c025d2cc>] generic_unplug_device+0x2c/0x40
+>  [<c037a148>] io_schedule+0x28/0x40
+>  [<c012e03c>] __lock_page+0xbc/0xe0
+>  [<c012dd70>] page_wake_function+0x0/0x50
+>  [<c012dd70>] page_wake_function+0x0/0x50
+>  [<c012f061>] filemap_nopage+0x231/0x360
+>  [<c013dc18>] do_no_page+0xb8/0x3a0
+>  [<c013ba7b>] pte_alloc_map+0xdb/0xf0
+>  [<c013e0ae>] handle_mm_fault+0xbe/0x1a0
+>  [<c025d292>] __generic_unplug_device+0x32/0x40
+>  [<c0112af2>] do_page_fault+0x172/0x5ec
+>  [<c014cab0>] bh_wake_function+0x0/0x40
+>  [<c014cab0>] bh_wake_function+0x0/0x40
+>  [<c018ec9f>] reiserfs_prepare_file_region_for_write+0x94f/0x9b0
+>  [<c0112980>] do_page_fault+0x0/0x5ec
+>  [<c0104b19>] error_code+0x2d/0x38
+>  [<c018dc0f>] reiserfs_copy_from_user_to_file_region+0x8f/0x100
+>  [<c018f2b1>] reiserfs_file_write+0x5b1/0x750
+>  [<c0186675>] reiserfs_link+0xb5/0x190
+>  [<c0186719>] reiserfs_link+0x159/0x190
+>  [<c016134c>] dput+0x1c/0x1b0
+>  [<c016134c>] dput+0x1c/0x1b0
+>  [<c01581a0>] path_release+0x10/0x40
+>  [<c015a9bc>] sys_link+0xcc/0xe0
+>  [<c014bb9a>] vfs_write+0xaa/0xe0
+>  [<c014b610>] default_llseek+0x0/0x110
+>  [<c014bc4f>] sys_write+0x2f/0x50
+>  [<c010406b>] syscall_call+0x7/0xb
 > 
+> Is that in lock_page again?
 > 
-> If this is a known truth with XFS maybe it would be a good idea to have 
-> 4K stacks and XFS be an impossible combination using the config tool.
+> Hopefully there's some helpful information there. If the dump there isn't 
+> complete, can you give me an idea why it might not be? I've set the kernel 
+> buffer to 17 (128k), and the proc list was definitely small enough to fit in 
+> the buffer. When I did "dmesg -s 1000000 > foo", the first part of the file 
+> was still the original boot sequence. Any other suggestions on what to do?
+
+Ugh, so the call path here is:
+
+reiserfs_file_write -> start a transaction
+copy_from_user -> fault in the page
+page fault handler -> lock page
+
+This means we're trying to lock a page with a running transaction, and
+that's not allowed, since some other process on the box most likely has
+that page locked and is trying to start a transaction.
+
+That makes for 3 different deadlocks in this exact same call path
+(dirty_inode, lock_page and kmap), and my patch for it has major
+problems.  So, I'll talk things over with everyone during OLS and try to
+work out a proper fix.
+
+Sorry Rob, this one is non-trivial.
+
+-chris
 
 
-The patch below does:
-
-1. let 4KSTACKS depend on EXPERIMENTAL
-Rationale:
-4Kb stacks on i386 are the future. But currently this option might still 
-cause problems in some areas of the kernel. OTOH, 4Kb stacks isn't a big 
-gain for most people.
-2.6 is a stable kernel series, and 4KSTACKS=n is the safe choice.
-Once all issues with 4KSTACKS=y are resolved this can be reverted.
-
-2. let XFS depend on (4KSTACKS=n || BROKEN)
-Rationale:
-Mark Loy said:
-  Don't use 4K stacks and XFS.
-Mark this combination as BROKEN until XFS is fixed.
-This might result in XFS support disappearing for some people, but if 
-they use EXPERIMENTAL=y they should know what they are doing.
-
-The 4KSTACKS option has to be moved for that it's asked before XFS in 
-"make config".
-
-diffstat output:
- arch/i386/Kconfig |   19 ++++++++++---------
- fs/Kconfig        |    1 +
- 2 files changed, 11 insertions(+), 9 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.8-rc2-full/arch/i386/Kconfig.old	2004-07-20 21:00:32.000000000 +0200
-+++ linux-2.6.8-rc2-full/arch/i386/Kconfig	2004-07-20 21:03:30.000000000 +0200
-@@ -865,6 +865,16 @@
- 	generate incorrect output with certain kernel constructs when
- 	-mregparm=3 is used.
- 
-+config 4KSTACKS
-+	bool "Use 4Kb for kernel stacks instead of 8Kb"
-+	depends on EXPERIMENTAL
-+	help
-+	  If you say Y here the kernel will use a 4Kb stacksize for the
-+	  kernel stack attached to each process/thread. This facilitates
-+	  running more threads on a system and also reduces the pressure
-+	  on the VM subsystem for higher order allocations. This option
-+	  will also use IRQ stacks to compensate for the reduced stackspace.
-+
- endmenu
- 
- 
-@@ -1289,15 +1299,6 @@
- 	  If you don't debug the kernel, you can say N, but we may not be able
- 	  to solve problems without frame pointers.
- 
--config 4KSTACKS
--	bool "Use 4Kb for kernel stacks instead of 8Kb"
--	help
--	  If you say Y here the kernel will use a 4Kb stacksize for the
--	  kernel stack attached to each process/thread. This facilitates
--	  running more threads on a system and also reduces the pressure
--	  on the VM subsystem for higher order allocations. This option
--	  will also use IRQ stacks to compensate for the reduced stackspace.
--
- config X86_FIND_SMP_CONFIG
- 	bool
- 	depends on X86_LOCAL_APIC || X86_VOYAGER
---- linux-2.6.8-rc2-full/fs/Kconfig.old	2004-07-20 21:04:02.000000000 +0200
-+++ linux-2.6.8-rc2-full/fs/Kconfig	2004-07-20 21:04:25.000000000 +0200
-@@ -294,6 +294,7 @@
- 
- config XFS_FS
- 	tristate "XFS filesystem support"
-+	depends on (4KSTACKS=n || BROKEN)
- 	help
- 	  XFS is a high performance journaling filesystem which originated
- 	  on the SGI IRIX platform.  It is completely multi-threaded, can

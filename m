@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263138AbVCMFLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbVCMFLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263138AbVCMFLT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 00:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbVCMFLT
+	id S263191AbVCMFLv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 00:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbVCMFLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 00:11:19 -0500
-Received: from fire.osdl.org ([65.172.181.4]:59862 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263138AbVCMFH7 (ORCPT
+	Sun, 13 Mar 2005 00:11:50 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:14242 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263191AbVCMFL3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 00:07:59 -0500
-Date: Sat, 12 Mar 2005 21:08:45 -0800
-From: John Cherry <cherry@osdl.org>
-Message-Id: <200503130508.j2D58jTQ014587@ibm-f.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA32 (2.6.11 - 2005-03-12.16.00) - 56 New warnings
+	Sun, 13 Mar 2005 00:11:29 -0500
+Date: Sat, 12 Mar 2005 21:10:59 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH][RFC] Apply umask to /proc/<pid>
+Message-Id: <20050312211059.6ad4e08b.pj@engr.sgi.com>
+In-Reply-To: <20050312211255.GA4627@lsrfire.ath.cx>
+References: <20050312211255.GA4627@lsrfire.ath.cx>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/media/dvb/frontends/dvb-pll.c:104: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:104: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:105: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:105: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:106: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:106: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:107: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:107: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:108: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:108: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:109: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:109: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:110: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:110: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:111: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:111: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:112: warning: (near initialization for `dvb_pll_unknown_1.entries')
-drivers/media/dvb/frontends/dvb-pll.c:112: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:38: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
-drivers/media/dvb/frontends/dvb-pll.c:38: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:39: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
-drivers/media/dvb/frontends/dvb-pll.c:39: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:40: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
-drivers/media/dvb/frontends/dvb-pll.c:40: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:41: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
-drivers/media/dvb/frontends/dvb-pll.c:41: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:42: warning: (near initialization for `dvb_pll_thomson_dtt7579.entries')
-drivers/media/dvb/frontends/dvb-pll.c:42: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:53: warning: (near initialization for `dvb_pll_thomson_dtt7610.entries')
-drivers/media/dvb/frontends/dvb-pll.c:53: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:54: warning: (near initialization for `dvb_pll_thomson_dtt7610.entries')
-drivers/media/dvb/frontends/dvb-pll.c:54: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:55: warning: (near initialization for `dvb_pll_thomson_dtt7610.entries')
-drivers/media/dvb/frontends/dvb-pll.c:55: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:73: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
-drivers/media/dvb/frontends/dvb-pll.c:73: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:74: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
-drivers/media/dvb/frontends/dvb-pll.c:74: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:75: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
-drivers/media/dvb/frontends/dvb-pll.c:75: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:76: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
-drivers/media/dvb/frontends/dvb-pll.c:76: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:77: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
-drivers/media/dvb/frontends/dvb-pll.c:77: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:78: warning: (near initialization for `dvb_pll_thomson_dtt759x.entries')
-drivers/media/dvb/frontends/dvb-pll.c:78: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:89: warning: (near initialization for `dvb_pll_lg_z201.entries')
-drivers/media/dvb/frontends/dvb-pll.c:89: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:90: warning: (near initialization for `dvb_pll_lg_z201.entries')
-drivers/media/dvb/frontends/dvb-pll.c:90: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:91: warning: (near initialization for `dvb_pll_lg_z201.entries')
-drivers/media/dvb/frontends/dvb-pll.c:91: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:92: warning: (near initialization for `dvb_pll_lg_z201.entries')
-drivers/media/dvb/frontends/dvb-pll.c:92: warning: excess elements in array initializer
-drivers/media/dvb/frontends/dvb-pll.c:93: warning: (near initialization for `dvb_pll_lg_z201.entries')
-drivers/media/dvb/frontends/dvb-pll.c:93: warning: excess elements in array initializer
+> patch below makes procfs apply the umask of the processes to their
+> respective /proc/<pid> directories and the files below them.
+
+Ugh ...
+
+Since there are already various umask settings done by various
+/etc/*profile* and /etc/*init* scripts that head up various logins and
+task families, this means that the default visibility of tasks in ps and
+top will change.  I predict confusion and frustration, when people don't
+know why portions of ps or top output are suppressed.
+
+And even when they figure it out, you don't give them anyway to get back
+to the previous state - of visibility in ps, top and pstree, but file
+creation permissions masked off in some way.
+
+Nice small patch ... but I don't like overloading umask with this.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

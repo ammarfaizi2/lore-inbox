@@ -1,83 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUFRF7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263663AbUFRGK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264997AbUFRF7w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 01:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbUFRF7w
+	id S263663AbUFRGK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 02:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUFRGK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 01:59:52 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:30745 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264994AbUFRF7e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 01:59:34 -0400
-Date: Thu, 17 Jun 2004 22:59:09 -0700
-From: Jeremy Higdon <jeremy@sgi.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Proposal for new generic device API: dma_get_required_mask()
-Message-ID: <20040618055909.GA13007@sgi.com>
-References: <1087481331.2210.27.camel@mulgrave>
+	Fri, 18 Jun 2004 02:10:58 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:22474 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S263663AbUFRGK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 02:10:57 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: SATA 3112 errors on 2.6.7
+Date: Fri, 18 Jun 2004 08:08:03 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.06.18.06.08.03.257944@smurf.noris.de>
+References: <20040617210751.GA28519@pool-141-154-165-127.wma.east.verizon.net> <Pine.GSO.4.33.0406172012220.25702-100000@sweetums.bluetronic.net>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1087481331.2210.27.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1087538883 27667 192.109.102.35 (18 Jun 2004 06:08:03 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Fri, 18 Jun 2004 06:08:03 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 09:08:51AM -0500, James Bottomley wrote:
-> Background:
-> 
-> We have a large number of devices in scsi: aacraid, aic7xxx, qla1280,
-> qla2xxx which can all do full 64 bit DMA, but which pay a performance
-> penalty for using the larger descriptors (aic7xxx is stranger in that it
-> has three modes of operation: 32 bit, 39 bit and 64 bit each with an
-> increasing performance penalty).
-> 
-> What all these devices would like to do is instead of simply trying the
-> 64 bit mask first and having the platform accept it, even if it only has
-> < 4GB of memory, they'd like to be able to have the platform tell them,
-> given my current dma mask setting, what's the actual number of bits you
-> need me to DMA to.
-> 
-> This is precisely what the API would do.  It would return a bit mask
-> (never over the current dma_mask) that the platform considers optimal. 
-> The platform has complete freedom in this: it may return a mask covering
-> the total physical memory, or a mask covering all the bits it needs
-> setting for some weird numa scheme.
-> 
-> If the driver decides to use the mask, it would do another
-> dma_set_mask() to confirm it (this gives the platform the opportunity if
-> it so chooses to return a mask that doesn't quite cover memory, but
-> would be more optimal...say for platforms that have all memory under 4GB
-> bar one small chunk at 64GB or something).
-> 
-> Once the driver has the platform's optimal mask, it can use this to
-> decide on the correct descriptor size.
-> 
-> Comments?
-> 
-> James
+Hi, Ricky Beam wrote:
 
+>>Current sda: sense key Medium Error
 
-Sounds good.  But I'm curious why you make the driver call dma_set_mask()
-twice.
+>There's likely nothing wrong with your drives.  Something about that
+>driver and the hardware aren't playing nice.
 
-I.e., why not
+What does the drive's SMART error log report?
 
-	mask = dma_get_required_mask(...)
-	
-	if (mask < (1ull << 32)) {
-		dma_set_mask(... 32bit)
-		use_dac = 0;
-	}
-	else {
-		dma_set_mask(... 64 bit)
-		use_dac = 1;
-	}
+I would consider swapping the power supply. Last year I had *four* 120 GB
+drives fail on me before I changed the thing. Zero problems since.
 
-
-Are there cases you're thinking of where the platform's required mask
-would vary depending on the current mask?
-
-jeremy
+-- 
+Matthias Urlichs

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281060AbRKTNBi>; Tue, 20 Nov 2001 08:01:38 -0500
+	id <S280817AbRKTNDs>; Tue, 20 Nov 2001 08:03:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281059AbRKTNB2>; Tue, 20 Nov 2001 08:01:28 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8966 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S280817AbRKTNBS>; Tue, 20 Nov 2001 08:01:18 -0500
-Date: Tue, 20 Nov 2001 14:00:59 +0100
-From: Jan Hubicka <jh@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>, Jan Hubicka <jh@suse.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: i386 flags register clober in inline assembly
-Message-ID: <20011120140059.E16297@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011118020957.A10674@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0111171844001.899-100000@penguin.transmeta.com> <20011120003338.A24717@twiddle.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011120003338.A24717@twiddle.net>
-User-Agent: Mutt/1.3.20i
+	id <S281059AbRKTNDi>; Tue, 20 Nov 2001 08:03:38 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:40683 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S280817AbRKTNDX>; Tue, 20 Nov 2001 08:03:23 -0500
+Message-Id: <200111201303.OAA17296@post.webmailer.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.15-pre6 compile errors
+Date: Tue, 20 Nov 2001 14:01:26 +0100
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, Nov 17, 2001 at 06:48:22PM -0800, Linus Torvalds wrote:
-> > That sounds pretty ideal - have some way of telling gcc to add a "seta
-> > %reg", while at the same time telling gcc that if it can elide the "seta"
-> > and use a direct jump instead, do so..
-> 
-> Hmm.  It appears to be easy to do with machine-dependent builtins.  E.g.
-> 
-> 	int x;
-> 	__asm__ __volatile__(LOCK "subl %1,%0"
-> 			     : "=m"(v->counter) : "ir"(i) : "memory");
-> 	x = __builtin_ia32_sete();
-> 	if (x) {
-> 		...
-> 	}
-> 
-> Now, you'd have to be careful in where that __builtin_ia32_sete
-> gets placed, but I'd guess that immediately after an asm would
-> be relatively safe.  No 100% guarantees on that, unfortunately.
-> 
-> And the sete _ought_ to get merged with the if test by combine
-> or cse with no extra code.
-> 
-> It wouldn't take too much effort to try this out either...
-True. Only obstackle I see is how to make visible that the flags
-are set by the asm statement.  I guess we need to replace the clobber
-we have by set.  Do you have any idea for nice syntax for this?
-Or just to do that by default, as asms are mostly non-single-set anyway?
+I have tried to compile a few useless configurations (on i686, gcc-2.96) of 
+the latest kernel and so far found three cases where a valid configuration 
+fails to compile:
 
-Honza
+CONFIG_PPP_DEFLATE && (CONFIG_CRAMFS || CONFIG_ZISOFS):
+Symbol clashes from two zlib copies (again...). I suppose the symbols in 
+drivers/net/zlib.c could all be made static unless a merge of both zlib 
+copies is already planned.
 
-> 
-> 
-> r~
+!CONFIG_INET:
+Some files in net/core/ are compiled unconditionally, but depend on TCP/IP 
+(CONFIG_INET).  The problem is that TCP_ENC_send in include/net/tcp_ecn.h
+accesses the disabled 'af_inet' part of struct sock. A simple #ifdef at the 
+right place should solve this.
+
+CONFIG_MULTIQUAD && CONFIG_DEBUG_IOVIRT:
+arch/i386/boot/compressed/misc.o can't resolve __io_virt_debug (from outb_p) 
+when linking bzImage. This configuration is really useless and fixing this 
+would be rather ugly, so I suggest explicitly forbidding it to help the next 
+fool to try 'yes | make config'.
+
+Arnd <><

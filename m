@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316916AbSHGXun>; Wed, 7 Aug 2002 19:50:43 -0400
+	id <S315388AbSHGXar>; Wed, 7 Aug 2002 19:30:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316928AbSHGXum>; Wed, 7 Aug 2002 19:50:42 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:268 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316916AbSHGXug>; Wed, 7 Aug 2002 19:50:36 -0400
-Date: Wed, 7 Aug 2002 20:53:50 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Steven Cole <elenstev@mesatop.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
-       Steven Cole <scole@lanl.gov>
-Subject: Re: Linux v2.4.19-rc5
-In-Reply-To: <Pine.LNX.3.96.1020807193425.14463K-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44L.0208072053240.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S316437AbSHGXaq>; Wed, 7 Aug 2002 19:30:46 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49168 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S315388AbSHGXaq>; Wed, 7 Aug 2002 19:30:46 -0400
+Date: Wed, 7 Aug 2002 19:28:19 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Why 'mrproper'?
+In-Reply-To: <20020807170041.GA259@win.tue.nl>
+Message-ID: <Pine.LNX.3.96.1020807191903.14463G-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, Bill Davidsen wrote:
+On Wed, 7 Aug 2002, Andries Brouwer wrote:
 
-> Sure, glad to. If the 2.5 numbers are much worse than 2.4, somthing
-> isn't working as well,
+> On Wed, Aug 07, 2002 at 08:55:25AM -0400, Bill Davidsen wrote:
+> 
+> > Having started out on the four floppy MCC "distribution" of Linux,
+> > building kernels clean with 'make distclean,' can someone provide a quick
+> > historical note as to what mrproper buys? A quick look at the tree after
+> > each didn't tell me much.
+> 
+> Funny that you ask this question first now.
 
-Are you volunteering to identify that "something" for us ?
+It came to me as I was looking for something else in 2.4.19. Notably that
+"make backup" backs up "linux" even though the tar file now unpacks into
+linux-2.4.19. That looks kind of like a problem waiting to bite some
+kernel developer.
 
-regards,
+> mrproper came in 0.99p7
+> distclean came in 0.99p14 as a synonym for mrproper.
 
-Rik
+It certainly isn't such now, it does a good bit more. Anyway, I have my
+bit of history for the day, thanks all!
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

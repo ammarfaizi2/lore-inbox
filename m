@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUK3VXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbUK3V2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUK3VXw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 16:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbUK3VXw
+	id S262323AbUK3V2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 16:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbUK3V2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 16:23:52 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:1951 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262322AbUK3VXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 16:23:48 -0500
-Subject: Re: user- vs kernel-level resource sandbox for Linux?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: grendel@caudium.net
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, Jeff Dike <jdike@addtoit.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041130204708.GB14080@beowulf.thanes.org>
-References: <20041129101919.GB9419@beowulf.thanes.org>
-	 <200411292000.iATK0qOF004026@ccure.user-mode-linux.org>
-	 <16811.40687.892939.304185@wombat.chubb.wattle.id.au>
-	 <20041130023947.GI5378@beowulf.thanes.org>
-	 <1101840505.25628.105.camel@localhost.localdomain>
-	 <20041130204708.GB14080@beowulf.thanes.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101846018.25628.155.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 30 Nov 2004 20:20:19 +0000
+	Tue, 30 Nov 2004 16:28:16 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:4774 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262323AbUK3V2M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 16:28:12 -0500
+Date: Tue, 30 Nov 2004 22:28:08 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Walking all the physical memory in an x86 system
+In-Reply-To: <C863B68032DED14E8EBA9F71EB8FE4C205805721@azsmsx406>
+Message-ID: <Pine.LNX.4.53.0411302227520.933@yvahk01.tjqt.qr>
+References: <C863B68032DED14E8EBA9F71EB8FE4C205805721@azsmsx406>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-30 at 20:47, Marek Habersack wrote:
-> That's my current impression. I also considered writing a simple kernel
-> module to intercept sys_brk, but that seemed to be a bit clumsy. We have
+>[Jon M. Hanson] I can read /dev/mem from a userspace application as root
+>with no problems and print out what it sees. However, things are not so
+>simple from a kernel module as I just can't call open() and read() on
+>/dev/mem because no such functions are exported from the kernel. Is
+>there a way to read the contents of /dev/mem from a kernel module?
 
-You have to consider kernel side resources too - page tables, memory
-maps
-and the like which jails don't really fix. 
+You can use filp_open().
 
+
+Jan Engelhardt
+-- 
+ENOSPC

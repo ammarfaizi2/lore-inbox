@@ -1,347 +1,381 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVCHXWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVCHXVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbVCHXWL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 18:22:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVCHXV6
+	id S262174AbVCHXVN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 18:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVCHXTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 18:21:58 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:27867 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262176AbVCHXQm (ORCPT
+	Tue, 8 Mar 2005 18:19:10 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:12180 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262221AbVCHXO1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:16:42 -0500
-Date: Wed, 9 Mar 2005 00:16:36 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
-Message-ID: <20050308231636.GA20658@isilmar.linta.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>, jt@hpl.hp.com,
-	linux-pcmcia@lists.infradead.org,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Greg KH <greg@kroah.com>
-References: <20050307232339.GA30057@isilmar.linta.de> <20050308191138.GA16169@isilmar.linta.de> <20050308123426.249fa934.akpm@osdl.org> <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de> <20050308191138.GA16169@isilmar.linta.de> <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org>
+	Tue, 8 Mar 2005 18:14:27 -0500
+Date: Tue, 8 Mar 2005 17:08:26 -0600
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linuxppc64-dev@ozlabs.org, paulus@samba.org, linux-kernel@vger.kernel.org,
+       Anton Blanchard <anton@samba.org>
+Subject: [PATCH 1/2] No-exec support for ppc64
+Message-Id: <20050308170826.13a2299e.moilanen@austin.ibm.com>
+In-Reply-To: <20050308165904.0ce07112.moilanen@austin.ibm.com>
+References: <20050308165904.0ce07112.moilanen@austin.ibm.com>
+Organization: IBM
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308123426.249fa934.akpm@osdl.org> <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dominik Brodowski <linux@dominikbrodowski.net> wrote:
-> >
-> > Most pcmcia devices are matched to drivers using "product ID strings"
-> >  embedded in the devices' Card Information Structures, as "manufactor ID /
-> >  card ID" matches are much less reliable. Unfortunately, these strings cannot
-> >  be passed to userspace for easy userspace-based loading of appropriate
-> >  modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
-> >  of the strings in the MODULE_DEVICE_TABLEs, e.g.:
-> > 
-> >  PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
-> 
-> What is the difficulty in passing these strings via /sbin/hotplug arguments?
+No-exec base and user space support for PPC64.  
 
-The difficulty is that extracting and evaluating them breaks the wonderful 
-bus-independent MODNAME implementation for hotplug suggested by Roman Kagan
-( http://article.gmane.org/gmane.linux.hotplug.devel/7039 ), and that these
-strings may contain spaces and other "strange" characters. The latter may be 
-worked around, but the former cannot. /etc/hotplug/pcmcia.agent looks really
-clean because of this MODNAME implementation:
+This will prohibit user space apps that a compile w/ PT_GNU_STACK from
+executing in segments that are non-executable.  Non-PT_GNU_STACK
+compiled apps will work as well, but will not be able to take advantage
+of the no-exec feature.
 
-#!/bin/sh
+Signed-off-by: Jake Moilanen <moilanen@austin.ibm.com>
 
-cd /etc/hotplug
-. ./hotplug.functions
+---
 
-if [ "$ACTION" = "" ]; then
-    mesg Bad PCMCIA agent invocation, no action
-    exit 1
-fi
+ linux-2.6-bk-moilanen/arch/ppc64/kernel/head.S         |    5 +
+ linux-2.6-bk-moilanen/arch/ppc64/kernel/iSeries_htab.c |    4 +
+ linux-2.6-bk-moilanen/arch/ppc64/kernel/pSeries_lpar.c |    2 
+ linux-2.6-bk-moilanen/arch/ppc64/mm/fault.c            |   14 +++--
+ linux-2.6-bk-moilanen/arch/ppc64/mm/hash_low.S         |   12 ++--
+ linux-2.6-bk-moilanen/arch/ppc64/mm/hugetlbpage.c      |   13 ++++
+ linux-2.6-bk-moilanen/fs/binfmt_elf.c                  |    2 
+ linux-2.6-bk-moilanen/include/asm-ppc64/elf.h          |    7 ++
+ linux-2.6-bk-moilanen/include/asm-ppc64/page.h         |   19 ++++++-
+ linux-2.6-bk-moilanen/include/asm-ppc64/pgtable.h      |   45 +++++++++--------
+ 10 files changed, 87 insertions(+), 36 deletions(-)
 
-case $ACTION in
-
-add)
-        modprobe $MODNAME
-
-	... work around some exotic buggy PCMCIA hardware ...
-...
-
-and I would very much like to avoid breaking the line "modprobe $MODNAME".
-
-On Tue, Mar 08, 2005 at 02:54:57PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 8 Mar 2005, Dominik Brodowski wrote:
-> >
-> >				 Unfortunately, these strings cannot
-> > be passed to userspace for easy userspace-based loading of appropriate
-> > modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
-> > of the strings in the MODULE_DEVICE_TABLEs, e.g.:
-> > 
-> > PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
-> 
-> Hmm.. I'm with Andrew on this one - I'd much rather really pass them to 
-> user space as strings. We already pass a number of strings as environment 
-> variables.
-> 
-> In fact, what's wrong with DEVPATH? Which we already expose as the
-> NAME=xxx environment variable. So if the kboject associated with a device
-> has has this string associated with its name (which it should)
-drivers/base/core.c::device_add()
-        kobject_set_name(&dev->kobj, "%s", dev->bus_id);
-and the bus_id isn't the device's name for common buses.
-
-Nontheless, the strings _are_ exported at DEVPATH/prod_id[1-4], but for the
-reasons mentioned above I'd prefer not to use them.
-
-
-On Tue, Mar 08, 2005 at 12:34:26PM -0800, Andrew Morton wrote:
-> > ...
-> >  To make the life easier for device driver authors,
-> >  	- a big warning is put into dmesg if a pcmcia driver is inserted
-> >  	  into the kernel and the hash mentioned in PCMCIA_DEVICE_PROD_ID()
-> >  	  is incorrect,
-> 
-> As long as the kernel shouts loudly at the driver developer at
-> development-time, and that shouting mentions a bit of documentation in
-> Documentation/somewhere, I expect we'll be OK.
-
-Andrew, please apply this patch on top of 2.6.11-mm2, if you and Linus still
-agree:
-
-
-Add some information useful for PCMCIA device driver authors to
-Documentation/pcmcia/, and reference it in dmesg in case of hash mismatches.
-
-Also add a reference to pcmciautils to Documentation/Changes. With recent
-changes, you don't need to concern yourself with pcmcia-cs even if you have 
-PCMCIA hardware, so the example above the list needed to be adapted as well.
-
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowksi.net>
-Index: 2.6.11+/Documentation/Changes
-===================================================================
---- 2.6.11+.orig/Documentation/Changes	2005-03-08 23:23:30.000000000 +0100
-+++ 2.6.11+/Documentation/Changes	2005-03-08 23:23:33.000000000 +0100
-@@ -44,9 +44,9 @@
+diff -puN arch/ppc64/kernel/head.S~nx-user-ppc64 arch/ppc64/kernel/head.S
+--- linux-2.6-bk/arch/ppc64/kernel/head.S~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/arch/ppc64/kernel/head.S	2005-03-08 16:08:54 -06:00
+@@ -36,6 +36,7 @@
+ #include <asm/offsets.h>
+ #include <asm/bug.h>
+ #include <asm/cputable.h>
++#include <asm/pgtable.h>	
+ #include <asm/setup.h>
  
- Again, keep in mind that this list assumes you are already
- functionally running a Linux 2.4 kernel.  Also, not all tools are
--necessary on all systems; obviously, if you don't have any PCMCIA (PC
--Card) hardware, for example, you probably needn't concern yourself
--with pcmcia-cs.
-+necessary on all systems; obviously, if you don't have any ISDN
-+hardware, for example, you probably needn't concern yourself with 
-+isdn4k-utils.
+ #ifdef CONFIG_PPC_ISERIES
+@@ -950,11 +951,11 @@ END_FTR_SECTION_IFCLR(CPU_FTR_SLB)
+ 	 * accessing a userspace segment (even from the kernel). We assume
+ 	 * kernel addresses always have the high bit set.
+ 	 */
+-	rlwinm	r4,r4,32-23,29,29	/* DSISR_STORE -> _PAGE_RW */
++	rlwinm	r4,r4,32-25+9,31-9,31-9	/* DSISR_STORE -> _PAGE_RW */
+ 	rotldi	r0,r3,15		/* Move high bit into MSR_PR posn */
+ 	orc	r0,r12,r0		/* MSR_PR | ~high_bit */
+ 	rlwimi	r4,r0,32-13,30,30	/* becomes _PAGE_USER access bit */
+-	ori	r4,r4,1			/* add _PAGE_PRESENT */
++	rlwimi	r4,r5,22+2,31-2,31-2	/* Set _PAGE_EXEC if trap is 0x400 */
  
- o  Gnu C                  2.95.3                  # gcc --version
- o  Gnu make               3.79.1                  # make --version
-@@ -57,6 +57,7 @@
- o  jfsutils               1.1.3                   # fsck.jfs -V
- o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
- o  xfsprogs               2.6.0                   # xfs_db -V
-+o  pcmciautils            001
- o  pcmcia-cs              3.1.21                  # cardmgr -V
- o  quota-tools            3.09                    # quota -V
- o  PPP                    2.4.0                   # pppd --version
-@@ -186,13 +187,20 @@
- work correctly with this version of the XFS kernel code (2.6.0 or
- later is recommended, due to some significant improvements).
+ 	/*
+ 	 * On iSeries, we soft-disable interrupts here, then
+diff -puN arch/ppc64/kernel/iSeries_htab.c~nx-user-ppc64 arch/ppc64/kernel/iSeries_htab.c
+--- linux-2.6-bk/arch/ppc64/kernel/iSeries_htab.c~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/arch/ppc64/kernel/iSeries_htab.c	2005-03-08 16:08:54 -06:00
+@@ -144,6 +144,10 @@ static long iSeries_hpte_updatepp(unsign
  
-+PCMCIAutils
-+-----------
-+
-+PCMCIAutils replaces pcmcia-cs (see below). It properly sets up
-+PCMCIA sockets at system startup and loads the appropriate modules 
-+for 16-bit PCMCIA devices if the kernel is modularized and the hotplug
-+subsystem is used.
+ 	HvCallHpt_get(&hpte, slot);
+ 	if ((hpte.dw0.dw0.avpn == avpn) && (hpte.dw0.dw0.v)) {
++		/*
++		 * Hypervisor expects bit's as NPPP, which is
++		 * different from how they are mapped in our PP.
++		 */
+ 		HvCallHpt_setPp(slot, (newpp & 0x3) | ((newpp & 0x4) << 1));
+ 		iSeries_hunlock(slot);
+ 		return 0;
+diff -puN arch/ppc64/kernel/pSeries_lpar.c~nx-user-ppc64 arch/ppc64/kernel/pSeries_lpar.c
+--- linux-2.6-bk/arch/ppc64/kernel/pSeries_lpar.c~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/arch/ppc64/kernel/pSeries_lpar.c	2005-03-08 16:08:54 -06:00
+@@ -470,7 +470,7 @@ static void pSeries_lpar_hpte_updatebolt
+ 	slot = pSeries_lpar_hpte_find(vpn);
+ 	BUG_ON(slot == -1);
  
- Pcmcia-cs
- ---------
+-	flags = newpp & 3;
++	flags = newpp & 7;
+ 	lpar_rc = plpar_pte_protect(flags, slot, 0);
  
- PCMCIA (PC Card) support is now partially implemented in the main
--kernel source.  Pay attention when you recompile your kernel ;-).
--Also, be sure to upgrade to the latest pcmcia-cs release.
-+kernel source. The "pcmciautils" package (see above) replaces pcmcia-cs
-+for newest kernels.
+ 	BUG_ON(lpar_rc != H_Success);
+diff -puN arch/ppc64/mm/fault.c~nx-user-ppc64 arch/ppc64/mm/fault.c
+--- linux-2.6-bk/arch/ppc64/mm/fault.c~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/arch/ppc64/mm/fault.c	2005-03-08 16:08:54 -06:00
+@@ -93,6 +93,7 @@ int do_page_fault(struct pt_regs *regs, 
+ 	unsigned long code = SEGV_MAPERR;
+ 	unsigned long is_write = error_code & 0x02000000;
+ 	unsigned long trap = TRAP(regs);
++ 	unsigned long is_exec = trap == 0x400;	
  
- Quota-tools
- -----------
-@@ -349,9 +357,13 @@
- --------
- o  <ftp://oss.sgi.com/projects/xfs/download/>
+ 	BUG_ON((trap == 0x380) || (trap == 0x480));
  
-+Pcmciautils
-+-----------
-+o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/pcmcia/>
-+
- Pcmcia-cs
- ---------
--o  <ftp://pcmcia-cs.sourceforge.net/pub/pcmcia-cs/pcmcia-cs-3.1.21.tar.gz>
-+o  <http://pcmcia-cs.sourceforge.net/>
+@@ -199,16 +200,19 @@ int do_page_fault(struct pt_regs *regs, 
+ good_area:
+ 	code = SEGV_ACCERR;
  
- Quota-tools
- ----------
-Index: 2.6.11+/Documentation/pcmcia/devicetable.txt
-===================================================================
---- 2.6.11+.orig/Documentation/pcmcia/devicetable.txt	2005-03-08 22:41:21.540138608 +0100
-+++ 2.6.11+/Documentation/pcmcia/devicetable.txt	2005-03-08 23:57:46.000000000 +0100
-@@ -0,0 +1,64 @@
-+Matching of PCMCIA devices to drivers is done using one or more of the 
-+following criteria:
-+
-+- manufactor ID
-+- card ID
-+- product ID strings _and_ hashes of these strings
-+- function ID
-+- device function (actual and pseudo)
-+
-+You should use the helpers in include/pcmcia/device_id.h for generating the
-+struct pcmcia_device_id[] entries which match devices to drivers.
-+
-+If you want to match product ID strings, you also need to pass the crc32
-+hashes of the string to the macro, e.g. if you want to match the product ID
-+string 1, you need to use
-+
-+PCMCIA_DEVICE_PROD_ID1("some_string", 0x(hash_of_some_string)),
-+
-+If the hash is incorrect, the kernel will inform you about this in "dmesg"
-+upon module initialization, and tell you of the correct hash.
-+
-+You can determine the hash of the product ID strings by running
-+"pcmcia-modalias %n.%m" [%n being replaced with the socket number and %m being
-+replaced with the device function] from pcmciautils. It generates a string
-+in the following form:
-+pcmcia:m0149cC1ABf06pfn00fn00pa725B842DpbF1EFEE84pc0877B627pd00000000
-+
-+The hex value after "pa" is the hash of product ID string 1, after "pb" for
-+string 2 and so on.
-+
-+Alternatively, you can use this small tool to determine the crc32 hash.
-+simply pass the string you want to evaluate as argument to this program,
-+e.g. 
-+$ ./crc32hash "Dual Speed"
-+
-+-------------------------------------------------------------------------
-+/* crc32hash.c - derived from linux/lib/crc32.c, GNU GPL v2 */
-+#include <string.h>
-+#include <stdio.h>
-+#include <ctype.h>
-+#include <stdlib.h>
-+
-+unsigned int crc32(unsigned char const *p, unsigned int len)
-+{
-+	int i;
-+	unsigned int crc = 0;
-+	while (len--)
-+		crc ^= *p++;
-+		for (i = 0; i < 8; i++)
-+			crc = (crc >> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
-+	}
-+	return crc;
-+}
-+
-+int main(int argc, char **argv) {
-+	unsigned int result;
-+	if (argc != 2) {
-+		printf("no string passed as argument\n");
-+		return -1;
-+	}
-+	result = crc32(argv[1], strlen(argv[1]));
-+	printf("0x%x\n", result);
-+	return 0;
-+}
-Index: 2.6.11+/Documentation/pcmcia/driver-changes.txt
-===================================================================
---- 2.6.11+.orig/Documentation/pcmcia/driver-changes.txt	2005-03-08 22:41:21.540138608 +0100
-+++ 2.6.11+/Documentation/pcmcia/driver-changes.txt	2005-03-09 00:01:07.000000000 +0100
-@@ -0,0 +1,51 @@
-+This file details changes in 2.6 which affect PCMCIA card driver authors:
-+
-+* in-kernel device<->driver matching
-+   PCMCIA devices and their correct drivers can now be matched in
-+   kernelspace. See 'devicetable.txt' for details.
-+
-+* Device model integration (as of 2.6.11)
-+   A struct pcmcia_device is registered with the device model core,
-+   and can be used (e.g. for SET_NETDEV_DEV) by using
-+   handle_to_dev(client_handle_t * handle).
-+
-+* Convert internal I/O port addresses to unsigned long (as of 2.6.11)
-+   ioaddr_t should be replaced by kio_addr_t in PCMCIA card drivers.
-+
-+* irq_mask and irq_list parameters (as of 2.6.11)
-+   The irq_mask and irq_list parameters should no longer be used in
-+   PCMCIA card drivers. Instead, it is the job of the PCMCIA core to
-+   determine which IRQ should be used. Therefore, link->irq.IRQInfo2
-+   is ignored.
-+
-+* client->PendingEvents is gone (as of 2.6.11)
-+   client->PendingEvents is no longer available.
-+
-+* client->Attributes are gone (as of 2.6.11)
-+   client->Attributes is unused, therefore it is removed from all
-+   PCMCIA card drivers
-+
-+* core functions no longer available (as of 2.6.11)
-+   The following functions have been removed from the kernel source
-+   because they are unused by all in-kernel drivers, and no external
-+   driver was reported to rely on them:
-+	pcmcia_get_first_region()
-+	pcmcia_get_next_region()
-+	pcmcia_modify_window()
-+	pcmcia_set_event_mask()
-+	pcmcia_get_first_window()
-+	pcmcia_get_next_window()
-+
-+* device list iteration upon module removal (as of 2.6.10)
-+   It is no longer necessary to iterate on the driver's internal
-+   client list and call the ->detach() function upon module removal.
-+
-+* Resource management. (as of 2.6.8)
-+   Although the PCMCIA subsystem will allocate resources for cards,
-+   it no longer marks these resources busy. This means that driver
-+   authors are now responsible for claiming your resources as per
-+   other drivers in Linux. You should use request_region() to mark
-+   your IO regions in-use, and request_mem_region() to mark your
-+   memory regions in-use. The name argument should be a pointer to
-+   your driver name. Eg, for pcnet_cs, name should point to the
-+   string "pcnet_cs".
-Index: 2.6.11+/drivers/pcmcia/ds.c
-===================================================================
---- 2.6.11+.orig/drivers/pcmcia/ds.c	2005-03-08 23:23:30.000000000 +0100
-+++ 2.6.11+/drivers/pcmcia/ds.c	2005-03-08 23:59:01.000000000 +0100
-@@ -262,8 +262,6 @@
- }
- EXPORT_SYMBOL(cs_error);
- 
--#ifdef CONFIG_PCMCIA_DEBUG
--
- 
- static void pcmcia_check_driver(struct pcmcia_driver *p_drv)
- {
-@@ -284,6 +282,9 @@
- 			       "product string \"%s\": is 0x%x, should "
- 			       "be 0x%x\n", p_drv->drv.name, did->prod_id[i],
- 			       did->prod_id_hash[i], hash);
-+			printk(KERN_DEBUG "pcmcia: see "
-+				"Documentation/pcmcia/devicetable.txt for "
-+				"details\n");
- 		}
- 		did++;
++	if (is_exec) {
++		/* protection fault */
++		if (error_code & 0x08000000) 
++			goto bad_area;
++		if (!(vma->vm_flags & VM_EXEC)) 
++			goto bad_area;
+ 	/* a write */
+-	if (is_write) {
++	} else if (is_write) {
+ 		if (!(vma->vm_flags & VM_WRITE))
+ 			goto bad_area;
+ 	/* a read */
+ 	} else {
+-		/* protection fault */
+-		if (error_code & 0x08000000)
+-			goto bad_area;
+-		if (!(vma->vm_flags & (VM_READ | VM_EXEC)))
++		if (!(vma->vm_flags & VM_READ))
+ 			goto bad_area;
  	}
-@@ -291,12 +292,6 @@
- 	return;
- }
  
--#else
--static inline void pcmcia_check_driver(struct pcmcia_driver *p_drv) {
--	return;
--}
--#endif
+diff -puN arch/ppc64/mm/hash_low.S~nx-user-ppc64 arch/ppc64/mm/hash_low.S
+--- linux-2.6-bk/arch/ppc64/mm/hash_low.S~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/arch/ppc64/mm/hash_low.S	2005-03-08 16:08:54 -06:00
+@@ -89,7 +89,7 @@ _GLOBAL(__hash_page)
+ 	/* Prepare new PTE value (turn access RW into DIRTY, then
+ 	 * add BUSY,HASHPTE and ACCESSED)
+ 	 */
+-	rlwinm	r30,r4,5,24,24	/* _PAGE_RW -> _PAGE_DIRTY */
++	rlwinm	r30,r4,32-9+7,31-7,31-7	/* _PAGE_RW -> _PAGE_DIRTY */
+ 	or	r30,r30,r31
+ 	ori	r30,r30,_PAGE_BUSY | _PAGE_ACCESSED | _PAGE_HASHPTE
+ 	/* Write the linux PTE atomically (setting busy) */
+@@ -112,11 +112,11 @@ _GLOBAL(__hash_page)
+ 	rldicl	r5,r5,0,25		/* vsid & 0x0000007fffffffff */
+ 	rldicl	r0,r3,64-12,48		/* (ea >> 12) & 0xffff */
+ 	xor	r28,r5,r0
+-	
+-	/* Convert linux PTE bits into HW equivalents
+-	 */
+-	andi.	r3,r30,0x1fa		/* Get basic set of flags */
+-	rlwinm	r0,r30,32-2+1,30,30	/* _PAGE_RW -> _PAGE_USER (r0) */
++
++	/* Convert linux PTE bits into HW equivalents */
++	andi.	r3,r30,0x1fe		/* Get basic set of flags */
++	xori	r3,r3,HW_NO_EXEC	/* _PAGE_EXEC -> NOEXEC */
++	rlwinm	r0,r30,32-9+1,30,30	/* _PAGE_RW -> _PAGE_USER (r0) */
+ 	rlwinm	r4,r30,32-7+1,30,30	/* _PAGE_DIRTY -> _PAGE_USER (r4) */
+ 	and	r0,r0,r4		/* _PAGE_RW & _PAGE_DIRTY -> r0 bit 30 */
+ 	andc	r0,r30,r0		/* r0 = pte & ~r0 */
+diff -puN arch/ppc64/mm/hugetlbpage.c~nx-user-ppc64 arch/ppc64/mm/hugetlbpage.c
+--- linux-2.6-bk/arch/ppc64/mm/hugetlbpage.c~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/arch/ppc64/mm/hugetlbpage.c	2005-03-08 16:08:54 -06:00
+@@ -786,6 +786,7 @@ int hash_huge_page(struct mm_struct *mm,
+ 	pte_t old_pte, new_pte;
+ 	unsigned long hpteflags, prpn;
+ 	long slot;
++	int is_exec;
+ 	int err = 1;
+ 
+ 	spin_lock(&mm->page_table_lock);
+@@ -796,6 +797,10 @@ int hash_huge_page(struct mm_struct *mm,
+ 	va = (vsid << 28) | (ea & 0x0fffffff);
+ 	vpn = va >> HPAGE_SHIFT;
+ 
++	is_exec = access & _PAGE_EXEC;
++	if (unlikely(is_exec && !(pte_val(*ptep) & _PAGE_EXEC)))
++		goto out;
++
+ 	/*
+ 	 * If no pte found or not present, send the problem up to
+ 	 * do_page_fault
+@@ -828,7 +833,12 @@ int hash_huge_page(struct mm_struct *mm,
+ 	old_pte = *ptep;
+ 	new_pte = old_pte;
+ 
+-	hpteflags = 0x2 | (! (pte_val(new_pte) & _PAGE_RW));
++ 	hpteflags = (pte_val(new_pte) & _PAGE_RW) |
++ 		(!(pte_val(new_pte) & _PAGE_RW)) |
++		_PAGE_USER;
++
++ 	/* _PAGE_EXEC -> HW_NO_EXEC since it's inverted */
++	hpteflags |= ((pte_val(new_pte) & _PAGE_EXEC) ? 0 : HW_NO_EXEC);
+ 
+ 	/* Check if pte already has an hpte (case 2) */
+ 	if (unlikely(pte_val(old_pte) & _PAGE_HASHPTE)) {
+@@ -898,6 +908,7 @@ repeat:
+ 	err = 0;
+ 
+  out:
++
+ 	spin_unlock(&mm->page_table_lock);
+ 
+ 	return err;
+diff -puN fs/binfmt_elf.c~nx-user-ppc64 fs/binfmt_elf.c
+--- linux-2.6-bk/fs/binfmt_elf.c~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/fs/binfmt_elf.c	2005-03-08 16:08:54 -06:00
+@@ -99,6 +99,8 @@ static int set_brk(unsigned long start, 
+ 		up_write(&current->mm->mmap_sem);
+ 		if (BAD_ADDR(addr))
+ 			return addr;
++
++  		sys_mprotect(start, end-start, PROT_READ|PROT_WRITE|PROT_EXEC);
+ 	}
+ 	current->mm->start_brk = current->mm->brk = end;
+ 	return 0;
+diff -puN include/asm-ppc64/elf.h~nx-user-ppc64 include/asm-ppc64/elf.h
+--- linux-2.6-bk/include/asm-ppc64/elf.h~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/include/asm-ppc64/elf.h	2005-03-08 16:08:54 -06:00
+@@ -226,6 +226,13 @@ do {								\
+ 	else if (current->personality != PER_LINUX32)		\
+ 		set_personality(PER_LINUX);			\
+ } while (0)
++
++/*
++ * An executable for which elf_read_implies_exec() returns TRUE will
++ * have the READ_IMPLIES_EXEC personality flag set automatically.
++ */
++#define elf_read_implies_exec(ex, have_pt_gnu_stack)	(!(have_pt_gnu_stack))
++
+ #endif
+ 
+ /*
+diff -puN include/asm-ppc64/page.h~nx-user-ppc64 include/asm-ppc64/page.h
+--- linux-2.6-bk/include/asm-ppc64/page.h~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/include/asm-ppc64/page.h	2005-03-08 16:08:54 -06:00
+@@ -235,8 +235,25 @@ extern u64 ppc64_pft_size;		/* Log 2 of 
+ 
+ #define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
+ 
+-#define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
++#define VM_DATA_DEFAULT_FLAGS32	(VM_READ | VM_WRITE | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
++
++#define VM_STACK_DEFAULT_FLAGS32 (VM_READ | VM_WRITE | VM_EXEC | \
++				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
++
++#define VM_DATA_DEFAULT_FLAGS64	(VM_READ | VM_WRITE | \
++				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
++
++#define VM_STACK_DEFAULT_FLAGS64 (VM_READ | VM_WRITE | VM_EXEC | \
++				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
++
++#define VM_DATA_DEFAULT_FLAGS \
++	(test_thread_flag(TIF_32BIT) ? \
++	 VM_DATA_DEFAULT_FLAGS32 : VM_DATA_DEFAULT_FLAGS64)
++
++#define VM_STACK_DEFAULT_FLAGS \
++	(test_thread_flag(TIF_32BIT) ? \
++	 VM_STACK_DEFAULT_FLAGS32 : VM_STACK_DEFAULT_FLAGS64)
+ 
+ #endif /* __KERNEL__ */
+ #endif /* _PPC64_PAGE_H */
+diff -puN include/asm-ppc64/pgtable.h~nx-user-ppc64 include/asm-ppc64/pgtable.h
+--- linux-2.6-bk/include/asm-ppc64/pgtable.h~nx-user-ppc64	2005-03-08 16:08:54 -06:00
++++ linux-2.6-bk-moilanen/include/asm-ppc64/pgtable.h	2005-03-08 16:08:54 -06:00
+@@ -82,14 +82,14 @@
+ #define _PAGE_PRESENT	0x0001 /* software: pte contains a translation */
+ #define _PAGE_USER	0x0002 /* matches one of the PP bits */
+ #define _PAGE_FILE	0x0002 /* (!present only) software: pte holds file offset */
+-#define _PAGE_RW	0x0004 /* software: user write access allowed */
++#define _PAGE_EXEC	0x0004 /* No execute on POWER4 and newer (we invert) */
+ #define _PAGE_GUARDED	0x0008
+ #define _PAGE_COHERENT	0x0010 /* M: enforce memory coherence (SMP systems) */
+ #define _PAGE_NO_CACHE	0x0020 /* I: cache inhibit */
+ #define _PAGE_WRITETHRU	0x0040 /* W: cache write-through */
+ #define _PAGE_DIRTY	0x0080 /* C: page changed */
+ #define _PAGE_ACCESSED	0x0100 /* R: page referenced */
+-#define _PAGE_EXEC	0x0200 /* software: i-cache coherence required */
++#define _PAGE_RW	0x0200 /* software: user write access allowed */
+ #define _PAGE_HASHPTE	0x0400 /* software: pte has an associated HPTE */
+ #define _PAGE_BUSY	0x0800 /* software: PTE & hash are busy */ 
+ #define _PAGE_SECONDARY 0x8000 /* software: HPTE is in secondary group */
+@@ -100,7 +100,7 @@
+ /* PAGE_MASK gives the right answer below, but only by accident */
+ /* It should be preserving the high 48 bits and then specifically */
+ /* preserving _PAGE_SECONDARY | _PAGE_GROUP_IX */
+-#define _PAGE_CHG_MASK	(PAGE_MASK | _PAGE_ACCESSED | _PAGE_DIRTY | _PAGE_HPTEFLAGS)
++#define _PAGE_CHG_MASK (_PAGE_GUARDED | _PAGE_COHERENT | _PAGE_NO_CACHE | _PAGE_WRITETHRU | _PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_HPTEFLAGS | PAGE_MASK)
+ 
+ #define _PAGE_BASE	(_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_COHERENT)
+ 
+@@ -116,31 +116,38 @@
+ #define PAGE_READONLY	__pgprot(_PAGE_BASE | _PAGE_USER)
+ #define PAGE_READONLY_X	__pgprot(_PAGE_BASE | _PAGE_USER | _PAGE_EXEC)
+ #define PAGE_KERNEL	__pgprot(_PAGE_BASE | _PAGE_WRENABLE)
+-#define PAGE_KERNEL_CI	__pgprot(_PAGE_PRESENT | _PAGE_ACCESSED | \
+-			       _PAGE_WRENABLE | _PAGE_NO_CACHE | _PAGE_GUARDED)
++
++#define HW_NO_EXEC	_PAGE_EXEC /* This is used when the bit is
++				    * inverted, even though it's the
++				    * same value, hopefully it will be
++				    * clearer in the code what is
++				    * going on. */
+ 
+ /*
+- * The PowerPC can only do execute protection on a segment (256MB) basis,
+- * not on a page basis.  So we consider execute permission the same as read.
++ * POWER4 and newer have per page execute protection, older chips can only
++ * do this on a segment (256MB) basis.
++ *
+  * Also, write permissions imply read permissions.
+  * This is the closest we can get..
++ *
++ * Note due to the way vm flags are laid out, the bits are XWR
+  */
+ #define __P000	PAGE_NONE
+-#define __P001	PAGE_READONLY_X
++#define __P001	PAGE_READONLY
+ #define __P010	PAGE_COPY
+-#define __P011	PAGE_COPY_X
+-#define __P100	PAGE_READONLY
++#define __P011	PAGE_COPY
++#define __P100	PAGE_READONLY_X
+ #define __P101	PAGE_READONLY_X
+-#define __P110	PAGE_COPY
++#define __P110	PAGE_COPY_X
+ #define __P111	PAGE_COPY_X
+ 
+ #define __S000	PAGE_NONE
+-#define __S001	PAGE_READONLY_X
++#define __S001	PAGE_READONLY
+ #define __S010	PAGE_SHARED
+-#define __S011	PAGE_SHARED_X
+-#define __S100	PAGE_READONLY
++#define __S011	PAGE_SHARED
++#define __S100	PAGE_READONLY_X
+ #define __S101	PAGE_READONLY_X
+-#define __S110	PAGE_SHARED
++#define __S110	PAGE_SHARED_X
+ #define __S111	PAGE_SHARED_X
+ 
+ #ifndef __ASSEMBLY__
+@@ -197,7 +204,8 @@ void hugetlb_mm_free_pgd(struct mm_struc
+ })
+ 
+ #define pte_modify(_pte, newprot) \
+-  (__pte((pte_val(_pte) & _PAGE_CHG_MASK) | pgprot_val(newprot)))
++	(__pte((pte_val(_pte) & _PAGE_CHG_MASK) | \
++	       (pgprot_val(newprot) & ~_PAGE_CHG_MASK)))
+ 
+ #define pte_none(pte)		((pte_val(pte) & ~_PAGE_HPTEFLAGS) == 0)
+ #define pte_present(pte)	(pte_val(pte) & _PAGE_PRESENT)
+@@ -266,9 +274,6 @@ static inline int pte_young(pte_t pte) {
+ static inline int pte_file(pte_t pte) { return pte_val(pte) & _PAGE_FILE;}
+ static inline int pte_huge(pte_t pte) { return pte_val(pte) & _PAGE_HUGE;}
+ 
+-static inline void pte_uncache(pte_t pte) { pte_val(pte) |= _PAGE_NO_CACHE; }
+-static inline void pte_cache(pte_t pte)   { pte_val(pte) &= ~_PAGE_NO_CACHE; }
 -
+ static inline pte_t pte_rdprotect(pte_t pte) {
+ 	pte_val(pte) &= ~_PAGE_USER; return pte; }
+ static inline pte_t pte_exprotect(pte_t pte) {
+@@ -438,7 +443,7 @@ static inline void set_pte_at(struct mm_
+ static inline void __ptep_set_access_flags(pte_t *ptep, pte_t entry, int dirty)
+ {
+ 	unsigned long bits = pte_val(entry) &
+-		(_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_RW);
++		(_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_RW | _PAGE_EXEC);
+ 	unsigned long old, tmp;
  
- #ifdef CONFIG_PCMCIA_LOAD_CIS
- 
+ 	__asm__ __volatile__(
+
+_

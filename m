@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262860AbVBEHjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263323AbVBEHkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262860AbVBEHjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 02:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbVBEHjQ
+	id S263323AbVBEHkp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 02:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbVBEHkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 02:39:16 -0500
-Received: from colin2.muc.de ([193.149.48.15]:55818 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266531AbVBEHie (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 02:38:34 -0500
-Date: 5 Feb 2005 08:38:33 +0100
-Date: Sat, 5 Feb 2005 08:38:33 +0100
-From: Andi Kleen <ak@muc.de>
-To: YhLu <YhLu@tyan.com>, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: [PATCH] x86-64: Fix compilation of 2.6.11rc3
-Message-ID: <20050205073833.GB58749@muc.de>
-References: <3174569B9743D511922F00A0C94314230808546A@TYANWEB>
-Mime-Version: 1.0
+	Sat, 5 Feb 2005 02:40:45 -0500
+Received: from hornet.berlios.de ([195.37.77.140]:16095 "EHLO
+	hornet.berlios.de") by vger.kernel.org with ESMTP id S263323AbVBEHkV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 02:40:21 -0500
+From: Michael Frank at BerliOS <mhf@hornet.berlios.de>
+Date: Sat, 05 Feb 2005 08:40:14 +0100
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.11-rc3 fix compile failure in arch/i386/kernel/i387.c
+Message-ID: <4204785E.nailLAW1YU0SF@hornet.berlios.de>
+User-Agent: nail 10.5 4/27/03
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3174569B9743D511922F00A0C94314230808546A@TYANWEB>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Linus, please apply before 2.6.11]
+On Saturday 05 February 2005 13:36, you wrote:
+> On Sat, Feb 05, 2005 at 06:29:06AM +0100, Michael Frank at BerliOS wrote:
+> > Using patch-2.6.11-rc3.bz2 from kernel.org on top of
+> > 2.6.10, a compile failure in /arch/i386/kernel/i387.c
+> > due to tsk->used_math undef.
+> >
+> > The patch log shows offsets but no rejects
+> >
+> > patching file arch/i386/kernel/i387.c
+> > Hunk #6 succeeded at 538 (offset 15 lines).
+> > Hunk #7 succeeded at 553 (offset 15 lines).
+>
+> No offsets (or compile problems) here.  Have you verified
+> that your 2.6.10 had no local changes?
 
-> > >   CC      arch/x86_64/kernel/asm-offsets.s
-> > > arch/x86_64/kernel/asm-offsets.c: In function `main':
-> > > arch/x86_64/kernel/asm-offsets.c:65: error: invalid 
-> > application of `sizeof'
-> > > to an incomplete type
+OK, checked that after downloading Vanilla 2.6.10 from kernel.org
 
+My local tree which was built incrementally since 2.6.8 or so has an extra function:
 
-This patch fixes a compile problem on x86-64 when CONFIG_PM 
-is turned off. 
+$ mdiff -kd xx linux-2.6.10-Vanilla linux-2.6.10-Today
+diff -uN -r -X /etc/sys/dont/kexdiff linux-2.6.10-Vanilla/Makefile linux-2.6.10-Today/Makefile
+--- linux-2.6.10-Vanilla/Makefile       2005-01-04 5:54:17.000000000 +0100
++++ linux-2.6.10-Today/Makefile 2005-02-05 08:02:11.000000000 +0100
+@@ -336,7 +336,7 @@
+ CFLAGS_MODULE   = $(MODFLAGS)
+ AFLAGS_MODULE   = $(MODFLAGS)
+ LDFLAGS_MODULE  = -r
+-CFLAGS_KERNEL  =-g
++CFLAGS_KERNEL  =
+ AFLAGS_KERNEL  =
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+ NOSTDINC_FLAGS  = -nostdinc -iwithprefix include
+diff -uN -r -X /etc/sys/dont/kexdiff linux-2.6.10-Vanilla/arch/i386/kernel/i387.c linux-2.6.10-Today/arch/i386/kernel/i387.c
+--- linux-2.6.10-Vanilla/arch/i386/kernel/i387.c        2005-01-04 5:54:17.000000000 +0100
++++ linux-2.6.10-Today/arch/i386/kernel/i387.c  2005-02-05 08:02:13.000000000 +0100
+@@ -519,21 +519,6 @@
+        return fpvalid;
+ }
 
+-int dump_extended_fpu( struct pt_regs *regs, struct user_fxsr_struct *fpu )
+-{
+-       int fpvalid;
+-       struct task_struct *tsk = current;
+-
+-       fpvalid = tsk->used_math && cpu_has_fxsr;
+-       if ( fpvalid ) {
+-               unlazy_fpu( tsk );
+-               memcpy( fpu, &tsk->thread.i387.fxsave,
+-                       sizeof(struct user_fxsr_struct) );
+-       }
+-
+-       return fpvalid;
+-}
+-
+ int dump_task_fpu(struct task_struct *tsk, struct user_i387_struct *fpu)
+ {
+        int fpvalid = tsk->used_math;
 
-diff -u linux-2.6.11rc3/include/linux/suspend.h-o linux-2.6.11rc3/include/linux/suspend.h
---- linux-2.6.11rc3/include/linux/suspend.h-o	2005-02-04 09:13:32.000000000 +0100
-+++ linux-2.6.11rc3/include/linux/suspend.h	2005-02-05 08:25:13.000000000 +0100
-@@ -10,7 +10,6 @@
- #include <linux/init.h>
- #include <linux/pm.h>
- 
--#ifdef CONFIG_PM
- /* page backup entry */
- typedef struct pbe {
- 	unsigned long address;		/* address of the copy */
-@@ -33,6 +32,7 @@
- extern void drain_local_pages(void);
- extern void mark_free_pages(struct zone *zone);
- 
-+#ifdef CONFIG_PM
- /* kernel/power/swsusp.c */
- extern int software_suspend(void);
- 
+Above are the only differences between both trees and I have not touched i387.c
+
+Looking at earlier patch logs, the 15 line offset appeared first with 2.6.10-rc3
+and there were no rejects.
+
+Would you happen to know when this function was removed?
+
+ Thank You
+ Michael

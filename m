@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263917AbUDVKdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263922AbUDVKnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263917AbUDVKdS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 06:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263919AbUDVKdS
+	id S263922AbUDVKnB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 06:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263925AbUDVKnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 06:33:18 -0400
-Received: from gprs214-27.eurotel.cz ([160.218.214.27]:33924 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263917AbUDVKdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 06:33:16 -0400
-Date: Thu, 22 Apr 2004 12:33:06 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>, seife@suse.de
-Subject: Re: b44 needs to reclaim its interrupt after swsusp
-Message-ID: <20040422103306.GD32521@elf.ucw.cz>
-References: <20040421000208.GA3160@elf.ucw.cz> <40873BB5.2000506@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Apr 2004 06:43:01 -0400
+Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:23247 "EHLO
+	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S263922AbUDVKm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 06:42:59 -0400
+From: Chris Bainbridge <C.J.Bainbridge@ed.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: (yet another) probable GPL violation
+Date: Thu, 22 Apr 2004 11:42:57 +0100
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <40873BB5.2000506@pobox.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404221142.57990.C.J.Bainbridge@ed.ac.uk>
+X-OriginalArrivalTime: 22 Apr 2004 10:43:01.0210 (UTC) FILETIME=[956773A0:01C42856]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The Inexq ISW054t is a 802.11g broadband router with 4 port switch. It's 
+getting quite popular due to its low price. I suspect that it runs linux, yet 
+comes with no mention of the GPL. I've emailed Inexq (the company formerly 
+known as Unex) but they haven't replied. 
 
-> >@@ -1874,6 +1874,8 @@
-> > 	b44_free_rings(bp);
-> > 
-> > 	spin_unlock_irq(&bp->lock);
-> >+
-> >+	free_irq(dev->irq, dev);
-> > 	return 0;
-> > }
-> > 
-> >@@ -1887,6 +1889,9 @@
-> > 
-> > 	pci_restore_state(pdev, bp->pci_cfg_state);
-> > 
-> >+	if (request_irq(dev->irq, b44_interrupt, SA_SHIRQ, dev->name, dev))
-> >+		printk("b44: request_irq failed\n");
-> >+
-> 
-> look ok, with minor nit:  use KERN_xxx prefix in printk
+You can download the firmware from : ftp://ftp.inexq.com/Drivers/ISW054t.zip
 
-Fixed, here's updated patch, please apply,
-								Pavel
+The zip contains a file 
+ISW054t-S1-200712T3.img which `file` identies as "PPCBoot image"
 
---- tmp/linux/drivers/net/b44.c	2004-04-22 12:25:36.000000000 +0200
-+++ linux/drivers/net/b44.c	2004-04-22 12:20:48.000000000 +0200
-@@ -1252,7 +1252,7 @@
- }
- 
- #if 0
--/*static*/ void b44_dump_state(struct b44 *bp)
-+void b44_dump_state(struct b44 *bp)
- {
- 	u32 val32, val32_2, val32_3, val32_4, val32_5;
- 	u16 val16;
-@@ -1875,6 +1875,8 @@
- 	b44_free_rings(bp);
- 
- 	spin_unlock_irq(&bp->lock);
-+
-+	free_irq(dev->irq, dev);
- 	return 0;
- }
- 
-@@ -1888,6 +1890,9 @@
- 
- 	pci_restore_state(pdev, bp->pci_cfg_state);
- 
-+	if (request_irq(dev->irq, b44_interrupt, SA_SHIRQ, dev->name, dev))
-+		printk(KERN_ERR PFX "%s: request_irq failed\n", dev->name);
-+
- 	spin_lock_irq(&bp->lock);
- 
- 	b44_init_rings(bp);
+strings shows:
+Uncompressing Linux...
+Ok, booting the kernel.
+UNEX-GISL-T-L2-200712T3_U.bin
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Theres a gzip image at offset 0x2048 which unpacks to 1.8MB : 
+dd if=ISW054t-S1-200712T3.img bs=8264 skip=1 |zcat > 
+UNEX-GISL-T-L2-200712T3_U.bin
+
+I've searched for the usual magic numbers but can't find the root fs. Any 
+pointers would be appreciated. 
+
+Some interesting things from the firmware:
+
+It contains the dynamic ip software from http://www.no-ip.com
+Networking is done by http://www.octotech.com/products-cyberwall.html. They 
+offer NAT, firewalling, dhcp etc. as a linux module.
+It contains this weird Moe line - 
+http://lists.samba.org/archive/wireless/2002-November/002152.html
+A USB stack from http://www.softconnex.com/
+ISL3890 Prism 802.11g chipset driver - firmware starts at 'PACKPACKPACK'
+The string "Linksys" appears 5 times (?)
+Theres a hidden test html page at http://router/UE/Main
+Contains Allegro-Software-RomPager embedded web server
+
+This is the first embedded linux router I've heard of with a Prism 802.11g 
+chipset. It'll be interesting to see if it can be turned into a 100% open 
+source with the prism54 drivers. I haven't checked any of the other Inexq 
+products, but if they use linux for this its likely that they've used it in 
+other routers.

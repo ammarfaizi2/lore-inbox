@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281468AbRKPRj7>; Fri, 16 Nov 2001 12:39:59 -0500
+	id <S281459AbRKPRxz>; Fri, 16 Nov 2001 12:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281471AbRKPRjt>; Fri, 16 Nov 2001 12:39:49 -0500
-Received: from ns.suse.de ([213.95.15.193]:36622 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281468AbRKPRjh>;
-	Fri, 16 Nov 2001 12:39:37 -0500
-Date: Fri, 16 Nov 2001 18:39:36 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S281463AbRKPRxg>; Fri, 16 Nov 2001 12:53:36 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:12444 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S281459AbRKPRxY>;
+	Fri, 16 Nov 2001 12:53:24 -0500
+Date: Fri, 16 Nov 2001 09:55:55 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Dave Jones <davej@suse.de>
+cc: James Simmons <jsimmons@transvirtual.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: New Power Managment code
-In-Reply-To: <Pine.LNX.4.10.10111160929380.10578-100000@transvirtual.com>
-Message-ID: <Pine.LNX.4.30.0111161839040.22532-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.30.0111161839040.22532-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.33.0111160952090.21985-100000@segfault.osdlab.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001, James Simmons wrote:
 
->   I heard Patrick Mochel has already developed the code for a new
-> device/power management syste. So I'm wondering where this code is. I like
-> to intergrate it into my CVS tree. Thanks.
+On Fri, 16 Nov 2001, Dave Jones wrote:
 
-There were some bits at ftp://ftp.kernel.org/pub/people/mochel last time
-I looked.
+> On Fri, 16 Nov 2001, James Simmons wrote:
+>
+> >   I heard Patrick Mochel has already developed the code for a new
+> > device/power management syste. So I'm wondering where this code is. I like
+> > to intergrate it into my CVS tree. Thanks.
+>
+> There were some bits at ftp://ftp.kernel.org/pub/people/mochel last time
+> I looked.
 
-regards,
-Dave.
+That's where it is. The most recent drop is the -1115 patches.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+I have some other patches converting drivers to use the new driver model,
+and I will push those out soon..
+
+However, that code does not have all the pieces to power management in it.
+It simply provides a unified device tree based on locality; the framework
+for doing things like system suspend.
+
+The power management transitions live in the most recent ACPI code, which
+you can get from Intel:
+
+	http://developer.intel.com/technology/IAPC/acpi/index.htm
+
+and is specific to ACPI-enabled platforms.
+
+	-pat
 

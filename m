@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263530AbREYFCK>; Fri, 25 May 2001 01:02:10 -0400
+	id <S263531AbREYFHA>; Fri, 25 May 2001 01:07:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263531AbREYFCA>; Fri, 25 May 2001 01:02:00 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:21775 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S263530AbREYFBl>;
-	Fri, 25 May 2001 01:01:41 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: PATCH: "Kernel Insider" (security optimization)
-Date: 25 May 2001 04:59:47 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9ekos3$v07$1@abraham.cs.berkeley.edu>
-In-Reply-To: <Pine.LNX.4.31.0105250006440.1495-100000@Ono-Sendai.linux.hack>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 990766787 31751 128.32.45.153 (25 May 2001 04:59:47 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 25 May 2001 04:59:47 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S263534AbREYFGu>; Fri, 25 May 2001 01:06:50 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:43277 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263531AbREYFGi>;
+	Fri, 25 May 2001 01:06:38 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105250505.f4P555c451210@saturn.cs.uml.edu>
+Subject: Re: 2.4 freezes on VIA KT133
+To: hahn@coffee.psychology.mcmaster.ca (Mark Hahn)
+Date: Fri, 25 May 2001 01:05:05 -0400 (EDT)
+Cc: trip@matrix.cyberspace.cz (Tomas Styblo), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10105241919160.17003-100000@coffee.psychology.mcmaster.ca> from "Mark Hahn" at May 24, 2001 07:23:40 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Its a linux kernel modification, that allows to decide wich uid, pid or
->file can open a tcp socket in listening state.
+Mark Hahn writes:
 
-- Putting access control on listen() [rather than socket()/bind()]
-  seems like a really bad idea.  In particular, in some cases one can
-  bind to a port and receive messages on it without ever calling listen(),
-  if I am not mistaken.
+> contrary to the implication here, I don't believe there is any *general*
+> problem with Linux/VIA/AMD stability.  there are well-known issues
+> with specific items (VIA 686b, for instance), but VIA/AMD hardware
+> is quite suitable for servers.
 
-- The use of sock_i_uid(sock) seems poorly chosen; if sock->socket==NULL,
-  then your module will mistakenly think that the action was requested by
-  uid 0.  In general, the return value from sock_i_uid() cannot be trusted
-  for permission checks for several reasons.  Why don't you simply use
-  current->euid for your permission checks?
+VIA hardware is not suitable for anything until we _know_ the
+truth about what is wrong. VIA is hiding something big.
 
-- Checking pid's doesn't seem like a good idea.  If a process listed in
-  allowed_pids dies, then some other malicious process can wrap the pid
-  space and take over that trusted pid, thereby subverting your access
-  control policy.
+Simple fix:
 
-- Are you aware of previous work on this subject?  In particular, you
-  might enjoy checking out the Janus project, which is a much more general
-  implementation of this idea: http://www.cs.berkeley.edu/~daw/janus/
+0. get lawyer
+1. start class-action lawsuit
+2. do discovery
+3. unseal court records
+4. done -- you may drop the case if not settled already
 
-- You should really join the mailing list hosted by Crispin Cowan working
-  to develop kernel hooks for this sort of kernel security modification.
+Well, something like that... not a lawyer, etc.
+If you have the time and money, go for it. Have fun.
+
+Creative Labs ought to toast VIA over blaming the sound card. :-)
+

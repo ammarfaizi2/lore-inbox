@@ -1,198 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbUCWCj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 21:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUCWCj3
+	id S262191AbUCWCls (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 21:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbUCWCls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 21:39:29 -0500
-Received: from mail.inter-page.com ([12.5.23.93]:36364 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S262103AbUCWCjX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 21:39:23 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: "=?iso-8859-1?Q?'J=F6rn_Engel'?=" <joern@wohnheim.fh-wedel.de>,
-       "'Horst von Brand'" <vonbrand@inf.utfsm.cl>
-Cc: "'Chris Friesen'" <cfriesen@nortelnetworks.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: unionfs
-Date: Mon, 22 Mar 2004 18:38:57 -0800
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAac2dcWbI6EqDnR1VbPQ6CwEAAAAA@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <20040316173146.GB27046@wohnheim.fh-wedel.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Mon, 22 Mar 2004 21:41:48 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:41136 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262191AbUCWCll (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 21:41:41 -0500
+Date: Mon, 22 Mar 2004 18:39:18 -0800
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org
+Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
+Message-Id: <20040322183918.5e0f17c7.pj@sgi.com>
+In-Reply-To: <20040323020940.GV2045@holomorphy.com>
+References: <1079651064.8149.158.camel@arrakis>
+	<20040318165957.592e49d3.pj@sgi.com>
+	<1079659184.8149.355.camel@arrakis>
+	<20040318175654.435b1639.pj@sgi.com>
+	<1079737351.17841.51.camel@arrakis>
+	<20040319165928.45107621.pj@sgi.com>
+	<20040320031843.GY2045@holomorphy.com>
+	<20040320000235.5e72040a.pj@sgi.com>
+	<20040320111340.GA2045@holomorphy.com>
+	<20040322171243.070774e5.pj@sgi.com>
+	<20040323020940.GV2045@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgetting his purposes, here are my valuable cases.  Note that none of
-these cases are about source control or versioning.  (IMHO that is what
-version control is for, and that task has been dealt with in its place.)  I
-have thought about this a lot because of my direct need a-la scenario 1.
-This is a fairly direct description, and the utility has become painfully
-desirable by its absence.
+> go for it
 
-Scenario 1:  (my real world)
+I'll try.
 
-I have a product where there is a central (full sized PC) controller and
-some number of satellite boxes.  The satellites are small custom hardware
-jobbies running a linux instance of their own.  The number and disposition
-of these sub-boxes varies by installation.
+The main thing I keep seeing, when I look at the resulting machine
+code, is that things such as the following (stripped of everything
+except the bare bones hardwired stuff I needed to compile):
 
-Ideally I would use dhcp and provide one single root image for the satellite
-boxes to nfs-mount regardless of their dynamically assigned host names or IP
-addresses.  The boxes are small enough that transcribing an initrd (etc)
-into ram is too resource hungry even with busybox.
+    #define BITS_TO_LONGS(i) (i+63)/64
+    #define NR_CPUS 64
+    #define __mask(bits)    struct { unsigned long _m[BITS_TO_LONGS(bits)]; }
+    typedef __mask(NR_CPUS) cpumask_t;
 
-Right now, it is not possible to do this because if two running instances
-share the same image they will share some critically variable files.  (It is
-disasterous to have two boxes share an image containing /etc/ld.so.cache
-{and hugely problematic for them to share /var/run/ and /var/log/} but I
-want them to have all the rest of /etc held in common.
+    #define mask_and(d,s1,s2)                                       \
+    do {                                                            \
+	    int i;                                                  \
+	    for (i = 0; i < sizeof(d)/sizeof(unsigned long); i++)   \
+		    d._m[i] = s1._m[i] & s2._m[i];                  \
+    } while(0)
 
-I have used various tricks to overcome most of this, but it would be (would
-have been) ideal to be able to mount host:/export/satellite/root as the root
-directory.  Then the startup script could union that root under a ramfs
-partition.  (I have no need to maintain the changes between boots, so in
-this case discarding the changes is ideal.)
+    unsigned long f(cpumask_t c, cpumask_t d, cpumask_t e)
+    {
+	mask_and(c,d,e);
+	return c._m[0];
+    }
 
 
-Scenario 2: (theoretical)
+end up producing quite fine code, such as a single inline 64 bit and
+instruction, with no evidence of the for loop, array or struct wrapper,
+on an ia64 (gcc 3.2.3 -O2) for the interesting guts of my silly little
+test function f().
 
-Take scenario 1 and re-cast it in a manufacturing or test/maintenance
-environment.  The target machines are (network) booted anonymously into a
-test network.  The test are performed, the results are logged to an
-infrastructure machine, and the box is powered off and removed to its next
-location.  Again, the single image is used, and the union overlay is
-discarded after use.
+Objdump -d of function f() in above:
 
+    4000000000000610 <f>:
+    4000000000000610:       0d 60 c0 19 3f 23       [MFI]       adds r12=-16,r12
+    4000000000000616:       00 00 00 02 00 00                   nop.f 0x0
+    400000000000061c:       21 0a 31 80                         and r8=r34,r33;;
+    4000000000000620:       11 00 00 00 01 00       [MIB]       nop.m 0x0
+    4000000000000626:       c0 80 30 00 42 80                   adds r12=16,r12
+    400000000000062c:       08 00 84 00                         br.ret.sptk.many b0;;
 
-Scenario 3: (theoretical, from my two-back previous employer)
+>From this I conjecture that I can provide a single call:
 
-Take scenario 1 again and apply it to education.  A lab full of student
-machines.  Students are expected to either supply their own home directories
-on USB/FireWire hard disks they bring with them; or their home directories
-are mounted across a network from a homing farm.  These lab machines need to
-be quite accessible but you don't want the students to corrupt the installs.
-Again the union overlay is discarded after use.
+    cpumask_and(cpumask_t d, cpumask_t s1, cpumask_t s2);
 
+that works on both normal (1 to 32 cpu) systems and on big iron systems,
+with traditional 'C' pass by value semantics, all derived from a single
+mask type that works for both node and cpu masks.
 
-OK so I have been discarding the overlays.  But are their scenarios that
-where someone would want to keep the overlays or analyze them separately?
-You can tell by the way I asked that I think the answer is yes, can't you?
-8-)
+The one sticky point evident to me so far would be if some generic code
+were passing a cpumask_t across a function call boundary, and needed to
+be optimum for both small and sparc64 - one would want to pass by value,
+the other would want to pass a pointer to the cpumask.
 
+This is not your fathers 'C'.  The compile time inlining and
+optimization provided by gcc enables it to do a lot more than Dennis
+Ritchie's original C compiler that I learned on.
 
-Scenario 4: (past, real world trauma 8-)
-
-You want to install/replace a package on your existing box.  You would like
-to try it "in place" but you don't want to hammer your install.  You mount
-up the union with a "spare" partition, and pivot that in as root.  Now you
-do the install and try things out.  (Think system wide utilities like a new
-init, or glibc.)  If things don't work well you want to reboot or pivot back
-to your real root and then look through just what the install task did to
-your machine.  In this scenario the preservation of the binaries in the
-"original" location, as reflected on the now dis-unioned partition provides
-important information.  You can check log fragments, partial deletes, and so
-on.  You can also tweak the dis-unioned image and then try it out to see if
-your problems are addressed.  With this information, and once you are
-satisfied you have an install/replace that will work for you, you can
-proceed to perform the install "for real" on your root.  Then you can
-double-check against the dis-unioned overlay.
-
-
-Scenario 5: (theoretical)
-
-You want to roll your own distribution, or build package images (rpm's etc)
-out of packages that don't have build semantics that allow build-for-root
-install-to-scratch construction.  Take your near-virgin machine, pivot the
-union over the root, do the install, pivot back or reboot, pack the
-dis-unioned image up as the package tree.
-
-
-I would say that to do these tasks you would need to meet the following
-requirements:
-
-1) Overlay trump semantics.  Any file with a given name in the overlay must
-completely hide the same file in the backing file system.  It must be
-possible to remove a file and then create a directory of that same 
-
-2) copy whole-file on write.  This would probably require a kernel daemon.
-Files opened read-only are used in place.  Files opened for writing need to
-wholly migrate from the backing file system to the overlay, either at open
-time or on first write.  This would involve waits and stuff of potentially
-extreme severity, hence the daemon.  Block-differences are not interesting,
-that is what later diffs are for anyway.  Block-wise copying would make mmap
-(etc) just painfully impossible anyway.  So all-or-nothing migration is the
-ticket 8-).
-
-3) White-out list.  There would need to be a database, by path name, of
-files that had been "removed" (unlinked but not "overwritten") and that
-database would need to be expressed in an accessible format when the overlay
-file system was not part of the union.  Presumably there would be a file
-existent on the overlay, that was opened by the kernel daemon at mount time
-and which didn't appear in the resulting mounted image.  This file would be
-the white-out list.  The natural effect would be that a file of that name in
-the backing file system would be inaccessible.  If that name were a
-mount-time option (etc) then this one point of contention could be worked
-around on a mount-by-mount basis, making it immaterial.  Being available at
-open() time, this white-out list removes the need for invisible inodes in
-the exceptional sense.  We don't care what "/bob" used to be, there is now
-no file or directory (etc) named "/bob" and there will persist in being no
-such thing until "/bob" is created in the overlay or through the union.
-Thanks for playing... 8-)
-
-4) A dumb-guy-gets-the-shaft provision would be that changes to the backing
-file system, or mounting an overlay that doesn’t match the backing file
-system produces exactly the mess that you get from overlaying the overlay
-(with its white out list) over the backing system.  The Cartesian product of
-possible combinations is interesting but not pejorative.  If I have a
-directory in the overlay that doesn't exist in the backing system, then I
-have a directory with exactly those elements from the overlay.  If I
-white-out "/bob" then there is no /bob whether the backing system wants one
-there or not.
-
-5) No backing-fs updates at all.  Under no circumstances is there to be any
-requirement of writing to the backing file system to keep things current.
-
-6) No write-through.  No checks are made for the write-through case.  All
-writes take place as per item 2 and on the overlay fs regardless of the
-writeability of the backing file system.
-
-7) The MMap conundrum... In the case of a read-only mmap of a file, the file
-should *probably* be speculatively "coppied" to the overlay file system.
-The user will expect that the overlay file system remains consistent on
-update, so you don't want under-writes of the backing file system to make
-give you a moving target.  Such copies would take place as if a write were
-going to happen, but the inode would be unlinked-after-open (or more
-accurately unlinked at close if not written) in the overlay file system so
-that in the zero-change case you don't produce excessively large
-dis-union(ed) image sizes.  (In truth this speculative copy behavior would
-be done via cached semi-inodes in the union driver itself, the real inode
-only being written to the overlay in the update case.  This is practical
-since we are writing these specialized open/release/write/etc routines
-anyway.  So you are doing in the phantom inode thing just like
-unlink-after-open in all the other file systems anyway, but you will later
-link-down the inode if it warrants saving instead of doing things the other
-way around.
-
-8) Speculative copy thresholds.  There probably needs to be some tunable(s)
-for sizes and types of speculative copying into the phantom inodes.  I is
-just bound to come up.
-
-
-None of these requirements are particularly complex or onerous.  Some of the
-actions are potentially expensive, but in the foreseeable uses, they would
-not be prohibitively so.
-
-Rob.
-
-
-
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

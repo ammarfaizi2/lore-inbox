@@ -1,186 +1,227 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271676AbTGRCCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 22:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271680AbTGRCBf
+	id S271678AbTGRCBV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 22:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271680AbTGRCBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 22:01:35 -0400
-Received: from dp.samba.org ([66.70.73.150]:28038 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S271676AbTGRCBD (ORCPT
+	Thu, 17 Jul 2003 22:01:21 -0400
+Received: from dp.samba.org ([66.70.73.150]:28806 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S271678AbTGRCBD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 17 Jul 2003 22:01:03 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com, akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
-Subject: [PATCH] Re-xmit: module_put_and_exit
-Date: Fri, 18 Jul 2003 11:58:15 +1000
-Message-Id: <20030718021559.12AFD2C5A4@lists.samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re-xmit: Delete init/cleanup_module prototypes in obscure places.
+Date: Fri, 18 Jul 2003 12:04:45 +1000
+Message-Id: <20030718021559.189E52C729@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply.  Neil wants this for safety of his kernel threads in
-modules (which hold a reference count).
+Please apply.
 
-Name: module_put_and_exit
-Author: Neil Brown
-Status: Booted on 2.5.74-bk1
+The prototype is already in init.h.  And this blocks us from
+implementation later changes (declaring functions by these names and
+having them magically called in the deprecated 2.2 interface).
 
-D: Define module_put_and_exit() and use it for nfsd/lockd
-D: 
-D: Both nfsd and lockd have threads which expect to hold a reference
-D: to the module while the thread is running.  In order for the thread
-D: to be able to put_module() the module before exiting, the
-D: put_module code must be call from outside the module.
-D: 
-D: This patch provides module_put_and_exit in non-modular code which a
-D: thread-in-a-module can call.  It also gets nfsd and lockd to use it
-D: as appropriate.
-D: 
-D: Note that in lockd, we can __get_module in the thread itself as the
-D: creator of the thread is waiting for the thread to startup.
-D: 
-D: In nfsd and for the 'reclaimer' threaded started by locked, we
-D: __get_module first and put_module if the thread failed to start.
-D: 
-D:  ----------- Diffstat output ------------
-D:  ./fs/lockd/clntlock.c    |    9 ++++-----
-D:  ./fs/lockd/svc.c         |    8 ++++++--
-D:  ./fs/nfsd/nfssvc.c       |    8 +++++---
-D:  ./include/linux/module.h |    8 ++++++++
-D:  ./kernel/exit.c          |    1 +
-D:  ./kernel/module.c        |   12 ++++++++++++
-D:  6 files changed, 36 insertions(+), 10 deletions(-)
+Name: Delete redundant init_module and cleanup_module prototypes.
+Author: Rusty Russell
+Status: Trivial
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/lockd/clntlock.c .25804-linux-2.5.74-bk1.updated/fs/lockd/clntlock.c
---- .25804-linux-2.5.74-bk1/fs/lockd/clntlock.c	2003-02-17 11:37:52.000000000 +1100
-+++ .25804-linux-2.5.74-bk1.updated/fs/lockd/clntlock.c	2003-07-04 07:58:04.000000000 +1000
-@@ -187,8 +187,9 @@ nlmclnt_recovery(struct nlm_host *host, 
- 	} else {
- 		nlmclnt_prepare_reclaim(host, newstate);
- 		nlm_get_host(host);
--		MOD_INC_USE_COUNT;
--		kernel_thread(reclaimer, host, CLONE_KERNEL);
-+		__module_get(THIS_MODULE);
-+		if (kernel_thread(reclaimer, host, CLONE_KERNEL))
-+			module_put(THIS_MODULE);
- 	}
- }
+D: A few places pre-declare "int module_init(void);" and "void
+D: module_cleanup(void);".  Other than being obsolete, this is
+D: unneccessary (it's in init.h anyway).
+D: 
+D: There are still about 100 places which still use the
+D: obsolete-since-2.2 "a function named module_init() magically gets
+D: called": this change frees us up implement that via a macro.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/block/paride/pf.c .11903-linux-2.5.73-bk1.updated/drivers/block/paride/pf.c
+--- .11903-linux-2.5.73-bk1/drivers/block/paride/pf.c	2003-05-05 12:36:58.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/block/paride/pf.c	2003-06-24 11:43:58.000000000 +1000
+@@ -222,9 +222,6 @@ MODULE_PARM(drive3, "1-7i");
+ #define ATAPI_READ_10		0x28
+ #define ATAPI_WRITE_10		0x2a
  
-@@ -244,7 +245,5 @@ restart:
- 	nlm_release_host(host);
- 	lockd_down();
- 	unlock_kernel();
--	MOD_DEC_USE_COUNT;
--
--	return 0;
-+	module_put_and_exit(0);
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/lockd/svc.c .25804-linux-2.5.74-bk1.updated/fs/lockd/svc.c
---- .25804-linux-2.5.74-bk1/fs/lockd/svc.c	2003-07-03 09:43:54.000000000 +1000
-+++ .25804-linux-2.5.74-bk1.updated/fs/lockd/svc.c	2003-07-04 07:58:04.000000000 +1000
-@@ -88,7 +88,11 @@ lockd(struct svc_rqst *rqstp)
- 	unsigned long grace_period_expire;
- 
- 	/* Lock module and set up kernel thread */
--	MOD_INC_USE_COUNT;
-+	/* lockd_up is waiting for us to startup, so will
-+	 * be holding a reference to this module, so it
-+	 * is safe to just claim another reference
-+	 */
-+	__module_get(THIS_MODULE);
- 	lock_kernel();
- 
- 	/*
-@@ -183,7 +187,7 @@ lockd(struct svc_rqst *rqstp)
- 
- 	/* Release module */
- 	unlock_kernel();
--	MOD_DEC_USE_COUNT;
-+	module_put_and_exit(0);
- }
- 
- /*
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/nfsd/nfssvc.c .25804-linux-2.5.74-bk1.updated/fs/nfsd/nfssvc.c
---- .25804-linux-2.5.74-bk1/fs/nfsd/nfssvc.c	2003-07-03 09:43:54.000000000 +1000
-+++ .25804-linux-2.5.74-bk1.updated/fs/nfsd/nfssvc.c	2003-07-04 07:58:04.000000000 +1000
-@@ -115,9 +115,12 @@ nfsd_svc(unsigned short port, int nrserv
- 	nrservs -= (nfsd_serv->sv_nrthreads-1);
- 	while (nrservs > 0) {
- 		nrservs--;
-+		__module_get(THIS_MODULE);
- 		error = svc_create_thread(nfsd, nfsd_serv);
--		if (error < 0)
-+		if (error < 0) {
-+			module_put(THIS_MODULE);
- 			break;
-+		}
- 	}
- 	victim = nfsd_list.next;
- 	while (nrservs < 0 && victim != &nfsd_list) {
-@@ -173,7 +176,6 @@ nfsd(struct svc_rqst *rqstp)
- 	sigset_t shutdown_mask, allowed_mask;
- 
- 	/* Lock module and set up kernel thread */
--	MOD_INC_USE_COUNT;
- 	lock_kernel();
- 	daemonize("nfsd");
- 	current->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
-@@ -266,7 +268,7 @@ nfsd(struct svc_rqst *rqstp)
- 	svc_exit_thread(rqstp);
- 
- 	/* Release module */
--	MOD_DEC_USE_COUNT;
-+	module_put_and_exit(0);
- }
- 
- int
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/include/linux/module.h .25804-linux-2.5.74-bk1.updated/include/linux/module.h
---- .25804-linux-2.5.74-bk1/include/linux/module.h	2003-07-03 09:44:00.000000000 +1000
-+++ .25804-linux-2.5.74-bk1.updated/include/linux/module.h	2003-07-04 08:00:09.000000000 +1000
-@@ -276,8 +276,12 @@ struct module *module_get_kallsym(unsign
- 				  char *type,
- 				  char namebuf[128]);
- int is_exported(const char *name, const struct module *mod);
--#ifdef CONFIG_MODULE_UNLOAD
- 
-+extern void __module_put_and_exit(struct module *mod, long code)
-+	__attribute__((noreturn));
-+#define module_put_and_exit(code) __module_put_and_exit(THIS_MODULE, code);
-+
-+#ifdef CONFIG_MODULE_UNLOAD
- unsigned int module_refcount(struct module *mod);
- void __symbol_put(const char *symbol);
- #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
-@@ -445,6 +449,8 @@ static inline int unregister_module_noti
- 	return 0;
- }
- 
-+#define module_put_and_exit(code) do_exit(code)
-+
- #endif /* CONFIG_MODULES */
+-#ifdef MODULE
+-void cleanup_module(void);
+-#endif
+ static int pf_open(struct inode *inode, struct file *file);
+ static void do_pf_request(request_queue_t * q);
+ static int pf_ioctl(struct inode *inode, struct file *file,
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/istallion.c .11903-linux-2.5.73-bk1.updated/drivers/char/istallion.c
+--- .11903-linux-2.5.73-bk1/drivers/char/istallion.c	2003-06-15 11:29:51.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/istallion.c	2003-06-24 11:43:58.000000000 +1000
+@@ -650,8 +650,6 @@ static unsigned int	stli_baudrates[] = {
+  */
  
  #ifdef MODULE
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/kernel/module.c .25804-linux-2.5.74-bk1.updated/kernel/module.c
---- .25804-linux-2.5.74-bk1/kernel/module.c	2003-07-03 09:44:01.000000000 +1000
-+++ .25804-linux-2.5.74-bk1.updated/kernel/module.c	2003-07-04 07:59:20.000000000 +1000
-@@ -98,6 +98,17 @@ int init_module(void)
- }
- EXPORT_SYMBOL(init_module);
+-int		init_module(void);
+-void		cleanup_module(void);
+ static void	stli_argbrds(void);
+ static int	stli_parsebrd(stlconf_t *confp, char **argp);
  
-+/* A thread that wants to hold a reference to a module only while it
-+ * is running can call ths to safely exit.
-+ * nfsd and lockd use this.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/moxa.c .11903-linux-2.5.73-bk1.updated/drivers/char/moxa.c
+--- .11903-linux-2.5.73-bk1/drivers/char/moxa.c	2003-06-23 10:52:46.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/moxa.c	2003-06-24 11:43:58.000000000 +1000
+@@ -216,10 +216,7 @@ static struct timer_list moxaEmptyTimer[
+ static struct semaphore moxaBuffSem;
+ 
+ int moxa_init(void);
+-#ifdef MODULE
+-int init_module(void);
+-void cleanup_module(void);
+-#endif
++
+ /*
+  * static functions:
+  */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/nwbutton.h .11903-linux-2.5.73-bk1.updated/drivers/char/nwbutton.h
+--- .11903-linux-2.5.73-bk1/drivers/char/nwbutton.h	2003-05-27 15:02:08.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/nwbutton.h	2003-06-24 11:43:58.000000000 +1000
+@@ -32,10 +32,6 @@ int button_init (void);
+ int button_add_callback (void (*callback) (void), int count);
+ int button_del_callback (void (*callback) (void));
+ static void button_consume_callbacks (int bpcount);
+-#ifdef MODULE
+-int init_module (void);
+-void cleanup_module (void);
+-#endif /* MODULE */
+ 
+ #else /* Not compiling the driver itself */
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/pcxx.c .11903-linux-2.5.73-bk1.updated/drivers/char/pcxx.c
+--- .11903-linux-2.5.73-bk1/drivers/char/pcxx.c	2003-06-15 11:29:51.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/pcxx.c	2003-06-24 11:50:28.000000000 +1000
+@@ -209,17 +209,9 @@ static void cleanup_board_resources(void
+ 
+ #ifdef MODULE
+ 
+-/*
+- * pcxe_init() is our init_module():
+- */
+-#define pcxe_init init_module
+-
+-void	cleanup_module(void);
+-
+-
+ /*****************************************************************************/
+ 
+-void cleanup_module()
++static void pcxe_cleanup()
+ {
+ 
+ 	unsigned long	flags;
+@@ -240,6 +232,12 @@ void cleanup_module()
+ 	kfree(digi_channels);
+ 	restore_flags(flags);
+ }
++
++/*
++ * pcxe_init() is our init_module():
 + */
-+void __module_put_and_exit(struct module *mod, long code)
-+{
-+	module_put(mod);
-+	do_exit(code);
-+}
-+EXPORT_SYMBOL(__module_put_and_exit);
-+	
- /* Find a module section: 0 means not found. */
- static unsigned int find_sec(Elf_Ehdr *hdr,
- 			     Elf_Shdr *sechdrs,
++module_init(pcxe_init);
++module_cleanup(pcxe_cleanup);
+ #endif
+ 
+ static inline struct channel *chan(register struct tty_struct *tty)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/char/stallion.c .11903-linux-2.5.73-bk1.updated/drivers/char/stallion.c
+--- .11903-linux-2.5.73-bk1/drivers/char/stallion.c	2003-06-15 11:29:52.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/char/stallion.c	2003-06-24 11:43:58.000000000 +1000
+@@ -472,8 +472,6 @@ static unsigned int	stl_baudrates[] = {
+  */
+ 
+ #ifdef MODULE
+-int		init_module(void);
+-void		cleanup_module(void);
+ static void	stl_argbrds(void);
+ static int	stl_parsebrd(stlconf_t *confp, char **argp);
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/net/wan/sdladrv.c .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdladrv.c
+--- .11903-linux-2.5.73-bk1/drivers/net/wan/sdladrv.c	2003-06-15 11:29:56.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdladrv.c	2003-06-24 11:43:58.000000000 +1000
+@@ -160,10 +160,6 @@
+ 
+ /****** Function Prototypes *************************************************/
+ 
+-/* Module entry points. These are called by the OS and must be public. */
+-int init_module (void);
+-void cleanup_module (void);
+-
+ /* Hardware-specific functions */
+ static int sdla_detect	(sdlahw_t* hw);
+ static int sdla_autodpm	(sdlahw_t* hw);
+@@ -325,11 +321,7 @@ static int pci_slot_ar[MAX_S514_CARDS];
+  * Context:	process
+  */
+ 
+-#ifdef MODULE
+-int init_module (void)
+-#else
+ int sdladrv_init(void)
+-#endif
+ {
+ 	int i=0;
+ 
+@@ -354,9 +346,12 @@ int sdladrv_init(void)
+  * Module 'remove' entry point.
+  * o release all remaining system resources
+  */
+-void cleanup_module (void)
++static void sdladrv_cleanup(void)
+ {
+ }
++
++module_init(sdladrv_init);
++module_cleanup(sdladrv_cleanup);
+ #endif
+ 
+ /******* Kernel APIs ********************************************************/
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .11903-linux-2.5.73-bk1/drivers/net/wan/sdlamain.c .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdlamain.c
+--- .11903-linux-2.5.73-bk1/drivers/net/wan/sdlamain.c	2003-05-27 15:02:12.000000000 +1000
++++ .11903-linux-2.5.73-bk1.updated/drivers/net/wan/sdlamain.c	2003-06-24 11:43:58.000000000 +1000
+@@ -177,10 +177,6 @@ static void dbg_kfree(void * v, int line
+ extern void disable_irq(unsigned int);
+ extern void enable_irq(unsigned int);
+  
+-/* Module entry points */
+-int init_module (void);
+-void cleanup_module (void);
+-
+ /* WAN link driver entry points */
+ static int setup(struct wan_device* wandev, wandev_conf_t* conf);
+ static int shutdown(struct wan_device* wandev);
+@@ -246,11 +242,7 @@ static int wanpipe_bh_critical=0;
+  * Context:	process
+  */
+  
+-#ifdef MODULE
+-int init_module (void)
+-#else
+ int wanpipe_init(void)
+-#endif
+ {
+ 	int cnt, err = 0;
+ 
+@@ -313,7 +305,7 @@ int wanpipe_init(void)
+  * o unregister all adapters from the WAN router
+  * o release all remaining system resources
+  */
+-void cleanup_module (void)
++static void wanpipe_cleanup(void)
+ {
+ 	int i;
+ 
+@@ -329,6 +321,8 @@ void cleanup_module (void)
+ 	printk(KERN_INFO "\nwanpipe: WANPIPE Modules Unloaded.\n");
+ }
+ 
++module_init(wanpipe_init);
++module_exit(wanpipe_cleanup);
+ #endif
+ 
+ /******* WAN Device Driver Entry Points *************************************/
+
 
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

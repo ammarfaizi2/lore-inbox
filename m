@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbTLWWJa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 17:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTLWWJa
+	id S262864AbTLWWTL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 17:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTLWWTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 17:09:30 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:38356
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S262327AbTLWWJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 17:09:28 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: davidsen@tmr.com (bill davidsen), linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
-Date: Wed, 24 Dec 2003 09:09:18 +1100
-User-Agent: KMail/1.5.3
-References: <200312231138.21734.kernel@kolivas.org> <3FE7AF24.40600@cyberone.com.au> <bs9o97$dc3$1@gatekeeper.tmr.com>
-In-Reply-To: <bs9o97$dc3$1@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Dec 2003 17:19:11 -0500
+Received: from mail.kroah.org ([65.200.24.183]:64235 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262864AbTLWWTI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 17:19:08 -0500
+Date: Tue, 23 Dec 2003 14:13:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Scott James Remnant <scott@netsplit.com>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: udev LABEL not working: sysfs_path_is_file: stat() failed
+Message-ID: <20031223221341.GF15946@kroah.com>
+References: <1072054829.1225.11.camel@descent.netsplit.com> <20031222092329.GA30235@kroah.com> <1072090725.1225.19.camel@descent.netsplit.com> <20031222204024.GF3195@kroah.com> <1072164547.1225.25.camel@descent.netsplit.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312240909.19006.kernel@kolivas.org>
+In-Reply-To: <1072164547.1225.25.camel@descent.netsplit.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Dec 2003 02:51, bill davidsen wrote:
-> There are two goals here. Not having a batch process on one siling makes
-> sense, and I'm going to try Con's patch after I try Nick's latest.
-> Actually, if they play nicely I would use both, batch would be very
-> useful for nightly report generation on servers.
+On Tue, Dec 23, 2003 at 07:29:07AM +0000, Scott James Remnant wrote:
+> On Mon, 2003-12-22 at 20:40, Greg KH wrote:
+> 
+> > On Mon, Dec 22, 2003 at 10:58:45AM +0000, Scott James Remnant wrote:
+> > > One question though, it only ever seems to create a device for the
+> > > actual usb-storage disk and not the partition.  Is there some magic to
+> > > create the partition device instead?
+> > 
+> > Do you have a partition show up in /sys/block?  If not, then udev will
+> > not create it.  It works here for my usb-storage devices that have
+> > partitions on them.
+> > 
+> Yes, /dev/block/sdb/sdb1 certainly does appear, as does /udev/sdb1 --
+> the LABEL rule only seems to match "sdb" though.
 
-No hope of them playing nicely, but at some later stage I might resync on top 
-of Nick's work if I like the direction it takes (which looks likely!)
+That's odd, what is the rule?  They should both match.
 
-> But WRT the whole HT scheduling, it would seem that ideally you want to
-> schedule the two (or N) processes which have the lowest aggregate cache
-> thrash, if you had a way to determine that. I suspect that a process
-> which had a small itterative inner loop with a code+data footprint of
-> 2-3k would coexist well with almost anything else. Minimizing the FPU
-> contention also would improve performance, no doubt. I don't know that
-> there are the tools at the moment to get this information, but it seems
-> as though until it's available any scheduling will be working in the
-> dark to some extent.
-
-Impossible with current tools. Only userspace would have a chance of 
-predicting this and the simple rule we work off is that userspace can't be 
-trusted so this does not appear doable in the foreseeable future.
-
-> Feel free to tell me I misread this problem.
-
-> I my experience, on servers it's more important to avoid really bad
-> behaviour all of the time than to have perfect behaviour most of the
-> time. All of the recent scheduler work from Nick, Con and Ingo has
-> avoided "jackpot cases" quite well, for which I thank you and encourage
-> you to continue. If server response goes from 20ms to 100ms Saturday
-> night, we discuss it at a status meeting Monday morning and make
-> suggestions to management. If response goes to 2sec we discuss it with
-> management at 2am and they make suggestions :-(
->
-> So far 2.6.0 has been quite good at "bend but do not break" under load.
-> Great job!
-
-Excellent! I'm sure we'll hear from you when you turn the knob up to 11/10.
-
-Con
-
+greg k-h

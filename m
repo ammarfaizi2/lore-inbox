@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbTKYM5S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 07:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbTKYM5S
+	id S262446AbTKYNIL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 08:08:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKYNIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 07:57:18 -0500
-Received: from 0x50a144f4.albnxx15.adsl-dhcp.tele.dk ([80.161.68.244]:4612
-	"EHLO 0x50a144f4.albnxx15.adsl-dhcp.tele.dk") by vger.kernel.org
-	with ESMTP id S262427AbTKYM5Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 07:57:16 -0500
-Date: Tue, 25 Nov 2003 13:57:14 +0100
-From: Rask Ingemann Lambertsen <rask@sygehus.dk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH/CFT] de2104x fixes
-Message-ID: <20031125135713.A9450@sygehus.dk>
-References: <200311212051.32352.russell@coker.com.au> <3FBE5E70.9060102@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FBE5E70.9060102@pobox.com>; from jgarzik@pobox.com on Fri, Nov 21, 2003 at 01:50:24PM -0500
+	Tue, 25 Nov 2003 08:08:11 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:42881 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262446AbTKYNIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 08:08:10 -0500
+Date: Tue, 25 Nov 2003 13:12:20 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200311251312.hAPDCKaA000948@81-2-122-30.bradfords.org.uk>
+To: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <yw1xllq4d4l5.fsf@kth.se>
+References: <fa.hevpbbs.u5q2r6@ifi.uio.no>
+ <fa.l1quqni.v405hu@ifi.uio.no>
+ <3FC27019.7010402@myrealbox.com>
+ <200311242204.hAOM4aZ1000847@81-2-122-30.bradfords.org.uk>
+ <yw1xptfh8lh3.fsf@kth.se>
+ <200311251210.hAPCAAGo000750@81-2-122-30.bradfords.org.uk>
+ <yw1xllq4d4l5.fsf@kth.se>
+Subject: Re: hard links create local DoS vulnerability and security problems
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quote from mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=):
+> John Bradford <john@grabjohn.com> writes:
+> 
+> >> > They can truncate the file to zero length, though, then delete the
+> >> > 'original' link, making all of the other links point to the zero
+> >> > length file.
+> >>=20
+> >> It could be tricky to find those extra links if the original has bee=
+> n
+> >> deleted, of course.
+> >
+> > True, but as long as at least one of the links which has been made to
+> > the original file is in a directory you have access to, you can simpl=
+> y
+> > create a new link to the file, truncate it, then delete your newly
+> > created link, so actually deleting the 'original' link is not
+> > necessarily a problem :-).
+> 
+> There's no need to make a new link, since any links will be owned by
+> the original owner.  That was the concern in the first place.  The
+> problem is finding a link after the file has been deleted.  It could
+> be hidden away somewhere in a directory you don't have read or execute
+> permission for.
 
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ah, OK, I was thinking of something else entirely :-)
 
-On Fri, Nov 21, 2003 at 01:50:24PM -0500, Jeff Garzik wrote:
-> So, can people give this a test?  It includes a change that, I hope, 
-> addresses Russell's problem, as well as a patch from Rask.
-
-I have attached a patch which fixes two problems I found during compilation:
-1) de_open() no longer uses the flags variable because the spinlocking is
-   gone, but I forgot to remove the variable.
-2) __de_set_settings() now references dev which is undefined.
-
-The patch should be applied on top of your patch, Jeff.
-
--- 
-Regards,
-Rask Ingemann Lambertsen
-
---uAKRQypu60I7Lcqm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="de2104x-fix-for-jeff.patch"
-
---- linux-2.6.0-test8/drivers/net/tulip/de2104x.c-orig	Tue Nov 25 13:20:25 2003
-+++ linux-2.6.0-test8/drivers/net/tulip/de2104x.c	Tue Nov 25 13:20:25 2003
-@@ -1384,7 +1384,6 @@ static int de_open (struct net_device *d
- {
- 	struct de_private *de = dev->priv;
- 	int rc;
--	unsigned long flags;
- 
- 	if (netif_msg_ifup(de))
- 		printk(KERN_DEBUG "%s: enabling interface\n", dev->name);
-@@ -1601,7 +1600,7 @@ static int __de_set_settings(struct de_p
- 	    (ecmd->advertising == de->media_advertise))
- 		return 0; /* nothing to change */
- 	    
--	if (netif_running(dev)) {
-+	if (netif_running(de->dev)) {
- 		de_link_down(de);
- 		de_stop_rxtx(de);
- 	}
-@@ -1610,7 +1609,7 @@ static int __de_set_settings(struct de_p
- 	de->media_lock = media_lock;
- 	de->media_advertise = ecmd->advertising;
- 
--	if (netif_running(dev))
-+	if (netif_running(de->dev))
- 		de_set_media(de);
- 	
- 	return 0;
-
---uAKRQypu60I7Lcqm--
+John.

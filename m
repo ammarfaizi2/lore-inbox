@@ -1,50 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271073AbUJVDK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271018AbUJUV4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271073AbUJVDK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 23:10:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271063AbUJVDHY
+	id S271018AbUJUV4J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270995AbUJUVeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 23:07:24 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59015 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S271034AbUJVDBl (ORCPT
+	Thu, 21 Oct 2004 17:34:15 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:50376 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S270993AbUJUVbq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 23:01:41 -0400
-From: Jesse Barnes <jbarnes@sgi.com>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] use mmiowb in tg3.c
-Date: Thu, 21 Oct 2004 22:01:34 -0500
-User-Agent: KMail/1.7
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com,
-       gnb@sgi.com, akepner@sgi.com
-References: <200410211613.19601.jbarnes@engr.sgi.com> <200410211628.06906.jbarnes@engr.sgi.com> <20041021164007.4933b10b.davem@davemloft.net>
-In-Reply-To: <20041021164007.4933b10b.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 21 Oct 2004 17:31:46 -0400
+Subject: [patch] HVSI early boot console
+From: Hollis Blanchard <hollisb@us.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, cabbey@us.ibm.com
+Content-Type: text/plain
+Message-Id: <1098376066.12020.36.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 21 Oct 2004 16:27:46 +0000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410212201.35430.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, October 21, 2004 6:40 pm, David S. Miller wrote:
-> On Thu, 21 Oct 2004 16:28:06 -0700
->
-> Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> > This patch originally from Greg Banks.  Some parts of the tg3 driver
-> > depend on PIO writes arriving in order.  This patch ensures that in two
-> > key places using the new mmiowb macro.  This not only prevents bugs (the
-> > queues can be corrupted), but is much faster than ensuring ordering using
-> > PIO reads (which involve a few round trips to the target bus on some
-> > platforms).
->
-> Do other PCI systems which post PIO writes also potentially reorder
-> them just like this SGI system does?  Just trying to get this situation
-> straight in my head.
+Hi Linus, this patch adds support for the udbg early console interfaces
+when using an HVSI console. Please apply.
 
-The HP guys claim that theirs don't, but PPC does, afaik.  And clearly any 
-large system that posts PCI writes has the *potential* of reordering them.
+Signed-off-by: Hollis Blanchard <hollisb@us.ibm.com>
 
-Thanks,
-Jesse
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
+
+===== arch/ppc64/kernel/pSeries_lpar.c 1.41 vs edited =====
+--- 1.41/arch/ppc64/kernel/pSeries_lpar.c	Tue Sep 21 23:40:30 2004
++++ edited/arch/ppc64/kernel/pSeries_lpar.c	Thu Oct  7 10:52:23 2004
+@@ -59,6 +59,74 @@
+ 
+ int vtermno;	/* virtual terminal# for udbg  */
+ 
++#define __ALIGNED__ __attribute__((__aligned__(sizeof(long))))
++static void udbg_hvsi_putc(unsigned char c)
++{
++	/* packet's seqno isn't used anyways */
++	uint8_t packet[] __ALIGNED__ = { 0xff, 5, 0, 0, c };
++	int rc;
++
++	if (c == '\n')
++		udbg_hvsi_putc('\r');
++
++	do {
++		rc = plpar_put_term_char(vtermno, sizeof(packet), packet);
++	} while (rc == H_Busy);
++}
++
++static long hvsi_udbg_buf_len;
++static uint8_t hvsi_udbg_buf[256];
++
++static int udbg_hvsi_getc_poll(void)
++{
++	unsigned char ch;
++	int rc, i;
++
++	if (hvsi_udbg_buf_len == 0) {
++		rc = plpar_get_term_char(vtermno, &hvsi_udbg_buf_len, hvsi_udbg_buf);
++		if (rc != H_Success || hvsi_udbg_buf[0] != 0xff) {
++			/* bad read or non-data packet */
++			hvsi_udbg_buf_len = 0;
++		} else {
++			/* remove the packet header */
++			for (i = 4; i < hvsi_udbg_buf_len; i++)
++				hvsi_udbg_buf[i-4] = hvsi_udbg_buf[i];
++			hvsi_udbg_buf_len -= 4;
++		}
++	}
++
++	if (hvsi_udbg_buf_len <= 0 || hvsi_udbg_buf_len > 256) {
++		/* no data ready */
++		hvsi_udbg_buf_len = 0;
++		return -1;
++	}
++
++	ch = hvsi_udbg_buf[0];
++	/* shift remaining data down */
++	for (i = 1; i < hvsi_udbg_buf_len; i++) {
++		hvsi_udbg_buf[i-1] = hvsi_udbg_buf[i];
++	}
++	hvsi_udbg_buf_len--;
++
++	return ch;
++}
++
++static unsigned char udbg_hvsi_getc(void)
++{
++	int ch;
++	for (;;) {
++		ch = udbg_hvsi_getc_poll();
++		if (ch == -1) {
++			/* This shouldn't be needed...but... */
++			volatile unsigned long delay;
++			for (delay=0; delay < 2000000; delay++)
++				;
++		} else {
++			return ch;
++		}
++	}
++}
++
+ static void udbg_putcLP(unsigned char c)
+ {
+ 	char buf[16];
+@@ -167,11 +235,15 @@
+ 				ppc_md.udbg_getc_poll = udbg_getc_pollLP;
+ 				found = 1;
+ 			}
+-		} else {
+-			/* XXX implement udbg_putcLP_vtty for hvterm-protocol1 case */
+-			printk(KERN_WARNING "%s doesn't speak hvterm1; "
+-					"can't print udbg messages\n",
+-			       stdout_node->full_name);
++		} else if (device_is_compatible(stdout_node, "hvterm-protocol")) {
++			termno = (u32 *)get_property(stdout_node, "reg", NULL);
++			if (termno) {
++				vtermno = termno[0];
++				ppc_md.udbg_putc = udbg_hvsi_putc;
++				ppc_md.udbg_getc = udbg_hvsi_getc;
++				ppc_md.udbg_getc_poll = udbg_hvsi_getc_poll;
++				found = 1;
++			}
+ 		}
+ 	} else if (strncmp(name, "serial", 6)) {
+ 		/* XXX fix ISA serial console */
+
+

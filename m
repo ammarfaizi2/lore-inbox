@@ -1,716 +1,619 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316897AbSIBF2x>; Mon, 2 Sep 2002 01:28:53 -0400
+	id <S316795AbSIBF2f>; Mon, 2 Sep 2002 01:28:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317359AbSIBF2x>; Mon, 2 Sep 2002 01:28:53 -0400
-Received: from dp.samba.org ([66.70.73.150]:53646 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S316897AbSIBF22>;
+	id <S317359AbSIBF2f>; Mon, 2 Sep 2002 01:28:35 -0400
+Received: from dp.samba.org ([66.70.73.150]:53390 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S316795AbSIBF22>;
 	Mon, 2 Sep 2002 01:28:28 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: [TRIVIAL PATCH] Remove list_t infection.
-Date: Mon, 02 Sep 2002 15:23:02 +1000
-Message-Id: <20020902003318.7CB682C092@lists.samba.org>
+Cc: linux-kernel@vger.kernel.org, "Vamsi Krishna S ." <vamsi@in.ibm.com>,
+       Luca Barbieri <ldb@ldb.ods.org>, hch@infradead.org
+Subject: [PATCH] kprobes for 2.5.33
+Date: Mon, 02 Sep 2002 15:14:37 +1000
+Message-Id: <20020902003318.640CE2C07B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This week, it spread to SCTP.
+Linus, please apply.
 
-"struct list_head" isn't a great name, but having two names for
-everything is yet another bar to reading kernel source.
+[ Updated against 2.5.33's traps.c changes ]
 
-Linus, please apply,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Name: Kprobes for i386
+Author: Vamsi Krishna S
+Status: Tested on 2.5.31 SMP
 
-Name: list_t removal patch
-Author: Rusty Russell
-Section: Misc
-Status: Trivial
+D: This patch allows trapping at almost any kernel address, useful for
+D: various kernel-hacking tasks, and building on for more
+D: infrastructure.  This patch is x86 only, but other archs can add
+D: support as required.
 
-D: This removes list_t, which is a gratuitous typedef for a "struct
-D: list_head".  Unless there is good reason, the kernel doesn't usually
-D: typedef, as typedefs cannot be predeclared unlike structs.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/device.h .22733-linux-2.5.33.updated/include/linux/device.h
---- .22733-linux-2.5.33/include/linux/device.h	2002-08-28 09:29:52.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/device.h	2002-09-02 15:15:09.000000000 +1000
-@@ -57,9 +57,9 @@ struct bus_type {
- 	rwlock_t		lock;
- 	atomic_t		refcount;
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/arch/i386/Config.help .9892-linux-2.5.33.updated/arch/i386/Config.help
+--- .9892-linux-2.5.33/arch/i386/Config.help	2002-06-18 02:18:28.000000000 +1000
++++ .9892-linux-2.5.33.updated/arch/i386/Config.help	2002-09-02 15:05:08.000000000 +1000
+@@ -967,3 +967,9 @@ CONFIG_SOFTWARE_SUSPEND
+   absence of features.
  
--	list_t			node;
--	list_t			devices;
--	list_t			drivers;
-+	struct list_head	node;
-+	struct list_head	devices;
-+	struct list_head	drivers;
+   For more information take a look at Documentation/swsusp.txt.
++
++CONFIG_KPROBES
++  Kprobes allows you to trap at almost any kernel address, using
++  register_kprobe(), and providing a callback function.  This is useful
++  for kernel debugging, non-intrusive instrumentation and testing.  If
++  in doubt, say "N".
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/arch/i386/config.in .9892-linux-2.5.33.updated/arch/i386/config.in
+--- .9892-linux-2.5.33/arch/i386/config.in	2002-08-28 09:29:39.000000000 +1000
++++ .9892-linux-2.5.33.updated/arch/i386/config.in	2002-09-02 15:05:08.000000000 +1000
+@@ -414,6 +414,7 @@ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; th
+    if [ "$CONFIG_HIGHMEM" = "y" ]; then
+       bool '  Highmem debugging' CONFIG_DEBUG_HIGHMEM
+    fi
++   bool '  Kprobes' CONFIG_KPROBES
+ fi
  
- 	struct driver_dir_entry	dir;
- 	struct driver_dir_entry	device_dir;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/fs.h .22733-linux-2.5.33.updated/include/linux/fs.h
---- .22733-linux-2.5.33/include/linux/fs.h	2002-08-28 09:29:52.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/fs.h	2002-09-02 15:15:09.000000000 +1000
-@@ -322,8 +322,8 @@ struct address_space {
- 	struct list_head	io_pages;	/* being prepared for I/O */
- 	unsigned long		nrpages;	/* number of total pages */
- 	struct address_space_operations *a_ops;	/* methods */
--	list_t			i_mmap;		/* list of private mappings */
--	list_t			i_mmap_shared;	/* list of private mappings */
-+	struct list_head	i_mmap;		/* list of private mappings */
-+	struct list_head	i_mmap_shared;	/* list of private mappings */
- 	spinlock_t		i_shared_lock;  /* and spinlock protecting it */
- 	unsigned long		dirtied_when;	/* jiffies of first page dirtying */
- 	int			gfp_mask;	/* how to allocate the pages */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/list.h .22733-linux-2.5.33.updated/include/linux/list.h
---- .22733-linux-2.5.33/include/linux/list.h	2002-09-01 12:23:07.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/list.h	2002-09-02 15:15:09.000000000 +1000
-@@ -19,12 +19,10 @@ struct list_head {
- 	struct list_head *next, *prev;
- };
+ endmenu
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/arch/i386/kernel/Makefile .9892-linux-2.5.33.updated/arch/i386/kernel/Makefile
+--- .9892-linux-2.5.33/arch/i386/kernel/Makefile	2002-08-28 09:29:39.000000000 +1000
++++ .9892-linux-2.5.33.updated/arch/i386/kernel/Makefile	2002-09-02 15:05:08.000000000 +1000
+@@ -25,6 +25,7 @@ obj-$(CONFIG_SMP)		+= smp.o smpboot.o tr
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= mpparse.o apic.o nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
+ obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o
++obj-$(CONFIG_KPROBES)		+= kprobes.o
+ ifdef CONFIG_VISWS
+ obj-y += setup-visws.o
+ obj-$(CONFIG_X86_VISWS_APIC)	+= visws_apic.o
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/arch/i386/kernel/entry.S .9892-linux-2.5.33.updated/arch/i386/kernel/entry.S
+--- .9892-linux-2.5.33/arch/i386/kernel/entry.S	2002-08-28 09:29:40.000000000 +1000
++++ .9892-linux-2.5.33.updated/arch/i386/kernel/entry.S	2002-09-02 15:05:08.000000000 +1000
+@@ -430,9 +430,16 @@ device_not_available_emulate:
+ 	jmp ret_from_exception
  
--typedef struct list_head list_t;
--
- #define LIST_HEAD_INIT(name) { &(name), &(name) }
+ ENTRY(debug)
++	pushl $-1			# mark this as an int
++	SAVE_ALL
++	movl %esp,%edx
+ 	pushl $0
+-	pushl $do_debug
+-	jmp error_code
++	pushl %edx
++	call do_debug
++	addl $8,%esp
++	testl %eax,%eax 
++	jnz restore_all
++	jmp ret_from_exception
  
- #define LIST_HEAD(name) \
--	list_t name = LIST_HEAD_INIT(name)
-+	struct list_head name = LIST_HEAD_INIT(name)
+ ENTRY(nmi)
+ 	pushl %eax
+@@ -445,9 +452,16 @@ ENTRY(nmi)
+ 	RESTORE_ALL
  
- #define INIT_LIST_HEAD(ptr) do { \
- 	(ptr)->next = (ptr); (ptr)->prev = (ptr); \
-@@ -36,7 +34,9 @@ typedef struct list_head list_t;
-  * This is only for internal list manipulation where we know
-  * the prev/next entries already!
-  */
--static inline void __list_add(list_t *new, list_t *prev, list_t *next)
-+static inline void __list_add(struct list_head *new,
-+			      struct list_head *prev,
-+			      struct list_head *next)
- {
- 	next->prev = new;
- 	new->next = next;
-@@ -52,7 +52,7 @@ static inline void __list_add(list_t *ne
-  * Insert a new entry after the specified head.
-  * This is good for implementing stacks.
-  */
--static inline void list_add(list_t *new, list_t *head)
-+static inline void list_add(struct list_head *new, struct list_head *head)
- {
- 	__list_add(new, head, head->next);
+ ENTRY(int3)
++	pushl $-1			# mark this as an int
++	SAVE_ALL
++	movl %esp,%edx
+ 	pushl $0
+-	pushl $do_int3
+-	jmp error_code
++	pushl %edx
++	call do_int3
++	addl $8,%esp
++	cmpl $0,%eax 
++	jnz restore_all
++	jmp ret_from_exception
+ 
+ ENTRY(overflow)
+ 	pushl $0
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/arch/i386/kernel/kprobes.c .9892-linux-2.5.33.updated/arch/i386/kernel/kprobes.c
+--- .9892-linux-2.5.33/arch/i386/kernel/kprobes.c	1970-01-01 10:00:00.000000000 +1000
++++ .9892-linux-2.5.33.updated/arch/i386/kernel/kprobes.c	2002-09-02 15:05:08.000000000 +1000
+@@ -0,0 +1,160 @@
++/* 
++ * Support for kernel probes.
++ * (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
++ */
++
++#include <linux/config.h>
++#include <linux/kprobes.h>
++#include <linux/ptrace.h>
++#include <linux/spinlock.h>
++#include <linux/preempt.h>
++
++/* kprobe_status settings */
++#define KPROBE_HIT_ACTIVE	0x00000001
++#define KPROBE_HIT_SS		0x00000002
++
++static struct kprobe *current_kprobe;
++static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
++
++/*
++ * returns non-zero if opcode modifies the interrupt flag.
++ */
++static inline int is_IF_modifier(u8 opcode)
++{
++	switch(opcode) {
++		case 0xfa: 	/* cli */
++		case 0xfb:	/* sti */
++		case 0xcf:	/* iret/iretd */
++		case 0x9d:	/* popf/popfd */
++			return 1;
++	}
++	return 0;
++}
++
++static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
++{
++	*p->addr = p->opcode;
++	regs->eip = (unsigned long)p->addr;
++}
++
++/*
++ * Interrupts are disabled on entry as trap3 is an interrupt gate and they
++ * remain disabled thorough out this function.
++ */
++int kprobe_handler(struct pt_regs *regs)
++{
++	struct kprobe *p;
++	int ret = 0;
++	u8 *addr = (u8 *)(regs->eip-1);
++
++	/* We're in an interrupt, but this is clear and BUG()-safe. */
++	preempt_disable();
++
++	/* Check we're not actually recursing */
++	if (kprobe_running()) {
++		/* We *are* holding lock here, so this is safe.
++                   Disarm the probe we just hit, and ignore it. */
++		p = get_kprobe(addr);
++		if (p) {
++			disarm_kprobe(p, regs);
++			ret = 1;
++		}
++		/* If it's not ours, can't be delete race, (we hold lock). */
++		goto no_kprobe;
++	}
++
++	lock_kprobes();
++	p = get_kprobe(addr); 
++	if (!p) {
++		unlock_kprobes();
++		/* Unregistered (on another cpu) after this hit?  Ignore */
++		if (*addr != BREAKPOINT_INSTRUCTION)
++			ret = 1;
++		/* Not one of ours: let kernel handle it */
++		goto no_kprobe;
++	}
++
++	kprobe_status = KPROBE_HIT_ACTIVE;
++	current_kprobe = p;
++	kprobe_saved_eflags = kprobe_old_eflags 
++		= (regs->eflags & (TF_MASK|IF_MASK));
++	if (is_IF_modifier(p->opcode))
++		kprobe_saved_eflags &= ~IF_MASK;
++
++	p->pre_handler(p, regs);
++
++	regs->eflags |= TF_MASK;
++	regs->eflags &= ~IF_MASK;
++
++	/* We hold lock, now we remove breakpoint and single step. */
++	disarm_kprobe(p, regs);
++	kprobe_status = KPROBE_HIT_SS;
++	return 1;
++
++no_kprobe:
++	preempt_enable_no_resched();
++	return ret;
++}
++
++static void rearm_kprobe(struct kprobe *p, struct pt_regs *regs)
++{
++	regs->eflags &= ~TF_MASK;
++	*p->addr = BREAKPOINT_INSTRUCTION;
++}
++	
++/*
++ * Interrupts are disabled on entry as trap1 is an interrupt gate and they
++ * remain disabled thorough out this function.  And we hold kprobe lock.
++ */
++int post_kprobe_handler(struct pt_regs *regs)
++{
++	if (!kprobe_running())
++		return 0;
++
++	if (current_kprobe->post_handler)
++		current_kprobe->post_handler(current_kprobe, regs, 0);
++
++	/*
++	 * We singlestepped with interrupts disabled. So, the result on
++	 * the stack would be incorrect for "pushfl" instruction.
++	 * Note that regs->esp is actually the top of the stack when the
++	 * trap occurs in kernel space.
++	 */
++	if (current_kprobe->opcode == 0x9c) { /* pushfl */
++		regs->esp &= ~(TF_MASK | IF_MASK);
++		regs->esp |= kprobe_old_eflags;
++	}
++
++	rearm_kprobe(current_kprobe, regs);
++	regs->eflags |= kprobe_saved_eflags;
++
++	unlock_kprobes();
++	preempt_enable_no_resched();
++
++        /*
++	 * if somebody else is singlestepping across a probe point, eflags
++	 * will have TF set, in which case, continue the remaining processing
++	 * of do_debug, as if this is not a probe hit.
++	 */
++	if (regs->eflags & TF_MASK)
++		return 0;
++
++	return 1;
++}
++
++/* Interrupts disabled, kprobe_lock held. */
++int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
++{
++	if (current_kprobe->fault_handler
++	    && current_kprobe->fault_handler(current_kprobe, regs, trapnr))
++		return 1;
++
++	if (kprobe_status & KPROBE_HIT_SS) {
++		rearm_kprobe(current_kprobe, regs);
++        	regs->eflags |= kprobe_old_eflags;
++
++		unlock_kprobes();
++		preempt_enable_no_resched();
++	}
++	return 0;
++}
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/arch/i386/kernel/traps.c .9892-linux-2.5.33.updated/arch/i386/kernel/traps.c
+--- .9892-linux-2.5.33/arch/i386/kernel/traps.c	2002-09-01 12:22:57.000000000 +1000
++++ .9892-linux-2.5.33.updated/arch/i386/kernel/traps.c	2002-09-02 15:05:08.000000000 +1000
+@@ -23,6 +23,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/interrupt.h>
+ #include <linux/highmem.h>
++#include <linux/kprobes.h>
+ 
+ #ifdef CONFIG_EISA
+ #include <linux/ioport.h>
+@@ -392,7 +393,6 @@ asmlinkage void do_##name(struct pt_regs
  }
-@@ -65,7 +65,7 @@ static inline void list_add(list_t *new,
-  * Insert a new entry before the specified head.
-  * This is useful for implementing queues.
-  */
--static inline void list_add_tail(list_t *new, list_t *head)
-+static inline void list_add_tail(struct list_head *new, struct list_head *head)
+ 
+ DO_VM86_ERROR_INFO( 0, SIGFPE,  "divide error", divide_error, FPE_INTDIV, regs->eip)
+-DO_VM86_ERROR( 3, SIGTRAP, "int3", int3)
+ DO_VM86_ERROR( 4, SIGSEGV, "overflow", overflow)
+ DO_VM86_ERROR( 5, SIGSEGV, "bounds", bounds)
+ DO_ERROR_INFO( 6, SIGILL,  "invalid operand", invalid_op, ILL_ILLOPN, regs->eip)
+@@ -408,6 +408,9 @@ asmlinkage void do_general_protection(st
  {
- 	__list_add(new, head->prev, head);
- }
-@@ -77,7 +77,7 @@ static inline void list_add_tail(list_t 
-  * This is only for internal list manipulation where we know
-  * the prev/next entries already!
-  */
--static inline void __list_del(list_t * prev, list_t * next)
-+static inline void __list_del(struct list_head * prev, struct list_head * next)
- {
- 	next->prev = prev;
- 	prev->next = next;
-@@ -88,7 +88,7 @@ static inline void __list_del(list_t * p
-  * @entry: the element to delete from the list.
-  * Note: list_empty on entry does not return true after this, the entry is in an undefined state.
-  */
--static inline void list_del(list_t *entry)
-+static inline void list_del(struct list_head *entry)
- {
- 	__list_del(entry->prev, entry->next);
- 	entry->next = (void *) 0;
-@@ -99,7 +99,7 @@ static inline void list_del(list_t *entr
-  * list_del_init - deletes entry from list and reinitialize it.
-  * @entry: the element to delete from the list.
-  */
--static inline void list_del_init(list_t *entry)
-+static inline void list_del_init(struct list_head *entry)
- {
- 	__list_del(entry->prev, entry->next);
- 	INIT_LIST_HEAD(entry); 
-@@ -110,7 +110,7 @@ static inline void list_del_init(list_t 
-  * @list: the entry to move
-  * @head: the head that will precede our entry
-  */
--static inline void list_move(list_t *list, list_t *head)
-+static inline void list_move(struct list_head *list, struct list_head *head)
- {
-         __list_del(list->prev, list->next);
-         list_add(list, head);
-@@ -121,7 +121,8 @@ static inline void list_move(list_t *lis
-  * @list: the entry to move
-  * @head: the head that will follow our entry
-  */
--static inline void list_move_tail(list_t *list, list_t *head)
-+static inline void list_move_tail(struct list_head *list,
-+				  struct list_head *head)
- {
-         __list_del(list->prev, list->next);
-         list_add_tail(list, head);
-@@ -131,16 +132,17 @@ static inline void list_move_tail(list_t
-  * list_empty - tests whether a list is empty
-  * @head: the list to test.
-  */
--static inline int list_empty(list_t *head)
-+static inline int list_empty(struct list_head *head)
- {
- 	return head->next == head;
+ 	if (regs->eflags & VM_MASK)
+ 		goto gp_in_vm86;
++	
++	if (kprobe_running() && kprobe_fault_handler(regs, 13))
++		return;
+ 
+ 	if (!(regs->xcs & 3))
+ 		goto gp_in_kernel;
+@@ -508,6 +511,17 @@ asmlinkage void do_nmi(struct pt_regs * 
+ 	inb(0x71);		/* dummy */
  }
  
--static inline void __list_splice(list_t *list, list_t *head)
-+static inline void __list_splice(struct list_head *list,
-+				 struct list_head *head)
++asmlinkage int do_int3(struct pt_regs *regs, long error_code)
++{
++	if (kprobe_handler(regs))
++		return 1;
++	/* This is an interrupt gate, because kprobes wants interrupts
++           disabled.  Normal trap handlers don't. */
++	restore_interrupts(regs);
++	do_trap(3, SIGTRAP, "int3", 1, regs, error_code, NULL);
++	return 0;
++}
++
+ /*
+  * Our handling of the processor debug registers is non-trivial.
+  * We do not clear them on entry and exit from the kernel. Therefore
+@@ -530,7 +544,7 @@ asmlinkage void do_nmi(struct pt_regs * 
+  * find every occurrence of the TF bit that could be saved away even
+  * by user code)
+  */
+-asmlinkage void do_debug(struct pt_regs * regs, long error_code)
++asmlinkage int do_debug(struct pt_regs * regs, long error_code)
  {
--	list_t *first = list->next;
--	list_t *last = list->prev;
--	list_t *at = head->next;
-+	struct list_head *first = list->next;
-+	struct list_head *last = list->prev;
-+	struct list_head *at = head->next;
+ 	unsigned int condition;
+ 	struct task_struct *tsk = current;
+@@ -538,6 +552,12 @@ asmlinkage void do_debug(struct pt_regs 
  
- 	first->prev = head;
- 	head->next = first;
-@@ -154,7 +156,7 @@ static inline void __list_splice(list_t 
-  * @list: the new list to add.
-  * @head: the place to add it in the first list.
-  */
--static inline void list_splice(list_t *list, list_t *head)
-+static inline void list_splice(struct list_head *list, struct list_head *head)
- {
- 	if (!list_empty(list))
- 		__list_splice(list, head);
-@@ -167,7 +169,8 @@ static inline void list_splice(list_t *l
-  *
-  * The list at @list is reinitialised
-  */
--static inline void list_splice_init(list_t *list, list_t *head)
-+static inline void list_splice_init(struct list_head *list,
-+				    struct list_head *head)
- {
- 	if (!list_empty(list)) {
- 		__list_splice(list, head);
-@@ -177,7 +180,7 @@ static inline void list_splice_init(list
+ 	__asm__ __volatile__("movl %%db6,%0" : "=r" (condition));
  
- /**
-  * list_entry - get the struct for this entry
-- * @ptr:	the &list_t pointer.
-+ * @ptr:	the &struct list_head pointer.
-  * @type:	the type of the struct this is embedded in.
-  * @member:	the name of the list_struct within the struct.
-  */
-@@ -186,7 +189,7 @@ static inline void list_splice_init(list
++	if (post_kprobe_handler(regs))
++		return 1;
++
++	/* Interrupts not disabled for normal trap handling. */
++	restore_interrupts(regs);
++
+ 	/* Mask out spurious debug traps due to lazy DR7 setting */
+ 	if (condition & (DR_TRAP0|DR_TRAP1|DR_TRAP2|DR_TRAP3)) {
+ 		if (!tsk->thread.debugreg[7])
+@@ -588,15 +608,15 @@ clear_dr7:
+ 	__asm__("movl %0,%%db7"
+ 		: /* no output */
+ 		: "r" (0));
+-	return;
++	return 0;
  
- /**
-  * list_for_each	-	iterate over a list
-- * @pos:	the &list_t to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop counter.
-  * @head:	the head for your list.
-  */
- #define list_for_each(pos, head) \
-@@ -194,7 +197,7 @@ static inline void list_splice_init(list
-         	pos = pos->next, prefetch(pos->next))
- /**
-  * list_for_each_prev	-	iterate over a list backwards
-- * @pos:	the &list_t to use as a loop counter.
-+ * @pos:	the &struct list_head to use as a loop counter.
-  * @head:	the head for your list.
-  */
- #define list_for_each_prev(pos, head) \
-@@ -203,8 +206,8 @@ static inline void list_splice_init(list
-         	
- /**
-  * list_for_each_safe	-	iterate over a list safe against removal of list entry
-- * @pos:	the &list_t to use as a loop counter.
-- * @n:		another &list_t to use as temporary storage
-+ * @pos:	the &struct list_head to use as a loop counter.
-+ * @n:		another &struct list_head to use as temporary storage
-  * @head:	the head for your list.
-  */
- #define list_for_each_safe(pos, n, head) \
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/mm.h .22733-linux-2.5.33.updated/include/linux/mm.h
---- .22733-linux-2.5.33/include/linux/mm.h	2002-09-01 12:23:07.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/mm.h	2002-09-02 15:15:09.000000000 +1000
-@@ -61,7 +61,7 @@ struct vm_area_struct {
- 	 * one of the address_space->i_mmap{,shared} lists,
- 	 * for shm areas, the list of attaches, otherwise unused.
- 	 */
--	list_t shared;
-+	struct list_head shared;
+ debug_vm86:
+ 	handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, 1);
+-	return;
++	return 0;
  
- 	/* Function pointers to deal with this struct. */
- 	struct vm_operations_struct * vm_ops;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/linux/sched.h .22733-linux-2.5.33.updated/include/linux/sched.h
---- .22733-linux-2.5.33/include/linux/sched.h	2002-09-01 12:23:07.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/linux/sched.h	2002-09-02 15:15:09.000000000 +1000
-@@ -264,7 +264,7 @@ struct task_struct {
- 	int lock_depth;		/* Lock depth */
- 
- 	int prio, static_prio;
--	list_t run_list;
-+	struct list_head run_list;
- 	prio_array_t *array;
- 
- 	unsigned long sleep_avg;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/include/net/sctp/structs.h .22733-linux-2.5.33.updated/include/net/sctp/structs.h
---- .22733-linux-2.5.33/include/net/sctp/structs.h	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/include/net/sctp/structs.h	2002-09-02 15:17:45.000000000 +1000
-@@ -203,7 +203,7 @@ struct SCTP_protocol {
- 	/* This is a list of groups of functions for each address
- 	 * family that we support.
- 	 */
--	list_t address_families;
-+	struct list_head address_families;
- 
- 	/* This is the hash of all endpoints. */
- 	int ep_hashsize;
-@@ -225,7 +225,7 @@ struct SCTP_protocol {
- 	 *
- 	 * It is a list of struct sockaddr_storage_list.
- 	 */
--	list_t local_addr_list;
-+	struct list_head local_addr_list;
- 	spinlock_t local_addr_lock;
- };
- 
-@@ -250,7 +250,7 @@ typedef struct sctp_func {
- 	__u16		net_header_len;	
- 	int		sockaddr_len;
- 	sa_family_t	sa_family;
--	list_t          list;
-+	struct list_head list;
- } sctp_func_t;
- 
- sctp_func_t *sctp_get_af_specific(const sockaddr_storage_t *address);
-@@ -494,7 +494,7 @@ const sockaddr_storage_t *sctp_source(co
-  * sin_addr -- cast to either (struct in_addr) or (struct in6_addr)
-  */
- struct sockaddr_storage_list {
--	list_t list;
-+	struct list_head list;
- 	sockaddr_storage_t a;
- };
- 
-@@ -582,7 +582,7 @@ void sctp_packet_free(sctp_packet_t *);
-  */
- struct SCTP_transport {
- 	/* A list of transports. */
--	list_t transports;
-+	struct list_head transports;
- 
- 	/* Reference counting. */
- 	atomic_t refcnt;
-@@ -863,7 +863,7 @@ struct SCTP_bind_addr {
- 	 *	has bound.  This information is passed to one's
- 	 *	peer(s) in INIT and INIT ACK chunks.
- 	 */
--	list_t address_list;
-+	struct list_head address_list;
- 
- 	int malloced;        /* Are we kfree()able?  */
- };
-@@ -988,7 +988,7 @@ struct SCTP_endpoint {
- 	 *            is implemented.
- 	 */
- 	/* This is really a list of sctp_association_t entries. */
--	list_t asocs;
-+	struct list_head asocs;
- 
- 	/* Secret Key: A secret key used by this endpoint to compute
- 	 *            the MAC.  This SHOULD be a cryptographic quality
-@@ -1070,7 +1070,7 @@ struct SCTP_association {
- 	sctp_endpoint_common_t base;
- 
- 	/* Associations on the same socket. */
--	list_t asocs;
-+	struct list_head asocs;
- 
- 	/* This is a signature that lets us know that this is a
- 	 * sctp_association_t data structure.  Used for mapping an
-@@ -1104,7 +1104,7 @@ struct SCTP_association {
- 		 *
- 		 * It is a list of SCTP_transport's.
- 		 */
--		list_t transport_addr_list;
-+		struct list_head transport_addr_list;
- 
- 		/* port
- 		 *   The transport layer port number.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/kernel/exit.c .22733-linux-2.5.33.updated/kernel/exit.c
---- .22733-linux-2.5.33/kernel/exit.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/kernel/exit.c	2002-09-02 15:15:09.000000000 +1000
-@@ -407,7 +407,7 @@ void exit_mm(struct task_struct *tsk)
- static inline void forget_original_parent(struct task_struct * father)
- {
- 	struct task_struct *p, *reaper;
--	list_t *_p;
-+	struct list_head *_p;
- 
- 	read_lock(&tasklist_lock);
- 
-@@ -477,7 +477,7 @@ static inline void zap_thread(task_t *p,
- static void exit_notify(void)
- {
- 	struct task_struct *t;
--	list_t *_p, *_n;
-+	struct list_head *_p, *_n;
- 
- 	forget_original_parent(current);
- 	/*
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/kernel/sched.c .22733-linux-2.5.33.updated/kernel/sched.c
---- .22733-linux-2.5.33/kernel/sched.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/kernel/sched.c	2002-09-02 15:15:09.000000000 +1000
-@@ -133,7 +133,7 @@ typedef struct runqueue runqueue_t;
- struct prio_array {
- 	int nr_active;
- 	unsigned long bitmap[BITMAP_SIZE];
--	list_t queue[MAX_PRIO];
-+	struct list_head queue[MAX_PRIO];
- };
+ clear_TF:
+ 	regs->eflags &= ~TF_MASK;
+-	return;
++	return 0;
+ }
  
  /*
-@@ -152,7 +152,7 @@ struct runqueue {
- 	int prev_nr_running[NR_CPUS];
+@@ -760,6 +780,8 @@ asmlinkage void math_state_restore(struc
+ 	struct task_struct *tsk = current;
+ 	clts();		/* Allow maths ops (or we recurse) */
  
- 	task_t *migration_thread;
--	list_t migration_queue;
-+	struct list_head migration_queue;
++	if (kprobe_running() && kprobe_fault_handler(&regs, 7))
++		return;
+ 	if (!tsk->used_math)
+ 		init_fpu(tsk);
+ 	restore_fpu(tsk);
+@@ -943,9 +965,9 @@ void __init trap_init(void)
+ #endif
  
- } ____cacheline_aligned;
+ 	set_trap_gate(0,&divide_error);
+-	set_trap_gate(1,&debug);
++	_set_gate(idt_table+1,14,3,&debug); /* debug trap for kprobes */
+ 	set_intr_gate(2,&nmi);
+-	set_system_gate(3,&int3);	/* int3-5 can be called from all */
++	_set_gate(idt_table+3,14,3,&int3); /* int3-5 can be called from all */
+ 	set_system_gate(4,&overflow);
+ 	set_system_gate(5,&bounds);
+ 	set_trap_gate(6,&invalid_op);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/arch/i386/mm/fault.c .9892-linux-2.5.33.updated/arch/i386/mm/fault.c
+--- .9892-linux-2.5.33/arch/i386/mm/fault.c	2002-08-28 09:29:40.000000000 +1000
++++ .9892-linux-2.5.33.updated/arch/i386/mm/fault.c	2002-09-02 15:05:08.000000000 +1000
+@@ -19,6 +19,7 @@
+ #include <linux/init.h>
+ #include <linux/tty.h>
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
++#include <linux/kprobes.h>
  
-@@ -739,7 +739,7 @@ static void load_balance(runqueue_t *thi
- 	int imbalance, idx, this_cpu = smp_processor_id();
- 	runqueue_t *busiest;
- 	prio_array_t *array;
--	list_t *head, *curr;
-+	struct list_head *head, *curr;
- 	task_t *tmp;
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -155,6 +156,9 @@ asmlinkage void do_page_fault(struct pt_
+ 	/* get the address */
+ 	__asm__("movl %%cr2,%0":"=r" (address));
  
- 	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance);
-@@ -937,7 +937,7 @@ asmlinkage void schedule(void)
- 	task_t *prev, *next;
- 	runqueue_t *rq;
- 	prio_array_t *array;
--	list_t *queue;
-+	struct list_head *queue;
- 	int idx;
- 
- 	if (unlikely(in_interrupt()))
-@@ -1899,7 +1899,7 @@ void __init init_idle(task_t *idle, int 
-  */
- 
- typedef struct {
--	list_t list;
++	if (kprobe_running() && kprobe_fault_handler(regs, 14))
++		return;
++
+ 	/* It's safe to allow irq's after cr2 has been saved */
+ 	if (regs->eflags & X86_EFLAGS_IF)
+ 		local_irq_enable();
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/include/asm-i386/kprobes.h .9892-linux-2.5.33.updated/include/asm-i386/kprobes.h
+--- .9892-linux-2.5.33/include/asm-i386/kprobes.h	1970-01-01 10:00:00.000000000 +1000
++++ .9892-linux-2.5.33.updated/include/asm-i386/kprobes.h	2002-09-02 15:05:08.000000000 +1000
+@@ -0,0 +1,34 @@
++#ifndef _ASM_KPROBES_H
++#define _ASM_KPROBES_H
++/*
++ *  Dynamic Probes (kprobes) support
++ *  	Vamsi Krishna S <vamsi_krishna@in.ibm.com>, July, 2002
++ *	Mailing list: dprobes@www-124.ibm.com
++ */
++#include <linux/types.h>
++#include <linux/ptrace.h>
++
++struct pt_regs;
++
++typedef u8 kprobe_opcode_t;
++#define BREAKPOINT_INSTRUCTION	0xcc
++
++/* trap3/1 are intr gates for kprobes.  So, restore the status of IF,
++ * if necessary, before executing the original int3/1 (trap) handler.
++ */
++static inline void restore_interrupts(struct pt_regs *regs)
++{
++	if (regs->eflags & IF_MASK)
++		__asm__ __volatile__ ("sti");
++}
++
++#ifdef CONFIG_KPROBES
++extern int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
++extern int post_kprobe_handler(struct pt_regs *regs);
++extern int kprobe_handler(struct pt_regs *regs);
++#else /* !CONFIG_KPROBES */
++static inline int kprobe_fault_handler(struct pt_regs *regs, int trapnr) { return 0; }
++static inline int post_kprobe_handler(struct pt_regs *regs) { return 0; }
++static inline int kprobe_handler(struct pt_regs *regs) { return 0; }
++#endif
++#endif /* _ASM_KPROBES_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/include/linux/kprobes.h .9892-linux-2.5.33.updated/include/linux/kprobes.h
+--- .9892-linux-2.5.33/include/linux/kprobes.h	1970-01-01 10:00:00.000000000 +1000
++++ .9892-linux-2.5.33.updated/include/linux/kprobes.h	2002-09-02 15:05:08.000000000 +1000
+@@ -0,0 +1,60 @@
++#ifndef _LINUX_KPROBES_H
++#define _LINUX_KPROBES_H
++#include <linux/config.h>
++#include <linux/list.h>
++#include <linux/notifier.h>
++#include <linux/smp.h>
++#include <asm/kprobes.h>
++
++struct kprobe;
++struct pt_regs;
++
++typedef void (*kprobe_pre_handler_t)(struct kprobe *, struct pt_regs *);
++typedef void (*kprobe_post_handler_t)(struct kprobe *, struct pt_regs *,
++				      unsigned long flags);
++typedef int (*kprobe_fault_handler_t)(struct kprobe *, struct pt_regs *,
++				      int trapnr);
++
++struct kprobe {
 +	struct list_head list;
- 	task_t *task;
- 	struct completion done;
- } migration_req_t;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/mm/memory.c .22733-linux-2.5.33.updated/mm/memory.c
---- .22733-linux-2.5.33/mm/memory.c	2002-08-28 09:29:54.000000000 +1000
-+++ .22733-linux-2.5.33.updated/mm/memory.c	2002-09-02 15:15:09.000000000 +1000
-@@ -1033,11 +1033,11 @@ no_mem:
- 	return VM_FAULT_OOM;
- }
++
++	/* location of the probe point */
++	kprobe_opcode_t *addr;
++
++	 /* Called before addr is executed. */
++	kprobe_pre_handler_t pre_handler;
++
++	/* Called after addr is executed, unless... */
++	kprobe_post_handler_t post_handler;
++
++	 /* ... called if executing addr causes a fault (eg. page fault).
++	  * Return 1 if it handled fault, otherwise kernel will see it. */
++	kprobe_fault_handler_t fault_handler;
++
++	/* Saved opcode (which has been replaced with breakpoint) */
++	kprobe_opcode_t opcode;
++};
++
++#ifdef CONFIG_KPROBES
++/* Locks kprobe: irq must be disabled */
++void lock_kprobes(void);
++void unlock_kprobes(void);
++
++/* kprobe running now on this CPU? */
++static inline int kprobe_running(void)
++{
++	extern unsigned int kprobe_cpu;
++	return kprobe_cpu == smp_processor_id();
++}
++
++/* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
++struct kprobe *get_kprobe(void *addr);
++
++int register_kprobe(struct kprobe *p);
++void unregister_kprobe(struct kprobe *p);
++#else
++static inline int kprobe_running(void) { return 0; }
++static inline int register_kprobe(struct kprobe *p) { return -ENOSYS; }
++static inline void unregister_kprobe(struct kprobe *p) { }
++#endif
++#endif /* _LINUX_KPROBES_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/kernel/Makefile .9892-linux-2.5.33.updated/kernel/Makefile
+--- .9892-linux-2.5.33/kernel/Makefile	2002-08-11 15:31:43.000000000 +1000
++++ .9892-linux-2.5.33.updated/kernel/Makefile	2002-09-02 15:05:08.000000000 +1000
+@@ -10,7 +10,7 @@
+ O_TARGET := kernel.o
  
--static void vmtruncate_list(list_t *head, unsigned long pgoff)
-+static void vmtruncate_list(struct list_head *head, unsigned long pgoff)
- {
- 	unsigned long start, end, len, diff;
- 	struct vm_area_struct *vma;
--	list_t *curr;
-+	struct list_head *curr;
+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
+-		printk.o platform.o suspend.o dma.o
++		printk.o platform.o suspend.o dma.o kprobes.o
  
- 	list_for_each(curr, head) {
- 		vma = list_entry(curr, struct vm_area_struct, shared);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/mm/page_alloc.c .22733-linux-2.5.33.updated/mm/page_alloc.c
---- .22733-linux-2.5.33/mm/page_alloc.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/mm/page_alloc.c	2002-09-02 15:15:21.000000000 +1000
-@@ -237,7 +237,7 @@ int is_head_of_free_region(struct page *
-         struct zone *zone = page_zone(page);
-         unsigned long flags;
- 	int order;
--	list_t *curr;
-+	struct list_head *curr;
+ obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+@@ -24,6 +24,7 @@ obj-$(CONFIG_MODULES) += ksyms.o
+ obj-$(CONFIG_PM) += pm.o
+ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
+ obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
++obj-$(CONFIG_KPROBES) += kprobes.o
  
- 	/*
- 	 * Should not matter as we need quiescent system for
-@@ -652,7 +652,7 @@ void show_free_areas(void)
- 
- 	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
- 		for (type = 0; type < MAX_NR_ZONES; type++) {
--			list_t *elem;
-+			struct list_head *elem;
- 			struct zone *zone = &pgdat->node_zones[type];
-  			unsigned long nr, flags, order, total = 0;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/associola.c .22733-linux-2.5.33.updated/net/sctp/associola.c
---- .22733-linux-2.5.33/net/sctp/associola.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/associola.c	2002-09-02 15:18:21.000000000 +1000
-@@ -296,7 +296,7 @@ void sctp_association_free(sctp_associat
- {
- 	sctp_transport_t *transport;
- 	sctp_endpoint_t *ep;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 	int i;
- 
- 	ep = asoc->ep;
-@@ -482,7 +482,7 @@ sctp_transport_t *sctp_assoc_lookup_padd
- 					  const sockaddr_storage_t *address)
- {
- 	sctp_transport_t *t;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	/* Cycle through all transports searching for a peer address. */
- 
-@@ -508,7 +508,7 @@ void sctp_assoc_control_transport(sctp_a
- 	sctp_transport_t *first;
- 	sctp_transport_t *second;
- 	sctp_ulpevent_t *event;
--	list_t *pos;
-+	struct list_head *pos;
- 	int spc_state = 0;
- 
- 	/* Record the transition on the transport.  */
-@@ -780,7 +780,7 @@ sctp_transport_t *sctp_assoc_lookup_tsn(
- {
- 	sctp_transport_t *active;
- 	sctp_transport_t *match;
--	list_t *entry, *pos;
-+	struct list_head *entry, *pos;
- 	sctp_transport_t *transport;
- 	sctp_chunk_t *chunk;
- 	__u32 key = htonl(tsn);
-@@ -983,8 +983,8 @@ void sctp_assoc_update(sctp_association_
- sctp_transport_t *sctp_assoc_choose_shutdown_transport(sctp_association_t *asoc)
- {
- 	sctp_transport_t *t, *next;
--	list_t *head = &asoc->peer.transport_addr_list;
--	list_t *pos;
-+	struct list_head *head = &asoc->peer.transport_addr_list;
-+	struct list_head *pos;
- 
- 	/* If this is the first time SHUTDOWN is sent, use the active
- 	 * path.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/bind_addr.c .22733-linux-2.5.33.updated/net/sctp/bind_addr.c
---- .22733-linux-2.5.33/net/sctp/bind_addr.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/bind_addr.c	2002-09-02 15:18:29.000000000 +1000
-@@ -65,7 +65,7 @@ int sctp_bind_addr_copy(sctp_bind_addr_t
- 			sctp_scope_t scope, int priority, int flags)
- {
- 	struct sockaddr_storage_list *addr;
--	list_t *pos;
-+	struct list_head *pos;
- 	int error = 0;
- 
- 	/* All addresses share the same port.  */
-@@ -119,7 +119,7 @@ void sctp_bind_addr_init(sctp_bind_addr_
- static void sctp_bind_addr_clean(sctp_bind_addr_t *bp)
- {
- 	struct sockaddr_storage_list *addr;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	/* Empty the bind address list. */
- 	list_for_each_safe(pos, temp, &bp->address_list) {
-@@ -173,7 +173,7 @@ int sctp_add_bind_addr(sctp_bind_addr_t 
-  */
- int sctp_del_bind_addr(sctp_bind_addr_t *bp, sockaddr_storage_t *del_addr)
- {
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 	struct sockaddr_storage_list *addr;
- 
- 	list_for_each_safe(pos, temp, &bp->address_list) {
-@@ -206,7 +206,7 @@ sctpParam_t sctp_bind_addrs_to_raw(const
- 	sctpIpAddress_t rawaddr_space;
- 	int len;
- 	struct sockaddr_storage_list *addr;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	retval.v = NULL;
- 	addrparms_len = 0;
-@@ -284,7 +284,7 @@ int sctp_raw_to_bind_addrs(sctp_bind_add
- int sctp_bind_addr_has_addr(sctp_bind_addr_t *bp, const sockaddr_storage_t *addr)
- {
- 	struct sockaddr_storage_list *laddr;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	list_for_each(pos, &bp->address_list) {
- 		laddr = list_entry(pos, struct sockaddr_storage_list, list);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/endpointola.c .22733-linux-2.5.33.updated/net/sctp/endpointola.c
---- .22733-linux-2.5.33/net/sctp/endpointola.c	2002-09-01 12:23:08.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/endpointola.c	2002-09-02 15:18:39.000000000 +1000
-@@ -257,7 +257,7 @@ sctp_association_t *__sctp_endpoint_look
- {
- 	int rport;
- 	sctp_association_t *asoc;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	rport = paddr->v4.sin_port;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/outqueue.c .22733-linux-2.5.33.updated/net/sctp/outqueue.c
---- .22733-linux-2.5.33/net/sctp/outqueue.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/outqueue.c	2002-09-02 15:18:44.000000000 +1000
-@@ -104,7 +104,7 @@ void sctp_outqueue_init(sctp_association
- void sctp_outqueue_teardown(sctp_outqueue_t *q)
- {
- 	sctp_transport_t *transport;
--	list_t *lchunk, *pos;
-+	struct list_head *lchunk, *pos;
- 	sctp_chunk_t *chunk;
- 
- 	/* Throw away unacknowledged chunks. */
-@@ -948,7 +948,7 @@ static void sctp_sack_update_unack_data(
- int sctp_sack_outqueue(sctp_outqueue_t *q, sctp_sackhdr_t *sack)
- {
- 	sctp_chunk_t *tchunk;
--	list_t *lchunk, *transport_list, *pos;
-+	struct list_head *lchunk, *transport_list, *pos;
- 	__u32 tsn;
- 	__u32 sack_ctsn;
- 	__u32 ctsn;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/protocol.c .22733-linux-2.5.33.updated/net/sctp/protocol.c
---- .22733-linux-2.5.33/net/sctp/protocol.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/protocol.c	2002-09-02 15:18:54.000000000 +1000
-@@ -198,7 +198,7 @@ static void sctp_get_local_addr_list(sct
- static void __sctp_free_local_addr_list(sctp_protocol_t *proto)
- {
- 	struct sockaddr_storage_list *addr;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	list_for_each_safe(pos, temp, &proto->local_addr_list) {
- 		addr = list_entry(pos, struct sockaddr_storage_list, list);
-@@ -223,7 +223,7 @@ int sctp_copy_local_addr_list(sctp_proto
- {
- 	struct sockaddr_storage_list *addr;
- 	int error = 0;
--	list_t *pos;
-+	struct list_head *pos;
- 	long flags __attribute__ ((unused));
- 
- 	sctp_spin_lock_irqsave(&proto->local_addr_lock, flags);
-@@ -327,7 +327,7 @@ int sctp_ctl_sock_init(void)
-  */
- sctp_func_t *sctp_get_af_specific(const sockaddr_storage_t *address)
- {
--	list_t *pos;
-+	struct list_head *pos;
- 	sctp_protocol_t *proto = sctp_get_protocol();
- 	sctp_func_t *retval, *af;
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/sm_make_chunk.c .22733-linux-2.5.33.updated/net/sctp/sm_make_chunk.c
---- .22733-linux-2.5.33/net/sctp/sm_make_chunk.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/sm_make_chunk.c	2002-09-02 15:18:59.000000000 +1000
-@@ -1417,7 +1417,7 @@ void sctp_process_init(sctp_association_
- 	sctpParam_t param;
- 	__u8 *end;
- 	sctp_transport_t *transport;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	/* We must include the address that the INIT packet came from.
- 	 * This is the only address that matters for an INIT packet.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/sm_sideeffect.c .22733-linux-2.5.33.updated/net/sctp/sm_sideeffect.c
---- .22733-linux-2.5.33/net/sctp/sm_sideeffect.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/sm_sideeffect.c	2002-09-02 15:19:03.000000000 +1000
-@@ -1053,7 +1053,7 @@ static void sctp_cmd_hb_timers_start(sct
- 				     sctp_association_t *asoc)
- {
- 	sctp_transport_t *t;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	/* Start a heartbeat timer for each transport on the association.
- 	 * hold a reference on the transport to make sure none of
-@@ -1072,7 +1072,7 @@ static void sctp_cmd_hb_timers_start(sct
- void sctp_cmd_set_bind_addrs(sctp_cmd_seq_t *cmds, sctp_association_t *asoc,
- 			     sctp_bind_addr_t *bp)
- {
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	list_for_each_safe(pos, temp, &bp->address_list) {
- 		list_del_init(pos);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/sm_statefuns.c .22733-linux-2.5.33.updated/net/sctp/sm_statefuns.c
---- .22733-linux-2.5.33/net/sctp/sm_statefuns.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/sm_statefuns.c	2002-09-02 15:19:11.000000000 +1000
-@@ -1056,7 +1056,7 @@ static sctp_disposition_t sctp_sf_do_dup
- 	sctp_ulpevent_t *ev;
- 	sctp_chunk_t *repl;
- 	sctp_transport_t *new_addr, *addr;
--	list_t *pos, *pos2, *temp;
-+	struct list_head *pos, *pos2, *temp;
- 	int found, error;
- 
- 	/* new_asoc is a brand-new association, so these are not yet
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22733-linux-2.5.33/net/sctp/socket.c .22733-linux-2.5.33.updated/net/sctp/socket.c
---- .22733-linux-2.5.33/net/sctp/socket.c	2002-09-01 12:23:09.000000000 +1000
-+++ .22733-linux-2.5.33.updated/net/sctp/socket.c	2002-09-02 15:19:18.000000000 +1000
-@@ -439,7 +439,7 @@ err_bindx_add:
- #if CONFIG_IP_SCTP_ADDIP
- 	/* Add these addresses to all associations on this endpoint.  */
- 	if (retval >= 0) {
--		list_t *pos;
-+		struct list_head *pos;
- 		sctp_endpoint_t *ep;
- 		sctp_association_t *asoc;
- 		ep = sctp_sk(sk)->ep;
-@@ -560,7 +560,7 @@ err_bindx_rem:
- #if CONFIG_IP_SCTP_ADDIP
- 	/* Remove these addresses from all associations on this endpoint.  */
- 	if (retval >= 0) {
--		list_t *pos;
-+		struct list_head *pos;
- 		sctp_endpoint_t *ep;
- 		sctp_association_t *asoc;
- 
-@@ -666,7 +666,7 @@ static void sctp_close(struct sock *sk, 
- {
- 	sctp_endpoint_t *ep;
- 	sctp_association_t *asoc;
--	list_t *pos, *temp;
-+	struct list_head *pos, *temp;
- 
- 	SCTP_DEBUG_PRINTK("sctp_close(sk: 0x%p...)\n", sk);
- 
-@@ -1238,7 +1238,7 @@ static int sctp_setsockopt(struct sock *
- 	int retval = 0;
- 	char * tmp;
- 	sctp_protocol_t *proto = sctp_get_protocol();
--	list_t *pos;
-+	struct list_head *pos;
- 	sctp_func_t *af;
- 
- 	SCTP_DEBUG_PRINTK("sctp_setsockopt(sk: %p... optname: %d)\n",
-@@ -1661,7 +1661,7 @@ static int sctp_getsockopt(struct sock *
- 	int retval = 0;
- 	sctp_protocol_t *proto = sctp_get_protocol();
- 	sctp_func_t *af;
--	list_t *pos;
-+	struct list_head *pos;
- 	int len;
- 
- 	SCTP_DEBUG_PRINTK("sctp_getsockopt(sk: %p, ...)\n", sk);
-@@ -2649,7 +2649,7 @@ static void __sctp_write_space(sctp_asso
- void sctp_write_space(struct sock *sk)
- {
- 	sctp_association_t *asoc;
--	list_t *pos;
-+	struct list_head *pos;
- 
- 	/* Wake up the tasks in each wait queue.  */
- 	list_for_each(pos, &((sctp_sk(sk))->ep->asocs)) {
+ ifneq ($(CONFIG_IA64),y)
+ # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9892-linux-2.5.33/kernel/kprobes.c .9892-linux-2.5.33.updated/kernel/kprobes.c
+--- .9892-linux-2.5.33/kernel/kprobes.c	1970-01-01 10:00:00.000000000 +1000
++++ .9892-linux-2.5.33.updated/kernel/kprobes.c	2002-09-02 15:05:08.000000000 +1000
+@@ -0,0 +1,89 @@
++/* Support for kernel probes.
++   (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
++*/
++#include <linux/kprobes.h>
++#include <linux/spinlock.h>
++#include <linux/hash.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <asm/cacheflush.h>
++#include <asm/errno.h>
++
++#define KPROBE_HASH_BITS 6
++#define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
++
++static struct list_head kprobe_table[KPROBE_TABLE_SIZE];
++
++unsigned int kprobe_cpu = NR_CPUS;
++static spinlock_t kprobe_lock = SPIN_LOCK_UNLOCKED;
++
++/* Locks kprobe: irqs must be disabled */
++void lock_kprobes(void)
++{
++	spin_lock(&kprobe_lock);
++	kprobe_cpu = smp_processor_id();
++}
++
++void unlock_kprobes(void)
++{
++	kprobe_cpu = NR_CPUS;
++	spin_unlock(&kprobe_lock);
++}
++
++/* You have to be holding the kprobe_lock */
++struct kprobe *get_kprobe(void *addr)
++{
++	struct list_head *head, *tmp;
++
++	head = &kprobe_table[hash_ptr(addr, KPROBE_HASH_BITS)];
++	list_for_each(tmp, head) {
++		struct kprobe *p = list_entry(tmp, struct kprobe, list);
++		if (p->addr == addr)
++			return p;
++	}
++	return NULL;
++}
++
++int register_kprobe(struct kprobe *p)
++{
++	int ret = 0;
++
++	spin_lock_irq(&kprobe_lock);
++	if (get_kprobe(p->addr)) {
++		ret = -EEXIST;
++		goto out;
++	}
++	list_add(&p->list, &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
++
++	p->opcode = *p->addr;
++	*p->addr = BREAKPOINT_INSTRUCTION;
++	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
++ out:
++	spin_unlock_irq(&kprobe_lock);
++	return ret;
++}
++
++void unregister_kprobe(struct kprobe *p)
++{
++	spin_lock_irq(&kprobe_lock);
++	*p->addr = p->opcode;
++	list_del(&p->list);
++	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
++	spin_unlock_irq(&kprobe_lock);
++}
++
++static int __init init_kprobes(void)
++{
++	int i;
++
++	/* FIXME allocate the probe table, currently defined statically */
++	/* initialize all list heads */
++	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
++		INIT_LIST_HEAD(&kprobe_table[i]);
++
++	return 0;
++}
++__initcall(init_kprobes);
++
++EXPORT_SYMBOL_GPL(register_kprobe);
++EXPORT_SYMBOL_GPL(unregister_kprobe);
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

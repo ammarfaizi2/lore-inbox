@@ -1,33 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbULAPOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbULAPTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbULAPOh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 10:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbULAPOg
+	id S261273AbULAPTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 10:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbULAPTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 10:14:36 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.30]:38041 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S261272AbULAPOV
+	Wed, 1 Dec 2004 10:19:41 -0500
+Received: from bay14-f21.bay14.hotmail.com ([64.4.49.21]:46598 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261273AbULAPTf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 10:14:21 -0500
-Date: Wed, 1 Dec 2004 16:14:18 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+	Wed, 1 Dec 2004 10:19:35 -0500
+Message-ID: <BAY14-F2141AE33478CA464C1B3C7AFBF0@phx.gbl>
+X-Originating-IP: [212.143.127.195]
+X-Originating-Email: [qwejohn@hotmail.com]
+From: "John Que" <qwejohn@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: i915 driver - bad reference counting
-Message-ID: <20041201151418.GA17357@mail.muni.cz>
+Subject: intird.img file missing - cannot boot.
+Date: Wed, 01 Dec 2004 17:18:22 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 01 Dec 2004 15:19:05.0552 (UTC) FILETIME=[18A3B500:01C4D7B9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-I start Xserver using i915 driver and then I shut it down, I've noticed that
-reference count is still 1 (not 0 as expected). Why? I have kernel 2.6.10-rc1.
-(Could it be used by agpgart? I do not have agpgart as a module)
+I had made some tests with mkinitrd , I deleted /boot/intird-2.6.7.img
+and booted (without renaming the /boot/intird-2.6.7.img.old I have to 
+intird-2.6.7.img).
 
--- 
-Luká¹ Hejtmánek
+I use this intird-2.6.7.img image in boot (ext3 is not part of the kernel 
+image).
+(I am working with Fedora with 2.6.7 , and with grub).
+
+So when booting I get the mesages:
+....
+/intrd/intird-2.6.7.img
+error 15: File Mot Fount
+...
+
+what should I do ? can I use a Fedora boot diskette and then
+mount the boot partition and rename the file ? (the intird-2.6.7.img.old is 
+, as
+I said,under boot)
+How can I do this mounting?
+(If I remember well , a boot CD like KNPOIX does not have write 
+permissions.)
+
+Regards,
+John
+
+_________________________________________________________________
+Don't just search. Find. Check out the new MSN Search! 
+http://search.msn.click-url.com/go/onm00200636ave/direct/01/
+

@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbTJTQrA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 12:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTJTQrA
+	id S262652AbTJTQos (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 12:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTJTQos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 12:47:00 -0400
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:14343 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S262674AbTJTQq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 12:46:58 -0400
-To: linux-kernel@vger.kernel.org
-Path: 127.0.0.1!nobody
-From: Peter Matthias <espi@epost.de>
-Newsgroups: linux.kernel
-Subject: Re: ACM USB modem on Kernel 2.6.0-test
-Date: Mon, 20 Oct 2003 18:54:56 +0200
-Organization: Tiscali Germany
-Message-ID: <0141nb.o9.ln@127.0.0.1>
-References: <FwYB.Z9.25@gated-at.bofh.it> <HJ5m.2Eb.23@gated-at.bofh.it> <Inm6.60T.19@gated-at.bofh.it>
-NNTP-Posting-Host: p62.246.77.223.tisdip.tiscali.de
+	Mon, 20 Oct 2003 12:44:48 -0400
+Received: from fiberbit.xs4all.nl ([213.84.224.214]:42398 "EHLO
+	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S262652AbTJTQor
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 12:44:47 -0400
+Date: Mon, 20 Oct 2003 18:43:49 +0200
+From: Marco Roeland <marco.roeland@xs4all.nl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: RH7.3 can't compile 2.6.0-test8
+Message-ID: <20031020164349.GA12986@localhost>
+References: <0c1101c396f4$00bfeaf0$24ee4ca5@DIAMONDLX60> <3F93EABF.5000805@g-house.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: ulysses.news.tiscali.de 1066668231 95982 62.246.77.223 (20 Oct 2003 16:43:51 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Mon, 20 Oct 2003 16:43:51 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3F93EABF.5000805@g-house.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell schrieb:
+On Monday October 20th 2003 at 16:01 Christian Kujau wrote:
 
->>>> In fact, here's a patch with that very change.  Does
->>>> it make current 2.6.0-test kernels work "out of the box"
->>>> again with your USB modems?
->>> 
->>> Yes, it works with ELSA Microlink USB. Thanks.
->> 
->> Hmm. Too early. I get either a "acm: probe of 3-3:2.1 failed with error
--5"
->> but it works or a 
->> Unable to handle kernel NULL pointer dereference at virtual address
-00000008
->>  ...
->>  EIP:    0060:[usb_driver_claim_interface+67/112]    Tainted: P
->>  ...
+> Norman Diamond schrieb:
+> [...]
+> > [ndiamond@c1pc40 linux-2.6.0-test8]$ gcc -v
+> > Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+> > gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
+> > [ndiamond@c1pc40 linux-2.6.0-test8]$ rpm -qa binutils
+> > binutils-2.11.93.0.2-11
 > 
-> Well, the "it works at all (without the sysfs write)" is
-> what that patch was about -- so it's still a clear win!
-> 
-> But cdc-acm probe() is pretty broken, and I'm told it's
-> had strange behavior in various other cases for a while,
-> including some oopsing.  Like this; not a new bug.
-> 
-> Try this cdc-acm patch.  One user reported that it made
-> oopsing go away, the bogus probe() errors stopped, and
-> even the /proc/bus/usb/devices listings were finally
-> right (both interfaces now claimed by cdc_acm).  Plus
-> it should stop the pointless hotplugging of "cdc_acm"
-> for Ethernet devices (including MSFT's RNDIS).
+> did you try with a gcc 3.x too? perhaps it's (only) a compiler issue...
 
-Yes, it works. I hope it will be integrated in 2.6.0.
-
-Peter
-
+No, you just need to upgrade binutils to version 2.12 or higher, as mentioned
+in Documentation/Changes. The gcc version is fine.
+-- 
+Marco Roeland

@@ -1,130 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268064AbTAIXcy>; Thu, 9 Jan 2003 18:32:54 -0500
+	id <S268092AbTAIXhP>; Thu, 9 Jan 2003 18:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268067AbTAIXcy>; Thu, 9 Jan 2003 18:32:54 -0500
-Received: from very.disjunkt.com ([195.167.192.238]:29893 "EHLO disjunkt.com")
-	by vger.kernel.org with ESMTP id <S268064AbTAIXcp> convert rfc822-to-8bit;
-	Thu, 9 Jan 2003 18:32:45 -0500
-Date: Fri, 10 Jan 2003 00:37:36 +0100 (CET)
-From: Jean-Daniel Pauget <jd@disjunkt.com>
-X-X-Sender: jd@mint
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21pre3-ac2
-In-Reply-To: <200301090139.h091d9G26412@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.51.0301100021050.5467@mint>
-References: <200301090139.h091d9G26412@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S268096AbTAIXhP>; Thu, 9 Jan 2003 18:37:15 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:62994 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S268092AbTAIXhN>; Thu, 9 Jan 2003 18:37:13 -0500
+Date: Fri, 10 Jan 2003 00:45:51 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Message-ID: <20030109234551.GB31310@merlin.emma.line.org>
+Reply-To: matthias.andree@gmx.de
+Mail-Followup-To: matthias.andree@gmx.de
+References: <fa.gm4r3cv.1r4avpq@ifi.uio.no> <fa.hq6mucv.l4qg1c@ifi.uio.no> <3E1C3D87.7030605@debian.org> <E18Wlrc-0000Ph-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E18Wlrc-0000Ph-00@fencepost.gnu.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 09 Jan 2003, Richard Stallman wrote:
 
-    I had some strange bug using 2.4.21pre3-ac2 :
-    at rebooting after a freeze (my machine freezes from time to time
-    whatever the kernel is, I'm still diging that point)
-    fsck.ext2 was not able to finish checking my /home (59Gb), it
-    systematically got a signal 11 (I tried several times).
+> Calling the system "Linux" denies the GNU Project credit for the GNU
+> operating system.  Most of the people who do that still give us credit
+> for the specific programs we developed.  These words
+> 
+>     GNU is not so important in new system. I take gcc and glibc as to be
+>     outside the GNU project.
+> 
+> take a further step: they deny the GNU Project the credit even for GNU
+> programs (he said, earlier, this is on the grounds that companies have
+> contributed to them).  That's like denying Linus Torvalds the credit
+> for writing the kernel, Linux, because companies have helped that too.
 
-    rebooting using my previous kernel (2.4.20 with a minor patch for the
-    i845G AGP mess-up) was enough so that the fsck worked fine at the first
-    attempt with this kernel.
+Richard, some people are going to offer this "GNU/" attribution, some
+won't. I belong to the latter group although I recognize what the GNU
+project has achieved so far. It's a fairness issue, as has been pointed
+out. If we need to credit, then we need to credit every major
+contributor, and that's, as has been pointed out, a term that's pretty
+unusable to name that thing. You want Linux to subordinate under GNU?
+Fine. What sold GNU to the masses? Linux. They're friends. Still, you
+don't make friends change their names. Now finish that thread.
 
-    this triggers two questions :
-	o is the new piix-ide faulty ?
-	o are 256 Mb of memory enough for fscking a 58Gb partition ?
+> Has anyone been so completely warped by hatred of GNU?  I don't know,
+> but it does not really matter.  The role of GCC in the development and
+> popularity of GNU/Linux is a fact of history, and subsequent
+> developments cannot change it.
 
-    about signal 11, I tested my machine with several concurent kernel
-    built with no signal 11 before (with 2.4.20 and prior)
+There is not hatred of GNU. There is alienation by your horrible waste
+of time and energy. This is the wrong forum, this is only full of people
+who make ONE SINGLE component of what YOU want to be named GNU/Linux.
+You're about to get GNU credited but neglect all the other major
+contributors, XFree86 has been named, BSD is one.
 
-    the machine is an ASUS P4PE motherboard, 2,4GHz PIV 256Mb
-    and a nvidia Ge4-Ti4200. (at signal 11, the nvidia tainted module was
-    not loaded yet :)
+GNU code borrows interfaces from Solaris (and then does it wrong, for
+example the GNU libc name service switch is broken in that it does not
+retry NIS queries and then reports temporary errors through interfaces
+that cannot return temporary conditions such as getpwnam -- no way to
+place TRYAGAIN=forever into /etc/nsswitch.conf with GNU glibc, but
+required for reliable operation and possible to configure on Solaris). I
+ask you to rename all occurrences of Name Service Switch to Sun
+Microsystems Solaris Name Service Switch.  Add [tm] and ® symbols as
+appropriate. Solaris gave you the ideas of NSS. So credit Sun.
 
-    thanks in advance for any enlightment...
+And now get this bloody discussion off-list.
 
-    here-below, the lspci and /proc/pci...
-
---
-Quand les plombs pêtent : « Ðïsjüñ£t.¢¤× »
-
---
-00:00.0 Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge (rev 02)
-00:01.0 PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge (rev 02)
-00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 02)
-00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 02)
-00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub  (rev 02)
-00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 82)
-00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio (rev 02)
-01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti4200] (rev a3)
-02:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
-02:05.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702X Gigabit Ethernet (rev 02)
-
---
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge (rev 2).
-      Prefetchable 32 bit memory at 0xf0000000 [0xf7ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge (rev 2).
-      Master Capable.  Latency=64.  Min Gnt=8.
-  Bus  0, device  29, function  0:
-    USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 2).
-      IRQ 11.
-      I/O at 0xd800 [0xd81f].
-  Bus  0, device  29, function  1:
-    USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 2).
-      IRQ 5.
-      I/O at 0xd400 [0xd41f].
-  Bus  0, device  29, function  2:
-    USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 2).
-      IRQ 9.
-      I/O at 0xd000 [0xd01f].
-  Bus  0, device  29, function  7:
-    USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 2).
-      Non-prefetchable 32 bit memory at 0xe5800000 [0xe58003ff].
-  Bus  0, device  30, function  0:
-    PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 130).
-      Master Capable.  No bursts.  Min Gnt=6.
-  Bus  0, device  31, function  0:
-    ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 2).
-  Bus  0, device  31, function  1:
-    IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 2).
-      IRQ 9.
-      I/O at 0x0 [0x7].
-      I/O at 0x0 [0x3].
-      I/O at 0x0 [0x7].
-      I/O at 0x0 [0x3].
-      I/O at 0xf000 [0xf00f].
-      Non-prefetchable 32 bit memory at 0x10000000 [0x100003ff].
-  Bus  0, device  31, function  5:
-    Multimedia audio controller: Intel Corp. 82801DB AC'97 Audio (rev 2).
-      IRQ 10.
-      I/O at 0xa800 [0xa8ff].
-      I/O at 0xa400 [0xa43f].
-      Non-prefetchable 32 bit memory at 0xe4000000 [0xe40001ff].
-      Non-prefetchable 32 bit memory at 0xe3800000 [0xe38000ff].
-  Bus  1, device   0, function  0:
-    VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti4200] (rev 163).
-      IRQ 11.
-      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
-      Non-prefetchable 32 bit memory at 0xe6000000 [0xe6ffffff].
-      Prefetchable 32 bit memory at 0xe8000000 [0xefffffff].
-      Prefetchable 32 bit memory at 0xe7800000 [0xe787ffff].
-  Bus  2, device   3, function  0:
-    FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 128).
-      IRQ 5.
-      Master Capable.  Latency=32.  Max Lat=32.
-      Non-prefetchable 32 bit memory at 0xe5000000 [0xe50007ff].
-      I/O at 0xb800 [0xb87f].
-  Bus  2, device   5, function  0:
-    Ethernet controller: Broadcom Corporation NetXtreme BCM5702X Gigabit Ethernet (rev 2).
-      IRQ 10.
-      Master Capable.  Latency=64.  Min Gnt=64.
-      Non-prefetchable 64 bit memory at 0xe4800000 [0xe480ffff].
-
+-- 
+Matthias Andree

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbUCITSe (ORCPT <rfc822;willy@w.ods.org>);
+	id S262121AbUCITSe (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 9 Mar 2004 14:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCITRt
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbUCITRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:17:49 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:1471 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262107AbUCITIY (ORCPT
+	Tue, 9 Mar 2004 14:17:39 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:33984 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S262099AbUCITJA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:08:24 -0500
-Date: Tue, 9 Mar 2004 11:08:23 -0800
+	Tue, 9 Mar 2004 14:09:00 -0500
+Date: Tue, 9 Mar 2004 11:08:59 -0800
 To: "David S. Miller" <davem@redhat.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] (8/14) crc16 symbol exports
-Message-ID: <20040309190823.GI14543@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] (9/14) irda_start_timer inline
+Message-ID: <20040309190859.GJ14543@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,61 +26,81 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir264_irsyms_08_crc.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~
+ir264_irsyms_09_timer.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Stephen Hemminger>
-(8/14) crc16 symbol exports   
+(9/14) irda_start_timer inline
 
-Move crc16 exports out of irsyms. Make type __u16 rather than
-unsigned short to match input parameter.
+Make irda_start_timer inline rather than exporting, because
+it probably takes more code to call than just put inline
 
 
 
-diff -u -p -r linux/include/net/irda.s7/crc.h linux/include/net/irda/crc.h
---- linux/include/net/irda.s7/crc.h	Wed Dec 17 18:58:38 2003
-+++ linux/include/net/irda/crc.h	Mon Mar  8 19:10:29 2004
-@@ -28,6 +28,6 @@ static inline __u16 irda_fcs(__u16 fcs, 
- }
+diff -u -p -r linux/include/net/irda.s8/timer.h linux/include/net/irda/timer.h
+--- linux/include/net/irda.s8/timer.h	Wed Mar  3 17:01:37 2004
++++ linux/include/net/irda/timer.h	Mon Mar  8 19:15:41 2004
+@@ -71,8 +71,18 @@ struct lap_cb;
  
- /* Recompute the FCS with len bytes appended. */
--unsigned short irda_calc_crc16( __u16 fcs, __u8 const *buf, size_t len);
-+__u16 irda_calc_crc16( __u16 fcs, __u8 const *buf, size_t len);
+ typedef void (*TIMER_CALLBACK)(void *);
  
- #endif
-diff -u -p -r linux/net/irda.s7/crc.c linux/net/irda/crc.c
---- linux/net/irda.s7/crc.c	Wed Dec 17 18:58:41 2003
-+++ linux/net/irda/crc.c	Mon Mar  8 19:10:29 2004
-@@ -14,6 +14,7 @@
-  ********************************************************************/
+-void irda_start_timer(struct timer_list *ptimer, int timeout, void* data,
+-		      TIMER_CALLBACK callback);
++static inline void irda_start_timer(struct timer_list *ptimer, int timeout, 
++				    void* data, TIMER_CALLBACK callback)
++{
++	ptimer->function = (void (*)(unsigned long)) callback;
++	ptimer->data = (unsigned long) data;
++	
++	/* Set new value for timer (update or add timer).
++	 * We use mod_timer() because it's more efficient and also
++	 * safer with respect to race conditions - Jean II */
++	mod_timer(ptimer, jiffies + timeout);
++}
++
  
- #include <net/irda/crc.h>
-+#include <linux/module.h>
- 
- /*
-  * This mysterious table is just the CRC of each possible byte.  It can be
-@@ -56,10 +57,12 @@ __u16 const irda_crc16_table[256] =
- 	0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
- 	0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
- };
-+EXPORT_SYMBOL(irda_crc16_table);
- 
--unsigned short irda_calc_crc16( __u16 fcs, __u8 const *buf, size_t len) 
-+__u16 irda_calc_crc16( __u16 fcs, __u8 const *buf, size_t len) 
- {
- 	while (len--)
-                 fcs = irda_fcs(fcs, *buf++);
- 	return fcs;
- }
-+EXPORT_SYMBOL(irda_calc_crc16);
-diff -u -p -r linux/net/irda.s7/irsyms.c linux/net/irda/irsyms.c
---- linux/net/irda.s7/irsyms.c	Mon Mar  8 19:08:50 2004
-+++ linux/net/irda/irsyms.c	Mon Mar  8 19:10:29 2004
-@@ -97,8 +97,6 @@ EXPORT_SYMBOL(irda_task_execute);
+ void irlap_start_slot_timer(struct irlap_cb *self, int timeout);
+ void irlap_start_query_timer(struct irlap_cb *self, int timeout);
+diff -u -p -r linux/net/irda.s8/irsyms.c linux/net/irda/irsyms.c
+--- linux/net/irda.s8/irsyms.c	Mon Mar  8 19:10:29 2004
++++ linux/net/irda/irsyms.c	Mon Mar  8 19:15:41 2004
+@@ -97,7 +97,6 @@ EXPORT_SYMBOL(irda_task_execute);
  EXPORT_SYMBOL(irda_task_next_state);
  EXPORT_SYMBOL(irda_task_delete);
  
--EXPORT_SYMBOL(irda_calc_crc16);
--EXPORT_SYMBOL(irda_crc16_table);
- EXPORT_SYMBOL(irda_start_timer);
+-EXPORT_SYMBOL(irda_start_timer);
  
  #ifdef CONFIG_IRDA_DEBUG
+ __u32 irda_debug = IRDA_DEBUG_LEVEL;
+diff -u -p -r linux/net/irda.s8/timer.c linux/net/irda/timer.c
+--- linux/net/irda.s8/timer.c	Wed Dec 17 18:58:56 2003
++++ linux/net/irda/timer.c	Mon Mar  8 19:15:41 2004
+@@ -41,29 +41,6 @@ static void irlap_wd_timer_expired(void*
+ static void irlap_backoff_timer_expired(void* data);
+ static void irlap_media_busy_expired(void* data); 
+ 
+-/*
+- * Function irda_start_timer (timer, timeout)
+- *
+- *    Start an IrDA timer
+- *
+- */
+-void irda_start_timer(struct timer_list *ptimer, int timeout, void *data,
+-		      TIMER_CALLBACK callback) 
+-{
+-	/* 
+-	 * For most architectures void * is the same as unsigned long, but
+-	 * at least we try to use void * as long as possible. Since the 
+-	 * timer functions use unsigned long, we cast the function here
+-	 */
+-	ptimer->function = (void (*)(unsigned long)) callback;
+-	ptimer->data = (unsigned long) data;
+-	
+-	/* Set new value for timer (update or add timer).
+-	 * We use mod_timer() because it's more efficient and also
+-	 * safer with respect to race conditions - Jean II */
+-	mod_timer(ptimer, jiffies + timeout);
+-}
+-
+ void irlap_start_slot_timer(struct irlap_cb *self, int timeout)
+ {
+ 	irda_start_timer(&self->slot_timer, timeout, (void *) self, 

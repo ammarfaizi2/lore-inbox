@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVCGVyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVCGWE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVCGVyW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 16:54:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVCGV0C
+	id S261818AbVCGWE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 17:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVCGWEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 16:26:02 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57062 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261344AbVCGUoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 15:44:22 -0500
-Date: Mon, 7 Mar 2005 21:44:01 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Bruno Ducrot <ducrot@poupinou.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
-       Len Brown <len.brown@intel.com>
-Subject: Re: [ACPI] s4bios: does anyone use it?
-Message-ID: <20050307204401.GA15212@elf.ucw.cz>
-References: <20050305191405.GA1463@elf.ucw.cz> <20050307170852.GB31985@poupinou.org>
+	Mon, 7 Mar 2005 17:04:53 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:11136 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261818AbVCGVgJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 16:36:09 -0500
+Subject: Linux 2.6.11-ac1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110231261.3116.90.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050307170852.GB31985@poupinou.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 07 Mar 2005 21:34:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+For a couple of reasons I've not yet merged Greg's 2.6.11.1 yet but this
+diff should actually apply to either right now.
 
-> > 
-> > Is there single user of s4bios? It used to work for me 4 notebooks
-> > ago, but I never really used it.
-> 
-> I don't have anymore my toshiba laptop where S4 bios was first
-> implemented.
-> 
-> > I think I'm the only person that ever
-> > seen it working, but I could be wrong.
-> 
-> You are indeed wrong.
+2.6.11-ac1
+o	Fix jbd race in ext3				(Stephen Tweedie)
 
-Okay, so we had 2 users in past but have 0 users now? :-).
+Carried over from 2.6.10-ac
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Security
+o	AF_ROSE security hole fix - still missing from base
+o	Bridge failure to check kmalloc argument overflow
+
+Functionality
+o	PWC USB camera driver
+o	Working ULI526X support (added to base in .11 but broken)
+o	ATP88x support
+o	Intelligent misrouted IRQ handlers
+o	Fix PCI boxes that take minutes IDE probing
+o	Remove bogus confusing XFree86 keyboard message
+o	Support fibre AMD pcnet32
+o	Runtime configurable clock
+	| So you can run laptops usefully. Set 100Hz to fix
+	| the power drain, clock sliding and other problems
+	| 1000Hz causes
+o	Fix token ring locking so token ring can be used again
+o	x86_64/32 cross build fixes
+o	NetROM locking fixes (so NetROM actually works!)
+o	SUID dumpable support
+o	Don't log pointless CD messages
+o	Minimal stallion driver functionality
+
+
+
+

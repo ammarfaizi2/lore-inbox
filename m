@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265270AbUBPAGi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 19:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUBPAGi
+	id S265287AbUBPA0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 19:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUBPA0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 19:06:38 -0500
-Received: from mail004.syd.optusnet.com.au ([211.29.132.145]:14561 "EHLO
-	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265270AbUBPAGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 19:06:32 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Sun, 15 Feb 2004 19:26:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43668 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265287AbUBPA0X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 19:26:23 -0500
+Date: Sun, 15 Feb 2004 19:26:19 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+cc: Jan Rychter <jan@rychter.com>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
+In-Reply-To: <402F877C.C9B693C1@users.sourceforge.net>
+Message-ID: <Xine.LNX.4.44.0402151924490.13809-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16432.2241.906730.769445@wombat.chubb.wattle.id.au>
-Date: Mon, 16 Feb 2004 11:03:13 +1100
-To: davidm@hpl.hp.com
-Cc: Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
-       linux-gcc@vger.kernel.org
-Subject: Re: Kernel Cross Compiling
-In-Reply-To: <16429.16944.521739.223708@napali.hpl.hp.com>
-References: <20040213205743.GA30245@MAIL.13thfloor.at>
-	<16429.16944.521739.223708@napali.hpl.hp.com>
-X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
+On Sun, 15 Feb 2004, Jari Ruusu wrote:
 
->>>>> On Fri, 13 Feb 2004 21:57:43 +0100, Herbert Poetzl <herbert@13thfloor.at> said:
-Herbert> I got all headers fixed, except for the ia64, which still
-Herbert> doesn't work
+> Jan Rychter wrote:
+> > FWIW, I've just tried loop-AES with 2.4.24, after using cryptoapi for a
+> > number of years. My machine froze dead in the midst of copying 2.8GB of
+> > data onto my file-backed reiserfs encrypted loopback mount.
+> > 
+> > Since the system didn't ever freeze on me before and since I've had zero
+> > problems with cryptoapi, I attribute the freeze to loop-AES.
+> > 
+> > Yes, I know this isn't a good bugreport...
+> 
+> Is there any particular reason why you insist on using file backed loops?
+> 
+> File backed loops have hard to fix re-entry problem: GFP_NOFS memory
+> allocations that cause dirty pages to written out to file backed loop, will
+> have to re-enter the file system anyway to complete the write. This causes
+> deadlocks. Same deadlocks are there in mainline loop+cryptoloop combo.
 
-David> Something sounds wrong here. You shouldn't have to patch
-David> headers.
+Given the security issues, and the above problems, we should probably just
+remove cryptoloop from the kernel and wait for something with a better
+design.
 
-David> A recipe for building ia32->ia64 cross-toolchain on Debian can
-David> be found here:
 
-David>  http://www.gelato.unsw.edu.au/IA64wiki/CrossCompilation
 
-He's trying to use gcc 3.3.2 which isn't packaged in toolchain-source
-yet.  And he's running on a RedHat-like system.
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-And there's currently a problem:  To build gcc you need access to an
-appropriate libc6 header package; dpkg-cross refuses to install one
-without linux-kernel-headers-cross-ia64; but will also not install
-linux-kernel-headers.  You need the patch at
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=222168
 
-Peter C

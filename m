@@ -1,73 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262954AbTJPNmm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 09:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTJPNmm
+	id S262921AbTJPNce (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 09:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJPNce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 09:42:42 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:15888 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262954AbTJPNmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 09:42:38 -0400
-Message-ID: <3F8E9DA4.11ED60DA@ardistech.com>
-Date: Thu, 16 Oct 2003 15:31:16 +0200
-From: Roman Zippel <roman@ardistech.com>
-Organization: Ardis Technologies BV
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [ANNOUNCE] iSCSI target implementation
+	Thu, 16 Oct 2003 09:32:34 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34998
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S262921AbTJPNcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 09:32:32 -0400
+Date: Thu, 16 Oct 2003 15:33:04 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Strange dcache memory pressure when highmem enabled
+Message-ID: <20031016133304.GC1348@velociraptor.random>
+References: <16268.52761.907998.436272@notabene.cse.unsw.edu.au> <20031014224352.0171e971.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20031014224352.0171e971.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Oct 14, 2003 at 10:43:52PM -0700, Andrew Morton wrote:
+> Neil Brown <neilb@cse.unsw.edu.au> wrote:
+> >
+> > I noticed that shrink_caches calls shrink_dcache_memory independant
+> >   of the classzone that is being shrunk.  So if we are trying to
+> >   shrink ZONE_HIGHMEM, the dentry_cache is shrunk, even though the
+> >   dentry_cache doesn't live in highmem.  However I'm not sure if I have
+> >   understood the classzones well enough for that observation even to
+> >   make sense.
+> 
+> Makes heaps of sense.  Here's an instabackport of what we did in 2.6:
+> 
+>  mm/vmscan.c |   12 +++++++++---
+>  1 files changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff -puN mm/vmscan.c~a mm/vmscan.c
+> --- 24/mm/vmscan.c~a	2003-10-14 22:41:34.000000000 -0700
+> +++ 24-akpm/mm/vmscan.c	2003-10-14 22:42:22.000000000 -0700
+> @@ -640,11 +640,17 @@ int try_to_free_pages_zone(zone_t *class
+>  			nr_pages = shrink_caches(classzone, gfp_mask, nr_pages, &failed_swapout);
+>  			if (nr_pages <= 0)
+>  				return 1;
+> -			shrink_dcache_memory(vm_vfs_scan_ratio, gfp_mask);
+> -			shrink_icache_memory(vm_vfs_scan_ratio, gfp_mask);
+> +			if (classzone - classzone->zone_pgdat->node_zones <
+> +						ZONE_HIGHMEM) {
+> +				shrink_dcache_memory(vm_vfs_scan_ratio,
+> +							gfp_mask);
+> +				shrink_icache_memory(vm_vfs_scan_ratio,
+> +							gfp_mask);
+>  #ifdef CONFIG_QUOTA
+> -			shrink_dqcache_memory(vm_vfs_scan_ratio, gfp_mask);
+> +				shrink_dqcache_memory(vm_vfs_scan_ratio,
+> +							gfp_mask);
+>  #endif
+> +			}
+>  			if (!failed_swapout)
+>  				failed_swapout = !swap_out(classzone);
+>  		} while (--tries);
 
-I'm proud to announce the first public release of this iSCSI target
-implementation. It's already usable, but it doesn't implement everything
-yet what is required by the iSCSI spec. The missing parts shouldn't be
-that difficult to add (I just didn't need them so far). Other more
-interesting parts of the spec (e.g. session recovery) are not
-implemented because I had no client to test it with (although recent UNH
-releases seem to support this now). It was mostly tested with Cisco
-iSCSI initiator driver, but also with with the MS initiator driver. You
-can download the driver from http://www.ardistech.com/iscsi/ , the
-README should have all the information to configure and build the
-driver.
+An highmem user can make use of lowmem too. Think a 1G box, it looks
+wrong to disallow highmem to shrink the 800M of dcache in the normal/dma
+zones.
 
-This target driver is partly implemented in the kernel, the user space
-daemon takes care of session startup, cleanup and discovery and the
-kernel module takes care of the iSCSI requests and disk IO. There are a
-few reasons to put part of it into the kernel, the main reason is to
-have direct access to the page cache, this is also a main difference to
-other available target implementations, which don't use the page cache
-directly. User space has not that fine grained control (yet) and had to
-use a lot of threads (the kernel module currently uses 2 threads per
-target and 1 per device). Part of the problem could be solved with async
-IO, another part is to be able to control what is in the cache (this is
-somewhat related to the recent direct IO discussion). So this also an
-experiment of what is needed if it should be ever moved to user space.
+I wonder if what he's suffering from is a reduced normal zone due the
+mem_map_t being larger. The reduced normal zone will trigger the dcache
+shrinking more frequently. But he may want to try again with 2.4.23pre7
+with a classzone aware refill_inactive that will ensure the inactive
+list has enough lowmem pages before shrink_caches claims failure.
 
-Anyway, while it's in the kernel, there are also some interesting issues
-for the kernel-user space communication. Right now it's a proc only
-interface (no sysfs as it's 2.4 only, no evil ioctl, but someone will
-kill me for the macro abuse :) ), but it should be rather easy to
-replace it with something else. Perfomance isn't not that important at
-the moment (but not completely unimportant, if a lot of information has
-to be read from the kernel, e.g. at startup). More important issues are
-error reporting and event handling, which could benefit from a better
-integrated interface. So this driver is also intended to experiment with
-a few things, if anyone is interested I can explain it further.
-
-Further development will depend a bit on the feed back. This is an older
-project and we thought about for a while and since we have no immediate
-need and not the resources to develop it alone, we decided it would be a
-good idea to release it completely under the GPL. So I updated it to the
-latest spec and fixed some of the worst embarrasments. If there is
-enough interest, the development will continue, but without some help it
-will be rather slow. :-)
-
-bye, Roman
-
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/

@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbTLBN0p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 08:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTLBN0p
+	id S262128AbTLBN0g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 08:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTLBN0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 08:26:45 -0500
-Received: from r-maa.spacetown.ne.jp ([210.130.136.40]:26839 "EHLO
-	r-maa.spacetown.ne.jp") by vger.kernel.org with ESMTP
-	id S262129AbTLBN0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 08:26:41 -0500
-Date: Tue, 02 Dec 2003 22:26:29 +0900 (JST)
-Message-Id: <20031202.222629.24608383.jet@gyve.org>
-To: linux-kernel@vger.kernel.org
-Cc: oliver@neukum.org
-Subject: hfs on scsi device
-From: Masatake YAMATO <jet@gyve.org>
-X-Mailer: Mew version 3.1.52 on Emacs 21.3 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 2 Dec 2003 08:26:36 -0500
+Received: from mx2.it.wmich.edu ([141.218.1.94]:28594 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S262128AbTLBN0f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 08:26:35 -0500
+Message-ID: <3FCC9307.8050409@wmich.edu>
+Date: Tue, 02 Dec 2003 08:26:31 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: ross.alexander@uk.neceur.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE-SCSI oops in 2.6.0-test11
+References: <OFA87BBFA3.943462EC-ON80256DF0.004502A9-80256DF0.004594B5@uk.neceur.com>
+In-Reply-To: <OFA87BBFA3.943462EC-ON80256DF0.004502A9-80256DF0.004594B5@uk.neceur.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ross.alexander@uk.neceur.com wrote:
+> CPU: Athlon-XP 2700+
+> MB: ASUS A7N8X Deluxe
+> Memory: 3 x 512MB
+> Notes: UP kernel, standard EIDE driver, boot paramters acpi=off 
+> nolapic,noapic
+> Libc: glibc-2.3.2 with linuxthreads.
+> 
+> This error occurs while trying to write a DVD+RW to an NEC-1300A DVD 
+> writer
+> using cdrecord-dvdpro executable (no source available).  This works fine
+> on linux-2.4.23.
+> 
 
-2.4.23 kernel shows oops when I've tried to mount hfs file system
-on a CDROM in scsi CDROM drive. (Strictly speaking I'm using ide-scsi
-kernel parameter.) I inspect this issue. 
-
-This issue was reported and discussed this April:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0304.0/0365.html
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102890250915062&w=2
 
 
-The symptom of oops is appeared in dmesg:
-
-    kernel BUG at buffer.c:2518!
-    ...
-
-The line is in grow_buffers() function:
-
-	/* Size must be multiple of hard sectorsize */
-	if (size & (get_hardsect_size(dev)-1))
-		BUG();
-
-It seems that setting the block size is failed before the control reaches
-this line.
-
-With the following patch for linux-2.4.23/fs/hfs/super.c, you can avoid
-the oops. The patch just checks the return value from set_blocksize.
-If set_blocksize is failed, just return from the function(hfs_read_super). 
-
-Masatake YAMATO
-jet@gyve.org
-
-397a398
-> 	int dev_blocksize;
-409c410,415
-< 	set_blocksize(dev, HFS_SECTOR_SIZE);
----
-> 	if (set_blocksize(dev, HFS_SECTOR_SIZE) < 0) {
-> 		dev_blocksize = get_hardsect_size(dev);
-> 		hfs_warn("hfs_fs: unsupported device block size: %d\n",
-> 			 dev_blocksize);
-> 		goto bail3;
-> 	}
+First off, acpi should be working just fine now...should have been for 
+the last couple versions of 2.6.0-test.
+Second, you probably shouldn't be using ide-scsi.  ATAPI works just fine 
+using straight ide for CDR's so it probably works fine for DVD-R+R+RW 
+whatever stupid acronymn they're using today.
+Third, you didn't post the actual oops so how is anyone supposed t osay 
+anything about this problem?
+Fourth, you are using a binary you didn't compile that's probably 
+compiled against headers for api's found in 2.4.x which is seriously 
+different from the kernel you're running it on. Compile your own 
+cdrecord and see how it goes.
 

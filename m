@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263078AbTJUMQv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 08:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbTJUMQv
+	id S263076AbTJUMof (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 08:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263083AbTJUMof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 08:16:51 -0400
-Received: from [212.239.225.50] ([212.239.225.50]:12416 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S263078AbTJUMQu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 08:16:50 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: mru@kth.se (=?iso-8859-1?q?M=E5ns?= =?iso-8859-1?q?=20Rullg=E5rd?=),
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test8] Difference between Software Suspend and Suspend-to-disk?
-Date: Tue, 21 Oct 2003 14:16:41 +0200
-User-Agent: KMail/1.5.4
-References: <200310211315.58585.lkml@kcore.org> <20031021113444.GC9887@louise.pinerecords.com> <yw1xy8veddj7.fsf@kth.se>
-In-Reply-To: <yw1xy8veddj7.fsf@kth.se>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Tue, 21 Oct 2003 08:44:35 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:47264 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S263076AbTJUMoe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 08:44:34 -0400
+Date: Tue, 21 Oct 2003 14:44:20 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hunold@convergence.de, marcel@holtmann.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Proposal to remove workqueue usage from request_firmware_async()
+Message-ID: <20031021124420.GA19308@ranty.pantax.net>
+Reply-To: ranty@debian.org
+References: <20031020235355.GA3068@ranty.pantax.net> <20031020170804.2117d9ca.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310211416.45202.lkml@kcore.org>
+In-Reply-To: <20031020170804.2117d9ca.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Tuesday 21 October 2003 13:40, Måns Rullgård wrote:
-> Tomas Szepe <szepe@pinerecords.com> writes:
-> >> Software Suspend (EXPERIMENTAL)
-> >> Suspend-to-Disk Support
+On Mon, Oct 20, 2003 at 05:08:04PM -0700, Andrew Morton wrote:
+> Manuel Estrada Sainz <ranty@debian.org> wrote:
 > >
-> > They're competing implementations of the same mechanism.
->
-> And neither one works reliably, I might add.  They both appear to save
-> the current state to disk, but no matter what I try, I can't make it
-> resume properly.
+> >  How does this look?
+> 
+> OK I guess.  I assume it works?
 
-Well, I could suspend/resume correctly first time I tried (runlevel 2 and 
-disabling nearly everything to minimize loss of data on crash).
+ Yes, it works. Although I didn't do heavy testing and it is the first
+ time I play with kernel threads durectly, so I may be doing something
+ stupid.
+ 
+> > +	daemonize("%s/%s", "firmware", fw_work->name);
+> 
+> 	daemonize("firmware/%s", "fw_work->name);
 
-The second test in X resulted in a 'double fault'...
+ Dumb me, I'll resend with that.
 
-Jan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+ Regards
 
-iD8DBQE/lSOrUQQOfidJUwQRAsV8AJ0WGVwtPCvoRU+nYzp+1rEPGjHrDwCffiZz
-wEG77k6o4VjLOb3dMvyLopg=
-=uta/
------END PGP SIGNATURE-----
+ 	Manuel
 
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

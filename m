@@ -1,44 +1,169 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131355AbRARBEq>; Wed, 17 Jan 2001 20:04:46 -0500
+	id <S130476AbRARBP3>; Wed, 17 Jan 2001 20:15:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRARBE1>; Wed, 17 Jan 2001 20:04:27 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:17682 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131355AbRARBEQ>; Wed, 17 Jan 2001 20:04:16 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S130664AbRARBPU>; Wed, 17 Jan 2001 20:15:20 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:12560
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130476AbRARBPO>; Wed, 17 Jan 2001 20:15:14 -0500
+Date: Wed, 17 Jan 2001 17:14:02 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Terrence Martin <tmartin@cal.montage.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: File System Corruption with 2.2.18
+In-Reply-To: <Pine.LNX.4.30.0101180035080.28099-100000@pine.parrswood.manchester.sch.uk>
+Message-ID: <Pine.LNX.4.10.10101171645110.19441-200000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14950.16631.2919.360911@wire.cadcamlab.org>
-Date: Wed, 17 Jan 2001 19:03:50 -0600 (CST)
-To: Mo McKinlay <mmckinlay@gnu.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: named streams, extended attributes, and posix
-In-Reply-To: <20010116182806.B6364@cadcamlab.org>
-	<Pine.LNX.4.30.0101170035340.364-100000@nvws005.nv.london>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Type: multipart/mixed; BOUNDARY="-1019260510-496294765-979780442=:19441"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-[Mo McKinlay]
-> We went through this last time around. What happens to directories
-> with streams?
+---1019260510-496294765-979780442=:19441
+Content-Type: text/plain; charset=us-ascii
 
-Yeah, I agree, 'file/stream' is lousy syntax as well.  If it weren't
-for the possibility of having streams on directories, it would almost
-be acceptible.  I still don't know which (':' or '/') is the worse
-hack.
+On Thu, 18 Jan 2001, Tim Fletcher wrote:
 
-As I've said elsewhere in this thread, I can't think of *any* clean way
-to shoehorn forks into nice, transparent posix calls.  It really wants
-a new API.
+> > Well that is useless test them because you can not test things completely.
+> 
+> I ment that if the partiton has no persient data on it then the test can
+> be run (the test wipes all data on the partition out during the test,
+> right?) with no loss of data on the machine. The partition is still on the
+> same disk so the test data is valid?
+> 
+> I am thinking that the test is somewhat like badblocks -w or have I got
+> the wrong end of the stick?
 
-Peter
+Sorry there is no stick to get the end of....
+This is a pure diagnostic tool the determine OS/CHIPSET/DEVICE failures.
+You generate a pattern buffer and write it to the disk and step the buffer
+1 byte per sector and go head to tail.  Then you read it back head to tail
+and compare what should be there with what is there.  Failures == FS
+corruption is likely under highest loads, period.  Then you attempt 
+to extract any patterns or periodic events to determine if it is driver or
+device or other portions of the OS.
+
+I am tired of people pointing the finger at me claim my work is the cause
+of FS corruption.
+
+This is a pattern walk and it will give some performance issue.
+It does not care about the OS, it is doing the direct access that some
+would call bit-bangging in the old days.
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+
+---1019260510-496294765-979780442=:19441
+Content-Type: text/plain; charset=us-ascii; name="data-2.2.19pre7"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10101171714020.19441@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="data-2.2.19pre7"
+
+RGV2aWNlOiBRVUFOVFVNIEZJUkVCQUxMUCBMTTIwLjQgU2VyaWFsIE51bWJl
+cjogMTg0MjIyMjU2MTEwDQowMDAwOiA3ZjUxIDY2ODYgY2JiZiBiZDJkIGJm
+MmIgMTA1MyBlNjgzIDE0MjggLlFmLi4uLi0uKy5TLi4uKA0KMDAxMDogZDgx
+MyAyMTI2IDJiZjUgMWU0YyBlYThiIDc0NTMgYmYzOCA0MGZhIC4uISYrLi5M
+Li50Uy44QC4NCjAwMjA6IDc0MjQgNzQzZCBiODM5IGZjZTEgZmVhZiBjYjc1
+IDlmMGYgNjhiNSB0JHQ9LjkuLi4uLnUuLmguDQowMDMwOiA1OGU0IDIyZWQg
+MDk4ZiA2YmVjIDQwMzYgMzgzZCAyYWFiIDc3MjYgWC4iLi4uay5ANjg9Ki53
+Jg0KMDA0MDogZTYyNSA0MWM2IDFlMDYgYTY5YiAxZDllIDg4NjMgZTcyNyAw
+MTQzIC4lQS4uLi4uLi4uYy4nLkMNCjAwNTA6IGY2MjUgZjNiNiA3MDE3IDUw
+YmQgYzEyNSA5MGJhIDZlNzcgMTE5OCAuJS4ucC5QLi4lLi5udy4uDQowMDYw
+OiAyZTBmIDMzMDAgNGVhNCBmZjVmIDAzM2UgZDBiMiA0NmRmIDYwOTQgLi4z
+Lk4uLl8uPi4uRi5gLg0KMDA3MDogNTY1MSAzYmVjIDU2NWUgNjVkMCBhZjBi
+IGU0YmMgODVlYyA4NDY1IFZROy5WXmUuLi4uLi4uLmUNCjAwODA6IDcyN2Qg
+MzIxOSA4NjJkIDdkMWYgNDczZSAzY2YyIGNlOWIgNTFhZCByfTIuLi19Lkc+
+PC4uLlEuDQowMDkwOiBkYjU3IDM0OTQgZjBkNSA1MmRlIDcxMjAgN2U1MiAz
+NzkyIDMyMGQgLlc0Li4uUi5xIH5SNy4yLg0KMDBhMDogZTY3MiBhZWJmIDgx
+NjEgN2QyMSA2YTczIDFjYmQgMGMwNyAyYTJjIC5yLi4uYX0hanMuLi4uKiwN
+CjAwYjA6IDkzMzcgNmJhNCBmNWEzIDM0NjcgMDRlZiBlN2Y2IDY1ZjAgMDJi
+OCAuN2suLi40Zy4uLi5lLi4uDQowMGMwOiAzZTkwIGE3NmYgYjQ4YiA2ZWY5
+IDIyNDIgMzdjMCBlMjE4IGUwYjAgPi4uby4ubi4iQjcuLi4uLg0KMDBkMDog
+YzUwOCA4NjE1IGVkMDYgMTk1MyBmYjIwIGY1ZWEgNjY4ZCA5M2MxIC4uLi4u
+Li5TLiAuLmYuLi4NCjAwZTA6IDI0MjYgYTI0NSA5ZThiIDM1NmQgOGYzMiA5
+MjJlIDBiYjcgZTRmMiAkJi5FLi41bS4yLi4uLi4uDQowMGYwOiAwOWQyIDMy
+NGIgYjE5OCA1MzJjIDAxMDQgOTlmNyA3YmIzIDk4YmMgLi4ySy4uUywuLi4u
+ey4uLg0KMDEwMDogYzlhNiA1ZDk5IDRmZjQgNDA3ZiA0MzlhIGM3NGUgMDk2
+YSBlNzZmIC4uXS5PLkAuQy4uTi5qLm8NCjAxMTA6IGRkNjcgNDMzYSAwMWYz
+IDljZTMgNDcyOCAxNmVkIGYxYTQgZTM4MyAuZ0M6Li4uLkcoLi4uLi4uDQow
+MTIwOiBmMWY2IDM1MDUgNjM3YiA4NmNlIGM2NDggZmJiMSBhMzZiIDYyZGUg
+Li41LmN7Li4uSC4uLmtiLg0KMDEzMDogYzRlMiAwOWIzIDU5OGYgYWExNCAw
+NjI0IDhlYjEgN2IwMiA2YThhIC4uLi5ZLi4uLiQuLnsuai4NCjAxNDA6IDVh
+NzAgY2MxNyBiNzNkIDUxOGUgMDY5ZSA1NDU5IDI5MzggMjJiOCBacC4uLj1R
+Li4uVFkpOCIuDQowMTUwOiA1N2FiIDU3YmMgMDE3NiAxYjg4IDBlN2QgNTk4
+NiBjYTUxIDQzYTggVy5XLi52Li4ufVkuLlFDLg0KMDE2MDogZmZiNCA3OTU5
+IGVhNjcgNzI4YyA1Mzg3IDEyNjAgMGRkMCA3ZDVmIC4ueVkuZ3IuUy4uYC4u
+fV8NCjAxNzA6IGYxMjEgMGU3ZiA0ZDlkIDIzNDkgMDE3MCA4ZDg4IDliZWQg
+NWNhNSAuIS4uTS4jSS5wLi4uLlwuDQowMTgwOiAyMGEzIDJjMzIgZDU3YyA0
+MDNmIGQ0NjggYjYyZiBlODI4IDM5MjUgIC4sMi58QD8uaC4vLig5JQ0KMDE5
+MDogMjUxMyAxMTJiIDBlYjIgYTcyMCBlZDQ0IDIzZTEgNGZlMSA4NDU0ICUu
+LisuLi4gLkQjLk8uLlQNCjAxYTA6IGQxMWEgNGI0YSAxYzhmIGViYjYgY2U5
+YyBiNDFmIDhiYzYgMjQ1ZCAuLktKLi4uLi4uLi4uLiRdDQowMWIwOiA0Mjli
+IDNhODkgYjJmNiA3MmU1IGZiYjMgNzNkMCAyZWY1IDI2YTIgQi46Li4uci4u
+LnMuLi4mLg0KMDFjMDogZDhjMiBhNjQxIGQyOGYgMDNjMSAyNjY5IDQ5N2Ig
+ODA3MyA1NjI0IC4uLkEuLi4uJmlJey5zViQNCjAxZDA6IDA3NDQgNDYzOCAz
+OTJmIDIxNmYgMGMwNyAwZWMzIGVhMzcgODI1YyAuREY4OS8hby4uLi4uNy5c
+DQowMWUwOiBiOTc2IDI2MTcgNmY1ZiA1ZjZjIDMwNTIgZWY5MyAyMzI3IGYw
+NDAgLnYmLm9fX2wwUi4uIycuQA0KMDFmMDogMzFkMyAzMjZkIDkxZGIgMDhi
+NyAzZjg3IDZhM2EgYzc4MSA0NmJmIDEuMm0uLi4uPy5qOi4uRi4NCjAyMDA6
+IDU3ZmUgNjE3NCAxODQ2IGMzNDcgMmI1MiAzZTU1IDZlMTkgNzRmZSBXLmF0
+LkYuRytSPlVuLnQuDQowMjEwOiAxNDQ2IGJmMTEgYWFiOCA0MTM1IGYzZGMg
+ZTJiZSBjZjZkIDNmZDMgLkYuLi4uQTUuLi4uLm0/Lg0KMDIyMDogY2IzNiA1
+NTAwIGQyNDEgYzY2ZiAxZWExIDk5Y2IgMjY4NCBhM2E2IC42VS4uQS5vLi4u
+LiYuLi4NCjAyMzA6IGFlNzEgMjQxZiA3NGRmIDc3YTUgNWFlZSBiM2FiIDFk
+NDcgYzI0MyAucSQudC53LlouLi4uRy5DDQowMjQwOiBjNWEzIGY2MDkgMDRk
+NSAwZDNhIDNhOGYgNDkyYiAyODdiIDk0NjYgLi4uLi4uLjo6LkkrKHsuZg0K
+MDI1MDogM2M4OCBlNmY5IDk3YjMgM2U1OSA4MzMwIDRhYzEgYmNlNCA1N2Fh
+IDwuLi4uLj5ZLjBKLi4uVy4NCjAyNjA6IDg3MDggYzEwNiA4NzY2IDkxNDIg
+YzFkYyA5ZTFhIDYwMTUgYjQ2OCAuLi4uLmYuQi4uLi5gLi5oDQowMjcwOiA5
+Y2UyIDhiMGYgZmJhMSBmNDIyIDU2NmEgMTc5YyAwMTA2IDg5MTIgLi4uLi4u
+LiJWai4uLi4uLg0KMDI4MDogMTVlYyAyMGEzIGEyMGQgMWY4MiBkNDkxIDdm
+OTkgOTEzOCBlM2MyIC4uIC4uLi4uLi4uLi44Li4NCjAyOTA6IDM5ZTEgODYx
+MCBjYzFkIDUxYzQgMTlhMCA4ZTY0IGUyNjggYWFkNCA5Li4uLi5RLi4uLmQu
+aC4uDQowMmEwOiA1MDJlIDFlYmYgOTNiNiA2ZTY2IGJjYWEgYmE3NSBhNDVk
+IDI3MjAgUC4uLi4ubmYuLi51Ll0nIA0KMDJiMDogZmY5ZSBkZGQ1IDVlZjcg
+Y2VjMyBmYmE3IGE4ZjQgYThhOCAyMWE1IC4uLi5eLi4uLi4uLi4uIS4NCjAy
+YzA6IGI0NzIgNTk3ZiA0MjRkIDhmMTUgNDViMyBjODk3IDU3OTMgNjM0OSAu
+clkuQk0uLkUuLi5XLmNJDQowMmQwOiBmNzRjIDUxYjUgMjZjOSBmZDZmIGMy
+YzkgMmQ4ZiBmYzM0IDAxMWUgLkxRLiYuLm8uLi0uLjQuLg0KMDJlMDogYTgw
+MiBiYTQ4IDdjZmQgNjlhYyA5M2M0IDdlNTAgZjM5NyBjNGEwIC4uLkh8Lmku
+Li5+UC4uLi4NCjAyZjA6IGU1MDMgOGQyNyBkODY1IGQ1MWEgM2E1MiBhZTlj
+IGU5ODcgM2JiYiAuLi4nLmUuLjpSLi4uLjsuDQowMzAwOiAwNzJkIDZmNWYg
+NTBjOSA3MzZhIGE2YzMgM2Y2MyBmYzQ2IDYzOTIgLi1vX1Auc2ouLj9jLkZj
+Lg0KMDMxMDogNDRkMCBjZWI4IGY4ODYgODNhMSA0MTJiIDE5MzQgZjYyMSAz
+N2NhIEQuLi4uLi4uQSsuNC4hNy4NCjAzMjA6IDRiZmEgOGY2OSBjMGFmIGM2
+ZDEgZDM4NCAwMzVjIGYyNjYgNzU2NCBLLi5pLi4uLi4uLlwuZnVkDQowMzMw
+OiA0MWM5IDYyZTUgYjk2NSA0NDE4IGY0NTMgMjVmZCA0NmQ4IDRlMmYgQS5i
+Li5lRC4uUyUuRi5OLw0KMDM0MDogMzM1YSA5Yjg0IDUwMjMgOTUyZSBlZGE4
+IGEyMTYgNWJiNiBmNTgzIDNaLi5QIy4uLi4uLlsuLi4NCjAzNTA6IDU5NjIg
+OWUyMyBiYjM0IDEzZWYgNDA5MCBmNWE3IDRjNTMgOGJlNyBZYi4jLjQuLkAu
+Li5MUy4uDQowMzYwOiBhNzQ0IGEwMTQgNTVhYyA2MmQ4IDBiYWEgYzRjMSA4
+MzBiIDQ2YWUgLkQuLlUuYi4uLi4uLi5GLg0KMDM3MDogZmUwYSBkNTAxIGNk
+NTggODlhYiA5ZjNmIDdlNjIgNmRlMiA3YTY2IC4uLi4uWC4uLj9+Ym0uemYN
+CjAzODA6IGQ2NTAgZDE5NCBmMThkIGQ5ZWQgMzc0NSA2NDA4IGExZTEgNTE2
+MiAuUC4uLi4uLjdFZC4uLlFiDQowMzkwOiA2NjBiIDczZGYgOGZhOCA5YWFk
+IGVjZGIgZjBjZCAwMmMxIDJmNGIgZi5zLi4uLi4uLi4uLi4vSw0KMDNhMDog
+ODdiMiBkYmU0IGY1MDIgNThjYSBjYjhmIGVmOWQgYzllNSBlOGJkIC4uLi4u
+LlguLi4uLi4uLi4NCjAzYjA6IDc2ODQgNTMzOCA5OGFiIGNmOTYgYzY2ZiA1
+OTE0IDRlZWYgM2VmMCB2LlM4Li4uLi5vWS5OLj4uDQowM2MwOiBkMDdjIGY4
+YjAgYWM3YSBjNjdjIDYzYTMgODIzMCBmOGVkIDY2ZTkgLnwuLi56LnxjLi4w
+Li5mLg0KMDNkMDogYzlkYSBmMzQ2IGZhN2QgMmUxMyA2YThkIDdlZWIgODM2
+NyAwOGM4IC4uLkYufS4uai5+Li5nLi4NCjAzZTA6IDUyMWQgYjJiYyBmZjc1
+IDcwM2EgNzkzMiAxMTliIDRmNWQgMzU3ZCBSLi4uLnVwOnkyLi5PXTV9DQow
+M2YwOiA5ZmRhIDZmNDcgNGJiNiBmMmZlIGQ0NWEgYmJjYSA1N2QxIDcwYjYg
+Li5vR0suLi4uWi4uVy5wLg0KDQpUb3RhbCBEaWFtZXRlciBTZXF1ZW50aWFs
+IERNQSBQYXR0ZXJuIFdyaXRlIFRlc3QgID0gMTkuMTcgTUIvU2VjICg2ODEu
+NTcgU2Vjb25kcykNCg0KVG90YWwgRGlhbWV0ZXIgU2VxdWVudGlhbCBETUEg
+UGF0dGVybiBSZWFkIFRlc3QgID0gMTIuNTcgTUIvU2VjICgxMDM5Ljg5IFNl
+Y29uZHMpDQo=
+---1019260510-496294765-979780442=:19441--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

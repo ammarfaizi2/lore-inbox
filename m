@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVDDKsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVDDKuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVDDKsK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 06:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVDDKsK
+	id S261213AbVDDKuO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 06:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVDDKuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 06:48:10 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:45024 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261214AbVDDKsH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 06:48:07 -0400
-Subject: Re: AMD64 Machine hardlocks when using memset
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Paul Jackson <pj@engr.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <424E24A5.4040102@shaw.ca>
-References: <3NZDp-4yY-7@gated-at.bofh.it> <3OmgF-6HV-17@gated-at.bofh.it>
-	 <3OmgF-6HV-15@gated-at.bofh.it> <3Oy8m-74-15@gated-at.bofh.it>
-	 <424E0424.7080308@shaw.ca> <20050401201105.4a03bda1.pj@engr.sgi.com>
-	 <424E24A5.4040102@shaw.ca>
-Content-Type: text/plain
+	Mon, 4 Apr 2005 06:50:14 -0400
+Received: from mail.hosted.servetheworld.net ([62.70.14.38]:9864 "HELO
+	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
+	id S261213AbVDDKuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 06:50:04 -0400
+Message-ID: <42511BD8.4060608@osvik.no>
+Date: Mon, 04 Apr 2005 12:50:00 +0200
+From: Dag Arne Osvik <da@osvik.no>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Renate Meijer <kleuske@xs4all.nl>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Kenneth Johansson <ken@kenjo.org>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Grzegorz Kulewski <kangur@polcom.net>, Andreas Schwab <schwab@suse.de>
+Subject: Re: Use of C99 int types
+References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <524d7fda64be6a3ab66a192027807f57@xs4all.nl> <1112559934.5268.9.camel@tiger> <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com> <3821024b00b47598e66f504c51437f72@xs4all.nl>
+In-Reply-To: <3821024b00b47598e66f504c51437f72@xs4all.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1112611507.8664.544.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 04 Apr 2005 11:45:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-04-02 at 05:50, Robert Hancock wrote:
-> I'm wondering if one does a ton of these cache-bypassing stores whether 
-> something gets hosed because of that. Not sure what that could be 
-> though. I don't imagine the chipset is involved with any of that on the 
-> Athlon 64 - either the CPU or RAM seems the most likely suspect to me
+Renate Meijer wrote:
 
-The glibc version is essentially the "perfect" copy function for the
-CPU. If you have any bus/memory problems or chipset bugs it will bite
-you.
+>
+> On Apr 4, 2005, at 12:08 AM, Kyle Moffett wrote:
+>
+>> On Apr 03, 2005, at 16:25, Kenneth Johansson wrote:
+>>
+>>> But is this not exactly what Dag Arne Osvik was trying to do ??
+>>> uint_fast32_t means that we want at least 32 bits but it's OK with
+>>> more if that happens to be faster on this particular architecture.
+>>> The problem was that the C99 standard types are not defined anywhere
+>>> in the kernel headers so they can not be used.
+>>
+>>
+>> Uhh, so what's wrong with "int" or "long"?
+>
 
-Alan
+Nothing, as long as they work as required.  And Grzegorz Kulewski 
+pointed out that unsigned long is required to be at least 32 bits, 
+fulfilling the present need for a 32-bit or wider type.
+
+>
+> My point exactly, though I agree with Kenneth that adding the C99 types
+> would be a Good Thing.
+
+
+If it leads to better code, then indeed it would be.  However, Al Viro 
+disagrees and strongly hints they would lead to worse code.
+
+>
+>> GCC will generally do the right thing if you just tell it "int".
+>
+>
+> And if you don't, you imply some special requirement, which, if none 
+> really exists, is
+> misleading.
+
+
+And in this case there is such a requirement.  Anyway, I've already 
+decided to use unsigned long as a replacement for uint_fast32_t in my 
+implementation.
+
+-- 
+  Dag Arne
 

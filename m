@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbSJEAhg>; Fri, 4 Oct 2002 20:37:36 -0400
+	id <S261920AbSJEAph>; Fri, 4 Oct 2002 20:45:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261585AbSJEAhg>; Fri, 4 Oct 2002 20:37:36 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32007 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261907AbSJEAhf>; Fri, 4 Oct 2002 20:37:35 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [patch] futex-2.5.40-B5
-Date: Sat, 5 Oct 2002 00:42:28 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <anlchk$1d0$1@penguin.transmeta.com>
-References: <3D9E2B8A.653BEF9D@tv-sign.ru>
-X-Trace: palladium.transmeta.com 1033778568 12968 127.0.0.1 (5 Oct 2002 00:42:48 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 5 Oct 2002 00:42:48 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S261922AbSJEAph>; Fri, 4 Oct 2002 20:45:37 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27792 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261920AbSJEApg>;
+	Fri, 4 Oct 2002 20:45:36 -0400
+Date: Fri, 4 Oct 2002 20:51:10 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: oops in bk pull (oct 03)
+In-Reply-To: <Pine.LNX.4.44.0210041737500.2993-100000@home.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0210042045010.21250-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3D9E2B8A.653BEF9D@tv-sign.ru>,
-Oleg Nesterov  <oleg@tv-sign.ru> wrote:
->Hello.
->
->Ingo Molnar wrote:
->>   the new lookup code first does a lightweight follow_page(), then if no
->>   page is present we do the get_user_pages() thing.
->
->What if futex placed in VM_HUGETLB area?
->Then follow_page() return garbage.
->
->I beleive in i386 case it can be fixed something like this:
 
-This will fix it for i386, but will break it for all other
-architectures, as you're now depending on a x86-specific implementation
-detail in an arch-independent file using a generic CONFIG test..
 
->Then follow_hugetlb_page() hook can be killed.
+On Fri, 4 Oct 2002, Linus Torvalds wrote:
 
-I'd much rather have a hook that works, than having #ifdef's in code
-that don't..
+> 
+> On Fri, 4 Oct 2002, Alexander Viro wrote:
+> > 
+> > It is repeatable, it does happen with current BK (well, as of couple
+> > of hours ago) and reverting pci/probe.c change apparently cures it.
+> 
+> Really? That probe.c diff is _really_ small, and looks truly obvious. In 
+> particular, I don't see how it could possibly cause that kind of 
+> behaviour. What am I missing?
 
-		Linus
+Hell knows.  The only explanation I see (and that's not worth much) is that
+we somehow confuse the chipset and get crapped on something like next cache
+miss.
+
+I'm out of ideas on that one - if you have any suggestions / questions on
+details of behaviour I'll be glad to try and see what I can do, but for
+now I'm reverting the probe.c patch in my tree so that I could return to
+initramfs work.  Originally I thought it was a bug in my own code, but oops
+is present in 2.5.40-BK and disappears in 2.5.40-BK minus probe.c changeset...
+

@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136616AbREJN7y>; Thu, 10 May 2001 09:59:54 -0400
+	id <S136614AbREJN7o>; Thu, 10 May 2001 09:59:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136641AbREJN7q>; Thu, 10 May 2001 09:59:46 -0400
+	id <S136635AbREJN7h>; Thu, 10 May 2001 09:59:37 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:54674 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136608AbREJN71>;
-	Thu, 10 May 2001 09:59:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: reiserfs-list@namesys.com
-Subject: IDE DMA timeouts and reiserfs stability
-Date: Wed, 9 May 2001 23:42:35 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01050923423500.00777@oscar>
-Content-Transfer-Encoding: 7BIT
+	by vger.kernel.org with ESMTP id <S136640AbREJN7X>;
+	Thu, 10 May 2001 09:59:23 -0400
+Date: Thu, 10 May 2001 10:21:05 +0530
+From: Maneesh Soni <smaneesh@sequent.com>
+To: "Andrew M. Theurer" <atheurer@austin.ibm.com>
+Cc: lse-tech@lists.sourceforge.net,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        samba-technical <samba-technical@samba.org>
+Subject: Re: [Lse-tech] Re: Linux 2.4 Scalability, Samba, and Netbench
+Message-ID: <20010510102105.B5470@in.ibm.com>
+Reply-To: smaneesh@sequent.com
+In-Reply-To: <3AF97062.42465A53@austin.ibm.com> <20010509095658.B1150@w-mikek2.sequent.com> <3AF97EBB.9F0ABE9A@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AF97EBB.9F0ABE9A@austin.ibm.com>; from atheurer@austin.ibm.com on Wed, May 09, 2001 at 12:30:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, May 09, 2001 at 12:30:35PM -0500, Andrew M. Theurer wrote:
+> I do have kernprof ACG and lockmeter for a 4P run.  We saw no
+> significant problems with lockmeter.  csum_partial_copy_generic was the
+> highest % in profile, at 4.34%.  I'll see if we can get some space on
+> http://lse.sourceforge.net to post the test data.
+> 
+> Andrew Theurer
+> 
+> Mike Kravetz wrote:
+> > 
+> > On Wed, May 09, 2001 at 11:29:22AM -0500, Andrew M. Theurer wrote:
+> > >
+> > > I am evaluating Linux 2.4 SMP scalability, using Netbench(r) as a
+> > > workload with Samba, and I wanted to get some feedback on results so
+> > > far.
+> > 
+> > Do you have any kernel profile or lock contention data?
+> > 
+> > --
+> > Mike Kravetz                                 mkravetz@sequent.com
+> > IBM Linux Technology Center
 
-I am using 2.4.5-pre1.  Over the course of the last two weeks I have had
-DMA timeouts occur twice.  Both times corrupted my fs.  While this is not
-ideal, its not unexpected as things stand now.  I have seen at least three 
-other reports on lkml about errors of this type - suspect that 2.4's ide 
-is a little fragile in some corner cases...
+Hello Andrew,
 
-Contrary to normal practice, after an IO error and fsck is a very wise thing
-to do.  Can we automate this process.  ie can reiserfs detect that it has
-experienced IO error(s) and set fsck required bits (two bits) in the SB?  
-It would also be nice to be able to manually set these bits.  This way a script 
-could be triggered at boot (from initrd for those of us with reiserfs boot disks) 
-to do something like this
+If in the kernprof data you find "fget" as one of the high rankers (say in top
+10) then can you try the scalable FD management patch which uses 
+read-copy-update mechanism for protecting files_struct. 
 
-reiserfsck -a 	this should check each FS an does a --check when the bits are set
-		to 01.  It changes the SB bits as follows (logging to <dev>01.log)
-		00 - fs is ok
-		10 - fix-fixable run required (logging to <dev>10.log)
-		11 - rebuild-tree required (logging to <dev>11.log)
+As of now there are working patches available for read-copy-update mechanism 
+and FD management at "http://lse.sourceforge.net/locking/rclock.html" as 
+rclock-2.4.2-01.patch and files_struct_rcu-2.4.2-03.patch but we are working on 
+simpler interfaces. Also let me know if you need the patches for a different 
+2.4 kernel version.
 
-		writing those logs could be a bit of a catch 22...
-			
-then the script would call reiserfsck -a again to do the work (if required) and
-ask if its ok to do the fix-fixable or rebuild-tree
+Maneesh
 
-Think reiserfsck is getting good enough for this, and it would probably avoid 
-many of the problem currently popping up on the list. 
-
-Thoughts?
-
-Ed Tomlinson <tomlins@cam.org>
-
-PS. Chris, with the fix you supplied for LVM, snapshots work 100% of the time when
-I put them on hda or hde and fail 100% on hdg...  
-
-
-
-
+-- 
+Maneesh Soni
+IBM Linux Technology Center,
+IBM India Software Lab, Bangalore.
+email: smaneesh@sequent.com
+http://lse.sourceforge.net/locking/rclock.html

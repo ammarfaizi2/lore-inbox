@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268700AbUJUJ0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269020AbUJUJWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268700AbUJUJ0j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 05:26:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269056AbUJUJ0Z
+	id S269020AbUJUJWd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 05:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUJUJVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 05:26:25 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:7331
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S268700AbUJUJYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 05:24:32 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-In-Reply-To: <30690.195.245.190.93.1098349976.squirrel@195.245.190.93>
-References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
-	 <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
-	 <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
-	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
-	 <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
-	 <20041020094508.GA29080@elte.hu>
-	 <30690.195.245.190.93.1098349976.squirrel@195.245.190.93>
+	Thu, 21 Oct 2004 05:21:34 -0400
+Received: from i31207.upc-i.chello.nl ([62.195.31.207]:29831 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S269022AbUJUJUn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 05:20:43 -0400
+Subject: Re: [PATCH] Add key management syscalls to non-i386 archs
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: David Howells <dhowells@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <23586.1098301696@redhat.com>
+References: <p73d5zdyyxc.fsf@verdi.suse.de>
+	 <3506.1098283455@redhat.com.suse.lists.linux.kernel>
+	 <23586.1098301696@redhat.com>
 Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1098350190.26758.24.camel@thomas>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 21 Oct 2004 11:16:30 +0200
 Content-Transfer-Encoding: 7bit
+Message-Id: <1098350429.2810.19.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 21 Oct 2004 11:20:29 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 11:12, Rui Nuno Capela wrote:
->  [<e018e139>] queuecommand+0x70/0x7c [usb_storage] (24)
+On Wed, 2004-10-20 at 21:48, David Howells wrote:
+> > Hey, I already allocated 248 for setaltroot. And no, you cannot
+> > allocate system calls on your own without going through the 
+> > architecture maintainer. The normal workflow is that you add
+> > them to i386 and the other follow on their own.
+> 
+> That's what I intended, but others, especially Arjan, seem to think I should
+> do all the compat stuff for all archs myself.
 
-As I already pointed out, this is a problem due to up(sema) in
-queuecommand. That's one of the semaphore abuse points, which needs to
-be fixed. 
-
-The problem is that semaphores are hold by Process A and released by
-Process B, which makes Ingo's checks trigger
-
-tglx
-
-
+eh please don't abuse my name like that.
+I asked for ONE compat emulation thing to show it can be done, that's
+not the same as asking for butchering every arch.

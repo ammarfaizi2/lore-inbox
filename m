@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUIYNi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269333AbUIYNuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266498AbUIYNi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 09:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269324AbUIYNi2
+	id S269333AbUIYNuY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 09:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269335AbUIYNuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 09:38:28 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:51072 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266498AbUIYNi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 09:38:27 -0400
-Message-ID: <415574CF.9050505@yahoo.com.au>
-Date: Sat, 25 Sep 2004 23:38:23 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Sat, 25 Sep 2004 09:50:24 -0400
+Received: from p5089F3FB.dip.t-dialin.net ([80.137.243.251]:2052 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S269333AbUIYNuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 09:50:22 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: OOM-killer killed everything
+Date: Sat, 25 Sep 2004 15:50:20 +0200
+User-Agent: KMail/1.7
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200409251326.13915.petkov@uni-muenster.de> <Pine.LNX.4.53.0409251553420.11618@musoma.fsmlabs.com> <20040925125707.GO9106@holomorphy.com>
+In-Reply-To: <20040925125707.GO9106@holomorphy.com>
 MIME-Version: 1.0
-To: ncunningham@linuxmail.org
-CC: Kevin Fenzi <kevin@scrye.com>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
-References: <20040924021956.98FB5A315A@voldemort.scrye.com>	 <20040924143714.GA826@openzaurus.ucw.cz>	 <20040924210958.A3C5AA2073@voldemort.scrye.com>	 <1096069216.3591.16.camel@desktop.cunninghams>	 <20040925014546.200828E71E@voldemort.scrye.com>	 <1096113235.5937.3.camel@desktop.cunninghams>	 <415562FE.3080709@yahoo.com.au> <1096117005.5937.21.camel@desktop.cunninghams>
-In-Reply-To: <1096117005.5937.21.camel@desktop.cunninghams>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409251550.20587.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
-> Hi.
-> 
-> On Sat, 2004-09-25 at 22:22, Nick Piggin wrote:
-> 
+On Saturday 25 September 2004 14:57, William Lee Irwin III wrote:
+> On Sat, 25 Sep 2004, William Lee Irwin III wrote:
+> >> Usually I only get "Kernel panic: Out of memory and no killable
+> >> processes..." from local DoS testcases; I'd be surprised if anyone
+> >> tripped over such cases by accident unless they're doing something
+> >> particularly stressful (e.g. forking server with zillions of clients) or
+> >> there's a
+> >> particularly outrageously offensive memory leak.
+>
+> On Sat, Sep 25, 2004 at 03:54:59PM +0300, Zwane Mwaikambo wrote:
+> > The burning CD audio one is a known issue afaik, i've run into it before
+> > too.
+>
+> That would be the particularly outrageously offensive memory leak, then.
+>
+>
+> -- wli
 
->>
->>Well, by this stage it looks like memory is already pretty well shrunk
->>as much as it is going to be, which means that even a pretty capable
->>defragmenter won't be able to do anything.
-> 
-> 
-> Surely it would be able to rearrange pages to get a contiguous megabyte?
+Thanks to you all guys for the help, I've applied the 2 akpm mm3 patches for 
+the 2.6.8.1.  I'll try to repeat the stress test and burn an audio cd at the 
+same time but I think not freeing pages of unaligned audio frames while 
+burning an audio cd was the reason for the memory leak.
 
-For lots of stuff it is just infeasable. Just about all kernel memory,
-for example.
-
-But yeah, regardless, really the best thing is not to use such large
-allocations at all.
+Regards,
+Boris.

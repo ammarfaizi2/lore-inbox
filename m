@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbTHZAVn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 20:21:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbTHZAVn
+	id S262203AbTHZAPS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 20:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTHZAPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 20:21:43 -0400
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:38155 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262368AbTHZAVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 20:21:40 -0400
-Subject: Re: linux-2.4.22 released
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030825222215.GX7038@fs.tum.de>
-References: <200308251148.h7PBmU8B027700@hera.kernel.org>
-	 <20030825132358.GC14108@merlin.emma.line.org>
-	 <1061818535.1175.27.camel@debian> <20030825211307.GA3346@werewolf.able.es>
-	 <20030825222215.GX7038@fs.tum.de>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1061857293.15168.3.camel@debian>
+	Mon, 25 Aug 2003 20:15:18 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50450 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262203AbTHZAPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 20:15:15 -0400
+Date: Tue, 26 Aug 2003 01:15:09 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Hinds <dhinds@sonic.net>
+Cc: damjan@bagra.net.mk, linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
+       dahinds@users.sourceforge.net
+Subject: Re: Trivial patch for drivers/serial/8250_cs
+Message-ID: <20030826011509.K16790@flint.arm.linux.org.uk>
+Mail-Followup-To: David Hinds <dhinds@sonic.net>, damjan@bagra.net.mk,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
+	dahinds@users.sourceforge.net
+References: <3F4A7F2C.7080205@bagra.net.mk> <20030825154829.B20096@sonic.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 26 Aug 2003 02:21:34 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030825154829.B20096@sonic.net>; from dhinds@sonic.net on Mon, Aug 25, 2003 at 03:48:29PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El mar, 26-08-2003 a las 00:22, Adrian Bunk escribió:
+On Mon, Aug 25, 2003 at 03:48:29PM -0700, David Hinds wrote:
+> I would say that "serial_cs" is more accurate since this is the driver
+> for cards that conform to the standard for PCMCIA serial interfaces.
+> Renaming to "8250_cs" is obfuscatory and pointlessly breaks config
+> files for previous kernel versions.  It is second in foolishness only
+> to the genious who thought renaming "ide_cs" to "ide-cs" was a good
+> idea.
 
-> > > > What are the plans for 2.4.23? XFS merge perhaps <hint>?
-> > > 
-> > > ALSA? low latency and related stuff?
-> > 
-> > I think ALSA is interesting to ease the migration to 2.6.
-> > Let people move from OSS to ALSA, and then switch from 2.4 to 2.6...
-> 
-> Where's the problem with letting people switch from 2.4 to 2.6 and later
-> from OSS to ALSA?
-> 
-> Since OSS is still present in 2.6 I don't see any migration problems.
+Yep, and I've also said that I intend changing it back to serial_cs.
+I just haven't gotten around to it yet.
 
-I think merging ALSA in 2.4 series bring some of the advantages of the
-2.6 series to the stable kernel, just new drivers with improvements over
-OSS... but I dont think that will help in the switching to 2.6.
 -- 
-Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-------------------------------------------------------------
-gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

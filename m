@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSGECdg>; Thu, 4 Jul 2002 22:33:36 -0400
+	id <S315275AbSGEDsC>; Thu, 4 Jul 2002 23:48:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315275AbSGECdf>; Thu, 4 Jul 2002 22:33:35 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:30730 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S315265AbSGECdf>; Thu, 4 Jul 2002 22:33:35 -0400
-Date: Thu, 4 Jul 2002 19:35:59 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: missing BK architectures?
-In-Reply-To: <20020701184353.Q10782@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0207041934490.1718-100000@www.transvirtual.com>
+	id <S315277AbSGEDsB>; Thu, 4 Jul 2002 23:48:01 -0400
+Received: from pool-151-197-240-173.phil.east.verizon.net ([151.197.240.173]:6528
+	"EHLO porsche.genebrew.com") by vger.kernel.org with ESMTP
+	id <S315275AbSGEDsA>; Thu, 4 Jul 2002 23:48:00 -0400
+Message-ID: <000d01c223d7$bda9ae30$0301a8c0@genebrew.com>
+From: "Rahul Karnik" <rahul@genebrew.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/27] Fix 3c59x driver for some 3c566B's
+Date: Thu, 4 Jul 2002 23:55:02 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-> Anyway, kudos to the HP guys aside, are there other architectures for
-> which someone wants a Linux port of BK?  I know we need to release a
-> zseries version, that's in the works (noone is donating a zseries and
-> I'm pretty sure we couldn't afford the power bill anyway, but I have
-> an account on their public server), but what about other archs?  Are
-> we missing any you care about?
+> Fix from Rahul Karnik and Donald Becker - some new 3c566B mini-PCI NICs
+> refuse to power up the transceiver unless we tickle an undocumented bit
+> in an undocumented register.  They worked this out by before-and-after
+> diffing of the register contents when it was set up by the Windows
+> driver.
 
-I noticed a BK mips tree but it doesn't seem to active. Who is in charge
-of it? I really like to push some changes for MIPS into Linus tree.
+Just to clarify -- Dave Dribin did the actual capturing of the EEPROM
+contents; Donald Becker posted the code to implement the fix; and I simply
+adapted the fix to the in-kernel driver.
+
+Thanks,
+Rahul
 

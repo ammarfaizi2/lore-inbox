@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279274AbRKDWXi>; Sun, 4 Nov 2001 17:23:38 -0500
+	id <S279228AbRKDWW4>; Sun, 4 Nov 2001 17:22:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279519AbRKDWX1>; Sun, 4 Nov 2001 17:23:27 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:33241 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S279274AbRKDWXK>; Sun, 4 Nov 2001 17:23:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Christian Laursen <xi@borderworlds.dk>
-Subject: Re: Ext2 directory index, updated
-Date: Sun, 4 Nov 2001 23:24:09 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Andreas Dilger <adilger@turbolabs.com>
-In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org> <m3hesatcgq.fsf@borg.borderworlds.dk>
-In-Reply-To: <m3hesatcgq.fsf@borg.borderworlds.dk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011104222259Z17054-18972+2@humbolt.nl.linux.org>
+	id <S279274AbRKDWWg>; Sun, 4 Nov 2001 17:22:36 -0500
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:45316 "EHLO
+	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S279228AbRKDWWV>; Sun, 4 Nov 2001 17:22:21 -0500
+Date: Sun, 4 Nov 2001 23:34:16 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.14-pre6
+Message-ID: <20011104233416.D1875@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0110310809200.32460-100000@penguin.transmeta.com> <15329.8658.642254.284398@notabene.cse.unsw.edu.au> <3BE1B6CD.7DA43A6C@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BE1B6CD.7DA43A6C@zip.com.au>
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 4, 2001 11:09 pm, Christian Laursen wrote:
-> Daniel Phillips <phillips@bonn-fries.net> writes:
-> 
-> > ***N.B.: still for use on test partitions only.***
-> 
-> It's the first time, I've tried this patch and I must say, that
-> the first impression is very good indeed.
-> 
-> I took a real world directory (my linux-kernel MH folder containing
-> roughly 115000 files) and did a 'du -s' on it.
-> 
-> Without the patch it took a little more than 20 minutes to complete.
-> 
-> With the patch, it took less than 20 seconds. (And that was inside uml)
-> 
-> 
-> However, when I accidentally killed the uml, it left me with an unclean
-> filesystem which fsck refuses to touch because it has unsupported features.
-> 
-> Even the latest version does this.
-> 
-> Is there a patch for fsck, that fixes this somewhere?
+Hi!
 
-Ted Ts'o volunteered to do that but I failed to support him with proper 
-documentation so it hasn't been done yet.
+> > What I would like is that as soon as a buffer was marked "dirty", it
+> > would get passed down to the driver (or at least to the
+> > block-device-layer) with something like
+> >     submit_bh(WRITEA, bh);
+> > i.e. a write ahead. (or is it write-behind...)
+> > The device handler (the elevator algorithm for normal disks, other
+> > code for other devices) could keep them ordered in whatever way it
+> > chooses, and feed them into the queues at some appropriate time.
+> 
+> Sounds sensible to me.
+> 
+> In many ways, it's similar to the current scheme when it's used
+> with an enormous request queue - all writeable blocks in the
+> system are candidates for request merging.  But your proposal
+> is a whole lot smarter.
+> 
+> In particular, the current kupdate scheme of writing the
+> dirty block list out in six chunks, five seconds apart
+> does potentially miss out on a very large number of merging
+> opportunities.  Your proposal would fix that.
+> 
+> Another potential microoptimisation would be to write out
+> clean blocks if that helps merging.  So if we see a write
+> for blocks 1,2,3,5,6,7 and block 4 is known to be in memory,
+> then write it out too.  I suspect this would be a win for
+> ATA but a loss for SCSI.  Not sure.
 
-However, it's very easy to get around this, just comment out the part of the 
-patch that sets the incompat flag.  Then the indexed directories will 
-magically turn back into normal directories the next time you write to them 
-(it would be very good to give this feature a real-life test :-)
+Please don't do this, it is bug.
 
-There is an easy way to turn that FEATURE_COMPAT flag back off so you can 
-fsck, but I don't know it and I should.
+If user did not ask writing somewhere, DO NOT WRITE THERE! If power
+fails in the middle of the sector... Or if that is flashcard.... Just
+don't do this.
+								Pavel
+-- 
+STOP THE WAR! Someone killed innocent Americans. That does not give
+U.S. right to kill people in Afganistan.
 
-Andreas?
 
---
-Daniel

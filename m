@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262894AbSJAWcj>; Tue, 1 Oct 2002 18:32:39 -0400
+	id <S262888AbSJAW2K>; Tue, 1 Oct 2002 18:28:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262873AbSJAWTz>; Tue, 1 Oct 2002 18:19:55 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:18180 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262866AbSJAWS1>;
-	Tue, 1 Oct 2002 18:18:27 -0400
-Date: Mon, 30 Sep 2002 07:45:20 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] deadline io scheduler
-Message-ID: <20020930074519.B159@toy.ucw.cz>
-References: <20020925172024.GH15479@suse.de>
+	id <S262882AbSJAW0i>; Tue, 1 Oct 2002 18:26:38 -0400
+Received: from c17997.eburwd3.vic.optusnet.com.au ([210.49.198.98]:52219 "EHLO
+	satisfactory.karma") by vger.kernel.org with ESMTP
+	id <S262879AbSJAWZa>; Tue, 1 Oct 2002 18:25:30 -0400
+Date: Wed, 2 Oct 2002 08:35:14 +1000
+From: Andrew Clausen <clausen@gnu.org>
+To: "Softhome.net" <Donlupi@Softhome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.18 hangs on boot: "sim 710: No NCR53710 adapter found"
+Message-ID: <20021001223514.GC1109@gnu.org>
+References: <000801c2682f$e09359e0$4c8e4da4@pcdelupi> <20020930022936.GI1104@gnu.org> <003101c26920$3c27b3a0$69954da4@pcdelupi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020925172024.GH15479@suse.de>; from axboe@suse.de on Wed, Sep 25, 2002 at 07:20:24PM +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <003101c26920$3c27b3a0$69954da4@pcdelupi>
+User-Agent: Mutt/1.4i
+X-Accept-Language: en,pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Oct 01, 2002 at 02:56:35AM -0500, Softhome.net wrote:
+> Hola Andrew (ahora sé tu nombre).
 
-> Due to recent "problems" (well the vm being just too damn good at keep
-> disks busy these days), it's become even more apparent that our current
-> io scheduler just cannot cope with some work loads. Repeated starvartion
-> of reads is the most important one. The Andrew Morton Interactive
-> Workload (AMIW) [1] rates the current kernel poorly, on my test machine
-> it completes in 1-2 minutes depending on your luck. 2.5.38-BK does a lot
-> better, but mainly because it's being extremely unfair. This deadline io
-> scheduler finishes the AMIW in anywhere from ~0.5 seconds to ~3-4
-> seconds, depending on the io load.
+Hola Patricio (tambien ;)
 
-would it be possible to make deadlines per-process to introduce ionice?
+I'll write in English, so everyone else can understand.  I think you
+can understand me :)
 
-ionice -n -5 mpg123 foo.mp3
-ionice make
+> When the Partboot Disk is loading i receibe a message "sim 710:
+> No NCR53710 adapter found" and the computer stop and do nothing.
 
-?								Pavel
+Are you able to boot off an GNU/Linux installation CD?  (Eg: Red Hat,
+Debian, Mandrake)  Do you get the same problem?
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+FYI: the kernel on that disk was contributed by Kent Robotti, which
+is 2.4.18.
+
+> Thank you for your help and now you have a friend in Chile.
+
+Cool :)
+
+Cheers,
+Andrew
+
+PS: we're not subscribed to linux-kernel
 

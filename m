@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268577AbTGTVyL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268589AbTGTVyL
+	id S268721AbTGTWA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 18:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbTGTWA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:54:11 -0400
-Received: from home.wiggy.net ([213.84.101.140]:10179 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S268577AbTGTVyJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:54:09 -0400
-Date: Mon, 21 Jul 2003 00:09:09 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-Message-ID: <20030720220909.GH29459@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org> <20030122162107.GA26725@mark.mielke.cc> <pan.2003.07.20.02.27.22.526885@terra.com.br> <871xwl7h6j.fsf@deneb.enyo.de> <pan.2003.07.20.08.49.28.615976@terra.com.br> <20030720105529.GC29459@wiggy.net> <pan.2003.07.20.21.52.05.48295@terra.com.br>
+	Sun, 20 Jul 2003 18:00:56 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3059 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268685AbTGTWAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 18:00:53 -0400
+Date: Mon, 21 Jul 2003 00:15:47 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Eugene Teo <eugene.teo@eugeneteo.net>
+Cc: Walter Harms <WHarms@bfs.de>, linux-kernel@vger.kernel.org
+Subject: Re: bug alpha configure linux-2.6.0-test1
+Message-ID: <20030720221547.GH26422@fs.tum.de>
+References: <vines.sxdD+KAO4zA@SZKOM.BFS.DE> <20030720020734.GA16983@eugeneteo.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <pan.2003.07.20.21.52.05.48295@terra.com.br>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030720020734.GA16983@eugeneteo.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Leandro Guimarães Faria Corsetti Dutra wrote:
-> 	Thanks for the info on documentation, but that Debian carries non-free
-> software against FSF's will is a fact.  Or did BillG put all those
-> non-free dirs there?
+On Sun, Jul 20, 2003 at 10:07:34AM +0800, Eugene Teo wrote:
+> Perhaps you might want to first copy your dotconfig
+> to /path/to/linux-version/ then run make menuconfig,
+> then save it, then compile it. 
+> 
+> > boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
+> 
+> This means that it is a new boolean symbol that your
+> config don't have.
 
-These are differences between Debian the project and Debian the
-distribution. non-free is not a part of the distribtion and never has
-been. The Debian project has always had people who are willing to
-package up a few non-free bits of software. The FSF did not have a
-problem with that at all if those were put on a different server
-(ie not visible on ftp.debian.org but on non-free.debian.org for
-example).
+Nope, there is a bug (a Kconfig rule tried to assign m to a boolean 
+symbol). Matthew Wilcox already posted a fix.
 
-> Perhaps, but it is their goal.  If they don't, it means the proprietary
-> lock-in game is succeeding.
+> > arch/alpha/defconfig:244: trying to assign nonexistent symbol SCSI_NCR53C8XX
+> 
+> I believe this is a symbol that exists in your config
+> but the kernel doesn't have this in the menu anymore.
 
-It is the goal of a vocal minority of people within Debian, but the
-project as a whole has not set that as a goal at all. This has also
-nothing to do with lock-in at all.
+It exists in _defconfig_.
 
-At any rate, this discussion is now officially off-topic for lkml so
-lets stop it.
+defconfig in the kernel sources should be updated. Besides the warning 
+this issue is harmless.
 
-Wichert.
+> Eugene
+
+cu
+Adrian
 
 -- 
-Wichert Akkerman <wichert@wiggy.net>      It is simple to make things.
-http://www.wiggy.net/                     It is hard to make things simple.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

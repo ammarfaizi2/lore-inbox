@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262741AbVBCAEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbVBCAEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbVBCAEz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 19:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVBCACd
+	id S262660AbVBCAEy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 19:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVBBXxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 19:02:33 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:37973 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262743AbVBCAAQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 19:00:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Lpw5Gifis+SlBMDlIBTHDrpOETIlhmhxVXg3Cb/4oTVXkMtomY5pEqUIQi4VvdHGS8/KyoIqUNXc/bF6B7bxMLjERZUQpluiC8D1Jh5jKV+WadgHfHLm4N5NyBaR2qqxU5gM4Afp8j5Fx2PKHDnZ310i9KG+3l837PNHr7LUmXs=
-Message-ID: <58cb370e0502021600506696ba@mail.gmail.com>
-Date: Thu, 3 Feb 2005 01:00:15 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 02/29] ide: cleanup it8172
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <20050202024454.GC621@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 2 Feb 2005 18:53:00 -0500
+Received: from gizmo04ps.bigpond.com ([144.140.71.14]:15284 "HELO
+	gizmo04ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262611AbVBBXqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 18:46:46 -0500
+Message-ID: <42016661.80908@bigpond.net.au>
+Date: Thu, 03 Feb 2005 10:46:41 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Davis <paul@linuxaudiosystems.com>
+CC: "Bill Huey (hui)" <bhuey@lnxw.com>, "Jack O'Quin" <joq@io.com>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <200502022303.j12N3nZa002055@localhost.localdomain>
+In-Reply-To: <200502022303.j12N3nZa002055@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20050202024017.GA621@htj.dyndns.org>
-	 <20050202024454.GC621@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005 11:44:54 +0900, Tejun Heo <tj@home-tj.org> wrote:
-> > 02_ide_cleanup_it8172.patch
-> >
-> >       In drivers/ide/pci/it8172.h, it8172_ratefilter() and
-> >       init_setup_it8172() are declared and the latter is referenced
-> >       in it8172_chipsets.  Both functions are not defined or used
-> >       anywhere.  This patch removes the prototypes and reference.
-> >       it8172 should be compilable now.
+Paul Davis wrote:
+>>As Ingo said in an earlier a post, with a little ingenuity this problem 
+>>can be solved in user space.  The programs in question can be setuid 
+>>root so that they can set RT scheduling policy BUT have their 
+>>permissions set so that they only executable by owner and group with the 
+>>group set to a group that only contains those users that have permission 
+>>to run this program in RT mode.  If you wish to allow other users to run 
+>>the program but not in RT mode then you would need two copies of the 
+>>program: one set up as above and the other with normal permissions.
 > 
-> Signed-off-by: Tejun Heo <tj@home-tj.org>
+> 
+> Just a reminder: setuid root is precisely what we are attempting to
+> avoid. 
 
-applied, also this trivial patch is needed to fix it8172 build:
+There's nothing wrong with using setuid root if you do it carefully and 
+properly.  If you have the sources to the program then you can place all 
+the necessary safeguards in the program itself.  Doing this inside the 
+program would allow more elaborate control over who is allowed to set RT 
+policy from within the program.  E.g. you could have a file (owned by 
+root and only writable by root) in /etc with the names of the users that 
+have this privilege.  If this file does not exist, has the wrong 
+privileges or the user associated with task's ruid is not in the file 
+then the the program immediately and irrevocably drops root privileges 
+otherwise it drops them temporarily and regains them when it needs to 
+either change policy to RT or fork another task that needs the same 
+privileges.
 
-diff -Nru a/drivers/ide/pci/it8172.c b/drivers/ide/pci/it8172.c
---- a/drivers/ide/pci/it8172.c	2005-02-03 01:00:22 +01:00
-+++ b/drivers/ide/pci/it8172.c	2005-02-03 01:00:22 +01:00
-@@ -56,7 +56,7 @@
- {
- 	ide_hwif_t *hwif	= HWIF(drive);
- 	struct pci_dev *dev	= hwif->pci_dev;
--	int is_slave		= (hwif->drives[1] == drive);
-+	int is_slave		= (&hwif->drives[1] == drive);
- 	unsigned long flags;
- 	u16 drive_enables;
- 	u32 drive_timing;
-@@ -94,7 +94,7 @@
- 	}
- 
- 	pci_write_config_word(dev, 0x40, drive_enables);
--	spin_unlock_irqrestore(&ide_lock, flags)
-+	spin_unlock_irqrestore(&ide_lock, flags);
- }
- 
- static u8 it8172_dma_2_pio (u8 xfer_rate)
+> 
+> 
+>>If you have the source code for the programs then they could be modified 
+>>to drop the root euid after they've changed policy.  Or even do the 
+> 
+> 
+> This is insufficient, since they need to be able to drop RT scheduling
+> and then reacquire it again later.
+
+I believe that there are mechanisms that allow this.  The setuid man 
+page states that a process with non root real uid but setuid as root can 
+use the seteuid call to use the _POSIX_SAVED_IDS mechanism to drop and 
+regain root privileges as required.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,40 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbTJADej (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 23:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTJADej
+	id S261600AbTIOUxY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 16:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbTIOUxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 23:34:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35028 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261891AbTJADei
+	Mon, 15 Sep 2003 16:53:24 -0400
+Received: from peabody.ximian.com ([141.154.95.10]:41437 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261600AbTIOUxX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 23:34:38 -0400
-Date: Wed, 1 Oct 2003 04:34:37 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] linuxabi
-Message-ID: <20031001033437.GP7665@parcelfarce.linux.theplanet.co.uk>
-References: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl> <E1A4WNJ-000182-00@calista.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1A4WNJ-000182-00@calista.inka.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 15 Sep 2003 16:53:23 -0400
+Message-ID: <3F66249A.3020308@ximian.com>
+Date: Mon, 15 Sep 2003 16:44:10 -0400
+From: Kevin Breit <mrproper@ximian.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Meadors <clubneon@hereintown.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Need fixing of a rebooting system
+References: <1063496544.3164.2.camel@localhost.localdomain>	 <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>	 <3F6450D7.7020906@ximian.com>	 <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com>	 <1063561687.10874.0.camel@localhost.localdomain>	 <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>	 <3F64FEAF.1070601@ximian.com>	 <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>	 <1063650478.1516.0.camel@localhost.localdomain> <1063653132.224.32.camel@clubneon.priv.hereintown.net>
+In-Reply-To: <1063653132.224.32.camel@clubneon.priv.hereintown.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 04:05:57AM +0200, Bernd Eckenfels wrote:
- 
-> > +#define MS_NODIRATIME  2048    /* Do not update directory access times */
-> > +#define MS_BIND                4096
-> > +#define MS_POSIXACL    (1<<16) /* VFS does not apply the umask */
-> 
-> can we clean that up? with shifting, without shifting, with comments and without comments? I suggest to use the linuxdoc comments mandatory for the abi files.
+Chris Meadors wrote:
 
+>On Mon, 2003-09-15 at 14:27, Kevin Breit wrote:
+>
+>  
+>
+>>I disabled ACPI and that didn't help.  I reenabled it now and I'm
+>>looking for other options to disable.  But I don't know where to start. 
+>>Any suggestions?
+>>    
+>>
+>
+>What CPU are you running on?  It isn't an Opteron is it?  I saw the same
+>thing with the NUMA support for the AMD64.
+>
+>Use "make menuconfig" and have a look at all the options under the first
+>few menus.  Make sure your CPU and power management options look right
+>for your machine.  When in doubt read the help text for the option, it
+>is sometimes very helpful.
+>
+>  
+>
+/proc/cpuinfo says:
 
-... and make it enum, while we are at it.  It's cleaner, it survives cpp
-and it can be handled by gdb et.al. in sane way.
+model name:   Celeron (Coppermine)
 
-Unless we really want to support pre-v7 compilers, there is no benefit
-in using #define for such constants.
+So my configuration for the first 5 main menu items that are enabled in 
+makeconfig are:
+
+* Prompt for developer and/or incomplete code/drivers
+  * Select only drivers expected to compile cleanly
+  * Select only drivers that don't need compile-time external firmware
+
+* Support for paging of anonymous memory
+   * System V IPC
+   * BSD Process Accounting
+   * Sysctl support
+* Subarchitecture Type (PC-compatible)
+* Processor family (Pentium-II/Celeron(pre-Coppermine))
+* Preemptible Kernel
+* Machine Check Exception
+* /dev/cpu/microcode
+* /dev/cpu/*/msr
+* /dev/cpu/*/cpuid
+* BIOS Enhanced Disk Drive calls determine boot disk
+* Power Management support
+   *Full ACPI Support (minus the ASUS Laptop Extras and Toshiba Laptop 
+Extras)
+
+Do you see anything in that list which I should look into ditching first?
+
+Thanks
+
+Kevin Breit
+

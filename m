@@ -1,81 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263214AbTDRTBh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 15:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263216AbTDRTBh
+	id S263219AbTDRTPF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 15:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263220AbTDRTPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 15:01:37 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:31692 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S263214AbTDRTBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 15:01:36 -0400
-Date: Fri, 18 Apr 2003 14:12:27 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Greg KH <greg@kroah.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <sfr@canb.auug.org.au>,
-       <rusty@rustcorp.com.au>, <Andries.Brouwer@cwi.nl>, <akpm@digeo.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct loop_info64
-In-Reply-To: <20030418180630.GA7247@kroah.com>
-Message-ID: <Pine.LNX.4.44.0304181345360.9070-100000@chaos.physics.uiowa.edu>
+	Fri, 18 Apr 2003 15:15:04 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:35459 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263219AbTDRTPC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 15:15:02 -0400
+Date: Fri, 18 Apr 2003 15:29:49 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Trivial Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] kstrdup
+In-Reply-To: <3EA0469D.7090602@pobox.com>
+Message-ID: <Pine.LNX.4.53.0304181512220.22901@chaos>
+References: <Pine.LNX.4.44.0304180919380.2950-100000@home.transmeta.com>
+ <3EA02E55.80103@pobox.com> <Pine.LNX.4.53.0304181323400.22493@chaos>
+ <3EA0469D.7090602@pobox.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Apr 2003, Greg KH wrote:
+On Fri, 18 Apr 2003, Jeff Garzik wrote:
 
-> On Fri, Apr 18, 2003 at 10:55:21AM -0700, Linus Torvalds wrote:
-> > 
-> > But we really should have a __ptr64 type too. There's just no sane way to
-> > tell gcc about it without requireing casts, which is inconvenient (which
-> > means that right now it you just have to use __u64 for pointers if you
-> > want to be able to share the structure across 32/64-bit architectures).
-> 
-> I think that's what Stephan and Rusty tried to do with the
-> kernel_ulong_t typedef in include/linux/mod_devicetable.h.
-> 
-> Maybe that typedef could be changed into the __ptr64 type?  Stephan?
+> Richard B. Johnson wrote:
+> > On Fri, 18 Apr 2003, Jeff Garzik wrote:
+> >
+> >
+> >>Linus Torvalds wrote:
+> >>
+> >>>On Fri, 18 Apr 2003, Jeff Garzik wrote:
+> >>>
+> >>>
+> >>>>You should save the strlen result to a temp var, and then s/strcpy/memcpy/
+> >>>
+> >>>
+> >>>No, you should just not do this. I don't see the point.
+> >>
+> >>
+> >>strcpy has a test for each byte of its contents, and memcpy doesn't.
+> >>Why search 's' for NULL twice?
+> >>
+> >>	Jeff
+> >
+> >
+> > Because it doesn't. strcpy() is usually implemented by getting
+> > the string-length, using the same code sequence as strlen(), then
+> > using the same code sequence as memcpy(), but copying the null-byte
+> > as well. The check for the null-byte is done in the length routine.
+> >
+> > If you do a memcpy(a, b, strlen(b));, then you are making two
+> > procedure calls and dirtying the cache twice..
+>
+> Wrong, because we have to call strlen _anyway_, to provide the size to
+> kmalloc.
+>
+>
+> > A typical Intel procedure, stripped of the push/pops to save
+> > registers is here....
+>
+> That's kinda cute.  Why not submit a patch to the strcpy implementation
+> in include/asm-i386/string.h?  :)  Ours is shorter, but does have a jump:
+>          "1:\tlodsb\n\t"
+>          "stosb\n\t"
+>          "testb %%al,%%al\n\t"
+>          "jne 1b"
+>
 
-I think kernel_ulong_t serves a slightly different purpose, very specific
-to the module device table stuff, i.e. it represents an unsigned long in
-the kernel ABI.
+Years ago I did submit patches of all kinds, mostly 'asm' stuff
+because I have been doing assembly for over 20 years. However,
+I got tired of being shot-down in flames by persons who haven't
+a clue, so I stopped doing that.
 
-It normally contains a kernel pointer, as such it's inaccessible and
-worthless to userspace, anyway. The reason for its existance is the fact
-the scripts/file2alias needs to parse the contents of the table in the
-object file and thus needs the distance between entries, which is
-sizeof(struct foo_device_id).
+The history of the stuff in asm-i386 is full of changes, with
+many bugs introduced by persons who tried so save a nanosecond
+here and there. In recent times (past two years) somebody changed
+the stuff back to things which were not optimum, but quite obviously
+correct.
 
-So as opposed to the __ptr64, we don't actually want to pass a pointer 
-between user and kernel space here, nor is the size of this field constant 
-at 64 bits.
+I might 'risk' sending in some patches again. Maybe.
 
-It shares the problems with __ptr64, though: Making this field always 64
-bits large would simplify the userspace code a little, since it wouldn't
-need to know the size of a kernel pointer / unsigned long.  However, it
-still needs to know the endianness, so we don't gain too much.  (That's
-different from the normal compat issues, where I suppose the endianness is
-the same for 32/64 bit mode).
+> Which is better?  I don't know; I'm still learning the performance
+> eccentricities of x86 insns on various processors.
+>
 
-However, the real problem is that we want a type which can be cast to a
-pointer, which unsigned long is, but a general __ptr64 cannot be - on 32
-bits archs one would need to cast like
+The test for every byte transferred is, quite obviously, correct.
+It is also, quite obviously, non optimum.
 
-	(struct foo *) (unsigned long) drv->driver_data
+>
+> Related x86 question:  if the memory buffer is not dword-aligned, is
+> 'rep movsl' the best idea?  On RISC it's usually smarter to unroll the
+> head of the loop to avoid unaligned accesses; but from reading x86 asm
+> code in the kernel, nobody seems to care about that.  Is the
+> unaligned-access penalty so small that the increased code size of the
+> head-unroll is never worth it?
+>
 
-instead of just
+Unaligned access takes a penalty. On early i586 machines, it was
+horrible, doubled the access time. On i486 and, later on i686
+machines, the access times are not changed as radically. Many
+of the changes, that were later reverted back, to the string
+and memory 'asm' routines occurred when the 'awful' i586
+came out. Of course, the unaligned access on the i586 was
+still faster than the i486 with aligned access (because of
+clock speeds). However, it was worth the trouble to improve
+the assembly routines at that time.
 
-	(struct foo *) drv->driver_data
+>
+> > A lot of persons who are unfamiliar with tools other than 'C' think
+> > that strcpy() is made like this:
+> >
+> > 	while(*dsp++ = *src++)
+> >                    ;
+>
+> In fact, that's basically the kernel's non-arch-specific implementation :)
+>
+> 	Jeff
 
-which is ugly (and I think the problem Linus referred to).
+Yep. Naive code looks so 'simple', must be "optimum", no? ;^).
 
-(A last comment, btw: getting the size right is not all, alignment issues
-in arrays of structs are much more subtle. struct {pci,usb}_device_id
-happen to get it right since kernel_ulong_t are aligned to a 8 byte
-boundary, but it's rather fragile).
 
---Kai
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

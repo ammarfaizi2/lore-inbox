@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268651AbRGZSxJ>; Thu, 26 Jul 2001 14:53:09 -0400
+	id <S268650AbRGZS5T>; Thu, 26 Jul 2001 14:57:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268652AbRGZSw7>; Thu, 26 Jul 2001 14:52:59 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2571 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268651AbRGZSwo>; Thu, 26 Jul 2001 14:52:44 -0400
-Date: Thu, 26 Jul 2001 15:52:45 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Paul Larson <plars@austin.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.7-ac1
-In-Reply-To: <01072612421000.21482@plars.austin.ibm.com>
-Message-ID: <Pine.LNX.4.33L.0107261546560.20326-100000@duckman.distro.conectiva>
+	id <S268652AbRGZS5J>; Thu, 26 Jul 2001 14:57:09 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:60355 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S268650AbRGZS5C>; Thu, 26 Jul 2001 14:57:02 -0400
+Date: Thu, 26 Jul 2001 15:11:20 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: Christopher Allen Wing <wingc@engin.umich.edu>,
+        "sentry21@cdslash.net" <sentry21@cdslash.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Weird ext2fs immortal directory bug (all-in-one)
+In-Reply-To: <200107261821.f6QIL4017990@lynx.adilger.int>
+Message-ID: <Pine.LNX.4.31.0107261502020.3437-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001, Paul Larson wrote:
+On Thu, 26 Jul 2001, Andreas Dilger wrote:
 
-> make it up to 980 threads on my machine.  Saw this change in fork.c with
-> 2.4.7-ac1:
->
-> -       max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 2;
-> +       max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 16;
->
-> Any reason why this was done?
+> It should actually assume that such inodes are corrupt, and either just
+> delete them at e2fsck time, or at least clear the "bad" parts of the inode
+> before sticking it in lost+found.
 
-The old default was to allow up to HALF of the system's memory to
-be allocated in task structs. Since each task will also want things
-like page tables, mm_struct, vma's, etc. it was pretty easy to just
-about KILL a system using nothing but a simple fork bomb, or some
-other thing running out of hand.
+I had this happen to me once before.  I did something bad, and when I
+started my machine up again, I got a couple of files in lost+found.  I
+couldn't delete two of them.
 
-The new default is to set the limit to something safe enough to
-not run the system completely out of swappable memory. This should
-protect the system in extreme situations.
+I posted my trouble here, and I got many of the same hints I've seen given
+this time around.
 
-If the system administrator wants more tasks in the system, (s)he
-can always raise the limit in /proc/sys/kernel/threads-max
+What just made me think, is you just said that e2fsck should clean up this
+problem before putting it in lost+found.  That is probally a good idea.
+But it was also half way to my solution.  e2fsck did know there was
+something wrong with the inodes, but since it marked the disk clean the
+first time it was run it wouldn't bother looking over the disk upon
+farther reboots.  I wasn't comfortable with figuring out how to use
+debugfs, so I just left the 2 bad files there.  Until I did something
+else silly and another fsck was forced.  Upon being run the second time
+e2fsck did notice something out of order and fixed up the files so I could
+delete them.
 
-regards,
+So yes, e2fsck probally should have noticed the problem the first time
+through and not written a funky file to lost+found.  But this might be a
+possible solution for the orginal poster of the message.  Just force a
+check right now and see if it gets fixed.
 
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 

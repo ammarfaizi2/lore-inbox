@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293128AbSB1TZF>; Thu, 28 Feb 2002 14:25:05 -0500
+	id <S293675AbSB1TqN>; Thu, 28 Feb 2002 14:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292859AbSB1TXJ>; Thu, 28 Feb 2002 14:23:09 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:62736 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S293686AbSB1TUh>; Thu, 28 Feb 2002 14:20:37 -0500
-Date: Thu, 28 Feb 2002 15:11:50 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Michael Cohen <me@ohdarn.net>, linux-kernel@vger.kernel.org,
-        ajoshi@shell.unixbox.com
-Subject: Re: Submissions for 2.4.19-pre [RivaFB Blanking Fix (Author Unknown)]
-In-Reply-To: <3C7E81BF.60DCBE51@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0202281510540.2182-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293691AbSB1Tm7>; Thu, 28 Feb 2002 14:42:59 -0500
+Received: from marge.bucknell.edu ([134.82.9.1]:14348 "EHLO mail.bucknell.edu")
+	by vger.kernel.org with ESMTP id <S293699AbSB1Tk1>;
+	Thu, 28 Feb 2002 14:40:27 -0500
+Subject: Re: a linux funny from slashdot...[only partly OT]
+From: Eric Krout <ekrout@bucknell.edu>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C7E6DEE.15EFA327@nortelnetworks.com>
+In-Reply-To: <3C7E6DEE.15EFA327@nortelnetworks.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 28 Feb 2002 14:40:46 -0500
+Message-Id: <1014925246.24114.14.camel@ekrout.resnet.bucknell.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 28 Feb 2002, Jeff Garzik wrote:
-
-> Marcelo Tosatti wrote:
-> > On Wed, 27 Feb 2002, Jeff Garzik wrote:
-> > > Marcelo Tosatti wrote:
-> > > > Please send that to the RivaFB maintainer.
+On Thu, 2002-02-28 at 12:50, Chris Friesen wrote:
 > 
-> > > to be honest there really isn't one.....
+> The following is a quote from an anonymous coward posting on /.
 > 
-> > Yes there is: Ani Joshi <ajoshi@shell.unixbox.com>.
+> //////begin quote//////////
 > 
-> No, there isn't.  Ani volunteered for the position, then has been
-> ignoring patches sent to him for a year or more.   I used to be rivafb
-> maintainer (look at who wrote riva/fbdev.c...), then didn't have time. 
-> When I asked around for a new maintainer, he claimed to take up the
-> position, but no patches have been forthcoming...
-> 
-> Ferenc Bakonyi did a good bit of work, and IMO would be a good candidate
-> for maintainership, if he's still around.
+>  This is an open letter to Spanish Linux creator Linus Torvaldez.  
+> ...
 
-I've been receing rivafb patches from him lately. For example, pre2 has a
-rivafb update.
+Chris,
 
-In practice, from my point of view, he is maintaining the driver.
+Although your interest in development issues that arise with the Linux
+kernel code should be applauded, I must advise you to refrain from
+posting any prose that has the possibility of inciting laughter among
+LKML subscribers.  While messages that intentionally humiliate others
+are widely accepted and used, humor, on the the other hand, is NOT
+CONDONED.
+
+
+
+
+...Yes, I'm just kidding  ;-)
 
 

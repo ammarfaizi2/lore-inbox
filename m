@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbTIEUov (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTIEUot
+	id S266129AbTIEUcX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 16:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265905AbTIEU2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:44:49 -0400
-Received: from web40404.mail.yahoo.com ([66.218.78.101]:29202 "HELO
-	web40404.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262849AbTIEUoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:44:15 -0400
-Message-ID: <20030905204414.74292.qmail@web40404.mail.yahoo.com>
-Date: Fri, 5 Sep 2003 13:44:14 -0700 (PDT)
-From: Joshua Weage <weage98@yahoo.com>
-Subject: NFS client problems in 2.4.18 to 2.4.20
+	Fri, 5 Sep 2003 16:28:50 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:10500 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266036AbTIEU2d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 16:28:33 -0400
 To: linux-kernel@vger.kernel.org
+Subject: [PATCH] AGPGART_MINOR needs <linux/agpgart.h>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 06 Sep 2003 05:28:22 +0900
+Message-ID: <87llt3j7yx.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hope this was not discussed previously, I couldn't find anything
-relevant in the archives.
+Hi,
 
-I am having problems with NFS clients getting stuck after reporting a
-"nfs server not responding message".  The majority of the time the
-mount starts working again when the nfs server load goes down. 
-However, sometimes the mount on one client becomes completely
-unresponsive, but all of the clients still work correctly.  Even after
-letting it set for 2-3+ hours it still doesn't come back up.  I can
-ping the server from the locked client and that works.  If I do a lazy
-unmount and then remount the NFS disk it works again for awhile - but
-tends to lock up again.  A standard umount doesn't work when the client
-is hung.
+This fixes the following alias.
 
-This happens with all RedHat kernel releases 2.4.18 to 2.4.20.
+alias char-major-10-AGPGART_MINOR agpgart
 
-I have tried tuning the NFS server by going to nfs utils 1.0.3 and by
-increasing nfsd's and the socket buffer sizes.  I have also increased
-the timeout on the clients to 2.0.  One thing that seems to help is to
-enable async mode on the NFS server.  However, I've still seen the same
-client hang with async turned on.
-
-Machine Details:
-12x Cluster nodes 2xAMD Athlon MP's, 100 MbEthernet
-1x server 2xPentium III 1.13GHz, Adaptec 39160, Promise RM8000,
-GigEthernet
-1x Cisco 2924-T switch.
-
-I'm running 8 CPU jobs, each cpu occasionally writes 120MB files to the
-NFS disk.  The client lockup always occurs during these file writes.
-The lockups have occured on several of the cluster nodes.
-
-Any suggestions on what could be causing this?
-
-Thanks,
-
-Joshua Weage
+Please apply.
 
 
+ drivers/char/agp/backend.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-=====
+diff -puN drivers/char/agp/backend.c~agpgart drivers/char/agp/backend.c
+--- linux-2.6.0-test4/drivers/char/agp/backend.c~agpgart	2003-09-06 05:14:07.000000000 +0900
++++ linux-2.6.0-test4-hirofumi/drivers/char/agp/backend.c	2003-09-06 05:14:22.000000000 +0900
+@@ -34,6 +34,7 @@
+ #include <linux/miscdevice.h>
+ #include <linux/pm.h>
+ #include <linux/agp_backend.h>
++#include <linux/agpgart.h>
+ #include <linux/vmalloc.h>
+ #include <asm/io.h>
+ #include "agp.h"
 
+_
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

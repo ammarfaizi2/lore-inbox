@@ -1,90 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317072AbSIILGS>; Mon, 9 Sep 2002 07:06:18 -0400
+	id <S317253AbSIILJH>; Mon, 9 Sep 2002 07:09:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317030AbSIILGS>; Mon, 9 Sep 2002 07:06:18 -0400
-Received: from mail.hometree.net ([212.34.181.120]:46766 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S317073AbSIILGQ>; Mon, 9 Sep 2002 07:06:16 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Disabled kernel.org accounts
-Date: Mon, 9 Sep 2002 11:11:00 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <alhvk4$obf$1@forge.intermeta.de>
-References: <18629.1031548515@kao2.melbourne.sgi.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1031569860 2593 212.34.181.4 (9 Sep 2002 11:11:00 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 9 Sep 2002 11:11:00 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S317258AbSIILJH>; Mon, 9 Sep 2002 07:09:07 -0400
+Received: from pc-80-195-35-48-ed.blueyonder.co.uk ([80.195.35.48]:43137 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S317253AbSIILJG>; Mon, 9 Sep 2002 07:09:06 -0400
+Date: Mon, 9 Sep 2002 12:13:48 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [RFC] On paging of kernel VM.
+Message-ID: <20020909121348.B4855@redhat.com>
+References: <2653.1031563253@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <2653.1031563253@redhat.com>; from dwmw2@infradead.org on Mon, Sep 09, 2002 at 10:20:53AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> writes:
+Hi,
 
->On 6 Sep 2002 16:54:17 -0700, 
->"H. Peter Anvin" <hpa@zytor.com> wrote:
->>I have disabled several kernel.org accounts due to bouncing email.
->>If you have a kernel.org account and you can no longer log in, please
->>contact me and provide an updated, *working* email.
+On Mon, Sep 09, 2002 at 10:20:53AM +0100, David Woodhouse wrote:
+> I think I'd like to introduce 'real' VMAs into kernel space, so that areas
+> in the vmalloc range can have 'real' vm_ops and more to the point a real
+> nopage function.
 
->It does not help when 63.209.4.196 does not have a valid reverse DNS.
->Some sites recognize it as neon-gw-l3.transmeta.com but four different
->sites in USA and AUS cannot do a reverse lookup on 63.209.4.196.  That
->makes you look like just another level3 spammer.
+The alternative is a kmap-style mechanism for temporarily mapping
+pages beyond physical memory on demand.  That would avoid the space
+limits we have on vmalloc etc; there's only a few tens of MB of
+address space we can use for mmap tricks in kernel space, so
+persistent maps are seriously constrained if you've got a lot of flash
+you want to map.
 
-Well, the reason for this are missing NS records:
+And with a kmap interface, your locking problems are much simpler ---
+you can trap accesses at source and you don't have to go hunting ptes
+to invalidate.
 
-% whois 63.209.4.196@whois.arin.net
-[whois.arin.net]
-
-OrgName:    Level 3 Communications, Inc. 
-OrgID:      LVLT
-
-NetRange:   63.208.0.0 - 63.215.255.255 
-CIDR:       63.208.0.0/13 
-NetName:    LEVEL4-CIDR
-NetHandle:  NET-63-208-0-0-1
-Parent:     NET-63-0-0-0-0
-NetType:    Direct Allocation
-NameServer: NS1.LEVEL3.NET
-NameServer: NS2.LEVEL3.NET
-
-% dig @ns1.level3.net -x 63.209.4.196
-[... no answer ...]
-
-% dig @ns2.level3.net -x 63.209.4.196
-[... no answer ...]
-
-Go figure. 
-
-ARIN itself says:
-
-% dig @ARROWROOT.ARIN.NET -x 63.209
-;; AUTHORITY SECTION:
-209.63.in-addr.arpa.    86400   IN      NS      NS1.LEVEL3.net.
-209.63.in-addr.arpa.    86400   IN      NS      NS2.LEVEL3.net.
-
-% dig @ns1.level3.net -x 63.209
-[... no answer ...]
-
-% dig @ns2.level3.net -x 63.209
-[... no answer ...]
-
-So they're a really, really crappy ISP. Maybe they're cheap so
-everyone uses them...
-
-	Regards
-		Henning
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Cheers,
+ Stephen

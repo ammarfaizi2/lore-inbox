@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261562AbREZPa0>; Sat, 26 May 2001 11:30:26 -0400
+	id <S261473AbREZPbZ>; Sat, 26 May 2001 11:31:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261351AbREZPaJ>; Sat, 26 May 2001 11:30:09 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:54534 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261471AbREZP24>;
-	Sat, 26 May 2001 11:28:56 -0400
-Date: Sat, 26 May 2001 12:28:53 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.5
-In-Reply-To: <Pine.LNX.4.21.0105260812280.3684-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105261226400.30264-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261471AbREZPbS>; Sat, 26 May 2001 11:31:18 -0400
+Received: from crunchy.sound.net ([205.242.194.25]:45036 "HELO
+	crunchy.sound.net") by vger.kernel.org with SMTP id <S261351AbREZPap>;
+	Sat, 26 May 2001 11:30:45 -0400
+Message-ID: <3B0FCCDD.5B5A891C@sound.net>
+Date: Sat, 26 May 2001 10:33:49 -0500
+From: A Duston <hald@sound.net>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: en,el
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: "Gortmaker, Paul" <p_gortmaker@yahoo.com>,
+        "Andersen, Rasmus" <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
+Subject: Re: PS/2 Esdi patch #8
+In-Reply-To: <Pine.GSO.4.10.10105231748550.23376-200000@sound.net> <3B0D733F.1829DC88@yahoo.com> <20010525164615.C14899@suse.de> <3B0FC26B.D210E416@sound.net> <20010526165800.C553@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Linus Torvalds wrote:
+Jens Axboe wrote:
+>
+>  --snip--
+>
+>  and so it continues. This is the easy way to process requests. However,
+>  if you can start I/O on more than one buffer at the time (scatter
+>  gather), you could then setup your sg tables by browsing the entire
+>  request buffer_head list and initiate I/O as needed.
+>
+>  Bigger requests on the queue, means more I/O in progress being possible.
+>  There's no rule that you have to finish a request in one go, so even if
+>  you can only handle eg 64 sectors per request with sg, you could do
+>  just start I/O on as many segments as you can and simply don't dequeue
+>  the request until it's completely done. So the max_sectors patch is
+>  never really needed if you know what you are doing.
 
->                 if (gfp_mask & __GFP_WAIT) {
->                         memory_pressure++;
-> -                       try_to_free_pages(gfp_mask);
-> -                       goto try_again;
-> +                       if (!order || free_shortage()) {
-> +                               int progress = try_to_free_pages(gfp_mask);
-> +                               if (progress || gfp_mask & __GFP_IO)
-> +                                       goto try_again;
-> +                       }
->                 }
+Can I still gain any advantage if the hardware can only have one I/O inflight
+per device?  I am not sure the ps2esdi interface supports this.
 
-Yes, this is it.
+Hal Duston
+hald@sound.net
 
-> Testing is good. But I want to understand how we get into the
-> situation in the first place, and whether there are ways to alleviate
-> those problems too.
-
-As I said  create_buffers() -> get_unused_buffer_head()
--> __alloc_pages() -> loop infinitely.
-
-Your simplification of get_unused_buffer_head() fits in
-nicely with this.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280785AbRKLNo0>; Mon, 12 Nov 2001 08:44:26 -0500
+	id <S280776AbRKLN4h>; Mon, 12 Nov 2001 08:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280776AbRKLNoQ>; Mon, 12 Nov 2001 08:44:16 -0500
-Received: from smtp01.web.de ([194.45.170.210]:14354 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S280738AbRKLNn7> convert rfc822-to-8bit;
-	Mon, 12 Nov 2001 08:43:59 -0500
-Date: Mon, 12 Nov 2001 14:43:41 +0100 (CET)
-From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <20011111204305.A16792@unthought.net>
-Message-ID: <Pine.LNX.4.33.0111121441030.1184-100000@neptune.sol.net>
+	id <S280784AbRKLN41>; Mon, 12 Nov 2001 08:56:27 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:13834 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S280776AbRKLN4X>; Mon, 12 Nov 2001 08:56:23 -0500
+Message-ID: <3BEFD4E0.6050708@namesys.com>
+Date: Mon, 12 Nov 2001 16:55:44 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: arjanv@redhat.com
+CC: linux-kernel@vger.kernel.org, yura@namesys.com
+Subject: Re: Oops in reiserfs w/2.4.7-10
+In-Reply-To: <Pine.LNX.4.33.0111122233530.26293-100000@bad-sports.com> <3BEFBDE0.6080804@namesys.com> <3BEFC301.A92C64D4@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Nov 2001, Jakob Østergaard wrote:
+Arjan van de Ven wrote:
 
-> Now, my program needs to deal with the data, perform operations on it,
-> so naturally I need to know what kind of data I'm dealing with.  Most likely,
-> my software will *expect* some certain type, but if I have no way of verifying
-> that my assumption is correct, I will lose sooner or later...
+>>Please upgrade to a recent linus kernel.  I don't know what went into
+>>RedHat 7.2, but secondhand reports are that reiserfs is not stable in
+>>that kernel.
+>>
+>
+>Please stop badmouthing people that don't happen to pay you. (and don't
+>mis-spell their name).
+>
+>The Red Hat Linux 7.2 kernels don't have reiserfs patches so all bugs
+>are
+>yours and yours alone.....
+>
+>
+If I understand correctly that it is 2.4.7 that went in, and there were 
+no memory manager or vfs patches, then you are almost surely correct, 
+and it probably has some relatively rare bugs fixed recently but is 
+reasonably stable on the whole.  He should still upgrade to a recent 
+Linus kernel though.  Yura, have you tested this kernel yet?  Do you 
+recognize this bug as a fixed bug?
 
-Why not read everything into a 1024-bit signed variable? Will work for 
-every numeric value in /proc. It's a bit of a hassle to code, but it is 
-possible. You only need to know the type if you want to write a numerical 
-value to a file in /proc, and even then the driver behind that /proc entry 
-should do sanity checks.
-
--- 
-Ciao, Pascal
-
--<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
+Hans
 

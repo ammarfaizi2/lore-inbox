@@ -1,68 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbTETUGk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 16:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbTETUGk
+	id S261161AbTETUJc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 16:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbTETUJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 16:06:40 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:63242 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S261169AbTETUGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 16:06:39 -0400
-From: Terence Ripperda <tripperda@nvidia.com>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org
-Date: Tue, 20 May 2003 15:18:55 -0500
-From: <tripperda@nvidia.com>
-Subject: Re: pat support in the kernel
-Message-ID: <20030520201855.GE1050@hygelac>
-References: <20030520190017$773c@gated-at.bofh.it> <m38yt1igdh.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m38yt1igdh.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.4.19
+	Tue, 20 May 2003 16:09:31 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20206 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261161AbTETUJY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 16:09:24 -0400
+Message-ID: <3ECA8E63.6080002@mvista.com>
+Date: Tue, 20 May 2003 13:21:55 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Balazic <david.balazic@uni-mb.si>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Wrong clock initialization
+References: <3ECA673F.7B3FB388@uni-mb.si> <3ECA6F83.5090706@mvista.com> <3ECA73AB.FBC470DB@uni-mb.si>
+In-Reply-To: <3ECA73AB.FBC470DB@uni-mb.si>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 20, 2003 at 09:10:18PM +0200, ak@muc.de wrote:
-> change_page_attr() will already do it for the kernel mappings. Just
-> define a PAGE_KERNEL_WC.
+David Balazic wrote:
+> george anzinger wrote:
+> 
+>>David Balazic wrote:
+>>
+>>>Hi!
+>>>
+>>>When the kernel is booted ( ia32 version at least ) , it reads
+>>>the time from from the hardware CMOS clock , _assumes_ it is in
+>>>UTC and set the system time to it.
+>>>
+>>>As almost nobody runs their clock in UTC, this means that the system
+>>>is running on wrong time until some userspace tool corrects it.
+>>>
+>>>This can lead to situtation when time goes backwards :
+>>>
+>>>timezone is 2hours east of UTC.
+>>>UTC time : 20:00
+>>>local time : 22:00
+>>>
+>>>System time between boot and userspace fix : 22:00UTC
+>>>System time after fix : 20:00UTC
+>>>
+>>>Comments ?
+>>
+>>During shut down my system "says" it is setting the CMOS clock from
+>>the kernel clock.  I would expect this to correct the problem.  Is
+>>this a distro thing?
+> 
+> 
+> The time is properly converted first to be localtime, if your CMOS
+> is localtime. So this does not fix anything.
 
-correct. that was the intent.
+Ouch!  That is a real disconnect.  Time to fix something.
+> 
+> 
+>>In any case, this would seem to make the problem go away after the
+>>first shutdown (if you don't dual boot with something other than Linux :).
+> 
+> 
+> 
 
-> But the tricky part of it is that you need to make sure all mappings
-> to that memory have the same caching attribute, otherwise you invoke
-> undefined x86 behaviour and risk cache corruptions on some CPUs. 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-yes. implementing the basic PAT support is pretty trivial. it's dealing with these cache attribute issues that is the hard part. 
-
-> For normal memory you would need to find a way to synchronize the
-> attributes in all mappers (e.g. setting a flag in struct page or
-> similar).
-
-are you refering to generic memory that might have shared mappings between multiple processes? I had really only thought of memory explicitly allocated by a driver and mapped to a process, in which this wouldn't be an issue (or is an issue isolated to the specific driver).
-
-it seems it would be easy enough to add a flag to struct page indicating that any future mappings of this memory must be marked with the given attribute. But you'd need to also worry about previous mappings of that page. wouldn't that require a fairly exhaustive scan of who has the physical memory mapped?
-
-would it make sense to limit this functionality to memory mmapped with MAP_PRIVATE rather than MAP_SHARED?
-
-what if process 1 mapped a region WC, forcing process 2 to later map it the same way even though process 2 doesn't care. then process 1 exits and process 3 decides to map the memory. does the caching attribute remain sticky with process 2 (causing process 3 to also need the memory WC), or revert to cached/whatever when the requestor's mapping is removed?
-
-what if 2 processes ask for conflicting mappings? process 1 wants the framebuffer mapped WC, but process 2 asks for it cacheable. or process 1 maps 1/2 of the framebuffer WC and process 2 asks for the full framebuffer uncached.
-
-a lot of these are corner cases that are unlikely to be desirable, but probably should be protected against.
-
-> For frame buffer you also need to handle it in all mmap'ers
-> (like fbcon or /dev/mem). I think handling these generic cases will
-> need a few VM changes.
-
-yes, this was the case I was more worried about, but it looks like the case above will have the same issues.
-
-I don't think there's any way currently to determine if anyone already has a mapping to a given address range. And it seems that scanning for pre-existing mappings would be pretty ugly. are there any other suggestions for how to handle this?
-
-Thanks,
-Terence

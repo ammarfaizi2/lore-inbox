@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135520AbRDSC1L>; Wed, 18 Apr 2001 22:27:11 -0400
+	id <S135522AbRDSC1c>; Wed, 18 Apr 2001 22:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135521AbRDSC1C>; Wed, 18 Apr 2001 22:27:02 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:51204 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S135520AbRDSC0w>;
-	Wed, 18 Apr 2001 22:26:52 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, modica@sgi.com,
+	id <S135523AbRDSC1V>; Wed, 18 Apr 2001 22:27:21 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:59396 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S135521AbRDSC1Q>;
+	Wed, 18 Apr 2001 22:27:16 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), modica@sgi.com,
         linux-kernel@vger.kernel.org
 Subject: Re: Proposal for a new PCI function call
-In-Reply-To: <3AD601B4.7E0B14E4@sgi.com> <3AD604B0.2713F08B@mandrakesoft.com> <d3vgo9ej5r.fsf@lxplus015.cern.ch> <3AD7A6ED.7626BE05@mandrakesoft.com>
+In-Reply-To: <E14nrdT-0001po-00@the-village.bc.nu>
 From: Jes Sorensen <Jes.Sorensen@cern.ch>
-Date: 19 Apr 2001 04:25:59 +0200
-In-Reply-To: Jeff Garzik's message of "Fri, 13 Apr 2001 21:25:01 -0400"
-Message-ID: <d366g1zkug.fsf@lxplus015.cern.ch>
+Date: 19 Apr 2001 04:27:04 +0200
+In-Reply-To: Alan Cox's message of "Fri, 13 Apr 2001 01:40:25 +0100 (BST)"
+Message-ID: <d31yqpzksn.fsf@lxplus015.cern.ch>
 User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Jeff> Jes Sorensen wrote:
->> Hmmm, I was wondering if could come up with a pretty way to do this
->> on 32 bit boxes that wants to enable highmem DMA. Right now
->> pci_set_dma_mask() wants a dma_addr_t which means you have to do
->> #ifdef CONFIG_HIGHMEM <blah> #else <bleh> #endif.
+>> Introducing a new function that takes bit flags as arguments might
+>> be better?
 
-Jeff> It seems to me that not doing #ifdef CONFIG_HIGHMEM right now is
-Jeff> a bug...  I think it's the megaraid driver that wants to set
-Jeff> dma_addr_t to a 64-bit mask.
+Alan> pci_set_dma_mask_bits() ? So you could do
 
-There's a bunch of them doing it - it's butt-ugly though.
+Alan> pci_set_dma_mask_bits(pdev, 64);
+
+Alan> We want everything to go through pci_set_dma_mask... type
+Alan> functions either way so that we can and the mask with upstream
+Alan> bridges when we hit address range limits in some peoples
+Alan> hardware
+
+Looks good to me
 
 Jes

@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268120AbUIWASA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUIWAZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268120AbUIWASA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 20:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268127AbUIWASA
+	id S264085AbUIWAZP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 20:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUIWAZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 20:18:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33942 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268120AbUIWAR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 20:17:59 -0400
-Date: Wed, 22 Sep 2004 17:21:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: tty ldisc work version 4
-Message-Id: <20040922172139.0d7a1dd3.akpm@osdl.org>
-In-Reply-To: <20040922141821.GA27672@devserv.devel.redhat.com>
-References: <20040922141821.GA27672@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 22 Sep 2004 20:25:14 -0400
+Received: from dial-b1-248-188.telepac.pt ([194.65.248.188]:5385 "HELO
+	dial-b1-248-188.telepac.pt") by vger.kernel.org with SMTP
+	id S264085AbUIWAZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 20:25:11 -0400
+Date: Wed, 22 Sep 2004 21:45:51 +0000
+From: danq@dial-b1-248-188.telepac.pt
+Subject: Software
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <G20K448242H6C27C@vger.kernel.org>
+In-Reply-To: <G20K448242H6C27C@vger.kernel.org>
+Message-ID: <27GD4J2ECD56D2I6@dial-b1-248-188.telepac.pt>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@redhat.com> wrote:
->
-> New features this time
-> - Fix synclink layers - Paul Fulghum
-> - Use tty_wakeup internally to tty_io
-> - Add initial termios locking
-> - Add ldisc hangup method for notification at hangup()
-> - Fixed close to wait for running driver side events
-> 
-> The big changes this time are locking/ordering rules for termios changes. As
-> well as various feature changes I've also begun commenting n_tty.c so we
-> can start tackling the ldisc internal issues.
+software disc ounts
+Goldmine Business Contact Manager 6.5 - 59
+Corel KnockOut 2 - 50
+Adobe Illustrator CS - 90 
+Adobe InDesign CS - 100
+and
+and
+Ahead Nero v6.3 Powerpack - 40
+and
+QuarkXPress 6 - 110
+Games X Copy - 25
+Autodesk software
+Borland Optimizeit Suite 6 - 80
+and
+Adobe Atmosphere 1.0 - 60
+and
+Adobe Illustrator 10 - 80
+Nero V 6.0 Ultra Edition CD/DVD Burning Suite - 30
+and a lot more http://www.vovowe.biz/
 
-This gives me "init_dev but no ldisc" when initscripts start playing with
-the USB keyboard.  The machine then stops.

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264816AbTFLLDE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 07:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264819AbTFLLDE
+	id S264823AbTFLLLy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 07:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264824AbTFLLLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 07:03:04 -0400
-Received: from dp.samba.org ([66.70.73.150]:60313 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264816AbTFLLDA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 07:03:00 -0400
-Date: Thu, 12 Jun 2003 21:15:49 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: irq consolidation
-Message-ID: <20030612111549.GG1195@krispykreme>
-References: <20030607040515.GB28914@krispykreme> <20030607044803.GE28914@krispykreme> <20030607101848.A22665@flint.arm.linux.org.uk> <Pine.LNX.4.50.0306070539200.8902-100000@montezuma.mastecende.com>
+	Thu, 12 Jun 2003 07:11:53 -0400
+Received: from werbeagentur-aufwind.com ([217.160.128.76]:62894 "EHLO
+	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
+	id S264823AbTFLLKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 07:10:44 -0400
+Subject: Re: ext[23]/lilo/2.5.{68,69,70} -- strace lilo - freeze
+From: Christophe Saout <christophe@saout.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030612035442.29345778.akpm@digeo.com>
+References: <1052507057.15923.31.camel@andyp.pdx.osdl.net>
+	 <1052510656.6334.8.camel@chtephan.cs.pocnet.net>
+	 <1052513725.15923.45.camel@andyp.pdx.osdl.net>
+	 <1055369326.1158.252.camel@andyp.pdx.osdl.net>
+	 <1055373692.16483.8.camel@chtephan.cs.pocnet.net>
+	 <1055377253.1222.8.camel@andyp.pdx.osdl.net>
+	 <20030611172958.5e4d3500.akpm@digeo.com>
+	 <1055414558.565.4.camel@chtephan.cs.pocnet.net>
+	 <20030612035442.29345778.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1055417065.550.3.camel@chtephan.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0306070539200.8902-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 12 Jun 2003 13:24:25 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Anton don't you have an NR_IRQS sized interrupt stub you have to deal 
-> with on PPC64?
-> 
-> I was considering perhaps only statically allocating the 0-15 on i386 
-> just to get it booting and then dynamically allocate the rest.
+Am Don, 2003-06-12 um 12.54 schrieb Andrew Morton:
 
-We usually have an 8259 but its wired up to the main interrupt
-controller. Even if we statically allocated 0-15, we still need a higher
-irq for that cascade.
+> > BTW: I found out that now strace lilo freezes the machine...
+> Works OK here.  Try `strace strace lilo' ;)
 
-Going all the way and removing NR_IRQS also catches problems like the
-random driver where we would only add randomness on 8259 (ie < 16)
-interrupts with a mixed static/dynamic scheme.
+Since we are already talking about syncing...
 
-Anton
+The last thing "strace lilo" shows is:
+
+fsync(5
+
+-- 
+Christophe Saout <christophe@saout.de>
+

@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283588AbRLTKKM>; Thu, 20 Dec 2001 05:10:12 -0500
+	id <S283467AbRLTKMa>; Thu, 20 Dec 2001 05:12:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283655AbRLTKKB>; Thu, 20 Dec 2001 05:10:01 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:36878 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S283588AbRLTKJt>; Thu, 20 Dec 2001 05:09:49 -0500
-Date: Thu, 20 Dec 2001 11:09:36 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Pavel Machek <pavel@suse.cz>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Quinn Harris <quinn@nmt.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: File copy system call proposal
-Message-ID: <20011220110936.A18142@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200112100544.fBA5isV223458@saturn.cs.uml.edu> <20011213030107.L940@lynx.no> <20011213221712.A129@elf.ucw.cz> <E16GnIg-0000V5-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16GnIg-0000V5-00@starship.berlin>
-User-Agent: Mutt/1.3.20i
+	id <S283718AbRLTKMV>; Thu, 20 Dec 2001 05:12:21 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:32019 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S283694AbRLTKMN>; Thu, 20 Dec 2001 05:12:13 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] cramfs+initrd: BOOM! (Re: ramdisk corruption problems)
+Date: Thu, 20 Dec 2001 12:11:05 -0200
+X-Mailer: KMail [version 1.2]
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Torrey Hoffman <torrey.hoffman@myrio.com>, <andersen@codepoet.org>
+MIME-Version: 1.0
+Message-Id: <01122012110506.01835@manta>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+[fifth (!) attempt, previous mails did not show up on lkml]
+[This msg definitely does not want to make it into the list :-)]
 
-> > > Consider the _very_ common case (that nobody has mentioned yet) where you
-> > > are editing a large file.  When you write to the file, the editor copies
-> > > the file to a backup, then immediately truncates the original file and
-> > > writes the new data there.  What would be _far_ preferrable is to
-> > > just
-> > 
-> > Are you sure? I think editor just _moves_ original to backup.
-> 
-> Hi,
-> 
-> It would be so nice if all editors did that, but most don't according to the 
-> tests I've done, especially the newer ones like kedit, gnome-edit etc.  I 
-> think this is largely due to developers not knowing why it's good to do it 
-> this way.
+At last I have found one definite bug (maybe there are others).
+I was unable to load a minix initrd on any 2.4.12+ kernel. 2.4.10 is fine.
+Thanks to Mike Galbraith <mikeg@wen-online.de> who said that he can load 
+minix initrds and sent me both .config and initrd. I found out that with his 
+.config I indeed can load my initrd. After many recompilations and reboots 
+(binary search :-) it turned out that compiled-in support for cramfs caused
+initrds to be corrupted.
 
-They need to get a clue. No need to work around their bugs in kernel.
+[update since 3rd attempt to reach lkml]
+I did some debugging in fs/cramfs/inode.c:cramfs_read_super()
+If I plant immediate "return 0;" there initrd loads.
+If I place "return 0;" after "set_blocksize(sb->s_dev, PAGE_CACHE_SIZE);"
+- BOOM! Kernel panic. Restoring blocksize to 1024 prior to return does NOT 
+help.
+[end update]
 
-Anyway copyfile syscall would be nice for other reasons. (cp -a kernel
-tree then apply patch without waiting for physical copy to be done
-would be handy).
-								Pavel
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+This is the diff between 'good' and 'bad' .config:
+
+--- .config.good         Tue Dec 18 22:21:20 2001
++++ .config.bad  Tue Dec 18 22:21:10 2001
+@@ -716,7 +716,7 @@
+ CONFIG_EFS_FS=m
+ # CONFIG_JFFS_FS is not set
+ # CONFIG_JFFS2_FS is not set
+-# CONFIG_CRAMFS is not set
++CONFIG_CRAMFS=y
+ CONFIG_TMPFS=y
+ CONFIG_RAMFS=y
+ CONFIG_ISO9660_FS=y
+@@ -767,7 +767,7 @@
+ # CONFIG_NCPFS_NLS is not set
+ # CONFIG_NCPFS_EXTRAS is not set
+ # CONFIG_ZISOFS_FS is not set
+-# CONFIG_ZLIB_FS_INFLATE is not set
++CONFIG_ZLIB_FS_INFLATE=y
+
+ #
+ # Partition Types
+
+See?
+Hope this info is useful.
+--
+vda

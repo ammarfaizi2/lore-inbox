@@ -1,310 +1,303 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVASIOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVASIn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbVASIOX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 03:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVASINp
+	id S261644AbVASIn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 03:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVASI1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:13:45 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56255 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261645AbVASHdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:33:50 -0500
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 11/29] x86_64-entry64
-Date: Wed, 19 Jan 2005 0:31:37 -0700
-Message-ID: <x86-64-entry64-1106119897218@ebiederm.dsl.xmission.com>
-X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
-In-Reply-To: <x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com>
-References: <overview-11061198973484@ebiederm.dsl.xmission.com>
-	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
-	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
-	<x86-64-e820-64bit-11061198971581@ebiederm.dsl.xmission.com>
-	<x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-	<x86-64-i8259-shutdown-11061198973969@ebiederm.dsl.xmission.com>
-	<x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
-	<x86-64-apic-virtwire-on-shutdown-11061198973345@ebiederm.dsl.xmission.com>
-	<vmlinux-fix-physical-addrs-11061198973860@ebiederm.dsl.xmission.com>
-	<x86-vmlinux-fix-physical-addrs-11061198971192@ebiederm.dsl.xmission.com>
-	<x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com>
+	Wed, 19 Jan 2005 03:27:48 -0500
+Received: from waste.org ([216.27.176.166]:30380 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261670AbVASIRE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 03:17:04 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <8.64403262@selenic.com>
+Message-Id: <9.64403262@selenic.com>
+Subject: [PATCH 8/12] random pt3: Break up extract_user
+Date: Wed, 19 Jan 2005 00:17:22 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Break apart extract_entropy into kernel and user versions, remove last
+extract flag and some unnecessary variables. This makes the code more
+readable and amenable to sparse.
 
-To enable bootloaders to boot to directly load the x86_64 vmlinux
-and to enable the x86_64 kernel to switch into 64bit mode earlier
-this patch refactors the x86_64 entry code so there is a native
-64bit entry point to the kernel.
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-I ran this by Andi Kleen and he agreed it looks fairly sane.
-
-Signed-off-by: Eric Biederman <ebiederm@xmission.com>
----
-
- head.S        |  112 ++++++++++++++++++++++++++++++++--------------------------
- smpboot.c     |    2 -
- trampoline.S  |   24 +++---------
- vmlinux.lds.S |    3 +
- 4 files changed, 70 insertions(+), 71 deletions(-)
-
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/head.S linux-2.6.11-rc1-mm1-nokexec-x86_64-entry64/arch/x86_64/kernel/head.S
---- linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/head.S	Fri Jan 14 04:28:33 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-entry64/arch/x86_64/kernel/head.S	Tue Jan 18 22:46:24 2005
-@@ -26,6 +26,7 @@
+Index: rnd/drivers/char/random.c
+===================================================================
+--- rnd.orig/drivers/char/random.c	2005-01-18 10:39:47.360504569 -0800
++++ rnd/drivers/char/random.c	2005-01-18 10:40:00.654809689 -0800
+@@ -1183,19 +1183,18 @@
+  *
+  *********************************************************************/
  
- 	.text
- 	.code32
-+	.globl startup_32
- /* %bx:	 1 if coming from smp trampoline on secondary cpu */ 
- startup_32:
- 	
-@@ -37,11 +38,13 @@
-  	 * There is no stack until we set one up.
- 	 */
+-#define EXTRACT_ENTROPY_USER		1
+ #define TMP_BUF_SIZE			(HASH_BUFFER_SIZE + HASH_EXTRA_SIZE)
+ #define SEC_XFER_SIZE			(TMP_BUF_SIZE*4)
  
--	movl %ebx,%ebp	/* Save trampoline flag */
--	
-+	/* Initialize the %ds segment register */
- 	movl $__KERNEL_DS,%eax
- 	movl %eax,%ds
--	
-+
-+	/* Load new GDT with the 64bit segments using 32bit descriptor */
-+	lgdt	pGDT32 - __START_KERNEL_map
-+
- 	/* If the CPU doesn't support CPUID this will double fault.
- 	 * Unfortunately it is hard to check for CPUID without a stack. 
- 	 */
-@@ -57,16 +60,13 @@
- 	btl	$29, %edx
- 	jnc	no_long_mode
+ static ssize_t extract_entropy(struct entropy_store *r, void * buf,
+-			       size_t nbytes, int min, int rsvd, int flags);
++			       size_t nbytes, int min, int rsvd);
  
--	movl	%edx,%edi
--	
- 	/*
- 	 * Prepare for entering 64bits mode
- 	 */
- 
--	/* Enable PAE mode and PGE */
-+	/* Enable PAE mode */
- 	xorl	%eax, %eax
- 	btsl	$5, %eax
--	btsl	$7, %eax
- 	movl	%eax, %cr4
- 
- 	/* Setup early boot stage 4 level pagetables */
-@@ -79,14 +79,6 @@
- 
- 	/* Enable Long Mode */
- 	btsl	$_EFER_LME, %eax
--	/* Enable System Call */
--	btsl	$_EFER_SCE, %eax
--
--	/* No Execute supported? */	
--	btl	$20,%edi
--	jnc     1f
--	btsl	$_EFER_NX, %eax
--1:	
- 				
- 	/* Make changes effective */
- 	wrmsr
-@@ -94,38 +86,69 @@
- 	xorl	%eax, %eax
- 	btsl	$31, %eax			/* Enable paging and in turn activate Long Mode */
- 	btsl	$0, %eax			/* Enable protected mode */
--	btsl	$1, %eax			/* Enable MP */
--	btsl	$4, %eax			/* Enable ET */
--	btsl	$5, %eax			/* Enable NE */
--	btsl	$16, %eax			/* Enable WP */
--	btsl	$18, %eax			/* Enable AM */
- 	/* Make changes effective */
- 	movl	%eax, %cr0
--	jmp	reach_compatibility_mode
--reach_compatibility_mode:
--	
- 	/*
- 	 * At this point we're in long mode but in 32bit compatibility mode
- 	 * with EFER.LME = 1, CS.L = 0, CS.D = 1 (and in turn
--	 * EFER.LMA = 1). Now we want to jump in 64bit mode, to do that we load
-+	 * EFER.LMA = 1). Now we want to jump in 64bit mode, to do that we use
- 	 * the new gdt/idt that has __KERNEL_CS with CS.L = 1.
- 	 */
--
--	testw %bp,%bp	/* secondary CPU? */ 
--	jnz   second	
--	
--	/* Load new GDT with the 64bit segment using 32bit descriptor */
--	movl	$(pGDT32 - __START_KERNEL_map), %eax
--	lgdt	(%eax)
--
--second:	
--	movl    $(ljumpvector - __START_KERNEL_map), %eax
--	/* Finally jump in 64bit mode */
--	ljmp	*(%eax)
-+	ljmp	$__KERNEL_CS, $(startup_64 - __START_KERNEL_map)
- 
- 	.code64
- 	.org 0x100	
--reach_long64:
-+	.globl startup_64
-+startup_64:
-+	/* We come here either from startup_32
-+	 * or directly from a 64bit bootloader.
-+	 * Since we may have come directly from a bootloader we
-+	 * reload the page tables here.
-+	 */
-+	
-+	/* Enable PAE mode and PGE */
-+	xorq	%rax, %rax
-+	btsq	$5, %rax
-+	btsq	$7, %rax
-+	movq	%rax, %cr4
-+
-+	/* Setup early boot stage 4 level pagetables. */
-+	movq	$(init_level4_pgt - __START_KERNEL_map), %rax
-+	movq	%rax, %cr3
-+
-+	/* Check if nx is implemented */
-+	movl	$0x80000001, %eax
-+	cpuid
-+	movl	%edx,%edi
-+	
-+	/* Setup EFER (Extended Feature Enable Register) */
-+	movl	$MSR_EFER, %ecx
-+	rdmsr
-+
-+	/* Enable System Call */
-+	btsl	$_EFER_SCE, %eax
-+
-+	/* No Execute supported? */
-+	btl	$20,%edi
-+	jnc     1f
-+	btsl	$_EFER_NX, %eax
-+1:	
-+	/* Make changes effective */
-+	wrmsr
-+
-+	/* Setup cr0 */
-+	xorq	%rax, %rax
-+	btsq	$31, %rax			/* Enable paging */
-+	btsq	$0, %rax			/* Enable protected mode */
-+	btsq	$1, %rax			/* Enable MP */
-+	btsq	$4, %rax			/* Enable ET */
-+	btsq	$5, %rax			/* Enable NE */
-+	btsq	$16, %rax			/* Enable WP */
-+	btsq	$18, %rax			/* Enable AM */
-+	/* Make changes effective */
-+	movq	%rax, %cr0
-+
-+	/* Setup a boot time stack */
- 	movq init_rsp(%rip),%rsp
- 
- 	/* zero EFLAGS after setting rsp */
-@@ -198,13 +221,8 @@
- .org 0xf00
- 	.globl pGDT32
- pGDT32:
--	.word	gdt32_end-gdt_table32
--	.long	gdt_table32-__START_KERNEL_map
--
--.org 0xf10	
--ljumpvector:
--	.long	reach_long64-__START_KERNEL_map
--	.word	__KERNEL_CS
-+	.word	gdt_end-cpu_gdt_table
-+	.long	cpu_gdt_table-__START_KERNEL_map
- 
- ENTRY(stext)
- ENTRY(_stext)
-@@ -334,12 +352,6 @@
- 	.endr
- #endif
- 
--ENTRY(gdt_table32)
--	.quad	0x0000000000000000	/* This one is magic */
--	.quad	0x0000000000000000	/* unused */
--	.quad	0x00af9a000000ffff	/* __KERNEL_CS */
--gdt32_end:	
--	
- /* We need valid kernel segments for data and code in long mode too
-  * IRET will check the segment types  kkeil 2000/10/28
-  * Also sysret mandates a special GDT layout 
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/smpboot.c linux-2.6.11-rc1-mm1-nokexec-x86_64-entry64/arch/x86_64/kernel/smpboot.c
---- linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/smpboot.c	Fri Jan 14 04:28:33 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-entry64/arch/x86_64/kernel/smpboot.c	Tue Jan 18 22:46:24 2005
-@@ -91,8 +91,6 @@
- static unsigned long __init setup_trampoline(void)
+ /*
+  * This utility inline function is responsible for transfering entropy
+  * from the primary pool to the secondary extraction pool. We make
+  * sure we pull enough for a 'catastrophic reseed'.
+  */
+-static inline void xfer_secondary_pool(struct entropy_store *r,
++static void xfer_secondary_pool(struct entropy_store *r,
+ 				       size_t nbytes, __u32 *tmp)
  {
- 	void *tramp = __va(SMP_TRAMPOLINE_BASE); 
--	extern volatile __u32 tramp_gdt_ptr; 
--	tramp_gdt_ptr = __pa_symbol(&cpu_gdt_table); 
- 	memcpy(tramp, trampoline_data, trampoline_end - trampoline_data);
- 	return virt_to_phys(tramp);
+ 	if (r->pull && r->entropy_count < nbytes * 8 &&
+@@ -1209,18 +1208,15 @@
+ 			  r->name, bytes * 8, nbytes * 8, r->entropy_count);
+ 
+ 		bytes=extract_entropy(r->pull, tmp, bytes,
+-				      random_read_wakeup_thresh / 8, rsvd, 0);
++				      random_read_wakeup_thresh / 8, rsvd);
+ 		add_entropy_words(r, tmp, bytes);
+ 		credit_entropy_store(r, bytes*8);
+ 	}
  }
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/trampoline.S linux-2.6.11-rc1-mm1-nokexec-x86_64-entry64/arch/x86_64/kernel/trampoline.S
---- linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/trampoline.S	Mon Oct 18 15:55:06 2004
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-entry64/arch/x86_64/kernel/trampoline.S	Tue Jan 18 22:46:24 2005
-@@ -37,7 +37,6 @@
- 	mov	%cs, %ax	# Code and data in the same place
- 	mov	%ax, %ds
  
--	mov	$1, %bx		# Flag an SMP trampoline
- 	cli			# We should be safe anyway
- 
- 	movl	$0xA5A5A5A5, trampoline_data - r_base
-@@ -46,31 +45,20 @@
- 	lidt	idt_48 - r_base	# load idt with 0, 0
- 	lgdt	gdt_48 - r_base	# load gdt with whatever is appropriate
- 
--	movw    $__KERNEL_DS,%ax
--	movw    %ax,%ds
--	movw    %ax,%es
--	
- 	xor	%ax, %ax
- 	inc	%ax		# protected mode (PE) bit
- 	lmsw	%ax		# into protected mode
--	jmp	flush_instr
--flush_instr:
--	ljmpl	$__KERNEL32_CS, $0x00100000
--			# jump to startup_32 in arch/x86_64/kernel/head.S
--
-+	# flaush prefetch and jump to startup_32 in arch/x86_64/kernel/head.S
-+	ljmpl	$__KERNEL32_CS, $(startup_32-__START_KERNEL_map)
-+	
-+	# Careful these need to be in the same 64K segment as the above;
- idt_48:
- 	.word	0			# idt limit = 0
- 	.word	0, 0			# idt base = 0L
- 
- gdt_48:
--	.short	0x0800			# gdt limit = 2048, 256 GDT entries
--	.globl tramp_gdt_ptr
--tramp_gdt_ptr:
--	.long	0			# gdt base = gdt (first SMP CPU)
--					# this is filled in by C because the 64bit
--					# linker doesn't support absolute 32bit
--					# relocations. 
--	
-+	.short	__KERNEL32_CS + 7	# gdt limit
-+	.long	cpu_gdt_table-__START_KERNEL_map
- 
- .globl trampoline_end
- trampoline_end:	
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/vmlinux.lds.S linux-2.6.11-rc1-mm1-nokexec-x86_64-entry64/arch/x86_64/kernel/vmlinux.lds.S
---- linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/vmlinux.lds.S	Tue Jan 18 22:46:07 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-entry64/arch/x86_64/kernel/vmlinux.lds.S	Tue Jan 18 22:46:24 2005
-@@ -10,11 +10,12 @@
- 
- OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
- OUTPUT_ARCH(i386:x86-64)
--ENTRY(stext)
-+ENTRY(phys_startup_64)
- jiffies_64 = jiffies;
- SECTIONS
+ /*
+- * This function extracts randomness from the "entropy pool", and
+- * returns it in a buffer.  This function computes how many remaining
+- * bits of entropy are left in the pool, but it does not restrict the
+- * number of bytes that are actually obtained.  If the EXTRACT_ENTROPY_USER
+- * flag is given, then the buf pointer is assumed to be in user space.
++ * These functions extracts randomness from the "entropy pool", and
++ * returns it in a buffer.
+  *
+  * The min parameter specifies the minimum amount we can pull before
+  * failing to avoid races that defeat catastrophic reseeding while the
+@@ -1229,22 +1225,16 @@
+  *
+  * Note: extract_entropy() assumes that .poolwords is a multiple of 16 words.
+  */
+-static ssize_t extract_entropy(struct entropy_store *r, void * buf,
+-			       size_t nbytes, int min, int reserved, int flags)
++
++static size_t account(struct entropy_store *r, size_t nbytes, int min,
++		      int reserved)
  {
-   . = __START_KERNEL;
-+  phys_startup_64 = startup_64 - LOAD_OFFSET;
-   _text = .;			/* Text and read-only data */
-   .text :  AT(ADDR(.text) - LOAD_OFFSET) {
- 	*(.text)
+-	ssize_t ret, i;
+-	__u32 tmp[TMP_BUF_SIZE], data[16];
+-	__u32 x;
+-	unsigned long cpuflags;
+-
+-	/* Redundant, but just in case... */
+-	if (r->entropy_count > r->poolinfo->POOLBITS)
+-		r->entropy_count = r->poolinfo->POOLBITS;
++	unsigned long flags;
+ 
+-	xfer_secondary_pool(r, nbytes, tmp);
++	BUG_ON(r->entropy_count > r->poolinfo->POOLBITS);
+ 
+ 	/* Hold lock while accounting */
+-	spin_lock_irqsave(&r->lock, cpuflags);
++	spin_lock_irqsave(&r->lock, flags);
+ 
+ 	DEBUG_ENT("trying to extract %d bits from %s\n",
+ 		  nbytes * 8, r->name);
+@@ -1269,75 +1259,111 @@
+ 	DEBUG_ENT("debiting %d entropy credits from %s%s\n",
+ 		  nbytes * 8, r->name, r->limit ? "" : " (unlimited)");
+ 
+-	spin_unlock_irqrestore(&r->lock, cpuflags);
++	spin_unlock_irqrestore(&r->lock, flags);
++
++	return nbytes;
++}
++
++static void extract_buf(struct entropy_store *r, __u32 *buf)
++{
++	int i, x;
++	__u32 data[16];
++
++	/* Hash the pool to get the output */
++	buf[0] = 0x67452301;
++	buf[1] = 0xefcdab89;
++	buf[2] = 0x98badcfe;
++	buf[3] = 0x10325476;
++#ifdef USE_SHA
++	buf[4] = 0xc3d2e1f0;
++#endif
++
++	/*
++	 * As we hash the pool, we mix intermediate values of
++	 * the hash back into the pool.  This eliminates
++	 * backtracking attacks (where the attacker knows
++	 * the state of the pool plus the current outputs, and
++	 * attempts to find previous ouputs), unless the hash
++	 * function can be inverted.
++	 */
++	for (i = 0, x = 0; i < r->poolinfo->poolwords; i += 16, x+=2) {
++		HASH_TRANSFORM(buf, r->pool+i);
++		add_entropy_words(r, &buf[x%HASH_BUFFER_SIZE], 1);
++	}
++
++	/*
++	 * To avoid duplicates, we atomically extract a
++	 * portion of the pool while mixing, and hash one
++	 * final time.
++	 */
++	__add_entropy_words(r, &buf[x%HASH_BUFFER_SIZE], 1, data);
++	HASH_TRANSFORM(buf, data);
++
++	/*
++	 * In case the hash function has some recognizable
++	 * output pattern, we fold it in half.
++	 */
++	for (i = 0; i <  HASH_BUFFER_SIZE / 2; i++)
++		buf[i] ^= buf[i + (HASH_BUFFER_SIZE + 1) / 2];
++
++	if (HASH_BUFFER_SIZE & 1) {
++		/* There's a middle word to deal with */
++		x = buf[HASH_BUFFER_SIZE/2];
++		x ^= (x >> 16);	/* Fold it in half */
++		((__u16 *)buf)[HASH_BUFFER_SIZE - 1] = (__u16)x;
++	}
++}
++
++static ssize_t extract_entropy(struct entropy_store *r, void * buf,
++			       size_t nbytes, int min, int reserved)
++{
++	ssize_t ret = 0, i;
++	__u32 tmp[TMP_BUF_SIZE];
++
++	xfer_secondary_pool(r, nbytes, tmp);
++	nbytes = account(r, nbytes, min, reserved);
+ 
+-	ret = 0;
+ 	while (nbytes) {
+-		/*
+-		 * Check if we need to break out or reschedule....
+-		 */
+-		if ((flags & EXTRACT_ENTROPY_USER) && need_resched()) {
++		extract_buf(r, tmp);
++		i = min(nbytes, HASH_BUFFER_SIZE * sizeof(__u32) / 2);
++		memcpy(buf, (__u8 const *)tmp, i);
++		nbytes -= i;
++		buf += i;
++		ret += i;
++	}
++
++	/* Wipe data just returned from memory */
++	memset(tmp, 0, sizeof(tmp));
++
++	return ret;
++}
++
++static ssize_t extract_entropy_user(struct entropy_store *r, void __user *buf,
++				    size_t nbytes)
++{
++	ssize_t ret = 0, i;
++	__u32 tmp[TMP_BUF_SIZE];
++
++	xfer_secondary_pool(r, nbytes, tmp);
++	nbytes = account(r, nbytes, 0, 0);
++
++	while (nbytes) {
++		if (need_resched()) {
+ 			if (signal_pending(current)) {
+ 				if (ret == 0)
+ 					ret = -ERESTARTSYS;
+ 				break;
+ 			}
+-
+ 			schedule();
+ 		}
+ 
+-		/* Hash the pool to get the output */
+-		tmp[0] = 0x67452301;
+-		tmp[1] = 0xefcdab89;
+-		tmp[2] = 0x98badcfe;
+-		tmp[3] = 0x10325476;
+-#ifdef USE_SHA
+-		tmp[4] = 0xc3d2e1f0;
+-#endif
+-		/*
+-		 * As we hash the pool, we mix intermediate values of
+-		 * the hash back into the pool.  This eliminates
+-		 * backtracking attacks (where the attacker knows
+-		 * the state of the pool plus the current outputs, and
+-		 * attempts to find previous ouputs), unless the hash
+-		 * function can be inverted.
+-		 */
+-		for (i = 0, x = 0; i < r->poolinfo->poolwords; i += 16, x+=2) {
+-			HASH_TRANSFORM(tmp, r->pool+i);
+-			add_entropy_words(r, &tmp[x%HASH_BUFFER_SIZE], 1);
++		extract_buf(r, tmp);
++		i = min(nbytes, HASH_BUFFER_SIZE * sizeof(__u32) / 2);
++		if (copy_to_user(buf, tmp, i)) {
++			ret = -EFAULT;
++			break;
+ 		}
+ 
+-		/*
+-		 * To avoid duplicates, we atomically extract a
+-		 * portion of the pool while mixing, and hash one
+-		 * final time.
+-		 */
+-		__add_entropy_words(r, &tmp[x%HASH_BUFFER_SIZE], 1, data);
+-		HASH_TRANSFORM(tmp, data);
+-
+-		/*
+-		 * In case the hash function has some recognizable
+-		 * output pattern, we fold it in half.
+-		 */
+-		for (i = 0; i <  HASH_BUFFER_SIZE/2; i++)
+-			tmp[i] ^= tmp[i + (HASH_BUFFER_SIZE+1)/2];
+-#if HASH_BUFFER_SIZE & 1	/* There's a middle word to deal with */
+-		x = tmp[HASH_BUFFER_SIZE/2];
+-		x ^= (x >> 16);		/* Fold it in half */
+-		((__u16 *)tmp)[HASH_BUFFER_SIZE-1] = (__u16)x;
+-#endif
+-
+-		/* Copy data to destination buffer */
+-		i = min(nbytes, HASH_BUFFER_SIZE*sizeof(__u32)/2);
+-		if (flags & EXTRACT_ENTROPY_USER) {
+-			i -= copy_to_user(buf, (__u8 const *)tmp, i);
+-			if (!i) {
+-				ret = -EFAULT;
+-				break;
+-			}
+-		} else
+-			memcpy(buf, (__u8 const *)tmp, i);
+-
+ 		nbytes -= i;
+ 		buf += i;
+ 		ret += i;
+@@ -1356,7 +1382,7 @@
+  */
+ void get_random_bytes(void *buf, int nbytes)
+ {
+-	extract_entropy(&nonblocking_pool, (char *) buf, nbytes, 0, 0, 0);
++	extract_entropy(&nonblocking_pool, buf, nbytes, 0, 0);
+ }
+ 
+ EXPORT_SYMBOL(get_random_bytes);
+@@ -1445,8 +1471,7 @@
+ 
+ 		DEBUG_ENT("reading %d bits\n", n*8);
+ 
+-		n = extract_entropy(&blocking_pool, buf, n, 0, 0,
+-				    EXTRACT_ENTROPY_USER);
++		n = extract_entropy_user(&blocking_pool, buf, n);
+ 
+ 		DEBUG_ENT("read got %d bits (%d still needed)\n",
+ 			  n*8, (nbytes-n)*8);
+@@ -1497,8 +1522,7 @@
+ urandom_read(struct file * file, char __user * buf,
+ 		      size_t nbytes, loff_t *ppos)
+ {
+-	return extract_entropy(&nonblocking_pool, buf, nbytes, 0, 0,
+-			       EXTRACT_ENTROPY_USER);
++	return extract_entropy_user(&nonblocking_pool, buf, nbytes);
+ }
+ 
+ static unsigned int

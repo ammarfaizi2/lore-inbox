@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317544AbSINVo7>; Sat, 14 Sep 2002 17:44:59 -0400
+	id <S317582AbSINWcj>; Sat, 14 Sep 2002 18:32:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317571AbSINVo7>; Sat, 14 Sep 2002 17:44:59 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64265 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317544AbSINVo6>; Sat, 14 Sep 2002 17:44:58 -0400
-Date: Sat, 14 Sep 2002 22:49:46 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [BK PATCH] console updates.
-Message-ID: <20020914224946.C18537@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.33.0209121610470.10152-100000@maxwell.earthlink.net>
+	id <S317589AbSINWcj>; Sat, 14 Sep 2002 18:32:39 -0400
+Received: from 218-bem-2.acn.waw.pl ([62.121.81.218]:55559 "EHLO
+	woland.mmm.ozarow-12.waw.pl") by vger.kernel.org with ESMTP
+	id <S317582AbSINWci>; Sat, 14 Sep 2002 18:32:38 -0400
+Date: Sun, 15 Sep 2002 00:37:26 +0200
+From: Michal Kochanowicz <michal@michal.waw.pl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: rmmod ip_conntrack locks
+Message-ID: <20020914223726.GC12639@wieszak.mmm.ozarow-12.waw.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0209121610470.10152-100000@maxwell.earthlink.net>; from jsimmons@infradead.org on Thu, Sep 12, 2002 at 04:13:38PM -0700
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
+Organization: Happy GNU/Linux Users
+X-Signature-Tagline-Copyright: Piotr Zientarski, 1999-2001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12, 2002 at 04:13:38PM -0700, James Simmons wrote:
->    Here is the latest console code that has been sitting around in Dave
-> Jone's tree for some time. This patch removes the many global variables
-> the console system uses. Since Vojtech input keyboards went this diff has
-> shrunk. If you could apply it I would be happy.
-> 
-> bk://linuxconsole.bkbits.net/dev
+Hi
 
-gnu patch?  diffstat output?
+I'm using plain 2.4.19 on small router with masquerade. Every time I try
+to remove ip_conntrack from memory process hangs. It can't be kill -9.
+Please let me know what kind of information can be useful to trace this
+problem.
 
+I've found in archives that person reporting similar problem some time
+ago was asked to show result of ps lax. So here it is:
+100     0 13622 12852  14   0  1484  432 -      R    pts/0      3:08 rmmod ip_co
+
+Regards
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+--= Michal Kochanowicz =--==--==BOFH==--==--= michal@michal.waw.pl =--
+--= finger me for PGP public key or visit http://michal.waw.pl/PGP =--
+--==--==--==--==--==-- Vodka. Connecting people.--==--==--==--==--==--
+A chodzenie po górach SSIE!!!

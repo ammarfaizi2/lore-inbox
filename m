@@ -1,746 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269266AbUIYHwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269267AbUIYHyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269266AbUIYHwt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 03:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269267AbUIYHwt
+	id S269267AbUIYHyl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 03:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269270AbUIYHyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 03:52:49 -0400
-Received: from holomorphy.com ([207.189.100.168]:63973 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269266AbUIYHvO (ORCPT
+	Sat, 25 Sep 2004 03:54:09 -0400
+Received: from holomorphy.com ([207.189.100.168]:742 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269267AbUIYHxd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 03:51:14 -0400
-Date: Sat, 25 Sep 2004 00:51:02 -0700
+	Sat, 25 Sep 2004 03:53:33 -0400
+Date: Sat, 25 Sep 2004 00:53:28 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [vm 3/6] convert users of remap_page_range() under drivers/ and net/ to use remap_pfn_range()
-Message-ID: <20040925075102.GG9106@holomorphy.com>
-References: <20040925074445.GD9106@holomorphy.com> <20040925074712.GE9106@holomorphy.com> <20040925074915.GF9106@holomorphy.com>
+Subject: [vm 4/6] convert users of remap_page_range() under include/asm-*/ to use remap_pfn_range()
+Message-ID: <20040925075328.GH9106@holomorphy.com>
+References: <20040925074445.GD9106@holomorphy.com> <20040925074712.GE9106@holomorphy.com> <20040925074915.GF9106@holomorphy.com> <20040925075102.GG9106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040925074915.GF9106@holomorphy.com>
+In-Reply-To: <20040925075102.GG9106@holomorphy.com>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 25, 2004 at 12:49:15AM -0700, William Lee Irwin III wrote:
+On Sat, Sep 25, 2004 at 12:51:02AM -0700, William Lee Irwin III wrote:
 > This patch converts all callers of remap_page_range() under arch/ and
-> all references in Documentation/ to use remap_pfn_range().
+> net/ to use remap_pfn_range() instead.
 
-This patch converts all callers of remap_page_range() under arch/ and
-net/ to use remap_pfn_range() instead.
+This patch converts uses of remap_page_range() via io_remap_page_range()
+in include/asm-*/ to use remap_pfn_range(). io_remap_page_range() has a
+similar physical address overflow issue that needs to be addressed later.
 
 
-Index: mm3-2.6.9-rc2/drivers/char/agp/frontend.c
+Index: mm3-2.6.9-rc2/include/asm-alpha/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/char/agp/frontend.c	2004-09-25 00:21:50.620348728 -0700
-+++ mm3-2.6.9-rc2/drivers/char/agp/frontend.c	2004-09-25 00:21:57.535297496 -0700
-@@ -627,8 +627,8 @@
- 		DBG("client vm_ops=%p", kerninfo.vm_ops);
- 		if (kerninfo.vm_ops) {
- 			vma->vm_ops = kerninfo.vm_ops;
--		} else if (remap_page_range(vma, vma->vm_start, 
--					    (kerninfo.aper_base + offset),
-+		} else if (remap_pfn_range(vma, vma->vm_start, 
-+				(kerninfo.aper_base + offset) >> PAGE_SHIFT,
- 					    size, vma->vm_page_prot)) {
- 			goto out_again;
- 		}
-@@ -643,8 +643,8 @@
- 		DBG("controller vm_ops=%p", kerninfo.vm_ops);
- 		if (kerninfo.vm_ops) {
- 			vma->vm_ops = kerninfo.vm_ops;
--		} else if (remap_page_range(vma, vma->vm_start, 
--					    kerninfo.aper_base,
-+		} else if (remap_pfn_range(vma, vma->vm_start, 
-+					    kerninfo.aper_base >> PAGE_SHIFT,
- 					    size, vma->vm_page_prot)) {
- 			goto out_again;
- 		}
-Index: mm3-2.6.9-rc2/drivers/char/drm/drm_vm.h
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/char/drm/drm_vm.h	2004-09-25 00:21:50.620348728 -0700
-+++ mm3-2.6.9-rc2/drivers/char/drm/drm_vm.h	2004-09-25 00:21:57.535297496 -0700
-@@ -620,8 +620,8 @@
- 					vma->vm_end - vma->vm_start,
- 					vma->vm_page_prot, 0))
- #else
--		if (remap_page_range(DRM_RPR_ARG(vma) vma->vm_start,
--				     VM_OFFSET(vma) + offset,
-+		if (remap_pfn_range(DRM_RPR_ARG(vma) vma->vm_start,
-+				     (VM_OFFSET(vma) + offset) >> PAGE_SHIFT,
- 				     vma->vm_end - vma->vm_start,
- 				     vma->vm_page_prot))
+--- mm3-2.6.9-rc2.orig/include/asm-alpha/pgtable.h	2004-09-25 00:15:52.645769136 -0700
++++ mm3-2.6.9-rc2/include/asm-alpha/pgtable.h	2004-09-25 00:24:00.869547840 -0700
+@@ -328,7 +328,7 @@
  #endif
-Index: mm3-2.6.9-rc2/drivers/char/drm/i810_dma.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/char/drm/i810_dma.c	2004-09-25 00:21:50.621348576 -0700
-+++ mm3-2.6.9-rc2/drivers/char/drm/i810_dma.c	2004-09-25 00:21:57.536297344 -0700
-@@ -138,8 +138,8 @@
-    	buf_priv->currently_mapped = I810_BUF_MAPPED;
- 	unlock_kernel();
  
--	if (remap_page_range(DRM_RPR_ARG(vma) vma->vm_start,
--			     VM_OFFSET(vma),
-+	if (remap_pfn_range(DRM_RPR_ARG(vma) vma->vm_start,
-+			     VM_OFFSET(vma) >> PAGE_SHIFT,
- 			     vma->vm_end - vma->vm_start,
- 			     vma->vm_page_prot)) return -EAGAIN;
- 	return 0;
-Index: mm3-2.6.9-rc2/drivers/char/drm/i830_dma.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/char/drm/i830_dma.c	2004-09-25 00:21:50.620348728 -0700
-+++ mm3-2.6.9-rc2/drivers/char/drm/i830_dma.c	2004-09-25 00:21:57.537297192 -0700
-@@ -139,8 +139,8 @@
-    	buf_priv->currently_mapped = I830_BUF_MAPPED;
- 	unlock_kernel();
+ #define io_remap_page_range(vma, start, busaddr, size, prot) \
+-    remap_page_range(vma, start, virt_to_phys((void *)__ioremap(busaddr, size)), size, prot)
++    remap_pfn_range(vma, start, virt_to_phys((void *)__ioremap(busaddr, size)) >> PAGE_SHIFT, size, prot)
  
--	if (remap_page_range(DRM_RPR_ARG(vma) vma->vm_start,
--			     VM_OFFSET(vma),
-+	if (remap_pfn_range(DRM_RPR_ARG(vma) vma->vm_start,
-+			     VM_OFFSET(vma) >> PAGE_SHIFT,
- 			     vma->vm_end - vma->vm_start,
- 			     vma->vm_page_prot)) return -EAGAIN;
- 	return 0;
-Index: mm3-2.6.9-rc2/drivers/char/ftape/lowlevel/ftape-ctl.c
+ #define pte_ERROR(e) \
+ 	printk("%s:%d: bad pte %016lx.\n", __FILE__, __LINE__, pte_val(e))
+Index: mm3-2.6.9-rc2/include/asm-arm/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/char/ftape/lowlevel/ftape-ctl.c	2004-09-25 00:21:50.621348576 -0700
-+++ mm3-2.6.9-rc2/drivers/char/ftape/lowlevel/ftape-ctl.c	2004-09-25 00:21:57.537297192 -0700
-@@ -726,9 +726,12 @@
- 		ftape_reset_buffer();
- 	}
- 	for (i = 0; i < num_buffers; i++) {
--		TRACE_CATCH(remap_page_range(vma, vma->vm_start +
-+		unsigned long pfn;
-+
-+		pfn = virt_to_phys(ft_buffer[i]->address) >> PAGE_SHIFT;
-+		TRACE_CATCH(remap_pfn_range(vma, vma->vm_start +
- 					     i * FT_BUFF_SIZE,
--					     virt_to_phys(ft_buffer[i]->address),
-+					     pfn,
- 					     FT_BUFF_SIZE,
- 					     vma->vm_page_prot),
- 			    _res = -EAGAIN);
-Index: mm3-2.6.9-rc2/drivers/char/hpet.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/char/hpet.c	2004-09-25 00:21:50.621348576 -0700
-+++ mm3-2.6.9-rc2/drivers/char/hpet.c	2004-09-25 00:21:57.538297040 -0700
-@@ -273,9 +273,9 @@
- 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
- 	addr = __pa(addr);
- 
--	if (remap_page_range
--	    (vma, vma->vm_start, addr, PAGE_SIZE, vma->vm_page_prot)) {
--		printk(KERN_ERR "remap_page_range failed in hpet.c\n");
-+	if (remap_pfn_range(vma, vma->vm_start, addr >> PAGE_SHIFT,
-+					PAGE_SIZE, vma->vm_page_prot)) {
-+		printk(KERN_ERR "remap_pfn_range failed in hpet.c\n");
- 		return -EAGAIN;
- 	}
- 
-Index: mm3-2.6.9-rc2/drivers/char/mem.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/char/mem.c	2004-09-25 00:21:50.622348424 -0700
-+++ mm3-2.6.9-rc2/drivers/char/mem.c	2004-09-25 00:21:57.538297040 -0700
-@@ -227,7 +227,7 @@
- 	 */
- 	vma->vm_flags |= VM_RESERVED|VM_IO;
- 
--	if (remap_page_range(vma, vma->vm_start, offset,
-+	if (remap_pfn_range(vma, vma->vm_start, offset >> PAGE_SHIFT,
- 			vma->vm_end-vma->vm_start, vma->vm_page_prot))
- 		return -EAGAIN;
- 	return 0;
-Index: mm3-2.6.9-rc2/drivers/char/mmtimer.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/char/mmtimer.c	2004-09-25 00:21:50.622348424 -0700
-+++ mm3-2.6.9-rc2/drivers/char/mmtimer.c	2004-09-25 00:21:57.538297040 -0700
-@@ -139,7 +139,7 @@
-  * @file: file structure for the device
-  * @vma: VMA to map the registers into
-  *
-- * Calls remap_page_range() to map the clock's registers into
-+ * Calls remap_pfn_range() to map the clock's registers into
-  * the calling process' address space.
+--- mm3-2.6.9-rc2.orig/include/asm-arm/pgtable.h	2004-09-25 00:15:53.175688576 -0700
++++ mm3-2.6.9-rc2/include/asm-arm/pgtable.h	2004-09-25 00:24:08.254425168 -0700
+@@ -412,7 +412,7 @@
+  * into virtual address `from'
   */
- static int mmtimer_mmap(struct file *file, struct vm_area_struct *vma)
-@@ -162,9 +162,9 @@
- 	mmtimer_addr &= ~(PAGE_SIZE - 1);
- 	mmtimer_addr &= 0xfffffffffffffffUL;
+ #define io_remap_page_range(vma,from,phys,size,prot) \
+-		remap_page_range(vma,from,phys,size,prot)
++		remap_pfn_range(vma, from, (phys) >> PAGE_SHIFT, size, prot)
  
--	if (remap_page_range(vma, vma->vm_start, mmtimer_addr, PAGE_SIZE,
--			     vma->vm_page_prot)) {
--		printk(KERN_ERR "remap_page_range failed in mmtimer.c\n");
-+	if (remap_pfn_range(vma, vma->vm_start, mmtimer_addr >> PAGE_SHIFT,
-+					PAGE_SIZE, vma->vm_page_prot)) {
-+		printk(KERN_ERR "remap_pfn_range failed in mmtimer.c\n");
- 		return -EAGAIN;
- 	}
+ #define pgtable_cache_init() do { } while (0)
  
-Index: mm3-2.6.9-rc2/drivers/ieee1394/video1394.c
+Index: mm3-2.6.9-rc2/include/asm-arm26/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/ieee1394/video1394.c	2004-09-25 00:21:50.622348424 -0700
-+++ mm3-2.6.9-rc2/drivers/ieee1394/video1394.c	2004-09-25 00:21:57.539296888 -0700
-@@ -1157,7 +1157,7 @@
-  *
-  *  FIXME:
-  *  - PAGE_READONLY should suffice!?
-- *  - remap_page_range is kind of inefficient for page by page remapping.
-+ *  - remap_pfn_range is kind of inefficient for page by page remapping.
-  *    But e.g. pte_alloc() does not work in modules ... :-(
+--- mm3-2.6.9-rc2.orig/include/asm-arm26/pgtable.h	2004-09-25 00:15:52.418803640 -0700
++++ mm3-2.6.9-rc2/include/asm-arm26/pgtable.h	2004-09-25 00:24:05.602828272 -0700
+@@ -288,7 +288,7 @@
+  * into virtual address `from'
   */
+ #define io_remap_page_range(vma,from,phys,size,prot) \
+-		remap_page_range(vma,from,phys,size,prot)
++		remap_pfn_range(vma, from, (phys) >> PAGE_SHIFT, size, prot)
  
-Index: mm3-2.6.9-rc2/drivers/media/video/cpia.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/media/video/cpia.c	2004-09-25 00:21:50.623348272 -0700
-+++ mm3-2.6.9-rc2/drivers/media/video/cpia.c	2004-09-25 00:21:57.541296584 -0700
-@@ -216,20 +216,6 @@
-  * Memory management
-  *
-  **********************************************************************/
--
--/* Here we want the physical address of the memory.
-- * This is used when initializing the contents of the area.
-- */
--static inline unsigned long kvirt_to_pa(unsigned long adr)
--{
--	unsigned long kva, ret;
--
--	kva = (unsigned long) page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
--	ret = __pa(kva);
--	return ret;
--}
--
- static void *rvmalloc(unsigned long size)
- {
- 	void *mem;
-@@ -3795,8 +3781,8 @@
+ #endif /* !__ASSEMBLY__ */
  
- 	pos = (unsigned long)(cam->frame_buf);
- 	while (size > 0) {
--		page = kvirt_to_pa(pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
- 			up(&cam->busy_lock);
- 			return -EAGAIN;
- 		}
-Index: mm3-2.6.9-rc2/drivers/media/video/meye.c
+Index: mm3-2.6.9-rc2/include/asm-h8300/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/media/video/meye.c	2004-09-25 00:21:50.623348272 -0700
-+++ mm3-2.6.9-rc2/drivers/media/video/meye.c	2004-09-25 00:21:57.542296432 -0700
-@@ -115,19 +115,6 @@
- /****************************************************************************/
- /* Memory allocation routines (stolen from bttv-driver.c)                   */
- /****************************************************************************/
--
--/* Here we want the physical address of the memory.
-- * This is used when initializing the contents of the area.
-- */
--static inline unsigned long kvirt_to_pa(unsigned long adr) {
--        unsigned long kva, ret;
--
--        kva = (unsigned long) page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
--	ret = __pa(kva);
--        return ret;
--}
--
- static void *rvmalloc(unsigned long size) {
- 	void *mem;
- 	unsigned long adr;
-@@ -1201,8 +1188,8 @@
- 	pos = (unsigned long)meye.grab_fbuffer;
- 
- 	while (size > 0) {
--		page = kvirt_to_pa(pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
- 			up(&meye.lock);
- 			return -EAGAIN;
- 		}
-Index: mm3-2.6.9-rc2/drivers/media/video/planb.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/media/video/planb.c	2004-09-25 00:21:50.624348120 -0700
-+++ mm3-2.6.9-rc2/drivers/media/video/planb.c	2004-09-25 00:21:57.543296280 -0700
-@@ -1995,8 +1995,10 @@
- 			return err;
- 	}
- 	for (i = 0; i < pb->rawbuf_size; i++) {
--		if (remap_page_range(vma, start, virt_to_phys((void *)pb->rawbuf[i]),
--						PAGE_SIZE, PAGE_SHARED))
-+		unsigned long pfn;
-+
-+		pfn = virt_to_phys((void *)pb->rawbuf[i]) >> PAGE_SHIFT;
-+		if (remap_pfn_range(vma, start, pfn, PAGE_SIZE, PAGE_SHARED))
- 			return -EAGAIN;
- 		start += PAGE_SIZE;
- 		if (size <= PAGE_SIZE)
-Index: mm3-2.6.9-rc2/drivers/media/video/zoran_driver.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/media/video/zoran_driver.c	2004-09-25 00:21:50.625347968 -0700
-+++ mm3-2.6.9-rc2/drivers/media/video/zoran_driver.c	2004-09-25 00:21:57.544296128 -0700
-@@ -4448,12 +4448,6 @@
- 	.close = zoran_vm_close,
- };
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
--#define zr_remap_page_range(a,b,c,d,e) remap_page_range(b,c,d,e)
--#else
--#define zr_remap_page_range(a,b,c,d,e) remap_page_range(a,b,c,d,e)
--#endif
--
- static int
- zoran_mmap (struct file           *file,
- 	    struct vm_area_struct *vma)
-@@ -4553,12 +4547,14 @@
- 				pos =
- 				    (unsigned long) fh->jpg_buffers.
- 				    buffer[i].frag_tab[2 * j];
--				page = virt_to_phys(bus_to_virt(pos));	/* should just be pos on i386 */
--				if (zr_remap_page_range
--				    (vma, start, page, todo, PAGE_SHARED)) {
-+				/* should just be pos on i386 */
-+				page = virt_to_phys(bus_to_virt(pos))
-+								>> PAGE_SHIFT;
-+				if (remap_pfn_range(vma, start, page,
-+							todo, PAGE_SHARED)) {
- 					dprintk(1,
- 						KERN_ERR
--						"%s: zoran_mmap(V4L) - remap_page_range failed\n",
-+						"%s: zoran_mmap(V4L) - remap_pfn_range failed\n",
- 						ZR_DEVNAME(zr));
- 					res = -EAGAIN;
- 					goto jpg_mmap_unlock_and_return;
-@@ -4639,11 +4635,11 @@
- 			if (todo > fh->v4l_buffers.buffer_size)
- 				todo = fh->v4l_buffers.buffer_size;
- 			page = fh->v4l_buffers.buffer[i].fbuffer_phys;
--			if (zr_remap_page_range
--			    (vma, start, page, todo, PAGE_SHARED)) {
-+			if (remap_pfn_range(vma, start, page >> PAGE_SHIFT,
-+							todo, PAGE_SHARED)) {
- 				dprintk(1,
- 					KERN_ERR
--					"%s: zoran_mmap(V4L)i - remap_page_range failed\n",
-+					"%s: zoran_mmap(V4L)i - remap_pfn_range failed\n",
- 					ZR_DEVNAME(zr));
- 				res = -EAGAIN;
- 				goto v4l_mmap_unlock_and_return;
-Index: mm3-2.6.9-rc2/drivers/media/video/zr36120.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/media/video/zr36120.c	2004-09-25 00:21:50.625347968 -0700
-+++ mm3-2.6.9-rc2/drivers/media/video/zr36120.c	2004-09-25 00:21:57.545295976 -0700
-@@ -1474,8 +1474,8 @@
- 	/* start mapping the whole shabang to user memory */
- 	pos = (unsigned long)ztv->fbuffer;
- 	while (size>0) {
--		unsigned long page = virt_to_phys((void*)pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-+		unsigned long pfn = virt_to_phys((void*)pos) >> PAGE_SHIFT;
-+		if (remap_pfn_range(vma, start, pfn, PAGE_SIZE, PAGE_SHARED))
- 			return -EAGAIN;
- 		start += PAGE_SIZE;
- 		pos += PAGE_SIZE;
-Index: mm3-2.6.9-rc2/drivers/perfctr/virtual.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/perfctr/virtual.c	2004-09-25 00:21:50.626347816 -0700
-+++ mm3-2.6.9-rc2/drivers/perfctr/virtual.c	2004-09-25 00:21:57.546295824 -0700
-@@ -720,7 +720,8 @@
- 	perfctr = filp->private_data;
- 	if (!perfctr)
- 		return -EPERM;
--	return remap_page_range(vma, vma->vm_start, virt_to_phys(perfctr),
-+	return remap_pfn_range(vma, vma->vm_start,
-+				virt_to_phys(perfctr) >> PAGE_SHIFT,
- 				PAGE_SIZE, vma->vm_page_prot);
- }
- 
-Index: mm3-2.6.9-rc2/drivers/sbus/char/flash.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/sbus/char/flash.c	2004-09-25 00:21:50.626347816 -0700
-+++ mm3-2.6.9-rc2/drivers/sbus/char/flash.c	2004-09-25 00:21:57.546295824 -0700
-@@ -66,7 +66,7 @@
- 
- 	if ((vma->vm_pgoff << PAGE_SHIFT) > size)
- 		return -ENXIO;
--	addr += (vma->vm_pgoff << PAGE_SHIFT);
-+	addr = vma->vm_pgoff + (addr >> PAGE_SHIFT);
- 
- 	if (vma->vm_end - (vma->vm_start + (vma->vm_pgoff << PAGE_SHIFT)) > size)
- 		size = vma->vm_end - (vma->vm_start + (vma->vm_pgoff << PAGE_SHIFT));
-@@ -75,7 +75,7 @@
- 	pgprot_val(vma->vm_page_prot) |= _PAGE_E;
- 	vma->vm_flags |= (VM_SHM | VM_LOCKED);
- 
--	if (remap_page_range(vma, vma->vm_start, addr, size, vma->vm_page_prot))
-+	if (remap_pfn_range(vma, vma->vm_start, addr, size, vma->vm_page_prot))
- 		return -EAGAIN;
- 		
- 	return 0;
-Index: mm3-2.6.9-rc2/drivers/sbus/char/jsflash.c
-===================================================================
---- mm3-2.6.9-rc2.orig/drivers/sbus/char/jsflash.c	2004-09-25 00:21:50.626347816 -0700
-+++ mm3-2.6.9-rc2/drivers/sbus/char/jsflash.c	2004-09-25 00:21:57.546295824 -0700
-@@ -21,7 +21,7 @@
-  * as a silly safeguard.
-  *
-  * XXX The flash.c manipulates page caching characteristics in a certain
-- * dubious way; also it assumes that remap_page_range() can remap
-+ * dubious way; also it assumes that remap_pfn_range() can remap
-  * PCI bus locations, which may be false. ioremap() must be used
-  * instead. We should discuss this.
+--- mm3-2.6.9-rc2.orig/include/asm-h8300/pgtable.h	2004-09-25 00:15:52.500791176 -0700
++++ mm3-2.6.9-rc2/include/asm-h8300/pgtable.h	2004-09-25 00:24:11.947863680 -0700
+@@ -50,7 +50,8 @@
+  * No page table caches to initialise
   */
-Index: mm3-2.6.9-rc2/drivers/usb/class/audio.c
+ #define pgtable_cache_init()   do { } while (0)
+-#define io_remap_page_range	remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ /*
+  * All 32bit addresses are effectively valid for vmalloc...
+Index: mm3-2.6.9-rc2/include/asm-i386/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/usb/class/audio.c	2004-09-25 00:21:50.627347664 -0700
-+++ mm3-2.6.9-rc2/drivers/usb/class/audio.c	2004-09-25 00:21:57.548295520 -0700
-@@ -509,7 +509,10 @@
- 			return -EINVAL;
- 	db->mapped = 1;
- 	for(nr = 0; nr < size; nr++) {
--		if (remap_page_range(vma, start, virt_to_phys(db->sgbuf[nr]), PAGE_SIZE, prot))
-+		unsigned long pfn;
-+
-+		pfn = virt_to_phys(db->sgbuf[nr]) >> PAGE_SHIFT;
-+		if (remap_pfn_range(vma, start, pfn, PAGE_SIZE, prot))
- 			return -EAGAIN;
- 		start += PAGE_SIZE;
- 	}
-Index: mm3-2.6.9-rc2/drivers/usb/media/ov511.c
+--- mm3-2.6.9-rc2.orig/include/asm-i386/pgtable.h	2004-09-25 00:15:52.570780536 -0700
++++ mm3-2.6.9-rc2/include/asm-i386/pgtable.h	2004-09-25 00:24:15.331349312 -0700
+@@ -404,7 +404,8 @@
+ #define kern_addr_valid(addr)	(1)
+ #endif /* !CONFIG_DISCONTIGMEM */
+ 
+-#define io_remap_page_range remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
+Index: mm3-2.6.9-rc2/include/asm-ia64/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/usb/media/ov511.c	2004-09-25 00:21:50.628347512 -0700
-+++ mm3-2.6.9-rc2/drivers/usb/media/ov511.c	2004-09-25 00:21:57.550295216 -0700
-@@ -324,21 +324,6 @@
- /**********************************************************************
-  * Memory management
-  **********************************************************************/
--
--/* Here we want the physical address of the memory.
-- * This is used when initializing the contents of the area.
-- */
--static inline unsigned long
--kvirt_to_pa(unsigned long adr)
--{
--	unsigned long kva, ret;
--
--	kva = (unsigned long) page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
--	ret = __pa(kva);
--	return ret;
--}
--
- static void *
- rvmalloc(unsigned long size)
- {
-@@ -4771,9 +4756,8 @@
+--- mm3-2.6.9-rc2.orig/include/asm-ia64/pgtable.h	2004-09-25 00:15:53.354661368 -0700
++++ mm3-2.6.9-rc2/include/asm-ia64/pgtable.h	2004-09-25 00:26:25.331586272 -0700
+@@ -452,7 +452,9 @@
+ #define pte_to_pgoff(pte)		((pte_val(pte) << 1) >> 3)
+ #define pgoff_to_pte(off)		((pte_t) { ((off) << 2) | _PAGE_FILE })
  
- 	pos = (unsigned long)ov->fbuf;
- 	while (size > 0) {
--		page = kvirt_to_pa(pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE,
--				     PAGE_SHARED)) {
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
- 			up(&ov->lock);
- 			return -EAGAIN;
- 		}
-Index: mm3-2.6.9-rc2/drivers/usb/media/se401.c
+-#define io_remap_page_range remap_page_range	/* XXX is this right? */
++/* XXX is this right? */
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ /*
+  * ZERO_PAGE is a global shared page that is always zero: used
+Index: mm3-2.6.9-rc2/include/asm-m32r/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/usb/media/se401.c	2004-09-25 00:21:50.628347512 -0700
-+++ mm3-2.6.9-rc2/drivers/usb/media/se401.c	2004-09-25 00:21:57.551295064 -0700
-@@ -65,20 +65,6 @@
-  * Memory management
-  *
-  **********************************************************************/
--
--/* Here we want the physical address of the memory.
-- * This is used when initializing the contents of the area.
-- */
--static inline unsigned long kvirt_to_pa(unsigned long adr)
--{
--	unsigned long kva, ret;
--
--	kva = (unsigned long) page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
--	ret = __pa(kva);
--	return ret;
--}
--
- static void *rvmalloc(unsigned long size)
- {
- 	void *mem;
-@@ -1182,8 +1168,8 @@
- 	}
- 	pos = (unsigned long)se401->fbuf;
- 	while (size > 0) {
--		page = kvirt_to_pa(pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
- 			up(&se401->lock);
- 			return -EAGAIN;
- 		}
-Index: mm3-2.6.9-rc2/drivers/usb/media/sn9c102_core.c
+--- mm3-2.6.9-rc2.orig/include/asm-m32r/pgtable.h	2004-09-25 00:15:52.258827960 -0700
++++ mm3-2.6.9-rc2/include/asm-m32r/pgtable.h	2004-09-25 00:26:29.748914736 -0700
+@@ -408,7 +408,8 @@
+ /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
+ #define kern_addr_valid(addr)	(1)
+ 
+-#define io_remap_page_range	remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+ #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
+Index: mm3-2.6.9-rc2/include/asm-m68k/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/usb/media/sn9c102_core.c	2004-09-25 00:21:50.628347512 -0700
-+++ mm3-2.6.9-rc2/drivers/usb/media/sn9c102_core.c	2004-09-25 00:21:57.552294912 -0700
-@@ -101,18 +101,6 @@
- };
+--- mm3-2.6.9-rc2.orig/include/asm-m68k/pgtable.h	2004-09-25 00:15:52.948723080 -0700
++++ mm3-2.6.9-rc2/include/asm-m68k/pgtable.h	2004-09-25 00:26:38.698554184 -0700
+@@ -138,7 +138,8 @@
  
- /*****************************************************************************/
--
--static inline unsigned long kvirt_to_pa(unsigned long adr)
--{
--	unsigned long kva, ret;
--
--	kva = (unsigned long)page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1);
--	ret = __pa(kva);
--	return ret;
--}
--
--
- static void* rvmalloc(size_t size)
- {
- 	void* mem;
-@@ -1568,8 +1556,8 @@
+ #define kern_addr_valid(addr)	(1)
  
- 	pos = (unsigned long)cam->frame[i].bufmem;
- 	while (size > 0) { /* size is page-aligned */
--		page = kvirt_to_pa(pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE, 
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page, PAGE_SIZE, 
- 		                     vma->vm_page_prot)) {
- 			up(&cam->fileop_sem);
- 			return -EAGAIN;
-Index: mm3-2.6.9-rc2/drivers/usb/media/stv680.c
+-#define io_remap_page_range remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ /* MMU-specific headers */
+ 
+Index: mm3-2.6.9-rc2/include/asm-m68knommu/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/usb/media/stv680.c	2004-09-25 00:21:50.629347360 -0700
-+++ mm3-2.6.9-rc2/drivers/usb/media/stv680.c	2004-09-25 00:21:57.553294760 -0700
-@@ -118,20 +118,6 @@
-  *
-  * And the STV0680 driver - Kevin
-  ********************************************************************/
--
--/* Here we want the physical address of the memory.
-- * This is used when initializing the contents of the area.
-- */
--static inline unsigned long kvirt_to_pa (unsigned long adr)
--{
--	unsigned long kva, ret;
--
--	kva = (unsigned long) page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
--	ret = __pa(kva);
--	return ret;
--}
--
- static void *rvmalloc (unsigned long size)
- {
- 	void *mem;
-@@ -1291,8 +1277,8 @@
- 	}
- 	pos = (unsigned long) stv680->fbuf;
- 	while (size > 0) {
--		page = kvirt_to_pa (pos);
--		if (remap_page_range (vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
- 			up (&stv680->lock);
- 			return -EAGAIN;
- 		}
-Index: mm3-2.6.9-rc2/drivers/usb/media/usbvideo.c
+--- mm3-2.6.9-rc2.orig/include/asm-m68knommu/pgtable.h	2004-09-25 00:15:52.805744816 -0700
++++ mm3-2.6.9-rc2/include/asm-m68knommu/pgtable.h	2004-09-25 00:26:33.911281960 -0700
+@@ -54,7 +54,8 @@
+  * No page table caches to initialise.
+  */
+ #define pgtable_cache_init()	do { } while (0)
+-#define io_remap_page_range	remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ /*
+  * All 32bit addresses are effectively valid for vmalloc...
+Index: mm3-2.6.9-rc2/include/asm-mips/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/usb/media/usbvideo.c	2004-09-25 00:21:50.629347360 -0700
-+++ mm3-2.6.9-rc2/drivers/usb/media/usbvideo.c	2004-09-25 00:21:57.554294608 -0700
-@@ -60,21 +60,6 @@
- /*******************************/
- /* Memory management functions */
- /*******************************/
--
--/*
-- * Here we want the physical address of the memory.
-- * This is used when initializing the contents of the area.
-- */
--unsigned long usbvideo_kvirt_to_pa(unsigned long adr)
--{
--	unsigned long kva, ret;
--
--	kva = (unsigned long) page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
--	ret = __pa(kva);
--	return ret;
--}
--
- static void *usbvideo_rvmalloc(unsigned long size)
- {
- 	void *mem;
-@@ -1168,8 +1153,8 @@
+--- mm3-2.6.9-rc2.orig/include/asm-mips/pgtable.h	2004-09-25 00:15:53.022711832 -0700
++++ mm3-2.6.9-rc2/include/asm-mips/pgtable.h	2004-09-25 00:26:43.204869120 -0700
+@@ -245,7 +245,8 @@
+  */
+ #define HAVE_ARCH_UNMAPPED_AREA
  
- 	pos = (unsigned long) uvd->fbuf;
- 	while (size > 0) {
--		page = usbvideo_kvirt_to_pa(pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
- 			return -EAGAIN;
+-#define io_remap_page_range remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
  
- 		start += PAGE_SIZE;
-Index: mm3-2.6.9-rc2/drivers/usb/media/vicam.c
+ /*
+  * No page table caches to initialise
+Index: mm3-2.6.9-rc2/include/asm-parisc/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/usb/media/vicam.c	2004-09-25 00:21:50.630347208 -0700
-+++ mm3-2.6.9-rc2/drivers/usb/media/vicam.c	2004-09-25 00:21:57.554294608 -0700
-@@ -351,16 +351,6 @@
- 	0x46, 0x05, 0x6C, 0x05, 0x00, 0x00
- };
+--- mm3-2.6.9-rc2.orig/include/asm-parisc/pgtable.h	2004-09-25 00:15:53.233679760 -0700
++++ mm3-2.6.9-rc2/include/asm-parisc/pgtable.h	2004-09-25 00:26:46.632348064 -0700
+@@ -505,7 +505,8 @@
  
--static unsigned long kvirt_to_pa(unsigned long adr)
--{
--	unsigned long kva, ret;
--
--	kva = (unsigned long) page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
--	ret = __pa(kva);
--	return ret;
--}
--
- /* rvmalloc / rvfree copied from usbvideo.c
-  *
-  * Not sure why these are not yet non-statics which I can reference through
-@@ -1055,8 +1045,8 @@
+ #endif /* !__ASSEMBLY__ */
  
- 	pos = (unsigned long)cam->framebuf;
- 	while (size > 0) {
--		page = kvirt_to_pa(pos);
--		if (remap_page_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
- 			return -EAGAIN;
+-#define io_remap_page_range remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
  
- 		start += PAGE_SIZE;
-Index: mm3-2.6.9-rc2/drivers/usb/media/w9968cf.c
+ /* We provide our own get_unmapped_area to provide cache coherency */
+ 
+Index: mm3-2.6.9-rc2/include/asm-ppc/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/usb/media/w9968cf.c	2004-09-25 00:21:50.630347208 -0700
-+++ mm3-2.6.9-rc2/drivers/usb/media/w9968cf.c	2004-09-25 00:21:57.556294304 -0700
-@@ -457,7 +457,6 @@
-                                unsigned long arg);
+--- mm3-2.6.9-rc2.orig/include/asm-ppc/pgtable.h	2004-09-25 00:15:52.878733720 -0700
++++ mm3-2.6.9-rc2/include/asm-ppc/pgtable.h	2004-09-25 00:26:56.175897224 -0700
+@@ -714,7 +714,8 @@
+ /* Needs to be defined here and not in linux/mm.h, as it is arch dependent */
+ #define kern_addr_valid(addr)	(1)
  
- /* Memory management */
--static inline unsigned long kvirt_to_pa(unsigned long adr);
- static void* rvmalloc(unsigned long size);
- static void rvfree(void *mem, unsigned long size);
- static void w9968cf_deallocate_memory(struct w9968cf_device*);
-@@ -611,20 +610,6 @@
- /****************************************************************************
-  * Memory management functions                                              *
-  ****************************************************************************/
--
--/* Here we want the physical address of the memory.
--   This is used when initializing the contents of the area. */
--static inline unsigned long kvirt_to_pa(unsigned long adr)
--{
--	unsigned long kva, ret;
--
--	kva = (unsigned long) page_address(vmalloc_to_page((void *)adr));
--	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
--	ret = __pa(kva);
--	return ret;
--}
--
--
- static void* rvmalloc(unsigned long size)
- {
- 	void* mem;
-@@ -2919,9 +2904,9 @@
- 		return -EINVAL;
+-#define io_remap_page_range remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
  
- 	while (vsize > 0) {
--		page = kvirt_to_pa(pos) + vma->vm_pgoff;
--		if (remap_page_range(vma, start, page, PAGE_SIZE, 
--		                     vma->vm_page_prot))
-+		page = page_to_pfn(vmalloc_to_page((void *)pos));
-+		if (remap_pfn_range(vma, start, page + vma->vm_pgoff,
-+						PAGE_SIZE, vma->vm_page_prot))
- 			return -EAGAIN;
- 		start += PAGE_SIZE;
- 		pos += PAGE_SIZE;
-Index: mm3-2.6.9-rc2/drivers/video/aty/atyfb_base.c
+ /*
+  * No page table caches to initialise
+Index: mm3-2.6.9-rc2/include/asm-ppc64/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/video/aty/atyfb_base.c	2004-09-25 00:21:53.509909448 -0700
-+++ mm3-2.6.9-rc2/drivers/video/aty/atyfb_base.c	2004-09-25 00:22:01.383712448 -0700
-@@ -1174,8 +1174,8 @@
- 		    ~(par->mmap_map[i].prot_mask);
- 		pgprot_val(vma->vm_page_prot) |= par->mmap_map[i].prot_flag;
+--- mm3-2.6.9-rc2.orig/include/asm-ppc64/pgtable.h	2004-09-25 00:15:53.290671096 -0700
++++ mm3-2.6.9-rc2/include/asm-ppc64/pgtable.h	2004-09-25 00:26:52.666430744 -0700
+@@ -492,7 +492,8 @@
+  */
+ #define kern_addr_valid(addr)	(1)
  
--		if (remap_page_range(vma, vma->vm_start + page, map_offset,
--				     map_size, vma->vm_page_prot))
-+		if (remap_pfn_range(vma, vma->vm_start + page,
-+			map_offset >> PAGE_SHIFT, map_size, vma->vm_page_prot))
- 			return -EAGAIN;
+-#define io_remap_page_range remap_page_range 
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
  
- 		page += map_size;
-Index: mm3-2.6.9-rc2/drivers/video/gbefb.c
+ void pgtable_cache_init(void);
+ 
+Index: mm3-2.6.9-rc2/include/asm-sh/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/video/gbefb.c	2004-09-25 00:15:57.556022664 -0700
-+++ mm3-2.6.9-rc2/drivers/video/gbefb.c	2004-09-25 00:22:23.818301872 -0700
-@@ -1018,8 +1018,8 @@
- 		else
- 			phys_size = TILE_SIZE - offset;
+--- mm3-2.6.9-rc2.orig/include/asm-sh/pgtable.h	2004-09-25 00:15:52.336816104 -0700
++++ mm3-2.6.9-rc2/include/asm-sh/pgtable.h	2004-09-25 00:27:27.159187048 -0700
+@@ -274,7 +274,8 @@
  
--		if (remap_page_range
--		    (vma, addr, phys_addr, phys_size, vma->vm_page_prot))
-+		if (remap_pfn_range(vma, addr, phys_addr >> PAGE_SHIFT,
-+						phys_size, vma->vm_page_prot))
- 			return -EAGAIN;
+ #define kern_addr_valid(addr)	(1)
  
- 		offset = 0;
-Index: mm3-2.6.9-rc2/drivers/video/igafb.c
+-#define io_remap_page_range remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ /*
+  * No page table caches to initialise
+Index: mm3-2.6.9-rc2/include/asm-sh64/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/video/igafb.c	2004-09-25 00:15:56.984109608 -0700
-+++ mm3-2.6.9-rc2/drivers/video/igafb.c	2004-09-25 00:22:27.153794800 -0700
-@@ -262,8 +262,8 @@
- 		pgprot_val(vma->vm_page_prot) &= ~(par->mmap_map[i].prot_mask);
- 		pgprot_val(vma->vm_page_prot) |= par->mmap_map[i].prot_flag;
+--- mm3-2.6.9-rc2.orig/include/asm-sh64/pgtable.h	2004-09-25 00:15:52.732755912 -0700
++++ mm3-2.6.9-rc2/include/asm-sh64/pgtable.h	2004-09-25 00:27:00.543233288 -0700
+@@ -479,7 +479,8 @@
+ #define PageSkip(page)		(0)
+ #define kern_addr_valid(addr)	(1)
  
--		if (remap_page_range(vma, vma->vm_start + page, map_offset,
--				     map_size, vma->vm_page_prot))
-+		if (remap_pfn_range(vma, vma->vm_start + page,
-+			map_offset >> PAGE_SHIFT, map_size, vma->vm_page_prot))
- 			return -EAGAIN;
+-#define io_remap_page_range remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ #endif /* !__ASSEMBLY__ */
  
- 		page += map_size;
-Index: mm3-2.6.9-rc2/drivers/video/sgivwfb.c
+ /*
+Index: mm3-2.6.9-rc2/include/asm-x86_64/pgtable.h
 ===================================================================
---- mm3-2.6.9-rc2.orig/drivers/video/sgivwfb.c	2004-09-25 00:15:57.032102312 -0700
-+++ mm3-2.6.9-rc2/drivers/video/sgivwfb.c	2004-09-25 00:22:31.619115968 -0700
-@@ -719,8 +719,8 @@
- 	pgprot_val(vma->vm_page_prot) =
- 	    pgprot_val(vma->vm_page_prot) | _PAGE_PCD;
- 	vma->vm_flags |= VM_IO;
--	if (remap_page_range
--	    (vma, vma->vm_start, offset, size, vma->vm_page_prot))
-+	if (remap_pfn_range(vma, vma->vm_start, offset >> PAGE_SHIFT,
-+						size, vma->vm_page_prot))
- 		return -EAGAIN;
- 	vma->vm_file = file;
- 	printk(KERN_DEBUG "sgivwfb: mmap framebuffer P(%lx)->V(%lx)\n",
-Index: mm3-2.6.9-rc2/net/packet/af_packet.c
-===================================================================
---- mm3-2.6.9-rc2.orig/net/packet/af_packet.c	2004-09-25 00:15:55.365355696 -0700
-+++ mm3-2.6.9-rc2/net/packet/af_packet.c	2004-09-25 00:28:17.338558624 -0700
-@@ -1729,7 +1729,8 @@
- 	start = vma->vm_start;
- 	err = -EAGAIN;
- 	for (i=0; i<po->pg_vec_len; i++) {
--		if (remap_page_range(vma, start, __pa(po->pg_vec[i]),
-+		if (remap_pfn_range(vma, start,
-+				     __pa(po->pg_vec[i]) >> PAGE_SHIFT,
- 				     po->pg_vec_pages*PAGE_SIZE,
- 				     vma->vm_page_prot))
- 			goto out;
+--- mm3-2.6.9-rc2.orig/include/asm-x86_64/pgtable.h	2004-09-25 00:15:53.098700280 -0700
++++ mm3-2.6.9-rc2/include/asm-x86_64/pgtable.h	2004-09-25 00:27:52.830284448 -0700
+@@ -421,7 +421,8 @@
+ 
+ extern int kern_addr_valid(unsigned long addr); 
+ 
+-#define io_remap_page_range remap_page_range
++#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
++		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
+ 
+ #define HAVE_ARCH_UNMAPPED_AREA
+ 

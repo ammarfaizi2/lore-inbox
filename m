@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130515AbRBSBq5>; Sun, 18 Feb 2001 20:46:57 -0500
+	id <S130319AbRBSBxu>; Sun, 18 Feb 2001 20:53:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130512AbRBSBqr>; Sun, 18 Feb 2001 20:46:47 -0500
-Received: from anime.net ([63.172.78.150]:61968 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S130469AbRBSBqn>;
-	Sun, 18 Feb 2001 20:46:43 -0500
-Date: Sun, 18 Feb 2001 17:47:10 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: <brian@worldcontrol.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Money stifles innovation [was: Linux stifles innovation.]
-In-Reply-To: <20010218140839.A14166@top.worldcontrol.com>
-Message-ID: <Pine.LNX.4.30.0102181745310.18324-100000@anime.net>
+	id <S130401AbRBSBxk>; Sun, 18 Feb 2001 20:53:40 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62734 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130319AbRBSBx3>; Sun, 18 Feb 2001 20:53:29 -0500
+Subject: Re: Proliant hangs with 2.4 but works with 2.2.
+To: lafanga1@hotmail.com (lafanga lafanga)
+Date: Mon, 19 Feb 2001 01:53:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F91i3lDraH8kvLMxLQn00012fe9@hotmail.com> from "lafanga lafanga" at Feb 18, 2001 11:08:11 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14UfWc-00028y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Feb 2001 brian@worldcontrol.com wrote:
-> On Sun, Feb 18, 2001 at 12:57:14AM -0800, Dan Hollis wrote:
-> > The XOR patent and the fraudulent enforcement of it is the purest
-> > embodiment of everything that is wrong with the patent system and IP law.
-> As a person with a some decades of experience with patents and
-> trademarks, and playing among the various sides, I can state
-> quite unequivocally that the problem is money.
+> The programs 'gpm', 'kudzu' and 'startx' all hang the server immediately 
+> after they exit (with exit status 0). I cannot pinpoint why the kernel hangs 
+> and would appreciate any help. The only thing I suspect it may be is that it 
 
-Actually the problem is lack of morals and bad people who are really evil
-at the core (you wouldnt want them for your neighbor).
+The three of them all touch the mouse. Does 
 
--Dan
+dd if=/dev/psaux of=/dev/null count=256
+
+also hang the box ?
 

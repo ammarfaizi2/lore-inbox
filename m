@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129136AbRBNUyg>; Wed, 14 Feb 2001 15:54:36 -0500
+	id <S129879AbRBNUyQ>; Wed, 14 Feb 2001 15:54:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131175AbRBNUy1>; Wed, 14 Feb 2001 15:54:27 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59153 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129136AbRBNUyU>; Wed, 14 Feb 2001 15:54:20 -0500
-Subject: Re: IDE DMA Problems...system hangs
-To: jsidhu@arraycomm.com (Jasmeet Sidhu)
-Date: Wed, 14 Feb 2001 20:54:26 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jsidhu@arraycomm.com (Jasmeet Sidhu),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.2.1.2.20010214123238.023ea9c0@pop.arraycomm.com> from "Jasmeet Sidhu" at Feb 14, 2001 12:40:01 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129136AbRBNUyH>; Wed, 14 Feb 2001 15:54:07 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:39696 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129909AbRBNUx6>; Wed, 14 Feb 2001 15:53:58 -0500
+Date: Wed, 14 Feb 2001 14:53:50 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ECN for servers ?
+In-Reply-To: <96eqhm$33k$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.3.96.1010214145253.30758C-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14T8wg-00061Z-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >You will get horribly bad performance off raid5 if you have stripes on both
-> >hda/hdb  or hdc/hdd etc.
+On 14 Feb 2001, H. Peter Anvin wrote:
+> By author:    Petru Paler <ppetru@ppetru.net>
+> > What is the impact of enabling ECN on the server side ? I mean, will
+> > any clients (with broken firewalls) be affected if a SMTP/HTTP server
+> > has ECN enabled ?
+
+> Pro: better behaviour in presence of network congestion.
 > 
-> If I am reading this correctly, then by striping on both hda/hdb and 
-> /hdc/hdd you mean that I have two drives per ide channel.  In other words, 
-> you think I have a Master and a Slave type of a setup?  This is 
-> incorrect.  Each drive on the system is a master.  I have 5 promise cards 
+> Con: people behind broken firewalls can't connect.
 
-Ok then your performance should be fine (at least reasonably so, the lack
-of tagged queueing does hurt)
+Since you can use ICMP to tunnel data, a lot of security ppl are
+reluctant to stop filtering ICMP :/
 
-> ide chanel, the penalty should not be much in terms of performance.  Maybe 
-> its just that the hdparam utility is not a good tool for benchamarking a 
-> raid set?
+	Jeff
 
-Its not a good raid benchmark tool but its a good indication of general problems.
-Bonnie is a good tool for accurate assessment.
 
-> disable DMA if its giving it a lot of problems, but it should not hang.  I 
-> have been experiencing this for quite a while with the newer 
-> kernels.  Should I try the latest ac13 patch?  I glanced of the changes and 
-> didnt seem like anything had changed regarding the ide subsystem.
 
-I've not changed anything related to DMA handling specifically. The current
--ac does have a fix for a couple of cases where an IDE reset on the promise
-could hang the box dead. That may be the problem.
 
-> Is there anyway I can force the kernel to output more messages...maybe that 
-> could help narrow down the problem?
-
-Ask andre@linux-ide.org. He may know the status of the promise support

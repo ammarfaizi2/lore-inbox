@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267647AbTAMQcV>; Mon, 13 Jan 2003 11:32:21 -0500
+	id <S267788AbTAMQYn>; Mon, 13 Jan 2003 11:24:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267812AbTAMQcR>; Mon, 13 Jan 2003 11:32:17 -0500
-Received: from mail.comlab.ox.ac.uk ([163.1.27.1]:10513 "EHLO
-	mail.comlab.ox.ac.uk") by vger.kernel.org with ESMTP
-	id <S267675AbTAMQcO>; Mon, 13 Jan 2003 11:32:14 -0500
-Date: Mon, 13 Jan 2003 16:41:03 +0000
-From: Ian Collier <Ian.Collier@comlab.ox.ac.uk>
-To: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Dell precision M50 and _very_ slow process startup
-Message-ID: <20030113164103.G5472@comlab.ox.ac.uk>
-Mail-Followup-To: linux-laptop@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <200301131627.h0DGRX101413@rapfast.petcom.com>
-Mime-Version: 1.0
+	id <S267541AbTAMQYn>; Mon, 13 Jan 2003 11:24:43 -0500
+Received: from mail.isolate.net ([12.46.185.253]:9745 "HELO isolate.net")
+	by vger.kernel.org with SMTP id <S267692AbTAMQYm>;
+	Mon, 13 Jan 2003 11:24:42 -0500
+Date: Mon, 13 Jan 2003 11:33:12 -0500
+From: shuz@isolate.net
+X-Mailer: The Bat! (v1.61) UNREG / CD5BF9353B3B7091
+Reply-To: shuz@isolate.net
+X-Priority: 3 (Normal)
+Message-ID: <69415931157.20030113113312@isolate.net>
+To: linux-kernel@vger.kernel.org
+Subject: kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200301131627.h0DGRX101413@rapfast.petcom.com>; from roe@petcom.com on Mon, Jan 13, 2003 at 10:27:32AM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 10:27:32AM -0600, Roe Peterson wrote:
-> I'm guessing that this process watches for cd insertion, changes
-> to home directory, et. al.
+Hi,
 
-Something like that.  I think it's part of GNOME and is responsible for
-making sure there's a CD icon on the screen, or something.
+First let me apologize if this doesn't belong on the list, I wasn't
+sure where to ask and I want to make sure this is a non-fatal error
+(100% of the time).
 
-We had a different problem with this beast after installing RH6 some
-time ago.  Every few seconds it would cause a spew of messages to the
-syslog reporting basically what we knew: there is no CD in the drive.
-It turned out though that these messages went away when the CD was
-properly reconfigured as a CD-writer by appending "hdc=ide-scsi" to
-the boot parameters.  Not that this is at all relevant...
+www1 is a Dual PIII 733, 1G ram, eepro100 network card. gets around
+15-35mbits of traffic.
 
-Anyway, no I don't know much about it.
+www3 is a Dual P3 1GHZ with 1G ram, and also an eepro100 network card.
+load balanced with www1, 15-35mbits of traffic.
 
-imc
+around 5 days ago I updated to 2.4.20 (from 2.4.18) and noticed these
+kernel (errors?) this morning at around the same time on each server.
+
+Jan 13 09:12:38 www1 kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+Jan 13 09:12:38 www1 kernel: KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)
+
+Jan 13 09:08:44 www3 kernel: KERNEL: assertion (newsk->state != TCP_SYN_RECV) failed at tcp.c(2229)
+Jan 13 09:08:44 www3 kernel: KERNEL: assertion ((1<<sk2->state)&(TCPF_ESTABLISHED|TCPF_CLOSE_WAIT|TCPF_CLOSE)) failed at af_inet.c(689)  
+
+if someone could please provide insight on exactly what is happening
+when this happens, it would be greatly appreciated. are there any side
+effects? is this a kernel bug?
+
+if you need more information please let me know.
+
+Thanks,
+Mike
+
+

@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266676AbTADDQT>; Fri, 3 Jan 2003 22:16:19 -0500
+	id <S265894AbTADD3s>; Fri, 3 Jan 2003 22:29:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266660AbTADDQS>; Fri, 3 Jan 2003 22:16:18 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:29927 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S266649AbTADDQR>;
-	Fri, 3 Jan 2003 22:16:17 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 4 Jan 2003 04:24:32 +0100 (MET)
-Message-Id: <UTC200301040324.h043OWK09534.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, mdharm-kernel@one-eyed-alien.net
-Subject: Re: inquiry in scsi_scan.c
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
+	id <S266186AbTADD3s>; Fri, 3 Jan 2003 22:29:48 -0500
+Received: from dp.samba.org ([66.70.73.150]:17090 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265894AbTADD3r>;
+	Fri, 3 Jan 2003 22:29:47 -0500
+Date: Sat, 4 Jan 2003 14:33:45 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Avery Fay <avery_fay@symantec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Gigabit/SMP performance problem
+Message-ID: <20030104033345.GC19888@krispykreme>
+References: <OFC4D9AF0E.DA93F4D7-ON85256CA3.0058C567-85256CA3.00592873@symantec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFC4D9AF0E.DA93F4D7-ON85256CA3.0058C567-85256CA3.00592873@symantec.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By the way - there are other cases where the INQUIRY length is
-reported incorrectly. Another device does:
+ 
+> I'm working with a dual xeon platform with 4 dual e1000 cards on different 
+> pci-x buses. I'm having trouble getting better performance with the second 
+> cpu enabled (ht disabled). With a UP kernel (redhat's 2.4.18), I can route 
+> about 2.9 gigabits/s at around 90% cpu utilization. With a SMP kernel 
+> (redhat's 2.4.18), I can route about 2.8 gigabits/s with both cpus at 
+> around 90% utilization. This suggests to me that the network code is 
+> serialized. I would expect one of two things from my understanding of the 
+> 2.4.x networking improvements (softirqs allowing execution on more than 
+> one cpu):
 
-usb_stor_bulk_transfer_buf(): xfer 37 bytes
- 00 80 02 02 20 00 00 00 65 55 53 42 20 20 20 20
- 43 6F 6D 70 61 63 74 20 46 6C 61 73 68 20 20 20
- 00 00 00 00
-usb-storage: Status code 0; transferred 36/37
-usb-storage: -- short transfer
+The Fujitsu guys have a nice summary of this:
 
-In other words, we asked for 36, got 36 but the 0x20
-indicated that the full length is 37. So we ask a second time,
-but learn that only 36 bytes are available.
+http://www.labs.fujitsu.com/en/techinfo/linux/lse-0211/index.html
 
-An off-by-one, as happens more often.
+Skip forward to page 8.
 
-Fortunately this device does not hang, so is not yet a reason
-to introduce additional patch code.
+Dont blame the networking code just yet :) Notice how worse UP vs SMP
+performance is on the P4 compared to the P3?
 
-Andries
+This brings up another point, is a single CPU with hyperthreading worth
+it? As Rusty will tell you, you need to compare it with a UP kernel
+since it avoids all the locking overhead. I suspect for a lot of cases
+HT will be a loss (imagine your case, comparing UP and one CPU HT)
+
+Anton

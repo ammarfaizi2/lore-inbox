@@ -1,136 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315266AbSG3Hib>; Tue, 30 Jul 2002 03:38:31 -0400
+	id <S315198AbSG3HeN>; Tue, 30 Jul 2002 03:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315218AbSG3Hib>; Tue, 30 Jul 2002 03:38:31 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:26598 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S315119AbSG3Hi3>; Tue, 30 Jul 2002 03:38:29 -0400
-Message-Id: <5.1.0.14.2.20020730002724.00a407f0@mail.attbi.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 30 Jul 2002 00:41:42 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, rwhite@pobox.com
-From: Robert White <rwhite@pobox.com>
-Subject: Re: n_tty.c driver patch (semantic and performance correction)
-  (a ll recent versions)
-Cc: Andries Brouwer <aebr@win.tue.nl>, Russell King <rmk@arm.linux.org.uk>,
-       Ed Vance <EdV@macrolink.com>, "'Theodore Tso'" <tytso@mit.edu>,
-       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-In-Reply-To: <1027886676.790.5.camel@irongate.swansea.linux.org.uk>
-References: <200207271934.27102.rwhite@pobox.com>
- <11E89240C407D311958800A0C9ACF7D13A789A@EXCHANGE>
- <200207271507.56873.rwhite@pobox.com>
- <20020727232129.GA26742@win.tue.nl>
- <200207271934.27102.rwhite@pobox.com>
+	id <S315214AbSG3HeN>; Tue, 30 Jul 2002 03:34:13 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:14232 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315198AbSG3HeM>;
+	Tue, 30 Jul 2002 03:34:12 -0400
+Date: Tue, 30 Jul 2002 09:37:12 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Nathan Conrad <conrad@bungled.net>
+Cc: linuxconsole-dev <linuxconsole-dev@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Customization of input drivers
+Message-ID: <20020730093712.B3027@ucw.cz>
+References: <20020729021110.GA25161@bungled.net> <20020730021731.GA26488@bungled.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020730021731.GA26488@bungled.net>; from conrad@bungled.net on Mon, Jul 29, 2002 at 10:17:31PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Um... "no duh"  (I have been programming Unix boxen for twenty years)
+On Mon, Jul 29, 2002 at 10:17:31PM -0400, Nathan Conrad wrote:
 
-In point of fact I specifically AND repeatedly stated that there would 
-probably be no change to human-interactive applications.
+> Thanks for your reply. I accidently deleted your message after reading
+> it.
+> 
+> I believe that the following would not be kernel bloat. Currently, the
+> kernel does have keyboard remapping abilities (although I do not know
+> the implementation details). Keyboard mapping _needs_ to be done at
+> the kernel level because of the console layer. I need to be able to
+> type with the dvorak layout soon after init is loaded. I do not want
+> to run something like X in order to get a text console. If this
+> remapping was done inside of input.c or evdev.c, this would kill two
+> birds with one stone: keyboard re-mapping and mouse event re-mapping.
 
-On the other hand there are a wide number of applications that do have need 
-for variable packet lengths, VMIN/VTIME style timeouts and known, but 
-variable sized or larger than 256 byte packet sizes.
+Well, no again. Keyboard remapping is done in keyboard.c (and not in the
+input core) for a very good reason - the input core maps the
+hardware-dependent scancodes to linux input event keycodes, which are
+the same on every platform. Thus you can have the same keymap loaded
+into keyboard.c to use the dvorak layout on a Sun, PC, Amiga, Mac, etc.
 
-The entire "smart card" arena is one such set of applications.  Also test 
-gear, and simple X/Y/Z modem type transfers.
+> Mouse mapping is not strictly needed here. It is just a nice side
+> effect of moving mapping into input.c
 
-If it talks at serial speeds, if it has any kind of TIMEOUT feature and/or 
-if it doesn't makes sense to strobe it out with no-delay reads (e.g. 
-perhaps because there isn't any background-worthy in-application task 
-n'cest pa?)  Then having the VMIN and VTIME behaviors, but not having them 
-block for un-asked for characters or unconscionably short packets makes 
-lots of sense.
+But if you do it in userspace, you can also do all the nice gesture
+stuff and sliders at the edge of touchpads and ... which you wouldn't be
+able to do in the kernel generically enough and still pass the bloat
+measure.
 
-As I said, repeatedly calling the kernel TO ASSEMBLE AN INPUT BUFFER if 
-VMIN == 1 IS DUMB.
+> Perhaps two mappings would be necessary: one for the scan codes->linux
+> keycodes (which would be in the keyboard's driver) and another for
+> linux codes->input events.
+> 
+> > I like for the left button sends a BTN_MIDDLE event while the touchpad
+> > sends BTN_TOUCH. Is there a map somewhere that can change these button
+> > mappings at runtime? Looking at mousdev.c, the BTN_TOUCH, BTN_LEFT,
+> > and BTN_0 all send a mouse-0 event to the mouse device.... I would
+> > like for my driver to be able to send a BTN_LEFT event when I click
+> > the left button and have that converted somewhere into a mouse-1 event.
+> 
+> The touchpad itself reports when there has been a touch click or a
+> drag. In order for this configuration to be done in userspace, there
+> are two options:
+> 
+> 1) report the finger movements and use some complex, time-critical
+> algorithm to determine if the user wants the touch to be translated
+> into holding the mouse button down or if the user wants a click and
+> then to move the mouse or a double click.
 
-Reading out single (raw) keystrokes isn't "ASSEMBLING AN INPUT BUFFER", it 
-is INTERACTING WITH A USER.  [For the audience that is reading along: (in 
-cooked mode the buffer assembly happens in... gasp... one read call...) (in 
-an editor, for example, or a similar application where VMIN==1 us used, the 
-task of aggregating the input into storage is not so straight forward as 
-assembling an input buffer as the nature of each keystroke may impact the 
-larger state of the program)
+Actually time is not critical anymore with input drivers, because we
+report precise timestamps to the userspace.
 
-When reading data from a non-human source the predictability goes up and 
-the buffered data can be more efficiently blocked out by known predicates, 
-etc.  This is the audience for the patch.
+> 2) Let the hareware handle it, and add some new event such as BTN_TOUCH_DRAG.
+> 
+> I am not sure as to if kernel configuration or the second choice above
+> would be the best.
 
-Rob.
+I quite like option #2. I'd call it BTN_DRAG probably only. 
 
+> > Another configuration flag that I would like to export to userspace is
+> > if the user wants to be able to use the touchpad to click, and if so,
+> > also be able to use a drag-lock. Many people that I know hate these
+> > options....
+> 
+> > The ABS_* events seem to be directed towards toucdscreens and drawing
+> > tablets. Is it the right thing to do to convert to REL_ events in
+> > psmouse.c?
+> 
+> Now that I think about it, this point seems moot. The psmouse driver
+> is the only place where it would have mattered. It is a hack and
+> should die. 
+> 
+> On a side note, I like being able to mix multiple mouse devices. This
+> should be done in gpm, etc.... What is supposed to happen when a
+> device is hot-plugged? Will the hotplug daemon have to restart gpm
+> (and supply the correct arguments) when a device is removed or added?
 
-At 21:04 7/28/2002 +0100, Alan Cox wrote:
->On Sun, 2002-07-28 at 03:34, Robert White wrote:
-> > Having virtually every user on the planet realize this and just set 
-> VMIN == 1
-> > is an fairly telling indicator.
-> >
-> > Repeatedly calling the kernel to assemble an input buffer which is 
-> necessary
-> > if VMIN ==1, is dumb.
->
->VMIN was basically invented for communication protocols when you know
->the block length that should arrive within a given timeout. Its pretty
->much essential on old old boxes and was very important for
->interrupt/context switch reduction when doing block transfers. In that
->world the read blocks or in O_NDELAY returns -EAGAIN (0 in old SYS5)
->until the data block is big enough to warrant its copying. Similarly
->poll has no business saying data is ready until a large enough block is.
->
->When talking to a human setting VMIN > 1 makes no sense anyway. In fact
->nowdays it makes even less sense than it did before because of the use
->of UTF8 encodings for unicode characters.
+The hotplug agent (not a daemon, it's executed again on each hotplug
+event) will do anything you want. Namely it can send a SIGUSR to gpm, or
+connect to the X socket and explain the existence of a new device via
+the XFree86-Misc extension.
 
-----------------------------------------------------------------------
--- Rob White         --  Consider: for all vectors v, Cv - Cv = 0   --
--- rwhite@pobox.com  --    general relativity is thus disproved.    --
-----------------------------------------------------------------------
--- There once was a man who claimed nothing was true,               --
---   he was later, of course, found to be lying.                    --
-----------------------------------------------------------------------
------BEGIN PGP PUBLIC KEY BLOCK-----
-Version: PGPfreeware 7.0.3 for non-commercial use <http://www.pgp.com>
+> On the same Sony laptop, a key sometimes gets stuck down. It is almost
+> always the shift key. The enter key started repeating right after I
+> typed 'sudo halt'. My guess is that the key-release event is
+> getting lost somewhere and the autorepeat (now done in software and
+> not the keyboard that knows the correct state) is doing its job too
+> well. Could you give me some pointers in debugging this? This happens
+> in X and in the console.
 
-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
-=Zx5A
------END PGP PUBLIC KEY BLOCK-----
+There may be a bug in the autorepeat code. I think there is a small race
+window which can cause the autorepeat continue even after the key is
+released if the autorepeat timer code is running at the time the key is
+being released.
 
+I'll try to fix it today and if it still has problems on your machine
+after that, we'll debug it there.
+
+> Is there a mailing list somewhere to which I should be sending this
+> message?
+
+Cc:ed. Btw, linux-kernel could be interested, too.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

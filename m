@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261925AbREXNfr>; Thu, 24 May 2001 09:35:47 -0400
+	id <S261932AbREXNf1>; Thu, 24 May 2001 09:35:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261924AbREXNf1>; Thu, 24 May 2001 09:35:27 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:37386 "EHLO
+	id <S261924AbREXNfR>; Thu, 24 May 2001 09:35:17 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:34570 "EHLO
 	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261925AbREXNfZ>; Thu, 24 May 2001 09:35:25 -0400
-Date: Thu, 24 May 2001 15:29:58 +0200
+	id <S261925AbREXNfM>; Thu, 24 May 2001 09:35:12 -0400
+Date: Thu, 24 May 2001 15:20:48 +0200
 From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Linux USB users list <linux-usb-users@lists.sourceforge.net>
-Cc: mwm@i.am, Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Fix ov511 compile time bug in 2.4.5-pre5
-Message-ID: <20010524152958.E1477@arthur.ubicom.tudelft.nl>
+To: Rodrigo Ventura <yoda@isr.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patch to put IDE drives in sleep-mode after an halt
+Message-ID: <20010524152048.D1477@arthur.ubicom.tudelft.nl>
+In-Reply-To: <lx4rubc8kq.fsf@pixie.isr.ist.utl.pt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <lx4rubc8kq.fsf@pixie.isr.ist.utl.pt>; from yoda@isr.ist.utl.pt on Thu, May 24, 2001 at 12:03:49PM +0100
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, May 24, 2001 at 12:03:49PM +0100, Rodrigo Ventura wrote:
+>         I am submitting a patch to kernel/sys.c that walks through all
+> IDE drives (#ifdef CONFIG_BLK_DEV_IDE, of course), and issues a
+> "sleep" command (as code in hdparam) to each one of them right before
+> the kernel halts. Here goes the diff:
 
-The ov511 driver in 2.4.5-pre5 couldn't be compiled because version was
-replaced by DRIVER_VERSION. Please apply this trivial fix.
+What was wrong with "hdparm -Y /dev/hd*" in the halt/reboot script that
+you need to do it in kernel?
 
 
 Erik
-
---- drivers/usb/ov511.c.orig	Thu May 24 15:21:58 2001
-+++ drivers/usb/ov511.c	Thu May 24 15:24:20 2001
-@@ -337,7 +337,7 @@
- 	/* IMPORTANT: This output MUST be kept under PAGE_SIZE
- 	 *            or we need to get more sophisticated. */
- 
--	out += sprintf (out, "driver_version  : %s\n", version);
-+	out += sprintf (out, "driver_version  : %s\n", DRIVER_VERSION);
- 	out += sprintf (out, "custom_id       : %d\n", ov511->customid);
- 	out += sprintf (out, "model           : %s\n", ov511->desc ?
- 		clist[ov511->desc].description : "unknown");
-
 
 -- 
 J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department

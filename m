@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130848AbRBNUmG>; Wed, 14 Feb 2001 15:42:06 -0500
+	id <S130043AbRBNUpq>; Wed, 14 Feb 2001 15:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131171AbRBNUls>; Wed, 14 Feb 2001 15:41:48 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:25869 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130848AbRBNUln>; Wed, 14 Feb 2001 15:41:43 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: ECN for servers ?
-Date: 14 Feb 2001 12:41:26 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <96eqhm$33k$1@cesium.transmeta.com>
-In-Reply-To: <20010214190128.G923@ppetru.net>
+	id <S130826AbRBNUpg>; Wed, 14 Feb 2001 15:45:36 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:11755 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130644AbRBNUpY>; Wed, 14 Feb 2001 15:45:24 -0500
+Message-ID: <3A8AEDB9.59721801@sympatico.ca>
+Date: Wed, 14 Feb 2001 15:42:34 -0500
+From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: "Gord R. Lamb" <glamb@lcis.dyndns.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Samba performance / zero-copy network I/O
+In-Reply-To: <Pine.LNX.4.32.0102141452210.27843-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010214190128.G923@ppetru.net>
-By author:    Petru Paler <ppetru@ppetru.net>
-In newsgroup: linux.dev.kernel
+"Gord R. Lamb" wrote:
+
+> Hi everyone,
 >
-> Hello,
-> 
-> What is the impact of enabling ECN on the server side ? I mean, will
-> any clients (with broken firewalls) be affected if a SMTP/HTTP server
-> has ECN enabled ?
-> 
-> On the other hand, is there any advantage with ECN enabled on the server
-> side ?
-> 
+> I'm trying to optimize a box for samba file serving (just contiguous block
+> I/O for the moment), and I've now got both CPUs maxxed out with system
+> load.
+>
+> (For background info, the system is a 2x933 Intel, 1gb system memory,
+> 133mhz FSB, 1gbit 64bit/66mhz FC card, 2x 1gbit 64/66 etherexpress boards
+> in etherchannel bond, running linux-2.4.1+smptimers+zero-copy+lowlatency)
+>
+> CPU states typically look something like this:
+>
+> CPU states:  3.6% user,  94.5% system,  0.0% nice, 1.9% idle
+>
+> .. with the 3 smbd processes each drawing around 50-75% (according to
+> top).
+>
+> When reading the profiler results, the largest consuming kernel (calls?)
+> are file_read_actor and csum_partial_copy_generic, by a longshot (about
+> 70% and 20% respectively).
+>
+> Presumably, the csum_partial_copy_generic should be eliminated (or at
+> least reduced) by David Miller's zerocopy patch, right?  Or am I
+> misunderstanding this completely? :)
 
-Pro: better behaviour in presence of network congestion.
+I only know enough to be dangerous here, but I believe you will need to
+be using one of the network cards whose driver actually uses the
+zero-copy patches, and/or which can perform tcp checksum in hardware
+(of the network card).
 
-Con: people behind broken firewalls can't connect.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt

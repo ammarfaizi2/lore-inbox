@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286184AbRLTGzd>; Thu, 20 Dec 2001 01:55:33 -0500
+	id <S285024AbRLTG6n>; Thu, 20 Dec 2001 01:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286183AbRLTGz1>; Thu, 20 Dec 2001 01:55:27 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:16312 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S285024AbRLTGzM>;
-	Thu, 20 Dec 2001 01:55:12 -0500
-Subject: Re: aio
-From: Robert Love <rml@tech9.net>
-To: Mike Castle <dalgoda@ix.netcom.com>
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-In-Reply-To: <20011220064651.GB32678@thune.mrc-home.com>
-In-Reply-To: <20011219224717.A3682@redhat.com>
-	<20011219.213910.15269313.davem@redhat.com>
-	<20011220005803.E3682@redhat.com>
-	<20011219.220040.55725223.davem@redhat.com> 
-	<20011220064651.GB32678@thune.mrc-home.com>
-Content-Type: text/plain
+	id <S286186AbRLTG6d>; Thu, 20 Dec 2001 01:58:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38930 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285024AbRLTG6V>; Thu, 20 Dec 2001 01:58:21 -0500
+Message-ID: <3C218BF3.6010603@zytor.com>
+Date: Wed, 19 Dec 2001 22:57:55 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Booting a modular kernel through a multiple streams file / Making Linux multiboot capable and grub loading kernel modules at boot time.
+In-Reply-To: <200112181605.KAA00820@tomcat.admin.navo.hpc.mil>	<m18zbzwp34.fsf@frodo.biederman.org> <3C205FBC.60307@zytor.com>	<m1zo4fursh.fsf@frodo.biederman.org>	<9vrlef$mat$1@cesium.transmeta.com> <m1r8pqv1w3.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 20 Dec 2001 01:55:25 -0500
-Message-Id: <1008831327.810.18.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-12-20 at 01:46, Mike Castle wrote:
-> On Wed, Dec 19, 2001 at 10:00:40PM -0800, David S. Miller wrote:
-> > No I'm not talking about phttpd nor zeus, I'm talking about the guy
-> > who did the hacks where he'd put the http headers + content into a
-> > seperate file and just sendfile() that to the client.
-> > 
-> > I forget what his hacks were named, but there certainly was a longish
-> > thread on this list about it about 1 year ago if memory serves.
+Eric W. Biederman wrote:
+
 > 
-> Would that be Fabio Riccardi's X15 stuff?
+>>Followup to:  <m1zo4fursh.fsf@frodo.biederman.org>
+>>By author:    ebiederm@xmission.com (Eric W. Biederman)
+>>In newsgroup: linux.dev.kernel
+>>
+>>>Which just goes to show what a fragile firmware design it is, to have
+>>>firmware callbacks doing device I/O.  I think the whole approach of
+>>>having firmware callbacks is fundamentally flawed but I'll do my best
+>>>to keep it working, for those things that care.  If it works over 50%
+>>>of the time I'm happy...
+>>>
+>>>
+>>NAK.  You can make it perfectly robust thankyouverymuch, as long as
+>>you don't try to *mix* firmware and poking directly at the
+>>hardware... this is a classic "who owns what" class problem.
+>>
+> 
+> I agree that I could keep it working as well as it ever would.  Not
+> that x86 firmware or any software is ever perfectly working.
+> 
 
-Yes.  I was about to reply to this effect.
 
-X15 was a userspace httpd that operated using the Tux-designed
-constructs -- sendfile and such.  IIRC, Ingo actually pointed out some
-things Fabio did were non-RFC (sending the static headers may of been
-one of them, since the timestamp was wrong) and Fabio made a lot of
-changes.  X15 seemed promising, especially since it trumpeted that Linux
-"worked" without sticking things in kernel-space, but I don't remember
-if we ever saw source (let alone a free license)?
+True enough; I guess what I meant is you can design it so that it is *no 
+less unreliable than the underlying firmware*.
 
-	Robert Love
+
+> At this point in time I live in a world where 99+% of the time the
+> hardware is owned by the operating system, and the firmware is just
+> there to get the operating system loaded, and to hold details about
+> the motherboard that the operating system can not find out by probing
+> the hardware.
+
+
+Right.  My point was that you want to treat the transition as modal -- 
+you have "boot mode" and you have "runtime".  My work was to build a 
+Linux kernel derivative which could run in "boot mode" and therefore not 
+require drivers.  The intent was that this "boot mode" kernel would then 
+load the real "runtime" kernel and transition to it.
+
+My comment was mostly that there is a persistent myth that you can't use 
+the x86 firmware from protected mode.  You can't, directly, but you can 
+get the functionality through other means.  This is hardly a new 
+technique; in fact, it's very similar to the DOS extenders of old times; 
+in fact, it's somewhat simpler.
+
+	-hpa
+
 

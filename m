@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTIEDVf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 23:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTIEDVe
+	id S261952AbTIEDup (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 23:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbTIEDup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 23:21:34 -0400
-Received: from waste.org ([209.173.204.2]:24265 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261861AbTIEDVc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 23:21:32 -0400
-Date: Thu, 4 Sep 2003 22:21:24 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add_mouse_randomness
-Message-ID: <20030905032124.GL31897@waste.org>
-References: <UTC200309042251.h84MpsX07601.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200309042251.h84MpsX07601.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.3.28i
+	Thu, 4 Sep 2003 23:50:45 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34821 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261952AbTIEDuo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 23:50:44 -0400
+Date: Thu, 4 Sep 2003 23:41:00 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Nick's scheduler policy v10
+In-Reply-To: <20030904232752.GA4102@matchmail.com>
+Message-ID: <Pine.LNX.3.96.1030904233834.20419B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 12:51:54AM +0200, Andries.Brouwer@cwi.nl wrote:
-> I do not know whether anybody cares, but the random driver
-> is a little bit broken these days.
-> 
-> Long ago:
-> Keystrokes cause randomness added via add_keyboard_randomness.
-> Mouse movements cause randomness added via add_mouse_randomness.
-> Key repeat does not add randomness.
-> 
-> Today:
-> Every keypress and every key release causes two calls of
-> add_mouse_randomness and one call of add_keyboard_randomness.
-> Key repeat causes lots of calls of add_mouse_randomness.
-> 
-> The random driver contains a mechanism (delta, delta2, delta3)
-> for estimating the amount of entropy in a stream of moments in
-> time. But the fact that every event causes two calls, very
-> quickly after each other, poisons this mechanism, and makes us
-> overestimate.
+On Thu, 4 Sep 2003, Mike Fedyk wrote:
 
-The real problem is that the deltas are calculated from gigahertz
-cycle counters, but yes, we're calling too frequently and blowing away
-useful history. I've experimented with making the deltas per-source as
-well.
+> On Thu, Sep 04, 2003 at 10:55:40PM +0000, Bill Davidsen wrote:
+> > I'll be switching back and forth for a bit, and I have no working sound,
+> > 2.6.0-test4 just doesn't like the old Soundblaster, which works with
+> > Redhat 2.4.18 whatever from RH 7.3 install. I'm trying to get a clean
+> > oops to report when loading the aha152x module, and I want to generate
+> > it without *any* patches, in case someone ever cares. Other than that I
+> 
+> I was able to generate the oops on one of my systems, and Andrew already
+> included a patch that works for me in test4-mm4.
 
-I'll put this on my todo list.
+Thanks for the pointer! Tomorrow I will get to test test4-mmX vs. plain
+test-+NickV10. There is an aweful lot of scheduler development going on...
 
 -- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

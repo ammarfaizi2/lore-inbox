@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbSLPRJI>; Mon, 16 Dec 2002 12:09:08 -0500
+	id <S266841AbSLPRNk>; Mon, 16 Dec 2002 12:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266837AbSLPRJI>; Mon, 16 Dec 2002 12:09:08 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:8120 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S266810AbSLPRJI>;
-	Mon, 16 Dec 2002 12:09:08 -0500
-Date: Mon, 16 Dec 2002 18:17:03 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: Alex Goddard <agoddard@purdue.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.52 and modules (lots of unresolved symbols)?
-Message-ID: <20021216171703.GD13198@ulima.unil.ch>
-References: <20021216094514.GA735@ulima.unil.ch> <Pine.LNX.4.50L0.0212161114360.1154-100000@dust.ebiz-gw.wintek.com>
+	id <S266844AbSLPRNk>; Mon, 16 Dec 2002 12:13:40 -0500
+Received: from bitmover.com ([192.132.92.2]:8853 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S266841AbSLPRNj>;
+	Mon, 16 Dec 2002 12:13:39 -0500
+Date: Mon, 16 Dec 2002 09:21:29 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Ben Collins <bcollins@debian.org>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
+Subject: Re: Notification hooks
+Message-ID: <20021216092129.D432@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	Ben Collins <bcollins@debian.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
+References: <20021216171218.GV504@hopper.phunnypharm.org> <1040059138.1438.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.50L0.0212161114360.1154-100000@dust.ebiz-gw.wintek.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1040059138.1438.1.camel@laptop.fenrus.com>; from arjanv@redhat.com on Mon, Dec 16, 2002 at 06:18:55PM +0100
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 16, 2002 at 11:19:00AM +0000, Alex Goddard wrote:
-
-> > I have just patched 2.5.51, and not done the make clean && make mrproper
-> > before doing a make menuconfig && make dep && make bzImage && make
-> > modules...
+On Mon, Dec 16, 2002 at 06:18:55PM +0100, Arjan van de Ven wrote:
+> On Mon, 2002-12-16 at 18:12, Ben Collins wrote:
+> > Linus, is there anyway I can request a hook so that anything that
+> > changes drivers/ieee1394/ in your repo sends me an email with the diff
+> > for just the files in that directory, and the changeset log? Is this
+> > something that bkbits can do?
 > > 
-> > Will that change anything to make clean/mrproper here?
+> > I'd bet lots of ppl would like similar hooks for their portions of the
+> > source.
 > 
-> I would give 'make clean' a try.
+> well there is the bk commits list that has all individual changesets.
+> Add procmail and the patchutils program "grepdiff" to the recipe and I
+> think we have a winner.....
 
-I am just doing that right now... I'll wait till completion to report
-the issue:
+I suspect you want to look at all the files in the cset.  I think what
+you want is a script which is given a list of files and sends a patch
+for each new changeset which touches any of those files.  Because if 
+a changeset touched drivers/ieee1394/ and include/something then you
+probably want both.
 
-No change, still the same messages :-(
-
-Thank you very much and have a great day,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+bk help triggers.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

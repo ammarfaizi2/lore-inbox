@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264673AbUEOBJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264637AbUENXg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264673AbUEOBJn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 21:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264658AbUEOBF5
+	id S264637AbUENXg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 19:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264628AbUENXfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 21:05:57 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32738 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264660AbUEOBC4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 21:02:56 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-Date: Sat, 15 May 2004 03:05:06 +0200
-User-Agent: KMail/1.5.3
-Cc: rene.herman@keyaccess.nl, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       arjanv@redhat.com
-References: <409F4944.4090501@keyaccess.nl> <20040514032657.GB704@elf.ucw.cz> <20040514175918.6b9f4c9d.akpm@osdl.org>
-In-Reply-To: <20040514175918.6b9f4c9d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 14 May 2004 19:35:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2246 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264625AbUENXdv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 19:33:51 -0400
+Date: Fri, 14 May 2004 16:36:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: heretic@clanhk.org, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: drivers/video/riva/fbdev.c broken on x86_64
+Message-Id: <20040514163620.13b9172b.akpm@osdl.org>
+In-Reply-To: <je4qqi1yxp.fsf@sykes.suse.de>
+References: <40A514BD.1050308@clanhk.org>
+	<je4qqi1yxp.fsf@sykes.suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405150305.06385.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 of May 2004 02:59, Andrew Morton wrote:
-> Pavel Machek <pavel@ucw.cz> wrote:
-> > > > It's a bit grubby, but we could easily add a fourth state to
-> > > >  `system_state': split SYSTEM_SHUTDOWN into SYSTEM_REBOOT and
-> > > > SYSTEM_HALT. That would be a quite simple change.
-> > >
-> > > Like this.  I checked all the SYSTEM_FOO users and none of them seem to
-> > > care about the shutdown state at present.  Easy.
-> >
-> > Perhaps this should be parameter to device_shutdown? This is quite
-> > ugly.
+Andreas Schwab <schwab@suse.de> wrote:
 >
-> Rather than a parameter to ->shutdown it would be better to add a new
-> ->restart method to devices and IDE can implement one of those.
->
-> I don't know if it's worth the effort though.  Is any other driver likely
-> to want to discriminate between reboot and shutdown?
+>          for (i = 0; i < h; i++) {
+> > ->             b = *((u32 *)data);
+> >                 b = (u32)((u32 *)b + 1);
+> > ->              m = *((u32 *)mask);
+> >                 m = (u32)((u32 *)m + 1);
+> 
+> It appears that someone tried to fix the use of cast as lvalue and failed
+> miserably.
 
-it seems only drivers/char/watchdog/alim7101_wdt.c
-(currently uses reboot notifier for that)
+That would be me.
+
+How about we simplify things a bit?
+
+
+
+
+---
+
+ 25-akpm/drivers/video/riva/fbdev.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+diff -puN drivers/video/riva/fbdev.c~fbdev-lval-fix drivers/video/riva/fbdev.c
+--- 25/drivers/video/riva/fbdev.c~fbdev-lval-fix	Fri May 14 16:34:10 2004
++++ 25-akpm/drivers/video/riva/fbdev.c	Fri May 14 16:35:32 2004
+@@ -492,17 +492,17 @@ static inline void reverse_order(u32 *l)
+  * CALLED FROM:
+  * rivafb_cursor()
+  */
+-static void rivafb_load_cursor_image(struct riva_par *par, u8 *data, 
+-				     u8 *mask, u16 bg, u16 fg, u32 w, u32 h)
++static void rivafb_load_cursor_image(struct riva_par *par, u8 *data8,
++				     u8 *mask8, u16 bg, u16 fg, u32 w, u32 h)
+ {
+ 	int i, j, k = 0;
+ 	u32 b, m, tmp;
++	u32 *data = (u32 *)data8;
++	u32 *mask = (u32 *)mask8;
+ 
+ 	for (i = 0; i < h; i++) {
+-		b = *((u32 *)data);
+-		b = (u32)((u32 *)b + 1);
+-		m = *((u32 *)mask);
+-		m = (u32)((u32 *)m + 1);
++		b = *data++;
++		m = *mask++;
+ 		reverse_order(&b);
+ 		
+ 		for (j = 0; j < w/2; j++) {
+
+_
 

@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbUJZUrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbUJZUne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbUJZUrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 16:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbUJZUq3
+	id S261455AbUJZUne (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 16:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUJZUmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 16:46:29 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:22977 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261456AbUJZUoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 16:44:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=XfSl4FzgRMXYEAW9TBhhx88Kqvp+1g2d445Zok6osk0//56NzTA8r3wWhnHVjsN5EoV9VUbh5qImuTDiV1qWHVynYvrLaPIMnB/GhmpKO7tv16JBOdauAmhcvz+btFwzKGMBpTnLCOtLwgkcWfSfIZqJYF+rcsGWBOD1GNPAfVI=
-Message-ID: <4d8e3fd304102613447c0156b2@mail.gmail.com>
-Date: Tue, 26 Oct 2004 22:44:21 +0200
-From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-To: Dave Jones <davej@redhat.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Let's make a small change to the process
-In-Reply-To: <20041026203644.GD2307@redhat.com>
+	Tue, 26 Oct 2004 16:42:50 -0400
+Received: from fed1rmmtao12.cox.net ([68.230.241.27]:43693 "EHLO
+	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S261457AbUJZUle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 16:41:34 -0400
+Date: Tue, 26 Oct 2004 13:41:32 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jean-Christophe Dubois <jdubois@mc.com>,
+       kai@germaschewski.name, sam@ravnborg.org
+Subject: Re: [PATCH 2.6.9] kbuild warning fixes on Solaris 9
+Message-ID: <20041026204132.GD926@smtp.west.cox.net>
+References: <20041025224907.GL25154@smtp.west.cox.net> <20041026221408.GB30918@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200410260644.47307.edt@aei.ca>
-	 <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
-	 <4d8e3fd3041026050823d012dc@mail.gmail.com>
-	 <877jpdcnf5.fsf@barad-dur.crans.org>
-	 <4d8e3fd304102613165b2fb283@mail.gmail.com>
-	 <20041026203644.GD2307@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026221408.GB30918@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004 16:36:44 -0400, Dave Jones <davej@redhat.com> wrote:
-> On Tue, Oct 26, 2004 at 10:16:08PM +0200, Paolo Ciarrocchi wrote:
+On Wed, Oct 27, 2004 at 12:14:08AM +0200, Sam Ravnborg wrote:
+> On Mon, Oct 25, 2004 at 03:49:07PM -0700, Tom Rini wrote:
+> > The following set of patches is based loosely on the patches that
+> > Jean-Christophe Dubois came up with for 2.6.7.  Where as the original
+> > patches added a number of casts to unsigned char, I went the route of
+> > making the chars be explicitly signed.  I honestly don't know which
+> > route is better to go down.  Doing this is the bulk of the patch.  Out
+> > of the rest of the odds 'n ends is that on Solaris, Elf32_Word is a
+> > ulong, which means all of the printf's are unhappy (uint format, ulong
+> > arg) for most of the typedefs.
+> > 
+> > Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> > 
+> > Comments?  Beatings?  Thanks.
 > 
-> > The .Y patchset contains only important security fix (all stuff you
-> > think are important) and is weekly uploaded to kernel.org
-> >
-> > Doing that, people:
-> > -  can stop running "personal version of vanilla kernel
-> > -  don't need to wait till next Linus' release in order to have a
-> > security bug fixed
-> >
-> > We, of course, need a maintainer for it,
-> > maybe someone from OSDL (Randy?), maybe wli (he maintained his tree
-> > for a long time), maybe Alan (that is already applying these kind of
-> > fixes to his tree), maybe someone else... ?
-> 
-> 2.6-ac seems to be filling this role right now.
-> 
+> Looks much better. Applied.
 
-Correct.
-But as I user I tend to look at kernel.org and download "The latest
-stable version of the Linux kernel is".
+Great.  A coworker of mine give them a look-over and spotted a few
+places where I missed changing some casts.
 
-If the goal of -ac is to only include those fixes, why can't we rename
-it in something more "intuitive" for the final users ?
-Do you see what I mean ?
 
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+
+--- linux-2.6.9/scripts/basic/fixdep.c
++++ linux-2.6.9/scripts/basic/fixdep.c
+@@ -225,10 +225,10 @@
+ 	signed char *p, *q;
+ 
+ 	for (; m < end; m++) {
+-		if (*m == INT_CONF) { p = (char *) m  ; goto conf; }
+-		if (*m == INT_ONFI) { p = (char *) m-1; goto conf; }
+-		if (*m == INT_NFIG) { p = (char *) m-2; goto conf; }
+-		if (*m == INT_FIG_) { p = (char *) m-3; goto conf; }
++		if (*m == INT_CONF) { p = (signed char *) m  ; goto conf; }
++		if (*m == INT_ONFI) { p = (signed char *) m-1; goto conf; }
++		if (*m == INT_NFIG) { p = (signed char *) m-2; goto conf; }
++		if (*m == INT_FIG_) { p = (signed char *) m-3; goto conf; }
+ 		continue;
+ 	conf:
+ 		if (p > map + len - 7)
+--- linux-2.6.9/scripts/mod/modpost.c
++++ linux-2.6.9/scripts/mod/modpost.c
+@@ -215,7 +215,7 @@
+ 	static char line[4096];
+ 	int skip = 1;
+ 	size_t len = 0;
+-	signed char *p = (char *)file + *pos;
++	signed char *p = (signed char *)file + *pos;
+ 	char *s = line;
+ 
+ 	for (; *pos < size ; (*pos)++)
 
 -- 
-Paolo
+Tom Rini
+http://gate.crashing.org/~trini/

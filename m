@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267558AbTAGXDX>; Tue, 7 Jan 2003 18:03:23 -0500
+	id <S267542AbTAGW7L>; Tue, 7 Jan 2003 17:59:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267562AbTAGXDX>; Tue, 7 Jan 2003 18:03:23 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:25321 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267558AbTAGXDW>; Tue, 7 Jan 2003 18:03:22 -0500
-Date: Tue, 07 Jan 2003 15:11:42 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Dave Hansen <haveblue@us.ibm.com>, Andy Pfiffer <andyp@osdl.org>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       suparna@in.ibm.com, Werner Almesberger <wa@almesberger.net>
-Subject: Re: [PATCH] kexec for 2.5.54
-Message-ID: <29440000.1041981101@titus>
-In-Reply-To: <3E1B5C44.1030302@us.ibm.com>
-References: <m1smwql3av.fsf@frodo.biederman.org>	<20021231200519.A2110@in.ibm.com> <m11y3uldt9.fsf@frodo.biederman.org>	<20030103181100.A10924@in.ibm.com>  <m1fzs6j0bh.fsf_-_@frodo.biederman.org> <1041979560.12674.93.camel@andyp> <3E1B5C44.1030302@us.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S267552AbTAGW7L>; Tue, 7 Jan 2003 17:59:11 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28143 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267542AbTAGW7K>; Tue, 7 Jan 2003 17:59:10 -0500
+Date: Wed, 8 Jan 2003 00:07:42 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>, rusty@rustcorp.com.au,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [2.5 patch] MODULE_FORCE_UNLOAD must depend on MODULE_UNLOAD
+Message-ID: <20030107230742.GO6626@fs.tum.de>
+References: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ... taking poor Linus off the cc list
-> Andy Pfiffer wrote:
->> For those that have had success w/ recent vintage kernels and kexec (>
->> 2.5.48), could I get a roll-call of your machine's hardware?  Uniproc,
->> SMP, AGP, chipset, BIOS version, that kind of thing.  lspci -v,
->> /cat/proc/cpuinfo, and maybe the boot-up messages would all be
->> appreciated.
-> 
-> I've had it work on 2 IBM x86 boxes.
-> 4/8-way SMP
-> 1/4/16 GB RAM
-> no AGP
-> Intel Profusion Chipset and some funky IBM one
-> 
-> It failed on the NUMA-Q's I tried it on.  I haven't investigated any more thoroughly.
-> 
-> If you want more details, let me know.  But, I've never seen your "Calibrating delay loop..." problem.  The last time I saw problems there was when I broke the interrupt stack patches.  But, since those aren't in mainline, you shouldn't be seeing it.
+On Wed, Jan 01, 2003 at 02:55:01PM -0500, Robert P. J. Day wrote:
+
+>...
+> Loadable module support
+>     
+>     Does "Module unloading" mean whether or not I can run "rmmod"?
+>   And if I deselect this, why can I still select "Forced module
+>   unloading"?  Either I can unload or I can't, no?
+>...
+
+Thanks for spotting this, after reading kernel/module.c it seems obvious 
+to me that you are right. The following simple patch fixes it:
+
+--- linux-2.5.54/init/Kconfig.old	2003-01-08 00:05:12.000000000 +0100
++++ linux-2.5.54/init/Kconfig	2003-01-08 00:05:38.000000000 +0100
+@@ -127,7 +127,7 @@
+ 
+ config MODULE_FORCE_UNLOAD
+ 	bool "Forced module unloading"
+-	depends on MODULES && EXPERIMENTAL
++	depends on MODULE_UNLOAD && EXPERIMENTAL
+ 	help
+ 	  This option allows you to force a module to unload, even if the
+ 	  kernel believes it is unsafe: the kernel will remove the module
 
 
-Last time I saw calibrating delay loop problems, it just mean the other CPUs
-weren't getting / acting upon IPIs. I might expect that on NUMA-Q, but the
-INIT, INIT, STARTUP sequence on normal machines should kick the remote proc
-pretty damned hard and reset it. You might want to add more APIC resetting
-things (I think there are some in there that only NUMA-Q does right now ..
-try turning those on).
+> rday
 
-M.
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290520AbSAYDft>; Thu, 24 Jan 2002 22:35:49 -0500
+	id <S290528AbSAYDzN>; Thu, 24 Jan 2002 22:55:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290528AbSAYDfk>; Thu, 24 Jan 2002 22:35:40 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:11013 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290520AbSAYDf2>;
-	Thu, 24 Jan 2002 22:35:28 -0500
-Date: Fri, 25 Jan 2002 01:35:08 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <rwhron@earthlink.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18pre4aa1
-In-Reply-To: <20020124222357.C901@earthlink.net>
-Message-ID: <Pine.LNX.4.33L.0201250132450.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290536AbSAYDzD>; Thu, 24 Jan 2002 22:55:03 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:59298 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S290528AbSAYDyz>;
+	Thu, 24 Jan 2002 22:54:55 -0500
+Date: Fri, 25 Jan 2002 14:53:45 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Combined APM patch for 2.5.3-pre2
+Message-Id: <20020125145345.16953a99.sfr@canb.auug.org.au>
+In-Reply-To: <20020123173757.D78@toy.ucw.cz>
+In-Reply-To: <20020121135046.574bfa60.sfr@canb.auug.org.au>
+	<20020123173757.D78@toy.ucw.cz>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002 rwhron@earthlink.net wrote:
+Hi Pavel,
 
-> > It would be interesting to see the dbench dots from both
-> > -aa and -rmap ;)
->
-> All the dots are at:
-> http://home.earthlink.net/~rwhron/kernel/dots/
+On Wed, 23 Jan 2002 17:37:57 +0000
+Pavel Machek <pavel@suse.cz> wrote:
+> 
+> > 	Rename kapm-idled to kapmd
+> 
+> Why? Leave the name alone. It does not matter, and it changed already
+> too much in the past. It *is* idle thread!
 
-I think we have an explanation here.
-
-With dbench 192 on -aa the first processes exit around
-halfway through the dbench test and around the end only
-few processes are left.
-
-With rmap the write trottling is a bit smoother, but
-this results in all processes running to about 70% through
-the test and many more processes running at the last part
-of the test, exiting simultaneously.
-
-Considering the possible bad consequences for real
-workloads, I'm not sure I want to make the system more
-unfair just to better accomodate dbench ;)
-
-regards,
-
-Rik
+Read the patch ... it is NOT the idle thread any longer .....
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+Linux APM Maintainer

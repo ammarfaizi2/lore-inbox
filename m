@@ -1,28 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279813AbRKAWYj>; Thu, 1 Nov 2001 17:24:39 -0500
+	id <S279829AbRKAWkL>; Thu, 1 Nov 2001 17:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279815AbRKAWY3>; Thu, 1 Nov 2001 17:24:29 -0500
-Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:39090 "EHLO
-	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S279813AbRKAWYN>; Thu, 1 Nov 2001 17:24:13 -0500
-Date: Thu, 1 Nov 2001 17:24:12 -0500
-From: Tom Vier <tmv5@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: alpha tru64 mmap broken in linus kernels
-Message-ID: <20011101172412.A578@zero>
+	id <S279830AbRKAWkD>; Thu, 1 Nov 2001 17:40:03 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:7422 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S279829AbRKAWjx>; Thu, 1 Nov 2001 17:39:53 -0500
+Date: Thu, 1 Nov 2001 22:37:48 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Joan Batet <j.batet@barcelo.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, ext3-users@redhat.com,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: HIGMEM, SMP, 2.4.13 and Cerberus
+Message-ID: <20011101223748.A5289@redhat.com>
+In-Reply-To: <20011031150453.52C3D52DF0@uphill.barcelo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011031150453.52C3D52DF0@uphill.barcelo.com>; from j.batet@barcelo.com on Wed, Oct 31, 2001 at 04:06:31PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan's 2.4.13-ac* kernels work fine, but using 2.4.13, mmap fails for tru64
-binaries. i tried applying an old fix for it (similar to the one that's in
-alan's tree now), but it still fails. does anyone have a patch to fix
-mm/mmap.c in linus's kernels? 2.4.14-pre6 is still broken.
+Hi,
 
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+On Wed, Oct 31, 2001 at 04:06:31PM +0100, Joan Batet wrote:
+> As you suggested, I ran the test again with Linux-2.4.12-ac6, 
+> Linux-2.4.13-ac4 and Linux-2.4.13, this time with ext2 filesystem (the 
+> previous cerberus run was run on ext3 partitions).
+
+How does ext3 look on 2.4.12-ac6?  Pretty much all of the VM testing
+we've done on ext3 has been on Rik's VM as still present in the -ac
+tree.
+
+Cheers,
+ Stephen

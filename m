@@ -1,137 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267688AbTCFCIC>; Wed, 5 Mar 2003 21:08:02 -0500
+	id <S267692AbTCFCo7>; Wed, 5 Mar 2003 21:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267692AbTCFCIC>; Wed, 5 Mar 2003 21:08:02 -0500
-Received: from [203.94.130.164] ([203.94.130.164]:36315 "EHLO bad-sports.com")
-	by vger.kernel.org with ESMTP id <S267688AbTCFCIA>;
-	Wed, 5 Mar 2003 21:08:00 -0500
-Date: Thu, 6 Mar 2003 13:07:58 +1100 (EST)
-From: Brett <generica@email.com>
-X-X-Sender: brett@bad-sports.com
-To: Dominik Brodowski <linux@brodo.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: pcmcia no worky in 2.5.6[32]
-In-Reply-To: <20030305063635.GA2507@brodo.de>
-Message-ID: <Pine.LNX.4.44.0303061307130.15121-100000@bad-sports.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267693AbTCFCo7>; Wed, 5 Mar 2003 21:44:59 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:50671 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S267692AbTCFCo6>; Wed, 5 Mar 2003 21:44:58 -0500
+Subject: [PATCH]Fix to the new sysfs bin file support
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Mar 2003 18:38:42 -0800
+Message-Id: <1046918323.2915.45.camel@vmhack>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I happen to notice the new binary file support in sysfs and had to take
+for a spin.  If I understand this correct my write file will need to
+allocate the buffer->data, but then I have no way of freeing that memory
+since I don't get a release callback.
 
-On Wed, 5 Mar 2003, Dominik Brodowski wrote:
+Here is a patch that:
+* makes sysfs cleanup the buffer->data allocated by the attribute write
+functions
+* fixes a bug that causes the kernel to oops when somebody attempts to
+write to the file.
 
-> Hi,
-> 
-> On Wed, Mar 05, 2003 at 11:54:36AM +1100, Brett wrote:
-> > On Mon, 3 Mar 2003, Dominik Brodowski wrote:
-> > 
-> > > > Hey,
-> > > > 
-> > > > since 2.5.62, I've not been able to get pcmcia working.
-> > > > 
-> > > > Hardware: toshiba 100CS
-> > > > 
-> > > > I've attached my .config for 2.5.63,
-> > > > and a dmesg directly after boot for 2.5.61 and 2.5.63
-> > > > 
-> > > > any other details needed, please let me know
-> > > > 
-> > > > thanks,
-> > > > 
-> > > > 	/ Brett
-> > > 
-> > > Could you please try this patch? It *should* fix this problem:
-> > > 
-> > 
-> > Sadly, it didn't do a thing
-> > same dmesg/no pcmcia as vanilla 2.5.63
-> > 
-> > any other ideas ??
-> 
-> Yes: platform_match within the pcmcia core wasn't doing was it was supposed
-> to do... and it still doesn't work in 2.5.64. So could you please try if it
-> works with this patch against 2.5.64?
-> 
+BTW, would you be totally opposed to a patch that added open, release,
+and ioctl to the list of functions supported by sysfs binary files?
 
-Yep, the patch fixed it.
-Now happy in 2.5.64 with pcmcia again
+Another question... How would a driver know that the various write and
+read calls are coming from the same open, or would there be a way for a
+driver to make it so that only one thing can open the sysfs file at a
+time?
+    --rustyl
 
-many thanks,
+--- fs/sysfs/bin.c.orig	2003-03-05 18:33:44.000000000 -0800
++++ fs/sysfs/bin.c	2003-03-05 18:34:01.000000000 -0800
+@@ -50,6 +50,10 @@
+ 		ret = count;
+ 	}
+  Done:
++	if (buffer && buffer->data) {
++		kfree(buffer->data);
++		buffer->data = NULL;
++	}
+ 	return ret;
+ }
+ 
+@@ -66,7 +70,7 @@
+ static int fill_write(struct file * file, const char * userbuf, 
+ 		      struct sysfs_bin_buffer * buffer)
+ {
+-	return copy_from_user(buffer,userbuf,buffer->count) ?
++	return copy_from_user(buffer->data,userbuf,buffer->count) ?
+ 		-EFAULT : 0;
+ }
+ 
 
-	/ Brett
 
-> 
-> 
-> diff -ruN linux-original/drivers/base/platform.c linux/drivers/base/platform.c
-> --- linux-original/drivers/base/platform.c	2003-03-05 07:19:19.000000000 +0100
-> +++ linux/drivers/base/platform.c	2003-03-05 07:22:31.000000000 +0100
-> @@ -59,12 +59,9 @@
->  
->  static int platform_match(struct device * dev, struct device_driver * drv)
->  {
-> -	char name[BUS_ID_SIZE];
-> +	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
->  
-> -	if (sscanf(dev->bus_id,"%s",name))
-> -		return (strcmp(name,drv->name) == 0);
-> -
-> -	return 0;
-> +	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
->  }
->  
->  struct bus_type platform_bus_type = {
-> diff -ruN linux-original/drivers/pcmcia/hd64465_ss.c linux/drivers/pcmcia/hd64465_ss.c
-> --- linux-original/drivers/pcmcia/hd64465_ss.c	2003-03-05 07:19:13.000000000 +0100
-> +++ linux/drivers/pcmcia/hd64465_ss.c	2003-03-05 07:35:34.000000000 +0100
-> @@ -1070,8 +1070,8 @@
->  	}
->  
->  /*	hd64465_io_debug = 0; */
-> -	platform_device_register(&hd64465_device);
->  	hd64465_device.dev.class_data = &hd64465_data;
-> +	platform_device_register(&hd64465_device);
->  
->  	return 0;
->  }
-> diff -ruN linux-original/drivers/pcmcia/i82365.c linux/drivers/pcmcia/i82365.c
-> --- linux-original/drivers/pcmcia/i82365.c	2003-03-05 07:19:13.000000000 +0100
-> +++ linux/drivers/pcmcia/i82365.c	2003-03-05 07:35:34.000000000 +0100
-> @@ -1628,11 +1628,11 @@
->  	request_irq(cs_irq, pcic_interrupt, 0, "i82365", pcic_interrupt);
->  #endif
->      
-> -    platform_device_register(&i82365_device);
-> -
->      i82365_data.nsock = sockets;
->      i82365_device.dev.class_data = &i82365_data;
->      
-> +    platform_device_register(&i82365_device);
-> +
->      /* Finally, schedule a polling interrupt */
->      if (poll_interval != 0) {
->  	poll_timer.function = pcic_interrupt_wrapper;
-> diff -ruN linux-original/drivers/pcmcia/tcic.c linux/drivers/pcmcia/tcic.c
-> --- linux-original/drivers/pcmcia/tcic.c	2003-03-05 07:19:13.000000000 +0100
-> +++ linux/drivers/pcmcia/tcic.c	2003-03-05 07:35:34.000000000 +0100
-> @@ -452,8 +452,6 @@
->  	sockets++;
->      }
->  
-> -    platform_device_register(&tcic_device);
-> -
->      switch (socket_table[0].id) {
->      case TCIC_ID_DB86082:
->  	printk("DB86082"); break;
-> @@ -527,6 +525,8 @@
->      tcic_data.nsock = sockets;
->      tcic_device.dev.class_data = &tcic_data;
->  
-> +    platform_device_register(&tcic_device);
-> +
->      return 0;
->      
->  } /* init_tcic */
-> 
 

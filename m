@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131035AbQLHRUo>; Fri, 8 Dec 2000 12:20:44 -0500
+	id <S130632AbQLHRXO>; Fri, 8 Dec 2000 12:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129639AbQLHRUe>; Fri, 8 Dec 2000 12:20:34 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:4992 "EHLO
+	id <S131862AbQLHRXE>; Fri, 8 Dec 2000 12:23:04 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:6272 "EHLO
 	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131537AbQLHRUW>; Fri, 8 Dec 2000 12:20:22 -0500
-Date: Fri, 8 Dec 2000 11:49:13 -0500 (EST)
+	id <S130632AbQLHRWt>; Fri, 8 Dec 2000 12:22:49 -0500
+Date: Fri, 8 Dec 2000 11:52:07 -0500 (EST)
 From: "Richard B. Johnson" <root@chaos.analogic.com>
 Reply-To: root@chaos.analogic.com
-To: Matthew Vanecek <linux4us@home.com>
-cc: Peter Samuelson <peter@cadcamlab.org>, Rainer Mager <rmager@vgkk.com>,
+To: richardj_moore@uk.ibm.com
+cc: Brian Gerst <bgerst@didntduck.org>, Andi Kleen <ak@suse.de>,
+        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
         linux-kernel@vger.kernel.org
-Subject: Re: Signal 11
-In-Reply-To: <3A310E18.DD23D416@home.com>
-Message-ID: <Pine.LNX.3.95.1001208113945.1500A-100000@chaos.analogic.com>
+Subject: Re: Why is double_fault serviced by a trap gate?
+In-Reply-To: <802569AF.005B3839.00@d06mta06.portsmouth.uk.ibm.com>
+Message-ID: <Pine.LNX.3.95.1001208115059.1500B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000, Matthew Vanecek wrote:
+On Fri, 8 Dec 2000 richardj_moore@uk.ibm.com wrote:
 
-> Peter Samuelson wrote:
-> > 
-> > [Dick Johnson]
-> > > Do:
-> > >
-> > > char main[]={0xff,0xff,0xff,0xff};
-> > 
-> > Oh come on, at least pick an *interesting* invalid opcode:
-> > 
-> >   char main[]={0xf0,0x0f,0xc0,0xc8};    /* try also on NT (: */
-> > 
 > 
-> me2v@reliant DRFDecoder $ ./op
-> Illegal instruction (core dumped)
 > 
-> Is that the expected behavior?
+> Actually what you are pointing out here is the differing needs for
+> differing uses. Real-time, embedded systems etc have different requirements
+> or at lest different priorities to enterprise usage. I'm coming from the
+> enterprise server angle - the Linux/390 type of use and high end IA32
+> Server.
+> 
+> I'll certainly add the double-fault hander to my list of RAS stuff. I'm not
+> so convinced about NMI being a task gate.
+> 
+> Richard
+> 
+> 
+[Snipped...]
 
-Yep. And on early Pentinums, the ones with the "f00f" bug, it
-would lock the machine tighter than a witches crotch. Ooops,
-not politically correct.... It would allow user-mode code
-to halt the machine.
+As I said, if you need some help I'll gladly try.
 
-Here is code that just quietly returns to the runtime code
-that called it:
-
-char main[]={0x90, 0x90, 0xc3};
-
-FYI, if the .data section was not executable, you couldn't do
-this. You would have to use some __asm__ stuff to put it in
-the .text section. But, this is an interesting example of
-how you can create code that the compiler refuses to generate.
-
-It's easier to use assembly, though.....
 
 Cheers,
 Dick Johnson

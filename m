@@ -1,64 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262782AbSKEWCy>; Tue, 5 Nov 2002 17:02:54 -0500
+	id <S262481AbSKEWHG>; Tue, 5 Nov 2002 17:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265028AbSKEWCy>; Tue, 5 Nov 2002 17:02:54 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:22248 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262782AbSKEWCx>; Tue, 5 Nov 2002 17:02:53 -0500
-Date: Tue, 5 Nov 2002 23:09:01 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cpu_devclass removed from cpu.h
-Message-ID: <20021105220900.GA1317@admingilde.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021102003027.GD16236@admingilde.org> <3DC6CB01.7080102@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
-Content-Disposition: inline
-In-Reply-To: <3DC6CB01.7080102@us.ibm.com>
-User-Agent: Mutt/1.4i
+	id <S262776AbSKEWHF>; Tue, 5 Nov 2002 17:07:05 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:53414 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262481AbSKEWHE> convert rfc822-to-8bit; Tue, 5 Nov 2002 17:07:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: Kswapd madness in 2.4 kernels
+Date: Tue, 5 Nov 2002 14:13:00 -0800
+User-Agent: KMail/1.4.1
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Rik van Riel <riel@conectiva.com.br>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <200210242026.13071.jamesclv@us.ibm.com> <3DB8C941.DEF1C069@digeo.com>
+In-Reply-To: <3DB8C941.DEF1C069@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211051413.00661.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Status report:
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Due to dependencies, I didn't try the two recommended patches alone.  I ran 
+Andrea's 2.4.20-pre10aa1 kernel on the test load for one week.  Low memory 
+was conserved and kswapd never went out of control.  Presumably, 
+05_vm_16_active_free_zone_bhs-1 did the job for buffers, and the inode patch 
+continued to work.
 
-hi :)
+Are there any plans on getting these into 2.4.21?
 
-On Mon, Nov 04, 2002 at 11:31:13AM -0800, Matthew Dobson wrote:
-> If you need it, you should be able to reference it...  just stick an
-> extern in your file.
-that's what i did...
 
-however, it' of course not the place it belongs to.
+On Thursday 24 October 2002 09:32 pm, Andrew Morton wrote:
+> James Cleverdon wrote:
+> >    Andrea_Archangeli-inode_highmem_imbalance.patch    Type: text/x-diff
+>
+> That's in -aa kernels, is correct and is needed.
+>
+> >    Andrew_Morton-2.4_VM_sucks._Again.patch    Type: text/x-diff
+>
+> hmm.  Someone seems to have renamed my nuke-buffers patch ;)
+>
+> My main concern is that this was a real quickie; it does a very
+> aggressive takedown of buffer_heads.  Andrea's kernels contain a
+> patch which takes a very different approach.  See
+> http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre
+>8aa2/05_vm_16_active_free_zone_bhs-1
+>
+> I don't think anyone has tried that patch in isolation though...
+>
+> If nuke-buffers passes testing and doesn't impact performance then
+> fine.  A more cautious approach would be to use the active_free_zone_bhs
+> patch.  If that proves inadequate then add in the "read" part of
+> nuke-buffers. That means dropping the fs/buffer.c part.
+> -
 
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
-noch Sicherheit verdient.
-			Benjamin Franklin  (1706 - 1790)
 
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+On Friday 25 October 2002 09:57 am, Rik van Riel wrote:
+> On Thu, 24 Oct 2002, James Cleverdon wrote:
+> > We have some customers with some fairly beefy servers.  They can get the
+> > system into an unusable state that has been reported on lkml before.
+> >
+> > The two attached patches applied to 2.4.19 fix the problem on our test
+> > boxes.
+> >
+> > Are these patches still considered a good idea for 2.4?  Is there
+> > something better I should be using?
+>
+> Yes, these patches are a good idea.  I'm curious why they
+> haven't been submitted to Marcelo yet ;)
+>
+> Rik
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE9yEF8j/Eaxd/oD7IRAoJGAJ96Ew/wqMvix6reGBms+XZsQkPMoACfSgmv
-266+vH3pQ4skNlm2rSwE+hM=
-=15Oy
------END PGP SIGNATURE-----
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 
---TB36FDmn/VVEgNH/--

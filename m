@@ -1,34 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQLRPUi>; Mon, 18 Dec 2000 10:20:38 -0500
+	id <S130836AbQLRPXj>; Mon, 18 Dec 2000 10:23:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129631AbQLRPU2>; Mon, 18 Dec 2000 10:20:28 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:30546 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129325AbQLRPUR>; Mon, 18 Dec 2000 10:20:17 -0500
-Date: Mon, 18 Dec 2000 15:49:07 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Daiki Matsuda <dyky@df-usa.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 asm-alpha/system.h has a problem
-Message-ID: <20001218154907.A16749@athlon.random>
-In-Reply-To: <20001217153444N.dyky@df-usa.com> <20001218033154.F3199@cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001218033154.F3199@cadcamlab.org>; from peter@cadcamlab.org on Mon, Dec 18, 2000 at 03:31:54AM -0600
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129631AbQLRPXT>; Mon, 18 Dec 2000 10:23:19 -0500
+Received: from pop.gmx.net ([194.221.183.20]:25902 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129260AbQLRPXI>;
+	Mon, 18 Dec 2000 10:23:08 -0500
+From: Norbert Breun <nbreun@gmx.de>
+Reply-To: nbreun@gmx.de
+Organization: private
+Date: Mon, 18 Dec 2000 15:49:20 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: Mikael Djurfeldt <djurfeldt@nada.kth.se>, linux-kernel@vger.kernel.org
+To: Peter Samuelson <peter@cadcamlab.org>, nbreun@gmx.de,
+        torvalds@transmeta.com
+In-Reply-To: <E147oeY-0006H7-00@mdj.nada.kth.se> <00121808022301.00937@nmb> <14909.48731.574210.724341@wire.cadcamlab.org>
+In-Reply-To: <14909.48731.574210.724341@wire.cadcamlab.org>
+Subject: Re: [PATCH] 2.4.0-test13-pre3: Makefile problem in drivers/video
+MIME-Version: 1.0
+Message-Id: <00121815492000.00832@nmb>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000 at 03:31:54AM -0600, Peter Samuelson wrote:
-> directly.  You are changing perfectly legal C.
+Peter, Alan,
 
-You're right that's not kernel issue and patch can be rejected, but he's not
-really changing anything :). If changing that helps then it's a compiler bug.
+thanks, this solved the problem - 2.4.0-test13pre3 is up 'n running ;)
+BTW: Is it possible to shut off these "apic error on CPU0" messages."
+Now I know that my board is not well designed, so what should these
+messages help me? They blow up my /var/log/messages only...
 
-Andrea
+kind regards
+Norbert
+
+
+On Monday 18 December 2000 08:35, Peter Samuelson wrote:
+> [Norbert Breun]
+>
+> > The problem is, there should be a directory "media" under
+> > /lib/modules/2.4.0-test12.old/kernel/drivers/ and this is missing in
+> > test13pre2 and test13pre3. The modules are not built.
+>
+> Does this help?  I think it's right.
+>
+> Peter
+>
+> diff -urk.orig 2.4.0test13pre3/drivers/media/Makefile
+> --- 2.4.0test13pre3/drivers/media/Makefile.orig	Sat Dec 16 06:18:16 2000
+> +++ 2.4.0test13pre3/drivers/media/Makefile	Mon Dec 18 01:32:34 2000
+> @@ -10,6 +10,7 @@
+>  #
+>
+>  subdir-y     := video radio
+> +subdir-m     := video radio
+>
+>  O_TARGET     := media.o
+>  obj-y        := $(join $(subdir-y),$(subdir-y:%=/%.o))
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

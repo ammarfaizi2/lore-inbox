@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268665AbTBZGt7>; Wed, 26 Feb 2003 01:49:59 -0500
+	id <S268670AbTBZHNU>; Wed, 26 Feb 2003 02:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268666AbTBZGt7>; Wed, 26 Feb 2003 01:49:59 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:29967 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S268665AbTBZGt6> convert rfc822-to-8bit; Wed, 26 Feb 2003 01:49:58 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
+	id <S268671AbTBZHNT>; Wed, 26 Feb 2003 02:13:19 -0500
+Received: from [209.195.52.120] ([209.195.52.120]:25840 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id <S268670AbTBZHNS>; Wed, 26 Feb 2003 02:13:18 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
+       linux-kernel@vger.kernel.org
+Date: Tue, 25 Feb 2003 23:22:16 -0800 (PST)
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <20030226054240.GL10411@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0302252254170.8609-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: lockups with 2.4.20 (tg3? net/core/dev.c|deliver_to_old_ones)
-Date: Wed, 26 Feb 2003 01:00:07 -0600
-Message-ID: <DC900CF28D03B745B2859A0E084F044D029601AD@cceexc19.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: lockups with 2.4.20 (tg3? net/core/dev.c|deliver_to_old_ones)
-Thread-Index: AcLdZJaw1xsXJsVxQMKlzJ0tWdnVgQ==
-From: "Rhodes, Tom" <tom.rhodes@hp.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Feb 2003 07:00:08.0335 (UTC) FILETIME=[B2A3E9F0:01C2DD64]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Since sometime in December two systems we have on site using P4 HT
-(one 
->> Dell 2650 and one Dell 4600, both dual CPU, both ht/mce capable) have
-been 
->> locking up without any kernel output and without sysrq keys working
-(the 
->> keyboard is locked solid). 
->>[...] 
->> Using nmi_watchdog I've managed to get a stack track and ran ksymoops
-over 
->> it (attached). 
+On Tue, 25 Feb 2003, William Lee Irwin III wrote:
 
+> In article <...> someone wrote:
+> >> unfortunantly for them the core CPU speeds became uncoupled from the
+> >> memory speeds and skyrocketed up to the point where CISC cores are as fast
+> >> or faster then the 'high speed' RISC cores.
+>
+> On Wed, Feb 26, 2003 at 06:30:50AM +0100, Bernd Eckenfels wrote:
+> > Hmm.. are there any RISC Cores which run even closely to CISC Speeds?
+> > And why not? Is this only the financial power of Intel?
+>
+> There is one other: x86 binary compatibility.
+>
+> Looks like the beginning and end of it to me.
 
-> Good report. To tell the truth, I know that this lockup exists, 
-> there's an RH issue-tracker item against me on this. 
+it's more then just the financial power of Intel, AMD is also in many ways
+above the performance of the 'high-end' processors
 
-Several of us at HP have been chasing this problem as well. Here is why
-there is a deadlock: deliver_to_old_ones()attempts to stop all timers
-from running and then blocks until all the timers are no longer running.
-This code is called from netif_receive_skb which is called from tg3_poll
-while it is holding a lock in the tg3 driver. On another CPU, the
-tg3_timer routine is run but is blocked by the lock held in the tg3_poll
-routine. The tg3_timer routine never finishes because it can't acquire
-the lock being held by tg3_poll on another CPU. That prevents
-deliver_to_old_ones from executing because there is still a timer
-routine executing.
+aceshardware has a chart showing several different processors (dated in
+october 2002 so it's not _that_ out of date
 
-Here is the call stack of the deadlocked CPUs on a RH8.0 system with a
-2.4.18-24.8.0 smp kernel:
-CPU 2:
-deliver_to_old_ones+45
-netif_receive_skb
-tg3_rx+27b
-tg3_poll+81
-net_rx_action
-do_softirq
-do_IRQ
-call_do_IRQ
+http://www.aceshardware.com/read_news.jsp?id=60000436
 
-CPU 6:
-tg3_timer  (tg3+9fc4)
-run_timer_list+0x112
-bh_action+55
-tasklet_hi_action+67
-do_softirq+d9
-do_IRQ
-call_do_IRQ+5
+one interesting thing I see from this chart is that the x86 processors are
+well ahead in integer performance and pulling further ahead (the pace of
+development is significantly faster then the other processors) while they
+do lag in floating point (but not by that much) there are a LOT of
+workloads where the floating point performance is not as important (the K2
+showed that it can't lag _to_ far behind)
 
-Thanks
-Tom Rhodes
-tom.rhodes@hp.com
+the x86 binary compatability means that even a 'low volume' x86
+compatable chip has a large potential market and a company can do
+reasonably well getting a small percentage of the market (see the
+transmeta and cyrix shiips) while the non x86 chips (including ia64) have
+to invent a new market segment for themselves.
+
+David Lang

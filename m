@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269313AbRHGTIS>; Tue, 7 Aug 2001 15:08:18 -0400
+	id <S269326AbRHGTJs>; Tue, 7 Aug 2001 15:09:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269326AbRHGTII>; Tue, 7 Aug 2001 15:08:08 -0400
-Received: from anime.net ([63.172.78.150]:61707 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S269313AbRHGTIB>;
-	Tue, 7 Aug 2001 15:08:01 -0400
-Date: Tue, 7 Aug 2001 12:07:48 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: David Ford <david@blue-labs.org>
-cc: <landley@webofficenow.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: RP_FILTER runs too late
-In-Reply-To: <3B702E09.8030207@blue-labs.org>
-Message-ID: <Pine.LNX.4.30.0108071206190.3304-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269331AbRHGTJi>; Tue, 7 Aug 2001 15:09:38 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:63622 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S269326AbRHGTJW>; Tue, 7 Aug 2001 15:09:22 -0400
+Date: Tue, 7 Aug 2001 13:09:25 -0600
+Message-Id: <200108071909.f77J9Pr07385@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <E15UC9a-0003kt-00@the-village.bc.nu>
+In-Reply-To: <no.id>
+	<E15UC9a-0003kt-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, David Ford wrote:
-> I'd rather see SNAT available in pre-routing and have rp_filter run
-> against the packet before it hits the netfilter code.
+Alan Cox writes:
+> > > Very interesting. pwd should be using getcwd(2), which doesn't
+> > > give a damn for inode numbers. If you have seriously old pwd binary
+> > > that tries to track the thing down to root by hands - yes, it doesn't
+> > > work.
+> > 
+> > Hm. strace suggests my pwd is walking up the path. But WTF would it
+> > break? 2.4.7 was fine. What did I break?
+> 
+> Sounds like you are using libc5. The old style pwd should be
+> reliable but its much slower and can't see across protected
+> directory paths
 
-There is one other problem with rp_filter.... rp_filter violations are
-S I L E N T. You never know when traffic is dropped because of it. Packets
-just disappear.
+Yes, I use libc5. And I don't care about old pwd being slower. And I
+certainly don't want to break it, even if I wasn't using it.
+By "protected directory paths", you mean a directory with read access?
 
-If it generated printk's it would make it a lot easier to track down
-filtering problems.
+Well, rx access is available for the whole path. And the inums looked
+fine. So the breakage is odd.
 
--Dan
+				Regards,
 
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

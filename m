@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316070AbSHXMij>; Sat, 24 Aug 2002 08:38:39 -0400
+	id <S316088AbSHXMxk>; Sat, 24 Aug 2002 08:53:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316088AbSHXMii>; Sat, 24 Aug 2002 08:38:38 -0400
-Received: from mail2.alphalink.com.au ([202.161.124.58]:27993 "EHLO
-	mail2.alphalink.com.au") by vger.kernel.org with ESMTP
-	id <S316070AbSHXMii>; Sat, 24 Aug 2002 08:38:38 -0400
-Message-ID: <3D677F8D.F6B62040@alphalink.com.au>
-Date: Sat, 24 Aug 2002 22:43:57 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
+	id <S316089AbSHXMxk>; Sat, 24 Aug 2002 08:53:40 -0400
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:6278 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S316088AbSHXMxk>; Sat, 24 Aug 2002 08:53:40 -0400
+Message-ID: <3D6781AB.526434F6@wanadoo.fr>
+Date: Sat, 24 Aug 2002 14:52:59 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre2 i586)
+X-Accept-Language: fr-FR, en
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-References: <Pine.LNX.4.44.0208240059560.8911-100000@serv>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre2-ac3 stops responding
+References: <Pine.LNX.4.44L.0208161340000.1430-100000@imladris.surriel.com>
+		 <3D5D32D4.475C6719@wanadoo.fr> <1029611747.4647.3.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
+Alan Cox wrote:
 > 
-> Let me mention (again), that we are talking about two different problems
-> here. On the hand bugs in the rulebase can be fixed with either syntax.
+>  "On Fri, 2002-08-16 at 18:13, Jean-Luc Coulon wrote:
+> > At boot time, I get the messages :
+> >
+> > Aug 16 11:34:19 f5ibh kernel: ALI15X3: simplex device: DMA disabled
+> > Aug 16 11:34:19 f5ibh kernel: ide0: ALI15X3 Bus-Master DMA disabled
+> > (BIOS)
+> 
+> Linux did the simplex device check. Your ALi controller only permits DMA
+> on one of the devices at a time. What is attached to the ALi controller
+> ? Also does 2.4.19 base enable DMA correctly ?
+> 
+> If so then my guess is there is a bug in the changing of the pci setup
+> code in 2.4.20pre2-ac3, which shouldnt be hard to figure out
 
-Agreed.
+sorry for the late answer, I was not @home for one week.
 
-> On
-> the other hand major cleanups/extensions are better done with only a
-> single parser.
+Attached to my ide ports are :
+on the primary channel : 1 ide disk,  QUANTUM FIREBALLP LM30
+                         1 ide disk,  ST3491A
 
->From a purely technical point of view it's easier to extend a single parser
-than N.  A single parser is the Obviously Correct Approach (tm).
+on the secondary channel : 1 cdrom reader, CREATIVECD3621E
+                           1 cdrom burner, GoldStar CD-RW CED-8083B
 
-But the problem is that changing to use a single parser is in itself
-a revolutionary step, doubly so if the syntax changes at the same time.
+The second HDD is not DMA
 
-Greg.
--- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.
+-------
+regards
+	Jean-Luc

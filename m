@@ -1,109 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133096AbRDWNs0>; Mon, 23 Apr 2001 09:48:26 -0400
+	id <S133101AbRDWNz4>; Mon, 23 Apr 2001 09:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133083AbRDWNsR>; Mon, 23 Apr 2001 09:48:17 -0400
-Received: from [212.150.182.35] ([212.150.182.35]:30224 "EHLO
-	exchange.guidelet.com") by vger.kernel.org with ESMTP
-	id <S133096AbRDWNsI>; Mon, 23 Apr 2001 09:48:08 -0400
-Message-ID: <015001c0cc04$748c4860$910201c0@zapper>
-From: "Alon Ziv" <alonz@nolaviz.org>
-To: <linux-kernel@vger.kernel.org>
-Cc: "David Howells" <dhowells@warthog.cambridge.redhat.com>
-In-Reply-To: <4411.988031989@warthog.cambridge.redhat.com>
-Subject: Re: light weight user level semaphores 
-Date: Mon, 23 Apr 2001 16:48:25 +0200
+	id <S133120AbRDWNzq>; Mon, 23 Apr 2001 09:55:46 -0400
+Received: from penguin.roanoke.edu ([199.111.154.8]:44042 "EHLO
+	penguin.roanoke.edu") by vger.kernel.org with ESMTP
+	id <S133101AbRDWNzh>; Mon, 23 Apr 2001 09:55:37 -0400
+Message-ID: <3AE4374D.F3A60F95@linuxjedi.org>
+Date: Mon, 23 Apr 2001 10:08:13 -0400
+From: "David L. Parsley" <parsley@linuxjedi.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
+To: Christoph Rohland <cr@sap.com>
+CC: linux-kernel@vger.kernel.org, ingo.oeser@informatik.tu-chemnitz.de,
+        viro@math.psu.edu
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <3AE307AD.821AB47C@linuxjedi.org> <m3r8yjrgdc.fsf@linux.local>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "David Howells" <dhowells@warthog.cambridge.redhat.com>
-> David Woodhouse <dwmw2@infradead.org> wrote:
-> > alonz@nolaviz.org said:
-> > >  [BTW, another solution is to truly support opaque "handles" to kernel
-> > > objects; I believe David Howells is already working on something like
-> > > this for Wine?
->
-> Yes. However, it uses a different system call set to use them. They
-translate
-> to small object structures internally.
->
+Christoph Rohland wrote:
+> 
+> Hi David,
+> 
+> On Sun, 22 Apr 2001, David L. Parsley wrote:
+> > I'm still working on a packaging system for diskless
+> > (quasi-embedded) devices.  The root filesystem is all tmpfs, and I
+> > attach packages inside it.  Since symlinks in a tmpfs filesystem
+> > cost 4k each (ouch!), I'm considering using mount --bind for
+> > everything.
+> 
+> What about fixing tmpfs instead?
 
-Obviously... since they're handles, not FDs...
-[BTW, are you using Windows' idea of storing the objects in process space,
-in a
-page that's inaccessible to the app itself, and passing pointers into this
-page
-as the handles?]
+That would be great - are you volunteering? ;-)  Seriously - I might be
+able to look at what ramfs does and port that to tmpfs for my needs, but
+that's about the extent of my kernel hacking skills.  For now, mount
+--bind looks like it'll work just fine.  If somebody wants to fix tmpfs,
+I'll be happy to test patches; it'll just change a couple of lines in my
+package loading logic (mount --bind x y -> ln -s x y).
 
-> > > The poll interface can be trivially extended to support
-> > > waiting on those...]
->
-> No, they aren't files. I did not want to use "files" because this would
-incur
-> a fairly major penalty for each object:
->
-So what if they aren't files?
-If you look at (e.g.) AIX's poll(), it allows you to put SysV semaphore IDs
-in
-pollfd structures. (Actually they do even more--- they have an extended
-pollfd
-struct; but even without it, just putting a handle instead of FD and a
-special
-event code in a normal pollfd should suffice...)
+What I'm not sure of is which solution is actually 'better' - I'm
+guessing that performance-wise, neither will make a noticable
+difference, so I guess memory usage would be the deciding factor.  If I
+can get a lot closer to the size of a symlink (10-20 bytes) that would
+be best.  The issue with /proc/mounts really shouldn't hurt anything - I
+could almost get by without mounting /proc anyway, it's mainly a
+convenience.
 
-> struct file + struct dentry + struct inode
->
-> Which would mean that Win32 File objects would require two of each, one
-set to
-> hold the extra Win32 attributes and one set for the actual Linux file.
->
+regards,
+	David
 
-I'm afraid I'm not following your logic in this; I believe most Win32 attrs
-can
-be mapped to more generic abstractions which should be able to exist at
-'struct
-file' level.  (And even if not, a Win32 file handle could just hold two
-pointers---
-one to the 'struct file', and one to the extra attrs...)
-
-> The way I've chosen uses somewhat less memory and should be faster.
->
-
-And breaks _completely_ with the existing scheme :-/
-
-> > ISTR it wasn't quite trivial to do it that way - it would require the
-> > addition of an extra argument to the fops->poll() method.
->
-> Yes, the PulseEvent operation demands that all processes currently waiting
-on
-> the event should be woken, but that no processes attaching immediately
-> afterward get triggered.
->
-
-Huh? Where did you get this?
-Looking at my copy of MSDN (July '00), the PulseEvent remarks more-or-less
-suggest
-an implementation like
-    SetEvent(e)
-    ResetEvent(e)
-I don't see any mention of 'currently waiting' vs 'new' waiters. (Besides, I
-doubt MS
-tries to solve this in the SMP case...)
-
-> Oh... and WaitForMultipleObjects also has a "wait for all" option.
-
-Yes, this is a valid point...  I wonder if it's possible to add _just_ this
-to
-poll()...
-
-    -az
-
-
+-- 
+David L. Parsley
+Network Administrator
+Roanoke College

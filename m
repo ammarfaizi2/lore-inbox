@@ -1,84 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268182AbUGWXp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUGWXuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268182AbUGWXp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 19:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268183AbUGWXp5
+	id S264585AbUGWXuV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 19:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268184AbUGWXuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 19:45:57 -0400
-Received: from mail2.bluewin.ch ([195.186.4.73]:43670 "EHLO mail2.bluewin.ch")
-	by vger.kernel.org with ESMTP id S268182AbUGWXpy (ORCPT
+	Fri, 23 Jul 2004 19:50:21 -0400
+Received: from pD9517AB1.dip.t-dialin.net ([217.81.122.177]:20097 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S264585AbUGWXuI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 19:45:54 -0400
-Date: Sat, 24 Jul 2004 01:45:02 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Robert Wisniewski <bob@watson.ibm.com>
-Cc: zanussi@us.ibm.com, linux-kernel@vger.kernel.org, karim@opersys.com,
-       richardj_moore@uk.ibm.com, michel.dagenais@polymtl.ca
-Subject: Re: LTT user input
-Message-ID: <20040723234502.GA12631@k3.hellgate.ch>
-Mail-Followup-To: Robert Wisniewski <bob@watson.ibm.com>,
-	zanussi@us.ibm.com, linux-kernel@vger.kernel.org, karim@opersys.com,
-	richardj_moore@uk.ibm.com, michel.dagenais@polymtl.ca
-References: <16640.10183.983546.626298@tut.ibm.com> <20040723100101.GA22440@k3.hellgate.ch> <16641.19483.708016.320557@tut.ibm.com> <20040723191900.GA2817@k3.hellgate.ch> <16641.36290.751769.126111@k42.watson.ibm.com>
+	Fri, 23 Jul 2004 19:50:08 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-I3
+From: Thomas Charbonnel <thomas@undata.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040723120014.GA5573@elte.hu>
+References: <20040722161941.GA23972@elte.hu>
+	 <20040722172428.GA5632@ss1000.ms.mff.cuni.cz>
+	 <20040722175457.GA5855@ss1000.ms.mff.cuni.cz>
+	 <20040722180142.GC30059@elte.hu> <20040722180821.GA377@elte.hu>
+	 <20040722181426.GA892@elte.hu> <20040723104246.GA2752@elte.hu>
+	 <4d8e3fd30407230358141e0e58@mail.gmail.com> <20040723110430.GA3787@elte.hu>
+	 <4d8e3fd30407230442afe80c1@mail.gmail.com>  <20040723120014.GA5573@elte.hu>
+Content-Type: text/plain
+Message-Id: <1090626523.4851.32.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16641.36290.751769.126111@k42.watson.ibm.com>
-X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 24 Jul 2004 01:48:43 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jul 2004 18:40:26 -0400, Robert Wisniewski wrote:
->  > Looking for a common base was certainly easier before one tracing
->  > framework got merged. I don't claim to know if a common basic framework
->  > would be beneficial, but I am somewhat amazed that not more effort has
->  > gone into exploring this.
+
+> All known performance problems have been fixed in -I4. The focus is
+> mainly on latency. You can best support this patch by trying it out and
+> doing measurements - both latency and throughput measurements are
+> welcome. Latency measurement can be done via the latencytest tool:
 > 
-> Argh.  I had up to this point been passively following this thread because
-> a while ago, prior to dtrace and other such work I, Karim, and others
-> invested quite of bit of effort and time responding to this group pointing
-> out the benefits of performance monitoring via tracing and
+>   http://www.alsa-project.org/~iwai/latencytest-0.5.4.tar.gz
 > 
-> IN FACT this was exactly one of the points I ardently made.  Having each
-> subsystem set up their own monitoring was not only counter productive in
-> terms of time and implementation effort, but prevented a unified view of
-> performance from being achieved.  Nevertheless, it appears that some
+> If you enable both CONFIG_PREEMPT_VOLUNTARY and CONFIG_PREEMPT then you
+> can use the /proc/sys/kernel/voluntary_preemption|kernel_preemption
+> sysctl knobs to turn the preemption features on/off. The following flag
+> combinations can be used to do comparisons:
+> 
+>  vanilla:                                             vp:0 kp:0
+>  CONFIG_PREEMPT:                                      vp:0 kp:1
+>  voluntary-preempt:                                   vp:1 kp:0
+>  voluntary-preempt + CONFIG_PREEMPT:                  vp:1 kp:1
+>  voluntary-preempt + softirq defer:                   vp:2 kp:0 [default]
+>  voluntary-preempt + softirq defer + CONFIG_PREEMPT:  vp:2 kp:1
+> 
+> each of the above combinations should work and should pretty exactly
+> represent that particular kernel (i.e. you can get vanilla
+> non-preemptible 2.6.8-rc2 kernel behavior by switching both flags on) -
+> but i typically use the default one for testing. 
+> 
+> 	Ingo
 
-This may be somewhat of a misunderstanding: You seem to be talking about
-a unified framework for performance monitoring -- something I silently
-assumed should be the case, while the discussion here was about various
-forms of logging -- with performance monitoring being one of them.
+Hi,
 
-So the question is (again, this is an issue that has been raised at the
-kernel summit as well): Is there some overlap between those various
-frameworks? Or do we really need completely separate frameworks for
-logging time stamps (performance), auditing information, etc.?
+I'm experiencing hard freezes in the early stage of the latency test
+suite (X11 test, latencytest-0.5.4) with 2.6.8-rc2-I4, both with the
+default vp:2 kp:0 and with vp:0 kp:0 (nvidia card, xfree drivers). I was
+also experiencing hard freezes before with 2.6.7-mm7-H4 while doing
+intensive disk I/O on reiserfs (e.g. tar big_file.tar.gz)
 
-> proclaimed by dtrace.  As Karim has pointed out in previous posts, though
-> the technical concerns that were raised were addressed, it didn't seem to
-> help as other nits would crop up appearing to imply that something else was
-> happening.
+As for the tests, I have 2 remaining problems, one with mmap in
+conjunction with mlockall(MCL_CURRENT|MCL_FUTURE) :
 
-My postings were motivated by my personal interest in better tracing
-and monitoring facilities. However, I'm getting LKCD flashbacks when
-reading your arguments. Which doesn't bode well.
+XRUN: pcmC2D0c
+ [<c0105f6e>] dump_stack+0x1e/0x30
+ [<c03673b1>] snd_pcm_period_elapsed+0x2e1/0x420
+ [<c039d3d4>] snd_hdsp_interrupt+0x174/0x180
+ [<c01073bb>] handle_IRQ_event+0x3b/0x70
+ [<c0107746>] do_IRQ+0x96/0x150
+ [<c0105b14>] common_interrupt+0x18/0x20
+ [<c014890f>] do_no_page+0x5f/0x300
+ [<c0148da2>] handle_mm_fault+0xe2/0x190
+ [<c01477a0>] get_user_pages+0x130/0x370
+ [<c0148f17>] make_pages_present+0x87/0xb0
+ [<c014a916>] do_mmap_pgoff+0x476/0x6d0
+ [<c010ba50>] sys_mmap2+0xa0/0xe0
+ [<c0105155>] sysenter_past_esp+0x52/0x71
+XRUN: pcmC2D0p
+ [<c0105f6e>] dump_stack+0x1e/0x30
+ [<c03673b1>] snd_pcm_period_elapsed+0x2e1/0x420
+ [<c039d3b4>] snd_hdsp_interrupt+0x154/0x180
+ [<c01073bb>] handle_IRQ_event+0x3b/0x70
+ [<c0107746>] do_IRQ+0x96/0x150
+ [<c0105b14>] common_interrupt+0x18/0x20
+ [<c014890f>] do_no_page+0x5f/0x300
+ [<c0148da2>] handle_mm_fault+0xe2/0x190
+ [<c01477a0>] get_user_pages+0x130/0x370
+ [<c0148f17>] make_pages_present+0x87/0xb0
+ [<c014a916>] do_mmap_pgoff+0x476/0x6d0
+ [<c010ba50>] sys_mmap2+0xa0/0xe0
+ [<c0105155>] sysenter_past_esp+0x52/0x71
 
-> If indeed the remaining issue is whether there is a benefit to
-> a performance monitoring infrastructure, then I wonder how you would
-> interpret reactions to dtrace.
+and the other one when accessing the keyboard at a sensible moment. Such
+a moment occurs rather precisely every 8.079 seconds on my system (+/-
+2ms). I could verify this by keeping a key pressed (xrun every 8.079
+second), or just using the keyboard normally (xruns happen more or less
+randomly but the time interval to the previous one is always a multiple
+of this 8.079 period) :
 
-DTrace is not a performance monitoring infrastructure, so what's your
-point? -- But let's assume for the sake of argument that LTT, dprobes
-& Co.  provide something comparable to DTrace, and we just disagree on
-what "performance monitoring" means: The chance of getting such a pile
-of complexity into mainline are virtually zero (unless it's called ACPI
-and required to boot some machines :-/).
+XRUN: pcmC2D0c
+ [<c0105f6e>] dump_stack+0x1e/0x30
+ [<c03673b1>] snd_pcm_period_elapsed+0x2e1/0x420
+ [<c039d3d4>] snd_hdsp_interrupt+0x174/0x180
+ [<c01073bb>] handle_IRQ_event+0x3b/0x70
+ [<c0107746>] do_IRQ+0x96/0x150
+ [<c0105b14>] common_interrupt+0x18/0x20
+ [<c0107746>] do_IRQ+0x96/0x150
+ [<c0105b14>] common_interrupt+0x18/0x20
+ [<c01030f4>] cpu_idle+0x34/0x40
+ [<c054880d>] start_kernel+0x16d/0x190
+ [<c010019f>] 0xc010019f
 
-So what you can push for inclusion is bound to be a subset, and the
-question remains: What does such a subset, which is clearly nothing
-like DTrace, offer?
+Can you think of a possible explanation for this one ?
 
-Roger
+Thomas
+
+

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264507AbSIREBo>; Wed, 18 Sep 2002 00:01:44 -0400
+	id <S264546AbSIRESK>; Wed, 18 Sep 2002 00:18:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264534AbSIREBo>; Wed, 18 Sep 2002 00:01:44 -0400
-Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:10951 "EHLO
-	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
-	id <S264507AbSIREBn>; Wed, 18 Sep 2002 00:01:43 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: xconfig doesn't work, 2.4.20-pre7
-Date: Sun, 15 Sep 2002 08:16:16 -0400
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209150816.16473.ivg2@cornell.edu>
+	id <S264555AbSIRESK>; Wed, 18 Sep 2002 00:18:10 -0400
+Received: from holomorphy.com ([66.224.33.161]:63719 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264546AbSIRESJ>;
+	Wed, 18 Sep 2002 00:18:09 -0400
+Date: Tue, 17 Sep 2002 21:18:52 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  September 18, 2002
+Message-ID: <20020918041852.GQ3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3D87C1C6.21599.33750A21@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D87C1C6.21599.33750A21@localhost>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After make clean and make mrproper:
+On Tue, Sep 17, 2002 at 11:59:02PM -0400, Guillaume Boissiere wrote:
+> o Alpha       Parallelizing page replacement                  (William Lee Irwin)
 
-================================
-[root@cobra linux-2.4]# make xconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts kconfig.tk
-make[1]: Entering directory `/usr/src/linux-2.4.20-pre7/scripts'
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o 
-tkparse.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o tkcond.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
-gcc -o tkparse tkparse.o tkcond.o tkgen.o
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-drivers/video/Config.in: 216: can't handle dep_bool/dep_mbool/dep_tristate 
-condition
-make[1]: *** [kconfig.tk] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.20-pre7/scripts'
-make: *** [xconfig] Error 2
-[root@cobra linux-2.4]# 
+Andrew Morton has either adapted, rewritten, or both the code I'd
+devised for this vs. 2.4.x-based rmap involving the pagemap_lru_lock,
+and that code is in 2.5.3x-mm. Momchil Velikov also originally devised
+the ratcache early in 2.5.x. So this is a bit beyond alpha, and
+probably needs Andrew Morton's, Momchil Velikov's, and Dave Hansen's
+names on it, possibly even removing mine.
 
+
+Thanks,
+Bill

@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282819AbRK0GdJ>; Tue, 27 Nov 2001 01:33:09 -0500
+	id <S282821AbRK0Gjt>; Tue, 27 Nov 2001 01:39:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282821AbRK0GdD>; Tue, 27 Nov 2001 01:33:03 -0500
-Received: from oss.sgi.com ([216.32.174.27]:31133 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S282819AbRK0GcT>;
-	Tue, 27 Nov 2001 01:32:19 -0500
-Date: Tue, 27 Nov 2001 17:32:07 +1100
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Nathan Myers <ncm-nospam@cantrip.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] omnibus header cleanup, certification
-Message-ID: <20011127173207.A31523@dea.linux-mips.net>
-In-Reply-To: <20011127061714.A41881@cantrip.org>
+	id <S282822AbRK0Gjj>; Tue, 27 Nov 2001 01:39:39 -0500
+Received: from zero.tech9.net ([209.61.188.187]:39689 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282821AbRK0GjW>;
+	Tue, 27 Nov 2001 01:39:22 -0500
+Subject: Re: a nohup-like interface to cpu affinity
+From: Robert Love <rml@tech9.net>
+To: Linux maillist account <l-k@mindspring.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.0.2.1.2.20011127011901.009ebd30@pop.mindspring.com>
+In-Reply-To: <5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com>
+	<E16744i-0004zQ-00@localhost>
+	<Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain>
+	<1006472754.1336.0.camel@icbm> <E16744i-0004zQ-00@localhost>
+	<5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com> 
+	<5.0.2.1.2.20011127011901.009ebd30@pop.mindspring.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 27 Nov 2001 01:39:50 -0500
+Message-Id: <1006843191.838.19.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011127061714.A41881@cantrip.org>; from ncm-nospam@cantrip.org on Tue, Nov 27, 2001 at 06:17:14AM +0000
-X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 06:17:14AM +0000, Nathan Myers wrote:
+On Tue, 2001-11-27 at 01:32, Linux maillist account wrote:
 
-> Note that there is no way I can afford to keep track of whether each 
-> of 116 separate patches were taken, and resubmit them, so I am asking 
-> that the patches be taken wholesale once a few maintainers have 
-> certified that the changes really are as benign as they (so obviously)
-> are.
+> It's isn't quite the same..the biggest difference is races.
 
-Well, here you get my ok ...
+Then you can set the affinity on your shell before executing the
+process. :)
 
-  Ralf
+But, OK OK -- I see your point.  It would make for a handy utility, and
+it has some necessary uses (i.e., the race issue you brought up).
+
+Question now is, what interface to do we export to userspace.
+
+ 	Robert Love
+

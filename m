@@ -1,91 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbUD2JYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263979AbUD2J1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbUD2JYV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 05:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbUD2JYV
+	id S263979AbUD2J1j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 05:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbUD2J1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 05:24:21 -0400
-Received: from nobody.lpr.e-technik.tu-muenchen.de ([129.187.151.1]:17598 "EHLO
-	nobody.lpr.e-technik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S262112AbUD2JYS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 05:24:18 -0400
-Subject: Re: [BUG]linux-2.4.26 Quad-Opteron: panic when init scsi
-From: "Alexander v. Buelow" <buelow@lpr.e-technik.tu-muenchen.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Juergen Stohr <stohr@lpr.e-technik.tu-muenchen.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1083230651.25322.38.camel@floyd.lpr.e-technik.tu-muenchen.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 29 Apr 2004 11:24:11 +0200
+	Thu, 29 Apr 2004 05:27:39 -0400
+Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:56910 "HELO
+	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263979AbUD2J1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 05:27:36 -0400
+Message-ID: <4090CA85.6050009@yahoo.com.au>
+Date: Thu, 29 Apr 2004 19:27:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: scheduler latency
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
+I've done some scheduler latency tests and come up with some
+pretty plots, so I thought I'd post them. It is nicksched vs
+mainline.
 
-> It looks like you compiled this on a SuSE 9.0/64bit system, right?
-> I presume this means the SuSE 2.4.21 smp kernel worked on the same
-> box, right? 
+Note: this is not realtime scheduling latency, but latency as
+measured by my random program. It also does not indicate
+interactivity, because the latencies measured were all under
+15ms which is probably below perception. Even if not, it
+doesn't measure latency as you might see it.
 
-Yes, that's right.
+Finally, some of the tests involved me moving the mouse around,
+so factor in by subliminal (or not) bias toward my scheduler.
 
-> Can you perhaps try to narrow down where it broke between (mainline)
-> 2.4.21 and 2.4.26 ? 
-
-We tried: 2.4.21 -> ok
-          2.4.22 -> ok
-	  2.4.23 -> not ok !!
-
-Then we tried to find the error and I changed in mm/numa.c:
-
---- linux-2.4.26/mm/numa.c      2001-09-18 01:15:02.000000000 +0200
-+++ linux-2.4.26-recoms/mm/numa.c       2004-04-27 18:25:28.000000000
-+0200
-@@ -105,6 +105,11 @@
-                return NULL;
- #ifdef CONFIG_NUMA
-        temp = NODE_DATA(numa_node_id());
-+       if((gfp_mask & GFP_DMA) == GFP_DMA)
-+         {
-+           printk(KERN_WARNING "RECOMS: Umleitung DMA auf CPU 0\n");
-+           temp = NODE_DATA(0);
-+         }
- #else
-        spin_lock_irqsave(&node_lock, flags);
-        if (!next) next = pgdat_list;
-
-And in mm/page_alloc.c I added in void __init free_area_init_core(..):
-
-*gmap = pgdat->node_mem_map = lmem_map;
-pgdat->node_size = totalpages;
-pgdat->node_start_paddr = zone_start_paddr;
-pgdat->node_start_mapnr = (lmem_map - mem_map);
-pgdat->nr_zones = 0;
-+// Alex:
-+pgdat->node_id = nid;
-
-offset = lmem_map - mem_map;
-for (j = 0; j < MAX_NR_ZONES; j++) {
-
-This seemed to work, the scsi error didn't occur any more. 
-
-But then we ran into various other problems: Sometimes we got MCEs (GART
-TLB) and different kernel errors like page fault, NULL pointer
-dereference and general protection fault. These errors are not
-reproducible but occur frequently.
-
-I hope you will find a solution!
-
-Regards,
-
-Jürgen and Alexander
-
--- 
------------------------------------------------------------------------    
-Dipl.-Ing. Alexander von Buelow                http://www.rcs.ei.tum.de
-Institute for Real-Time Computersystems (RCS)      fon +49/89-289-23556 
-Technische Universitaet Muenchen, D-80290 Muenchen fax +49/89-289-23555
+http://www.kerneltrap.org/~npiggin/schedlat3/index.html

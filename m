@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271740AbRH0Oeb>; Mon, 27 Aug 2001 10:34:31 -0400
+	id <S271750AbRH0OiB>; Mon, 27 Aug 2001 10:38:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271744AbRH0OeM>; Mon, 27 Aug 2001 10:34:12 -0400
-Received: from jason.blazeconnect.net ([208.255.12.2]:13952 "HELO
-	jason.blazeconnect.net") by vger.kernel.org with SMTP
-	id <S271740AbRH0OeF>; Mon, 27 Aug 2001 10:34:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jason Straight <jason@blazeconnect.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.8-ac10,11,12 powersaving problems on Dell I8000
-Date: Mon, 27 Aug 2001 10:29:36 -0400
-X-Mailer: KMail [version 1.3.1]
+	id <S271747AbRH0Ohl>; Mon, 27 Aug 2001 10:37:41 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:55822 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S271744AbRH0Oha>; Mon, 27 Aug 2001 10:37:30 -0400
+Date: Mon, 27 Aug 2001 10:37:30 -0400 (EDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: safemode <safemode@speakeasy.net>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFC] make ide-scsi more selective
+In-Reply-To: <200108251734.NAA28426@cs.columbia.edu>
+Message-ID: <Pine.LNX.4.33.0108271033280.1461-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010827142937.6B48F5DF@jason.blazeconnect.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cc replies please - not a list member
+On Sat, 25 Aug 2001, safemode wrote:
 
-All three of these have a problem with my Dell Inspiron 8000, something to do 
-with powersaving features. I've turned off all powersaving in the BIOS, 
-omitted all the powersaving from the kernel and still the machine turns 
-itself off every so often with no warning - and no logs I can find. It 
-doesn't like anything to do with powersaving features, if I close my display 
-I re-open it to a locked up system.
+> Is there something wrong with making the Atapi cdrom driver as module and 
+> then loading that with an ignore hdX then loading the ide-scsi module?  That 
+> doesn't seem hard at all.  just two pretty lines in /etc/modules.  Just make 
+> both drivers modular.   otherwise you have people needing to do boot 
+> arguments through lilo.  
 
-2.4.8 unpatched works fine.
+Some people actually _like_ having a non-modular kernel and passing 
+arguments through lilo. As for myself, personally I just like having both 
+equally functional so I can choose whichever is better for the task at 
+hand.
 
+> and andre had a patch at one time that was supposed to do something like 
+> allow you to use the recording function of ide CDR's without the scsi layer.  
+> Not sure if it was complete or even really working but i tried it once.  
+> Maybe you can ask him if it's possible.  
 
+The packet writing stuff? That's actually Jens Axboe's work, and is very 
+different from the good ol' CD burning technique.
+
+Ion
 
 -- 
-Jason Straight
-BlazeConnect
-President
-Phone: 231-597-0376
-Fax: 231-597-0393
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311264AbSDNUe3>; Sun, 14 Apr 2002 16:34:29 -0400
+	id <S312455AbSDNUhq>; Sun, 14 Apr 2002 16:37:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312453AbSDNUe2>; Sun, 14 Apr 2002 16:34:28 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:17805 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S311264AbSDNUe2>; Sun, 14 Apr 2002 16:34:28 -0400
-Date: Sun, 14 Apr 2002 14:33:34 -0600
-Message-Id: <200204142033.g3EKXYG19293@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v210 available
+	id <S312457AbSDNUhp>; Sun, 14 Apr 2002 16:37:45 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39431 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312455AbSDNUho>; Sun, 14 Apr 2002 16:37:44 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: nanosleep
+Date: 14 Apr 2002 13:37:22 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a9cpa2$36i$1@cesium.transmeta.com>
+In-Reply-To: <20020410055708.9474.qmail@fastermail.com> <1018418496.903.228.camel@phantasy> <20020413145306.A29006@ecam.san.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 210 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+Followup to:  <20020413145306.A29006@ecam.san.rr.com>
+By author:    andrew may <acmay@acmay.homeip.net>
+In newsgroup: linux.dev.kernel
+> 
+> Make all your calls to nanasleep be less than 2ms, and loop through as
+> many as you need until you are under 2ms.
+> 
+> Don't do it for too long because you get no other use out of your machine
+> while your doing this but it does work.
+> 
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.5/devfs-patch-current.gz
+If you want to busy-wait, you might as well do it in userspace (use
+RDTSC.)
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.5/devfs-patch-current.gz
+Maybe a future version of the kernel will have more flexible
+scheduling.
 
-NOTE: kernel 2.5.1 and later require devfsd-v1.3.19 or later.
+	-hpa
 
-This is against 2.5.8. Highlights of this release:
-
-- Updated fs/devfs/util.c to fix shift warning on 64 bit machines
-  Thanks to Anton Blanchard <anton@samba.org>
-
-- Updated README from master HTML file
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

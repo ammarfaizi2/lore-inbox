@@ -1,234 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318376AbSGaN5T>; Wed, 31 Jul 2002 09:57:19 -0400
+	id <S318378AbSGaN55>; Wed, 31 Jul 2002 09:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318378AbSGaN5T>; Wed, 31 Jul 2002 09:57:19 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:38413 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S318376AbSGaN5Q>;
-	Wed, 31 Jul 2002 09:57:16 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Rik van Riel <riel@conectiva.com.br>
-Date: Wed, 31 Jul 2002 16:00:20 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: BUG at rmap.c:212
-CC: akpm@zip.com.au, <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <AE2FE25828@vcnet.vc.cvut.cz>
+	id <S318379AbSGaN54>; Wed, 31 Jul 2002 09:57:56 -0400
+Received: from 209-166-240-202.cust.walrus.com.240.166.209.in-addr.arpa ([209.166.240.202]:9375
+	"EHLO ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id <S318378AbSGaN5v>; Wed, 31 Jul 2002 09:57:51 -0400
+Date: Wed, 31 Jul 2002 10:01:07 -0400
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: blp@cs.stanford.edu, linux-kernel@vger.kernel.org
+Subject: extended integer types (was Re: [patch] Input cleanups for 2.5.29 [2/2])
+Message-ID: <20020731100107.A14404@ti18>
+References: <Pine.LNX.4.33.0207301433480.2051-100000@penguin.transmeta.com> <Pine.GSO.4.21.0207301738090.6010-100000@weyl.math.psu.edu> <87znw8anje.fsf@pfaff.Stanford.EDU> <1028122978.8510.59.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <1028122978.8510.59.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Jul 31, 2002 at 02:42:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Jul 02 at 10:11, Rik van Riel wrote:
-> On Wed, 31 Jul 2002, Petr Vandrovec wrote:
+On Wed, Jul 31, 2002 at 02:42:58PM +0100, Alan Cox wrote:
+> On Tue, 2002-07-30 at 22:55, Ben Pfaff wrote:
+> > 1    The typedef name intN_t designates a signed integer type with
+> >      width N, no padding bits, and a two's complement
+> >      representation. Thus, int8_t denotes a signed integer type
+> >      with a width of exactly 8 bits.
 > 
-> > > Line 212 is   'pte_chain_unlock(page);'   right ?
-> >
-> > Nope. On my system (2.5.29-changeset548) it is a BUG() call which was
-> > added by akpm in rmap.c revision 1.5, in his 'Add BUG() on a can't-happen
-> > code path in page_remove_rmap()'. It just added #else BUG() branch
-> > to #ifdef DEBUG_RMAP conditional.
+> And arbitary alignment requirements. At least I see nothing in C99
+> saying that
 > 
-> > Probably because of your code did not do anything special when
-> > 'Not found. This should NEVER happen!' code path triggers.
-> Of course, ntpd is probably running into a different problem,
-> but the printk's enabled with DEBUG_RMAP should give us some
-> hints.
+> 	uint8_t foo;
+> 	uint8_t bar;
+> 
+> isnt allowed to give you interesting suprises
 
-No nvidia here. Boot, start X, quit X, run updatedb, reboot...
-cat /proc/`pidof ntpd`/maps says that it has mmaped only ntpd and
-few libraries from /lib. I hope that printed values will have
-some value for you. And btw, ntpd uses some mlock*() call, it has status
-'SL' in process list. Do you know how to find what memory it has locked?
+The problem here is footnote 215, which says "Some of these types may
+denote implementation-defined extended integer types."  The rest of
+section 7.18 is built around a conceptual model of the extended integer
+types as aliases to the standard types.
 
-Jul 31 15:38:13 vana sshd[1303]: Received signal 15; terminating.
-Jul 31 15:38:13 vana ntpd[1326]: ntpd exiting on signal 15
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893098 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89309c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8930a0 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8930a4 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana wwwoffled[1311]: Exit signalled. 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893100 not present.
-Jul 31 15:38:13 vana wwwoffled[1311]: Exiting. 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893228 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89322c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893230 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893234 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde210 dadfe210 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893238 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89323c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893240 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893260 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dec759c4 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8932d4 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893310 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: db27f1e8 dbbde2ec dadfe2ec 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893314 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: db27f1ec dbbde2f0 dadfe2f0 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89331c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: db27f1f4 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893380 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893438 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89343c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde418 dadfe418 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893448 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde424 dadfe424 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8934b0 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8934c0 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8934d0 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde4ac dadfe4ac 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8934d4 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde4b0 dadfe4b0 dfc5c3ac cddaf3ac d418c3ac ca9353ac c559a3ac 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8934ec not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde4c8 dadfe4c8 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893520 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893528 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89353c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893550 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893554 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893558 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893560 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893568 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89356c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893570 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893574 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89358c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde568 dadfe568 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893590 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dfc5c468 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893594 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dfc5c46c 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893604 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde5e0 dadfe5e0 dfc5c4dc 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893630 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde098 dadfe098 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893634 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde09c dadfe09c 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893638 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0a0 dadfe0a0 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89363c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0a4 dadfe0a4 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893640 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0a8 dadfe0a8 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893644 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0ac dadfe0ac 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893648 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0b0 dadfe0b0 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89364c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0b4 dadfe0b4 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893650 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0b8 dadfe0b8 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893654 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0bc dadfe0bc 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc893658 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0c0 dadfe0c0 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc89365c not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde0c4 dadfe0c4 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8936b0 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8936c8 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8936cc not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8936e0 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8936e8 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: dbbde150 dadfe150 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8936f0 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:13 vana kernel: page_remove_rmap: pte_chain dc8936f4 not present.
-Jul 31 15:38:13 vana kernel: page_remove_rmap: only found: 
-Jul 31 15:38:13 vana kernel: page_remove_rmap: driver cleared PG_reserved ?
-Jul 31 15:38:15 vana kernel: Kernel logging (proc) stopped.
-Jul 31 15:38:15 vana kernel: Kernel log daemon terminating.
+The standard almost surely means the smallest such type, but does
+not in fact say that.  The standards language appears to conflate the
+value semantics with the representation width.  (However, see the
+description of int_leastN.) I will consider filing a defect report.
 
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+The C99 <stdint.h> types are the bastard child of a paper by Frank
+Farance and myself on extended integer type semantics, combined with an
+earlier [u]intN_t proposal.  Our input to the C9x process largely ended
+with the discussion of the original paper, for unrelated reasons.
+
+The intention was to remove the ambiguity in much legacy code that used
+"long" in two ways: as the largest integral type, and as an exact 32-bit
+container.  IIRC, the original proposal described integral types with the
+following semantics:
+
+   exact<n>
+
+      exact [un]signed n-bit arithmetic in the smallest supported
+      integral container, so that if a standard type of width <n> bits
+      exists, then exact<n> corresponds to it.  Hence sizeof(exact<8>)
+      == 1 on all sane platforms.  Think bitfields in auto-sized
+      containers.
+
+   least<n> -
+
+      [un]signed arithmetic with the smallest integral type >= n bits
+      that is "natural" to the platform, typically half-register,
+      register, or double-register width.  least<n> corresponds to exact<m>
+      for some m >= n.
+
+   fast<n>
+
+      the fastest "natural" (i.e., [half-]register)  width for the platform,
+      to be used for accumulators, etc., where external representation
+      is unimportant.
+
+Humbly,
+
+    Bill Rugolsky
+

@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269006AbUJKOxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269013AbUJKOxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269006AbUJKOxD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 10:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUJKOwg
+	id S269013AbUJKOxE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 10:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269020AbUJKOwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 10:52:36 -0400
-Received: from colin2.muc.de ([193.149.48.15]:61188 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S269006AbUJKOuX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:50:23 -0400
-Date: 11 Oct 2004 16:50:22 +0200
-Date: Mon, 11 Oct 2004 16:50:22 +0200
-From: Andi Kleen <ak@muc.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Tim Cambrant <cambrant@acc.umu.se>,
-       akpm@digeo.com
-Subject: Re: 2.6.9-rc4-mm1
-Message-ID: <20041011145022.GA52120@muc.de>
-References: <2O5L3-5Jq-11@gated-at.bofh.it> <2O6Ho-6ra-51@gated-at.bofh.it> <m3zn2tv35o.fsf@averell.firstfloor.org> <200410111538.33299.rjw@sisk.pl>
+	Mon, 11 Oct 2004 10:52:14 -0400
+Received: from swszl.szkp.uni-miskolc.hu ([193.6.2.24]:45696 "EHLO
+	swszl.szkp.uni-miskolc.hu") by vger.kernel.org with ESMTP
+	id S269024AbUJKOvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 10:51:05 -0400
+Date: Mon, 11 Oct 2004 16:51:04 +0200
+From: Vitez Gabor <vitezg@niif.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Subject: forcedeth: "received irq with unknown events 0x1"
+Message-ID: <20041011145104.GA9494@swszl.szkp.uni-miskolc.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <200410111538.33299.rjw@sisk.pl>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 03:38:32PM +0200, Rafael J. Wysocki wrote:
-> On Monday 11 of October 2004 14:40, Andi Kleen wrote:
-> > Tim Cambrant <cambrant@acc.umu.se> writes:
-> > 
-> > > On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
-> > >>
-> > >> optimize-profile-path-slightly.patch
-> > >>   Optimize profile path slightly
-> > >>
-> > >
-> > > I'm still getting an oops at startup with this patch. After reversing
-> > > it, everything is fine. Weren't you supposed to remove that from your
-> > > tree until it was fixed?
-> > 
-> > There's a fixed version around. I thought Andrew had merged that one?
-> [-- snip --]
-> 
-> This one does not apply to -mm.
+Hi,
 
-You have to revert the previous version first.
+my forcedeth driver said:
 
--Andi
+eth1: received irq with unknown events 0x1. Please report
+
+It happened, when I tried to connect two machines with straight ethernet
+cable. 
+
+One of the machines is a Dell Poweredge 400SC, with an intel E1000 card, 
+the other is a home-made one, with nvidia nforce2 chipset based motherboard,
+integrated nvidia ethernet, and a 3com 905C network card. 
+
+When I connect the Dell machine to the nvidia ethernet card, I get the
+"unknown events" warning, and the E1000's driver reports that the link is
+down. However when I connect the E1000 and the 3com card, everything works
+fine. Both kernels are vanilla 2.4.27.
+
+lspci of the nvidia ethernet card:
+
+00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet Controller
+(rev a1)
+        Subsystem: Micro-Star International Co., Ltd.: Unknown device 570c
+        Flags: bus master, 66Mhz, fast devsel, latency 0, IRQ 5
+        Memory at e1086000 (32-bit, non-prefetchable) [size=4K]
+        I/O ports at e000 [size=8]
+        Capabilities: <available only to root>
+
+
+lspci of the E1000 card:
+
+02:0c.0 Ethernet controller: Intel Corp.: Unknown device 100e (rev 02)
+        Subsystem: Dell Computer Corporation: Unknown device 0156
+        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 18
+        Memory at fe9e0000 (32-bit, non-prefetchable) [size=128K]
+        I/O ports at db40 [size=64]
+        Capabilities: [dc] Power Management version 2
+        Capabilities: [e4] #07 [0002]
+        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+
+
+
+	regards
+		Gabor

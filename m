@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274887AbTHFHLG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 03:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274893AbTHFHLG
+	id S274881AbTHFHES (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 03:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274884AbTHFHES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 03:11:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56237 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S274887AbTHFHLC (ORCPT
+	Wed, 6 Aug 2003 03:04:18 -0400
+Received: from sngrel7.hp.com ([192.6.86.111]:31729 "EHLO sngrel7.hp.com")
+	by vger.kernel.org with ESMTP id S274881AbTHFHER (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 03:11:02 -0400
-Message-Id: <200308060711.h767B0I19677@mail.osdl.org>
-From: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.5/2.6 PCMCIA Issues
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>
-Reply-To: torvalds@osdl.org
-Date: Wed, 06 Aug 2003 00:11:00 -0700
-References: <20030804232204.GA21763@nasledov.com> <20030805144453.A8914@flint.arm.linux.org.uk> <20030806045627.GA1625@nasledov.com> <200308060559.h765xhI05860@mail.osdl.org> <20030805234212.081c0493.akpm@osdl.org>
-Organization: OSDL
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
+	Wed, 6 Aug 2003 03:04:17 -0400
+Date: Wed, 6 Aug 2003 17:04:06 +1000
+From: Martin Pool <mbp@samba.org>
+To: linux-kernel@vger.kernel.org, zippel@linux-m68k.org,
+       Alain.Knaff@poboxes.com
+Subject: [patch] [Kconfig] disable CONFIG_FD on ia64, which has no floppy drive
+Message-ID: <20030806070356.GA11405@vexed.ozlabs.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Disposition: inline
+X-GPG: 1024D/A0B3E88B: AFAC578F 1841EE6B FD95E143 3C63CA3F A0B3E88B
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->
-> I have an IBM A21P which has the same problem.
-> 
-> The controller is a PCI1450 (rev 03)
-> 
-> The symptoms are that insertion of a PCMCIA or Cardbus card causes the
-> machine to lock up: it is calling yenta_interrupt() a zillion times per
-> second.  Presumably the IRQ isn't getting cleared.
-> 
-> Disabling i82635 in config fixes it up.
+As of linux-2.6.0-test2-ia64-030729, there is no asm-ia64/floppy.h,
+and so the fd driver won't work.  Other architectures have various
+legacy floppy controllers, but ia64 does not have one and is never
+likely to.
 
-Ok. Misha confirmed that disabling 82365 works for him too.
+David Mosberger says:
 
-I don't see what should have changed in 2.5.71 here, though. There are
-some pcmcia changes there, but they all look like they are just changes
-to the calling convention, not any _functional_ differences.
+> The Merced machines came with SuperDrives (or whatever they
+> were called), but those attached to the IDE controller, not the floppy
+> controller.  The classic (AT-style) floppy controller is an ISA device
+> and since ia64 doesn't support ISA, such controllers never were
+> supported.
 
-Anyway, I suspect that i82365 should just quit by default if a yenta
-controller has already been found. I can't imagine that you'd have
-both a yenta controller _and_ an i82365 controller, since there are
-actually some port overlaps there (ie yenta should already register
-the i82365 legacy ports).
+There is no reason to ever have CONFIG_FD on ia64, but if it does get
+turned on then the build will fail.  Therefore, I suggest this patch
+to keep it off:
 
-Something is broken in resource handling that the i82365 driver
-even tries to probe for the ports that are in use.
+--- linux-2.6.0test2-ia64/drivers/block/Kconfig.~1~     2003-07-29 12:07:02.000000000 +1000
++++ linux-2.6.0test2-ia64/drivers/block/Kconfig 2003-08-06 15:55:16.000000000 +1000
+@@ -6,7 +6,7 @@ menu "Block devices"
 
-Russell, any ideas about why i82365 doesn't just leave the thing
-well alone?
+ config BLK_DEV_FD
+        tristate "Normal floppy disk support"
+-       depends on !X86_PC9800
++       depends on !X86_PC9800 && !IA64
+        ---help---
+          If you want to use the floppy disk drive(s) of your PC under Linux,
+          say Y. Information about this driver, especially important for IBM
 
-                Linus
+-- 
+Martin 

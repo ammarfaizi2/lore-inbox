@@ -1,64 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265218AbRFUUyn>; Thu, 21 Jun 2001 16:54:43 -0400
+	id <S265222AbRFUU5W>; Thu, 21 Jun 2001 16:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265219AbRFUUyc>; Thu, 21 Jun 2001 16:54:32 -0400
-Received: from chmls06.mediaone.net ([24.147.1.144]:52669 "EHLO
-	chmls06.mediaone.net") by vger.kernel.org with ESMTP
-	id <S265218AbRFUUyZ>; Thu, 21 Jun 2001 16:54:25 -0400
-From: andrew@pimlott.ne.mediaone.net (Andrew Pimlott)
-Date: Thu, 21 Jun 2001 16:46:25 -0400
-To: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-Message-ID: <20010621164625.E23465@pimlott.ne.mediaone.net>
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com> <E15D9DP-0001sF-00@the-village.bc.nu> <20010621151716.B5662@thyrsus.com> <20010621155103.B23465@pimlott.ne.mediaone.net> <20010621161322.A6873@thyrsus.com>
-Mime-Version: 1.0
+	id <S265223AbRFUU5M>; Thu, 21 Jun 2001 16:57:12 -0400
+Received: from smtp3.libero.it ([193.70.192.53]:41190 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S265222AbRFUU5B>;
+	Thu, 21 Jun 2001 16:57:01 -0400
+Message-ID: <3B325F05.8D2F492A@alsa-project.org>
+Date: Thu, 21 Jun 2001 22:54:29 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, D.A.Fedorov@inp.nsk.su,
+        Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+        Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is it useful to support user level drivers
+In-Reply-To: <Pine.LNX.3.95.1010621161215.4263A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010621161322.A6873@thyrsus.com>; from esr@thyrsus.com on Thu, Jun 21, 2001 at 04:13:22PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 21, 2001 at 04:13:22PM -0400, Eric S. Raymond wrote:
-> Andrew Pimlott <andrew@pimlott.ne.mediaone.net>:
-> > On Thu, Jun 21, 2001 at 03:17:16PM -0400, Eric S. Raymond wrote:
-> > > IANAL, but I believe that Linus's position as anthology copyright holder
-> > > makes him privileged in this respect.
-> > 
-> > Regardless of what you find in the books, recall that Linus has
-> > stated that decentralizing the copyright of Linux was a goal, so you
-> > may not find him willing to claim an "anthology copyright" (if such
-> > a thing even applies to the kernel, which in my NAL opinion, it does
-> > not).
+"Richard B. Johnson" wrote:
 > 
-> Linus *is*, however, implicitly claiming the authority to make license
-> policy on behalf of the other copyright holders in cases where the GPL
-> is unclear.
+> It just broke. The handler returned before the cause of the interrupt
+> was handled. Think LEVEL interrupts. The same interrupt will again
+> be entered, looping over and over again, until the tiny bit if CPU
+> resource available for the few instants the handler was not in the
+> ISR, was enough for the user-mode signal-handler to shut the
+> damn thing off, pull the plug, and figure this will never work.
+
+Sorry, I've missed an action writing the previous message (now marked
+with a +)
+
+Kernel space:
+- irq 9 arrives from our device
+- interrupts are disabled
+- our kernel space micro handler is invoked
+- interrupt source is checked
++ interrupt is acknowledged to our device
+- if no notification is pending a signal is notificated for user space
+(or a process is marked runnable)
+- optionally our device interrupt generation is disabled
+- handler returns
+- interrupts are enabled
+
+> >
+> > User space:
+> > - signal arrive (or process is restarted)
+> > - action is done
+> > - notification is acknowledged (using an ioctl)
+> >
 > 
-> In COPYING, Linus says that that the version of GPL applying to the
-> kernel is v2 unless explicitly otherwise stated.  He has also already
-> issued the interpretation that normal system calls from userland do
-> not create a derivation relationship.
-> 
-> I consider Linus to have the moral right to make these decisions, whether
-> or not the law gives him a formal legal right to do so.  All I have done
-> is propose that he be more explicit about his policy in order to prevent
-> needless confusion and nervousness.
+> Way too late see above.
 
-I agree entirely that Linus, as creator of the license, is
-privileged with respect to interpretation of the license.  I
-disagree however with your suggestion that he is privileged with
-respect to the copyright (eg the ability to sue or relicense),
-especially since his own words (cited earlier) read like a
-disclaimer of such privilege.
+Don't equivocate me: this not the IRQ acknowledge, it's the acknowledge
+of the user space notification.
 
-I basically support your position.
+Also note that this mechanism is not an attempt to demonstrate that to
+move interrupt handlers to user space is a good thing. I wanted only to
+show a way to permit to have *pseudo* interrupt handlers in user space
+also having shared IRQ.
 
-Andrew
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
+
+ALSA project               http://www.alsa-project.org
+It sounds good!

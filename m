@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbUCGQQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 11:16:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbUCGQQI
+	id S262202AbUCGQNs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 11:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbUCGQNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 11:16:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:55684 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262143AbUCGQPw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 11:15:52 -0500
-Date: Sun, 7 Mar 2004 17:15:50 +0100
-From: Olaf Hering <olh@suse.de>
-To: nathans@sgi.com
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: linux-2.5 cset 1.1654.1.2  xfs filemap_flush() unresolved
-Message-ID: <20040307161550.GA2812@suse.de>
-References: <20040307052556.4BABC468E4@mandarine.suse.de>
+	Sun, 7 Mar 2004 11:13:48 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14599 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262202AbUCGQNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 11:13:45 -0500
+Date: Sun, 7 Mar 2004 16:13:41 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: [PATCH] Fix i2c_use_client()
+Message-ID: <20040307161341.A7065@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Greg KH <greg@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040307052556.4BABC468E4@mandarine.suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i2c_use_client() contains a bogosity.  If i2c_inc_use_client() returns
+success, i2c_use_client() returns an error.  If i2c_inc_use_client()
+fails, i2c_use_client() might succeed.
 
+Fix it so that (a) we get the correct sense between these two functions,
+and (b) propagate the error code from i2c_inc_use_client(), rather than
+making our own one up.
 
-filemap_flush() is not an exported symbol, at least not in my tree.
-
-
-> ChangeSet
->   1.1654.1.2 04/03/06 14:47:10 nathans@sgi.com +1 -0
->   [XFS] Fix out-of-space deadlock when flushing delalloc data with pages locked under write.
->   
->   SGI Modid: xfs-linux:xfs-kern:167948a
-> 
->   fs/xfs/linux/xfs_super.c
->     1.70 04/03/06 14:46:51 nathans@sgi.com +1 -1
->     [XFS] Fix out-of-space deadlock when flushing delalloc data with pages locked under write.
-> 
-> .........................................................................
-> # This is a BitKeeper generated patch for the following project:
-> # Project Name: Linux kernel tree
-> # This patch format is intended for GNU patch command version 2.5 or higher.
-> # This patch includes the following deltas:
-> #	           ChangeSet	1.1654.1.1 -> 1.1654.1.2
-> #	fs/xfs/linux/xfs_super.c	1.69    -> 1.70   
-> #
-> # The following is the BitKeeper ChangeSet Log
-> # --------------------------------------------
-> # 04/03/06	nathans@sgi.com	1.1654.1.2
-> # [XFS] Fix out-of-space deadlock when flushing delalloc data with pages locked under write.
-> # 
-> # SGI Modid: xfs-linux:xfs-kern:167948a
-> # --------------------------------------------
-> #
-> diff -Nru a/fs/xfs/linux/xfs_super.c b/fs/xfs/linux/xfs_super.c
-> --- a/fs/xfs/linux/xfs_super.c	Sun Mar  7 06:25:54 2004
-> +++ b/fs/xfs/linux/xfs_super.c	Sun Mar  7 06:25:54 2004
-> @@ -247,7 +247,7 @@
->  {
->  	struct inode	*inode = LINVFS_GET_IP(XFS_ITOV(ip));
->  
-> -	filemap_fdatawrite(inode->i_mapping);
-> +	filemap_flush(inode->i_mapping);
->  }
->  
->  void
-> .........................................................................
-> # vim: syntax=diff
-> 
+--- orig/drivers/i2c/i2c-core.c	Wed Feb 18 22:33:49 2004
++++ linux/drivers/i2c/i2c-core.c	Sun Mar  7 16:05:27 2004
+@@ -437,8 +437,11 @@ static void i2c_dec_use_client(struct i2
+ 
+ int i2c_use_client(struct i2c_client *client)
+ {
+-	if (!i2c_inc_use_client(client))
+-		return -ENODEV;
++	int ret;
++
++	ret = i2c_inc_use_client(client);
++	if (ret)
++		return ret;
+ 
+ 	if (client->flags & I2C_CLIENT_ALLOW_USE) {
+ 		if (client->flags & I2C_CLIENT_ALLOW_MULTIPLE_USE)
 
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

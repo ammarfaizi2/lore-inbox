@@ -1,75 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265151AbTFEVEF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 17:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbTFEVDq
+	id S265153AbTFEVGb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 17:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265138AbTFEVCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 17:03:46 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:40402 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265121AbTFEVB3 (ORCPT
+	Thu, 5 Jun 2003 17:02:09 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:10195 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265137AbTFEVBj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 17:01:29 -0400
-Date: Thu, 5 Jun 2003 14:16:04 -0700
+	Thu, 5 Jun 2003 17:01:39 -0400
+Date: Thu, 5 Jun 2003 14:17:13 -0700
 From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI: remove usage of pci_for_each_dev() in sound/oss/via82cxxx_audio.c
-Message-ID: <20030605211604.GA7029@kroah.com>
-References: <200306050328.h553SlEL011941@hera.kernel.org> <3EDEC4AA.3050008@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+       mochel@osdl.org
+Subject: Re: [RFT/C 2.5.70] Input class hook up to driver model/sysfs
+Message-ID: <20030605211713.GB7029@kroah.com>
+References: <175110000.1054083891@w-hlinder> <20030605211258.GA705@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3EDEC4AA.3050008@pobox.com>
+In-Reply-To: <20030605211258.GA705@elf.ucw.cz>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 05, 2003 at 12:18:50AM -0400, Jeff Garzik wrote:
-> Linux Kernel Mailing List wrote:
-> >ChangeSet 1.1254.4.15, 2003/06/04 12:30:25-07:00, greg@kroah.com
-> >
-> >	[PATCH] PCI: remove usage of pci_for_each_dev() in 
-> >	sound/oss/via82cxxx_audio.c
-> >
-> >
-> ># This patch includes the following deltas:
-> >#	           ChangeSet	1.1254.4.14 -> 1.1254.4.15
-> >#	sound/oss/via82cxxx_audio.c	1.27    -> 1.28   
-> >#
-> >
-> > via82cxxx_audio.c |   11 +++++------
-> > 1 files changed, 5 insertions(+), 6 deletions(-)
-> >
-> >
-> >diff -Nru a/sound/oss/via82cxxx_audio.c b/sound/oss/via82cxxx_audio.c
-> >--- a/sound/oss/via82cxxx_audio.c	Wed Jun  4 20:28:51 2003
-> >+++ b/sound/oss/via82cxxx_audio.c	Wed Jun  4 20:28:51 2003
-> >@@ -1357,12 +1357,12 @@
-> > {
-> > 	int minor = minor(inode->i_rdev);
-> > 	struct via_info *card;
-> >-	struct pci_dev *pdev;
-> >+	struct pci_dev *pdev = NULL;
-> > 	struct pci_driver *drvr;
-> > 
-> > 	DPRINTK ("ENTER\n");
-> > 
-> >-	pci_for_each_dev(pdev) {
-> >+	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != 
-> >NULL) {
-> > 		drvr = pci_dev_driver (pdev);
-> > 		if (drvr == &via_driver) {
-> > 			assert (pci_get_drvdata (pdev) != NULL);
+On Thu, Jun 05, 2003 at 11:12:58PM +0200, Pavel Machek wrote:
+> Hi!
 > 
+> > I did this once before but due to some infrastructure changes 
+> > it had to be written again. Here it is, pretty simple. Now
+> > you can see your input devices (except keyboard) listed under
+> > /sys/class/input like this (yes, I do have two mice attached).
+> > At the moment the dev file is created and it contains the
+> > hex value of the major and minor number.
 > 
-> Looking at your various commits in this vein, it really looks like there 
-> needs to be a function that returns the PCI device, given the struct 
-> pci_driver pointer.  pci_find_driver() perhaps?
+> *very* nice, and urgently needed for suspend/resume support.
 
-Hm, only about 3 places really use that, and they would want something
-that would iterate over all pci devices that were bound to that driver.
-As the three places are in OSS drivers, I don't know if it's really
-worth adding a pci core function for them :)
+No, classes have nothing to do with suspend/resume, that's devices.
+
+> But should not structure be /bus/sys/keyboard_controller/mouse0? Mouse
+> needs to be suspended before keyboard controller...
+
+Yes, but this patch is putting stuff in /sys/class/input, not /sys/bus
+:)
 
 thanks,
 

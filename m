@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264068AbRFESOs>; Tue, 5 Jun 2001 14:14:48 -0400
+	id <S263137AbRFESdb>; Tue, 5 Jun 2001 14:33:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263126AbRFESOi>; Tue, 5 Jun 2001 14:14:38 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:5126 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S264077AbRFESO0>; Tue, 5 Jun 2001 14:14:26 -0400
-Date: Tue, 05 Jun 2001 14:13:54 -0400
-From: Chris Mason <mason@suse.com>
-To: Carlos E Gorges <carlos@techlinux.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 245ac7 - ncr53c8xx && reiserfs
-Message-ID: <972450000.991764834@tiny>
-In-Reply-To: <01060514511100.00321@shark.techlinux>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264070AbRFESdV>; Tue, 5 Jun 2001 14:33:21 -0400
+Received: from vega.digitel2002.hu ([213.163.0.181]:20112 "HELO
+	vega.digitel2002.hu") by vger.kernel.org with SMTP
+	id <S263137AbRFESdE>; Tue, 5 Jun 2001 14:33:04 -0400
+Date: Tue, 5 Jun 2001 20:32:50 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: linux-kernel@vger.kernel.org
+Subject: ethertap
+Message-ID: <20010605203250.E17033@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.18i
+X-Operating-System: vega Linux 2.2.19 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+According /usr/src/linux/Documentation/networking/ethertap.txt I've tried
+to use ethertap for my experimental user space TCP/IP implementation 
+testing. I'm using kernel 2.2.19 (UP).
 
-On Tuesday, June 05, 2001 03:00:40 PM -0400 Carlos E Gorges
-<carlos@techlinux.com.br> wrote:
+I load ethertap kernel module and configure it with ifconfig. Nice,
+ping works, ifconfig show tap0. /dev/tap0 exists, major and minor is
+correct.
 
-> Hi all,
-> 
-> I get some problems w/ 2.4.5-ac7, ncr53c8xx w/ 2.4.4-ac18 works fine.
-> 
-> I gave a small looked on problem  ..
-> the problem apparently is w/ ncr53c8xx driver ( who accuses timeout ),
-> and make reiserfs call BUG() :
-> 
+But opening /dev/tap0 does not work!
 
-reiserfs does this when it fails to write metadata or log buffers,
-continuing without a panic or readonly mount will result in FS corruption.  
+munmap(0x127000, 55843)                 = 0
+getpid()                                = 29070
+open("/dev/tap0", O_RDWR|O_NONBLOCK)    = -1 ENOSYS (Function not implemented)
+open("/dev/tap0", O_RDWR|O_NONBLOCK)    = -1 ENOSYS (Function not implemented)
+open("/dev/tap0", O_RDWR|O_NONBLOCK)    = -1 ENODEV (No such device)
+write(2, "Cannot open /dev/tap0: No such d"..., 38Cannot open /dev/tap0: No such device
 
-A forced readonly mount is a much better solution, but I haven't had a
-chance yet to make sure it safely prevents writeback of all metadata, and
-cleans things up properly.
+What can be the problem? How can I use /dev/tap0 then? I exactly followed
+instructions read in ethertap.txt but it does not work ;-(((
 
--chris
+- Gabor
 
+PS: please cc me, I've got problems with getting mails from this list it
+seems :(
 
+-- 
+ --[ Gábor Lénárt ]---[ Vivendi Telecom Hungary ]---------[ lgb@lgb.hu ]--
+ U have 8 bit comp or chip of them and it's unused or to be sold? Call me!
+ -------[ +36 30 2270823 ]------> LGB <-----[ Linux/UNIX/8bit 4ever ]-----

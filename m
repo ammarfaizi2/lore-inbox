@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271888AbRIEJwM>; Wed, 5 Sep 2001 05:52:12 -0400
+	id <S271895AbRIEJ6c>; Wed, 5 Sep 2001 05:58:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271892AbRIEJwC>; Wed, 5 Sep 2001 05:52:02 -0400
-Received: from ns.suse.de ([213.95.15.193]:60420 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271888AbRIEJvu>;
-	Wed, 5 Sep 2001 05:51:50 -0400
-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: getpeereid() for Linux
-In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Sep 2001 11:52:09 +0200
-In-Reply-To: Florian Weimer's message of "5 Sep 2001 11:22:44 +0200"
-Message-ID: <oupae0ax8vq.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S271929AbRIEJ6W>; Wed, 5 Sep 2001 05:58:22 -0400
+Received: from miranda.axis.se ([193.13.178.2]:47285 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S271895AbRIEJ6Q>;
+	Wed, 5 Sep 2001 05:58:16 -0400
+Message-ID: <3B95F745.A1476AFD@axis.com>
+Date: Wed, 05 Sep 2001 11:58:29 +0200
+From: Orjan Friberg <orjan.friberg@axis.com>
+Organization: Axis Communications AB
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: orjan.friberg@axis.com
+Subject: sa_sigaction signal handler: third parameter?
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE> writes:
+I'm trying to make life easier for a user-defined SIGSEGV handler, the
+sa_sigaction one with 3 parameters.  The second parameter, the siginfo_t
+* one, is there.  Problem is, I would like to pass on additional
+information to the signal handler, more specifically information about
+whether there was a protection fault, read/write etc.  I've looked at
+some of the other ports (I'm working on the CRIS port BTW), and for
+example the i386 has fields in the task and sigcontext structs to keep
+this sort of information.  
 
-> Would anyone like to give me a helping hand in implementing the
-> getpeereid() syscall for Linux?  See the following page for the
-> documentation of the OpenBSD implementation:
+Question is how to pass this information on to the signal handler. 
+Looking at the code, it seems the third parameter (void *) is being used
+to send a ucontext_t * in (at least) the arm and mips cases.  I followed
+a lot of threads in the archive, but couldn't find one that adressed
+what this third parameter is actually meant to be used for.  Obviously,
+sending a ucontext would solve my problem, since it contains the
+sigcontext struct.  Is there a Right Way to do it?
 
-It is implemented for unix sockets (see unix(7))
-For TCP it is rather useless because it would work only locally. If you trust
-the localhost you're probably better off using the ident protocol for it.
+(I'm not subscribed to the list, so please keep me on the CC list.)
 
--Andi
-
+-- 
+Orjan Friberg              E-mail: orjan.friberg@axis.com
+Axis Communications AB     Phone:  +46 46 272 17 68

@@ -1,113 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266716AbTBLWUD>; Wed, 12 Feb 2003 17:20:03 -0500
+	id <S267893AbTBLWVd>; Wed, 12 Feb 2003 17:21:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267881AbTBLWUD>; Wed, 12 Feb 2003 17:20:03 -0500
-Received: from aramis.rutgers.edu ([128.6.4.2]:24455 "EHLO aramis.rutgers.edu")
-	by vger.kernel.org with ESMTP id <S266716AbTBLWUC>;
-	Wed, 12 Feb 2003 17:20:02 -0500
-Subject: Re: O_DIRECT foolish question
-From: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20030212140338.6027fd94.akpm@digeo.com>
-References: <1045084764.4767.76.camel@urca.rutgers.edu>
-	 <20030212140338.6027fd94.akpm@digeo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HdzYVgPx257YK3Q47eNX"
-Organization: Rutgers University
-Message-Id: <1045088991.4767.85.camel@urca.rutgers.edu>
+	id <S267889AbTBLWVd>; Wed, 12 Feb 2003 17:21:33 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:62392 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267887AbTBLWV2> convert rfc822-to-8bit; Wed, 12 Feb 2003 17:21:28 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <Valdis.Kletnieks@vt.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Wed, 12 Feb 2003 14:31:13 -0800
+In-Reply-To: <200302122143.h1CLhApk010133@turing-police.cc.vt.edu>
+Subject: Re: Monta Vista software license terms
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 12 Feb 2003 17:29:52 -0500
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030212223115.AAA18900@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 12 Feb 2003 16:43:10 -0500, Valdis.Kletnieks@vt.edu wrote:
+>On Wed, 12 Feb 2003 13:30:21 PST, David Schwartz said:
 
---=-HdzYVgPx257YK3Q47eNX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>>You already have the right to produce derivative works.
 
-On Wed, 2003-02-12 at 17:03, Andrew Morton wrote:
-> Bruno Diniz de Paula <diniz@cs.rutgers.edu> wrote:
-> >
-> > Hi,
-> >=20
-> > I am trying to use O_DIRECT to read ordinary files and read syscall
-> > always returns 0, unless when the file size equals the fs block size.
->=20
-> It should be returning -1, with errno set to EINVAL.
+>No. At least in the US, 17 USC 106 says producing a derivative right
+>is reserved to the
+>copyright holder, except for the cases enumerated in 17 USC 107-121.
 
-But I am using multiples of page size in both buffer alignment and
-buffer size (2nd and 3rd parameters of read). The issue is that when I
-try to read files with sizes that are NOT multiples of block size (and
-therefore also not multiples of page size), the read syscall returns 0,
-with no errors. With files of size 4096, 8192 etc, everything works
-fine. The errors shouldn't occur indeed, as I am using the correct
-alignment and size to read. So the question remains, am I able to read
-just files whose size is a multiple of block size?
+>So if you're producing a derivative work without having gotten the
+>rights to do so, you're screwed in the legal sense.
 
-Thanks,
+	You have been given that right. The GPL, without clause 2, gives you 
+the right to use the work (see citation below). For source code, the 
+only way to use it is to produce derivative works.
 
-Bruno.
+>Clause 2 of the GPL gives you the right to produce derivative works 
+>*IF*
+>you accept the conditions.  Having accepted that clause, you're
+>bound by
+>it - that's what makes the GPL work.
+>
+>Please enumerate what *OTHER* way you are getting the right to
+>produce a
+>derivative work, rather than via the GPL clause 2.  (Note that this 
+>*could*
+>happen, if for instance code is dual-licensed and you are getting
+>the right via the other license).
 
-PS: I am running 2.4.20...
+	The GPL says:
 
->=20
-> > Is
-> > it true that I can only use O_DIRECT when the size of the file written
-> > in the inode is a multiple of block size?
-> >=20
->=20
-> The file can be of any size - the kernel will zero-fill any remaining byt=
-es.
->=20
-> The address and length which you pass into the read() or write() system c=
-all
-> must both be a multiple of the filesystem block size.
->=20
-> It is always safe to just use the machine's page size for alignment
-> calculations - no filesystem has a blocksize larger than the pagesize.
->=20
-> A good way to do this is to run getpagesize(), and to then malloc a buffe=
-r
-> which is one page larger than you need.  Then round that address up to th=
-e
-> next page boundary.  And perform I/O into that memory with
-> multiple-of-page-size requests.
->=20
->=20
->=20
-> In the 2.5 kernel the "must be a multiple of blocksize" requirement was
-> relaxed.  We now support alignments and lengths down to the minimum which=
- is
-> supported by the underlying device.  Typically 512 bytes, but not always.
->=20
-> Portable applications should not assume that 512-byte alignment is suppor=
-ted.
-> They should query the device's aligment requirements via the BLKSSZGET io=
-ctl
-> against (say) /dev/hda1.  Or they can simply try 512, 1024, 2048, ...  at
-> initialisation time.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-Rutgers University
+"Activities other than copying, distribution and modification are not
+covered by this License; they are outside its scope.  The act of
+running the Program is not restricted, and the output from the 
+Program is covered only if its contents constitute a work based on 
+the Program (independent of having been made by running the Program).
+Whether that is true depends on what the Program does."
 
---=-HdzYVgPx257YK3Q47eNX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	Please explain to me, say for the case of the Linux kernel source 
+code, how you can run it without first producing a derivative work. 
+Granting a person the right to *use* source code means granting them 
+the right to produce derivative works of that source code because 
+that is how source code is used.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+	How can I use the Linux kernel, say on an FTP site or a CD that I 
+ordered, without copying it onto my computer? How can I compile it 
+without copying it into memory?
 
-iD8DBQA+SsrfZGORSF4wrt8RAjjVAJ0YCWW1kPwSRC5TY/o23z5FcurxNQCfS2se
-S7uBWUQkRfc82vIkyA9RJnY=
-=KtF7
------END PGP SIGNATURE-----
+	You cannot use a C source file without modifying it. In order to 
+compile it, you must pass it through a preprocessor. This produces a 
+modified copy of the original.
 
---=-HdzYVgPx257YK3Q47eNX--
+	Source code is like a recipe. The right to use it implicitly 
+includes the right to follow the recipe and eat the results because 
+that is how one uses a recipe. Along the way, one makes copies and 
+derived works. It's simply unavoidable.
+
+	This doesn't mean that all copying and modifying is automatically 
+allowed for all cases where you have the right to use source code. 
+However, it does mean that absent a restrictive agreement to the 
+contrary that limits your *usage* rights, you can create derived 
+works and you can make copies because that's how you use source code. 
+
+	You can't give the derived works or copies to those who have no 
+right to the original work (because you can't give others rights to 
+code that is not yours). However, no special right to the original 
+work is needed to distribute derived works among those who already 
+have the right to use and possess the original work and make the 
+derived works.
+
+	In the case of the GPL, you even have the additional right to 
+distribute the original work. I would argue that you can distribute 
+derived works even without the right to distribute the original 
+provided all recipients have the right to use and possess the 
+original. But this argument isn't even needed.
+
+>Note again that two of these rights (distribute the original,
+>distribute
+>the modifications) are *NOT* ones you inherently have - you are
+>getting them
+>*WITH RESTRICTIONS* on what you can and can't do (see clause 2
+>again).
+
+	No, that is not true. The GPL says:
+
+"1. You may copy and distribute verbatim copies of the Program's
+source code as you receive it, in any medium, provided that you
+conspicuously and appropriately publish on each copy an appropriate
+copyright notice and disclaimer of warranty; keep intact all the
+notices that refer to this License and to the absence of any 
+warranty; and give any other recipients of the Program a copy of this 
+License along with the Program."
+
+	There are no significant restrictions placed upon the distribution 
+of the original work. Even if there were, it's not clear that it 
+would be enforceable considering that you are only distributing the 
+work to people who already have the right to possess and use it. 
+There are only a small number of cases on this point and they're 
+split both ways. In all the cases where the copyright holder 
+prevailed (such as the lawsuit against mp3.com), it was based on a 
+showing that such distribution foreclosed on their sales, an argument 
+that could not be made in the case of the GPL. So this could be 
+argued either way even without clause 1.
+
+	As for distributing modifications, as I have already argued at least 
+four times now, this is not a special right to the *original* work so 
+there is no need to invoke clause 2 to get that right. It is subsumed 
+under the right to make derivative works and the right to distribute 
+the original work. It is the simple sum of those two rights (except 
+the additional rights you need to the modifications themselves).
+
+	To make and distribute a derived work, you need certain rights to 
+the original work. Specifically, you need the right to make the 
+derived work in the first place and you need the right to distribute 
+the original work. I am saying that you have both of these rights 
+without clause 2. It is even arguable that you have them without 
+clause 1.
+
+	This will be the last time I repeat myself. I promise. I will not 
+respond to this thread unless something genuinely new comes up.
+
+	DS
+
 

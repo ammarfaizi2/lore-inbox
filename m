@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbTDSQHT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 12:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTDSQHS
+	id S263408AbTDSQJv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 12:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbTDSQJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 12:07:18 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6272 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263407AbTDSQHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 12:07:18 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304191622.h3JGMI9L000263@81-2-122-30.bradfords.org.uk>
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-To: skraw@ithnet.com (Stephan von Krawczynski)
-Date: Sat, 19 Apr 2003 17:22:18 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <20030419180421.0f59e75b.skraw@ithnet.com> from "Stephan von Krawczynski" at Apr 19, 2003 06:04:21 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Sat, 19 Apr 2003 12:09:51 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:63504 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S263408AbTDSQJt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 12:09:49 -0400
+Date: Sat, 19 Apr 2003 18:21:47 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Private namespaces
+Message-ID: <20030419162147.GB19740@win.tue.nl>
+References: <1052141040.355.12.camel@labunix> <20030416132324.GA18700@win.tue.nl> <20030419145239.GL29143@iucha.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030419145239.GL29143@iucha.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wonder whether it would be a good idea to give the linux-fs
-> (namely my preferred reiser and ext2 :-) some fault-tolerance.
+On Sat, Apr 19, 2003 at 09:52:39AM -0500, Florin Iucha wrote:
 
-Fault tollerance should be done at a lower level than the filesystem.
+> I have compiled the sample program on 2.5.67-pre6 and it fails with
+>    clone: Cannot allocate memory
+> when run as a regular user. Is there a workaround?
 
-Linux filesystems are used on many different devices, not just hard
-disks.  Different devices can fail in different ways - a disk might
-have a lot of bad sectors in a block, a tape[1] might have a single
-track which becomes unreadble, and solid state devices might have get
-a few random bits flipped all over them, if a charged particle passes
-through them.
+Well, the comment says
 
-The filesystem doesn't know or care what device it is stored on, and
-therefore shouldn't try to predict likely failiures.
+"Exercise Play with this in several situations. You may have to be root."
 
-A RAID-0 array and regular backups are the best way to protect your
-data.
+and the source says
 
-[1] Although it is uncommon to use a tape as a block device, you never
-know.  It's certainly possible, (not necessarily with Linux).
+        if (! (flags & CLONE_NEWNS))
+                return 0;
 
-John.
+        if (!capable(CAP_SYS_ADMIN)) {
+                put_namespace(namespace);
+                return -EPERM;
+        }
+
+so there is not much hope for a regular user.
+
+Now you ask: but why ENOMEM?
+That is a tiny flaw in the kernel source.
+I suppose
+
+--- fork.c~     Tue Mar 25 04:54:46 2003
++++ fork.c      Sat Apr 19 18:21:44 2003
+@@ -873,7 +873,8 @@
+                goto bad_fork_cleanup_sighand;
+        if (copy_mm(clone_flags, p))
+                goto bad_fork_cleanup_signal;
+-       if (copy_namespace(clone_flags, p))
++       retval = copy_namespace(clone_flags, p);
++       if (retval)
+                goto bad_fork_cleanup_mm;
+        retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
+        if (retval)
+
+would fix that.
+
+Andries
+

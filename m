@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289348AbSA1UEQ>; Mon, 28 Jan 2002 15:04:16 -0500
+	id <S289360AbSA1UIZ>; Mon, 28 Jan 2002 15:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289369AbSA1UD3>; Mon, 28 Jan 2002 15:03:29 -0500
-Received: from dsl-213-023-039-090.arcor-ip.net ([213.23.39.90]:31621 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289362AbSA1UCE>;
-	Mon, 28 Jan 2002 15:02:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Momchil Velikov <velco@fadata.bg>
-Subject: Re: unresolved symbols __udivdi3 and __umoddi3
-Date: Mon, 28 Jan 2002 21:06:52 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "" <simon@baydel.com>, Tim Schmielau <tim@physik3.uni-rostock.de>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com> <E16VHH9-0000Ba-00@starship.berlin> <87k7u2jm2v.fsf@fadata.bg>
-In-Reply-To: <87k7u2jm2v.fsf@fadata.bg>
+	id <S289364AbSA1UIP>; Mon, 28 Jan 2002 15:08:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32263 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289360AbSA1UIE>;
+	Mon, 28 Jan 2002 15:08:04 -0500
+Message-ID: <3C55AE06.9C9AB33F@zip.com.au>
+Date: Mon, 28 Jan 2002 12:01:10 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VI3J-0000C4-00@starship.berlin>
+To: Kevin Breit <mrproper@ximian.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet data corruption?
+In-Reply-To: <1012250404.5401.6.camel@kbreit.lan>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 28, 2002 08:46 pm, Momchil Velikov wrote:
-> >>>>> "Daniel" == Daniel Phillips <phillips@bonn-fries.net> writes:
-> >> Is this asm syntax documented anywhere ? 
+Kevin Breit wrote:
 > 
-> Daniel> It's painful, isn't it?  And no, I don't know where it's documented.
+> Hi,
+>         The other night, my friend was sending me a video over the internet.
+> We tried http, ftp, and other protocols, using different download
+> applications.  It seemed to be corrupt, the same way, everytime.  It
+> wouldn't work, and had a different md5sum than the "good" version on my
+> friend's computer.  Eventually we got it working.
+>         The same issue came up again today.  I uploaded my Java project on my
+> professor's server and it gives me an error.  However, if I load the
+> html file with the Java applet in my web browser from this hard disk
+> (instead of from the prof's), it works.
+>         I am wondering if there is some sort of corruption going on here.  I am
+> using Red Hat's 2.4.9-21 kernel.
 > 
-> It is documented in "Using and Porting GNU Compiler Collection"
-> http://gcc.gnu.org/onlinedocs/gcc-3.0.3/gcc_5.html#SEC103
 
-I suppose we could dignify that with the term 'documentation'.  (To me, it 
-reads more like a tutorial than a reference work, though as always I'm 
-grateful to RMS and the FSF for having contributed this.  And the price can't 
-be beat.)
+Generally, IP checksumming should catch this.
 
-Do you know where to find documentation for the assembly instructions 
-themselves?
+However, a number of ethernet cards do IP checksumming in
+hardware, so the kernel doesn't bother doing the checksum
+in software.
 
--- 
-Daniel
+So if you are experiencing data corruption on the path
+between the NIC's FIFO memory, the PCI bus and main memory,
+it will not be detected.  This is somewhat of a flaw in the
+whole idea of checksum offload, IMO...
+
+What ethernet card are you using?
+
+-

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbTD2M2U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 08:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTD2M2U
+	id S261857AbTD2MlN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 08:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTD2MlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 08:28:20 -0400
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:58629 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S261844AbTD2M2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 08:28:19 -0400
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: rth@twiddle.net, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] DMA mapping API for Alpha
-References: <wrp65oycvrw.fsf@hina.wild-wind.fr.eu.org>
-	<20030429150532.A3984@jurassic.park.msu.ru>
-	<wrpvfwx5xcq.fsf@hina.wild-wind.fr.eu.org>
-	<20030429162322.B5767@jurassic.park.msu.ru>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 29 Apr 2003 14:37:51 +0200
-Message-ID: <wrpllxt5vj4.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <20030429162322.B5767@jurassic.park.msu.ru>
+	Tue, 29 Apr 2003 08:41:13 -0400
+Received: from net049s.hetnet.nl ([194.151.104.184]:19464 "EHLO hetnet.nl")
+	by vger.kernel.org with ESMTP id S261857AbTD2MlM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 08:41:12 -0400
+Content-Class: urn:content-classes:message
+From: <bas.mevissen@hetnet.nl>
+To: "Martin List-Petersen" <martin@list-petersen.dk>,
+       "David S. Miller" <davem@redhat.com>
+Cc: <bas.mevissen@hetnet.nl>, <linux-kernel@vger.kernel.org>
+Subject: RE: Broadcom BCM4306/BCM2050  support
+Date: Tue, 29 Apr 2003 14:51:12 +0200
+Message-ID: <4b4e01c30e4e$0352c5a0$d16897c2@hetnet.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft CDO for Windows 2000
+Thread-Index: AcMOTgNSONr+6Ho7EdeYPABQi7AS7A==
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ivan" == Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
 
-Ivan> Agreed, but what if your EISA-PCI bridge has only 30 address
-Ivan> lines wired to PCI? Yes, we can check this for EISA device
-Ivan> because it has *real* PCI parent (thanks, Marc :-), but what
-Ivan> about ISA/legacy/whatever drivers?  I doubt that all of them
-Ivan> bother to set dma_mask pointer (so you can have an oops there).
+David S. Miller wrote:
 
-If the driver is not ported to the device API, than we pass NULL as a
-device pointer, and then we fallback to the old behaviour, aka
-dma_mask=0x00ffffff. If the driver supplies a dev pointer, but fails
-to set its dma_mask pointer, than it is a driver bug that should be
-fixed.
+> Don't expect specs or opensource drivers for any of these pieces
+> of hardware until these vendors figure out a way to hide the frequency
+> programming interface.
 
-And yes, the EISA subsystem should properly report the dma_mask to
-attached devices (patches for that are in mm tree, and sent to Linus).
+What did Intersil do? How did the linux-wlan-ng project handle this?
 
-        M.
--- 
-Places change, faces change. Life is so very strange.
+> The only halfway plausible idea I've seen is to not document the
+> frequency programming registers, and users get a "region" key file that
+> has opaque register values to program into the appropriate registers.
+> The file is per-region (one for US, Germany, etc.)and the wireless
+> kernel driver reads in this file to do the frequency programming.
+
+Here in The Netherlands, it is quite common to use a US version of Windows and to keep (most of)  the regional settings of the US. So on Windows, most of the time the region is likely to be wrong. I gues that in cases where things are critical, a different firmware version is used. 
+
+It is not really a practical problem however, because the allowed frequencies have become pretty the same over time. The same applies to modems: they are also country-specific. But in practice, it is not really a concern.
+
+But how to go furter with this? Does someone have contacts within Broadcom?
+
+Regards,
+
+Bas.
+
+
+
+--------------------------------------------------------------------------------

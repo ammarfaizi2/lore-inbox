@@ -1,105 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312316AbSDCSLH>; Wed, 3 Apr 2002 13:11:07 -0500
+	id <S312321AbSDCSPh>; Wed, 3 Apr 2002 13:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312317AbSDCSK6>; Wed, 3 Apr 2002 13:10:58 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:22468 "EHLO
-	e21.esmtp.ibm.com") by vger.kernel.org with ESMTP
-	id <S312316AbSDCSKk>; Wed, 3 Apr 2002 13:10:40 -0500
-Message-ID: <3CAB4597.70602@us.ibm.com>
-Date: Wed, 03 Apr 2002 10:10:31 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S312322AbSDCSP0>; Wed, 3 Apr 2002 13:15:26 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:36110 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S312321AbSDCSOl>;
+	Wed, 3 Apr 2002 13:14:41 -0500
+Date: Wed, 3 Apr 2002 10:12:27 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Sridhar N <srin@symonds.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Stepping through entry.S
+In-Reply-To: <Pine.LNX.4.33L2.0204030858010.22448-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.33L2.0204031009150.22448-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] BKL reduction in do_exit
-In-Reply-To: <Pine.LNX.4.33.0204030945310.3571-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------070502080609010101090502"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070502080609010101090502
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 3 Apr 2002, Randy.Dunlap wrote:
 
-Linus Torvalds wrote:
-> I'd prefer to have the BKL just moved into the functions that need it, and
-> removed altogether from do_exit().
+| On Wed, 3 Apr 2002, Sridhar N wrote:
+|
+| | Hello (recycled)
+|
+| | 	I was trying to trace the handling of the system calls, and to step through
+| | the entry.S on i386 machine.  I basically used this:
+| |
+| | 	srin_entryS_debug_mesg: 		#My addition
+| | 		.asciz "some relevant message\n"
+| | 		ALIGN
+| | 	tracesys:			#haven't changed anything here..
+| | 		.
+| | 		.
+| | 		.
+| | 		jae tracesys_exit
+| | 		pushl $srin_entryS_debug_mesg		#just this
+| | 		call SYMBOL_NAME(printk)	# and this
+| | 		call *SYMBOL_NAME(sys_call_table)(,%eax,4)
+| | 		movl %eax,EAX(%esp)		# save the return value
+| | 	tracesys_exit:
+| |
+| | Shouldn't this call printk everytime a system call is made or atleast crash
+| | the kernel if something is dead wrong ? ( It isn't .. everything seems normal
+| | as though the printk isn't there )  Also,  how can  i know the values in the
+| | specific registers in that file ? Specifically, whenever a system call is
+| | made, what registers store what values ? I'm using kernel 2.4.7 on a K6-2.
+|
+| The tracesys: label (code) is only used if ptrace is enabled for
+| the task.  Is it enabled?  If not, you aren't executing this code
+| at all.
+|
+| 	testb $0x02,tsk_ptrace(%ebx)	# PT_TRACESYS
+| 	jne tracesys
+|
+| For the register interface, AFAIK, see the gcc docs, such as
+| Extensions to the C Language Family:
+|   http://gcc.gnu.org/onlinedocs/gcc-2.95.3/gcc_4.html
+| and search for /regparm/ .
+| <quote>
+| regparm (number)
+|  On the Intel 386, the regparm attribute causes the compiler to pass up
+|  to number integer arguments in registers EAX, EDX, and ECX instead of
+|  on the stack. Functions that take a variable number of arguments will
+|  continue to be passed all of their arguments on the stack.
+| </quote>
+| Someone please correct or add to this.  :)
 
-I like the push-it-down approach better too.  Patch attached.
+actually for x86, linux/include/asm-i386/unistd.h defines
+_syscall0() ... thru _syscall6(), which load N registers as appropriate
+and then execute int $0x80.
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
---------------070502080609010101090502
-Content-Type: text/plain;
- name="do_exit-bkl_reduction-2.5.7.patch.2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="do_exit-bkl_reduction-2.5.7.patch.2"
-
---- linux-2.5.7-clean/drivers/char/tty_io.c	Thu Mar  7 18:18:54 2002
-+++ linux/drivers/char/tty_io.c	Wed Apr  3 10:03:27 2002
-@@ -569,6 +569,8 @@
- 	struct task_struct *p;
- 	int tty_pgrp = -1;
- 
-+	lock_kernel();
-+
- 	if (tty) {
- 		tty_pgrp = tty->pgrp;
- 		if (on_exit && tty->driver.type != TTY_DRIVER_TYPE_PTY)
-@@ -578,6 +580,7 @@
- 			kill_pg(current->tty_old_pgrp, SIGHUP, on_exit);
- 			kill_pg(current->tty_old_pgrp, SIGCONT, on_exit);
- 		}
-+		unlock_kernel();	
- 		return;
- 	}
- 	if (tty_pgrp > 0) {
-@@ -595,6 +598,7 @@
- 	  	if (p->session == current->session)
- 			p->tty = NULL;
- 	read_unlock(&tasklist_lock);
-+	unlock_kernel();
- }
- 
- void stop_tty(struct tty_struct *tty)
---- linux-2.5.7-clean/ipc/sem.c	Thu Mar  7 18:18:25 2002
-+++ linux/ipc/sem.c	Wed Apr  3 10:07:28 2002
-@@ -995,6 +995,8 @@
- 	struct sem_array *sma;
- 	int nsems, i;
- 
-+	lock_kernel();
-+
- 	/* If the current process was sleeping for a semaphore,
- 	 * remove it from the queue.
- 	 */
-@@ -1051,6 +1053,8 @@
- 		sem_unlock(semid);
- 	}
- 	current->semundo = NULL;
-+
-+	unlock_kernel();
- }
- 
- #ifdef CONFIG_PROC_FS
---- linux-2.5.7-clean/kernel/exit.c	Tue Apr  2 10:43:28 2002
-+++ linux/kernel/exit.c	Wed Apr  3 10:06:19 2002
-@@ -498,7 +498,6 @@
- #endif
- 	__exit_mm(tsk);
- 
--	lock_kernel();
- 	sem_exit();
- 	__exit_files(tsk);
- 	__exit_fs(tsk);
-
---------------070502080609010101090502--
+~Randy
 

@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273099AbRI0PbG>; Thu, 27 Sep 2001 11:31:06 -0400
+	id <S273364AbRI0Pd0>; Thu, 27 Sep 2001 11:33:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273360AbRI0Pa4>; Thu, 27 Sep 2001 11:30:56 -0400
-Received: from mario.gams.at ([194.42.96.10]:10110 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S273099AbRI0Pak>;
-	Thu, 27 Sep 2001 11:30:40 -0400
-Message-Id: <200109271531.RAA24793@frodo.gams.co.at>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
-From: Bernd Petrovitsch <bernd@gams.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.10 
-In-Reply-To: Your message of "Thu, 27 Sep 2001 10:23:50 CDT."
-             <vsg6rto5cqtmj8dld5mc41mpvlbrf4s9vl@4ax.com> 
-X-Url: http://www.luga.at/~bernd/
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2121043318P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Sep 2001 17:31:06 +0200
+	id <S273361AbRI0PdR>; Thu, 27 Sep 2001 11:33:17 -0400
+Received: from mail1-gui.server.ntli.net ([194.168.222.13]:46762 "EHLO
+	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
+	id <S273364AbRI0PdI>; Thu, 27 Sep 2001 11:33:08 -0400
+Date: Thu, 27 Sep 2001 16:33:33 +0100 (BST)
+From: Ben <linux-kernel@slimyhorror.com>
+X-X-Sender: <ben@baphomet.bogo.bogus>
+To: <linux-kernel@vger.kernel.org>
+Subject: -1M RSS with 2.4.10
+Message-ID: <Pine.LNX.4.33.0109271628200.16824-100000@baphomet.bogo.bogus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-2121043318P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+My machine has been running 2.4.10 (+preemptive kernel patches) happily.
+But then, running top and sorting by memory usage, I notice at the top:
 
-In message <vsg6rto5cqtmj8dld5mc41mpvlbrf4s9vl@4ax.com>, "George R. Kasic=
-a" wro
-te:
->I'm currently running 2.4.5 here and I'm considering 2.4.10 but am
->somewhat more nervous about this release than others based on the
->number of reports of problems I'm seeing...
->
->What would be the advice of others in terms of moving up from 2.4.5
->which has been rock solid here? =
+ 16:30:47 up 2 days,  3:36, 22 users,  load average: 1.34, 1.62, 1.78
+140 processes: 135 sleeping, 4 running, 0 zombie, 1 stopped
+CPU states:   3.8% user,  22.4% system,  73.8% nice,   0.0% idle
+Mem:    239900K total,   235376K used,     4524K free,      888K buffers
+Swap:   262576K total,    24512K used,   238064K free,    88884K cached
 
->
->Would you recommend doing the upgrade or waiting for 2.4.11 or is
->there a middle ground release (2.4.6,7,8,9) that you'd recommend.
+  PID USER     PRI  NI  SIZE SWAP  RSS SHARE STAT LC %CPU %MEM   TIME COMMAND
+32139 ben        9   0  4440 3556  -1M   420 S     0  0.0 99.9   0:01 xterm
 
-I tried all from 2.4.5 up to 2.4.10 (and also some before) running on sev=
-eral
-machines :
-- an Athlon 900, an AMD K6 300 : no problems (being 2.4.10 =
-
-  subjectively slightly faster than before)
-- an Pentium 90 : 2.4.6-2.4.9 just didn't want to boot - no damage.
-
-IMHO : Just try it.
-
-	Bernd
--- =
-
-Bernd Petrovitsch                              Email : bernd@gams.at
-g.a.m.s gmbh                                  Fax : +43 1 205255-900
-Prinz-Eugen-Stra=DFe 8                    A-1040 Vienna/Austria/Europe
-                     LUGA : http://www.luga.at
+This looks bad! But is it a bug in the kernel, or with 'top'? There are no
+dmesg errors.  Has anyone got advice on what I could do to track down what
+the problem is?
 
 
+Thanks,
+Ben
 
---==_Exmh_-2121043318P
-Content-Type: application/pgp-signature
-
------BEGIN PGP MESSAGE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.2 06/23/2000
-
-iQBVAwUBO7NGOq/rvrblD00BAQIGdgH/STUsT6v3VZMecjuk2vw1YOEqd/QY4FRJ
-Tth+XWYPnMrruhzonnEofikBad4iQaXNaMe4Ppomn7c6Eaw32agu7w==
-=OBTq
------END PGP MESSAGE-----
-
---==_Exmh_-2121043318P--

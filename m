@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130805AbQKRTLn>; Sat, 18 Nov 2000 14:11:43 -0500
+	id <S131032AbQKRTPe>; Sat, 18 Nov 2000 14:15:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130871AbQKRTLX>; Sat, 18 Nov 2000 14:11:23 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:8486 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S130805AbQKRTLR>; Sat, 18 Nov 2000 14:11:17 -0500
-Date: Sat, 18 Nov 2000 19:40:58 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ext2 largefile fixes + [f]truncate() error value fix
-Message-ID: <20001118194058.C24555@athlon.random>
-In-Reply-To: <Pine.GSO.4.21.0011180503110.19917-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0011180503110.19917-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Nov 18, 2000 at 05:28:46AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131058AbQKRTPN>; Sat, 18 Nov 2000 14:15:13 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5644 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131032AbQKRTPG>; Sat, 18 Nov 2000 14:15:06 -0500
+Date: Sat, 18 Nov 2000 10:43:29 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: adrian <jimbud@lostland.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Markus Schoder <markus_schoder@yahoo.de>
+Subject: Re: Freeze on FPU exception with Athlon
+In-Reply-To: <Pine.BSO.4.30.0011181332030.1052-100000@getafix.lostland.net>
+Message-ID: <Pine.LNX.4.10.10011181039180.919-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 18, 2000 at 05:28:46AM -0500, Alexander Viro wrote:
-> +       setattr:        ext2_notify_change,
 
-:)
 
-> +	if (iattr->ia_valid & ATTR_SIZE) {
-> +		if (iattr->ia_size > inode->i_sb->u.ext2_sb.s_max_size) {
-> +			retval = -EFBIG;
-> +			goto out;
-> +		}
-> +	}
+On Sat, 18 Nov 2000, adrian wrote:
 
-That's not nearly enough, you should also resurrect all the stuff from
-2.2.x, I'm wondering how this code disappeared from 2.4.x (actually the size <0
-can't happen of course since the caller is trusted and the SIGXFSZ could
-probably be moved to the VFS but the largefile is definitely an ext2 business):
+> 
+> 
+> On Sat, 18 Nov 2000, Linus Torvalds wrote:
+> 
+> > There's almost certainly more than that. I'd love to have a report on my
+> > asm-only version, but even so I suspect it also requires the 3dnow stuff,
+> 
+> I tried all three versions, and no freezes.  I forgot to mention the tests
+> were run on a model 2 Athlon (original slot K7, .18 micron).  The kernel
+> is compiled with 3dnow support.
 
-	if (iattr->ia_valid & ATTR_SIZE) {
-		loff_t size = iattr->ia_size;
-		unsigned long limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
+Apparently it isn't the stepping, as we have Athlon model 4's both showing
+it and not showing it. The motherboard seems to be the only real
+difference here, which is why I like the irq13 explanation more and more.
 
-		if (size < 0)
-			return -EINVAL;
-		if (size > ext2_max_sizes[EXT2_BLOCK_SIZE_BITS(inode->i_sb)])
-			return -EFBIG;
-		if (limit != RLIM_INFINITY && size > limit) {
-			send_sig(SIGXFSZ, current, 0);
-			return -EFBIG;
-		}
+I've been wanting to get rid of irq13 anyway (some boards wire up USB
+and/or ACPI to irq13 and the fact that the FPU has claimed it makes those
+machines unhappy), so if the solution is to only check for irq13 on old
+i386 and i486sx machines and just leave it alone for newer CPU's, I won't
+complain.
 
-		if (size >> 33) {
-			struct super_block *sb = inode->i_sb;
-			struct ext2_super_block *es = sb->u.ext2_sb.s_es;
-			if (!(es->s_feature_ro_compat &
-			      cpu_to_le32(EXT2_FEATURE_RO_COMPAT_LARGE_FILE))){
-				/* If this is the first large file
-				 * created, add a flag to the superblock */
-				es->s_feature_ro_compat |=
-				cpu_to_le32(EXT2_FEATURE_RO_COMPAT_LARGE_FILE);
-				mark_buffer_dirty(sb->u.ext2_sb.s_sbh, 1);
-			}
-		}
-	}
+Markus, can you make the irq13 test the first thing - don't worry about
+3dnow as that seems to not be a deciding factor..
 
-and btw the large file feature setting seems missing also from write(2) ext2
-in 2.4.x, confirm?
+			Linus
 
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

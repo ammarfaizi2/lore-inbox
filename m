@@ -1,56 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269142AbUINFc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268092AbUINFoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269142AbUINFc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 01:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUINFc3
+	id S268092AbUINFoU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 01:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268524AbUINFoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 01:32:29 -0400
-Received: from holomorphy.com ([207.189.100.168]:9617 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269142AbUINFc0 (ORCPT
+	Tue, 14 Sep 2004 01:44:20 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:49370 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268092AbUINFoQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 01:32:26 -0400
-Date: Mon, 13 Sep 2004 22:32:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, raybry@sgi.com, jbarnes@engr.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [profile] amortize atomic hit count increments
-Message-ID: <20040914053218.GB9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914044748.GZ9106@holomorphy.com> <20040913220507.1a269816.davem@davemloft.net>
+	Tue, 14 Sep 2004 01:44:16 -0400
+Message-ID: <7798951e040913224462ea2243@mail.gmail.com>
+Date: Tue, 14 Sep 2004 00:44:07 -0500
+From: hotdog day <hotdogday@gmail.com>
+Reply-To: hotdog day <hotdogday@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2 and Hyperthreading. (SMT)
+In-Reply-To: <7798951e04091322402fe830ff@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040913220507.1a269816.davem@davemloft.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <7798951e04091317273b1bed29@mail.gmail.com>
+	 <41465244.9010603@yahoo.com.au>
+	 <7798951e040913212154d3b3f9@mail.gmail.com>
+	 <7798951e04091322402fe830ff@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 13, 2004 at 10:05:07PM -0700, David S. Miller wrote:
-> William, any reason not to fully per-cpu the profile buffer
-> and then only traverse the array when the user attempts to
-> capture the counters?
-> Then we can undo the atomics altogether, as well as the cacheline
-> traffic, for the extremely common case.
-> Are there space concerns?
-
-This was my original approach (modulo eliminating the global buffer
-and the atomic operations), but space concerns stymied it, as the
-profile buffer can be several megabytes large. It would likely perform
-better in general if admissible, for whatever value performance is
-considered to have.
-
-There is also an unusual facet to this; the TLB overhead of a loop like:
-	for (i = 0; i < prof_len; ++i) {
-		for_each_online_cpu(cpu)
-			global_buf[i] += per_cpu(cpu_prof_buffer, cpu)[i];
-	}
-is very large and caused "effective nontermination", otherwise known as
-"exhausting the user's patience", on SGI's systems after about half an
-hour. So some TLB overhead amortization is necessary for this to be
-feasible. I suspect iterating over pages of the profile buffer and
-storing intermediate results for a page full of profile buffer hits
-in a buffer page may suffice though I've not tried it.
+Does anyone have any other suggestions on this issue? I know others
+who are experincing the same thing.
 
 
--- wli
+On Tue, 14 Sep 2004 00:40:57 -0500, hotdog day <hotdogday@gmail.com> wrote:
+> Actually, it just hardlocked again. Is there anything else that could
+> be done, or am I stuck without SMP?
+> 
+> 
+> 
+> 
+> On Mon, 13 Sep 2004 23:21:05 -0500, hotdog day <hotdogday@gmail.com> wrote:
+> > Turning off CONFIG_SCHED_SMT has apparently fixed the issue.
+> >
+> > Three Q's:
+> >
+> > 1) Am I taking some kind of performance hit by doing this?
+> >
+> > 2) Is this something we can look forward to seeing fixed?
+> >
+> > 3) Do you need any info from me to help you?
+> >
+> > Thanks,
+> >
+> > Troy McFerron
+> >
+> >
+> >
+> >
+> > On Tue, 14 Sep 2004 12:07:00 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> > >
+> > >
+> > > hotdog day wrote:
+> > > > I have been testing the 2.6.9-rc1, and 2.6.9-rc2 kernel patches over
+> > > > the past couple days and have been having some issues with
+> > > > hyperthreading (SMT) turned on.
+> > > >
+> > > > This problem first exhibited itself when I was testing
+> > > > 2.6.9-rc2-mm2-love2. I noticed the following quirks that ONLY show
+> > > > themselves with hyperthreading enabled on my 3.0C Pentium 4.
+> > > >
+> > > > Random HARD LOCKS. No messages from the kernel. Just a good swift hard lock.
+> > > >
+> > > > Hard locks when mounting two cdrom drives in quick succession.
+> > > >
+> > > > Turning off hyperthreading solves these issues.  Going back to 2.6.8.1
+> > > > solves these issues.
+> > > >
+> > > > I then tried 2.6.9-rc1 with no mm or love patches. I had the exact same issues.
+> > > >
+> > > > Today I downloaded the prepatch to 2.6.9-rc2 and applied it to clean
+> > > > 2.6.8 source. The issues are still there.
+> > > >
+> > > > I hope someone is paying attention to the way scheduler tweaks and
+> > > > changes are affecting SMT enabled kernels. I don't think anyone wants
+> > > > to disable features of their hardware in order to run an optimized
+> > > > scheduler.
+> > >
+> > > Try turning off CONFIG_SCHED_SMT and see how you go. Thanks.
+> > >
+> >
+>

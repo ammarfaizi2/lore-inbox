@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUHJId6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUHJIe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUHJId6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 04:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUHJId6
+	id S262114AbUHJIe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 04:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUHJIe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 04:33:58 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:2438 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262085AbUHJIdn (ORCPT
+	Tue, 10 Aug 2004 04:34:26 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:42697 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262329AbUHJIeF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 04:33:43 -0400
-Message-Id: <200408100834.i7A8Y7e06476@owlet.beaverton.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, mjbligh@us.ibm.com
-Subject: Re: 2.6.8-rc3-mm2 
-In-reply-to: Your message of "Sun, 08 Aug 2004 15:29:36 PDT."
-             <20040808152936.1ce2eab8.akpm@osdl.org> 
-Date: Tue, 10 Aug 2004 01:34:06 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Tue, 10 Aug 2004 04:34:05 -0400
+Date: Tue, 10 Aug 2004 10:33:50 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.8-rc4 [RESEND] via-rhine: Really call rhine_power_init()
+Message-ID: <20040810083350.GA23771@k3.hellgate.ch>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0408091958450.1839@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408091958450.1839@ppc970.osdl.org>
+X-Operating-System: Linux 2.6.8-rc3-mm1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    - Added a little patch to the CPU scheduler which disables its array
-      switching.
-    
-      This is purely experimental and will cause high-priority tasks
-      to starve lower-priority tasks indefinitely.  It is here to
-      determine whether it is this aspect of the scheduler which caused
-      the staircase scheduler to exhibit improved throughput in some
-      tests on NUMAq.
+This is my third and last attempt to get this fix merged for 2.6.8.
 
-Here's the results of tests with sdet.  The summary is that yes, we
-did reach the peak we saw with the staircase scheduler (2.6.8-rc2-mm2).
-Dropping the expired array does make a difference.  But it looks like
-that wasn't all of it, though, because we see it fails to reach the same
-scores in all *but* the peak run.
+Without this patch, mainline via-rhine cannot wake the chip if some other
+driver puts it to D3. The problem has hit quite a few people already.
 
-Schedstats helps show a couple of interesting things but no
-smoking gun. rc3-mm2 both tried to move around more tasks (calls
-to load_balance()), and succeeded in finding some to move (calls to
-pull_task()).  But not a LOT more, in either case. And rc3-mm2 took 15%
-longer to run, even if it did as well in the end. Graphs are at
+This is a fix for the heisenbug with via-rhine refusing to work
+sometimes. Patch "[9/9] Restructure reset code" contained a change made
+necessary by patch [8/9]. Mainline merged [8/9] for 2.6.8 and is still
+missing the fix, while -mm got it with [9/9].
 
-    http://eaglet.rain.com/rick/linux/staircase/scase-vs-noscase-vs-1q.html
+Jesper Juhl provided crucial test data when no one else was able to
+reproduce the symptoms.
 
-Overall, I'd say I still like the staircase patch as a whole.  Not only
-did it increase the benchmark numbers, but I like the simplicity it
-(re)introduces for interactive bonus calculations.
+Roger
 
-Rick
+Signed-off-by: Roger Luethi <rl@hellgate.ch>
 
-DISCLAIMER: SPEC(tm) and the benchmark name SDET(tm) are registered
-trademarks of the Standard Performance Evaluation Corporation. This 
-benchmarking was performed for research purposes only, and the run results
-are non-compliant and not-comparable with any published results.
-
-Sdet
-Scripts                      1       4      16      64
-        2.6.8-rc2-mm2     32.46%  58.58% 100.00%  74.20%
-2.6.8-rc2-mm2-noscase     23.62%  43.95%  90.92%  74.16%
-        2.6.8-rc3-mm2     16.44%  43.26% 102.95%  71.26%
+--- tmp/drivers/net/via-rhine.c.00_broken	2004-07-29 13:58:17.000000000 +0200
++++ tmp/drivers/net/via-rhine.c	2004-07-30 15:12:36.656007543 +0200
+@@ -748,6 +748,8 @@ static int __devinit rhine_init_one(stru
+ 	}
+ #endif /* USE_MMIO */
+ 	dev->base_addr = ioaddr;
++	rp = netdev_priv(dev);
++	rp->quirks = quirks;
+ 
+ 	rhine_power_init(dev);
+ 
+@@ -792,10 +794,8 @@ static int __devinit rhine_init_one(stru
+ 
+ 	dev->irq = pdev->irq;
+ 
+-	rp = netdev_priv(dev);
+ 	spin_lock_init(&rp->lock);
+ 	rp->pdev = pdev;
+-	rp->quirks = quirks;
+ 	rp->mii_if.dev = dev;
+ 	rp->mii_if.mdio_read = mdio_read;
+ 	rp->mii_if.mdio_write = mdio_write;

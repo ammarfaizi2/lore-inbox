@@ -1,86 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316709AbSGVKzM>; Mon, 22 Jul 2002 06:55:12 -0400
+	id <S316545AbSGVHMR>; Mon, 22 Jul 2002 03:12:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316723AbSGVKzM>; Mon, 22 Jul 2002 06:55:12 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:20213 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S316709AbSGVKzI>; Mon, 22 Jul 2002 06:55:08 -0400
-From: "Ramit Bhalla" <ramit.bhalla@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Compiling bug - broken compile
-Date: Mon, 22 Jul 2002 16:30:28 +0530
-Message-ID: <KMELKICNHILNIJDACGAIIECCCKAA.ramit.bhalla@wipro.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-577ddca4-5909-458b-9dad-01259e9131be"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S316548AbSGVHMR>; Mon, 22 Jul 2002 03:12:17 -0400
+Received: from mailhost.nmt.edu ([129.138.4.52]:25868 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S316545AbSGVHMP>;
+	Mon, 22 Jul 2002 03:12:15 -0400
+Date: Mon, 22 Jul 2002 01:15:10 -0600
+From: Val Henson <val@nmt.edu>
+To: Andreas Schuldei <andreas@schuldei.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: using bitkeeper to backport subsystems?
+Message-ID: <20020722071510.GG16559@boardwalk>
+References: <20020721233410.GA21907@lukas>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020721233410.GA21907@lukas>
+User-Agent: Mutt/1.4i
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 22, 2002 at 01:34:10AM +0200, Andreas Schuldei wrote:
+> I want to use/track the linuxconsole project (especially for its
+> Multi-desktop operation), which tracks 2.5 on the stable tree
+> 2.4.
+> 
+> is bitkeeper the easiest way to go? i imagine the patch sets to
+> be like transformations, which can be superimposed, so i would
+> clone marcellos and linus tree, generate a linuxconsole patchset
+> against linus tree and backport it to marcellos tree. (there are
+> older backports, which should make my live easier.) 
+> 
+> I imagine that i had two 'transforms' now: first the linuxconsole
+> transform, which changes over time as the project (and the
+> kernel) moves on, and the backport transform, which i hope to
+> remain more static. Can i superimpose these transforms? Is this
+> how it works?
+> 
+> has anyone done this before? is there a howto or could someone
+> outline the bitkeeper steps needed? Any catches?
 
-This is a multi-part message in MIME format.
+Sigh.  I hate this question: "How will BitKeeper make it easier to
+port something between 2.4 and 2.5?"  Answer: "Bk won't help - at
+least not as much as it would help if 2.5 had been cloned from 2.4."
 
-------=_NextPartTM-000-577ddca4-5909-458b-9dad-01259e9131be
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+As far as bk is concerned, 2.4 and 2.5 are two completely unrelated
+repositories, so you can't push or pull changes between them.  You can
+still use bk to export and import patches, and to help you understand
+what a change was attempting to do, so it's not completely useless.
 
-Hi,
+If I were you, I would:
 
-I'm using the 2.4.7 Kernel.
-I'm trying to make this work without any BIOS support so I configure the
-kernel to use "Direct" PCI calls through the menuconfig scripts. I also turn
-off PCI Hot Pluggable support.
+1. Grab the linux-2.4, linux-2.5, and linuxconsole trees.
+2. Use "bk changes -L <location of vanilla 2.5 tree>" to get a list of
+   all the changes in the linuxconsole tree but not in the mainline.
+3. Export those changes as a GNU patch, something like:
 
-The build will break during "make zImage" at the end during the link phase.
-It says it cannot find the symbol pcibios_set_irq_routing and
-pcibios_get_irq_routing_table.
+   for i in `bk changes -L ../linux-2.5 -k | bk key2rev ChangeSet`; do
+      bk export -tpatch -r$i >> ../console_patches;
+   done
 
-If I configure PCI to use BIOS calls, it work fine.
+   Note: This won't collapse overlapping patches.  There is probably a
+   smarter way to do this.
 
-I noticed the problem lies in the file arch/i386/kernel/i386_ksyms.c
-In that file EXPORT_SYMBOL(pcibios_set_irq_routing) is placed under #ifdef
-CONFIG_PCI. If I add another clause #ifdef CONFIG_PCI_BIOS (which I presume
-from the Config.in file is the definition for PCI Bios calls instead of
-Direct calls), then it works fine.
+4. Attempt to apply that patch to the linux-2.4 tree:
 
-Regards,
-Ramit Bhalla.
+   cd ../linux-2.4
+   bk import -tpatch ../console_patches
 
+5. Clean up the resulting mess.  I suggest bringing up revtool in the
+   linuxconsole tree and reading the comments and generally browsing
+   the related changesets for each file in order to figure out what
+   rejected bits of patches were supposed to do.
 
-Wipro Technologies,
-No. 8
-7th Main, 1st Block,
-Koramangala,
-Bangalore.
-India - 560034.
+For documentation, try the following:
 
-E-mail - ramit.bhalla@wipro.com
-Ph. - 91-80-5530035 ext 1082
-Fax - 91-80-5530086
+Jeff Garzik's BK Kernel Hacking HOWTO:
 
-www.wipro.com
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0202.2/1060.html
 
+[Warning: Blatant personal plug] BitKeeper for Kernel Developers:
 
-------=_NextPartTM-000-577ddca4-5909-458b-9dad-01259e9131be
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
+http://www.nmt.edu/~val/ols/bk.ps.gz
 
-**************************Disclaimer**************************************************    
- 
- Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
-and 'confidential' and intended for use only by the individual or entity to which it is 
-addressed. You are notified that any use, copying or dissemination of the information 
-contained in the E-MAIL in any manner whatsoever is strictly prohibited.
+I also highly recommend the Bitkeeper test drive even for people who
+have been using bk for a while:
 
-****************************************************************************************
+http://www.bitkeeper.com/Test.html
 
-------=_NextPartTM-000-577ddca4-5909-458b-9dad-01259e9131be--
+After using bk for over a year, I still learned something new (and
+very useful) when I took the test drive.
+
+-VAL

@@ -1,104 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317638AbSGaCAp>; Tue, 30 Jul 2002 22:00:45 -0400
+	id <S317648AbSGaCCe>; Tue, 30 Jul 2002 22:02:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSGaCAp>; Tue, 30 Jul 2002 22:00:45 -0400
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:15268 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S317638AbSGaCAo>; Tue, 30 Jul 2002 22:00:44 -0400
-Message-ID: <3D474442.6040804@quark.didntduck.org>
-Date: Tue, 30 Jul 2002 21:58:26 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] minor slabinfo cleanup
-Content-Type: multipart/mixed;
- boundary="------------020405060004020203080400"
+	id <S317649AbSGaCCd>; Tue, 30 Jul 2002 22:02:33 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:12706 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S317648AbSGaCCd>;
+	Tue, 30 Jul 2002 22:02:33 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.29, CPU#1 not working with CONFIG_SMP=y, 2.5.28 OK. 
+In-reply-to: Your message of "30 Jul 2002 14:22:34 CST."
+             <1028060554.3148.41.camel@spc9.esa.lanl.gov> 
+Date: Wed, 31 Jul 2002 11:34:18 +1000
+Message-Id: <20020731020722.4D4D2421D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020405060004020203080400
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In message <1028060554.3148.41.camel@spc9.esa.lanl.gov> you write:
+> Rusty,
+> 
+> I sent the following to lkml before I realized that this should have
+> been cc'ed to you.  In the meantime, I looked at changes to init/main.c,
+> so I tried rebooting 2.5.29 with maxcpus=2 on the command line at boot.
+> That changed the line from dmesg which read
+> CPUS done 4294967295
+> to
+> CPUS done 2
+> but still I have the same result in that only CPU#0 is running.
 
-This patch removes the use of a magic pointer value to print the
-slabinfo version header.  Resend against latest BK snapshot.
+> 2.5.29 dmesg snippet:
+> 
+> Using local APIC timer interrupts.
+> calibrating APIC timer ...
+> ..... CPU clock speed is 999.0634 MHz.
+> ..... host bus clock speed is 133.0284 MHz.
+> cpu: 0, clocks: 133284, slice: 4038
+> CPU0<T0:133280,T1:129232,D:10,S:4038,C:133284>
+> checking TSC synchronization across 2 CPUs: passed.
+> Bringing up 3
 
--- 
-				Brian Gerst
+Hmm... this is the hint, here.  Please try the patch below (trivial,
+but untested).
 
---------------020405060004020203080400
-Content-Type: text/plain;
- name="slabinfo-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="slabinfo-2"
+Please tell the results!
+Rusty.
 
-diff -urN linux-bk/mm/slab.c linux/mm/slab.c
---- linux-bk/mm/slab.c	Tue Jul 30 20:59:28 2002
-+++ linux/mm/slab.c	Tue Jul 30 21:56:02 2002
-@@ -1904,10 +1904,22 @@
- 	struct list_head *p;
+diff -urpN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.29/include/asm-i386/smp.h working-2.5.29-smpfix/include/asm-i386/smp.h
+--- linux-2.5.29/include/asm-i386/smp.h	Sat Jul 27 15:24:39 2002
++++ working-2.5.29-smpfix/include/asm-i386/smp.h	Wed Jul 31 11:28:04 2002
+@@ -85,7 +85,9 @@ extern volatile int logical_apicid_to_cp
+  */
+ #define smp_processor_id() (current_thread_info()->cpu)
  
- 	down(&cache_chain_sem);
--	if (!n)
--		return (void *)1;
-+	if (!n) {
-+		/*
-+		 * Output format version, so at least we can change it
-+		 * without _too_ many complaints.
-+		 */
-+		seq_puts(m, "slabinfo - version: 1.1"
-+#if STATS
-+				" (statistics)"
-+#endif
-+#ifdef CONFIG_SMP
-+				" (SMP)"
-+#endif
-+				"\n");
-+	};
- 	p = &cache_cache.next;
--	while (--n) {
-+	while (n--) {
- 		p = p->next;
- 		if (p == &cache_cache.next)
- 			return NULL;
-@@ -1919,8 +1931,6 @@
- {
- 	kmem_cache_t *cachep = p;
- 	++*pos;
--	if (p == (void *)1)
--		return &cache_cache;
- 	cachep = list_entry(cachep->next.next, kmem_cache_t, next);
- 	return cachep == &cache_cache ? NULL : cachep;
+-#define cpu_possible(cpu) (phys_cpu_present_map & (1<<(cpu)))
++extern volatile unsigned long cpu_callout_map;
++
++#define cpu_possible(cpu) (cpu_callout_map & (1<<(cpu)))
+ #define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
+ 
+ extern inline unsigned int num_online_cpus(void)
+@@ -113,7 +115,6 @@ static __inline int logical_smp_processo
+ 	return GET_APIC_LOGICAL_ID(*(unsigned long *)(APIC_BASE+APIC_LDR));
  }
-@@ -1941,22 +1951,6 @@
- 	unsigned long	num_slabs;
- 	const char *name; 
  
--	if (p == (void*)1) {
--		/*
--		 * Output format version, so at least we can change it
--		 * without _too_ many complaints.
--		 */
--		seq_puts(m, "slabinfo - version: 1.1"
--#if STATS
--				" (statistics)"
--#endif
--#ifdef CONFIG_SMP
--				" (SMP)"
--#endif
--				"\n");
--		return 0;
--	}
--
- 	spin_lock_irq(&cachep->spinlock);
- 	active_objs = 0;
- 	num_slabs = 0;
+-extern volatile unsigned long cpu_callout_map;
+ /* We don't mark CPUs online until __cpu_up(), so we need another measure */
+ static inline int num_booting_cpus(void)
+ {
 
---------------020405060004020203080400--
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,110 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVAIBI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVAIBJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbVAIBI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 20:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbVAIBI3
+	id S262176AbVAIBJy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 20:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVAIBJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 20:08:29 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:60049 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262175AbVAIBIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 20:08:20 -0500
-Subject: [PATCH] Security-Enhanced Linux back port for 2.4 rev.0.3
-	(20050108)
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: linux-kernel@vger.kernel.org
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@epoch.ncsc.mil>,
-       russell@coker.com.au
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6ftTo+bNs4wShzrD8VQz"
-Date: Sun, 09 Jan 2005 02:07:35 +0100
-Message-Id: <1105232856.24876.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Sat, 8 Jan 2005 20:09:54 -0500
+Received: from mail.dif.dk ([193.138.115.101]:43244 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262176AbVAIBJb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 20:09:31 -0500
+Date: Sun, 9 Jan 2005 02:20:58 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][0/4] let's kill verify_area
+In-Reply-To: <20050106175607.6b15b8e3.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0501090210520.4014@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0501070212560.3430@dragon.hygekrogen.localhost>
+ <20050106172624.7cc2a142.akpm@osdl.org> <Pine.LNX.4.61.0501070246160.3430@dragon.hygekrogen.localhost>
+ <20050106175607.6b15b8e3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 6 Jan 2005, Andrew Morton wrote:
 
---=-6ftTo+bNs4wShzrD8VQz
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+> Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> >
+> > On Thu, 6 Jan 2005, Andrew Morton wrote:
+> > 
+> > > Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> > > >
+> > > > verify_area() if just a wrapper for access_ok() (or similar function or 
+> > > > dummy function) for all arch's.
+> > > 
+> > > This sounds more like "let's kill Andrew".  I count 489 instances in the
+> > > tree.  Please don't expect this activity to take top priority ;)
+> > > 
+> > Heh, right, there's an aspect I hadn't really considered.
+> > I'm not expecting top priority, not at all. This is nowhere near being 
+> > anything important, just something that should happen eventually - so I 
+> > thought, why not just deprecate it now and let it be cleaned up over time 
+> > (and I'll do my share, don't worry :)
+> > 
+> > Accept the patch if you think it makes sense, drop it if you think it does 
+> > not (or should wait). 
+> 
+> The way to do this is to fix up the callers first, in just ten or so
+> patches.  Then mark the function deprecated when most of the conversion is
+> done.
+> 
+> If we deprecate the functions first then 10000 people send small fixes via
+> various snaky routes and it's really hard to coordinate the overlapping
+> fixes.  The s/MODULE_PARM/module_param/ stuff did that, because we made it
+> warn first, then I held the big sweep patch off for 2.6.11.
+> 
 
-Hi,
+Ok, that makes sense.
 
-During the past week, I've progressively worked on the back porting of
-the latest features and fixes applied to 2.6 SELinux-related code, so,
-we can now make use of them in 2.4.
+Here's my plan then:
 
-I know that 2.4 is in maintenance mode, but this was mainly just for my
-own fun and learning profit, even if there are some technical reasons to
-do it.
+I'll get to work on converting roughly one tenth og the verify_area 
+occourances and then post a patch for that for review. If it turns out to 
+be OK I'll get to work on the rest and do as many as I can and at that 
+point (assuming those patches are also OK) I'll re-submit a patch to 
+deprecate the function so the remaining instances can get cleaned up and 
+the function removed.
+This will probably take me a few days to do since A) it seems I didn't 
+even get my initial conversions correct so I'll need to be more careful, 
+and B) I have limited time.  But, I'll start doing the initial 1/10'th 
+patch now and hopefully post that to lkml within a few days.
 
-Documentation and tracking is available at:
-http://selinux.tuxedo-es.org/2.4-backport/
+Thank you for your feedback.
 
-The patches can be retrieved by checking out the 2.4-backport module in
-the SELinux CVS at SourceForge.Net:
 
-http://cvs.sourceforge.net/viewcvs.py/selinux/2.4-backport/
+-- 
+Jesper Juhl
 
-Under ./pre-patches/ you can find the latest patches that are not yet
-stable:
-http://cvs.sourceforge.net/viewcvs.py/selinux/2.4-backport/pre-patches/
-
-ASAP i will try to validate it's capabilities and see what's working and
-what's not, and this will happen after i solve some personal
-infrastructure problems.
-
-The BTS at http://selinux.tuxedo-es.org/tracking/ should be used to
-report bugs and so on.
-I would appreciate a lot any type of help, testing would be surely
-appreciated, and any type of feedback would be good too (even if you
-want to say it's crap, which i don't think so ;) ).
-
-If there's someone that made this possible, it's Stephen D. Smalley
-which helped me giving me his attention and time to solve my extensive
-lack of knowledge and skills.
-
-Also i want to say thanks to Russell Coker from Red Hat for giving me
-access to a testing machine where i can run out the back port kernel
-patches, and also for helping me when understanding how the SELinux
-policy works.
-
-Currently, I'm researching on a possible bug introduced by an incorrect
-back porting of the latest anonymous memory mappings control features.
-Also, dynamic context transitions and mount contexts are not supported
-because of lack of some code that makes me almost unable to back port
-them without doing extra, geekish, hacking in the kernel core and memory
-management stuff (help really welcome).
-
-In short, the back port is now fully supporting up to v18 policies which
-includes almost the Netlink classes (not fully back ported support, even
-for ipv6 and some other things may be not fully supported as well) and
-the policy booleans, etc (v15->v17).
-
-Those who are using or testing the 0.2 revision are encouraged to move
-to latest 0.3 pre-patches, as a kernel oops due to inexistent (and
-superfluous) SLAB_PANIC handling has been solved since past 0.2
-revisions.
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
-[2048g/9AE91A22] Hardened Debian head developer & project manager
-http://www.tuxedo-es.org - http://lorenzo.debian-hardened.org
-
---=-6ftTo+bNs4wShzrD8VQz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB4IPXDcEopW8rLewRAufYAKCVQsUZucpcPgIWqFQE95j4730D5ACfSZEJ
-C2zD6RFUH589QwF6a9KW03M=
-=QVwf
------END PGP SIGNATURE-----
-
---=-6ftTo+bNs4wShzrD8VQz--
 

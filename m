@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263186AbTCWUZa>; Sun, 23 Mar 2003 15:25:30 -0500
+	id <S263185AbTCWUZJ>; Sun, 23 Mar 2003 15:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263190AbTCWUZa>; Sun, 23 Mar 2003 15:25:30 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6921 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263186AbTCWUZY>; Sun, 23 Mar 2003 15:25:24 -0500
-Date: Sun, 23 Mar 2003 21:36:28 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
-       Alan Cox <alan@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
-       szepe@pinerecords.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Ptrace hole / Linux 2.2.25
-Message-ID: <20030323203628.GA16025@atrey.karlin.mff.cuni.cz>
-References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org> <20030323195606.GA15904@atrey.karlin.mff.cuni.cz> <1048450211.1486.19.camel@phantasy.awol.org> <402760000.1048451441@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263186AbTCWUZJ>; Sun, 23 Mar 2003 15:25:09 -0500
+Received: from dsl-213-023-220-176.arcor-ip.net ([213.23.220.176]:8837 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id <S263185AbTCWUZI> convert rfc822-to-8bit; Sun, 23 Mar 2003 15:25:08 -0500
+From: Dominik Kubla <dominik@kubla.de>
+To: Christoph Hellwig <hch@infradead.org>, Jan Dittmer <j.dittmer@portrix.net>
+Subject: Re: i2c-via686a driver
+Date: Sun, 23 Mar 2003 21:36:10 +0100
+User-Agent: KMail/1.5.1
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <3E7E0B37.5060505@portrix.net> <20030323202743.A11150@infradead.org>
+In-Reply-To: <20030323202743.A11150@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <402760000.1048451441@[10.10.2.4]>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200303232136.10089.dominik@kubla.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Am Sonntag, 23. März 2003 21:27 schrieb Christoph Hellwig:
+> // The following register sets temp interrupt mode (bits 1-0 for temp1,
+> // 3-2 for temp2, 5-4 for temp3).  Modes are:
+> //    00 interrupt stays as long as value is out-of-range
+> //    01 interrupt is cleared once register is read (default)
+> //    10 comparator mode- like 00, but ignores hysteresis
+> //    11 same as 00
+>
+> 	Please don't use C++-style comments in kernel code.
+>
 
-> > Do not get me wrong, I think users can and should compile their own
-> > kernel if they want.  And as kernel developers, we should facilitate
-> > that.  But if someone requires handholding and instant or controlled
-> > releases of bug fixes, they either need to be able to rely on their own
-> > ability to get them or their vendor.  We have vendors for a reason,
-> > after all.
-> 
-> If that's people's attitude ("you should use a vendor"), then we
-> need a 
+Why? It's a valid C99 feature and since the kernel already uses C99 
+initializers it won't compile with compilers that choke on C99 comments 
+anyway.
 
-I believe sentence "you should use a vendor kernel" schould be banned
-on this list ;-).
-
-How badly would releasing 2.4.21 which does not have 2.4.20-preX as a
-parent mess version control systems?  
-								Pavel
+Dominik
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Be at war with your voices, at peace with your neighbors, and let every new
+year find you a better man. (Benjamin Franklin, 1706-1790)
+

@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVCKR3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVCKRcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVCKR3I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 12:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVCKR1n
+	id S261218AbVCKRcf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 12:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVCKRcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 12:27:43 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:56249 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261222AbVCKR1H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 12:27:07 -0500
-Date: Fri, 11 Mar 2005 09:26:28 -0800
-From: mike kravetz <kravetz@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64 NUMA memory fixup
-Message-ID: <20050311172628.GB6360@w-mikek2.ibm.com>
-References: <16942.30144.513313.26103@cargo.ozlabs.ibm.com> <20050310023613.23499386.akpm@osdl.org> <16945.23578.505529.220972@cargo.ozlabs.ibm.com>
+	Fri, 11 Mar 2005 12:32:35 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:40127 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261218AbVCKRc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 12:32:28 -0500
+Date: Fri, 11 Mar 2005 11:31:58 -0600
+From: Michael Raymond <mraymond@sgi.com>
+To: Greg KH <greg@kroah.com>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+Message-ID: <20050311113158.L91195@goliath.americas.sgi.com>
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU> <20050311075029.A92696@goliath.americas.sgi.com> <20050311172514.GB1768@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16945.23578.505529.220972@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050311172514.GB1768@kroah.com>; from greg@kroah.com on Fri, Mar 11, 2005 at 09:25:14AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 07:51:38PM +1100, Paul Mackerras wrote:
-> 
-> Anyway, the ultimate reason seems to be that the numa.c code is
-> assuming that an address value and a size value occupy the same number
-> of cells.  On the G5 we have #address-cells = 2 but #size-cells = 1.
-> Previously this didn't matter because we used the values in lmb.memory
-> for the free_bootmem_node calls.  Those values are obtained in prom.c
-> by scanning the memory nodes, using the correct number of cells.  With
-> Mike's patch we rely instead on the values obtained by the numa.c
-> code, which uses read_cell_ul() for both address and size values, and
-> that just uses prom_n_size_cells() to know how many cells to parse.
-> It really needs to use prom_n_addr_cells() when parsing an address
-> value.
-> 
+    We have some customers doing high performance raw I/O from various PCI &
+VME cards.  They can already mmap() and do DMA from user space to the cards.
+Allowing them to do interrupt processing in user space allows them to keep
+everything in one tight package.  The ULI web site talks about this a little
+more.
+     						Thanks,
+						       Michael
 
-Thanks Paul!!! That was more than I expected when I asked if you
-could recreate on your G5 and provide me more info for analysis.
-I'll work on creating a new version of the patch.
+On Fri, Mar 11, 2005 at 09:25:14AM -0800, Greg KH wrote:
+> On Fri, Mar 11, 2005 at 07:50:32AM -0600, Michael Raymond wrote:
+> >     I have many users asking for something like this.
+> 
+> Why would a "user" care about this?
+> 
+> Now hardware companies that want to write closed drivers is another
+> thing :)
+> 
+> thanks,
+> 
+> greg k-h
 
 -- 
-Mike
+Michael A. Raymond              Office: (651) 683-3434
+Core OS Group                   Real-Time System Software

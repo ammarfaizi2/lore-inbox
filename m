@@ -1,109 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVAAIIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVAAI2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbVAAIIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 03:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVAAIIx
+	id S262195AbVAAI2f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 03:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVAAI2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 03:08:53 -0500
-Received: from web52201.mail.yahoo.com ([206.190.39.83]:13473 "HELO
-	web52201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262196AbVAAIIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 03:08:49 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=xicYMAzl+cxhxo5MXYypjeoDSY0tndrIdawD6ivEs4kpxMYVHd1v2PFUs4OuuALdY8rrN1PQMMbeuW5eFBPUBEBwqUUdaUz013Mw1mhvy77GbmJbvV5L6/5X9CcQiqJzD6gLbYxQDvknDXehdqjOgCS34IVWcoamQdHXH/atBPs=  ;
-Message-ID: <20050101080849.56155.qmail@web52201.mail.yahoo.com>
-Date: Sat, 1 Jan 2005 00:08:49 -0800 (PST)
-From: linux lover <linux_lover2004@yahoo.com>
-Subject: Is my module program is giving correct output?
+	Sat, 1 Jan 2005 03:28:32 -0500
+Received: from mx.freeshell.org ([192.94.73.21]:47296 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S262195AbVAAI2a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 03:28:30 -0500
+Date: Sat, 1 Jan 2005 08:27:45 +0000 (UTC)
+From: Roey Katz <roey@sdf.lonestar.org>
 To: linux-kernel@vger.kernel.org
+Subject: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+Message-ID: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-          While writing kernel module packet sniffer i
-start with first accessing packets length 
-and its data part.so, to start i try to access packet
-data first and copy it to other variable to dump
-its contents but i am facing a problem while accessing
-the packet's data. As i have studied i 
-found that data in packet at any layer resides in
-between data and tail pointers.  So if i
-have to print it or copy it in any unsigned string
-then how to do that?
-          I tried with following example which
-receives packet and print data part at IP layer. But I
-am not sure whether am i getting packet dump or
-address of string packet?
-Thanks in advance.
-regards,
-linux_lover
+Hello,
 
-#define MODULE
-#define __KERNEL__
+Upon bootup, kernels 2.6.9 and 2.6.10 do not respond to keyboard input 
+(e.g., I enter a few chars at the prompt but I see nothing).  I can SSH 
+into the system, though, but I don't know what to do from there. I used 
+the .config from my 2.6.7 kernel, which works properly (I did run 'make 
+oldconfig'). In all .config files, I have the following:
 
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/skbuff.h>
-#include <linux/ip.h>
-#include <linux/netfilter.h>
-#include <linux/netfilter_ipv4.h>
+  CONFIG_INPUT_KEYBOARD=y
+  CONFIG_KEYBOARD_ATKBD=y
+  # CONFIG_KEYBOARD_SUNKBD is not set
+  # CONFIG_KEYBOARD_LKKBD is not set
+  # CONFIG_KEYBOARD_XTKBD is not set
+  # CONFIG_KEYBOARD_NEWTON is not set
 
-#include <linux/string.h>
-
-static struct nf_hook_ops nfho;
-
-unsigned int hook_func(unsigned int hooknum,struct
-sk_buff **skb,
-                                 const struct
-net_device *in,
-                                 const struct
-net_device *out,
-                                 int (*okfn)(struct
-sk_buff *))
-{
-  struct sk_buff *sb = *skb;
-  printk(KERN_DEBUG "calling hook_func at
-NF_IP_LOCAL_OUT\n");
-      unsigned char *packet;
-      unsigned int buflen;
-      int  i=0;
-      buflen=sb->len;
-      packet=kmalloc(buflen,GFP_USER);
-      memset(packet,'\0',buflen);
-      printk(KERN_DEBUG "Length of skb->data in hook
-function = %d\n", buflen);
-      strncpy(packet,sb->data,buflen);
-      printk(KERN_DEBUG "packet contents of sb->data
-in hook function = %x\n", packet);
-
-     return NF_ACCEPT;
-}
-
-static int __init init(void)   
-  {
-              nfho.hook     = hook_func;
-              nfho.hooknum  = NF_IP_LOCAL_OUT;
-              nfho.pf       = PF_INET;
-              nfho.priority = NF_IP_PRI_FIRST;
-              nf_register_hook(&nfho1);
-              return 0;
-          }
-
-static void __exit fini(void)
-          {
-              nf_unregister_hook(&nfho1);
-          }
-module_init(init);
-module_exit(fini);
-MODULE_LICENSE("GPL");
+So that looks OK... I also SSH'd into the system, did a 'cat 
+/dev/input/event0' and typed on the system's keyboard, but 'cat' 
+remained silent. Perhaps there is a better way to see if the system is 
+recognizing the keyboard input (or even seeing the keyboard 
+itself).  I give up.. what am I doing wrong???
 
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - 250MB free storage. Do more. Manage less. 
-http://info.mail.yahoo.com/mail_250
+Thanks,
+
+Roey Katz 
+PS: please CC responses to roey at freeshell dot org, thanks!

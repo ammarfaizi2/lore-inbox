@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVADPb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVADPea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVADPb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 10:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVADPaG
+	id S261704AbVADPea (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 10:34:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVADPeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 10:30:06 -0500
-Received: from fyrebird.net ([217.70.144.192]:4514 "HELO fyrebird.net")
-	by vger.kernel.org with SMTP id S261684AbVADP3t (ORCPT
+	Tue, 4 Jan 2005 10:34:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48046 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261703AbVADPcp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 10:29:49 -0500
-X-Qmail-Scanner-Mail-From: lethalman@fyrebird.net via fyrebird
-X-Qmail-Scanner: 1.23 (Clear:RC:0(62.11.81.88):. Processed in 1.935503 secs)
-Message-ID: <41DAB3AA.4010207@fyrebird.net>
-Date: Tue, 04 Jan 2005 16:18:02 +0100
-From: Lethalman <lethalman@fyrebird.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Tue, 4 Jan 2005 10:32:45 -0500
+Date: Tue, 4 Jan 2005 10:31:16 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Felipe Alfaro Solana <lkml@mac.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@debian.org>
+Subject: Re: starting with 2.7
+In-Reply-To: <B470A11D-5E5C-11D9-A816-000D9352858E@mac.com>
+Message-ID: <Pine.LNX.4.61.0501041030430.8235@chimarrao.boston.redhat.com>
+References: <200501041327.j04DRhfQ007850@laptop11.inf.utfsm.cl>
+ <B470A11D-5E5C-11D9-A816-000D9352858E@mac.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Let me know EIP address
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to get the EIP value from a simple program in C but i don't 
-how to do it. I need it to know the current address position on the code 
-segment.
+On Tue, 4 Jan 2005, Felipe Alfaro Solana wrote:
 
-main() {
-   long *eip;
-   asm("mov %%eip,%0" : "=g"(eip));
-   printf("%p\n", eip);
-}
+> I tend to prefer forking off 2.7:
 
-Unfortunately EIP is not that kind of register :P
-Does anyone know how to get EIP?
+Nobody's stopping you from forking off 2.7, but please don't
+try telling Linus and Andrew how to do their job ;)
 
 -- 
-www.iosn.it * Amministratore Italian Open Source Network
-www.fyrebird.net * Fyrebird Hosting Provider - Technical Department
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,69 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUIDDb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270028AbUIDDgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266271AbUIDDb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 23:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270028AbUIDDb4
+	id S270028AbUIDDgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 23:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270035AbUIDDgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 23:31:56 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:56018 "EHLO
-	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S266271AbUIDDbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 23:31:53 -0400
-Date: Fri, 03 Sep 2004 21:25:43 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: PROBLEM: Full CPU-usage on sis5513-chipset disc
- input/output-operations
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <006201c4922e$dc4b9bb0$6601a8c0@northbrook>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Content-type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
-Content-transfer-encoding: 7bit
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <fa.lcmvbgi.1m1iepk@ifi.uio.no> <fa.fc3clr3.71gar9@ifi.uio.no>
+	Fri, 3 Sep 2004 23:36:09 -0400
+Received: from 213-229-38-18.static.adsl-line.inode.at ([213.229.38.18]:16571
+	"HELO home.winischhofer.net") by vger.kernel.org with SMTP
+	id S270028AbUIDDgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 23:36:03 -0400
+Message-ID: <41393829.6020302@winischhofer.net>
+Date: Sat, 04 Sep 2004 05:36:09 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: adaplas@pol.net
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/5][RFC] fbdev: Clean up framebuffer initialization
+References: <200409041108.40276.adaplas@hotpop.com>
+In-Reply-To: <200409041108.40276.adaplas@hotpop.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that at least with relatively current motherboards it makes sense to 
-at least try the APIC support. Speaking of "works in Windows", I think APIC 
-mode has a greater chance of working these days on UP motherboards because 
-Microsoft is pushing motherboard/system manufacturers to support IOAPIC in 
-all new designs:
+Antonino A. Daplas wrote:
+> This patch probably deserves discussion among developers.
+> 
+> Currently, the framebuffer system is initialized in a roundabout manner.
+> First, drivers/char/mem.c calls fbmem_init().  fbmem_init() will then
+> iterate over an array of individual drivers' xxxfb_init(), then each driver
+> registers its presence back to fbmem.  During console_init(),
+> drivers/char/vt.c will call fb_console_init(). fbcon will check for
+> registered drivers, and if any are present, will call take_over_console() in
+> drivers/char/vt.c.
+> 
+> This patch changes the initialization sequence so it proceeds in this
+> manner: Each driver has its own module_init(). Each driver calls
+> register_framebuffer() in fbmem.c. fbmem.c will then notify fbcon of the
+> driver registration.  Upon notification, fbcon calls take_over_console() in
+> vt.c.
+> 
+> The following are the changes brought about by this patch:
+> 
+> 1. Each subsystem (fbcon, fbmem, xxxfb) will have their own module_init.
+> Thus, explicit calls to each subsystem's init functions are eliminated.
+> 
+> 2. The struct fb_drivers array in fbmem.c can be removed.  This slashes
+> around 400 lines in fbmem.c
+> 
+> 3. Parsing of kernel boot options were done by fbmem.c calling each
+> driver's xxxfb_setup() function.  Because this is not possible with this
+> patch, drivers can choose to either:
+> 	a. have their own __setup() routine
+> 	b. call fb_get_options("xxxfb") and pass the return  value to
+> 	 xxxfb_setup(). This is to maintain compatibility with the
+> 	'video=xxxfb:<options>' semantics.
+> 
+> 4. Getting a framebuffer console will occur a bit late during the boot
+> process since the initialization sequence will depend upon the link order.
+> So, 'video/' is moved up in drivers/Makefile, shortly after 'pci/'
+> 
+> 5. Because driver initialization will be dependent on the link order,
+> hardware that depends on other subsystems (agpgart, usb, serial, etc) may
+> choose to initialize after the subsystems they depend on. 
+> 
+> Signed-off-by: Antonino Daplas <adaplas@pol.net>
 
-http://www.microsoft.com/whdc/system/sysperf/IO-APIC.mspx
+I don't really see a benefit but it's ok with me.
 
+(Thanks for considering the "unified" nature of sisfb, by the way. Very 
+considarate. Very much appreciated.)
 
------ Original Message ----- 
-From: "Daniel Egger" <degger@fhm.edu>
-Newsgroups: fa.linux.kernel
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Hendrik Fehr" <s4248297@rcs.urz.tu-dresden.de>; "Linux Kernel Mailing 
-List" <linux-kernel@vger.kernel.org>
-Sent: Friday, September 03, 2004 11:14 AM
-Subject: Re: PROBLEM: Full CPU-usage on sis5513-chipset disc 
-input/output-operations
+I assume that you tested this stuff before posting it here.
 
-On 03.09.2004, at 16:07, Alan Cox wrote:
+Thomsd
 
-> For uniprocessor machines you should avoid building with APIC support
-> in
-> general anyway. A lot of systems simply don't work with APIC
-> uniprocessor because nobody used to use the APIC in such a
-> configuration.
-
-This statement I don't understand. Wouldn't it be pretty stupid
-not to use the APIC of modern systems if available to get all
-the benefits, like additional interrupts? At least my Asus A7V600
-refuses to (net-)boot at all without a somewhat recent kernel *and*
-APIC enabled in BIOS and kernel because the interrupt routing is
-completely messed up. I'd rather let all users who have APIC
-problems report on the list and wait until someone fixes the
-issue instead of having them shut up and use less advanced
-techniques instead unless you want to get those "but it works in
-Windows" discussions going...
-
-Servus,
-       Daniel
-
+-- 
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net          http://www.winischhofer.net/
+twini AT xfree86 DOT org

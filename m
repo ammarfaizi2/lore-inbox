@@ -1,172 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265680AbUAMVWV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 16:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265683AbUAMVVX
+	id S265778AbUAMV1R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 16:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUAMV1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 16:21:23 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:34042 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265680AbUAMVUc
+	Tue, 13 Jan 2004 16:27:16 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:53501 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265778AbUAMV05
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 16:20:32 -0500
-Message-ID: <40046115.5090700@mvista.com>
-Date: Tue, 13 Jan 2004 13:20:21 -0800
+	Tue, 13 Jan 2004 16:26:57 -0500
+Message-ID: <40046296.1050702@mvista.com>
+Date: Tue, 13 Jan 2004 13:26:46 -0800
 From: George Anzinger <george@mvista.com>
 Organization: MontaVista Software
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Matt Mackall <mpm@selenic.com>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: kgdb cleanups
-References: <20040109183826.GA795@elf.ucw.cz> <400233A5.8080505@mvista.com> <20040112064923.GX18208@waste.org> <200401121923.27513.amitkale@emsyssoft.com>
-In-Reply-To: <200401121923.27513.amitkale@emsyssoft.com>
+CC: Andrew Morton <akpm@osdl.org>, jim.houston@comcast.net, discuss@x86-64.org,
+       ak@suse.de, shivaram.upadhyayula@wipro.com,
+       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
+References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <200401101611.53510.amitkale@emsyssoft.com> <400237F0.9020407@mvista.com> <200401122020.08578.amitkale@emsyssoft.com>
+In-Reply-To: <200401122020.08578.amitkale@emsyssoft.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Amit S. Kale wrote:
-> Regarding pluggable iterfaces -
-> The version I have lets a user to choose the interface by supplying 
-> appropriate command line. (e.g. kgdbwait kgdb8250=... or kgdbwait 
-> kgdbeth=...) It supports an arbitrary number of interfaces. The kgdb core 
-> itself is independent of an interface. All interfaces are defined by a 
-> structure described below. An interface registers itself with kgdb core by 
-> assigning this structure to pointer kgdb_serial.
+> 8250.patch changes generic 8250/16550 driver behavior only in following ways
+> 1. It adds a function serial8250_release_irq to release those serial ports 
+> which share an irq with kgdb irq.
+> 2. There are checks so that a serial port that uses an irq used by an 
+> initialized kgdb can't be initialized or started.
 > 
-> struct kgdb_serial {
-> 	int chunksize;
-Do we really need this?  The only place I saw it used it did not seem to matter 
-where the split occured and there was now endchunck/beginchunck stuff.  I would 
-MUCH rather see the interface code take care of this with out mucking up the 
-core code (as the eth code already does).  Did I miss something here?
-> 	int (*read_char)(void);
-> 	void (*write_char)(int);
-> 	void (*flush)(void);
-> 	int (*hook)(void);
-> 	void (*begin_session)(void);
-> 	void (*end_session)(void);
-> };
-> 
-> Where chunksize is maximum chunksize an interface can handle.
-> 
-> read_char and write_char are derived from getDebugChar and putDebugChar
-> flush flushes written characters. Flush control is given to kgdb core so that 
-> it can ensure that #checksum doesn't split.
+> File kgdb_8250.c is independent of 8250.c kgdb_8250.c depends on KGDB_8250 and 
+> 8250.c depends on SERIAL_8250 which can be independently configured. 
+> kgdb_8250.c can be compiled even if 8250.c is not included. kgdb_8250.c does 
+> only the _minimum_ set of initializations required by hardware.
 
-Actually, I think it is needed so that gdb knows that the kgdb stub has exited. 
-  This could, of course, be done with out the flush, but then the write code 
-would have to recognize an end of record (not hard with the given protocol).  I 
-don't think there is any requirement that a checksum not be split.  My 
-assumption here is that the logical record is reassembled on the gdb end without 
-concern about how many physical records are involved.  Is this not true?
+Ok.
 > 
-> begin_session and end_session inform an interface about a gdb communication 
-> session. (Haven't decided about console packets to gdb yet)
-
-I assume you mean entry to the stub/ exit the stub as a "session".  This 
-eliminates the old hook, right?
+> Serial interface should be configurable independent of kgdb and may not be 
+> configured if ethernet interface is configured.  Serial interface is far 
+> simpler hence superior for debugging purposes. If it's available, using 
+> ethernet interface is out of question. Ethernet interface can be used when 
+> serial hardware isn't present or is being used for some other purposes.
 > 
-> hook is interface initialization. It can return errors. This allows kgdb core 
-> to probe the interface for availability at multiple points. Because of this, 
-> there can be multiple debugger entry points
-> 1. At very begining of start_kernel -> Only an 8250 interface with early boot 
-> enabled can respond to hook call.
-> 2. After smp initialization -> An 8250 interface without an early boot can 
-> respond to this.
-> 3. An ethernet interface can itself call debugger_entry to enter debugger 
-> after it's brought up from userland.
+I rather think that the serial inteface should be the fall back unless the user 
+has told us at configure time that it is not available.  I am not prepared to 
+make a statment that it is better than eth.  The eth intface should be much 
+faster, but it has its fingers into a large part of the kernel that MAY be the 
+subject of the current session.  Thus, I think that eth may be better, IF one is 
+clearly not involved in debugging those areas of the kernel.  (Which, by the 
+way, we need to enumerate at some point.)
 
-Hm..  Eth is up way before user land, else we could not nfs mount root and all 
-that that implies.  I think eth should be "available" when it is initialized.  I 
-am not sure I see a reason to support a way to get to kgdb from user land.  We 
-have ^C and also the Sys Rq entry.  That should be enough.
-
-Also, as mention in a prior email, I don't think it is a good idea to switch 
-interfaces once communication is started, unless commanded to do so, even if the 
-default request is to use an inteface that just came up.
-
-I would suggest the the readyness of an interface be something one can easily 
-determine from gdb (assuming we have established a connection).  I suggest 
-putting this in the kgdb_info structure.  Possibly a pointer to an array of ???
-where each entry is one of the interfaces.  Should have an "up" value here 
-(filled in by the hook calls), as well as, say a pointer to more details on the 
-interface.  The details might be baud, irq, address, for serial, and the ip 
-address, etc for eth.
-
--g
+> On Monday 12 Jan 2004 11:30 am, George Anzinger wrote:
 > 
-> Other interfaces can come up at (1) or (2)
-> 
-> On Monday 12 Jan 2004 12:19 pm, Matt Mackall wrote:
-> 
->>On Sun, Jan 11, 2004 at 09:41:57PM -0800, George Anzinger wrote:
+>>Amit S. Kale wrote:
 >>
->>>For the internal kgdb stuff I have created kdgb_local.h which I intended
->>>to be local to the workings of kgdb and not to contain anything a user
->>>would need.
->>
->>Agreed, I just haven't touched it since you last mentioned it.
->>
->>
->>>>+struct kgdb_hook {
->>>>+	char *sendbuf;
->>>>+	int maxsend;
+>>>George,
 >>>
->>>I don't see the need of maxsend, or sendbuff, for that matter, as kgdb
->>>uses it now (for the eth code) it is redundant, in that the eth putchar
->>>also does the same thing as is being done in the kgdb_stub.c code.  I
->>>think this should be removed from the stub and the limit in the ethcode
->>>relied upon.
->>
->>Fair enough.
->>
->>
->>>>void
->>>>putDebugChar(int c)
->>>>{
->>>>-	if (!kgdboe) {
->>>>-		tty_putDebugChar(c);
->>>>-	} else {
->>>>-		eth_putDebugChar(c);
->>>>-	}
->>>>+	if (kh)
->>>>+		kh->putchar(c);
->>>>}
+>>>Well said!
 >>>
->>>I was thinking that this might read something like:
->>>         if (xxx[kh].putchar(c))
->>>                xxx[kh].putchar(c);
+>>>I have released kgdb 2.0.1 for kernel 2.6.1:
+>>>http://kgdb.sourceforge.net/linux-2.6.1-kgdb-2.0.1.tar.bz2
 >>>
->>>One might further want to do something like:
->>>         if (!xxx[kh].putchar(c))
->>>                kh = 0;
+>>>It doesn't contain any assert stuff. I have split it into multiple parts
+>>>to make a merge easier. Please let me know if you want me to further
+>>>split them or if you want something to be changed. The README file from
+>>>this tarball is pasted below.
 >>>
->>>In otherwords, an array (xxx must, of course, be renamed) of stuct
->>>kgdb_hook (which name should also be changed to relate to I/O,
->>>kgdb_IO_hook, for example). Then reserve entry 0 for the rs232 I/O code.
+>>>Here is two possible starting points:
+>>>1. SMP stuff -> Replace my old smp and nmi handling code.
+>>>2. Early boot -> Change 8250.patch to make configuration of serial port
+>>>either through config options or through command line.
 >>
->>Dunno about that. Probably should work more like the console code,
->>whoever registers first wins. Early boot will probably be the
->>exclusive province of serial for a while yet, but designing it in is
->>probably short-sighted.
+>>What does messing with 8250.c code buy us?  I use a completely independent
+>>UART driver and only have "back off" code in the 8250 driver.  In fact, I
+>>usually recommend that the serial (i.e. 8250.c) driver not even be loaded. 
+>>My code also allows a more aggressive hookup to the interrupt code, to get
+>>the ^C to do its thing.  I REALLY would like to keep Mr. Heisenberg out of
+>>kgdb.  By using existing kernel code we are inviting him to visit.
 >>
 >>
->>> An alternate possibility is an array of pointer to struct kgdb_hook
->>>which allows one to define the struct contents as below and to build the
->>>array, all at compile/link time.  A legal entry MUST define get and put,
->>>but why not define them all, using dummy functions for the ones that make
->>>no sense in a particular interface.
+>>>I'll attempt reading your patch and merging as much stuff as possible.
+>>>Thanks.
 >>
->>Throwing all the stubs in a special section could work well too. Then
->>we could add an avail() function so that early boot debugging could
->>discover if each one was available. The serial code could use this to
->>kickstart itself while the eth code could test a local initialized
->>flag and say "not a chance". Which gives us all the architecture to
->>throw in other trivial interfaces (parallel, bus-snoopers, etc.).
+>>May I suggest reading the comments preceeding the patch itself in Andrew's
+>>breakout code.  These were written by Ingo and, I think, reflect some of
+>>the things he found useful.
+>>
+>>Also, the information found in .../Documentation/i386/kgdb/* of the patch.
+>>
+>>
+>>>Patch:
+>>>------
+>>>Patch the kernel out of following patches.
+>>>core.patch -	KGDB architecture and interface independent code. Required.
+>>>i386.patch -	i386 architecture dependent part. Required only for that
+>>>		architecture.
+>>>x86_64.patch -	x86_64 architecture dependent part. Required only for that
+>>>		architecture.
+>>>8250.patch -	Generic serial port (8250 and 16550) interface for kgdb.
+>>>This is the only working interface in this release. Hence required.
+>>>eth.patch -	Ethernet interface for kgdb. This is still under development.
+>>>Use only if you plan to contribute to its development.
+>>>
+>>>Build:
+>>>------
+>>>Enable following config options (in this order).
+>>>
+>>>Kernel hacking ->
+>>>	KGDB: kernel debugging with remote gdb ->
+>>>		KGDB: Thread analysis
+>>>		KGDB: Console messages through gdb
+>>>Device drivers ->
+>>>	Character devices ->
+>>>		Serial drivers ->
+>>>			KGDB: On generic serial port (8250)
+>>
+>>If KGDB is on, this should not be needed.  Also the driver part of KGDB
+>>should be local to the KGDB configure in the configure file.  I think we
+>>should ALWAYS have the serial link.  The eth link should be backed up by
+>>the serial link.
+>>
+>>By the way, I will be out of town on Monday, back on Tuesday.
+>>
+>>George
+>>
+>>
+>>>Boot:
+>>>-----
+>>>Supply command line options kgdbwait and kgdb8250 to the kernel.
+>>>Example:  kgdbwait kgdb8250=1,115200
+>>>
+>>>On Saturday 10 Jan 2004 3:46 am, George Anzinger wrote:
+>>>
+>>>>Amit,
+>>>>
+>>>>The base line kgdb code in the mm patches was offered by me.  It derives
+>>>
+>>>>from (a long time ago) a kgdb I got from the RTIA (or was it the RTLINUX)
+>>>
+>>>>folks.  Prio to that, well, your name is on it as well as others.
+>>>>
+>>>>As you may have noted there have been a lot of changes, mostly for the
+>>>>better, I hope.  I think we have slightly different objectives in our
+>>>>work. I debug kernels, not drivers, so I am interested in getting into
+>>>>kgdb as early as possible.  To this end the current mm patch allows one
+>>>>to put a breakpoint() as the first line of C code in the kernel.  This
+>>>>required a few adjustments, such as configuring the I/O port at CONFIG
+>>>>time, for example.
+>>>>
+>>>>I would like for the two versions of kgdb to merge while keeping the
+>>>>features of both.  The work on seperating the common code is something I
+>>>>like and, while I never do modules, the automatic module stuff in gdb
+>>>>sound good.
+>>>>
+>>>>May I suggest that we compare and contrast the two versions and take a
+>>>>look at the differences and the overlaps and settle on one way of doing
+>>>>the various things.
+>>>>
+>>>>George
 > 
 > 
 

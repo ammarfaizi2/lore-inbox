@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292916AbSCDVii>; Mon, 4 Mar 2002 16:38:38 -0500
+	id <S292918AbSCDVoU>; Mon, 4 Mar 2002 16:44:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292918AbSCDVia>; Mon, 4 Mar 2002 16:38:30 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:18948 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S292916AbSCDViO>; Mon, 4 Mar 2002 16:38:14 -0500
-Date: Mon, 4 Mar 2002 18:37:52 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, <andrea@suse.de>,
-        <phillips@bonn-fries.net>, <davidsen@tmr.com>, <mfedyk@matchmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <20020304191804.2e58761c.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.44L.0203041837150.1413-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292919AbSCDVoI>; Mon, 4 Mar 2002 16:44:08 -0500
+Received: from zamok.crans.org ([138.231.136.6]:61656 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S292918AbSCDVoE>;
+	Mon, 4 Mar 2002 16:44:04 -0500
+To: chiranjeevi vaka <cvaka_kernel@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Need Suggestion(modifying kernel source)
+In-Reply-To: <20020304212315.89890.qmail@web21305.mail.yahoo.com>
+X-PGP-KeyID: 0xF22A794E
+X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
+From: Vincent Bernat <bernat@free.fr>
+In-Reply-To: <20020304212315.89890.qmail@web21305.mail.yahoo.com> (chiranjeevi
+ vaka's message of "Mon, 4 Mar 2002 13:23:15 -0800 (PST)")
+Organization: Kabale Inc
+Date: Mon, 04 Mar 2002 22:44:00 +0100
+Message-ID: <m34rjwdn4v.fsf@neo.loria>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
+ i686-pc-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Mar 2002, Stephan von Krawczynski wrote:
-> On Mon, 04 Mar 2002 08:59:10 -0800
-> "Martin J. Bligh" <Martin.Bligh@us.ibm.com> wrote:
->
-> > 2) We can do local per-node scanning - no need to bounce
-> > information to and fro across the interconnect just to see what's
-> > worth swapping out.
->
-> Well, you can achieve this by "attaching" the nodes' local memory (zone)
-> to its cpu and let the vm work preferably only on these attached zones
-> (regarding the list scanning and the like). This way you have no
-> interconnect traffic generated. But this is in no way related to rmap.
+OoO En cette soirée bien amorcée du lundi 04 mars 2002, vers 22:23,
+chiranjeevi vaka <cvaka_kernel@yahoo.com> disait:
 
-But it is.  Without -rmap you don't know which processes from
-which nodes could have mapped memory on your node, so you end
-up scanning the page tables of all processes on all nodes.
+> The major problem I am getting is, as and when I do a
+> small change, to test that change, I have to compile
+> the whole kernel make boot floppy and reboot the
+> kernel with that floppy and test the code. This way is
+> takinbg too much time. I donno how linux kernel
+> developers will make changes to kernel and test them. 
 
-regards,
-
-Rik
+http://user-mode-linux.sourceforge.net
 -- 
-Will hack the VM for food.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+BOFH excuse #306: CPU-angle has to be adjusted because of vibrations
+coming from the nearby road

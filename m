@@ -1,135 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266186AbSLYLPd>; Wed, 25 Dec 2002 06:15:33 -0500
+	id <S261302AbSLYL0y>; Wed, 25 Dec 2002 06:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266191AbSLYLPd>; Wed, 25 Dec 2002 06:15:33 -0500
-Received: from m3.azalea.se ([217.75.96.207]:59305 "HELO m3.azalea.se")
-	by vger.kernel.org with SMTP id <S266186AbSLYLPb>;
-	Wed, 25 Dec 2002 06:15:31 -0500
-Subject: Alot of DMA errors in 2.4.18, 2.4.20 and 2.5.52
-From: Mikael Olenfalk <mikael@netgineers.se>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Netgineers
-Message-Id: <1040815160.533.6.camel@devcon-x>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 25 Dec 2002 12:19:21 +0100
-Content-Transfer-Encoding: 7bit
+	id <S261305AbSLYL0y>; Wed, 25 Dec 2002 06:26:54 -0500
+Received: from smtp01.uc3m.es ([163.117.136.121]:51213 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S261302AbSLYL0w>;
+	Wed, 25 Dec 2002 06:26:52 -0500
+Date: Wed, 25 Dec 2002 12:34:59 +0100
+Message-Id: <200212251134.gBPBYxJ29966@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: Nico Schottelius <schottelius@wdt.de>
+Subject: Re: [BUG] 2.4 series: IDE driver
+Cc: linux-kernel@vger.kernel.org
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Everybody,
+> Dr. David Alan Gilbert [Tue, Dec 24, 2002 at 11:50:54PM +0000]:
+>> * Nico Schottelius (schottelius@wdt.de) wrote:
+>>=20
+>> > If I change the notebook it runs fine.
+>> > If I change the harddisks it works fine.
+>> > If I use 2.5 series kernels it works fine.
+>>=20
+>> > ALI15X3: IDE controller at PCI slot 00:10.0
+>> > ALI15X3: chipset revision 195
+>> > ALI15X3: not 100% native mode: will probe irqs later
+>> >     ide0: BM-DMA at 0x6050-0x6057, BIOS settings: hda:DMA, hdb:pio
+>> >     ide1: BM-DMA at 0x6058-0x605f, BIOS settings: hdc:DMA, hdd:pio
 
-I wish you all a nice Christmas and A Happy New Year!
+>> I have heard it said that DMA on the ALI chipset is a bit touchy (not
+>> sure if driver or hardware) - it is worth trying with the DMA off.
 
+That's curious. I have a toshiba portege 4000 with this chipset and
+yes, dma occasionally conks out on this machine (kernel 2.4.19).
 
-Now to the stuff that matters (for me 8) ):
+It sometimes recovers after disabling dma (automatically, kernel
+message) and about 20mins of impatience (me) with an ide incomplete
+command notice
 
-I recently bought 4 80G IDE disks which I considered to combine into a
-software RAID (RAID5). The four discs are connected via a Promise
-Ultra100 TX2 (driver: PDC202xx, PDC20268 - I believe ;) ). It all works
-fine for me just that the data throughput (i.e. speed) has been very
-varying.
+  Uniform Multi-Platform E-IDE driver Revision: 6.31
+  ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+  ALI15X3: IDE controller on PCI bus 00 dev 20
+  PCI: No IRQ known for interrupt pin A of device 00:04.0.
+  ALI15X3: chipset revision 195
+  ALI15X3: not 100% native mode: will probe irqs later
+      ide0: BM-DMA at 0xeff0-0xeff7, BIOS settings: hda:DMA, hdb:pio
+      ide1: BM-DMA at 0xeff8-0xefff, BIOS settings: hdc:DMA, hdd:pio
+  hda: IC25N020ATDA04-0, ATA DISK drive
+  ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+  hdc: TOSHIBA DVD-ROM SD-C2502, ATAPI CD/DVD-ROM drive
+  ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+  ide1 at 0x170-0x177,0x376 on irq 15
+  hda: 39070080 sectors (20004 MB) w/1806KiB Cache, CHS=2432/255/63, UDMA(33)
+  Partition check:
+   /dev/ide/host0/bus0/target0/lun0: p1 p2 p4 < p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 p17 p18 >
 
-I had an older 80G IDE disc (yet capable of UDMA5) which I wanted to
-make a spare disk.
+I'm afraid most of the kernel error messages never makes it to the logs, but
+it's started with
 
-This is my configuration:
+   Dec 24 20:58:00 betty kernel: hda: DMA disabled
 
-raiddev /dev/md0
-        raid-level              5
-        nr-raid-disks           4
-        nr-spare-disks          1
-        persistent-superblock   1
-        parity-algorithm        left-symmetric
-        chunk-size              64
+and then, for example:
 
-        ## ALL NEW DISCS :)
-        device                  /dev/hde
-        raid-disk               0
-        device                  /dev/hdf
-        raid-disk               1
-        device                  /dev/hdg
-        raid-disk               2
-        device                  /dev/hdh
-        raid-disk               3
+   Dec 23 11:47:20 betty kernel: hda: DMA disabled
+   Dec 23 11:47:20 betty kernel: hda: ide_set_handler: handler not null; old=c01c19
+e0, new=c01c6d44
+   Dec 23 11:47:20 betty kernel: bug: kernel timer added twice at c01c1856.
+   Dec 23 11:48:42 betty kernel: SysRq : Changing Loglevel
 
-        ## GOOD, OLD, BRAVE DISC ;)
-        device                  /dev/hdc
-        spare-disk              0
-        
+Here's a recovery, 23 mins later:
 
+   Dec 23 12:11:09 betty kernel: hda: dma_intr: status=0x58 { DriveReady SeekComple
+te DataRequest }
+   Dec 23 12:12:20 betty last message repeated 3 times
+   Dec 23 12:12:20 betty kernel: hda: DMA disabled
+   Dec 23 12:12:20 betty kernel: ide0: reset: success
+   Dec 23 12:12:20 betty kernel: OK
 
-Now to the funny part:
+ 
+> dma works fine on all other constellations, but I will try it without
+> dma as soon as 2.4.20 is compiled...
 
-For some funny reason, a 2.4.20 kernel refuses to set the DMA-level on
-the new disks (all connected to a UDMA5-capable Ultra100 TX2 controller)
-to UDMA5,4,3 and settles it for UDMA2, which is the highest possibility
-for the OLD onboard-controller (but NOT for the promise card). A recent
-2.5.52 gives me :) UDMA5 on the new discs while (correctly) UDMA2 for
-the old drive.
-
-This is generally not a very big problem, I can live 8( with my new fine
-discs only being used in UDMA2 (instead of 5).
-
-After I initialized the array using 'mkraid /dev/md0' I open up 'while
-true; do clear; cat /proc/mdstat; sleep 1; done' on one terminal to
-watch the progress.
-
-The first try I gave it was (very satisfying) giving me 15MB/sec at the
-beginning. After about 30-40% the speed fell down to unsatisfying
-100-200KB/sec (nothing CPU-intensive running besides raid5d).
-
-I have been having problems with the older controller and I was not sure
-about the throughput of the old drive, therefore I stopped the syncing,
-stopped the raid and ran five synced (i.e. with a semaphore) bonnie++
-processes to benchmark the discs, they all performed likely well (the
-old one was a little slower at random seeks, but that was indeed
-expected).
-
-I tried the same thing on a 2.4.18 kernel (bf2.4 flavour from Debian
-SID) but that gave me funny DMA timeout errors (something like DMA
-timeout func 14 only supported) and kicked out one of (sporadic) my
-newer drives from the array.
-
-I wanted to try a 2.5.x kernel and settled for the newest one: 2.5.52
-(vanilla). This wonderful kernel detected the UDMA5 capability of the
-new drives and the new controller (veeery satisfying =) ) and gave me a
-throughput of about 20-22MB/sec in the beginning. Sadly the system
-Ooopsed at 30% percent giving me some DMA errors.
-
-I have been wondering if it could be the powersupply, I have a 360W (max
-load) powersupply, 4 new IBM 80G discs, 1 older 80G SEAGATE, 1 20G
-MAXTOR.
-
-Hmm, there it was again, one of my new drives got kicked out of the
-array before the initial sync was ready.
-
-The errors was (2.4.20):
-
-<DATE> webber kernel: hdg: dma_intr: status=0x51
-<DATE> webber kernel: hdg: end_request: I/O error, dev 22:00 (hdg)
-sector 58033224
-<DATE> webber kernel: hdg: dma_intr: status=0x51
-<DATE> webber kernel: hdg: dma_intr: error=0x40 LBAsect=58033238,
-sector=58033232
-<DATE> webber kernel: end_request: I/O error, dev 22:00 (hdg), sector
-58033232
+I am running with hdpam -d0 for safety.
 
 
-Hmm, what could it be, this didn't happen while running bonnie++ :(
-
-
-
-Any help will be appreciated,
-
-Regards,
-        Mikael
-
-
--- 
-Mikael Olenfalk <mikael@netgineers.se>
-Netgineers
-
+Peter

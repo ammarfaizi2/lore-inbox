@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbTIVLOO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 07:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbTIVLON
+	id S263119AbTIVLYe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 07:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbTIVLYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 07:14:13 -0400
-Received: from [80.80.104.119] ([80.80.104.119]:34432 "EHLO ns.ugavia.ru")
-	by vger.kernel.org with ESMTP id S263114AbTIVLOL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 07:14:11 -0400
-Message-ID: <3F6ED964.1000309@isfera.ru>
-Date: Mon, 22 Sep 2003 15:13:40 +0400
-From: Diadon <diadon@isfera.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Harald Welte <laforge@netfilter.org>, netfilter-devel@lists.netfilter.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4] fix ipt_REJECT when used in OUTPUT
-References: <20030921144013.GA22223@sunbeam.de.gnumonks.org>	<3F6EAFF2.9080303@isfera.ru>	<20030922085326.GF31401@sunbeam.de.gnumonks.org> <20030922020205.6b239e71.davem@redhat.com>
-In-Reply-To: <20030922020205.6b239e71.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Sep 2003 07:24:34 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:42177 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263119AbTIVLYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 07:24:33 -0400
+Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80,
+	in 2.6?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com>
+References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1064229778.8584.2.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Mon, 22 Sep 2003 12:22:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Llu, 2003-09-22 at 01:27, Eric W. Biederman wrote:
+> So can we gradually kill inb_p, outb_p in 2.6?  An the other
+> miscellaneous users of I/O port 0x80 for I/O delays?
+> 
+> Or possibly rewriting outb_p to look something like:
+> outb(); udelay(200);  or whatever the appropriate delay is?
 
->On Mon, 22 Sep 2003 10:53:26 +0200
->Harald Welte <laforge@netfilter.org> wrote:
->
->  
->
->>David, pleas defer applying that patch until further testing is done.
->>
->>Sorry for the confusion.
->>    
->>
->
->Already pushed to Marcelo, just send me the fix I should apply
->on top once you have this issue solved.
->
->
->  
->
-So we're waiting final release of this patch ;)))
+The delay should be 8 ISA clocks. While you can easily fix inb_p and
+outb_p you also need to fix up the udelay() code since if you stick 
+a BUG() check in udelay you'll find it gets used before the clock is
+initialized even now, let alone with inb_p relying on it. But that
+itself is quite fixable too.
+
+(one part of the problem of course is you need inb_p/outb_p to drive
+the timer chip on some x86 boards in order to calibrate the udelay
+timer)
+
+
+> When debugging this I modified arch/i386/io.h to read:
+> #define  __SLOW_DOWN_IO__ ""
+> Which totally removed the delay and the system ran fine.
+
+Not all systems do - we had breakages from both the keyboard controller
+and the timer chips even on some modern boards when this got messed up.
+
 

@@ -1,62 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269064AbRHDRKV>; Sat, 4 Aug 2001 13:10:21 -0400
+	id <S267233AbRHDRMl>; Sat, 4 Aug 2001 13:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268567AbRHDRKM>; Sat, 4 Aug 2001 13:10:12 -0400
-Received: from dhcp233054.columbus.rr.com ([204.210.233.54]:29700 "HELO
-	neutral.verbum.org") by vger.kernel.org with SMTP
-	id <S269064AbRHDRKC>; Sat, 4 Aug 2001 13:10:02 -0400
-To: linux-kernel@vger.kernel.org
-Subject: eepro100 (PCI ID 82820) lockups/failure
-X-Attribution: Colin
-X-Face: %'w-_>8Mj2_'=;I$myE#]G"'D>x3CY_rk,K06:mXFUvWy>;3I"BW3_-MAiUby{O(mn"wV@m
- dd`)Vk[27^^Sa<qRKA=qTu-uV/qLcGrMm-}A24N2wgr)5%_46(#WMTajfXc_DBt)&'/(J1
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.104
- (powerpc-debian-linux-gnu)
-Organization: The Ohio State University Dept. of Computer and Info. Science
-From: Colin Walters <walters@cis.ohio-state.edu>
-Date: Sat, 04 Aug 2001 02:06:10 -0400
-Message-ID: <87elqs2wbx.church.of.emacs@space-ghost.verbum.org>
+	id <S269162AbRHDRMb>; Sat, 4 Aug 2001 13:12:31 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:3343 "EHLO neon-gw.transmeta.com")
+	by vger.kernel.org with ESMTP id <S267233AbRHDRMT>;
+	Sat, 4 Aug 2001 13:12:19 -0400
+Date: Sat, 4 Aug 2001 10:08:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mike Black <mblack@csihq.com>
+cc: Ben LaHaise <bcrl@redhat.com>, Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <028001c11cf0$e5becca0$b6562341@cfl.rr.com>
+Message-ID: <Pine.LNX.4.33.0108040952460.1203-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an ia32 motherboard (MSI 815EM Pro) with an integrated Intel
-ethernet controller, about which lspci -v has to say:
 
-01:08.0 Ethernet controller: Intel Corporation 82820 820 (Camino 2) Chipset Ethernet (rev 01)
-        Subsystem: Intel Corporation: Unknown device 3013
-        Flags: bus master, medium devsel, latency 32, IRQ 10
-        Memory at d5001000 (32-bit, non-prefetchable) [size=4K]
-        I/O ports at ac00 [size=64]
-        Capabilities: [dc] Power Management version 2
+On Sat, 4 Aug 2001, Mike Black wrote:
+>
+> I'm testing 2.4.8-pre4 -- MUCH better interactivity behavior now.
 
-And /proc/pci says:
+Good.. However..
 
-  Bus  1, device   8, function  0:
-    Ethernet controller: Intel Corporation 82801BA(M) Ethernet (rev 1).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
-      Non-prefetchable 32 bit memory at 0xd5001000 [0xd5001fff].
-      I/O at 0xac00 [0xac3f].
+> I've been testing ext3/raid5 for several weeks now and this is usable now.
+> My system is Dual 1Ghz/2GRam/4GSwap fibrechannel.
+> But...the single thread i/o performance is down.
 
-I'm using the 2.4.7 eepro100 driver, and the machine consistently
-locks up under any kind of heavy network load.  I've tried
-2.4.8-pre{1,2,3} with the same results.  A message sometimes printed
-to syslog before the machine locks completely is:
+Bad. And before we get too happy about the interactive thing, let's
+remember that sometimes interactivity comes at the expense of throughput,
+and maybe if we fix the throughput we'll be back where we started.
 
-Aug  3 20:56:17 debian kernel: eepro100: wait_for_cmd_done timeout!
-Aug  3 21:01:22 debian kernel: eepro100: wait_for_cmd_done timeout!
-Aug  3 21:01:29 debian kernel: eepro100: wait_for_cmd_done timeout!
+Now, you basically have a rather fast disk subsystem, and it's entirely
+possible that with that kind of oomph you really want a longer queue. So
+in blk_dev_init() in drivers/block/ll_rw_blk.c, try changing
 
-Sometimes it's just the network that goes down, but usually the
-machine will lock not long thereafter.
+	/*
+         * Free request slots per queue.
+         * (Half for reads, half for writes)
+         */
+        queue_nr_requests = 64;
+        if (total_ram > MB(32))
+                queue_nr_requests = 128;
 
-I noticed a patch posted to this mailing list:
+to something more like
 
-<URL:http://mailman.real-time.com/pipermail/linux-kernel/Week-of-Mon-20010618/041187.html>
+	/*
+         * Free request slots per queue.
+         * (Half for reads, half for writes)
+         */
+        queue_nr_requests = 64;
+        if (total_ram > MB(32)) {
+                queue_nr_requests = 128;
+		if (total_ram > MB(128))
+			queue_nr_requests = 256;
+	}
 
-But it doesn't seem to have been applied.
+and tell me if interactivity is still fine, and whether performance goes
+up?
 
-Anyone have any advice?
+And please feel free to play with different values - but remember that
+big values do tend to mean bad latency.
+
+Rule of thumb: even on fast disks, the average seek time (and between
+requests you almost always have to seek) is on the order of a few
+milliseconds. With a large write-queue (256 total requests means 128 write
+requests) you can basically get single-request latencies of up to a
+second. Which is really bad.
+
+One partial solution may be the just make the read queue deeper than the
+write queue. That's a bit more complicated than just changing a single
+value, though - you'd need to make the batching threshold be dependent on
+read-write too etc. But it would probably not be a bad idea to change the
+"split requests evenly" to do even "split requests 2:1 to read:write".
+
+All the logic is in drivers/block/ll_rw_block.c, and it's fairly easy to
+just search for queue_nr_requests/batch_requests to see what it's doing.
+
+> I"m seeing a lot more CPU Usage for the 1st thread than previous tests --
+> perhaps we've shortened the queue too much and it's throttling the read?
+> Why would CPU usage go up and I/O go down?
+
+I'd guess it's calling the scheduler more. With fast disks and a queue
+that runs out, you'd probably go into a series of extremely short
+stop-start behaviour. Or something similar.
+
+		Linus
+

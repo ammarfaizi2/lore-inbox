@@ -1,65 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSHIRnS>; Fri, 9 Aug 2002 13:43:18 -0400
+	id <S315214AbSHIRst>; Fri, 9 Aug 2002 13:48:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315370AbSHIRnS>; Fri, 9 Aug 2002 13:43:18 -0400
-Received: from 209-166-240-202.cust.walrus.com.240.166.209.in-addr.arpa ([209.166.240.202]:27365
-	"EHLO ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id <S315265AbSHIRnQ>; Fri, 9 Aug 2002 13:43:16 -0400
-Date: Fri, 9 Aug 2002 13:46:47 -0400
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Daniel Phillips <phillips@arcor.de>,
-       frankeh@watson.ibm.com, davidm@hpl.hp.com,
+	id <S315260AbSHIRss>; Fri, 9 Aug 2002 13:48:48 -0400
+Received: from hdfdns02.hd.intel.com ([192.52.58.11]:37115 "EHLO
+	mail2.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S315214AbSHIRsm>; Fri, 9 Aug 2002 13:48:42 -0400
+Message-ID: <25282B06EFB8D31198BF00508B66D4FA03EA5706@fmsmsx114.fm.intel.com>
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: "'Daniel Phillips'" <phillips@arcor.de>,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: frankeh@watson.ibm.com, davidm@hpl.hp.com,
        David Mosberger <davidm@napali.hpl.hp.com>,
        "David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
-       Martin.Bligh@us.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
+       Martin.Bligh@us.ibm.com, wli@holomorphy.com,
        linux-kernel@vger.kernel.org
-Subject: Re: large page patch (fwd) (fwd)
-Message-ID: <20020809134647.A19270@ti19>
-References: <Pine.LNX.4.44L.0208091317220.23404-100000@imladris.surriel.com> <Pine.LNX.4.44.0208090951570.1436-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.44.0208090951570.1436-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Aug 09, 2002 at 09:52:53AM -0700
+Subject: RE: large page patch (fwd) (fwd)
+Date: Fri, 9 Aug 2002 10:51:55 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 09, 2002 at 09:52:53AM -0700, Linus Torvalds wrote:
-> Read up on positivism.
 
-Please don't.  Read Karl Popper instead.
- 
-> "If it can't be measured, it doesn't exist".
- 
-The positivist Copenhagen interpretation stifled important areas of
-physics for half a century.  There is a distinction to be made between
-an explanatory construct (whereby I mean to imply nothing fancy, no
-quarks, just a brick), and the evidence that supports that construct
-in the form of observable quantities.  It's all there in Popper's work.
 
-> The point being that there are things we can measure, and until anything 
-> else comes around, those are the things that will have to guide us.
+> -----Original Message-----
+> From: Daniel Phillips [mailto:phillips@arcor.de]
+> Sent: Friday, August 09, 2002 10:12 AM
+> To: Linus Torvalds
+> Cc: frankeh@watson.ibm.com; davidm@hpl.hp.com; David 
+> Mosberger; David S.
+> Miller; gh@us.ibm.com; Martin.Bligh@us.ibm.com; wli@holomorphy.com;
+> linux-kernel@vger.kernel.org
+> Subject: Re: large page patch (fwd) (fwd)
+> 
+> 
+> On Friday 09 August 2002 18:51, Linus Torvalds wrote:
+> > On Fri, 9 Aug 2002, Daniel Phillips wrote:
+> > > Slab allocations would not have GFP_DEFRAG (I mistakenly 
+> wrote GFP_LARGE 
+> > > earlier) and so would be allocated outside ZONE_LARGE.
+> > 
+> > .. at which poin tyou then get zone balancing problems.
+> > 
+> > Or we end up with the same kind of special zone that we 
+> have _anyway_ in
+> > the current large-page patch, in which case the point of 
+> doing this is
+> > what?
+> 
+> The current large-page patch doesn't have any kind of 
+> defragmentation in the 
+> special zone and that memory is just not available for other 
+> uses.  The thing 
+> is, when demand for large pages is low the zone should be 
+> allowed to fragment.
+> 
 
-True, as far as it goes.  Measurement=good, idle-speculation=bad.
- 
-But it pays to keep in mind that progress is nonlinear.  In 1988, Van
-Jabobsen noted (http://www.kohala.com/start/vanj.88jul20.txt):
-
-   (I had one test case that went like
- 
-       Basic system:    600 KB/s
-       add feature A:    520 KB/s
-       drop A, add B:    530 KB/s
-       add both A & B:    700 KB/s
- 
-   Obviously, any statement of the form "feature A/B is good/bad"
-   is bogus.)  But, in spite of the ambiguity, some of the network
-   design folklore I've heard seems to be clearly wrong.
- 
-Such anomalies abound.
-
-Regards,
-
-   Bill Rugolsky
+You are right that as long as the pages are in large page pool they are not
+available for other regualr purposes.  Though the current implementation
+basically allows on-demand moving of pages between large_page and other
+regular pools using sysctl interface.   The issue is really not forced (in
+the sense that large pages are freed only if they are available and vice
+versa).  And it will not be an issue where demand for large pages is low.
+Theoritically you can extend this support in pageout daemon to find out if
+it can retrieve some free large pages (for environments where expectations
+are that most of the memory will be used for large pages but actual usage is
+not as per the expectations. Though I doubt if those environments will
+occur, but bad configurations are always there)  The current approach really
+allows the large page/regular_page movement without doing too much of house
+cleaning.  It is likely that once a large page goes back to general pool, it
+will not easy to replenish the large_page pool because of fragmentation in
+regular memory pool (for memory starved machines.  For the scenarios where
+sometime the machine is running low on regular memory and sometimes on
+large_pages....probably it would be a good idea to add in more RAM in these
+cases.).
+> 

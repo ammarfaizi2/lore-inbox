@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265042AbUFCGMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUFCGNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265042AbUFCGMA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 02:12:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbUFCGMA
+	id S261179AbUFCGNd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 02:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUFCGNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 02:12:00 -0400
-Received: from zasran.com ([198.144.206.234]:45986 "EHLO zasran.com")
-	by vger.kernel.org with ESMTP id S263923AbUFCGLp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 02:11:45 -0400
-Message-ID: <40BEC11F.8070605@bigfoot.com>
-Date: Wed, 02 Jun 2004 23:11:43 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
+	Thu, 3 Jun 2004 02:13:33 -0400
+Received: from smtpsrv6.hrz.uni-oldenburg.de ([134.106.87.26]:36539 "EHLO
+	smtpsrv6.hrz.uni-oldenburg.de") by vger.kernel.org with ESMTP
+	id S261179AbUFCGNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 02:13:25 -0400
+To: aris@cathedrallabs.org (Aristeu Sergio Rozanski Filho)
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.4.26 fails to detect two Realtek cards
+References: <m1acznpz6c.fsf@ntcora.icbm.uni-oldenburg.de>
+	<20040601120019.GN2159@cathedrallabs.org>
+From: Kevin Bube <k.bube@web.de>
+Date: Thu, 03 Jun 2004 08:13:09 +0200
+In-Reply-To: <20040601120019.GN2159@cathedrallabs.org> (Aristeu Sergio
+ Rozanski Filho's message of "Tue, 1 Jun 2004 09:00:19 -0300")
+Message-ID: <m1oeo141ai.fsf@ntcora.icbm.uni-oldenburg.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.6] ICH5 SATA problems
-References: <200406030642.16890.lkml@kcore.org>
-In-Reply-To: <200406030642.16890.lkml@kcore.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-PMX-Version: 4.5.0.92886, Antispam-Core: 4.0.4.93542, Antispam-Data: 2004.6.2.102430
+X-PerlMx-Spam: Gauge=IIIIIIII, Probability=8%, Report='__TO_MALFORMED_2 0, __REFERENCES 0, __IN_REP_TO 0, __HAS_MSGID 0, __SANE_MSGID 0, __USER_AGENT 0, __MIME_VERSION 0, __CT 0, __CTYPE_HAS_BOUNDARY 0, __CTYPE_MULTIPART 0, EMAIL_ATTRIBUTION 0, QUOTED_EMAIL_TEXT 0, SIGNATURE_SHORT_DENSE 0, REFERENCES 0.000, IN_REP_TO 0, USER_AGENT 0.000'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan De Luyck wrote:
-> Hello List,
-> 
-> A friend of mine is trying to get both SATA and PATA working together on his Siemens box. The bios has a bunch of settings
-> concering sata/pata, being:
-> - SATA Standard (which is bootable by the bios). When this is selected, another setting is available
-> 	* Sata 1/2 only
-> 	* sata 1/2 + pata 3/4
-> 	* pata 1/2 + sata 1/2
+--=-=-=
 
-   which kernel are you using and what are the sata related settings?
+aris@cathedrallabs.org (Aristeu Sergio Rozanski Filho) writes:
 
-   I have intel D865PERL with same sata controller as your friend, using 
-kernel 2.6.5, sata configured as scsi:
+[8139 and 8029 cards]
 
-CONFIG_SCSI=y
-CONFIG_SCSI_SATA=y
-CONFIG_SCSI_ATA_PIIX=y
+> I guess you forgot to include ne2k-pci driver in your new kernel
+> configuration. 8139too handles rtl8139 (100Mbps) cards and ne2k-pci
+> your rtl8029 (10Mbps)
 
-   I have both ide (/dev/hd[a-d]) and sata disks (/dev/sda1), all 
-visible (two HDs on first ide controller, cd burner and dvd on second 
-ide controller, HD on SATA)
+Thanks for the reply. Yes, that was the problem. It works now. I did not
+know that the rtl8029 is a ne2000 compatible.
 
-   with 2.4.x kernels you might need some patches, the first 2.4.x 
-kernel  I know supports SATA is 2.4.21-ac4, plus you (your friend) need 
-libata5 patches for SATA disks over 137GB.
+Regards,
 
-	erik
+Kevin
+
+-- 
+publickey 1024D/215F9C87: http://www.icbm.de/~bube/publickey.asc
+fingerprint: 607B 39BC C9E9 0F5E EF7F  4557 31D4 A73C 215F 9C87
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQBAvsF7MdSnPCFfnIcRAmddAJ9U7P2TqZHDX6cRmyCHyLQyXspnsgCfQO49
+n2SZN8TwmRNRE/YPYn7i8Y8=
+=dmg7
+-----END PGP SIGNATURE-----
+--=-=-=--

@@ -1,78 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129305AbRBRTLP>; Sun, 18 Feb 2001 14:11:15 -0500
+	id <S129225AbRBRTOf>; Sun, 18 Feb 2001 14:14:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129246AbRBRTLG>; Sun, 18 Feb 2001 14:11:06 -0500
-Received: from colorfullife.com ([216.156.138.34]:32516 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129224AbRBRTK5>;
-	Sun, 18 Feb 2001 14:10:57 -0500
-Message-ID: <3A901DF5.6198F31F@colorfullife.com>
-Date: Sun, 18 Feb 2001 20:09:41 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rob Leathley <mail@robleathley.uklinux.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: page_alloc 2.4.1 kernel BUG running java 1.3.0
-In-Reply-To: <3A9011E1.8A122306@robleathley.uklinux.net>
-Content-Type: multipart/mixed;
- boundary="------------339055CB58C727B46844E66C"
+	id <S129224AbRBRTO0>; Sun, 18 Feb 2001 14:14:26 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:56589 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S129613AbRBRTOP>; Sun, 18 Feb 2001 14:14:15 -0500
+Date: Sun, 18 Feb 2001 13:04:00 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: "Gregory S. Youngblood" <greg@tcscs.com>
+Cc: "Michael H. Warfield" <mhw@wittsend.com>, Ben Ford <ben@kalifornia.com>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux stifles innovation...
+Message-ID: <20010218130400.B13553@alcove.wittsend.com>
+Mail-Followup-To: "Gregory S. Youngblood" <greg@tcscs.com>,
+	"Michael H. Warfield" <mhw@wittsend.com>,
+	Ben Ford <ben@kalifornia.com>,
+	linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010218114230.B11903@alcove.wittsend.com> <Pine.LNX.4.30.0102181155550.10349-100000@ded-tscs.innovsoftd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <Pine.LNX.4.30.0102181155550.10349-100000@ded-tscs.innovsoftd.com>; from greg@tcscs.com on Sun, Feb 18, 2001 at 12:00:03PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------339055CB58C727B46844E66C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sun, Feb 18, 2001 at 12:00:03PM -0600, Gregory S. Youngblood wrote:
+> On Sun, 18 Feb 2001, Michael H. Warfield wrote:
 
-Rob Leathley wrote:
-> 
-> [X] I have been suffering a lot of memory paging related Oops' on the
-> above PC since upgrading to the 2.2.16 kernel.  Most of these problems
-> are fixed in 2.4.1 appart from the above.  These problems don't appear
-> on a faster machine (e.g. P3 733MHz) so could be related to race
-> conditions?  I appreciate that there is probably a bug in java 1.3.0 but
-> it would be nice if it didn't kill the whole machine!
->
+> > On Sat, Feb 17, 2001 at 09:15:08PM -0800, Ben Ford wrote:
+> > > >
+> > > > On the other hand, they make excellent mice.  The mouse wheel and
+> > > > the new optical mice are truly innovative and Microsoft should be
+> > > > commended for them.
+> > > >
+> > > The wheel was a nifty idea, but I've seen workstations 15 years old with
+> > > optical mice.  It wasn't MS's idea.
 
-It's not a bug in java 1.3.0, that certain.
-It's either a kernel bug or bad memory. Usually I'd say bad memory, but
-your report is the third or forth one with __free_pages_ok(), so I
-suspect a kernel bug.
+> > 	I think their "innovation" was not requiring the optical cross
+> > grid mouse pad common on Sun workstations over the years.  The Microsoft
+> > optical mouse uses variations in the surface characteristics of whatever
+> > it's on to perform it's function.  The old optical mice just used two
+> > different colors of LED's (red and IR) and a special pad.  This would
+> > actually have to scan and track the surface below it.  Don't know that
+> > I've seen anyone do that before.
 
-Could you apply the attached patch to your kernel and run it until it
-crashes again?
+> I remember being at a computer show in Minneapolis where a small company
+> was showing off this mouse that worked on a variety of surfaces without a
+> ball. I'm trying to remember if the mouse was optical or used yet another
+> method of functioning -- I think it was optical, though I could be
+> mistaken. This was in 1992/1993.
 
---
-	Manfred
---------------339055CB58C727B46844E66C
-Content-Type: text/plain; charset=us-ascii;
- name="patch-tst"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-tst"
+	I think you are correct here.  I seem to recall mention of some
+of those earlier devices at the time of the Microsoft announcement.  I
+seem to also recall some of the reliability problem they had.  I believe
+they were extremely fussy about the surface they were on.
 
---- linux.old/mm/page_alloc.c	Sun Feb 18 20:06:11 2001
-+++ linux/mm/page_alloc.c	Sun Feb 18 20:05:59 2001
-@@ -70,8 +70,15 @@
- 
- 	if (page->buffers)
- 		BUG();
--	if (page->mapping)
-+	if (page->mapping) {
-+	    	printk(KERN_EMERG "found bad mapping %lxh.\n",
-+			(unsigned long)page->mapping);
-+		printk(KERN_EMERG "page->mapping->nrpages: %d.\n",
-+				(int)page->mapping->nrpages);
-+		printk(KERN_EMERG "page->mapping->a_ops: [<%lxh>]\n",
-+				(unsigned long)page->mapping->a_ops);
- 		BUG();
-+	}
- 	if (!VALID_PAGE(page))
- 		BUG();
- 	if (PageSwapCache(page))
+> The point is, I really do not believe Microsoft made the "leap" to provide
+> opitcal mice without the need of the mousepad grid. Their "innovation" was
+> in marketing it on a wide scale though.
 
---------------339055CB58C727B46844E66C--
+	I would agree there.  They did something to improve the reliability
+on a wider variety of surface textures, though.  Is that innovation or
+merely getting a good idea, that's been around, to finally work?  Don't
+know.  I didn't find the idea itself particularly innovative.  The fact
+that they did get it to work reliable is something to be said.
 
+	The marketing is a given, of course.  Particularly in the face
+of the preception in some camps that this style of optical mouse was
+unreliable.
+
+> I could be mistaken - if so then let's give them their credit - but I have
+> a hard time believing it was their idea without some serious proof.
+
+	Agreed.
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 

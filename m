@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbUKVHrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbUKVHwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbUKVHrW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 02:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbUKVHrW
+	id S261970AbUKVHwc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 02:52:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUKVHwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 02:47:22 -0500
-Received: from janus2.sad.it ([192.106.213.194]:43657 "HELO sad.it")
-	by vger.kernel.org with SMTP id S261963AbUKVHrT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 02:47:19 -0500
-Date: Mon, 22 Nov 2004 08:47:16 +0100
-From: Fabrizio Tivano <fabrizio@sad.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Random freeze on CS 5530
-Message-Id: <20041122084716.60b4a087.fabrizio@sad.it>
-In-Reply-To: <1100954707.11822.10.camel@localhost.localdomain>
-References: <20041118103222.044722e8.fabrizio@sad.it>
-	<1100797521.6005.22.camel@localhost.localdomain>
-	<20041119102441.7933c72b.fabrizio@sad.it>
-	<1100864979.8135.7.camel@localhost.localdomain>
-	<20041119155451.79342c54.fabrizio@sad.it>
-	<1100878902.8133.14.camel@localhost.localdomain>
-	<20041119181244.6e878f6f.fabrizio@sad.it>
-	<1100954707.11822.10.camel@localhost.localdomain>
-Organization: SAD Trasporto Locale s.p.a.
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 22 Nov 2004 02:52:31 -0500
+Received: from 82-43-72-5.cable.ubr06.croy.blueyonder.co.uk ([82.43.72.5]:4604
+	"EHLO home.chandlerfamily.org.uk") by vger.kernel.org with ESMTP
+	id S261970AbUKVHw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 02:52:29 -0500
+From: Alan Chandler <alan@chandlerfamily.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problem
+Date: Mon, 22 Nov 2004 07:52:28 +0000
+User-Agent: KMail/1.7.1
+Cc: Jens Axboe <axboe@suse.de>
+References: <200411201842.15091.alan@chandlerfamily.org.uk> <200411211025.11629.alan@chandlerfamily.org.uk> <200411211613.54713.alan@chandlerfamily.org.uk>
+In-Reply-To: <200411211613.54713.alan@chandlerfamily.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411220752.28264.alan@chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Nov 2004 12:45:08 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Sunday 21 November 2004 16:13, Alan Chandler wrote:
+...
+>
+> This seems to be some combination of frequently occuring timing problem,
+> and the difference treatment in cdrom_newpc_intr to cdrom_pc_intr
 
-> On Gwe, 2004-11-19 at 17:12, Fabrizio Tivano wrote:
-> > > Not what I actually asked - does the problem return if the old disk is
-> > > put
-> > > back.
-> > > 
-> > 
-> > yes, after some random time.
-> 
-> 
-> And does the old disk show a problem if put in a different kind of PC ?
-> 
+I put a ndelay(400) at the head of cdrom_newpc_intr and the problem of DRQ 
+being set when there was no data to transfer disappeared.  It appears that my 
+hardware is too slow.
 
-One of this 'problematic' disks, actually is installed
-on my laptop and look's good.
+I have been reading the ATA/ATAPI - 6 spec, and it implies that the state of 
+DRQ line need one pio cycle before being correct and that you should read the 
+alternative status register to achieve this.  I tried a simple
+
+HWIF(drive)->INB( IDE_ALTSTATUS_REG);
+
+But that made no difference.
+
+
+
+-- 
+Alan Chandler
+alan@chandlerfamily.org.uk
+First they ignore you, then they laugh at you,
+ then they fight you, then you win. --Gandhi

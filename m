@@ -1,49 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262629AbTCNVq1>; Fri, 14 Mar 2003 16:46:27 -0500
+	id <S262632AbTCNVvR>; Fri, 14 Mar 2003 16:51:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262630AbTCNVq1>; Fri, 14 Mar 2003 16:46:27 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28292 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262629AbTCNVq0>; Fri, 14 Mar 2003 16:46:26 -0500
-Subject: Re: [Ext2-devel] Re: [RFC] Improved inode number allocation for
-	HTree
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: "Bryan O'Sullivan" <bos@serpentine.com>,
-       Daniel Phillips <phillips@arcor.de>, John Bradford <john@grabjohn.com>,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <tytso@mit.edu>, Andreas Dilger <adilger@clusterfs.com>,
-       chrisl@vmware.com, bzzz@tmi.comex.ru, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20030310220254.GA21234@parcelfarce.linux.theplanet.co.uk>
-References: <200303102104.h2AL43iZ000875@81-2-122-30.bradfords.org.uk>
-	 <20030310212953.57F2310435B@mx12.arcor-online.net>
-	 <1047332834.11339.3.camel@serpentine.internal.keyresearch.com>
-	 <20030310220254.GA21234@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
+	id <S262633AbTCNVvR>; Fri, 14 Mar 2003 16:51:17 -0500
+Received: from zeke.inet.com ([199.171.211.198]:153 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S262632AbTCNVvP>;
+	Fri, 14 Mar 2003 16:51:15 -0500
+Message-ID: <3E725156.5000102@inet.com>
+Date: Fri, 14 Mar 2003 16:01:58 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.64-mm6
+References: <20030313032615.7ca491d6.akpm@digeo.com>	<3E723DBF.6040304@inet.com> <20030314125354.409ca02a.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047679031.2566.616.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 14 Mar 2003 21:57:12 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 2003-03-10 at 22:02, Matthew Wilcox wrote:
-> On Mon, Mar 10, 2003 at 01:47:14PM -0800, Bryan O'Sullivan wrote:
-> > Why start?  Who actually uses atime for anything at all, other than the
-> > tiny number of shops that care about moving untouched files to tertiary
-> > storage?
-> > 
-> > Surely if you want to heap someone else's plate with work, you should
-> > offer a reason why :-)
+Andrew Morton wrote:
+> Eli Carter <eli.carter@inet.com> wrote:
 > 
-> "You have new mail" vs "You have mail".
+>>Andrew Morton wrote:
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm6/
+>>
+>>[snip]
+>>
+>>>kgdb.patch
+>>
+>>I'm interested in this patch in your tree.
+> 
+> 
+> You're brave.
 
-"nodiratime" can still help there.
+Heh.  Insane might be more like it. ;)
 
---Stephen
+> The kgdb patch is pretty nasty-looking code.  I've managed to keep it working
+> for every kernel since 2.4.0-test10 while avoiding actually looking at it. 
+> (I turn the monitor off when the patch needs fixing).  Fed it through Lindent
+> once.
+> 
+> George Anzinger is maintaining another strain of the stub, and that mostly
+> works OK and has improved features.  But the diff is larger and I once had a
+> couple of problems with it and need to spend more time testing it.  It's up
+> to date though.
+
+If I can feed you changes to kgdb, would you be interested in taking 
+them?  What was the last patch you shipped with George's version?  Which 
+do you think would be the right place to start?
+
+
+>>Would breaking the arch-independent parts out to linux/kernel/gdbstub.c 
+>>be a reasonable change or is that a dumb question? ;)
+> 
+> 
+> That would be a fantastic thing to do.  Note that there are already about ten
+> kgdb stubs in the shipped kernel at present.  If you can identify exactly
+> which functions need to be provided by the architecture, pull that out into
+> struct kgdb_operations, etc then it would make maintenance and addition of
+> new support much easier.
+
+I guess I'll go hunting. :)
+
+> We might even end up with something we could submit for inclusion without
+> first having to set up an itwasntmenobodysawmedoit@yahoo.com account.
+
+"We"... I like that word.  ;)  If you can act as 'upstream' for my 
+changes and answer quick questions, I'll feed you patches.  Some testing 
+of x86 would be wonderful too.  (And while I'm at it, can I send you my 
+Christmas wishlist? ;) )  I have to warn you, I don't know how far I'll 
+get.  But I'll give it a shot.  My current concern is getting it working 
+under ARM, and there is a kgdb patch for 2.4 ARM I can draw from.
+
+I'm thinking I'll try to wind up with 2 or 3 patches, kgdb.patch, 
+kgdb-arm.patch, and kgdb-ia32.patch.  Maybe.
+
+Are you feeling "brave"? 8)
+
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

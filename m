@@ -1,106 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263394AbUDMRpb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 13:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263615AbUDMRpa
+	id S263615AbUDMRtX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 13:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbUDMRtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 13:45:30 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:44708 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263394AbUDMRp1 (ORCPT
+	Tue, 13 Apr 2004 13:49:22 -0400
+Received: from mail.gmx.net ([213.165.64.20]:8166 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263615AbUDMRtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 13:45:27 -0400
-Date: Tue, 13 Apr 2004 19:45:16 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Guillaume =?iso-8859-1?Q?Lac=F4te?= <Guillaume@lacote.name>
-Cc: linux-kernel@vger.kernel.org, Linux@glacote.com
-Subject: Re: Using compression before encryption in device-mapper
-Message-ID: <20040413174516.GB1084@wohnheim.fh-wedel.de>
-References: <200404131744.40098.Guillaume@Lacote.name>
+	Tue, 13 Apr 2004 13:49:13 -0400
+X-Authenticated: #1226656
+Date: Tue, 13 Apr 2004 19:49:07 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-xfs@oss.sgi.com
+Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: status of Linux on Alpha?
+Message-Id: <20040413194907.7ce8ceb7@vaio.gigerstyle.ch>
+In-Reply-To: <20040409230651.A727@den.park.msu.ru>
+References: <yw1xsmftnons.fsf@ford.guide>
+	<20040328201719.A14868@jurassic.park.msu.ru>
+	<yw1xoeqhndvl.fsf@ford.guide>
+	<20040328204308.C14868@jurassic.park.msu.ru>
+	<20040328221806.7fa20502@vaio.gigerstyle.ch>
+	<yw1xr7vcn1z2.fsf@ford.guide>
+	<20040329205233.5b7905aa@vaio.gigerstyle.ch>
+	<20040404121032.7bb42b35@vaio.gigerstyle.ch>
+	<20040409134534.67805dfd@vaio.gigerstyle.ch>
+	<20040409134828.0e2984e5@vaio.gigerstyle.ch>
+	<20040409230651.A727@den.park.msu.ru>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200404131744.40098.Guillaume@Lacote.name>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 April 2004 17:44:40 +0200, Guillaume Lacôte wrote:
+Hi Ivan, All
+
+First, sorry for the cross posting...
+
+After long sessions of patching, recompiling, and testing I finally
+found the cause of my problems. XFS people, please read:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108047692409817&w=2
+and
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107910319729364&w=2
+
+After reverting 1.1608.29.12 all is fine again.
+Interestingly, this patch was listed on bkbits between 2.6.3
+and 2.6.4-rc1 but was added to the source tree between 2.6.4-rc1 and
+2.6.4-rc2 :-( Again something learned for the future...
+
+Ivan, I think your new semaphore code is still ok because it doesn't
+matter if it is the new or old code. Both versions have a problem with
+the xfs-patch.
+
+For further questions you know how to reach me:-)
+
+greets
+
+Marc
+
+
+On Fri, 9 Apr 2004 23:06:51 +0400
+Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
+
+> On Fri, Apr 09, 2004 at 01:48:28PM +0200, Marc Giger wrote:
+> > > Presently, I reached a stage on which I don't know longer what to
+> > > do:-( I isolated the problem between 2.6.3-rc1 and 2.6.3-rc2. I
+> >                                        ^^^^^^^^^^^^^^^^^^^^^^^
+> >                                read as 2.6.4-rc1 and 2.6.4-rc2
 > 
-> I hope this is the right place to post this message; I tried to keep it small.
-> Basically I really would like to implement compression at the dm level, 
-> despite all of the problems. The reason for this is that reducing redundancy 
-> through compression tremendously reduces the possibilities of success for an 
-> attacker. I had implemented this idea in a java archiver ( 
-> http://jsam.sourceforge.net ).
+> Thanks for your work.
 > 
-> Although I am not a good kernel hacker, I have spent some time reading 
-> compressed-loop.c, loop-aes, dm-crypt.c, and various threads from lkml 
-> including http://www.uwsg.iu.edu/hypermail/linux/kernel/0402.2/0035.html
-> Thus I would appreciate if you could answer the following questions regarding 
-> the implementation of a "dm-compress" dm personality. 
+> > > also reverted 1.1608.56.1 , 1.1608.51.36 and all xfs related
+> > > patches from rc2 with no luck.
+> > > All other changes seems unrelated to me.
 > 
-> 0) Has this problem already been adressed, and if yes, where ?
-
-Yes, on the filesystems level.  Jffs2 is usable, although not
-well-suited for disks and similar, ext2compr appears to be unusable.
-On the device level, I haven't heard of anything yet.
-
-> 1) Using dm: I want to be able to use compression both above dm (to compress 
-> before encrypting a volume) and below it (to do a RAID on compressed 
-> volumes). I assume there is no other way than to make compression be a dm 
-> personality. Is this correct (or shall I use something more similar to a 
-> compressed loop device) ?
-
-I'd go for a dm implementation.
-
-> 2) Block I/O boundaries: compression does not preserve size. I plan to use a 
-> mapping from real sectors to their compressed location (e.g. struct { 
-> sector_t sector; size_t compressed_length }* mapping; ). I believe this 
-> mapping can be stored on another dm target and bufferized dynamically. Is 
-> this correct, or shall it remain in (non-swappable ?) memory ?
+> I'd also revert 1.1608.51.22 and all networking changes.
 > 
-> 3) Compressed sectors have varying sizes, while dm targets only deal with full 
-> blocks. Thus every compressed request may need to be fragmented into several 
-> block aligned requests. This might imply reading a full block before 
-> partially filling it with new data. Is it an exceedingly difficult task ? 
-> Will this kill performance ?
+> Ivan.
 > 
-> 4) Block allocation on writes: this is the most difficult problem I believe. 
-> When rewriting a sector, its new compressed length might not be the same as 
-> before. This would require a whole sector allocation mechanism: magaging 
-> lists of free space, optimizing dynamic allocation to reduce fragmentation, 
-> etc. Is there another solution than to adapt algorithms used in for e.g. ext2 
-> ?
-
-If you really want to deal with this, you end up with a device that
-can grow and shrink depending on the data.  Unless you have a strange
-fetish for pain, you shouldn't even think about it.
-
-> 5) As a workaround to 2,3,4 I plan to systematically allocate 2 sectors per 
-> real sector (space efficiency is _not_ my aim, growing entropy per bit is) 
-> and to use a trivial dynamic huffman compression algorithm. Is this solution 
-> (which means having half less space than physically available) acceptable ?
-
-Makes sense.  One of the zlib developers actually calculated the
-maximum expansion when zlib-compressing data, so you could even get
-away with more than 50% net size, but that makes the code more
-complicated.  Your call.
-
-Performance should not be a big issue, as encryption is a performance
-killer anyway.
-
-Whether it is acceptable depends on the user.  Make it optional and
-let the user decide.
-
-> 6) Shall this whole idea of compression be ruled out of dm and only be 
-> implemented at the file-system level (e.g. as a plugin for ReiserFS4) ?
-
-Again, depends on the user.  But from experience, there are plenty of
-users who want something like this.
-
-Jörn
-
--- 
-A victorious army first wins and then seeks battle.
--- Sun Tzu

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317480AbSFIANn>; Sat, 8 Jun 2002 20:13:43 -0400
+	id <S317485AbSFIAYt>; Sat, 8 Jun 2002 20:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317483AbSFIANm>; Sat, 8 Jun 2002 20:13:42 -0400
-Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:22992 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S317480AbSFIANm>;
-	Sat, 8 Jun 2002 20:13:42 -0400
-Message-ID: <3D029DAF.5040006@candelatech.com>
-Date: Sat, 08 Jun 2002 17:13:35 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S317486AbSFIAYs>; Sat, 8 Jun 2002 20:24:48 -0400
+Received: from 54.61.26.24.cfl.rr.com ([24.26.61.54]:40965 "HELO
+	potatoho.dyndns.org") by vger.kernel.org with SMTP
+	id <S317485AbSFIAYs>; Sat, 8 Jun 2002 20:24:48 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Chris Faherty <rallymonkey@bellsouth.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
+Date: Sat, 8 Jun 2002 20:25:24 -0400
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: mark@mark.mielke.cc, cfriesen@nortelnetworks.com,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-In-Reply-To: <20020606.202108.52904668.davem@redhat.com>	<3D01307C.4090503@candelatech.com>	<20020608170511.B26821@mark.mielke.cc> <20020608.160407.101346167.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020609002448Z317485-22020+1014@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 08 June 2002 12:53 pm, Chris Faherty wrote:
 
+> I can't find any information on how to switch it into 800cpi mode.
 
-David S. Miller wrote:
+Well, I managed to figure it out today.  Sending the special code to the 
+MouseMan Dual Optical turns it into 800cpi mode.. much better!  Anyhow, I 
+just put a test for this particular mouse in the hid_probe() and wrote the 
+codes to the mouse.  Not sure if that's the best place.
 
-> You guys we have SNMP statistics for these events, there
-> is no reason to have them per-socket.  You cannot convince
-> me that when you are diagnosing a problem the SNMP stats
-> are not enough to show you if the packets are being dropped.
+This is for 2.2.20:
 
+--- hid.c-orig  Sun Mar 25 11:37:37 2001
++++ hid.c       Sat Jun  8 17:55:02 2002
+@@ -1523,6 +1523,19 @@
 
-So, I will not attempt to convince you that you need per-socket
-counters.  I do know for absolute certain that I would like to
-have them (I write a traffic-generation & testing program).
+        printk(" on usb%d:%d.%d\n", dev->bus->busnum, dev->devnum, ifnum);
 
-For instance, when I run 50Mbps bi-directional on a P-4 1.6Ghz machine,
-using a single port of a DFE-570tx NIC, then I drop around .2% of
-the packets, in bursts.  I have kernel buffers very large (2MB),
-and the CPU is not maxed out.
-
-With the current system, it is difficult for me to know exactly what
-I need to change to get better performance and/or if better performance
-is even possible.
-
-
-> If not, this means we need to add more SNMP events, that is
-> all it means.
-
-
-If you're talking per-socket SNMP counters, then that could work.
-General protocol-wide counters would not help much, at least
-in my case.
-
-Thanks,
-Ben
++#define USB_VENDOR_ID_LOGITECH          0x046d
++#define USB_DEVICE_ID_LOGITECH_DOPTICAL 0xc012
++    if ((hid->dev->descriptor.idVendor == USB_VENDOR_ID_LOGITECH) &&
++        (hid->dev->descriptor.idProduct == 
+USB_DEVICE_ID_LOGITECH_DOPTICAL)) {
++        printk("Setting Logitech MouseMan Dual Optical for 800cpi\n");
++        usb_control_msg(hid->dev, usb_sndctrlpipe(hid->dev, 0),
++            0x0a, USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT,
++            0x0000, 0x0000, NULL, 0, HZ);
++        usb_control_msg(hid->dev, usb_sndctrlpipe(hid->dev, 0),
++            0x02, USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT,
++            0x000e, 0x0004, NULL, 0, HZ);
++    }
++
+        return hid;
+ }
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+/* Chris Faherty <rallymonkey@bellsouth.net> */

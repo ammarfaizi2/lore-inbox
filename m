@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUHFFEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267765AbUHFFTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268089AbUHFFEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 01:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268091AbUHFFEI
+	id S267765AbUHFFTN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 01:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268093AbUHFFTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 01:04:08 -0400
-Received: from out010pub.verizon.net ([206.46.170.133]:31436 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S268089AbUHFFEF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 01:04:05 -0400
-Message-ID: <004101c47b73$4280a880$0300a8c0@r000000>
-From: "Mike" <turbanator1@verizon.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: USB2 DVD+R/RW Writer issues
-Date: Fri, 6 Aug 2004 01:07:23 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 6 Aug 2004 01:19:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:8345 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267765AbUHFFTM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 01:19:12 -0400
+Date: Thu, 5 Aug 2004 22:17:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm1
+Message-Id: <20040805221734.69597956.akpm@osdl.org>
+In-Reply-To: <20040806043915.GT17188@holomorphy.com>
+References: <20040805031918.08790a82.akpm@osdl.org>
+	<20040806033448.GP17188@holomorphy.com>
+	<20040806042420.GS17188@holomorphy.com>
+	<20040806043915.GT17188@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.202.54.123] at Fri, 6 Aug 2004 00:04:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an external USB 2.0/Firewire HP DVD200E DVD+R/RW drive, connected to
-my system through an after-market USB 2.0 card. My USB 2.0 card has a VIA
-VT6212 chipset. I cannot use this drive when it is connected to the card.
-DVDs will not read or write and CDs will not read or write. Attempting to
-mount a DVD or a CD results in various errors being spit out. I have EHCI
-compiled into my kernel, along with UHCI to support my system's stock USB
-1.1 host controller (which works fine.) Additionally, USB Mass-Storage is
-compiled into my kernel.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> On Thu, Aug 05, 2004 at 08:34:48PM -0700, William Lee Irwin III wrote:
+>  >> It appears that init_idle() and fork_by_hand() could be combined into
+>  >> a single method that calls init_idle() on behalf of the caller, which
+>  >> would amount to something like:
+>  >> task_t * __init fork_idle(int cpu)
+> 
+>  On Thu, Aug 05, 2004 at 09:24:20PM -0700, William Lee Irwin III wrote:
+>  > Atop the full 2.6.8-rc3-mm1 series:
+> 
+>  Fix up sparc32 properly (incremental).
 
-I have SCSI Generic and SCSI CDROM support compiled into my kernel as well.
-I can provide any additional information upon request. Any information about
-whether this is a known bug, or any assistance would be greatly appreciated.
-
+Well I had to significantly smash these patches to get stuff in the right
+place.  Please check that next -mm has it all right.
 

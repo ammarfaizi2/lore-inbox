@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266444AbSKLKqC>; Tue, 12 Nov 2002 05:46:02 -0500
+	id <S266434AbSKLKub>; Tue, 12 Nov 2002 05:50:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266461AbSKLKqC>; Tue, 12 Nov 2002 05:46:02 -0500
-Received: from lightning.adam.com.au ([203.2.124.20]:44292 "HELO
-	lightning.adam.com.au") by vger.kernel.org with SMTP
-	id <S266444AbSKLKqB>; Tue, 12 Nov 2002 05:46:01 -0500
-Date: Tue, 12 Nov 2002 21:36:50 +1030
-From: David Lloyd <lloy0076@adam.com.au>
-To: Neale Banks <neale@lowendale.com.au>
-Cc: dlloyd@microbits.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Memory Errors (Debian Woody 2.4.18-bf2.4)
-Message-Id: <20021112213650.35ce0613.lloy0076@adam.com.au>
-In-Reply-To: <Pine.LNX.4.05.10211122130210.2446-100000@marina.lowendale.com.au>
-References: <20021112094813.602c2dbb.dlloyd@microbits.com.au>
-	<Pine.LNX.4.05.10211122130210.2446-100000@marina.lowendale.com.au>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266445AbSKLKub>; Tue, 12 Nov 2002 05:50:31 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:45322 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S266434AbSKLKua>; Tue, 12 Nov 2002 05:50:30 -0500
+Message-ID: <3DD0DEA6.BA3DCBA3@aitel.hist.no>
+Date: Tue, 12 Nov 2002 11:57:42 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.47 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: rudmer@legolas.dynup.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] devfs API
+References: <20021112013244.GF1729@mythical.michonline.com> <Pine.GSO.4.21.0211112039430.29617-100000@steklov.math.psu.edu> <20021112080417.GA11660@think.thunk.org> <20021112083811Z266406-32598+5165@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rudmer van Dijk wrote:
 
-Neale,
-
-> Probably an X issue that's not relevant here.
 > 
-> What's the video card?
+> from a user point of view it is better to keep it because it could really
+> simplify a users life except ide should be just in discs as hdX and not as
+> /dev/ide/hostN/busX/targetY/lunZ/disc ...
 
-It's an i810 Intel Card on an all-in-one mainly SiS based board...not
-there until tomorrow when I can get more details about it.
+Use /dev/discs if that's what you like.  The /dev/ide/hostN...
+alternative is there for a reason though.
 
+If you have, say 3 ide controllers and remove a disk
+from the second one then disks on the third is renumbered 
+if they're in /dev/discs.  The ones in /dev/ide/host2/...
+stays put.
 
-DSL
+Desktop machines may not need all that with one disk only,
+but it is useful for servers using IDE drives.
 
--- 
-Angel of Music, why deny me?
- Turning from true beauty!
-Angel of music, do not shun me,
- Turn to your strange Angel!
+Helge Hafting

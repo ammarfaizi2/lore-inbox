@@ -1,87 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263973AbUDQORl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 10:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUDQORl
+	id S263942AbUDQP1p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 11:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbUDQP1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 10:17:41 -0400
-Received: from dialin-212-144-166-090.arcor-ip.net ([212.144.166.90]:45512
-	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S263990AbUDQORi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 10:17:38 -0400
-Subject: Re: NFS and kernel 2.6.x
-From: Daniel Egger <degger@fhm.edu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1082179464.3012.2.camel@lade.trondhjem.org>
-References: <20040416011401.GD18329@widomaker.com>
-	 <1082079061.7141.85.camel@lade.trondhjem.org>
-	 <20040415185355.1674115b.akpm@osdl.org>
-	 <1082084048.7141.142.camel@lade.trondhjem.org>
-	 <20040416045924.GA4870@linuxace.com>
-	 <1082093346.7141.159.camel@lade.trondhjem.org>
-	 <20040416144433.GE2253@logos.cnet>  <408001E6.7020001@treblig.org>
-	 <1082132015.2581.30.camel@lade.trondhjem.org>
-	 <5FF89D68-8FD9-11D8-988A-000A958E35DC@fhm.edu>
-	 <1082179464.3012.2.camel@lade.trondhjem.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UZhwYHiPEInvEd3gq1qQ"
-Message-Id: <1082211307.4274.29.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 17 Apr 2004 16:15:07 +0200
+	Sat, 17 Apr 2004 11:27:45 -0400
+Received: from mail.maicasco.hu ([195.56.119.225]:36874 "EHLO mail.maicasco.hu")
+	by vger.kernel.org with ESMTP id S263942AbUDQP1m convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 11:27:42 -0400
+Message-ID: <40814CEA.7040706@mai-cee.com>
+Date: Sat, 17 Apr 2004 17:27:38 +0200
+From: =?ISO-8859-2?Q?V=E1g=E1si_L=E1szl=F3?= <l.vagasi@mai-cee.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; hu-HU; rv:1.5) Gecko/20031007
+X-Accept-Language: hu, en-US
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Error compiling kernel 2.6.4 with dpt_i2o driver
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear All,
 
---=-UZhwYHiPEInvEd3gq1qQ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+My company is running a Degian GNU Linux on a dual Intel PII 933MHz 
+system with 1 GB RAM.
+Currently it is running kernel 2.4.22 which supports our Adaptec 2100S 
+raid controller using the dpt_i2o driver.
 
-On Sat, 2004-04-17 at 07:24, Trond Myklebust wrote:
+We decided to change to kernel 2.6.x (I have tried 2.6.0, 2.6.1, 2.6.4) 
+but it fails to compile.
+Here are some lines from the output:
 
-> > Great you want to help here. So I've a system which is NFS root using a
-> > 3c940 gigabit onboard NIC on kernel 2.6.5 and which is dead fish in the
-> > water somewhere in between 10 seconds and 5 minutes after boot using
-> > NFS over UDP. The last thing I see are 3 or 4 messages of the type:
+drivers/scsi/dpt_i2o.c:32:2 #error Please convert me to 
+Documentation/DMA-mapping.txt
+drivers/scsi/dpt_i2o.c: In function 'adpt_install_hba':
+drivers/scsi/dpt_i2o.c:997: warning: passing arg 2 of 'request_irq' from 
+incompatible pointer type
+drivers/scsi/dpt_i2o.c: I function 'adpt_scsi_to_i25':
+drivers/scsi/dpt_i2o.c:2118: structure has no member named 'address'
+drivers/scsi/dpt_i2o.c: At top level:
+drivers/scsi/dpt_i2o.c:165: warning: 'dptids' defined but not used
 
-> ...and if you use TCP?
+Is it a bug in the kernel source or I have miss configured something?
 
-My bad, I got confused; with TCP I get the hangs, with UDP the data
-corruption. Unfortunately it doesn't want to hang for me me right now.
-:( ...
+Here is the result of the ver_linux script:
 
-> > server 192.168.11.2 not responding, still trying
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux szamoca 2.4.22 #6 SMP Mon Oct 6 13:27:22 CEST 2003 i686 unknown
+ 
+Gnu C                  3.0.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+module-init-tools      0.9.15-pre4
+e2fsprogs              1.27
+quota-tools            3.04.
+PPP                    2.4.1
+nfs-utils              1.0
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         st
 
-> The other thing I'd need is a tcpdump. Something like "tcpdump -s 9000
-> -w dump.out"...
 
-but I have two different tasty cases of data corruption using NFS over
-UDP traced for you which I'll send you in private. The first one
-corrupts init so that it segfaults, the second one probably crashes the
-rc starter to that I'm left with an unusable getty login on console.
+If You need any other information I'll send it.
 
-I'll try to get the TCP problems traced as well but right now I don't
-have the time to wait....
+Thanks for Your help.
 
---=20
-Servus,
-       Daniel
+László
 
---=-UZhwYHiPEInvEd3gq1qQ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-- 
+Vágási László
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+MAI CASCO Biztosítási Szolgáltató Kft.
+1062 Budapest Bajza utca 19.
+Tel: +36  1 413 2360
+Fax: +36  1 461 0462
+Mob: +36 20 967 9858
+E-mail: l.vagasi@mai-cee.com
+www.mai-cee.com
 
-iQEVAwUAQIE76jBkNMiD99JrAQJpCggAn8KafG6gptPVjwl88v3gFzbk69m+wrd/
-k5MObKzX1195CU9K18OeLpe+Jrwh5qH6UNPJz6cViM88BzvPvJlYtXz5EjVgQzaT
-ZRYWpoYbcXkhyhE0tsNZKcednxH1KmlBR5t/L3bqMaMsnknq2rY+2bdxDZ1BbaK5
-eqjWdr+I8OODzLgxS2kexlsRTbYlFfw1eQ4O5Hu+T1LlXxkLHMQS4Bc2OUxwaagN
-f8uXnlcrYVuny9zTX17BJuwxMl6SpvB5RlrWkxXDhPp/R5NKVwpEYXL6u5xZYWWD
-5rpWJOmJ6RXTWMcE0FTb73FJgwnvEdpwRWVSK0bOo1m6lcDAODSaeQ==
-=XePI
------END PGP SIGNATURE-----
 
---=-UZhwYHiPEInvEd3gq1qQ--
 

@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261691AbUJ1PQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261753AbUJ1T1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbUJ1PQs (ORCPT <rfc822;akpm@zip.com.au>);
-	Thu, 28 Oct 2004 11:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUJ1POh
+	id S261753AbUJ1T1k (ORCPT <rfc822;akpm@zip.com.au>);
+	Thu, 28 Oct 2004 15:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbUJ1T1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:14:37 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:63957 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261691AbUJ1PKR
+	Thu, 28 Oct 2004 15:27:40 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:6148 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261753AbUJ1TZi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:10:17 -0400
-Date: Thu, 28 Oct 2004 08:10:04 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Larry McVoy <lm@bitmover.com>, James Bruce <bruce@andrew.cmu.edu>,
-        Linus Torvalds <torvalds@osdl.org>,
-        Roman Zippel <zippel@linux-m68k.org>,
-        Andrea Arcangeli <andrea@novell.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-Message-ID: <20041028151004.GA3934@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Xavier Bestel <xavier.bestel@free.fr>,
-	Larry McVoy <lm@bitmover.com>, James Bruce <bruce@andrew.cmu.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Andrea Arcangeli <andrea@novell.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098972379.3109.24.camel@gonzales>
-User-Agent: Mutt/1.4.1i
+	Thu, 28 Oct 2004 15:25:38 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Xavier Bestel" <xavier.bestel@free.fr>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: BK kernel workflow
+Date: Thu, 28 Oct 2004 12:25:32 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEPBPFAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <20041028151004.GA3934@work.bitmover.com>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 28 Oct 2004 12:02:07 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Thu, 28 Oct 2004 12:02:10 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 04:06:20PM +0200, Xavier Bestel wrote:
-> Le jeu 28/10/2004 ?? 15:53, Larry McVoy a ??crit :
-> 
-> > The reason it is worded that way is so that we avoid the situation where
-> > one guy is doing the work on $SCM and the other guy is sitting there 
-> > running BK commands in order to reverse engineer BK.
-> 
-> I don't think you can stop that from happening, legally.
 
-Since you haven't paid for the product, copyright law applies and
-that's quite different than contract law.  You get a certain set
-of rights, which vary worldwide, when you buy something.  Copyright
-is far more restrictive.
+> Since you haven't paid for the product, copyright law applies and
+> that's quite different than contract law.  You get a certain set
+> of rights, which vary worldwide, when you buy something.  Copyright
+> is far more restrictive.
+>
+> "Fair use" != "reverse engineering" in any venue so far as I know.
+>
+> As always, IANAL, so contact yours for clarification.
 
-"Fair use" != "reverse engineering" in any venue so far as I know.
+	As I understand the law, at least in the United States, you have the exact
+same rights whether you buy the product or get it for free, so long as you
+acquire it legally. This includes the right to use the product as it is
+normally used. Otherwise, I could write a poem, put it up on billboards, and
+then try to sue everyone whose eyes passed over it. This is legally
+enshrined in the doctrine of "first sale", which despite its name applies to
+any legal acquisition.
 
-As always, IANAL, so contact yours for clarification.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+	It's not clear whether shrink wrap or other licenses can reduce this basic
+right to use that which one lawfully acquires. Some have pointed to various
+cases (such as ProCD v. Zeidenberg), but all the cases I have seen have
+differed from the shrinkwrap/copyright issue in at least one key respect.
+
+	DS
+
+

@@ -1,87 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSE3N4k>; Thu, 30 May 2002 09:56:40 -0400
+	id <S316629AbSE3OBA>; Thu, 30 May 2002 10:01:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316650AbSE3N4j>; Thu, 30 May 2002 09:56:39 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:21129 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S316649AbSE3N4j>; Thu, 30 May 2002 09:56:39 -0400
-Subject: Re: [Lse-tech] Re: [RFC] Dynamic percpu data allocator
-To: dipankar@beaverton.ibm.com
-Cc: BALBIR SINGH <balbir.singh@wipro.com>, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net, lse-tech-admin@lists.sourceforge.net,
-        "Paul McKenney" <Paul.McKenney@us.ibm.com>,
-        Rusty Russell <rusty@rustcorp.com.au>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF6BEB750B.90A03073-ON85256BC9.0041372C@raleigh.ibm.com>
-From: "Mala Anand" <manand@us.ibm.com>
-Date: Thu, 30 May 2002 08:56:36 -0500
-X-MIMETrack: Serialize by Router on D04NM108/04/M/IBM(Release 5.0.9a |January 7, 2002) at
- 05/30/2002 09:56:13 AM
+	id <S316650AbSE3OA7>; Thu, 30 May 2002 10:00:59 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:11279 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316629AbSE3OA6>; Thu, 30 May 2002 10:00:58 -0400
+Message-ID: <3CF622F0.4050304@evision-ventures.com>
+Date: Thu, 30 May 2002 15:02:40 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.18 IDE 73
+In-Reply-To: <UTC200205300019.g4U0JtH24034.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                                                                                                                                               
-                      dipankar@beaverton.ibm.co                                                                                                
-                      m                                To:       BALBIR SINGH <balbir.singh@wipro.com>                                         
-                      Sent by:                         cc:       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>, Paul     
-                      lse-tech-admin@lists.sour         McKenney/Beaverton/IBM@IBMUS, lse-tech@lists.sourceforge.net                           
-                      ceforge.net                      Subject:  [Lse-tech] Re: [RFC] Dynamic percpu data allocator                            
-                                                                                                                                               
-                                                                                                                                               
-                      05/24/02 01:13 AM                                                                                                        
-                      Please respond to                                                                                                        
-                      dipankar                                                                                                                 
-                                                                                                                                               
-                                                                                                                                               
+Andries.Brouwer@cwi.nl wrote:
+>     Ahhh... wait a moment you are the one who is responsible for
+>     util-linux - wouldn't you care to take a bunch of patches?!
+> 
+> Of course - improvements are always welcome.
+> (But I try to be slightly more careful than you are.
+> Util-linux runs on all libc's and all kernels, from libc4 to glibc2
+> and from 0.99 to 2.5. So, changes must be compatible.)
 
+Having them compatible acroess an insane range of kernels
+is a nice but futile exercise.
+Perhaps this partly explains why:
 
+1. util-linux doesn't cover half of the system utilities needed on
+    a sanely actual Linux system.
 
+2. The Linux vendors have to apply insane number of patches to it
+    util it's moderately usable.
 
+>     No need to inevent here. No need to do the book keeping in kernel.
+> 
+> Some need. Things like mount-by-label want to know what partitions
+> exist in order to look at the labels on each.
+> Yes, we really need a list of disk-like devices.
+> The gendisk chain.
 
-
-
-
->On Fri, May 24, 2002 at 10:07:59AM +0530, BALBIR SINGH wrote:
->> Hello, Dipankar,
->>
->> I would prefer to use the existing slab allocator for this.
->> I am not sure if I understand your requirements for the per-cpu
->> allocator correctly, please correct me if I do not.
->>
->> What I would like to see
->>
->> 1. Have per-cpu slabs instead of per-cpu cpucache_t. One should
->>    be able to tell for which caches we want per-cpu slabs. This
->>    way we can make even kmalloc per-cpu. Since most of the kernel
->>    would use and dispose memory before they migrate across cpus.
->>    I think this would be useful, but again no data to back it up.
-
->Allocating cpu-local memory is a different issue altogether.
->Eventually for NUMA support, we will have to do such allocations
->that supports choosing memory closest to a group of CPUs.
-
->The per-cpu data allocator allocates one copy for *each* CPU.
->It uses the slab allocator underneath. Eventually, when/if we have
->per-cpu/numa-node slab allocation, the per-cpu data allocator
->can allocate every CPU's copy from memory closest to it.
-
-Does this mean that memory allocation will happen in "each" CPU?
-Do slab allocator allocate the memory in each cpu? Your per-cpu
-data allocator sounds like the hot list skbs that are in the tcpip stack
-in the sense it is one level above the slab allocator and the list is
-kept per cpu.  If slab allocator is fixed for per cpu, do you still
-need this per-cpu data allocator?
-
-_____________________________________________
-Regards,
-    Mala
-
-
-   Mala Anand
-   E-mail:manand@us.ibm.com
-   Linux Technology Center - Performance
-   Phone:838-8088; Tie-line:678-8088
+No I don't see that point. Data which has to be persistant across
+reboots is simple data which has to reside on disk. That's the
+way it is in UNIX (PalmOS to name an example).
+And after all it's rather trivial to iterate *all* disks present at boot
+by hand and just going through /dev/sdaxxx chains. SCSI allocates
+them consecutively anyway and there are typically not many ATA diskst around
+there.
+After all kudzu is performing nearly the whole job for anything else
+except disks anyway for example.
 

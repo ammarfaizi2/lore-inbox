@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281990AbRKUXPU>; Wed, 21 Nov 2001 18:15:20 -0500
+	id <S281993AbRKUXSm>; Wed, 21 Nov 2001 18:18:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281991AbRKUXPL>; Wed, 21 Nov 2001 18:15:11 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:34690 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S281990AbRKUXOy>;
-	Wed, 21 Nov 2001 18:14:54 -0500
-Message-ID: <3BFC3567.8CC3023F@pobox.com>
-Date: Wed, 21 Nov 2001 15:14:47 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ext3 not supported by kernel !!!!!
-In-Reply-To: <EXCH01SMTP01eaCYPct00001063@smtp.netcabo.pt>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281992AbRKUXSb>; Wed, 21 Nov 2001 18:18:31 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:58885 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S281991AbRKUXSR>;
+	Wed, 21 Nov 2001 18:18:17 -0500
+Message-Id: <5.1.0.14.0.20011122100929.009ead30@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 22 Nov 2001 10:18:13 +1100
+To: "Rob Turk" <r.turk@chello.nl>, linux-kernel@vger.kernel.org
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: Linux FSCP (Frequently Submitted Compilation Problems)?
+  (was:  Re: Loop.c File !!!!)
+In-Reply-To: <9tfr1k$a5l$1@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.21.0111202025290.6299-100000@brick>
+ <5.1.0.14.2.20011121082413.00abadd0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Maria Godinho de Matos wrote:
+At 10:10 AM 21/11/01 +0100, Rob Turk wrote:
+>Good suggestion. Unfortunately, many people obviously do not take the time
+>to read the newsgroup before they post, so what do you propose will be the
+>mechanism to encourage them to lookup existing issues?
 
-> Hi again guys, i manage to compile the 2.4.14 kernel just fine, and did all
-> the steps:
->
-> Then i rebooted and was expecting a happy ending though it not happened.
-> after loading the kernel, when linux was suppose to mount the modules, the
-> file system and so, an error appeard!!
->
-> fs ext3 not supported by kernel
+Why not do it like the current Changelog, put it in the kernel repository, 
+and make sure it hits all the mirrors. A little selective advertising (eg: 
+someone mention it on slashdot, newsforge, debianplanet, etc), and people 
+will start using it. Just suffix the file with the version number, just 
+like the Changelog. Because the file will be small, it's possible that some 
+mirrors will get quick updates before they get the kernel itself. This 
+covers all the version specific problems at least.
 
-ext3 is not supported by 2.4.14 -
 
-However you have some options here.
+Stuart Young - sgy@amc.com.au
+(aka Cefiar) - cefiar1@optushome.com.au
 
-- Get the ext3 kernel patches from Andrew Morton's site
-- Update your kernel to 2.4.15-pre8, which has ext3 support
-- Edit your fstab to mount the filesystems as type "auto" not ext3
-
-cu
-
-jjs
+[All opinions expressed in the above message are my]
+[own and not necessarily the views of my employer..]
 

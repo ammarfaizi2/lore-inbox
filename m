@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131237AbRABToy>; Tue, 2 Jan 2001 14:44:54 -0500
+	id <S131378AbRABTxF>; Tue, 2 Jan 2001 14:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131378AbRABToo>; Tue, 2 Jan 2001 14:44:44 -0500
-Received: from gw.brfsodrahamn.se ([195.54.141.30]:26163 "HELO
-	tuttifrutti.cdt.luth.se") by vger.kernel.org with SMTP
-	id <S131237AbRABTog> convert rfc822-to-8bit; Tue, 2 Jan 2001 14:44:36 -0500
-X-Mailer: exmh version 2.2 10/15/1999 with nmh-1.0.4
-From: Hakan Lennestal <hakanl@cdt.luth.se>
-Reply-To: Hakan Lennestal <hakanl@cdt.luth.se>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Hakan Lennestal <hakanl@cdt.luth.se>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: Chipsets, DVD-RAM, and timeouts.... 
-In-Reply-To: Your message of "Tue, 02 Jan 2001 10:42:55 PST."
-             <Pine.LNX.4.10.10101021038410.25012-100000@penguin.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 02 Jan 2001 20:15:55 +0100
-Message-Id: <20010102191600.511DD4185@tuttifrutti.cdt.luth.se>
+	id <S131617AbRABTwz>; Tue, 2 Jan 2001 14:52:55 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:30995 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131378AbRABTwk>; Tue, 2 Jan 2001 14:52:40 -0500
+Date: 02 Jan 2001 20:02:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <7t4FOruXw-B@khms.westfalen.de>
+In-Reply-To: <E14D7Zj-00011M-00@the-village.bc.nu>
+Subject: Re: Chipsets, DVD-RAM, and timeouts....
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.10.10012312252220.21836-300000@master.linux-ide.org> <E14D7Zj-00011M-00@the-village.bc.nu>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.10.10101021038410.25012-100000@penguin.transmeta.com>, L
-inus Torvalds writes:
+alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 01.01.01 in <E14D7Zj-00011M-00@the-village.bc.nu>:
 
-> So why are the IBM drives picked on? I thought this was a hpt366 problem,
-> and possibly has only shown up with IBM drives so far.
+> > 	./drivers/ide/ide-cd.c
+> > 	./drivers/ide/ide-cd.h
+> >
+> > 	Adds ATAPI DVD-RAM native read/write mode for any FS.
+>
+> Interesting to say the least. But..
+>
+> > 	mke2fs -b 2048 /dev/hdc
+> > 	You must format to 2048 size blocks.
+>
+> FAT style FS doesnt support 2K blocks 8)
 
-Yes, the problem is the hpt366 (or the sw), not the IBM drives.
-The IBM drives seem to work well with udma3 on the hpt but not 
-with udma4 or higher.
+Dim memory tells me I once had a MO drive that used FAT on 2K blocks, and  
+*some* versions of Linux supported it.
 
-> It sounds like the proper fix would be to not enable ata66 by default.
-
-Yes, either that or the bad_ata66_4 list in hpt366.c. 
-The important thing is to have a bootable system.
-
-Regards.
-
-/Håkan
-
-
----------------------------------------
-e-mail: Hakan.Lennestal@lu.erisoft.se |
-     or Hakan.Lennestal@cdt.luth.se   |
----------------------------------------
-
+MfG Kai
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbULUWWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbULUWZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbULUWWz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 17:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbULUWWz
+	id S261883AbULUWZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 17:25:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbULUWZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 17:22:55 -0500
-Received: from thunk.org ([69.25.196.29]:59370 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261882AbULUWWu (ORCPT
+	Tue, 21 Dec 2004 17:25:29 -0500
+Received: from mail.dif.dk ([193.138.115.101]:12515 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261883AbULUWZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 17:22:50 -0500
-Date: Tue, 21 Dec 2004 17:19:24 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
-       Dan Dennedy <dan@dennedy.org>, Ben Collins <bcollins@debian.org>,
-       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-Message-ID: <20041221221924.GA12709@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Lee Revell <rlrevell@joe-job.com>, Greg KH <greg@kroah.com>,
-	Adrian Bunk <bunk@stusta.de>, Dan Dennedy <dan@dennedy.org>,
-	Ben Collins <bcollins@debian.org>,
-	Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <20041220015320.GO21288@stusta.de> <1103508610.3724.69.camel@kino.dennedy.org> <20041220022503.GT21288@stusta.de> <1103510535.1252.18.camel@krustophenia.net> <1103516870.3724.103.camel@kino.dennedy.org> <20041220225324.GY21288@stusta.de> <1103583486.1252.102.camel@krustophenia.net> <20041221171702.GE1459@kroah.com> <1103649633.9220.12.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103649633.9220.12.camel@krustophenia.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 21 Dec 2004 17:25:17 -0500
+Date: Tue, 21 Dec 2004 23:36:01 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][trivial] change rmqueue_bulk argument 'count' to be int
+Message-ID: <Pine.LNX.4.61.0412212317040.3518@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 12:20:32PM -0500, Lee Revell wrote:
-> On Tue, 2004-12-21 at 09:17 -0800, Greg KH wrote:
-> > On Mon, Dec 20, 2004 at 05:58:06PM -0500, Lee Revell wrote:
-> > > On Mon, 2004-12-20 at 23:53 +0100, Adrian Bunk wrote:
-> > > > The solution is simple:
-> > > > The vendor or services provider submits his driver for inclusion into 
-> > > > the kernel which is the best solution for everyone.
-> > > > 
-> > > 
-> > > What if the driver is under development and doesn't work yet?
-> > 
-> > Many drivers have been accepted into the kernel tree before they worked
-> > properly :)
-> 
-> Yeah but I hope you can understand why someone would be hesitant to
-> submit a broken driver.  It just makes the author look bad.  I would not
-> feel right submitting something that didn't work.
 
-That's what CONFIG_EXPERIMENTAL is for....
+Hi,
 
-						- Ted
+Here's a trivial little patch (hopefully without trivial mistakes) to fix 
+the function definition for rmqueue_bulk to only accept values it can 
+actually handle. 
+
+Let me explain (and please do let me know if I'm mistaken :) ,
+in mm/page_alloc.c the function rmqueue_bulk() is defined to take a 
+unsigned long as its third argument (count). This argument is then used in 
+a for loop and being compared to a signed int - /if/ someone was to ever 
+pass in a value larger than what a signed int can hold we'll have an 
+infinite loop on our hands. 
+This does not currently happen since the only caller of rmqueue_bulk is 
+passing in the 'batch' member of 'struct per_cpu_pages' which is an int. 
+But, should someone in the future make a change that causes the function 
+to be called with a >int value we'll have a nice little infinite loop to 
+debug at runtime, so why not let the compiler help us ensure such a 
+mistake will be found at compile time? 
+If the function can only deal with being passed values up to the maximum 
+of a signed int, then it seems wrong to allow it to be passed something 
+else. If however situations could arise where it would be desired to pass 
+the function something larger than int, then it should stay unsigned long, 
+but then the counter variable 'i' used in the for loop should be changed 
+to unsigned long instead - I don't know the code well enough to be able to 
+judge if that's what should happen instead (but since it currently gets 
+passed only int's that seemed like the proper type to normalize to - 
+ohh and it'll also get rid of a signed vs unsigned comparison warning 
+when building with -W, but that's just a tiny added bonus :).
+
+note. I've only compile tested this patch atm.
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -up linux-2.6.10-rc3-bk13-orig/mm/page_alloc.c linux-2.6.10-rc3-bk13/mm/page_alloc.c
+--- linux-2.6.10-rc3-bk13-orig/mm/page_alloc.c	2004-12-06 22:24:56.000000000 +0100
++++ linux-2.6.10-rc3-bk13/mm/page_alloc.c	2004-12-21 23:11:51.000000000 +0100
+@@ -396,7 +396,7 @@ static struct page *__rmqueue(struct zon
+  * Returns the number of new pages which were placed at *list.
+  */
+ static int rmqueue_bulk(struct zone *zone, unsigned int order, 
+-			unsigned long count, struct list_head *list)
++			int count, struct list_head *list)
+ {
+ 	unsigned long flags;
+ 	int i;
+
+
+

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSHXId4>; Sat, 24 Aug 2002 04:33:56 -0400
+	id <S315419AbSHXIsN>; Sat, 24 Aug 2002 04:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315416AbSHXId4>; Sat, 24 Aug 2002 04:33:56 -0400
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:3816
+	id <S315427AbSHXIsN>; Sat, 24 Aug 2002 04:48:13 -0400
+Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:29416
 	"HELO dag.newtech.fi") by vger.kernel.org with SMTP
-	id <S315415AbSHXIdz> convert rfc822-to-8bit; Sat, 24 Aug 2002 04:33:55 -0400
-Message-ID: <20020824083806.17006.qmail@dag.newtech.fi>
+	id <S315419AbSHXIsM> convert rfc822-to-8bit; Sat, 24 Aug 2002 04:48:12 -0400
+Message-ID: <20020824085224.17311.qmail@dag.newtech.fi>
 X-Mailer: exmh version 2.5 07/13/2001 with nmh-0.27
-To: conman@kolivas.net
-cc: linux-kernel@vger.kernel.org, dag@newtech.fi
-Subject: Re: VM changes added to performance patches for 2.4.19 
-In-Reply-To: Message from conman@kolivas.net 
-   of "Sat, 24 Aug 2002 16:33:14 +1000." <1030170794.3d6728aa24046@kolivas.net>
+To: linux-kernel@vger.kernel.org
+cc: dag@newtech.fi
+Subject: Preempt note in the logs
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
-Date: Sat, 24 Aug 2002 11:38:06 +0300
+Date: Sat, 24 Aug 2002 11:52:24 +0300
 From: Dag Nygren <dag@newtech.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> With the patch against 2.4.19:
-> 
-> Scheduler O(1), Preemptible, Low Latency
-> 
-> I have now added two extra alternative patches that include 
-> either Rik's rmap (thanks Rik) or AA's vm changes (thanks to Nuno Monteiro for
-> merging this)
-> 
-> For the record, with the (very) brief usage of these two patches I found the
-> rmap patch a little faster. This is very subjective and completely untested.
-> 
-> Check them out here and tell me what you think(please read the FAQ):
-> http://kernel.kolivas.net
 
-Tried this patch and it applied fine.
-The target is a laptop though and I find that this patch will somehow generate
-lots of diskaccesses and thus the disk will never "sleep".
-Checking out what the reason might be it seems like it is the preempt stuff 
-that
-writes notes about processes been kicked ouf to /var/log/messages.
+Hi,
 
-Is there a way to shut this off ?
+just installed the preempt stuff on a 2.4.19 here
+running on a laptop and keep getting the
+"dreaded"  exited with preempt_count 1
+messages.
+there is modprobe,kdeinit,aplay,less,find,grep,automount
+and others misbehaving.
 
-BRGDS and  thanks for the unified patch
+As this is a laptop and I would like to save as much battery as
+I can by keeping the disk not spinning, this behaviour will
+flush the log to the disk all the time.
+
+Would it be too much to ask if I requested that the creator of
+this very useful patch would make it possible to switch this note
+off through a sysctl ?
+
+BRGDS
 
 
 -- 

@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263741AbUFBRe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263718AbUFBRqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263741AbUFBRe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 13:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbUFBRey
+	id S263718AbUFBRqA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 13:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUFBRqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 13:34:54 -0400
-Received: from mail.kroah.org ([65.200.24.183]:50397 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263766AbUFBRe1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 13:34:27 -0400
-Date: Wed, 2 Jun 2004 10:32:00 -0700
-From: Greg KH <greg@kroah.com>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-Message-ID: <20040602173200.GA12254@kroah.com>
-References: <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org> <20040602150440.GA26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org> <20040602152741.GC26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020839230.3403@ppc970.osdl.org> <20040602161721.GA29296@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020921220.3403@ppc970.osdl.org> <20040602171732.GA30427@wohnheim.fh-wedel.de>
+	Wed, 2 Jun 2004 13:46:00 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:40923 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263718AbUFBRp6 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 13:45:58 -0400
+Message-Id: <200406021745.i52HjmAT013644@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Tim Connors <tconnors+linuxkernel1086148031@astro.swin.edu.au>
+Cc: FabF <fabian.frederick@skynet.be>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: why swap at all? 
+In-Reply-To: Your message of "Wed, 02 Jun 2004 13:50:42 +1000."
+             <slrn-0.9.7.4-13727-23491-200406021347-tc@hexane.ssi.swin.edu.au> 
+From: Valdis.Kletnieks@vt.edu
+References: <E1BUwEH-00030X-00@calista.eckenfels.6bone.ka-ip.net> <1086114982.2278.5.camel@localhost.localdomain> <200406011902.i51J2mZ3016721@turing-police.cc.vt.edu>
+            <slrn-0.9.7.4-13727-23491-200406021347-tc@hexane.ssi.swin.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040602171732.GA30427@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; boundary="==_Exmh_1353046712P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 02 Jun 2004 13:45:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 07:17:32PM +0200, J?rn Engel wrote:
-> 
-> Leaves usb_audio_recurseunit() as the only function in question, that
-> one could actually be sane, although it looks rather interesting:
-> WARNING: trivial recursion detected:
->        0  usb_audio_recurseunit
-> WARNING: recursion detected:
->       16  usb_audio_selectorunit
->        0  usb_audio_recurseunit
-> WARNING: multiple recursions around usb_audio_recurseunit()
-> WARNING: recursion detected:
->        0  usb_audio_recurseunit
->        0  usb_audio_processingunit
-> 
-> Greg, can you say whether this construct makes sense?
+--==_Exmh_1353046712P
+Content-Type: text/plain; charset=us-ascii
 
-Well it's sane only if you think that USB descriptors can be sane :)
+On Wed, 02 Jun 2004 13:50:42 +1000, Tim Connors said:
 
-Anyway, this loop will always terminate as we have a finite sized USB
-descriptor that this function is parsing.  As to how many times we will
-recurse, I don't really know as I haven't spent much time looking into
-the different messed up USB audio devices out there on the market...
+> I do often get frustrated that the DoS card is brought up to kill a
+> potentially useful solution. I think there should be a flag in KConfig
+> saying "This machine will be a server"/"This machine will be mostly a
+> single user desktop machine". In the latter, you can enable all these
+> vm/etc heuristics that will help out mozilla/X/your favourite
+> bloat-ware, but potentially enable a DoS attack, and in the former,
+> you stay conservative.
 
-Sorry I can't be of more help, but I don't think you need to worry about
-this function.
+And with that, you've worried about whether it's a potential DoS or
+not.  I didn't bring it up to "kill" it - I brought it up to start a discussion,
+because I felt that including that sort of feature without at least thinking
+about the DoS issues was a bad idea.  Shipping it with a Kconfig or
+sysctl flag, or using the capabilities framework, or any other similar
+"allow the sysadmin to control it" feature is a different matter entirely...
 
-thanks,
 
-greg k-h
+--==_Exmh_1353046712P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAvhJMcC3lWbTT17ARAll2AJ9e+Ps+APunNs2JCWiqd7ivvvrGsACfdLv7
+HHLd/T39TS0I6Qu3KwEyyRI=
+=BhJS
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1353046712P--

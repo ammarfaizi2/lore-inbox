@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261732AbSKXWZW>; Sun, 24 Nov 2002 17:25:22 -0500
+	id <S261799AbSKXWZ2>; Sun, 24 Nov 2002 17:25:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbSKXWZV>; Sun, 24 Nov 2002 17:25:21 -0500
-Received: from dp.samba.org ([66.70.73.150]:28843 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261732AbSKXWZU>;
+	id <S261733AbSKXWZY>; Sun, 24 Nov 2002 17:25:24 -0500
+Received: from dp.samba.org ([66.70.73.150]:29867 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261742AbSKXWZU>;
 	Sun, 24 Nov 2002 17:25:20 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Doug Ledford <dledford@redhat.com>,
-       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why /dev/sdc1 doesn't show up... 
-In-reply-to: Your message of "Wed, 20 Nov 2002 07:45:20 -0800."
-             <Pine.LNX.4.44.0211200737020.12032-100000@home.transmeta.com> 
-Date: Mon, 25 Nov 2002 09:30:45 +1100
-Message-Id: <20021124223234.67B372C0E3@lists.samba.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au,
+       torvalds@transmeta.com
+Subject: Re: calling schedule() from interupt context 
+In-reply-to: Your message of "Fri, 22 Nov 2002 01:09:34 -0800."
+             <20021122.010934.126934922.davem@redhat.com> 
+Date: Mon, 25 Nov 2002 08:42:15 +1100
+Message-Id: <20021124223234.7C5EB2C111@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0211200737020.12032-100000@home.transmeta.com> you wr
-ite:
+In message <20021122.010934.126934922.davem@redhat.com> you write:
+>    From: "dan carpenter" <error27@email.com>
+>    Date: Fri, 22 Nov 2002 03:54:41 -0500
 > 
-> On Wed, 20 Nov 2002, Rusty Russell wrote:
-> > 
-> > 	Linus, I would like an answer: how does one register two /proc
-> > entries?
+>    module_put ==> put_cpu ==> preempt_schedule ==> schedule
 > 
-> I think the answer is simple: you don't.
+> Oh we can't kill module references from interrupts?
 
-OK.  Two devices?  A device and a sysfs attribute?  A device and a
-filesystem?  A device and a setsockopt?  So I sympathise, but I
-disagree here.
+Err, no, that would be insane.  get_cpu() & put_cpu() should work
+perfectly fine inside interrupts, no?
 
-> This is what happens with built-in drivers already. Modules are nothing 
-> but a convenience. They're not "worthy" of complexity.
+> Egads... that makes lots of the networking stuff
+> nearly impossible as SKB's hold references to modules
+> and thus skb freeing can thus put modules.
 
-Agreed.  Having an invisible "MUST NOT fail beyond this point" line is
-leaving a subtle trap for driver writers.
+Relax: modular networking was one of my aims 8)
 
-We *already have* a mechanism to isolate a module: we did it to avoid
-a two-stage module destroy policy.  We can use the exact same
-mechanism to avoid such a two-stage module init policy.
-
-Modulo bugs, I've erred on the side of not breaking the 1500+ modules
-in the kernel, and *not* exposing the unload races to them.  Please
-consider carefully.
-
-Note 1: Al mentioned he wants to fire off userspace before initcalls
-are done, introducing the same races in core kernel init.  Without
-seeing reasons, it's hard to tell why he wants this, but this would
-require everyone to do two-stage init anyway.
-
-Note 2: If you really want two-stage init, you're best off making it
-explicit: ie. two functions: one which can fail (int module_prep()),
-and one which can't (void module_start()).  I regarded this as too
-invasive a change just for an obscure module race.
-
-Hope that clarifies?
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

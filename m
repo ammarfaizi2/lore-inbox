@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287565AbSAVEqF>; Mon, 21 Jan 2002 23:46:05 -0500
+	id <S289149AbSAVFCe>; Tue, 22 Jan 2002 00:02:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289149AbSAVEpz>; Mon, 21 Jan 2002 23:45:55 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:4880 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S287565AbSAVEpn>; Mon, 21 Jan 2002 23:45:43 -0500
-Date: Tue, 22 Jan 2002 15:45:49 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-Cc: akeys@post.cis.smu.edu, partha@us.ibm.com, linux-kernel@vger.kernel.org,
-        mingo@elte.hu
-Subject: Re: Performance Results for Ingo's O(1)-scheduler
-Message-Id: <20020122154549.7decbeb9.rusty@rustcorp.com.au>
-In-Reply-To: <200201212016.29055.bodnar42@phalynx.dhs.org>
-In-Reply-To: <OF4544D2BC.16B7A12D-ON85256B48.00817250@raleigh.ibm.com>
-	<20020122035540.ZUVU10199.rwcrmhc53.attbi.com@there>
-	<200201212016.29055.bodnar42@phalynx.dhs.org>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
+	id <S289159AbSAVFCX>; Tue, 22 Jan 2002 00:02:23 -0500
+Received: from mailgate.indstate.edu ([139.102.15.118]:46761 "EHLO
+	mailgate.indstate.edu") by vger.kernel.org with ESMTP
+	id <S289149AbSAVFCM>; Tue, 22 Jan 2002 00:02:12 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Rich Baum <richbaum@acm.org>
+To: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: [PATCH] fix drivers/scsi/imm.c in 2.5.3pre2
+Date: Mon, 21 Jan 2002 23:25:51 -0500
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <6D914675512@coral.indstate.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002 20:16:28 -0800
-Ryan Cumming <bodnar42@phalynx.dhs.org> wrote:
+I've finally got the imm driver to work.  I have based this patch a patch 
+posted by derek@signalmarketing.com for the ppa driver.  I've tested this and 
+it works for me.  Please test this and send me any questions or comments you 
+may have.  If no one has any problems I'll send it to Linus.
 
-> On January 21, 2002 19:55, Adam Keys wrote:
-> > I'm curious about the performance of the 4-way and 8-way systems.  I know
-> > nothing about this benchmark.  IIRC correctly it simulates chat clients
-> > connecting to a server and talking to each other.  Is it a CPU, memory, or
-> > disk bound benchmark?  What is causing the 4-way machines to be only 2x the
-> > performance of the 1-way machine and the 8-way machines to be < 3x the
-> > performance?  Is the system bus the limiting factor on those machines?
-> 
-> Memory bus, lock contention, syncronization issues. SMP really isn't as 
-> magical as people think after the overhead is taken in to account.
+Also, I have a longer patch that gets rid of some #includes in imm.c that are 
+also in imm.h.  I moved them to imm.h.  Let me know if I should post that 
+patch as well.  It is mainly cosmetic and also works for me.
 
-Volcanomark is a Java(TM) chatroom benchmark: multiple rooms, where for each
-room, every input from a client generates a write to every other client
-(think broadcast storm).
+Thanks,
+Rich
 
-chat (which is a C version of Volcanomark) is useful for testing, as is
-hackbench2 (which is cut down to just exhibit the runqueue problem, and
-doesn't even use threads).
 
-Hope that helps,
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+diff -urN -X dontdiff linux/drivers/scsi/imm.c linux-rb/drivers/scsi/imm.c
+--- linux/drivers/scsi/imm.c	Sat Dec  8 23:02:47 2001
++++ linux-rb/drivers/scsi/imm.c	Mon Jan 21 14:39:30 2002
+@@ -998,7 +998,7 @@
+     case 4:
+ 	if (cmd->use_sg) {
+ 	    /* if many buffers are available, start filling the first */
+-	    cmd->SCp.buffer = (struct scatterlist *) cmd->request_buffer;
++	    cmd->SCp.buffer = (struct scatterlist *) cmd->buffer;
+ 	    cmd->SCp.this_residual = cmd->SCp.buffer->length;
+ 	    cmd->SCp.ptr = page_address(cmd->SCp.buffer->page) + 
+cmd->SCp.buffer->offset;
+ 	} else {
+@@ -1007,7 +1007,7 @@
+ 	    cmd->SCp.this_residual = cmd->request_bufflen;
+ 	    cmd->SCp.ptr = cmd->request_buffer;
+ 	}
+-	cmd->SCp.buffers_residual = cmd->use_sg;
++	cmd->SCp.buffers_residual = cmd->use_sg - 1;
+ 	cmd->SCp.phase++;
+ 	if (cmd->SCp.this_residual & 0x01)
+ 	    cmd->SCp.this_residual++;
+

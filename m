@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314657AbSD1BqG>; Sat, 27 Apr 2002 21:46:06 -0400
+	id <S314658AbSD1BxK>; Sat, 27 Apr 2002 21:53:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314658AbSD1BqF>; Sat, 27 Apr 2002 21:46:05 -0400
-Received: from ip68-6-153-107.sd.sd.cox.net ([68.6.153.107]:36430 "EHLO
-	train.sweet-haven.com") by vger.kernel.org with ESMTP
-	id <S314657AbSD1BqE>; Sat, 27 Apr 2002 21:46:04 -0400
-Date: Sat, 27 Apr 2002 18:45:42 -0700 (PDT)
-From: Lew Wolfgang <wolfgang@sweet-haven.com>
-To: Bob Tanner <tanner@real-time.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Dual (2) AMD ATHLON MP 1900+ CPUs gives APIC error on
- CPU[0]: 00(02)
-In-Reply-To: <20020426213315.K25965@real-time.com>
-Message-ID: <Pine.LNX.4.33.0204271835390.32014-100000@train.sweet-haven.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314660AbSD1BxJ>; Sat, 27 Apr 2002 21:53:09 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:60153 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S314658AbSD1BxJ>; Sat, 27 Apr 2002 21:53:09 -0400
+Date: Sat, 27 Apr 2002 18:52:38 -0700
+From: Chris Wright <chris@wirex.com>
+To: Colin Slater <hoho@binbash.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        davej@suse.de
+Subject: Re: [PATCH] Various suser() -> capable() chang
+Message-ID: <20020427185238.A31285@figure1.int.wirex.com>
+Mail-Followup-To: Colin Slater <hoho@binbash.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	davej@suse.de
+In-Reply-To: <E171XNI-0000Ji-00@the-village.bc.nu> <1019949402.7399.3101.camel@neptune>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bob,
+* Colin Slater (hoho@binbash.net) wrote:
+> 
+> I figured that it would be functionaly equivilent and didn't pay mutch
+> more attention to the issue. I've gone through it all again, and changed
+> alot of them to CAP_SYS_TTY_CONFIG and CAP_RAW_IO. New patch attached.
 
-I had the same problem with a Tyan S2466N, except that
-the system didn't crash.  It would intermittently
-throw off these non-fatal APIC errors.  Using 2.4.18 I
-was able to trigger an error storm just by running an
-fft benchmark.
+Thanks for working on this change, it's been on the LSM todo list as well.
+It looks like the patch is still all CAP_SYS_ADMIN, perhaps you attached
+the wrong one.  I see one fsuser() check in fs/ufs/balloc.c that should
+be converted also.
 
-The problem seems to have been fixed by upgrading the
-ROM BIOS to the most recent (beta) version.
+cheers,
+-chris
 
-Regards,
-Lew Wolfgang
-
-On Fri, 26 Apr 2002, Bob Tanner wrote:
-
-> [1.] One line summary of the problem:
-> Dual (2) AMD ATHLON MP 1900+ CPUs gives APIC error on CPU[0]: 00(02)
->
-> [2.] Full description of the problem/report:
->
-> Dual (2) AMD ATHLON MP 1900+ CPUs
-> ASUA7M266D Motherboard
-> 2 sticks of  Corsair CM72SD512R-2100 (1Gb RAM)
->
-> When booting SMP-Kernels version 2.4.7, 2.4.9, 2.4.18 the box hangs with the
-> following error:
->
-> APIC error on CPU1: 00(02)
-> APIC error on CPU0: 00(02)
->
-
-<snip>
-
+--- 1.8/fs/ufs/balloc.c	Sun Feb 10 04:27:35 2002
++++ edited/fs/ufs/balloc.c	Sat Apr 27 18:40:22 2002
+@@ -288,7 +288,7 @@
+ 	/*
+ 	 * There is not enough space for user on the device
+ 	 */
+-	if (!fsuser() && ufs_freespace(usb1, UFS_MINFREE) <= 0) {
++	if (!capable(CAP_SYS_RESOURCE) && ufs_freespace(usb1, UFS_MINFREE) <= 0) {
+ 		unlock_super (sb);
+ 		UFSD(("EXIT (FAILED)\n"))
+ 		return 0;

@@ -1,144 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265940AbUGHJk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUGHKxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265940AbUGHJk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 05:40:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUGHJk1
+	id S263893AbUGHKxW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 06:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUGHKxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 05:40:27 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:23937 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S265940AbUGHJkV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 05:40:21 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Thu, 8 Jul 2004 11:32:50 +0200
-To: tom st denis <tomstdenis@yahoo.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: [OT] Re: 0xdeadbeef vs 0xdeadbeefL
-Message-ID: <20040708093249.GC32629@iram.es>
-References: <20040707184737.GA25357@infradead.org> <20040707185340.42091.qmail@web41112.mail.yahoo.com>
+	Thu, 8 Jul 2004 06:53:22 -0400
+Received: from cm217.omega59.maxonline.com.sg ([218.186.59.217]:40836 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263893AbUGHKxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 06:53:19 -0400
+Date: Thu, 8 Jul 2004 18:53:38 +0800
+From: David Teigland <teigland@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Daniel Phillips <phillips@redhat.com>, Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Message-ID: <20040708105338.GA16115@redhat.com>
+References: <200407050209.29268.phillips@redhat.com> <200407061734.51023.phillips@redhat.com> <20040707181650.GD12255@marowsky-bree.de> <200407072114.07291.phillips@redhat.com> <20040708091043.GS12255@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040707185340.42091.qmail@web41112.mail.yahoo.com>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20040708091043.GS12255@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 11:53:40AM -0700, tom st denis wrote:
-> --- Christoph Hellwig <hch@infradead.org> wrote:
-> > On Wed, Jul 07, 2004 at 11:41:50AM -0700, tom st denis wrote:
-> > > Um, actually "char" like "int" and "long" in C99 is signed.  So
-> > while
-> > > you can write 
-> > > 
-> > > signed int x = -3;
-> > > 
-> > > You don't have to.  in fact if you "have" to then your compiler is
-> > > broken.  Now I know that GCC offers "unsigned chars" but that's an
-> > > EXTENSION not part of the actual standard.  
-> > 
-> > ------------------------------ snip -----------------------------
-> >  [#15]  The  three types char, signed char, and unsigned char
-> >         are   collectively   called   the   character   types.   The
-> >         implementation  shall  define  char  to have the same range,
-> > 	representation,  and  behavior  as  either  signed  char or
-> > 	unsigned char.35)
-> > ------------------------------ snip -----------------------------
-> 
-> Right.  Didn't know that.  Whoa.  So in essence "char" is not a safe
-> type.
+On Thu, Jul 08, 2004 at 11:10:43AM +0200, Lars Marowsky-Bree wrote:
 
-It depends what you use it for, but it typically is not. 
+> Of all the cluster-subsystems, the fencing system is likely the most
+> important. If the various implementations don't step on eachothers toes
+> there, the duplication of membership/messaging/etc is only inefficient,
+> but not actively harmful.
 
-The _very_ common mistake is assigning the result of fgetc/getc/getchar
-(which are defined to return an _unsigned_ char cast to an int or EOF) 
-to a plain char and then comparing it with -1 to check for EOF: 
+I'm afraid the fencing issue has been rather misrepresented.  Here's what we're
+doing (a lot of background is necessary I'm afraid.)  We have a symmetric,
+kernel-based, stand-alone cluster manager (CMAN) that has no ties to anything
+else whatsoever.  It'll simply run and answer the question "who's in the
+cluster?" by providing a list of names/nodeids.
 
-1) it will never detect the EOF if the char is unsigned (PPC)
+So, if that's all you want you can just run cman on all your nodes and it'll
+tell you who's in the cluster (kernel and userland api's).  CMAN will also do
+generic callbacks to tell you when the membership has changed.  Some people can
+stop reading here.
 
-2) it will stop on a ÿ (that's an y with a diaeresis) on Intel. This
-character is infrequent in the languages I use but it occasionally 
-happens. 
+In the event of network partitions you can obviously have two cman clusters
+form independently (i.e. "split-brain").  Some people care about this.  Quorum
+is a trivial true/false property of the cluster.  Every cluster member has a
+number of votes and the cluster itself has a number of expected votes.  Using
+these simple values, cman does a quick computation to tell you if the cluster
+has quorum.  It's a very standard way of doing things -- we modelled it
+directly off the VMS-cluster style.  Whether you care about this quorum value
+or what you do with it are beside the point.  Some may be interested in
+discussing how cman works and participating in further development; if so go
+ahead and ask on linux-cluster@redhat.com.  We've been developing and using
+cman for 3-4 years.  Are there other valid approaches? of course.  Is cman
+suitable for many people? yes.  Suitable for everyone? no.
 
-Of course people who only use plain 7 bit ASCII never hit the bug,
-but as soon as you go into Latin-$n encodings you may hit them (I'm 
-only restricting myself to character sets based on the Latin alphabet). 
+(see http://sources.redhat.com/cluster/ for patches and mailing list)
 
-And no the solution is not to use -fsigned-char or -funsigned char
-as an optin to GCC. Most of the time it only changes the kind of bugs 
-that are hidden in the code, and 2) above is statistically harder to 
-hit than 1).
+What about the DLM?  The DLM we've developed is again modelled exactly after
+that in VMS-clusters.  It depends on cman for the necessary clustering input.
+Note that it uses the same generic cman api's as any other system.  Again, the
+DLM is utterly symmetric; there is no server or master node involved.  Is this
+DLM suitable for many people? yes.  For everyone? no.  (Right now gfs and clvm
+are the primary dlm users simply because those are the other projects our group
+works on.  DLM is in no way specific to either of those.) 
 
-> 
-> > > As for writing portable code, um, jacka#!, BitKeeper, you know,
-> > that
-> > > thingy that hosts the Linux kernel?  Yeah it uses LibTomCrypt.  Why
-> > not
-> > > goto http://libtomcrypt.org and find out who the author is.  Oh
-> > yeah,
-> > > that would be me.  Why not email Wayne Scott [who has code in
-> > > LibTomCrypt btw...] and ask him about it?
+What about Fencing?  Fencing is not a part of the cluster manager, not a part
+of the dlm and not a part of gfs.  It's an entirely independent system that
+runs on its own in userland.  It depends on cman for cluster information just
+like the dlm or gfs does.  I'll repeat what I said on the linux-cluster mailing
+list:
 
-Yes, I know and I use BK. But given the fact that you insult me for 
-better knowing C rules than you, I'm seriously considering switch 
-to subversion or arch instead.
+--
+Fencing is a service that runs on its own in a CMAN cluster; it's entirely
+independent from other services.  GFS simply checks to verify fencing is
+running before allowing a mount since it's especially dangerous for a mount to
+succeed without it.
 
-Argh, I've mentioned BK. There should be a Goldwin's law equivalent
-for BitKeeper on lkml ;-)
+As soon as a node joins a fencing domain it will be fenced by another domain
+member if it fails.  i.e. as soon as a node runs:
 
-> > > 
-> > > Who elses uses LibTomCrypt?  Oh yeah, Sony, Gracenote, IBM [um Joy
-> > > Latten can chip in about that], Intel, various schools including
-> > > Harvard, Stanford, MIT, BYU, ...
-> > 
-> > Tons of people use windows aswell.  You just showed that you don't
-> > know
-> > C well enough, so maybe someone should better do an audit for your
-> > code ;-)
-> 
-> To be honest I didn't know that above.  That's why I'm always explicit.
->  [btw my code builds in MSVC, BCC and ICC as well].
-> 
-> You don't need to know such details to be able to develop in C.  I'm
-> sure if you walked into [say] Redhat and gave an "on the spot C quiz"
-> about obscure rules they would fail.  You have to use some common sense
-> and apply the more relevant rules.  
+> cman_tool join    (joins the cluster)
+> fence_tool join   (starts fenced which joins the default fence domain)
 
-Well, I consider the rules about plain char to be among the most
-relevant, since I've been hit by them _way_ _more_ than about any 
-other badly known C rule.
+it will be fenced by another fence domain member if it fails.  So, you simply
+need to configure your nodes to run fence_tool join after joining the cluster
+if you want fencing to happen.  You can add any checks later on that you think
+are necessary to be sure that the node is in the fence domain.
 
-And finally, I'd personnaly prefer the char to be unsigned, for several
-reasons:
-- its name which suggests that it is an enumeration of symbols. 
-- strcmp and friends do the comparisons using _unsigned_ char,
-despite the fact that the prototype declare plain char parameters
-- the aforementioned fgetc/getc/getchar issues.
-  
-  
-BTW, this signed/unsigned mess is a reason for some weirdness like 
-tables with 384 entries in libc/ctype/ctype.h:
+Running fence_tool leave will remove a node cleanly from the fence domain (it
+won't be fenced by other members.)
+--
 
+This fencing system is suitable for us in our gfs/clvm work.  It's probably
+suitable for others, too.  For everyone? no.  Can be improved with further
+development? yes.  A central or difficult issue? not really.  Again, no need to
+look at the dlm or gfs or clvm to work with this fencing system.
 
-/* These are defined in ctype-info.c.
-   The declarations here must match those in localeinfo.h.
-
-   In the thread-specific locale model (see `uselocale' in <locale.h>)
-   we cannot use global variables for these as was done in the past.
-   Instead, the following accessor functions return the address of
-   each variable, which is local to the current thread if multithreaded.
-
-   These point into arrays of 384, so they can be indexed by any `unsigned
-   char' value [0,255]; by EOF (-1); or by any `signed char' value
-   [-128,-1).  ISO C requires that the ctype functions work for `unsigned
-   char' values and for EOF; we also support negative `signed char' values
-   for broken old programs.  
-   
- [snipped]
-
-Not specifying the signedness of the char types is one of C's original
-mistakes, and the one that statistically mostly affects me.
-
-	Gabriel (the only good char is the unsigned char)
- 
+-- 
+Dave Teigland  <teigland@redhat.com>

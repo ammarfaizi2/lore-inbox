@@ -1,167 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267102AbSKMCgH>; Tue, 12 Nov 2002 21:36:07 -0500
+	id <S267106AbSKMCoa>; Tue, 12 Nov 2002 21:44:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267107AbSKMCgH>; Tue, 12 Nov 2002 21:36:07 -0500
-Received: from modemcable217.53-202-24.mtl.mc.videotron.ca ([24.202.53.217]:34324
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267102AbSKMCgF>; Tue, 12 Nov 2002 21:36:05 -0500
-Date: Tue, 12 Nov 2002 21:37:27 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH][2.5] xircom_cb small cleanups
-Message-ID: <Pine.LNX.4.44.0211122134430.24523-100000@montezuma.mastecende.com>
-X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
+	id <S267107AbSKMCoa>; Tue, 12 Nov 2002 21:44:30 -0500
+Received: from [203.117.131.12] ([203.117.131.12]:59585 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S267106AbSKMCo3>; Tue, 12 Nov 2002 21:44:29 -0500
+Message-ID: <3DD1BE22.2010706@metaparadigm.com>
+Date: Wed, 13 Nov 2002 10:51:14 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Brian Jackson <brian-kernel-list@mdrx.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: md on shared storage
+References: <20021113002529.7413.qmail@escalade.vistahp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.47/drivers/net/tulip/xircom_cb.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.47/drivers/net/tulip/xircom_cb.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 xircom_cb.c
---- linux-2.5.47/drivers/net/tulip/xircom_cb.c	11 Nov 2002 03:57:05 -0000	1.1.1.1
-+++ linux-2.5.47/drivers/net/tulip/xircom_cb.c	13 Nov 2002 01:52:53 -0000
-@@ -154,8 +154,6 @@
- 	.id_table	= xircom_pci_table, 
- 	.probe		= xircom_probe, 
- 	.remove		= xircom_remove, 
--	.suspend =NULL,
--	.resume =NULL
- };
- 
- 
-@@ -201,9 +199,9 @@
- static int private_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- {
- 
--       switch(cmd) {
--       case SIOCETHTOOL:
--	       return netdev_ethtool_ioctl(dev, (void *) rq->ifr_data);
-+	switch(cmd) {
-+	case SIOCETHTOOL:
-+		return netdev_ethtool_ioctl(dev, (void *) rq->ifr_data);
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-@@ -221,15 +219,17 @@
- 	struct net_device *dev = NULL;
- 	struct xircom_private *private;
- 	unsigned char chip_rev;
--	unsigned long flags;
-+	unsigned long flags, io_start;
- 	unsigned short tmp16;
-+	int rc = -ENODEV;
- 	enter("xircom_probe");
- 	
- 	/* First do the PCI initialisation */
- 
- 	if (pci_enable_device(pdev))
--		return -ENODEV;
-+		goto exit;
- 
-+	rc = -ENOMEM;
- 	/* disable all powermanagement */
- 	pci_write_config_dword(pdev, PCI_POWERMGMT, 0x0000);
- 	
-@@ -240,51 +240,48 @@
- 	pci_write_config_word (pdev, PCI_STATUS,tmp16);
- 	
- 	pci_read_config_byte(pdev, PCI_REVISION_ID, &chip_rev);
--	
--	if (!request_region(pci_resource_start(pdev, 0), 128, "xircom_cb")) {
--		printk(KERN_ERR "xircom_probe: failed to allocate io-region\n");
--		return -ENODEV;
-+	io_start = pci_resource_start(pdev, 0);
-+	if (!request_region(io_start, 128, "xircom_cb")) {
-+		printk(KERN_ERR "xircom_probe: failed to allocate io-region \n");
-+		goto exit;
- 	}
- 
--	
- 	/* 
- 	   Before changing the hardware, allocate the memory.
- 	   This way, we can fail gracefully if not enough memory
- 	   is available. 
- 	 */
- 	private = kmalloc(sizeof(*private),GFP_KERNEL);
--	memset(private, 0, sizeof(struct xircom_private));
-+	if (private == NULL)
-+		goto out_free_region;
-+
-+	memset(private, 0, sizeof *private);
- 	
- 	/* Allocate the send/receive buffers */
- 	private->rx_buffer = pci_alloc_consistent(pdev,8192,&private->rx_dma_handle);
- 	
- 	if (private->rx_buffer == NULL) {
-  		printk(KERN_ERR "xircom_probe: no memory for rx buffer \n");
-- 		kfree(private);
--		return -ENODEV;
-+		goto out_free_mem;
- 	}	
- 	private->tx_buffer = pci_alloc_consistent(pdev,8192,&private->tx_dma_handle);
- 	if (private->tx_buffer == NULL) {
- 		printk(KERN_ERR "xircom_probe: no memory for tx buffer \n");
--		kfree(private->rx_buffer);
--		kfree(private);
--		return -ENODEV;
-+		goto out_free_mem;
- 	}
- 	dev = init_etherdev(dev, 0);
- 	if (dev == NULL) {
- 		printk(KERN_ERR "xircom_probe: failed to allocate etherdev\n");
--		kfree(private->rx_buffer);
--		kfree(private->tx_buffer);
--		kfree(private);
--		return -ENODEV;
-+		goto out_free_mem;
- 	}
- 	SET_MODULE_OWNER(dev);
- 	printk(KERN_INFO "%s: Xircom cardbus revision %i at irq %i \n", dev->name, chip_rev, pdev->irq);
- 
-+	rc = 0;
- 	private->dev = dev;
- 	private->pdev = pdev;
--	private->io_port = pci_resource_start(pdev, 0);
--	private->lock = SPIN_LOCK_UNLOCKED;
-+	private->io_port = io_start;
-+	spin_lock_init(&private->lock);
- 	dev->irq = pdev->irq;
- 	dev->base_addr = private->io_port;
- 	
-@@ -307,14 +304,23 @@
- 	tranceiver_voodoo(private);
- 	
- 	spin_lock_irqsave(&private->lock,flags);
--	  activate_transmitter(private);
--	  activate_receiver(private);
-+	activate_transmitter(private);
-+	activate_receiver(private);
- 	spin_unlock_irqrestore(&private->lock,flags);
- 	
- 	trigger_receive(private);
--	
-+	goto exit;
-+
-+out_free_mem:
-+	kfree(private->rx_buffer);
-+	kfree(private->tx_buffer);
-+	kfree(private);
-+out_free_region:
-+	release_region(io_start, 128);
-+	pci_disable_device(pdev);
-+exit:
- 	leave("xircom_probe");
--	return 0;
-+	return rc;
- }
- 
- 
--- 
-function.linuxpower.ca
+On 11/13/02 08:25, Brian Jackson wrote:
+> Here's a question for all those out there that are smarter than me(so I 
+> guess that's most of you then :) I looked around (google, kernel source, 
+> etc.) trying to find the answer, but came up with nothing.
+> Does the MD driver work with shared storage? I would also be interested 
+> to know if the new DM driver works with shared storage(though I must 
+> admit I didn't really try to answer this one myself, just hoping 
+> somebody will know).
+
+They should work, obviously with some caveats. Having 2 hosts both
+trying to reconstruct the same md RAID1 may cause some troubles.
+
+> I ask because I seem to be having some strange problems with an md 
+> device on shared storage(Qlogic FC controllers). The qlogic drivers spit 
+> out messages for about 20-60 lines then the machines lock up. So the 
+> drivers were my first suspicion, but they were working okay before. So I 
+> went back and got rid of the md device and now everything is working 
+> again. Anybody got any ideas?
+
+Could be a stack related problem with the qlogic driver. The additional
+stack pressure of the md layer perhaps ?? The 20-60 lines of logs in
+would probably give some ideas.
+
+I have a couple of shared storage clusters that were using qla2300
+driver, ext3 and LVM1 and they would periodically ooops. Removed LVM
+and the systems are now rock solid.
+
+~mc
 

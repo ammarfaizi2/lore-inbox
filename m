@@ -1,62 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTERTQq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 15:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbTERTQq
+	id S262166AbTERTTE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 15:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTERTTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 15:16:46 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:196 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262164AbTERTQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 15:16:44 -0400
-Date: Sun, 18 May 2003 21:29:33 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: [2.4 patch] add four CONFIG_HDLC_DEBUG_* Configure.help text
-Message-ID: <20030518192933.GF12766@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sun, 18 May 2003 15:19:04 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:26241 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262166AbTERTTB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 15:19:01 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 18 May 2003 12:31:03 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: recursive spinlocks. Shoot.
+In-Reply-To: <200305181909.h4IJ9sK02186@oboe.it.uc3m.es>
+Message-ID: <Pine.LNX.4.55.0305181228390.3568@bigblue.dev.mcafeelabs.com>
+References: <200305181909.h4IJ9sK02186@oboe.it.uc3m.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Sun, 18 May 2003, Peter T. Breuer wrote:
 
-the patch below adds four Configure.help entries that were missing in 
-2.4.21-rc2 (I've taken the texts from 2.5).
+> In article <20030518182010$0541@gated-at.bofh.it> you wrote:
+> > On Sun, 18 May 2003, Peter T. Breuer wrote:
+> >> Here's a before-breakfast implementation of a recursive spinlock. That
+>
+> > A looong time ago I gave to someone a recursive spinlock implementation
+> > that they integrated in the USB code. I don't see it in the latest
+> > kernels, so I have to guess that they found a better solution to do their
+> > things. I'm biased to say that it must not be necessary to have the thing
+> > if you structure your code correctly.
+>
+> Well, you can get rid of anything that way. The question is if the
+> interface is an appropriate one to use or not - i.e. if it makes for
+> better code in general, or if it make errors of programming less
+> likely.
+>
+> I would argue that the latter is undoubtedly true - merely that
+> userspace flock/fcntl works that way would argue for it, but there
+> are a couple of other reasons too.
+>
+> Going against is the point that it may be slower.  Can you dig out your
+> implementation and show me it?  I wasn't going for assembler in my hasty
+> example.  I just wanted to establish that it's easy, so that it becomes
+> known that its easy, and folks therefore aren't afraid of it.  That both
+> you and I have had to write it implies that it's not obvious code to
+> everyone.
 
-Please apply
-Adrian
+It was something like this. The real code should be in 2.2.x I believe.
+The problem at the time was nested ( recursive ) spinlocks.
 
 
---- linux-2.4.21-rc2/Documentation/Configure.help.old	2003-05-18 21:21:51.000000000 +0200
-+++ linux-2.4.21-rc2/Documentation/Configure.help	2003-05-18 21:23:46.000000000 +0200
-@@ -9684,6 +9684,26 @@
-   should add "alias syncX farsync" to /etc/modules.conf for each
-   interface, where X is 0, 1, 2, ...
- 
-+CONFIG_HDLC_DEBUG_PKT
-+  This option is for developers only - do NOT use on production
-+  systems.
-+
-+CONFIG_HDLC_DEBUG_HARD_HEADER
-+  This option is for developers only - do NOT use on production
-+  systems.
-+
-+CONFIG_HDLC_DEBUG_ECN
-+  This option is for developers only - do NOT use on production
-+  systems.
-+
-+CONFIG_HDLC_DEBUG_RINGS
-+  If you answer Y here you will be able to get a diagnostic dump of
-+  port's TX and RX packet rings, using "sethdlc hdlcX private"
-+  command. It does not affect normal operations.
-+
-+  If unsure, say Y here.
-+
-+
- Frame Relay (DLCI) support
- CONFIG_DLCI
-   This is support for the frame relay protocol; frame relay is a fast
+
+typedef struct s_nestlock {
+	spinlock_t lock;
+	void *uniq;
+	atomic_t count;
+} nestlock_t;
+
+#define nestlock_init(snl) \
+	do { \
+		spin_lock_init(&(snl)->lock); \
+		(snl)->uniq = NULL; \
+		atomic_set(&(snl)->count, 0); \
+	} while (0)
+
+#define nestlock_irqlock(snl, flags) \
+	do { \
+		if ((snl)->uniq == current) { \
+			atomic_inc(&(snl)->count); \
+			flags = 0; /* No warnings */ \
+		} else { \
+			spin_lock_irqsave(&(snl)->lock, flags); \
+			atomic_inc(&(snl)->count); \
+			(snl)->uniq = current; \
+		} \
+	} while (0)
+
+#define nestlock_irqunlock(snl, flags) \
+	do { \
+		if (atomic_dec_and_test(&(snl)->count)) { \
+			(snl)->uniq = NULL; \
+			spin_unlock_irqrestore(&(snl)->lock, flags); \
+		} \
+	} while (0)
+
+#define nestlock_lock(snl) \
+	do { \
+		if ((snl)->uniq == current) { \
+			atomic_inc(&(snl)->count); \
+		} else { \
+			spin_lock(&(snl)->lock); \
+			atomic_inc(&(snl)->count); \
+			(snl)->uniq = current; \
+		} \
+	} while (0)
+
+#define nestlock_unlock(snl) \
+	do { \
+		if (atomic_dec_and_test(&(snl)->count)) { \
+			(snl)->uniq = NULL; \
+			spin_unlock(&(snl)->lock); \
+		} \
+	} while (0)
+
+
+
+
+
+
+- Davide
+

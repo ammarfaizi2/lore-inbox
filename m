@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262911AbUCWXcw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 18:32:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbUCWXcw
+	id S262912AbUCWXf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 18:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbUCWXf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 18:32:52 -0500
-Received: from gprs214-90.eurotel.cz ([160.218.214.90]:21890 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262911AbUCWXcv (ORCPT
+	Tue, 23 Mar 2004 18:35:57 -0500
+Received: from mail.ccur.com ([208.248.32.212]:43535 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S262912AbUCWXf4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 18:32:51 -0500
-Date: Wed, 24 Mar 2004 00:32:28 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Jonathan Sambrook <swsusp@hmmn.org>,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040323233228.GK364@elf.ucw.cz>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040323095318.GB20026@hmmn.org> <20040323214734.GD364@elf.ucw.cz> <200403231743.01642.dtor_core@ameritech.net>
+	Tue, 23 Mar 2004 18:35:56 -0500
+Date: Tue, 23 Mar 2004 18:35:54 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: [PATCH] 2.6.3 Posix scheduling violation for !SCHED_OTHER
+Message-ID: <20040323233554.GA24010@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403231743.01642.dtor_core@ameritech.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew,
+ The following fixes a problem where a SCHED_FIFO task would on occasion
+be moved to the end of its runqueue when returned to from a preemption.
+Cause was do to some SCHED_OTHER code in schedule() which was being
+run for tasks of every policy.
 
-> > Also, in your model, where do messages printk()-ed from drivers during
-> > suspend/resume end up? Corrupting screen? Lost from sight and only
-> > accessible from dmesg? I believe driver messages *are* important, and
-> > do not see how they could coexist with eye-candy.
-> > 
-> Well, unless these are error messages that prevent machine from suspending/
-> resuming they are really just another form of eye-candy, nothing more,
-> nothing less.
+Regards,
+Joe
 
-Well, I'd hate
 
-Nov 10 00:37:51 amd kernel: Buffer I/O error on device sr0, logical block 842340
-Nov 10 00:37:53 amd kernel: end_request: I/O error, dev sr0, sector 6738472
-
-to be obscured by progress bar.
-
-									Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--- 2.6.3/kernel/sched.c.orig	2004-02-17 22:59:10.000000000 -0500
++++ 2.6.3/kernel/sched.c	2004-03-23 18:34:19.000000000 -0500
+@@ -1677,7 +1677,7 @@
+ 	queue = array->queue + idx;
+ 	next = list_entry(queue->next, task_t, run_list);
+ 
+-	if (next->activated > 0) {
++	if (!rt_task(next) && next->activated > 0) {
+ 		unsigned long long delta = now - next->timestamp;
+ 
+ 		if (next->activated == 1)

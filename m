@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbUJaWRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbUJaWla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbUJaWRt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 17:17:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbUJaWRt
+	id S261672AbUJaWla (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 17:41:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUJaWla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 17:17:49 -0500
-Received: from quechua.inka.de ([193.197.184.2]:9346 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261326AbUJaWRn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 17:17:43 -0500
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: [PATCH] Serial updates
-Date: Sun, 31 Oct 2004 23:26:07 +0100
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-Message-Id: <pan.2004.10.31.22.26.06.750412@dungeon.inka.de>
-References: <20041031175114.B17342@flint.arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
+	Sun, 31 Oct 2004 17:41:30 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:37846 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261672AbUJaWl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 17:41:28 -0500
+Message-ID: <41856AF8.8020200@ens-lyon.fr>
+Date: Sun, 31 Oct 2004 23:45:12 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+To: Pavel Machek <pavel@suse.cz>
+Cc: vojtech@suse.cz, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Map extra keys on compaq evo
+References: <20041031213859.GA6742@elf.ucw.cz>
+In-Reply-To: <20041031213859.GA6742@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have trouble with smart card readers and smart cards,
-and somehow I think it might be kernel 2.6.*,
-as people with the same hw and sw report no problems
-with kernel 2.4.
+Works great on my Compaq Evo N600c (not 620).
 
-Should I try this patch? anything in it that could help
-me? or are there known problems?
+Thanks a lot.
+-- 
+Brice Goglin
+================================================
+Ph.D Student
+Laboratoire de l'Informatique et du Parallélisme
+CNRS-ENS Lyon-INRIA-UCB Lyon
+France
 
-In an strace I saw a poll/read loop read data and
-got 8 bytes at a time. once it 16 bytes were lost.
-I can't reproduce the errors, but they happen very
-often (in every run of the regression test suite
-I have).
 
-I have no idea if my kernel config could have
-anything to do with it, if it helps I will
-post/link it.
 
-Andreas
-
+Pavel Machek wrote:
+> Hi!
+> 
+> Compaq Evo notebooks seem to use non-standard keycodes for their extra
+> keys. I workaround that quirk with dmi hook.
+> 
+> I think that number of such workarounds neccessary should be
+> reasonably small (like one for each manufacturer), and therefore this
+> would be good thing...
+> 								Pavel

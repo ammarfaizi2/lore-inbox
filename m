@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264905AbSJOV1m>; Tue, 15 Oct 2002 17:27:42 -0400
+	id <S264924AbSJOVi1>; Tue, 15 Oct 2002 17:38:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264906AbSJOV1m>; Tue, 15 Oct 2002 17:27:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:65448 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264905AbSJOV1e>;
-	Tue, 15 Oct 2002 17:27:34 -0400
-Date: Tue, 15 Oct 2002 14:26:17 -0700 (PDT)
-Message-Id: <20021015.142617.14648123.davem@redhat.com>
-To: maxk@qualcomm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export sockfd_lookup function
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20021015142910.051af2e8@mail1.qualcomm.com>
-References: <5.1.0.14.2.20021015142910.051af2e8@mail1.qualcomm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S264926AbSJOVi0>; Tue, 15 Oct 2002 17:38:26 -0400
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:13337 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S264925AbSJOVi0>; Tue, 15 Oct 2002 17:38:26 -0400
+Date: Tue, 15 Oct 2002 22:44:20 +0100
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
+Subject: Re: [PATCH] Device-mapper submission 6/7
+Message-ID: <20021015214420.GA28738@fib011235813.fsnet.co.uk>
+References: <20021015175858.GA28170@fib011235813.fsnet.co.uk> <3DAC5B47.7020206@pobox.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DAC5B47.7020206@pobox.com>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-   Date: Tue, 15 Oct 2002 14:31:32 -0700
-   
-   Any comments on that one ?
+On Tue, Oct 15, 2002 at 02:15:35PM -0400, Jeff Garzik wrote:
+> >[Device mapper]
+> >Provide a traditional ioctl based interface to control device-mapper
+> >from userland.
+>
+>
+> If you're adding a new interface, there should be no need to add new
+> ioctls and all that they entail.  Just control via a ramfs-based fs...
 
-I'm pretty sure I'll apply it.
+We originally did have a fs based interface written by Steve
+Whitehouse.  However at the time (about a year ago) it wasn't obvious
+that everyone would think it a good idea.  Also the code was
+significantly larger than the ioctl interface.  I would be more than
+happy to do away with the ioctl stuff if people are now in full
+agreement that an fs interface is the way to go.
+
+    Joe

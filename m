@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129171AbQKFW7S>; Mon, 6 Nov 2000 17:59:18 -0500
+	id <S129213AbQKFXPT>; Mon, 6 Nov 2000 18:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129463AbQKFW7H>; Mon, 6 Nov 2000 17:59:07 -0500
-Received: from hibernia.clubi.ie ([212.17.32.129]:33670 "EHLO
-	fogarty.jakma.org") by vger.kernel.org with ESMTP
-	id <S129171AbQKFW67>; Mon, 6 Nov 2000 17:58:59 -0500
-Date: Mon, 6 Nov 2000 23:00:05 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Paul Jakma <paulj@itg.ie>, David Woodhouse <dwmw2@infradead.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, Dan Hollis <goemon@anime.net>,
-        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <E13steq-0006d5-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0011062258010.6280-100000@fogarty.jakma.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129496AbQKFXPJ>; Mon, 6 Nov 2000 18:15:09 -0500
+Received: from quicksilver.ukc.ac.uk ([129.12.21.11]:4768 "EHLO
+	quicksilver.ukc.ac.uk") by vger.kernel.org with ESMTP
+	id <S129213AbQKFXO7>; Mon, 6 Nov 2000 18:14:59 -0500
+Date: Mon, 6 Nov 2000 23:14:56 +0000
+From: Adam Sampson <ats1@ukc.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: non-gcc linux?
+Message-ID: <20001106231456.A14197@cartman.ukc.ac.uk>
+Reply-To: azz@gnu.org
+Mail-Followup-To: Adam Sampson <ats1@ukc.ac.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <fa.fvk85sv.1oigpiv@ifi.uio.no> <fa.cq7bdsv.gggbio@ifi.uio.no> <ylu29mey6f.fsf@windlord.stanford.edu> <3A0602E9.D59F2E50@Rikers.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3A0602E9.D59F2E50@Rikers.org>; from Tim@Rikers.org on Sun, Nov 05, 2000 at 06:01:29PM -0700
+X-Homepage: http://cider.bnet-ibb.de/~azz/
+X-Planation: RSA in 2 lines Perl: see http://dcs.ex.ac.uk/~aba/x.html
+X-Munition-Export: print pack"C*",split/\D+/,`echo "16iII*o\U@{$/=$z;[(pop,pop,unpack"H*",<>)]}\EsMsKsN0[lN*1lK[d2%Sa2/d0<X+d*lMLa^*lN%0]dsXx++lMlN/dsM0<J]dsJxp"|dc`
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, Alan Cox wrote:
-> Its called modules.conf. It has all these nice preload directives in it
+On Sun, Nov 05, 2000 at 06:01:29PM -0700, Tim Riker wrote:
+> In short the impact of adding code to gcc that is not copyright FSF is
+> minimal. Only the FSF copyrighted code would be defensible by the FSF. Any
+> other code GPL violations would be the responsibility of the copyright
+> owners to defend.
 
-cool..
+Just as a minor point: pro64 _does_ use GCC code. It's effectively the GCC
+frontend stuck together with the SGI backend, with a translation layer in
+the middle to translate between the intermediate code formats that the two
+compilers use. There are some fairly entertaining "this is a gruesome hack"
+comments in the source code.
 
-doesn't seem to be documented though in modutils 2.3.17. what exactly
-does it do?
-
-regards,
 -- 
-Paul Jakma	paul@clubi.ie
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-I finally went to the eye doctor.  I got contacts.  I only need them to
-read, so I got flip-ups.
-		-- Steven Wright
+
+Adam Sampson
+azz@gnu.org
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

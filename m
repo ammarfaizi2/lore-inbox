@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVA3Qzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVA3Q7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVA3Qzd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 11:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVA3Qzc
+	id S261733AbVA3Q7p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 11:59:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVA3Q7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 11:55:32 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:32506 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261728AbVA3QzZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 11:55:25 -0500
-Date: Mon, 31 Jan 2005 01:55:16 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.11-rc2-mm2] mips: fixed restore_sigcontext
-Message-Id: <20050131015516.74aaba48.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 30 Jan 2005 11:59:44 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:47876
+	"HELO linuxace.com") by vger.kernel.org with SMTP id S261733AbVA3Q5D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 11:57:03 -0500
+Date: Sun, 30 Jan 2005 08:57:02 -0800
+From: Phil Oester <kernel@linuxace.com>
+To: "David S. Miller" <davem@davemloft.net>, Robert.Olsson@data.slu.se,
+       akpm@osdl.org, torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Memory leak in 2.6.11-rc1?
+Message-ID: <20050130165702.GA14642@linuxace.com>
+References: <20050127082809.A20510@flint.arm.linux.org.uk> <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127123326.2eafab35.davem@davemloft.net> <20050128001701.D22695@flint.arm.linux.org.uk> <20050127163444.1bfb673b.davem@davemloft.net> <20050128085858.B9486@flint.arm.linux.org.uk> <20050130132343.A25000@flint.arm.linux.org.uk> <20050130153449.B25000@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050130153449.B25000@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch had fixed restore_sigcontext about MIPS.
-This patch is only for 2.6.11-rc2-mm2.
+On Sun, Jan 30, 2005 at 03:34:49PM +0000, Russell King wrote:
+> I think the case against the IPv4 fragmentation code is mounting.
+> However, without knowing what the expected conditions for this code,
+> (eg, are skbs on the fraglist supposed to have NULL skb->dst?) I'm
+> unable to progress this any further.  However, I think it's quite
+> clear that there is something bad going on here.
 
-Yoichi
+Interesting...the gateway which exhibits the problem fastest in my
+area does have a large number of fragmented UDP packets running through it,
+as shown by tcpdump 'ip[6:2] & 0x1fff != 0'.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+> Why many more people aren't seeing this I've no idea.
 
-diff -urN -X dontdiff a-orig/arch/mips/kernel/signal-common.h a/arch/mips/kernel/signal-common.h
---- a-orig/arch/mips/kernel/signal-common.h	Mon Jan 31 00:42:13 2005
-+++ a/arch/mips/kernel/signal-common.h	Mon Jan 31 01:02:19 2005
-@@ -62,6 +62,7 @@
- restore_sigcontext(struct pt_regs *regs, struct sigcontext *sc)
- {
- 	int err = 0;
-+	unsigned int used_math;
- 
- 	/* Always make any pending restarted system calls return -EINTR */
- 	current_thread_info()->restart_block.fn = do_no_restart_syscall;
-@@ -86,7 +87,7 @@
- 	restore_gp_reg(31);
- #undef restore_gp_reg
- 
--	err |= __get_user(!!used_math(), &sc->sc_used_math);
-+	err |= __get_user(used_math, &sc->sc_used_math);
- 	conditional_used_math(used_math);
- 
- 	preempt_disable();
+Perhaps you (and I) experience more fragments than the average user???
 
+Nice detective work!
+
+Phil

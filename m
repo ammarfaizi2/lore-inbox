@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbTJ1XmR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 18:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbTJ1XmR
+	id S261755AbTJ1Xkr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 18:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTJ1Xkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 18:42:17 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:14609 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S261779AbTJ1XmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 18:42:15 -0500
-Message-ID: <3F9EFF26.2050001@snapgear.com>
-Date: Wed, 29 Oct 2003 09:43:34 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.0-test9-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Oct 2003 18:40:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3310 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261755AbTJ1Xkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 18:40:46 -0500
+Date: Wed, 29 Oct 2003 00:40:41 +0100
+From: Jan Kara <jack@suse.cz>
+To: Jan Kara <jack@suse.cz>, linux-kernel@vger.kernel.org,
+       Alex Lyashkov <shadow@itt.net.ru>
+Subject: Re: Linux 2.4 quota (accounting?) bug ...
+Message-ID: <20031028234037.GB29342@atrey.karlin.mff.cuni.cz>
+References: <20031025162640.GA24020@DUK2.13thfloor.at> <20031025163128.GA20786@atrey.karlin.mff.cuni.cz> <20031025174225.GB24020@DUK2.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031025174225.GB24020@DUK2.13thfloor.at>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
 
-An update of the uClinux (MMU-less) fixups against 2.6.0-test9.
-No real changes over linux-2.6.0-test8-uc0 just generated
-and tested against test9.
+  Hi,
+> On Sat, Oct 25, 2003 at 06:31:28PM +0200, Jan Kara wrote:
+> >   Hi,
+> > 
+> > > a friend of mine, made me aware of the following
+> > > imbalance, which looks like a minor accounting bug 
+> > > to me, but might be a quota bug ...
+> >   Sorry but the code seems correct to me - we get reference to dquot by
+> > get_dquot_ref() and than we put the reference by dqput(). dqput() is
+> > correct because something nasty might happen in the mean time and so we
+> > might be the last holders of the dquot. What do you think is wrong?
+> 
+> dqput() does dqstats.drops++;
+> which isn't correct if this should be the same as
+> put_dquot_ref(), but maybe I'm just irritated by 
+> strange statistics on some kernels showing more
+> drops than lookups+allocated after sync/quotaoff
+  Oh, now I see... At first I didn't understand that the problem is in
+the quota statistics. I'll fix that.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.0-test9-uc0.patch.gz
-
-As usual I will break up and send important bug fixes to Linus...
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+							Honza

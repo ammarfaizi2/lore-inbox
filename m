@@ -1,19 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbUKQLW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbUKQL1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbUKQLW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 06:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbUKQLWZ
+	id S262264AbUKQL1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 06:27:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbUKQL1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 06:22:25 -0500
-Received: from imap.gmx.net ([213.165.64.20]:51384 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262202AbUKQLWW (ORCPT
+	Wed, 17 Nov 2004 06:27:16 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:42461 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262264AbUKQL1N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 06:22:22 -0500
-X-Authenticated: #4399952
-Date: Wed, 17 Nov 2004 12:23:18 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: john cooper <john.cooper@timesys.com>
-Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
+	Wed, 17 Nov 2004 06:27:13 -0500
+Date: Wed, 17 Nov 2004 13:28:14 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: john cooper <john.cooper@timesys.com>, "K.R. Foley" <kr@cybsft.com>,
        Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
        Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
        Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
@@ -23,41 +22,36 @@ Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
        Karsten Wiese <annabellesgarden@yahoo.de>,
        Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
        Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Stefan Schweizer <sschweizer@gmail.com>,
-       john cooper <john.cooper@timesys.com>
+       Stefan Schweizer <sschweizer@gmail.com>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
-Message-ID: <20041117122318.479805fa@mango.fruits.de>
-In-Reply-To: <419A961A.2070005@timesys.com>
-References: <OFE5FC77BB.DA8F1FAE-ON86256F4E.0058C5CF-86256F4E.0058C604@raytheon.com>
-	<20041116184315.GA5492@elte.hu>
-	<419A5A53.6050100@cybsft.com>
-	<20041116212401.GA16845@elte.hu>
-	<20041116222039.662f41ac@mango.fruits.de>
-	<20041116223243.43feddf4@mango.fruits.de>
-	<20041116224257.GB27550@elte.hu>
-	<20041116230443.452497b9@mango.fruits.de>
-	<20041116231145.GC31529@elte.hu>
-	<20041116235535.6867290d@mango.fruits.de>
-	<20041117002926.32a4b26f@mango.fruits.de>
-	<419A961A.2070005@timesys.com>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Message-ID: <20041117122814.GA24668@elte.hu>
+References: <20041116212401.GA16845@elte.hu> <20041116222039.662f41ac@mango.fruits.de> <20041116223243.43feddf4@mango.fruits.de> <20041116224257.GB27550@elte.hu> <20041116230443.452497b9@mango.fruits.de> <20041116231145.GC31529@elte.hu> <20041116235535.6867290d@mango.fruits.de> <20041117002926.32a4b26f@mango.fruits.de> <419A961A.2070005@timesys.com> <20041117122318.479805fa@mango.fruits.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041117122318.479805fa@mango.fruits.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004 19:06:50 -0500
-john cooper <john.cooper@timesys.com> wrote:
 
-> > Arr, it did lock up again. This time i was in X, so i couldn't use any sysrq
-> > stuff to see something. Will try tomorrow again..
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
+
+> > Was this random or under some particular stress/load?
 > 
-> Was this random or under some particular stress/load?
+> I had rtc_wakeup running with a rtc frequency of 8192 hz at the time
+> plus some general usage (reading mails, etc..) In earlier kernels it
+> seemed that the lock fell together with the rtc IRQ being piggy. will
+> try to reproduce now with the freshest RP kernel.
 
-I had rtc_wakeup running with a rtc frequency of 8192 hz at the time plus
-some general usage (reading mails, etc..) In earlier kernels it seemed that
-the lock fell together with the rtc IRQ being piggy. will try to reproduce
-now with the freshest RP kernel.
+i've just uploaded the -28-0 kernel with a couple of robustness updates,
+could you try that one?
 
-flo
+	Ingo

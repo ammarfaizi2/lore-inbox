@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263733AbUC3Pjz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:39:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbUC3Pjy
+	id S263729AbUC3PkC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:40:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbUC3PkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:39:54 -0500
-Received: from mail.kroah.org ([65.200.24.183]:65232 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263733AbUC3Pid (ORCPT
+	Tue, 30 Mar 2004 10:40:01 -0500
+Received: from ida.rowland.org ([192.131.102.52]:3588 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S263729AbUC3Pi7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:38:33 -0500
-Date: Tue, 30 Mar 2004 07:26:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.5-rc3
-Message-ID: <20040330152629.GA22077@kroah.com>
-References: <Pine.LNX.4.58.0403292129200.1096@ppc970.osdl.org> <40690B84.7060203@cornell.edu> <40690DC3.2060302@cornell.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40690DC3.2060302@cornell.edu>
-User-Agent: Mutt/1.5.6i
+	Tue, 30 Mar 2004 10:38:59 -0500
+Date: Tue, 30 Mar 2004 10:38:57 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>,
+       <viro@math.psu.edu>, <maneesh@in.ibm.com>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Unregistering interfaces
+In-Reply-To: <20040330000129.GA31667@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0403301013460.1072-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 01:03:47AM -0500, Ivan Gyurdiev wrote:
-> 
-> >
-> >My binary-only proprietary unfree Nvidia driver is broken (and works on 
-> >2.6.4). What are some interesting changeset numbers to try to locate the 
-> >exact cause?
-> 
-> Just in case this is helpful:
-> 
-> Mar 29 17:23:15 cobra kernel: Badness in pci_find_subsys at 
-> drivers/pci/search.c:167
-> Mar 29 17:23:15 cobra kernel: Call Trace:
-> Mar 29 17:23:15 cobra kernel:  [pci_find_subsys+232/240] 
-> pci_find_subsys+0xe8/0xf0
+On Mon, 29 Mar 2004, Greg KH wrote:
 
-known b0rkage in the nvidia driver.  been this way for months.  see the
-archives for details.
+> On Mon, Mar 29, 2004 at 03:31:17PM -0800, Andrew Morton wrote:
+> > Greg KH <greg@kroah.com> wrote:
+> > >
+> > > > The module should remain in memory, "unhashed", until the final kobject
+> > > > reference falls to zero.  Destruction of that kobject causes the refcount
+> > > > on the module to fall to zero which causes the entire module to be
+> > > > released.
+> > > > 
+> > > > (hmm, the existence of a kobject doesn't appear to contribute to its
+> > > > module's refcount.  Why not?)
+> > > 
+> > > It does, if a file for that kobject is opened.  In this case, there was
+> > > no file opened, so the module refcount isn't incremented.
+> > 
+> > hm, surprised.  Shouldn't the existence of a kobject contribute to its
+> > module's refcount?
+> 
+> No, a kobject by itself knows nothing about a module.  Only the
+> attribute files do (and they are the things that contain the struct
+> module *), as they are what user space can grab references to.
 
-thanks,
+There's another reason.  Practically every module has kobjects registered
+all the time; they are not unregistered until the module's unload
+procedure runs.  If these kobjects contributed to the modules refcount
+then it would be impossible ever to rmmod the module without using the -f
+flag.
 
-greg k-h
+Furthermore, all the excess usage counts from those kobjects would swamp
+and hide the genuine usage counts (the ones that are displayed now).  The
+user would have no way to know whether rmmod -f would work or would hang.
+
+Alan Stern
+
+

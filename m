@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267882AbRGRN6r>; Wed, 18 Jul 2001 09:58:47 -0400
+	id <S267884AbRGROBH>; Wed, 18 Jul 2001 10:01:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267884AbRGRN6h>; Wed, 18 Jul 2001 09:58:37 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:22278
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S267882AbRGRN62>; Wed, 18 Jul 2001 09:58:28 -0400
-Date: Wed, 18 Jul 2001 09:57:56 -0400
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>, Andi Kleen <ak@suse.de>
-cc: Craig Soules <soules@happyplace.pdl.cmu.edu>, linux-kernel@vger.kernel.org
+	id <S267886AbRGROA5>; Wed, 18 Jul 2001 10:00:57 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:22937 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S267884AbRGROAs>; Wed, 18 Jul 2001 10:00:48 -0400
+Date: Wed, 18 Jul 2001 10:00:38 -0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: Craig Soules <soules@happyplace.pdl.cmu.edu>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org
 Subject: Re: NFS Client patch
-Message-ID: <177360000.995464676@tiny>
-In-Reply-To: <3B54B5F9.8484715F@namesys.com>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
+Message-ID: <20010718100037.A18393@cs.cmu.edu>
+Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
+	Craig Soules <soules@happyplace.pdl.cmu.edu>,
+	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96L.1010717180713.13980K-100000@happyplace.pdl.cmu.edu> <3B54BA7A.42B0E107@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <3B54BA7A.42B0E107@namesys.com>
+User-Agent: Mutt/1.3.18i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wednesday, July 18, 2001 02:02:33 AM +0400 Hans Reiser <reiser@namesys.com> wrote:
-
-> Andi Kleen wrote:
->> 
->> Craig Soules <soules@happyplace.pdl.cmu.edu> writes:
->> 
->> > Our system does automatic directory compaction through the use of a tree
->> > structure, and so the cookie needs to be invalidated.  Also, any other
->> > file system whicih does immediate directory compaction would require this.
->> 
->> Actually all the file systems who do that on Linux (JFS, XFS, reiserfs)
->> have fixed the issue properly server side, by adding a layer that generates
->> stable cookies. You should too.
->> 
-
-> I take issue with the word "properly".  We have bastardized our FS design to do it.  NFS should not
-> be allowed to impose stable cookie maintenance on filesystems, it violates layering.  Simply
-> returning the last returned filename is so simple to code, much simpler than what we have to do to
-> cope with cookies.  Linux should fix the protocol for NFS, not ask Craig to screw over his FS
-> design.  Not that I think that will happen.....
+On Wed, Jul 18, 2001 at 02:21:46AM +0400, Hans Reiser wrote:
+> Craig Soules wrote:
+> > Unfortunately to comply with NFSv2, the cookie cannot be larger than
+> > 32-bits.  I believe this oversight has been correct in later NFS versions.
+> > 
+> > I do agree that forcing the underlying fs to "fix" itself for NFS is the
+> > wrong solution. I can understand their desire to follow unix semantics
+> > (although I don't entirely agree with them), so until I think up a more
+> > palatable solution for the linux community, I will just keep my patches to
+> > myself :)
+> > 
+> > Craig
 > 
+> 64 bits as in NFS v4 is still not large enough to hold a filename.
+> For practical reasons, ReiserFS does what is needed to work with NFS,
+> but what is needed bad design features, and any FS designer who
+> doesn't feel the need to get along with NFS should not have acceptance
+> of bad design be made a criterion for the acceptance of his patches.
+> Just let NFS not work for Craig's FS, what is the problem with that?
 
-Well, returning the last filename won't do much for filesystems that don't
-have any directory indexes, but that's besides the point.  Could nfsv4 be
-better than it is?  probably.  Can we change older NFS protocols to have
-a linux specific hack that makes them more filesystem (or at least reiserfs)
-friendly?  probably.
+Those 64-bits could be used for a simple hash to identify the filename.
 
-NFS is what it is, good and bad.  People use it because it fits their setup
-better than the others, so the filesystems need to cater to it, exactly
-because it has such a large cross platform user base.  Linux specific mods
-take away from that cross platform base.
+In any case, what happens if the file was renamed or removed between the
+2 readdir calls. A cookie identifying a name that was returned last, or
+should be read next is just as volatile as a cookie that contains an
+offset into the directory.
 
--chris
+Jan
 

@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265474AbUGDI3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265484AbUGDIoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265474AbUGDI3r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 04:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbUGDI3q
+	id S265484AbUGDIoU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 04:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUGDIoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 04:29:46 -0400
-Received: from verein.lst.de ([212.34.189.10]:47838 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S265474AbUGDI3p (ORCPT
+	Sun, 4 Jul 2004 04:44:20 -0400
+Received: from tag.witbe.net ([81.88.96.48]:64960 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S265484AbUGDIoT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 04:29:45 -0400
-Date: Sun, 4 Jul 2004 10:29:38 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: current BK compilation failure on ppc32
-Message-ID: <20040704082938.GA14313@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Linus Torvalds <torvalds@osdl.org>, pavel@ucw.cz,
-	linux-kernel@vger.kernel.org
-References: <20040703185606.GA4718@lst.de> <Pine.LNX.4.58.0407031439240.15998@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407031439240.15998@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00,UPPERCASE_25_50
+	Sun, 4 Jul 2004 04:44:19 -0400
+Message-Id: <200407040844.i648iGX08954@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Milton Miller'" <miltonm@bga.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Init single and Serial console : How to ?
+Date: Sun, 4 Jul 2004 10:44:12 +0200
+Organization: AS2917
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <69CB182A-CD80-11D8-9463-003065DC03B0@bga.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcRhjVuzRXfSNJIcTXmDxEmE4pNeFQAFYrpA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Don't do it like that.
+Hi Milton,
 > 
-> Instead, do something like
-> 
-> 	smp-power-$(CONFIG_SMP)	+= smp.o
-> 	obj-$(CONFIG_SOFTWARE_SUSPEND) += $(smp-power-y)
-> 
-> which not only is shorter, but gets a _lot_ more readable after a while.
+> Not quite single mode, but what I have done in similar situations is 
+> boot with
+> console=ttyS0 init=/bin/sh
 
-New patch below:
+Should do the trick. Single mode was good because it was not running
+rl 3 init-scripts.
+Not running any of them is good too :-)
+The trick was to have the serial console/shell without having to
+go thru the ioctlsave stuff.
 
 
---- 1.10/kernel/power/Makefile	2004-07-02 07:23:47 +02:00
-+++ edited/kernel/power/Makefile	2004-07-04 12:21:57 +02:00
-@@ -1,6 +1,8 @@
-+
-+swsusp-smp-$(CONFIG_SMP)	+= smp.o
-+
- obj-y				:= main.o process.o console.o pm.o
--obj-$(CONFIG_SMP)		+= smp.o
--obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o
-+obj-$(CONFIG_SOFTWARE_SUSPEND)	+= swsusp.o $(swsusp-smp-y)
- obj-$(CONFIG_PM_DISK)		+= disk.o pmdisk.o
- 
- obj-$(CONFIG_MAGIC_SYSRQ)	+= poweroff.o
+Regards,
+Paul
+

@@ -1,106 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265902AbTLaA3h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 19:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbTLaA3e
+	id S265916AbTLaAuw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 19:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265917AbTLaAuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 19:29:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29343 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265877AbTLaA3c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 19:29:32 -0500
-Subject: Re: [PATCH linux-2.6.0-test10-mm1] dio-read-race-fix
-From: Daniel McNeil <daniel@osdl.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Janet Morgan <janetmor@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20031230045334.GA3484@in.ibm.com>
-References: <3FCD4B66.8090905@us.ibm.com>
-	 <1070674185.1929.9.camel@ibm-c.pdx.osdl.net>
-	 <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
-	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
-	 <20031230045334.GA3484@in.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1072830557.712.49.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Dec 2003 16:29:17 -0800
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Dec 2003 19:50:52 -0500
+Received: from [24.35.117.106] ([24.35.117.106]:34944 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265916AbTLaAuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 19:50:51 -0500
+Date: Tue, 30 Dec 2003 19:50:24 -0500 (EST)
+From: Thomas Molina <tmolina@cablespeed.com>
+X-X-Sender: tmolina@localhost.localdomain
+To: Linus Torvalds <torvalds@osdl.org>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 performance problems
+In-Reply-To: <Pine.LNX.4.58.0312301318540.2065@home.osdl.org>
+Message-ID: <Pine.LNX.4.58.0312301938060.3193@localhost.localdomain>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
+ <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
+ <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
+ <Pine.LNX.4.58.0312291502210.1586@home.osdl.org>
+ <Pine.LNX.4.58.0312300903170.2825@localhost.localdomain>
+ <20031230143929.GN27687@holomorphy.com> <Pine.LNX.4.58.0312301524220.3152@localhost.localdomain>
+ <Pine.LNX.4.58.0312301318540.2065@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-12-29 at 20:53, Suparna Bhattacharya wrote:
-> On Thu, Dec 11, 2003 at 04:51:33PM -0800, Daniel McNeil wrote:
-> > I've done more testing with added debug code.
-> > 
-> > It looks like the filemap_write_and_wait() call is returning
-> > with data that has not made it disk.
-> > 
-> > I added code to filemap_write_and_wait() to check if
-> > mapping->dirty_pages is not empty after calling filemap_fdatawrite()
-> > and filemap_fdatawait() and retry.  Even with the retry, the test still
-> > sees uninitialized data when running tests overnight (I added a printk
-> > so I know the retry is happening).  There are pages left on the
-> > dirty_pages list even after the write and wait.   
+On Tue, 30 Dec 2003, Linus Torvalds wrote:
+> Ok. This looks much closer to the 2.4.x numbers you reported:
 > 
-> There are two calls to filemap_write_and_wait() for a DIO read
-> -- do you know in which if these cases you see dirty pages after
-> the write and wait ? The first is called without i_sem protection,
-> so it is possible for pages to be dirtied by a parallel buffered
-> write which is OK because this is just an extra/superfluous call 
-> when it comes to DIO reads. The second call, however happens with i_sem 
-> held and is used to guarantee that there are no exposures, so if 
-> you are seeing remant dirty pages in this case it would be something 
-> to worry about.
+> 	real    13m50.198s
+> 	user    0m33.780s
+> 	sys     0m15.390s
 > 
+> so I assume that we can consider this problem largely solved? There's 
+> still some difference, that could be due to just VM tuning.. 
+> 
+> I suspect that what happened is:
+>  - slab debugging adds a heavy CPU _and_ it also makes all the slab caches 
+>    much less dense.
+>  - as a result, you see much higher system times, and you also end up 
+>    needing much more memory for things like the dentry cache, so your 
+>    memory-starved machine ended up swapping a lot more too.
 
-Yes there are two calls.  I'm assuming that the retry was caused by the
-call w/o holding the i_sem, since pages can be dirtied in parallel.
+So you are telling me that I am paying the price for running development 
+kernels and enabling all the debugging.  I enjoy running the development 
+stuff and testing new stuff.  I enabled all the kernel hacking and 
+debugging options with the idea it might be useful for testing purposes.  
 
-My debug output shows every filemap_write_and_wait() and which pages are
-on the dirty, io, and locked list and which pages are on the clean list
-after the wait. (yes, this is lots of output)
-
-I changed the test a little bit -- if the test sees non-zero data, it
-opens a new file descriptor and re-reads the data without O_DIRECT and
-also re-reads the 1st page of the non-zero data using O_DIRECT.
-
-What the debug output shows is:
-
-The 1st filemap_write_and_wait() writes out some data.
-
-The 2nd filemap_write_and_wait() sees different dirty pages.  The pages
-  that are seen non-zero by the test (many pages -- 243 in one case) are
-  on the dirty_pages list before the write and on the clean_pages list
-  after the wait.  But some of the pages at the end of the clean list,
-  are seen by the test program as non-zero.
-
-Since I added the DIO re-read, the debug output shows for the 2nd
-  re-read:
-
-the 1st filemap_write_and_wait() with NO dirty pages
-the 2nd filemap_write_and_wait() with dirty pages AFTER the pages
-  that mis-matched and the original plus these pages on the clean
-  list after the wait.
-
-The 2nd re-read and the read without O_DIRECT both get zeroed data.
-
-Conclusions:
-===========
-
-I'm not sure. :(
-
-It appears like the pages are put on the clean list and PG_writeback is
-cleared while the i/o is in flight and the DIO reads are put on the
-queue ahead of the writeback.
-
-I am trying to figure out how to add more debug code to prove this
-or figure out what else is going on.
-
-I'm open to suggestions.
-
-Daniel
-
+Disabling all the debugging stuff brings the numbers down, but things 
+still "feel" worse.  It's subjective, but there you are.  I'll continue to 
+test with whatever provides the most useful data.

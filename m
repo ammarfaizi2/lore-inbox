@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262835AbSI3SiZ>; Mon, 30 Sep 2002 14:38:25 -0400
+	id <S261177AbSI3Sng>; Mon, 30 Sep 2002 14:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262836AbSI3SiZ>; Mon, 30 Sep 2002 14:38:25 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:52496 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S262835AbSI3SiY>;
-	Mon, 30 Sep 2002 14:38:24 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200209301843.g8UIhjZ151770@saturn.cs.uml.edu>
-Subject: Re: [ANNOUNCE] procps 2.0.9
-To: linux-kernel@vger.kernel.org
-Date: Mon, 30 Sep 2002 14:43:45 -0400 (EDT)
-In-Reply-To: <Pine.LNX.4.44L.0209301357500.22735-100000@imladris.surriel.com> from "Rik van Riel" at Sep 30, 2002 01:59:56 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S261489AbSI3Sng>; Mon, 30 Sep 2002 14:43:36 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54031 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261177AbSI3Snf>; Mon, 30 Sep 2002 14:43:35 -0400
+Date: Mon, 30 Sep 2002 14:40:55 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: v2.6 vs v3.0
+In-Reply-To: <8Xq2wCX1w-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.3.96.1020930143803.20863D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Procps is the package containing various system monitoring tools, like
-> ps, top, vmstat, free, kill, sysctl, uptime and more.  After a long
-> period of inactivity procps maintenance is active again and suggestions,
-> bugreports and patches are always welcome on the procps list.
+On 30 Sep 2002, Kai Henningsen wrote:
 
-It should be mentioned that this is a fork off of an obsolete
-code base. I was keeping quiet in hopes of resolving the fork.
-Many of the "fixes" have been in Debian's procps for years.
+> One idea we've come up (and surely we're not the only ones) is to use  
+> cheap IDE disks for backup, possibly in a cold-swappable insert. As long  
+> as you can keep several backups per disk (say using some of those 100GB  
+> disks), preferrably even on a different machine, that's fairly cheap.
+> 
+> If you want to keep daily backups for a week, weekly for a year, and all  
+> on separate media, of course, that's *not* cheap with this method, and  
+> even DLT or similar prices become acceptable in comparision. But it  
+> certainly beats *no* backup!
 
-Debian's code has been fully maintained for years. It is
-available in CVS at SourceForge. Let us know what you think
-of the new "top" program.
+I do that, but it doesn't make for a storage medium I can easily use on
+another system. The cost of DVD writers is coming down, and non-magnetic
+media may have some advantages as well. Still, thay're small compared to
+disk sizes.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290841AbSAaCe6>; Wed, 30 Jan 2002 21:34:58 -0500
+	id <S290839AbSAaCfi>; Wed, 30 Jan 2002 21:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290839AbSAaCeq>; Wed, 30 Jan 2002 21:34:46 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44852 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S290838AbSAaCef>; Wed, 30 Jan 2002 21:34:35 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
+	id <S290840AbSAaCf0>; Wed, 30 Jan 2002 21:35:26 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:18659 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S290838AbSAaCfQ>;
+	Wed, 30 Jan 2002 21:35:16 -0500
+Date: Wed, 30 Jan 2002 21:35:14 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Keith Owens <kaos@ocs.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>
-	<a39ooh$lb3$1@cesium.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 30 Jan 2002 19:31:05 -0700
-In-Reply-To: <a39ooh$lb3$1@cesium.transmeta.com>
-Message-ID: <m14rl3ckuu.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
+Message-ID: <20020130213514.A22862@havoc.gtf.org>
+In-Reply-To: <20020130205714.B20698@havoc.gtf.org> <7661.1012442792@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <7661.1012442792@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, Jan 31, 2002 at 01:06:32PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-
-> Followup to:  <m1elk7d37d.fsf@frodo.biederman.org>
-> By author:    ebiederm@xmission.com (Eric W. Biederman)
-> In newsgroup: linux.dev.kernel
-> > 
-> > - Code at that entry point to query from the firmware/BIOS the
-> >   information the kernel needs.
-> > 
+On Thu, Jan 31, 2002 at 01:06:32PM +1100, Keith Owens wrote:
+> On Wed, 30 Jan 2002 20:57:14 -0500, 
+> Jeff Garzik <garzik@havoc.gtf.org> wrote:
+> >On Thu, Jan 31, 2002 at 12:51:50PM +1100, Keith Owens wrote:
+> >> tend not to live very long.  Christoph Hellwig suggested a Makefile
+> >> change that prevents kernel code including user space headers, it is
+> >> included in kbuild 2.5 and there is a 2.4 version in
+> >> 
+> >> http://marc.theaimsgroup.com/?l=linux-kernel&m=100321690511549&w=2
+> >
+> >Patch looks ok to me...  The only thing I wonder is if we should put
+> >kernel includes before gcc includes, just in case we want to override
+> >something.
 > 
-> How do you query from the 16-bit firmware/BIOS at the 32-bit
-> entrypoint?  Or is it that you have a table, fixed by protocol, of
-> what information is available (so we're basically fucked when
-> something needs to change)?
+> I doubt that is ever a good idea.  The kernel would have to track which
+> gcc was being used and work out what to override or duplicate.  Why
+> make the kernel any more sensitive to gcc than we have to?
 
-I drop back into real mode.  Run the existing query code, (I had to factor
-setup.S but the queries are 100% the same) and then I climb back to
-32bit mode.  But I do it from setup_arch() so if I don't have a
-pcbios, I can skip all that nasty busyness.
+The kernel often has special rules for and usage of gcc.
+Why -prevent- the flexibility of doing this?
 
-I did it the wrong way (fixed table) initially and after some
-conversations with you and some thinking I changed it around.
+As soon as a case appears when we might need to care about what the gcc
+headers are doing, we will want to do this anyway.
 
-There is nothing outside the ELF specification that needs to be used.
-All I depend on is having flat 32bit code and data segments, initially
-loaded in %cs and %ds.  So basically anyones x86 ELF bootloader should
-work.
 
-I have defined a fully optional table of tagged elements, so the
-bootloader can tell me what kind of firmware I have.  All it passes
-besides that is the bootloader name and the bootloader version.  So
-you must do the bios queries yourself.
+> >I would support putting this in the default cflags for 2.4 and 2.5...
+> 
+> --nostdinc is the default for kbuild 2.5.  I did not bother sending it
+> in for 2.4 because my kbuild 2.5 testing finds the naughty code anyway
+> and I send individual bug fixes for the offending files.  There is also
+> a risk of breaking existing third party code, I was not willing to take
+> that risk on a "stable" series like 2.4.
 
-Eric
+Understandable...  but I disagree :)
+
+First, we rarely bend over backwards for 3rd party code, and more
+importantly we should -never ever- do anything to assist and support
+bad code.
+
+	Jeff
+
+
+

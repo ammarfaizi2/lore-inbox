@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVCIV3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbVCIV7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262372AbVCIV3W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVCIVYk
+	id S262491AbVCIV7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:59:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVCIV5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:24:40 -0500
-Received: from animx.eu.org ([216.98.75.249]:53152 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S262473AbVCIVVH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:21:07 -0500
-Date: Wed, 9 Mar 2005 16:26:30 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050309212630.GB24278@animx.eu.org>
-Mail-Followup-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt> <Pine.LNX.4.62.0503091104180.22598@numbat.sonytel.be> <Pine.LNX.4.61.0503091014580.7496@student.dei.uc.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503091014580.7496@student.dei.uc.pt>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 9 Mar 2005 16:57:48 -0500
+Received: from fep19-0.kolumbus.fi ([193.229.0.45]:15098 "EHLO
+	fep19-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S262491AbVCIV5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:57:22 -0500
+Date: Wed, 9 Mar 2005 23:58:36 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make st seekable again
+In-Reply-To: <1110401474.3116.241.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0503092338300.6756@kai.makisara.local>
+References: <200503081911.j28JBlxi016013@hera.kernel.org>
+ <1110401474.3116.241.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcos D. Marado Torres wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Wed, 9 Mar 2005, Geert Uytterhoeven wrote:
-> 
-> >>>which is a patch against the 2.6.11.1 release.  If consensus arrives
-> >>>that this patch should be against the 2.6.11 tree, it will be done that
-> >>>way in the future.
-> >>
-> >>IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt
-> >>againt
-> >>the last -rc but against 2.6.x.
-> >
-> >It's a stable release, not a pre/rc, so against 2.6.11.1 sounds most 
-> >logical to
-> >me.
-> 
-> Well, yes, _if_ 2.6.12 patch is going to be to aply against 2.6.11.last 
-> instead
-> of 2.6.11. And, well, either one will cause great panic for hose who aren't 
-> and
-> the mailing lists and just visit kernel.org to downoad the latest stuff.
+On Wed, 9 Mar 2005, Alan Cox wrote:
 
-<mode="enduser">
-IMHO, as long as 2.6.12 patches against 2.6.11, I'm cool with 2.6.11.2
-patching against 2.6.11.1, but I think it should patch against 2.6.11
-instead
-</mode>
+> On Maw, 2005-03-08 at 17:25, Linux Kernel Mailing List wrote:
+> > ChangeSet 1.2030, 2005/03/08 09:25:05-08:00, kai.makisara@kolumbus.fi
+> > 
+> > 	[PATCH] make st seekable again
+> > 	
+> > 	Apparently `tar' errors out if it cannot perform lseek() against a tape.  Work
+> > 	around that in-kernel.
+> 
+> Unfortunately this isn't a good idea. Allowing tar to read the tape
+> position makes sense, allowing it to zero the position might but you
+> have to do major surgery on the driver first because
+> 
+> 1.	It doesn't use ppos
+> 2.	It doesn't do locking on the ppos at all
+> 
+> Also allowing apps to randomly seek and report "ok" when they are
+> backing up to tape and might really need to see the error is not what
+> I'd call stable, professional or quality code.
+> 
+The proper fix is to fix tar. I have sent an analysis of the problem and a 
+suggestion how to fix this to the bug-tar list on March 5 but it is still 
+waiting for moderator approval.
+
+While waiting for the application to be fixed, it was decided to restore 
+the old behaviour of the tape drivers.
+
+lseek on a tape is not a good fit (addressed by block, blocks on tape can 
+have any size, etc.). I don't know any Unix that would really implement 
+lseek on tapes but they usually don't return error. This is probably why 
+the tar bug has not been found earlier.
+
+There has been one useful way of using lseek() with tapes in some systems. 
+Those refuse reads and writes if the file pointer reaches 2 GB. Resetting 
+it with lseek(fd,0,0) now and then has allowed writing/reading more than 2 
+GB.
+
+I don't think implementing proper read-only lseek for tapes is worth the 
+trouble (reliable tracking of the current location is tricky). Purist 
+kernels can refuse lseeks. Pragmatic kernels can allow lseeks until 
+refusing those won't break common applications.
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Kai

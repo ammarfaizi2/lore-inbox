@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266205AbUGTT5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUGTUUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266205AbUGTT5X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 15:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUGTTmj
+	id S266243AbUGTUUb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 16:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUGTUTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:42:39 -0400
-Received: from amsfep18-int.chello.nl ([213.46.243.13]:54295 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266153AbUGTSjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 14:39:46 -0400
-Date: Tue, 20 Jul 2004 20:39:44 +0200
-Message-Id: <200407201839.i6KIdiWb015510@anakin.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <greg@kroah.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] depends on PCI: VIA686A i2c
+	Tue, 20 Jul 2004 16:19:09 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:59578 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S266257AbUGTURf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 16:17:35 -0400
+Date: Tue, 20 Jul 2004 22:17:32 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Shesha Sreenivasamurthy <shesha@inostor.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'kernelnewbies@nl.linux.org'" <kernelnewbies@nl.linux.org>
+Subject: Re: O_DIRECT
+Message-ID: <20040720201732.GA1985@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Shesha Sreenivasamurthy <shesha@inostor.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'kernelnewbies@nl.linux.org'" <kernelnewbies@nl.linux.org>
+References: <40FD561D.1010404@inostor.com> <20040720184824.GA30090@outpost.ds9a.nl> <40FD6FCB.5020408@inostor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40FD6FCB.5020408@inostor.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VIA686A i2c unconditionally depends on PCI
+On Tue, Jul 20, 2004 at 12:17:31PM -0700, Shesha Sreenivasamurthy wrote:
+> Thank you very much Hubert.
+> 
+> Regarding my second question, what I mean is, to calculate the soft 
+> block size of a partition on which there is no filesystem created, I am 
+> using the IOCTL "BLKBSZGET".
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Sure - but what do you need this blocksize for?
 
---- linux-2.6.8-rc2/drivers/i2c/chips/Kconfig	2004-07-18 15:55:14.000000000 +0200
-+++ linux-m68k-2.6.8-rc2/drivers/i2c/chips/Kconfig	2004-07-19 18:20:16.000000000 +0200
-@@ -193,7 +193,7 @@
- 
- config SENSORS_VIA686A
- 	tristate "VIA686A"
--	depends on I2C && EXPERIMENTAL
-+	depends on I2C && PCI && EXPERIMENTAL
- 	select I2C_SENSOR
- 	select I2C_ISA
- 	help
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,35 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbULFKxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbULFLAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbULFKxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 05:53:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbULFKxQ
+	id S261489AbULFLAX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 06:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbULFLAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 05:53:16 -0500
-Received: from math.ut.ee ([193.40.5.125]:59072 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261491AbULFKxN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 05:53:13 -0500
-Date: Mon, 6 Dec 2004 12:53:11 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: ACPI PnP errors
-Message-ID: <Pine.SOC.4.61.0412061251570.25485@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 6 Dec 2004 06:00:23 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:30937 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261489AbULFLAQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 06:00:16 -0500
+Date: Mon, 6 Dec 2004 16:32:46 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, rusty@au1.ibm.com, ak@suse.de,
+       gareth@valinux.com, davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Strange code in cpu_idle()
+Message-ID: <20041206110246.GA5303@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20041204231149.GA1591@us.ibm.com> <Pine.LNX.4.61.0412060244350.1036@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0412060244350.1036@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the same Toshiba Satellite 1800-314 laptop that I debugged 
-smsc-ircc2 pnp activation on. This time it's plain 2.6.10-rc3 and it 
-gives theses errors in dmesg but seems to work:
+Hello Zwane,
 
-pnp: PnP ACPI init
-acpi_bus-0081 [03] acpi_bus_get_device   : Error getting context for object [cefcba48]
-acpi_bus-0081 [03] acpi_bus_get_device   : Error getting context for object [cefcb888]
-acpi_bus-0081 [03] acpi_bus_get_device   : Error getting context for object [cefcb608]
-acpi_bus-0081 [03] acpi_bus_get_device   : Error getting context for object [cefcb548]
-acpi_bus-0081 [03] acpi_bus_get_device   : Error getting context for object [cefcb488]
-pnp: PnP ACPI: found 13 devices
+On Mon, Dec 06, 2004 at 02:47:11AM -0700, Zwane Mwaikambo wrote:
+> Hello Paul,
+> 
+> On Sat, 4 Dec 2004, Paul E. McKenney wrote:
+> 
+> > Unless idle_cpu() is busted, it seems like the above is, given the code in
+> > rcu_check_callbacks():
+> > 
+> > 	void rcu_check_callbacks(int cpu, int user)
+> > 	{
+> > 		if (user || 
+> > 		    (idle_cpu(cpu) && !in_softirq() && 
+> > 					hardirq_count() <= (1 << HARDIRQ_SHIFT))) {
+> > 			rcu_qsctr_inc(cpu);
+> > 			rcu_bh_qsctr_inc(cpu);
+> > 		} else if (!in_softirq())
+> > 			rcu_bh_qsctr_inc(cpu);
+> > 		tasklet_schedule(&per_cpu(rcu_tasklet, cpu));
+> > 	}
+> > 
+> > So I would say that the rcu_read_lock() in cpu_idle() is having no
+> > effect, because any timer interrupt from cpu_idle() will mark a
+> > quiescent state notwithstanding.  What am I missing here?
+> 
+> What about the hardirq_count check since we're coming in from the timer 
+> interrupt?
 
--- 
-Meelis Roos (mroos@linux.ee)
+Look at the hardirq_count check closely - it only checks for reentrant
+hardirqs. If the idle task gets interrupted by a timer interrupt,
+the RCU quiscent state counter for the cpu will get incremented.
+So, rcu_read_lock() in cpu_idle() is bogus.
+
+Thanks
+Dipankar

@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbUCBSGb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 13:06:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbUCBSGa
+	id S261725AbUCBSFG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 13:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbUCBSFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 13:06:30 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:35351 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261727AbUCBSG2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 13:06:28 -0500
-Date: Tue, 2 Mar 2004 19:07:30 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dave Dillow <dave@thedillows.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Is the 2.6 dependency information complete? Doesn't look so...
-Message-ID: <20040302180730.GD2135@mars.ravnborg.org>
-Mail-Followup-To: Dave Dillow <dave@thedillows.org>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040229235150.GA6327@merlin.emma.line.org> <20040301060859.GA2129@mars.ravnborg.org> <1078163528.22900.17.camel@dillow.idleaire.com>
-Mime-Version: 1.0
+	Tue, 2 Mar 2004 13:05:06 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27540 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261725AbUCBSE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 13:04:58 -0500
+To: hpa@zytor.com (H. Peter Anvin)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH] 2.6.4-rc1 remove x86 boot page tables
+References: <m1vflp81kq.fsf@ebiederm.dsl.xmission.com>
+	<c21amp$769$1@terminus.zytor.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 02 Mar 2004 10:56:46 -0700
+In-Reply-To: <c21amp$769$1@terminus.zytor.com>
+Message-ID: <m1y8qj3zfl.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1078163528.22900.17.camel@dillow.idleaire.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 01, 2004 at 12:52:08PM -0500, Dave Dillow wrote:
-> 
-> Also, the changesets at bk://typhoon.bkbits.net/autoget-2.5 add
-> functionality to kbuild to checkout needed files automatically, as the
-> build progresses -- no more 'bk get' needed...
-> 
-> I haven't kept it up to date, but I doubt it'd need many changes to work
-> with a recent kernel. It's currently BK/SCCS specific, but I do not
-> think it would be hard to make it work with other version control
-> systems, as long as make supports them.
-> 
-> Since you do so much in kbuild, I'd love some comments on it, if you
-> have time.
+hpa@zytor.com (H. Peter Anvin) writes:
 
-I have pulled the tree, and the getfiles script and Makefile.repo is easy to spot.
-Could you drop a mail with the rest of your changes as a regular patch?
+> Followup to:  <m1vflp81kq.fsf@ebiederm.dsl.xmission.com>
+> By author:    ebiederm@xmission.com (Eric W. Biederman)
+> In newsgroup: linux.dev.kernel
+> > 
+> > I think I have accounted for the sub architectures but I don't have
+> > the hardware to test them.  For voyager and VISWS I actually changed
+> > some code so I would appreciate a confirmation I didn't break
+> > anything.  
+> > 
+> 
+> For VISWS I think you actually need to turn paging off explicitly.
 
-I will then try to look through what you made - but my first impression is that this
-is by far too much overhead just to replace an "bk -r co -Sq".
+Hmm.  I will look at that.
 
-	Sam
+> Also, you probably need to check that you didn't break 4G/4G,
+> especially on SMP.
+
+The patch will need a few tweaks but it should be fairly straight forward.
+
+> I would also like to remove the magic %bx, which I did in the version
+> of my patch sent to akpm and which is now in -mm (basically the SMP
+> trampoline jumps to a different entrypoint instead.)  In that patch,
+> %ebx is still used as a flag, but it's completely internal to head.S.
+
+Ok I have not seen that one.  In this case there was enough common
+code that it seemed reasonable to reuse it.  I managed to reduce
+the code to two tests.  With just a bit of care I suspect I could
+remove the tests completely.
+ 
+> See ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/earlymem-7.diff
+> 
+> > Thanks to HPA who got the ball started :)
+> 
+> :)
+> 
+> I definitely agree that simply using no paging until we have page
+> tables is by far the cleanest approach.  I felt that is was too high
+> risk for 2.6, basically because I'm a chicken, but more realistically
+> because I couldn't really see the effect on all subarchitectures, and
+> I didn't feel 100% confident that there wasn't anything that relied on
+> memory being dual mapped; however, I'm more than happy to be proven
+> wrong :)
+
+I will try.  So far except for early_printk I have not found anything.
+And that was easy to fix.
+ 
+> Oh yes, with this change you should probably just move swapper_pg_dir
+> (and empty_zero_page?) into .bss like anything else that should be
+> zero after boot.
+
+Sounds like a good idea.
+
+Eric

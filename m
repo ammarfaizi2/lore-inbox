@@ -1,86 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272963AbTHFAHf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 20:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272964AbTHFAHf
+	id S272979AbTHFAIw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 20:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272980AbTHFAIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 20:07:35 -0400
-Received: from colin2.muc.de ([193.149.48.15]:48913 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S272963AbTHFAHW (ORCPT
+	Tue, 5 Aug 2003 20:08:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59038 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272979AbTHFAIR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 20:07:22 -0400
-Date: 6 Aug 2003 02:07:16 +0200
-Date: Wed, 6 Aug 2003 02:07:16 +0200
-From: Andi Kleen <ak@colin2.muc.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export touch_nmi_watchdog
-Message-ID: <20030806000716.GA68984@colin2.muc.de>
-References: <20030805211416.GD31598@colin2.muc.de> <Pine.LNX.4.44.0308051503220.2835-100000@home.osdl.org>
+	Tue, 5 Aug 2003 20:08:17 -0400
+Date: Tue, 5 Aug 2003 17:09:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu,
+       piggin@cyberone.com.au, kernel@kolivas.org, linux-mm@kvack.org
+Subject: Re: [patch] real-time enhanced page allocator and throttling
+Message-Id: <20030805170954.59385c78.akpm@osdl.org>
+In-Reply-To: <1060121638.4494.111.camel@localhost>
+References: <1060121638.4494.111.camel@localhost>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308051503220.2835-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 03:14:00PM -0700, Linus Torvalds wrote:
-> 	#ifdef CONFIG_WATCHDOG
-> 	#warning This driver does bad things and will not work
-> 	#endif
+Robert Love <rml@tech9.net> wrote:
+>
+> > There is a very good argument for giving !SCHED_OTHER tasks
+>  > "special treatment" in the VM.
+> 
+>  Yes, there is.
+> 
+>  Attached patch is against 2.6.0-test2-mm4. 
 
-Well the problem is that many of my multiple CPU testboxes have a fusion
-controller (it's the standard on board chip on the AMD Quartet and Newisys
-systems). 
+Thanks.  I guess we should extend the special treatment in the page
+allocator and in balance_dirty_pages() we still should go and update the
+various bits of state and poke pdflush if needed.
 
-At least for my testing it would be quite inconvenient to not
-have the watchdog. I also don't see anybody comming around and fixing
-the SCSI error handler of that driver (scsi error handlers seem
-to be always very bad code, undoubtedly because it's a ugly problem)
+These changes should yield quite significant improvements in worst-case
+latencies for realtime tasks under some situations.  I'll test them...
 
-(fortunately errors happen only infrequently, usually when I break
-something else...) 
 
-But still I would prefer the NMI watchdog not triggering then.
-
-> So let the user know. Don't just silently say "let's kick the watchdog".
-
-How about this approach: 
-
-Define a new function driver_touch_watchdog() for export and it printks
-something the first time it is used.
-
---- linux-2.6.0test2-amd64/arch/i386/kernel/nmi.c-o	2003-07-11 03:09:18.000000000 +0200
-+++ linux-2.6.0test2-amd64/arch/i386/kernel/nmi.c	2003-08-06 02:03:41.000000000 +0200
-@@ -25,6 +25,7 @@
- #include <linux/module.h>
- #include <linux/nmi.h>
- #include <linux/sysdev.h>
-+#include <linux/kallsyms.h>
+diff -puN mm/page_alloc.c~rt-tasks-special-vm-treatment-2 mm/page_alloc.c
+--- 25/mm/page_alloc.c~rt-tasks-special-vm-treatment-2	2003-08-05 16:57:51.000000000 -0700
++++ 25-akpm/mm/page_alloc.c	2003-08-05 16:58:11.000000000 -0700
+@@ -592,6 +592,8 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 		local_min = z->pages_min;
+ 		if (gfp_mask & __GFP_HIGH)
+ 			local_min >>= 2;
++		if (rt_task(p))
++			local_min >>= 1;
+ 		min += local_min;
+ 		if (z->free_pages >= min ||
+ 				(!wait && z->free_pages >= z->pages_high)) {
+diff -puN mm/page-writeback.c~rt-tasks-special-vm-treatment-2 mm/page-writeback.c
+--- 25/mm/page-writeback.c~rt-tasks-special-vm-treatment-2	2003-08-05 16:57:51.000000000 -0700
++++ 25-akpm/mm/page-writeback.c	2003-08-05 17:02:40.000000000 -0700
+@@ -144,7 +144,7 @@ get_dirty_limits(struct page_state *ps, 
+  * If we're over `background_thresh' then pdflush is woken to perform some
+  * writeout.
+  */
+-void balance_dirty_pages(struct address_space *mapping)
++static void balance_dirty_pages(struct address_space *mapping)
+ {
+ 	struct page_state ps;
+ 	long nr_reclaimable;
+@@ -167,8 +167,9 @@ void balance_dirty_pages(struct address_
+ 		nr_reclaimable = ps.nr_dirty + ps.nr_unstable;
+ 		if (nr_reclaimable + ps.nr_writeback <= dirty_thresh)
+ 			break;
+-
+ 		dirty_exceeded = 1;
++		if (rt_task(current))
++			break;
  
- #include <asm/smp.h>
- #include <asm/mtrr.h>
-@@ -455,3 +456,18 @@
- EXPORT_SYMBOL(enable_lapic_nmi_watchdog);
- EXPORT_SYMBOL(disable_timer_nmi_watchdog);
- EXPORT_SYMBOL(enable_timer_nmi_watchdog);
-+
-+/* Deprecated function to silence the NMI watchdog for long waits.
-+   Better fix the driver instead of using this. */
-+void driver_touch_watchdog(void)
-+{ 
-+	static int used; 
-+	if (!used) { 
-+		print_symbol(KERN_ERR "Function %s uses driver_touch_watchdog.\n",
-+			     __builtin_return_address(0));
-+	} 
-+	used = 1;
-+	touch_nmi_watchdog();
-+}  
-+
-+EXPORT_SYMBOL(driver_touch_watchdog);
+ 		/* Note: nr_reclaimable denotes nr_dirty + nr_unstable.
+ 		 * Unstable writes are a feature of certain networked
+@@ -223,7 +224,7 @@ void balance_dirty_pages_ratelimited(str
+ 	 * Check the rate limiting. Also, we do not want to throttle real-time
+ 	 * tasks in balance_dirty_pages(). Period.
+ 	 */
+-	if (get_cpu_var(ratelimits)++ >= ratelimit && !rt_task(current)) {
++	if (get_cpu_var(ratelimits)++ >= ratelimit) {
+ 		__get_cpu_var(ratelimits) = 0;
+ 		put_cpu_var(ratelimits);
+ 		balance_dirty_pages(mapping);
 
--Andi
+_
 

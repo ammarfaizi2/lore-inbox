@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263665AbUEKVhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUEKVlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263665AbUEKVhM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 17:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbUEKVex
+	id S263685AbUEKVlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 17:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUEKVlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 17:34:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32956 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263665AbUEKVbV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 17:31:21 -0400
-Date: Tue, 11 May 2004 14:33:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dsaxena@plexity.net
-Cc: wim@iguana.be, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Watchdog timer for Intel IXP4xx CPUs
-Message-Id: <20040511143352.096bc071.akpm@osdl.org>
-In-Reply-To: <20040511212235.GA7729@plexity.net>
-References: <20040511212235.GA7729@plexity.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 11 May 2004 17:41:09 -0400
+Received: from adsl-74-86.38-151.net24.it ([151.38.86.74]:39697 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S263685AbUEKVkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 17:40:55 -0400
+Date: Tue, 11 May 2004 23:40:53 +0200
+From: Daniele Venzano <webvenza@libero.it>
+To: mike <mike@bristolreccc.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: problem with sis900 driver 2.6.5 +
+Message-ID: <20040511214053.GB19101@picchio.gall.it>
+Mail-Followup-To: mike <mike@bristolreccc.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <1084300104.24569.8.camel@datacontrol> <20040511184142.GE12947@lorien.prodam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040511184142.GE12947@lorien.prodam>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deepak Saxena <dsaxena@plexity.net> wrote:
->
+On Tue, May 11, 2004 at 03:41:42PM -0300, Luiz Fernando N. Capitulino wrote:
+> Em Tue, May 11, 2004 at 07:28:24PM +0100, mike escreveu:
 > 
-> Following patch against 2.6.6 adds a driver for the watchdogs on the
-> Intel IXP4xx family of network processors (ARM). Please apply.
-> 
-> ...
-> +
-> +	clear_bit(1, &wdt_status);
+> | In kernels 2.6.5 and above (may affect 2.6.4 as well) there seems to be
+> | a problem with the sis900 eth driver
+> | 
+> | I have a sis chipset with integrated ethernet sis900 driver which has
+> | always worked perfectly up to and including 2.6.3 (fedora)
+In that time frame (2.6.3->2.6.4) there has been only this change in the driver itself, 
+could you try to revert it and see if the problem disappears ?
 
-It'd be nice to enumerate the bits in wdt_status.
+diff -Nru a/drivers/net/sis900.c b/drivers/net/sis900.c
+--- a/drivers/net/sis900.c      Wed Mar 10 18:56:09 2004
++++ b/drivers/net/sis900.c      Wed Mar 10 18:56:09 2004
+@@ -2093,7 +2093,7 @@
+                     i++, mclist = mclist->next) {
+                        unsigned int bit_nr =
+                                sis900_mcast_bitnr(mclist->dmi_addr, revision);
+-                       mc_filter[bit_nr >> 4] |= (1 << bit_nr);
++                       mc_filter[bit_nr >> 4] |= (1 << (bit_nr & 0xf));
+                }
+        }
+ 
 
-> +
-> +	case WDIOC_SETTIMEOUT:
-> +		ret = get_user(time, (int *)arg);
-> +		if (ret)
-> +			break;
-> +
-> +		if (time <= 0 || time > 60) {
-> +			ret = -EINVAL;
-> +			break;
-> +		}
-> +
-> +		heartbeat = time;
-> +		wdt_enable();
+Also, could you send full dmesg in working/not working case ?
 
-Missing a break here?
+Thanks.
 
-> +	case WDIOC_GETTIMEOUT:
-> +		ret = put_user(heartbeat, (int *)arg);
-> +		break;
-> +
-> +	case WDIOC_KEEPALIVE:
-> +		wdt_enable();
-> +		ret = 0;
-> +		break;
-> +	}
-> +	return ret;
-
+-- 
+-----------------------------
+Daniele Venzano
+Web: http://teg.homeunix.org
 

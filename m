@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313969AbSDPXsN>; Tue, 16 Apr 2002 19:48:13 -0400
+	id <S313970AbSDPXzx>; Tue, 16 Apr 2002 19:55:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313970AbSDPXsM>; Tue, 16 Apr 2002 19:48:12 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18443 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313969AbSDPXsL>; Tue, 16 Apr 2002 19:48:11 -0400
-Subject: Re: IDE Problems
-To: p.nikolic@btinternet.com (Peter Nikolic)
-Date: Wed, 17 Apr 2002 00:56:16 +0100 (BST)
+	id <S313971AbSDPXzw>; Tue, 16 Apr 2002 19:55:52 -0400
+Received: from jalon.able.es ([212.97.163.2]:62169 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S313970AbSDPXzv>;
+	Tue, 16 Apr 2002 19:55:51 -0400
+Date: Wed, 17 Apr 2002 01:55:44 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jacek Boboli <hussaile@ant.pl>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16xcG3-0002D4-00@rhenium.btinternet.com> from "Peter Nikolic" at Apr 17, 2002 12:20:59 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16xco4-00019Z-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: kernel-2.4.19pre7
+Message-ID: <20020416235544.GA1800@werewolf.able.es>
+In-Reply-To: <200204162332.g3GNW4u25399@smtp.wanadoo.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hda: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=2434/255/63, UDMA(33)
-> hdb: 16809660 sectors (8607 MB) w/128KiB Cache, CHS=1046/255/63, UDMA(33)
 
-> end_request: I/O error, dev 03:03 (hda), sector 942192
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=2050682, 
+On 2002.04.17 Jacek Boboli wrote:
+>Hello !
+>
+>Got no problem formerly with pre3 but now have problems with make bzImage and 
+>make install, just when finalizing.
+>
+>.....
+>.....
+>	--end-group \
+>	-o vmlinux
+>fs/fs.o: In function 'create_data_partitions' ......
+>fs/fs.o(.text+0x23101):undefined reference to 'page_cache_release'
+>.....
+>......
+>the same with 'get_disk_objid' and finally :
+>more undefined references to 'page_cache_release' follow
+>make:***[vmlinux]Error1
+>
+>then bash again. no bzImage is created.
+>modules seems OK.
+>
 
-You have a bad block on /dev/hda3
+Apply this:
 
-> hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=2051106, 
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre7-jam1/04-fs-pagemap.gz
 
-In fact a couple.
-
-Thats the Linux version of the good old "Abort, Retry, Ignore" in DOS when
-the disk fails. 
-
-Alan
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre7-jam1 #1 SMP Wed Apr 17 00:42:27 CEST 2002 i686

@@ -1,62 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbTKPR2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 12:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTKPR2Z
+	id S263082AbTKPRaR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 12:30:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTKPRaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 12:28:25 -0500
-Received: from h80ad26be.async.vt.edu ([128.173.38.190]:20108 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263024AbTKPR2Y (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 12:28:24 -0500
-Message-Id: <200311161727.hAGHRbLa028984@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+	Sun, 16 Nov 2003 12:30:17 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:49594 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S263082AbTKPRaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 12:30:10 -0500
+X-Sender-Authentication: net64
+Date: Sun, 16 Nov 2003 18:30:07 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, mfedyk@matchmail.com,
-       reiser@namesys.com, herbert@gondor.apana.org.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Debian Kernels was: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431" 
-In-Reply-To: Your message of "Sun, 16 Nov 2003 18:05:09 +0100."
-             <20031116170509.GB201@elf.ucw.cz> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031029141931.6c4ebdb5.akpm@osdl.org> <E1AGCUJ-00016g-00@gondolin.me.apana.org.au> <20031101233354.1f566c80.akpm@osdl.org> <20031102092723.GA4964@gondor.apana.org.au> <20031102014011.09001c81.akpm@osdl.org> <20031116130558.GB199@elf.ucw.cz> <20031116151522.6ef9d2e1.skraw@ithnet.com>
-            <20031116170509.GB201@elf.ucw.cz>
+Cc: mfedyk@matchmail.com, reiser@namesys.com, herbert@gondor.apana.org.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Debian Kernels was: 2.6.0test9 Reiserfs boot time "buffer layer
+ error at fs/buffer.c:431"
+Message-Id: <20031116183007.430f7a6a.skraw@ithnet.com>
+In-Reply-To: <20031116170509.GB201@elf.ucw.cz>
+References: <20031029141931.6c4ebdb5.akpm@osdl.org>
+	<E1AGCUJ-00016g-00@gondolin.me.apana.org.au>
+	<20031101233354.1f566c80.akpm@osdl.org>
+	<20031102092723.GA4964@gondor.apana.org.au>
+	<20031102014011.09001c81.akpm@osdl.org>
+	<20031116130558.GB199@elf.ucw.cz>
+	<20031116170509.GB201@elf.ucw.cz>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2037539920P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sun, 16 Nov 2003 12:27:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2037539920P
-Content-Type: text/plain; charset=us-ascii
+On Sun, 16 Nov 2003 18:05:09 +0100
+Pavel Machek <pavel@ucw.cz> wrote:
 
-On Sun, 16 Nov 2003 18:05:09 +0100, Pavel Machek said:
-
+> Hi!
+> 
+> > > If distribution had all packages unmodified, it would be useless...
+> > 
+> > Just contrary I'd state that this would be the "perfect world", because
+> > this would mean all projects are in perfect shape and all patches have gone
+> > to the respective maintainers.
+> 
 > Okay, in the perfect world we'd have just one distribution with all
 > packages unmodified. Well.. but we are not there yet.
 
-Then why do we have a -mm kernel and a -ac kernel and a.....?
+Well, why not head into the right direction at least? If we didn't try that
+before we would probably have never left caves ...
+ 
+> > So you say midnight commanders' maintainer is an a**hole, or what?
+> > If you think some project needs patches, then please talk to its
+> 
+> Debian having diffs vs. vanilla midnight does not mean anything
+> negative about its maintainer: Debian well may want different default
+> config, for example (F3 viewer bindings came to mind).
 
-It's interesting that we've apparently decided that Andrew Morton or
-Alan Cox or any of the other -initial kernel streams are allowed to have
-different goals (and thus different code to achieve those goals) but
-we seem to think that distributions are not allowed to do the same thing...
+Separate config diffs from original packages into new <project-config> package.
+This way one can at least try to merge a new version of some rpm with a
+standard distro config. diffs don't do that all to well.
 
--exec-shield is OK if it shows up in Andrew's stuff, but not when it's
-in the RedHat from whence it came?  What's wrong with THAT?
+> > > Of course it is good to keep the .diff as small as possible.
+> > 
+> > diffsize small is wanted.
+> > diffsize zero is unwanted.
+> > What kind of a logic is that?
+> > 
+> > Forgive me Pavel, that does not sound thoughtful to me.
+> 
+> If there's bug in the package, I expect Debian to fix the bug and then
+> forward bugfix to the maintainer.
 
---==_Exmh_2037539920P
-Content-Type: application/pgp-signature
+Sorry, if there is a bug in the package I expect the maintainer to fix it and
+the distributor to help him (tell him about the problem, send patch
+suggestions, whatever...).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> Distribution does not want to wait for maintainer to ACK, especially
+> if its security-related bug.
 
-iD8DBQE/t7OIcC3lWbTT17ARArYyAKDaCNJROBWucr6VawggWxts3inNyQCcC2xg
-eGYV5gFsnswaCOr10YyPtks=
-=qqXr
------END PGP SIGNATURE-----
+This is probably one reason why quite a significant amount of
+distro-patches/addons are quite questionable (at least). The distro-people
+cannot accept that they see only their part of the whole picture and only
+_think_ that they know perfectly well what joe-average-user wants, has and
+needs. In fact they mostly have no idea. 
+Debian could be a real win in this area if they only avoid others'
+super-smartness.
 
---==_Exmh_2037539920P--
+Regards,
+Stephan
+

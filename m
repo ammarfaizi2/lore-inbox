@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129683AbQLFWbN>; Wed, 6 Dec 2000 17:31:13 -0500
+	id <S131096AbQLFWdd>; Wed, 6 Dec 2000 17:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129765AbQLFWbD>; Wed, 6 Dec 2000 17:31:03 -0500
-Received: from gateway.sequent.com ([192.148.1.10]:57826 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S129683AbQLFWau>; Wed, 6 Dec 2000 17:30:50 -0500
-Date: Wed, 6 Dec 2000 14:00:12 -0800
-From: Mike Kravetz <mkravetz@sequent.com>
-To: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: test12pre6: BUG in schedule (sched.c, 115)
-Message-ID: <20001206140012.B2215@w-mikek.des.sequent.com>
-In-Reply-To: <20001206195908.A190@lightside.2y.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001206195908.A190@lightside.2y.net>; from ragnar_hojland@eresmas.com on Wed, Dec 06, 2000 at 07:59:08PM +0100
+	id <S129765AbQLFWdX>; Wed, 6 Dec 2000 17:33:23 -0500
+Received: from ruddock-207.caltech.edu ([131.215.90.207]:64260 "EHLO
+	agard.caltech.edu") by vger.kernel.org with ESMTP
+	id <S131063AbQLFWdL>; Wed, 6 Dec 2000 17:33:11 -0500
+Message-ID: <3A2EB765.62FEF645@its.caltech.edu>
+Date: Wed, 06 Dec 2000 14:02:13 -0800
+From: James Lamanna <jlamanna@its.caltech.edu>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problems with PDC202xx driver
+In-Reply-To: <Pine.LNX.4.10.10012061327260.23184-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ragnar,
+Here is an excerpt from /proc/pci:
 
-Are you sure that was line 115?  Could it have been line 515?
-Also, do you have any Oops data?
+Bus  0, device  11, function  0:
+    RAID bus controller: Promise Technology, Inc. 20267 (rev 2).
+      IRQ 10.
+      Master Capable.  Latency=32.
+      I/O at 0x9400 [0x9407].
+      I/O at 0x9000 [0x9003].
+      I/O at 0x8800 [0x8807].
+      I/O at 0x8400 [0x8403].
+      I/O at 0x8000 [0x803f].
+      Non-prefetchable 32 bit memory at 0xd5000000 [0xd501ffff].
+  Bus  0, device  17, function  0:
+    Unknown mass storage controller: Promise Technology, Inc. 20265 (rev
+2).
+      IRQ 10.
+      Master Capable.  Latency=32.
+      I/O at 0x7800 [0x7807].
+      I/O at 0x7400 [0x7403].
+      I/O at 0x7000 [0x7007].
+      I/O at 0x6800 [0x6803].
+      I/O at 0x6400 [0x643f].
+      Non-prefetchable 32 bit memory at 0xd4800000 [0xd481ffff].
 
-Thanks,
--- 
-Mike Kravetz                                 mkravetz@sequent.com
-IBM Linux Technology Center
-15450 SW Koll Parkway
-Beaverton, OR 97006-6063                     (503)578-3494
+> Now if you have a device that reports it storage class as RAID then it may
+> misbehave.  Otherwise, if it is reporting "Unknown Mass Storage" then you
+> have an Ultra/ATA controller.
 
+It would seem that it reports itself as both.
 
-On Wed, Dec 06, 2000 at 07:59:08PM +0100, Ragnar Hojland Espinosa wrote:
-> as per subject.. BUG in schedule (sched.c, 115)
-> -- 
-> ____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
-> \ o.O|                                                   2F0D27DE025BE2302C
->  =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
->    U     chaos and madness await thee at its end."       hkp://keys.pgp.com
 > 
-> Handle via comment channels only.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> There are two different BIOS cores for each design.
+> Linux cleanly supports the BIOS cores know as "Ultra" and not the ones
+> know as "Fasttrak".
+
+Is there a plan to support the Fasttrak BIOS core at some point (I
+hope..)
+So I guess I'm stuck with loading their proprietary module whenever I
+want 
+to use the drive....
+
+But thanks for the clarification.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129217AbRBBNze>; Fri, 2 Feb 2001 08:55:34 -0500
+	id <S129260AbRBBN7y>; Fri, 2 Feb 2001 08:59:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129260AbRBBNzO>; Fri, 2 Feb 2001 08:55:14 -0500
-Received: from www.topmail.de ([212.255.16.226]:25810 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S129217AbRBBNzG> convert rfc822-to-8bit;
-	Fri, 2 Feb 2001 08:55:06 -0500
-Message-ID: <022901c08d1f$bf8a2c20$0100a8c0@homeip.net>
+	id <S129153AbRBBN7p>; Fri, 2 Feb 2001 08:59:45 -0500
+Received: from www.topmail.de ([212.255.16.226]:4062 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S129595AbRBBN7a> convert rfc822-to-8bit;
+	Fri, 2 Feb 2001 08:59:30 -0500
+Message-ID: <024a01c08d20$5db6b9e0$0100a8c0@homeip.net>
 From: "mirabilos" <eccesys@topmail.de>
 To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>,
-        "David Ford" <david@linux.com>
-In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca> <3A79F812.D52B17B1@linux.com>
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
-Date: Fri, 2 Feb 2001 13:54:44 -0000
+        "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+In-Reply-To: <20010201231652.A2684@grobbebol.xs4all.nl>
+Subject: Re: hard crashes 2.4.0/1 with NE2K stuff
+Date: Fri, 2 Feb 2001 13:59:13 -0000
 Organization: eccesys.net Linux Distribution Development
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,56 +25,49 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 ----- Original Message ----- 
-From: "David Ford" <david@linux.com>
-To: "Michael J. Dikkema" <mjd@moot.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, February 01, 2001 11:58 PM
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, February 01, 2001 11:16 PM
+Subject: hard crashes 2.4.0/1 with NE2K stuff
 
 
-> "Michael J. Dikkema" wrote:
+> 2.4.1. rebuilt here and with a floodping towards my machine causes a
+> hard crash where nothing works anymore.
 > 
-> > I went from 2.4.0 to 2.4.1 and was surprised that either the root
-> > filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
-> > thinking there might have been a change with regards to the devfs
-> > tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
+> just before it happens :
 > 
-> This symlink doesn't exist/isn't usable for boot.  Use the qualified
-> pathname.
+> Feb  1 13:07:24 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Feb  1 13:07:24 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x3, t=21.
+> Feb  1 13:07:36 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Feb  1 13:07:36 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0xb7, t=38.
+> Feb  1 13:07:41 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Feb  1 13:07:41 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0xb7, t=38.
+> Feb  1 13:07:43 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Feb  1 13:07:43 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x97, t=118.
+> Feb  1 13:07:45 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Feb  1 13:07:45 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x97, t=118.
+> Feb  1 13:07:46 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> Feb  1 13:07:46 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x97, t=38.
 > 
-> I.e. /dev/discs/disc0/part1 points to /dev/ide/host0/bus0/target0/lun0/part1
-> on my machine.
 > 
-> Use that pathname.
+> note that it doesn't happen when 2.2.19pre* is used. Still some work
+> there to do.
 > 
-> -d
+> the used board BP6 (abit), apics enabled. non-overclocked. card is a
+> 
+> 00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+> RTL-8029(AS)
+> 
+> IRQ:
+> 
+>  19:       6851       7642   IO-APIC-level  eth0
+> 
+> I assume Franks suggestions didn't get into the kernel ?
 
-I am used to do "root=0301" on the lilo prompt to avoid that.
-Right it works when devfs is mounted at boot (kernel config)
-and you change the lilo.conf from:
 
-image=/boot/bzImage
- label=linux
- root=/dev/hda1
- vga=3845
-
-to:
-
-image=/boot/bzImage
- label=linux
- append="root=0301 vga=3845"
-
-or:
-
-image=/boot/bzImage
- label=linux
- append="root=/dev/ide/host0/bus0/target0/lun0/part1 vga=3845"
-
-Maybe the append= thing shortly spoken of in the devfs docu is important.
-And at boot time _there are no symlinks_ !!
-
-When init=/bin/bash fails, you prolly have an empty /dev on your root fs
-(as usual when doing devfs) and automount _off_. Turn it on.
+I have UP P133/56MB, 2.4.1-vanilla, some config changes.
+NE2K works fine for me though software watchdog enabled.
+I didn't strain test it yet, but will do l8er.
 
 -mirabilos
 

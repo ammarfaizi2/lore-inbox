@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVAaR3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVAaRcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVAaR3L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 12:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVAaR3L
+	id S261282AbVAaRcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 12:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVAaRcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 12:29:11 -0500
-Received: from dgate2.fujitsu-siemens.com ([217.115.66.36]:18771 "EHLO
-	dgate2.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S261274AbVAaR3F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 12:29:05 -0500
-X-SBRSScore: None
-X-IronPort-AV: i="3.88,167,1102287600"; 
-   d="scan'208"; a="2812603:sNHT22564528"
-Message-ID: <41FE6ADF.8030304@fujitsu-siemens.com>
-Date: Mon, 31 Jan 2005 18:29:03 +0100
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
+	Mon, 31 Jan 2005 12:32:24 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:55050 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261277AbVAaRbM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 12:31:12 -0500
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10: SPARC64 mapped figure goes unsignedly negative...
+References: <87sm4izw3u.fsf@amaterasu.srvr.nix>
+	<Pine.LNX.4.61.0501311256580.5368@goblin.wat.veritas.com>
+	<87sm4hwr81.fsf@amaterasu.srvr.nix>
+	<Pine.LNX.4.61.0501311545200.5933@goblin.wat.veritas.com>
+	<87d5vlwp8k.fsf@amaterasu.srvr.nix>
+	<Pine.LNX.4.61.0501311642400.6072@goblin.wat.veritas.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: it's not slow --- it's stately.
+Date: Mon, 31 Jan 2005 17:31:04 +0000
+In-Reply-To: <Pine.LNX.4.61.0501311642400.6072@goblin.wat.veritas.com> (Hugh
+ Dickins's message of "Mon, 31 Jan 2005 17:06:29 +0000 (GMT)")
+Message-ID: <87vf9dv73b.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Discuss][i386] Platform SMIs and their interferance with tsc
-  based delay calibration
-References: <3rR0g-3aR-11@gated-at.bofh.it> <3s4Tx-1gi-9@gated-at.bofh.it>
-In-Reply-To: <3s4Tx-1gi-9@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Mon, 31 Jan 2005, Hugh Dickins uttered the following:
+> On Mon, 31 Jan 2005, Nix wrote:
+>> Filename				Type		Size	Used	Priority
+>> /dev/sda2                               partition	523016	0	1
+>> /dev/sda4                               partition	511232	57648	2
+>> /dev/sdb2                               partition	523016	0	1
+>> 
+>> Is the problem that the higher-priority kicking out to swap which should
+>> happen when memory is tight, won't?
+> 
+> I had thought that it was any kicking out to swap - apart from kicking
+> tmpfs/shmem pages to swap, which should happen independently of Mapped.
+> 
+> If you're not using tmpfs or shmem, then I'm surprised by that figure.
 
-> In particular, I don't see why you didn't just put this in the generic 
-> calibrate_delay() routine. You seem to have basically duplicated it, and 
-> added the "guess from an external timer" code - and I don't see what's 
-> non-generic about that, except for some trivial "what's the current timer" 
-> lookup.
+Oh. Yes, tmpfs might just about explain it:
 
-The trivial lookup is hidden in the __delay() function. Making it return 
-the number of "loops" it actually waited would help having a robust 
-generic code.
+58320	/tmp
 
-Regards
-Martin
+So it looks like I have a swap-free box for a time. I guess I'd better
+be careful... :)
+
+> There was 88 kB out to swap in your original /proc/meminfo, which we
+> may suppose was before Mapped went negative; but above shows more since.
+
+Yes, I expect so. It must've gone negative really rather early: and note
+that it's some distance below 2^64 by now, so it's still falling.  If I
+wait for a billion years or so it might wrap around. :)
+
+-- 
+`Blish is clearly in love with language. Unfortunately,
+ language dislikes him intensely.' --- Russ Allbery

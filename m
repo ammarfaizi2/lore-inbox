@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285944AbRLHVAx>; Sat, 8 Dec 2001 16:00:53 -0500
+	id <S285940AbRLHVAn>; Sat, 8 Dec 2001 16:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285942AbRLHVAo>; Sat, 8 Dec 2001 16:00:44 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:57304 "HELO
-	postfix2-1.free.fr") by vger.kernel.org with SMTP
-	id <S285941AbRLHVAY>; Sat, 8 Dec 2001 16:00:24 -0500
-From: Willy Tarreau <wtarreau@free.fr>
-Message-Id: <200112082100.fB8L0LL01793@ns.home.local>
-Subject: Re: 2.4.14/16 load reboots
-To: belg4mit@dirty-bastard.pthbb.org
-Date: Sat, 8 Dec 2001 22:00:21 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S285942AbRLHVAe>; Sat, 8 Dec 2001 16:00:34 -0500
+Received: from ppp-RAS1-2-145.dialup.eol.ca ([64.56.225.145]:47111 "EHLO
+	node0.opengeometry.ca") by vger.kernel.org with ESMTP
+	id <S285940AbRLHVAW>; Sat, 8 Dec 2001 16:00:22 -0500
+Date: Sat, 8 Dec 2001 16:00:18 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Cheap P3 Xeon... Any quad motherboard?
+Message-ID: <20011208160018.A1166@node0.opengeometry.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi all,
 
-I had the same problem with a kernel which contained a damaged vmlinux.lds.
-Did you compile a fresh kernel or play with patches on top of an old kernel
-which was compiled many times ?
+I came across Pentium III Xeon 733MHz for $50 US.  I may want to build
+4/8-cpu machine for Christmas.  Can anyone recommend quad motherboard?
+Or, any place through which I can order?
 
-Regards,
-Willy
+Only one I know is SuperMicro's Super S2QR6.
 
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>.
+8 CPU cluster, NAS, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Tin

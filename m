@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUJRS4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267424AbUJRS4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267466AbUJRS4m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUJRSz7
+	id S267424AbUJRS4o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 14:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267254AbUJRSz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:55:59 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:6086 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267466AbUJRSvd (ORCPT
+	Mon, 18 Oct 2004 14:55:26 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:4527 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267424AbUJRSsS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:51:33 -0400
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: using cc-option in arch/ppc64/boot/Makefile
-Date: Mon, 18 Oct 2004 13:47:55 +0000
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200410141611.32198.hollisb@us.ibm.com> <20041017095700.GB16186@mars.ravnborg.org>
-In-Reply-To: <20041017095700.GB16186@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Oct 2004 14:48:18 -0400
+Date: Mon, 18 Oct 2004 20:49:43 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+Message-ID: <20041018184943.GB4625@elte.hu>
+References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <41740F19.1080502@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410181347.55746.hollisb@us.ibm.com>
+In-Reply-To: <41740F19.1080502@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 October 2004 09:57, Sam Ravnborg wrote:
-> Something like this should do the trick?
-> You could also include everything in your Makefile but I prefer
-> Makefile.lib to make it a bit more general.
 
-That's what I had tried. I'm having strange problems though. This patch:
+* K.R. Foley <kr@cybsft.com> wrote:
 
---- 1.25/arch/ppc64/boot/Makefile       Sun Oct  3 12:23:50 2004
-+++ edited/arch/ppc64/boot/Makefile     Mon Oct 18 14:03:40 2004
-@@ -20,6 +20,8 @@
- #      CROSS32_COMPILE is setup as a prefix just like CROSS_COMPILE
- #      in the toplevel makefile.
+> Ingo Molnar wrote:
+> >i have released the -U5 Real-Time Preemption patch:
+> >
+> >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
+> >
+> 
+> Ingo,
+> 
+> *** Warning: "__you_cannot_kmalloc_that_much" 
+> [drivers/scsi/aacraid/aacraid.ko] undefined!
+> 
+> This just appeared in U5. I was trying to track this one down just
+> because I saw it, even though I don't need aacraid. I am having a hell
+> of a time tracking down what changed that would cause this, but I
+> figure you will know exactly what changed that would cause it. :)
 
-+include scripts/Makefile.lib
-+
- CROSS32_COMPILE ?=
- #CROSS32_COMPILE = /usr/local/ppc/bin/powerpc-linux-
+i suspect this is due to the size increase of semaphores if
+CONFIG_RWSEM_DEADLOCK_DETECT is enabled. Try lowering
+CONFIG_RWSEM_MAX_OWNERS from the default 64 to 32, does that help?
 
-@@ -72,7 +74,12 @@
- quiet_cmd_stripvm = STRIP $@
-       cmd_stripvm = $(STRIP) -s $< -o $@
-
-+HAS_BIARCH      := $(call cc-option-yn, -lalala)
-+
- vmlinux.strip: vmlinux FORCE
-+       echo $(cc-option-yn)
-+       echo $(HAS_BIARCH)
-+       $(call cc-option-yn, -m64)
-        $(call if_changed,stripvm)
- $(obj)/vmlinux.initrd: vmlinux.strip $(obj)/addRamDisk 
-$(obj)/ramdisk.image.gz FORCE
-        $(call if_changed,ramdisk)
-
-... yields the following output:
-
-make -f scripts/Makefile.build obj=arch/ppc64/boot arch/ppc64/boot/zImage
-echo y
-y
-echo y
-y
-y
-make[1]: y: Command not found
-
-Also confusing: the gcc switch "-lalala" is invalid, so I don't know where 
-*any* y's came from. User error?
-
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+	Ingo

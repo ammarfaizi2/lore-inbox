@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268105AbUJDMrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268129AbUJDMx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268105AbUJDMrf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 08:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268126AbUJDMrf
+	id S268129AbUJDMx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 08:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUJDMx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 08:47:35 -0400
-Received: from [217.222.53.238] ([217.222.53.238]:17572 "EHLO mail.gts.it")
-	by vger.kernel.org with ESMTP id S268105AbUJDMr3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 08:47:29 -0400
-Message-ID: <4161462A.5040806@gts.it>
-Date: Mon, 04 Oct 2004 14:46:34 +0200
-From: Stefano Rivoir <s.rivoir@gts.it>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
+	Mon, 4 Oct 2004 08:53:59 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:14567 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S268129AbUJDMx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 08:53:57 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc3] suspend-to-disk oddities
+Date: Mon, 4 Oct 2004 14:56:26 +0200
+User-Agent: KMail/1.6.2
+Cc: Jan De Luyck <lkml@kcore.org>, Oliver Neukum <oliver@neukum.org>,
+       linux-usb-devel@lists.sourceforge.net
+References: <200410041107.12049.lkml@kcore.org> <200410041406.40222.oliver@neukum.org> <200410041422.25395.lkml@kcore.org>
+In-Reply-To: <200410041422.25395.lkml@kcore.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm2
-References: <20041004020207.4f168876.akpm@osdl.org>
-In-Reply-To: <20041004020207.4f168876.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410041456.27350.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/
+On Monday 04 of October 2004 14:22, Jan De Luyck wrote:
+[-- snip --]
+> > Does "cat /proc/bus/usb/devices" give you an empty file or does it hang?
+> > Is that modular USB or is it compiled into the kernel? OHCI or UHCI?
 > 
+> UHCI. I just did a test-suspend-resume, currently plugged USB devices don't 
+work, but it does show up in the devices file. It also responds to 
+replugging.... I don't get it.
+>  I had no response whatsoever earlier. Mouse doesn't work until replugged, 
+lots of messages like this in dmesg:
 > 
-> - Hopefully those x86 compile errors are fixed up.
-> 
-> - Various fairly minor updates
+> Oct  4 14:16:49 precious kernel: drivers/usb/input/hid-core.c: input irq 
+status -84 received
+> Oct  4 14:16:54 precious last message repeated 209 times
 
-(#ifdef around is_irq_stack_ptr already applied)
+Have you tried booting with pci=routeirq?  It may help.
 
-Kernel BUGs at boot time, here is what I see (copied by hand, I hope 
-Stack and Code hex values are not that important :)):
-
-[...]
-IP: routing cache hash table of 4096 buckets, 32KBytes
-kmem_cache_create: Early error in slab ip_fib_hash
------[ cut here ] -----
-kernel BUG at mm/slab.c:1185!
-invalid operand: 0000 [#1]
-PREEMPT
-Modules linked in:
-CPU:	0
-EIP:	0060:[<c01348f6>]	Not tainted VLI
-EFLAGS: 00010282 (2.6.9-rc3-mm2)
-EIP is at kmem_cache_create+0x51d/0x53e
-eax: 00000036  ebx: 00000000  ecx: c02b7f04  edx: 00001d9f
-esi: 00000000  edi: 000000ff  ebp: c15fe3c0  esp: dff83f30
-ds: 007b    es: 007b    ss: 0068
-Process swapper: (pid: 1, threadinfo=dff82000 task=dff815f0)
-Stack: (stripped, hope you don't need this :)
-Call trace:
-  [<>] fib_hash_init+0xd8/0xe2
-  [<>] ip_fib_init+0xa/0x32
-  [<>] ip_rt_init+0x1cc/0x2e3
-  [<>] ip_init+0xf/0x14
-  [<>] inet_init+0xd0/0x1b3
-  [<>] do_initcalls+0x27/0xad
-  [<>] init+0x0/0xf8
-  [<>] init+0x0/0xf8
-  [<>] init+0x2a/0xf8
-  [<>] kernel_thread_helper+0x0/0xb
-  [<>] kernel_thread_helper+0x5/0xb
-
-Bye.
+Greets,
+RJW
 
 -- 
-Stefano RIVOIR
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

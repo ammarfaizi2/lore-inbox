@@ -1,335 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270281AbTGSR32 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 13:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270351AbTGSR32
+	id S270406AbTGSRei (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 13:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270407AbTGSRei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 13:29:28 -0400
-Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:12698 "HELO
-	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S270281AbTGSR3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 13:29:21 -0400
-Message-ID: <3F1983BF.4080600@yahoo.ca>
-Date: Sat, 19 Jul 2003 13:45:35 -0400
-From: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030716
-X-Accept-Language: en-ca
-MIME-Version: 1.0
-To: "David B. Stevens" <dsteven3@maine.rr.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test1 Cannot login in X or console
-References: <3F18B603.70405@yahoo.ca> <3F195E5D.50409@maine.rr.com>
-In-Reply-To: <3F195E5D.50409@maine.rr.com>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070307070407020205040705"
+	Sat, 19 Jul 2003 13:34:38 -0400
+Received: from jimbo.globalnet.hr ([213.149.32.23]:31410 "EHLO
+	jimbo.globalnet.hr") by vger.kernel.org with ESMTP id S270406AbTGSReh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 13:34:37 -0400
+Date: Sat, 19 Jul 2003 19:47:15 +0200
+From: Danijel Schiavuzzi <danijel.schiavuzzi@pu.htnet.hr>
+To: linux-kernel@vger.kernel.org
+Subject: ISDN4Linux subsystem
+Message-ID: <20030719174715.GA1076@lupus>
+Mail-Followup-To: Danijel Schiavuzzi <danijel.schiavuzzi@pu.htnet.hr>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Atlantis
+X-Operating-System: Linux lupus.atlantis.int 2.4.20-3-k7 
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070307070407020205040705
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Included is my config file, btw, it is not just the console that blocks, 
-it is the whole auth. system, which works fine with 2.4.
+I've tried to build the 2.6.0-test1 kernel and run it.
+It suceeded to compile and boot properly except the isdn4linux subsystem
+and the hisax driver which don't get compiled/linked properly.
+I've sent a bug report to this list 3 days ago, and also CC-ed to the ISDN 
+maintainers and mailing list but none have replied so far.
+(it can be found here:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0307.2/0230.html)
 
-> Hi Joe,
->
-> How about a clue as to what your config looks like for the 2.6.0-test1 
-> kernel and such.  The area surrounding input and console support has 
-> changed quite a bit from 2.4.
->
-> I'm running 2.6.0-test1-ac2, X, kdm, etc and it works just fine, well 
-> one of these days I'll get the alsa config up to snuff.  But till then 
-> as long as I can watch my TV in a corner of the screen with sound I'm 
-> happy.  The midi stuff can wait :).
->
-> Cheers,
->   Dave
->
->
-> Jonathan Bastien-Filiatrault wrote:
->
->> I have succesfully compiled and booted the 2.6.0-test1 kernel. After 
->> i enter my username and password succesfuly the login window simply 
->> stays there:
->>
->> Login: user <enter>
->> Password: xxxx<enter>
->> <freezes>
->>
->> Same thing with gdm. I do not have this problem with 
->> 2.4.21+swsup+preempt.
->> There is no error written in the system log.
->> Is it possible that PAM + 2.6.0-test1 results in this problem ?
->> The single runlevel works fine.(booted with single as kernel arg)
->> I am running gentoo.
->>
->> Any insight appreciated.
->>
->> Joe
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
->
+There are some entries in the BugZilla database about this which can be
+found here:
 
+http://bugzilla.kernel.org/buglist.cgi?bug_status=UNCONFIRMED&bug_status=NEW&bug_status=OPEN&bug_status=ASSIGNED&bug_status=REOPENED&field0-0-0=product&type0-0-0=substring&value0-0-0=isdn&field0-0-1=component&type0-0-1=substring&value0-0-1=isdn&field0-0-2=short_desc&type0-0-2=substring&value0-0-2=isdn&field0-0-3=status_whiteboard&type0-0-3=substring&value0-0-3=isdn
 
+None of the workarounds (modifying ksymc.c etc.) don't seem to work for
+now (the modules get loaded but don't work etc.)
 
---------------070307070407020205040705
-Content-Type: text/plain;
- name="config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="config"
+The question is, has anybody got it working and how? I think it's a
+major issue to address in 2.6.0 before it becomes stable.
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_PM=y
-CONFIG_SOFTWARE_SUSPEND=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_CRYPTOLOOP=y
-CONFIG_LBD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPNP=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
-CONFIG_SCSI_QLOGIC_1280=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_PNP=y
-CONFIG_IP_PNP_DHCP=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_NAT_LOCAL=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-CONFIG_8139TOO=y
-# Token Ring devices (depends on LLC=y)
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_JOYDEV=y
-CONFIG_INPUT_EVDEV=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_JOYSTICK=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_HW_RANDOM=y
-CONFIG_NVRAM=y
-CONFIG_RTC=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_QUOTA=y
-CONFIG_QFMT_V1=y
-CONFIG_QFMT_V2=y
-CONFIG_QUOTACTL=y
-CONFIG_AUTOFS_FS=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_DEVPTS_FS_XATTR=y
-CONFIG_DEVPTS_FS_SECURITY=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_ROOT_NFS=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-CONFIG_SUNRPC_GSS=y
-CONFIG_SMB_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_9=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_NLS_UTF8=y
-CONFIG_FB=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_AUDIO=y
-CONFIG_USB_MIDI=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_STORAGE=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_SCANNER=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_BLOWFISH=y
-CONFIG_CRYPTO_TWOFISH=y
-CONFIG_CRYPTO_AES=y
-CONFIG_CRYPTO_DEFLATE=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
+Regards,
 
-
---------------070307070407020205040705--
-
+Danijel

@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135757AbRDSXfL>; Thu, 19 Apr 2001 19:35:11 -0400
+	id <S135759AbRDSXhV>; Thu, 19 Apr 2001 19:37:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135756AbRDSXfB>; Thu, 19 Apr 2001 19:35:01 -0400
-Received: from maniola.plus.net.uk ([195.166.135.195]:28830 "HELO
-	mail.plus.net.uk") by vger.kernel.org with SMTP id <S135755AbRDSXez>;
-	Thu, 19 Apr 2001 19:34:55 -0400
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_J3C298T12LWTFAM22NBO"
-From: "D.W.Howells" <dhowells@astarte.free-online.co.uk>
-To: torvalds@transmeta.com
-Subject: [PATCH] generic rw_semaphores, compile warnings patch
-Date: Fri, 20 Apr 2001 00:33:19 +0100
-X-Mailer: KMail [version 1.2]
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+	id <S135758AbRDSXhF>; Thu, 19 Apr 2001 19:37:05 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:54281
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S135759AbRDSXgw>; Thu, 19 Apr 2001 19:36:52 -0400
+Date: Thu, 19 Apr 2001 19:36:44 -0400
+From: Chris Mason <mason@suse.com>
+To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+cc: torvalds@transmeta.com, alan@redhat.com
+Subject: [PATCH] reiserfs should daemonize
+Message-ID: <848950000.987723404@tiny>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Message-Id: <01042000331901.01311@orion.ddi.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_J3C298T12LWTFAM22NBO
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Hi guys,
 
-This patch (made against linux-2.4.4-pre4) gets rid of some warnings obtained 
-when using the generic rwsem implementation.
+The reiserfs commit thread needs to daemonize.  This patch
+was actually from Andi Kleen eons ago (but blame me if 
+it breaks).  Please apply.
 
-David
+Against 2.4.3:
 
-
---------------Boundary-00=_J3C298T12LWTFAM22NBO
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="rwsem-cw.diff"
-Content-Transfer-Encoding: 8bit
-Content-Description: rwsem compile warnings patch
-Content-Disposition: attachment; filename="rwsem-cw.diff"
-
-diff -uNr linux-2.4.4-pre4/include/linux/rwsem.h linux/include/linux/rwsem.h
---- linux-2.4.4-pre4/include/linux/rwsem.h	Thu Apr 19 22:07:49 2001
-+++ linux/include/linux/rwsem.h	Thu Apr 19 23:52:41 2001
-@@ -42,20 +42,24 @@
- #include <asm/atomic.h>
- #include <linux/wait.h>
- 
--#ifdef CONFIG_RWSEM_GENERIC_SPINLOCK
--#include <linux/rwsem-spinlock.h> /* use a generic implementation */
--#else
--#include <asm/rwsem.h> /* use an arch-specific implementation */
--#endif
-+struct rw_semaphore;
- 
- /* defined contention handler functions for the generic case
-  * - these are also used for the exchange-and-add based algorithm
-  */
--#if defined(CONFIG_RWSEM_GENERIC) || defined(CONFIG_RWSEM_XCHGADD_ALGORITHM)
-+#if defined(CONFIG_RWSEM_GENERIC_SPINLOCK) || defined(CONFIG_RWSEM_XCHGADD_ALGORITHM)
- /* we use FASTCALL convention for the helpers */
- extern struct rw_semaphore *FASTCALL(rwsem_down_read_failed(struct rw_semaphore *sem));
- extern struct rw_semaphore *FASTCALL(rwsem_down_write_failed(struct rw_semaphore *sem));
- extern struct rw_semaphore *FASTCALL(rwsem_wake(struct rw_semaphore *sem));
-+#endif
+--- linux/fs/reiserfs/journal.c	Thu Apr 19 14:02:56 2001
++++ linux/fs/reiserfs/journal.c	Thu Apr 19 18:11:57 2001
+@@ -1814,16 +1814,14 @@
+ ** then run the per filesystem commit task queue when we wakeup.
+ */
+ static int reiserfs_journal_commit_thread(void *nullp) {
+-  exit_files(current);
+-  exit_mm(current);
 +
-+/* access the actual implementation of the rwsems
-+ */
-+#ifdef CONFIG_RWSEM_GENERIC_SPINLOCK
-+#include <linux/rwsem-spinlock.h> /* use a generic implementation */
-+#else
-+#include <asm/rwsem.h> /* use an arch-specific implementation */
- #endif
++  daemonize() ;
  
- #ifndef rwsemtrace
+   spin_lock_irq(&current->sigmask_lock);
+   sigfillset(&current->blocked);
+   recalc_sigpending(current);
+   spin_unlock_irq(&current->sigmask_lock);
+ 
+-  current->session = 1;
+-  current->pgrp = 1;
+   sprintf(current->comm, "kreiserfsd") ;
+   lock_kernel() ;
+   while(1) {
 
---------------Boundary-00=_J3C298T12LWTFAM22NBO--
+

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262662AbTAEDsi>; Sat, 4 Jan 2003 22:48:38 -0500
+	id <S262796AbTAEDuS>; Sat, 4 Jan 2003 22:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbTAEDsi>; Sat, 4 Jan 2003 22:48:38 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36621 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262662AbTAEDsh>; Sat, 4 Jan 2003 22:48:37 -0500
-Date: Sat, 4 Jan 2003 19:51:48 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Andi Kleen <ak@suse.de>, <davem@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
-In-Reply-To: <Pine.LNX.4.44.0301041930300.1388-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0301041942560.1651-100000@home.transmeta.com>
+	id <S262806AbTAEDuS>; Sat, 4 Jan 2003 22:50:18 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:42426 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262796AbTAEDuQ>;
+	Sat, 4 Jan 2003 22:50:16 -0500
+Date: Sat, 4 Jan 2003 19:55:40 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [STUPID] Best looking code to transfer to a t-shirt
+In-Reply-To: <Pine.LNX.4.44.0301041446560.18708-100000@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.33L2.0301041954400.3599-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 4 Jan 2003, Maciej Soltysiak wrote:
 
-On Sat, 4 Jan 2003, Linus Torvalds wrote:
-> 
-> It doesn't show up on lmbench (insufficient precision), but your AIM9
-> numbers are quite interesting. Are they stable?
+| Thank you all for your suggestions, i found this very entertaining, lot
+| of laughs i must say. Also the ammount of 'shit' and 'fuck' words totally
+| blew me off :)
+|
+| I think i'll put on my t-shirt:
+| - panic()
+| - risc logos (on the sides)
+| - printer "on fire" line (btw. 2.4.20 doesn't have "on fire", just:
+|   "unknown error", 2.5.54 has it in drivers/usb/class/usblp.c)
+2.4.2 drivers/char/lp.c, line 209, has:
+			printk(KERN_INFO "lp%d on fire\n", minor);
 
-Btw, which checking whether the numbers are stable it is also interesting
-to see stability across reboots etc, since for the scheduling latency in
-particular it can easily depend on location of the binaries in physical
-memory etc, since that matters for cache accesses (I think the L1 D$ on a
-PIII is 4-way associative, I'm not sure - it makes it _reasonably_ good at
-avoiding cache conflicts, but they can still happen and easily account for
-a 5% fluctuation. I don't remember what the L1 I$ situation is).
+| - the elegant idle routine - also nice to have. maybe on the back
 
-And with a fairly persistent page cache, whatever cache situation there is
-tends to largely stay the same, so just re-running the benchmark may not
-change much, at least for the I$ situation.
-
-You can see this effect quite clearly in lmbench: while the 2p/0k context
-switch numbers tend to be fairly stable (almost zero likelyhood of any
-cache conflicts), the others often fluctuate more even with the same
-kernel (ie for me the 2p/16kB numbers fluctuate between 3 and 6 usecs).
-
-D$ conflicts are largely easier to see (because they usually _will_ change 
-when you re-run the benchmark, so they show up as fluctuations), but the 
-I$ effects in particular can be quite persistent because (a) the kernel 
-code will always be at the same place and (b) the user code tends to be 
-sticky in the same place due to the page cache. 
-
-I'm convinced the I$ effects are one major issue why we sometimes see
-largish fluctuations on some ubenchmarks between kernels when nothing has
-really changed.
-
-		Linus
+-- 
+~Randy
 

@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265114AbUF1S3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265117AbUF1Scq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265114AbUF1S3y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 14:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUF1S3y
+	id S265117AbUF1Scq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 14:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUF1Scq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 14:29:54 -0400
-Received: from cantor.suse.de ([195.135.220.2]:25050 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265117AbUF1S3t (ORCPT
+	Mon, 28 Jun 2004 14:32:46 -0400
+Received: from kiuru.kpnet.fi ([193.184.122.21]:54464 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S265117AbUF1Sco (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 14:29:49 -0400
-Date: Mon, 28 Jun 2004 20:18:43 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: [PATCH] signed bug in net/decnet/dn_nsp_in.c dn_nsp_linkservice()
-Message-ID: <20040628181843.GA15021@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+	Mon, 28 Jun 2004 14:32:44 -0400
+Date: Mon, 28 Jun 2004 21:32:43 +0300 (EEST)
+From: =?iso-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
+X-X-Sender: midian@midi.ihme.net
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-np2
+In-Reply-To: <40E00EA4.8060205@yahoo.com.au>
+Message-ID: <20040628213225.L54031@midi.ihme.net>
+References: <40E00EA4.8060205@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 Jun 2004, Nick Piggin wrote:
 
-net/decnet/dn_nsp_in.c:534: warning: comparison is always false due to limited range of data type
+> http://www.kerneltrap.org/~npiggin/2.6.7-np2.gz
+>
+> This is against 2.6.7-mm3. I can do one against -bk if anyone would
+> like.
+>
+I would like.
 
-char can be either signed or unsigned, depending on the target system.
-patch is against 2.6.7-bk11
-
-
---- ./net/decnet/dn_nsp_in.c
-+++ ./net/decnet/dn_nsp_in.c	2004/06/28 18:11:40
-@@ -504,7 +504,7 @@
- 	struct dn_scp *scp = DN_SK(sk);
- 	unsigned short segnum;
- 	unsigned char lsflags;
--	char fcval;
-+	signed char fcval;
- 	int wake_up = 0;
- 	char *ptr = skb->data;
- 	unsigned char fctype = scp->services_rem & NSP_FC_MASK;
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+ 	Markus

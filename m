@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130916AbRAOTxN>; Mon, 15 Jan 2001 14:53:13 -0500
+	id <S129798AbRAOTzM>; Mon, 15 Jan 2001 14:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130878AbRAOTxD>; Mon, 15 Jan 2001 14:53:03 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:37390 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131056AbRAOTwp>; Mon, 15 Jan 2001 14:52:45 -0500
-Date: Mon, 15 Jan 2001 11:52:12 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-cc: David Balazic <david.balazic@uni-mb.si>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MTRR type AMD Duron/intel ?
-In-Reply-To: <Pine.LNX.4.30.0101151937460.8658-100000@svea.tellus>
-Message-ID: <Pine.LNX.4.10.10101151151080.6408-100000@penguin.transmeta.com>
+	id <S130072AbRAOTzC>; Mon, 15 Jan 2001 14:55:02 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:45830 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129994AbRAOTy4>; Mon, 15 Jan 2001 14:54:56 -0500
+Date: Mon, 15 Jan 2001 14:57:42 -0500
+From: Chris Mason <mason@suse.com>
+To: hugang <linuxhappy@etang.com>, linux-kernel@vger.kernel.org
+Subject: Re: patch:reiserfs 3.6.25 + LVM(Fix oops reiserfs filesystem)
+Message-ID: <153220000.979588662@tiny>
+In-Reply-To: <20010113234151.1d6e872e.linuxhappy@etang.com>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 15 Jan 2001, Tobias Ringstrom wrote:
-> 
-> Last time I checked this was issued for perfectly known and valid bridges
-> that advertice no IO resources.  Isn't it a bit silly to issue that
-> warning for that case, or am I missing something?
+On Saturday, January 13, 2001 11:41:51 PM -0800 hugang
+<linuxhappy@etang.com> wrote:
 
-Ehh - so what do they bridge, then?
+[ patch ]
 
-I'd say that a bridge that doesn't seem to bridge any IO or MEM region,
-yet has stuff behind it, THAT is the silly thing. Thus the "silly"
-warning.
+Odd, the create_vi op should never be null, so the real fix is somewhere
+else.  We'll look into this.
 
-		Linus
+-chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

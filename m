@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288169AbSA0QRL>; Sun, 27 Jan 2002 11:17:11 -0500
+	id <S288114AbSA0QXB>; Sun, 27 Jan 2002 11:23:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288124AbSA0QRC>; Sun, 27 Jan 2002 11:17:02 -0500
-Received: from petasus.iil.intel.com ([192.198.152.69]:64251 "EHLO
-	petasus.iil.intel.com") by vger.kernel.org with ESMTP
-	id <S288114AbSA0QQt>; Sun, 27 Jan 2002 11:16:49 -0500
-Message-ID: <1FA73BCBB3CFD311913100A0C9E00BE6023923CD@hasmsx43.iil.intel.com>
-From: "Mendelson, Tsippy" <tsippy.mendelson@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'linux-net@vger.kernel.org'" <linux-net@vger.kernel.org>
-Subject: Does bonding interfere with Raw packet binding ?
-Date: Sun, 27 Jan 2002 18:16:42 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S288124AbSA0QWv>; Sun, 27 Jan 2002 11:22:51 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:7899 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S288114AbSA0QWp>; Sun, 27 Jan 2002 11:22:45 -0500
+Date: Sun, 27 Jan 2002 17:21:50 +0100
+From: "W. Michael Petullo" <mike@flyn.org>
+To: linux-kernel@vger.kernel.org
+Subject: SMP Pentium III, GA-6VXDC7 MoBo. -- 2.4.18-pre7 SMP not working
+Message-ID: <20020127172150.A1407@dragon.flyn.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Operating-System: Linux dragon.flyn.org 2.4.18-pre7 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a home-built dual Pentium III computer which does not seem to
+want to run recent SMP kernels.  The computer is built on a Gigabyte
+GA-6VXDC7 motherboard, which is in turn based on a VIA Apollo Pro chip-set.
+It is an exclusively SCSI system -- I do not compile any IDE drivers
+into my kernel.
 
-Hello,
+Kernel 2.4.12 works fine when compiled with SMP on.  However, anything
+newer fails to load when compiled with SMP support.  In the failing cases,
+lilo prints its uncompressing kernel and booting kernel messages followed
+by a system hang -- the kernel never prints anything.
 
-The PF_PACKET protocol family was defined to allow root applications to bind
-themselves with network devices without going through all the network stack.
+Kernel.org
+Vanilla		CONFIG_SMP=y		# CONFIG_SMP is not set
+Version		SMP Status		UP Status
+======================================================
+2.4.10		SMP works		Fine
+2.4.11		Wouldn't touch		Wouldn't touch
+2.4.12		SMP Works		Fine
+2.4.13		SMP does not boot	Fine
+2.4.14		Did not try		Did not try
+2.4.15		Did not try		Did not try
+2.4.16		SMP does not boot	Fine
+2.4.17		SMP does not boot	Fine
+2.4.18-pre7	SMP does not boot	Fine
 
-What happens if an application binds itself to a device that is a slave in a
-bonding team?
+Since the kernel does not even peep an oops message, I'm not sure where
+to start debugging.  Is anyone else having similar problems?
+-- 
+Mike
 
-The skb_bond() function in dev.c changes the skb->dev from the slave device
-to a master device. It seems that this will block the application from
-receiving its packets.
-
-Dying to get some input on this Q.
-
-Thanks,
-
-Tsippy 
+:wq

@@ -1,94 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261274AbSJPTfz>; Wed, 16 Oct 2002 15:35:55 -0400
+	id <S261371AbSJPTq4>; Wed, 16 Oct 2002 15:46:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261289AbSJPTfx>; Wed, 16 Oct 2002 15:35:53 -0400
-Received: from pod.tau.ac.il ([132.66.10.227]:15248 "EHLO pod.tau.ac.il")
-	by vger.kernel.org with ESMTP id <S261274AbSJPTfv>;
-	Wed, 16 Oct 2002 15:35:51 -0400
-Date: Wed, 16 Oct 2002 21:41:44 +0200 (IST)
-From: Oded Comay <comay@comay.net>
-X-X-Sender: comay@pod.tau.ac.il
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18 memory leak, or just mis-understanding?
-Message-ID: <Pine.LNX.4.44.0210162127410.21876-100000@pod.tau.ac.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261374AbSJPTq4>; Wed, 16 Oct 2002 15:46:56 -0400
+Received: from lab1.ists.dartmouth.edu ([129.170.248.130]:6529 "EHLO
+	karaya.com") by vger.kernel.org with ESMTP id <S261371AbSJPTqz>;
+	Wed, 16 Oct 2002 15:46:55 -0400
+Message-Id: <200210161955.g9GJtOZ06687@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML updates
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 16 Oct 2002 15:55:24 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A 2.4.18 system in my domain swaps heavily with no apparent reason.  
-Summing up memory usage according to /proc/meminfo, /proc/slabinfo, and
-/proc/*/status shows as if an increasing amount of memory is unaccounted
-for. As an example (details below) consider the following:
+Please pull
+	http://jdike.stearns.org:5000/fixes-2.5
 
-  Used memory: 108 MB
+This patch contains updates to 2.5.43 and syncs the 2.5 UML up with my 2.4
+tree.
 
-  Buffers:       1 MB
-  Cached:       10 MB
-  Slabinfo:      3 MB
-  Processes:    10 MB
+The 2.5.43 updates are build fixes, and updated defconfig, and an entry for
+lookup_dcookie.
 
-Which obviously doesn't sum up. What am I missing? Any clue from a 
-kind soul is appreciated.
+The other stuff includes
+	not calling request_irq from an interrupt handler
+	fix a hang caused by xterm not running successfully
+	exporting rwlock symbols
+	killing off all the idle threads on halt
+	other small updates, fixes, and cleanups
 
-TIA,
-Oded.
+				Jeff
 
-Details:
+ arch/um/Makefile                |    9 ++---
+ arch/um/Makefile-i386           |    7 ++-
+ arch/um/defconfig               |    8 ++++
+ arch/um/drivers/Makefile        |    2 -
+ arch/um/drivers/mconsole_kern.c |    2 +
+ arch/um/drivers/port_kern.c     |   62 +++++++++++++++++++++++++---------
+ arch/um/drivers/ssl.c           |    1 
+ arch/um/drivers/stdio_console.c |    1 
+ arch/um/drivers/ubd_kern.c      |    3 +
+ arch/um/drivers/xterm.c         |   26 ++++++++++----
+ arch/um/drivers/xterm.h         |   22 ++++++++++++
+ arch/um/drivers/xterm_kern.c    |   71 ++++++++++++++++++++++++++++++++++++++++
+ arch/um/include/chan_user.h     |    1 
+ arch/um/include/kern_util.h     |    2 +
+ arch/um/include/user_util.h     |    1 
+ arch/um/kernel/Makefile         |    4 +-
+ arch/um/kernel/irq_user.c       |    1 
+ arch/um/kernel/ksyms.c          |   14 +++++++
+ arch/um/kernel/reboot.c         |   19 ++++++++++
+ arch/um/kernel/signal_user.c    |   24 ++++++-------
+ arch/um/kernel/smp.c            |    4 ++
+ arch/um/kernel/sys_call_table.c |    4 +-
+ arch/um/kernel/trap_kern.c      |    1 
+ include/asm-um/irq.h            |    3 +
+ include/asm-um/system-generic.h |   12 +++---
+ 25 files changed, 248 insertions(+), 56 deletions(-)
 
-# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  524374016 113479680 410894336        0   860160  9527296
-Swap: 942473216  1503232 9409
-MemTotal:       512084 kB
-MemFree:        401264 kB
-MemShared:           0 kB
-Buffers:           840 kB
-Cached:           8768 kB
-SwapCached:        536 kB
-Active:           6420 kB
-Inactive:         4772 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       512084 kB
-LowFree:        401264 kB
-SwapTotal:      920384 kB
-SwapFree:       918916 kB
-
-slabsum.pl sums up the active pages in /proc/slabinfo. It works as
-follows:
-
-  while (<>) {
-    s/([a-zA-Z]) ([a-zA-Z])/$1\_$2/;
-    ($name, $active_obj, $total_obj, $size, $active_slabs,
-$total_slabs, $pages)= split;
-    $sum+= $total_slabs*$pages;
-  }
-  print $sum*4096;
-
-# slabsum.pl < /proc/slabinfo
-2498560
-
-The following sums up the resident size of running processes. It
-ignores shared memory issues, so it is at least as large as the actual
-memory used (reported in kB):
-
-# grep VmRSS: /proc/*/status | awk '{s+= $2; print s}' | tail -1
-10164
-
-No ipcs shared memory:
-
-# ipcs
-
------- Shared Memory Segments --------
-key       shmid     owner     perms     bytes     nattch    status
-
------- Semaphore Arrays --------
-key       semid     owner     perms     nsems     status
-
------- Message Queues --------
-key       msqid     owner     perms     used-bytes  messages
-
-
+ChangeSet@1.858, 2002-10-16 13:39:53-04:00, jdike@uml.karaya.com
+  A bunch of miscellaneous changes - mostly fixes from 2.4 and updates
+  to 2.5.43.
+  Added some Makefile fixes so the build works.
+  Brought the xterm not hanging fix from 2.4.
+  Updated the signal code from 2.4.
+  Fixed port_interrupt to not allocate IRQs.
+  The idle threads for the secondary processors are now killed off
+  on shutdown.
+  Some rwlock symbols are exported.
+  Added a system call entry for lookup_dcookie.
 

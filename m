@@ -1,68 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275004AbTHMNmb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 09:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275055AbTHMNmb
+	id S273288AbTHMNzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 09:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274978AbTHMNzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 09:42:31 -0400
-Received: from smartmail.hjemme.no ([213.188.18.138]:18084 "EHLO
-	smartmail.hjemme.no") by vger.kernel.org with ESMTP id S275004AbTHMNm2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 09:42:28 -0400
-Date: Wed, 13 Aug 2003 15:45:48 +0200
-From: Andreas Mikkelborg <andreas.mikkelborg@hjemme.no>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3-mm2
-Message-Id: <20030813154548.74a82cb7.andreas.mikkelborg@hjemme.no>
-Organization: na
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Aug 2003 09:55:39 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:18936 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S273288AbTHMNzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 09:55:38 -0400
+Subject: Re: [ACPI] [BK PATCH] ACPI Updates for 2.4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A8470255EECD@orsmsx401.jf.intel.com>
+References: <F760B14C9561B941B89469F59BA3A8470255EECD@orsmsx401.jf.intel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1060782897.8513.50.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 13 Aug 2003 14:54:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-modprobe i2c-nforce2 segfaults and produces :
+On Maw, 2003-08-12 at 23:36, Grover, Andrew wrote:
+> Hi Marcelo, here's a bunch of ACPI updates.
+> 
+> bk pull http://linux-acpi.bkbits.net/linux-acpi-2.4
 
-Unable to handle kernel NULL pointer dereference at virtual address 000001c4
- printing eip:
-f899a068
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT 
-CPU:    0
-EIP:    0060:[<f899a068>]    Tainted: P   VLI
-EFLAGS: 00210246
-EIP is at nforce2_access+0x68/0x3d0 [i2c_nforce2]
-eax: 00000000   ebx: 00000000   ecx: 00000020   edx: 00000000
-esi: 00000000   edi: 00000002   ebp: 00000000   esp: f6a01d84
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 8213, threadinfo=f6a00000 task=f6b5c040)
-Stack: f6a14c40 00000024 c0172179 00000000 f6c92464 fffdb000 00000024 c0163113 
-       f6a14c40 00000007 00000000 00200024 f6dc4420 00000000 00000000 f6dc4404 
-       f882f190 f6dc4404 00000020 00000000 00000000 00000000 00000000 00000000 
-Call Trace:
- [<c0172179>] simple_commit_write+0x89/0xa0
- [<c0163113>] page_symlink+0x163/0x1f6
- [<f882f190>] i2c_smbus_xfer+0xa0/0x230 [i2c_core]
- [<f8838330>] i2c_detect+0x330/0x4b0 [i2c_sensor]
- [<f887467b>] w83781d_attach_adapter+0x2b/0x30 [w83781d]
- [<f88749c0>] w83781d_detect+0x0/0x9d0 [w83781d]
- [<f882d1cd>] i2c_add_adapter+0x17d/0x190 [i2c_core]
- [<c0208787>] snprintf+0x27/0x30
- [<f899d13c>] nforce2_probe_smb+0x13c/0x1c0 [i2c_nforce2]
- [<f899d226>] nforce2_probe+0x66/0x130 [i2c_nforce2]
- [<c020bdc2>] pci_device_probe_static+0x52/0x70
- [<c020bf2c>] __pci_device_probe+0x3c/0x50
- [<c020bf6f>] pci_device_probe+0x2f/0x50
- [<c0227e85>] bus_match+0x45/0x80
- [<c0227fac>] driver_attach+0x5c/0x60
- [<c0228243>] bus_add_driver+0x93/0xb0
- [<c02286af>] driver_register+0x2f/0x40
- [<c020c260>] pci_register_driver+0x70/0xa0
- [<f899d303>] nforce2_init+0x13/0x3d [i2c_nforce2]
- [<c013285c>] sys_init_module+0x12c/0x250
- [<c02a7b6b>] syscall_call+0x7/0xb
+Is this available as a patch file somewhere ?
 
-Code: e0 04 66 85 c0 75 05 c6 44 24 27 00 83 7c 24 58 0b 0f 87 4c 03 00 00 8b 44
- 24 58 ff 24 85 94 a4 99 f8 8b 54 24 28 83 cf 02 31 ed <8b> b2 c4 01 00 00 0f b6 44 24 2e 8d 56 02 00 c0 ee e6 80 89 f8 

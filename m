@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261932AbREUIDO>; Mon, 21 May 2001 04:03:14 -0400
+	id <S261951AbREUIHD>; Mon, 21 May 2001 04:07:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261950AbREUIDD>; Mon, 21 May 2001 04:03:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29198 "EHLO
+	id <S261941AbREUIGx>; Mon, 21 May 2001 04:06:53 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32526 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261937AbREUIC4>; Mon, 21 May 2001 04:02:56 -0400
+	id <S261937AbREUIGg>; Mon, 21 May 2001 04:06:36 -0400
 Subject: Re: alpha iommu fixes
 To: davem@redhat.com (David S. Miller)
-Date: Mon, 21 May 2001 08:59:50 +0100 (BST)
-Cc: andrea@suse.de (Andrea Arcangeli), andrewm@uow.edu.au (Andrew Morton),
+Date: Mon, 21 May 2001 09:03:30 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrewm@uow.edu.au (Andrew Morton),
+        andrea@suse.de (Andrea Arcangeli),
         ink@jurassic.park.msu.ru (Ivan Kokshaysky),
         rth@twiddle.net (Richard Henderson), linux-kernel@vger.kernel.org
-In-Reply-To: <15112.47990.828744.956717@pizda.ninka.net> from "David S. Miller" at May 20, 2001 11:53:42 PM
+In-Reply-To: <15112.51569.744590.398000@pizda.ninka.net> from "David S. Miller" at May 21, 2001 12:53:21 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E151kbW-0003T4-00@the-village.bc.nu>
+Message-Id: <E151kf4-0003TY-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What are these "devices", and what drivers "just program the cards to
-> start the dma on those hundred mbyte of ram"?
+> Alan Cox writes:
+>  > And how do you propose to implemnt cache coherent pci allocations
+>  > on machines which lack the ability to have pages coherent between
+>  > I/O and memory space ?
 > 
-> Are we designing Linux for hypothetical systems with hypothetical
-> devices and drivers, or for the real world?
+> Pages, being in memory space, are never in I/O space.
 
-Ok how about a PIV Xeon with 64Gb of memory and 5 AMI Megaraids, which are
-limited to the low 2Gb range for pci mapping and otherwise need bounce buffers.
-Or how about any consistent alloc on certain HP machines which totally lack
-coherency - also I suspect the R10K on an O2 might fall into that - Ralf ?
+Ok my fault. Let me try that again with clearer Linux terminology.
 
-Look at the history of kernel API's over time. Everything that can go wrong
-eventually does.
+Pages allocated in main memory and mapped for access by PCI devices. On some
+HP systems there is now way for such a page to stay coherent. It is quite
+possible to sync the view but there is no sane way to allow any
+pci_alloc_consistent to succeed
+
+Alan
+
 

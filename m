@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131777AbRCXUCH>; Sat, 24 Mar 2001 15:02:07 -0500
+	id <S131791AbRCXUYK>; Sat, 24 Mar 2001 15:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131778AbRCXUB5>; Sat, 24 Mar 2001 15:01:57 -0500
-Received: from d83b5259.dsl.flashcom.net ([216.59.82.89]:45440 "EHLO
-	home.lameter.com") by vger.kernel.org with ESMTP id <S131777AbRCXUBr>;
-	Sat, 24 Mar 2001 15:01:47 -0500
-Date: Sat, 24 Mar 2001 11:56:08 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-To: linux-kernel@vger.linux.org
-Subject: ReiserFS phenomenon with 2.4.2 ac24/ac12
-Message-ID: <Pine.LNX.4.21.0103241154150.2429-100000@home.lameter.com>
+	id <S131798AbRCXUYA>; Sat, 24 Mar 2001 15:24:00 -0500
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:17405
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S131791AbRCXUXq>; Sat, 24 Mar 2001 15:23:46 -0500
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: Paul Jakma <paulj@itg.ie>, Guest section DW <dwguest@win.tue.nl>
+Subject: Re: [PATCH] Prevent OOM from killing init
+Date: Sat, 24 Mar 2001 14:19:39 -0600
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Michael Peddemors <michael@linuxmagic.com>,
+        Stephen Clouse <stephenc@theiqgroup.com>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0103232013490.31380-100000@rossi.itg.ie>
+In-Reply-To: <Pine.LNX.4.33.0103232013490.31380-100000@rossi.itg.ie>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01032414222102.03927@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a directory /a/yy that I tried to erase with rm -rf /a/yy.
+On Fri, 23 Mar 2001, Paul Jakma wrote:
+>On Fri, 23 Mar 2001, Guest section DW wrote:
+>
+>> But yes, I am complaining because Linux by default is unreliable.
+>
+>no, your distribution is unreliable by default.
+>
+>> I strongly prefer a system that is reliable by default,
+>> and I'll leave it to others to run it in an unreliable mode.
+>
+>currently, setting sensible user limits on my machines means i never
+>get a hosed machine due to OOM. These limits are easy to set via
+>pam_limits. (not perfect though, i think its session specific..)
 
-rm hangs...
+Process specific. Each forked process gets the same limits. You get OOM
+as soon as all processes together use more than the system capacity.
 
-ls gives the following output:
+>granted, if the machine hasn't been setup with user limits, then linux
+>doesn't deal at all well with OOM, so this should be fixed. but it can
+>easily be argued that admin error in not configuring limits is the
+>main cause for OOM.
 
-ls: /a/yy/cache3A0F94EA0A00557.html: No such file or directory
-ls: /a/yy/cache3A0F94EA0A00557.html: No such file or directory
-ls: /a/yy/cache3A8CCC6A0490B05.gifcache393C2B6A2CD2DF1.crumb: No such file
-or directory
-ls: /a/yy/cache3A0F94EA0A00557.html: No such file or directory
-ls: /a/yy/cache3A0F94EA0A00557.html: No such file or directory
-ls: /a/yy/cache3A8CCC6A0490B05.gifcache393C2B6A2CD2DF1.crumb: No such file
-or directory
+Admin has no real control is the problem. Limits are only good for one
+process. As soon as that process forks one other process then the
+useage limit is twice the limit established.
 
-and so on and so on....
+>> Andries
+>
+>regards,
+>
+>--paulj
 
-I tried a reiserfscheck -x on the /a volume but the strangeness still
-persists. What is going on here?
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: jesse@cats-chateau.net
 
-
-
+Any opinions expressed are solely my own.

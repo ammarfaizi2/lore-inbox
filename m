@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266257AbUIIQnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUIIQsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266257AbUIIQnq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 12:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266233AbUIIQn1
+	id S266316AbUIIQsm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 12:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266391AbUIIQqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 12:43:27 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:45706 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266257AbUIIQhX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 12:37:23 -0400
-Date: Thu, 9 Sep 2004 18:37:05 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.9-rc1-bk16] ppc32: Use $(addprefix ...) on arch/ppc/boot/lib/
-Message-ID: <20040909163705.GA7830@mars.ravnborg.org>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040909153031.GA2945@smtp.west.cox.net>
+	Thu, 9 Sep 2004 12:46:35 -0400
+Received: from pD9517510.dip.t-dialin.net ([217.81.117.16]:59525 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S266349AbUIIQpF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 12:45:05 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+From: Thomas Charbonnel <thomas@undata.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mark_H_Johnson@raytheon.com, Ingo Molnar <mingo@elte.hu>,
+       Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
+       Eric St-Laurent <ericstl34@sympatico.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+In-Reply-To: <1094682656.12371.28.camel@localhost.localdomain>
+References: <OF08E1ED49.F0799581-ON86256F09.0070E65F-86256F09.0070E6A7@raytheon.com>
+	 <1094682656.12371.28.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1094748286.18782.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909153031.GA2945@smtp.west.cox.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 09 Sep 2004 18:44:46 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 09, 2004 at 08:30:31AM -0700, Tom Rini wrote:
-> The following makes arch/ppc/boot/lib/Makefile use $(addprefix ...) to
-> get lib/zlib_inflate/ source code.  Previously we were manually setting
-> the dependancy and invoking cc_o_c.  Worse, we were invoking the cmd
-> version, not the rule version and thus when MODVERSIONS=y, we wouldn't
-> do the .tmp_foo.o -> foo.o rename, and thus the compile would break.
-> Using $(addprefix ...) gets us using the standard rules again (and is
-> shorter to boot).
+Alan Cox wrote :
+> On Mer, 2004-09-08 at 21:33, Mark_H_Johnson@raytheon.com wrote:
+> > >.... Please disable IDE DMA and see
+> > >what happens (after hiding the PIO IDE codepath via
+> > >touch_preempt_timing()).
+> > 
+> > Not quite sure where to add touch_preempt_timing() calls - somewhere in the
+> > loop in ide_outsl and ide_insl? [so we keep resetting the start /end
+> > times?]
+> 
+> If you haven't done hdparm -u1 that may be a reason you want to touch
+> these. To defend against some very bad old h/w where a stall in the I/O
+> stream to the disk causes corruption we disable IRQ's across the
+> transfer in PIO mode by default.
+> 
 
-Your patch was pending my comments - sorry.
+I had the exact same problem showing in the output of latencytest, and
+enabling unmaskirq on the drive being stressed solved it, thanks !
+
+See this for the problem :
+http://www.undata.org/~thomas/unmaskirq_0/index.html
+and this for the (impressive) results :
+http://www.undata.org/~thomas/unmaskirq_1/index.html
+
+Thomas
 
 
-Why not:
-
-lib-y := $(addprefix lib/zlib_inflate/,infblock.o infcodes.o inffast.o \
-                                       inflate.o inftrees.o infutil.o)
-lib-y += div64.o
-lib-$(CONFIG_VGA_CONSOLE) += vreset.o kbd.o
-
-No need to use that ugly relative path.
-I do not like this way of selectng .o files. It will so
-obviously break the build with make -j if there is no synchronisation
-point. vmlinux provide this synchronisation point in this case.
-But in this particular case I see no better alternative.
-
-	Sam

@@ -1,97 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264128AbUDBT3n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 14:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264159AbUDBT3n
+	id S264129AbUDBTfo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 14:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbUDBTfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 14:29:43 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16279
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264128AbUDBT3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 14:29:41 -0500
-Date: Fri, 2 Apr 2004 21:29:41 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040402192941.GP21341@dualathlon.random>
-References: <20040402001535.GG18585@dualathlon.random> <Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain> <20040402011627.GK18585@dualathlon.random> <20040401173649.22f734cd.akpm@osdl.org> <20040402020022.GN18585@dualathlon.random> <20040402104334.A871@infradead.org> <20040402164634.GF21341@dualathlon.random> <20040402195927.A6659@infradead.org>
+	Fri, 2 Apr 2004 14:35:44 -0500
+Received: from mproxy.gmail.com ([216.239.56.244]:23197 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S264129AbUDBTfg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 14:35:36 -0500
+Message-ID: <2B32499D.222B761B@mail.gmail.com>
+Date: Fri, 2 Apr 2004 11:28:55 -0800
+From: Ross Biro <ross.biro@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] cowlinks v2
+Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
+	Cc:	=?ISO-8859-1?Q?=20=22J=F6rn?= Engel" <joern@wohnheim.fh-wedel.de>, mj@ucw.cz, jack@ucw.cz, "Patrick J.LoPresti" <patl@users.sourceforge.net>, linux-kernel@vger.kernel.org"
+			^												     ^	      ^-missing closing '"' in token
+		|												      \-missing end of address
+		\-extraneous tokens in address
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040402195927.A6659@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040320083411.GA25934@wohnheim.fh-wedel.de> <s5gznab4lhm.fsf@patl=users.sf.net> <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 02, 2004 at 07:59:28PM +0100, Christoph Hellwig wrote:
-> On Fri, Apr 02, 2004 at 06:46:34PM +0200, Andrea Arcangeli wrote:
-> > it's not clear why this triggered, bad_page only shows the "master"
-> > compound page and not the contents of the slave page that triggered the
-> > bad_page. Can you try again with this incremental patch applied?
-> 
-> Bad page state at destroy_compound_page (in process 'swapper', page c0772380)
-> flags:0x00080008 mapping:00000000 mapped:0 count:134217728 private:0xc07721ff
+On Fri, 2 Apr 2004 20:23:58 +0200, Pavel Machek <pavel@ucw.cz> wrote:
+> > > > If you really want cowlinks and hardlinks to be intermixed freely, I'd
+> > > > happily agree with you as soon as you can define the behaviour for all
+> > > > possible cases in a simple document and none of them make me scared
+> > > > again.  Show me that it is possible and makes sense.
 
-PageCompound and PageUpdodate are set.
+Maybe it's easiest to view the proposed copyfile() as being
+semantically equivalent to cp from the point of view of anything above
+the actual file system (modulo running out of space at weird times)
 
-mapping/mapped is null.
+Then all the questions are easy to answer, and it would also be
+possible to implement copyfile at the VFS layer as cp for file systems
+that don't support it.
 
-page->count is 0x8000000, that looks weird.
-
-page->private indicates:
-
->>> (0xc0772380L-0xc07721ffL)/32
-12L
-
-that's the 12th page in the array.
-
-can you check in the asm (you should look at address c0048c7c) if it's
-the first bug that triggers?
-
-	if (page[1].index != order)
-		bad_page(__FUNCTION__, page);
-
-
-the whole compound thing is very screwed in the above scenario.
-
-Do you have CONFIG_DEBUG_PAGEALLOC enabled?
-
-could be compound never worked right on ppc, dunno. You could try to
-backout the patch gfp-no-compound and to recompile with hugetlbfs
-enabled (can you enable it on PPC?).
-
-In the meantime it seem swap resume got broken by some other change and
-that the VM side is ok now [rc3-aa2 showed some harmless warning that
-I've fixed in the patch you just tried] (I backed out the other non-VM
-changes and resume works better now, though I cannot be 100% sure since
-aic7xxx cannot resume totally, confirmed by Pavel, I need somebody with
-suspend-capable-hardware to verify).
-
-I also started the mprotect merging and it should be really quick to add
-it.
-
-Plus I'm doing a microscalability optimization in the fremap.c, the
-previous code was right taking the page_table_lock after calculating the
-pgd_offset.
-
-> Backtrace:
-> Call trace:
->  [c000b5c8] dump_stack+0x18/0x28
->  [c0048b64] bad_page+0x74/0xbc
->  [c0048c7c] destroy_compound_page+0x80/0xb8
->  [c0048ed0] free_pages_bulk+0x21c/0x220
->  [c0049030] __free_pages_ok+0x15c/0x188
->  [c004d520] slab_destroy+0x140/0x234
->  [c00505f0] reap_timer_fnc+0x1e4/0x2b8
->  [c002feac] run_timer_softirq+0x134/0x1fc
->  [c002abd0] do_softirq+0x140/0x144
->  [c0009e5c] timer_interrupt+0x2d0/0x300
->  [c0007cac] ret_from_except+0x0/0x14
->  [c000381c] ppc6xx_idle+0xe4/0xf0
->  [c0009b7c] cpu_idle+0x28/0x38
->  [c00038c4] rest_init+0x50/0x60
->  [c0364784] start_kernel+0x198/0x1d8
+Of course, it gets more interesting if you try to do it at the block
+level instead of at the file level.  For ext2, you could just reserve
+a block #, say -1, to mean take the data from the master cow file, and
+anything else is treated normally.  You would need a deamon to make
+sure you were still saving space though.

@@ -1,78 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289657AbSBKOO0>; Mon, 11 Feb 2002 09:14:26 -0500
+	id <S289685AbSBKORf>; Mon, 11 Feb 2002 09:17:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289685AbSBKOOQ>; Mon, 11 Feb 2002 09:14:16 -0500
-Received: from gold.MUSKOKA.COM ([216.123.107.5]:6924 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S289657AbSBKOOK>;
-	Mon, 11 Feb 2002 09:14:10 -0500
-Message-ID: <3C67CF6E.6A086B18@yahoo.com>
-Date: Mon, 11 Feb 2002 09:04:30 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-To: Miles Lane <miles@megapathdsl.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: fdomain.c:1568: structure has no member named `address'
-In-Reply-To: <1013398791.30864.37.camel@turbulence.megapathdsl.net>
+	id <S289697AbSBKORZ>; Mon, 11 Feb 2002 09:17:25 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11527 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289685AbSBKORP>; Mon, 11 Feb 2002 09:17:15 -0500
+Date: Mon, 11 Feb 2002 14:17:05 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Ingo Molnar <mingo@elte.hu>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: scheduler, and per-arch switch_to
+Message-ID: <20020211141705.C21300@flint.arm.linux.org.uk>
+In-Reply-To: <3C67C740.43AAD437@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C67C740.43AAD437@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Feb 11, 2002 at 08:29:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 11, 2002 at 08:29:36AM -0500, Jeff Garzik wrote:
+> Do we really care about the third arg to the switch_to() macro?
+> 
+> IMHO it would be nice to define the architecture context switch
+> interface like
+> 
+>   void switch_to(struct thread_info *from, struct thread_info *to);
+> 
+> because we don't really seem to do much with the third arg, AFAICS.
 
-Miles Lane wrote:
+It used to be a method to get the previously running task struct so some
+cleanup could be done after the actual switch.  Before you think about
+"oh, that's prev anyway" think about what happens when "prev" is in some
+random compiler defined CPU register, and your switch_to function saves
+and restores all CPU registers.
 
-> ../fdomain.c: In function `do_fdomain_16x0_intr':
-> ../fdomain.c:1568: structure has no member named `address'
-> ../fdomain.c:1601: structure has no member named `address'
-> ../fdomain.c: In function `fdomain_16x0_queue':
-> ../fdomain.c:1687: structure has no member named `address'
-> ../fdomain.c: In function `fdomain_16x0_release':
-> ../fdomain.c:2046: warning: control reaches end of non-void function
+In our current implementation, it looks like the third arg is no longer
+necessary - Ingo?
 
-
-Try this and let us know if it works (or if smoke and flames pour out).
-
-Patch is against 2.5.4.
-
-Paul.
-
-
---- drivers/scsi/fdomain.c~	Mon Feb 11 08:56:16 2002
-+++ drivers/scsi/fdomain.c	Mon Feb 11 08:58:01 2002
-@@ -1565,7 +1565,7 @@
- 	    if (current_SC->SCp.buffers_residual) {
- 	       --current_SC->SCp.buffers_residual;
- 	       ++current_SC->SCp.buffer;
--	       current_SC->SCp.ptr = current_SC->SCp.buffer->address;
-+	       current_SC->SCp.ptr = page_address(current_SC->SCp.buffer->page) + current_SC->SCp.buffer->offset;
- 	       current_SC->SCp.this_residual = current_SC->SCp.buffer->length;
- 	    } else
- 		  break;
-@@ -1598,7 +1598,7 @@
- 	     && current_SC->SCp.buffers_residual) {
- 	    --current_SC->SCp.buffers_residual;
- 	    ++current_SC->SCp.buffer;
--	    current_SC->SCp.ptr = current_SC->SCp.buffer->address;
-+	    current_SC->SCp.ptr = page_address(current_SC->SCp.buffer->page) + current_SC->SCp.buffer->offset;
- 	    current_SC->SCp.this_residual = current_SC->SCp.buffer->length;
- 	 }
-       }
-@@ -1684,7 +1684,7 @@
-    if (current_SC->use_sg) {
-       current_SC->SCp.buffer =
- 	    (struct scatterlist *)current_SC->request_buffer;
--      current_SC->SCp.ptr              = current_SC->SCp.buffer->address;
-+      current_SC->SCp.ptr              = page_address(current_SC->SCp.buffer->page) + current_SC->SCp.buffer->offset;
-       current_SC->SCp.this_residual    = current_SC->SCp.buffer->length;
-       current_SC->SCp.buffers_residual = current_SC->use_sg - 1;
-    } else {
-@@ -2042,7 +2042,7 @@
- 		free_irq(shpnt->irq, shpnt);
- 	if (shpnt->io_port && shpnt->n_io_port)
- 		release_region(shpnt->io_port, shpnt->n_io_port);
--
-+	return 0;
- }
- 
- MODULE_LICENSE("GPL");
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

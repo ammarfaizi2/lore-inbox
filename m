@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135535AbRDXQ57>; Tue, 24 Apr 2001 12:57:59 -0400
+	id <S135635AbRDXRCJ>; Tue, 24 Apr 2001 13:02:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135549AbRDXQ5x>; Tue, 24 Apr 2001 12:57:53 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:57353 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S135544AbRDXQ5I>;
-	Tue, 24 Apr 2001 12:57:08 -0400
-Date: Tue, 24 Apr 2001 12:28:01 +0600 (LKT)
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: esr@thyrsus.com, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-In-Reply-To: <200104212023.f3LKN7P188973@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.21.0104241227020.1519-100000@presario>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135576AbRDXRBt>; Tue, 24 Apr 2001 13:01:49 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:37271 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S135549AbRDXRBr>; Tue, 24 Apr 2001 13:01:47 -0400
+Date: Tue, 24 Apr 2001 13:01:40 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: "Tom Brusehaver (N-Sysdyne Corporation)" <Thomas.Brusehaver@lmco.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: shm_open doesn't work (fix maybe).
+Message-ID: <20010424130140.P9725@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <3AE5ADDC.A7AA6F51@lmco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AE5ADDC.A7AA6F51@lmco.com>; from Thomas.Brusehaver@lmco.com on Tue, Apr 24, 2001 at 11:46:20AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 21 Apr 2001, Albert D. Cahalan wrote:
-
-> Eric S. Raymond writes:
+On Tue, Apr 24, 2001 at 11:46:20AM -0500, Tom Brusehaver (N-Sysdyne Corporation) wrote:
 > 
-> > This is a proposal for an attribution metadata system in the Linux
-> > kernel sources.  The goal of the system is to make it easy for
-> > people reading any given piece of code to identify the responsible
-> > maintainer.  The motivation for this proposal is that the present
-> > system, a single top-level MAINTAINERS file, doesn't seem to be
-> > scaling well.
+> I have been chasing all around trying to find out why
+> shm_open always returns ENOSYS. It is implemented
+> in glibc-2.2.2, and seems the 2.4.3 kernel knows about
+> shmfs.
 > 
-> It is nice to have a single file for grep. With the proposed
-> changes one would sometimes need to grep every file.
+> It seems the file linux/mm/shmem.c has:
+>     #define SHMEM_MAGIC 0x01021994
+> 
+> And the glibc-2.2.2/sysdeps/unix/sysv/linux/linux_fsinfo.h has:
+>     #define SHMFS_SUPER_MAGIC 0x02011994
+> 
+> Well, which is correct?
 
-What about
+Update your glibc, 2.2.3pre* matches 2.4.x kernel:
 
-grep `find . -name "MAINTAINERS"`
+2001-03-03  Ulrich Drepper  <drepper@redhat.com>
 
-Anuradha
+	* sysdeps/unix/sysv/linux/linux_fsinfo.h (SHMFS_SUPER_MAGIC):
+	Update for real 2.4 kernels.
 
-
+	Jakub

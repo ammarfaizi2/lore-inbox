@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268995AbUJUGcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270257AbUJUGcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268995AbUJUGcl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269119AbUJUG2V
+	id S270257AbUJUGcW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268995AbUJUG2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 02:28:21 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:18700 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S270470AbUJTTj3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:39:29 -0400
-Date: Wed, 20 Oct 2004 14:34:44 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       john.ronciak@intel.com, ganesh.venkatesan@intel.com
-Subject: [patch 2.6.9 2/11] e100: Add MODULE_VERSION
-Message-ID: <20041020143444.P8775@tuxdriver.com>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, john.ronciak@intel.com,
-	ganesh.venkatesan@intel.com
-References: <20041020141146.C8775@tuxdriver.com> <20041020141552.E8775@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041020141552.E8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:15:52PM -0400
+	Thu, 21 Oct 2004 02:28:44 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:21401 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S270621AbUJUGYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 02:24:43 -0400
+Message-ID: <41775625.6050102@yahoo.com.au>
+Date: Thu, 21 Oct 2004 16:24:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Tim Cambrant <cambrant@acc.umu.se>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: power/disk.c: small fixups
+References: <20041020181617.GA29435@elf.ucw.cz> <20041020193741.GA27096@shaka.acc.umu.se> <cone.1098338726.500663.12209.502@pc.kolivas.org>
+In-Reply-To: <cone.1098338726.500663.12209.502@pc.kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add MODULE_VERSION to e100 driver.
+Con Kolivas wrote:
+> Tim Cambrant writes:
+> 
+>> On Wed, Oct 20, 2004 at 08:16:17PM +0200, Pavel Machek wrote:
+>>
+>>> power_down may never ever fail, so it does not really need to return
+>>> anything. Kill obsolete code and fixup old comments. Please apply,
+>>>
+>>
+>> ...
+>>
+>>> @@ -162,7 +163,7 @@
+>>>   *
+>>>   *    If we're going through the firmware, then get it over with 
+>>> quickly.
+>>>   *
+>>> - *    If not, then call pmdis to do it's thing, then figure out how
+>>> + *    If not, then call swsusp to do it's thing, then figure out how
+>>>   *    to power down the system.
+>>>   */
+>>
+>>
+>> I hate to be picky, but changing "it's" to the more correct "its" would
+>> perhaps be nice to do when you're at it?
+> 
+> 
+> "it's" means it belongs to, so therefore "it's" is correct usage here.
+> 
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-
- drivers/net/e100.c |    1 +
- 1 files changed, 1 insertion(+)
-
-Re-send -- forgot Signed-off-by line...
-
---- linux-2.6.9/drivers/net/e100.c.orig
-+++ linux-2.6.9/drivers/net/e100.c
-@@ -166,6 +166,7 @@
- MODULE_DESCRIPTION(DRV_DESCRIPTION);
- MODULE_AUTHOR(DRV_COPYRIGHT);
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
- 
- static int debug = 3;
- module_param(debug, int, 0);
+Actually this is an exception. "it's" is an abbreviation for "it is",
+"its" is possessive.

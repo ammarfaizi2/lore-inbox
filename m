@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281703AbRKQEbW>; Fri, 16 Nov 2001 23:31:22 -0500
+	id <S281702AbRKQE7j>; Fri, 16 Nov 2001 23:59:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281702AbRKQEbM>; Fri, 16 Nov 2001 23:31:12 -0500
-Received: from mailin8.bigpond.com ([139.134.6.96]:2789 "EHLO
-	mailin8.bigpond.com") by vger.kernel.org with ESMTP
-	id <S281701AbRKQEa4>; Fri, 16 Nov 2001 23:30:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: hari <harisri@bigpond.com>
+	id <S281704AbRKQE73>; Fri, 16 Nov 2001 23:59:29 -0500
+Received: from alex.intersurf.net ([216.115.129.11]:65286 "HELO
+	alex.intersurf.net") by vger.kernel.org with SMTP
+	id <S281702AbRKQE70>; Fri, 16 Nov 2001 23:59:26 -0500
+Date: Fri, 16 Nov 2001 22:59:24 -0600
+From: Mark Orr <markorr@intersurf.com>
 To: linux-kernel@vger.kernel.org
-Subject: Linux-2.4.15-pre5 - PAM unable to dlopen(/lib/security/pam_pwcheck.so)
-Date: Sat, 17 Nov 2001 15:33:56 +0000
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011117043102Z281701-17408+15303@vger.kernel.org>
+Subject: Re: [PATCH] AMD SMP capability sanity checking.
+Message-Id: <20011116225924.3390dc77.markorr@intersurf.com>
+In-Reply-To: <20011116231141.A3030@faceprint.com>
+In-Reply-To: <3BF5952E.E73BB648@resilience.com>
+	<Pine.LNX.4.30.0111162353140.32578-100000@Appserv.suse.de>
+	<20011116231141.A3030@faceprint.com>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 16 Nov 2001 23:11:41 -0500
+faceprint@faceprint.com (Nathan Walp) wrote:
 
-The following message (PAM related) appears while booting Linux-2.4.15-pre5 
-and interrupts the booting process:
+> Actually, it's probably closer to:
+> 
+>    make cpu
+>       |
+>    smp tests run ok? -------> No, sell as XP
+>       |
+>    yes, do we have more demand
+>    for XPs than we have supply
+>    of those that didn't pass? -------> Yes, sell as XP
+>       |
+>    No, sell as MP
 
-Nov 17 13:59:40 (none) kernel: Adding Swap: 265064k swap-space (priority 0)
-Nov 17 13:59:40 (none) kernel: Adding Swap: 265064k swap-space (priority 0)
-Nov 17 13:59:48 (none) login: PAM unable to 
-dlopen(/lib/security/pam_pwcheck.so)
-Nov 17 13:59:48 (none) login: PAM [dlerror: shared object not open]
-Nov 17 13:59:48 (none) login: PAM adding faulty module: 
-/lib/security/pam_pwchec
-Nov 17 14:00:17 (none) kernel: reiserfs: checking transaction log (device 
-09:00)
-Nov 17 14:00:17 (none) kernel: Using r5 hash to sort names
-Nov 17 14:00:17 (none) kernel: ReiserFS version 3.6.25
+Yes, this is much closer to what's happening.  I'd bet that most
+Palomino chips would pass the smp tests,  meaning many more MPs than
+they'd ever need.    They're probably just putting a bucket in the
+manufacturing stream,   testing those, and putting the rejects back
+in the stream.
 
-This does not happen with Linux-2.4.14, Linux-2.4.15-pre1, pre2, pre3 (I am 
-unable to compile pre4 as the build process fails).
+> Remember, AMD is just trying to make a buck.  If they've got a bunch of
+> MP CPUs "sitting on the shelves" while no one can get their hands on the
+> XPs, some of those MPs are going to "become" XPs.  For those of us on a
+> budget, we can only hope to get one of *those* variety of XPs.
 
-This is a reiserfs root file system, but I have the same problem with ext2 - 
-root file system as well.
+Umm...I cant see chips that have already been marked as MPs being
+converted to XPs.     Odds are the ratio of XP to MP is probably 10:1
+or greater.  
 
-Hardware configuration:
-MSI - 6341 Board
-AMD Athlon 1.2 GHz
-512 MB RAM
-2 * 10 GB IDE Hard drives
+> Now, that said, I'm probably going to buy MPs when I build my machine,
+> as long as the price difference stays as the current low levels.
+> Consider it a "warranty" or something.
 
-Software configuration:
-Linux pengu 2.4.14 #1 Tue Nov 6 18:34:31 GMT 2001 i686 unknown
+...and considering AMD doesnt lag in bringing out MPs.  Right now
+XP 1900s are widely available, but the highest speed MP's are 1800s.
 
-Gnu C                  2.95.2
-Gnu make               3.79.1
-binutils               2.10.0.33
-util-linux             2.11b
-mount                  2.11b
-modutils               2.4.1
-e2fsprogs              1.22
-PPP                    2.4.0
-isdn4k-utils           3.1pre1a
-Linux C Library        x    1 root     root      1382179 Jan 19  2001 
-/lib/libc.so.6
-Dynamic linker (ldd)   2.2
-Procps                 2.0.7
-Net-tools              1.57
-Kbd                    1.02
-Sh-utils               2.0
-Modules Loaded         emu10k1 ac97_codec soundcore ext2
-
-Please ask me if you need more information, such as .config file etc. Please 
-CC me if you can, else I will refer the lkml archive at marc.theaimsgroup.com.
-
-Thanks in advance.
--- 
-Hari.
-harisri@bigpond.com
+I've heard that the AMD 762 northbridge only works up to 12.5x133
+(1666MHz) so they'll hit the wall with the MPs pretty soon unless they
+have an updated stepping.
 

@@ -1,93 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVCVMOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVCVMRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVCVMOh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 07:14:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVCVMOh
+	id S261151AbVCVMRg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 07:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVCVMRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 07:14:37 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:31939 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261153AbVCVMOb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 07:14:31 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 22 Mar 2005 07:17:33 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:12381 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261151AbVCVMR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 07:17:26 -0500
+Message-ID: <42400CD1.10101@yahoo.com.au>
+Date: Tue, 22 Mar 2005 23:17:21 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.12-rc1-mm1: Kernel BUG at pci:389
-Date: Tue, 22 Mar 2005 20:13:13 +0800
-Message-ID: <16A54BF5D6E14E4D916CE26C9AD3057501731439@pdsmsx402.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.12-rc1-mm1: Kernel BUG at pci:389
-Thread-Index: AcUuzmZCC5QCVGVVQlK2s3YBI6SL1QACL7IA
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Cc: "Andrew Morton" <akpm@osdl.org>, <rjw@sisk.pl>,
-       "lkml" <linux-kernel@vger.kernel.org>,
-       "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 22 Mar 2005 12:13:14.0954 (UTC) FILETIME=[8637BAA0:01C52ED8]
+To: Andrew Morton <akpm@osdl.org>
+CC: Hugh Dickins <hugh@veritas.com>, davem@davemloft.net, tony.luck@intel.com,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com> <20050322034053.311b10e6.akpm@osdl.org>
+In-Reply-To: <20050322034053.311b10e6.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------080307000902020709060504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->> > Yes, but it is needed. There are many drivers, and they look at
->> > numerical value of PMSG_*. I'm proceeding in steps. I hopefully
-killed
->> > all direct accesses to the constants, and will switch constants to
->> > something else... But that is going to be tommorow (need some
-sleep).
->> The patches are going to acquire correct PCI device sleep state for
->> suspend/resume. We discussed the issue several months ago. My plan is
-we
->> first introduce 'platform_pci_set_power_state', then merge the
->> 'platform_pci_choose_state' patch after Pavel's pm_message_t
-conversion
->> finished. Maybe Len mislead my comments.
->>
->> Anyway for the callback, my intend is platform_pci_choose_state
-accept
->> the pm_message_t parameter, and it return an 'int', since platform
->> method possibly failed and then pci_choose_state translate the return
->> value to pci_power_t.
->
->You can't just retype around like that. You may want it take
->pci_power_t * as an argument, and then return 0/-ENODEV or something
->like that. But you can't retype between int and pm_message_t...
-No, taking pci_power_t as an argument is meaningless. For ACPI, we
-should know the exact sleep state, pm_message_t will tell us. But I'm ok
-to let it return a pci_power_t, and the failure case returns -ENODEV.
+This is a multi-part message in MIME format.
+--------------080307000902020709060504
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->
->Plus that function should have a documentation somewhere!
-I will add it.
+Andrew Morton wrote:
+> With these six patches the ppc64 is hitting the BUG in exit_mmap():
+> 
+>         BUG_ON(mm->nr_ptes);    /* This is just debugging */
+> 
+> fairly early in boot.
+> 
 
->
->> > Could you just revert those two patches? First one is very
->> > wrong. Second one might be fixed, but... See comments below.
->> I think the platform_pci_set_power_state should be ok, did you see it
->> causes oops?
->
->No its just ugly and uses __force in "creative" way. That one can be
->recovered.
-Do you mean this?
+No doubt Hugh will have this fixed before long... but if you
+have time to spare, you may just try hitting it on the head
+and making it a bit dumber. It might help show where the problem
+is.
 
-> +	static int state_conv[] = {
-> +		[0] = 0,
-> +		[1] = 1,
-> +		[2] = 2,
-> +		[3] = 3,
-> +		[4] = 3
-> +	};
-> +	int acpi_state = state_conv[(int __force) state];
+- don't span multiple vmas
+- don't be so smart about avoiding unfreeable regions
 
-The table should be
-		[PCI_D0] = 0,
+I dunno. Maybe it won't help at all. Maybe it will make things
+worse :P
 
-I'm not sure, but then could we use state_conv[state] directly? It seems
-wrong to me (the array accepts a pci_power_t as index?)
 
-Thanks,
-Shaohua
+
+--------------080307000902020709060504
+Content-Type: text/plain;
+ name="ptclr-nosmart.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ptclr-nosmart.patch"
+
+Index: linux-2.6/mm/memory.c
+===================================================================
+--- linux-2.6.orig/mm/memory.c	2005-03-22 23:04:34.000000000 +1100
++++ linux-2.6/mm/memory.c	2005-03-22 23:11:31.000000000 +1100
+@@ -110,13 +110,18 @@ void pmd_clear_bad(pmd_t *pmd)
+  * Note: this doesn't free the actual pages themselves. That
+  * has been handled earlier when unmapping all the memory regions.
+  */
+-static void free_pte_range(struct mmu_gather *tlb, pmd_t *pmd)
++static void free_pte_range(struct mmu_gather *tlb, pmd_t *pmd,
++				unsigned long addr, unsigned long end,
++				unsigned long floor, unsigned long ceiling)
+ {
+-	struct page *page = pmd_page(*pmd);
+-	pmd_clear(pmd);
+-	pte_free_tlb(tlb, page);
+-	dec_page_state(nr_page_table_pages);
+-	tlb->mm->nr_ptes--;
++	if (((addr & PMD_MASK) >= floor)
++			&& (end - 1 <= (ceiling & PMD_MASK) - 1)) {
++		struct page *page = pmd_page(*pmd);
++		pmd_clear(pmd);
++		pte_free_tlb(tlb, page);
++		dec_page_state(nr_page_table_pages);
++		tlb->mm->nr_ptes--;
++	}
+ }
+ 
+ static inline void free_pmd_range(struct mmu_gather *tlb, pud_t *pud,
+@@ -133,7 +138,7 @@ static inline void free_pmd_range(struct
+ 		next = pmd_addr_end(addr, end);
+ 		if (pmd_none_or_clear_bad(pmd))
+ 			continue;
+-		free_pte_range(tlb, pmd);
++		free_pte_range(tlb, pmd, addr, end, floor, ceiling);
+ 	} while (pmd++, addr = next, addr != end);
+ 
+ 	start &= PUD_MASK;
+@@ -190,18 +195,6 @@ void free_pgd_range(struct mmu_gather **
+ 	unsigned long next;
+ 	unsigned long start;
+ 
+-	addr &= PMD_MASK;
+-	if (addr < floor) {
+-		addr += PMD_SIZE;
+-		if (!addr)
+-			return;
+-	}
+-	ceiling &= PMD_MASK;
+-	if (end - 1 > ceiling - 1)
+-		end -= PMD_SIZE;
+-	if (addr > end - 1)
+-		return;
+-
+ 	start = addr;
+ 	pgd = pgd_offset((*tlb)->mm, addr);
+ 	do {
+@@ -226,14 +219,6 @@ void free_pgtables(struct mmu_gather **t
+ 			hugetlb_free_pgd_range(tlb, addr, vma->vm_end,
+ 				floor, next? next->vm_start: ceiling);
+ 		} else {
+-			/*
+-			 * Optimization: gather nearby vmas into one call down
+-			 */
+-			while (next && next->vm_start <= vma->vm_end + PMD_SIZE
+-			&& !is_hugepage_only_range(next->vm_start, HPAGE_SIZE)){
+-				vma = next;
+-				next = vma->vm_next;
+-			}
+ 			free_pgd_range(tlb, addr, vma->vm_end,
+ 				floor, next? next->vm_start: ceiling);
+ 		}
+
+--------------080307000902020709060504--
+

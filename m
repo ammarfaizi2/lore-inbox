@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130931AbRBCXZv>; Sat, 3 Feb 2001 18:25:51 -0500
+	id <S129489AbRBCX1L>; Sat, 3 Feb 2001 18:27:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130763AbRBCXZm>; Sat, 3 Feb 2001 18:25:42 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:27911 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129758AbRBCXZa>;
-	Sat, 3 Feb 2001 18:25:30 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200102032322.f13NMZp438329@saturn.cs.uml.edu>
-Subject: Re: Better battery info/status files
-To: pavel@suse.cz (Pavel Machek)
-Date: Sat, 3 Feb 2001 18:22:34 -0500 (EST)
-Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20010202155341.A149@bug.ucw.cz> from "Pavel Machek" at Feb 02, 2001 03:53:41 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S129758AbRBCX1B>; Sat, 3 Feb 2001 18:27:01 -0500
+Received: from felix.convergence.de ([212.84.236.131]:1297 "EHLO
+	convergence.de") by vger.kernel.org with ESMTP id <S129489AbRBCX0o>;
+	Sat, 3 Feb 2001 18:26:44 -0500
+Date: Sun, 4 Feb 2001 00:26:27 +0100
+From: Felix von Leitner <leitner@convergence.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink related)
+Message-ID: <20010204002627.A9527@convergence.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E14OoD8-0007GI-00@the-village.bc.nu> <3A7BC808.E9BF5B44@linux.com> <20010203110053.C1766@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010203110053.C1766@werewolf.able.es>; from jamagallon@able.es on Sat, Feb 03, 2001 at 11:00:53AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This fixes units, and makes format tag: value. Please apply.
+Thus spake J . A . Magallon (jamagallon@able.es):
+> > How about a simple patch to the top level makefile that checks the gcc
+> > version then prints a distinct message ..'this compiler hasn't been approved
+> > for compiling the kernel', sleeping for one second, then continuing on.  This
+> > solution doesn't stop compiling and makes a visible indicator without forcing
+> > anything.
+> Or a config option like CONFIG_TRUSTED_COMPILER, and everyone that wants
+> can bracket his code in 'if [ $TRUSTED = "y" ] ... fi', so if some driver-fs
+> fails with untrusted compilers it is just not selectable.
 
-The units seem to vary. I suggest using fundamental SI units.
-That would be meters, kilograms, seconds, and maybe a very
-few others -- my memory fails me on this.
+What kind of crap is this?
+It is not the kernel's job to work around RedHat bugs.
+If RedHat ships a broken compiler, it is their responsibility to tell
+their customers and provide a working one.
 
-Power meter applets will be eternally buggy if you force them
-to deal with units that change. In fact there is no reason to
-print the units if you always use the fundamental units.
+This kind of compatibility crap has caused commercial Unices to
+suffocate in their own bloat.  We don't need this.  And we don't want
+this.
 
+Felix
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

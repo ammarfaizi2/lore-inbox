@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318077AbSHHWYg>; Thu, 8 Aug 2002 18:24:36 -0400
+	id <S318034AbSHHWdj>; Thu, 8 Aug 2002 18:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318078AbSHHWYg>; Thu, 8 Aug 2002 18:24:36 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:28167 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318077AbSHHWYg>; Thu, 8 Aug 2002 18:24:36 -0400
-Date: Fri, 9 Aug 2002 00:27:39 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Luca Barbieri <ldb@ldb.ods.org>
-cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
- mips, m68k, sh, cris to use it
-In-Reply-To: <1028844681.1669.80.camel@ldb>
-Message-ID: <Pine.LNX.4.44.0208090018470.8911-100000@serv>
+	id <S318042AbSHHWdj>; Thu, 8 Aug 2002 18:33:39 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:40719 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S318034AbSHHWdi>; Thu, 8 Aug 2002 18:33:38 -0400
+Date: Thu, 8 Aug 2002 19:37:08 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Hubertus Franke <frankeh@us.ibm.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Andrew Morton <akpm@zip.com.au>, <andrea@suse.de>, <davej@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>, Paul Larson <plars@austin.ibm.com>
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+In-Reply-To: <Pine.LNX.4.44.0208081500550.9114-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44L.0208081936170.2589-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 8 Aug 2002, Linus Torvalds wrote:
+> On Thu, 8 Aug 2002, Hubertus Franke wrote:
+> >
+> > That is true. All was done under the 16-bit assumption
+> > My hunch is that the current algorithm might actually work quite well
+> > for a sparsely populated pid-space (32-bits).
+>
+> I agree.
+>
+> So let's just try Andries approach, suggested patch as follows..
 
-On 9 Aug 2002, Luca Barbieri wrote:
+Hmmm, I wonder how badly the system will behave when
+we need to reset last_pid and next_safe with 30000
+pids in use ...
 
-> - Didn't implement atomic_{add,sub,inc,dec}_return. This is currently
-> not used in the generic kernel but it can be useful.
+regards,
 
-m68k has a cmpxchg like instruction, which can be used for that.
+Rik
+-- 
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
 
-> - Had inline assembly for things the compiler should be able to generate
-> on its own
-
-The compiler can cache the value in a register, the assembly forces that
-into memory. __ARCH_ATOMIC_HAVE_MEMORY_OPERANDS won't work because of
-that.
-
-bye, Roman
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265470AbSKOBVh>; Thu, 14 Nov 2002 20:21:37 -0500
+	id <S265477AbSKOBbO>; Thu, 14 Nov 2002 20:31:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265475AbSKOBVh>; Thu, 14 Nov 2002 20:21:37 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:15571 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265470AbSKOBVg>;
-	Thu, 14 Nov 2002 20:21:36 -0500
-Date: Thu, 14 Nov 2002 17:26:27 -0800 (PST)
-Message-Id: <20021114.172627.54022084.davem@redhat.com>
-To: mbligh@aracnet.com
-Cc: acme@conectiva.com.br, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <273780000.1037316121@flay>
-References: <265930000.1037314635@flay>
-	<20021114220828.GH15563@conectiva.com.br>
-	<273780000.1037316121@flay>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S265517AbSKOBbO>; Thu, 14 Nov 2002 20:31:14 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:19885 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265477AbSKOBbN>; Thu, 14 Nov 2002 20:31:13 -0500
+Subject: Re: PROBLEM: Driver nm256_audio in a nm256 without ac97 mixer [1.]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Maxi Pedraza Padilla <maximpedraza@laporxada.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DD443D3.7090104@laporxada.net>
+References: <3DD443D3.7090104@laporxada.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Nov 2002 02:04:15 +0000
+Message-Id: <1037325855.17733.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Martin J. Bligh" <mbligh@aracnet.com>
-   Date: Thu, 14 Nov 2002 15:22:02 -0800
+On Fri, 2002-11-15 at 00:46, Maxi Pedraza Padilla wrote:
+> [2.] This modules don't work with my sound card, that is an nm256av in a 
+> Compaq Presario 1920. I try force_ac97, then load the modules, but the 
+> sound don't work or hang on my system.
+> 
+> [3.] Sound
+> [4.] 2.4.20 but the modules is the same  2.2, 2.4 and 2.5...
 
-   > Just trying to find a way to help divide the load on the triage stage 8)
-   
-   Cool ... well one way to do that would be to take over "Networking, other"
-   if everyone's OK with that. I wasn't anticipating much of a load on the
-   more obscure networking stuff, but I'm proved wrong on a regular basis
-   about so many things ... ;-)
-   
-Let Arnaldo take net/other, I'm totally fine with it.
+There are three ways the nm256 can be set up - you might also need to
+use the ad1848 or sound blaster driver depending on your machine
 
-   
+

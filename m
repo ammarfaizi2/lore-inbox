@@ -1,79 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbUL3O6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbUL3PE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbUL3O6N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 09:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUL3O6N
+	id S261643AbUL3PE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 10:04:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUL3PE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 09:58:13 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:16798 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261625AbUL3O6H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 09:58:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=UwHxSIJCHg/b5dLEhK11gCveCGjeMNEeEhF8SLpFNY9GaaVNGUEPPwqeHt8ExpMETwkR7jGewBiL2nR8e+1I5DdJv503tzfD5/0TH4ExwdQ9CexIiVWxH1TivtsWZnCJhW5Ip7Gtn+hLjjlFpIOsztyWNlftsNVhTynDyHEoTPg=
-Message-ID: <105c793f041230065818ba608f@mail.gmail.com>
-Date: Thu, 30 Dec 2004 09:58:06 -0500
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: Toshiba PS/2 touchpad on 2.6.X not working along bottom and right sides
-In-Reply-To: <105c793f04123006532a9c1d18@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <105c793f04122907116b571ebf@mail.gmail.com>
-	 <200412292338.08931.dtor_core@ameritech.net>
-	 <105c793f04123006532a9c1d18@mail.gmail.com>
+	Thu, 30 Dec 2004 10:04:59 -0500
+Received: from [61.49.235.157] ([61.49.235.157]:48109 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S261643AbUL3PEz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 10:04:55 -0500
+Date: Thu, 30 Dec 2004 22:59:57 +0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412301459.iBUExvU18246@freya.yggdrasil.com>
+To: davem@davemloft.com, jmorris@redhat.com, michal@logix.cz
+Subject: [Patch?] padlock-aes.c used forward inline function
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot to CC the list in case anyone else was interested in this
-information as well.
+	gcc-3.4.3 and gcc-3.4.1 do not currently support forward
+declaration of inline functions, as is used in
+linux-2.6.10-rc2/drivers/crypto/padlock-aes.c.
 
-Sorry about the dupe, Dmitry.
+	The function is trivial, so it is better to inline it
+by defining it earlier than it would be to un-inline it.
+Here is a proposed patch.  If it looks okay, I would appreciate
+it if someone would bless it and forward it downstream.
 
--Andy
+                    __     ______________ 
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l
 
----------- Forwarded message ----------
-From: Andrew Haninger <ahaning@gmail.com>
-Date: Thu, 30 Dec 2004 09:53:33 -0500
-Subject: Re: Toshiba PS/2 touchpad on 2.6.X not working along bottom
-and right sides
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-
-> > I recently installed Linux 2.6.10 on my Gateway Solo 2500 notebook
-> > after using it happily with 2.4.27 (aside from some ACPI sleeping
-> > issues). Since installing the new kernel, I've noticed an odd problem
-> > with the Toshiba PS/2 touchpad which is used as a cursor. If I move my
-> > finger left and right along the 'bottom' portion of the touchpad or up
-> > and down along the right side, there is no movement from the mouse
-> > cursor at all. This behavior shows up using gdm and XFree86. Running
-> > 'xev' produces no output when these sides are used. However, if I move
-> > my finger left-right along the top side or up-down along the left
-> > side, the cursor moves just fine. Tapping the pad to click in the
-> > non-working areas and moving the finger from outside of these areas
-> > and then into them, however, works fine
->
-> What does dmesg and /proc/bus/input/devices say about your touchpad?
-
-root@laptop:~# dmesg | grep "PS"
-mice: PS/2 mouse device common for all mice
-input: PS2T++ Logitech TouchPad 3 on isa0060/serio1
-
-root@laptop:~# cat /proc/bus/input/devices
-I: Bus=0011 Vendor=0002 Product=0003 Version=0061
-N: Name="PS2T++ Logitech TouchPad 3"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0
-B: EV=7
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=143
-
-Actually, this was more information than I was able to find earlier.
-I'll be able to do some more useful searches now.
-
-Thanks.
---
-Andy
+--- linux-2.6.10-bk2/drivers/crypto/padlock-aes.c	2004-12-30 17:04:16.000000000 +0800
++++ linux/drivers/crypto/padlock-aes.c	2004-12-30 22:57:45.000000000 +0800
+@@ -58,8 +58,6 @@
+ #define AES_EXTENDED_KEY_SIZE	64	/* in uint32_t units */
+ #define AES_EXTENDED_KEY_SIZE_B	(AES_EXTENDED_KEY_SIZE * sizeof(uint32_t))
+ 
+-static inline int aes_hw_extkey_available (uint8_t key_len);
+-
+ struct aes_ctx {
+ 	uint32_t e_data[AES_EXTENDED_KEY_SIZE+4];
+ 	uint32_t d_data[AES_EXTENDED_KEY_SIZE+4];
+@@ -68,6 +66,19 @@
+ 	int key_length;
+ };
+ 
++/* Tells whether the ACE is capable to generate
++   the extended key for a given key_len. */
++static inline int
++aes_hw_extkey_available(uint8_t key_len)
++{
++	/* TODO: We should check the actual CPU model/stepping
++	         as it's possible that the capability will be
++	         added in the next CPU revisions. */
++	if (key_len == 16)
++		return 1;
++	return 0;
++}
++
+ /* ====== Key management routines ====== */
+ 
+ static inline uint32_t
+@@ -356,19 +367,6 @@
+ 	return 0;
+ }
+ 
+-/* Tells whether the ACE is capable to generate
+-   the extended key for a given key_len. */
+-static inline int
+-aes_hw_extkey_available(uint8_t key_len)
+-{
+-	/* TODO: We should check the actual CPU model/stepping
+-	         as it's possible that the capability will be
+-	         added in the next CPU revisions. */
+-	if (key_len == 16)
+-		return 1;
+-	return 0;
+-}
+-
+ /* ====== Encryption/decryption routines ====== */
+ 
+ /* This is the real call to PadLock. */

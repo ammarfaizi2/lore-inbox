@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129752AbRAHW2m>; Mon, 8 Jan 2001 17:28:42 -0500
+	id <S130195AbRAHWbX>; Mon, 8 Jan 2001 17:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130195AbRAHW2c>; Mon, 8 Jan 2001 17:28:32 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:18952 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129752AbRAHW2R>;
-	Mon, 8 Jan 2001 17:28:17 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: linux-kernel@vger.kernel.org
-Date: Mon, 8 Jan 2001 23:27:13 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: PCI IRQ routing on buggy BIOSes
-CC: mj@suse.cz
-X-mailer: Pegasus Mail v3.40
-Message-ID: <1206565040F1@vcnet.vc.cvut.cz>
+	id <S135605AbRAHWbN>; Mon, 8 Jan 2001 17:31:13 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:59656 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S130195AbRAHWbC>;
+	Mon, 8 Jan 2001 17:31:02 -0500
+Date: Mon, 8 Jan 2001 23:30:12 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200101082230.XAA13551@db0bm.ampr.org>
+To: kaos@ocs.com.au
+Subject: Re: msg : cannot create ksymoops/nnnnn.ksyms
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  following happened on my well-known SMP VIA based GA6VXD7 motherboard.
+Hi Keith,
+>> NET4: Unix domain sockets 1.0 for Linux NET4.0.
+>> insmod: /lib/modules/2.2.19pre6/misc/unix.o: cannot create
+> /var/log/ksymoops/20010106112242.ksyms Read-only file system
 
-Last week on Thursday I decided to connect printer to the box. To do that
-I had to switch parallel port mode from ECP to Normal (because of I
-had problems with that printer). Today I found, that since that time
-(Thu 3:57) my second bttv, which is used for teletext grabbing, stopped
-functioning.
+> man insmod, look for /var/log/ksymoops.  If you define this directory
+> then it is expected to be writable when modules are loaded.  Logging
+> module data for ksymoops is a user selectable option, you have to
+> decide to use it, and you have done so.
 
-After some testing I found that correct IRQ is 19, and not 18... And after
-turning some options in BIOS I found that it is related to parallel port
-setting:
+Ok, I knew that, the problem is why unix.o is loaded so early ? I've not found
+where it is requested / loaded (I've kmod enabled). 
 
-Parallel port setting:   Normal   ECP     driver/location
-B0,I7,P3                   18     19      usb 00:07.2 (not used)
-B0,I7,P3                   18     19      usb 00:07.3 (not used)
-B0,I10,P0                  18     18      bttv0 0:0a.0
-B0,I11,P0                  18     19      bttv1-video 0:0b.0
-B0,I11,P0                  18     19      bttv1-audio 0:0b.1
-B0,I13,P0                  17     17      eth0 0:0d.0
-B0,I14,P0                  18     18      dsp0 0:0e.0
-B1,I0,P0                   16     16      dri0 1:00.0
+>> insmod:/lib/modules/2.4.0/kernel/net/unix/unix.o : insmod net-pf-1 failed.
 
-Of course table reported for ECP mode is correct one. Anybody have any
-idea how to get it to work in Normal/EPP mode without hardwiring this
-routing table to kernel? There are no complaints in system dmesg.
+> "alias net-pf-1 unix" is a built in alias.  Looks like you did not
+> compile for Unix sockets and something in the kernel wants Unix
+> sockets.  If you really do not want Unix sockets, "alias net-pf-1 off".
 
-Every IRQ in BIOS is selected as PCI/PnP, as there are no ISA devices
-in box (except on-board southbridge COM/LPT). PnP OS setting does not
-matter.
+This was a configuration error. I had missed a configuration step. Thank you.
 
-There is also one difference at BIOS info screen: in first case (normal),
-it prints _all_ these devices on IRQ10, while in ECP mode some devices 
-use IRQ5. Probably another bug in Award core, they generate wrong
-PIRQ routing table when couple (all 4) PIRQ are routed to same 8259 IRQ :-(
-This leaves open why all devices use IRQ10 in 8259 mode - are other really 
-used by onboard unshareable ACPI/RTC/IDE/COM/LPT/PS2/KBD/TIMER/FLOPPY?!
-                                        Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+----
+Thank you and best regards
+
+		Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

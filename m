@@ -1,89 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263167AbTCSVN4>; Wed, 19 Mar 2003 16:13:56 -0500
+	id <S263177AbTCSVIa>; Wed, 19 Mar 2003 16:08:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263169AbTCSVNz>; Wed, 19 Mar 2003 16:13:55 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:2744 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S263167AbTCSVNy>; Wed, 19 Mar 2003 16:13:54 -0500
-Message-ID: <20030319212438.11259.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S263178AbTCSVIa>; Wed, 19 Mar 2003 16:08:30 -0500
+Received: from ns0.cobite.com ([208.222.80.10]:59398 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S263177AbTCSVIY>;
+	Wed, 19 Mar 2003 16:08:24 -0500
+Date: Wed, 19 Mar 2003 16:19:20 -0500 (EST)
+From: David Mansfield <david@cobite.com>
+X-X-Sender: david@admin
+To: Andrea Arcangeli <andrea@suse.de>
+cc: David Mansfield <lkml@dm.cobite.com>, <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: [ANNOUNCE] cvsps support for parsing BK->CVS kernel tree logs
+In-Reply-To: <20030319201101.GQ30541@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0303191600150.19298-200000@admin>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: linux-kernel@vger.kernel.org
-Cc: smatch-discuss@lists.sf.net
-Date: Wed, 19 Mar 2003 16:24:37 -0500
-Subject: smatch/kbugs.org 2.5.65
-X-Originating-Ip: 67.112.215.16
-X-Originating-Server: ws3-1.us4.outblaze.com
+Content-Type: MULTIPART/MIXED; BOUNDARY="-556791216-1646713961-1048108760=:19298"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 2.5.63 smatch results are up on http://kbugs.org.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-The website is still no good.  For example, it's not
-obvious that you have to click on the line number to view
-the source.  Searching is improved however.  And also it 
-has stayed online for over a week now.  ;)
+---556791216-1646713961-1048108760=:19298
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Since the stats page is still not up so here is the raw 
-data.
+> what about the deleted files? should we teach cvsps how to diff the old
+> revision fetched with cvs up -p against /dev/null to make a completely
+> coherent patch?
 
-mysql> select kernelver, script, count(script) from bugs 
-where kernelver = "2.5.64" or kernelver = "2.5.65" group 
-by script, kernelver;
-+-----------+-------------------+---------------+
-| kernelver | script            | count(script) |
-+-----------+-------------------+---------------+
-| 2.5.64    | Dereference       |           469 |
-| 2.5.65    | Dereference       |           321 |
-| 2.5.64    | GFP_DMA           |             7 |
-| 2.5.65    | GFP_DMA           |             5 |
-| 2.5.64    | ReleaseRegion     |            14 |
-| 2.5.65    | ReleaseRegion     |            48 |
-| 2.5.64    | SpinlockUndefined |            44 |
-| 2.5.65    | SpinlockUndefined |            44 |
-| 2.5.64    | SpinSleepLazy     |             4 |
-| 2.5.65    | SpinSleepLazy     |             6 |
-| 2.5.64    | UncheckedReturn   |           119 |
-| 2.5.65    | UncheckedReturn   |           118 |
-| 2.5.64    | UnFree            |           333 |
-| 2.5.65    | UnFree            |           872 |
-| 2.5.64    | UnreachedCode     |            28 |
-| 2.5.65    | UnreachedCode     |            28 |
-+-----------+-------------------+---------------+
+It's already supposed to work that way :-(  See below.
 
-mysql> select count(*) from bugs where kernelver = "2.5.65";
-+----------+
-| count(*) |
-+----------+
-|     1442 |
-+----------+
+> this is with 2.4
+> 
+> Directing PatchSet 2742 to file ../patches-2.4//2742.patch
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
+> cvs [update aborted]: no such directory `drivers/usb/hcd'
 
-The noteworthy thing this time, is the new UnFree script
-from Oleg Drokin.  It fixes some of the false positives
-from the old script, but it also looks for a lot of new
-problems.
+This has been fixed already in 2.0b5 (on www.cobite.com/cvsps website).  
+It was all working fine if you had a checked out tree.  But doesn't work
+to use 'update -p' if the sub-directory isn't checked out (update -p is
+what is used in your version).
 
-The dereference bug script has 148 fewer false positives.
-The credit for that mostly goes to Oleg Drokin as well.
+The new code uses 'cvs co -p -r x.y repository/file' which works fine.
+The patches that are generated by '-g' now need 'patch -p1' to be applied
+inside the working directory.
 
-I'm not sure why the RegionRegion script has so many new
-bugs...
+> I also wonder if cvsps is so accurate also w/o the --bkcvs option (i.e.
+> w/o atomic commits from bk). are the dates guaranteed to be the same for
+> all files w/ a normal cvs tree?
 
-Mathew Wilcox had some GFP_DMA fixes merged.  Oleg Drokin
-and Alex Tomas had some Memleak fixes merged.  There 
-are more Memleak, ReleaseRegion and UnreachedCode fixes 
-still on the way to Linus.
+No.  On a normal CVS repository, and without the --bkcvs, a heuristic is
+used to recreate a 'commit'.  The commit must have the same author, the
+same message and the time of commit must be within a fuzz-factor number of
+seconds (default 300, settable via the -z option).  The reason the
+fuzz-factor is needed is that a commit over a slow link, or a very large
+commit in general can take a lot of time, and the log time will vary for
+each file committed.
 
-Happy hacking,
-dan carpenter
+It actually works quite well.
+
+> what about the -f option? why can't I use it at the same time with -r?
+> Can I use multiple -f at the same time? That is getting very cool and so
+> useful.
+
+Oops.  You found a bug.  See the attached patch against 2.0b5 (should work
+against any recent version).  By design though, all of the 'filter'
+options can be combined.  Also by design, you cannot specify multiple
+instances of any option (except -d and -r, where the first and second
+instance have special meaning - start vs end).
+
+> Would also be nice to export the API of the cvsps internals to python
+> (i.e. to allow to efficiently parse the cvsps metadata files in .cvsps
+> from scripts that will give the flexibility of parsing the data as
+> you want or to quickly write a gui fronthand). This is low prio though,
+> having -f working together with -r and all the other options is much
+> more interesting at this point IMHO.  Being able to specify a directory
+> as a file would also be very useful.
+
+The file is actualy a substring match.  If the -f argument matches as a 
+substring the filename it will count as a match.  So you can specify 
+directory names just as is.
+
+David
 
 -- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+/==============================\
+| David Mansfield              |
+| david@cobite.com             |
+\==============================/
 
+
+---556791216-1646713961-1048108760=:19298
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="cvsps-wrong-check-order.patch"
+Content-Transfer-Encoding: BASE64
+Content-Description: 
+Content-Disposition: attachment; filename="cvsps-wrong-check-order.patch"
+
+SW5kZXg6IGN2c3BzLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NClJDUyBm
+aWxlOiAvc3VsdS9jdnNfbWFzdGVyL2N2c3BzL2N2c3BzLmMsdg0KcmV0cmll
+dmluZyByZXZpc2lvbiA0LjcwDQpkaWZmIC1iIC11IC1yNC43MCBjdnNwcy5j
+DQotLS0gY3ZzcHMuYwkxOSBNYXIgMjAwMyAxNjoyMTozMiAtMDAwMAk0Ljcw
+DQorKysgY3ZzcHMuYwkxOSBNYXIgMjAwMyAyMToxMToxNSAtMDAwMA0KQEAg
+LTEwMjksMjMgKzEwMjksNiBAQA0KICAgICBpZiAocHMtPnBzaWQgPCAwKQ0K
+IAlyZXR1cm47DQogDQotICAgIGlmIChyZXN0cmljdF9kYXRlX3N0YXJ0ID4g
+MCAmJg0KLQkocHMtPmRhdGUgPCByZXN0cmljdF9kYXRlX3N0YXJ0IHx8DQot
+CSAocmVzdHJpY3RfZGF0ZV9lbmQgPiAwICYmIHBzLT5kYXRlID4gcmVzdHJp
+Y3RfZGF0ZV9lbmQpKSkNCi0JcmV0dXJuOw0KLQ0KLSAgICBpZiAocmVzdHJp
+Y3RfYXV0aG9yICYmIHN0cmNtcChyZXN0cmljdF9hdXRob3IsIHBzLT5hdXRo
+b3IpICE9IDApDQotCXJldHVybjsNCi0NCi0gICAgaWYgKGhhdmVfcmVzdHJp
+Y3RfbG9nICYmIHJlZ2V4ZWMoJnJlc3RyaWN0X2xvZywgcHMtPmRlc2NyLCAw
+LCBOVUxMLCAwKSAhPSAwKQ0KLQlyZXR1cm47DQotDQotICAgIGlmIChyZXN0
+cmljdF9maWxlICYmICFwYXRjaF9zZXRfY29udGFpbnNfbWVtYmVyKHBzLCBy
+ZXN0cmljdF9maWxlKSkNCi0JcmV0dXJuOw0KLQ0KLSAgICBpZiAocmVzdHJp
+Y3RfYnJhbmNoICYmICFwYXRjaF9zZXRfYWZmZWN0c19icmFuY2gocHMsIHJl
+c3RyaWN0X2JyYW5jaCkpDQotCXJldHVybjsNCi0gICAgDQogICAgIC8qIHRo
+ZSBmdW5rX2ZhY3RvciBvdmVycmlkZXMgdGhlIHJlc3RyaWN0X3RhZ19zdGFy
+dCBhbmQgZW5kICovDQogICAgIGlmIChwcy0+ZnVua19mYWN0b3IgPT0gRk5L
+X1NIT1dfU09NRSB8fCBwcy0+ZnVua19mYWN0b3IgPT0gRk5LX1NIT1dfQUxM
+KQ0KIAlnb3RvIG9rOw0KQEAgLTEwODYsNiArMTA2OSwyMyBAQA0KICAgICB9
+DQogDQogIG9rOg0KKyAgICBpZiAocmVzdHJpY3RfZGF0ZV9zdGFydCA+IDAg
+JiYNCisJKHBzLT5kYXRlIDwgcmVzdHJpY3RfZGF0ZV9zdGFydCB8fA0KKwkg
+KHJlc3RyaWN0X2RhdGVfZW5kID4gMCAmJiBwcy0+ZGF0ZSA+IHJlc3RyaWN0
+X2RhdGVfZW5kKSkpDQorCXJldHVybjsNCisNCisgICAgaWYgKHJlc3RyaWN0
+X2F1dGhvciAmJiBzdHJjbXAocmVzdHJpY3RfYXV0aG9yLCBwcy0+YXV0aG9y
+KSAhPSAwKQ0KKwlyZXR1cm47DQorDQorICAgIGlmIChoYXZlX3Jlc3RyaWN0
+X2xvZyAmJiByZWdleGVjKCZyZXN0cmljdF9sb2csIHBzLT5kZXNjciwgMCwg
+TlVMTCwgMCkgIT0gMCkNCisJcmV0dXJuOw0KKw0KKyAgICBpZiAocmVzdHJp
+Y3RfZmlsZSAmJiAhcGF0Y2hfc2V0X2NvbnRhaW5zX21lbWJlcihwcywgcmVz
+dHJpY3RfZmlsZSkpDQorCXJldHVybjsNCisNCisgICAgaWYgKHJlc3RyaWN0
+X2JyYW5jaCAmJiAhcGF0Y2hfc2V0X2FmZmVjdHNfYnJhbmNoKHBzLCByZXN0
+cmljdF9icmFuY2gpKQ0KKwlyZXR1cm47DQorICAgIA0KICAgICBpZiAoIWxp
+c3RfZW1wdHkoJnNob3dfcGF0Y2hfc2V0X3JhbmdlcykpDQogICAgIHsNCiAJ
+c3RydWN0IGxpc3RfaGVhZCAqIG5leHQgPSBzaG93X3BhdGNoX3NldF9yYW5n
+ZXMubmV4dDsNCg==
+---556791216-1646713961-1048108760=:19298--

@@ -1,105 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289289AbSAJFQ4>; Thu, 10 Jan 2002 00:16:56 -0500
+	id <S289336AbSAJFYH>; Thu, 10 Jan 2002 00:24:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289336AbSAJFQg>; Thu, 10 Jan 2002 00:16:36 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:11191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S289289AbSAJFQb>;
-	Thu, 10 Jan 2002 00:16:31 -0500
-Date: Wed, 9 Jan 2002 20:59:23 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Benjamin S Carrell <ben@xmission.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bigggg Maxtor drives (fwd)
-In-Reply-To: <3C3D0718.2060602@xmission.com>
-Message-ID: <Pine.LNX.4.10.10201092011420.5104-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S289337AbSAJFX6>; Thu, 10 Jan 2002 00:23:58 -0500
+Received: from zero.tech9.net ([209.61.188.187]:29963 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S289336AbSAJFXs>;
+	Thu, 10 Jan 2002 00:23:48 -0500
+Subject: Re: lock order in O(1) scheduler
+From: Robert Love <rml@tech9.net>
+To: kevin@koconnor.net
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <20020110001002.A13456@arizona.localdomain>
+In-Reply-To: <20020110001002.A13456@arizona.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 10 Jan 2002 00:26:08 -0500
+Message-Id: <1010640369.5335.289.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-01-10 at 00:10, kevin@koconnor.net wrote:
 
-Sorry but the amount of capacity we are talking about is vastly different.
+> I was unable to figure out what the logic of the '(smp_processor_id() <
+> p->cpu)' test is..  (Why should the CPU number of the process being awoken
+> matter?)  My best guess is that this is to enforce a locking invariant -
+> but if so, isn't this test backwards?  If p->cpu > current->cpu then
+> p->cpu's runqueue is locked first followed by this_rq - locking greatest to
+> least, where the rest of the code does least to greatest..
 
-hdg: Maxtor 4G160J8, ATA DISK drive
-hdg: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=317632/255/63, UDMA(133)
+Not so sure of the validity, but it is to respect lock order.  Locking
+order is to obtain the locks lowest CPU id first to prevent AB/BA
+deadlock.  See the comment above the runqueue data structure for
+explanation.
 
-
-> >hde: Maxtor 4G160J8, ATA DISK drive
-> >hde: 268435455 sectors (137439 MB) w/2048KiB Cache,
-> >CHS=266305/16/63, UDMA(33) hde: hde1
-
-Only the patches I have created will allow Linux to address the drives
-correctly, since this is a new protocol for loading the taskfile
-registers with 48-bit mode.  The other drive is being addressed in 28-bit
-mode, and can NEVER access the remaining difference under this protocol.
-
-320,173,056 - 268,435,455 = 5,173,7601 sectors
-
-5,173,7601 * 512 = 26,489,651,712 
-
-Roughly 26.4GB of drive capacity lost, the kernel without patches
-will never address more that 137GB, and the loss of usable capacity will
-continue to grow until the problem in the kernel is addressed.
-
-All it will take is to have the 2.2/2.4/2.5 kernel maintainers to agree to
-the corrective patches.
-
-Regards,
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
-
-On Wed, 9 Jan 2002, Benjamin S Carrell wrote:
-
-> I would think that you lose that space to formatting (would it not get 
-> the size of the drive from the bios?), but I stand open for correction.
+> Also, this code in set_cpus_allowed() looks bogus:
 > 
-> -Ben Carrell
-> ben@xmission.com
-> 
-> Andre Hedrick wrote:
-> 
-> >another update request --
-> >
-> >
-> >---------- Forwarded message ----------
-> >Date: Mon, 31 Dec 2001 12:16:12 -0800
-> >From: ablew@internetcds.com
-> >To: andre@linux-ide.org
-> >Subject: Bigggg Maxtor drives
-> >
-> >Hi there.  As I understand it you're the linux IDE guy,
-> >so if you don't mind answering a question for me, I'd
-> >appriciate it.
-> >
-> >I recently bought a Maxtor 4G160J8.  This hard drive is
-> >Maxtor's biggest harddrive as of yet, coming in at
-> >160GB.  Linux sees this drive as a mere 134 or so gigs
-> >as shown by the below:
-> >
-> >hde: Maxtor 4G160J8, ATA DISK drive
-> >hde: 268435455 sectors (137439 MB) w/2048KiB Cache,
-> >CHS=266305/16/63, UDMA(33) hde: hde1
-> >
-> >Do I need to pass the kernel any arguments though grub
-> >to see the full size, or is this just a kernel level
-> >limitation?
-> >
-> >Any help is appriciated.
-> >
-> >Thanks,
-> >-Aaron
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> 
-> 
+>         if (target_cpu < smp_processor_id()) {
+>                 spin_lock_irq(&target_rq->lock);
+>                 spin_lock(&this_rq->lock);
+>         } else {
+>                 spin_lock_irq(&target_rq->lock);
+>                 spin_lock(&this_rq->lock);
+>         }
+
+This is certainly wrong, I noticed this earlier today.  The unlocking
+order is not respected either, I suspect.
+
+I believe the code should be:
+
+         if (target_cpu < smp_processor_id()) {
+                 spin_lock_irq(&target_rq->lock);
+                 spin_lock(&this_rq->lock);
+         } else {
+                 spin_lock_irq(&this_rq->lock);
+                 spin_lock(&target_rq->lock);
+         }
+
+Not so sure about unlocking.  Ingo?
+
+	Robert Love
 

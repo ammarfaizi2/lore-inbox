@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265414AbSKKDzT>; Sun, 10 Nov 2002 22:55:19 -0500
+	id <S265424AbSKKEDo>; Sun, 10 Nov 2002 23:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265423AbSKKDzT>; Sun, 10 Nov 2002 22:55:19 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62793 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S265414AbSKKDzR>; Sun, 10 Nov 2002 22:55:17 -0500
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       fastboot@osdl.org
-Subject: Re: kexec for 2.5.46
-References: <m14ravfbjj.fsf@frodo.biederman.org>
-	<1036631471.10457.233.camel@andyp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 10 Nov 2002 20:59:22 -0700
-In-Reply-To: <1036631471.10457.233.camel@andyp>
-Message-ID: <m1adkgbvtx.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S265437AbSKKEDo>; Sun, 10 Nov 2002 23:03:44 -0500
+Received: from smtp.sw.oz.au ([203.31.96.1]:54283 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id <S265424AbSKKEDn>;
+	Sun, 10 Nov 2002 23:03:43 -0500
+Date: Mon, 11 Nov 2002 15:10:05 +1100
+From: Kingsley Cheung <kingsley@aurema.com>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [PATCH] setrlimit incorrectly allows hard limits to exceed soft limits
+Message-ID: <20021111151005.B14949@aurema.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Pfiffer <andyp@osdl.org> writes:
+Hi,
 
-> On Tue, 2002-11-05 at 22:38, Eric W. Biederman wrote:
-> > Linus please apply,
-> 
-> 
-> FYI: patch applied cleanly for me.
-> 
-> After fudging kexec-tools-1.4 to correct for the new syscall number:
+In 2.4.19 (also 2.5.46) setrlimit code only ever makes a comparison to
+check the old soft limit with the new soft limit and the new hard
+limit with the old hard limit.  There is never a check to ensure the
+new soft limit never exceeds the new hard limit. 
 
-O.k.  After looking more this sounds like all of the systems of being uniprocessor
-but still having apic support enabled.  And since I don't have the apic shutdown
-code in there it doesn't work.
+Just try "ulimit -H -m 10000" for memory limits that were not
+previously set.  You end up with (hard limit = 10000) < (soft limit =
+unlimited).
 
-Eric
+Fix is trivial.
+
+--- sys.c       Sat Aug  3 10:39:46 2002
++++ edited.sys.c        Mon Nov 11 14:49:19 2002
+@@ -1118,6 +1118,8 @@
+ 
+        if (resource >= RLIM_NLIMITS)
+                return -EINVAL;
++       if (new_rlim.rlim_cur > new_rlim.rlim_max)
++               return -EINVAL;
+        if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
+                return -EFAULT;
+        old_rlim = current->rlim + resource;
+
+--
+			Kingsley

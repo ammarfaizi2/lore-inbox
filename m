@@ -1,132 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSE3Pd4>; Thu, 30 May 2002 11:33:56 -0400
+	id <S316751AbSE3Pfl>; Thu, 30 May 2002 11:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316751AbSE3Pdz>; Thu, 30 May 2002 11:33:55 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:45280 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316728AbSE3Pdx>;
-	Thu, 30 May 2002 11:33:53 -0400
-Date: Fri, 31 May 2002 01:33:36 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: torvalds@transmeta.com, trivial@rustcorp.com.au,
-        linux-kernel@vger.kernel.org, Mark Zealey <mark@zealos.org>
-Subject: Re: [PATCH] generic copy_siginfo_to_user cleanup
-Message-Id: <20020531013336.4056d2d0.sfr@canb.auug.org.au>
-In-Reply-To: <20020530154754.41f6595a.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S316752AbSE3Pfk>; Thu, 30 May 2002 11:35:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:49672 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316751AbSE3Pfi>;
+	Thu, 30 May 2002 11:35:38 -0400
+Date: Thu, 30 May 2002 17:35:39 +0200
+From: Dave Jones <davej@suse.de>
+To: =?iso-8859-1?Q?Bj=F6rn_Antonsson?= <d93-ban@nada.kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How do you detect that hyperthreading is activated?
+Message-ID: <20020530173539.Q26821@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	=?iso-8859-1?Q?Bj=F6rn_Antonsson?= <d93-ban@nada.kth.se>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200205301529.RAA09965@knatte.nada.kth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Thu, May 30, 2002 at 05:29:40PM +0200, Björn Antonsson wrote:
+ > Is there a way that I can get at the logical/physical CPU bits, as
+ > reported by the CPUID instruction, of all available CPUs? Or is there
+ > an even better way?
 
-On Thu, 30 May 2002 15:47:54 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
->
-> This patch does two things:
-> 	- makes copy_siginfo_to_user always return either 0 or
-> 		-EFAULT (as all its callers either expect or don't
-> 		care about).
-> 	- explicitly copies the correct union of the siginfo structure.
-> 
-> Compiles on i386.  Obviously correct :-)
-
-Well, almost :-)
-
-New patch, only difference is && changed to &.
+/dev/cpu/*/cpuid
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.5.19/kernel/signal.c 2.5.19-si.2/kernel/signal.c
---- 2.5.19/kernel/signal.c	Thu May 30 09:44:39 2002
-+++ 2.5.19-si.2/kernel/signal.c	Thu May 30 15:24:47 2002
-@@ -1043,37 +1043,58 @@
- 
- int copy_siginfo_to_user(siginfo_t *to, siginfo_t *from)
- {
-+	int err;
-+
- 	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t)))
- 		return -EFAULT;
- 	if (from->si_code < 0)
--		return __copy_to_user(to, from, sizeof(siginfo_t));
--	else {
--		int err;
--
--		/* If you change siginfo_t structure, please be sure
--		   this code is fixed accordingly.
--		   It should never copy any pad contained in the structure
--		   to avoid security leaks, but must copy the generic
--		   3 ints plus the relevant union member.  */
--		err = __put_user(from->si_signo, &to->si_signo);
--		err |= __put_user(from->si_errno, &to->si_errno);
--		err |= __put_user((short)from->si_code, &to->si_code);
--		/* First 32bits of unions are always present.  */
-+		return __copy_to_user(to, from, sizeof(siginfo_t))
-+			? -EFAULT : 0;
-+	/*
-+	 * If you change siginfo_t structure, please be sure
-+	 * this code is fixed accordingly.
-+	 * It should never copy any pad contained in the structure
-+	 * to avoid security leaks, but must copy the generic
-+	 * 3 ints plus the relevant union member.
-+	 */
-+	err = __put_user(from->si_signo, &to->si_signo);
-+	err |= __put_user(from->si_errno, &to->si_errno);
-+	err |= __put_user((short)from->si_code, &to->si_code);
-+	switch (from->si_code & __SI_MASK) {
-+	case __SI_KILL:
-+		err |= __put_user(from->si_pid, &to->si_pid);
-+		err |= __put_user(from->si_uid, &to->si_uid);
-+		break;
-+	case __SI_TIMER:
-+		err |= __put_user(from->si_timer1, &to->si_timer1);
-+		err |= __put_user(from->si_timer2, &to->si_timer2);
-+		break;
-+	case __SI_POLL:
-+		err |= __put_user(from->si_band, &to->si_band);
-+		err |= __put_user(from->si_fd, &to->si_fd);
-+		break;
-+	case __SI_FAULT:
-+		err |= __put_user(from->si_addr, &to->si_addr);
-+		break;
-+	case __SI_CHLD:
-+		err |= __put_user(from->si_pid, &to->si_pid);
-+		err |= __put_user(from->si_uid, &to->si_uid);
-+		err |= __put_user(from->si_status, &to->si_status);
-+		err |= __put_user(from->si_utime, &to->si_utime);
-+		err |= __put_user(from->si_stime, &to->si_stime);
-+		break;
-+	case __SI_RT: /* This is not generated by the kernel as of now. */
-+		err |= __put_user(from->si_pid, &to->si_pid);
-+		err |= __put_user(from->si_uid, &to->si_uid);
-+		err |= __put_user(from->si_int, &to->si_int);
-+		err |= __put_user(from->si_ptr, &to->si_ptr);
-+		break;
-+	default: /* this is just in case for now ... */
- 		err |= __put_user(from->si_pid, &to->si_pid);
--		switch (from->si_code >> 16) {
--		case __SI_FAULT >> 16:
--			break;
--		case __SI_CHLD >> 16:
--			err |= __put_user(from->si_utime, &to->si_utime);
--			err |= __put_user(from->si_stime, &to->si_stime);
--			err |= __put_user(from->si_status, &to->si_status);
--		default:
--			err |= __put_user(from->si_uid, &to->si_uid);
--			break;
--		/* case __SI_RT: This is not generated by the kernel as of now.  */
--		}
--		return err;
-+		err |= __put_user(from->si_uid, &to->si_uid);
-+		break;
- 	}
-+	return err;
- }
- 
- #endif
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129810AbRBBXwr>; Fri, 2 Feb 2001 18:52:47 -0500
+	id <S129713AbRBBXy1>; Fri, 2 Feb 2001 18:54:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130112AbRBBXwh>; Fri, 2 Feb 2001 18:52:37 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:20233 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S129810AbRBBXwW>; Fri, 2 Feb 2001 18:52:22 -0500
-Date: Fri, 2 Feb 2001 18:51:46 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: "David S. Miller" <davem@redhat.com>
+	id <S130112AbRBBXyR>; Fri, 2 Feb 2001 18:54:17 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:41096 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129713AbRBBXx5>;
+	Fri, 2 Feb 2001 18:53:57 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14971.18508.936198.264306@pizda.ninka.net>
+Date: Fri, 2 Feb 2001 15:52:44 -0800 (PST)
+To: "Michael H. Warfield" <mhw@wittsend.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Ok, someone is trying to be funny
-Message-ID: <20010202185146.A6960@alcove.wittsend.com>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	linux-kernel@vger.kernel.org
+In-Reply-To: <20010202185146.A6960@alcove.wittsend.com>
 In-Reply-To: <14971.17550.868312.308804@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <14971.17550.868312.308804@pizda.ninka.net>; from davem@redhat.com on Fri, Feb 02, 2001 at 03:36:46PM -0800
+	<20010202185146.A6960@alcove.wittsend.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 02, 2001 at 03:36:46PM -0800, David S. Miller wrote:
 
-> Ok, it seems somebody is running a cron script or similar
-> to keep resubscribing that meltingpot@miralink.com address
-> to linux-kernel.
+Michael H. Warfield writes:
+ > On Fri, Feb 02, 2001 at 03:36:46PM -0800, David S. Miller wrote:
+ > 	So block them using the /etc/mail/access database for sendmail
+ > and do it with a "451" error code.  The data will back up on their
+ > mail server and start clogging their mail spool till they get a clue.
+ > (Ok...  5 day expiration on the messages, but ITMT, they get several
+ > warning and error messages from each too).
 
-	So block them using the /etc/mail/access database for sendmail
-and do it with a "451" error code.  The data will back up on their
-mail server and start clogging their mail spool till they get a clue.
-(Ok...  5 day expiration on the messages, but ITMT, they get several
-warning and error messages from each too).
+We don't use sendmail at vger, we use zmailer.  Sendmail could
+not keep up with the load :-)
 
-> So if you see the "moderation" message back from a posting
-> you make to linux-kernel, please dont' report it to us here
-> at vger.kernel.org, we know about it.
+And yes I've done the zmailer equivalent (manual SPAM block database)
+of what you've suggested.
 
-> Later,
-> David S. Miller
-> davem@redhat.com
-
-	Mike
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

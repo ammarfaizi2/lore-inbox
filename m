@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267162AbSLKOZj>; Wed, 11 Dec 2002 09:25:39 -0500
+	id <S267152AbSLKO0H>; Wed, 11 Dec 2002 09:26:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267152AbSLKOZj>; Wed, 11 Dec 2002 09:25:39 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:65284 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267162AbSLKOZi>; Wed, 11 Dec 2002 09:25:38 -0500
-Message-Id: <200212111419.gBBEJua06684@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-Date: Wed, 11 Dec 2002 17:09:34 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Daniel Egger <degger@fhm.edu>, Joseph <jospehchan@yahoo.com.tw>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw> <200212110829.gBB8Tja05013@Port.imtp.ilyichevsk.odessa.ua> <20021211105808.GA17354@codemonkey.org.uk>
-In-Reply-To: <20021211105808.GA17354@codemonkey.org.uk>
+	id <S267165AbSLKO0H>; Wed, 11 Dec 2002 09:26:07 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:43994 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267152AbSLKO0F>; Wed, 11 Dec 2002 09:26:05 -0500
+Date: Wed, 11 Dec 2002 07:26:50 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Stian Jordet <liste@jordet.nu>, Allan Duncan <allan.d@bigpond.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.51
+In-Reply-To: <m1smx4vrem.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33.0212110720540.2617-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 December 2002 08:58, Dave Jones wrote:
-> On Wed, Dec 11, 2002 at 11:19:23AM -0200, Denis Vlasenko wrote:
->  > > Prolly I would have to do more benchmarking to find out about
->  > > aligment advantages.
->  >
->  > I heard cmovs are microcoded in Centaurs.
->  > s...l...o...w...
+
+> How well does this driver work if you don't have a firmware
+> driver initialize the card? aka a pci option ROM.
 >
-> Hardly surprising given that the chip isn't targetted at the
-> performance market.
-
-*We Support 686 Instruction Set* plastered everywhere? ;)
-Who cares that a single cmov take some tens of cycles...
-(btw, can someone measure that? I have no C3...)
-
-On 7 July 2002 12:32, Willy TARREAU wrote:
-> because GCC's output is really ugly. In fact, it is
-> also ugly when it generates cmov. I disassembled my
-> libc and found that it subobtimizes the code at the
-> point that it's far worse with cmov than without !
-> (more instructions, more memory accesses, more
-> registers used).
-
-Do not try to optimize "pedal to the metal" without
-actually looking at the results.
-With "-march=i686" on C3 one will get:
-
-* Non-optimal GCC code generation
-* Really Slow (tm) cmovs
-* Buggy code (cmov with mem operands)
-  if one don't think above two are not enough ;)
-
-On 10 December 2002 05:22, Daniel Egger wrote:
-> Am Die, 2002-12-10 um 06.52 schrieb Dave Jones:
-> > I believe someone (Jeff Garzik?) benchmarked gcc code generation,
-> > and the C3 executed code scheduled for a 486 faster than it did for
-> > -m586
-> > I'm not sure about the alignment flags. I've been meaning to look
-> > into that myself...
+> I am interested because with LinuxBIOS it is still a pain to run
+> PCI option roms, and I don't necessarily even have then if it a
+> motherboard with video.  There are some embedded/non-x86 platforms
+> with similar issues.
 >
-> Interesting. I have no clue about which C3 you're talking about here
-> but a VIA Ezra has all 686 instructions including cmov and thus
-> optimising for PPro works best for me.
+> My primary interest is in the cheap ATI Rage XL chip that is on many
+> server board. PCI Vendor/device  id 1002:4752 (rev 27) from lspci.
+>
+> If nothing else if some one could point me to some resources on
+> how to get the appropriate documentation from the video chipset
+> manufacturers I would be happy.
+>
+> But I did want to at least point that running a system with out bios
+> initialized video was certainly among the cases that are used.
 
-Such things need testing. A kernel compile would suffice I guess.
---
-vda
+Unfortunely ATI doesn't like to release info on what needs to be done to
+initialize without frimware. I really wish this was the case. I did see
+email back about someone getting a mach64 card working without firmware.
+They used a bus analysiser to do this. I will see what kind of patches I
+can dig up.
+
+

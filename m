@@ -1,78 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbTIIUWs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbTIIUUC
+	id S264477AbTIIUKO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:10:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264474AbTIIUKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:20:02 -0400
-Received: from ida.rowland.org ([192.131.102.52]:3332 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264495AbTIIUQ7 (ORCPT
+	Tue, 9 Sep 2003 16:10:10 -0400
+Received: from mx2.it.wmich.edu ([141.218.1.94]:59084 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S264466AbTIIUJx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:16:59 -0400
-Date: Tue, 9 Sep 2003 16:16:58 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How can I force a read to hit the disk?
-In-Reply-To: <Pine.LNX.4.53.0309091037150.5368@chaos>
-Message-ID: <Pine.LNX.4.44L0.0309091542560.643-100000@ida.rowland.org>
+	Tue, 9 Sep 2003 16:09:53 -0400
+Message-ID: <3F5E338F.2000007@wmich.edu>
+Date: Tue, 09 Sep 2003 16:09:51 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: atapi write support? No
+References: <3F5E2BA4.60704@wmich.edu> <20030909195428.GQ4755@suse.de>
+In-Reply-To: <20030909195428.GQ4755@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003, Richard B. Johnson wrote:
-
-> The semaphore location exists in the memory map structure, mm_struct.
-> You only need to allocate some memory the size of that structure to
-> contain the semaphore. You can readily see what happens in
-> ../kernel/fork.c ...:
+Jens Axboe wrote:
+> On Tue, Sep 09 2003, Ed Sweetman wrote:
 > 
->     Something like:
+>>Is anyone able to actually use the atapi write support present in the 
+>>later cdrecord releases?  2.6 can't seem to work with it at all.  Is 
 > 
->           if((current->mm = mm_alloc()) == NULL)
->               printk("Some problem with mm_alloc()\n");
->           else
->               init_rwsem(&current->mm->mmap_sem);
 > 
->    ... should get you going.
+> Based on the clues you pass above, noone can help you. What are you
+> trying to do and how? What kernel version? What cdrecord version?
+
+There is no other information needed. By use atapi write support i mean 
+Get it to do anything besides error out reporting that it cant access 
+the drive. If you can query the drive much less actually write anything 
+to it using the ATAPI interface than that's more than i've been able to do.
+
+for example   cdrecord dev=ATAPI:1,0,0 checkdisk
+
+1,0,0 should conform to secondary channel master as this is how devfs 
+sets the cdr up too.
+
+kernel version, if you look above it's 2.6, but for the sake of 
+comparison, test4 or test5 with or without mm patches.
+
+cdrecord version: atapi support was introduced with 2.0 but again, for 
+the sake of comparison, anything after a13.
+
+
+
 > 
->     If, in all your code, the only problem you had was an allocation
-> problem with your semaphore, and not a problem with actual memory
-> access, then you are golden.
+>>this due to the kernel being broken or cdrecord not being up to date 
+>>with 2.6 semantics?
+> 
+> 
+> I'll polish my crystal ball and let you know!
+> 
 
-I'm afraid it's not as simple as that.  Yes, my driver is working just 
-fine, apart from these conceptual difficulties in getting O_DIRECT to 
-perform.  (Without the O_DIRECT, it works perfectly -- other than not 
-bypassing the page cache.)
-
-I did what you suggested: current->mm = mm_alloc().  (I had to change
-kernel/fork.c since mm_alloc() isn't EXPORTed.)  The call to init_rwsem()  
-isn't needed because mm_alloc() calls mm_init(), which does it.  That much
-succeeded.  But what about setting current->active_mm?  What about undoing 
-the effect of enter_lazy_tlb(), which is called indirectly by daemonize()?  
-Or does it not need to be undone?
-
-In the end, your suggestion didn't work.  Subsequent calls to vfs_read()
-returned -EFAULT, which obviously isn't useful.  I know very little about
-the intimate details of Linux's memory management; is it possible that the
-EFAULT occurred because my I/O buffer is in kernel space rather than user
-space?  My kernel thread does execute set_fs(get_ds()) before doing much
-else.  But the direct_io path seems to do some involved memory-address
-calculations; is it only meant to work with user-space buffers?
-
->  If you are even going to shut down your
-> kernel thread, you probably need to add your allocation to the
-> linked list. If not, don't bother.
-
-Yes, my thread does need to exit.  To what linked list do you refer -- one
-based on init_mm?  Is the mm->mmlist member of my structure the part that
-should be linked in, as dup_mmap() does?  What about all the other stuff
-dup_mmap() does, that my driver doesn't do?
-
-Simply exiting without doing anything else was disastrous.  The system got
-caught in an uninterruptible error loop.
-
-Alan Stern
 

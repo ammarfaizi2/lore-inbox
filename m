@@ -1,126 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263400AbTKJMcr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 07:32:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTKJMcr
+	id S263402AbTKJMgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 07:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263434AbTKJMgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 07:32:47 -0500
-Received: from web20602.mail.yahoo.com ([216.136.226.158]:63647 "HELO
-	web20602.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263400AbTKJMco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 07:32:44 -0500
-Message-ID: <20031110123242.56997.qmail@web20602.mail.yahoo.com>
-Date: Mon, 10 Nov 2003 04:32:42 -0800 (PST)
-From: Stefan Talpalaru <stefantalpalaru@yahoo.com>
-Subject: Re: PATCH: CMD640 IDE chipset
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200310292036.56309.bzolnier@elka.pw.edu.pl>
+	Mon, 10 Nov 2003 07:36:09 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:25287 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263402AbTKJMgF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 07:36:05 -0500
+Message-ID: <3FAF8632.8020906@softhome.net>
+Date: Mon, 10 Nov 2003 13:36:02 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: net/packet/af_packet.c:{1057,1073}: flags vs. msg->flags
+References: <Qifs.Pr.1@gated-at.bofh.it>
+In-Reply-To: <Qifs.Pr.1@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Hi Bartolomiej!
-> Hi,
-> > --- Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-wrote:
-> > > Hi,
-> > >
-> > > Can you please drop all code-style changes (such as foo() -> foo
-())
-> >
-> >  sorry about that, I ran Lindent on it...
-> Please read Documentation/CodingStyle instead ;-).
+   RTFM (man recv) brought the response:
 
-  I've read it and I got the impression that a code cleanup is in order
-  but nevermind, I left it as wrongly indented as it was.
+MSG_TRUNC
+     Return the real length of the packet, even when  it  was  longer
+     than the passed buffer. Only valid for packet sockets.
 
-> >    Please excuse me for sending this patch as an attachment,
-> > but as my mail account is Yahoo! and I'm too lazy to find a better
-> > sollution, I cannot get the patch through the web interface without
-> > breaking the lines.
-> Okay.
-> >   This patch integrates the CMD640 chipset support in the 2.4.22
-> > kernel. I was using it succesfully in the 2.2.x kernel series, but
-> > got no result in the 2.4.x kernels. After comparing the 2 versions,
-> > I noticed errors in the new version (outb_p() instead of outl_p())
-> > and also some useless code (the wrapers: __put_cmd640_reg() and 
-> > __get_cmd640_reg() - which I removed and placed the locks where
-needed;
-> It seems Alexander already covered removal of wrappers...
-> > the pci_conf1() and pci_conf2() functions).
-> You can't remove them.
-> /* Find out what kind of PCI probing is supported otherwise
->    we break some Adaptec cards...  */
+   So packet socket is special case here.
 
-  OK, you are right, i am wrong. This functions are back.
+   Sorry for disturbing.
 
-> >   I also removed the CONFIG_BLK_DEV_CMD640_ENHANCED config option,
-as
-> > it
-> > makes little difference for the kernel size.
-> >   The init_hwif_cmd640() function had to be rewritten because it is
-> > called once for each ide interface found, so the old way of
-addressing
-> > all the drives in one run was no longer working. Therefore, to not
-> > break all the code, came the need for a function that computes the
-> > index from the ide_drive_t* : calculate_index().
-> ide_probe_for_cmd640x() should be still be used instead.
+P.S. Wondering - is there any way to find a size of next queued 
+datagram? SIOCINQ? cannot find its description - not listed in man 
+ioctl_list - but implementation inside of ap_packet.c does exactly this.
 
-  I disagree.
-
-> By removing setup_device_ptrs() and moving this driver to generic PCI
-layer,
-> you broke support for VLB version of CMD640.
-
-  I don't have a VLB version to test it on, but by reading the code I
-think
-  that it will work just fine.
-  Anyway, if I'm wrong I should get a prize for breaking something that
-was
-  allready broken :-)))) .
-
-> Also there is a comment in a cmd640.c:
-> /*
->  * The CMD640x chip does not support DWORD config write cycles, but
-some
->  * of the BIOSes use them to implement the config services.
->  */
-> which worries me that it might be not safe to move this driver to
-generic
-> IDE PCI layer (at least for now).
-
-  Don't worry man, just read the code and you shall find peace of
-mind....
-
-> >   The code that handles PIO settings was rearanged in a new
-function:
-> > cmd640_tuneproc().
-> Is this really necessary, it is even harder to read it now...
-
-  It is necessary, unless the purpose of this piece of code is
-readability.
-
-> Stefan, please rework your patch.  Thanks.
-
-  If you say that the only way I will get this driver fixed is to keep
-it
-  ugly then I will send you a lame patch that does just that.
-
-> cheers,
-> --bartlomiej
-
-later,
+Ihar 'Philips' Filipau wrote:
+> Hi!
+> 
+>    [ I'm trying to cc: netdev - but they are not that welcome - and 
+> require subscription. I'm way too lazy (and my mail box is not that 
+> fast) to subscribe to send simple typo - if this is a case at all. ]
+> 
+>    [ kernel v2.6.0-test7 as found on lxr.linux.no, 2.4.{18,22} has the 
+> same - but line numbers are different. ]
+> 
+>    On line 1057 we have: "msg->msg_flags|=MSG_TRUNC;" to indicate that 
+> message was truncated.
+> 
+>    But on line 1073, where we make return status to user, we check 
+> against user suplied flags, but NOT msg->msg_flags.
+> 
+>    It looks like obvious typo.
+> 
 
 
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  "... and for $64000 question, could you get yourself       |_|*|_|
+    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
+                                 -- Al Viro @ LKML           |*|*|*|
 
-=====
-Stefan Talpalaru
-
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree

@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUEQWQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbUEQWRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262538AbUEQWQx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 18:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUEQWQx
+	id S262625AbUEQWRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 18:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUEQWRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 18:16:53 -0400
-Received: from nacho.zianet.com ([216.234.192.105]:3078 "HELO nacho.zianet.com")
-	by vger.kernel.org with SMTP id S262538AbUEQWQ0 (ORCPT
+	Mon, 17 May 2004 18:17:25 -0400
+Received: from mail.kroah.org ([65.200.24.183]:19123 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262625AbUEQWRS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 18:16:26 -0400
-From: Steven Cole <elenstev@mesatop.com>
+	Mon, 17 May 2004 18:17:18 -0400
+Date: Mon, 17 May 2004 15:13:20 -0700
+From: Greg KH <greg@kroah.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
-Date: Mon, 17 May 2004 16:15:51 -0600
-User-Agent: KMail/1.6.1
-Cc: mason@suse.com, torvalds@osdl.org, lm@bitmover.com, wli@holomorphy.com,
-       hugh@veritas.com, adi@bitmover.com, support@bitmover.com,
-       linux-kernel@vger.kernel.org
-References: <200405132232.01484.elenstev@mesatop.com> <1084828124.26340.22.camel@spc0.esa.lanl.gov> <20040517142946.571a3e91.akpm@osdl.org>
-In-Reply-To: <20040517142946.571a3e91.akpm@osdl.org>
-MIME-Version: 1.0
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+Message-ID: <20040517221320.GA20768@kroah.com>
+References: <20040514175918.6b9f4c9d.akpm@osdl.org> <E1BOs7C-0003Bd-00@gondolin.me.apana.org.au> <20040514231620.0f653afd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405171615.51513.elenstev@mesatop.com>
+In-Reply-To: <20040514231620.0f653afd.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 May 2004 03:29 pm, Andrew Morton wrote:
-> Steven Cole <elenstev@mesatop.com> wrote:
+On Fri, May 14, 2004 at 11:16:20PM -0700, Andrew Morton wrote:
+> Herbert Xu <herbert@gondor.apana.org.au> wrote:
 > >
-> > 1) Apply your patch to 2.6.6-current, build with PREEMPT
-> > 2) Test bk pull via ppp on reiserfs until and if it breaks.
-> > 3) Test bk pull via ppp on ext3 and take a look at the s.ChangeSet file
-> > if/when the failure occurs.
-> > 4) Apply akpm's patch here:
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=108478018304305&w=2
-> > 5) Repeat 2,3
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > > 
+> > > I don't know if it's worth the effort though.  Is any other driver likely
+> > > to want to discriminate between reboot and shutdown?
+> > 
+> > e100 used to (and still does in 2.4) send the device into D3 on shutdown.
+> > This causes problems on a number of boards if the box is only rebooting
+> > as the driver fails to bring the device back out of D3.
 > 
-> Nope.  Please just see if this makes the problem go away:
+> Ho hum.  Greg, any preferences?  We can either:
 > 
-> --- 25/fs/buffer.c~a	Mon May 17 14:28:51 2004
-> +++ 25-akpm/fs/buffer.c	Mon May 17 14:29:02 2004
-> @@ -2723,7 +2723,6 @@ int block_write_full_page(struct page *p
->  	 * writes to that region are not written out to the file."
->  	 */
->  	kaddr = kmap_atomic(page, KM_USER0);
-> -	memset(kaddr + offset, 0, PAGE_CACHE_SIZE - offset);
->  	flush_dcache_page(page);
->  	kunmap_atomic(kaddr, KM_USER0);
->  	return __block_write_full_page(inode, page, get_block, wbc);
+> a) Add a `restart' driver method and call that during reboot instead of
+>    ->shutdown, if the driver implements ->restart.  Otherwise call
+>    ->shutdown or
 > 
-> _
+> b) stick with the
 > 
-> If this patch is confirmed to fix things up, then and only then should you
-> bother testing the vmtruncate patch.
+> 	if (system_state == SYSTEM_RESTART)
+> 		...
 > 
-> Thanks.
-> 
-> 
+>    thing in IDE and potentially a couple of other places?
 
-Thank you very much Andrew.  Building now.
+I think we should stick with option b) for now, as we are already
+keeping this system state, right?  The number of different drivers that
+will care about this is probably quite small.
 
-Steven
+But if I'm proven wrong, we can add "restart" to 2.7 :)
+
+thanks,
+
+greg k-h
+

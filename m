@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266809AbTAPCqO>; Wed, 15 Jan 2003 21:46:14 -0500
+	id <S266718AbTAPDYs>; Wed, 15 Jan 2003 22:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266952AbTAPCqO>; Wed, 15 Jan 2003 21:46:14 -0500
-Received: from almesberger.net ([63.105.73.239]:3090 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S266809AbTAPCqN>; Wed, 15 Jan 2003 21:46:13 -0500
-Date: Wed, 15 Jan 2003 23:55:01 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-       adam@yggdrasil.com
-Subject: Re: [PATCH] Proposed module init race fix.
-Message-ID: <20030115235501.B1589@almesberger.net>
-References: <D4E37953801@vcnet.vc.cvut.cz> <20030116015535.355A22C133@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030116015535.355A22C133@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Jan 16, 2003 at 12:48:57PM +1100
+	id <S266968AbTAPDYs>; Wed, 15 Jan 2003 22:24:48 -0500
+Received: from dp.samba.org ([66.70.73.150]:1478 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266718AbTAPDYr>;
+	Wed, 15 Jan 2003 22:24:47 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: kuznet@ms2.inr.ac.ru, Roman Zippel <zippel@linux-m68k.org>,
+       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Migrating net/sched to new module interface 
+In-reply-to: Your message of "Wed, 15 Jan 2003 23:42:58 -0300."
+             <20030115234258.E1521@almesberger.net> 
+Date: Thu, 16 Jan 2003 14:31:27 +1100
+Message-Id: <20030116033343.C87CF2C33D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> And see remove_proc_entry, or notifier_chain_unregister for
-> counterexamples.  No doubt there are others.
+In message <20030115234258.E1521@almesberger.net> you write:
+> > And remember why we're doing it: for a fairly obscure race condition.
+> 
+> No, I want to do this to fix the reason for the fix for the
+> obscure race condition :-)
 
-Perhaps some convenient include file should contain something like
-this:
+Semantics.
 
-#ifdef CONFIG_DEBUG_KERNEL
-#define whistleblower() \
-  printk(KERN_ERR "this interface may call back after deregistration\n");
-#else
-#define whistleblower() /* no failure is silent in Oopsland */
-#endif
+> Also, all this smells of a fundamental design problem: modules
+> aren't the only things that can become unavailable. So why
+> construct a special mechanism that only applies to modules ?
 
-? ;-)
+NO NO NO.  Listen *carefully*.
 
-- Werner
+The ONLY time that FUNCTIONS vanish is when MODULES get UNLOADED (or
+fail to LOAD).
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+So you're suggesting we should lock ALL functions the way we lock all
+other datastructures.  I look forward to your compiler patch.
+
+I've explained this multiple times.  If you're not convinced, fine.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

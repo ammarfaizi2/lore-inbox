@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbTKBUeO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 15:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTKBUeO
+	id S261836AbTKBUta (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 15:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTKBUt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 15:34:14 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:37125 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S261799AbTKBUeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 15:34:04 -0500
-Date: Mon, 3 Nov 2003 07:33:50 +1100
-To: Hans Reiser <reiser@namesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431"
-Message-ID: <20031102203350.GA9402@gondor.apana.org.au>
-References: <20031029141931.6c4ebdb5.akpm@osdl.org> <E1AGCUJ-00016g-00@gondolin.me.apana.org.au> <20031101233354.1f566c80.akpm@osdl.org> <20031102092723.GA4964@gondor.apana.org.au> <3FA4EF79.5060708@namesys.com>
+	Sun, 2 Nov 2003 15:49:29 -0500
+Received: from madrid10.amenworld.com ([62.193.203.32]:7693 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S261836AbTKBUt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 15:49:28 -0500
+Date: Sun, 2 Nov 2003 21:49:34 +0100
+From: DervishD <raul@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Using proc in chroot environments
+Message-ID: <20031102204934.GB54@DervishD>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <3FA4EF79.5060708@namesys.com>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 02, 2003 at 02:50:17PM +0300, Hans Reiser wrote:
->
-> Why are you guys modifying the official kernel?  Are you seeking 
-> advantage over the other distros or?  This was one of the nice things 
-> about debian, that it didn't have unofficial destabilizing stuff in the 
-> kernel like the other distros.
+    Hi all :)
 
-I don't know where you got the idea that Debian used to distribute the
-kernel as it is.  Just like every other distribution, we have always
-needed (mostly small) changes to the vanilla kernel.
+    I'm using a chroot environment on my main disk as a 'crash test
+dummy', and I need to access the proc filesystem inside it. Since
+hard links are not allowed for directories, the only solution I can
+think of is to mount proc inside the chroot environment just after
+chrooting. This works, I've tested, but I have two problems:
 
-We do send those changes suitable for general consumption to the
-upstream maintainers.  Whether they are accepted is an entirely
-different question.
+    - Any change in the chroot proc happens too in the main one (like
+using /proc/sys/kernel variables). Not a big deal, since I want the
+chroot environment to mimic the main filesystem where the original
+proc is mounted, but is annoying.
+
+    - I must mount copies of devpts, usbfs, etc... under the 'second'
+proc, too, and this is even more annoying.
+
+    The perfect solution for me is to hardlink the proc directory of
+the chrooted environment to the proc directory on the true root dir,
+but since this is not possible, whan can I do instead of remounting a
+second copy of proc (which, by the way, makes /proc/mounts a little
+bit weird...)?
+
+    Thanks a lot in advance :))
+
+    Raúl Núñez de Arenas Coronado
+
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

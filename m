@@ -1,63 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbTKPXmh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 18:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbTKPXmh
+	id S263228AbTKQARL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 19:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTKQARL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 18:42:37 -0500
-Received: from dci.doncaster.on.ca ([66.11.168.194]:51619 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S263205AbTKPXmg (ORCPT
+	Sun, 16 Nov 2003 19:17:11 -0500
+Received: from crete.csd.uch.gr ([147.52.16.2]:54442 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id S263228AbTKQARI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 18:42:36 -0500
-From: Andrew Miklas <public@mikl.as>
-Reply-To: public@mikl.as
-To: linux-kernel@vger.kernel.org
-Subject: Userspace DMA
-Date: Sun, 16 Nov 2003 18:42:00 -0500
-User-Agent: KMail/1.5
+	Sun, 16 Nov 2003 19:17:08 -0500
+Organization: 
+Date: Mon, 17 Nov 2003 02:16:13 +0200 (EET)
+From: Panagiotis Papadakos <papadako@csd.uoc.gr>
+To: Andrew Morton <akpm@osdl.org>
+cc: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
+In-Reply-To: <20031116134231.763fc5ed.akpm@osdl.org>
+Message-ID: <Pine.GSO.4.58.0311170213430.7124@tinos.csd.uch.gr>
+References: <20031116192643.GB15439@zip.com.au> <3FB7DCF9.5090205@gmx.de>
+ <20031116134231.763fc5ed.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311161842.00253.public@mikl.as>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I also had problems with -mm3.
+Now I am using the latest tree from linus with no problems.
 
+P.S.
+Sorry but I have no time to try mm3 with the patch reverted.
 
-Is there an accepted way of doing userspace DMA with Linux?
+	Panagiotis Papadakos
 
-I've gone over a large number of posts, and all seem to recommend something 
-different, and each method seems to involve certain drawbacks.
+On Sun, 16 Nov 2003, Andrew Morton wrote:
 
-What I'd like to do is allow a process to be able to do operations like 
-pci_alloc_consistent and pci_free_consistent.  I'm trying to do this to allow 
-a driver running under the Bochs emulator to interact with its (non-emulated) 
-hardware using DMA.  
-
-I was originally going to do a pci_alloc_consistent and then mmap the space 
-into the emulator's process.  The process would then get the physical address 
-of the memory through an ioctl, or I would leave the physical address at the 
-start of the allocated buffer for the process to later retrieve.
-
-However, it appears that remap_page_range won't work with addresses obtained 
-from pci_alloc_consistent.  I've also read that using the nopage callback can 
-cause issues if the range I need to allocate is greater than one page.
-
-Most of the approaches I've found seem to require that the hardware be capable 
-of scatter-gather DMA (video4linux and bttv, for ex.).  I've also seen one 
-solution that had the driver do a pci_alloc_consistent on a certain ioctl, 
-and then return the physical address of the buffer.  The process would then 
-mmap /dev/mem to access the buffer.  However, someone warned that this method 
-could have coherency issues.
-
-Is there some other method that I should be looking at to accomplish this?
-
-
-
-Thanks,
-
-
-Andrew
+> "Prakash K. Cheemplavam" <prakashpublic@gmx.de> wrote:
+> >
+> > CaT wrote:
+> >
+> >  > I just noticed major interactivity problems whilst ogging one of my
+> >
+>
+> "ogging"?
+>
+> > Going back to mm2 (patched mm2) and everything it fine again.
+>
+> Two things to try, please:
+>
+> a) Is the problem from Linus's tree?  Try 2.6.0-test9 plus
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm3/broken-out/linus.patch
+>
+> b) The only significant scheduler change in mm3 was
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm3/broken-out/context-switch-accounting-fix.patch
+>
+>    So please try -mm3 with the above patch reverted with
+>
+> 	patch -R -p1 < context-switch-accounting-fix.patch
+>
+>
+> Thanks.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

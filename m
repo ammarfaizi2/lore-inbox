@@ -1,95 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316476AbSEOTUK>; Wed, 15 May 2002 15:20:10 -0400
+	id <S316474AbSEOTfg>; Wed, 15 May 2002 15:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316475AbSEOTUJ>; Wed, 15 May 2002 15:20:09 -0400
-Received: from bitmover.com ([192.132.92.2]:5581 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S316474AbSEOTUF>;
-	Wed, 15 May 2002 15:20:05 -0400
-Date: Wed, 15 May 2002 12:20:03 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020515122003.A13795@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <30386.1021456050@redhat.com> <Pine.LNX.4.44.0205150931500.25038-100000@home.transmeta.com>
+	id <S316477AbSEOTff>; Wed, 15 May 2002 15:35:35 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:62738 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S316474AbSEOTfe>; Wed, 15 May 2002 15:35:34 -0400
+Message-Id: <200205151935.g4FJZSL04191@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Russell King <rmk@arm.linux.org.uk>
+cc: James Bottomley <James.Bottomley@SteelEye.com>, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] fix for initrd breakage in 2.5.13+ 
+In-Reply-To: Message from Russell King <rmk@arm.linux.org.uk> 
+   of "Wed, 15 May 2002 19:54:22 BST." <20020515195421.C28997@flint.arm.linux.org.uk> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_19067810270"
+Date: Wed, 15 May 2002 15:35:28 -0400
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 09:39:30AM -0700, Linus Torvalds wrote:
-> On Wed, 15 May 2002, David Woodhouse wrote:
-> > Are you still accepting BK changesets by mail? I heard rumours that you'd
-> > said you didn't want them any more -- but couldn't find a message in which
-> > you actually said that.
-> 
-> I try to avoid it as much as possible - it's actually more work for me,
-> and about 50% of the BK patches I get don't even apply, because the person
-> who sent them to me didn't send the whole series (ie left out some patch
-> he didn't like or something like that).
+This is a multipart MIME message.
 
-FYI, if they do a 
+--==_Exmh_19067810270
+Content-Type: text/plain; charset=us-ascii
 
-	bk send -ubk://linux.bkbits.net/linux-2.5 torvalds@transmeta.com
+rmk@arm.linux.org.uk said:
+> --- drivers/block/rd.c	Fri May  3 03:26:05 2002 +++ /tmp/rd.c	Mon May
+> 6 03:00:00 2002 @@ -376,6 +376,7 @@
+>  		rd_bdev[unit] = bdget(kdev_t_to_nr(inode->i_rdev));
+>  		rd_bdev[unit]->bd_openers++;
+>  		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
+> +		rd_bdev[unit]->bd_block_size = rd_blocksize;
+>  	}
+>    	return 0; 
 
-that problem goes away.  The -u<url> stuff does the same sort of handshake
-that a pull does to figure out what needs to be sent to fill in the holes.
+Ah Thanks!.  Yes, that's the bit I was looking for.  It also explains why 
+bd_openers was already incremented.
 
-> > Having the facility to put per-file changelogs in with BK rather than just
-> > sending patches is something I quite like, so I'd rather not just revert to
-> > sending patches.
-> 
-> [ Personal opinion alert! No impact on patch acceptance, as long as
->   enough changelog information exists _somewhere_ ]
-> 
-> I personally like good changelog comments, and I find per-file comments to
-> be a mistake.
+I think you still need to set the block queue hardsect size correctly as well, 
+so the final fix for the initrd problems should be the attached (which works 
+for me).
 
-<Also personal opinion>
+James
 
-Sometimes yes, sometimes no.  Certainly the high order bit is to capture
-the logical change in the changeset comment.  One should only have to read
-the change{set,log} comment to see if that change is interesting or not,
-it should not be necessary to go read the file comments.
 
-The file comments are more about the details of the implementation, not
-the idea.  I think the reason that Linus doesn't care about file comments
-is that he always reads the diffs and that's better than any comment, in
-general.  That's more or less true, but the file comment is a place to
-give yourself or others a hint as to what was in your mind when you made
-that change.  Those hints can really save your butt when the pressure is
-on to turn around a bugfix fast for a customer/whatever.
+--==_Exmh_19067810270
+Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
+Content-Description: tmp.diff
+Content-Disposition: attachment; filename="tmp.diff"
 
-One of the engineers here said "Changeset comments are for managers,
-file comments are for engineers", which is another way to look at it.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.513   -> 1.514  
+#	  drivers/block/rd.c	1.35    -> 1.36   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/05/15	jejb@mulgrave.(none)	1.514
+# rd.c blocksize fix
+# --------------------------------------------
+#
+diff -Nru a/drivers/block/rd.c b/drivers/block/rd.c
+--- a/drivers/block/rd.c	Wed May 15 15:21:55 2002
++++ b/drivers/block/rd.c	Wed May 15 15:21:55 2002
+@@ -376,6 +376,7 @@
+ 		rd_bdev[unit] = bdget(kdev_t_to_nr(inode->i_rdev));
+ 		rd_bdev[unit]->bd_openers++;
+ 		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
++		rd_bdev[unit]->bd_block_size = rd_blocksize;
+ 	}
+ 
+ 	return 0;
+@@ -424,6 +425,7 @@
+ 	}
+ 
+ 	blk_queue_make_request(BLK_DEFAULT_QUEUE(MAJOR_NR), &rd_make_request);
++	blk_queue_hardsect_size(BLK_DEFAULT_QUEUE(MAJOR_NR), rd_blocksize);
+ 
+ 	for (i = 0; i < NUM_RAMDISKS; i++) {
+ 		/* rd_size is given in kB */
 
-Anyway, I would agree 100% that the changeset comments are the most
-important in general, so if those are gotten right then we're ahead
-of the game.
+--==_Exmh_19067810270--
 
->  - the per-file comments don't show up in many of the standard changelogs
->    (not mine, not in "bk changes" etc), so the per-changeset comment
 
-bk changes -v
-
-will list the file comments as well.  There is a minor sorting bug in there
-when the timestamps are screwed up, but it tries pretty hard to make it be
-
-	ChangeSet comments
-
-	    File 1 comments
-
-	    File 2 comments
-
-	    Etc.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

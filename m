@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbTELDkj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 23:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbTELDkj
+	id S261868AbTELDtW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 23:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTELDsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 23:40:39 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:49136 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261847AbTELDki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 23:40:38 -0400
-Date: Sun, 11 May 2003 20:53:09 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC]  new syscall to allow notification when arbitrary pids die
-Message-ID: <20030511205309.A25546@google.com>
-References: <3EBC9C62.5010507@nortelnetworks.com> <20030510073842.GA31003@actcom.co.il> <3EBF144E.7050608@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EBF144E.7050608@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Sun, May 11, 2003 at 11:26:06PM -0400
+	Sun, 11 May 2003 23:48:23 -0400
+Received: from dp.samba.org ([66.70.73.150]:7917 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261872AbTELDsT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 23:48:19 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Jeremy Jackson" <jerj@coplanar.net>
+To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Switch ide parameters to new-style and make them unique. 
+In-reply-to: Your message of "Sun, 11 May 2003 10:59:59 -0400."
+             <005201c317cd$febb2d00$7c07a8c0@kennet.coplanar.net> 
+Date: Mon, 12 May 2003 12:21:26 +1000
+Message-Id: <20030512040100.DA6992C0DC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 11, 2003 at 11:26:06PM -0400, Chris Friesen wrote:
-> 
-> Its cheaper and faster.  It only costs a single call for each process, and
-> then you get notified immediately when it dies.
+In message <005201c317cd$febb2d00$7c07a8c0@kennet.coplanar.net> you write:
+> I think at some point, the kernel command line parameters should be
+> consolidated behind a single ata=hda,noprobe or ata=if0,io0x1f0,irq7 type
+> parameter, instead of the hda= and ide0=.  Taking that one step furthur, a
+> new syntax is needed, and having it go into 2.6 might pave the way for
+> removing the old cruft in 2.8?
 
-On Solaris, pwait(1) opens /proc/pid/psinfo and waits for data.
+The idea behind module_param* is to promote conformity, so a module
+foo will have command line params starting with "foo.", as well as
+easing the burden of double-implementation on kernel coders.
 
-/fc
+Naturally, this transition will take a long time (ie. forever):
+breaking command line params is not something to be done lightly, even
+in a major point transition.
+
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUGZRda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUGZRsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbUGZRda (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 13:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUGZRd3
+	id S265697AbUGZRsS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 13:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbUGZRsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 13:33:29 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:61599 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S266177AbUGZQEc (ORCPT
+	Mon, 26 Jul 2004 13:48:18 -0400
+Received: from mail.kroah.org ([69.55.234.183]:37795 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266021AbUGZQOO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 12:04:32 -0400
-Date: Mon, 26 Jul 2004 18:04:24 +0200
-From: David Weinehall <tao@debian.org>
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Interesting race condition...
-Message-ID: <20040726160424.GQ22472@khan.acc.umu.se>
-Mail-Followup-To: Marc Ballarin <Ballarin.Marc@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <200407222204.46799.rob@landley.net> <20040723073300.GA4502@ip68-4-98-123.oc.oc.cox.net> <200407240313.19053.rob@landley.net> <loom.20040724T152713-574@post.gmane.org>
+	Mon, 26 Jul 2004 12:14:14 -0400
+Date: Mon, 26 Jul 2004 12:12:21 -0400
+From: Greg KH <greg@kroah.com>
+To: Robert Love <rml@ximian.com>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Andrew Morton <akpm@osdl.org>, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel events layer
+Message-ID: <20040726161221.GC17449@kroah.com>
+References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB5@orsmsx407> <1090853403.1973.11.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <loom.20040724T152713-574@post.gmane.org>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+In-Reply-To: <1090853403.1973.11.camel@localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 24, 2004 at 01:40:59PM +0000, Marc Ballarin wrote:
-> Rob Landley <rob <at> landley.net> writes: 
->  
-> > Oh I can't reproduce it either.  (Maybe if I set some kind of loop and left 
-> > it running for a few days...) 
->  
-> I could reproduce it on an otherwise idle system (2 GHz Athlon, kernel 2.6.7). 
-> On a loaded system the bug did not occur, which certainly indicates a race 
-> condition. 
->  
-> Using the following Bash script, the bug appeared 23 times in 122,221 
-> iterations: 
-> while [ 1 ];do 
->         ps ax | grep hack >> TEST 
-> done 
->  
-> The bug *seems* to be in bash, since an equivalent script in tcsh had no 
-> problems: 
-> while ( 1 ) 
->         ps ax | grep hack >> TEST2 
-> end 
->  
-> This issue has the potential to break a lot of shell scripts in an almost 
-> undebugable way. Should someone file a bug report via 'bashbug'? 
+On Mon, Jul 26, 2004 at 10:50:03AM -0400, Robert Love wrote:
+> On Mon, 2004-07-26 at 00:31 -0700, Perez-Gonzalez, Inaky wrote:
+> 
+> > methinks: if the message is related to some object that has a kobject
+> > representation, use it. If not, come up with one on a case by case
+> > basis [now this is the difficult one--is where it'd be difficult to
+> > keep things on leash].
+> 
+> That introduces two orthogonal name spaces, and that really doesn't cut
+> it.
+> 
+> If Greg can come up with a solution for using kobjects, I am all for
+> that - that would be great - but I really do not see kobject paths
+> working out.  I think the best we have is the file path in the tree.
 
-I get this using posh as well, so it doesn't seem to be bash-specific.
+Give me a few days, I'm working on it, but have been traveling too much.
+Robert and I will sit down during OSCON this week and try to work out
+something along these lines, and then post it again here.
 
+thanks,
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+greg k-h

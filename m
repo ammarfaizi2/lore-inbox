@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262889AbUJ1Vff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbUJ1Vfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262889AbUJ1Vff (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 17:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbUJ1Vff
+	id S262897AbUJ1Vfp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 17:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUJ1Vfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 17:35:35 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33701 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263032AbUJ1VPm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 17:15:42 -0400
-Date: Thu, 28 Oct 2004 16:14:32 -0500
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dsaxena@plexity.net, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove inclusion of <linux/irq.h> from pci/quirks.c
-Message-ID: <20041028211432.GB9369@kroah.com>
-References: <20041020182222.GA20201@plexity.net> <20041020215750.3f3764e6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041020215750.3f3764e6.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Thu, 28 Oct 2004 17:35:45 -0400
+Received: from [129.105.5.125] ([129.105.5.125]:50071 "EHLO
+	delta.ece.northwestern.edu") by vger.kernel.org with ESMTP
+	id S263089AbUJ1VTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 17:19:01 -0400
+Message-ID: <418162A6.80808@ece.northwestern.edu>
+Date: Thu, 28 Oct 2004 16:20:38 -0500
+From: Lei Yang <lya755@ece.northwestern.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040921
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies <kernelnewbies@nl.linux.org>
+Subject: Re: set blksize of block device
+References: <417FE6A8.5090803@ece.northwestern.edu> <41804F04.4000300@ece.northwestern.edu> <418058A8.5080706@ece.northwestern.edu> <200410280911.15756.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200410280911.15756.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Enigmail-Version: 0.76.8.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 09:57:50PM -0700, Andrew Morton wrote:
-> Deepak Saxena <dsaxena@plexity.net> wrote:
-> >
-> > <linux/irq.h> states:
-> > 
-> >  /*
-> >   * Please do not include this file in generic code.  There is currently
-> >   * no requirement for any architecture to implement anything held
-> >   * within this file.
-> >   *
-> >   * Thanks. --rmk
-> >   */
-> > 
-> >  The latest update into pci/quirks.c did not follow this and breaks 
-> >  building on ARM.
-> 
-> But it does break building on x86, which might prove a tad unpopular.
-> 
-> That x86 code shouldn't be in the generic PCI code at all, I guess.  This
-> patch move it into io_apic.c and appears to build OK.  I'll play with it a
-> bit more.
-> 
-> Also, it worries me that quirk_intel_irqbalance() is marked __devinit and
-> calls irqbalance_disable(), which is marked __init.  I guess a fix for that
-> would be to mark quirk_intel_irqbalance() as __init, since it's unlikely to
-> be called after free_initmem().  Does Greg agree?
+Denis Vlasenko wrote:
 
-I do agree.  But I think the intel people are mucking around in this
-area too and hopefully they'll fix it all up soon...
+>On Thursday 28 October 2004 05:25, Lei Yang wrote:
+>  
+>
+>>Or in other words, is there generic routines for block devices such that 
+>>we could:
+>>
+>>get (set) block size of a block device;
+>>read an existing block (e.g. block 4);
+>>write an existing block (e.g. block 5);
+>>    
+>>
+>
+>Can you stick to "reply below quote" style please?
+>  
+>
+OK
 
-thanks,
+>  
+>
+>>>If nobody could answer this question, what about another one? Is there 
+>>>a system call or a kernel interface that would allow me to write a 
+>>>      
+>>>
+>
+>Can you use read, write and seek system calls?
+>--
+>vda
+>
+>
+>  
+>
+Not really, as I've explained, I want to do all these stuff in kernel 
+space. More specifically, I want to write a newbie kernel module. In 
+this module, I'll do something with a raw block device (with no 
+filesystem). For example, I want to do block I/O operations on ramdisk, 
+and I want to set the block size of ramdisk to whatever value I want 
+(power of 2 of course).
 
-greg k-h
+Any comments?
+
+Thanks,
+Lei
+

@@ -1,59 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUGLVWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUGLVYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263640AbUGLVWm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 17:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUGLVWl
+	id S263664AbUGLVYT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUGLVYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 17:22:41 -0400
-Received: from [203.178.140.15] ([203.178.140.15]:34310 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S263640AbUGLVW2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 17:22:28 -0400
-Date: Tue, 13 Jul 2004 06:22:26 +0900 (JST)
-Message-Id: <20040713.062226.130914590.yoshfuji@linux-ipv6.org>
-To: cra@WPI.EDU
-Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: v2.6 IGMPv3 implementation
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20040712203056.GI7822@angus.ind.WPI.EDU>
-References: <20040712203056.GI7822@angus.ind.WPI.EDU>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jul 2004 17:24:19 -0400
+Received: from mxlx1.surveysavvy.com ([63.108.92.46]:35755 "HELO
+	mxlx1.surveysavvy.com") by vger.kernel.org with SMTP
+	id S263664AbUGLVXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 17:23:49 -0400
+Message-ID: <2500.68.6.187.64.1089667018.squirrel@mxlx1.surveysavvy.com>
+In-Reply-To: <20040711205047.GQ4677@lkcl.net>
+References: <20040709201413.GB3168@lkcl.net>
+    <200407112050.08313.russell@coker.com.au>
+    <20040711112237.GI3390@lkcl.net> <40F16D8B.4010601@bellsouth.net>
+    <20040711205047.GQ4677@lkcl.net>
+Date: Mon, 12 Jul 2004 14:16:58 -0700 (PDT)
+Subject: Re: [SE/Linux] warning about debian hotplug package 20040329-9!
+From: "Chris Babcock" <cbabcock@luthresearch.com>
+To: "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>
+Cc: "SE-Linux" <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040712203056.GI7822@angus.ind.WPI.EDU> (at Mon, 12 Jul 2004 16:30:56 -0400), "Charles R. Anderson" <cra@WPI.EDU> says:
+So then what if (horror of horrors) somebody puts "/var" on a usb disk
+device. (or some other type of device initialized by hotplug?)
 
-> /* Multicast source filter calls */
-> #define SIOCSIPMSFILTER        0x89a0          /* set mcast src filter (ipv4) */
-> #define SIOCGIPMSFILTER 0x89a1         /* get mcast src filter (ipv4) */
-> #define SIOCSMSFILTER  0x89a2          /* set mcast src filter (proto indep) */
-> #define SIOCGMSFILTER  0x89a3          /* get mcast src filter (proto indep) */
-> 
-> These do not appear in the Linus kernel, though.  Does anyone know the
-> status of these ioctls and the IGMPv3 implementation in general?  I'm
-> trying to get the proper bits stuffed into glibc to make IGMPv3/SSM
-> usable, and I'm not sure what to do about these ioctls.  Should 4 new
-> ioctl numbers be reserved for these in case an implementation is
-> integrated, or should I just leave them out of glibc headers entirely?
+> dear selinux and linux kernel,
+>
+> i am after some assistance in clarifying how hotplug works, with
+> a view to solving an issue with SE/Linux where the default
+> SE/Linux policy is to deny write permission to /etc/hotplug
+> (with good reason) but the hotplug package is presently demanding
+> write permission.
+>
+> a simple request for a change to writing to /var/state/hotplug
+> instead has thrown up a number of issues with kernel (2.6.6)
+> hotplugging and i would greatly appreciate some confirmation
+> and some assistance.
+>
+>
+> i raised a bug with the debian maintainer for hotplug [he
+> is known to be, how to describe in a few polite words, a
+> control freak.  coming from me, that's saying a lot].
+>
+> i suggested that the location for files to be written to be moved
+> to /var/state/hotplug and he CLOSED the bug with a message saying
+> "you can't do that, /var might not be mounted at the time".
+>
+> i reopened the bug, and then pointed out that the boottime order
+> was "Mounting local filesystems" (/etc/init.d/mountall.sh) followed
+> by "Starting Hotplug" (/etc/init.d/hotplug) and he responded with
+> "well the kernel can run hotplug at any time".
+>
+> which seems to me to be a bit daft: if you haven't initialised
+> the hotplug system with /etc/init.d/hotplug, what's the point of
+> responding to kernel-triggered hotplug events?
+>
+> sounds like an issue with the kernel, there, to me.
+>
+> can anyone on the linux kernel mailing list who has knowledge of
+> the hotplug kernel stuff (and also who knows or is capable of knowing
+> how the debian hotplug system works) confirm whether hotplug
+> events will or will not be triggered by the kernel if you have NOT
+> run the /etc/init.d/hotplug script?
+>
+>
+> for example, i'm staring at line 176 of /etc/hotplug/usb.rc (v 1.22)
+> in version hotplug-20040329-8 and i note that usbdevfs is mounted
+> on /proc/bus/usb.
+>
+> a comment at line 148 and 164 makes it clear (ish) that a distro
+> could mount usbdevfs, which could cause a "partial" initialisation
+> of the usb hotplugging subsystem, and hotplug events could have
+> been dropped as a result, or not properly started.
+>
+> so, distros shouldn't _be_ doing a partial initialisation of the
+> usb subsystem, basically!
+>
+> anyway.
+>
+> from this cursory examination, i would conclude that the
+> argument used [to justify not moving state information to a
+> new directory /var/state/hotplug] by the debian maintainer of
+> hotplug that "the hotplug system may generate events at any
+> time" is bogus.
+>
+> e.g. under such circumstances where a distribution has
+> initialised the usb hotplug system BEFORE /etc/init.d/hotplug start
+> gets a chance to run "/etc/hotplug/usb.rc start", hotplug
+> events are likely to get missed - not least because the
+> filesystem might not have been initialised / mounted (except
+> the root filesystem maybe) and consequently it's hazardous and
+> problematic, and the usb.rc script has to reinvent some of
+> the events it might have missed!!
+>
+> l.
+>
+> On Sun, Jul 11, 2004 at 12:40:43PM -0400, Jim McCullough wrote:
+>> Luke Kenneth Casson Leighton wrote:
+>>
+>> >On Sun, Jul 11, 2004 at 08:50:08PM +1000, Russell Coker wrote:
+>> >
+>> >
+>> >>On Sat, 10 Jul 2004 06:14, Luke Kenneth Casson Leighton
+>> <lkcl@lkcl.net>
+>> >>wrote:
+>> >>
+>> >>
+>> >>>warning warning warning, do not install hotplug version 20040329-9
+>> >>>from debian unstable because /etc/hotplug/net.rc attempts to write
+>> >>>to /etc/hotplug/net.enable.
+>> >>>
+>> >>>hotplug writing to /etc/ even /etc/hotplug is banned by the [present]
+>> >>>selinux policy.
+>> >>>
+>> >>>i'm raising a bugreport about this one if there isn't one already.
+>> >>>
+>> >>>
+>> >>That package is broken in other ways.
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-These ioctls are "historic" and deprecated API.
-So, just kill them to avoid confusion.
-We use socket options.
-
-Thanks.
-
-Reference:
-D. Thaler, B. Fenner and B. Quinn, "Socket Interface Extensions for 
-Multicast Source Filters," RFC3678, January 2004.
-
---yoshfuji

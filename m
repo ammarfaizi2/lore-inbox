@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263995AbTCWXYH>; Sun, 23 Mar 2003 18:24:07 -0500
+	id <S263996AbTCWXXa>; Sun, 23 Mar 2003 18:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263997AbTCWXYH>; Sun, 23 Mar 2003 18:24:07 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:23211 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S263995AbTCWXYC>; Sun, 23 Mar 2003 18:24:02 -0500
-Date: Sun, 23 Mar 2003 15:34:55 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Alan Cox <alan@redhat.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, James Bourne <jbourne@mtroyal.ab.ca>,
-       linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>,
-       Martin Mares <mj@ucw.cz>, Stephan von Krawczynski <skraw@ithnet.com>,
-       szepe@pinerecords.com, arjanv@redhat.com, Pavel Machek <pavel@ucw.cz>
-Subject: Re: Ptrace hole / Linux 2.2.25
-Message-ID: <6510000.1048462494@[10.10.2.4]>
-In-Reply-To: <200303232319.h2NNJqs13257@devserv.devel.redhat.com>
-References: <200303232319.h2NNJqs13257@devserv.devel.redhat.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263995AbTCWXXa>; Sun, 23 Mar 2003 18:23:30 -0500
+Received: from mail134.mail.bellsouth.net ([205.152.58.94]:38789 "EHLO
+	imf46bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S263996AbTCWXX2>; Sun, 23 Mar 2003 18:23:28 -0500
+Subject: USB compile error with latest 2.5-bk
+From: Louis Garcia <louisg00@bellsouth.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048462471.1739.1.camel@tiger>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 23 Mar 2003 18:34:31 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> O(1) sched may be a bad example ... how about the fact that mainline VM
->> is totally unstable? Witness, for instance, the buffer_head stuff. Fixes
->> for that have been around for ages. 
-> 
-> On normal computers 2.4.21pre VM is very stable, in fact I dumped the
-> rmap vm from -ac because its far better at the moment
+I'm running RH phoebe beta
 
-Cool - I gave up on 2.4 before that. Perhaps it's getting sorted out now
-... is the buffer_head stuff fixed now? If 2.4 VM was more or less the same
-across distros, that would get rid of a whole bunch of pain.
+ gcc -Wp,-MD,drivers/usb/core/.hcd.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=pentium4
+-Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
+-iwithprefix include -DMODULE   -DKBUILD_BASENAME=hcd
+-DKBUILD_MODNAME=usbcore -c -o drivers/usb/core/.tmp_hcd.o
+drivers/usb/core/hcd.c
+drivers/usb/core/hcd.c:124: parse error before '>>' token
+drivers/usb/core/hcd.c:124: initializer element is not constant
+drivers/usb/core/hcd.c:124: (near initialization for
+`usb2_rh_dev_descriptor[12]')
+drivers/usb/core/hcd.c:124: parse error before '>>' token
+drivers/usb/core/hcd.c:124: initializer element is not constant
+drivers/usb/core/hcd.c:124: (near initialization for
+`usb2_rh_dev_descriptor[13]')
+drivers/usb/core/hcd.c:147: parse error before '>>' token
+drivers/usb/core/hcd.c:147: initializer element is not constant
+drivers/usb/core/hcd.c:147: (near initialization for
+`usb11_rh_dev_descriptor[12]')
+drivers/usb/core/hcd.c:147: parse error before '>>' token
+drivers/usb/core/hcd.c:147: initializer element is not constant
+drivers/usb/core/hcd.c:147: (near initialization for
+`usb11_rh_dev_descriptor[13]')
+make[4]: *** [drivers/usb/core/hcd.o] Error 1
+make[3]: *** [drivers/usb/core] Error 2
+make[2]: *** [drivers/usb] Error 2
+make[1]: *** [drivers] Error 2
+make: *** [all] Error 2
 
-> Most people don't care about 32 way scaling of 16Gb boxes running EVMS.
 
-That wasn't what I meant ... but I think there's a place for a tree
-of common vendor 2.4 fixes & features, a separate one for the workstation
-and server stuff if you will. All the current duplication of effort seems
-rather silly.
-
-M.

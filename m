@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVBRXzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVBRX6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVBRXzR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 18:55:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVBRXzQ
+	id S261579AbVBRX6X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 18:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVBRX6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 18:55:16 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:22458 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S261572AbVBRXyv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 18:54:51 -0500
-Subject: [PATCH] Remove unused get_resource_list() declaration
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 18 Feb 2005 16:54:47 -0700
-Message-Id: <1108770887.25491.56.camel@eeyore>
+	Fri, 18 Feb 2005 18:58:22 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61714 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261569AbVBRX4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 18:56:31 -0500
+Date: Sat, 19 Feb 2005 00:56:30 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: jgarzik@pobox.com, paulus@samba.org
+Cc: linux-ppp@vger.kernel.org, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/ppp_deflate.c: make 2 structs static
+Message-ID: <20050218235630.GF4337@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unused get_resource_list() declaration.
+This patch makes two needlessly global structs static.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-===== include/linux/ioport.h 1.15 vs edited =====
---- 1.15/include/linux/ioport.h	2004-10-07 20:11:55 -06:00
-+++ edited/include/linux/ioport.h	2005-02-15 15:27:49 -07:00
-@@ -91,8 +91,6 @@
- extern struct resource ioport_resource;
- extern struct resource iomem_resource;
+---
+
+ drivers/net/ppp_deflate.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.11-rc3-mm2-full/drivers/net/ppp_deflate.c.old	2005-02-16 18:06:29.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/ppp_deflate.c	2005-02-16 18:06:45.000000000 +0100
+@@ -600,7 +600,7 @@
+ /*
+  * Procedures exported to if_ppp.c.
+  */
+-struct compressor ppp_deflate = {
++static struct compressor ppp_deflate = {
+ 	.compress_proto =	CI_DEFLATE,
+ 	.comp_alloc =		z_comp_alloc,
+ 	.comp_free =		z_comp_free,
+@@ -618,7 +618,7 @@
+ 	.owner =		THIS_MODULE
+ };
  
--extern int get_resource_list(struct resource *, char *buf, int size);
--
- extern int request_resource(struct resource *root, struct resource *new);
- extern struct resource * ____request_resource(struct resource *root, struct resource *new);
- extern int release_resource(struct resource *new);
-
+-struct compressor ppp_deflate_draft = {
++static struct compressor ppp_deflate_draft = {
+ 	.compress_proto =	CI_DEFLATE_DRAFT,
+ 	.comp_alloc =		z_comp_alloc,
+ 	.comp_free =		z_comp_free,
 

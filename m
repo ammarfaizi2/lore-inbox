@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130154AbRAKMmx>; Thu, 11 Jan 2001 07:42:53 -0500
+	id <S129842AbRAKMqn>; Thu, 11 Jan 2001 07:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130234AbRAKMmo>; Thu, 11 Jan 2001 07:42:44 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30729 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130154AbRAKMmb>; Thu, 11 Jan 2001 07:42:31 -0500
-Subject: Re: 2.4.0-ac6: mm/vmalloc.c compile error
-To: fdavis112@juno.com (Frank Davis)
-Date: Thu, 11 Jan 2001 12:44:22 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20010111.002835.-160337.1.fdavis112@juno.com> from "Frank Davis" at Jan 11, 2001 12:28:28 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129878AbRAKMqd>; Thu, 11 Jan 2001 07:46:33 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:49418 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129610AbRAKMqW>;
+	Thu, 11 Jan 2001 07:46:22 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: List Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
+In-Reply-To: Your message of "Thu, 11 Jan 2001 12:32:10 -0000."
+             <12129.979216330@redhat.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Gh5c-00029V-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Thu, 11 Jan 2001 23:46:14 +1100
+Message-ID: <17071.979217174@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   The following error occurred while compiling 2.4.0-ac6..The strange
-> thing is that I checked mm/vmalloc.c (line 188, and the entire file) and
-> didn't see PKMAP_BASE mentioned. My guess is that there is a problem with
-> one of the header files.
+On Thu, 11 Jan 2001 12:32:10 +0000, 
+David Woodhouse <dwmw2@infradead.org> wrote:
+>I'm not suggesting that we change it drastically, only that we add 
+>the option of static (compile-time) registration for those entries which 
+>require it. 
 
-Its defined in asm/highmem.h/ Probabyl a missing include if building a bigmem
-kenrel
+So you want two services, one static for code that does not do any
+initialisation and one dynamic for code that does do initialisation.
+Can you imagine the fun when somebody adds startup code to a routine
+that was using static registration?  Oh dear, I added init code so I
+have to remember to change from static to dynamic registration, and
+that affects the link order so now I have to tweak the Makefile.
+Thanks, but no thanks!
+
+Stick to one method that works for all routines, dynamic registration.
+If that imposes the occasional need for a couple of extra calls in some
+routines and for people to think about initialisation order right from
+the start then so be it, it is a small price to pay for long term
+stability and ease of maintenance.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

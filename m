@@ -1,31 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288473AbSA0Tmw>; Sun, 27 Jan 2002 14:42:52 -0500
+	id <S288484AbSA0TrP>; Sun, 27 Jan 2002 14:47:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288484AbSA0Tmm>; Sun, 27 Jan 2002 14:42:42 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33289 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288473AbSA0Tma>; Sun, 27 Jan 2002 14:42:30 -0500
-Subject: Re: file system unmount
-To: gspujar@hss.hns.com
-Date: Sun, 27 Jan 2002 19:55:06 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <65256B4A.003D4CD1.00@sandesh.hss.hns.com> from "gspujar@hss.hns.com" at Jan 23, 2002 04:43:18 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288485AbSA0TrD>; Sun, 27 Jan 2002 14:47:03 -0500
+Received: from colorfullife.com ([216.156.138.34]:61189 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S288484AbSA0Tqu>;
+	Sun, 27 Jan 2002 14:46:50 -0500
+Message-ID: <002801c1a76b$623033f0$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Hartmut Holz" <hartmut.holz@arcor.de>,
+        "Rik van Riel" <riel@conectiva.com.br>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0201261935330.32617-100000@imladris.surriel.com> <3C54546C.0@arcor.de>
+Subject: Re: Uptime again?
+Date: Sun, 27 Jan 2002 20:46:56 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16UvOM-0002Mf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am using softdog in my application. One of the problems I am facing is,
-> when the system comes up after the reboot forced by softdog, file system gets
-> corrupted and fsck has to check. Some times fsck fails to force check the file
-> system and
-> the system enters in to run level 1, leading to manual intervention.
+From: "Hartmut Holz" <hartmut.holz@arcor.de>
+> Rik van Riel wrote:
+> >
+> > The fact that lavrec crashes the machine while Xawtv works
+> > suggests a device driver may be corrupting memory somewhere.
+> >
+>
+> I got a debug patch from Manfred Spraul to debug slab.c.
 
-Convert the file system to ext3 and use ext3, then you will get a few second
-pause on the journal playback and the machine will return without an fsck
-being needed
+poisoning of fields of 'struct page', slab poisoning, even of objects with constructors.
+Same patch as:
+http://groups.google.com/groups?selm=linux.kernel.3C3B6F65.F9226437%40colorfullife.com&rnum=1
+
+> With this patch
+> the machine ran for about 3 hours. No problem. I looked into slab.c and had an
+> idea. What about just one CPU. So I built a new Kernel with just one CPU.
+> Result: 1 CPU 1 Minute - 2 CPU 20 Minutes. I aspected a different result.
+> In my opinion the whole thing has something to do with slab, SMP and threads.
+>
+Not with slab itself, probably with a slab user. Someone uses a stale pointer.
+
+What do you means with one cpu? Did you boot a SMP kernel with "nosmp" on the command line, or did you make a kernel without
+CONFIG_SMP?
+
+--
+    Manfred
+

@@ -1,60 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSG1Te1>; Sun, 28 Jul 2002 15:34:27 -0400
+	id <S317261AbSG1Tg0>; Sun, 28 Jul 2002 15:36:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317140AbSG1Te1>; Sun, 28 Jul 2002 15:34:27 -0400
-Received: from neural.psychosis.net ([140.186.18.155]:48791 "EHLO
-	neural.psychosis.net") by vger.kernel.org with ESMTP
-	id <S317102AbSG1Te0>; Sun, 28 Jul 2002 15:34:26 -0400
-Date: Sun, 28 Jul 2002 15:37:47 -0400 (EDT)
-From: Karthik Arumugham <kernel@karthik.com>
-X-X-Sender: psychos@neural.psychosis.net
-To: linux-kernel@vger.kernel.org
-Subject: New connections stall with 20k+ open sockets
-Message-ID: <Pine.LNX.4.44.0207281510550.9012-100000@neural.psychosis.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317264AbSG1Tg0>; Sun, 28 Jul 2002 15:36:26 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:50960 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S317261AbSG1TgZ>; Sun, 28 Jul 2002 15:36:25 -0400
+Date: Sun, 28 Jul 2002 12:33:30 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: David Ford <david+cert@blue-labs.org>
+Cc: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux booting from USB HD / USB interface devices
+Message-ID: <20020728123329.C12344@one-eyed-alien.net>
+Mail-Followup-To: David Ford <david+cert@blue-labs.org>,
+	linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <3D42E333.4010602@blue-labs.org> <20020727144922.E2730@one-eyed-alien.net> <3D441051.4060304@blue-labs.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="wxDdMuZNg1r63Hyj"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D441051.4060304@blue-labs.org>; from david+cert@blue-labs.org on Sun, Jul 28, 2002 at 11:40:01AM -0400
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2002 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I am running a large IRC server that at times has held over 40,000
-simultaneous connections. Normally the server will hover around 15k - 20k
-connections, but at times it goes well past that.
+--wxDdMuZNg1r63Hyj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've been having an issue where when the server goes past 20k connections or
-so, it'll start ignoring syn packets on the most heavily used ports. I've
-experienced this under 2.4.18 and older 2.4 kernels, and I'm currently
-running 2.5.29. Distribution is Debian unstable (not that that should matter
-here). I'm using a Netgear GA620 gig-e card, x86 architecture.
+On Sun, Jul 28, 2002 at 11:40:01AM -0400, David Ford wrote:
+> Thank you for your reply.  I've started a rough draft of this project,=20
+> http://blue-labs.org/ranger.php
+>=20
+> Matthew Dharm wrote:
+>=20
+> >>2) There are some vague comments about some devices requiring the=20
+> >>ability to boot, are there some USB hard drives that are incapable of=
+=20
+> >>acting as a boot device?
+> >>   =20
+> >>
+> >
+> >Yes.  They are few, tho.  The USB-IF is currently working on a bootabili=
+ty
+> >standard to eliminate this problem.
+> >
+>=20
+> Is there a list of these somewhere that point out components that I=20
+> should avoid?
 
-One thing I've done is to bind multiple IPs to the box and add additional
-ports. The lesser used ports generally accept connections fine. Almost half
-of all connections come in to one ip+port pair though, and that's where the
-biggest problem is. At 30k users or so, about 80+% of syn packets to that
-port are ignored. I can see the incoming syn packets fine in tcpdump,
-there's just no syn-ack reply. This makes new users sit there for a long
-time timing out rather than successfully connecting. The ignored connections
-do not show up as SYN_RECV.
+Not to my knowledge.  USB bootability is a very touch-and-go thing for the
+BIOS vendors right now... hopefully the specification being worked on now
+will help.
 
-Currently, with 30199 connected users all working properly, I have a total
-of 243 sockets in SYN_RECV state. At times (such as if the server is
-restarted), there are several hundred connection requests per second, which
-generally get handled fine if there are not many users connected. The
-problem only occurs when many sockets are open, whether or not the
-connection rate is high. tcp_max_syn_backlog is currently set to 4096, and
-I've reduced tcp_synack_retries to 2.
+> >THe stock kernel won't work.  There are patches floating around to make
+> >this work.  Basically, the kernel needs to pause for a couple of seconds
+> >before attempting to mount the root fs so that the plug-n-pray detection
+> >can work, identify the drive, and get going.
+> >
+>=20
+> I'll go look for these patches, pointers are welcome of course.
 
-Also, there's plenty of memory:
+Sorry, no pointers.  See if you can find a linux-usb-devel or
+linux-usb-users archive.  You're searching for something that introduces a
+"delay" (good keyword) in the boot process.
 
-             total       used       free     shared    buffers     cached
-Mem:        517452     284576     232876          0          0      13712
--/+ buffers/cache:     270864     246588
-Swap:            0          0          0
+Matt
 
-Any other relevant details I'm missing? I've tried screwing around with
-various parameters in /proc/sys/net/ipv4 without luck; unfortunately I don't
-understand the internals of how a received syn packet is handled, and what
-would cause it to be silently discarded.
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
+Sir, for the hundreth time, we do NOT carry 600-round boxes of belt-fed=20
+suction darts!
+					-- Salesperson to Greg
+User Friendly, 12/30/1997
+
+--wxDdMuZNg1r63Hyj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9REcJIjReC7bSPZARAkr+AKCliI/Ch8A7wS4fQQIHd+ra0PF9uQCguhnu
+knaoI5RzwwNheTD/C0MEPzY=
+=28SQ
+-----END PGP SIGNATURE-----
+
+--wxDdMuZNg1r63Hyj--

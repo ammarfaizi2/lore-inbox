@@ -1,97 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUIMGGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUIMGPi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266127AbUIMGGU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 02:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUIMGGU
+	id S266117AbUIMGPi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 02:15:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUIMGPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 02:06:20 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:16182 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266127AbUIMGF4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 02:05:56 -0400
-Message-ID: <a728f9f9040912230544dcf8df@mail.gmail.com>
-Date: Mon, 13 Sep 2004 02:05:56 -0400
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: Vladimir Dergachev <volodya@mindspring.com>
-Subject: Re: radeon-pre-2
-Cc: =?ISO-8859-1?Q?Michel_D=E4nzer?= <michel@daenzer.net>,
-       Dave Airlie <airlied@linux.ie>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jon Smirl <jonsmirl@gmail.com>,
-       =?ISO-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0409122042370.9611@node2.an-vo.com>
+	Mon, 13 Sep 2004 02:15:38 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:9425 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266117AbUIMGPg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 02:15:36 -0400
+Date: Mon, 13 Sep 2004 08:16:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrea Arcangeli <andrea@novell.com>, Chris Wedgwood <cw@f00f.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <20040913061641.GA11276@elte.hu>
+References: <20040910151538.GA24434@devserv.devel.redhat.com> <20040910152852.GC15643@x30.random> <20040910153421.GD24434@devserv.devel.redhat.com> <1095016687.1306.667.camel@krustophenia.net> <20040912192515.GA8165@taniwha.stupidest.org> <20040912193542.GB28791@elte.hu> <20040912203308.GA3049@dualathlon.random> <1095025000.22893.52.camel@krustophenia.net> <20040912220720.GC3049@dualathlon.random> <1095027951.22893.69.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <1094835846.17932.11.camel@localhost.localdomain>
-	 <9e47339104091011402e8341d0@mail.gmail.com>
-	 <Pine.LNX.4.58.0409102254250.13921@skynet>
-	 <1094853588.18235.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0409110137590.26651@skynet>
-	 <1094912726.21157.52.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0409122319550.20080@skynet>
-	 <1095035276.22112.31.camel@admin.tel.thor.asgaard.local>
-	 <Pine.LNX.4.61.0409122042370.9611@node2.an-vo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095027951.22893.69.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Sep 2004 20:45:18 -0400 (EDT), Vladimir Dergachev
-<volodya@mindspring.com> wrote:
-> 
-> 
-> On Sun, 12 Sep 2004, Michel [ISO-8859-1] D�nzer wrote:
-> 
-> > On Sun, 2004-09-12 at 23:42 +0100, Dave Airlie wrote:
-> >>
-> >> I think yourself and Linus's ideas for a locking scheme look good, I also
-> >> know they won't please Jon too much as he can see where the potential
-> >> ineffecienes with saving/restore card state on driver swap are, especailly
-> >> on running fbcon and X on a dual-head card with different users.
-> >
-> > Frankly, I don't understand the fuss about that. When you run a 3D
-> > client on X today, 3D client and X server share the accelerator with
-> > this scheme, and as imperfect as it is, it seems to do a pretty good job
-> > in my experience.
-> 
-> Not that good - try dragging something while a DVD video is playing.
 
-The overlay could be converted to use the CP engine as well. right now
-it has to switch to MMIO for overlay.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Alex
+> Yes, on a server you would probably disable threading for the disk and
+> network IRQs (the VP patch lets you set this via /proc).  This feature
+> effectively gives you IPLs on Linux, albeit only two of them. [...]
 
-> 
-> But, I don't understand what the fuss is about either. What's wrong with
-> putting PLL setting code inside DRM driver and letting it be the client of
-> fbcon ? And the transition problems could be well solved by leaving the
-> existing fbcon in for the time being, it is not like the kernel does not
-> have duplicate drivers.
-> 
->                       best
-> 
->                         Vladimir Dergachev
-> 
-> 
-> 
-> >
-> >
-> > --
-> > Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
-> > Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
-> >
-> >
-> > -------------------------------------------------------
-> > This SF.Net email is sponsored by: YOU BE THE JUDGE. Be one of 170
-> > Project Admins to receive an Apple iPod Mini FREE for your judgement on
-> > who ports your project to Linux PPC the best. Sponsored by IBM.
-> > Deadline: Sept. 13. Go here: http://sf.net/ppc_contest.php
-> > --
-> > _______________________________________________
-> > Dri-devel mailing list
-> > Dri-devel@lists.sourceforge.net
-> > https://lists.sourceforge.net/lists/listinfo/dri-devel
-> >
->
+nono, this has no relation to IPLs. IPLs are a pretty crude hack to
+implement exclusion on a very (and too) broad level. IRQ threading is a
+way to serialize hardirq contexts into a process context and to make
+them schedulable and preemptable. It basically 'flattens out' all the
+hardirq nesting (and parallelism) that may happen on a default kernel
+and together with softirq 'flattening' it creates a deterministic
+execution environment.
+
+it is not intended for servers, due to the overhead of redirection. It's
+for realtime workloads and for latency-sensitive audio desktop
+workloads. For servers and normal desktops the current IRQ and softirq
+model is pretty OK.
+
+	Ingo

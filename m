@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUIGOT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268102AbUIGO0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268086AbUIGOT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 10:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268089AbUIGOT7
+	id S268102AbUIGO0u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 10:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268108AbUIGO0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 10:19:59 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:53720 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S268086AbUIGOTx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:19:53 -0400
-Message-ID: <413DC38F.5000000@cs.aau.dk>
-Date: Tue, 07 Sep 2004 16:19:59 +0200
-From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040619)
-X-Accept-Language: en-us, en
+	Tue, 7 Sep 2004 10:26:50 -0400
+Received: from ms003msg.fastwebnet.it ([213.140.2.42]:45456 "EHLO
+	ms003msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S268102AbUIGO0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 10:26:46 -0400
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Joris Neujens <joris@discosmash.com>
+Subject: Re: Possible network issue in 2.6.8.1
+Date: Tue, 7 Sep 2004 16:29:27 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0409071544570.6867@asus.discosmash.com>
+In-Reply-To: <Pine.LNX.4.58.0409071544570.6867@asus.discosmash.com>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: umbrella-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
-References: <41385FA5.806@cs.aau.dk> <1094220870.7975.19.camel@localhost.localdomain>            <4138CE6F.10501@cs.aau.dk> <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
-In-Reply-To: <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409071629.27814.ornati@fastwebnet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 03 Sep 2004 22:05:03 +0200, =?UTF-8?B?S3Jpc3RpYW4gU8O4cmVuc2Vu?= said:
+On Tuesday 07 September 2004 15:55, Joris Neujens wrote:
+> Hello,
 > 
+> We've got a weird problem at our university network.  Since we upgraded to
+> kernel 2.6.8 our download rate never gets higher than 10kB/sec.  Upload
+> remains at original rate.  This problem does not occur with previous
+> kernels (works fine again after downgrading to 2.6.7, without changing
+> anything at the kernel config).
 > 
->>Also simple bufferoverflows in suid-root programs may be avoided. The 
->>simple way would to set the restriction "no fork", and thus if an 
->>attacker tries to fork a (root) shell, this would be denied.
+> There are no speed issues when transfering on the LAN, only when
+> downloading something from the internet
 > 
+> We have ruled out the following:
+> Network source is slow (we were testing with the same FTP server all the
+> time, from which we normally download at 10MB/sec)
+> We tested with 3 different systems and network cards, and they all have
+> the same problem, and only with kernel 2.6.8
 > 
-> All this does is stop fork().  I'm not sure, but most shellcodes I've seen
-> don't bother forking, they just execve() a shell....
-I think you totally misunderstood the thing...
+> any thoughts?
 
-Umbrella is a scheme that allow the user to restrict the capabilities of
-a process within his own processes. Preventing the process to fork is
-ONE thing that can be restricted but they might be plenty of others.
+http://lwn.net/Articles/92727/
 
-The idea is that each process originating from this process will inherit
-from this restriction (and possibly have some more) and can NEVER been
-granted to restore this capability again.
-
-Now, this has a direct application to restrict the harm that can cause a
-buffer-overflow, but nobody said that it would stop them...
-
-> Papering over *that* one by restricting fchmod just means the exploit needs to
-> append a line to /etc/passwd, or create a trojan inetd.conf or crontab entry,
-> or any of the other myriad ways a program can leave a backdoor (there's a
-> *reason* SELinux ends up with all those rules - this isn't an easy task)...
-> 
-> Remember - just papering over the fact that most shellcodes just execve() a
-> shell doesn't fix the fundemental problem, which is that the attacker is able
-> to run code of his choosing as root.
-Right. Now who wants to volunteered to find a simple and yet efficient
-solution to this problem? :-)
-
-
-KS.
+-- 
+	Paolo Ornati
+	Gentoo Linux (kernel 2.6.8-gentoo-r3)

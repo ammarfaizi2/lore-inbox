@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261966AbREVP4Q>; Tue, 22 May 2001 11:56:16 -0400
+	id <S261921AbREVPze>; Tue, 22 May 2001 11:55:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261969AbREVP4E>; Tue, 22 May 2001 11:56:04 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:1540 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S261966AbREVPzx>; Tue, 22 May 2001 11:55:53 -0400
-Date: Tue, 22 May 2001 19:55:18 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, rth@twiddle.net,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: alpha iommu fixes
-Message-ID: <20010522195518.A653@jurassic.park.msu.ru>
-In-Reply-To: <15112.59880.127047.315855@pizda.ninka.net> <20010521125032.K30738@athlon.random> <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random> <20010521155151.A10403@jurassic.park.msu.ru> <20010521105339.A1907@twiddle.net> <20010522025658.A1116@athlon.random> <20010522162916.B15155@athlon.random> <20010522184409.A791@jurassic.park.msu.ru> <20010522171815.F15155@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010522171815.F15155@athlon.random>; from andrea@suse.de on Tue, May 22, 2001 at 05:18:15PM +0200
+	id <S261966AbREVPzY>; Tue, 22 May 2001 11:55:24 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:38151 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S261921AbREVPzP>;
+	Tue, 22 May 2001 11:55:15 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Date: Tue, 22 May 2001 17:52:53 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partio
+CC: viro@math.psu.edu, rgooch@ras.ucalgary.ca, matthew@wil.cx, clausen@gnu.org,
+        bcrl@redhat.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, torvalds@transmeta.com
+X-mailer: Pegasus Mail v3.40
+Message-ID: <3A5DF9F50CC@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 05:18:15PM +0200, Andrea Arcangeli wrote:
-> just in case (I guess it wouldn't matter much but), but are you sure you
-> tried it with also the locking fixes applied too?
+[trimmed cc list down a bit - my MUA does not allow for so long CC:]
 
-Yes. Though those races more likely would cause silent data
-corruption, but not immediate crash.
+On 22 May 01 at 9:33, Jan Harkes wrote:
+> 
+> something like,
+> 
+>     ssize_t kioctl(int fd, int type, int cmd, void *inbuf, size_t inlen,
+>            void *outbuf, size_t outlen);
 
-Ivan.
+If we are inventing new API, then if we could have
+
+      ssize_t kioctl(int fd, int type, int cmd, 
+              const struct iovec* riov, size_t riov_len,
+              const struct iovec* wiov, size_t wiov_len);
+              
+then I'm almost sure that it will save couple of passing pointer to pointer
+in structure headaches - for sure it will in code I maintain (ncpfs).
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

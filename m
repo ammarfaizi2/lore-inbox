@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274023AbRISIwj>; Wed, 19 Sep 2001 04:52:39 -0400
+	id <S274024AbRISJJC>; Wed, 19 Sep 2001 05:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274025AbRISIwa>; Wed, 19 Sep 2001 04:52:30 -0400
-Received: from cpe.atm0-0-0-209183.boanxx7.customer.tele.dk ([62.242.151.103]:1729
-	"HELO mail.hswn.dk") by vger.kernel.org with SMTP
-	id <S274023AbRISIwR>; Wed, 19 Sep 2001 04:52:17 -0400
-Date: Wed, 19 Sep 2001 10:52:40 +0200
-From: =?iso-8859-1?Q?Henrik_St=F8rner?= <henrik@hswn.dk>
+	id <S274025AbRISJIv>; Wed, 19 Sep 2001 05:08:51 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:21767 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S274024AbRISJIj>; Wed, 19 Sep 2001 05:08:39 -0400
+Message-ID: <3BA86087.A0A371E0@idb.hist.no>
+Date: Wed, 19 Sep 2001 11:08:23 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.10-pre10 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.10pre12: IO_APIC_init_uniprocessor undefined
-Message-ID: <20010919105240.A11535@hswn.dk>
-Mime-Version: 1.0
+Subject: 2.4.10-pre12 compile error, IO_APIC_init_uniprocessor undefined
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling without SMP but with "APIC and IO-APIC support on
-uniprocessors" enabled, i.e.
+init/main.c refers to an IO_APIC_init_uniprocessor() that doesn't exist 
+anywhere.  The function exists in 2.4.9 but is removed by the patch to 
+pre12.
 
-# CONFIG_SMP is not set
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
+Turning off "APIC and IO-APIC support on uniprocessors" lets the
+kernel compile.
 
-fails with IO_APIC_init_uniprocessor undefined. This comes from
-init/main.c line 486, which has the only mention of this routine 
-in the kernel source - it seems pre12 removed this routine from
-kernel/io_apic.c. So is this just a forgotten remnant of that
-clean-up, or should there have been a replacement in the patch?
 
--- 
-Henrik Storner <henrik@hswn.dk> 
+gcc [snip several lines of the usual options] init/main.c
+init/main.c: In function `smp_init':
+init/main.c:486: warning: implicit declaration of function 
+`IO_APIC_init_uniprocessor'
+1234567890121234567890123456789012345678901234567890123456789034567890
+and later
 
+ld [snip several lines of options] -o vmlinux
+init/main.o: In function `smp_init':
+init/main.o(.text.init+0x74d): undefined reference to
+`IO_APIC_init_uniprocessor'
+make: *** [vmlinux] Error 1
+
+Helge Hafting

@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284191AbRLKWxj>; Tue, 11 Dec 2001 17:53:39 -0500
+	id <S284189AbRLKWxV>; Tue, 11 Dec 2001 17:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284186AbRLKWxb>; Tue, 11 Dec 2001 17:53:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24071 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284178AbRLKWxS>; Tue, 11 Dec 2001 17:53:18 -0500
-Subject: Re: aacraid success with 2.4.17-pre8. Intentional?
-To: matt@bodgit-n-scarper.com (Matt)
-Date: Tue, 11 Dec 2001 23:02:44 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20011211224104.B256@butterlicious.bodgit-n-scarper.com> from "Matt" at Dec 11, 2001 10:41:04 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284186AbRLKWxK>; Tue, 11 Dec 2001 17:53:10 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19468 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S284178AbRLKWxB>; Tue, 11 Dec 2001 17:53:01 -0500
+Date: Tue, 11 Dec 2001 17:46:14 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Neil Stone <neil@flashtek.co.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 problem....
+In-Reply-To: <Pine.LNX.4.33.0112051541110.4205-100000@linux.flashtek>
+Message-ID: <Pine.LNX.3.96.1011211174413.21150G-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DvvA-0007EN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there anything I can do to help? I can provide the kernel config if that
-> would be useful, (I can't get at it until tomorrow morning), which is the same
-> one I used on all three kernel builds. The box isn't in production use,
-> (funny, that), so I can run some tests if needs be.
+On Wed, 5 Dec 2001, Neil Stone wrote:
 
-I guess beat it up hard with the 2.4.17pre tree including running graphical
-stuff and see what happens. It could be your other problem was aacraid
-triggering another bug thats been fixed.
+> This is my first post to the group and i would like some assistance with a 
+> question about kernel compilation....
+> 
+> I have an AMD K6-2 500 w/ 256 MB RAM, RedHat linux 7.2 and Kernel 2.4.16
+> 
+> When i try to re-compile my kernel it dosn't work unles i include SMP 
+> support.... any ideas why ? a few of my mates have the same problem !! 
+> (unsure of their system specs)
+> 
+> Any help appreciated..
+
+what does "doesn't work" mean? The compile doesn't work? The kernel
+doesn't work? In what way, boot fail, crash, hang, filesystem corruption?
+
+Better questions get better answers! 
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314687AbSD1Wva>; Sun, 28 Apr 2002 18:51:30 -0400
+	id <S314697AbSD1XLB>; Sun, 28 Apr 2002 19:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314690AbSD1Wv3>; Sun, 28 Apr 2002 18:51:29 -0400
-Received: from dsl-213-023-040-044.arcor-ip.net ([213.23.40.44]:60045 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314687AbSD1Wv3>;
-	Sun, 28 Apr 2002 18:51:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Robert Love <rml@tech9.net>,
-        Emmanuel Michon <emmanuel_michon@realmagic.fr>
-Subject: Re: spinlocking between user context / tasklet / tophalf question
-Date: Sun, 28 Apr 2002 00:52:08 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S314700AbSD1XLB>; Sun, 28 Apr 2002 19:11:01 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:32423 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S314697AbSD1XLA>;
+	Sun, 28 Apr 2002 19:11:00 -0400
+Date: Mon, 29 Apr 2002 09:07:07 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Santiago Garcia Mantinan <manty@manty.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7wwuuu4zam.fsf@avalon.france.sdesigns.com> <1019848780.2045.617.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E171b32-0001QJ-00@starship>
+Subject: Re: pcnet32 on 2.4.18 doesn't init on IBM rs/6000 B50 (powerpc)
+Message-ID: <20020428230707.GG17500@krispykreme>
+In-Reply-To: <20020425220402.GA3654@man.beta.es> <20020425221519.GA13245@krispykreme> <20020428153253.GA2924@man.beta.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert,
+ 
+> It fixes indeed the problem on the init of the card, but I have made a
+> deeper diagnosis of the problem and there are things left.
 
-On Friday 26 April 2002 21:19, Robert Love wrote:
-> On Fri, 2002-04-26 at 04:52, Emmanuel Michon wrote:
-> > 2. What is the reality behind: ``things which sleep'', is it really a problem
-> > to use copy_from_user/copy_to_user holding a spinlock?
-> 
-> Yes, they sleep.
+Good, at least one bug is fixed :)
 
-Well, I think he really wanted to know why it's bad.  Emmanuel, suppose process A
-takes spinlock S then sleeps.  Process B is then scheduled and tries to acquire
-S - bang, deadlock: Process A can't release the spinlock because it's sleeping.
+> I have even got it to work with 2.4.18 without any patch. The problems
+> appear just when you do a netboot of the machine, if you just boot from the
+> disk 2.4.18 does ok. But if you boot from the net you get the problem with
+> detection on 2.4.18 which is solved on 2.4.19 pres, but also you get another
+> problem with the card, and it is that communication doesn't work like it
+> should, this problem is not corrected on 2.4.19preX as of pre7 at least.
 
-Let alone the fact that another CPU trying to acquire S is going to end up
-stalled potentially many milliseconds before process A wakes up again and
-releases the spinlock.
+Can you send me the version of OF you are using? You should be able to get
+it off the bootup splash screen or by doing lsprop /proc/device-tree/openprom.
+Do you get any errors in dmesg when the card stuffs up?
 
--- 
-Daniel
+> This problems as I said before are caused when booting from the net and not
+> when the machine is booted from disk. It looks like the card is left on a
+> bad state by the openfirmware, in fact I've seen openfirmware fail several
+> times to retrieve big kernel files (more than 1 MB) and afterwards even fail
+> to do a bootp request, so I think that the card is left on a bad state that
+> drives as to things like this one:
+
+One thing to watch out for with the RS/6000 OF is that it wont reply
+to ARP messages during a TFTP load. If you are trying to load a
+big image you need to arp -s <hostname> <hw_addr>.
+
+Anton

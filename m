@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270428AbTGNBKV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 21:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270480AbTGNBKV
+	id S270483AbTGNBMt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 21:12:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTGNBMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 21:10:21 -0400
-Received: from ns2.eclipse.net.uk ([212.104.129.133]:61959 "EHLO
-	smtp2.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S270428AbTGNBKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 21:10:20 -0400
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.75 freeze when booting
-Date: Mon, 14 Jul 2003 02:21:42 +0100
-User-Agent: KMail/1.5.2
-References: <Pine.LNX.4.56.0307132310490.19479@www.polycon.fi>
-In-Reply-To: <Pine.LNX.4.56.0307132310490.19479@www.polycon.fi>
-Cc: Lasse Anderson <laa@polycon.fi>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Jul 2003 21:12:49 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:57492 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270483AbTGNBMq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 21:12:46 -0400
+Date: Mon, 14 Jul 2003 02:27:25 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: David Schwartz <davids@webmaster.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Eric Varsanyi <e0206@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+Message-ID: <20030714012725.GC22663@mail.jlokier.co.uk>
+References: <20030713211045.GD21612@mail.jlokier.co.uk> <MDEHLPKNGKAHNMBLJOLKEEFKEFAA.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307140221.47173.ianh@iahastie.local.net>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEFKEFAA.davids@webmaster.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 13 Jul 2003 21:25, Lasse Anderson wrote:
-> I boot up the machine and see the three first rows after lilo,
-> "uncompressing linux" and then "booting the kernel". After that nothing
-> happens. The kernel configuration can be found at
-> http://www.polycon.fi/~laa/config-2.5.75
->
-> 4.
-> Kernel version 2.5.75
+David Schwartz wrote:
+> 	But so does 'poll'. If you double the number of active and inactive
+> connections, 'poll' takes twice as long. But you do twice as much per call
+> to 'poll'. You will both discover more connections ready to do work on and
+> move more bytes per connection as the load increases.
 
+Well, with that assumption sure there is nothing _to_ scale - poll and
+select are perfect.
 
-> Gnu C                  3.3.1
+> > That was always the complaint about select() and poll(): they dominate
+> > the run time for large numbers of connections.  epoll, on the other
+> > hand, will always be in the noise relative to other work.
+> 
+> 	I think this is largely true for Linux because of bad implementation of
+> 'poll' and therefore 'select'.
 
-I get this too when I compile with that version of GCC.  When I compile with 
-GCC 2.95.4 it works OK.  In Debian you can do this by chaning the definitions 
-of CC, HOSTCC, and HOSTCXX to gcc-2.95 and g++-2.95 as appropriate.
+It's true those implementations could use clever methods to reduce the
+amount of time they take by caching poll results, and probably
+approach epoll speeds.
 
--- 
-Ian.
+However their APIs have a built-in problem - at minimum, the kernel
+has to read & write O(N) memory per call.
 
+With your assumption of a fixed ratio of active/idle sockets, and
+where that ration is not very small (10% is not very small), of course
+the API is not a problem.
+
+> > If you want a formula for slides :), time_polling/time_working is O(1)
+> > with epoll, but O(N) with poll() & select().
+> 
+> 	It's not O(N) with 'poll' and 'select'. Twice as many file descriptors
+> means twice as many active file descriptors which means twice as many
+> discovered per call to 'poll'.
+
+It is O(N).  When the load pattern follows your example, O(N) == O(1) :)
+
+-- Jamie

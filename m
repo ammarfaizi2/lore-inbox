@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263279AbVCJWbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbVCJWUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbVCJWbv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVCJWbq
+	id S262801AbVCJWUy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbVCJWNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:31:46 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5389 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263279AbVCJW3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 17:29:39 -0500
-Date: Thu, 10 Mar 2005 22:29:34 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       netfilter@lists.netfilter.org
-Subject: Netfilter ipt_hashlimit
-Message-ID: <20050310222934.C1044@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	netfilter@lists.netfilter.org
+	Thu, 10 Mar 2005 17:13:52 -0500
+Received: from A.painless.aaisp.net.uk ([81.187.81.51]:31159 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S263272AbVCJWIU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 17:08:20 -0500
+Subject: Problem with 2.6.11-bk[3456]
+From: Andrew Clayton <andrew@digital-domain.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 22:08:19 +0000
+Message-Id: <1110492499.2666.8.camel@alpha.digital-domain.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With current-ish Linus 2.6 BK, I'm seeing this:
+Hi,
 
-net/ipv4/netfilter/ipt_hashlimit.c:96: warning: type defaults to `int' in declaration of `DECLARE_LOCK'
-net/ipv4/netfilter/ipt_hashlimit.c:96: warning: parameter names (without types) in function declaration
-net/ipv4/netfilter/ipt_hashlimit.c: In function `htable_create':
-net/ipv4/netfilter/ipt_hashlimit.c:237: warning: implicit declaration of function `LOCK_BH'
-net/ipv4/netfilter/ipt_hashlimit.c:237: error: `hashlimit_lock' undeclared (first use in this function)
-net/ipv4/netfilter/ipt_hashlimit.c:237: error: (Each undeclared identifier is reported only once/home/rmk/bk/linux-2.6-rmk/net/ipv4/netfilter/ipt_hashlimit.c:237: error: for each function it appears in.)
-net/ipv4/netfilter/ipt_hashlimit.c:239: warning: implicit declaration of function `UNLOCK_BH'
-net/ipv4/netfilter/ipt_hashlimit.c: In function `htable_find_get':
-net/ipv4/netfilter/ipt_hashlimit.c:305: error: `hashlimit_lock' undeclared (first use in this function)
-net/ipv4/netfilter/ipt_hashlimit.c: In function `htable_put':
-net/ipv4/netfilter/ipt_hashlimit.c:321: error: `hashlimit_lock' undeclared (first use in this function)
-net/ipv4/netfilter/ipt_hashlimit.c: At top level:
-net/ipv4/netfilter/ipt_hashlimit.c:96: warning: `DECLARE_LOCK' declared `static' but never defined
+Got a problem here with the last few Linus -bk releases.
 
-Looks like ipt_hashlimit.c is missing an include?
+2.6.11-bk2 is running fine.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+2.6.11-bk3 - 2.6.11-bk6 has the following problem:
+
+Everything is fine while the machine is booting. However as soon as X
+starts up the screen goes blank as normal but stays blank, no gdm login
+screen and the hard disk and floppy drive lights are on continuously.
+The machine is now locked up solid and needs a hard reset.
+
+I tried a serial console but get nothing after the kernel messages and
+the agetty login.
+
+The machine is question is an UP Athlon 1800+ XP with 768MB RAM, the
+graphics card is an AGP ATI Radeon 9200SE using the kernel AGP/DRM
+drivers and the Xorg radeon driver.
+
+It's running FC3.
+
+
+I've put 2.6.11-bk2 and 2.6.11-bk6 config's, dmesg's and an lspc -vv up
+on the web.
+
+http://digital-domain.net/kernel/2.6.11-bk2.config
+http://digital-domain.net/kernel/2.6.11-bk6.config
+http://digital-domain.net/kernel/2.6.11-bk2.dmesg
+http://digital-domain.net/kernel/2.6.11-bk6.dmesg
+http://digital-domain.net/kernel/lspci-vv
+
+
+When looking at this the other day I did get a message on the serial
+console after X started and the machine locked, about uhci host
+controller being disabled or something. Unfortunately I didn't make a
+note of it and didn't get it today for when I was preparing this report.
+
+Looking at the two dmesg's there is some difference in the usb messages.
+
+
+Anyway, thanks for your time and if you need any more info just let me
+know.
+
+
+Cheers,
+
+Andrew Clayton
+ 
+

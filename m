@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbVAKNLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbVAKNV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262660AbVAKNLt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 08:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbVAKNLt
+	id S262748AbVAKNV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 08:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVAKNV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 08:11:49 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63925 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262660AbVAKNLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 08:11:43 -0500
-Date: Tue, 11 Jan 2005 14:10:19 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Bernard Blackham <bernard@blackham.com.au>, Pavel Machek <pavel@ucw.cz>,
-       Shaw <shawv@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: Screwy clock after apm suspend
-Message-ID: <20050111131019.GA1324@openzaurus.ucw.cz>
-References: <7bb8b8de05010710085ea81da9@mail.gmail.com> <20050109224711.GF1353@elf.ucw.cz> <200501092328.54092.shawv@comcast.net> <20050110074422.GA17710@mussel> <20050110105759.GM1353@elf.ucw.cz> <20050110174804.GC4641@blackham.com.au> <20050111001426.GF1444@elf.ucw.cz> <20050111011611.GE4641@blackham.com.au> <16867.51258.916944.195917@alkaid.it.uu.se>
+	Tue, 11 Jan 2005 08:21:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36763 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262748AbVAKNVW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 08:21:22 -0500
+Date: Tue, 11 Jan 2005 08:17:13 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/6] 2.4.19-rc1 stack reduction patches
+Message-ID: <20050111101713.GH21634@logos.cnet>
+References: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com> <1105429144.3917.0.camel@laptopd505.fenrus.org> <20050111074949.GE18796@logos.cnet> <1105442311.3917.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16867.51258.916944.195917@alkaid.it.uu.se>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <1105442311.3917.25.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hia
-
->  > Looking harder, in arch/i386/kernel/apm.c the system time is also
->  > saved and restored in a very similar way to timer_suspend/resume.
->  > Would this account for the time drift in APM mode? (sleep time being
->  > accounted for twice?)
+On Tue, Jan 11, 2005 at 12:18:31PM +0100, Arjan van de Ven wrote:
+> On Tue, 2005-01-11 at 05:49 -0200, Marcelo Tosatti wrote:
+> > On Tue, Jan 11, 2005 at 08:39:03AM +0100, Arjan van de Ven wrote:
+> > > On Mon, 2005-01-10 at 09:35 -0800, Badari Pulavarty wrote:
+> > > > Hi Marcelo,
+> > > > 
+> > > > I re-worked all the applicable stack reduction patches for 2.4.19-rc1.
+> > > 
+> > > is it really worth doing this sort of thing for 2.4 still? It's a matter
+> > > of risk versus gain... not sure this sort of thing is still worth it in
+> > > the deep-maintenance 2.4 tree
+> > 
+> > Well it seems the s390 fellows are seeing stack overflows, which are serious
+> > enough. Have you noticed that?
 > 
-> No, apm.c's update to xtime is absolute, just like time.c's.
-> Doing both is pointless but not harmful. (I've already tried
-> with apm.c's xtime update commented out, but the time-warp
-> bug remained.)
+> well.. is anyone using 2.4.2X mainline on s390, or is ibm making their
+> s390 customers use vendor kernels instead? 
+> (the people brave enough to not use those kernels might very well be
+> using 2.6 by now)
 > 
-> My 0.02 SEK says it's the jiffies update that's broken.
+> Just trying to get a feeling for who if anyone will benefit inclusion of
+> such patches, because if that is "just about nobody" then they might
+> well not be worth the risk.
 
-Okay, can you
+I understand your concern and appreciate it.
 
-* kill jiffie update (x86-64, too)
-* remove apm.c variant
-* test it (or make someone test it) with apm?
+I dont expect anyone to be using v2.4 mainline on S390 (you need external 
+patches to get it to work anyway) either :)
 
-I now see the drift with acpi, too :-(. I can do the acpi testing...
+But the stack growth patches are also useful for other architectures I assume, 
+its pretty hard to get them wrong (ie you're simple changing stack to 
+kmalloc()'ed memory, the code is essentially the same). 
 
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+No?
+
 

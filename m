@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264233AbUAYNPp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 08:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUAYNPp
+	id S264267AbUAYNXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 08:23:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbUAYNXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 08:15:45 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44486 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264233AbUAYNPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 08:15:42 -0500
-Date: Sun, 25 Jan 2004 14:15:37 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Eric <eric@cisu.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Kernels > 2.6.1-mm3 do not boot.
-Message-ID: <20040125131536.GG513@fs.tum.de>
-References: <200401232253.08552.eric@cisu.net> <200401241639.23479.eric@cisu.net> <20040125010228.GH6441@fs.tum.de> <200401242203.44850.eric@cisu.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 25 Jan 2004 08:23:09 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:64902 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S264267AbUAYNXG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 08:23:06 -0500
+From: Marco Rebsamen <mrebsamen@swissonline.ch>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Troubles Compiling 2.6.1 on SuSE 9
+Date: Sun, 25 Jan 2004 14:27:02 +0100
+User-Agent: KMail/1.5.4
+References: <200401242137.34881.mrebsamen@swissonline.ch> <20040125124557.GA2036@mars.ravnborg.org>
+In-Reply-To: <20040125124557.GA2036@mars.ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200401242203.44850.eric@cisu.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200401251427.02975.mrebsamen@swissonline.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 10:03:44PM -0600, Eric wrote:
->...
-> 	I have a strange suspicion that the new cpu options are to blame. I am by no 
-> means a kernel hacker, but I've never had a problem like this where I am 
-> locked out of a whole series of kernels, or where they would stop booting. 
-> 	Possibly the new CPU selection options are generating bad code with my gcc?
->...
+Am Sonntag, 25. Januar 2004 13:45 schrieben Sie:
+> On Sat, Jan 24, 2004 at 09:37:34PM +0100, Marco Rebsamen wrote:
+> > I try to compile my own kernel with 2.6.1 on suse 9. But i always get the
+> > same error. i applied the patch 2.6.2-rc1 but wasn't helping.
+> >   objcopy -O binary -R .note -R .comment -S  vmlinux arch/i386/boot/
+> > compressed/vmlinux.bin
+> > make[2]: *** [arch/i386/boot/compressed/vmlinux.bin] Fehler 132
+>
+> Looks like objcopy is failing.
+> Could you try to run the above command by hand in the top-level
+> directory of your kernel tree.
+> If it still fails try with
+> LANG=C LC_ALL=C objcopy ....
+>
+> Just to check that language does not have any effect here.
+> I doubt so, but worth the try.
+>
+> I browsed the objcopy src (a random version found by google)
+> without seeing where it could return 132
+>
+> 	Sam
 
-After diffing two of your .config's, I don't see how the CPU selection 
-options might have caused this.
+thanks for the help....
 
-I'm sorry that I don't have a real idea where to search for the 
-problems, only a few thoughts how to get nearer to finding it:
+here my output...
 
-Please try 2.6.2-rc1 (without any -mm patch).
+bineo:/usr/src/linux-2.6.1 # objcopy -O binary -R .note -R .comment -S vmlinux 
+arch/i386/boot/compressed/vmlinux.bin
+Ungültiger Maschinenbefehl (in english, invalid machinecommand i guess)
 
-If this kernel works, please try -mm4 with disabled SMP support and
-support for the Athlon (and no other CPUs).
-If you compile with
-  make V=1
-the kernel build is more verbose. If this kernel doesn't boot, please 
-send the complete gcc call for the compilation of a file (it doesn't 
-matter which file, e.g. one under fs/).
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+bineo:/usr/src/linux-2.6.1 # LANG=C LC_ALL=C objcopy -O binary -R .note 
+-R .comment -S vmlinux arch/i386/boot/compressed/vmlinux.bin
+Ungültiger Maschinenbefehl
 

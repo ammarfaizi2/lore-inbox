@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267475AbRGMNdu>; Fri, 13 Jul 2001 09:33:50 -0400
+	id <S267481AbRGMNzZ>; Fri, 13 Jul 2001 09:55:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267481AbRGMNdk>; Fri, 13 Jul 2001 09:33:40 -0400
-Received: from ns.suse.de ([213.95.15.193]:41226 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S267475AbRGMNd2>;
-	Fri, 13 Jul 2001 09:33:28 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG?] vtund broken by tun driver changes in 2.4.6
-In-Reply-To: <009601c106ff$a3cb2070$6baaa8c0@kevin.suse.lists.linux.kernel>
-In-Reply-To: <Pine.LNX.4.33.0107070058350.29490-100000@mackman.net.suse.lists.linux.kernel> <009601c106ff$a3cb2070$6baaa8c0@kevin.suse.lists.linux.kernel>
-Message-Id: <20010713133329.DDCEB19A57@lamarr.suse.de>
-Date: Fri, 13 Jul 2001 15:33:29 +0200 (CEST)
-From: jreuter@suse.de (Joerg Reuter)
+	id <S267482AbRGMNzP>; Fri, 13 Jul 2001 09:55:15 -0400
+Received: from picard.csihq.com ([204.17.222.1]:33752 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S267481AbRGMNzG>;
+	Fri, 13 Jul 2001 09:55:06 -0400
+Message-ID: <111501c10ba3$664a1370$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "Mike Black" <mblack@csihq.com>, "Andrew Morton" <andrewm@uow.edu.au>
+Cc: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
+        <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <02ae01c10925$4b791170$e1de11cc@csihq.com> <3B4BD13F.6CC25B6F@uow.edu.au> <021801c10a03$62434540$e1de11cc@csihq.com> <3B4C729B.6352A443@uow.edu.au> <05c401c10ac1$0e81ad70$e1de11cc@csihq.com> <3B4D8B5D.E9530B60@uow.edu.au> <036e01c10b96$72ce57d0$e1de11cc@csihq.com>
+Subject: Re: 2.4.6 and ext3-2.4-0.9.1-246
+Date: Fri, 13 Jul 2001 09:54:56 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Recompile your VTUND daemon with the new kernel headers (and also updated to
->2.5 vtund, it has some small patches) and you will be fine.
+I give up!  I'm getting file system corruption now on the ext3 partition...
+and I've got a kernel oops (soon to be decoded) This is the worst file
+corruption I've ever seen other than having a disk go bad.
+I'm removing ext3 for now.
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
 
-Probably not:
-
-        #define TUNSETNOCSUM  _IOW('T', 200, int)
-        #define TUNSETDEBUG   _IOW('T', 201, int)
-        #define TUNSETIFF     _IOW('T', 202, int)
-        #define TUNSETPERSIST _IOW('T', 203, int)
-        #define TUNSETOWNER   _IOW('T', 204, int)
-
-Which is (apart from some extensions) the same as it ever was. However 
-adding a
-
-	printk(KERN_INFO "tun_chr_ioctl() called with cmd=%4.4X
-		(TUNSETIFF=%4.4X, tun is%s set)\n",
-		cmd, TUNSETIFF, tun? "":" not");
-
-in tun_chr_ioctl() reveals:
-
-	tun_chr_ioctl() called with cmd=54CA (TUNSETIFF=400454CA, tun is not set)
-
-Now, where does the 0x400454CA come from? What happened to the _IOW()
-macros? (Tested with 2.4.6 vanilla kernel sources and gcc-2.95.3)
-
-And BTW, you shouldn't include kernel headers from user space programs,
-should you.
-
-Regards,
--- 
-Joerg Reuter                                    http://yaina.de/jreuter
-And I make my way to where the warm scent of soil fills the evening air. 
-Everything is waiting quietly out there....                 (Anne Clark)

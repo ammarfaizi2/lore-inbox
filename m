@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131526AbQK2O6F>; Wed, 29 Nov 2000 09:58:05 -0500
+        id <S131540AbQK2PGS>; Wed, 29 Nov 2000 10:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131540AbQK2O5z>; Wed, 29 Nov 2000 09:57:55 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:21010 "EHLO virtualhost.dk")
-        by vger.kernel.org with ESMTP id <S131526AbQK2O5i>;
-        Wed, 29 Nov 2000 09:57:38 -0500
-Date: Wed, 29 Nov 2000 15:26:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: corruption
-Message-ID: <20001129152652.B28399@suse.de>
-In-Reply-To: <UTC200011291344.OAA150800.aeb@aak.cwi.nl> <Pine.LNX.4.21.0011291408470.974-100000@penguin.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0011291408470.974-100000@penguin.homenet>; from tigran@veritas.com on Wed, Nov 29, 2000 at 02:10:16PM +0000
+        id <S131599AbQK2PGJ>; Wed, 29 Nov 2000 10:06:09 -0500
+Received: from sense-paulf-129.oz.net ([216.39.167.129]:13316 "EHLO
+        fluffy.aphrodite.com") by vger.kernel.org with ESMTP
+        id <S131540AbQK2PF7>; Wed, 29 Nov 2000 10:05:59 -0500
+Date: Wed, 29 Nov 2000 06:33:36 -0800 (PST)
+From: "Joseph K. Malek" <malekjo@aphrodite.com>
+To: linux-kernel@vger.kernel.org
+Subject: Broken NTFS
+In-Reply-To: <Pine.LNX.3.95.1001129091726.14820A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.21.0011290628350.2047-100000@fluffy.aphrodite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29 2000, Tigran Aivazian wrote:
-> On Wed, 29 Nov 2000 Andries.Brouwer@cwi.nl wrote:
-> 
-> > I just tried 2.4.0test12pre3, which has Jens' fix,
-> > and no corruption to be seen. Will test a bit more,
-> > but perhaps this did it.
-> > 
-> 
-> I have also been testing very hard on the SMP (4xXeon/6G) machine with
-> test12-pre3 and also cannot reproduce the problem. This is a SCSI-only
-> machine and I don't know what Jens' fix is and whether it is applicable or
-> not.
+Hi all,
 
-No, the fix could only really make a difference on IDE. So it can't
-possibly account for all the corruption issues reported, but I'm hoping
-at least some of them... The fix was posted in the other corruption
-thread, and it's in test12-pre3 too.
+I have a broken NTFS, due to my own mistake of mounting the
+partition RW and moving a file instead of copying it....I've been poking
+around for an NTFS editing tool; only to find that this is easier said
+than done.  Does anyone have an NTFS repair tool for winnt 4 (I already
+have the ddk), or any idea where I can find one?
+
+thanks in advance!
 
 -- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+
+.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.
+This message was made from 100% post-consumer
+recycled magnetic domains. No binary trees were
+destroyed to make it.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbTCDAEr>; Mon, 3 Mar 2003 19:04:47 -0500
+	id <S265815AbTCDAGZ>; Mon, 3 Mar 2003 19:06:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265815AbTCDAEq>; Mon, 3 Mar 2003 19:04:46 -0500
-Received: from holomorphy.com ([66.224.33.161]:28566 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265791AbTCDAEq>;
-	Mon, 3 Mar 2003 19:04:46 -0500
-Date: Mon, 3 Mar 2003 16:14:58 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: percpu-2.5.63-bk5-1 (properly generated)
-Message-ID: <20030304001458.GD1399@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <20030302210606.GS24172@holomorphy.com> <85980000.1046642338@[10.10.2.4]> <20030302221037.GK1195@holomorphy.com> <87420000.1046646801@[10.10.2.4]> <20030302234252.GL1195@holomorphy.com> <88060000.1046650020@[10.10.2.4]> <20030303014320.GM1195@holomorphy.com> <29220000.1046713200@[10.10.2.4]> <20030303225115.GP1195@holomorphy.com> <560080000.1046734218@flay>
+	id <S266010AbTCDAGZ>; Mon, 3 Mar 2003 19:06:25 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:28301 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S265815AbTCDAGX>;
+	Mon, 3 Mar 2003 19:06:23 -0500
+Date: Tue, 4 Mar 2003 01:15:52 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arador <diegocg@teleline.es>, "Adam J. Richter" <adam@yggdrasil.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       pavel@janik.cz, pavel@ucw.cz
+Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
+Message-ID: <20030304001552.GU16918@dualathlon.random>
+References: <Pine.LNX.4.44.0303031554230.29949-100000@dlang.diginsite.com> <3E63ED14.5090809@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <560080000.1046734218@flay>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <3E63ED14.5090809@pobox.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> Then there must have been something important in the new per_cpu users.
+On Mon, Mar 03, 2003 at 07:02:28PM -0500, Jeff Garzik wrote:
+> David Lang wrote:
+> >On Mon, 3 Mar 2003, Andrea Arcangeli wrote:
+> >
+> >
+> >>Just curious, this also means that at least around the 80% of merges
+> >>in Linus's tree is submitted via a bitkeeper pull, right?
+> >>
+> >>Andrea
+> >
+> >
+> >remember how Linus works, all normal patches get copied into a single
+> >large patch file as he reads his mail then he runs patch to apply them to
+> >the tree. I think this would make the entire batch of messages look like
+> >one cset.
+> 
+> 
+> Not correct.  His commits properly separate the patches out into 
+> individual csets.
 
-On Mon, Mar 03, 2003 at 03:30:18PM -0800, Martin J. Bligh wrote:
-> -pernode2 had all your changes ... but I still don't see anything like
-> the order of magnitude of benefit you were seeing.
+and they're unusable as source to regenerate a tree. I had similar
+issues with the web too. to make use of the single csets you need to
+implement the internal bitkeeper branching knowledge too. Not to tell
+apparently the cset numbers changes all the time.
 
-Well, something in the mix of new per_cpu and/or per_node users caused
-a regression on "that unmentionable benchmark". There's something
-different about 2.5.x and 2.4.x kernel compiles that makes the numbers
-incomparable. And since the total sum of the benefit of the new
-per_cpu/per_node users is negligible along with the total benefit of
-the entire thing, there must be something different going on.
-
-Maybe the effect is just tiny, maybe there isn't enough locality of
-reference for this to ever do anything, or maybe 2.4.x and 2.5.x
-kernel compiles are really that different.
-
-I haven't really got the patience for that kind of an investigation.
-It wasn't a slam dunk so I'd rather not bother with it anymore now.
-
-
--- wli
+Andrea

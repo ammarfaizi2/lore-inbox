@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVDESFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVDESGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbVDESFm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVDESFf
+	id S261836AbVDESGF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:06:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVDESGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:05:35 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:53208 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S261861AbVDESDh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:03:37 -0400
-Message-ID: <4252D2FE.5010500@zabbo.net>
-Date: Tue, 05 Apr 2005 11:03:42 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Tue, 5 Apr 2005 14:06:04 -0400
+Received: from hammer.engin.umich.edu ([141.213.40.79]:22748 "EHLO
+	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
+	id S261871AbVDESC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:02:29 -0400
+Date: Tue, 5 Apr 2005 14:02:20 -0400 (EDT)
+From: Christopher Allen Wing <wingc@engin.umich.edu>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
+In-Reply-To: <m18y3x16rj.fsf@muc.de>
+Message-ID: <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+ <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] configfs, a filesystem for userspace-driven kernel	object
- configuration
-References: <20050403195728.GH31163@ca-server1.us.oracle.com> <1112635079.6270.68.camel@laptopd505.fenrus.org>
-In-Reply-To: <1112635079.6270.68.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Sun, 2005-04-03 at 12:57 -0700, Joel Becker wrote:
-> 
->>Folks,
->>	I humbly submit configfs.  With configfs, a configfs
->>config_item is created via an explicit userspace operation: mkdir(2).
->>It is destroyed via rmdir(2).  The attributes appear at mkdir(2) time,
->>and can be read or modified via read(2) and write(2).  readdir(3)
->>queries the list of items and/or attributes.
->>	The lifetime of the filesystem representation is completely
->>driven by userspace.  The lifetime of the objects themselves are managed
->>by a kref, but at rmdir(2) time they disappear from the filesystem.
-> 
-> 
-> does that mean you rmdir a non-empty directory ??
+On Tue, 5 Apr 2005, Andi Kleen wrote:
 
-Yeah, but only attributes and default groups are automatically torn
-down.  You can't rmdir() an item that is the destination of links and
-you can't rmdir() groups that still contain items.
+> Alternatively you can try to boot with noapic. Does that help?
 
-- z
+
+Yes, with 'noapic' the system boots normally and the clock runs at normal
+speed.
+
+dmesg of 2.6.11.6 without any command line options. (default: ACPI
+enabled, APIC enabled):
+
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-apic
+
+/proc/interrupts on 2.6.11.6 with ACPI enabled, APIC enabled:
+
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/interrupts-2.6.11-6-acpi-apic
+	(clock runs at double speed)
+
+
+dmesg of 2.6.11.6 with 'noapic' command line option:
+
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-noapic
+
+/proc/interrupts on 2.6.11.6 with 'noapic':
+
+	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/interrupts-2.6.11-6-acpi-noapic
+	(clock runs normally)
+
+
+
+Are you thinking of blacklisting the APIC on this system until we figure
+out what's going on?
+
+-Chris

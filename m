@@ -1,105 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUJTA6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUJTA6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUJTA6u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 20:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUJTA4s
+	id S268053AbUJTA6t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268051AbUJTA5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 20:56:48 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64179 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266463AbUJTAT0 convert rfc822-to-8bit
+	Tue, 19 Oct 2004 20:57:05 -0400
+Received: from mx15.sac.fedex.com ([199.81.195.17]:5896 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S268053AbUJTAYk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 20:19:26 -0400
-Subject: Re: [PATCH] I2C update for 2.6.9
-In-Reply-To: <1098231504304@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 19 Oct 2004 17:18:24 -0700
-Message-Id: <10982315042830@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Tue, 19 Oct 2004 20:24:40 -0400
+Date: Wed, 20 Oct 2004 08:21:10 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
+Subject: Re: [ANNOUNCE] iproute2 2.6.9-041019
+In-Reply-To: <41758014.4080502@osdl.org>
+Message-ID: <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
+References: <41758014.4080502@osdl.org>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/20/2004
+ 08:24:34 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/20/2004
+ 08:24:37 AM,
+	Serialize complete at 10/20/2004 08:24:37 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1867.7.2, 2004/09/13 21:29:32-07:00, greg@kroah.com
 
-I2C: fix up __iomem marking for i2c bus drivers
+On Tue, 19 Oct 2004, Stephen Hemminger wrote:
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/i2c/busses/i2c-i810.c      |    2 +-
- drivers/i2c/busses/i2c-prosavage.c |    6 +++---
- drivers/i2c/busses/i2c-savage4.c   |    2 +-
- drivers/i2c/busses/i2c-voodoo3.c   |    2 +-
- 4 files changed, 6 insertions(+), 6 deletions(-)
+> Now that 2.6.9 is final. Here is an update of the iproute2 utilities that
 
 
-diff -Nru a/drivers/i2c/busses/i2c-i810.c b/drivers/i2c/busses/i2c-i810.c
---- a/drivers/i2c/busses/i2c-i810.c	2004-10-19 16:55:21 -07:00
-+++ b/drivers/i2c/busses/i2c-i810.c	2004-10-19 16:55:21 -07:00
-@@ -70,7 +70,7 @@
- #define CYCLE_DELAY		10
- #define TIMEOUT			(HZ / 2)
- 
--static void *ioaddr;
-+static void __iomem *ioaddr;
- 
- /* The i810 GPIO registers have individual masks for each bit
-    so we never have to read before writing. Nice. */
-diff -Nru a/drivers/i2c/busses/i2c-prosavage.c b/drivers/i2c/busses/i2c-prosavage.c
---- a/drivers/i2c/busses/i2c-prosavage.c	2004-10-19 16:55:21 -07:00
-+++ b/drivers/i2c/busses/i2c-prosavage.c	2004-10-19 16:55:21 -07:00
-@@ -68,7 +68,7 @@
- #define MAX_BUSSES	2
- 
- struct s_i2c_bus {
--	void	*mmvga;
-+	void __iomem *mmvga;
- 	int	i2c_reg;
- 	int	adap_ok;
- 	struct i2c_adapter		adap;
-@@ -76,7 +76,7 @@
- };
- 
- struct s_i2c_chip {
--	void	*mmio;
-+	void __iomem *mmio;
- 	struct s_i2c_bus	i2c_bus[MAX_BUSSES];
- };
- 
-@@ -181,7 +181,7 @@
- /*
-  * adapter initialisation
-  */
--static int i2c_register_bus(struct pci_dev *dev, struct s_i2c_bus *p, u8 *mmvga, u32 i2c_reg)
-+static int i2c_register_bus(struct pci_dev *dev, struct s_i2c_bus *p, void __iomem *mmvga, u32 i2c_reg)
- {
- 	int ret;
- 	p->adap.owner	  = THIS_MODULE;
-diff -Nru a/drivers/i2c/busses/i2c-savage4.c b/drivers/i2c/busses/i2c-savage4.c
---- a/drivers/i2c/busses/i2c-savage4.c	2004-10-19 16:55:21 -07:00
-+++ b/drivers/i2c/busses/i2c-savage4.c	2004-10-19 16:55:21 -07:00
-@@ -73,7 +73,7 @@
- #define TIMEOUT			(HZ / 2)
- 
- 
--static void *ioaddr;
-+static void __iomem *ioaddr;
- 
- /* The sav GPIO registers don't have individual masks for each bit
-    so we always have to read before writing. */
-diff -Nru a/drivers/i2c/busses/i2c-voodoo3.c b/drivers/i2c/busses/i2c-voodoo3.c
---- a/drivers/i2c/busses/i2c-voodoo3.c	2004-10-19 16:55:21 -07:00
-+++ b/drivers/i2c/busses/i2c-voodoo3.c	2004-10-19 16:55:21 -07:00
-@@ -61,7 +61,7 @@
- #define TIMEOUT		(HZ / 2)
- 
- 
--static void *ioaddr;
-+static void __iomem *ioaddr;
- 
- /* The voo GPIO registers don't have individual masks for each bit
-    so we always have to read before writing. */
+can't compile Got the following error. Linux is 2.6.9. Gcc is 2.95.3.
+
+
+make[1]: Entering directory `/usr/src/net/iproute2-2.6.9/misc'
+gcc -D_GNU_SOURCE -O2 -Wstrict-prototypes -Wall -g -I../include 
+-DRESOLVE_HOSTNAMES   -c -o ss.o ss.c
+In file included from /usr/include/asm/byteorder.h:57,
+                  from ss.c:36:
+/usr/include/linux/byteorder/little_endian.h:43: parse error before 
+`__cpu_to_le64p'
+/usr/include/linux/byteorder/little_endian.h: In function 
+`__cpu_to_le64p':
+/usr/include/linux/byteorder/little_endian.h:45: `__le64' undeclared 
+(first use in this function)
+/usr/include/linux/byteorder/little_endian.h:45: (Each undeclared 
+identifier is reported only once
+...
+
+a lot of these errors.
+
+These errors went away if linux-2.4.28pre4 is used to compile.
+
+
+Thanks,
+Jeff.
 

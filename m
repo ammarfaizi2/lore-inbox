@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUC3UMc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 15:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbUC3UMc
+	id S261205AbUC3UNl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 15:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbUC3UNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 15:12:32 -0500
-Received: from smtp07.wxs.nl ([195.121.6.39]:39871 "EHLO smtp07.wxs.nl")
-	by vger.kernel.org with ESMTP id S261236AbUC3UM3 (ORCPT
+	Tue, 30 Mar 2004 15:13:41 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:25655 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261205AbUC3UNj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 15:12:29 -0500
-Date: Tue, 30 Mar 2004 22:12:25 +0200
-From: Arvind Autar <Autar022@planet.nl>
-Subject: Re: nicksched v30
-In-reply-to: <4068BC7D.2020805@yahoo.com.au>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jason Cox <jpcox@iastate.edu>, "n.v.t n.v.t" <joefso@hotmail.com>
-Message-id: <1080677545.31904.38.camel@debian>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.6
-Content-type: multipart/signed; boundary="=-awc52Y9/ailukviURq81";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <4048204E.8000807@cyberone.com.au> <4063EAF7.8090405@gmx.de>
- <1080598780.5933.8.camel@debian> <4068BC7D.2020805@yahoo.com.au>
+	Tue, 30 Mar 2004 15:13:39 -0500
+Date: Wed, 31 Mar 2004 06:13:10 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       hugh@veritas.com
+Subject: Re: mapped pages being truncated [was Re: 2.6.5-rc2-aa5]
+Message-ID: <20040331061310.A28752@wobbly.melbourne.sgi.com>
+References: <20040329150646.GA3808@dualathlon.random> <20040329124803.072bb7c6.akpm@osdl.org> <20040329224526.GL3808@dualathlon.random> <20040330161056.GZ3808@dualathlon.random> <20040330102834.7627cf54.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040330102834.7627cf54.akpm@osdl.org>; from akpm@osdl.org on Tue, Mar 30, 2004 at 10:28:34AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 30, 2004 at 10:28:34AM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > here we go, my new debugging WARN_ON in in __remove_from_page_cache
+> >  triggered just before the other one in page_remove_rmap, as I expected
+> >  it was truncate removing pages from pagecache before all mappings were
+> >  dropped:
+> 
+> XFS is doing peculiar things - xfs_setattr calls truncate_inode_pages()
+> before running vmtruncate().
+> 
+> 	xfs_setattr
+> 	->xfs_itruncate_start
+> 	  ->VOP_TOSS_PAGES
+> 	    ->fs_tosspages
+> 	      ->truncate_inode_pages
 
---=-awc52Y9/ailukviURq81
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Oh.  Fix in progress...
 
-On Tue, 2004-03-30 at 22:07, n.v.t n.v.t wrote:
+thanks.
 
-> I have been having trouble compiling the -mm kernel 2.6.5-rc3-mm1 with v3=
-0.=20
-> Please help.
-
-
-A friend of mine has been having compile troubles also.
-I used this patch to make things compile:
-http://www.liquidweb.nl/~arvind/patches/compile-fix.gz
-
-* I don't know if this will breaks things, it seems empirical to me.*
-
-Arvind.
-
---=20
-Arvind Autar | GnuPG-Key ID: 336E5788
-Key fingerprint =3D FAB8 B3E5 0059 880A 00B8  C859 350E BBDC 336E 5788
-
---=-awc52Y9/ailukviURq81
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAadSpNQ673DNuV4gRAn13AJ4hrp443pquzww9/bRfVcodASQYFACg2a55
-ReJB/msqsnLrvSOELKxKATg=
-=5NZd
------END PGP SIGNATURE-----
-
---=-awc52Y9/ailukviURq81--
-
+-- 
+Nathan

@@ -1,44 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264712AbRFUCmz>; Wed, 20 Jun 2001 22:42:55 -0400
+	id <S264083AbRFUCnf>; Wed, 20 Jun 2001 22:43:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264083AbRFUCmp>; Wed, 20 Jun 2001 22:42:45 -0400
-Received: from deliverator.sgi.com ([204.94.214.10]:26951 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S264712AbRFUCmh>; Wed, 20 Jun 2001 22:42:37 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Helge Hafting <helgehaf@idb.hist.no>
-cc: "McHarry, John" <john.mcharry@gemplex.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another? 
-In-Reply-To: Your message of "Wed, 20 Jun 2001 09:58:54 +0200."
-             <3B3057BE.4374D4B2@idb.hist.no> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 21 Jun 2001 12:42:17 +1000
-Message-ID: <6519.993091337@kao2.melbourne.sgi.com>
+	id <S264715AbRFUCnQ>; Wed, 20 Jun 2001 22:43:16 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:49381 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S264083AbRFUCnN>; Wed, 20 Jun 2001 22:43:13 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Davide Libenzi" <davidel@xmailserver.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Why use threads ( was: Alan Cox quote?)
+Date: Wed, 20 Jun 2001 19:43:09 -0700
+Message-ID: <NCBBLIEPOCNJOAEKBEAKCEPBPPAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <XFMail.20010620192245.davidel@xmailserver.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0005
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Jun 2001 09:58:54 +0200, 
-Helge Hafting <helgehaf@idb.hist.no> wrote:
->This is enough if you don't use modules.  If you use modules you
->need to copy them too, which is trickier.  Several good methods
->have been demonstrated, here is another if you can't use the nfs
->approach:
->
->1. If you are running the same kernel revision on the compile machine,
->   temporarily rename /lib/modules/<version> to something else.
->   Yes - this could be dangerous but tend to work well on a "home
->machine"
->2. Do the "make modules_install" on the compile machine.
 
-The correct way of installing for a target machine is to use
-  make INSTALL_MOD_PATH=foo modules_install
-You need to mkdir -p foo/lib/modules first.  Everything is installed in
-foo/lib/modules/`uname -r` instead of /lib/modules so you do not
-disturb your compile system.
+> Just to summarize :
 
-There is also make INSTALL_PATH to specify where vmlinuz and System.map
-are stored for make zlilo and make install.
+> 1) You said to handle 16000 sessions with 10 threads
+
+> 2) I said: "Humm, you've to select() about 1600 fds ..."
+
+> 3) You said : "Who said anything about 'select'?"
+
+	You can use any I/O model you want. I've suggested several.
+
+> The stuff above looks like select() to me.
+
+	I'm not sure what that has to do with anything.
+
+> About the scale factor of select()/poll() my agreement is only partial.
+> Have You ecer observed that Your processes tend to become a bit
+> CPU bound when
+> stocking a lot of fds inside a poll ?
+
+	Okay, let's compare two servers.
+
+	Server one is handling 10 file descriptors. The cost of a single call to
+poll is 3 microseconds. Assume that the server is coded to get back to
+'poll' as quickly as it can, but due to load the code manages to call 'poll'
+every 100 microseconds, so the overhead of poll is 3% of the available CPU.
+
+	Now server two, with identical hardware and software, is handling 10,000
+file descriptors. The cost of a single call to poll is now 3,000
+microseconds (assuming 'poll' scales linearly, it actually scales slightly
+better than linearly). Since this code is 1,000 times busier, assume it gets
+around to calling 'poll' every 100,000 microseconds. Note that, percentage
+wise, the overhead of poll is the same, 3%.
+
+	It is actually even better than this. For one thing, in the second case,
+the less-frequent calls to poll mean that you do more I/O per poll call per
+connection, because there is more time in between calls to 'recv' for data
+to go into the buffers. This also means more 'full reads' and fewer 'partial
+reads' which improves your buffer handling signifantly. Same is true for
+your 'write' calls, the less often you call 'write' the more often
+(percentage wise) you'll write all you tried to write.
+
+
+	Now this assumes no clever tricks to improve poll's scalability. This
+doesn't even consider the fact that calling 'poll' less often means that a
+higher percentage of sockets will be discovered per call to poll.
+
+	Again, the problems with select/poll are not about scalability, they're
+about performance (in terms of absolute CPU consumption) at low load levels
+with large numbers of file descriptors.
+
+	In contrast, if you had 1,600 execution vehicles instead of 10, you would
+suffer more context switches, more memory overhead for stacks, and you would
+incur one kernel/user transition for each socket discovered instead of far
+fewer. In addition, a much higher percentage of your I/O operations would
+block, and blocking operations are more expensive than those that don't
+result in a block.
+
+	DS
 

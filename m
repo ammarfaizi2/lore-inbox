@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318342AbSHPMdN>; Fri, 16 Aug 2002 08:33:13 -0400
+	id <S318345AbSHPNDe>; Fri, 16 Aug 2002 09:03:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318344AbSHPMdN>; Fri, 16 Aug 2002 08:33:13 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:6923 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318342AbSHPMdM>; Fri, 16 Aug 2002 08:33:12 -0400
-Date: Fri, 16 Aug 2002 13:36:54 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Christoph Hellwig <hch@lst.de>, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: [PATCH] simplify b_inode usage
-Message-ID: <20020816133654.A17193@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@zip.com.au>, Christoph Hellwig <hch@lst.de>,
-	marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Joe Thornber <joe@fib011235813.fsnet.co.uk>
-References: <20020813171024.A4365@lst.de> <3D5975B2.66B4B215@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D5975B2.66B4B215@zip.com.au>; from akpm@zip.com.au on Tue, Aug 13, 2002 at 02:10:10PM -0700
+	id <S318346AbSHPNDe>; Fri, 16 Aug 2002 09:03:34 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:50693 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S318345AbSHPNDe>; Fri, 16 Aug 2002 09:03:34 -0400
+Date: Fri, 16 Aug 2002 23:07:22 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: kuznet@ms2.inr.ac.ru
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
+In-Reply-To: <200208152236.CAA27992@sex.inr.ac.ru>
+Message-ID: <Mutt.LNX.4.44.0208162239370.687-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 02:10:10PM -0700, Andrew Morton wrote:
-> Current ext3 CVS (ie: 2.4.20 candidate code) is using b_inode
-> as an inode *.   Stephen has acked a proposal to stop doing that,
-> but let's double check with him first.
+On Fri, 16 Aug 2002 kuznet@ms2.inr.ac.ru wrote:
 
-On IRC he ACKed makeing it a bool.
+> I do not know what forced you to use BKL.
 
-> Also, Joe Thornber needs to add another pointer to struct buffer_head
-> for LVM2 reasons.  If we collapse b_inode into a b_flags bit then
-> Joe gets his pointer for free (bh stays at 48 bytes on ia32).
+All existing paths which write to the pid/uid/euid fields are protected by
+the BKL (except for the futex code, which doesn't need it).  None of
+these, or the new paths which grab the BKL, are performance critical, as
+they're ioctl() or fcntl() handlers.
 
-We also need to make b_size an 32 bit quantity, otherwise 64k buffers
-on architectures like ia64 will get us horrible overflows.  And yes,
-people use that big pages - Nathan just added an ugly workaround to XFS,
-for splitting 64k pages into multiple bh, because of that exactly that
-limitation.
+> But I daresay this is deadlock:
 
-> 
-> So I'd suggest you just go ahead and do it that way.  (I had a patch
-> for that but seem to have misplaced it).
+Yep.
 
-As the patch is already large enough I'd be happy if Marcelo applies the
-current patch, once it's in I'll move the indicator to b_flags, okay?
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
+
 

@@ -1,142 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314083AbSGQNmD>; Wed, 17 Jul 2002 09:42:03 -0400
+	id <S313743AbSGQNpr>; Wed, 17 Jul 2002 09:45:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313743AbSGQNmC>; Wed, 17 Jul 2002 09:42:02 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:21936 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313628AbSGQNmB>;
-	Wed, 17 Jul 2002 09:42:01 -0400
-Date: Wed, 17 Jul 2002 15:44:48 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Stelian Pop <stelian.pop@fr.alcove.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: input subsystem config ?
-Message-ID: <20020717154448.A19761@ucw.cz>
-References: <20020716143415.GO7955@tahoe.alcove-fr> <20020717095618.GD14581@tahoe.alcove-fr> <20020717120135.A12452@ucw.cz> <20020717101001.GE14581@tahoe.alcove-fr> <20020717140804.B12529@ucw.cz> <20020717132459.GF14581@tahoe.alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020717132459.GF14581@tahoe.alcove-fr>; from stelian.pop@fr.alcove.com on Wed, Jul 17, 2002 at 03:24:59PM +0200
+	id <S314138AbSGQNpq>; Wed, 17 Jul 2002 09:45:46 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:41927 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S313743AbSGQNpq>; Wed, 17 Jul 2002 09:45:46 -0400
+Date: Wed, 17 Jul 2002 15:46:37 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207171346.g6HDkb1l028358@burner.fokus.gmd.de>
+To: riel@conectiva.com.br, schilling@fokus.gmd.de
+Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 03:24:59PM +0200, Stelian Pop wrote:
-> On Wed, Jul 17, 2002 at 02:08:04PM +0200, Vojtech Pavlik wrote:
-> 
-> > > i8042.c: 60 -> i8042 (command) [65]
-> > > i8042.c: 77 -> i8042 (parameter) [65]
-> > > i8042.c: d4 -> i8042 (command) [65]
-> > > i8042.c: f6 -> i8042 (parameter) [65]
-> > 
-> > This is the bug. :) It tries to talk to the mouse before enabling the
-> > mouse interface. I wonder how it could work ... probably many chipsets
-> > ignore the disable bit altogether.
-> > 
-> > Please try with the attached i8042.c.
-> 
-> I'm afraid it doesn't work either:
-> ...
 
-But it actually looks to do the correct thing this time :(
-But for some reason your hardware doesn't like it.
+>From riel@imladris.surriel.com Wed Jul 17 15:37:18 2002
 
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
->  hda: 23579136 sectors w/512KiB Cache, CHS=23392/16/63, UDMA(33)
->  hda: [PTBL] [1467/255/63] hda1 hda2 hda3 < hda5 hda6 >
-> mice: PS/2 mouse device common for all mice
-> i8042.c: fa <- i8042 (flush, kbd) [0]
+>> >Error handling is more than local.  Some errors, you are correct, can only be
+>> >handled at the SCSI layer.  However, a large class of drivers (Think
+>> >multi-path or software raid) want the ability to direct how SCSI handles
+>> >errors themselves.  It is unacceptable to have SCSI all on its own retry a
+>> >medium error command x times, taking minutes before the upper layers become
+>> >aware anything went wrong.
+>>
+>> It looks like you have the wrong ideas about software raid. If you have
+>> software raid, you will stack a SW raid driver just on top of the disk
+>> drivers that handle the access to the real drives. The real drives first
+>> do own error handling and if they cannot correct errors, the error is
+>> handled inside the raid layer.
 
-Throw away stale data.
+>Did you even read what James wrote ?
 
-> i8042.c: 20 -> i8042 (command) [0]
-> i8042.c: 47 <- i8042 (return) [0]
+>When one of the disks in a RAID array develops a bad block
+>it shouldn't stall the box for minutes when the error can
+>be handled by simply doing the IO from other disks instead.
 
-Remember the CTR.
+Is there any problem with using a ioctl() from upper layer kernel to the low 
+level drivers (living under the SW raid) to reduce the number of retries to a 
+reasonable value in this case?
 
-> i8042.c: 60 -> i8042 (command) [0]
-> i8042.c: 56 -> i8042 (parameter) [0]
+The main design goal for UNIX as to keep it simple. There is no need for a 
+complex cross layer error control.
 
-Disable kbd and kbd interupt.
+Jörg
 
-> i8042.c: d3 -> i8042 (command) [0]
-> i8042.c: 5a -> i8042 (parameter) [0]
-> i8042.c: a5 <- i8042 (return) [0]
-
-Test mouse port loopback.
-
-> i8042.c: a9 -> i8042 (command) [0]
-> i8042.c: 00 <- i8042 (return) [0]
-
-Test mouse port.
-
-> i8042.c: a7 -> i8042 (command) [1]
-> i8042.c: 20 -> i8042 (command) [1]
-> i8042.c: 76 <- i8042 (return) [1]
-> i8042.c: a9 -> i8042 (command) [1]
-> i8042.c: 00 <- i8042 (return) [1]
-> i8042.c: a8 -> i8042 (command) [1]
-> i8042.c: 20 -> i8042 (command) [1]
-> i8042.c: 56 <- i8042 (return) [1]
-
-More aux port sanity tests, all ok.
-
-> i8042.c: 60 -> i8042 (command) [2]
-> i8042.c: 74 -> i8042 (parameter) [2]
-
-Everything disabled.
-
-> i8042.c: 60 -> i8042 (command) [2]
-> i8042.c: 54 -> i8042 (parameter) [2]
-
-Ints disabled, kbd disabled, aux enabled.
-
-> i8042.c: 60 -> i8042 (command) [2]
-> i8042.c: 56 -> i8042 (parameter) [2]
-
-Aux interrupt enable.
-
-> i8042.c: d4 -> i8042 (command) [2]
-> i8042.c: f6 -> i8042 (parameter) [2]
-> i8042.c: 60 -> i8042 (command) [3]
-> i8042.c: 56 -> i8042 (parameter) [3]
-
-Send reset to the mouse, wait ....
-
-... but nothing comes in after almost a second. :(
-
-> i8042.c: 60 -> i8042 (command) [92]
-> i8042.c: 54 -> i8042 (parameter) [92]
-> i8042.c: 60 -> i8042 (command) [93]
-> i8042.c: 56 -> i8042 (parameter) [93]
-> i8042.c: d4 -> i8042 (command) [93]
-> i8042.c: f5 -> i8042 (parameter) [93]
-> i8042.c: 60 -> i8042 (command) [93]
-> i8042.c: 56 -> i8042 (parameter) [93]
-
-Try again later, nothing ...
-
-> i8042.c: 60 -> i8042 (command) [182]
-> i8042.c: 54 -> i8042 (parameter) [182]
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-
-Try this patch, if it doesn't work, we'll have to try more changes, like
-trying to skip the AUX port detection that might confuse the chip ....
-
---- i8042.c.old	Wed Jul 17 15:36:01 2002
-+++ i8042.c	Wed Jul 17 15:37:19 2002
-@@ -270,6 +270,8 @@
- 		return -1;
- 	}
- 
-+	i8042_interrupt(0, NULL, NULL);
-+
- 	return 0;
- }
- 
-
-Btw, what's the exact chipset involved?
-
--- 
-Vojtech Pavlik
-SuSE Labs
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

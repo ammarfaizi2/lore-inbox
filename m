@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319308AbSH2Uew>; Thu, 29 Aug 2002 16:34:52 -0400
+	id <S319336AbSH2Ufn>; Thu, 29 Aug 2002 16:35:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319336AbSH2Uev>; Thu, 29 Aug 2002 16:34:51 -0400
-Received: from 3512-780200-10.dialup.surnet.ru ([212.57.170.10]:48647 "EHLO
-	zzz.zzz") by vger.kernel.org with ESMTP id <S319308AbSH2Uev>;
-	Thu, 29 Aug 2002 16:34:51 -0400
-Date: Fri, 30 Aug 2002 02:38:08 +0600
-From: Denis Zaitsev <zzz@cd-club.ru>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jakub Jelinek <jakub@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Daniel Jacobowitz <dan@debian.org>, junkio@cox.net,
-       linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>,
-       geert@linux-m68k.org, schwidefsky@de.ibm.com
-Subject: Re: [TRIVIAL] strlen("literal string") -> (sizeof("literal string")-1)
-Message-ID: <20020830023807.A1160@natasha.zzz.zzz>
-References: <20020829031008.T7920@devserv.devel.redhat.com> <Pine.LNX.4.44.0208290955280.2070-100000@home.transmeta.com>
+	id <S319337AbSH2Ufm>; Thu, 29 Aug 2002 16:35:42 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:12807
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S319336AbSH2Ufi>; Thu, 29 Aug 2002 16:35:38 -0400
+Subject: Re: [PATCH] low-latency zap_page_range()
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <3D6E844C.4E756D10@zip.com.au>
+References: <1030635100.939.2551.camel@phantasy> 
+	<3D6E844C.4E756D10@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 29 Aug 2002 16:40:02 -0400
+Message-Id: <1030653602.939.2677.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208290955280.2070-100000@home.transmeta.com>; from torvalds@transmeta.com on Thu, Aug 29, 2002 at 09:56:44AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 29, 2002 at 09:56:44AM -0700, Linus Torvalds wrote:
-> 
-> On Thu, 29 Aug 2002, Jakub Jelinek wrote:
-> > 
-> > Well, IMHO at least for the more recent GCC versions kernel
-> > should leave the job to GCC (ie. either just prototype str* functions,
-> > or define them to __builtin_str* variants).
-> 
-> I agree. That x86 strlen() inline is from 1991 with fixes ever after, and 
-> pre-dates gcc having any support for inline at all. We're much more likely 
-> to be better off just removing it these days. Is somebody willing to 
-> compare code quality? I wouldn't be in the least surprised if gcc did a 
-> better job these days..
-> 
+On Thu, 2002-08-29 at 16:30, Andrew Morton wrote:
 
-GCC-3.2 doesn't do any inlining for __builtin_strlen at all, if -mcpu > i386.
-It just does call/jump outline strlen...  Isn't very good?
+> However with your change, we'll only ever put 256 pages into the
+> mmu_gather_t.  Half of that thing's buffer is unused and the
+> invalidation rate will be doubled during teardown of large
+> address ranges.
+
+Agreed.  Go for it.
+
+Hm, unless, since 507 vs 256 is not the end of the world and latency is
+already low, we want to just make it always (FREE_PTE_NR*PAGE_SIZE)...
+
+As long as the "cond_resched_lock()" is a preempt only thing, I also
+agree with making ZAP_BLOCK_SIZE ~0 on !CONFIG_PREEMPT - unless we
+wanted to unconditionally drop the locks and let preempt just do the
+right thing and also reduce SMP lock contention in the SMP case.
+
+	Robert Love
+

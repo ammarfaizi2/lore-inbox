@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293237AbSCOVAa>; Fri, 15 Mar 2002 16:00:30 -0500
+	id <S293244AbSCOU4a>; Fri, 15 Mar 2002 15:56:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293238AbSCOVAV>; Fri, 15 Mar 2002 16:00:21 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:41360 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S293237AbSCOVAB>;
-	Fri, 15 Mar 2002 16:00:01 -0500
-Date: Fri, 15 Mar 2002 20:55:52 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.18 scheduler bugs
-In-Reply-To: <200203152054.UAA27581@rudolph.ccur.com>
-Message-ID: <Pine.LNX.4.44.0203152053001.21386-100000@elte.hu>
+	id <S293237AbSCOU4W>; Fri, 15 Mar 2002 15:56:22 -0500
+Received: from users.ccur.com ([208.248.32.211]:25704 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id <S293238AbSCOU4K>;
+	Fri, 15 Mar 2002 15:56:10 -0500
+From: jak@rudolph.ccur.com (Joe Korty)
+Message-Id: <200203152054.UAA27581@rudolph.ccur.com>
+Subject: [PATCH] 2.4.18 scheduler bugs
+To: marcelo@conectiva.com.br
+Date: Fri, 15 Mar 2002 15:54:39 -0500 (EST)
+Cc: mingo@elte.hu, alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Reply-To: joe.korty@ccur.com (Joe Korty)
+X-Mailer: ELM [version 2.5 PL0b1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marcelo et all,
+ The following fixes some rather straightforward bugs in the old
+(pre-O(1)) scheduler that I discovered while exercising it with
+custom instrumentation written in.  These may be worth fixing, given
+that it may be a long time before the new O(1) scheduler officially
+shows up in a production tree.
 
-On Fri, 15 Mar 2002, Joe Korty wrote:
+Joe
 
-> - ksoftirqd() - change daemon nice(2) value from 19 to -19.
+- ksoftirqd() - change daemon nice(2) value from 19 to -19.
 
-this is broken. The goal is to reduce softirq load during overload
-situations. The default policy should be "do not allow external network
-load to make your system essentially unusuable". Those who want to allow
-this nevertheless can renice ksoftirqd manually.
+    SoftIRQ servicing was less important than the most lowly of batch
+    tasks.  This patch makes it more important than all but the realtime
+    tasks.
 
-> - reschedule_idle() - smp_send_reschedule when setting idle's need_resched
-> 
->     Idle tasks nowdays don't spin waiting for need->resched to change,
->     they sleep on a halt insn instead.  Therefore any setting of
->     need->resched on an idle task running on a remote CPU should be
->     accompanied by a cross-processor interrupt.
+- reschedule_idle() - smp_send_reschedule when setting idle's need_resched
 
-this is broken as well. Check out the idle=poll feature i wrote some time
-ago.
+    Idle tasks nowdays don't spin waiting for need->resched to change,
+    they sleep on a halt insn instead.  Therefore any setting of
+    need->resched on an idle task running on a remote CPU should be
+    accompanied by a cross-processor interrupt.
 
-	Ingo
+diff -Nur linux-2.4.18-base/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.18-base/kernel/sched.c	Fri Dec 21 12:42:04 2001
++++ linux/kernel/sched.c	Fri Mar 15 14:57:21 2002
+@@ -225,16 +225,9 @@
+ 	if (can_schedule(p, best_cpu)) {
+ 		tsk = idle_task(best_cpu);
+ 		if (cpu_curr(best_cpu) == tsk) {
+-			int need_resched;
+ send_now_idle:
+-			/*
+-			 * If need_resched == -1 then we can skip sending
+-			 * the IPI altogether, tsk->need_resched is
+-			 * actively watched by the idle thread.
+-			 */
+-			need_resched = tsk->need_resched;
+ 			tsk->need_resched = 1;
+-			if ((best_cpu != this_cpu) && !need_resched)
++			if (best_cpu != this_cpu)
+ 				smp_send_reschedule(best_cpu);
+ 			return;
+ 		}
+diff -Nur linux-2.4.18-base/kernel/softirq.c linux/kernel/softirq.c
+--- linux-2.4.18-base/kernel/softirq.c	Wed Oct 31 13:26:02 2001
++++ linux/kernel/softirq.c	Fri Mar 15 14:55:38 2002
+@@ -365,7 +365,7 @@
+ 	int cpu = cpu_logical_map(bind_cpu);
+ 
+ 	daemonize();
+-	current->nice = 19;
++	current->nice = -19;
+ 	sigfillset(&current->blocked);
+ 
+ 	/* Migrate to the right CPU */
 

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132738AbRDDDTA>; Tue, 3 Apr 2001 23:19:00 -0400
+	id <S132748AbRDDEph>; Wed, 4 Apr 2001 00:45:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132741AbRDDDSu>; Tue, 3 Apr 2001 23:18:50 -0400
-Received: from [64.3.14.3] ([64.3.14.3]:18585 "HELO daveb.net")
-	by vger.kernel.org with SMTP id <S132738AbRDDDSk>;
-	Tue, 3 Apr 2001 23:18:40 -0400
-Date: Tue, 3 Apr 2001 20:21:54 -0400 (EDT)
-From: Dave Bailey <dave@daveb.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Multicast tunneling in 2.4
-Message-ID: <Pine.LNX.4.33L2.0104032013230.7594-100000@sydney.daveb.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132749AbRDDEp2>; Wed, 4 Apr 2001 00:45:28 -0400
+Received: from post-11.mail.nl.demon.net ([194.159.73.21]:47369 "EHLO
+	post.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id <S132748AbRDDEpO>; Wed, 4 Apr 2001 00:45:14 -0400
+From: lintux@dds.nl
+To: linux-kernel@vger.kernel.org
+Path: lintux_doesnt_like
+Subject: Re: How to make ramdisk based system?
+In-Reply-To: <20010403190200.N27499@dss19>
+Reply-To: lintux@lintux.cx
+X: Only my Reply-To address works
+Organization: Mike Row Soft Inc.
+X-Header: No offence, you're not a monkey!!! Read RFC2795 for more info.
+X-Subject: I will kill George W. Bush using an atom bomb in the white house next week!!!
+Message-Id: <slrn9ckhen.1cj.lintux_doesnt_like@roy.gaast.net>
+User-Agent: slrn/0.9.6.2 (Linux)
+Date: Tue, 3 Apr 2001 23:51:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to set up a tunnel from my linux machine to the MBone.
+Just like Steffen Grunewald, an infinite number of monkeys can type this:
+> I'm trying to figure out how to make a primaryly ram-disk based
+> Linux system (which should then be able to access "real" storage,
+> but that is really the last step).
+> 
+initrd???
 
-My kernel (2.4.2) supports multicasting and advanced routing:
+/usr/src/linux/Documentation/initrd.txt
 
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MROUTE=y
-
-I have read http://www.linuxdoc.org/HOWTO/Multicast-HOWTO.html
-and  http://www.linuxdoc.org/HOWTO/Adv-Routing-HOWTO.html.
-Unfortunately, Section 7 of the Advanced Routing HOWTO
-(Multicast routing) says:
-
-  "FIXME: Editor Vacancy! (somebody is working on it, though)"
-
-Suppose I know the IP address of a nearby multicast router and would
-like to set up a tunnel from my machine to that router (a tunnel to
-the MBone), so that I may receive multicast datagrams in spite of the
-fact that intervening routers are ignorant of multicast routing
-protocols.  Is this possible with the 2.4.2 kernel?  I cannot find
-documentation to this effect, but the existence of <linux/mroute.h>
-(which contains some structs previously defined in mrouted) makes me
-think that it is possible.
-
---
-Dave Bailey
-dave@daveb.net
-
-
-
+-- 
+   _______________________________________
+ /~~lintux at |  . __  ___     \/   /~ \/ |
+| http://www. |_ | | |  |  |_| /\ o \_ /\ |
+| Webmaster at http://www.algoritme.nl/__/
+ ~|-----------------------------------|~
+  |_cook but how the figure to a http_|
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

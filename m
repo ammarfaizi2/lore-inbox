@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbUKTMD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262805AbUKTMBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbUKTMD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 07:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUKTMBv
+	id S262805AbUKTMBV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 07:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbUKTL7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 07:01:51 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:13786 "EHLO vagabond.light.src")
-	by vger.kernel.org with ESMTP id S262801AbUKTMAz (ORCPT
+	Sat, 20 Nov 2004 06:59:39 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:20117 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262805AbUKTL5E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 07:00:55 -0500
-Date: Sat, 20 Nov 2004 13:00:39 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz, torvalds@osdl.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041120120039.GS2870@vagabond>
-References: <OF43CCF252.FCCFAB5B-ON88256F50.005CE35E-88256F50.005D8559@us.ibm.com> <E1CUprL-00041e-00@dorka.pomaz.szeredi.hu>
+	Sat, 20 Nov 2004 06:57:04 -0500
+Date: Sat, 20 Nov 2004 13:59:23 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
+Message-ID: <20041120125923.GD8091@elte.hu>
+References: <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net> <20041120125057.03b3d8c4@mango.fruits.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bAwSoJxbKYwy34Oe"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1CUprL-00041e-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041120125057.03b3d8c4@mango.fruits.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---bAwSoJxbKYwy34Oe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-On Thu, Nov 18, 2004 at 18:14:15 +0100, Miklos Szeredi wrote:
->=20
-> > I don't see how the OOM killer can help you here.  The OOM killer deals=
-=20
-> > with the system being out of virtual memory;
->=20
-> What?  I think you are confusing something.  I'm not an expert, but I
-> think usually you have lot's of virtual memory (4Gbyte per process),
-> so killing off processes to get more of it makes no sense.=20
->=20
-> Please corrent me if I'm wrong.
+> here are the different layers of preemption:
+> 
+>  - !PREEMPT
+>  - PREEMPT_VOLUNTARY
+>  - PREEMPT
+>  - PREEMPT_RT
+> 
+> each step forward decreases latencies, at the cost of more runtime
+> overhead.
 
-YOU are confusing something.
+yes, and here is how they show up in the config:
 
-Virtual memory is RAM + swap (+ mmapped files, which behave similarly to
-swap)
+               ( ) No Forced Preemption (Server)
+               ( ) Voluntary Kernel Preemption (Desktop)
+               ( ) Preemptible Kernel (Low-Latency Desktop)
+               (X) Complete Preemption (Real-Time)
 
-Virtual address space is a range of addresses that can be assigned to
-that virtual memory and used to access it. Each process has 3GiB virtual
-address space for disposition and kernel has another 1GiB mapped to
-every process, making the total of 4GiB allowed by the CPU (talking
-about i386 -- other CPU's can have different ranges).
+measurements are needed to find out how latencies and runtime overhead
+vary between these levels.
 
-If you run out of virtual memory, that is there is no room in RAM nor in
-swap, than you have to kill some process -- that's what OOM killer is
-about -- to free some.
-
----------------------------------------------------------------------------=
-----
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
-
---bAwSoJxbKYwy34Oe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBnzHnRel1vVwhjGURAr3gAJ9kiLY//Gm+lLq+fsqIVJL8qVELTwCfW3iN
-6Qa04v4EVB5tJ4Rp2FThrIc=
-=5swc
------END PGP SIGNATURE-----
-
---bAwSoJxbKYwy34Oe--
+	Ingo

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262849AbTIJMgz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 08:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbTIJMgz
+	id S262890AbTIJMlU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 08:41:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbTIJMlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 08:36:55 -0400
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:10960 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S262849AbTIJMgy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 08:36:54 -0400
-Date: Wed, 10 Sep 2003 14:36:49 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Luca Veraldi <luca.veraldi@katamail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Wed, 10 Sep 2003 08:41:20 -0400
+Received: from hal-4.inet.it ([213.92.5.23]:43232 "EHLO hal-4.inet.it")
+	by vger.kernel.org with ESMTP id S262890AbTIJMlT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 08:41:19 -0400
+Message-ID: <045d01c37799$6fbd89a0$5aaf7450@wssupremo>
+Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
+From: "Luca Veraldi" <luca.veraldi@katamail.com>
+To: <uek32z@phoenix.hadiko.de>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <fa.h06p421.1s00ojt@ifi.uio.no> <fa.gc37hsp.34id89@ifi.uio.no> <E19x47V-0002JG-J8@phoenix.hadiko.de>
 Subject: Re: Efficient IPC mechanism on Linux
-Message-ID: <20030910123649.GA29117@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: Luca Veraldi <luca.veraldi@katamail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <20030910115259.GA28632@Synopsys.COM> <03ae01c37795$063561a0$5aaf7450@wssupremo> <20030910121143.GA28858@Synopsys.COM> <03fb01c37797$33f706a0$5aaf7450@wssupremo> <20030910122810.GA28990@Synopsys.COM> <043901c37798$23be1520$5aaf7450@wssupremo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <043901c37798$23be1520$5aaf7450@wssupremo>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+Date: Wed, 10 Sep 2003 14:45:36 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luca Veraldi, Wed, Sep 10, 2003 14:36:19 +0200:
-> > but it does imply "tested". And widely used. And well-known.
-> 
-> And inefficient, too.
+> What occured to me:
+> Perhaps you're interested in the L4KA microkernel project
+> at my University, Karlsruhe, Germany.
+> The URL is http://l4ka.org/
 
-yes, probably. Until proven. What exactly wrong with api?
+Sure I know. Great work.
+But it is a completly new Operating Systems, 
+and it is also a microkernel one.
 
-> Sorry, but I use theory not popular convention to judge.
+Here, they seem not to understand what permance is, 
+figure out what will happen if I start talking about microkernel.
 
-I personally do not see deficiencies of the mentioned apis.
+However, that is the future, not old and dirty monolithical ones.
+And ***THEORY*** supports.
 
+Bye,
+Luca

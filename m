@@ -1,130 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267488AbUG2W1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267493AbUG2W24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267488AbUG2W1m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 18:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267489AbUG2W1m
+	id S267493AbUG2W24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 18:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbUG2W24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 18:27:42 -0400
-Received: from mail.tpgi.com.au ([203.12.160.113]:64395 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S267488AbUG2W1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 18:27:07 -0400
-Subject: Re: [Patch] Per kthread freezer flags
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040729190438.GA468@openzaurus.ucw.cz>
-References: <1090999301.8316.12.camel@laptop.cunninghams>
-	 <20040729190438.GA468@openzaurus.ucw.cz>
+	Thu, 29 Jul 2004 18:28:56 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:63973 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267490AbUG2W2W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 18:28:22 -0400
+Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to
+	pcibus_to_node()
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Christoph Hellwig <hch@infradead.org>,
+       Jesse Barnes <jbarnes@sgi.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <20040729100235.A11986@unix-os.sc.intel.com>
+References: <1090887007.16676.18.camel@arrakis>
+	 <200407270822.43870.jbarnes@engr.sgi.com>
+	 <1090953179.18747.19.camel@arrakis>
+	 <200407271140.29818.jbarnes@engr.sgi.com>
+	 <1091059607.19459.69.camel@arrakis>
+	 <20040729100235.A11986@unix-os.sc.intel.com>
 Content-Type: text/plain
-Message-Id: <1091139864.2703.24.camel@desktop.cunninghams>
+Organization: IBM LTC
+Message-Id: <1091140066.4070.9.camel@arrakis>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 30 Jul 2004 08:24:24 +1000
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 29 Jul 2004 15:27:46 -0700
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Fri, 2004-07-30 at 05:04, Pavel Machek wrote:
-> Hi!
+On Thu, 2004-07-29 at 10:02, Rajesh Shah wrote:
+> On Wed, Jul 28, 2004 at 05:06:48PM -0700, Matthew Dobson wrote:
+> > 
+> > thought.  It's pretty trivial to add a nodemask_t to the struct pci_bus,
+> > and even initialize it to a reasonable value (ie: NODE_MASK_ALL) since
+> > there's the convenient pci_alloc_bus() function in drivers/pci/probe.c. 
+> > The problem is where to put hooks for individual arches to put the
+> > *real* nodemask in this field...  My only thought right now is to create
+> > a per-arch callback function, arch_get_pcibus_nodemask() or something,
+> > and use the value it returns to populate pci_bus->nodemask.  We would
+> > have to call this function anywhere a struct pci_bus is allocated, and
+> > probably pass along the PCI bus number so the arch could determine which
+> > nodes it belongs to.  Would that work for everyone that cares?  We could
 > 
-> > At the moment, all kthreads have PF_NOFREEZE set, meaning that they're
-> > not refrigerated during a suspend. This isn't right for some threads.
+> With PCI root/p2p bridge hotplug, the code dealing with the
+> hotplug (e.g. ACPI hotplug code) will have this information, not 
+> arch specific code. How about having the PCI subsystem export
+> an interface to set the nodemask, and have the arch or hotplug
+> code call it to change the defaults? That way, pci_alloc_bus()
+> simply sets the default and does not perform any callback.
+> Does that work for everyone?
 > 
-> Looks good, but see comments below.
-> > --- linux-2.6.8-rc1-mm1/drivers/block/pktcdvd.c	2004-07-28 16:37:46.000000000 +1000
-> > +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/drivers/block/pktcdvd.c	2004-07-28 16:59:22.000000000 +1000
-> > @@ -2372,7 +2372,7 @@
-> >  
-> >  	pkt_init_queue(pd);
-> >  
-> > -	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", pd->name);
-> > +	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", 0, pd->name);
-> >  	if (IS_ERR(pd->cdrw.thread)) {
-> >  		printk("pktcdvd: can't start kernel thread\n");
-> >  		ret = -ENOMEM;
-> 
-> What if someone does swapon /dev/pktdvd0?
+> Rajesh
 
-Sorry. That's my ignorance. I thought the packet writer was only for
-writing :>
+Does the patch I just posted in this thread work for you?  You could
+have ACPI define the get_pcibus_nodemask(bus) call, and all should work
+fine...
 
-> > +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/drivers/md/dm-raid1.c	2004-07-28 16:48:44.000000000 +1000
-> > @@ -1238,7 +1238,7 @@
-> >  	if (r)
-> >  		return r;
-> >  
-> > -	_kmirrord_wq = create_workqueue("kmirrord");
-> > +	_kmirrord_wq = create_workqueue("kmirrord", PF_NOFREEZE);
-> >  	if (!_kmirrord_wq) {
-> >  		DMERR("couldn't start kmirrord");
-> >  		dm_dirty_log_exit();
-> 
-> 
-> I'm not 100% certain what kmirrord does, but we certainly do not
-> want raid array to be reconstructed while suspending.
-
-Mmm. Again, I plead picking it based on what I thought the code did. Can
-we get an author to say which it should be? 
-
-> linux-2.6.8-rc1-mm1-kthread_refrigerator/fs/aio.c
-> > --- linux-2.6.8-rc1-mm1/fs/aio.c	2004-07-28 16:36:03.000000000 +1000
-> > +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/fs/aio.c	2004-07-28 16:43:48.000000000 +1000
-> > @@ -69,7 +69,7 @@
-> >  	kioctx_cachep = kmem_cache_create("kioctx", sizeof(struct kioctx),
-> >  				0, SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
-> >  
-> > -	aio_wq = create_workqueue("aio");
-> > +	aio_wq = create_workqueue("aio", PF_NOFREEZE);
-> >  
-> >  	pr_debug("aio_setup: sizeof(struct page) = %d\n", (int)sizeof(struct page));
-> >  
-> 
-> Are you sure? Unless swsusp itself uses aio, we want this to freeze.
-
-I think it was needed to get the writes happening. Even if its wrong, it
-shouldn't matter as the only I/O pending should be what we're doing.
-
-> linux-2.6.8-rc1-mm1-kthread_refrigerator/kernel/sched.c	2004-07-28 16:43:48.000000000 +1000
-> > @@ -3550,7 +3550,8 @@
-> >  
-> >  	switch (action) {
-> >  	case CPU_UP_PREPARE:
-> > -		p = kthread_create(migration_thread, hcpu, "migration/%d",cpu);
-> > +		p = kthread_create(migration_thread, hcpu, 0,
-> > +				"migration/%d",cpu);
-> >  		if (IS_ERR(p))
-> >  			return NOTIFY_BAD;
-> >  		p->flags |= PF_NOFREEZE;
-> 
-> Ugh, creating thread normally only to add PF_NOFREEZE 2 lines later
-> looks bad.
-
-Yes. Tunnel vision! Humble apologies.
-
-> > +++ linux-2.6.8-rc1-mm1-kthread_refrigerator/kernel/softirq.c	2004-07-28 16:43:48.000000000 +1000
-> > @@ -425,7 +425,7 @@
-> >  	case CPU_UP_PREPARE:
-> >  		BUG_ON(per_cpu(tasklet_vec, hotcpu).list);
-> >  		BUG_ON(per_cpu(tasklet_hi_vec, hotcpu).list);
-> > -		p = kthread_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
-> > +		p = kthread_create(ksoftirqd, hcpu, 0, "ksoftirqd/%d", hotcpu);
-> >  		if (IS_ERR(p)) {
-> >  			printk("ksoftirqd for %i failed\n", hotcpu);
-> >  			return NOTIFY_BAD;
-> 
-> I guess softinterrupts may be neccessary for suspend... Random drivers may use
-> them, right?
-
-I made this change at least a month ago and no one using suspend2 has
-had any problems since, so perhaps not. Then again, with the voluntary
-preemption (from what I've seen of comments about it) this would be a
-definite yes.
-
-Nigel
+-Matt
 

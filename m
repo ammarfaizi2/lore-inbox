@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUEQQZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUEQQ2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUEQQZk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 12:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUEQQZk
+	id S261875AbUEQQ2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 12:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUEQQ2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 12:25:40 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:17874 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S261500AbUEQQZj
+	Mon, 17 May 2004 12:28:04 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:53966 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261875AbUEQQ2C
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 12:25:39 -0400
-Date: Mon, 17 May 2004 18:17:38 +0200
-From: Frank van Maarseveen <frankvm@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6 breaks kmail (nfs related?)
-Message-ID: <20040517161738.GA11009@janus>
-Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
-	linux-kernel@vger.kernel.org
-References: <200405131411.52336.amann@physik.tu-berlin.de> <200405170335.42754.norberto+linux-kernel@bensa.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405170335.42754.norberto+linux-kernel@bensa.ath.cx>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+	Mon, 17 May 2004 12:28:02 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 17 May 2004 09:28:01 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: "Theodore Ts'o" <tytso@mit.edu>, Wayne Scott <wscott@bitmover.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       elenstev@mesatop.com, lm@bitmover.com,
+       William Lee Irwin III <wli@holomorphy.com>, hugh@veritas.com,
+       adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 1352 NUL bytes at the end of a page?
+In-Reply-To: <Pine.LNX.4.58.0405170919590.19557@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.58.0405170927160.19557@bigblue.dev.mdolabs.com>
+References: <200405162136.24441.elenstev@mesatop.com>
+ <Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org> <20040516231120.405a0d14.akpm@osdl.org>
+ <20040517.085640.30175416.wscott@bitmover.com> <20040517151738.GA4730@thunk.org>
+ <Pine.LNX.4.58.0405170919590.19557@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 17, 2004 at 03:35:42AM -0300, Norberto Bensa wrote:
-> 
-> Well, I'm getting this with kcalc after upgrading to 2.6.6-mm3:
-> 
-> $ kcalc
-> KCrash: Application 'kcalc' crashing...
-> 
-> strace shows lots of 
-> ...
-> close(1002)                             = -1 EBADF (Bad file descriptor)
-> close(1003)                             = -1 EBADF (Bad file descriptor)
-> close(1004)                             = -1 EBADF (Bad file descriptor)
-> close(1005)                             = -1 EBADF (Bad file descriptor)
+On Mon, 17 May 2004, Davide Libenzi wrote:
 
-Looks like daemonizing code to me, getting rid of open fds.
+> Strange, it uses read/write but it also opens an mmap(private and 
+> anonymous):
 
--- 
-Frank
+That is not file related (I should have had breakfast before posting :)
+
+
+
+- Davide
+

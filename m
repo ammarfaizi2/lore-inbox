@@ -1,111 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbUK3AfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbUK3Ajc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbUK3AfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 19:35:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbUK3Aez
+	id S261898AbUK3Ajc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 19:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUK3AjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 19:34:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60076 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261882AbUK3AdC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 19:33:02 -0500
-Date: Mon, 29 Nov 2004 16:32:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: cova@ferrara.linux.it, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm2 usb storage still oopses
-Message-Id: <20041129163231.33affbde.akpm@osdl.org>
-In-Reply-To: <20041118155542.324f56c7@lembas.zaitcev.lan>
-References: <200411182203.02176.cova@ferrara.linux.it>
-	<20041118133557.72f3b369.akpm@osdl.org>
-	<20041118135809.3314ce41@lembas.zaitcev.lan>
-	<200411190042.41199.cova@ferrara.linux.it>
-	<20041118155542.324f56c7@lembas.zaitcev.lan>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 29 Nov 2004 19:39:12 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:44249 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261898AbUK3AgL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 19:36:11 -0500
+Date: Mon, 29 Nov 2004 16:06:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Roger Luethi <rl@hellgate.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 PATCH] visor: Make URB limit error more visible
+Message-ID: <20041130000648.GA28436@kroah.com>
+References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com> <20041123193604.GA12605@k3.hellgate.ch> <20041124232527.GB4394@kroah.com> <20041125161619.GD18567@k3.hellgate.ch> <1101661884.16787.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101661884.16787.28.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev <zaitcev@redhat.com> wrote:
->
-> On Fri, 19 Nov 2004 00:42:40 +0100, Fabio Coatti <cova@ferrara.linux.it> wrote:
+On Sun, Nov 28, 2004 at 05:11:25PM +0000, Alan Cox wrote:
+> On Iau, 2004-11-25 at 16:16, Roger Luethi wrote:
+> > There is only one call to dev_dbg in all of visor.c, the rest is dbg or
+> > dev_err. It already bit us once when warnings didn't turn up in a debug
+> > log. I would argue that a flood of those warnings will warrant report
+> > and inspection anyway (broken app, broken driver, or lame DoS attempt),
+> > so I replaced the dev_dbg with dev_err.
+> > 
+> > Signed-off-by: Roger Luethi <rl@hellgate.ch>
 > 
-> > Nov 18 20:33:05 kefk kernel: sdb: assuming drive cache: write through
-> > Nov 18 20:33:05 kefk kernel:  sdb: sdb1
-> > Nov 18 20:33:05 kefk kernel:  sdb: sdb1
-> > Nov 18 20:33:05 kefk kernel: kobject_register failed for sdb1 (-17)
-> 
-> This looks as if SCSI falls victim of the general problem which ub addresses
-> with the following fragment:
+> Since it is trivially user caused should it not be rate limited or it
+> becomes a DoS of its own to the syslog
 
-Guys, is this problem still present in Linus's tree?  If so, is a fix for
-2.6.10 looking feasible?
+Agreed, that's why the change I commited doesn't do it this way :)
 
-Thanks.
+thanks,
 
-> --- linux-2.6.10-rc1/drivers/block/ub.c	2004-10-28 09:46:38.000000000 -0700
-> +++ linux-2.6.10-rc1-ub/drivers/block/ub.c	2004-11-06 23:59:20.000000000 -0800
-> @@ -267,6 +263,7 @@ struct ub_dev {
->  	int changed;			/* Media was changed */
->  	int removable;
->  	int readonly;
-> +	int first_open;			/* Kludge. See ub_bd_open. */
->  	char name[8];
->  	struct usb_device *dev;
->  	struct usb_interface *intf;
-> @@ -1428,6 +1420,26 @@ static int ub_bd_open(struct inode *inod
->  	sc->openc++;
->  	spin_unlock_irqrestore(&ub_lock, flags);
->  
-> +	/*
-> +	 * This is a workaround for a specific problem in our block layer.
-> +	 * In 2.6.9, register_disk duplicates the code from rescan_partitions.
-> +	 * However, if we do add_disk with a device which persistently reports
-> +	 * a changed media, add_disk calls register_disk, which does do_open,
-> +	 * which will call rescan_paritions for changed media. After that,
-> +	 * register_disk attempts to do it all again and causes double kobject
-> +	 * registration and a eventually an oops on module removal.
-> +	 *
-> +	 * The bottom line is, Al Viro says that we should not allow
-> +	 * bdev->bd_invalidated to be set when doing add_disk no matter what.
-> +	 */
-> +	if (sc->first_open) {
-> +		if (sc->changed) {
-> +			sc->first_open = 0;
-> +			rc = -ENOMEDIUM;
-> +			goto err_open;
-> +		}
-> +	}
-> +
->  	if (sc->removable || sc->readonly)
->  		check_disk_change(inode->i_bdev);
->  
-> @@ -1467,6 +1479,8 @@ static int ub_bd_release(struct inode *i
->  
->  	spin_lock_irqsave(&ub_lock, flags);
->  	--sc->openc;
-> +	if (sc->openc == 0)
-> +		sc->first_open = 0;
->  	if (sc->openc == 0 && atomic_read(&sc->poison))
->  		ub_cleanup(sc);
->  	spin_unlock_irqrestore(&ub_lock, flags);
-> @@ -1919,6 +1932,8 @@ static int ub_probe(struct usb_interface
->  	}
->  
->  	sc->removable = 1;		/* XXX Query this from the device */
-> +	sc->changed = 1;		/* ub_revalidate clears only */
-> +	sc->first_open = 1;
->  
->  	ub_revalidate(sc);
->  	/* This is pretty much a long term P3 */
-> 
-> This feels kludgy, but my excuse is "James and Viro made me do it".
-> I have an IRC log to prove it laying somewhere...
-> 
-> I'm adding the linux-scsi to cc: in case any comments are forthcoming.
-> 
-> -- Pete
+greg k-h

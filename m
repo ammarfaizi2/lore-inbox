@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266678AbSK1SZq>; Thu, 28 Nov 2002 13:25:46 -0500
+	id <S266686AbSK1S3R>; Thu, 28 Nov 2002 13:29:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266682AbSK1SZq>; Thu, 28 Nov 2002 13:25:46 -0500
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:33941
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S266678AbSK1SZp>; Thu, 28 Nov 2002 13:25:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "Dimitrie O. Paun" <dpaun@rogers.com>
-Reply-To: dpaun@rogers.com
-Organization: DSSD Software Inc.
-To: Adam Belay <ambx1@neo.rr.com>, torvalds@transmeta.com
-Subject: Re: Possible Linux Theme Song :)
-Date: Thu, 28 Nov 2002 13:31:59 -0500
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-References: <20021128132259.GA364@neo.rr.com>
-In-Reply-To: <20021128132259.GA364@neo.rr.com>
+	id <S266702AbSK1S3R>; Thu, 28 Nov 2002 13:29:17 -0500
+Received: from pat.uio.no ([129.240.130.16]:16861 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S266686AbSK1S3Q>;
+	Thu, 28 Nov 2002 13:29:16 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211281331.59990.dpaun@rogers.com>
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.103.156.204] using ID <dpaun@rogers.com> at Thu, 28 Nov 2002 13:33:00 -0500
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-ID: <15846.25140.759632.709205@charged.uio.no>
+Date: Thu, 28 Nov 2002 19:36:36 +0100
+To: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM] NFS trouble - file corruptions
+In-Reply-To: <Pine.LNX.4.44.0211281857230.1818-100000@grignard.amagerkollegiet.dk>
+References: <15846.17236.556847.267054@charged.uio.no>
+	<Pine.LNX.4.44.0211281857230.1818-100000@grignard.amagerkollegiet.dk>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 28, 2002 08:22 am, Adam Belay wrote:
-> I go for penguins
-> Oh Lord I go for penguins
->
-> Penguins are so sensitive
-> Penguins are so sensitive
-> Penguins are so sensitive
-> To my needs
-> To my needs
+>>>>> " " == Rasmus Bøg Hansen <moffe@amagerkollegiet.dk> writes:
 
-That's sick and perverted! 
+    >> Does it also occur if you play around with setting rsize and
+    >> wsize = 1024?
 
-Whatever happened to sheep and goats?!? :)))
+     > I'm afraid so - I just double-checked...
 
--- 
-Dimi.
+Given that you are saying that even synchronous RPC (which is the
+default for r/wsize = 1024) is failing, then my 2 main suspicions are
 
+  - hardware failure: Have you tried this on several different
+    server/client combinations and hardware combinations?
+
+  - gcc miscompile: which version of gcc are you using?
+
+Cheers,
+  Trond

@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263123AbTIVMXe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 08:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTIVMXe
+	id S263121AbTIVMSA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 08:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbTIVMSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 08:23:34 -0400
-Received: from smtp1.att.ne.jp ([165.76.15.137]:22932 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S263123AbTIVMXd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 08:23:33 -0400
-Message-ID: <0c2201c38104$36fc9100$44ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Vojtech Pavlik" <vojtech@suse.cz>, "Andries Brouwer" <aebr@win.tue.nl>
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
-References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60> <20030914122034.C3371@pclin040.win.tue.nl> <206701c37ab2$6a8033e0$2dee4ca5@DIAMONDLX60> <20030916154305.A1583@pclin040.win.tue.nl> <20030921110629.GC18677@ucw.cz> <20030921143934.A11315@pclin040.win.tue.nl> <20030921124817.GA19820@ucw.cz> <20030921164914.C11315@pclin040.win.tue.nl> <20030921170710.GA20856@ucw.cz>
-Subject: Re: 2.6.0-test5 vs. Japanese keyboards [3]
-Date: Mon, 22 Sep 2003 21:22:00 +0900
+	Mon, 22 Sep 2003 08:18:00 -0400
+Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:35045 "EHLO
+	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
+	id S263121AbTIVMR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 08:17:59 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+From: Alistair J Strachan <alistair@devzero.co.uk>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.0-test5-mm4
+Date: Mon, 22 Sep 2003 13:17:42 +0100
+User-Agent: KMail/1.5.9
+References: <20030922013548.6e5a5dcf.akpm@osdl.org>
+In-Reply-To: <20030922013548.6e5a5dcf.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-Id: <200309221317.42273.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+On Monday 22 September 2003 09:35, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2
+>.6.0-test5-mm4/
+>
+>
+> . A series of patches from Al Viro which introduce 32-bit dev_t support
+>
+> . Various new fixes
+>
+>
 
-> Also, this causes trouble with the japanese keys in XFree86, since the
-> KEY_INTL* keys are in the e0 xx range because of the emulation.
+Hi Andrew,
 
-But the Japanese keys under discussion are not e0 keys.  When the mail
-reaches you, please try them with showkeys -s under kernel 2.4.  XFree86
-might not be the only program that depends on getting the correct scan
-codes.
+-mm4 won't mount my ext3 root device whereas -mm3 will. Presumably this is 
+some byproduct of the dev_t patches.
 
+VFS: Cannot open root device "302" or hda2.
+Please append correct "root=" boot option.
+Kernel Panic: VFS: Unable to mount root fs on hda2.
+
+One possible explanation is that I have devfs compiled into my kernel. I do 
+not, however, have it automatically mounting on boot. It overlays /dev (which 
+is populated with original style device nodes) after INIT has loaded.
+
+Perhaps there is some other procedure I must complete before I can use 32bit 
+dev_t?
+
+[alistair] 01:15 PM [/usr/src/linux-2.6] egrep -e "DEVFS" -e "EXT3_FS" .config
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_DEVFS_FS=y
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+
+[alistair] 01:16 PM [/usr/src/linux-2.6] dmesg | grep p2
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p4
+
+Cheers,
+Alistair.

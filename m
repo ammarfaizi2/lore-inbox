@@ -1,70 +1,320 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264132AbTCXHGK>; Mon, 24 Mar 2003 02:06:10 -0500
+	id <S264133AbTCXHHx>; Mon, 24 Mar 2003 02:07:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264133AbTCXHGK>; Mon, 24 Mar 2003 02:06:10 -0500
-Received: from packet.digeo.com ([12.110.80.53]:64129 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264132AbTCXHGJ>;
-	Mon, 24 Mar 2003 02:06:09 -0500
-Date: Sun, 23 Mar 2003 23:17:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.65-mm4
-Message-Id: <20030323231716.44d7e306.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0303240756010.1587-100000@localhost.localdomain>
-References: <20030323191744.56537860.akpm@digeo.com>
-	<Pine.LNX.4.44.0303240756010.1587-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S264134AbTCXHHx>; Mon, 24 Mar 2003 02:07:53 -0500
+Received: from verein.lst.de ([212.34.181.86]:28685 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S264133AbTCXHHq>;
+	Mon, 24 Mar 2003 02:07:46 -0500
+Date: Mon, 24 Mar 2003 08:18:51 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make devfs_alloc_unique_number private to devfs
+Message-ID: <20030324081851.D3680@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Mar 2003 07:17:01.0044 (UTC) FILETIME=[5D008B40:01C2F1D5]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> 
-> On Sun, 23 Mar 2003, Andrew Morton wrote:
-> 
-> > Note that the lock_kernel() contention has been drastically reduced and
-> > we're now hitting semaphore contention.
-> > 
-> > Running `dbench 32' on the quad Xeon, this patch took the context switch
-> > rate from 500/sec up to 125,000/sec.
-> 
-> note that there is _nothing_ wrong in doing 125,000 context switches per
-> sec, as long as performance increases over the lock_kernel() variant.
+.. by moving a bunch of devfs-related code from fs/partition/check.c
+to fs/devfs/base.c.  Also has the nice sideffect of getting rid of
+a bunch of ugly ifdefs.
 
-Yes, but we also take a big hit before we even get to schedule(). 
-
-Pingponging the semaphore's waitqueue lock around, doing atomic ops against
-the semaphore counter, etc.
-
-In the case of ext2 the codepath which needs to be locked is very small, and
-converting it to use a per-blockgroup spinlock was a big win on the 16-way
-numas, and perhaps 8-way x440's.  On 4-way xeon and ppc64 the effects were
-very small indeed - 1.5% on xeon, zero on ppc64.
-
-In the case of ext3 I am suspecting lock_journal() in JBD, not lock_super()
-in the ext3 block allocator.  The hold times in there are much longer, so we
-may have a more complex problem.  But until lock_super() is cleared up it is
-hard to tell.
-
-> > I've asked Alex to put together a patch for spinlock-based locking in
-> > the block allocator (cut-n-paste from ext2).
-> 
-> sure, do this if it increases performance. But if it _decreases_
-> performance then it's plain pointless to do this just to avoid
-> context-switches. With the 2.4 scheduler i'd agree - avoid
-> context-switches like the plague. But context-switches are 100% localized
-> to the same CPU with the O(1) scheduler, they (should) cause (almost) no
-> scalability problem. The only thing this change will 'fix' is the
-> context-switch statistics.
-
-The funny thing is that when this is happening we tend to clock up a lot of
-idle time.  But Martin tends to not share vmstat traces with us (hint) so I
-don't know if it was happening this time.
+This is ontop of the devfs_mk_dir patch.
 
 
+diff -Nru a/fs/devfs/util.c b/fs/devfs/util.c
+--- a/fs/devfs/util.c	Sat Mar 22 15:40:42 2003
++++ b/fs/devfs/util.c	Sat Mar 22 15:40:42 2003
+@@ -70,6 +70,7 @@
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
++#include <linux/genhd.h>
+ #include <asm/bitops.h>
+ #include "internal.h"
+ 
+@@ -266,6 +267,18 @@
+ 	up(&device_list_mutex);
+ }
+ 
++struct unique_numspace
++{
++    spinlock_t init_lock;
++    unsigned char sem_initialised;
++    unsigned int num_free;          /*  Num free in bits       */
++    unsigned int length;            /*  Array length in bytes  */
++    unsigned long *bits;
++    struct semaphore semaphore;
++};
++
++#define UNIQUE_NUMBERSPACE_INITIALISER {SPIN_LOCK_UNLOCKED, 0, 0, 0, NULL}
++
+ 
+ /**
+  *	devfs_alloc_unique_number - Allocate a unique (positive) number.
+@@ -339,3 +352,82 @@
+     if (!was_set) PRINTK ("(): number %d was already free\n", number);
+ }   /*  End Function devfs_dealloc_unique_number  */
+ EXPORT_SYMBOL(devfs_dealloc_unique_number);
++
++static struct unique_numspace disc_numspace = UNIQUE_NUMBERSPACE_INITIALISER;
++static struct unique_numspace cdrom_numspace = UNIQUE_NUMBERSPACE_INITIALISER;
++
++void devfs_create_partitions(struct gendisk *dev)
++{
++	int pos = 0;
++	devfs_handle_t dir;
++	char dirname[64], symlink[16];
++
++	if (dev->flags & GENHD_FL_DEVFS) {
++		dir = dev->de;
++		if (!dir)  /*  Aware driver wants to block disc management  */
++			return;
++		pos = devfs_generate_path(dir, dirname + 3, sizeof dirname-3);
++		if (pos < 0)
++			return;
++		strncpy(dirname + pos, "../", 3);
++	} else {
++		/*  Unaware driver: construct "real" directory  */
++		sprintf(dirname, "../%s/disc%d", dev->disk_name,
++			dev->first_minor >> dev->minor_shift);
++		dir = devfs_mk_dir(dirname + 3);
++		dev->de = dir;
++	}
++	dev->number = devfs_alloc_unique_number (&disc_numspace);
++	sprintf(symlink, "discs/disc%d", dev->number);
++	devfs_mk_symlink(symlink, dirname + pos);
++	dev->disk_de = devfs_register(dir, "disc", 0,
++			    dev->major, dev->first_minor,
++			    S_IFBLK | S_IRUSR | S_IWUSR, dev->fops, NULL);
++}
++
++void devfs_create_cdrom(struct gendisk *dev)
++{
++	char vname[23];
++
++	dev->number = devfs_alloc_unique_number(&cdrom_numspace);
++	sprintf(vname, "cdroms/cdrom%d", dev->number);
++	if (dev->de) {
++		int pos;
++		char rname[64];
++
++		dev->disk_de = devfs_register(dev->de, "cd", DEVFS_FL_DEFAULT,
++				     dev->major, dev->first_minor,
++				     S_IFBLK | S_IRUGO | S_IWUGO,
++				     dev->fops, NULL);
++
++		pos = devfs_generate_path(dev->disk_de, rname+3, sizeof(rname)-3);
++		if (pos >= 0) {
++			strncpy(rname + pos, "../", 3);
++			devfs_mk_symlink(vname, rname + pos);
++		}
++	} else {
++		dev->disk_de = devfs_register (NULL, vname, DEVFS_FL_DEFAULT,
++				    dev->major, dev->first_minor,
++				    S_IFBLK | S_IRUGO | S_IWUGO,
++				    dev->fops, NULL);
++	}
++}
++
++void devfs_remove_partitions(struct gendisk *dev)
++{
++	devfs_unregister(dev->disk_de);
++	dev->disk_de = NULL;
++
++	if (dev->flags & GENHD_FL_CD) {
++		if (dev->de)
++			devfs_remove("cdroms/cdrom%d", dev->number);
++		devfs_dealloc_unique_number(&cdrom_numspace, dev->number);
++	} else {
++		devfs_remove("discs/disc%d", dev->number);
++		if (!(dev->flags & GENHD_FL_DEVFS)) {
++			devfs_unregister(dev->de);
++			dev->de = NULL;
++		}
++		devfs_dealloc_unique_number(&disc_numspace, dev->number);
++	}
++}
+diff -Nru a/fs/partitions/check.c b/fs/partitions/check.c
+--- a/fs/partitions/check.c	Sat Mar 22 15:40:42 2003
++++ b/fs/partitions/check.c	Sat Mar 22 15:40:42 2003
+@@ -176,93 +176,6 @@
+ #endif
+ }
+ 
+-#ifdef CONFIG_DEVFS_FS
+-static struct unique_numspace disc_numspace = UNIQUE_NUMBERSPACE_INITIALISER;
+-static struct unique_numspace cdrom_numspace = UNIQUE_NUMBERSPACE_INITIALISER;
+-#endif
+-
+-static void devfs_create_partitions(struct gendisk *dev)
+-{
+-#ifdef CONFIG_DEVFS_FS
+-	int pos = 0;
+-	devfs_handle_t dir;
+-	char dirname[64], symlink[16];
+-
+-	if (dev->flags & GENHD_FL_DEVFS) {
+-		dir = dev->de;
+-		if (!dir)  /*  Aware driver wants to block disc management  */
+-			return;
+-		pos = devfs_generate_path(dir, dirname + 3, sizeof dirname-3);
+-		if (pos < 0)
+-			return;
+-		strncpy(dirname + pos, "../", 3);
+-	} else {
+-		/*  Unaware driver: construct "real" directory  */
+-		sprintf(dirname, "../%s/disc%d", dev->disk_name,
+-			dev->first_minor >> dev->minor_shift);
+-		dir = devfs_mk_dir(dirname + 3);
+-		dev->de = dir;
+-	}
+-	dev->number = devfs_alloc_unique_number (&disc_numspace);
+-	sprintf(symlink, "discs/disc%d", dev->number);
+-	devfs_mk_symlink(symlink, dirname + pos);
+-	dev->disk_de = devfs_register(dir, "disc", 0,
+-			    dev->major, dev->first_minor,
+-			    S_IFBLK | S_IRUSR | S_IWUSR, dev->fops, NULL);
+-#endif
+-}
+-
+-static void devfs_create_cdrom(struct gendisk *dev)
+-{
+-#ifdef CONFIG_DEVFS_FS
+-	char vname[23];
+-
+-	dev->number = devfs_alloc_unique_number(&cdrom_numspace);
+-	sprintf(vname, "cdroms/cdrom%d", dev->number);
+-	if (dev->de) {
+-		int pos;
+-		char rname[64];
+-
+-		dev->disk_de = devfs_register(dev->de, "cd", DEVFS_FL_DEFAULT,
+-				     dev->major, dev->first_minor,
+-				     S_IFBLK | S_IRUGO | S_IWUGO,
+-				     dev->fops, NULL);
+-
+-		pos = devfs_generate_path(dev->disk_de, rname+3, sizeof(rname)-3);
+-		if (pos >= 0) {
+-			strncpy(rname + pos, "../", 3);
+-			devfs_mk_symlink(vname, rname + pos);
+-		}
+-	} else {
+-		dev->disk_de = devfs_register (NULL, vname, DEVFS_FL_DEFAULT,
+-				    dev->major, dev->first_minor,
+-				    S_IFBLK | S_IRUGO | S_IWUGO,
+-				    dev->fops, NULL);
+-	}
+-#endif
+-}
+-
+-static void devfs_remove_partitions(struct gendisk *dev)
+-{
+-#ifdef CONFIG_DEVFS_FS
+-	devfs_unregister(dev->disk_de);
+-	dev->disk_de = NULL;
+-	if (dev->flags & GENHD_FL_CD) {
+-		if (dev->de)
+-			devfs_remove("cdroms/cdrom%d", dev->number);
+-		devfs_dealloc_unique_number(&cdrom_numspace, dev->number);
+-	} else {
+-		devfs_remove("discs/disc%d", dev->number);
+-		if (!(dev->flags & GENHD_FL_DEVFS)) {
+-			devfs_unregister(dev->de);
+-			dev->de = NULL;
+-		}
+-		devfs_dealloc_unique_number(&disc_numspace, dev->number);
+-	}
+-#endif
+-}
+-
+-
+ /*
+  * sysfs bindings for partitions
+  */
+@@ -547,7 +460,7 @@
+ 		put_disk(hd);
+ 	}
+ 	if (!dname->name) {
+-		sprintf(dname->namebuf, "[dev %s]", kdevname(to_kdev_t(dev)));
++		sprintf(dname->namebuf, "[dev %s]", __bdevname(dev));
+ 		dname->name = dname->namebuf;
+ 	}
+ 
+diff -Nru a/include/linux/devfs_fs_kernel.h b/include/linux/devfs_fs_kernel.h
+--- a/include/linux/devfs_fs_kernel.h	Sat Mar 22 15:40:42 2003
++++ b/include/linux/devfs_fs_kernel.h	Sat Mar 22 15:40:42 2003
+@@ -20,20 +20,9 @@
+ 
+ typedef struct devfs_entry * devfs_handle_t;
+ 
+-#ifdef CONFIG_DEVFS_FS
+-
+-struct unique_numspace
+-{
+-    spinlock_t init_lock;
+-    unsigned char sem_initialised;
+-    unsigned int num_free;          /*  Num free in bits       */
+-    unsigned int length;            /*  Array length in bytes  */
+-    unsigned long *bits;
+-    struct semaphore semaphore;
+-};
+-
+-#define UNIQUE_NUMBERSPACE_INITIALISER {SPIN_LOCK_UNLOCKED, 0, 0, 0, NULL}
++struct gendisk;
+ 
++#ifdef CONFIG_DEVFS_FS
+ extern devfs_handle_t devfs_register (devfs_handle_t dir, const char *name,
+ 				      unsigned int flags,
+ 				      unsigned int major, unsigned int minor,
+@@ -47,21 +36,11 @@
+ extern int devfs_generate_path (devfs_handle_t de, char *path, int buflen);
+ extern int devfs_register_tape (devfs_handle_t de);
+ extern void devfs_unregister_tape(int num);
+-extern int devfs_alloc_unique_number (struct unique_numspace *space);
+-extern void devfs_dealloc_unique_number (struct unique_numspace *space,
+-					 int number);
+-
++extern void devfs_create_partitions(struct gendisk *dev);
++extern void devfs_create_cdrom(struct gendisk *dev);
++extern void devfs_remove_partitions(struct gendisk *dev);
+ extern void mount_devfs_fs (void);
+-
+ #else  /*  CONFIG_DEVFS_FS  */
+-
+-struct unique_numspace
+-{
+-    char dummy;
+-};
+-
+-#define UNIQUE_NUMBERSPACE_INITIALISER {0}
+-
+ static inline devfs_handle_t devfs_register (devfs_handle_t dir,
+ 					     const char *name,
+ 					     unsigned int flags,
+@@ -99,14 +78,14 @@
+ static inline void devfs_unregister_tape(int num)
+ {
+ }
+-static inline int devfs_alloc_unique_number (struct unique_numspace *space)
++static inline void devfs_create_partitions(struct gendisk *dev)
+ {
+-    return -1;
+ }
+-static inline void devfs_dealloc_unique_number (struct unique_numspace *space,
+-						int number)
++extern void devfs_create_cdrom(struct gendisk *dev)
++{
++}
++extern void devfs_remove_partitions(struct gendisk *dev)
+ {
+-    return;
+ }
+ static inline void mount_devfs_fs (void)
+ {

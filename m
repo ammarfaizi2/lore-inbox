@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUGTTXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUGTTYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266139AbUGTTXI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 15:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUGTTO1
+	id S266186AbUGTTYX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 15:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266179AbUGTTXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:14:27 -0400
-Received: from amsfep18-int.chello.nl ([213.46.243.13]:48224 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266161AbUGTSjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 14:39:52 -0400
-Date: Tue, 20 Jul 2004 20:39:50 +0200
-Message-Id: <200407201839.i6KIdo2I015550@anakin.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       James.Bottomley@SteelEye.com
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] depends on PCI DMA API: Adaptec AIC7xxx_old
+	Tue, 20 Jul 2004 15:23:35 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48039 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266158AbUGTTVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 15:21:25 -0400
+Date: Tue, 20 Jul 2004 21:21:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [0/25] Merge pmdisk and swsusp
+Message-ID: <20040720192123.GA9461@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net> <20040720164640.GH10921@atrey.karlin.mff.cuni.cz> <20040720192858.GB9147@mars.ravnborg.org> <200407201241.52334.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407201241.52334.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adaptec AIC7xxx_old unconditionally depends on the PCI DMA API, so mark it
-broken if !PCI
+Hi!
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> > > diff -ur linux.middle/kernel/power/disk.c linux/kernel/power/disk.c
+> > > --- linux.middle/kernel/power/disk.c	2004-07-19 08:58:08.000000000 -0700
+> > > +++ linux/kernel/power/disk.c	2004-07-19 15:00:16.000000000 -0700
+> > > @@ -63,6 +63,9 @@
+> > >  		break;
+> > >  	}
+> > >  	machine_halt();
+> > > +	/* Valid image is on the disk, if we continue we risk serious data corruption
+> > > +	   after resume. */
+> > > +	while(1);
+> > 
+> > Would be nicer to use:
+> > 
+> > 	while(1)
+> > 		/* Loop forever */;
+> > 
+> > 	Sam
+> 
+> And even nicer would be remove swsusp signature from swap and restore state as
+> original version did so user could do clean shutdown...
 
---- linux-2.6.8-rc2/drivers/scsi/Kconfig	2004-07-18 15:55:26.000000000 +0200
-+++ linux-m68k-2.6.8-rc2/drivers/scsi/Kconfig	2004-07-19 23:16:48.000000000 +0200
-@@ -320,7 +320,7 @@
- 
- config SCSI_AIC7XXX_OLD
- 	tristate "Adaptec AIC7xxx support (old driver)"
--	depends on SCSI
-+	depends on SCSI && (PCI || BROKEN)
- 	help
- 	  WARNING This driver is an older aic7xxx driver and is no longer
- 	  under active development.  Adaptec, Inc. is writing a new driver to
+Actually, at this point you are expected to just power down, and what
+you wanted is done: machine is suspended to disk.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+No need to kill signature and make swsusp unusable when powerdown does
+not work.
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

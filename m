@@ -1,125 +1,92 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315264AbSEaNNO>; Fri, 31 May 2002 09:13:14 -0400
+	id <S315266AbSEaNUN>; Fri, 31 May 2002 09:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315266AbSEaNNN>; Fri, 31 May 2002 09:13:13 -0400
-Received: from mail.spylog.com ([194.67.35.220]:54999 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S315264AbSEaNNL>;
-	Fri, 31 May 2002 09:13:11 -0400
-Date: Fri, 31 May 2002 17:13:06 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre9aa2
-Message-ID: <20020531131306.GA29960@spylog.ru>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020531051841.GA1172@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315267AbSEaNUM>; Fri, 31 May 2002 09:20:12 -0400
+Received: from smtp01ffm.de.uu.net ([192.76.144.150]:18771 "EHLO
+	smtp01ffm.de.uu.net") by vger.kernel.org with ESMTP
+	id <S315266AbSEaNUM>; Fri, 31 May 2002 09:20:12 -0400
+From: Roland Fehrenbacher <Roland.Fehrenbacher@transtec.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15607.30844.526469.488274@transtec.de>
+Date: Fri, 31 May 2002 15:19:56 +0200
+To: linux-kernel@vger.kernel.org
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+        "Nakajima, Jun" <jun.nakajima@intel.com>,
+        "Seth, Rohit" <rohit.seth@intel.com>,
+        "Luck, Tony" <tony.luck@intel.com>,
+        "Mallick, Asit K" <asit.k.mallick@intel.com>,
+        "Hugh Dickins" <hugh@veritas.com>, pk@q-leap.com
+Subject: Re: Q: backport of the free_pgtables tlb fixes to 2.4
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea Arcangeli,
+Hi all,
 
+we actually also ran into this bug on a dual xeon (2GHz
+Prestonia) with Hyperthreading enabled. Without Hyperthreading, it was hard to
+reproduce the problem. The following script (requires bash >=  2.0.5) provokes
+the problem in a very short time. With the patch from Intel, the problem is
+gone (patched into 2.4.18), no side effects discovered so far.
 
-Stability fine. But something happened with interactivity. If to start the
-countable task, enter on the computer on ssh, to make "su" - bothers to wait.
+Thanks to Hugh Dickins <hugh@veritas.com> for pointing out the patch to us.
 
-On 2.4.19pre8aa3 such was not. Because of "O1"?
+Cheers,
 
+Roland
 
-Once you wrote about "2.4.19pre9aa2":
-> This in particular includes a fix from Denis Lunev to cure the
-> instability in 2.4.19pre9aa1 introduced by the first revision of the
-> inode-highmem fix (I also changed invalidate_inode_pages so that it runs
-> try_to_release_page for ext3 as suggested by Andrew a few days ago).  So
-> everybody running 2.4.19pre9aa1 is recommended to upgrade to
-> 2.4.19pre9aa2 ASAP.
-> 
-> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre9aa2.gz
-> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre9aa2/
-> 
-> Full changlog follows:
-> 
-> Only in 2.4.19pre9aa2: 00_fix-stat-irq-1
-> 
-> 	avoid showing those 10000... numbers in /proc/stat. From -ac.
-> 
-> Only in 2.4.19pre9aa2: 00_flock-posix-2001-1
-> 
-> 	Update to posix 2001 semantics for negative length. From -ac.
-> 
-> Only in 2.4.19pre9aa2: 00_ipc-sem-set-pid-during-setval-1
-> 
-> 	Set the sempid during serval operation, so getpid
-> 	operation will see it. From -ac.
-> 
-> Only in 2.4.19pre9aa2: 00_loop-handling-pages-in-cache-1
-> 
-> 	If the pagecache was preallocated it could be in highmem.
-> 	From -ac.
-> 
-> Only in 2.4.19pre9aa2: 00_mmap-TASK_SIZE-len-1
-> 
-> 	Avoid returning -EINVAL for length <= TASK_SIZE. From -ac,
-> 	Spotted by DervishD.
-> 
-> Only in 2.4.19pre9aa2: 00_scsi-error-thread-reparent-1
-> 
-> 	Reparent to init scsi-error kernel thread so it's not left
-> 	zombie floating around when it exists. From -ac.
-> 
-> Only in 2.4.19pre9aa2: 00_sig_ign-discard-sigurg-1
-> 
-> 	Update semantics while setting sigurg as sig_ign, the
-> 	pending sigurg will be flushed. From -ac.
-> 
-> Only in 2.4.19pre9aa2: 00_vm86-drop-v86mode-dead-thread-var-1
-> 
-> 	Drop dead variable in vm86 part of the thread struct. From -ac.
-> 
-> Only in 2.4.19pre9aa2: 00_wmem-default-lowmem-machines-1
-> 
-> 	Typo fix from -ac.
-> 
-> Only in 2.4.19pre9aa2: 00_x86-optimize-apic-irq-and-cacheline-1
-> 
-> 	cachelin-optimize the apic irq stats and cacheline align
-> 	the irq_stat array. From -ac.
-> 
-> Only in 2.4.19pre9aa2: 03_sched-pipe-bandwidth-1
-> 
-> 	If the pipe-writer fills the pipe reschedule the reader
-> 	in the same cpu of the writer to maximaze memory copy
-> 	bandwith in the local cpu over the pipe page. From Mike Kravetz.
-> 
-> Only in 2.4.19pre9aa1: 05_vm_10_read_write_tweaks-2
-> Only in 2.4.19pre9aa2: 05_vm_10_read_write_tweaks-3
-> 
-> 	Updated comments per Christoph's suggestion.
-> 
-> Only in 2.4.19pre9aa1: 10_inode-highmem-1
-> Only in 2.4.19pre9aa2: 10_inode-highmem-2
-> 
-> 	Fix showstopper bug that was corrupting the inode unused_list
-> 	if the number of unused inodes was < vm_vfs_scan_ratio.
-> 	Spotted and fixed by Denis Lunev.
-> 
-> Only in 2.4.19pre9aa1: 00_gcc-3_1-compile-2
-> Only in 2.4.19pre9aa2: 61_tux-exports-gcc-3_1-compile-1
-> 
-> 	Moved later in the patch stage for clarity (suggested by
-> 	Christoph Hellwig).
-> 
-> Andrea
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Here is the script:
+-----------------------
+#!/bin/sh
 
--- 
-bye.
-Andrey Nekrasov, SpyLOG.
+# Small script to provoke a SIGSEV on SMP machines with kernel problem
+# requires bash > 2.0.5. The script fails e.g. on dual xeon systems without
+# Intel patch (Message title: Illegal instruction failures fixes for 2.4.18 in # kernel mailing list, 22.5.2002).
+# Script simply executes a couple of mktemp loops in the background, and tries
+# to read the generated file back.
+# 
+
+# Author: Roland Fehrenbacher, rf@q-leap.com
+base_out=/tmp/test-sigsev
+maxprocs=5
+
+myname=`basename $0`
+pids=""
+files=""
+
+trap 'killall $myname; rm -f $files ${base_out}??????;' 0 1 2 3 15
+
+for (( num=1; num <= $maxprocs; num++ )); do
+  while true; do 
+    file=`mktemp ${base_out}XXXXXX` || { echo mktemp failed; break; }
+    cat $file || { echo open $file failed; break; }
+    rm -f $file
+  done > ${base_out}-${num}.out 2>&1 &
+  pids="$pids $!"
+  files="$files ${base_out}-${num}.out"
+done
+
+printf "PIDS running = $pids\n--\n"
+printf "No further output should appear if no bug is present. Run script for\n"
+printf "a couple of hours to be sure everything is ok. Ctrl-C to stop.\n--\n"
+
+i=1
+while true; do
+  echo $i: ok >> ${base_out}-${num}.out
+  for pid in $pids; do 
+    ps -p $pid > /dev/null 2>&1 || \
+      { echo "count = $i: Pid $pid died" >> ${base_out}-${num}.out; \
+	pids=`echo $pids | sed -e s/$pid//g`; }
+  done
+  sleep 10
+  ((i++))
+done &
+
+files="$files ${base_out}-${num}.out"
+
+sleep 1
+tail -f $files | grep "count ="
+

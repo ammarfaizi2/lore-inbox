@@ -1,33 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266064AbRF2Nd3>; Fri, 29 Jun 2001 09:33:29 -0400
+	id <S266010AbRF2NdJ>; Fri, 29 Jun 2001 09:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266055AbRF2NdU>; Fri, 29 Jun 2001 09:33:20 -0400
-Received: from vitelus.com ([64.81.36.147]:17168 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S266021AbRF2NdP>;
-	Fri, 29 Jun 2001 09:33:15 -0400
-Date: Fri, 29 Jun 2001 06:33:10 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Steve Best <sbest@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Announcing Journaled File System (JFS)  release 1.0.0 available
-Message-ID: <20010629063309.A2458@vitelus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF2156091A.838536E6-ON85256A79.004E872E@raleigh.ibm.com>
-User-Agent: Mutt/1.3.18i
+	id <S266021AbRF2Nc7>; Fri, 29 Jun 2001 09:32:59 -0400
+Received: from spc2.esa.lanl.gov ([128.165.67.191]:42880 "HELO
+	spc2.esa.lanl.gov") by vger.kernel.org with SMTP id <S266010AbRF2Ncq>;
+	Fri, 29 Jun 2001 09:32:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+To: Keith Owens <kaos@ocs.com.au>, scole@lanl.gov
+Subject: Re: 2.4.5-ac20 problems with drivers/net/Config.in and make xconfig
+Date: Fri, 29 Jun 2001 07:31:15 -0600
+X-Mailer: KMail [version 1.2]
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <16590.993781130@ocs3.ocs-net>
+In-Reply-To: <16590.993781130@ocs3.ocs-net>
+MIME-Version: 1.0
+Message-Id: <01062907311500.01279@spc2.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 28, 2001 at 09:22:13AM -0500, Steve Best wrote:
-> June 28, 2001:
-> 
-> IBM is pleased to announce the v 1.0.0 release of the open source
-> Journaled File System (JFS), a high-performance, and scalable file
-> system for Linux.
+On Thursday 28 June 2001 20:18, Keith Owens wrote:
+> On Thu, 28 Jun 2001 10:05:58 -0600,
+>
+> Steven Cole <scole@lanl.gov> wrote:
+> >[root@spc linux]# make xconfig
+> >./tkparse < ../arch/i386/config.in >> kconfig.tk
+> >make[1]: *** [kconfig.tk] Error 139
+> >make[1]: Leaving directory `/usr/src/linux-2.4.5-ac20/scripts'
+>
+> Sigh.  I wish people making big changes to config files would check
+> that the change works for all the variants of make *config.
+>
+> Index: 5.52/drivers/net/Config.in
+> --- 5.52/drivers/net/Config.in Fri, 29 Jun 2001 11:39:55 +1000 kaos
+> (linux-2.4/l/c/9_Config.in 1.1.2.2.1.4.1.12 644) +++
+> 5.52(w)/drivers/net/Config.in Fri, 29 Jun 2001 12:14:23 +1000 kaos
+> (linux-2.4/l/c/9_Config.in 1.1.2.2.1.4.1.12 644) @@ -16,7 +16,7 @@ if [
+> "$CONFIG_EXPERIMENTAL" = "y" ]; the
+>  fi
+>
+>  if [ "$CONFIG_ISAPNP" = "y" ]; then
+> -   tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000
+> $CONFIG_ISAPNP +   tristate 'General Instruments Surfboard 1000'
+> CONFIG_NET_SB1000 fi
+>
+>  #
+> @@ -204,7 +204,6 @@ bool 'Ethernet (10 or 100Mbit)' CONFIG_N
+>        dep_tristate '    D-Link DE600 pocket adapter support' CONFIG_DE600
+> $CONFIG_ISA dep_tristate '    D-Link DE620 pocket adapter support'
+> CONFIG_DE620 $CONFIG_ISA fi
+> -fi
+>
+>  endmenu
 
-Great!
+Here is a variant of Keith's patch.  The free-floating "fi" at line 207 was the result
+of a deleted line "if [ "$CONFIG_NET_ETHERNET" = "y" ]; then".  The indentation
+was the major clue.  This patch was made against 2.4.5-ac21.
+Steven
 
-I remember that awhile ago there were some case issues with JFS. Is it
-fully case-sensitive now?
+--- linux/drivers/net/Config.in.original        Fri Jun 29 07:17:57 2001
++++ linux/drivers/net/Config.in Fri Jun 29 07:23:02 2001
+@@ -16,7 +16,7 @@
+ fi
+ 
+ if [ "$CONFIG_ISAPNP" = "y" ]; then
+-   tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000 $CONFIG_ISAPNP
++   tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000
+ fi
+ 
+ #
+@@ -27,6 +27,7 @@
+ comment 'Ethernet (10 or 100Mbit)'
+ 
+ bool 'Ethernet (10 or 100Mbit)' CONFIG_NET_ETHERNET
++if [ "$CONFIG_NET_ETHERNET" = "y" ]; then
+    if [ "$CONFIG_ARM" = "y" ]; then  
+       dep_bool '  ARM EBSA110 AM79C961A support' CONFIG_ARM_AM79C961A $CONFIG_ARCH_EBSA110
+       if [ "$CONFIG_ARCH_ACORN" = "y" ]; then

@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbUBTPKb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 10:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbUBTPKb
+	id S261289AbUBTP2p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 10:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbUBTP2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 10:10:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61668 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261272AbUBTPK0 (ORCPT
+	Fri, 20 Feb 2004 10:28:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:14500 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261289AbUBTP2m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 10:10:26 -0500
-Date: Fri, 20 Feb 2004 07:15:31 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, greg@kroah.com,
-       akpm@osdl.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] USB update for 2.6.3
-In-Reply-To: <20040219233214.56f5b0ce.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58.0402200714270.1107@ppc970.osdl.org>
-References: <20040220012802.GA16523@kroah.com> <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
- <1077256996.20789.1091.camel@gaston> <Pine.LNX.4.58.0402192221560.2244@ppc970.osdl.org>
- <1077258504.20781.1121.camel@gaston> <Pine.LNX.4.58.0402192243170.14296@ppc970.osdl.org>
- <1077259375.20787.1141.camel@gaston> <Pine.LNX.4.58.0402192257190.1107@ppc970.osdl.org>
- <20040219230407.063ef209.davem@redhat.com> <1077261041.20787.1181.camel@gaston>
- <20040219233214.56f5b0ce.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Feb 2004 10:28:42 -0500
+Date: Fri, 20 Feb 2004 15:31:45 +0000
+From: Joe Thornber <thornber@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>, thornber@redhat.com
+Subject: device-mapper patchset
+Message-ID: <20040220153145.GN27549@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Here's another device mapper update, some of these are quite big
+patches, so I'll run through the list:
 
-On Thu, 19 Feb 2004, David S. Miller wrote:
-> On Fri, 20 Feb 2004 18:10:41 +1100
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> 
-> > Hrm... so if the USB device drivers are actually doing the dma mapping
-> > themselves, it make sense for them to pass their own struct device, no ?
-> 
-> That's right, at least that was the idea.
+endio method
+  We've been using this code for many months (years?).  Needed for the
+  more complicated targets.
 
-No. That would be _fundamentally_ wrong.
+Remove the version-1 ioctl interface
+  This didn't get in last time I submitted it.  Leave it out if you
+  still disagree.
 
-There's no way a USB device can do DMA in the first place. It has no DMA 
-controller, and no way to read/write memory except through the USB host.
+Audit for list_for_each_*entry*
+  Trivial, please merge
 
-So it is the host - and only the host - that matters. Anything else is a 
-bug.
+Queue limits
+  Please merge.
 
-		Linus
+List targets ioctl
+  Adds a command that lets tools query the kernel to see what
+  targets/versions are available.
+
+Multipath target
+  People really want this, so I'm probably pushing it sooner than I'd
+  like.  It would be good if it got a wider audience in the -mm tree or
+  as an experimental target in vanilla.
+
+Thanks,
+
+- Joe

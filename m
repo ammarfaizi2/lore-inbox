@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbUKVNkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbUKVNnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbUKVNkh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 08:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUKVNiY
+	id S262105AbUKVNnk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 08:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbUKVNlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 08:38:24 -0500
-Received: from apollo.nbase.co.il ([194.90.137.2]:61961 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP id S262100AbUKVNfu
+	Mon, 22 Nov 2004 08:41:07 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:26530 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262107AbUKVNkH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 08:35:50 -0500
-Message-ID: <41A1EAE0.9080504@mrv.com>
-Date: Mon, 22 Nov 2004 15:34:24 +0200
-From: emann@mrv.com (Eran Mann)
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-References: <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <41A1A6E6.5090807@mrv.com> <20041122100140.GD6817@elte.hu>
-In-Reply-To: <20041122100140.GD6817@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 22 Nov 2004 08:40:07 -0500
+Subject: Re: [PATCH 2/5] selinux: adds a private inode operation
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Jeffrey Mahoney <jeffm@novell.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       James Morris <jmorris@redhat.com>
+In-Reply-To: <20041121001318.GC979@locomotive.unixthugs.org>
+References: <20041121001318.GC979@locomotive.unixthugs.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1101130521.18273.9.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 22 Nov 2004 08:35:21 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Eran Mann <emann@mrv.com> wrote:
->>
->>Hi,
->>I´m seeing latencies of up to ~2000 microseconds. see attached traces
->>file for a small sample. I think I´m missing something obvious
->>config-wise but I don´t know what...
-...
+On Sat, 2004-11-20 at 19:13, Jeffrey Mahoney wrote:
+<snip>
+> diff -ruNpX dontdiff linux-2.6.9/security/selinux/hooks.c linux-2.6.9.selinux/security/selinux/hooks.c
+> --- linux-2.6.9/security/selinux/hooks.c	2004-11-19 14:40:58.000000000 -0500
+> +++ linux-2.6.9.selinux/security/selinux/hooks.c	2004-11-20 17:11:22.000000000 -0500
+> @@ -740,6 +740,15 @@ static int inode_doinit_with_dentry(stru
+>  	if (isec->initialized)
+>  		goto out;
+>  
+> +	if (opt_dentry && opt_dentry->d_parent && opt_dentry->d_parent->d_inode) {
+> +		struct inode_security_struct *pisec = opt_dentry->d_parent->d_inode->i_security;
+> +		if (pisec->inherit) {
+> +			isec->sid = pisec->sid;
+> +			isec->initialized = 1;
+> +			goto out;
+> +		}
+> +	}
+> +
 
-> this seems to imply IDE DMA related hardware overhead. Apparently what
-> happens is that with certain motherboards/chipsets, if IDE DMA happens
-> then that DMA transfer _completely locks up_ the system bus. Nothing 
-> happens, and the CPU is stalled in essence until the end of the DMA 
-> request.
-> 
-....
-> 	Ingo
+Shouldn't this be using dget_parent() for safety?
 
-Right on.
-After hdparm -d0 I see maximum latency of 35 us after a full kernel 
-build with a few GUI apps in the background. I´ll try to find a 
-reasonable compromise.
+> @@ -2391,6 +2400,15 @@ static int selinux_inode_listsecurity(st
+>  	return len;
+>  }
+>  
+> +static void selinux_inode_mark_private(struct inode *inode)
+> +{
+> +	struct inode_security_struct *isec = inode->i_security;
+> +
+> +	isec->sid = SECINITSID_KERNEL;
+> +	isec->initialized = 1;
+> +	isec->inherit = 1;
+> +}
+> +
+
+Don't we also need to modify inode_has_perm() to skip checking if the
+inode has the kernel SID (as is already done by socket_has_perm) to
+avoid the search checks when the reiserfs code looks up xattrs? 
+Otherwise, we'll see access attempts by the process context on
+directories with the kernel SID upon such lookups.
+
 -- 
-Eran Mann
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316825AbSE1QMN>; Tue, 28 May 2002 12:12:13 -0400
+	id <S316823AbSE1QQn>; Tue, 28 May 2002 12:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316836AbSE1QMM>; Tue, 28 May 2002 12:12:12 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:38156 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S316825AbSE1QMK>; Tue, 28 May 2002 12:12:10 -0400
-Message-Id: <200205281612.g4SGC4t03662@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
-Subject: Re: A reply on the RTLinux discussion.
-Mime-Version: 1.0
+	id <S316838AbSE1QQm>; Tue, 28 May 2002 12:16:42 -0400
+Received: from smtp01.fields.gol.com ([203.216.5.131]:40205 "EHLO
+	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
+	id <S316823AbSE1QQl>; Tue, 28 May 2002 12:16:41 -0400
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Keith Owens <kaos@ocs.com.au>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config
+In-Reply-To: <3937.1022552654@kao2.melbourne.sgi.com>
+	<buo3cwdf0b0.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<20020528030200.GL20729@conectiva.com.br>
+	<20020528140322.GA6320@werewolf.able.es>
+	<15603.38007.42661.75173@kim.it.uu.se>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+From: Miles Bader <miles@gnu.org>
+Date: 29 May 2002 01:16:30 +0900
+Message-ID: <87r8jws0wx.fsf@tc-1-100.kawasaki.gol.ne.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 May 2002 12:12:04 -0400
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+X-Abuse-Complaints: abuse@gol.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> said:
-> AFAIK the patent doesn't give you the right to forbid anyone from
-> using the technology, you only have a right to demand a compensation.
-> If I am correct with this, you are possibly violating the GPL here.
-> The binary module exception is an additional right granted to you by
-> Linus, which you can't simply deny to others. The user space issue is
-> even more clear, because that is clearly defined.
+Mikael Pettersson <mikpe@csd.uu.se> writes:
+> I agree with Keith that we really should prefer standard C solutions
+> over gcc-specific hacks _when_they_exist_.
 
-Actually, a patent does do exactly this.  A patent gives you a "negative" 
-right to exclude anyone from using your patented method or process.  If you 
-choose never to licence your patent (as is your right to do so) you block 
-everyone else from making use of it.
+Since portability to other compilers is really not an option with linux,
+it's a lot more important that the kernel code use a _consistent_
+convention than it use a `standard' one.
 
-In general, about the only restrictions on patents and their licensing 
-arrangements in the US are the antitrust laws.  See:
+So before recommending that people use a different syntax than the one
+historically used, are you going to run over the whole kernel and
+replace all the existing uses of `field:' with `.field = ' (and brave
+the flamewar that it would probably require)?
 
-http://www.usdoj.gov/atr/public/guidelines/ipguide.htm
-
-for a good guide from the horse's mouth.
-
-This is an important debate but I think it's quality could be enhanced by 
-increasing the level of well researched information and opinion.  A good 
-starting point is `Benefits, Risks and Considerations in Using Open Licensed 
-Software' written by a group of Intellectual Property lawyers and available 
-freely on the internet:
-
-http://www.whepatent.com/opensource.pdf
-
-James Bottomley
-
-
+-Miles
+-- 
+Suburbia: where they tear out the trees and then name streets after them.

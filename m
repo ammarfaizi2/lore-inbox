@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293164AbSCTA52>; Tue, 19 Mar 2002 19:57:28 -0500
+	id <S310441AbSCTBBS>; Tue, 19 Mar 2002 20:01:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310224AbSCTA5R>; Tue, 19 Mar 2002 19:57:17 -0500
-Received: from smtp.Lynuxworks.COM ([207.21.185.24]:34059 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP
-	id <S293164AbSCTA44>; Tue, 19 Mar 2002 19:56:56 -0500
-Message-ID: <3C97DE85.6020302@lnxw.com>
-Date: Tue, 19 Mar 2002 16:57:41 -0800
-From: Petko Manolov <pmanolov@Lnxw.COM>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020314
-X-Accept-Language: en, bg
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>
-CC: Larry McVoy <lm@work.bitmover.com>, yodaiken@fsmlabs.com,
-        Rik van Riel <riel@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Roman Zippel <zippel@linux-m68k.org>,
-        "David S. Miller" <davem@redhat.com>, lm@bitmover.com, pavel@ucw.cz,
-        linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper licence issues
-In-Reply-To: <E16nOzQ-0008U7-00@the-village.bc.nu> <Pine.LNX.4.44L.0203192005350.2181-100000@imladris.surriel.com> <20020319163155.A25986@hq.fsmlabs.com> <20020319154727.O14877@work.bitmover.com> <20020319191927.B23000@thunk.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310458AbSCTBBI>; Tue, 19 Mar 2002 20:01:08 -0500
+Received: from marcy.nas.nasa.gov ([129.99.113.17]:53224 "EHLO
+	marcy.nas.nasa.gov") by vger.kernel.org with ESMTP
+	id <S310441AbSCTBAr>; Tue, 19 Mar 2002 20:00:47 -0500
+Message-Id: <200203200100.RAA11124@marcy.nas.nasa.gov>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: dnotify defines not in headers
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 19 Mar 2002 17:00:41 -0800
+From: Brian S Queen <bqueen@nas.nasa.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
->
-> (I love to really piss off Silly Valley types by pointing this out.  :-)
+How do I get my dnotify #defines which I put in <linux/fcntl.h> into <fcntl.h>
+?  I have already recompiled glibc and such as suggested.  I am sure for 
+dnotify to be useful the defines must be added to the standard headers.
 
-I bet you did. :-)
+My kernel builds correctly as does glibc using my new headers (using the 
+--with-headers= option).  In fact I remade all the standard headers from 
+scratch, wiping out the old ones using the special --with-headers option. 
+Still my defines are not being merged into the standard header.
 
-> Best of all, I don't have to live out in the middle of nowhere (the
-
-This is also true.  It wasn't called wild west for no reason.
-
-> Boston Symphony, lots of amateur/semi-professional/professional
-> theater productions, etc.), and there are lots of smart people to
-
-Isn't it sad - when i say theater people think about movie theater.
-I have hard time explaining what the hell is the difference and why
-it could be nice to have such things around...
-<sigh>
-
-
-		Petko
-
+Brian McQueen
+NAS Division
+NASA/Ames
 

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbSKSJin>; Tue, 19 Nov 2002 04:38:43 -0500
+	id <S264715AbSKSJwy>; Tue, 19 Nov 2002 04:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264888AbSKSJin>; Tue, 19 Nov 2002 04:38:43 -0500
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:33015 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S264883AbSKSJim>; Tue, 19 Nov 2002 04:38:42 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15834.2112.854137.981987@wombat.chubb.wattle.id.au>
-Date: Tue, 19 Nov 2002 20:45:36 +1100
-To: rmack@mackman.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BUG] Orinoco Lock Up
-In-Reply-To: <665837332@toto.iv>
-X-Mailer: VM 7.04 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+	id <S264854AbSKSJwy>; Tue, 19 Nov 2002 04:52:54 -0500
+Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:37832 "EHLO
+	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S264715AbSKSJwx>; Tue, 19 Nov 2002 04:52:53 -0500
+Date: Tue, 19 Nov 2002 10:59:55 +0100
+From: Christian Guggenberger 
+	<Christian.Guggenberger@physik.uni-regensburg.de>
+To: soohrt@soohrt.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
+Message-ID: <20021119105955.A23008@pc9391.uni-regensburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "rmack" == rmack  <rmack@mackman.net> writes:
+> Linux detects the two HPT374 controllers, but not the attached drives.
+> 
+> The Mainboard is an EPOX EP-8K5A3+ with 2 VIA vt8235 ide controllers
+> and 4 Highpoint 374.
+> 
+> I increased the channels: limit for the HPT374 in drivers/ide/pci/hpt366.h
+> to 4.
+> --- drivers/ide/pci/hpt366.h.old        2002-11-19 17:41:33.000000000 +0100
+> +++ drivers/ide/pci/hpt366.h    2002-11-19 17:41:45.000000000 +0100
+> @@ -508,5 +508,5 @@
+> 		init_hwif:	init_hwif_hpt366,
+> 		init_dma:	init_dma_hpt366,
+> -                channels:	2,      /* 4 */
+> +                channels:	4,      /* 2 */
+> 		autodma:	AUTODMA,
+> 		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+> 
 
-rmack> I was sleapilly typing away from my laptop when my wireless LAN
-rmack> connection hung.  The other end, a dual P3 system using a
-rmack> generic ISA->PCMCIA adapter and an Orinoco Silver v6.06 card
-rmack> had gone crazy.  I don't know if the whole system was locked up
-rmack> or not but removing the Orinoco card and re-inserting fixed the
-rmack> wireless LAN.
+I have the same board, and the controller works fine for me in 2.5.4*, as 
+2.4-ac doesn't contain xfs suport. I only have one drive attached, but as I 
+remember I first had to configure the (raid) controller' BIOS (Ctrl-H at boot 
+time) (even for just a bunch of disks) before using the drives. But I'm not 
+100%ly sure.
 
+I don't think there's any need for your patch, cause the hpt374 only has two 
+channels, but there are two controllers on that board.
 
-This is such a common problem, that I now run this little script all
-the time.  It triggers once or twice a day most days; more if I'm
-doing something that involves heavy network use.  FWIW, the later 2.5
-kernels seem to be better than 2.4.19.
+ANother QUestion: Did you ever get the onboard via-rhine NIC working with 
+IO-APIC (both BIOS and kernel) enabled?
 
-----
-#!/bin/sh
-tail -f /var/log/kern.log |
-while read f
-do
-    if expr "$f" \: '.*eth1: Error' > /dev/null 2>&1
-    then
-	cardctl reset
-    fi
-done
+Christian
+

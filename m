@@ -1,71 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268060AbTB1SqG>; Fri, 28 Feb 2003 13:46:06 -0500
+	id <S268091AbTB1SsK>; Fri, 28 Feb 2003 13:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268061AbTB1SqG>; Fri, 28 Feb 2003 13:46:06 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:47488 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
-	id <S268060AbTB1SqF>; Fri, 28 Feb 2003 13:46:05 -0500
-Date: Sat, 01 Mar 2003 07:59:36 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: Software Suspend Functionality in 2.5
-In-reply-to: <20030228151744.GB14927@atrey.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1046458775.1720.5.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1046238339.1699.65.camel@laptop-linux.cunninghams>
- <20030227181220.A3082@in.ibm.com>
- <1046369790.2190.9.camel@laptop-linux.cunninghams>
- <20030228121725.B2241@in.ibm.com>
- <20030228130548.GA8498@atrey.karlin.mff.cuni.cz>
- <20030228190924.A3034@in.ibm.com>
- <20030228134406.GA14927@atrey.karlin.mff.cuni.cz>
- <20030228204831.A3223@in.ibm.com>
- <20030228151744.GB14927@atrey.karlin.mff.cuni.cz>
+	id <S268090AbTB1SsK>; Fri, 28 Feb 2003 13:48:10 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:26551 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268091AbTB1SsD>; Fri, 28 Feb 2003 13:48:03 -0500
+Date: Fri, 28 Feb 2003 11:07:21 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: davem@redhat.com
+cc: gregkh@us.ibm.com, greg@kroah.com, hannal@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5.63] serial tty_driver add .owner field remove MOD_INC/DEC_USE_COUNT
+Message-ID: <61540000.1046459241@w-hlinder>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-01 at 04:17, Pavel Machek wrote:
-> > For the kind of atomicity you need there probably are two
-> > steps:
-> > 1) Quiesce the system - get to a point of consistency (when you
-> >    can take a resumable snapshot)
-> > 2) Perform an atomic copy / snapshot
-> > 
-> > Step (1) would be different for swsusp and crash dump (not
-> > intended to be common ). But for Step (2), do you think
-> > what you need/do is complicated by crashed system requirements ?
-> 
-> Well, I guess count_and_copy_data_pages() is easy to share, OTOH it is
-> really small piece of code. Also do you think you can free half of
-> memory in crashed system? Thats what swsusp currently does...
-> 
-> [I need really little about LKCD... But you are going to need modified
-> disk drivers etc, right? I'd like to get away without that in swsusp,
-> at least in 2.6.X.]
-> 
 
-With the changes I've made, which I'm starting to merge with Pavel, I
-think the two are a lot closer to each other.
+Here are the changes to drivers/serial to set .owner for tty_drivers
+and remove MOD_INC/DEC_USE_COUNT. Dave, please review.  I have made 
+changes to most the other tty drivers and am sending them to 
+trivial@rustcorp.com.au. If you want me to include this one to rusty
+I will, please let me know. I tested the core changes via 8250 following 
+are the results:
 
-With regard to quiescing the system, we need the same things stopped
-that you need. We can of course use drivers_suspend when you can't, but
-we could probably also use the SMP code you have.
+Without patch:
+[root@w-hlinder2 root]# lsmod
+Module                  Size  Used by
+8250                   26400  0
+core                   21568  1 8250
+[root@w-hlinder2 root]# cat /dev/ttyS0 &
+[1] 4206
+[root@w-hlinder2 root]# lsmod
+Module                  Size  Used by
+8250                   26400  1
+core                   21568  1 8250
+[root@w-hlinder2 root]# kill %1
+[root@w-hlinder2 root]# lsmod
+Module                  Size  Used by
+8250                   26400  0
+core                   21568  1 8250
+[1]+  Terminated              cat /dev/ttyS0
 
-I've got swsusp so that freeing memory is not necessary - the whole
-image can be written to disk. There is still an option for the user to
-aim for a smaller image (a soft limit can be set), and if there's not
-enough swap available, that will also cause some memory to be freed, but
-LKCD would run into that problem writing to swap too.
+with patch:
 
-Regards,
+[root@w-hlinder2 serial]# lsmod
+Module                  Size  Used by
+8250                   26400  0
+core                   21600  1 8250
+[root@w-hlinder2 serial]# cat /dev/ttyS0 &
+[1] 1124
+[root@w-hlinder2 serial]# lsmod
+Module                  Size  Used by
+8250                   26400  1
+core                   21600  2 8250
+[root@w-hlinder2 serial]# kill %1
+[root@w-hlinder2 serial]# lsmod
+Module                  Size  Used by
+8250                   26400  0
+core                   21600  1 8250
+[1]+  Terminated              cat /dev/ttyS0
+[root@w-hlinder2 serial]#
 
-Nigel
+Hanna
+------
+ 68328serial.c |    1 +
+ 68360serial.c |    6 +-----
+ core.c        |    1 +
+ mcfserial.c   |    1 +
+ 4 files changed, 4 insertions(+), 5 deletions(-)
+
+diff -Nru -Xdontdiff linux-2.5.63/drivers/serial/68328serial.c linux-2.5.63-ttydrv/drivers/serial/68328serial.c
+--- linux-2.5.63/drivers/serial/68328serial.c	Mon Feb 24 11:05:48 2003
++++ linux-2.5.63-ttydrv/drivers/serial/68328serial.c	Thu Feb 27 17:11:11 2003
+@@ -1488,6 +1488,7 @@
+ 	
+ 	memset(&serial_driver, 0, sizeof(struct tty_driver));
+ 	serial_driver.magic = TTY_DRIVER_MAGIC;
++	serial_driver.owner = THIS_MODULE;
+ 	serial_driver.name = "ttyS";
+ 	serial_driver.major = TTY_MAJOR;
+ 	serial_driver.minor_start = 64;
+diff -Nru -Xdontdiff linux-2.5.63/drivers/serial/68360serial.c linux-2.5.63-ttydrv/drivers/serial/68360serial.c
+--- linux-2.5.63/drivers/serial/68360serial.c	Mon Feb 24 11:05:46 2003
++++ linux-2.5.63-ttydrv/drivers/serial/68360serial.c	Thu Feb 27 17:11:11 2003
+@@ -1717,7 +1717,6 @@
+ 	
+ 	if (tty_hung_up_p(filp)) {
+ 		DBG_CNT("before DEC-hung");
+-		MOD_DEC_USE_COUNT;
+ 		local_irq_restore(flags);
+ 		return;
+ 	}
+@@ -1744,7 +1743,6 @@
+ 	}
+ 	if (state->count) {
+ 		DBG_CNT("before DEC-2");
+-		MOD_DEC_USE_COUNT;
+ 		local_irq_restore(flags);
+ 		return;
+ 	}
+@@ -1808,7 +1806,6 @@
+ 	info->flags &= ~(ASYNC_NORMAL_ACTIVE|ASYNC_CALLOUT_ACTIVE|
+ 			 ASYNC_CLOSING);
+ 	wake_up_interruptible(&info->close_wait);
+-	MOD_DEC_USE_COUNT;
+ 	local_irq_restore(flags);
+ }
+ 
+@@ -2101,14 +2098,12 @@
+ 	if (retval)
+ 		return retval;
+ 
+-	MOD_INC_USE_COUNT;
+ 	retval = block_til_ready(tty, filp, info);
+ 	if (retval) {
+ #ifdef SERIAL_DEBUG_OPEN
+ 		printk("rs_open returning after block_til_ready with %d\n",
+ 		       retval);
+ #endif
+-		MOD_DEC_USE_COUNT;
+ 		return retval;
+ 	}
+ 
+@@ -2623,6 +2618,7 @@
+ 
+ 	serial_driver.magic = TTY_DRIVER_MAGIC;
+ 	/* serial_driver.driver_name = "serial"; */
++	serial_driver.owner = THIS_MODULE;
+ 	serial_driver.name = "ttyS";
+ 	serial_driver.major = TTY_MAJOR;
+ 	serial_driver.minor_start = 64;
+diff -Nru -Xdontdiff linux-2.5.63/drivers/serial/core.c linux-2.5.63-ttydrv/drivers/serial/core.c
+--- linux-2.5.63/drivers/serial/core.c	Mon Feb 24 11:05:12 2003
++++ linux-2.5.63-ttydrv/drivers/serial/core.c	Thu Feb 27 17:11:11 2003
+@@ -2219,6 +2219,7 @@
+ 	drv->tty_driver = normal;
+ 
+ 	normal->magic		= TTY_DRIVER_MAGIC;
++	normal->owner		= THIS_MODULE;
+ 	normal->driver_name	= drv->driver_name;
+ 	normal->name		= drv->dev_name;
+ 	normal->major		= drv->major;
+diff -Nru -Xdontdiff linux-2.5.63/drivers/serial/mcfserial.c linux-2.5.63-ttydrv/drivers/serial/mcfserial.c
+--- linux-2.5.63/drivers/serial/mcfserial.c	Mon Feb 24 11:05:29 2003
++++ linux-2.5.63-ttydrv/drivers/serial/mcfserial.c	Thu Feb 27 17:11:11 2003
+@@ -1616,6 +1616,7 @@
+ 	/* Initialize the tty_driver structure */
+ 	memset(&mcfrs_serial_driver, 0, sizeof(struct tty_driver));
+ 	mcfrs_serial_driver.magic = TTY_DRIVER_MAGIC;
++	mcfrs_serial_driver.owner = THIS_MODULE;
+ 	mcfrs_serial_driver.name = "ttyS";
+ 	mcfrs_serial_driver.major = TTY_MAJOR;
+ 	mcfrs_serial_driver.minor_start = 64;
+
 

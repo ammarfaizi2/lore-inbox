@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318097AbSHHWkr>; Thu, 8 Aug 2002 18:40:47 -0400
+	id <S318059AbSHHWgr>; Thu, 8 Aug 2002 18:36:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318100AbSHHWkr>; Thu, 8 Aug 2002 18:40:47 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45328 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S318097AbSHHWkq>; Thu, 8 Aug 2002 18:40:46 -0400
-Date: Thu, 8 Aug 2002 19:44:16 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Paul Larson <plars@austin.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Hubertus Franke <frankeh@us.ibm.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Andrew Morton <akpm@zip.com.au>, <andrea@suse.de>,
-       Dave Jones <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-In-Reply-To: <1028846042.19434.342.camel@plars.austin.ibm.com>
-Message-ID: <Pine.LNX.4.44L.0208081941420.2589-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318065AbSHHWgr>; Thu, 8 Aug 2002 18:36:47 -0400
+Received: from ppp-217-133-219-100.dialup.tiscali.it ([217.133.219.100]:21997
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S318059AbSHHWgr>; Thu, 8 Aug 2002 18:36:47 -0400
+Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
+	mips, m68k, sh, cris to use it
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0208090018470.8911-100000@serv>
+References: <Pine.LNX.4.44.0208090018470.8911-100000@serv>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-WV2ui8jXC1RpKSx4Kpte"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 09 Aug 2002 00:40:17 +0200
+Message-Id: <1028846417.1669.95.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Aug 2002, Paul Larson wrote:
 
-> The original issue that I had with all of this is the fact that if the
-> current algorithm can't find an available pid, it just sits there
-> churning forever and hangs the machine.  My original patch was really
-> just a very basic fix for that (see the 2.4 tree).  This makes it far
-> more unlikely for us to max out, but if we do aren't we just going to
-> have the same trouble all over?
+--=-WV2ui8jXC1RpKSx4Kpte
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-You'll need at least 330 million tasks to run out.
+On Fri, 2002-08-09 at 00:27, Roman Zippel wrote:
+> Hi,
+> 
+> On 9 Aug 2002, Luca Barbieri wrote:
+> 
+> > - Didn't implement atomic_{add,sub,inc,dec}_return. This is currently
+> > not used in the generic kernel but it can be useful.
+> 
+> m68k has a cmpxchg like instruction, which can be used for that.
+> 
+> > - Had inline assembly for things the compiler should be able to generate
+> > on its own
+> 
+> The compiler can cache the value in a register
+It shouldn't since it is volatile and the machine has instructions with
+memory operands.
 
-At a minimum kernel memory allocation of about 8 kB per
-task, that's about 2600 GB of kernel data structures.
+Anyway, let's ignore the m68k-specific parts of the patch.
 
-I'm not sure we'll hit that limit, ever. Not because
-we won't have a TB of kernel data space at some point
-in the future, but because 330 million tasks is a lot
-more than we'd want to manage with just a few CPUs ;)
 
-kind regards,
+--=-WV2ui8jXC1RpKSx4Kpte
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Rik
--- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-http://www.surriel.com/		http://distro.conectiva.com/
+iD8DBQA9UvNQdjkty3ft5+cRApkXAKDc0xjWlt8tGH1GtNOvoYPRfhkosACg0sln
+rFSX4MIrzPuMbxoS2yGpfHg=
+=J+us
+-----END PGP SIGNATURE-----
 
+--=-WV2ui8jXC1RpKSx4Kpte--

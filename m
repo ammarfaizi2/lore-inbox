@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276990AbRJOS31>; Mon, 15 Oct 2001 14:29:27 -0400
+	id <S277541AbRJOSlH>; Mon, 15 Oct 2001 14:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277541AbRJOS3R>; Mon, 15 Oct 2001 14:29:17 -0400
-Received: from femail34.sdc1.sfba.home.com ([24.254.60.24]:43914 "EHLO
-	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S276990AbRJOS3F>; Mon, 15 Oct 2001 14:29:05 -0400
-Message-ID: <3BCB2A6B.E0BCC75F@home.com>
-Date: Mon, 15 Oct 2001 14:26:51 -0400
-From: John Gluck <jgluckca@home.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
+	id <S277866AbRJOSk5>; Mon, 15 Oct 2001 14:40:57 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:49668 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S277541AbRJOSku>;
+	Mon, 15 Oct 2001 14:40:50 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110151840.WAA24000@ms2.inr.ac.ru>
+Subject: Re: TCP acking too fast
+To: Mika.Liljeberg@welho.com (Mika Liljeberg)
+Date: Mon, 15 Oct 2001 22:40:52 +0400 (MSK DST)
+Cc: ak@muc.de, davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BC9F029.3897ABE5@welho.com> from "Mika Liljeberg" at Oct 14, 1 11:06:01 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Vadim <vadim_t@teleline.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux hangs when DMA is used
-In-Reply-To: <5.1.0.14.0.20011015122840.03169d50@pop3.terra.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hello!
 
-I tried using the 2.4.12 kernel on my machine and it won't even boot. I get a
-LIL- and nothing after that.
->From what I've seen, the 2.4.11 had some serious problems and 2.4.12 was an
-attempt to address those. I think 2.4.12 still has issues so I dropped back to
-2.4.10.
+> Well, I think this "problem" is way overstated.
 
-You might want to try 2.4.10 if you can.
+Understated. :-)
 
-John
+Actually, people who designed all this engine always kept in the mind
+only two cases: ftp and telnet. Who did care that some funny
+protocols sort of smtp work thousand times slower than they could?
+Nobody. Until the time when mail agents started to push really
+lots of mails.
 
-Vadim wrote:
+> Besides, as I said, you can always disable Nagle
 
-> This is one of the most puzzling issues I've ever seen. I'm posting here
-> because since Win98 works (that is, doesn't crash more than usual), and DMA
-> is enabled...
-> It is a recently installed Mandrake 8.0 system, and I'm using kernel
-> 2.4.12. I installed it on a P166MMX,  because it hangs during the install
-> on this one. Then I moved the hard disk.
+And you will finish with Nagle enabled only on ftp-data. I do not know
+another standard protosols which are not broken by delack+nagle. :-)
 
-[snip]
+This is sad but this is already truth: apache, samba etc, even ssh(!),
+each of them disable nagle by default, even despite of they are able
+to cure this problem with less of damage.
 
+Well, I answered to the question: "tcp is slow!" --- "Guy, you forgot
+to enable TCP_NODELAY. TCP is not supposed to work well in your case
+without this" so much of times, that started to suspect that nagling
+must be disabled by default. It would cause less of troubles. :-)
+
+Alexey

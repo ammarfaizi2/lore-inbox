@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314555AbSDSE7l>; Fri, 19 Apr 2002 00:59:41 -0400
+	id <S314557AbSDSFF1>; Fri, 19 Apr 2002 01:05:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314557AbSDSE7l>; Fri, 19 Apr 2002 00:59:41 -0400
-Received: from ftoomsh.progsoc.uts.edu.au ([138.25.6.1]:28691 "EHLO ftoomsh")
-	by vger.kernel.org with ESMTP id <S314555AbSDSE7k>;
-	Fri, 19 Apr 2002 00:59:40 -0400
-Date: Fri, 19 Apr 2002 14:59:37 +1000
-From: Matt <matt@progsoc.uts.edu.au>
+	id <S314558AbSDSFF0>; Fri, 19 Apr 2002 01:05:26 -0400
+Received: from epithumia.math.uh.edu ([129.7.128.2]:43992 "EHLO
+	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
+	id <S314557AbSDSFFZ>; Fri, 19 Apr 2002 01:05:25 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 2.5.8 sort kernel tables
-Message-ID: <20020419145937.U12501@progsoc.uts.edu.au>
-In-Reply-To: <20020418135931.GU21206@holomorphy.com> <Pine.LNX.4.44.0204181507150.8537-100000@waste.org>
-Mime-Version: 1.0
+Subject: Re: AMD 760MPX B2 stepping
+In-Reply-To: <000f01c1e659$17abd6e0$d281f6cc@iboats.com>
+From: Jason L Tibbitts III <tibbs@math.uh.edu>
+Date: 19 Apr 2002 00:05:25 -0500
+Message-ID: <ufaelhc5ld6.fsf@epithumia.math.uh.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-OperatingSystem: Linux ftoomsh 2.2.15-pre13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002 at 03:20:17PM -0500, Oliver Xymoron wrote:
-> On Thu, 18 Apr 2002, William Lee Irwin III wrote:
+>>>>> "SW" == Steve Wolfe <sw@codon.com> writes:
 
->> On Thu, Apr 18, 2002 at 07:46:26PM +1000, Keith Owens wrote:
+SW> I have been having a devil of a time trying to get SMP to work
+SW> with stability on the new B2 stepping of the 760 MPX chipset (Tyan
+SW> 2466N-4M motherboard).  Has anyone fiddled with it, and if so, are
+SW> there any known bugs?
 
->>> The use of __init and __exit sections breaks the assumption that
->>> tables such as __ex_table are sorted, it has already broken the
->>> dbe table in mips on 2.5.  This patch against 2.5.8 adds a generic
->>> sort routine and sorts the i386 exception table.  This sorting
->>> needs to be extended to several other tables, to all
->>> architectures, to modutils (insmod loads some of these tables for
->>> modules) and back ported to 2.4.  Before I spend the rest of the
->>> time, any objections?
+Just to summarize my discussion with Steve today, I put together a
+machine with one of these boards (Tyan Tiger MPX S2466N-4M) with
+2xMP1900+ processors and 4x512MB PC2100 registered ECC DIMMs (Corsair
+CM73SD512R-2100).  The machine runs fine under concurrent big CPU and
+IO loads.  I don't think there's anything inherently wrong with this
+board, although I do think these things run rather close to spec and
+are sensitive to just about any oddity.
 
->> It doesn't have to be an O(n lg(n)) method but could you use
->> something besides bubblesort? Insertion sort, selection sort,
->> etc. are just as easy and they don't have the horrific stigma of
->> being "the worst sorting algorithm ever" etc.
+(I also have a bunch of the previous revision of Tyan MPX boards and
+they're stable as well.  I never could get the early generation Tiger
+MP boards to work at all.)
 
-> Combsort is a trivial modification of bubblesort that's O(n log(n)).
-
->  http://cs.clackamas.cc.or.us/molatore/cs260Spr01/combsort.htm
-
-> Though we should probably just stick a simple qsort in the library
-> somewhere.
-
-but isn't qsort's worst case behaviour for an already sorted list? i
-cant remember how bad it is but i thought it was like O(n^2) for worst
-case, ie just as bad as bubble sort..
-
-	matt
+ - J<

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266409AbSLNDOE>; Fri, 13 Dec 2002 22:14:04 -0500
+	id <S266965AbSLNDQD>; Fri, 13 Dec 2002 22:16:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266965AbSLNDOE>; Fri, 13 Dec 2002 22:14:04 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:47335 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S266409AbSLNDOD>; Fri, 13 Dec 2002 22:14:03 -0500
-Date: Fri, 13 Dec 2002 22:21:44 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-ac2 panics at end of running initscripts
-Message-ID: <20021214032144.GA2033@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S266979AbSLNDQD>; Fri, 13 Dec 2002 22:16:03 -0500
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:37130 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266965AbSLNDQC>; Fri, 13 Dec 2002 22:16:02 -0500
+Date: Fri, 13 Dec 2002 19:57:59 -0600
+From: Courtney Grimland <cgrimland@yahoo.com>
+To: BoehmeSilvio <Boehme.Silvio@afb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-ac1 KT400 AGP support
+Message-Id: <20021213195759.3233dc42.cgrimland@yahoo.com>
+In-Reply-To: <2F4E8F809920D611B0B300508BDE95FE294452@AFB91>
+References: <2F4E8F809920D611B0B300508BDE95FE294452@AFB91>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Real Men Don't Use Distros - www.linuxfromscratch.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ASUS P4S533 (SiS645DX chipset)
-P4 2G
-1G PC2700 RAM
+You should be able to set AGP to 4x or 2x in the BIOS.
 
-2.4.20-ac2 panics at the end of running initscripts
-/var/log/messages and /var/log/syslog are corrupted
-(looks like a file list, but random unprintable 
-characters garbage in between each filename).
-Due to the corruption of the logs I'm not too keen
-on playing with it much to figure out what it's doing.
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
+On Fri, 13 Dec 2002 11:18:39 +0100
+BoehmeSilvio <Boehme.Silvio@afb.de> wrote:
 
+> Hi !
+> 
+> I don't need the AGP 8X mode, but is it possible,
+> to get this setup running in whatever agp mode ?
+> 
+> Currently it is only possible to start X with VESA support,
+> because all other drivers need agpgart.
+> 
+> By
+> 
+> Silvio

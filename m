@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261627AbSI0QzW>; Fri, 27 Sep 2002 12:55:22 -0400
+	id <S261595AbSI0Qr2>; Fri, 27 Sep 2002 12:47:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261712AbSI0QzU>; Fri, 27 Sep 2002 12:55:20 -0400
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:47888 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S261627AbSI0QzS>;
-	Fri, 27 Sep 2002 12:55:18 -0400
-Subject: Re: using memset in a module
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Dan Aloni <da-x@gmx.net>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020927152033.GA4710@callisto.yi.org>
-References: <Pine.LNX.4.33L2.0209261550410.32681-100000@dragon.pdx.osdl.net>
-	 <1033081345.3371.35.camel@zaphod>  <20020927152033.GA4710@callisto.yi.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1033145995.6867.40.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 27 Sep 2002 12:59:56 -0400
-Content-Transfer-Encoding: 7bit
+	id <S261600AbSI0Qr2>; Fri, 27 Sep 2002 12:47:28 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:38313 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261595AbSI0Qr0>;
+	Fri, 27 Sep 2002 12:47:26 -0400
+Date: Fri, 27 Sep 2002 19:01:48 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Rusty Russell <rusty@rustcorp.com.au>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 'virtual => physical page mapping cache', vcache-2.5.38-B8
+In-Reply-To: <Pine.LNX.4.44.0209270940380.2013-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209271856480.15791-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the problem was I was trying to use some gcc specific behavior.
 
-i.e.
+On Fri, 27 Sep 2002, Linus Torvalds wrote:
 
-char devpts[15] = "/dev/pts";
+> You may want to do something clever to avoid taking the vcache lock in
+> the COW path unless there is real reason to believe that you have to,
+> but as far as I can tell, you can do that by simply adding a memory
+> barrier to the end of the "insert vcache entry" thing.
 
-under 2.95 since memset isn't a builtin there has to be a reference to
-it, while under 2.96/3.2 there is a builtin, so there's no symbol
-needed.
+the COW path lookup code already avoids taking the vcache lock - unless
+the hash-head is non-empty.
 
-On Fri, 2002-09-27 at 11:20, Dan Aloni wrote:
-> On Thu, Sep 26, 2002 at 07:02:26PM -0400, Shaya Potter wrote:
-> > On Thu, 2002-09-26 at 18:51, Randy.Dunlap wrote:
-> > > On 26 Sep 2002, Shaya Potter wrote:
-> > > 
-> > > | I have a problem using memset in a module.
-> > > |
-> [snio]
-> > > What gcc options are you using?
-> > > You need -O2 at least.
-> > >           ^ upper-case letter O
-> > 
-> > 
-> > yes, using it.
-> > 
-> > gcc -Wall -DMODULE -DMODVERSIONS -D__KERNEL__ -DLINUX -DEXPORT_SYMTAB
-> > -I/usr/src/linux/include/ -I`pwd`/../migration
-> > -I`pwd`/..//virtualization -O2 -fomit-frame-pointer -pipe
-> > -fno-strength-reduce -malign-loops=2 -malign-jumps=2 -malign-functions=2
-> > -o fs1.o -c virtualizers/fs1.c
-> 
-> Try adding -nostdinc. Prehaps memset is picked up as 'extern' somehow.
-> If that doesn't work, compile with -E instead of -c and grep the
-> preprocessing output for memset, that may give a clue.
-> 
-> -- 
-> Dan Aloni
-> da-x@gmx.net
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Because once you do that, and you make sure that the COW thing does the 
+> vcache callback _after_ changing the page tables, the COW code can 
+>
+>  - do the hash (which is invariant and has no races, since it depends 
+>    solely on the virtual address and the VM)
+>  - check if the hash queue is empty
+>  - only if the hash queue is non-empty does the COW code need to get the 
+>    vcache lock (and obviously it needs to re-load the hash entry from the 
+>    queue after it got the lock, but the hash is still valid)
+
+yeah, this is the optimization i have described in the previous mail, and
+which is in the patch.
+
+> Maybe I'm missing something, but the locking really doesn't look all
+> that problematic if we just do things in the obvious order..
+
+i agree, first hashing the vcache should work. There are some details:  
+if we first hash the vcache then we have to set up the queue in a way for
+the callback function to notice that this queue is not futex-hashed (ie.  
+not live) yet. Otherwise the callback function might attempt to rehash it.  
+This means one more branch in the callback function, not a problem.
+
+	Ingo
 

@@ -1,77 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262563AbTDVHRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 03:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbTDVHRJ
+	id S262977AbTDVHrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 03:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTDVHrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 03:17:09 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:47780 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S262563AbTDVHRH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 03:17:07 -0400
-Date: Tue, 22 Apr 2003 10:29:04 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fix irq event debug print-out, and add stack dump which can
-Message-ID: <20030422072904.GA7434@actcom.co.il>
-References: <200304220713.h3M7DdRZ018542@hera.kernel.org>
+	Tue, 22 Apr 2003 03:47:25 -0400
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:27891 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262977AbTDVHrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 03:47:24 -0400
+Date: Tue, 22 Apr 2003 09:59:22 +0200
+From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ARP
+Message-Id: <20030422095922.6938d362.Christoph.Pleger@uni-dortmund.de>
+In-Reply-To: <Pine.LNX.4.44.0304171308000.6853-100000@sparrow>
+References: <20030417185540.28c74d42.Christoph.Pleger@uni-dortmund.de>
+	<Pine.LNX.4.44.0304171308000.6853-100000@sparrow>
+Organization: Universitaet Dortmund
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
-In-Reply-To: <200304220713.h3M7DdRZ018542@hera.kernel.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello William,
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Good afternoon, Chris,
+> 
+> On Thu, 17 Apr 2003, Christoph Pleger wrote:
+> 
+> > I want to use FreeS/WAN with kernel 2.4. For the configuration I
+> > have to reach with FreeS/WAN I need the ability to tell a host that
+> > it shall accept traffic which is directed to another host. I tried
+> > doing that by the user space program arp, but it did not work and
+> > after that I read in the manual page of arp that since kernel
+> > version 2.2.0 setting an arp entry for a whole subnet is no longer
+> > supported. 
+> > 
+> > Is there something else I can do to tell the hosts in a subnet to
+> > send packets for a specific not to that host itself but to another
+> > host? This should be done transparently so that the hosts do not
+> > know that their ip packets do not go directly to the destination.
+> 
+> 	Proxy arp _does_ work, to the est of my knowledge, still.  You
+> 	may 
+> need to put in the entries for each workstation, that that's a simple 
+> shell loop in your network startup.
+> 
+> http://www.stearns.org/doc/proxyarp-howto
 
-On Tue, Apr 22, 2003 at 06:05:40AM +0000, Linux Kernel Mailing List wrote:
+I did exactly what you described on your webpage (of course I changed
+the addresses), but the arp request of another host still is not
+answered by the FreeS/WAN gateway. Do I have to enable special kernel
+options for proxy arp to work?
 
->  			printk(retval
->  				? "irq event %d: bogus retval mask %x\n"
->  				: "irq %d: nobody cared!\n",
->  				irq,=20
->  				retval);
-
-Uhm, the first printk string takes two parameters, and the second one=20
-only one parameter... how about this cosmetic patch? Better some
-superflous information than printk params mismatch. Not tested,
-obvious.=20
-
-diff -u -r1.31 irq.c
---- arch/i386/kernel/irq.c	21 Apr 2003 20:10:51 -0000	1.31
-+++ arch/i386/kernel/irq.c	22 Apr 2003 06:31:10 -0000
-@@ -225,7 +225,7 @@
- 			count--;
- 			printk(retval
- 				? "irq event %d: bogus retval mask %x\n"
--				: "irq %d: nobody cared!\n",
-+				: "irq %d: nobody cared! (retval %x)\n",
- 				irq,=20
- 				retval);
- 		}
-
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
-
-
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+pO8/KRs727/VN8sRAkKXAKCEbrSMcBvxwHNMsGV61ParVuMh6ACfYPYB
-zeUnUofzK/NwerWNv0jW9rE=
-=5Fnc
------END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--
+Kind regards
+  Christoph

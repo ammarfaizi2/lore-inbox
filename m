@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262508AbTDANFL>; Tue, 1 Apr 2003 08:05:11 -0500
+	id <S262505AbTDANEi>; Tue, 1 Apr 2003 08:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262509AbTDANFL>; Tue, 1 Apr 2003 08:05:11 -0500
-Received: from navigator.sw.com.sg ([213.247.162.11]:31739 "EHLO
-	navigator.sw.com.sg") by vger.kernel.org with ESMTP
-	id <S262508AbTDANFI>; Tue, 1 Apr 2003 08:05:08 -0500
-From: Vladimir Serov <vserov@infratel.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       lkml <linux-kernel@vger.kernel.org>
-Message-ID: <3E899128.2050200@infratel.com>
-Date: Tue, 01 Apr 2003 17:16:24 +0400
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: NFS write got EIO on kernel starting from 2.4.19-pre4 (or -pre3 maybe)
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262508AbTDANEi>; Tue, 1 Apr 2003 08:04:38 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:60388 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S262505AbTDANEh>; Tue, 1 Apr 2003 08:04:37 -0500
+Date: Tue, 1 Apr 2003 14:15:55 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Eric Brunet <ebrunet@lps.ens.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 845GE Chipset severe performance problems
+Message-ID: <20030401131555.GA27443@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Eric Brunet <ebrunet@lps.ens.fr>, linux-kernel@vger.kernel.org
+References: <20030401124404.GA26931@lps.ens.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030401124404.GA26931@lps.ens.fr>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond,
-Belive or not, I've got another NFS related problem. I'm getting EIO in 
-several programs (dd, make) writing relativly large file (several 
-megabytes) over NFS. I've tested several kernels to find out where this 
-problem was introdused. Here the list:
+On Tue, Apr 01, 2003 at 02:44:04PM +0200, Eric Brunet wrote:
 
-Good kernels (doesn't give EIO) : 2.4.18-5asp, 2.4.19, 2.4.20-pre2
-Bad kernel (gives EIO): 2.4.20-pre4, 2.4.20-pre6, 2.4.20, 
-2.4.21-pre5-ac3, 2.4.21-pre6
-2.4.20-pre3 unfortunatly hangs on boot on my hardware.
+ > As there is this thread about mtrr on Intel chipsets, I have some
+ > messages in the log about mtrr, and I don't know whether they are
+ > harmless warnings or errors that should be reported.
+ > 
+ > My computer is a 2.4 GhZ Pentium IV with an intel i845G/GL chipset.
+ > Motherboard and bios by shuttle.
+ > 
+ > $ cat /proc/mtrr
+ > reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
+ > reg01: base=0x1f800000 ( 504MB), size=   8MB: uncachable, count=1
+ > reg02: base=0xe0000000 (3584MB), size= 128MB: write-combining, count=2
+ > 
+ > I have 512 MB of memory, the motherboard doesn't support more than 2GB
+ > and I don't see what is this range over 3.5 GB. Also, the two first
+ > overlaping ranges look suspicious.
 
-I'm able to trigger problem by 'dd if=/dev/zero of=test bs=32k count=1024'
-I'm using NFS over UDP, and this problem ccured regardless of soft or 
-hard mounted fs.
-There was no changes in eepro100 driver i'm using for NIC between 
-2.4.20-pre2 and 2.4.20-pre4
+overlapping is allowed. Does this board have onboard graphics ?
+It looks like your top 8MB is shared video memory. (Ie, the graphics
+chip doesn't have its own RAM). Usually theres things in the BIOS
+to adjust the amount of RAM to allocate to the 'card' including
+a disable option if you have a real card inserted instead.
 
-client hardware : Intel mobo with built-in NIC , P4 2.2Ghz, 512 Mb DDR 
-memory
-server hardware: MSI i815ept mobo with  3Com 3c905C-TX/TX-M [Tornado] 
-PIII 733Mhz , 512Mb SDRAM
+ > So... Is this situation normal ?
 
-client and server are on the same 100Mb hub , client is under ASP Linux 
-7.3, server is under RH8.0
-Unfortunatly, dd or cp problem is transient , while make (actually ar) 
-gets EIO when building openh323 just every time.
-I have to stick to the more recent then  2.4.20-pre2 kernel to make 
-CD/DVD writer working on the other hand.
-Can You  investigate this problem or give me an advise what to do myself ?
+Could be. If the answer to the above question is yes, then its normal.
+What exactly are you finding slow ?
 
-By the way , do You have any progress with nfsclient hanging in the D 
-state, i've told You previously ?
-Cheers, Vladimir.
+		Dave
+

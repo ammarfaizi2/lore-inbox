@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264683AbUEaWra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264843AbUEaWs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264683AbUEaWra (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 18:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbUEaWra
+	id S264843AbUEaWs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 18:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264839AbUEaWs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 18:47:30 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:31329 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264683AbUEaWr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 18:47:28 -0400
-Message-ID: <40BBB5F7.1010407@yahoo.com.au>
-Date: Tue, 01 Jun 2004 08:47:19 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: Michael Brennan <mbrennan@ezrs.com>, linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-References: <40BB88B5.8080300@ezrs.com> <200405312029.i4VKTCZ0000596@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200405312029.i4VKTCZ0000596@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 31 May 2004 18:48:56 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:14531 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264830AbUEaWsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 18:48:45 -0400
+Date: Tue, 1 Jun 2004 00:48:42 +0200 (MEST)
+Message-Id: <200405312248.i4VMmgFI013049@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: dj@david-web.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: APM Console Blanking lockups with 2.6.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> Hi,
-> 
-> Quote from Michael Brennan <mbrennan@ezrs.com>:
-> 
->>Hi!
->>I've recently started to follow this list.
->>I read the swap discussion here, and I was wondering about what Nick 
->>Pigging said about grepping the kernel tree.
->>
->>Nick Piggin wrote:
->> > For example, I have 57MB swapped right now. It allows me to instantly
->> > grep the kernel tree. If I turned swap off, each grep would probably
->> > take 30 seconds.
->>
->>Are the pages swapped to disk as a result of the grep run?
-> 
+On Mon, 31 May 2004 21:43:30 +0100, David Johnson wrote:
+>I've been getting frequent lockups with 2.6.6 whenever the machine is left for 
+>any period of time. These are hard lockups where I can't even use SysRq to 
+>reboot.
+>
+>After poking around a bit I've isolated this to APM Console Blanking. With  
+>console blanking enabled I get a lockup as soon as the console is blanked. 
+>With it disabled everything works fine.
+>
+>But surely if this was a common bug with APM console blanking someone else 
+>would have spotted it before now? Is anybody else having problems/using it 
+>successfully?
+...
+>ACPI: Local APIC address 0xfee00000
+>ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
 
-The pages are gradually swapped to disk as I use the system.
-> 
-> I'm not really sure what the above was intended to demonstrate, but I assume
-> that it was that having swap allowed the first grep to fill physical RAM with
-> cache at the expense of swapping other processes, which were using physical
-> RAM to disk.
-> 
+Note that the mobo BIOS boots with the local APIC enabled,
+thus I don't think that the mobo should be blaimed.
 
-Well, at the "expense" of paging out unused memory. I don't see
-any swapin.
+This is almost certainly the result of a buggy graphics
+card BIOS that can't handle an enabled local APIC.
 
-> However, if 57 Mb of swap allows this, 57 Mb of extra physical RAM should also
-> also allow the grep to be cached, without having to swap out anything.
-> 
+The problem is that the APM driver invokes the BIOS without
+disabling the local APIC first. Some BIOSen hang hard if
+there is any local APIC interrupt while they are running.
+In the case of APM's DISPLAY_BLANK, it's the graphics card
+BIOS that's running.
 
-Well yes, but if I had another 57MB of physical memory then I would
-still turn on swap so that other 57MB of unused memory isn't wasted.
+This is much more likely to occur in 2.6 kernels since they
+by default run the local APIC timer 10 times faster than in
+2.4 kernels.
+
+The workaround is to disable APM's DISPLAY_BLANK and CPU_IDLE
+options, and to not build it as a module.

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267152AbSKXDCD>; Sat, 23 Nov 2002 22:02:03 -0500
+	id <S267158AbSKXEah>; Sat, 23 Nov 2002 23:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267158AbSKXDCD>; Sat, 23 Nov 2002 22:02:03 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:51847 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S267152AbSKXDCC>;
-	Sat, 23 Nov 2002 22:02:02 -0500
-Message-ID: <3DE042DA.4040701@wmich.edu>
-Date: Sat, 23 Nov 2002 22:09:14 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.49-mm1 paging request error -> kernel panic
-References: <3DE04028.5090007@wmich.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267166AbSKXEah>; Sat, 23 Nov 2002 23:30:37 -0500
+Received: from are.twiddle.net ([64.81.246.98]:48525 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S267158AbSKXEag>;
+	Sat, 23 Nov 2002 23:30:36 -0500
+Date: Sat, 23 Nov 2002 20:36:47 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] modules as shared objects
+Message-ID: <20021123203647.A1092@twiddle.net>
+Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>,
+	linux-kernel@vger.kernel.org
+References: <200211240116.RAA19023@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200211240116.RAA19023@adam.yggdrasil.com>; from adam@yggdrasil.com on Sat, Nov 23, 2002 at 05:16:32PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This doesn't seem to have anything to do wtih the share pagetables 
-option in mm1.  I get it when that option is disabled as well.
+On Sat, Nov 23, 2002 at 05:16:32PM -0800, Adam J. Richter wrote:
+> I was wondering if there is any other ultimate benefit to your change.
+
+I think the main benefit is leaving some of the hard bits
+wrt linking to the user-space linker.  Doesn't affect x86,
+but it does affect at least alpha and ia64.
+
+> So, if you adopt a policy that the .init section will be loaded
+> contiguously ...
+
+Well, due to the way shared libraries are constructed, the
+.init sections *must* be loaded contiguously no matter what.
+The question is, how to free that memory.
+
+> I should also check and see if kmalloc returns pointers in the 4MB
+> kernel huge page on x86, which would improve TLB usage.
+
+I believe it does.  This decision must be left to the per-arch
+allocation routine though.
 
 
-Ed Sweetman wrote:
-> after finishing boot sequence, ntpd eventually does something bad.  i 
-> get an "Unable to handle kernel paging request at virtual address 400413cc"
-> I have that share bottom level page tables option enabled. Also preempt.
-> 
-> printing eip:
-> 400085ca
-> *pde = 0ec26067
-> *pte = 0fc18065
-> Oops: 0007
-> CPU: 0
-> EIP: 0023:[<400085ca>] Not tainted
-> EFLAGS: 00010202
-> eax: 0000003d ebx: 400114a8 ecx: 4004147a edx: 40041258
-> esi: bffff0e0 edi: 00000000 ebp: bffff1a8 esp: bffff0d0
-> ds: 002b es: 002b ss: 002b
-> Process ntpd (pid: 385, theradinfo=ceb02000 task=cfc53380)
-> <0>Kernel panic: Aiee, killing interrupt handler!
-> In interrupt handler - not syncing
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+r~

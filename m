@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263407AbUKVTd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263346AbUKVTgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbUKVTd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 14:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263399AbUKVTd0
+	id S263346AbUKVTgK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 14:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUKVTgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 14:33:26 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:65443 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S263339AbUKVTc5 (ORCPT
+	Mon, 22 Nov 2004 14:36:09 -0500
+Received: from gateway.penguincomputing.com ([64.243.132.186]:27865 "EHLO
+	inside.penguincomputing.com") by vger.kernel.org with ESMTP
+	id S263346AbUKVTds convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 14:32:57 -0500
-Date: Mon, 22 Nov 2004 20:32:52 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Stupid question
-In-Reply-To: <200411221421.27351.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.53.0411222032090.13908@yvahk01.tjqt.qr>
-References: <200411212045.51606.gene.heskett@verizon.net>
- <200411220721.26712.gene.heskett@verizon.net> <Pine.LNX.4.53.0411222001040.21595@yvahk01.tjqt.qr>
- <200411221421.27351.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
+	Mon, 22 Nov 2004 14:33:48 -0500
+X-Mda: Mail::Internet Mail::Sendmail Sendmail +mmhack 1.1 on Linux
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+User-Agent: Mutt/1.4.1i
+Subject: Re: adm1026 driver port for kernel 2.6.10-rc2  [RE-REVISED DRIVER]
+In-Reply-To: <20041120105740.1a238842.khali@linux-fr.org>
+Content-Disposition: inline
+Date: Mon, 22 Nov 2004 11:35:38 -0800
+Message-Id: <20041122193538.GA4698@penguincomputing.com>
+References: <20041102221745.GB18020@penguincomputing.com>
+ <NN38qQl1.1099468908.1237810.khali@gcu.info>
+ <20041103164354.GB20465@penguincomputing.com>
+ <20041118185612.GA20728@penguincomputing.com>
+ <20041120105740.1a238842.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+To: LM Sensors <sensors@Stimpy.netroedge.com>
 Content-Transfer-Encoding: 8BIT
+From: Justin Thiessen <jthiessen@penguincomputing.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Well, take a fresh kernel tree, set the desired CPU type, and then
->> look at the .config which is generated. Voil� -- in theory ;-)
+On Sat, Nov 20, 2004 at 10:57:40AM +0100, Jean Delvare wrote:
+> Hi Justin,
+> 
+> > Ok, let's try this (yet) again:
+> 
+> I'm sorry to insist be we really want this as a patch against
+> 2.6.10-rc2. That's what Greg needs. As said earlier, the patch would
+> include the new adm1026.c file (obviously) as well as the necessary
+> changes to Kconfig and Makefile.
 
->I'm glad you put that caveat in there, Jan. :)
+Ack.  Sorry for forgetting the Kconfig and Makefile changes. 
 
-What? There are no bugs! They're features.
+The driver itself is actually a patch against 2.6.10-rc2.
 
->>Never hurts trying to compile a 2.6 for 386SX if the will is strong.
->> :-)
->
->On an SX?  No way Jose.  That would take more will power than I have &
+I'll post the driver once the issues Arjan raised have been resolved.
 
-Read more closely. I said "compile for" not "compile on".
+Justin Thiessen
+---------------
+jthiessen@penguincomputing.com
 
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de

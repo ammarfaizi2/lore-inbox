@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263610AbTDTPdN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 11:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbTDTPdN
+	id S263612AbTDTPeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 11:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTDTPeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 11:33:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61852 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263610AbTDTPdM
+	Sun, 20 Apr 2003 11:34:16 -0400
+Received: from mta05bw.bigpond.com ([139.134.6.95]:18170 "EHLO
+	mta05bw.bigpond.com") by vger.kernel.org with ESMTP id S263612AbTDTPeO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 11:33:12 -0400
-Date: Sun, 20 Apr 2003 16:45:13 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Shachar Shemesh <lkml@shemesh.biz>
-Cc: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK->CVS, kernel.bkbits.net
-Message-ID: <20030420154513.GH10374@parcelfarce.linux.theplanet.co.uk>
-References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org> <3EA2A285.2070307@shemesh.biz> <20030420134712.GM2528@phunnypharm.org> <3EA2B1BB.2060600@shemesh.biz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA2B1BB.2060600@shemesh.biz>
-User-Agent: Mutt/1.4.1i
+	Sun, 20 Apr 2003 11:34:14 -0400
+Message-ID: <3EA2C16A.2030609@snapgear.com>
+Date: Mon, 21 Apr 2003 01:48:58 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.5.68-uc0 (MMU-less fix ups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 20, 2003 at 05:42:03PM +0300, Shachar Shemesh wrote:
-> Ben Collins wrote:
-> 
-> >CVSup is only available on i386 because of the compiler from what I can
-> >see.
-> > 
-> >
-> The site offers binary images for download for FreeBSD and Digital Unix 
-> (Alpha), and Solaris Sparc. It is therefor unlikely that this is a 
-> problem with lack of development tools. More probably - the maintainers 
-> did not have these platforms available to them.
+Hi All,
 
-Care to take a look at the bootstrap procedures for Modula 3 compiler?
+An update of the uClinux (MMU-less) fixups against 2.5.68.
+Not much new since the last patch. Only minor fixups required.
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.68-uc0.patch.gz
+
+Change log:
+
+. updated defconfig for the m68knommu arch
+. ColdFire serial driver and console clean ups
+. fix ColdFire timer warnings
+. remove some inline mm stubs (specific to mmu-less support) from mm.h
+. fix Dragon Engine 2 Makefile
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

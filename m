@@ -1,71 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbUBYUHg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 15:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbUBYUHg
+	id S261413AbUBYUJD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 15:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUBYUJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 15:07:36 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1504 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261257AbUBYUH1 (ORCPT
+	Wed, 25 Feb 2004 15:09:03 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:28550 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261413AbUBYUHv convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 15:07:27 -0500
-Date: Wed, 25 Feb 2004 12:05:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IPMI driver updates, part 1b
-Message-Id: <20040225120551.32681515.akpm@osdl.org>
-In-Reply-To: <403CCA36.3090606@acm.org>
-References: <403B57B8.2000008@acm.org>
-	<403BE39D.2080207@acm.org>
-	<20040224170024.4e75a85c.akpm@osdl.org>
-	<403CCA36.3090606@acm.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Feb 2004 15:07:51 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE:  Re: Intel vs AMD x86-64
+Date: Wed, 25 Feb 2004 12:07:35 -0800
+Message-ID: <7F740D512C7C1046AB53446D37200173EA27D6@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: Intel vs AMD x86-64
+Thread-Index: AcP7vP9o4mi/Dv5WRNqew8oMRH63uQAG/dsg
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Feb 2004 20:07:36.0451 (UTC) FILETIME=[03134530:01C3FBDB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corey Minyard <minyard@acm.org> wrote:
+For near branches (CALL, RET, JCC, JCXZ, JMP, etc.), the operand size is
+forced to 64 bits on both processors in 64-bit mode, basically meaning
+RIP is updated.
+
+Compilers would typically use a JMP short for "intraprocedural jumps",
+which requires just an 8-bit displacement relative to RIP. 
+
+Jun
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+>owner@vger.kernel.org] On Behalf Of H. Peter Anvin
+>Sent: Wednesday, February 25, 2004 8:17 AM
+>To: linux-kernel@vger.kernel.org
+>Subject: Re: Intel vs AMD x86-64
 >
-> >diff -puN net/ipmi/af_ipmi.c~af_ipmi-locking-fix net/ipmi/af_ipmi.c
->  >--- 25/net/ipmi/af_ipmi.c~af_ipmi-locking-fix	Tue Feb 24 16:56:36 2004
->  >+++ 25-akpm/net/ipmi/af_ipmi.c	Tue Feb 24 16:57:00 2004
->  >@@ -336,6 +336,7 @@ static int ipmi_recvmsg(struct kiocb *io
->  > 		}
->  > 
->  > 		timeo = ipmi_wait_for_queue(i, timeo);
->  >+		spin_lock_irqsave(&i->lock, flags);
->  > 	}
->  > 
->  > 	rcvmsg = list_entry(i->msg_list.next, struct ipmi_recv_msg, link);
->  >
->  >
->  > which may or may not be correct.
->  >
->  Actually, I believe the code is correct, and your change will break it.  
->  This is in a "while (1)" loop, and the only way to get out of this loop 
->  is to return with the lock not held or to break out of the loop with the 
->  lock held (and later code will unlock it).  Am I correct here?
-
-With a little more context:
-
-+		spin_unlock_irqrestore(&i->lock, flags);
-+		if (!timeo) {
-+			return -EAGAIN;
-+		} else if (signal_pending (current)) {
-+			dbg("Signal pending: %d", 1);
-+			return -EINTR;
-+		}
-+
-+		timeo = ipmi_wait_for_queue(i, timeo);
-+	}
-+
-+	rcvmsg = list_entry(i->msg_list.next, struct ipmi_recv_msg, link);
-+	list_del(&rcvmsg->link);
-+	spin_unlock_irqrestore(&i->lock, flags);
-
-See, there's a direct code path from one spin_unlock() to the other.  And
-ipmi_wait_for_queue() does not retake the lock.
-
+>Followup to:  <403CCBE0.7050100@techsource.com>
+>By author:    Timothy Miller <miller@techsource.com>
+>In newsgroup: linux.dev.kernel
+>>
+>>
+>> Nakajima, Jun wrote:
+>> > No, it's not a problem. Branches with 16-bit operand size are not
+>useful
+>> > for compilers.
+>>
+>>  From AMD's documentation, I got the impression that 66H caused near
+>> branches to be 32 bits in long mode (default is 64).
+>>
+>> So, Intel makes it 16 bits, and AMD makes it 32 bits?
+>>
+>> Either way, I don't see much use for either one.
+>>
+>
+>Both claims are pretty bogus.  Shorter branches are quite nice for
+>intraprocedural jumps; it reduces the cache footprint.
+>
+>	-hpa
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/

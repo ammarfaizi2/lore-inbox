@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268775AbUHLUld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268772AbUHLUl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268775AbUHLUld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 16:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbUHLUlc
+	id S268772AbUHLUl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 16:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbUHLUlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 16:41:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32983 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268775AbUHLUkR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 16:40:17 -0400
-Date: Thu, 12 Aug 2004 16:37:54 -0400
-From: Alan Cox <alan@redhat.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: IDE hackery: lock fixes and hotplug controller stuff
-Message-ID: <20040812203754.GE1087@devserv.devel.redhat.com>
-References: <20040810161911.GA10565@devserv.devel.redhat.com> <200408101916.17489.bzolnier@elka.pw.edu.pl> <20040810182353.GA17364@devserv.devel.redhat.com> <200408121912.35507.bzolnier@elka.pw.edu.pl> <20040812185614.GC866@devserv.devel.redhat.com> <Pine.GSO.4.58.0408122122190.12534@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0408122122190.12534@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Aug 2004 16:41:52 -0400
+Received: from pegasus.allegientsystems.com ([208.251.178.236]:40710 "EHLO
+	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
+	id S268782AbUHLUkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 16:40:51 -0400
+Message-ID: <411BD5D2.5090604@optonline.net>
+Date: Thu, 12 Aug 2004 16:40:50 -0400
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Pavel Machek <pavel@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] SCSI midlayer power management
+References: <4119611D.60401@optonline.net> <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net> <1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston> <1092314892.1755.5.camel@mulgrave> <20040812131457.GB1086@elf.ucw.cz> <1092328173.2184.15.camel@mulgrave> <20040812191120.GA14903@elf.ucw.cz> <1092339247.1755.36.camel@mulgrave> <20040812202622.GD14556@elf.ucw.cz> <1092342716.2184.56.camel@mulgrave>
+In-Reply-To: <1092342716.2184.56.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12, 2004 at 09:46:56PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> Also aren't you the one who has made "ide-scsi" interface non-functional
-> by introducing ide_setting_sem, he? 8)
+James Bottomley wrote:
+> On Thu, 2004-08-12 at 16:26, Pavel Machek wrote:
 > 
-> http://lkml.org/lkml/2003/2/18/146
-
-Yeah I also removed ide-scsi interface from the -ac patches in 2.4 8)
-
-> > I also have the it8212 working in smart but non raid now. Seems issuing an
-> > LBA 48 cache flush (0xEF) crashes the firmware which is why it died on load
-> > for some users.  To do that I've added hwif->raw_taskfile() so that an
-> > interface can filter commands.
+>>Yes.
 > 
-> Ouch, they should really fix this in the firmware.
+> 
+> Well, that makes the suspend and resume functions rather complex. 
+> They're not going to be coded simply if we have to save and restore the
+> register state of the cards and reinitialise them.  I assume if you had
+> to pick three drivers to do this for, that would be aic7xxx, aic79xx and
+> sym_2?
 
-Agreed. I need to verify its not our fault yet. Either way it'll need to
-stay there because most people have older firmware. One thing I need to
-look at is how to find firmware versions as it seems 1.2 doesnt do LBA48
+S3 suspend-to-RAM has the same requirement. When the system enters S3, 
+the PCI slot loses all physical power and the card's registers are 
+completely gone.
 
-Alan
+So I've already had to fix up the aic7xxx driver to, among other things, 
+reset the DMA base addres on resume. This should help for swsusp. 
+Although maybe there are other requirements for swsusp... I think for 
+swsusp we have to cope with a resume request that seems to come out of 
+nowhere.
+
+> 
+> James
+> 
+> 
+> 
 

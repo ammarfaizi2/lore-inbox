@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbTIZIIq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 04:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbTIZIIp
+	id S262001AbTIZIPv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 04:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbTIZIPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 04:08:45 -0400
-Received: from server0027.freedom2surf.net ([194.106.33.36]:8649 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S261309AbTIZIIo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 04:08:44 -0400
-Date: Fri, 26 Sep 2003 09:08:41 +0100
-From: Ian Molton <spyro@f2s.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nforce2 ethernet
-Message-Id: <20030926090841.4e1e2ca3.spyro@f2s.com>
-In-Reply-To: <20030926064559.GA5906@ucw.cz>
-References: <20030926054449.775e2cb5.spyro@f2s.com>
-	<20030926064559.GA5906@ucw.cz>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 26 Sep 2003 04:15:51 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:49674 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262001AbTIZIPt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 04:15:49 -0400
+Date: Fri, 26 Sep 2003 10:15:42 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Rob Landley <rob@landley.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Keyboard oddness.
+Message-ID: <20030926081542.GA21857@win.tue.nl>
+References: <200309201633.22414.rob@landley.net> <200309221506.08331.rob@landley.net> <20030923000647.A1128@pclin040.win.tue.nl> <200309252027.57512.rob@landley.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309252027.57512.rob@landley.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Sep 2003 08:45:59 +0200
-Vojtech Pavlik <vojtech@suse.cz> wrote:
+On Thu, Sep 25, 2003 at 08:27:57PM -0500, Rob Landley wrote:
+> Okay, a little fresh data:
 
-> 
-> Well, I was suggesting it originaly, but now it's verified - it's not
-> similar to the 8111e. It seems to be a nVidia design.
+> Sep 25 20:22:22 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0xd1, 
+> on isa0060/serio0) pressed.
+> Sep 25 20:22:22 localhost kernel: i8042 history: d1 e0 51 e0 d1 e0 51 e0 d1 e0 
+> 51 e0 d1 e0 51 d1
 
-Heh. tell you what, though - scared me witless when the machine *wouldnt
-not* boot afterwards (it didnt lock, I just rebooted and it never
-posted... I had to remove power AND short the CMOS before it
-recovered... most boards you only need to short the CMOS - silly
-design this one ;-)
+e0 51 is PageDown press
+e0 d1 is PageDown release
 
-Shant be trying that again in a hurry.
+You see here (apart from the first byte, which probably is the second half
+of a PageDown release): PageDown press, release, press, release, press, release,
+press, broken release.
 
-The binary module seems pretty straightforward. I might see if I can use
-it as an excuse to learn X86 assembler (shudder), but I have some other
-projects to do first. perhaps if no-ones done it by then I'll have a go.
+A byte e0 was lost, and the release was not seen as a PageDown release.
 
--- 
-Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
+> The page down key is the one that stuck.  I pressed another key (possibly 
+> either cursor up or page up) to unstick it, and then the next time I pressed 
+> page down it didn't register, but the time after that it did.
 
-Do not meddle in the affairs of Dragons, for you are tasty and good with
-ketchup.
+> You're talking about missed keypresses, but the end-user symptom I'm seeing
+> is definitely a missed key release
+
+Yes - here a release was garbled.
+
+Many people have reported missing key releases, and, as a consequence of that,
+stuck keys. Your reports feel a bit different: the e0 is sometimes lost from
+a key press, sometimes from a key release.
+

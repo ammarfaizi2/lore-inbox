@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbUCQLFq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 06:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUCQLFq
+	id S261358AbUCQLHq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 06:07:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUCQLHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 06:05:46 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:52485 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S261322AbUCQLFo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 06:05:44 -0500
-Subject: Re: [PATCH] PXA255 LCD Driver
-From: Ian Campbell <icampbell@arcom.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       James Simmons <jsimmons@infradead.org>
-In-Reply-To: <Pine.GSO.4.58.0403171137410.21104@waterleaf.sonytel.be>
-References: <1079518182.13373.27.camel@icampbell-debian>
-	 <Pine.GSO.4.58.0403171137410.21104@waterleaf.sonytel.be>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Message-Id: <1079521633.13370.39.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Mar 2004 11:07:14 +0000
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Mar 2004 11:10:06.0375 (UTC) FILETIME=[6734F370:01C40C10]
+	Wed, 17 Mar 2004 06:07:46 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:44736 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S261358AbUCQLHo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 06:07:44 -0500
+Content-class: urn:content-classes:message
+Subject: SMP related
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 17 Mar 2004 16:34:00 +0530
+Message-ID: <1118873EE1755348B4812EA29C55A972176775@esnmail.esntechnologies.co.in>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SMP related
+Thread-Index: AcQMD41gHYglN0PhTDmyGkaH9kKSaw==
+From: "Chandrashekhar Reddy.N" <chandrashekharn@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-> > +For example:
-> > +	modprobe pxafb options=xres:640,yres:480,bpp:8,passive
-> 
-> Not much comments, except: why don't you use the standard modedb mode parameter
-> style?
+ 
 
-I was trying too (I mostly copied the i810 driver). How wrong did I get
-it? I'm willing to rework it to make it the same as the standard.
+I want to develop a block driver which should work on both uni-processor
+and SMP machine.
 
-> > I posted it to the fbdev list @ sf.net (from MAINTAINERS) but that list
-> > seems to be pretty quiet and www.linux-fbdev.org (also from MAINTAINERS)
-> 
-> It's not quiet, though.
+What are the issues that are to be addressed when dealing with SMP? I
+mean for Compiling the module and Interrupt Handling on SMP machine.
 
-OK, I just hadn't seen many messages since I subscribed...
+I have gone through all the archives but I did not find any suitable
+answer....
 
-Ian.
+ 
 
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
+Thanks in advance
+
+ 
+
+---chandra 
+
+ 
 

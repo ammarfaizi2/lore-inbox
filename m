@@ -1,623 +1,1525 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbTIBSlA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 14:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbTIBSlA
+	id S262476AbTIBTRd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 15:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbTIBTRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 14:41:00 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:409 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261334AbTIBSkW
+	Tue, 2 Sep 2003 15:17:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29854 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262519AbTIBTQY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 14:40:22 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Tue, 2 Sep 2003 15:16:24 -0400
+Date: Tue, 2 Sep 2003 20:16:14 +0100
+From: Matthew Wilcox <willy@debian.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ide: kill ide_setup_ports()
-Date: Tue, 2 Sep 2003 20:41:00 +0200
-User-Agent: KMail/1.5
-Cc: linux-m68k@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Subject: kernel header separation
+Message-ID: <20030902191614.GR13467@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309022041.00163.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[ linux-m68k cc: because most of the patch touches m68k only code ]
+In a continuing series of "Things we should have done 5 years ago,
+do they really need to be done before the release of 2.6.0", here's a
+prototype of splitting the kernel headers into stuff we want userspace
+to see and stuff we don't.
 
-ide: kill ide_setup_ports()
+The basic principle is to put user headers in usr/include/linux and
+usr/include/asm-$(ARCH).  Kernel headers may then include them as
+<user/foo.h> and <user-asm/foo.h>
 
-Remove this pseudo helper and convert buddha, gayle, falconide, macide
-and ide-pnp host drivers to initialize hwif->hw themselves.
-Also kill q40_ide_setup_ports(), a q40ide variant of ide_setup_ports().
+This patch implents the 4 lines of Makefile magic necessary and converts
+cdrom.h to use this split.  Note that we can convert headers as slowly as
+we care to with this scheme.
 
-As a side-effect code sizes of all these host drivers were slightly decreased
-(with exception of macide - size unchanged), so ide_setup_ports() really was
-an obfuscation, not a helper.
-
- drivers/ide/ide-pnp.c          |   35 +++++++----------
- drivers/ide/ide.c              |   56 ----------------------------
- drivers/ide/legacy/buddha.c    |   64 +++++++++++++++-----------------
- drivers/ide/legacy/falconide.c |   41 +++++++++-----------
- drivers/ide/legacy/gayle.c     |   33 +++++++---------
- drivers/ide/legacy/macide.c    |   65 ++++++++++++++++----------------
- drivers/ide/legacy/q40ide.c    |   82 ++++++++++++-----------------------------
- include/linux/ide.h            |   14 -------
- 8 files changed, 135 insertions(+), 255 deletions(-)
-
-diff -puN drivers/ide/ide.c~ide-setup-ports drivers/ide/ide.c
---- linux-2.6.0-test4-bk3/drivers/ide/ide.c~ide-setup-ports	2003-09-02 18:07:42.480762448 +0200
-+++ linux-2.6.0-test4-bk3-root/drivers/ide/ide.c	2003-09-02 18:07:42.507758344 +0200
-@@ -935,62 +935,6 @@ abort:
+Index: Makefile
+===================================================================
+RCS file: /var/cvs/linux-2.6/Makefile,v
+retrieving revision 1.28
+diff -u -p -r1.28 Makefile
+--- Makefile	2 Sep 2003 01:03:41 -0000	1.28
++++ Makefile	2 Sep 2003 19:07:45 -0000
+@@ -472,7 +472,7 @@ $(SUBDIRS): prepare
+ #	module versions are listed in "prepare"
  
- EXPORT_SYMBOL(ide_unregister);
+ .PHONY: prepare
+-prepare: include/linux/version.h include/asm include/config/MARKER
++prepare: include/linux/version.h include/asm include/user include/config/MARKER
+ ifdef KBUILD_MODULES
+ ifeq ($(origin SUBDIRS),file)
+ 	$(Q)rm -rf $(MODVERDIR)
+@@ -513,6 +513,12 @@ export AFLAGS_vmlinux.lds.o += -P -C -U$
+ include/asm:
+ 	@echo '  Making asm->asm-$(ARCH) symlink'
+ 	@ln -s asm-$(ARCH) $@
++
++# Can't rely on distributing these syminks as patches
++include/user:
++	@echo '  Making user->usr/include/linux symlink'
++	@ln -s ../usr/include/linux $@
++	@ln -s ../usr/include/asm-$(ARCH) include/user-asm
  
--
--/**
-- *	ide_setup_ports 	-	set up IDE interface ports
-- *	@hw: register descriptions
-- *	@base: base register
-- *	@offsets: table of register offsets
-- *	@ctrl: control register
-- *	@ack_irq: IRQ ack
-- *	@irq: interrupt lie
+ # 	Split autoconf.h into include/linux/config/*
+ 
+Index: include/linux/cdrom.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/linux/cdrom.h,v
+retrieving revision 1.1
+diff -u -p -r1.1 cdrom.h
+--- include/linux/cdrom.h	29 Jul 2003 17:02:11 -0000	1.1
++++ include/linux/cdrom.h	2 Sep 2003 19:07:47 -0000
+@@ -11,711 +11,8 @@
+ #ifndef	_LINUX_CDROM_H
+ #define	_LINUX_CDROM_H
+ 
+-#include <asm/byteorder.h>
++#include <user/cdrom.h>
+ 
+-/*******************************************************
+- * As of Linux 2.1.x, all Linux CD-ROM application programs will use this 
+- * (and only this) include file.  It is my hope to provide Linux with
+- * a uniform interface between software accessing CD-ROMs and the various 
+- * device drivers that actually talk to the drives.  There may still be
+- * 23 different kinds of strange CD-ROM drives, but at least there will 
+- * now be one, and only one, Linux CD-ROM interface.
 - *
-- *	Setup hw_regs_t structure described by parameters.  You
-- *	may set up the hw structure yourself OR use this routine to
-- *	do it for you. This is basically a helper
+- * Additionally, as of Linux 2.1.x, all Linux application programs 
+- * should use the O_NONBLOCK option when opening a CD-ROM device 
+- * for subsequent ioctl commands.  This allows for neat system errors 
+- * like "No medium found" or "Wrong medium type" upon attempting to 
+- * mount or play an empty slot, mount an audio disc, or play a data disc.
+- * Generally, changing an application program to support O_NONBLOCK
+- * is as easy as the following:
+- *       -    drive = open("/dev/cdrom", O_RDONLY);
+- *       +    drive = open("/dev/cdrom", O_RDONLY | O_NONBLOCK);
+- * It is worth the small change.
+- *
+- *  Patches for many common CD programs (provided by David A. van Leeuwen)
+- *  can be found at:  ftp://ftp.gwdg.de/pub/linux/cdrom/drivers/cm206/
+- * 
+- *******************************************************/
+-
+-/* When a driver supports a certain function, but the cdrom drive we are 
+- * using doesn't, we will return the error EDRIVE_CANT_DO_THIS.  We will 
+- * borrow the "Operation not supported" error from the network folks to 
+- * accomplish this.  Maybe someday we will get a more targeted error code, 
+- * but this will do for now... */
+-#define EDRIVE_CANT_DO_THIS  EOPNOTSUPP
+-
+-/*******************************************************
+- * The CD-ROM IOCTL commands  -- these should be supported by 
+- * all the various cdrom drivers.  For the CD-ROM ioctls, we 
+- * will commandeer byte 0x53, or 'S'.
+- *******************************************************/
+-#define CDROMPAUSE		0x5301 /* Pause Audio Operation */ 
+-#define CDROMRESUME		0x5302 /* Resume paused Audio Operation */
+-#define CDROMPLAYMSF		0x5303 /* Play Audio MSF (struct cdrom_msf) */
+-#define CDROMPLAYTRKIND		0x5304 /* Play Audio Track/index 
+-                                           (struct cdrom_ti) */
+-#define CDROMREADTOCHDR		0x5305 /* Read TOC header 
+-                                           (struct cdrom_tochdr) */
+-#define CDROMREADTOCENTRY	0x5306 /* Read TOC entry 
+-                                           (struct cdrom_tocentry) */
+-#define CDROMSTOP		0x5307 /* Stop the cdrom drive */
+-#define CDROMSTART		0x5308 /* Start the cdrom drive */
+-#define CDROMEJECT		0x5309 /* Ejects the cdrom media */
+-#define CDROMVOLCTRL		0x530a /* Control output volume 
+-                                           (struct cdrom_volctrl) */
+-#define CDROMSUBCHNL		0x530b /* Read subchannel data 
+-                                           (struct cdrom_subchnl) */
+-#define CDROMREADMODE2		0x530c /* Read CDROM mode 2 data (2336 Bytes) 
+-                                           (struct cdrom_read) */
+-#define CDROMREADMODE1		0x530d /* Read CDROM mode 1 data (2048 Bytes)
+-                                           (struct cdrom_read) */
+-#define CDROMREADAUDIO		0x530e /* (struct cdrom_read_audio) */
+-#define CDROMEJECT_SW		0x530f /* enable(1)/disable(0) auto-ejecting */
+-#define CDROMMULTISESSION	0x5310 /* Obtain the start-of-last-session 
+-                                           address of multi session disks 
+-                                           (struct cdrom_multisession) */
+-#define CDROM_GET_MCN		0x5311 /* Obtain the "Universal Product Code" 
+-                                           if available (struct cdrom_mcn) */
+-#define CDROM_GET_UPC		CDROM_GET_MCN  /* This one is depricated, 
+-                                          but here anyway for compatibility */
+-#define CDROMRESET		0x5312 /* hard-reset the drive */
+-#define CDROMVOLREAD		0x5313 /* Get the drive's volume setting 
+-                                          (struct cdrom_volctrl) */
+-#define CDROMREADRAW		0x5314	/* read data in raw mode (2352 Bytes)
+-                                           (struct cdrom_read) */
+-/* 
+- * These ioctls are used only used in aztcd.c and optcd.c
+- */
+-#define CDROMREADCOOKED		0x5315	/* read data in cooked mode */
+-#define CDROMSEEK		0x5316  /* seek msf address */
+-  
+-/*
+- * This ioctl is only used by the scsi-cd driver.  
+-   It is for playing audio in logical block addressing mode.
+- */
+-#define CDROMPLAYBLK		0x5317	/* (struct cdrom_blk) */
+-
+-/* 
+- * These ioctls are only used in optcd.c
+- */
+-#define CDROMREADALL		0x5318	/* read all 2646 bytes */
+-
+-/* 
+- * These ioctls are (now) only in ide-cd.c for controlling 
+- * drive spindown time.  They should be implemented in the
+- * Uniform driver, via generic packet commands, GPCMD_MODE_SELECT_10,
+- * GPCMD_MODE_SENSE_10 and the GPMODE_POWER_PAGE...
+- *  -Erik
+- */
+-#define CDROMGETSPINDOWN        0x531d
+-#define CDROMSETSPINDOWN        0x531e
+-
+-/* 
+- * These ioctls are implemented through the uniform CD-ROM driver
+- * They _will_ be adopted by all CD-ROM drivers, when all the CD-ROM
+- * drivers are eventually ported to the uniform CD-ROM driver interface.
+- */
+-#define CDROMCLOSETRAY		0x5319	/* pendant of CDROMEJECT */
+-#define CDROM_SET_OPTIONS	0x5320  /* Set behavior options */
+-#define CDROM_CLEAR_OPTIONS	0x5321  /* Clear behavior options */
+-#define CDROM_SELECT_SPEED	0x5322  /* Set the CD-ROM speed */
+-#define CDROM_SELECT_DISC	0x5323  /* Select disc (for juke-boxes) */
+-#define CDROM_MEDIA_CHANGED	0x5325  /* Check is media changed  */
+-#define CDROM_DRIVE_STATUS	0x5326  /* Get tray position, etc. */
+-#define CDROM_DISC_STATUS	0x5327  /* Get disc type, etc. */
+-#define CDROM_CHANGER_NSLOTS    0x5328  /* Get number of slots */
+-#define CDROM_LOCKDOOR		0x5329  /* lock or unlock door */
+-#define CDROM_DEBUG		0x5330	/* Turn debug messages on/off */
+-#define CDROM_GET_CAPABILITY	0x5331	/* get capabilities */
+-
+-/* Note that scsi/scsi_ioctl.h also uses 0x5382 - 0x5386.
+- * Future CDROM ioctls should be kept below 0x537F
+- */
+-
+-/* This ioctl is only used by sbpcd at the moment */
+-#define CDROMAUDIOBUFSIZ        0x5382	/* set the audio buffer size */
+-					/* conflict with SCSI_IOCTL_GET_IDLUN */
+-
+-/* DVD-ROM Specific ioctls */
+-#define DVD_READ_STRUCT		0x5390  /* Read structure */
+-#define DVD_WRITE_STRUCT	0x5391  /* Write structure */
+-#define DVD_AUTH		0x5392  /* Authentication */
+-
+-#define CDROM_SEND_PACKET	0x5393	/* send a packet to the drive */
+-#define CDROM_NEXT_WRITABLE	0x5394	/* get next writable block */
+-#define CDROM_LAST_WRITTEN	0x5395	/* get last block written on disc */
+-
+-/*******************************************************
+- * CDROM IOCTL structures
+- *******************************************************/
+-
+-/* Address in MSF format */
+-struct cdrom_msf0		
+-{
+-	__u8	minute;
+-	__u8	second;
+-	__u8	frame;
+-};
+-
+-/* Address in either MSF or logical format */
+-union cdrom_addr		
+-{
+-	struct cdrom_msf0	msf;
+-	int			lba;
+-};
+-
+-/* This struct is used by the CDROMPLAYMSF ioctl */ 
+-struct cdrom_msf 
+-{
+-	__u8	cdmsf_min0;	/* start minute */
+-	__u8	cdmsf_sec0;	/* start second */
+-	__u8	cdmsf_frame0;	/* start frame */
+-	__u8	cdmsf_min1;	/* end minute */
+-	__u8	cdmsf_sec1;	/* end second */
+-	__u8	cdmsf_frame1;	/* end frame */
+-};
+-
+-/* This struct is used by the CDROMPLAYTRKIND ioctl */
+-struct cdrom_ti 
+-{
+-	__u8	cdti_trk0;	/* start track */
+-	__u8	cdti_ind0;	/* start index */
+-	__u8	cdti_trk1;	/* end track */
+-	__u8	cdti_ind1;	/* end index */
+-};
+-
+-/* This struct is used by the CDROMREADTOCHDR ioctl */
+-struct cdrom_tochdr 	
+-{
+-	__u8	cdth_trk0;	/* start track */
+-	__u8	cdth_trk1;	/* end track */
+-};
+-
+-/* This struct is used by the CDROMVOLCTRL and CDROMVOLREAD ioctls */
+-struct cdrom_volctrl
+-{
+-	__u8	channel0;
+-	__u8	channel1;
+-	__u8	channel2;
+-	__u8	channel3;
+-};
+-
+-/* This struct is used by the CDROMSUBCHNL ioctl */
+-struct cdrom_subchnl 
+-{
+-	__u8	cdsc_format;
+-	__u8	cdsc_audiostatus;
+-	__u8	cdsc_adr:	4;
+-	__u8	cdsc_ctrl:	4;
+-	__u8	cdsc_trk;
+-	__u8	cdsc_ind;
+-	union cdrom_addr cdsc_absaddr;
+-	union cdrom_addr cdsc_reladdr;
+-};
+-
+-
+-/* This struct is used by the CDROMREADTOCENTRY ioctl */
+-struct cdrom_tocentry 
+-{
+-	__u8	cdte_track;
+-	__u8	cdte_adr	:4;
+-	__u8	cdte_ctrl	:4;
+-	__u8	cdte_format;
+-	union cdrom_addr cdte_addr;
+-	__u8	cdte_datamode;
+-};
+-
+-/* This struct is used by the CDROMREADMODE1, and CDROMREADMODE2 ioctls */
+-struct cdrom_read      
+-{
+-	int	cdread_lba;
+-	char 	*cdread_bufaddr;
+-	int	cdread_buflen;
+-};
+-
+-/* This struct is used by the CDROMREADAUDIO ioctl */
+-struct cdrom_read_audio
+-{
+-	union cdrom_addr addr; /* frame address */
+-	__u8 addr_format;    /* CDROM_LBA or CDROM_MSF */
+-	int nframes;           /* number of 2352-byte-frames to read at once */
+-	__u8 *buf;           /* frame buffer (size: nframes*2352 bytes) */
+-};
+-
+-/* This struct is used with the CDROMMULTISESSION ioctl */
+-struct cdrom_multisession
+-{
+-	union cdrom_addr addr; /* frame address: start-of-last-session 
+-	                           (not the new "frame 16"!).  Only valid
+-	                           if the "xa_flag" is true. */
+-	__u8 xa_flag;        /* 1: "is XA disk" */
+-	__u8 addr_format;    /* CDROM_LBA or CDROM_MSF */
+-};
+-
+-/* This struct is used with the CDROM_GET_MCN ioctl.  
+- * Very few audio discs actually have Universal Product Code information, 
+- * which should just be the Medium Catalog Number on the box.  Also note 
+- * that the way the codeis written on CD is _not_ uniform across all discs!
+- */  
+-struct cdrom_mcn 
+-{
+-  __u8 medium_catalog_number[14]; /* 13 ASCII digits, null-terminated */
+-};
+-
+-/* This is used by the CDROMPLAYBLK ioctl */
+-struct cdrom_blk 
+-{
+-	unsigned from;
+-	unsigned short len;
+-};
+-
+-#define CDROM_PACKET_SIZE	12
+-
+-#define CGC_DATA_UNKNOWN	0
+-#define CGC_DATA_WRITE		1
+-#define CGC_DATA_READ		2
+-#define CGC_DATA_NONE		3
+-
+-/* for CDROM_PACKET_COMMAND ioctl */
+-struct cdrom_generic_command
+-{
+-	unsigned char 		cmd[CDROM_PACKET_SIZE];
+-	unsigned char 		*buffer;
+-	unsigned int 		buflen;
+-	int			stat;
+-	struct request_sense	*sense;
+-	unsigned char		data_direction;
+-	int			quiet;
+-	int			timeout;
+-	void			*reserved[1];
+-};
+-
+-
+-/*
+- * A CD-ROM physical sector size is 2048, 2052, 2056, 2324, 2332, 2336, 
+- * 2340, or 2352 bytes long.  
+-
+-*         Sector types of the standard CD-ROM data formats:
+- *
+- * format   sector type               user data size (bytes)
+- * -----------------------------------------------------------------------------
+- *   1     (Red Book)    CD-DA          2352    (CD_FRAMESIZE_RAW)
+- *   2     (Yellow Book) Mode1 Form1    2048    (CD_FRAMESIZE)
+- *   3     (Yellow Book) Mode1 Form2    2336    (CD_FRAMESIZE_RAW0)
+- *   4     (Green Book)  Mode2 Form1    2048    (CD_FRAMESIZE)
+- *   5     (Green Book)  Mode2 Form2    2328    (2324+4 spare bytes)
+- *
+- *
+- *       The layout of the standard CD-ROM data formats:
+- * -----------------------------------------------------------------------------
+- * - audio (red):                  | audio_sample_bytes |
+- *                                 |        2352        |
+- *
+- * - data (yellow, mode1):         | sync - head - data - EDC - zero - ECC |
+- *                                 |  12  -   4  - 2048 -  4  -   8  - 276 |
+- *
+- * - data (yellow, mode2):         | sync - head - data |
+- *                                 |  12  -   4  - 2336 |
+- *
+- * - XA data (green, mode2 form1): | sync - head - sub - data - EDC - ECC |
+- *                                 |  12  -   4  -  8  - 2048 -  4  - 276 |
+- *
+- * - XA data (green, mode2 form2): | sync - head - sub - data - Spare |
+- *                                 |  12  -   4  -  8  - 2324 -  4    |
 - *
 - */
-- 
--void ide_setup_ports (	hw_regs_t *hw,
--			unsigned long base, int *offsets,
--			unsigned long ctrl, unsigned long intr,
--			ide_ack_intr_t *ack_intr,
--/*
-- *			ide_io_ops_t *iops,
+-
+-/* Some generally useful CD-ROM information -- mostly based on the above */
+-#define CD_MINS              74 /* max. minutes per CD, not really a limit */
+-#define CD_SECS              60 /* seconds per minute */
+-#define CD_FRAMES            75 /* frames per second */
+-#define CD_SYNC_SIZE         12 /* 12 sync bytes per raw data frame */
+-#define CD_MSF_OFFSET       150 /* MSF numbering offset of first frame */
+-#define CD_CHUNK_SIZE        24 /* lowest-level "data bytes piece" */
+-#define CD_NUM_OF_CHUNKS     98 /* chunks per frame */
+-#define CD_FRAMESIZE_SUB     96 /* subchannel data "frame" size */
+-#define CD_HEAD_SIZE          4 /* header (address) bytes per raw data frame */
+-#define CD_SUBHEAD_SIZE       8 /* subheader bytes per raw XA data frame */
+-#define CD_EDC_SIZE           4 /* bytes EDC per most raw data frame types */
+-#define CD_ZERO_SIZE          8 /* bytes zero per yellow book mode 1 frame */
+-#define CD_ECC_SIZE         276 /* bytes ECC per most raw data frame types */
+-#define CD_FRAMESIZE       2048 /* bytes per frame, "cooked" mode */
+-#define CD_FRAMESIZE_RAW   2352 /* bytes per frame, "raw" mode */
+-#define CD_FRAMESIZE_RAWER 2646 /* The maximum possible returned bytes */ 
+-/* most drives don't deliver everything: */
+-#define CD_FRAMESIZE_RAW1 (CD_FRAMESIZE_RAW-CD_SYNC_SIZE) /*2340*/
+-#define CD_FRAMESIZE_RAW0 (CD_FRAMESIZE_RAW-CD_SYNC_SIZE-CD_HEAD_SIZE) /*2336*/
+-
+-#define CD_XA_HEAD        (CD_HEAD_SIZE+CD_SUBHEAD_SIZE) /* "before data" part of raw XA frame */
+-#define CD_XA_TAIL        (CD_EDC_SIZE+CD_ECC_SIZE) /* "after data" part of raw XA frame */
+-#define CD_XA_SYNC_HEAD   (CD_SYNC_SIZE+CD_XA_HEAD) /* sync bytes + header of XA frame */
+-
+-/* CD-ROM address types (cdrom_tocentry.cdte_format) */
+-#define	CDROM_LBA 0x01 /* "logical block": first frame is #0 */
+-#define	CDROM_MSF 0x02 /* "minute-second-frame": binary, not bcd here! */
+-
+-/* bit to tell whether track is data or audio (cdrom_tocentry.cdte_ctrl) */
+-#define	CDROM_DATA_TRACK	0x04
+-
+-/* The leadout track is always 0xAA, regardless of # of tracks on disc */
+-#define	CDROM_LEADOUT		0xAA
+-
+-/* audio states (from SCSI-2, but seen with other drives, too) */
+-#define	CDROM_AUDIO_INVALID	0x00	/* audio status not supported */
+-#define	CDROM_AUDIO_PLAY	0x11	/* audio play operation in progress */
+-#define	CDROM_AUDIO_PAUSED	0x12	/* audio play operation paused */
+-#define	CDROM_AUDIO_COMPLETED	0x13	/* audio play successfully completed */
+-#define	CDROM_AUDIO_ERROR	0x14	/* audio play stopped due to error */
+-#define	CDROM_AUDIO_NO_STATUS	0x15	/* no current audio status to return */
+-
+-/* capability flags used with the uniform CD-ROM driver */ 
+-#define CDC_CLOSE_TRAY		0x1     /* caddy systems _can't_ close */
+-#define CDC_OPEN_TRAY		0x2     /* but _can_ eject.  */
+-#define CDC_LOCK		0x4     /* disable manual eject */
+-#define CDC_SELECT_SPEED 	0x8     /* programmable speed */
+-#define CDC_SELECT_DISC		0x10    /* select disc from juke-box */
+-#define CDC_MULTI_SESSION 	0x20    /* read sessions>1 */
+-#define CDC_MCN			0x40    /* Medium Catalog Number */
+-#define CDC_MEDIA_CHANGED 	0x80    /* media changed */
+-#define CDC_PLAY_AUDIO		0x100   /* audio functions */
+-#define CDC_RESET               0x200   /* hard reset device */
+-#define CDC_IOCTLS              0x400   /* driver has non-standard ioctls */
+-#define CDC_DRIVE_STATUS        0x800   /* driver implements drive status */
+-#define CDC_GENERIC_PACKET	0x1000	/* driver implements generic packets */
+-#define CDC_CD_R		0x2000	/* drive is a CD-R */
+-#define CDC_CD_RW		0x4000	/* drive is a CD-RW */
+-#define CDC_DVD			0x8000	/* drive is a DVD */
+-#define CDC_DVD_R		0x10000	/* drive can write DVD-R */
+-#define CDC_DVD_RAM		0x20000	/* drive can write DVD-RAM */
+-#define CDC_MO_DRIVE		0x40000 /* drive is an MO device */
+-
+-/* drive status possibilities returned by CDROM_DRIVE_STATUS ioctl */
+-#define CDS_NO_INFO		0	/* if not implemented */
+-#define CDS_NO_DISC		1
+-#define CDS_TRAY_OPEN		2
+-#define CDS_DRIVE_NOT_READY	3
+-#define CDS_DISC_OK		4
+-
+-/* return values for the CDROM_DISC_STATUS ioctl */
+-/* can also return CDS_NO_[INFO|DISC], from above */
+-#define CDS_AUDIO		100
+-#define CDS_DATA_1		101
+-#define CDS_DATA_2		102
+-#define CDS_XA_2_1		103
+-#define CDS_XA_2_2		104
+-#define CDS_MIXED		105
+-
+-/* User-configurable behavior options for the uniform CD-ROM driver */
+-#define CDO_AUTO_CLOSE		0x1     /* close tray on first open() */
+-#define CDO_AUTO_EJECT		0x2     /* open tray on last release() */
+-#define CDO_USE_FFLAGS		0x4     /* use O_NONBLOCK information on open */
+-#define CDO_LOCK		0x8     /* lock tray on open files */
+-#define CDO_CHECK_TYPE		0x10    /* check type on open for data */
+-
+-/* Special codes used when specifying changer slots. */
+-#define CDSL_NONE       	((int) (~0U>>1)-1)
+-#define CDSL_CURRENT    	((int) (~0U>>1))
+-
+-/* For partition based multisession access. IDE can handle 64 partitions
+- * per drive - SCSI CD-ROM's use minors to differentiate between the
+- * various drives, so we can't do multisessions the same way there.
+- * Use the -o session=x option to mount on them.
 - */
--			int irq)
--{
--	int i;
+-#define CD_PART_MAX		64
+-#define CD_PART_MASK		(CD_PART_MAX - 1)
 -
--	for (i = 0; i < IDE_NR_PORTS; i++) {
--		if (offsets[i] == -1) {
--			switch(i) {
--				case IDE_CONTROL_OFFSET:
--					hw->io_ports[i] = ctrl;
--					break;
--#if defined(CONFIG_AMIGA) || defined(CONFIG_MAC)
--				case IDE_IRQ_OFFSET:
--					hw->io_ports[i] = intr;
--					break;
--#endif /* (CONFIG_AMIGA) || (CONFIG_MAC) */
--				default:
--					hw->io_ports[i] = 0;
--					break;
--			}
--		} else {
--			hw->io_ports[i] = base + offsets[i];
--		}
--	}
--	hw->irq = irq;
--	hw->dma = NO_DMA;
--	hw->ack_intr = ack_intr;
+-/*********************************************************************
+- * Generic Packet commands, MMC commands, and such
+- *********************************************************************/
+-
+- /* The generic packet command opcodes for CD/DVD Logical Units,
+- * From Table 57 of the SFF8090 Ver. 3 (Mt. Fuji) draft standard. */
+-#define GPCMD_BLANK			    0xa1
+-#define GPCMD_CLOSE_TRACK		    0x5b
+-#define GPCMD_FLUSH_CACHE		    0x35
+-#define GPCMD_FORMAT_UNIT		    0x04
+-#define GPCMD_GET_CONFIGURATION		    0x46
+-#define GPCMD_GET_EVENT_STATUS_NOTIFICATION 0x4a
+-#define GPCMD_GET_PERFORMANCE		    0xac
+-#define GPCMD_INQUIRY			    0x12
+-#define GPCMD_LOAD_UNLOAD		    0xa6
+-#define GPCMD_MECHANISM_STATUS		    0xbd
+-#define GPCMD_MODE_SELECT_10		    0x55
+-#define GPCMD_MODE_SENSE_10		    0x5a
+-#define GPCMD_PAUSE_RESUME		    0x4b
+-#define GPCMD_PLAY_AUDIO_10		    0x45
+-#define GPCMD_PLAY_AUDIO_MSF		    0x47
+-#define GPCMD_PLAY_AUDIO_TI		    0x48
+-#define GPCMD_PLAY_CD			    0xbc
+-#define GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL  0x1e
+-#define GPCMD_READ_10			    0x28
+-#define GPCMD_READ_12			    0xa8
+-#define GPCMD_READ_CDVD_CAPACITY	    0x25
+-#define GPCMD_READ_CD			    0xbe
+-#define GPCMD_READ_CD_MSF		    0xb9
+-#define GPCMD_READ_DISC_INFO		    0x51
+-#define GPCMD_READ_DVD_STRUCTURE	    0xad
+-#define GPCMD_READ_FORMAT_CAPACITIES	    0x23
+-#define GPCMD_READ_HEADER		    0x44
+-#define GPCMD_READ_TRACK_RZONE_INFO	    0x52
+-#define GPCMD_READ_SUBCHANNEL		    0x42
+-#define GPCMD_READ_TOC_PMA_ATIP		    0x43
+-#define GPCMD_REPAIR_RZONE_TRACK	    0x58
+-#define GPCMD_REPORT_KEY		    0xa4
+-#define GPCMD_REQUEST_SENSE		    0x03
+-#define GPCMD_RESERVE_RZONE_TRACK	    0x53
+-#define GPCMD_SCAN			    0xba
+-#define GPCMD_SEEK			    0x2b
+-#define GPCMD_SEND_DVD_STRUCTURE	    0xad
+-#define GPCMD_SEND_EVENT		    0xa2
+-#define GPCMD_SEND_KEY			    0xa3
+-#define GPCMD_SEND_OPC			    0x54
+-#define GPCMD_SET_READ_AHEAD		    0xa7
+-#define GPCMD_SET_STREAMING		    0xb6
+-#define GPCMD_START_STOP_UNIT		    0x1b
+-#define GPCMD_STOP_PLAY_SCAN		    0x4e
+-#define GPCMD_TEST_UNIT_READY		    0x00
+-#define GPCMD_VERIFY_10			    0x2f
+-#define GPCMD_WRITE_10			    0x2a
+-#define GPCMD_WRITE_AND_VERIFY_10	    0x2e
+-/* This is listed as optional in ATAPI 2.6, but is (curiously) 
+- * missing from Mt. Fuji, Table 57.  It _is_ mentioned in Mt. Fuji
+- * Table 377 as an MMC command for SCSi devices though...  Most ATAPI
+- * drives support it. */
+-#define GPCMD_SET_SPEED			    0xbb
+-/* This seems to be a SCSI specific CD-ROM opcode 
+- * to play data at track/index */
+-#define GPCMD_PLAYAUDIO_TI		    0x48
 -/*
-- *	hw->iops = iops;
+- * From MS Media Status Notification Support Specification. For
+- * older drives only.
 - */
--}
+-#define GPCMD_GET_MEDIA_STATUS		    0xda
 -
--EXPORT_SYMBOL(ide_setup_ports);
+-/* Mode page codes for mode sense/set */
+-#define GPMODE_R_W_ERROR_PAGE		0x01
+-#define GPMODE_WRITE_PARMS_PAGE		0x05
+-#define GPMODE_AUDIO_CTL_PAGE		0x0e
+-#define GPMODE_POWER_PAGE		0x1a
+-#define GPMODE_FAULT_FAIL_PAGE		0x1c
+-#define GPMODE_TO_PROTECT_PAGE		0x1d
+-#define GPMODE_CAPABILITIES_PAGE	0x2a
+-#define GPMODE_ALL_PAGES		0x3f
+-/* Not in Mt. Fuji, but in ATAPI 2.6 -- depricated now in favor
+- * of MODE_SENSE_POWER_PAGE */
+-#define GPMODE_CDROM_PAGE		0x0d
 -
- /*
-  * Register an IDE interface, specifying exactly the registers etc
-  * Set init=1 iff calling before probes have taken place.
-diff -puN drivers/ide/ide-pnp.c~ide-setup-ports drivers/ide/ide-pnp.c
---- linux-2.6.0-test4-bk3/drivers/ide/ide-pnp.c~ide-setup-ports	2003-09-02 18:07:42.483761992 +0200
-+++ linux-2.6.0-test4-bk3-root/drivers/ide/ide-pnp.c	2003-09-02 18:07:42.507758344 +0200
-@@ -21,21 +21,6 @@
- 
- #include <linux/pnp.h>
- 
--#define GENERIC_HD_DATA		0
--#define GENERIC_HD_ERROR	1
--#define GENERIC_HD_NSECTOR	2
--#define GENERIC_HD_SECTOR	3
--#define GENERIC_HD_LCYL		4
--#define GENERIC_HD_HCYL		5
--#define GENERIC_HD_SELECT	6
--#define GENERIC_HD_STATUS	7
 -
--static int generic_ide_offsets[IDE_NR_PORTS] = {
--	GENERIC_HD_DATA, GENERIC_HD_ERROR, GENERIC_HD_NSECTOR, 
--	GENERIC_HD_SECTOR, GENERIC_HD_LCYL, GENERIC_HD_HCYL,
--	GENERIC_HD_SELECT, GENERIC_HD_STATUS, -1, -1
+-
+-/* DVD struct types */
+-#define DVD_STRUCT_PHYSICAL	0x00
+-#define DVD_STRUCT_COPYRIGHT	0x01
+-#define DVD_STRUCT_DISCKEY	0x02
+-#define DVD_STRUCT_BCA		0x03
+-#define DVD_STRUCT_MANUFACT	0x04
+-
+-struct dvd_layer {
+-	__u8 book_version	: 4;
+-	__u8 book_type		: 4;
+-	__u8 min_rate		: 4;
+-	__u8 disc_size		: 4;
+-	__u8 layer_type		: 4;
+-	__u8 track_path		: 1;
+-	__u8 nlayers		: 2;
+-	__u8 track_density	: 4;
+-	__u8 linear_density	: 4;
+-	__u8 bca		: 1;
+-	__u32 start_sector;
+-	__u32 end_sector;
+-	__u32 end_sector_l0;
 -};
 -
- /* Add your devices here :)) */
- struct pnp_device_id idepnp_devices[] = {
-   	/* Generic ESDI/IDE/ATA compatible hard disk controller */
-@@ -47,17 +32,25 @@ static int idepnp_probe(struct pnp_dev *
- {
- 	hw_regs_t hw;
- 	ide_hwif_t *hwif;
-+	unsigned long base;
-+	unsigned int i;
- 	int index;
- 
- 	if (!(pnp_port_valid(dev, 0) && pnp_port_valid(dev, 1) && pnp_irq_valid(dev, 0)))
- 		return -1;
- 
--	ide_setup_ports(&hw, (unsigned long) pnp_port_start(dev, 0),
--			generic_ide_offsets,
--			(unsigned long) pnp_port_start(dev, 1),
--			0, NULL,
--//			generic_pnp_ide_iops,
--			pnp_irq(dev, 0));
-+	base = (unsigned long) pnp_port_start(dev, 0);
-+
-+	for (i = IDE_DATA_OFFSET; i < IDE_CONTROL_OFFSET; i++)
-+		hw.io_ports[i] = base + i;
-+
-+	hw.io_ports[IDE_CONTROL_OFFSET] = (unsigned long)
-+					  pnp_port_start(dev, 1);
-+	hw.io_ports[IDE_IRQ_OFFSET] = 0;
-+
-+	hw.irq = pnp_irq(dev, 0);
-+	hw.dma = NO_DMA;
-+	hw.ack_intr = NULL;
- 
- 	index = ide_register_hw(&hw, &hwif);
- 
-diff -puN drivers/ide/legacy/buddha.c~ide-setup-ports drivers/ide/legacy/buddha.c
---- linux-2.6.0-test4-bk3/drivers/ide/legacy/buddha.c~ide-setup-ports	2003-09-02 18:07:42.486761536 +0200
-+++ linux-2.6.0-test4-bk3-root/drivers/ide/legacy/buddha.c	2003-09-02 18:07:42.508758192 +0200
-@@ -61,26 +61,7 @@ static u_int xsurf_bases[XSURF_NUM_HWIFS
-      *  Offsets from one of the above bases
-      */
- 
--#define BUDDHA_DATA	0x00
--#define BUDDHA_ERROR	0x06		/* see err-bits */
--#define BUDDHA_NSECTOR	0x0a		/* nr of sectors to read/write */
--#define BUDDHA_SECTOR	0x0e		/* starting sector */
--#define BUDDHA_LCYL	0x12		/* starting cylinder */
--#define BUDDHA_HCYL	0x16		/* high byte of starting cyl */
--#define BUDDHA_SELECT	0x1a		/* 101dhhhh , d=drive, hhhh=head */
--#define BUDDHA_STATUS	0x1e		/* see status-bits */
- #define BUDDHA_CONTROL	0x11a
--#define XSURF_CONTROL   -1              /* X-Surf has no CS1* (Control/AltStat) */
+-#define DVD_LAYERS	4
 -
--static int buddha_offsets[IDE_NR_PORTS] __initdata = {
--    BUDDHA_DATA, BUDDHA_ERROR, BUDDHA_NSECTOR, BUDDHA_SECTOR, BUDDHA_LCYL,
--    BUDDHA_HCYL, BUDDHA_SELECT, BUDDHA_STATUS, BUDDHA_CONTROL, -1
+-struct dvd_physical {
+-	__u8 type;
+-	__u8 layer_num;
+-	struct dvd_layer layer[DVD_LAYERS];
 -};
 -
--static int xsurf_offsets[IDE_NR_PORTS] __initdata = {
--    BUDDHA_DATA, BUDDHA_ERROR, BUDDHA_NSECTOR, BUDDHA_SECTOR, BUDDHA_LCYL,
--    BUDDHA_HCYL, BUDDHA_SELECT, BUDDHA_STATUS, XSURF_CONTROL, -1
--};
- 
-     /*
-      *  Other registers
-@@ -146,6 +127,7 @@ static int xsurf_ack_intr(ide_hwif_t *hw
- void __init buddha_init(void)
- {
- 	hw_regs_t hw;
-+	unsigned long base;
- 	int i, index;
- 
- 	struct zorro_dev *z = NULL;
-@@ -171,6 +153,7 @@ void __init buddha_init(void)
- 
- /*
-  * FIXME: we now have selectable mmio v/s iomio transports.
-+ * FIXME2: split init on Buddha and Catweasel/X-Surf.
-  */
- 
- 		if(type != BOARD_XSURF) {
-@@ -196,22 +179,35 @@ fail_base2:
- 			z_writeb(0, buddha_board+BUDDHA_IRQ_MR);
- 		
- 		for(i=0;i<buddha_num_hwifs;i++) {
--			if(type != BOARD_XSURF) {
--				ide_setup_ports(&hw, (buddha_board+buddha_bases[i]),
--						buddha_offsets, 0,
--						(buddha_board+buddha_irqports[i]),
--						buddha_ack_intr,
--//						budda_iops,
--						IRQ_AMIGA_PORTS);
-+
-+			if (type != BOARD_XSURF)
-+				base = buddha_board + buddha_bases[i];
-+			else
-+				base = buddha_board + xsurf_bases[i];
-+
-+			hw.io_ports[IDE_DATA_OFFSET]	= base;
-+			hw.io_ports[IDE_ERROR_OFFSET]	= base + 0x06;
-+			hw.io_ports[IDE_NSECTOR_OFFSET]	= base + 0x0a;
-+			hw.io_ports[IDE_SECTOR_OFFSET]	= base + 0x0e;
-+			hw.io_ports[IDE_LCYL_OFFSET]	= base + 0x12;
-+			hw.io_ports[IDE_HCYL_OFFSET]	= base + 0x16;
-+			hw.io_ports[IDE_SELECT_OFFSET]	= base + 0x1a;
-+			hw.io_ports[IDE_STATUS_OFFSET]	= base + 0x1e;
-+
-+			if (type != BOARD_XSURF) {
-+				hw.io_ports[IDE_CONTROL_OFFSET] = base + BUDDHA_CONTROL;
-+				hw.io_ports[IDE_IRQ_OFFSET] = buddha_board + buddha_irqports[i];
-+				hw.ack_intr = buddha_ack_intr;
- 			} else {
--				ide_setup_ports(&hw, (buddha_board+xsurf_bases[i]),
--						xsurf_offsets, 0,
--						(buddha_board+xsurf_irqports[i]),
--						xsurf_ack_intr,
--//						xsurf_iops,
--						IRQ_AMIGA_PORTS);
--			}	
--			
-+				/* X-Surf has no CS1* (Control/AltStat) */
-+				hw.io_ports[IDE_CONTROL_OFFSET] = 0;
-+				hw.io_ports[IDE_IRQ_OFFSET] = buddha_board + xsurf_irqports[i];
-+				hw.ack_intr = xsurf_ack_intr;
-+			}
-+
-+			hw.irq = IRQ_AMIGA_PORTS;
-+			hw.dma = NO_DMA;
-+
- 			index = ide_register_hw(&hw, NULL);
- 			if (index != -1) {
- 				printk("ide%d: ", index);
-diff -puN drivers/ide/legacy/falconide.c~ide-setup-ports drivers/ide/legacy/falconide.c
---- linux-2.6.0-test4-bk3/drivers/ide/legacy/falconide.c~ide-setup-ports	2003-09-02 18:07:42.489761080 +0200
-+++ linux-2.6.0-test4-bk3-root/drivers/ide/legacy/falconide.c	2003-09-02 18:07:42.509758040 +0200
-@@ -28,25 +28,6 @@
- 
- #define ATA_HD_BASE	0xfff00000
- 
--    /*
--     *  Offsets from the above base
--     */
+-struct dvd_copyright {
+-	__u8 type;
 -
--#define ATA_HD_DATA	0x00
--#define ATA_HD_ERROR	0x05		/* see err-bits */
--#define ATA_HD_NSECTOR	0x09		/* nr of sectors to read/write */
--#define ATA_HD_SECTOR	0x0d		/* starting sector */
--#define ATA_HD_LCYL	0x11		/* starting cylinder */
--#define ATA_HD_HCYL	0x15		/* high byte of starting cyl */
--#define ATA_HD_SELECT	0x19		/* 101dhhhh , d=drive, hhhh=head */
--#define ATA_HD_STATUS	0x1d		/* see status-bits */
--#define ATA_HD_CONTROL	0x39
--
--static int falconide_offsets[IDE_NR_PORTS] __initdata = {
--    ATA_HD_DATA, ATA_HD_ERROR, ATA_HD_NSECTOR, ATA_HD_SECTOR, ATA_HD_LCYL,
--    ATA_HD_HCYL, ATA_HD_SELECT, ATA_HD_STATUS, ATA_HD_CONTROL, -1
+-	__u8 layer_num;
+-	__u8 cpst;
+-	__u8 rmi;
 -};
 -
- 
-     /*
-      *  falconide_intr_lock is used to obtain access to the IDE interrupt,
-@@ -64,12 +45,26 @@ void __init falconide_init(void)
- {
-     if (MACH_IS_ATARI && ATARIHW_PRESENT(IDE)) {
- 	hw_regs_t hw;
-+	unsigned long base;
- 	int index;
- 
--	ide_setup_ports(&hw, ATA_HD_BASE, falconide_offsets,
--			0, 0, NULL,
--//			falconide_iops,
--			IRQ_MFP_IDE);
-+	base = ATA_HD_BASE;
-+
-+	hw.io_ports[IDE_DATA_OFFSET]	= base;
-+	hw.io_ports[IDE_ERROR_OFFSET]	= base + 0x05;
-+	hw.io_ports[IDE_NSECTOR_OFFSET]	= base + 0x09;
-+	hw.io_ports[IDE_SECTOR_OFFSET]	= base + 0x0d;
-+	hw.io_ports[IDE_LCYL_OFFSET]	= base + 0x11;
-+	hw.io_ports[IDE_HCYL_OFFSET]	= base + 0x15;
-+	hw.io_ports[IDE_SELECT_OFFSET]	= base + 0x19;
-+	hw.io_ports[IDE_STATUS_OFFSET]	= base + 0x1d;
-+	hw.io_ports[IDE_CONTROL_OFFSET]	= base + 0x39;
-+	hw.io_ports[IDE_IRQ_OFFSET]	= 0;
-+
-+	hw.irq = IRQ_MFP_IDE;
-+	hw.dma = NO_DMA;
-+	hw.ack_intr = NULL;
-+
- 	index = ide_register_hw(&hw, NULL);
- 
- 	if (index != -1)
-diff -puN drivers/ide/legacy/gayle.c~ide-setup-ports drivers/ide/legacy/gayle.c
---- linux-2.6.0-test4-bk3/drivers/ide/legacy/gayle.c~ide-setup-ports	2003-09-02 18:07:42.492760624 +0200
-+++ linux-2.6.0-test4-bk3-root/drivers/ide/legacy/gayle.c	2003-09-02 18:07:42.509758040 +0200
-@@ -35,22 +35,8 @@
-      *  Offsets from one of the above bases
-      */
- 
--#define GAYLE_DATA	0x00
--#define GAYLE_ERROR	0x06		/* see err-bits */
--#define GAYLE_NSECTOR	0x0a		/* nr of sectors to read/write */
--#define GAYLE_SECTOR	0x0e		/* starting sector */
--#define GAYLE_LCYL	0x12		/* starting cylinder */
--#define GAYLE_HCYL	0x16		/* high byte of starting cyl */
--#define GAYLE_SELECT	0x1a		/* 101dhhhh , d=drive, hhhh=head */
--#define GAYLE_STATUS	0x1e		/* see status-bits */
- #define GAYLE_CONTROL	0x101a
- 
--static int gayle_offsets[IDE_NR_PORTS] __initdata = {
--    GAYLE_DATA, GAYLE_ERROR, GAYLE_NSECTOR, GAYLE_SECTOR, GAYLE_LCYL,
--    GAYLE_HCYL, GAYLE_SELECT, GAYLE_STATUS, -1, -1
+-struct dvd_disckey {
+-	__u8 type;
+-
+-	unsigned agid		: 2;
+-	__u8 value[2048];
 -};
 -
+-struct dvd_bca {
+-	__u8 type;
 -
-     /*
-      *  These are at different offsets from the base
-      */
-@@ -153,10 +139,21 @@ void __init gayle_init(void)
- 	base = (unsigned long)ZTWO_VADDR(phys_base);
- 	ctrlport = GAYLE_HAS_CONTROL_REG ? (base + GAYLE_CONTROL) : 0;
- 
--	ide_setup_ports(&hw, base, gayle_offsets,
--			ctrlport, irqport, ack_intr,
--//			&gayle_iops,
--			IRQ_AMIGA_PORTS);
-+	hw.io_ports[IDE_DATA_OFFSET]	= base;
-+	hw.io_ports[IDE_ERROR_OFFSET]	= base + 0x06;
-+	hw.io_ports[IDE_NSECTOR_OFFSET]	= base + 0x0a;
-+	hw.io_ports[IDE_SECTOR_OFFSET]	= base + 0x0e;
-+	hw.io_ports[IDE_LCYL_OFFSET]	= base + 0x12;
-+	hw.io_ports[IDE_HCYL_OFFSET]	= base + 0x16;
-+	hw.io_ports[IDE_SELECT_OFFSET]	= base + 0x1a;
-+	hw.io_ports[IDE_STATUS_OFFSET]	= base + 0x1e;
-+
-+	hw.io_ports[IDE_CONTROL_OFFSET]	= ctrlport;
-+	hw.io_ports[IDE_IRQ_OFFSET]	= irqport;
-+
-+	hw.irq = IRQ_AMIGA_PORTS;
-+	hw.dma = NO_DMA;
-+	hw.ack_intr = ack_intr;
- 
- 	index = ide_register_hw(&hw, &hwif);
- 	if (index != -1) {
-diff -puN drivers/ide/legacy/macide.c~ide-setup-ports drivers/ide/legacy/macide.c
---- linux-2.6.0-test4-bk3/drivers/ide/legacy/macide.c~ide-setup-ports	2003-09-02 18:07:42.495760168 +0200
-+++ linux-2.6.0-test4-bk3-root/drivers/ide/legacy/macide.c	2003-09-02 18:21:38.786624632 +0200
-@@ -28,21 +28,6 @@
- #define IDE_BASE 0x50F1A000	/* Base address of IDE controller */
- 
- /*
-- * Generic IDE registers as offsets from the base
-- * These match MkLinux so they should be correct.
-- */
+-	int len;
+-	__u8 value[188];
+-};
 -
--#define IDE_DATA	0x00
--#define IDE_ERROR	0x04	/* see err-bits */
--#define IDE_NSECTOR	0x08	/* nr of sectors to read/write */
--#define IDE_SECTOR	0x0c	/* starting sector */
--#define IDE_LCYL	0x10	/* starting cylinder */
--#define IDE_HCYL	0x14	/* high byte of starting cyl */
--#define IDE_SELECT	0x18	/* 101dhhhh , d=drive, hhhh=head */
--#define IDE_STATUS	0x1c	/* see status-bits */
--#define IDE_CONTROL	0x38	/* control/altstatus */
+-struct dvd_manufact {
+-	__u8 type;
+-
+-	__u8 layer_num;
+-	int len;
+-	__u8 value[2048];
+-};
+-
+-typedef union {
+-	__u8 type;
+-
+-	struct dvd_physical	physical;
+-	struct dvd_copyright	copyright;
+-	struct dvd_disckey	disckey;
+-	struct dvd_bca		bca;
+-	struct dvd_manufact	manufact;
+-} dvd_struct;
 -
 -/*
-  * Mac-specific registers
-  */
- 
-@@ -64,11 +49,6 @@
- 
- volatile unsigned char *ide_ifr = (unsigned char *) (IDE_BASE + IDE_IFR);
- 
--static int macide_offsets[IDE_NR_PORTS] = {
--    IDE_DATA, IDE_ERROR,  IDE_NSECTOR, IDE_SECTOR, IDE_LCYL,
--    IDE_HCYL, IDE_SELECT, IDE_STATUS,  IDE_CONTROL
+- * DVD authentication ioctl
+- */
+-
+-/* Authentication states */
+-#define DVD_LU_SEND_AGID	0
+-#define DVD_HOST_SEND_CHALLENGE	1
+-#define DVD_LU_SEND_KEY1	2
+-#define DVD_LU_SEND_CHALLENGE	3
+-#define DVD_HOST_SEND_KEY2	4
+-
+-/* Termination states */
+-#define DVD_AUTH_ESTABLISHED	5
+-#define DVD_AUTH_FAILURE	6
+-
+-/* Other functions */
+-#define DVD_LU_SEND_TITLE_KEY	7
+-#define DVD_LU_SEND_ASF		8
+-#define DVD_INVALIDATE_AGID	9
+-#define DVD_LU_SEND_RPC_STATE	10
+-#define DVD_HOST_SEND_RPC_STATE	11
+-
+-/* State data */
+-typedef __u8 dvd_key[5];		/* 40-bit value, MSB is first elem. */
+-typedef __u8 dvd_challenge[10];	/* 80-bit value, MSB is first elem. */
+-
+-struct dvd_lu_send_agid {
+-	__u8 type;
+-	unsigned agid		: 2;
 -};
 -
- int macide_ack_intr(ide_hwif_t* hwif)
- {
- 	if (*ide_ifr & 0x20) {
-@@ -87,6 +67,27 @@ static void macide_mediabay_interrupt(in
- }
- #endif
- 
-+static void macide_init_io_ports(hw_regs_t *hw, unsigned long base)
-+{
-+	/*
-+	 * Generic IDE registers as offsets from the base.
-+	 * These match MkLinux so they should be correct.
-+	 */
-+	hw->io_ports[IDE_DATA_OFFSET]		= base;
-+	hw->io_ports[IDE_ERROR_OFFSET]		= base + 0x04;
-+	hw->io_ports[IDE_NSECTOR_OFFSET]	= base + 0x08;
-+	hw->io_ports[IDE_SECTOR_OFFSET]		= base + 0x0c;
-+	hw->io_ports[IDE_LCYL_OFFSET]		= base + 0x10;
-+	hw->io_ports[IDE_HCYL_OFFSET]		= base + 0x14;
-+	hw->io_ports[IDE_SELECT_OFFSET]		= base + 0x18;
-+	hw->io_ports[IDE_STATUS_OFFSET]		= base + 0x1c;
-+
-+	hw->io_ports[IDE_CONTROL_OFFSET]	= base + 0x38;
-+
-+	/* FIXME: probably wrong, but orginal code did it. */
-+	hw->io_ports[IDE_IRQ_OFFSET]		= base;
-+}
-+
- /*
-  * Probe for a Macintosh IDE interface
-  */
-@@ -98,24 +99,24 @@ void macide_init(void)
- 
- 	switch (macintosh_config->ide_type) {
- 	case MAC_IDE_QUADRA:
--		ide_setup_ports(&hw, IDE_BASE, macide_offsets,
--				0, 0, macide_ack_intr,
--//				quadra_ide_iops,
--				IRQ_NUBUS_F);
-+		macide_init_io_ports(&hw, IDE_BASE);
-+		hw.irq = IRQ_NUBUS_F;
-+		hw.ack_intr = macide_ack_intr;
-+		hw.dma = NO_DMA;
- 		index = ide_register_hw(&hw, NULL);
- 		break;
- 	case MAC_IDE_PB:
--		ide_setup_ports(&hw, IDE_BASE, macide_offsets,
--				0, 0, macide_ack_intr,
--//				macide_pb_iops,
--				IRQ_NUBUS_C);
-+		macide_init_io_ports(&hw, IDE_BASE);
-+		hw.irq = IRQ_NUBUS_C;
-+		hw.ack_intr = macide_ack_intr;
-+		hw.dma = NO_DMA;
- 		index = ide_register_hw(&hw, NULL);
- 		break;
- 	case MAC_IDE_BABOON:
--		ide_setup_ports(&hw, BABOON_BASE, macide_offsets,
--				0, 0, NULL,
--//				macide_baboon_iops,
--				IRQ_BABOON_1);
-+		macide_init_io_ports(&hw, BABOON_BASE);
-+		hw.irq = IRQ_BABOON_1;
-+		hw.ack_intr = NULL;
-+		hw.dma = NO_DMA;
- 		index = ide_register_hw(&hw, NULL);
- 		if (index == -1) break;
- 		if (macintosh_config->ident == MAC_MODEL_PB190) {
-diff -puN drivers/ide/legacy/q40ide.c~ide-setup-ports drivers/ide/legacy/q40ide.c
---- linux-2.6.0-test4-bk3/drivers/ide/legacy/q40ide.c~ide-setup-ports	2003-09-02 18:07:42.498759712 +0200
-+++ linux-2.6.0-test4-bk3-root/drivers/ide/legacy/q40ide.c	2003-09-02 18:21:57.861724776 +0200
-@@ -36,23 +36,6 @@ static const unsigned long pcide_bases[Q
-     PCIDE_BASE6 */
- };
- 
+-struct dvd_host_send_challenge {
+-	__u8 type;
+-	unsigned agid		: 2;
 -
--    /*
--     *  Offsets from one of the above bases
--     */
--
--/* used to do addr translation here but it is easier to do in setup ports */
--/*#define IDE_OFF_B(x)	((unsigned long)Q40_ISA_IO_B((IDE_##x##_OFFSET)))*/
--
--#define IDE_OFF_B(x)	((unsigned long)((IDE_##x##_OFFSET)))
--#define IDE_OFF_W(x)	((unsigned long)((IDE_##x##_OFFSET)))
--
--static const int pcide_offsets[IDE_NR_PORTS] = {
--    IDE_OFF_W(DATA), IDE_OFF_B(ERROR), IDE_OFF_B(NSECTOR), IDE_OFF_B(SECTOR),
--    IDE_OFF_B(LCYL), IDE_OFF_B(HCYL), 6 /*IDE_OFF_B(CURRENT)*/, IDE_OFF_B(STATUS),
--    518/*IDE_OFF(CMD)*/
+-	dvd_challenge chal;
 -};
 -
- static int q40ide_default_irq(unsigned long base)
- {
-            switch (base) {
-@@ -64,41 +47,6 @@ static int q40ide_default_irq(unsigned l
- 	   }
- }
- 
+-struct dvd_send_key {
+-	__u8 type;
+-	unsigned agid		: 2;
 -
--/*
-- * This is very similar to ide_setup_ports except that addresses
-- * are pretranslated for q40 ISA access
-- */
--void q40_ide_setup_ports ( hw_regs_t *hw,
--			unsigned long base, int *offsets,
--			unsigned long ctrl, unsigned long intr,
--			ide_ack_intr_t *ack_intr,
--/*
-- *			ide_io_ops_t *iops,
-- */
--			int irq)
--{
--	int i;
+-	dvd_key key;
+-};
 -
--	for (i = 0; i < IDE_NR_PORTS; i++) {
--		/* BIG FAT WARNING: 
--		   assumption: only DATA port is ever used in 16 bit mode */
--		if ( i==0 )
--			hw->io_ports[i] = Q40_ISA_IO_W(base + offsets[i]);
--		else
--			hw->io_ports[i] = Q40_ISA_IO_B(base + offsets[i]);
--	}
--	
--	hw->irq = irq;
--	hw->dma = NO_DMA;
--	hw->ack_intr = ack_intr;
--/*
-- *	hw->iops = iops;
-- */
--}
+-struct dvd_lu_send_challenge {
+-	__u8 type;
+-	unsigned agid		: 2;
 -
+-	dvd_challenge chal;
+-};
 -
+-#define DVD_CPM_NO_COPYRIGHT	0
+-#define DVD_CPM_COPYRIGHTED	1
 -
- /* 
-  * the static array is needed to have the name reported in /proc/ioports,
-  * hwif->name unfortunately isn´t available yet
-@@ -123,6 +71,8 @@ void q40ide_init(void)
- 
-     for (i = 0; i < Q40IDE_NUM_HWIFS; i++) {
- 	hw_regs_t hw;
-+	unsigned long base;
-+	unsigned int j;
- 
- 	name = q40_ide_names[i];
- 	if (!request_region(pcide_bases[i], 8, name)) {
-@@ -136,11 +86,29 @@ void q40ide_init(void)
- 		release_region(pcide_bases[i], 8);
- 		continue;
- 	}
--	q40_ide_setup_ports(&hw,(unsigned long) pcide_bases[i], (int *)pcide_offsets, 
--			pcide_bases[i]+0x206, 
--			0, NULL,
--//			m68kide_iops,
--			q40ide_default_irq(pcide_bases[i]));
-+
-+	base = pcide_bases[i];
-+
-+	/*
-+	   Pretranslate addresses for q40 ISA access.
-+
-+	   BIG FAT WARNING:
-+	   assumption: only DATA port is ever used in 16 bit mode
-+	 */
-+	hw.io_ports[IDE_DATA_OFFSET] = Q40_ISA_IO_W(base);
-+
-+	for (j = IDE_ERROR_OFFSET; j < IDE_CONTROL_OFFSET; j++)
-+		hw.io_ports[j] = Q40_ISA_IO_B(base+j);
-+
-+	hw.io_ports[IDE_CONTROL_OFFSET] = Q40_ISA_IO_B(base+518);
-+
-+	/* FIXME: probably wrong, but orginal code did it. */
-+	hw.io_ports[IDE_IRQ_OFFSET] = Q40_ISA_IO_B(0);
-+
-+	hw.irq = q40ide_default_irq(base);
-+	hw.dma = NO_DMA;
-+	hw.ack_intr = NULL;
-+
- 	index = ide_register_hw(&hw, &hwif);
- 	// **FIXME**
- 	if (index != -1)
-diff -puN include/linux/ide.h~ide-setup-ports include/linux/ide.h
---- linux-2.6.0-test4-bk3/include/linux/ide.h~ide-setup-ports	2003-09-02 18:07:42.502759104 +0200
-+++ linux-2.6.0-test4-bk3-root/include/linux/ide.h	2003-09-02 18:07:42.512757584 +0200
-@@ -305,20 +305,6 @@ typedef struct hw_regs_s {
-  */
- int ide_register_hw(hw_regs_t *hw, struct hwif_s **hwifp);
- 
--/*
-- * Set up hw_regs_t structure before calling ide_register_hw (optional)
-- */
--void ide_setup_ports(	hw_regs_t *hw,
--			unsigned long base,
--			int *offsets,
--			unsigned long ctrl,
--			unsigned long intr,
--			ide_ack_intr_t *ack_intr,
--#if 0
--			ide_io_ops_t *iops,
+-#define DVD_CP_SEC_NONE		0
+-#define DVD_CP_SEC_EXIST	1
+-
+-#define DVD_CGMS_UNRESTRICTED	0
+-#define DVD_CGMS_SINGLE		2
+-#define DVD_CGMS_RESTRICTED	3
+-
+-struct dvd_lu_send_title_key {
+-	__u8 type;
+-	unsigned agid		: 2;
+-
+-	dvd_key title_key;
+-	int lba;
+-	unsigned cpm		: 1;
+-	unsigned cp_sec		: 1;
+-	unsigned cgms		: 2;
+-};
+-
+-struct dvd_lu_send_asf {
+-	__u8 type;
+-	unsigned agid		: 2;
+-
+-	unsigned asf		: 1;
+-};
+-
+-struct dvd_host_send_rpcstate {
+-	__u8 type;
+-	__u8 pdrc;
+-};
+-
+-struct dvd_lu_send_rpcstate {
+-	__u8 type		: 2;
+-	__u8 vra		: 3;
+-	__u8 ucca		: 3;
+-	__u8 region_mask;
+-	__u8 rpc_scheme;
+-};
+-
+-typedef union {
+-	__u8 type;
+-
+-	struct dvd_lu_send_agid		lsa;
+-	struct dvd_host_send_challenge	hsc;
+-	struct dvd_send_key		lsk;
+-	struct dvd_lu_send_challenge	lsc;
+-	struct dvd_send_key		hsk;
+-	struct dvd_lu_send_title_key	lstk;
+-	struct dvd_lu_send_asf		lsasf;
+-	struct dvd_host_send_rpcstate	hrpcs;
+-	struct dvd_lu_send_rpcstate	lrpcs;
+-} dvd_authinfo;
+-
+-struct request_sense {
+-#if defined(__BIG_ENDIAN_BITFIELD)
+-	__u8 valid		: 1;
+-	__u8 error_code		: 7;
+-#elif defined(__LITTLE_ENDIAN_BITFIELD)
+-	__u8 error_code		: 7;
+-	__u8 valid		: 1;
 -#endif
--			int irq);
+-	__u8 segment_number;
+-#if defined(__BIG_ENDIAN_BITFIELD)
+-	__u8 reserved1		: 2;
+-	__u8 ili		: 1;
+-	__u8 reserved2		: 1;
+-	__u8 sense_key		: 4;
+-#elif defined(__LITTLE_ENDIAN_BITFIELD)
+-	__u8 sense_key		: 4;
+-	__u8 reserved2		: 1;
+-	__u8 ili		: 1;
+-	__u8 reserved1		: 2;
+-#endif
+-	__u8 information[4];
+-	__u8 add_sense_len;
+-	__u8 command_info[4];
+-	__u8 asc;
+-	__u8 ascq;
+-	__u8 fruc;
+-	__u8 sks[3];
+-	__u8 asb[46];
+-};
 -
- #include <asm/ide.h>
+-#ifdef __KERNEL__
+ #include <linux/fs.h>		/* not really needed, later.. */
+ #include <linux/device.h>
  
- /* Currently only m68k, apus and m8xx need it */
+@@ -1031,7 +328,5 @@ typedef struct {
+ 	__u8 rpc_scheme;
+ 	__u8 reserved3;
+ } rpc_state_t;
+-
+-#endif  /* End of kernel only stuff */ 
+ 
+ #endif  /* _LINUX_CDROM_H */
+Index: usr/include/linux/cdrom.h
+===================================================================
+RCS file: usr/include/linux/cdrom.h
+diff -N usr/include/linux/cdrom.h
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ usr/include/linux/cdrom.h	2 Sep 2003 19:07:48 -0000
+@@ -0,0 +1,719 @@
++/*
++ * -- <linux/cdrom.h>
++ * General header file for linux CD-ROM drivers 
++ * Copyright (C) 1992         David Giller, rafetmad@oxy.edu
++ *               1994, 1995   Eberhard Moenkeberg, emoenke@gwdg.de
++ *               1996         David van Leeuwen, david@tm.tno.nl
++ *               1997, 1998   Erik Andersen, andersee@debian.org
++ *               1998-2000    Jens Axboe, axboe@suse.de
++ */
++ 
++#ifndef	_LUSER_CDROM_H
++#define	_LUSER_CDROM_H
++
++#include <linux/types.h>
++#include <asm/byteorder.h>
++
++/*******************************************************
++ * As of Linux 2.1.x, all Linux CD-ROM application programs will use this 
++ * (and only this) include file.  It is my hope to provide Linux with
++ * a uniform interface between software accessing CD-ROMs and the various 
++ * device drivers that actually talk to the drives.  There may still be
++ * 23 different kinds of strange CD-ROM drives, but at least there will 
++ * now be one, and only one, Linux CD-ROM interface.
++ *
++ * Additionally, as of Linux 2.1.x, all Linux application programs 
++ * should use the O_NONBLOCK option when opening a CD-ROM device 
++ * for subsequent ioctl commands.  This allows for neat system errors 
++ * like "No medium found" or "Wrong medium type" upon attempting to 
++ * mount or play an empty slot, mount an audio disc, or play a data disc.
++ * Generally, changing an application program to support O_NONBLOCK
++ * is as easy as the following:
++ *       -    drive = open("/dev/cdrom", O_RDONLY);
++ *       +    drive = open("/dev/cdrom", O_RDONLY | O_NONBLOCK);
++ * It is worth the small change.
++ *
++ *  Patches for many common CD programs (provided by David A. van Leeuwen)
++ *  can be found at:  ftp://ftp.gwdg.de/pub/linux/cdrom/drivers/cm206/
++ * 
++ *******************************************************/
++
++/* When a driver supports a certain function, but the cdrom drive we are 
++ * using doesn't, we will return the error EDRIVE_CANT_DO_THIS.  We will 
++ * borrow the "Operation not supported" error from the network folks to 
++ * accomplish this.  Maybe someday we will get a more targeted error code, 
++ * but this will do for now... */
++#define EDRIVE_CANT_DO_THIS  EOPNOTSUPP
++
++/*******************************************************
++ * The CD-ROM IOCTL commands  -- these should be supported by 
++ * all the various cdrom drivers.  For the CD-ROM ioctls, we 
++ * will commandeer byte 0x53, or 'S'.
++ *******************************************************/
++#define CDROMPAUSE		0x5301 /* Pause Audio Operation */ 
++#define CDROMRESUME		0x5302 /* Resume paused Audio Operation */
++#define CDROMPLAYMSF		0x5303 /* Play Audio MSF (struct cdrom_msf) */
++#define CDROMPLAYTRKIND		0x5304 /* Play Audio Track/index 
++                                           (struct cdrom_ti) */
++#define CDROMREADTOCHDR		0x5305 /* Read TOC header 
++                                           (struct cdrom_tochdr) */
++#define CDROMREADTOCENTRY	0x5306 /* Read TOC entry 
++                                           (struct cdrom_tocentry) */
++#define CDROMSTOP		0x5307 /* Stop the cdrom drive */
++#define CDROMSTART		0x5308 /* Start the cdrom drive */
++#define CDROMEJECT		0x5309 /* Ejects the cdrom media */
++#define CDROMVOLCTRL		0x530a /* Control output volume 
++                                           (struct cdrom_volctrl) */
++#define CDROMSUBCHNL		0x530b /* Read subchannel data 
++                                           (struct cdrom_subchnl) */
++#define CDROMREADMODE2		0x530c /* Read CDROM mode 2 data (2336 Bytes) 
++                                           (struct cdrom_read) */
++#define CDROMREADMODE1		0x530d /* Read CDROM mode 1 data (2048 Bytes)
++                                           (struct cdrom_read) */
++#define CDROMREADAUDIO		0x530e /* (struct cdrom_read_audio) */
++#define CDROMEJECT_SW		0x530f /* enable(1)/disable(0) auto-ejecting */
++#define CDROMMULTISESSION	0x5310 /* Obtain the start-of-last-session 
++                                           address of multi session disks 
++                                           (struct cdrom_multisession) */
++#define CDROM_GET_MCN		0x5311 /* Obtain the "Universal Product Code" 
++                                           if available (struct cdrom_mcn) */
++#define CDROM_GET_UPC		CDROM_GET_MCN  /* This one is depricated, 
++                                          but here anyway for compatibility */
++#define CDROMRESET		0x5312 /* hard-reset the drive */
++#define CDROMVOLREAD		0x5313 /* Get the drive's volume setting 
++                                          (struct cdrom_volctrl) */
++#define CDROMREADRAW		0x5314	/* read data in raw mode (2352 Bytes)
++                                           (struct cdrom_read) */
++/* 
++ * These ioctls are used only used in aztcd.c and optcd.c
++ */
++#define CDROMREADCOOKED		0x5315	/* read data in cooked mode */
++#define CDROMSEEK		0x5316  /* seek msf address */
++  
++/*
++ * This ioctl is only used by the scsi-cd driver.  
++   It is for playing audio in logical block addressing mode.
++ */
++#define CDROMPLAYBLK		0x5317	/* (struct cdrom_blk) */
++
++/* 
++ * These ioctls are only used in optcd.c
++ */
++#define CDROMREADALL		0x5318	/* read all 2646 bytes */
++
++/* 
++ * These ioctls are (now) only in ide-cd.c for controlling 
++ * drive spindown time.  They should be implemented in the
++ * Uniform driver, via generic packet commands, GPCMD_MODE_SELECT_10,
++ * GPCMD_MODE_SENSE_10 and the GPMODE_POWER_PAGE...
++ *  -Erik
++ */
++#define CDROMGETSPINDOWN        0x531d
++#define CDROMSETSPINDOWN        0x531e
++
++/* 
++ * These ioctls are implemented through the uniform CD-ROM driver
++ * They _will_ be adopted by all CD-ROM drivers, when all the CD-ROM
++ * drivers are eventually ported to the uniform CD-ROM driver interface.
++ */
++#define CDROMCLOSETRAY		0x5319	/* pendant of CDROMEJECT */
++#define CDROM_SET_OPTIONS	0x5320  /* Set behavior options */
++#define CDROM_CLEAR_OPTIONS	0x5321  /* Clear behavior options */
++#define CDROM_SELECT_SPEED	0x5322  /* Set the CD-ROM speed */
++#define CDROM_SELECT_DISC	0x5323  /* Select disc (for juke-boxes) */
++#define CDROM_MEDIA_CHANGED	0x5325  /* Check is media changed  */
++#define CDROM_DRIVE_STATUS	0x5326  /* Get tray position, etc. */
++#define CDROM_DISC_STATUS	0x5327  /* Get disc type, etc. */
++#define CDROM_CHANGER_NSLOTS    0x5328  /* Get number of slots */
++#define CDROM_LOCKDOOR		0x5329  /* lock or unlock door */
++#define CDROM_DEBUG		0x5330	/* Turn debug messages on/off */
++#define CDROM_GET_CAPABILITY	0x5331	/* get capabilities */
++
++/* Note that scsi/scsi_ioctl.h also uses 0x5382 - 0x5386.
++ * Future CDROM ioctls should be kept below 0x537F
++ */
++
++/* This ioctl is only used by sbpcd at the moment */
++#define CDROMAUDIOBUFSIZ        0x5382	/* set the audio buffer size */
++					/* conflict with SCSI_IOCTL_GET_IDLUN */
++
++/* DVD-ROM Specific ioctls */
++#define DVD_READ_STRUCT		0x5390  /* Read structure */
++#define DVD_WRITE_STRUCT	0x5391  /* Write structure */
++#define DVD_AUTH		0x5392  /* Authentication */
++
++#define CDROM_SEND_PACKET	0x5393	/* send a packet to the drive */
++#define CDROM_NEXT_WRITABLE	0x5394	/* get next writable block */
++#define CDROM_LAST_WRITTEN	0x5395	/* get last block written on disc */
++
++/*******************************************************
++ * CDROM IOCTL structures
++ *******************************************************/
++
++/* Address in MSF format */
++struct cdrom_msf0		
++{
++	__u8	minute;
++	__u8	second;
++	__u8	frame;
++};
++
++/* Address in either MSF or logical format */
++union cdrom_addr		
++{
++	struct cdrom_msf0	msf;
++	int			lba;
++};
++
++/* This struct is used by the CDROMPLAYMSF ioctl */ 
++struct cdrom_msf 
++{
++	__u8	cdmsf_min0;	/* start minute */
++	__u8	cdmsf_sec0;	/* start second */
++	__u8	cdmsf_frame0;	/* start frame */
++	__u8	cdmsf_min1;	/* end minute */
++	__u8	cdmsf_sec1;	/* end second */
++	__u8	cdmsf_frame1;	/* end frame */
++};
++
++/* This struct is used by the CDROMPLAYTRKIND ioctl */
++struct cdrom_ti 
++{
++	__u8	cdti_trk0;	/* start track */
++	__u8	cdti_ind0;	/* start index */
++	__u8	cdti_trk1;	/* end track */
++	__u8	cdti_ind1;	/* end index */
++};
++
++/* This struct is used by the CDROMREADTOCHDR ioctl */
++struct cdrom_tochdr 	
++{
++	__u8	cdth_trk0;	/* start track */
++	__u8	cdth_trk1;	/* end track */
++};
++
++/* This struct is used by the CDROMVOLCTRL and CDROMVOLREAD ioctls */
++struct cdrom_volctrl
++{
++	__u8	channel0;
++	__u8	channel1;
++	__u8	channel2;
++	__u8	channel3;
++};
++
++/* This struct is used by the CDROMSUBCHNL ioctl */
++struct cdrom_subchnl 
++{
++	__u8	cdsc_format;
++	__u8	cdsc_audiostatus;
++	__u8	cdsc_adr:	4;
++	__u8	cdsc_ctrl:	4;
++	__u8	cdsc_trk;
++	__u8	cdsc_ind;
++	union cdrom_addr cdsc_absaddr;
++	union cdrom_addr cdsc_reladdr;
++};
++
++
++/* This struct is used by the CDROMREADTOCENTRY ioctl */
++struct cdrom_tocentry 
++{
++	__u8	cdte_track;
++	__u8	cdte_adr	:4;
++	__u8	cdte_ctrl	:4;
++	__u8	cdte_format;
++	union cdrom_addr cdte_addr;
++	__u8	cdte_datamode;
++};
++
++/* This struct is used by the CDROMREADMODE1, and CDROMREADMODE2 ioctls */
++struct cdrom_read      
++{
++	int	cdread_lba;
++	char 	*cdread_bufaddr;
++	int	cdread_buflen;
++};
++
++/* This struct is used by the CDROMREADAUDIO ioctl */
++struct cdrom_read_audio
++{
++	union cdrom_addr addr; /* frame address */
++	__u8 addr_format;    /* CDROM_LBA or CDROM_MSF */
++	int nframes;           /* number of 2352-byte-frames to read at once */
++	__u8 *buf;           /* frame buffer (size: nframes*2352 bytes) */
++};
++
++/* This struct is used with the CDROMMULTISESSION ioctl */
++struct cdrom_multisession
++{
++	union cdrom_addr addr; /* frame address: start-of-last-session 
++	                           (not the new "frame 16"!).  Only valid
++	                           if the "xa_flag" is true. */
++	__u8 xa_flag;        /* 1: "is XA disk" */
++	__u8 addr_format;    /* CDROM_LBA or CDROM_MSF */
++};
++
++/* This struct is used with the CDROM_GET_MCN ioctl.  
++ * Very few audio discs actually have Universal Product Code information, 
++ * which should just be the Medium Catalog Number on the box.  Also note 
++ * that the way the codeis written on CD is _not_ uniform across all discs!
++ */  
++struct cdrom_mcn 
++{
++  __u8 medium_catalog_number[14]; /* 13 ASCII digits, null-terminated */
++};
++
++/* This is used by the CDROMPLAYBLK ioctl */
++struct cdrom_blk 
++{
++	unsigned from;
++	unsigned short len;
++};
++
++#define CDROM_PACKET_SIZE	12
++
++#define CGC_DATA_UNKNOWN	0
++#define CGC_DATA_WRITE		1
++#define CGC_DATA_READ		2
++#define CGC_DATA_NONE		3
++
++/* for CDROM_PACKET_COMMAND ioctl */
++struct cdrom_generic_command
++{
++	unsigned char 		cmd[CDROM_PACKET_SIZE];
++	unsigned char 		*buffer;
++	unsigned int 		buflen;
++	int			stat;
++	struct request_sense	*sense;
++	unsigned char		data_direction;
++	int			quiet;
++	int			timeout;
++	void			*reserved[1];
++};
++
++
++/*
++ * A CD-ROM physical sector size is 2048, 2052, 2056, 2324, 2332, 2336, 
++ * 2340, or 2352 bytes long.  
++
++*         Sector types of the standard CD-ROM data formats:
++ *
++ * format   sector type               user data size (bytes)
++ * -----------------------------------------------------------------------------
++ *   1     (Red Book)    CD-DA          2352    (CD_FRAMESIZE_RAW)
++ *   2     (Yellow Book) Mode1 Form1    2048    (CD_FRAMESIZE)
++ *   3     (Yellow Book) Mode1 Form2    2336    (CD_FRAMESIZE_RAW0)
++ *   4     (Green Book)  Mode2 Form1    2048    (CD_FRAMESIZE)
++ *   5     (Green Book)  Mode2 Form2    2328    (2324+4 spare bytes)
++ *
++ *
++ *       The layout of the standard CD-ROM data formats:
++ * -----------------------------------------------------------------------------
++ * - audio (red):                  | audio_sample_bytes |
++ *                                 |        2352        |
++ *
++ * - data (yellow, mode1):         | sync - head - data - EDC - zero - ECC |
++ *                                 |  12  -   4  - 2048 -  4  -   8  - 276 |
++ *
++ * - data (yellow, mode2):         | sync - head - data |
++ *                                 |  12  -   4  - 2336 |
++ *
++ * - XA data (green, mode2 form1): | sync - head - sub - data - EDC - ECC |
++ *                                 |  12  -   4  -  8  - 2048 -  4  - 276 |
++ *
++ * - XA data (green, mode2 form2): | sync - head - sub - data - Spare |
++ *                                 |  12  -   4  -  8  - 2324 -  4    |
++ *
++ */
++
++/* Some generally useful CD-ROM information -- mostly based on the above */
++#define CD_MINS              74 /* max. minutes per CD, not really a limit */
++#define CD_SECS              60 /* seconds per minute */
++#define CD_FRAMES            75 /* frames per second */
++#define CD_SYNC_SIZE         12 /* 12 sync bytes per raw data frame */
++#define CD_MSF_OFFSET       150 /* MSF numbering offset of first frame */
++#define CD_CHUNK_SIZE        24 /* lowest-level "data bytes piece" */
++#define CD_NUM_OF_CHUNKS     98 /* chunks per frame */
++#define CD_FRAMESIZE_SUB     96 /* subchannel data "frame" size */
++#define CD_HEAD_SIZE          4 /* header (address) bytes per raw data frame */
++#define CD_SUBHEAD_SIZE       8 /* subheader bytes per raw XA data frame */
++#define CD_EDC_SIZE           4 /* bytes EDC per most raw data frame types */
++#define CD_ZERO_SIZE          8 /* bytes zero per yellow book mode 1 frame */
++#define CD_ECC_SIZE         276 /* bytes ECC per most raw data frame types */
++#define CD_FRAMESIZE       2048 /* bytes per frame, "cooked" mode */
++#define CD_FRAMESIZE_RAW   2352 /* bytes per frame, "raw" mode */
++#define CD_FRAMESIZE_RAWER 2646 /* The maximum possible returned bytes */ 
++/* most drives don't deliver everything: */
++#define CD_FRAMESIZE_RAW1 (CD_FRAMESIZE_RAW-CD_SYNC_SIZE) /*2340*/
++#define CD_FRAMESIZE_RAW0 (CD_FRAMESIZE_RAW-CD_SYNC_SIZE-CD_HEAD_SIZE) /*2336*/
++
++#define CD_XA_HEAD        (CD_HEAD_SIZE+CD_SUBHEAD_SIZE) /* "before data" part of raw XA frame */
++#define CD_XA_TAIL        (CD_EDC_SIZE+CD_ECC_SIZE) /* "after data" part of raw XA frame */
++#define CD_XA_SYNC_HEAD   (CD_SYNC_SIZE+CD_XA_HEAD) /* sync bytes + header of XA frame */
++
++/* CD-ROM address types (cdrom_tocentry.cdte_format) */
++#define	CDROM_LBA 0x01 /* "logical block": first frame is #0 */
++#define	CDROM_MSF 0x02 /* "minute-second-frame": binary, not bcd here! */
++
++/* bit to tell whether track is data or audio (cdrom_tocentry.cdte_ctrl) */
++#define	CDROM_DATA_TRACK	0x04
++
++/* The leadout track is always 0xAA, regardless of # of tracks on disc */
++#define	CDROM_LEADOUT		0xAA
++
++/* audio states (from SCSI-2, but seen with other drives, too) */
++#define	CDROM_AUDIO_INVALID	0x00	/* audio status not supported */
++#define	CDROM_AUDIO_PLAY	0x11	/* audio play operation in progress */
++#define	CDROM_AUDIO_PAUSED	0x12	/* audio play operation paused */
++#define	CDROM_AUDIO_COMPLETED	0x13	/* audio play successfully completed */
++#define	CDROM_AUDIO_ERROR	0x14	/* audio play stopped due to error */
++#define	CDROM_AUDIO_NO_STATUS	0x15	/* no current audio status to return */
++
++/* capability flags used with the uniform CD-ROM driver */ 
++#define CDC_CLOSE_TRAY		0x1     /* caddy systems _can't_ close */
++#define CDC_OPEN_TRAY		0x2     /* but _can_ eject.  */
++#define CDC_LOCK		0x4     /* disable manual eject */
++#define CDC_SELECT_SPEED 	0x8     /* programmable speed */
++#define CDC_SELECT_DISC		0x10    /* select disc from juke-box */
++#define CDC_MULTI_SESSION 	0x20    /* read sessions>1 */
++#define CDC_MCN			0x40    /* Medium Catalog Number */
++#define CDC_MEDIA_CHANGED 	0x80    /* media changed */
++#define CDC_PLAY_AUDIO		0x100   /* audio functions */
++#define CDC_RESET               0x200   /* hard reset device */
++#define CDC_IOCTLS              0x400   /* driver has non-standard ioctls */
++#define CDC_DRIVE_STATUS        0x800   /* driver implements drive status */
++#define CDC_GENERIC_PACKET	0x1000	/* driver implements generic packets */
++#define CDC_CD_R		0x2000	/* drive is a CD-R */
++#define CDC_CD_RW		0x4000	/* drive is a CD-RW */
++#define CDC_DVD			0x8000	/* drive is a DVD */
++#define CDC_DVD_R		0x10000	/* drive can write DVD-R */
++#define CDC_DVD_RAM		0x20000	/* drive can write DVD-RAM */
++#define CDC_MO_DRIVE		0x40000 /* drive is an MO device */
++
++/* drive status possibilities returned by CDROM_DRIVE_STATUS ioctl */
++#define CDS_NO_INFO		0	/* if not implemented */
++#define CDS_NO_DISC		1
++#define CDS_TRAY_OPEN		2
++#define CDS_DRIVE_NOT_READY	3
++#define CDS_DISC_OK		4
++
++/* return values for the CDROM_DISC_STATUS ioctl */
++/* can also return CDS_NO_[INFO|DISC], from above */
++#define CDS_AUDIO		100
++#define CDS_DATA_1		101
++#define CDS_DATA_2		102
++#define CDS_XA_2_1		103
++#define CDS_XA_2_2		104
++#define CDS_MIXED		105
++
++/* User-configurable behavior options for the uniform CD-ROM driver */
++#define CDO_AUTO_CLOSE		0x1     /* close tray on first open() */
++#define CDO_AUTO_EJECT		0x2     /* open tray on last release() */
++#define CDO_USE_FFLAGS		0x4     /* use O_NONBLOCK information on open */
++#define CDO_LOCK		0x8     /* lock tray on open files */
++#define CDO_CHECK_TYPE		0x10    /* check type on open for data */
++
++/* Special codes used when specifying changer slots. */
++#define CDSL_NONE       	((int) (~0U>>1)-1)
++#define CDSL_CURRENT    	((int) (~0U>>1))
++
++/* For partition based multisession access. IDE can handle 64 partitions
++ * per drive - SCSI CD-ROM's use minors to differentiate between the
++ * various drives, so we can't do multisessions the same way there.
++ * Use the -o session=x option to mount on them.
++ */
++#define CD_PART_MAX		64
++#define CD_PART_MASK		(CD_PART_MAX - 1)
++
++/*********************************************************************
++ * Generic Packet commands, MMC commands, and such
++ *********************************************************************/
++
++ /* The generic packet command opcodes for CD/DVD Logical Units,
++ * From Table 57 of the SFF8090 Ver. 3 (Mt. Fuji) draft standard. */
++#define GPCMD_BLANK			    0xa1
++#define GPCMD_CLOSE_TRACK		    0x5b
++#define GPCMD_FLUSH_CACHE		    0x35
++#define GPCMD_FORMAT_UNIT		    0x04
++#define GPCMD_GET_CONFIGURATION		    0x46
++#define GPCMD_GET_EVENT_STATUS_NOTIFICATION 0x4a
++#define GPCMD_GET_PERFORMANCE		    0xac
++#define GPCMD_INQUIRY			    0x12
++#define GPCMD_LOAD_UNLOAD		    0xa6
++#define GPCMD_MECHANISM_STATUS		    0xbd
++#define GPCMD_MODE_SELECT_10		    0x55
++#define GPCMD_MODE_SENSE_10		    0x5a
++#define GPCMD_PAUSE_RESUME		    0x4b
++#define GPCMD_PLAY_AUDIO_10		    0x45
++#define GPCMD_PLAY_AUDIO_MSF		    0x47
++#define GPCMD_PLAY_AUDIO_TI		    0x48
++#define GPCMD_PLAY_CD			    0xbc
++#define GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL  0x1e
++#define GPCMD_READ_10			    0x28
++#define GPCMD_READ_12			    0xa8
++#define GPCMD_READ_CDVD_CAPACITY	    0x25
++#define GPCMD_READ_CD			    0xbe
++#define GPCMD_READ_CD_MSF		    0xb9
++#define GPCMD_READ_DISC_INFO		    0x51
++#define GPCMD_READ_DVD_STRUCTURE	    0xad
++#define GPCMD_READ_FORMAT_CAPACITIES	    0x23
++#define GPCMD_READ_HEADER		    0x44
++#define GPCMD_READ_TRACK_RZONE_INFO	    0x52
++#define GPCMD_READ_SUBCHANNEL		    0x42
++#define GPCMD_READ_TOC_PMA_ATIP		    0x43
++#define GPCMD_REPAIR_RZONE_TRACK	    0x58
++#define GPCMD_REPORT_KEY		    0xa4
++#define GPCMD_REQUEST_SENSE		    0x03
++#define GPCMD_RESERVE_RZONE_TRACK	    0x53
++#define GPCMD_SCAN			    0xba
++#define GPCMD_SEEK			    0x2b
++#define GPCMD_SEND_DVD_STRUCTURE	    0xad
++#define GPCMD_SEND_EVENT		    0xa2
++#define GPCMD_SEND_KEY			    0xa3
++#define GPCMD_SEND_OPC			    0x54
++#define GPCMD_SET_READ_AHEAD		    0xa7
++#define GPCMD_SET_STREAMING		    0xb6
++#define GPCMD_START_STOP_UNIT		    0x1b
++#define GPCMD_STOP_PLAY_SCAN		    0x4e
++#define GPCMD_TEST_UNIT_READY		    0x00
++#define GPCMD_VERIFY_10			    0x2f
++#define GPCMD_WRITE_10			    0x2a
++#define GPCMD_WRITE_AND_VERIFY_10	    0x2e
++/* This is listed as optional in ATAPI 2.6, but is (curiously) 
++ * missing from Mt. Fuji, Table 57.  It _is_ mentioned in Mt. Fuji
++ * Table 377 as an MMC command for SCSi devices though...  Most ATAPI
++ * drives support it. */
++#define GPCMD_SET_SPEED			    0xbb
++/* This seems to be a SCSI specific CD-ROM opcode 
++ * to play data at track/index */
++#define GPCMD_PLAYAUDIO_TI		    0x48
++/*
++ * From MS Media Status Notification Support Specification. For
++ * older drives only.
++ */
++#define GPCMD_GET_MEDIA_STATUS		    0xda
++
++/* Mode page codes for mode sense/set */
++#define GPMODE_R_W_ERROR_PAGE		0x01
++#define GPMODE_WRITE_PARMS_PAGE		0x05
++#define GPMODE_AUDIO_CTL_PAGE		0x0e
++#define GPMODE_POWER_PAGE		0x1a
++#define GPMODE_FAULT_FAIL_PAGE		0x1c
++#define GPMODE_TO_PROTECT_PAGE		0x1d
++#define GPMODE_CAPABILITIES_PAGE	0x2a
++#define GPMODE_ALL_PAGES		0x3f
++/* Not in Mt. Fuji, but in ATAPI 2.6 -- depricated now in favor
++ * of MODE_SENSE_POWER_PAGE */
++#define GPMODE_CDROM_PAGE		0x0d
++
++
++
++/* DVD struct types */
++#define DVD_STRUCT_PHYSICAL	0x00
++#define DVD_STRUCT_COPYRIGHT	0x01
++#define DVD_STRUCT_DISCKEY	0x02
++#define DVD_STRUCT_BCA		0x03
++#define DVD_STRUCT_MANUFACT	0x04
++
++struct dvd_layer {
++	__u8 book_version	: 4;
++	__u8 book_type		: 4;
++	__u8 min_rate		: 4;
++	__u8 disc_size		: 4;
++	__u8 layer_type		: 4;
++	__u8 track_path		: 1;
++	__u8 nlayers		: 2;
++	__u8 track_density	: 4;
++	__u8 linear_density	: 4;
++	__u8 bca		: 1;
++	__u32 start_sector;
++	__u32 end_sector;
++	__u32 end_sector_l0;
++};
++
++#define DVD_LAYERS	4
++
++struct dvd_physical {
++	__u8 type;
++	__u8 layer_num;
++	struct dvd_layer layer[DVD_LAYERS];
++};
++
++struct dvd_copyright {
++	__u8 type;
++
++	__u8 layer_num;
++	__u8 cpst;
++	__u8 rmi;
++};
++
++struct dvd_disckey {
++	__u8 type;
++
++	unsigned agid		: 2;
++	__u8 value[2048];
++};
++
++struct dvd_bca {
++	__u8 type;
++
++	int len;
++	__u8 value[188];
++};
++
++struct dvd_manufact {
++	__u8 type;
++
++	__u8 layer_num;
++	int len;
++	__u8 value[2048];
++};
++
++typedef union {
++	__u8 type;
++
++	struct dvd_physical	physical;
++	struct dvd_copyright	copyright;
++	struct dvd_disckey	disckey;
++	struct dvd_bca		bca;
++	struct dvd_manufact	manufact;
++} dvd_struct;
++
++/*
++ * DVD authentication ioctl
++ */
++
++/* Authentication states */
++#define DVD_LU_SEND_AGID	0
++#define DVD_HOST_SEND_CHALLENGE	1
++#define DVD_LU_SEND_KEY1	2
++#define DVD_LU_SEND_CHALLENGE	3
++#define DVD_HOST_SEND_KEY2	4
++
++/* Termination states */
++#define DVD_AUTH_ESTABLISHED	5
++#define DVD_AUTH_FAILURE	6
++
++/* Other functions */
++#define DVD_LU_SEND_TITLE_KEY	7
++#define DVD_LU_SEND_ASF		8
++#define DVD_INVALIDATE_AGID	9
++#define DVD_LU_SEND_RPC_STATE	10
++#define DVD_HOST_SEND_RPC_STATE	11
++
++/* State data */
++typedef __u8 dvd_key[5];		/* 40-bit value, MSB is first elem. */
++typedef __u8 dvd_challenge[10];	/* 80-bit value, MSB is first elem. */
++
++struct dvd_lu_send_agid {
++	__u8 type;
++	unsigned agid		: 2;
++};
++
++struct dvd_host_send_challenge {
++	__u8 type;
++	unsigned agid		: 2;
++
++	dvd_challenge chal;
++};
++
++struct dvd_send_key {
++	__u8 type;
++	unsigned agid		: 2;
++
++	dvd_key key;
++};
++
++struct dvd_lu_send_challenge {
++	__u8 type;
++	unsigned agid		: 2;
++
++	dvd_challenge chal;
++};
++
++#define DVD_CPM_NO_COPYRIGHT	0
++#define DVD_CPM_COPYRIGHTED	1
++
++#define DVD_CP_SEC_NONE		0
++#define DVD_CP_SEC_EXIST	1
++
++#define DVD_CGMS_UNRESTRICTED	0
++#define DVD_CGMS_SINGLE		2
++#define DVD_CGMS_RESTRICTED	3
++
++struct dvd_lu_send_title_key {
++	__u8 type;
++	unsigned agid		: 2;
++
++	dvd_key title_key;
++	int lba;
++	unsigned cpm		: 1;
++	unsigned cp_sec		: 1;
++	unsigned cgms		: 2;
++};
++
++struct dvd_lu_send_asf {
++	__u8 type;
++	unsigned agid		: 2;
++
++	unsigned asf		: 1;
++};
++
++struct dvd_host_send_rpcstate {
++	__u8 type;
++	__u8 pdrc;
++};
++
++struct dvd_lu_send_rpcstate {
++	__u8 type		: 2;
++	__u8 vra		: 3;
++	__u8 ucca		: 3;
++	__u8 region_mask;
++	__u8 rpc_scheme;
++};
++
++typedef union {
++	__u8 type;
++
++	struct dvd_lu_send_agid		lsa;
++	struct dvd_host_send_challenge	hsc;
++	struct dvd_send_key		lsk;
++	struct dvd_lu_send_challenge	lsc;
++	struct dvd_send_key		hsk;
++	struct dvd_lu_send_title_key	lstk;
++	struct dvd_lu_send_asf		lsasf;
++	struct dvd_host_send_rpcstate	hrpcs;
++	struct dvd_lu_send_rpcstate	lrpcs;
++} dvd_authinfo;
++
++struct request_sense {
++#if defined(__BIG_ENDIAN_BITFIELD)
++	__u8 valid		: 1;
++	__u8 error_code		: 7;
++#elif defined(__LITTLE_ENDIAN_BITFIELD)
++	__u8 error_code		: 7;
++	__u8 valid		: 1;
++#endif
++	__u8 segment_number;
++#if defined(__BIG_ENDIAN_BITFIELD)
++	__u8 reserved1		: 2;
++	__u8 ili		: 1;
++	__u8 reserved2		: 1;
++	__u8 sense_key		: 4;
++#elif defined(__LITTLE_ENDIAN_BITFIELD)
++	__u8 sense_key		: 4;
++	__u8 reserved2		: 1;
++	__u8 ili		: 1;
++	__u8 reserved1		: 2;
++#endif
++	__u8 information[4];
++	__u8 add_sense_len;
++	__u8 command_info[4];
++	__u8 asc;
++	__u8 ascq;
++	__u8 fruc;
++	__u8 sks[3];
++	__u8 asb[46];
++};
++
++#endif  /* _LUSER_CDROM_H */
 
-_
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

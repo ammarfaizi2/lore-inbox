@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbUCVKCB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 05:02:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUCVKAm
+	id S261854AbUCVKCC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 05:02:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUCVKAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 05:00:42 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:51531 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261860AbUCVKAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 05:00:20 -0500
-Date: Mon, 22 Mar 2004 11:00:17 +0100
-Message-Id: <200403221000.i2MA0HpQ004127@callisto.of.borg>
+	Mon, 22 Mar 2004 05:00:32 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:21264 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261854AbUCVKAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 05:00:19 -0500
+Date: Mon, 22 Mar 2004 11:00:13 +0100
+Message-Id: <200403221000.i2MA0DJ1004102@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       macro@ds2.pg.gda.pl, Ralf Baechle <ralf@linux-mips.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 150] Mac missing include
+Subject: [PATCH 070] NCR53C9x unused SCp.have_data_in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mac: Add missing #include <asm/keyboard.h> (needed for SYSRQ_KEY)
+NCR53C9x: Remove unused initialization of SCp.have_data_in (from Maciej W.
+Rozycki). This affects the following drivers:
+  - Amiga Oktagon SCSI
+  - DECstation SCSI
 
---- linux-2.4.26-pre5/arch/m68k/mac/config.c	2003-07-10 16:22:26.000000000 +0200
-+++ linux-m68k-2.4.26-pre5/arch/m68k/mac/config.c	2004-02-09 20:32:36.000000000 +0100
-@@ -33,6 +33,7 @@
- #include <asm/pgtable.h>
- #include <asm/rtc.h>
- #include <asm/machdep.h>
-+#include <asm/keyboard.h>
+The change for DECstation SCSI sneaked in through a MIPS update.
+
+--- linux-2.4.26-pre5/drivers/scsi/NCR53C9x.c	Sat Aug 17 14:10:41 2002
++++ linux-m68k-2.4.26-pre5/drivers/scsi/NCR53C9x.c	Wed Jan 22 12:07:13 2003
+@@ -917,7 +917,7 @@
+ 		if (esp->dma_mmu_get_scsi_one)
+ 			esp->dma_mmu_get_scsi_one(esp, sp);
+ 		else
+-			sp->SCp.have_data_in = (int) sp->SCp.ptr =
++			sp->SCp.ptr =
+ 				(char *) virt_to_phys(sp->request_buffer);
+ 	} else {
+ 		sp->SCp.buffer = (struct scatterlist *) sp->buffer;
+--- linux-2.4.26-pre5/drivers/scsi/oktagon_esp.c	Mon Apr  1 13:02:02 2002
++++ linux-m68k-2.4.26-pre5/drivers/scsi/oktagon_esp.c	Wed Jan 22 12:07:17 2003
+@@ -548,7 +548,7 @@
  
- #include <asm/macintosh.h>
- #include <asm/macints.h>
+ void dma_mmu_get_scsi_one(struct NCR_ESP *esp, Scsi_Cmnd *sp)
+ {
+-        sp->SCp.have_data_in = (int) sp->SCp.ptr =
++        sp->SCp.ptr =
+                 sp->request_buffer;
+ }
+ 
 
 Gr{oetje,eeting}s,
 

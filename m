@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267167AbSLKOla>; Wed, 11 Dec 2002 09:41:30 -0500
+	id <S267170AbSLKOoR>; Wed, 11 Dec 2002 09:44:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267165AbSLKOla>; Wed, 11 Dec 2002 09:41:30 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:4758 "EHLO
+	id <S267173AbSLKOoR>; Wed, 11 Dec 2002 09:44:17 -0500
+Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:12694 "EHLO
 	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S267167AbSLKOl0>; Wed, 11 Dec 2002 09:41:26 -0500
-Date: Wed, 11 Dec 2002 15:49:06 +0100
+	id <S267170AbSLKOoN>; Wed, 11 Dec 2002 09:44:13 -0500
+Date: Wed, 11 Dec 2002 15:51:44 +0100
 From: Stelian Pop <stelian@popies.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH 2.5.51] sonypi driver update
-Message-ID: <20021211154906.E22483@deep-space-9.dsnet>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH 2.4.21-pre1] sonypi driver update
+Message-ID: <20021211155144.F22483@deep-space-9.dsnet>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
+	Marcelo Tosatti <marcelo@conectiva.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,9 +26,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Hi,
 
 This little patch changes the way button release events are reported
-by the sonypi driver to the application: previously, separate 
+by the sonypi driver to the application: previously, separate
 release events were detected for each button. However, many buttons
-(example: the jogdial, the capture button, the back button etc) share 
+(example: the jogdial, the capture button, the back button etc) share
 the same release event.
 
 The attached patch propagates a single 'ANYBUTTON_RELEASED' event
@@ -37,13 +37,14 @@ application.
 
 Kunihiko IMAI should be credited for his ideas and tests.
 
-Linus, please apply.
+Marcelo, please apply.
 
 Stelian.
 
+
 ===== include/linux/sonypi.h 1.7 vs edited =====
---- 1.7/include/linux/sonypi.h	Mon Dec  2 12:14:30 2002
-+++ edited/include/linux/sonypi.h	Tue Dec  3 14:40:25 2002
+--- 1.7/include/linux/sonypi.h	Mon Dec  2 12:19:31 2002
++++ edited/include/linux/sonypi.h	Wed Dec 11 10:37:00 2002
 @@ -43,9 +43,9 @@
  #define SONYPI_EVENT_JOGDIAL_DOWN_PRESSED	 3
  #define SONYPI_EVENT_JOGDIAL_UP_PRESSED		 4
@@ -56,18 +57,17 @@ Stelian.
  #define SONYPI_EVENT_CAPTURE_PARTIALPRESSED	 9
  #define SONYPI_EVENT_CAPTURE_PARTIALRELEASED	10
  #define SONYPI_EVENT_FNKEY_ESC			11
-@@ -93,7 +93,7 @@
+@@ -93,6 +93,7 @@
  #define SONYPI_EVENT_MEYE_OPPOSITE		53
  #define SONYPI_EVENT_MEMORYSTICK_INSERT		54
  #define SONYPI_EVENT_MEMORYSTICK_EJECT		55
--
 +#define SONYPI_EVENT_ANYBUTTON_RELEASED		56
  
  /* get/set brightness */
  #define SONYPI_IOCGBRT		_IOR('v', 0, __u8)
-===== drivers/char/sonypi.h 1.13 vs edited =====
---- 1.13/drivers/char/sonypi.h	Mon Dec  2 12:16:40 2002
-+++ edited/drivers/char/sonypi.h	Wed Dec 11 15:33:00 2002
+===== drivers/char/sonypi.h 1.12 vs edited =====
+--- 1.12/drivers/char/sonypi.h	Mon Dec  2 12:16:22 2002
++++ edited/drivers/char/sonypi.h	Wed Dec 11 15:32:51 2002
 @@ -37,7 +37,7 @@
  #ifdef __KERNEL__
  
@@ -123,9 +123,9 @@ Stelian.
  	{ SONYPI_DEVICE_MODEL_TYPE2, 0x38, SONYPI_LID_MASK, sonypi_lidev },
  	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_JOGGER_MASK, sonypi_joggerev },
  	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_CAPTURE_MASK, sonypi_captureev },
-===== drivers/char/sonypi.c 1.12 vs edited =====
---- 1.12/drivers/char/sonypi.c	Fri Nov 22 14:46:41 2002
-+++ edited/drivers/char/sonypi.c	Wed Dec 11 12:34:17 2002
+===== drivers/char/sonypi.c 1.11 vs edited =====
+--- 1.11/drivers/char/sonypi.c	Fri Nov 22 14:49:08 2002
++++ edited/drivers/char/sonypi.c	Wed Dec 11 12:34:16 2002
 @@ -714,11 +714,11 @@
  	       SONYPI_DRIVER_MAJORVERSION,
  	       SONYPI_DRIVER_MINORVERSION);

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129439AbRBCBVF>; Fri, 2 Feb 2001 20:21:05 -0500
+	id <S129910AbRBCBpd>; Fri, 2 Feb 2001 20:45:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130873AbRBCBU4>; Fri, 2 Feb 2001 20:20:56 -0500
-Received: from main.cyclades.com ([209.128.87.2]:8203 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S129439AbRBCBUt>;
-	Fri, 2 Feb 2001 20:20:49 -0500
-Date: Fri, 2 Feb 2001 17:20:31 -0800 (PST)
-From: Ivan Passos <lists@cyclades.com>
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18: weird eepro100 msgs
-In-Reply-To: <200102022335.f12NZ8F11589@moisil.dev.hydraweb.com>
-Message-ID: <Pine.LNX.4.10.10102021719120.3255-100000@main.cyclades.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130302AbRBCBpY>; Fri, 2 Feb 2001 20:45:24 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:4366 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129910AbRBCBpG>;
+	Fri, 2 Feb 2001 20:45:06 -0500
+Date: Sat, 3 Feb 2001 02:44:40 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Anders S. Buch" <abuch@math.mit.edu>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: Bug report
+Message-ID: <20010203024440.C2048@suse.de>
+In-Reply-To: <Pine.GSO.4.31.0102011703540.23000-200000@fermat.mit.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.31.0102011703540.23000-200000@fermat.mit.edu>; from abuch@math.mit.edu on Thu, Feb 01, 2001 at 05:09:51PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 2 Feb 2001, Ion Badulescu wrote:
-
-> On Fri, 2 Feb 2001 15:01:05 -0800 (PST), Ivan Passos <lists@cyclades.com> wrote:
+On Thu, Feb 01 2001, Anders S. Buch wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> > Sometimes when I reboot the system, as soon as the eepro100 module is
-> > loaded, I start to get these msgs on the screen:
-> > 
-> > eth0: card reports no resources.
-> > eth0: card reports no RX buffers.
-> > eth0: card reports no resources.
-> > eth0: card reports no RX buffers.
-> > eth0: card reports no resources.
-> > eth0: card reports no RX buffers.
-> > (...)
+> Hello,
 > 
-> Does the following patch, taken from 2.4.1, help?
+> It seems that the ide/cdrom/amd756 code can cause some bad lockups, at
+> least on my system.  I have an Athlon 500 system running the 2.4.1 kernel
+> with Redhat 6.1 + updated modutils, etc.
 
-I'm currently testing. I'll get back to you soon (have to reboot the
-system a lot to make sure it's really solved ... :)).
+Have you tried disabling DMA on the atapi drive, not all do atapi
+dma in an orderly fashion (yet)?
 
-Thanks for the quick response!!
-
-Later,
-Ivan
+-- 
+Jens Axboe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

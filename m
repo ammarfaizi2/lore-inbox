@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265426AbSJXLs3>; Thu, 24 Oct 2002 07:48:29 -0400
+	id <S265402AbSJXMGU>; Thu, 24 Oct 2002 08:06:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265420AbSJXLs3>; Thu, 24 Oct 2002 07:48:29 -0400
-Received: from [198.73.180.252] ([198.73.180.252]:11987 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S265422AbSJXLs2>;
-	Thu, 24 Oct 2002 07:48:28 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
-To: maneesh@in.ibm.com, Dipankar Sarma <dipankar@in.ibm.com>,
-       linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Thu, 24 Oct 2002 07:47:39 -0400
-References: <3DB7A581.9214EFCC@aitel.hist.no> <3DB7A80C.7D13C750@digeo.com> <3DB7AC97.D31A3CB2@digeo.com> <20021024171528.D5311@in.ibm.com>
-Organization: me
-User-Agent: KNode/0.7.1
+	id <S265409AbSJXMGT>; Thu, 24 Oct 2002 08:06:19 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:34951 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265402AbSJXMGT>; Thu, 24 Oct 2002 08:06:19 -0400
+Date: Thu, 24 Oct 2002 08:13:42 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: yf <fyou@dsguardian.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pls help me
+In-Reply-To: <1035441048.727.3.camel@yf.dsguardian.com>
+Message-ID: <Pine.LNX.3.95.1021024080900.18436A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20021024114740.78FD37CD3@oscar.casa.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni wrote:
+On 24 Oct 2002, yf wrote:
 
-> On Thu, Oct 24, 2002 at 08:22:07AM +0000, Andrew Morton wrote:
->> Andrew Morton wrote:
->> > 
->> > Hopefully the rcu fix in -mm4 will cure this.
->> 
->> Oh.  It was in -mm3 too.  But something went wrong with the
->> dcache shrinking there.
+> Hi, all, 
 > 
-> Backing out larger-cpu-masks.patch fixes this in -mm3 so, -mm4 should not
-> give this problem. Basically callbacks are not getting processed due to
-> incorrect rcu_cpu_mask.
+> Recently I wrote a file-system under Linux. When mounting, it prints 
+> these messages. I use iget(sb, ino) to get the root inode. 
+> 
+> But when run into get_new_inode():wake_up(), it hangs there. Who could 
+> give me some hints? 
+> 
+> what the dmesg output: 
+> ************************************************************************
+> 
+> ==> vvfs_init() 
+> ==> vvfs_read_super(<NULL>) 
+> ==> vvfs_connect(192.168.1.57, 52886) 
+> 2, 38606, 956410048 
+> <== vvfs_connect()OK 
+> superblock ordinary filling ok 
+> ==> vvfs_alloc_inode() 
+> <== vvfs_alloc_inode() 
+> ==> vvfs_read_inode(c67fb000) 
+> get sb sock 
+> get inode fid 
+> root inode 
+> fetch inode OK 
+> set server info OK 
+> <== vvfs_read_inode()c67fb000 
+> Unable to handle kernel paging request at virtual address fffffffc 
 
-Would this affect UP systems?  Had the dentry leak on a UP box with 512m 
-memory.  About 400m ended up in unfreeable dentries...
+There is no way somebody can help you with "Recently I wrote a file-
+system...." We don't have your source-code and we don't even know if
+you know how to write a file-system. However, the -
+  Unable to handle kernel paging request at virtual address fffffffc 
+- is a good hint that some pointer isn't initialized correctly under
+all the conditions occurring during the mount.
 
-Ed Tomlinson
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
+
+

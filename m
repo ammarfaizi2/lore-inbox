@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131601AbRCQLWa>; Sat, 17 Mar 2001 06:22:30 -0500
+	id <S131613AbRCQLaa>; Sat, 17 Mar 2001 06:30:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131606AbRCQLWW>; Sat, 17 Mar 2001 06:22:22 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:52095 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S131601AbRCQLWP>; Sat, 17 Mar 2001 06:22:15 -0500
-Date: Sat, 17 Mar 2001 06:21:19 -0500
-From: Tim Waugh <twaugh@redhat.com>
-To: "Michael B. Allen" <mballen@erols.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: parport not detected
-Message-ID: <20010317062119.B13877@redhat.com>
-In-Reply-To: <20010316185253.A865@nano.foo.net>
-Mime-Version: 1.0
+	id <S131615AbRCQLaK>; Sat, 17 Mar 2001 06:30:10 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:58817 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131613AbRCQLaD>; Sat, 17 Mar 2001 06:30:03 -0500
+Message-ID: <3AB34AF8.B09D69CA@uow.edu.au>
+Date: Sat, 17 Mar 2001 22:31:04 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Seth Andrew Hallem <shallem@Stanford.EDU>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Potential free/use-after-free bugs
+In-Reply-To: <20010316221730.B17586@elaine23.stanford.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010316185253.A865@nano.foo.net>; from mballen@erols.com on Fri, Mar 16, 2001 at 06:52:53PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 16, 2001 at 06:52:53PM -0500, Michael B. Allen wrote:
-
-> The parallel port is not being detected on my ABIT KT7A KT133 w/ Athlon
-
-Need dmesg output to see what parport is being told and what is
-finding out for itself.
-
-> BIOS options are:
+Seth Andrew Hallem wrote:
 > 
-> 728/IRQ5
-  ^^^ 278, probably
+> I also have some questions regarding skbs.  Our checker
+> found a lot of instances where the skb is freed, then its length field is
+> accessed.  I have included an example location below.  Is this a bug or
+> not?
 
-> 378/IRQ7
-> 3BC/IRQ7
+Yes, we should regard it as a bug.
 
-But which one is it actually set to?
+A dev_kfree_skb_irq(skb) followed by a reference to *skb
+is in fact safe, because the skb isn't freed until after the
+interrupt function returns.  But it's cruddy code and should be
+changed.
 
-> Of the above what's optimal?
+Arnaldo recently went through a whole bunch of drivers fixing
+a similar problem:
 
-It depends what you're doing, really.
+	netif_rx(skb);
+	diddle_with(skb);
 
-> I also tried an options line in modules.conf. I believe it was:
-> 
-> options parport_pc io=0x3bc irq=7
+This is poor form because netif_rx() "gives away"
+the skb and it's no longer yours to diddle with.  In theory,
+netif_rx() could have kfree'ed it on the spot.
 
-Take that out and see what happens.
 
-> That was reflected in /proc but no difference in actually "detecting"
-> the parallel port.
+With regard to the "16 potential locking bugs" email: nice
+one.  They all appear to be complete box-busting shockers.
 
-I don't know what you mean really.  Are you saying that you can't
-print, or just that the device ID probe (to get the printer name)
-isn't working?
+If there was anyone around to send patches to, I'd fix em :)
+But I'll hang on to that email and make sure everything is ticked
+off next month.  So: ack and thanks.
 
-> Also, if I build parpart into the kernel I get nothing but a
-> hard lockup on 'Starting kswapd v 1.5'.
-
-That's quite strange.
-
-Which kernel version are you using?  Take a look at the
-'troubleshooting' section of Documentation/parport.txt.
-
-Tim.
-*/
+-

@@ -1,52 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266434AbUG0RlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUG0Rnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266434AbUG0RlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 13:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbUG0RlZ
+	id S266479AbUG0Rnv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 13:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266493AbUG0Rnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 13:41:25 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:55234 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266434AbUG0RlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 13:41:23 -0400
-Subject: Re: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
-From: Lee Revell <rlrevell@joe-job.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>, achew@nvidia.com,
-       linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-In-Reply-To: <200407270943.23292.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <DBFABB80F7FD3143A911F9E6CFD477B03F95DD@hqemmail02.nvidia.com>
-	 <1090902426.1094.33.camel@mindpipe> <20040726215738.5c4a8b42.pj@sgi.com>
-	 <200407270943.23292.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Message-Id: <1090950096.1094.53.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 27 Jul 2004 13:41:36 -0400
+	Tue, 27 Jul 2004 13:43:51 -0400
+Received: from out011pub.verizon.net ([206.46.170.135]:45241 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S266479AbUG0Rno
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 13:43:44 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: Organization: undetectable
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crashes
+Date: Tue, 27 Jul 2004 13:43:43 -0400
+User-Agent: KMail/1.6
+References: <200407271233.04205.gene.heskett@verizon.net> <200407271302.41321.gene.heskett@verizon.net> <20040727095118.7620f801.rddunlap@osdl.org>
+In-Reply-To: <20040727095118.7620f801.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407271343.43583.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.53.180] at Tue, 27 Jul 2004 12:43:44 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-27 at 02:43, Denis Vlasenko wrote:
-> On Tuesday 27 July 2004 07:57, Paul Jackson wrote:
-> > > For now the only fix for people using an X environment ... insert file
-> > > ...
-> >
-> > I'm guessing that the tabs are lost in the cut or copy operation, not in
-> > the paste operation.
-> 
-> because 'cut' in a xterm cannot know that those eight spaces
-> once were a tab. xterm is probably storing screen as a char+attr
-> two-dimensional array. There are no tabs, only spaces.
+On Tuesday 27 July 2004 12:51, Randy.Dunlap wrote:
+>On Tue, 27 Jul 2004 13:02:41 -0400 Gene Heskett wrote:
+>| On Tuesday 27 July 2004 10:29,
+>| viro@parcelfarce.linux.theplanet.co.uk
+>|
+>| wrote:
+>| >On Tue, Jul 27, 2004 at 12:33:04PM -0400, Gene Heskett wrote:
+>| >> Greetings everybody;
+>| >>
+>| >> I have now had 4 crashes while running 2.6.8-rc2, the last one
+>| >> requiring a full powerdown before the intel-8x0 could
+>| >> re-establish control over the sound.
+>| >>
+>| >> All have had an initial Opps located in prune_dcache, and were
+>| >> logged as follows:
+>| >> Jul 27 07:58:58 coyote kernel: Unable to handle kernel NULL
+>| >> pointer dereference at virtual address 00000000
+>| >
+>| >... which means that dentry_unused list got corrupted, which
+>| > doesn't really help.  Could you try to narrow it down to
+>| > 2.6.8-rc1-bk<day>?
+>|
+>| I don't have bitkeeper installed.  I get my patches from
+>| kernel.org, either from the main Linus tree, or Andrews akpm tree.
+>| Is there someplace where I can dl a patchkit that leads up to rc1
+>| by the "daily" snapshot?  Or should I just get the 'broken out'
+>| patch after I verify that it also occurs with rc1 of course.  That
+>| I haven't done, mainly because rc2 has a lot of usb bugfixes and
+>| my mouse hasn't died all by itself on rc2 like it was for at least
+>| 2 dozen patches before rc2.  IIRC it did a time or 2 on rc1.
+>
+>In case you need daily bk snapshots, they are here:
+>  http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/
 
-Yes, but unless you are copying from vim or emacs, where the editor is
-converting tabs to N spaces based on your settings, this is fixable.   
-For example it should be possible to run diff from the command line and
-copy the output, preserving tabs correctly.  There is an alpha quality
-patch floating around to add this functionality to xterm.
+Thanks Randy, got all 6 of them.
 
-But, this is horribly OT.  My main point was that it's almost always not
-the mailer's fault if your patches are getting mangled in this way.
+>| It takes a < 1 day for this to occur usually, but seems to occur
+>| after a long session of doing something else that fails. (or maybe
+>| causes the fail, of a make install in konstruct/meta/kde)  Thats
+>| running now, someplace in kdegraphics-3.2.92 from the looks of it.
 
-Lee
+I take it that I should apply these to a 2.6.7 tarballs tree in this 
+order:
+1. 2.6.8-rc1
+2. each of these 'rc2-bk' patches by the day and then run each for a 
+couple days, or should I start in the middle, say the 3rd one and 
+work forward or backwards from there depending on the results?
 
+Your (and Viro's) call.  I'd imagine you would want to run this to 
+earth as quick as we can.
+
+Are these patches cumulative?  I presume they are as they grow by the 
+day.
+
+-- 
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

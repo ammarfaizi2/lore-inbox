@@ -1,85 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVCPWzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVCPW4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbVCPWzb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 17:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVCPWzb
+	id S262846AbVCPW4h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 17:56:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVCPW4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 17:55:31 -0500
-Received: from mail.dif.dk ([193.138.115.101]:28544 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262844AbVCPWyn (ORCPT
+	Wed, 16 Mar 2005 17:56:36 -0500
+Received: from fire.osdl.org ([65.172.181.4]:16868 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262846AbVCPWz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 17:54:43 -0500
-Date: Wed, 16 Mar 2005 23:56:12 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Eric Youngdale <eric@andante.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2/2] isofs: kfree handles NULL pointers fine (inode.c)
-Message-ID: <Pine.LNX.4.62.0503162354210.2558@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Mar 2005 17:55:58 -0500
+Date: Wed, 16 Mar 2005 14:55:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: yuasa@hh.iij4u.or.jp, ralf@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch][resend] convert a remaining verify_area to access_ok
+ (was: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok)
+ (fwd)
+Message-Id: <20050316145524.18787569.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesper Juhl <juhl-lkml@dif.dk> wrote:
+>
+> Around 2.6.11-mm1 Yoichi Yuasa found a user of verify_area that I had 
+>  missed when converting everything to access_ok. The patch below still 
+>  applies cleanly to 2.6.11-mm4.
+>  Please apply (unless of course you already picked it up back then and 
+>  have it in a queue somewhere :) .
 
-kfree() has no trouble being handed a NULL pointer, so checking for one
-before calling it is redundant. This patch removes the redundant checks in
-fs/isofs/inode.c
+That's tricky stuff you're playing with, so I'd prefer it came in via Ralf.
+However I can queue it up locally so it doesn't get forgotten.
 
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.11-mm4-orig/fs/isofs/inode.c linux-2.6.11-mm4/fs/isofs/inode.c
---- linux-2.6.11-mm4-orig/fs/isofs/inode.c	2005-03-02 08:38:26.000000000 +0100
-+++ linux-2.6.11-mm4/fs/isofs/inode.c	2005-03-16 23:46:35.000000000 +0100
-@@ -863,8 +863,7 @@ root_found:
- 	if (opt.check == 'r') table++;
- 	s->s_root->d_op = &isofs_dentry_ops[table];
- 
--	if (opt.iocharset)
--		kfree(opt.iocharset);
-+	kfree(opt.iocharset);
- 
- 	return 0;
- 
-@@ -903,8 +902,7 @@ out_unknown_format:
- out_freebh:
- 	brelse(bh);
- out_freesbi:
--	if (opt.iocharset)
--		kfree(opt.iocharset);
-+	kfree(opt.iocharset);
- 	kfree(sbi);
- 	s->s_fs_info = NULL;
- 	return -EINVAL;
-@@ -1163,8 +1161,7 @@ static int isofs_read_level3_size(struct
- 			goto out_toomany;
- 	} while(more_entries);
- out:
--	if (tmpde)
--		kfree(tmpde);
-+	kfree(tmpde);
- 	if (bh)
- 		brelse(bh);
- 	return 0;
-@@ -1176,8 +1173,7 @@ out_nomem:
- 
- out_noread:
- 	printk(KERN_INFO "ISOFS: unable to read i-node block %lu\n", block);
--	if (tmpde)
--		kfree(tmpde);
-+	kfree(tmpde);
- 	return -EIO;
- 
- out_toomany:
-@@ -1346,8 +1342,7 @@ static void isofs_read_inode(struct inod
- 		init_special_inode(inode, inode->i_mode, inode->i_rdev);
- 
-  out:
--	if (tmpde)
--		kfree(tmpde);
-+	kfree(tmpde);
- 	if (bh)
- 		brelse(bh);
- 	return;
-
-
+Ralf must have another two megabyte patch buffered up by now, btw?

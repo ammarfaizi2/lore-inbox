@@ -1,87 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbTKRJmM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 04:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTKRJmM
+	id S262283AbTKRJqy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 04:46:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTKRJqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 04:42:12 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56328 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262128AbTKRJmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 04:42:10 -0500
-Date: Tue, 18 Nov 2003 09:42:07 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: Bootmem broke ARM
-Message-ID: <20031118094207.B28004@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20031116101535.A592@flint.arm.linux.org.uk> <20031116121131.0796cf01.akpm@osdl.org> <20031117180440.GA9711@sgi.com>
+	Tue, 18 Nov 2003 04:46:54 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:32775 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262283AbTKRJqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 04:46:53 -0500
+Date: Tue, 18 Nov 2003 09:46:52 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DMA_NONE data_direction in scsi
+Message-ID: <20031118094651.A14904@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0311172013230.2258-100000@poirot.grange>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031117180440.GA9711@sgi.com>; from jbarnes@sgi.com on Mon, Nov 17, 2003 at 10:04:40AM -0800
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <Pine.LNX.4.44.0311172013230.2258-100000@poirot.grange>; from g.liakhovetski@gmx.de on Mon, Nov 17, 2003 at 08:25:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 10:04:40AM -0800, Jesse Barnes wrote:
-> On Sun, Nov 16, 2003 at 12:11:31PM -0800, Andrew Morton wrote:
-> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > With previous kernels, the nodes are added to the list in reverse order,
-> > > so architecture code knew we had to add the highest PFN first and the
-> > > lowest PFN node last.
+On Mon, Nov 17, 2003 at 08:25:19PM +0100, Guennadi Liakhovetski wrote:
+> While trying to fix tmscsim for 2.6, I've arrived at the Oops below, which
+> is caused by the BUG_ON() in dma_map_page(). In the backtrace below,
+> data_direction is set to DMA_BIDIRECTIONAL in sd_revalidate_disk(),
 > 
-> You're right, I think the arch code should probably worry about this.
+>                 sreq->sr_data_direction = DMA_BIDIRECTIONAL;
 > 
-> > It looks to be bogus on ia64 as well, for which the patch was written.
+> , but already in sd_spinup_disk() it is reset to DMA_NONE:
 > 
-> Yep, I think it is bogus.  There's only one caller on ia64 that would be
-> affected--swiotlb_init(), and afaik multi-node systems won't be using
-> that code (except maybe NEC?), so even if the pgdat list is out of order
-> we should be ok.  If not I'll fix the ia64 discontig code.
+>                         SRpnt->sr_data_direction = DMA_NONE;
+> 
+> So, the question is: is this the correct behaviour, and, if so - how is
+> the driver supposed to map this request - which direction to pass to
+> dma_map_*?
 
-Ok, I've received word from the original reporter on the ARM lists that
-this patch does indeed solve their problem.
+DMA_NONE means there's nothing to map.
 
-Linus - can this be merged for 2.6.0-test10 please, or do you consider
-this too large a change?
-
-===== mm/bootmem.c 1.22 vs edited =====
---- 1.22/mm/bootmem.c	Sun Sep 28 10:11:27 2003
-+++ edited/mm/bootmem.c	Mon Nov 17 10:44:59 2003
-@@ -48,24 +48,8 @@
- 	bootmem_data_t *bdata = pgdat->bdata;
- 	unsigned long mapsize = ((end - start)+7)/8;
- 
--
--	/*
--	 * sort pgdat_list so that the lowest one comes first,
--	 * which makes alloc_bootmem_low_pages work as desired.
--	 */
--	if (!pgdat_list || pgdat_list->node_start_pfn > pgdat->node_start_pfn) {
--		pgdat->pgdat_next = pgdat_list;
--		pgdat_list = pgdat;
--	} else {
--		pg_data_t *tmp = pgdat_list;
--		while (tmp->pgdat_next) {
--			if (tmp->pgdat_next->node_start_pfn > pgdat->node_start_pfn)
--				break;
--			tmp = tmp->pgdat_next;
--		}
--		pgdat->pgdat_next = tmp->pgdat_next;
--		tmp->pgdat_next = pgdat;
--	}
-+	pgdat->pgdat_next = pgdat_list;
-+	pgdat_list = pgdat;
- 
- 	mapsize = (mapsize + (sizeof(long) - 1UL)) & ~(sizeof(long) - 1UL);
- 	bdata->node_bootmem_map = phys_to_virt(mapstart << PAGE_SHIFT);
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319262AbSHWULC>; Fri, 23 Aug 2002 16:11:02 -0400
+	id <S319313AbSHWU3C>; Fri, 23 Aug 2002 16:29:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319263AbSHWULC>; Fri, 23 Aug 2002 16:11:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38673 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319262AbSHWULB>; Fri, 23 Aug 2002 16:11:01 -0400
-Date: Fri, 23 Aug 2002 13:16:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Oliver Xymoron <oxymoron@waste.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-In-Reply-To: <20011102103427.Z35@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.33.0208231311150.4148-100000@penguin.transmeta.com>
+	id <S319390AbSHWU3C>; Fri, 23 Aug 2002 16:29:02 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:19350 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319313AbSHWU3B>;
+	Fri, 23 Aug 2002 16:29:01 -0400
+Message-ID: <3D669B4F.7090402@us.ibm.com>
+Date: Fri, 23 Aug 2002 13:30:07 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020808
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bill Hartner <hartner@austin.ibm.com>
+CC: Mala Anand <manand@us.ibm.com>, Benjamin LaHaise <bcrl@redhat.com>,
+       alan@lxorguk.ukuu.org.uk, Bill Hartner <bhartner@us.ibm.com>,
+       davem@redhat.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, lse-tech-admin@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
+References: <OF1AAF39E9.D733B26C-ON87256C1E.004ACC87@boulder.ibm.com> <3D666531.4020909@us.ibm.com> <3D669737.67ED34AF@austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 2 Nov 2001, Pavel Machek wrote:
+Bill Hartner wrote:
 > 
-> Actually, no. If something is not predictable it does not mean >= 1 bit.
+> Dave Hansen wrote:
+> 
+>>Mala Anand wrote:
+>>
+>>>Readprofile ticks are not as accurate as the cycles I measured.
+>>>Moreover readprofile can give misleading information as it profiles
+>>>on timer interrupts. The alloc_skb and __kfree_skb call memory
+>>>management routines and interrupts are disabled in many parts of that code.
+>>>So I don't trust the readprofile data.
+>>
+>>I don't believe your results to be accurate.  They may be _precise_
+>>for a small case, but you couldn't have been measuring them for very
+>>long.  A claim of accuracy requires a large number of samples, which
+>>you apparently did not do.
+> 
+> What is your definition of a "very long time" ?
+> 
+> Read the 1st email.  There were 2.4 million samples.
+> 
+> How many do you think is sufficient ?
 
-I agree. It might be less than one bit. However, I suspect that you can 
-basically almost never predict the _exact_ TSC value, which implies that 
-there is one or more bits of true randomness there.
+I must have misunderstood the data from the first email.  I was under 
+the impression that it was much smaller than that number.
 
-If you can predict it (exactly) a noticeable fraction of the time, there
-is clearly less than one bit of randomness.
+>>I can't use oprofile or other NMI-based profilers on my hardware, so
+>>we'll just have to guess.  Is there any chance that you have access to
+>>a large Specweb setup on hardware that is close to mine and can run
+>>oprofile?
+> 
+> Why do you think oprofile is a better way to measure this ?
 
-To some degree it _should_ be fairly easy to test this even without a GHz
-scope - just put two totally idle machines, connect them directly with a
-cross-over cable, and make one of them send packets as quickly as it can
-using something like "ping -f" with no route back to the sender (ie make
-the ethernet card on the sending machine be your "exact clock" for sending
-purposes).
+Mala's main complaint about readprofile is that it cannot profile 
+while interrupts are disabled.  oprofile's timer interrupts cannot be 
+disabled, they _always_ occur.
 
-Then record the stream of TSC on the receiving machine, and if you can
-generate a function to predict a noticeable percentage of them exactly,
-you've shown that it's much less than 1 bit of information.
+> BTW, Mala works with Troy Wilson who is running SPECweb99 on
+> an 8-way system using Apache.  Troy has run with Mala's patch
+> and that data will be posted.
 
-Maybe somebody would find this an interesting exercise.
+I look forward to seeing it.
 
-		Linus
+>>Where are interrupts disabled?   I just went through a set of kernprof
+>>data and traced up the call graph.  In the most common __kfree_skb
+>>case, I do not believe that it has interupts disabled.  I could be
+>>wrong, but I didn't see it.
+> 
+> What is the revelance of the above ?
+
+Mala's main complaint about readprofile is that it cannot profile 
+while interrupts are disabled.  I didn't see the case where it was 
+being called with interrupts disabled.  I was hoping that you could 
+point it out to me.
+
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

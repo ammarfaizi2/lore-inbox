@@ -1,23 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264333AbTKUIfz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 03:35:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTKUIfz
+	id S264332AbTKUIfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 03:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264333AbTKUIfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 03:35:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50371 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264333AbTKUIfw (ORCPT
+	Fri, 21 Nov 2003 03:35:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48067 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264332AbTKUIfJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 03:35:52 -0500
-Date: Fri, 21 Nov 2003 00:41:33 -0800
+	Fri, 21 Nov 2003 03:35:09 -0500
+Date: Fri, 21 Nov 2003 00:40:54 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9-mm4
-Message-Id: <20031121004133.1a111786.akpm@osdl.org>
-In-Reply-To: <3FBDCCDF.9010304@gmx.de>
-References: <20031118225120.1d213db2.akpm@osdl.org>
-	<3FBDCCDF.9010304@gmx.de>
+To: gene.heskett@verizon.net
+Cc: iwamoto@valinux.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: O_DIRECT leaks memory on linux-2.6.0-test9
+Message-Id: <20031121004054.0d688bff.akpm@osdl.org>
+In-Reply-To: <200311210324.35127.gene.heskett@verizon.net>
+References: <20031121061806.6A65F7007C@sv1.valinux.co.jp>
+	<20031121073411.665A27007C@sv1.valinux.co.jp>
+	<20031120235530.3d09882f.akpm@osdl.org>
+	<200311210324.35127.gene.heskett@verizon.net>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,31 +27,43 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Prakash K. Cheemplavam" <prakashpublic@gmx.de> wrote:
+Gene Heskett <gene.heskett@verizon.net> wrote:
 >
-> DMESG gives me following:
+> On Friday 21 November 2003 02:55, Andrew Morton wrote:
+> >IWAMOTO Toshihiro <iwamoto@valinux.co.jp> wrote:
+> >> It'll take a while to leak a noticable amount of memory. So I
+> >> reduced the amount of memory using a boot option.
+> >
+> >Well I'll be darned.  I took a new version of fsstress and it
+> > happens here too.  We're leaking anonymous memory.  -mm doesn't do
+> > any better, either.
 > 
->  Debug: sleeping function called from invalid context at mm/slab.c:1868
->  in_atomic():1, irqs_disabled():0
->  Call Trace:
->    [<c0120fbb>] __might_sleep+0xab/0xd0
->    [<c0144fa5>] kmem_cache_alloc+0x65/0x70
->    [<c0155161>] __get_vm_area+0x21/0xf0
->    [<c0155263>] get_vm_area+0x33/0x40
->    [<c011df03>] __ioremap+0xb3/0x100
->    [<c011df79>] ioremap_nocache+0x29/0xb0
->    [<f9a5ad87>] os_map_kernel_space+0x68/0x6c [nvidia]
->    [<f9a6d377>] __nvsym00568+0x1f/0x2c [nvidia]
->    [<f9a6f496>] __nvsym00775+0x6e/0xe0 [nvidia]
->    [<f9a6f526>] __nvsym00781+0x1e/0x190 [nvidia]
->    [<f9a70fac>] rm_init_adapter+0xc/0x10 [nvidia]
->    [<f9a57dc9>] nv_kern_open+0xf3/0x228 [nvidia]
->    [<c0164b40>] exact_match+0x0/0x10
->    [<c0164941>] chrdev_open+0xf1/0x220
->    [<c01aa332>] devfs_open+0xe2/0xf0
->    [<c0159f32>] dentry_open+0x152/0x270
->    [<c0159ddb>] filp_open+0x5b/0x60
->    [<c015a2c3>] sys_open+0x53/0x90
->    [<c041f532>] sysenter_past_esp+0x43/0x65
+> Running 2.6.0-test9-mm4, default as scheduler
+> 
+> That triggerd me to go look at ksysguard, and I've got 70 megs out in 
+> swap in less than 24 hours uptime with my normal loading.  Usually it 
+> takes me a couple of weeks to get that much as I've half a gig of 
+> main memory.
 
-That would be a locking error in the nvidia driver.
+That's good.  The kernel has given you 70 megs more memory.
+
+>  Its also showing about 95 megs free.
+
+free memory isn't really relevant.  If there's plenty of `buffers' and
+pagecache around then it's mostly reclaimable.
+
+>  Would this leak 
+> show up there (ksysguard), and if so, in what section?
+
+I don't know.
+
+> T'would be nice if xosview were to be made operable, but this kernel 
+> breaks it.  I used to keep it running in the corner of one of my 
+> screens.
+
+I had a patch for that.  Maybe it got merged.  You should hunt down the
+upstream source and try it out.
+
+For diagnosing this sort of thing it is best to learn to read the /proc
+files.
+

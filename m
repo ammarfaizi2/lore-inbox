@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbUJaWla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbUJaWv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUJaWla (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 17:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUJaWla
+	id S261507AbUJaWv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 17:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUJaWv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 17:41:30 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:37846 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261672AbUJaWl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 17:41:28 -0500
-Message-ID: <41856AF8.8020200@ens-lyon.fr>
-Date: Sun, 31 Oct 2004 23:45:12 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Reply-To: Brice.Goglin@ens-lyon.org
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-Cc: vojtech@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Map extra keys on compaq evo
-References: <20041031213859.GA6742@elf.ucw.cz>
-In-Reply-To: <20041031213859.GA6742@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: 
+	Sun, 31 Oct 2004 17:51:58 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33240 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261507AbUJaWv5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 17:51:57 -0500
+Date: Mon, 1 Nov 2004 09:51:41 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
+Subject: Re: XFS strangeness, xfs_db out of memory
+Message-ID: <20041101095141.E5462300@wobbly.melbourne.sgi.com>
+References: <200410240857.31893.robin.rosenberg.lists@dewire.com> <20041029073723.GH1246@frodo> <200410311758.06096.robin.rosenberg.lists@dewire.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200410311758.06096.robin.rosenberg.lists@dewire.com>; from robin.rosenberg.lists@dewire.com on Sun, Oct 31, 2004 at 05:58:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Works great on my Compaq Evo N600c (not 620).
+On Sun, Oct 31, 2004 at 05:58:05PM +0100, Robin Rosenberg wrote:
+> 
+> You don't happen to know when or where (patch) this was fixed? I'm usually
+> using Mandrake stock kernels, so I'm looking for something to attach to a
+> bug report. I was looking around without luck.
+> 
 
-Thanks a lot.
+It was bk changeset 1.1803.135.5 -- I'll send you a patch off-list.
+
+cheers.
+
 -- 
-Brice Goglin
-================================================
-Ph.D Student
-Laboratoire de l'Informatique et du Parallélisme
-CNRS-ENS Lyon-INRIA-UCB Lyon
-France
-
-
-
-Pavel Machek wrote:
-> Hi!
-> 
-> Compaq Evo notebooks seem to use non-standard keycodes for their extra
-> keys. I workaround that quirk with dmi hook.
-> 
-> I think that number of such workarounds neccessary should be
-> reasonably small (like one for each manufacturer), and therefore this
-> would be good thing...
-> 								Pavel
+Nathan

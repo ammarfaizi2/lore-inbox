@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272882AbTHKREX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 13:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272838AbTHKRCD
+	id S272858AbTHKRLc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 13:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272909AbTHKRIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 13:02:03 -0400
-Received: from mailb.telia.com ([194.22.194.6]:28379 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id S272818AbTHKQ6t convert rfc822-to-8bit
+	Mon, 11 Aug 2003 13:08:05 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:48028 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272898AbTHKRFa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 12:58:49 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy  ...
-Date: Mon, 11 Aug 2003 19:01:13 +0200
-User-Agent: KMail/1.5.9
-Cc: Davide Libenzi <davidel@xmailserver.org>
-References: <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com> <200308100405.52858.roger.larsson@skelleftea.mail.telia.com> <3F35DB73.8090201@cyberone.com.au>
-In-Reply-To: <3F35DB73.8090201@cyberone.com.au>
-MIME-Version: 1.0
+	Mon, 11 Aug 2003 13:05:30 -0400
+Date: Mon, 11 Aug 2003 10:04:25 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Larry McVoy <lm@bitmover.com>, davej@redhat.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
+Message-ID: <20030811170425.GA4418@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Larry McVoy <lm@bitmover.com>,
+	davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+	dri-devel@lists.sourceforge.net
+References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200308111901.13131.roger.larsson@skelleftea.mail.telia.com>
+In-Reply-To: <3F37CB44.5000307@pobox.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 August 2003 07.43, Nick Piggin wrote:
-> Roger Larsson wrote:
-> >*	SCHED_FIFO requests from non root should also be treated as SCHED_SOFTRR
->
-> I hope computers don't one day become so fast that SCHED_SOFTRR is
-> required for skipless mp3 decoding, but if they do, then I think
-> SCHED_SOFTRR should drop its weird polymorphing semantics ;)
+On Mon, Aug 11, 2003 at 12:58:44PM -0400, Jeff Garzik wrote:
+> Larry McVoy wrote:
+> >A few comments on why I don't like this patch:
+> >    1) It's a formatting only patch.  That screws over people who are using
+> >       BK for debugging, now when I double click on these changes I'll get
+> >       to your cleanup patch, not the patch that was the last substantive
+> >       change.
+> 
+> This is true, but at the same time, in Linux CodingStyle patches 
+> culturally acceptable.  I think the general logic is just "don't go 
+> overboard; reformat a tiny fragment at a time."
 
-After some tinking...
+That ought to be balanced with "don't screw up the revision history, people
+use it".  It's one thing to reformat code that is unreadable, for the most
+part this code didn't come close to unreadable.
 
-Neither SCHED_FIFO nor SCHED_RR should automatically be promoted to 
-SCHED_SOFTRR in the kernel.
+> at least don't run the damn lines together like
+> 	if (test) foo else bar;
+> 		or
+> 	if (test) foo
+> 	else bar;
 
-* If a process knows about SCHED_SOFTRR it should use that.
-  (example: arts should use SCHED_SOFTRR not SCHED_FIFO)
-  Problem: what to do when compiling for UN*Xes that does not have SOFTRR.
-  [Is there any other UN*X that have something resembling of this? What do
-   they call it?]
+I wasn't suggesting that.  I was saying
 
-* Cases where the code has not been modified should be handled by a wrapper
-  (library). setscheduler is a weak symbol isn't it?
+	if (expr) statement;		// OK
 
-/RogerL
+I was not endorsing this sort of unreadable crap:
 
+	if (expr) statement; else statement;
+
+The exception I was saying was reasonable is if you are doing something like
+
+	if (!pointer) return (-EINVAL);
+
+Short, sweet, readable, no worries.  
 -- 
-Roger Larsson
-Skellefteå
-Sweden
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

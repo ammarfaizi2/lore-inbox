@@ -1,86 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbUKCS01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbUKCSeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbUKCS01 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 13:26:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbUKCS00
+	id S261727AbUKCSeY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 13:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUKCSeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 13:26:26 -0500
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:1162 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S261738AbUKCS0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 13:26:23 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-From: Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-Date: Wed, 3 Nov 2004 12:24:39 -0600
-Message-ID: <OFD824DF3C.9378DEBF-ON86256F41.00652222-86256F41.0065224E@raytheon.com>
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/03/2004 12:24:40 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Wed, 3 Nov 2004 13:34:24 -0500
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:25046 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S261727AbUKCSeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 13:34:17 -0500
+Date: Wed, 3 Nov 2004 11:34:15 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: blaisorblade_spam@yahoo.it, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       julian@sektor37.de, mcr@sandelman.ottawa.on.ca, sam@ravnborg.org
+Subject: Re: [patch 2/2] kbuild: fix crossbuild base config
+Message-ID: <20041103183415.GH381@smtp.west.cox.net>
+References: <20041102232001.370174C0BC@zion.localdomain> <Pine.LNX.4.61.0411031747020.17266@scrub.home> <20041103174856.GG381@smtp.west.cox.net> <Pine.LNX.4.61.0411031909460.877@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411031909460.877@scrub.home>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->i have released the -V0.7.1 Real-Time Preemption patch, which can be
->downloaded from:
->
->    http://redhat.com/~mingo/realtime-preempt/
+On Wed, Nov 03, 2004 at 07:19:37PM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Wed, 3 Nov 2004, Tom Rini wrote:
+> 
+> > > > This has actually created not-working UML binaries (since UML is always
+> > > > "cross-compiled" for this purpose), as reported by Julian Scheid.
+> > > 
+> > > This rather suggests, there is a problem with UML. Either fix your Kconfig 
+> > > to prevent nonvalid configurations or detect and report the problem at 
+> > > runtime.
+> > 
+> > No, this is a damn annoying kbuild problem when cross compiling.
+> 
+> The ability to create a nonworkable UML binary is _not_ a kbuild problem, 
+> especially in the UML case I would expect it should be possible to avoid 
+> this.
 
-V0.7.1 had build problems but after applying V0.7.7, I got a clean build
-and was able to do some testing.
+How about how easy it is to create a totally bogus config for any arch?
+This isn't a UML problem, this is a cross compiling for any arch
+problem.
 
- - single user and telnet 5 were uneventful
+> > > > We all agreed on this kind of general, not UML-only fix, and I (Paolo)
+> > > > implemented it.
+> > > 
+> > > I don't like the two separate lists, it would be easier to just skip all 
+> > > absolute path names.
+> > > I would also like to avoid this patch at all. If this really should be a 
+> > > problem, I'd consider to don't run kconfig at all in this case if there 
+> > > is no configuration and instead suggest running defconfig (or one of 
+> > > machine specific config targets) first.
+> > 
+> > I have a feeling that changing the behavior of 'make {,x,g,q}config' to
+> > fail if there's no .config will upset a lot of users, possibly even more
+> > than would be upset by never looking in /boot or /lib ever.
+> 
+> I'm only talking about cross compiling here. From people who do this, I 
+> sort of expect, that they know what they do.
 
- - preempt_wakeup_timing (PWT) is still generating false positives on SMP
+The following argument makes less sense, possibly, as 2.6 lives on, but
+this is new breakage for people moving up from 2.4 that just looked in
+.config and arch/$(ARCH)/defconfig and who don't otherwise know that
+things have been changed or broken, depending on how you look at it.
 
- - after disabling PWT, I ran for over an hour without any latency
-traces > 200 usec.
+> You can misconfigure a kernel 
+> in native compiles as well, this patch solves the wrong problem. 
 
- - no crashes, lockups, or other fatal behavior in that same period
+I disagree.  This solves the "why did the kernel decide to look at
+/boot/config when it really should have known better" problem.
 
- - X test was generally OK. A few bursts of high overhead (> 1 msec)
-on the CPU task and worst case was > 2 msec.
+> E.g. if someone wrote a patch which stores the arch in .config and warns/ 
+> refuses to load it for a different configuration, I would accept it 
+> happily.
 
- - top test was a little cleaner, but its worst case was much worse
-(over 17 msec).
+We already have part of this, except I don't know for certain of
+CONFIG_ARCH == CONFIG_$(SUBARCH) (... to mix syntax all the hell up).
 
- - network tests were similar, with even longer worst cases (21 msec and
-32 msec)
-
- - disk I/O tests had some really odd results. The write test was much
-cleaner than read / copy. All tests had > 25 msec worst cases. The read
-test also had a pretty consistent variation on CPU overhead, about 500 usec
-range (compared to 1160 usec nominal duration) in CPU loop timing.
-
-A few other things I noticed:
- - whenever the real time test was active, responses to ping from another
-system would basically stop until the real time test was done. In one case
-about 25 ping packets were returned after a huge delay. From that, it
-appears they were received but the return was delayed.
- - cat /proc/interrupts showed that LOC was increasing on both CPU's
-during the tests.
- - the scheduler seems to prefer run my cpu_burn (nice'd) task instead
-of updating the X display, doing the latency timing checks, ping responses,
-and anything else that does useful work.
- - the disk write test was REALLY SLOW, perhaps hundreds of Kbytes per
-second instead of what I normally see. I took much longer than the real
-time audio test. I checked with top and noticed that "fam" was taking
-near 100% of CPU time. I closed my konqueror window (just happened to be
-looking at my test directory) and fam usage went away and the disk writes
-sped up considerably. I don't recall seeing this symptom on -T3 or
-previous tests, may try that later today to see if this is an old problem
-or not.
-
-This appears to be more stable than anything else since -T3 but the
-odd spikes and scheduling symptoms are quite troubling.
-  --Mark
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

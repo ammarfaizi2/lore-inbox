@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318719AbSIKLc1>; Wed, 11 Sep 2002 07:32:27 -0400
+	id <S318635AbSIKLkr>; Wed, 11 Sep 2002 07:40:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318721AbSIKLc1>; Wed, 11 Sep 2002 07:32:27 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:11792 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S318719AbSIKLc0>; Wed, 11 Sep 2002 07:32:26 -0400
-Date: Wed, 11 Sep 2002 07:50:07 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: johnstul@us.ibm.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] add "If unsure, say N" to CONFIG_X86_TSC_DISABLE
-In-Reply-To: <Pine.NEB.4.44.0209102247150.18902-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.44.0209110746150.28789-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318721AbSIKLkr>; Wed, 11 Sep 2002 07:40:47 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:40431
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318635AbSIKLkq>; Wed, 11 Sep 2002 07:40:46 -0400
+Subject: Re: ignore pci devices?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020911105131.GB5955@bytesex.org>
+References: <20020910134708.GA7836@bytesex.org>
+	<1031668032.31549.60.camel@irongate.swansea.linux.org.uk> 
+	<20020911105131.GB5955@bytesex.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 11 Sep 2002 12:48:58 +0100
+Message-Id: <1031744938.2768.37.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-09-11 at 11:51, Gerd Knorr wrote:
+> Well, at least nothing in PCI space.  It looks just like a random,
+> cheap bt878 card.
 
+Arggh read the email properly this time 8)
 
-On Tue, 10 Sep 2002, Adrian Bunk wrote:
-
-> Hi Marcelo,
->
-> the patch below does:
-> - add a "If unsure, say N" to CONFIG_X86_TSC_DISABLE
-> - fix two typos
-
-Thanks, will apply.
-
-> --- Documentation/Configure.help.old	2002-09-10 22:38:42.000000000 +0200
-> +++ Documentation/Configure.help	2002-09-10 22:49:21.000000000 +0200
-> @@ -240,9 +240,11 @@
->    which processor you have compiled for.
->
->    NOTE: If your system hangs when init should run, you are probably
-> -  using a i686 compiled glibc which reads the TSC wihout checking for
-> -  avaliability. Boot without "notsc" and install a i386 compiled glibc
-> +  using a i686 compiled glibc which reads the TSC without checking for
-> +  availability. Boot without "notsc" and install a i386 compiled glibc
->    to solve the problem.
-> +
-> +  If unsure, say N.
-
-Could you please generate patches between two full trees including the
-root name (eg. linux/Documentation/Configure.help) next time?
-
-Its easier for me this way.
-
+If its a BT878 on a board then assuming we can't tell the difference I
+guess it doesn't work mixed with tv cards. Does it work in windows
+paired with a real video capture card by some cheapo cardmaker that also
+doesn't set the ssid ?
 

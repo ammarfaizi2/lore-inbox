@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314220AbSDVPK1>; Mon, 22 Apr 2002 11:10:27 -0400
+	id <S314222AbSDVPKs>; Mon, 22 Apr 2002 11:10:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314221AbSDVPK1>; Mon, 22 Apr 2002 11:10:27 -0400
-Received: from [193.120.151.1] ([193.120.151.1]:52473 "EHLO mail.asitatech.com")
-	by vger.kernel.org with ESMTP id <S314220AbSDVPKZ>;
-	Mon, 22 Apr 2002 11:10:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: DJ Barrow <dj.barrow@asitatech.com>
-Organization: Asita Technologies
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: novice coding in /linux/net/ipv4/util.c From: DJ Barrow <dj.barrow@asitatech.com>
-Date: Mon, 22 Apr 2002 16:12:16 +0100
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020422151025Z314220-22651+13849@vger.kernel.org>
+	id <S314223AbSDVPKr>; Mon, 22 Apr 2002 11:10:47 -0400
+Received: from heffalump.fnal.gov ([131.225.9.20]:47581 "EHLO fnal.gov")
+	by vger.kernel.org with ESMTP id <S314222AbSDVPKp>;
+	Mon, 22 Apr 2002 11:10:45 -0400
+Date: Mon, 22 Apr 2002 10:10:44 -0500
+From: Dan Yocum <yocum@fnal.gov>
+Subject: XFS in the main kernel
+To: linux kernel <linux-kernel@vger.kernel.org>
+Message-id: <3CC427F4.12C40426@fnal.gov>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13SGI_XFS_1.0.2 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
-While debugging last night with Brian O'Sullivan I found this beauty.
+Linus, et al.
 
-char *in_ntoa(__u32 in)
-{
-        static char buff[18];
-        char *p;
+I know it's been discussed to death, but I am making a formal request to you
+to include XFS in the main kernel.  We (The Sloan Digital Sky Survey) and
+many, many other groups here at Fermilab would be very happy to have this in
+the main tree.  
 
-        p = (char *) &in;
-        sprintf(buff, "%d.%d.%d.%d",
-                (p[0] & 255), (p[1] & 255), (p[2] & 255), (p[3] & 255));
-        return(buff);
-}
+Currently the SDSS has ~20TB of XFS filesystems, most of which is in our 14
+fileservers and database machines.  The D-Zero experiment has ~140 desktops
+running XFS and several XFS fileservers.  We've been using it since it was
+released, and have found it to be very reliable.
 
-This textbook peice of novice coding which has existed since 2.2.14.
-For those who can't spot the error, please note that this function is 
-returning a static string, excellent stuff if you are hoping to reuse the 
-same function like the following
-printk("%s %s\n",in_ntoa(addr1),in_ntoa(addr2));
+I'll even attempt to bribe you with homebrew beer - would that help??  ;-)
+
+Thanks,
+Dan
+
+
+-- 
+Dan Yocum
+Sloan Digital Sky Survey, Fermilab  630.840.6509
+yocum@fnal.gov, http://www.sdss.org
+SDSS.  Mapping the Universe.

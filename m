@@ -1,42 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129577AbQKFSrT>; Mon, 6 Nov 2000 13:47:19 -0500
+	id <S129331AbQKFSzB>; Mon, 6 Nov 2000 13:55:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129331AbQKFSrJ>; Mon, 6 Nov 2000 13:47:09 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:40197 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129577AbQKFSqz>;
-	Mon, 6 Nov 2000 13:46:55 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200011061846.VAA20608@ms2.inr.ac.ru>
-Subject: Re: [patch] NE2000
-To: andrewm@uow.EDU.AU (Andrew Morton)
-Date: Mon, 6 Nov 2000 21:46:34 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A039E77.5DD87DF0@uow.edu.au> from "Andrew Morton" at Nov 4, 0 08:45:01 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129387AbQKFSyw>; Mon, 6 Nov 2000 13:54:52 -0500
+Received: from runyon.cygnus.com ([205.180.230.5]:16289 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S129331AbQKFSye>;
+	Mon, 6 Nov 2000 13:54:34 -0500
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+Cc: George Talbot <george@brain.moberg.com>, Marc Lehmann <pcg@goof.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a user-land  programmer...
+In-Reply-To: <200011061655.LAA21681@tsx-prime.MIT.EDU>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 06 Nov 2000 10:50:37 -0800
+In-Reply-To: "Theodore Y. Ts'o"'s message of "Mon, 6 Nov 2000 11:55:05 -0500"
+Message-ID: <m33dh5aq9u.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+"Theodore Y. Ts'o" <tytso@MIT.EDU> writes:
 
-> No, that code is correct, provided (current->state == TASK_RUNNING)
-> on entry.  If it isn't, there's a race window which can cause
-> lost wakeups.   As a check you could add:
+> Arguably though the bug is in glibc, in that if it's using signals
+> behinds the scenes, it should have passed SA_RESTART to sigaction.
+
+Why are you talking  such a nonsense?
+
 > 
-> 	if ((current->state & (TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE)) == 0)
-> 		BUG();
+> However, from a portability point of view, you should *always* surround
+> certain system calls with while loops, since even if your program
+> doesn't use signals, if you run that program on a System-V derived Unix
+> system, and someone types ^Z at the wrong moment, you can also get an
+> EINTR.   Similarly, you should always check the return value from write
+> and make sure all of what you asked to be written, was actually
+> written.
+> 
+> What I normally do is have a full_write routine which looks something
+> like this:
+> 
+> static errcode_t full_write(int fd, void *buf, int count)
+> {
+> 	char	*cp = buf;
+> 	int	left = count, c;
+> 
+> 	while (left) {
+> 		c = write(fd, cp, left);
+> 		if (c < 0) {
+> 			if (errno == EINTR || errno == EAGAIN)
+> 				continue;
+> 			return errno;
+> 		}
+> 		left -= c;
+> 		cp += c;
+> 	}
+> 	return 0;
+> }
+> 
+> It's like checking the return value from malloc().  Not everyone does
+> it, but even if it's not needed 99% of the time, it's a darned good idea
+> to do that.
+> 
+> 					- Ted
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+> 
 
-Though it really cannot happen and really happens, as we have seen... 8)
-
-In any case, Andrew, where is the race, when we enter in sleeping state?
-Wakeup is not lost, it is just not required when we are not going
-to schedule and force task to running state.
-
-I still do not see how it is possible that task runs in sleeping state.
-Apparently, set_current_state is forgotten somewhere. Do you see, where? 8)
-
-Alexey
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

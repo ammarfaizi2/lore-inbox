@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315424AbSFBV7H>; Sun, 2 Jun 2002 17:59:07 -0400
+	id <S315430AbSFBWBD>; Sun, 2 Jun 2002 18:01:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315430AbSFBV7G>; Sun, 2 Jun 2002 17:59:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:26530 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315424AbSFBV7F>;
-	Sun, 2 Jun 2002 17:59:05 -0400
-Date: Sun, 2 Jun 2002 14:58:43 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: correct inaccurate comment regarding zone_table's usage
-Message-ID: <20020602215843.GJ14918@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Mime-Version: 1.0
+	id <S315544AbSFBWBC>; Sun, 2 Jun 2002 18:01:02 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:52696 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S315430AbSFBWBB>;
+	Sun, 2 Jun 2002 18:01:01 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+Message-ID: <15610.38211.645247.449007@argo.ozlabs.ibm.com>
+Date: Mon, 3 Jun 2002 07:59:31 +1000 (EST)
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.19 IDE 78
+In-Reply-To: <3CFA733F.4070907@evision-ventures.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The comment describing the usage of zone_table[] assumes the existence
-of an unsigned char page->zone field from the original implementation
-of page->zone size reduction. This patch corrects the comment to
-accurately describe the lookup mechanism used by page_zone() and also
-to mention explicitly the sole user of the table, page_zone().
+> >>-	OUT_BYTE(drive->ctl | 2, IDE_CONTROL_REG);
+> >>+	ata_irq_enale(drive, 0);
+> 
+> For sure not. The nIEN bit is *negated* on the part of the
+> device - please look at the ata_irq_enable() functions definition.
+> I have explained it there.
 
-Against 2.5.19.
+Martin, that's a bit of your patch I was quoting.  I was just trying
+to point out that you wrote "ata_irq_enale" instead of "ata_irq_enable".
 
-Cheers,
-Bill
-
-
-===== mm/page_alloc.c 1.64 vs edited =====
---- 1.64/mm/page_alloc.c	Sun Jun  2 14:51:50 2002
-+++ edited/mm/page_alloc.c	Sun Jun  2 14:55:49 2002
-@@ -31,7 +31,10 @@
- LIST_HEAD(inactive_list);
- pg_data_t *pgdat_list;
- 
--/* Used to look up the address of the struct zone encoded in page->zone */
-+/*
-+ * Used by page_zone() to look up the address of the struct zone whose
-+ * id is encoded in the upper bits of page->flags
-+ */
- zone_t *zone_table[MAX_NR_ZONES*MAX_NR_NODES];
- EXPORT_SYMBOL(zone_table);
- 
+Paul.

@@ -1,52 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263663AbUJ3COx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263474AbUJ3CW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263663AbUJ3COx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 22:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUJ3COw
+	id S263474AbUJ3CW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 22:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbUJ3CUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 22:14:52 -0400
-Received: from cantor.suse.de ([195.135.220.2]:33754 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263459AbUJ3COF (ORCPT
+	Fri, 29 Oct 2004 22:20:07 -0400
+Received: from hulk.vianw.pt ([195.22.31.43]:28569 "EHLO hulk.vianw.pt")
+	by vger.kernel.org with ESMTP id S263467AbUJ3CTz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 22:14:05 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Semaphore assembly-code bug
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
-	<1098218286.8675.82.camel@mentorng.gurulabs.com.suse.lists.linux.kernel>
-	<41757478.4090402@drdos.com.suse.lists.linux.kernel>
-	<20041020034524.GD10638@michonline.com.suse.lists.linux.kernel>
-	<1098245904.23628.84.camel@krustophenia.net.suse.lists.linux.kernel>
-	<1098247307.23628.91.camel@krustophenia.net.suse.lists.linux.kernel>
-	<Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com.suse.lists.linux.kernel>
-	<Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com.suse.lists.linux.kernel>
-	<Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org.suse.lists.linux.kernel>
-	<Pine.LNX.4.61.0410291316470.3945@chaos.analogic.com.suse.lists.linux.kernel>
-	<20041029175527.GB25764@redhat.com.suse.lists.linux.kernel>
-	<Pine.LNX.4.61.0410291416040.4844@chaos.analogic.com.suse.lists.linux.kernel>
-	<Pine.LNX.4.58.0410291133220.28839@ppc970.osdl.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Oct 2004 04:13:10 +0200
-In-Reply-To: <Pine.LNX.4.58.0410291133220.28839@ppc970.osdl.org.suse.lists.linux.kernel>
-Message-ID: <p73sm7xymvd.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 29 Oct 2004 22:19:55 -0400
+Message-ID: <4182FA3D.1090108@esoterica.pt>
+Date: Sat, 30 Oct 2004 03:19:41 +0100
+From: Paulo da Silva <psdasilva@esoterica.pt>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041005
+X-Accept-Language: pt, pt-br
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: k 2.6.9: ub module causes /dev/sda and /dev/sda1 not being created
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+I had problems with my pen drive.
+Module ub (autolodaded) recognized the pendrive. So /dev/sda
+and /dev/sda1 didn't get created. After removing ub module
+from kernel config I could mount the pen drive as /dev/sda1.
 
-> Anyway, it's quite likely that for several CPU's the fastest sequence ends 
-> up actually being 
-> 
-> 	movl 4(%esp),%ecx
-> 	movl 8(%esp),%edx
-> 	movl 12(%esp),%eax
-> 	addl $16,%esp
-> 
-> which is also one of the biggest alternatives.
-
-For K8 it should be the fastest way. K7 probably too.
-
--Andi

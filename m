@@ -1,36 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268290AbUH2T7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268298AbUH2UCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268290AbUH2T7l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 15:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUH2T7l
+	id S268298AbUH2UCL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 16:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268292AbUH2UCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 15:59:41 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:28289 "EHLO
+	Sun, 29 Aug 2004 16:02:10 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:29569 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268290AbUH2T7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 15:59:35 -0400
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
+	id S268296AbUH2UCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 16:02:02 -0400
+Subject: Re: libata dev_config call order wrong.
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Craig Milo Rogers <rogers@isi.edu>,
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Brad Campbell <brad@wasp.net.au>, linux-ide@vger.kernel.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408291102010.2295@ppc970.osdl.org>
-References: <20040826233244.GA1284@isi.edu>
-	 <20040827004757.A26095@infradead.org>
-	 <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>
-	 <1093790181.27934.44.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0408291102010.2295@ppc970.osdl.org>
+In-Reply-To: <41321F7F.7050300@pobox.com>
+References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com>
+	 <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com>
+	 <41321F7F.7050300@pobox.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1093805834.28294.0.camel@localhost.localdomain>
+Message-Id: <1093805994.28289.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 29 Aug 2004 19:57:14 +0100
+Date: Sun, 29 Aug 2004 19:59:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-29 at 19:09, Linus Torvalds wrote:
-> Are you willing to stand up for that and be the maintainer for it?
+On Sul, 2004-08-29 at 19:25, Jeff Garzik wrote:
+> According to the Serial ATA docs, IDENTIFY DEVICE word 93 will be zero 
+> if it's Serial ATA.  Who knows if that's true, given the wierd wild 
+> world of ATA devices.
 
-Yes.
+You need to check if word 93 is valid first. Same with things like the
+cache control word - its value is only meaningful if the drive says the
+word is meaningful.
 

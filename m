@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316135AbSFPLFK>; Sun, 16 Jun 2002 07:05:10 -0400
+	id <S316158AbSFPLLy>; Sun, 16 Jun 2002 07:11:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316158AbSFPLFJ>; Sun, 16 Jun 2002 07:05:09 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:10221 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S316135AbSFPLFG>; Sun, 16 Jun 2002 07:05:06 -0400
-Date: Sun, 16 Jun 2002 13:05:02 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 6/19
-In-Reply-To: <3D048F0C.6060904@evision-ventures.com>
-Message-ID: <Pine.NEB.4.44.0206161302570.11043-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316161AbSFPLLx>; Sun, 16 Jun 2002 07:11:53 -0400
+Received: from vti01.vertis.nl ([145.66.4.26]:1284 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S316158AbSFPLLx>;
+	Sun, 16 Jun 2002 07:11:53 -0400
+Date: Sat, 15 Jun 2002 23:43:14 +0200
+From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
+Message-Id: <200206152143.g5FLhEJ25954@linux06.vertis.nl>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] [2.4.19-pre10] pcilynx doesn't compile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jun 2002, Martin Dalecki wrote:
+Hi!
 
->...
-> - Fix improper __FUNCTION__ usage in smb_debug.h.
->...
+While trying to compile 2.4.19 the following error occurs:
 
+pcilynx.c: In function `mem_open':
+pcilynx.c:647: `num_of_cards' undeclared (first use in this function)
+pcilynx.c:647: (Each undeclared identifier is reported only once
+pcilynx.c:647: for each function it appears in.)
+pcilynx.c:647: `cards' undeclared (first use in this function)
+pcilynx.c: In function `aux_poll':
+pcilynx.c:706: `cards' undeclared (first use in this function)
 
-Was it intended that this change breaks the compilation of
-fs/smbfs/proc.c?
+Relevant config options seem to me:
 
+CONFIG_IEEE1394_PCILYNX=m
+CONFIG_IEEE1394_PCILYNX_LOCALRAM=y
+CONFIG_IEEE1394_PCILYNX_PORTS=y
 
-<--  snip  -->
+Cheers,
 
-...
-  gcc -Wp,-MD,./.proc.o.d -D__KERNEL__
--I/home/bunk/linux/kernel-2.5/linux-2.5.21-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer
- -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=k6 -nostdinc -iwithprefix include  -DSMBFS_PARANOIA  -DKBUILD_BASENAME=proc
--c -o proc.o proc.c
-proc.c: In function `smb_request_ok':
-proc.c:875: parse error before `)'
-make[2]: *** [proc.o] Error 1
-make[2]: Leaving directory
-`/home/bunk/linux/kernel-2.5/linux-2.5.21-full/fs/smbfs'
-
-<--  snip  -->
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+Rolf

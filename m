@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUHISyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUHISvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266884AbUHISyM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbUHISvd
+	id S266833AbUHISvL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUHISuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:51:33 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:15317 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S266850AbUHISu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:50:29 -0400
-Date: Mon, 9 Aug 2004 20:50:18 +0200
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       EdHamrick@aol.com
-Subject: Consistent complete lock up with 2.6.8-rc2-mm1 and vuescan
-Message-ID: <20040809185018.GA26084@gamma.logic.tuwien.ac.at>
+	Mon, 9 Aug 2004 14:50:54 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:55607 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266867AbUHISrC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 14:47:02 -0400
+Date: Mon, 9 Aug 2004 20:48:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Hollis Blanchard <hollisb@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC] Host Virtual Serial Interface driver
+Message-ID: <20040809184859.GA20397@mars.ravnborg.org>
+Mail-Followup-To: Hollis Blanchard <hollisb@us.ibm.com>,
+	linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+References: <1091827384.31867.21.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+In-Reply-To: <1091827384.31867.21.camel@localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, hi Ed!
+On Fri, Aug 06, 2004 at 04:23:05PM -0500, Hollis Blanchard wrote:
 
-I have a bit of a problem here: I am scanning with vuescan (latest
-version) on linux-2.6.8-rc3-mm1 a lot of images from raw files, i.e.
-only data io from the hard disk, no usb etc interferes, and always after
-20/30 something images the computer freezes completely. Not even Sysrq
-works. Only reset button. Of course, the syslog shows up nothing.
+Small comments after a _very_ quick skim.
 
-Is there anything you two can think of what could be the reason?
+	Sam
 
-(and no, I have no chance to use serial console, but I doubt it would be
-useful)
+> static struct tty_struct *hvsi_recv_control(struct hvsi_struct *hp,
+> 		uint8_t *packet)
+> {
+> 	struct tty_struct *to_hangup = NULL;
+> 	struct hvsi_control *header = (struct hvsi_control *)packet;
+> 
+> 	switch (header->verb) {
+> 		case VSV_MODEM_CTL_UPDATE:
+> 			if ((header->word & HVSI_TSCD) == 0) {
+> 				/* CD went away; no more connection */
+> 				pr_debug("hvsi%i: CD dropped\n", hp->index);
+> 				hp->mctrl &= TIOCM_CD;
+> 				if (!(hp->tty->flags & CLOCAL))
+> 					to_hangup = hp->tty;
+> 			}
+> 			break;
+> 		case VSV_CLOSE_PROTOCOL:
+> #warning here
 
-Best wishes
+This "#warning" should be deleted..
 
-Norbert
+> 
+> #ifdef DEBUG
+> 	pr_debug("%s: sending %i bytes\n", __FUNCTION__, packet.len);
+> 	dump_hex((uint8_t*)&packet, packet.len);
+> #endif
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-BOTCHERBY
-The principle by which British roads are signposted.
-			--- Douglas Adams, The Meaning of Liff
+pr_debug is a noop if DEBUG is not defined. Make dump_hex, dump_packet
+be a noop also and you get rid of several #ifdef in the code.
+
+

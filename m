@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270458AbRHHLsJ>; Wed, 8 Aug 2001 07:48:09 -0400
+	id <S270463AbRHHLvT>; Wed, 8 Aug 2001 07:51:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270460AbRHHLr7>; Wed, 8 Aug 2001 07:47:59 -0400
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:63228
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S270458AbRHHLrr>; Wed, 8 Aug 2001 07:47:47 -0400
-Message-ID: <3B712706.A7D566F1@math.ethz.ch>
-Date: Wed, 08 Aug 2001 13:48:22 +0200
-From: Giacomo Catenazzi <cate@math.ethz.ch>
-Reply-To: cate@dplanet.ch
-X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@ns.caldera.de>
-CC: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is  
- available.
-In-Reply-To: <200108081139.f78BdTH11980@ns.caldera.de>
+	id <S270462AbRHHLvJ>; Wed, 8 Aug 2001 07:51:09 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:25863 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S270464AbRHHLuy>;
+	Wed, 8 Aug 2001 07:50:54 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: cate@dplanet.ch
+cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is available. 
+In-Reply-To: Your message of "Wed, 08 Aug 2001 13:33:38 +0200."
+             <3B712392.A7CFEEC9@math.ethz.ch> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Aug 2001 21:50:59 +1000
+Message-ID: <1556.997271459@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Wed, 08 Aug 2001 13:33:38 +0200, 
+Giacomo Catenazzi <cate@math.ethz.ch> wrote:
+>Keith Owens wrote:
+>> 
+>>   Supports a common source and object directory.  The default mode is
+>>   the same as kbuild 2.4, to use the same tree for both source and
+>>   object.  Even in this mode, kbuild 2.5 treats almost all the source
+>>   files as read only, no more time stamp fiddling with .h files.  The
+>>   exceptions are files that are generated at run time and are
+>>   incorrectly being shipped as part of the kernel tar ball.  I will be
+>>   sending patches to remove these files from the 2.4 tar ball.
+>>   Obviously you can only compile one kernel at a time in this mode.
 > 
-> In article <3B712392.A7CFEEC9@math.ethz.ch> you wrote:
-> > BTW we cannot ship the generated file without the source files,
-> > because of GPL.
-> 
-> That's wrong.
+>Warning:
+>If generating some support files requires some non common tools,
+>it is the right thing to ship the two files (source and generated).
 
-Why?
+Absolutely agree.  But we have files in the tar ball that are generated
+using standard tools.
 
-(Yes legally is wrong, and we should check case per case, but as far
-as we can do, we should GPL as much code as possible, and we should
-follow where possible the GPL also on non GPL code)
+net/802/pseudo/pseudocode.h is shipped, but it is generated using sed.
+net/802/pseudo/actionnm.h is shipped, it is generated using sed,
+nothing even uses the file.
+net/802/transit/pdutr.h and timertr.h are shipped but they are
+generated using awk.
+net/802/cl2llc.c is shipped but it is generated using sed.
 
-	giacomo
+I will remove all of those from the tar ball.
 
+OTOH, files like defkeymap.c (needs loadkeys) or the 53c8xx, 53c7xx and
+sim710 firmware (need Perl) must have shipped versions in the tar ball,
+I will not be removing them.
 
->         Christoph
-> 
-> --
-> Of course it doesn't work. We've performed a software upgrade.
-> 
-> _______________________________________________
-> kbuild-devel mailing list
-> kbuild-devel@lists.sourceforge.net
-> http://lists.sourceforge.net/lists/listinfo/kbuild-devel

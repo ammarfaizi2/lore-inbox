@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278714AbRKSNay>; Mon, 19 Nov 2001 08:30:54 -0500
+	id <S278808AbRKSNdo>; Mon, 19 Nov 2001 08:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278800AbRKSNao>; Mon, 19 Nov 2001 08:30:44 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:49045 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S278714AbRKSNai>; Mon, 19 Nov 2001 08:30:38 -0500
-Date: Mon, 19 Nov 2001 14:30:26 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Olivier Sessink <lists@olivier.pk.wau.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCMCIA kernel freezes (yenta_socket) - more info
-Message-ID: <20011119143026.A4467@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Olivier Sessink <lists@olivier.pk.wau.nl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011119132905.6c0591f8.lists@olivier.pk.wau.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011119132905.6c0591f8.lists@olivier.pk.wau.nl>; from lists@olivier.pk.wau.nl on Mon, Nov 19, 2001 at 01:29:05PM +0100
+	id <S278795AbRKSNde>; Mon, 19 Nov 2001 08:33:34 -0500
+Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:28632 "EHLO
+	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S278742AbRKSNdT>; Mon, 19 Nov 2001 08:33:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <jas88@cam.ac.uk>
+To: Remco Post <r.post@sara.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Swap
+Date: Mon, 19 Nov 2001 13:33:22 +0000
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200111191051.LAA04099@zhadum.sara.nl>
+In-Reply-To: <200111191051.LAA04099@zhadum.sara.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E165oY1-0006Db-00@mauve.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 19, 2001 at 01:29:05PM +0100, Olivier Sessink wrote:
-> Hi all,
-> 
-> when I insert a PCMCIA card (3 cards tested) in my Sony Vaio R600HEK the
-> system freezes. When I remove the card it runs again. logs show nothing,
-> dmesg shows nothing.. 
-> 
-> When I boot the system with a PCMCIA card in the slot, it works AND I can
-> remove it and add it again without a problem!!??!!
-> 
-> So the workaround it to boot it with a card always, but that is not really
-> convenient..
-> 
-> it is a Debian testing (Woody) system with kernel 2.4.14, the following
-> modules are loaded: cb_enabler, ds, yenta_socket and pcmcia_core
+On Monday 19 November 2001 10:51 am, Remco Post wrote:
+> --8<--
+>
+> > Except that openoffice and mozilla can be swapped out in BOTH cases: the
+> > kernel can discard mapped pages and reread as needed, whether you have a
+> > swap partition or not.
+>
+> No they can't without swap, nothing can be SWAPPED out. The code pages can
+> be paged out (discarded), but no SWAPPING takes place.
 
-I can corroborate this, have exactly the same problem with a no-name 'MyNote'
-notebook, yenta_socket too. 
+OK, s/swapped/paged/.
 
-Regards,
+> > Whereas without swapspace, only the read-only mapped pages can be swapped
+> > out.
+>
+> Again, pages do not gat swapped out, only applications can get swapped out.
+> Swapping is per definition the process of removing all pages used by one
+> application from RAM, and moving ALL pages to swap.
 
-bert
+So in effect, Linux never ever swaps. At all. Under any circumstances. (Using 
+your interpretation of the word). Which does raise the question of WTF that 
+"swap space" is for, and why it's really used for "paging"...
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+> > Provided the VM is doing its job properly, adding swap will always be a
+> > net win for efficiency: the kernel is able to dump unused pages to make
+> > more room for others. Of course, you tend to "feel" the response times to
+> > interactive events, rather than the overall throughput, so a change which
+> > slows the system down but makes it more "responsive" to mouse clicks etc
+> > feels like a net win...
+>
+> With any properly sized system, it will NEVER SWAP. Paging is a completely
+> different thing. A little paging is not a problem. Up to 70 pagescans/s on
+> occasion is quite acceptable. If paging activety grows above that, you may
+> have a real problem. I don't know about the current VM, but with most
+> unixes when you hit this mark, the system actually starts swapping, and
+> your responsiveness goes down the drain....
+
+By your definition, Linux does not swap, ever. It only "pages". This is what 
+I was referring to as swapping, since this involves the SWAPspace/partition, 
+rather than PAGEfile :)
+
+
+James.

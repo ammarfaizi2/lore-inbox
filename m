@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277743AbRJRPVo>; Thu, 18 Oct 2001 11:21:44 -0400
+	id <S277746AbRJRPZy>; Thu, 18 Oct 2001 11:25:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277750AbRJRPVf>; Thu, 18 Oct 2001 11:21:35 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:50049 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S277743AbRJRPVY>; Thu, 18 Oct 2001 11:21:24 -0400
-Date: Thu, 18 Oct 2001 11:21:38 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Non-GPL modules
-In-Reply-To: <200110181453.f9IErMI18783@oboe.it.uc3m.es>
-Message-ID: <Pine.LNX.3.95.1011018110604.802A-100000@chaos.analogic.com>
+	id <S277750AbRJRPZq>; Thu, 18 Oct 2001 11:25:46 -0400
+Received: from [65.96.183.159] ([65.96.183.159]:20228 "HELO rakis.net")
+	by vger.kernel.org with SMTP id <S277746AbRJRPZe>;
+	Thu, 18 Oct 2001 11:25:34 -0400
+Date: Thu, 18 Oct 2001 11:29:57 -0400 (EDT)
+From: Greg Boyce <gboyce@rakis.net>
+To: linux-kernel@vger.kernel.org
+Subject: Input on the Non-GPL Modules
+Message-ID: <Pine.LNX.4.21.0110181113020.9058-100000@wyrm.rakis.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, Peter T. Breuer wrote:
+Hello,
 
-> "Richard B. Johnson wrote:"
-> > We have a data interface that feeds high-speed data from 4,000 +
-> > X-Ray detectors directly to memory at RAM/Bus memory speeds. There
-> > is no way in hell that we are going to let the world know how this
-> 
-> Oh my gosh. You aren't working on a project for CERN too, are you?
-> 
-> Peter
+I've been following the various mail threads regarding the non-GPL
+compatable modules, and I had a bit of feedback on the situation.
 
-No. Amongst many other things, we make the "Exact" baggage scanners
-market by L3 division of Lockheed-Martin. All airplane baggage
-will eventually be scanned (at baggage-conveyor speeds) at all
-airports serving commercial airliners. The scanning detects
-various devices and chemical compounds. It uses X-Rays of different
-frequencies (hardness) to actually detect chemical compounds
-at their elementary atomic levels.
+Last week someone brought up the the notion that if the kernel was marked
+as tainted due to proprietary modules being loaded, that people would just
+end up modifying the bug report to remove the tainted mark.  
 
-For instance, most X-Ray systems only detect density. The X-Ray
-density of a jar of peanut butter is similar to the density of
-the explosive C4. Without chemical discrimination, anybody with
-a jar of peanut butter in their luggage is suspect. However,
-by using dual-energy, we can zero in on nitrogen, while allowing
-the same-density substances containing other atoms.
+Alan had responded with:
+"Well for the moment Im working on the basis that the problem isnt people
+trying to con anyone, its people who don't know better - and thats backed
+up by my bug queue."
 
-We do this in an incredibly fast hardware/software environment
-so that baggage runs through the machines at normal conveyor
-speeds, not slowing down the loading/boarding process.
+I agree with this fully.  Most people that would be filing bug reports
+fall under one of two catagories.  People who don't realize what the
+tainted mark means, or people who realize that the kernel developers won't
+be able to help them with the proprietary module loaded.  Therefore there
+is no motivation for someone to attempt a con.
 
-This is NOT the scanner used to X-Ray carry-on luggage. That
-uses a much less robust and cheaper process because there
-are attendants present that can ask that suspect carry-on
-luggage be opened for inspection. 
+However, with the addition of GPL only symbols, you add motivation for
+conning.  Not by end users, but by the developers of binary only
+modules.  If they export the GPL license symbol, they gain access to
+kernel symbols that they may want to use.  Since no code is actually being
+stolen, would this kind of trick actually cause a licensing violation?
 
-Presently, we are using DEC/Alpha machines for the hardware/software
-interface. Our next generation will use PC/AT/Linux machines for
-the same function (at twice the performance).
+All in all, I find people to be generally honest.  I don't always have
+that sort of trust in corporations though.  Just something to think about.
 
-Cheers,
-Dick Johnson
+--
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+Gregory Boyce
 

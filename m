@@ -1,54 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVAPVkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVAPVwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262615AbVAPVkq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 16:40:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbVAPVkq
+	id S262616AbVAPVwM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 16:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVAPVwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 16:40:46 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:36357 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262615AbVAPVkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 16:40:42 -0500
-Subject: Re: 2.6.11-rc1-mm1
-From: Arjan van de Ven <arjan@infradead.org>
-To: Robert Wisniewski <bob@watson.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, karim@opersys.com, hch@infradead.org,
-       tglx@linutronix.de, linux-kernel@vger.kernel.org
-In-Reply-To: <16874.54187.919814.272833@kix.watson.ibm.com>
-References: <20050114002352.5a038710.akpm@osdl.org>
-	 <1105740276.8604.83.camel@tglx.tec.linutronix.de>
-	 <41E85123.7080005@opersys.com> <20050116162127.GC26144@infradead.org>
-	 <41EAC560.30202@opersys.com> <16874.50688.68959.36156@kix.watson.ibm.com>
-	 <20050116123212.1b22495b.akpm@osdl.org>
-	 <16874.54187.919814.272833@kix.watson.ibm.com>
-Content-Type: text/plain
-Date: Sun, 16 Jan 2005 22:40:24 +0100
-Message-Id: <1105911624.8734.55.camel@laptopd505.fenrus.org>
+	Sun, 16 Jan 2005 16:52:12 -0500
+Received: from gprs214-69.eurotel.cz ([160.218.214.69]:39892 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262616AbVAPVwB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 16:52:01 -0500
+Date: Sun, 16 Jan 2005 22:51:45 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: hugang@soulinfo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm3: swsusp: out of memory on resume (was: Re: Ho ho ho - Linux v2.6.10)
+Message-ID: <20050116215145.GF2757@elf.ucw.cz>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <20050114143400.GA27657@hugang.soulinfo.com> <200501141825.42407.rjw@sisk.pl> <200501152243.21483.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501152243.21483.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-01-16 at 16:06 -0500, Robert Wisniewski wrote:
+Hi!
 
-> :-) - as above.  Furthermore, it seems that reducing the places where
-> interrupts are disabled would be a good thing?  
+> > > > Has this patch been ported to x86_64?  Or is there a newer version of it anywhere,
+> > > > or an alternative?
+> > > > 
+> > > 
+> > > Ok, Here is a new patch with x86_64 support, But I have not machine, So
+> > > Need someone test it. 
+> > 
+> > OK, I will.
+> 
+> I have tested it and it works well.  For me, it speeds up the resume process significantly,
+> so I vote for including it into -mm (at least ;-)).  I'll be testing it further to see if it really
+> solves my "out of memory" problems on resume.
 
-depends at the price. On several cpus, disabling interupts is hundreds
-of times cheaper than doing an atomic op. 
+Try Lukas's patch, it should provide equivalent speedups.
+									Pavel
 
+--- linux-cvs/kernel/power/swsusp.c	2005-01-16 22:29:25.000000000 +0100
++++ linux/kernel/power/swsusp.c	2005-01-16 22:49:10.000000000 +0100
+@@ -893,26 +893,18 @@
+ 	return error;
+ }
+ 
+-
+-
+ /* More restore stuff */
+ 
+-#define does_collide(addr) does_collide_order(pagedir_nosave, addr, 0)
+-
+ /*
+  * Returns true if given address/order collides with any orig_address 
+  */
+-static int __init does_collide_order(suspend_pagedir_t *pagedir, unsigned long addr,
+-		int order)
++static int __init does_collide_order(unsigned long addr, int order)
+ {
+ 	int i;
+-	unsigned long addre = addr + (PAGE_SIZE<<order);
+ 	
+-	for (i=0; i < nr_copy_pages; i++)
+-		if ((pagedir+i)->orig_address >= addr &&
+-			(pagedir+i)->orig_address < addre)
++	for (i=0; i < (1<<order); i++)
++		if (!PageNosaveFree(virt_to_page(addr + i * PAGE_SIZE)))
+ 			return 1;
+-
+ 	return 0;
+ }
+ 
+@@ -931,7 +923,7 @@
+ 			addr = get_zeroed_page(GFP_ATOMIC);
+ 			if(!addr)
+ 				return -ENOMEM;
+-		} while (does_collide(addr));
++		} while (does_collide_order(addr, 0));
+ 
+ 		(pagedir_nosave+i)->address = addr;
+ 	}
+@@ -948,16 +940,34 @@
+ 	void **eaten_memory = NULL;
+ 	void **c = eaten_memory, *m, *f;
+ 	int ret = 0;
++	struct zone *zone;
++	int i;
++	struct pbe *p;
++	unsigned long zone_pfn;
+ 
+ 	printk("Relocating pagedir ");
+ 
+-	if (!does_collide_order(old_pagedir, (unsigned long)old_pagedir, pagedir_order)) {
++	/* Set page flags */
++	
++	for_each_zone(zone) {
++        	for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
++                	SetPageNosaveFree(pfn_to_page(zone_pfn + 
++					zone->zone_start_pfn));
++	}
++
++	/* Clear orig address */
++
++	for(i = 0, p = pagedir_nosave; i < nr_copy_pages; i++, p++) {
++		ClearPageNosaveFree(virt_to_page(p->orig_address));
++	}
++
++	if (!does_collide_order((unsigned long)old_pagedir, pagedir_order)) {
+ 		printk("not necessary\n");
+ 		return check_pagedir();
+ 	}
+ 
+ 	while ((m = (void *) __get_free_pages(GFP_ATOMIC, pagedir_order)) != NULL) {
+-		if (!does_collide_order(old_pagedir, (unsigned long)m, pagedir_order))
++		if (!does_collide_order((unsigned long)m, pagedir_order))
+ 			break;
+ 		eaten_memory = m;
+ 		printk( "." ); 
+
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

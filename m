@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316059AbSENVQF>; Tue, 14 May 2002 17:16:05 -0400
+	id <S316060AbSENVSx>; Tue, 14 May 2002 17:18:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316060AbSENVQE>; Tue, 14 May 2002 17:16:04 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:5015 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316059AbSENVQD>;
-	Tue, 14 May 2002 17:16:03 -0400
-Date: Mon, 13 May 2002 12:32:22 +0000
+	id <S316062AbSENVSw>; Tue, 14 May 2002 17:18:52 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:6039 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316060AbSENVSv>;
+	Tue, 14 May 2002 17:18:51 -0400
+Date: Mon, 13 May 2002 17:51:00 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: John Weber <john.weber@linuxhq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Unofficial but Supported Kernel Patches
-Message-ID: <20020513123222.A34@toy.ucw.cz>
-In-Reply-To: <3CDE9CA7.8090707@linuxhq.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.14 IDE 56
+Message-ID: <20020513175059.B37@toy.ucw.cz>
+In-Reply-To: <3CD9E8A7.D524671D@zip.com.au> <5.1.0.14.2.20020509193347.02ff6dc8@mira-sjcm-3.cisco.com> <3CDAC4EB.FC4FE5CF@zip.com.au> <m31yck9700.fsf@averell.firstfloor.org> <3CDB18CF.82DD6D6B@zip.com.au> <20020510030645.A2922@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
@@ -21,17 +21,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I am trying to put a list together of all the unofficial kernel patches. 
->   I am speaking of systems like Rik's RMAP VM, and others like it.
-> 
-> I want to put up a page on linuxhq.com with all of these patches.  If 
-> you would like to have your maintained patches (or trees) listed, please 
-> shoot me an email with a description of your tree (or patch) and what is 
-> so special about it :).  Also include URLs, emails, or anything else 
-> you'd like published.
+> The tricky bit is to avoid prefetches over the boundary of your copy.
+> Prefetching from an uncached area or write combined area (like the 
+> AGP gart which could start in next page) triggers hardware bugs in
+> various boxes. This unfortunately complicates the prefetching loops
+> a bit.
 
-Software suspend, currently in 2.4-ac, http://swsusp.sf.net/.
+CONFIG_MY_MACHINE_AINT_BORKEN? We definitely could assume that on x86-64.
+
 								Pavel
+
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

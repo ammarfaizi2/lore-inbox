@@ -1,107 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287875AbSABRxS>; Wed, 2 Jan 2002 12:53:18 -0500
+	id <S287871AbSABSBJ>; Wed, 2 Jan 2002 13:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287871AbSABRxI>; Wed, 2 Jan 2002 12:53:08 -0500
-Received: from web1.oops-gmbh.de ([212.36.232.3]:14340 "EHLO
-	sabine.freising-pop.de") by vger.kernel.org with ESMTP
-	id <S287870AbSABRwx>; Wed, 2 Jan 2002 12:52:53 -0500
-Message-ID: <3C334762.CDC5FC34@sirius-cafe.de>
-Date: Wed, 02 Jan 2002 18:46:10 +0100
-From: Martin Knoblauch <knobi@sirius-cafe.de>
-Reply-To: knobi@knobisoft.de
-Organization: Knobisoft :-), Freising
-X-Mailer: Mozilla 4.6 [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
+	id <S287886AbSABSA7>; Wed, 2 Jan 2002 13:00:59 -0500
+Received: from femail11.sdc1.sfba.home.com ([24.0.95.107]:9681 "EHLO
+	femail11.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S287871AbSABSAv>; Wed, 2 Jan 2002 13:00:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+Date: Tue, 1 Jan 2002 15:36:41 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org,
+        linux-fbdev-devel@lists.sourceforge.net (Linux Frame Buffer Device
+	Development)
+In-Reply-To: <E16LMNj-0008Gz-00@the-village.bc.nu>
+In-Reply-To: <E16LMNj-0008Gz-00@the-village.bc.nu>
 MIME-Version: 1.0
-To: Steinar Hauan <hauan@cmu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: smp cputime issues
-In-Reply-To: <Pine.GSO.4.33L-022.0201020832230.1894-100000@unix12.andrew.cmu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020102180050.YPL2594.femail11.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steinar Hauan wrote:
-> 
-> On Wed, 2 Jan 2002, Martin Knoblauch wrote:
-> >  two points. First for clarification - do you see the effects also on
-> > elapsed time? Or do you say that the CPU time reporting is screwed?
-> 
-> wall clock time is consistent with (cpu time) x (%utilization)
+On Tuesday 01 January 2002 05:42 am, Alan Cox wrote:
+> > > X11 isn't always an improvement.  I've got an X hang on my laptop
+> > > (about once a week) that freezes the keyboard and ignores mouse clicks.
+> > >  Numlock doesn't change the keyboard LEDs, CTRL-ALT-BACKSPACE won't do
+> > > a thing, and although I can ssh in and run top (and see the CPU-eating
+> > > loop), kill won't take X down and kill-9 leaves the video display up so
+> > > the console that thinks it's in text mode, but isn't, is still useless.
+> > >  (And that's assuming I'm plugged into the network and have another box
+> > > around to ssh in from...)
 >
+> Neomagic Magicgraph 128XD ? If so check man neomagic first 8)
 
- OK, just asked to make sure I didn't misunderstand.
- 
-> >  Second - you mention that you see the effect mainly on linear algebra
-> > stuff. Could it be that you are memory bandwidth limited if you run two
-> > of them together? Are you using Intel CPUs (my guess) which have the FSB
-> > concept that may make memory bandwidth scaling a problem, or AMD Athlons
-> > which use the Alpha/EV6 bus and should be a bit more friendly.
-> 
-> these results are on Intel p3 and (p4) xeon cpu's, yes.
->
+Neomagic 256AV.  I'll feed it the two disables the man page recommends and 
+see if that makes the problem go away.  (I can trigger it almost at will by 
+playing around with kmail with the threaded view of 2500+ linux-kernel 
+messages and paging up and down really fast.  Or by switching the display 
+when )
 
- OK, that is what I almost guessed.
- 
-> >  Finally, how big is "1/10th of physical" memory? What kind of memory.
-> 
-> the effects are reproducible with runs of size down to 40mb.
-> (i've made a toy problem that runs in ~2 mins to isolate the effect)
-> 
-> i've used 4 machine types
-> 
->   p3 800mhz @ apollo pro 133 with 1gb pc133 ecc mem
->   p3 1ghz @ apollo pro 266 with 1gb pc2100 ddr mem
->   p3 1ghz @ serverworks LE with 2gb pc133 reg ecc mem
-> 
-> for all of the above, the reported cpu usage is +25%. on the machine
-> 
->   p4 xeon 1.7ghz @ intel i860 with 500mb pc800 reg ecc rdram
-> 
-> the effect is less pronounced (5-6%), thus confirming that memory
-> bandwidth may be an issue. still, if that's the case; there's a
-> significant difference in bandwith between the other 3 machines.
-> (the serverworks chipset has dual channels)
-> 
+Kmail seems to be the only thing that actually triggers it.  I can't think of 
+a lockup where kmail wasn't involved, but killing kmail (or the whole of kde) 
+won't unfreeze the display and keyboard once it's borked, and when I ssh in 
+and run top it's X that's got the cpu pegged at 99%, not any of the kde 
+toys...
 
- You are probably not bound by the bandwidth between memory and the
-"chipset", but the bandwidth on the FSB (or between FSB and Chipset).
-This would explain why the Serverworks LE doesn't give you better
-scaling than the other P3 systems.
+Rob
 
- The P4 has a much higher FSB speed (400 MHz vs. 100/133 MHz). As a
-result it has more headroom for scaling. You could look ath the Streams
-results for an indicator.
-
-http://www.cs.virginia.edu/stream/
-
- The P4s definitely show the best numbers in the "PC" category, a LOT
-better than any P3 result, which seem to max out at about 450 MB/sec.
-Unfortunatelly no dual entries.
-
-Dell_8100-1500                     1   2106.0   2106.0   2144.0   2144.0
-Intel_STL2-PIII-933                1    423.0    419.0    517.0    517.0
-Intel_440BX-2_PIII-650             1    455.0    421.0    501.0    500.0
-
- It would be interesting to see your test performed on a dual Athlon
-(comparable speed to the P4). There seems to be evidence that they scale
-better for scientific stuff, although the streams results do not show a
-very good scaling.
-
-AMD_Athlon_1200                    2    922.0    916.4   1051.7   1053.4
-AMD_Athlon_1200                    1    726.8    711.8    860.1    851.4
-
-http://www.amdzone.com/releaseview.cfm?ReleaseID=764 (as a reference for
-better Athlon scaling).
-
-Martin
--- 
-+-----------------------------------------------------+
-|Martin Knoblauch                                     |
-|-----------------------------------------------------|
-|http://www.knobisoft.de/cats                         |
-|-----------------------------------------------------|
-|e-mail: knobi@knobisoft.de                           |
-+-----------------------------------------------------+

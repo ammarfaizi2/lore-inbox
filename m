@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbREaXE6>; Thu, 31 May 2001 19:04:58 -0400
+	id <S263269AbREaXJI>; Thu, 31 May 2001 19:09:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263269AbREaXEs>; Thu, 31 May 2001 19:04:48 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:37135 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263281AbREaXEg>; Thu, 31 May 2001 19:04:36 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: your mail
-Date: 31 May 2001 16:04:04 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9f6il4$ts6$1@cesium.transmeta.com>
-In-Reply-To: <OFCA65A58C.155A1FB1-ON88256A5D.005BDA7A@tais.net> <200105312037.WAA01610@kufel.dom>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S263280AbREaXI6>; Thu, 31 May 2001 19:08:58 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:7179 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S263269AbREaXIs>;
+	Thu, 31 May 2001 19:08:48 -0400
+Date: Thu, 31 May 2001 19:10:55 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Jim Freeman <jfree@sovereign.org>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: Remaining undocumented Configure.help symbols
+Message-ID: <20010531191055.A13056@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Jim Freeman <jfree@sovereign.org>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010529145940.A11498@thyrsus.com> <20010530185542.R14293@corellia.laforge.distro.conectiva> <20010530182012.D1305@thyrsus.com> <20010531144328.A16811@sovereign.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010531144328.A16811@sovereign.org>; from jfree@sovereign.org on Thu, May 31, 2001 at 02:43:28PM -0600
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200105312037.WAA01610@kufel.dom>
-By author:    Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-In newsgroup: linux.dev.kernel
-> 
-> BTW, linux-kernel readers: anybody is a volunteer for making the kernel size
-> counter 32-bit here? This would enable using the simple bootloader for
-> greater kernel loading...  (current limit is sligtly below 1MB)
-> Possibly some 16/32-bit real mode code mixing would be necessary.
-> 
+Jim Freeman <jfree@sovereign.org>:
+> The verbiage in these entries seems 'make config' / text-interaction
+> -centric.  Granted, that's likely the context most kernel builders will
+> use, but it would seem fair to at least consider a broader audience
+> who may be using more gui-ish tools wrapped around extant content.
 
-PLEASE don't go there.  bootsect.S is fundamentally broken these days
-(doesn't work on USB floppies, for example.)  It should be killed
-DEAD, DEAD, DEAD and not dragged along like a dead albatross.
-
-	-hpa
+This is a general problem with almost all the existing entries, and
+will have to await a future editing pass for solution.  For now I think
+it's more important to have consistent cues that users can recognize,
+even if they're not literally appropriate.
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+It is the assumption of this book that a work of art is a gift, not a
+commodity.  Or, to state the modern case with more precision, that works of
+art exist simultaneously in two "economies," a market economy and a gift
+economy.  Only one of these is essential, however: a work of art can survive
+without the market, but where there is no gift there is no art.
+	-- Lewis Hyde, The Gift: Imagination and the Erotic Life of Property

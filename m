@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287163AbSAUPvH>; Mon, 21 Jan 2002 10:51:07 -0500
+	id <S287212AbSAUQCR>; Mon, 21 Jan 2002 11:02:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287208AbSAUPu5>; Mon, 21 Jan 2002 10:50:57 -0500
-Received: from [204.42.16.60] ([204.42.16.60]:46609 "EHLO gerf.org")
-	by vger.kernel.org with ESMTP id <S287163AbSAUPuv>;
-	Mon, 21 Jan 2002 10:50:51 -0500
-Date: Mon, 21 Jan 2002 09:50:46 -0600
-From: The Doctor What <docwhat@gerf.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: vm philosophising
-Message-ID: <20020121095046.A30401@gerf.org>
-Mail-Followup-To: The Doctor What <docwhat@gerf.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201180522020.19716-100000@falcon.etf.bg.ac.yu> <Pine.LNX.4.33L.0201180235210.32617-100000@imladris.surriel.com> <20020118154239.A11920@xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20020118154239.A11920@xs4all.nl>; from faasen@xs4all.nl on Fri, Jan 18, 2002 at 03:42:39PM +0100
+	id <S287254AbSAUQCH>; Mon, 21 Jan 2002 11:02:07 -0500
+Received: from dsl-213-023-039-080.arcor-ip.net ([213.23.39.80]:20105 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287212AbSAUQB5>;
+	Mon, 21 Jan 2002 11:01:57 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: yodaiken@fsmlabs.com
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Mon, 21 Jan 2002 17:05:01 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: yodaiken@fsmlabs.com, george anzinger <george@mvista.com>,
+        Momchil Velikov <velco@fadata.bg>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgXE-0001i8-00@starship.berlin> <20020121084344.A13455@hq.fsmlabs.com>
+In-Reply-To: <20020121084344.A13455@hq.fsmlabs.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16SgwP-0001iN-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Tommy Faasen (faasen@xs4all.nl) [020118 08:47]:
-> 2-DBMS: 1 or 2 big programs which sometimes even do their own
-> memory management.Fragmentation and latency isn't issue here I
-> think however moving ltos of data to and from swap is.
+On January 21, 2002 04:43 pm, yodaiken@fsmlabs.com wrote:
+> On Mon, Jan 21, 2002 at 04:38:59PM +0100, Daniel Phillips wrote:
+> > On January 15, 2002 01:39 pm, yodaiken@fsmlabs.com wrote:
+> > > My reservation about preemption as an implementation technique is that
+> > > it has costs, which seem to be not easily boundable, but not very 
+> > > clear benefits.
+> > 
+> > To me the benefit is clear enough: ASAP scheduling of IO threads, a 
+> > simple heuristic that improves both throughput and latency.
+> 
+> I think of "benefit", perhaps naiively, in terms of something that can
+> be measured or demonstrated rather than just announced.
 
-A lot of times a DBMS is bulit that way because they assume they
-know better than the OS designer how memory should be managed.  Same
-reason they usually use raw writting the the drive instead of using
-the OS calls.
+But you see why asap scheduling improves latency/throughput *in theory*, 
+don't you?  As for the measured benefit, there have been a steady stream of 
+postive reports on lkml.  My own experience is that the usability of my 
+laptop with its small memory is much improved under heavy IO load.
 
-Is this right or fair?  I don't know.   But it does imply that if a
-VM or FS layer for an OS performs well enough, that a DBM system
-might be built that would be built to take advantage of the OS's VM
-and FS layer.
-
-Ciao!
-
--- 
-"When you have to shoot, shoot! Don't talk."
-		--Tuco (The Good, The Bad, and The Ugly)
-
-The Doctor What: Kaboom!                         http://docwhat.gerf.org/
-docwhat@gerf.org                                                   KF6VNC
+--
+Daniel

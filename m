@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132622AbRA3WKs>; Tue, 30 Jan 2001 17:10:48 -0500
+	id <S132584AbRA3WOI>; Tue, 30 Jan 2001 17:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132665AbRA3WKp>; Tue, 30 Jan 2001 17:10:45 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:64779 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S132622AbRA3WK2>;
-	Tue, 30 Jan 2001 17:10:28 -0500
-Date: Tue, 30 Jan 2001 23:10:05 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: WOL and 3c59x (3c905c-tx)
-Message-ID: <Pine.LNX.4.30.0101302302080.12548-100000@svea.tellus>
+	id <S132651AbRA3WN6>; Tue, 30 Jan 2001 17:13:58 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:15612 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S132584AbRA3WNw>; Tue, 30 Jan 2001 17:13:52 -0500
+Date: Tue, 30 Jan 2001 20:13:17 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Version 2.4.1 cannot be built. 
+In-Reply-To: <Pine.LNX.3.95.1010130164236.3322A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.21.0101302012410.1321-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When shutting down my computer with Linux, I cannot wake it up using
-wake-on-LAN, which I can do if I shut it down from WinME or the LILO
-prompt using the power button.
+On Tue, 30 Jan 2001, Richard B. Johnson wrote:
 
-I see some "interesting" code in 3c59x.c and acpi_set_WOL, and there is
-the following little comment: "AKPM: This kills the 905".
+> The subject says it all. `make dep` is now broken.
 
-So, what's up?  Does it break all 905s?  And will not changing the state
-to D3, as a comment a few lines down says, shut the card down, which seems
-to be a bad thing to do in a function called from vortex_probe1...  I know
-this code is currently bypassed, but still, what is this?
+It worked fine here, with 2.4.1 unpacked from the tarball.
 
-/Tobias
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

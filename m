@@ -1,70 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262555AbSJGRDq>; Mon, 7 Oct 2002 13:03:46 -0400
+	id <S262559AbSJGRGx>; Mon, 7 Oct 2002 13:06:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262556AbSJGRDq>; Mon, 7 Oct 2002 13:03:46 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:11514 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262555AbSJGRDp>;
-	Mon, 7 Oct 2002 13:03:45 -0400
-Message-ID: <3DA1BF9D.30A214E1@mvista.com>
-Date: Mon, 07 Oct 2002 10:08:45 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Effrem Norwood <enorwood@effrem.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: strange frequent message
-References: <CFEAJJEGMGECBCJFLGDBAEAFCFAA.enorwood@effrem.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262556AbSJGRGx>; Mon, 7 Oct 2002 13:06:53 -0400
+Received: from fusion.wineasy.se ([195.42.198.105]:34826 "HELO
+	fusion.wineasy.se") by vger.kernel.org with SMTP id <S262559AbSJGRGO>;
+	Mon, 7 Oct 2002 13:06:14 -0400
+Date: Mon, 7 Oct 2002 19:11:41 +0200
+From: Andreas Schuldei <andreas@schuldei.org>
+To: Keith Owens <kaos@sgi.com>
+Cc: Andreas Schuldei <andreas@schuldei.org>, linux-kernel@vger.kernel.org
+Subject: Re: kdb against memory corruption?
+Message-ID: <20021007171140.GD1102@lukas>
+References: <20021006200801.GD1316@lukas> <10888.1033981406@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <10888.1033981406@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Effrem Norwood wrote:
-> 
-> Hi all,
-> 
-> I'm using a 2.4.18 kernel with QLogic 6.1 Beta 5 qlaxxxx drivers patched in
-> and compiled as part of the kernel rather than as a module. Dual Xeon 2.4,
-> 2.0GB ram, highmem enabled (4GB), SuperMicro MB. ACPI is disabled on the MB
-> as well as in the kernel.
-> 
-> I keep getting these weird messages:
-> 
-> "Uhhuh. NMI received for unknown reason 2c. Dazed and confused, but trying
-> to continue Do you have a strange power saving mode enabled?"
-> 
-> "Uhhuh. NMI received for unknown reason 3c. Dazed and confused, but trying
-> to continue Do you have a strange power saving mode enabled?"
-> 
-> Any ideas why this is happening?
+* Keith Owens (kaos@sgi.com) [021007 11:03]:
 
-It comes from traps.c do_nmi() when it can not decode the
-NMI reason.  If all else fails you may want to alter the
-code to turn it into an Oops and see what turns up.  Check
-the "die" code for how to break the locks you need to
-actually do an Oops from an NMI.
+[... lots of good doc ...]
 
--g
+> I just ran some tests to make sure and kdb bph works as described
+> above.  Things to watch out for :-
 > 
-> Please cc me on replies to this as the list volume is too great for me to
-> subscribe.
-> 
-> My thanks,
-> 
-> Eff Norwood
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>   bph is current cpu only, use bpha for all cpus.  Is your box SMP?
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+No, UP.
+
+>   Address must be a multiple of the length.
+> 
+> It is easier to pick a single byte that you know is being changed and
+> just watch that byte, with bpha <address> dataw 1.
+
+yes, those criteria match.
+
+Does it work for the memset way of setting stuff? does the
+debuginterface catch this, too, for you?
+<memset+14>: repz stos %al,%es:(%edi)
+
+an other idea (by erikm) was that virutal and physical address
+mode is mixed up. how do i find out which one is used by kdb and the
+debug interface of the cpu? do i need to convert, somehow?
+
+Or is something else wrong with what i do?
+
+
+During bootup i am dumped into the debugger because my breakpoint funktion was reached:
+
+
+TTY 7: ef8f8000
+&FLIP.char_buf_ptr: ef8f8168
+Instruction(i) breakpoint #0 at 0xc016d428 (adjusted)
+0xc016d428 tty_kdb_bp:         int3
+
+Entering kdb (current=0xef90c000, pid 28) due to Breakpoint @ 0xc016d428
+kdb> md 0xef8f8168 1
+0xef8f8168 ef8f8574 00000000 00000000 00000000   t..ï............
+kdb> bpha 0xef8f8168 dataw 1
+Forced Data Write BP #1 at 0xef8f8168
+    is enabled in dr0 for 1 bytes globally
+kdb> md 0xef8f8168 1
+0xef8f8168 ef8f8574 00000000 00000000 00000000   t..ï............
+kdb> go
+
+
+And after bootup is complete, i press Ctrl-A and am dumped into the debugger:
+
+
+Entering kdb (current=0xc02f6000, pid 0) due to Keyboard Entry
+kdb> md 0xef8f8168 1
+0xef8f8168 00000000 00000000 00000000 00000000   ................
+kdb> bl
+Instruction(i) BP #0 at 0xc016d428 (tty_kdb_bp)
+    is enabled globally adjust 1
+Forced Data Write BP #1 at 0xef8f8168
+    is enabled in dr0 for 1 bytes globally
+kdb>
+
+
+so something overwrote the address, but i got no feedback on it.

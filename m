@@ -1,68 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318902AbSH1QIm>; Wed, 28 Aug 2002 12:08:42 -0400
+	id <S318860AbSH1QUf>; Wed, 28 Aug 2002 12:20:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318966AbSH1QIm>; Wed, 28 Aug 2002 12:08:42 -0400
-Received: from p50846B1C.dip.t-dialin.net ([80.132.107.28]:21217 "EHLO
-	sol.fo.et.local") by vger.kernel.org with ESMTP id <S318902AbSH1QIh>;
-	Wed, 28 Aug 2002 12:08:37 -0400
-To: "qwerty314" <qwerty314@voila.fr>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: devfs cdrom mount pb
-References: <H1K50B$AC854D30BB224167685C29984508D6D1@voila.fr>
-From: Joachim Breuer <jmbreuer@gmx.net>
-Date: Wed, 28 Aug 2002 18:12:56 +0200
-In-Reply-To: <H1K50B$AC854D30BB224167685C29984508D6D1@voila.fr> ("qwerty314"'s
- message of "Wed, 28 Aug 2002 16:16:59 +0200")
-Message-ID: <m365xvnerb.fsf@terra.fo.et.local>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Common Lisp,
- i386-redhat-linux)
+	id <S318891AbSH1QUf>; Wed, 28 Aug 2002 12:20:35 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20215 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S318860AbSH1QUe>;
+	Wed, 28 Aug 2002 12:20:34 -0400
+Message-ID: <3D6CF932.7D7C95F1@mvista.com>
+Date: Wed, 28 Aug 2002 09:24:18 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Volker Kuhlmann <hidden@paradise.net.nz>
+CC: Richard Zidlicky <rz@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel losing time
+References: <20020825105500.GE11740@paradise.net.nz> <Pine.LNX.4.44.0208250459500.3234-100000@hawkeye.luckynet.adm> <20020825215515.GA2965@debill.org> <1030320314.16766.25.camel@irongate.swansea.linux.org.uk> <20020826011332.GA8440@paradise.net.nz> <1030356936.16651.37.camel@irongate.swansea.linux.org.uk> <20020826122752.A1547@linux-m68k.org> <20020828013236.GA13595@paradise.net.nz>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"qwerty314" <qwerty314@voila.fr> writes:
+This bit of code was in 2.4.19 in
+.../arch/i386/kernel/time.c
 
-> My linux box was runing fine till I decide to try devfs on RH7.3
-> with 2.4.18-3 kernel after some adjustments everything is nearly OK
-> with the new /dev concepts but when I try to mount a cdrom it says
-> that the device is not a block device.  cat /proc/scsi/scsi gives :
->
-> Attached devices:
-> Host: scsi0 Channel: 00 Id: 00 Lun: 00
->   Vendor: PLEXTOR  Model: CD-R   PX-W1610A Rev: 1.02
->   Type:   CD-ROM                           ANSI SCSI revision: 02
-> Host: scsi0 Channel: 00 Id: 01 Lun: 00
->   Vendor: SAMSUNG  Model: CD-ROM SC-152C   Rev: CS05
->   Type:   CD-ROM                           ANSI SCSI revision: 02
->
-> and ls -l /dev/scsi/host0/bus0/target1/lun0/* gives
-> crw-rw-rw-    1 root     root      21,   1 jan  1  1970
-> /dev/scsi/host0/bus0/target1/lun0/generic
->
-> quid?
-> why has my cdrom entry switched from a block to a character device
-> and how to cure it ?
+The suggestion (from the code) is that the PIT does not
+reset to the proper value and that reprogramming it fixes
+the problem.  At the same time, this being in the interrupt
+handler, it does generate at least one interrupt at or after
+it fails to do the right thing.
 
-You do not have the sr_mod module loaded; thus /dev/scsi/<address>/
-only contains the "generic" device node, not the "cdrom" block device
-node.
-
-Either load sr_mod from a startup script (/etc/rc.modules comes to
-mind), or set up the devfs module autoloader appropriately.
-
-The device to be used for mounting is /dev/scsi/<address>/cdrom, not
-/dev/scsi/<address>/generic. The generic device is "only" used for
-special-purpose commands, such as for scanners or CD writing. Those
-special commands are not block-level, thus "generic" is a character
-device.
+Notes:  1.) This fix, each time it reprograms the PIT, will
+loose (leak) a bit of time.
+        2.) The three I/O instructions to read the latch are
+slow, AND this is done each interrupt.
+        3.) This version does not have a way to eliminate
+the code on machines that don't have the problem.
+        4.) I reserve judgment on the comment that the spin
+lock is not needed.  It, I think, assumes that the PIT is
+only accessed from the timer code, but this is not really
+true (it ought to be true but is not :()
 
 
-So long,
-   Joe
+#if 0 /*
+       * SUBTLE: this is not necessary from here because
+it's implicit in the
+       * write xtime_lock.
+       */
+		spin_lock(&i8253_lock);
+#endif
+		outb_p(0x00, 0x43);     /* latch the count ASAP */
+
+		count = inb_p(0x40);    /* read the latched count */
+		count |= inb(0x40) << 8;
+
+		/* VIA686a test code... reset the latch if count > max */
+		if (count > LATCH-1) {
+			static int last_whine;
+			outb_p(0x34, 0x43);
+			outb_p(LATCH & 0xff, 0x40);
+			outb(LATCH >> 8, 0x40);
+			count = LATCH - 1;
+			if(time_after(jiffies, last_whine))
+			{
+				printk(KERN_WARNING "probable hardware bug: clock timer
+configuration lost - probably a VIA686a.\n");
+				printk(KERN_WARNING "probable hardware bug: restoring
+chip configuration.\n");
+				last_whine = jiffies + HZ;
+			}			
+		}	
+
+#if 0
+		spin_unlock(&i8253_lock);
+#endif
 
 -- 
-"I use emacs, which might be thought of as a thermonuclear
- word processor."
--- Neal Stephenson, "In the beginning... was the command line"
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

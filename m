@@ -1,78 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263172AbUCYOom (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 09:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbUCYOol
+	id S263171AbUCYOw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 09:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUCYOw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 09:44:41 -0500
-Received: from ida.rowland.org ([192.131.102.52]:2052 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S263158AbUCYOoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 09:44:39 -0500
-Date: Thu, 25 Mar 2004 09:44:38 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Colin Leroy <colin@colino.net>
-cc: linux-kernel@vger.kernel.org, <linux-usb-devel@lists.sf.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS] reproducible oops with 2.6.5-rc2-bk3
-In-Reply-To: <136101c4126d$c0bc5600$3cc8a8c0@epro.dom>
-Message-ID: <Pine.LNX.4.44L0.0403250936480.1023-100000@ida.rowland.org>
+	Thu, 25 Mar 2004 09:52:59 -0500
+Received: from postfix3-2.free.fr ([213.228.0.169]:34743 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S263171AbUCYOwy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 09:52:54 -0500
+Message-ID: <4062F244.7050008@free.fr>
+Date: Thu, 25 Mar 2004 15:52:52 +0100
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, trelane@digitasaru.net
+Subject: Re: 2.6.5-rc2-mm2 still does not boot but it progress : seems to
+ be console font related
+References: <406172C9.8000706@free.fr> <20040324095236.68cb1deb.akpm@osdl.org>
+In-Reply-To: <20040324095236.68cb1deb.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Mar 2004, Colin Leroy wrote:
+Andrew Morton wrote:
 
-> > > usb 3-1: new full speed USB device using address 3
-> > > Oops: kernel access of bad area, sig: 11 [#1]
-> > For info: reverting this change fixes it. Didn't find out why, yet.
-> >
-> >
-> http://linux.bkbits.net:8080/linux-2.5/diffs/drivers/usb/class/cdc-acm.c@1.54?nav=index.html|src/|src/drivers|src/drivers/usb|src/drivers/usb/class|hist/drivers/usb/class/cdc-acm.c
-> 
-> Maybe that's due to this change in drivers/usb/core/message.c:
-> @@ -1056,8 +1055,20 @@
->   /* re-init hc/hcd interface/endpoint state */
->   for (i = 0; i < config->desc.bNumInterfaces; i++) {
->    struct usb_interface *intf = config->interface[i];
-> +  struct usb_host_interface *alt;
-> +
-> +  alt = usb_altnum_to_altsetting(intf, 0);
-> +
-> +  /* No altsetting 0?  We'll assume the first altsetting.
-> +   * We could use a GetInterface call, but if a device is
-> +   * so non-compliant that it doesn't have altsetting 0
-> +   * then I wouldn't trust its reply anyway.
-> +   */
-> +  if (!alt)
-> +   alt = &intf->altsetting[0];
-> 
-> -  intf->act_altsetting = 0;
-> +  intf->cur_altsetting = alt;
-> +  intf->act_altsetting = alt - intf->altsetting;
->    usb_enable_interface(dev, intf);
->   }
->   return 0;
-> If I understand it well, this changes the previous default behaviour;
-> intf->cur_altsetting will be intf->altsetting[0], like before, only if
-> there's no intf->altsetting[i].desc.bAlternateSetting == 0.
+> Are you using devfs?  If so, please try the below patch (I don't see why,
+> but..)
 
-That's right.  However, the oops you saw shouldn't happen so long as
-intf->cur_altsetting points to something valid.  I got the impression that
-in the cdc-acm probe routine maybe it was a null pointer.  Can you insert
-a statement in the cdc-acm probe function to print out the values of ifcom
-and ifdata, to check that they aren't NULL?  While you're at it also try
-printing out the value of ifcom->desc.bNumEndpoints; if that is 0 it will
-cause an oops.
+Yes. I use devfs.
 
-> I'm not sure the change in cdc-acm (which no longer uses index 0
-> altsetting) is correct. Or is this another bug in my phone (motorola C350)
-> which should be handled differently than other cdc-acm devices ?
+Sorry for the delay, I'm back, with a new , more silent, and working 
+fan, after a brutal powerdown due to fan failure and CPU overheat... As 
+my PC is thre years old, it takes time to find compatible fans...
 
-It's hard to say without more information.  The contents of 
-/proc/bus/usb/devices or the output of lsusb with the phone plugged in 
-would help.
+The machine that boots again but unfortunately I had to hardwire a BIOS 
+CMOS reset and therefore BIOS settings have been restored to factory 
+default values. I hopefully restored back then to what they where but 
+cannot guaranty it 100%.
 
-Alan Stern
+I applied the patch and get the deadlock is gone *BUT* due to BIOS 
+default changed (including one that may impact performance (PIC read 
+caching, PCU byte grouping, ...), and the fact that it was probably a 
+deadlock due to a window that may have disappearred if I did not restore 
+correctly the settings, I cannot gurante that it is the fix that fixed 
+the problem.
+
+I hope that Joseph Pingenot that had the same problem can confirm it.
+I erased the mail were he was confirming the symptom and I have its 
+address no more. Could you double check with him that the patch indeed 
+fix the problem?
+
+Thanks for chasing the bug anyway,
+
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
+
+
 

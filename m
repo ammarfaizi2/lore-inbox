@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293719AbSCPFot>; Sat, 16 Mar 2002 00:44:49 -0500
+	id <S293721AbSCPF4J>; Sat, 16 Mar 2002 00:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293720AbSCPFok>; Sat, 16 Mar 2002 00:44:40 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:62928 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S293719AbSCPFo1>; Sat, 16 Mar 2002 00:44:27 -0500
-Date: Fri, 15 Mar 2002 21:44:24 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: John Helms <john.helms@photomask.com>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, Trice Jim <Jim.Trice@photomask.com>,
-        Andmike@us.ibm.com
-Subject: Re: bug (trouble?) report on high mem support
-Message-ID: <687464031.1016228663@[10.10.2.3]>
-In-Reply-To: <20020316.4343600@linux.local>
-In-Reply-To: <20020316.4343600@linux.local>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S293720AbSCPF4A>; Sat, 16 Mar 2002 00:56:00 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:43782 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S293725AbSCPFzp>;
+	Sat, 16 Mar 2002 00:55:45 -0500
+Date: Fri, 15 Mar 2002 21:55:42 -0800
+From: Greg KH <greg@kroah.com>
+To: Gordon J Lee <gordonl@world.std.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
+Message-ID: <20020316055542.GA8125@kroah.com>
+In-Reply-To: <3C927F3E.7C7FB075@world.std.com> <20020315234333.GH5563@kroah.com> <3C92B1EA.F40BDBD5@world.std.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <3C92B1EA.F40BDBD5@world.std.com>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sat, 16 Feb 2002 03:54:17 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The readprofile output I sent earlier is pretty
-> accurate.  I performed the test right after a reboot
-> to the enterprise (64GB mem) kernel with a profile=2
-> boot option.  I then ran our program, which reads in
-> a 3.1GB file from an NFS mount, and outputs a 2.4GB file
-> in another format to the same NFS mount.  Networking
-> is achieved through an IBM Gigabit fiber card with 
-> Intel e1000 chipset, which we have downloaded the
-> latest source just to get it to work.  But network
-> throughput looks great.  Other programs using the 
-> NFS mounts work fine, so I'm pretty sure it's not
-> a network issue.
+On Fri, Mar 15, 2002 at 09:46:02PM -0500, Gordon J Lee wrote:
+> > > 2.4.9     works fine!
+> >
+> > Forgot to mention, how many processors does this kernel show you having?
 > 
-> The smp kernel (no 64GB mem support) completed the
-> file conversion in 3.5 hours.  Previous attempts 
-> with the enterprise kernel (64GB mem support) had
-> to be aborted after 3 days and only started to write
-> the converted file to disk by then.  This application
-> does not run multi-threaded, but we will have 
-> multiple users running the program on separate
-> file conversions simultaneously.  Hence the need
-> for lots of memory.
-> 
-> I guess the main question at this point is whether
-> our hardware supports high memory, and then which 
-> patches or kernel upgrades can correct our problem.
-> If we upgrade the entire kernel, which release 
-> would you recommend for a stable production machine
-> with >4GB memory?  If there are swap improvements,
-> we also need whatever we can get in that area.
+> It has two physical packages, and shows two processors.  See below.
 
-You mention "64Gb support" or "no 64Gb support" throughout 
-this - have you tried a kernel with 4Gb support? That'd
-give you the HIGHMEM bounce buffering still. One step at a
-time ;-)
+Ah, can you try the latest 2.4.19-ac tree and make sure that the rest of
+your processors (the "evil" twins) show up?
 
-M.
+thanks,
+
+greg k-h

@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265846AbRFYCTG>; Sun, 24 Jun 2001 22:19:06 -0400
+	id <S265848AbRFYCYQ>; Sun, 24 Jun 2001 22:24:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265845AbRFYCS4>; Sun, 24 Jun 2001 22:18:56 -0400
-Received: from c109854-a.frmt1.sfba.home.com ([65.11.45.79]:49425 "HELO
-	windriver.loc") by vger.kernel.org with SMTP id <S265846AbRFYCSn>;
-	Sun, 24 Jun 2001 22:18:43 -0400
-Date: Sun, 24 Jun 2001 19:18:41 -0700
-From: Galen Hancock <galen@CSUA.Berkeley.EDU>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010624191841.X12235@c109854-a.frmt1.sfba.home.com>
-Mail-Followup-To: "J . A . Magallon" <jamagallon@able.es>,
-	"linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	id <S265849AbRFYCX5>; Sun, 24 Jun 2001 22:23:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32426 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265848AbRFYCXk>;
+	Sun, 24 Jun 2001 22:23:40 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010625003002.A1767@werewolf.able.es>
-User-Agent: Mutt/1.3.18i
-X-URL: http://www.CSUA.Berkeley.EDU/~galen/gh.xhtml
+Content-Transfer-Encoding: 7bit
+Message-ID: <15158.41128.884623.204096@pizda.ninka.net>
+Date: Sun, 24 Jun 2001 19:23:36 -0700 (PDT)
+To: Larry McVoy <lm@bitmover.com>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        Stephen Satchell <satch@fluent-access.com>,
+        Martin Devera <devik@cdi.cz>, bert hubert <ahu@ds9a.nl>,
+        "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
+Subject: Re: Threads are processes that share more
+In-Reply-To: <20010624164729.G8832@work.bitmover.com>
+In-Reply-To: <20010620175937.A8159@home.ds9a.nl>
+	<Pine.LNX.4.10.10106202036470.10363-100000@luxik.cdi.cz>
+	<4.3.2.7.2.20010620150729.00b60710@mail.fluent-access.com>
+	<20010621011031.B19922@werewolf.able.es>
+	<20010624164729.G8832@work.bitmover.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 25, 2001 at 12:30:02AM +0200, J . A . Magallon wrote:
-> shell scripting, for example. Or multithreaded web servers. With the above
-> test (fork() + immediate exec()), you just try to mesaure the speed of fork().
 
-The benchmark that used lmbench that was posted tested fork follwed fork
-by exit not follwed by exec.
+Larry McVoy writes:
+ > In other words, it's designed to be shared.  The IRIX stuff is disgusting,
+ > you really don't want anything to do with sproc().    It _sounds_ like they
+ > are the same but they aren't - for example, with sproc you get your very
+ > own TLB miss handler.  Doesn't that sound special?
 
-Although you could have used vfork in that test, the point of the test
-was to get some feel for how much overhead the fork and exit together
-had. A real application could not use vfork, because it would do some
-actual work before the exit.
+In case anyone is scratching their heads when they read this, the
+reason is that IRIX allows partial sharing of the address space.
 
-> Say you have a fork'ing server. On each connection you fork and exec the
-> real transfer program.
+So for normal processes and threads that fully share the address
+space, they have a "fast path" tlb miss handler which doesn't have
+to deal with any of the complexities of having a mixture of shared
+and non-shared vm areas within the same address space.
 
-Most forking servers I know of don't exec programs to deal with accepted
-connections. (The only exception I can think of is inetd and its
-cousins, the performance of which is not important.)
+The address space mixing is (as usual for something SGI does) mainly
+for graphics performance...  You can be a mostly shared thread yet
+have a private mmap() of the 3d accelerator so you can swap the
+graphics context using page faults per-thread.  There was a thread
+perhaps half a year ago about this where graphics afficiandos were
+trying to show why Linux needed to do things this way and Linus
+telling them "no it doesn't" :-)
 
->                        There time for fork matters. It can run very fast
-> in Linux but suck in other systems. Just because the programmer chose fork()
-> instead of vfork().
-
-vfork is not portable. There are standards that specify what it does,
-but the portable semantics are so useless that if you use it you will
-almost certainly wind up with undefined behavior.
-
-However, the original discussion was about threads. How to do fork+exec
-(or vfork+exec if you insist on using that broken interface) quickly is
-beside the point.
-
-> >> The clean battle should be linux fork-exec vs vfork-exec in
-> >> Solaris, because for in linux is really a vfork in solaris.
-
-> >But the point of threading is it's a fork WITHOUT an exec.
-
-> Not always, see above.
-
-You appear to be saying that spawning child programs is an example of
-threading. I don't think that's what most people mean by threading.
-
-					Galen
+Later,
+David S. Miller
+davem@redhat.com

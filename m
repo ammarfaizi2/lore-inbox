@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267208AbTB0WPz>; Thu, 27 Feb 2003 17:15:55 -0500
+	id <S267268AbTB0WY5>; Thu, 27 Feb 2003 17:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267218AbTB0WPz>; Thu, 27 Feb 2003 17:15:55 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43018
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267208AbTB0WPx>; Thu, 27 Feb 2003 17:15:53 -0500
-Date: Thu, 27 Feb 2003 13:57:47 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Scott Lee <scottlee@redhot.rose.hp.com>
-cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: [PATCH] ide write barriers
-In-Reply-To: <200302262031.MAA18505@redhot.rose.hp.com>
-Message-ID: <Pine.LNX.4.10.10302271355430.15551-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267176AbTB0WXt>; Thu, 27 Feb 2003 17:23:49 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:54204 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267274AbTB0WXi>;
+	Thu, 27 Feb 2003 17:23:38 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 27 Feb 2003 23:33:56 +0100 (MET)
+Message-Id: <UTC200302272233.h1RMXu324918.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] man-pages 1.56 released
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Feb 2003, Scott Lee wrote:
+Just released man-pages 1.56 with
+===
+    The man pages
 
-> > The goal is to make the use of write
-> > back cache enabled ide drives safe with journalled file systems.
-> 
-> Does this mean that having write caching enabled is not safe if you are
-> using ext3 on an IDE drive?  Should "hdparm -W 0 /dev/hda" be used for
-> example.  (I see a 50% performance hit using "-W 0" when my box is under
-> load.)  If this is the case, what is the root cause?  Do IDE drives
-> reorder writes when they are cached?
+        fgetxattr.2 flistxattr.2 fremovexattr.2 fsetxattr.2
+        getxattr.2 get_thread_area.2 io_cancel.2 io_destroy.2
+        io_getevents.2 io_setup.2 io_submit.2 lgetxattr.2 listxattr.2
+        llistxattr.2 lookup_dcookie.2 lremovexattr.2 lsetxattr.2
+        posix_fadvise.2 readahead.2 removexattr.2 setxattr.2
+	set_thread_area.2
 
-All drives reorder unless instructed not to do so.
-ATA drives are just now getting FUA hooks.
-So flush cache often.
+        ftw.3 openpty.3
 
-Cheers,
+    are new or have been updated.
+===
 
-Andre Hedrick
-LAD Storage Consulting Group
+In short: lots of new syscall pages.
 
+Now that the call for syscall docs was so successful, let me
+ask something else. We have console_ioctl.4 and tty_ioctl.4
+but lots of other *_ioctl.4 things are wanted.
+Contributions are welcome.
+
+Andries - aeb@cwi.nl

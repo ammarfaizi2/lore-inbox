@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbULGUgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbULGUjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbULGUgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 15:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbULGUgJ
+	id S261920AbULGUjG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 15:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbULGUjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 15:36:09 -0500
-Received: from mail.convergence.de ([212.227.36.84]:34279 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S261914AbULGUgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 15:36:04 -0500
-Message-ID: <41B613E1.2010602@linuxtv.org>
-Date: Tue, 07 Dec 2004 21:34:41 +0100
-From: Michael Hunold <hunold@linuxtv.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-CC: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Michael Hunold <hunold@convergence.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Johannes Stezenbach <js@convergence.de>
-Subject: Re: Linux 2.6.10-rc3 oops when 'modprobe -r dvb-bt8xx'
-References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>	<41B1BD24.4050603@eyal.emu.id.au> <87653ex9wy.fsf@bytesex.org>
-In-Reply-To: <87653ex9wy.fsf@bytesex.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 7 Dec 2004 15:39:05 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:32985 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261920AbULGUiz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 15:38:55 -0500
+Subject: Re: 2.6.10-rc2-mm4
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Jeff Mahoney <jeffm@suse.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Chris Wright <chrisw@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>, Chris Mason <mason@suse.com>
+In-Reply-To: <41B60B0F.1080201@suse.com>
+References: <20041130095045.090de5ea.akpm@osdl.org>
+	 <1101842310.4401.111.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041130112903.C2357@build.pdx.osdl.net>
+	 <20041130194328.GA28126@infradead.org>
+	 <20041201233203.GA22773@locomotive.unixthugs.org>
+	 <1101993302.26015.5.camel@moss-spartans.epoch.ncsc.mil>
+	 <41B60B0F.1080201@suse.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1102451289.25488.278.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 07 Dec 2004 15:28:09 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2004-12-07 at 14:57, Jeff Mahoney wrote:
+> However, selinux itself accesses inode lists internally that circumvent
+> this. I believe I caught the major case that causes this, but I'd prefer
+> someone with more intimate knowledge of selinux verify.
 
-Am 12/07/04 19:03, Gerd Knorr schrieb:
-> I somehow feel the best way to deal with that is to merge the
-> redesigned frontend handing pending in -mm at the moment into Linus
-> tree _now_, that should kill that whole class of bugs.
+inodes are only added to the list (prior to superblock security
+initialization, e.g. before initial policy load or during get_sb) by
+inode_doinit_with_dentry, which in turn is called from
+selinux_d_instantiate.  So if you've marked the inode private prior to
+the d_instantiate call on it, and changed security_d_instantiate to not
+call the security module for private inodes, how would a private inode
+ever get into that list?
 
-Johannes and I had agreed with Andrew that the redesigned frontend code 
-should stay in -mm for now, because we expect that support for some 
-cards is broken. We currently don't receive very much reports on the 
-mailing list though.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-> That may result in the dvb subsystem not being that stable in 2.6.10.
-> But dvb not being rock solid in 2.6.10 will very likely happen anyway
-> as the code currently in Linus' tree isn't very stable as well.  I
-> think the chance that it gets even worse is small enougth that we can
-> take the risk.
-> 
-> Additional bonus would be that we don't get bugreports for the old
-> code base which is already obsolete (and nobody wants to work on
-> because of that).
-> 
-> Michael?
-
-I just spoke to Johannes and we agree with you, Gerd. The DVB changes 
-can and should be merged from -mm now. There is a fair chance that the 
-remaining issues with broken cards can be resolved before 2.6.10.
-
-The code is in a good shape and only some small patches are missing from 
-the LinuxTV.org CVS.
-
-I can prepare a patch that fixes the support for some cards and other 
-minor improvements tomorrow.
-
->   Gerd
-
-CU
-Michael.

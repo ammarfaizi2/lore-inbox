@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265112AbTFUJdt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 05:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbTFUJds
+	id S265113AbTFUKE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 06:04:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265116AbTFUKE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 05:33:48 -0400
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:41996 "EHLO
-	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S265112AbTFUJds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 05:33:48 -0400
-Date: Sat, 21 Jun 2003 11:47:48 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: "'lkml (linux-kernel@vger.kernel.org)'" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: AIC7(censored) card gone wild?
-Message-ID: <20030621094748.GB4560@merlin.emma.line.org>
-Mail-Followup-To: "'lkml (linux-kernel@vger.kernel.org)'" <linux-kernel@vger.kernel.org>
-References: <A46BBDB345A7D5118EC90002A5072C780E040C95@orsmsx116.jf.intel.com>
+	Sat, 21 Jun 2003 06:04:58 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:34702 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S265113AbTFUKE5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 06:04:57 -0400
+Date: Sat, 21 Jun 2003 06:19:00 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [ANN,OT] libivykis event handling library 0.4 is available
+Message-ID: <20030621101900.GB923@gnu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780E040C95@orsmsx116.jf.intel.com>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.3.28i
+From: Lennert Buytenhek <buytenh@gnu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jun 2003, Perez-Gonzalez, Inaky wrote:
+http://sourceforge.net/project/showfiles.php?group_id=74441
 
-> So I wonder, what does that error mean? SCSI1 has attached a 
-> CDRW (Sony Yamaha CDRW 8/4/24) but now it doesn't show up 
-> anymore (and so, I cannot get the model). .
+Version 0.4 of the libivykis event handling library is available.
 
-The first step towards finding that out is power cycling (shut down,
-switch off for a minute, then start up again) or physically
-disconnecting the Yamaha drive (if it's Yamaha).
+libivykis is a thin wrapper over various OS'es implementation of
+I/O readiness notification facilities (such as poll(2), kqueue(2))
+and is mainly intended for writing portable high-performance network
+servers.
 
-I've seen Adaptecs fuss and fight with Yamahas more than once --
-although in Linux 2.2 and early 2.4 times -- and Yamahas have the nasty
-habit of locking up until the next power cycle when something goes
-wrong.
+The main change in this release is the addition of infrastructure for
+proper support for level-triggered poll methods, and implementations
+for /dev/poll (Solaris), poll(2), select(2), kqueue(2) in level-triggered
+mode, and sys_epoll in level-triggered mode.  libivykis now supports
+both edge-triggered and level-triggered poll methods.
 
-> Could it mean by SCSI Adapter is hosed? or my CDRW drive?
+The list of supported poll methods is now:
+- /dev/epoll (linux)
+- /dev/poll (Solaris)
+- kqueue (*BSD)
+- kqueue level-triggered (*BSD)
+- poll(2)
+- realtime signals (linux)
+- select(2)
+- sys_epoll (linux)
+- sys_epoll level-triggered (linux)
 
-It might be either, I'd suspect the CDRW first unless I had information
-that suggests otherwise.
 
-Try to find out.
-
--- 
-Matthias Andree

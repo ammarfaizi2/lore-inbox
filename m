@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267949AbUHEV3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267882AbUHEVcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267949AbUHEV3J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 17:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267964AbUHEV1N
+	id S267882AbUHEVcq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 17:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267968AbUHEVbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 17:27:13 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:62169 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S267949AbUHEVZt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 17:25:49 -0400
-Subject: Re: [PATCH] cleanup ACPI numa warnings
-From: Alex Williamson <alex.williamson@hp.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: acpi-devel <acpi-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091739702.31490.245.camel@nighthawk>
-References: <1091738798.22406.9.camel@tdi>
-	 <1091739702.31490.245.camel@nighthawk>
-Content-Type: text/plain
-Organization: LOSL
-Date: Thu, 05 Aug 2004 15:25:42 -0600
-Message-Id: <1091741142.22406.28.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 17:31:36 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28883 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267964AbUHEVaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 17:30:05 -0400
+To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+Cc: "Grant Grundler" <iod00d@hp.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       fastboot@osdl.org, linux-ia64@vger.kernel.org,
+       Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [BROKEN PATCH] kexec for ia64
+References: <D36CE1FCEFD3524B81CA12C6FE5BCAB00750E615@fmsmsx406.amr.corp.intel.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Aug 2004 15:29:09 -0600
+In-Reply-To: <D36CE1FCEFD3524B81CA12C6FE5BCAB00750E615@fmsmsx406.amr.corp.intel.com>
+Message-ID: <m18yct2s0q.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-05 at 14:01 -0700, Dave Hansen wrote:
-> On Thu, 2004-08-05 at 13:46, Alex Williamson wrote:
-> > +#ifdef ACPI_DEBUG_OUTPUT
-> > +#define acpi_print_srat_processor_affinity(header) { \
-> > +	struct acpi_table_processor_affinity *p = \
-> > +	                      (struct acpi_table_processor_affinity*) header; \
-> > +	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "SRAT Processor (id[0x%02x] " \
-> > +	                 "eid[0x%02x]) in proximity domain %d %s\n", \
-> > +	                 p->apic_id, p->lsapic_eid, p->proximity_domain, \
-> > +	                 p->flags.enabled?"enabled":"disabled")); }
-> > +
-> > +#define acpi_print_srat_memory_affinity(header) { \
-> > +	struct acpi_table_memory_affinity *p = \
-> > +	                         (struct acpi_table_memory_affinity*) header; \
-> > +	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "SRAT Memory (0x%08x%08x length " \
-> > +	                 "0x%08x%08x type 0x%x) in proximity domain %d %s%s\n",\
-> > +	                 p->base_addr_hi, p->base_addr_lo, p->length_hi, \
-> > +	                 p->length_lo, p->memory_type, p->proximity_domain, \
-> > +	                 p->flags.enabled ? "enabled" : "disabled", \
-> > +	                 p->flags.hot_pluggable ? " hot-pluggable" : "")); }
+"Tolentino, Matthew E" <matthew.e.tolentino@intel.com> writes:
+
+> >On Wed, Aug 04, 2004 at 08:14:55PM -0600, Eric W. Biederman wrote:
+> >> VGA/serial console devices rarely need to do be bus masters so they
+> >> should be fine.
+> >
+> >yeah - you are right. I wasn't thinking.
+> >Can anyone comment on UGA or other console devices?
 > 
-> Is there a reason that this can't be a normal function instead of a
-> 9-line #define?
+> UGA is essentially a PCI device.  It uses the EFI PCI I/O 
+> protocol which gets glued to the kernels pci layer...at least in 
+> a prototype.  
+> 
+> I haven't looked at the latest kexec patch.  How is it handling
+> the call to EFI's SetVirtualAddressMap()?  Is it part of the config
+> associated with kexec to do efi calls in physical mode only so that
+> it doesn't have to contend with potential follow-on invocations 
+> resultant from "the next" kernel's initialization?
 
-   Well, it's 9 lines, but it boils down to one printk.  I'm not sure
-putting it in a function would make it any more readable, long printks
-are ugly by design.  Either way would work.
+It should be.  So far all I have seen are tentative ia64 kexec patches.
 
-	Alex
-
--- 
-Alex Williamson                             HP Linux & Open Source Lab
-
+Eric

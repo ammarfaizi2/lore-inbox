@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263493AbTDCTOW 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 14:14:22 -0500
+	id S263488AbTDCTgT 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 14:36:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263494AbTDCTM7 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 14:12:59 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:18314 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id S263493AbTDCTLD 
+	id S263508AbTDCTgT 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 14:36:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25048 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263488AbTDCTfh 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 14:11:03 -0500
-Date: Thu, 3 Apr 2003 21:22:50 +0200 (CEST)
-From: Stephan van Hienen <raid@a2000.nu>
-To: Ross Vandegrift <ross@willow.seitz.com>
-cc: "Peter L. Ashford" <ashford@sdsc.edu>,
-       Jonathan Vardy <jonathan@explainerdc.com>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RAID 5 performance problems
-In-Reply-To: <20030403184756.GA7971@willow.seitz.com>
-Message-ID: <Pine.LNX.4.53.0304032120490.3085@ddx.a2000.nu>
-References: <73300040777B0F44B8CE29C87A0782E101FA97B2@exchange.explainerdc.com>
- <Pine.GSO.4.30.0304030858080.20118-100000@multivac.sdsc.edu>
- <20030403184756.GA7971@willow.seitz.com>
+	Thu, 3 Apr 2003 14:35:37 -0500
+Message-ID: <3E8C8FCE.2050408@pobox.com>
+Date: Thu, 03 Apr 2003 14:47:26 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nicholas Henke <henken@seas.upenn.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: eepro100 oops on 2.4.20
+References: <20030403142457.14227434.henken@seas.upenn.edu>
+In-Reply-To: <20030403142457.14227434.henken@seas.upenn.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Apr 2003, Ross Vandegrift wrote:
+Nicholas Henke wrote:
+> Below is the patch that fixes an oops on 2.4.20 when insmod'ing eepro100.
+>  Looks like a trivial 'oops forgot to replace those' case.
 
-> > I've benchmarked RAW disk speeds with an Ultra-100 and
-> > WD1200JB drives, and gotten 50MB/S from each disk, as opposed to your
-> > 26MB/S (there should be almost no difference for the BB drives).
->
-> Makes perfect sense - he's getting 50M/s to each channel, but it's split
-> over two drives, so drive throughput is about halved.
-the fasttrak-tx4 is an 4 channel controller (it is an dual ultra-100 on 1
-pci board)
-Jonathans WD1200BB's should be a bit faster than 30MB/sec maybe, but the
-main problem is his /dev/md0...
 
-> Absolutely correct - you should *never* run IDE RAID on a channel that
-> has both a master and slave.  When one disk on an IDE channel has an
-Jonathan is only using master devices, no slaves...
+Thanks for the patch.  Looks like it's already fixed in 2.4.21-pre.
+
+	Jeff
+
+
+

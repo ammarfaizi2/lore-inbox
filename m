@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbULHRtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbULHRtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbULHRtE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 12:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbULHRtE
+	id S261281AbULHRtm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 12:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbULHRtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 12:49:04 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:41631 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S261276AbULHRs7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 12:48:59 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Mach Speed motherboard w/onboard video
-Date: Wed, 8 Dec 2004 12:48:57 -0500
-User-Agent: KMail/1.7
-Cc: Lee Revell <rlrevell@joe-job.com>
-References: <200412081140.33199.gene.heskett@verizon.net> <1102525014.30593.17.camel@krustophenia.net>
-In-Reply-To: <1102525014.30593.17.camel@krustophenia.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Dec 2004 12:49:42 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:33455 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261281AbULHRti (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 12:49:38 -0500
+Date: Wed, 8 Dec 2004 09:49:11 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Darren Hart <darren@dvhart.com>, lkml <linux-kernel@vger.kernel.org>,
+       blainey@ca.ibm.com, Martin J Bligh <mbligh@aracnet.com>,
+       nacc@us.ibm.com, johnstul@us.ibm.com, fultonm@ca.ibm.com
+Subject: Re: nanosleep resolution, jiffies vs microseconds
+Message-ID: <20041208174911.GF1270@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1102524468.16986.30.camel@farah.beaverton.ibm.com> <20041208170504.GA4192@w-mikek2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412081248.57255.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.76.102] at Wed, 8 Dec 2004 11:48:58 -0600
+In-Reply-To: <20041208170504.GA4192@w-mikek2.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 December 2004 11:56, Lee Revell wrote:
->On Wed, 2004-12-08 at 11:40 -0500, Gene Heskett wrote:
->> Has a builtin video, called UniCrome in the propaganda.
->>
->> Are there usable linux drivers for this one?
->
->Yes, they are quite good actually:
->
->http://unichrome.sourceforge.net/
->
->The biggest problem is that the via DRM module is not in the kernel
-> yet. You will have to install it from dri.sourceforge.net CVS.  It
-> was in a recent -mm release but was dropped and unfortunately the
-> current version doesn't work with the -mm kernel.  Andrew Morton &
-> others have said they will try to get it back in soon.
->
->Lee
+On Wed, Dec 08, 2004 at 09:05:04AM -0800, Mike Kravetz wrote:
+> On Wed, Dec 08, 2004 at 08:47:48AM -0800, Darren Hart wrote:
+> > I am looking at trying to improve the latency of nanosleep for short
+> > sleep times (~1ms).  After reading Martin Schwidefsky's post for cputime
+> > on s390 (Message-ID:
+> > <20041111171439.GA4900@mschwid3.boeblingen.de.ibm.com>), it seems to me
+> > that we may be able to accomplish this by storing the expire time in
+> > microseconds rather than jiffies.
+> 
+> My only question would be 'why'?  Is there some environment where this
+> is an issue? -OR- Is this just 'something to do'?  Seems to me that the
+> only environment where this could be an issue is for 'realtime' tasks.
+> For non-realtime, I would guess that the variability of preemption/scheduling 
+> makes this almost a non-issue.  In environments where I have seen heavy
+> use of nanosleep, there were other scheduling issues that almost always
+> cause one to 'sleep' longer than the specified time.  I'm not opposed to
+> work in this area.  Just curious as to why?
 
-Unforch, this implies its for 2.6 kernels.  The machine in question
-will be running 2.5.25-adeos, an rtai conversion kernel.  I'll take a
-look and see if it might be buildable for that.  Thanks for the links.
+This is indeed for realtime work.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
-
+						Thanx, Paul

@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAMGt1>; Sat, 13 Jan 2001 01:49:27 -0500
+	id <S129957AbRAMHMt>; Sat, 13 Jan 2001 02:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130663AbRAMGtH>; Sat, 13 Jan 2001 01:49:07 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:47116 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129562AbRAMGtA>; Sat, 13 Jan 2001 01:49:00 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Sat, 13 Jan 2001 17:46:31 +1100
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: Updated zerocopy patch up on kernel.org
-Message-ID: <20010113174630.B17761@linuxcare.com>
-In-Reply-To: <200101100055.QAA07674@pizda.ninka.net> <Pine.LNX.4.30.0101111137360.981-100000@e2>
-Mime-Version: 1.0
+	id <S130663AbRAMHMk>; Sat, 13 Jan 2001 02:12:40 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:12811
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129957AbRAMHM1>; Sat, 13 Jan 2001 02:12:27 -0500
+Date: Fri, 12 Jan 2001 23:12:02 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <93njuq$21n$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10101122303260.3291-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.30.0101111137360.981-100000@e2>; from mingo@elte.hu on Thu, Jan 11, 2001 at 11:38:27AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> > Nothing interesting or new, just merges up with the latest 2.4.1-pre1
-> > patch from Linus.
+On 12 Jan 2001, Linus Torvalds wrote:
+
+> In article <Pine.LNX.4.10.10101121009230.1147-100000@master.linux-ide.org>,
+> Andre Hedrick  <andre@linux-ide.org> wrote:
 > >
-> > ftp.kernel.org:/pub/linux/kernel/people/davem/zerocopy-2.4.1p1-1.diff.gz
-> >
-> > I haven't had any reports from anyone, which must mean that it is
-> > working perfectly fine and adds no new bugs, testers are thus in
-> > nirvana and thus have nothing to report.  :-)
+> >Well that "experimental patch" is designed to get out of the dreaded
+> >"DMA Timeout Hang" or deadlock that is most noted by the PIIX4 on the
+> >Intel 440*X Chipset groups.  Since it appears that their bug was copied
+> >but other chipset makers......you see the picture clearly, right?
 > 
-> (works like a charm here.)
+> No.
 
-Likewise here running a sendfile hacked samba :)
+Oh, then I need to explain....but later.
 
-Anton
+> That experimental patch is _experimental_, and has not been reported by
+> anybody to fix anything at all.  Also, the DMA timeout on PIIX4 seems to
+> have nothing at all to do with the very silent corruption on VIA. At
+> least nobody has reported any error messages being produced on the VIA
+> corruption cases.
+
+Yes corruption verses deadlock that can wack superblock....hummm
+Two evils, mame or kill one or leave both active...
+
+> In short, let's leave it out of a stable kernel for now, and add
+> blacklisting of auto-DMA. Alan has a list. We can play around with
+> trying to _fix_ DMA on the VIA chipsets in 2.5.x (and possibly backport
+> the thing once it has been sufficiently battletested that people believe
+> it truly will work).
+
+Linus we are talking about blacklisting every PIIX4 that is 440BX/GX/LX/NX 
+in this case and that is a major list.  VIA has its own problems and that
+need special cases attention by one person work on always, thus the
+poor^H^H^H^H bold sucker^H^H^H^H^H^H guy known as Vojtech Pavlik from SuSE
+is having to much fun....
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

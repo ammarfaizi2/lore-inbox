@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbTH3HrF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 03:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTH3HrE
+	id S261698AbTH3IXd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 04:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTH3IXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 03:47:04 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:61891 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S262421AbTH3Hqi
+	Sat, 30 Aug 2003 04:23:33 -0400
+Received: from bellini.kjist.ac.kr ([203.237.42.6]:11012 "EHLO
+	bellini.kjist.ac.kr") by vger.kernel.org with ESMTP id S261698AbTH3IXc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 03:46:38 -0400
-Date: Sat, 30 Aug 2003 09:32:52 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
+	Sat, 30 Aug 2003 04:23:32 -0400
+From: ghugh Song <ghugh@kjist.ac.kr>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.23-pre1-pac1
-Message-ID: <Pine.LNX.4.53.0308300931020.5104@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: bug in the alas patch? (Re: Linux 2.4.22-ac1)
+Message-Id: <20030830082328.AEB1879552@bellini.kjist.ac.kr>
+Date: Sat, 30 Aug 2003 17:23:28 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-$SUBJECT is at 
-http://www.arklinux.org/~bero/kernel/patch-2.4.23-pre1-pac1.bz2
+Erik Andersen (andersen@codepoet.org) wrote
+> I made a patch adding alsa to 2.4.x a while back... You just
+> need to apply these three patches.
+> 
+> http://codepoet.org/kernel/080-proc_dir_entry.bz2
+> http://codepoet.org/kernel/081-export-rtc.bz2
+> http://codepoet.org/kernel/082_alsa-0.9.2.bz2
+> 
+> I've not updated it since 2.4.22-rc2, but it should patch into
+> 2.4.22 without any problem... It works for me anyways.
+> 
+> -Erik
 
-This is just a port of 2.4.22-pac1 to 2.4.23-pre1, no other changes (and 
-not yet synced with 2.4.22-ac1 -- wb Alan ;) ).
+There must a newly-created bug since then.
+I am getting
 
-LLaP
-bero
+# modprobe soundcore
+/lib/modules/2.4.22-ac1/kernel/sound/soundcore.o: unresolved symbol snd_compat_devfs_remove
+/lib/modules/2.4.22-ac1/kernel/sound/soundcore.o: insmod /lib/modules/2.4.22-ac1/kernel/sound/soundcore.o failed
+/lib/modules/2.4.22-ac1/kernel/sound/soundcore.o: insmod soundcore failed
 
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
 
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+Thanks.
+
+Hugh

@@ -1,88 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTKXICP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 03:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTKXICP
+	id S263636AbTKXIGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 03:06:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTKXIGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 03:02:15 -0500
-Received: from prv-mail25.provo.novell.com ([137.65.81.121]:18320 "EHLO
-	prv-mail25.provo.novell.com") by vger.kernel.org with ESMTP
-	id S263637AbTKXICK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 03:02:10 -0500
-Message-Id: <sfc15891.016@prv-mail25.provo.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
-Date: Mon, 24 Nov 2003 01:01:49 -0700
-From: "Subbu K. K." <kksubramaniam@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fix for "MT2032 Fatal Error: PLLs didn't lock"
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 24 Nov 2003 03:06:15 -0500
+Received: from gizmo13bw.bigpond.com ([144.140.70.23]:44196 "HELO
+	gizmo13bw.bigpond.com") by vger.kernel.org with SMTP
+	id S263636AbTKXIGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 03:06:13 -0500
+Message-ID: <3FC1BBF1.A4D05AD@eyal.emu.id.au>
+Date: Mon, 24 Nov 2003 19:06:09 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test10 - BINFMT_ELF
+References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+It is unusual that a Y/n option includes M in the help text:
+...
+To compile this as a module, choose M here: the module will be called
+binfmt_elf. Saying M or N here is dangerous because some crucial
+programs on your system might be in ELF format.
 
-I found a sign extension defect in the bttv driver code. The defect
-will manifest itself when using any TV Channels above 133.25MHz using
-xawtv or any other TV viewer. I just got a white noise hiss. I was able
-to reproduce the defect on Mandrake 9.1, Knoppix (Oct 2003) even with
-the latest bttv 0.7.107 and in the latest test10 bttv driver code.  The
-symptoms for this defect in the mesage log are:
-====/var/log/messages==
-Nov 16 21:42:51 localhost kernel: mt2032: re-init PLLs by LINT
-Nov 16 21:42:51 localhost kernel: mt2032: re-init PLLs by LINT
-Nov 16 21:42:51 localhost kernel: MT2032 Fatal Error: PLLs didn't
-lock.
-=================
+Kernel support for ELF binaries (BINFMT_ELF) [Y/n/?] (NEW) y
+...
 
-I saw others report same issues but didnt see any
-fixes/patches/solutions. With the debug option on for bttv and tuner in
-/etc/modules.conf and the TV frequency set to 133.25MHz and then
-140.25MHz, the sign extension defect pops up in rfin value below. This
-is because 133.25MHz is 0x7F13BD0 and 140.25MHz is 0x85C0B90. The high
-bit gets sign extended in as 0xFFFFFFFFF85C0B90 (-128185456)
-===
-Nov 16 21:45:56 localhost kernel: tuner: tv freq set to 133.25
-Nov 16 21:45:56 localhost kernel: mt2032_set_if_freq rfin=133250000
-if1=1090000000 if2=38900000 from=32900000 to=39900000
-..
-Nov 16 21:45:58 localhost kernel: tuner: tv freq set to 140.25
-Nov 16 21:45:58 localhost kernel: mt2032_set_if_freq rfin=-128185456
-if1=1090000000 if2=38900000 from=32900000 to=39900000
-===
-
-The patch is fairly small and involves only three lines of code to
-tuner.c. The first change is required and the next two changes are
-strongly recommended. Now, I am able to watch all the cable channels
-using Pinnacle PCTV/Rave (branded as PCTV Plus in India) on Mandrake 9.1
-without any issues. Can others confirm if the patch works for them on
-the recent kernel builds.
-
---- bttv-0.7.107/driver/tuner.c	2003-06-24 21:52:11.000000000
-+0530
-+++ bttv-0.7.107-fix/driver/tuner.c	2003-11-16 23:30:47.000000000
-+0530
-@@ -951,15 +951,15 @@
- 	}
- 	case VIDIOCSFREQ:
- 	{
--		unsigned long *v = arg;
-+		unsigned int *v = arg;
- 
- 		if (t->radio) {
- 			dprintk("tuner: radio freq set to %d.%02d\n",
--				(*iarg)/16,(*iarg)%16*100/16);
-+				(*v)/16,(*v)%16*100/16);
- 			set_radio_freq(client,*v);
- 		} else {
- 			dprintk("tuner: tv freq set to %d.%02d\n",
--				(*iarg)/16,(*iarg)%16*100/16);
-+				(*v)/16,(*v)%16*100/16);
- 			set_tv_freq(client,*v);
- 		}
- 		t->freq = *v;
-=====
-
-Subbu K. K.
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

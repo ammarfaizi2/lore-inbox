@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265863AbSLCUvE>; Tue, 3 Dec 2002 15:51:04 -0500
+	id <S266042AbSLCVC3>; Tue, 3 Dec 2002 16:02:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265865AbSLCUvE>; Tue, 3 Dec 2002 15:51:04 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:36101 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265863AbSLCUvC>; Tue, 3 Dec 2002 15:51:02 -0500
-Date: Tue, 3 Dec 2002 20:58:30 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Austin Gonyou <austin@coremetrics.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-aa1 questions.
-Message-ID: <20021203205830.A25661@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Austin Gonyou <austin@coremetrics.com>,
-	linux-kernel@vger.kernel.org
-References: <1038948847.1772.7.camel@UberGeek>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266100AbSLCVC3>; Tue, 3 Dec 2002 16:02:29 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:6327 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266042AbSLCVCU>; Tue, 3 Dec 2002 16:02:20 -0500
+Date: Tue, 03 Dec 2002 13:09:42 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>
+cc: Christoph Hellwig <hch@sgi.com>, rml@tech9.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+Message-ID: <124510000.1038949781@titus>
+In-Reply-To: <3DED18CC.5770EA90@digeo.com>
+References: <20021202192652.A25938@sgi.com>
+ <1919608311.1038822649@[10.10.2.3]> <3DEBB4BD.F64B6ADC@digeo.com>
+ <20021202195003.GC28164@dualathlon.random> <3DED18CC.5770EA90@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1038948847.1772.7.camel@UberGeek>; from austin@coremetrics.com on Tue, Dec 03, 2002 at 02:54:08PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 03, 2002 at 02:54:08PM -0600, Austin Gonyou wrote:
-> what do the following patches actually *fix*?
-> 
-> 00_backout-gcc-3_0-patch-1
-> 00_gcc-30-volatile-xtime-1
-> 
-> I'm trying to get 2.4.20 patched up by using the -aa split patches for
-> 2.4.20 and I'm incorporating only the things I want, but I use gcc 3.2
-> for compiling, and these confused me a bit.
+>> please try with my tree.
+>
+> It is greatly improved.  It is still not as smooth as the standard 2.4
+> scheduler, but I'd characterise it as "a bit jerky" rather than "makes
+> me want to punch a hole in the monitor".
+>
+> The difference is unlikely to be noticed by many.  (But it should be
+> _better_ than stock 2.4)
 
-Oooh,  I had lengthy discussion with andrea on those two.  These patches
-are a) grossly misnamed and b) should be one.  They change xtime to a volatile
-because andrea thinks that's safer.
+...
 
-The background on the silly naming is that earlier 2.4 kernels had xtime
-not volatile but the prototype (or vice versa) and gcc3 didn't like that.
+>> can you reproduce with my tree?
+>
+> Again, hugely improved over normal O(1) behaviour, but not as responsive
+> as the stock 2.4 scheduler.
 
-So the best idea would be to merge them into 00_xtime_volatile-1 if
-you want to keep them.
+Andrea, which patches in your tree are the ones that fix this?
+If it's the big-monster one ... any chance you could split out
+the bits actually fix it? I'd love to be able to apply your fixes
+to 2.5 and try them there ....
+
+Thanks,
+
+M.
+

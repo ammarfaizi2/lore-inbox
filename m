@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274539AbRIYRbJ>; Tue, 25 Sep 2001 13:31:09 -0400
+	id <S275122AbRIYRb7>; Tue, 25 Sep 2001 13:31:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274554AbRIYRa7>; Tue, 25 Sep 2001 13:30:59 -0400
-Received: from oe45.law3.hotmail.com ([209.185.240.213]:61448 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id <S274539AbRIYRak>;
-	Tue, 25 Sep 2001 13:30:40 -0400
-X-Originating-IP: [64.109.172.24]
-From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
-To: "Nerijus Baliunas" <nerijus@users.sourceforge.net>,
-        <linux-kernel@vger.kernel.org>, "Alexander Viro" <viro@math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0109251239250.24321-100000@weyl.math.psu.edu> <20010925170129.7AF958F659@mail.delfi.lt> <3BB0B9A7.2010906@antefacto.com> <OE51Xok84FTA7OIkUqL00001070@hotmail.com> <20010925172530.C6C5A8F77D@mail.delfi.lt>
-Subject: Re: all files are executable in vfat
-Date: Tue, 25 Sep 2001 12:31:01 -0500
+	id <S275121AbRIYRbv>; Tue, 25 Sep 2001 13:31:51 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:34578 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S274579AbRIYRbn>; Tue, 25 Sep 2001 13:31:43 -0400
+Date: Tue, 25 Sep 2001 13:34:16 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@portland.hansa.lan>
+To: <linux-sound@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: [PATCH] VIA sound driver now works on AOpen AK-33
+Message-ID: <Pine.LNX.4.33.0109251309300.22564-100000@portland.hansa.lan>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE458De4wk2UfxhUIBS00000fdf@hotmail.com>
-X-OriginalArrivalTime: 25 Sep 2001 17:31:01.0454 (UTC) FILETIME=[D8773EE0:01C145E7]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sorry, I should have been more specific - should we have a dmask option?
-So we could give the sysadmin/user the choice...
+Hello!
 
------ Original Message -----
-From: "Nerijus Baliunas" <nerijus@users.sourceforge.net>
-To: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>;
-<linux-kernel@vger.kernel.org>; "Alexander Viro" <viro@math.psu.edu>
-Sent: Tuesday, September 25, 2001 12:25 PM
-Subject: Re: all files are executable in vfat
+The driver for VIA 82Cxxx sound from the AC kernels is almost useless on
+AOpen AK-33 motherboard - it reports that the dsp rate is locked at 48k.
+Most programs cannot deal with it.
 
+The driver from CVS maintained by Jeff Garzik
+(http://sourceforge.net/projects/gkernel/) works much better - it doesn't
+report that the frequency is locked.  Most applications work, although
+xanim and realplayer sometimes produce an unpleasant noise.
 
-> On Tue, 25 Sep 2001 12:19:09 -0500 William Scott Lockwood III
-<thatlinuxguy@hotmail.com> wrote:
->
-> WSLI> dmask?
-> WSLI>
-> WSLI> ----- Original Message -----
-> WSLI> > I too used noexec to get around this problem. Is there anyway to
-get umask
-> WSLI> > to ignore directories? I.E. (v)fat should always leave directories
-> WSLI> executable
-> WSLI> > in my opinion?
->
-> There is no such option in man and using it did not help.
->
->
-> Regards,
-> Nerijus
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+The problem with Jeff's driver is that it resets the dsp format (stereo,
+16-bit) on SNDCTL_DSP_RESET, unlike other drivers.
+
+Another problem is that the pci resources are freed twice, which causes
+alarming, although harmless, warnings when the driver is unloaded.
+
+After fixing those problems the driver works just fine.  No problems
+whatsoever.
+
+Patch from Jeff's version to my fixed version (small):
+http://www.red-bean.com/~proski/viasound/jg-pr.diff
+
+Patch from 2.4.9-ac15 to my fixed version:
+http://www.red-bean.com/~proski/viasound/ac-pr.diff
+
+Whole driver:
+http://www.red-bean.com/~proski/viasound/via82cxxx_audio.c
+
+I'm not ready to comment on the Jeff's part of the patch.  I think it will
+be better if Jeff submits the new driver.  I'm posting my results for
+those who just want a working driver now.
+
+-- 
+Regards,
+Pavel Roskin
+

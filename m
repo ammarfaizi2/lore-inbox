@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264676AbSJOUSY>; Tue, 15 Oct 2002 16:18:24 -0400
+	id <S263760AbSJOUQS>; Tue, 15 Oct 2002 16:16:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264684AbSJOUSY>; Tue, 15 Oct 2002 16:18:24 -0400
-Received: from numenor.qualcomm.com ([129.46.51.58]:46735 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S264676AbSJOUSX>; Tue, 15 Oct 2002 16:18:23 -0400
-Message-Id: <5.1.0.14.2.20021015131839.01c1a008@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 15 Oct 2002 13:23:28 -0700
-To: "David S. Miller" <davem@redhat.com>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: [RFC] Rename _bh to _softirq
-Cc: kuznet@ms2.inr.ac.ru, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20021015.124204.108190832.davem@redhat.com>
-References: <5.1.0.14.2.20021015121958.01b4acd8@mail1.qualcomm.com>
- <5.1.0.14.2.20021015093146.05eb7738@mail1.qualcomm.com>
- <20021015.104423.36363214.davem@redhat.com>
- <5.1.0.14.2.20021015121958.01b4acd8@mail1.qualcomm.com>
+	id <S264646AbSJOUQS>; Tue, 15 Oct 2002 16:16:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:8360 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263760AbSJOUQS>;
+	Tue, 15 Oct 2002 16:16:18 -0400
+Date: Tue, 15 Oct 2002 13:14:58 -0700 (PDT)
+Message-Id: <20021015.131458.29964525.davem@redhat.com>
+To: mkanand@us.ibm.com
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       akpm@digeo.com, bhartner@us.ibm.com
+Subject: Re: context switches increased in 2.5.40 kernel
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3DAC7023.68FEB8A7@us.ibm.com>
+References: <3DAC7023.68FEB8A7@us.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:42 PM 10/15/2002 -0700, David S. Miller wrote:
->    From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
->    Date: Tue, 15 Oct 2002 12:24:18 -0700
->
->    We don't give names to a functions based on the coolness, do we ?
->    ;-)
->
->cli() was cool too.
-But we did rename it.
+   From: Mala Anand <mkanand@us.ibm.com>
+   Date: Tue, 15 Oct 2002 14:44:35 -0500
+   
+   Does this have anything to do with tcp_wakeup patch?
 
->Just because you don't see that a base handler really is an
->alias for softirq these days, doesn't mean we should delete it.
-Dave, you just confirmed that _bh is indeed confusing. And some
-people don't even know what it is ;-).
-_bh is not a "base handler" it stands for "bottom half".
-
-Max
-
-
-
-
-
+Please do not mention patches by name, this tells
+me nothing.  What "tcp_wakeup patch" are you talking
+about?

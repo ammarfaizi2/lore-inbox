@@ -1,77 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129608AbRBGTBD>; Wed, 7 Feb 2001 14:01:03 -0500
+	id <S130004AbRBGTCn>; Wed, 7 Feb 2001 14:02:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130056AbRBGTAx>; Wed, 7 Feb 2001 14:00:53 -0500
-Received: from tungsten.btinternet.com ([194.73.73.81]:7623 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S130054AbRBGTAr>; Wed, 7 Feb 2001 14:00:47 -0500
-Date: Wed, 7 Feb 2001 19:00:29 +0000 (GMT)
-From: <davej@suse.de>
-X-X-Sender: <davej@athlon.local>
-To: Alan Cox <alan@redhat.com>
-cc: <saw@saw.sw.com.sg>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] eepro100 reads pdev-> before pci_enable
-Message-ID: <Pine.LNX.4.31.0102071858080.17466-100000@athlon.local>
+	id <S130021AbRBGTCd>; Wed, 7 Feb 2001 14:02:33 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32005 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130004AbRBGTCS>; Wed, 7 Feb 2001 14:02:18 -0500
+Subject: Re: PCI-SCI Drivers v1.1-7 released
+To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
+Date: Wed, 7 Feb 2001 19:02:26 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010207111345.D27089@vger.timpanogas.org> from "Jeff V. Merkey" at Feb 07, 2001 11:13:45 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14QZrI-00012X-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hummm.  Where are the patches for 2.4 to correct this?  They are not posted
+> with the 7.1 release.  They need to be.  The compiler not supporting 
 
-As in the previous patches, this driver also reads pdev->irq
-and pdev->resource before doing a pci_enable.
-This looks correct to me, and compiles, I lack the hardware
-to test this though. Comments ?
+They don't need to be because the thing is just a warning. The kernel has
+plenty of warnings and this one is 100% harmless.
 
-regards,
+> #ident for CVS is a show stopper, and needs correcting ASAP.  How can 
+> someone use CVS properly with this, Alan?
 
-Dave.
+Im using CVS all the time. Im not sure what the #ident thing would be. But
+then like everyone else I know I use $ident in comments. JJ will probably
+be glad to work on that one
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
-diff -urN --exclude-from=/home/davej/.exclude linux/drivers/net/eepro100.c linux-dj/drivers/net/eepro100.c
---- linux/drivers/net/eepro100.c	Wed Feb  7 12:42:39 2001
-+++ linux-dj/drivers/net/eepro100.c	Wed Feb  7 18:51:45 2001
-@@ -557,6 +557,17 @@
- 	if (speedo_debug > 0  &&  did_version++ == 0)
- 		printk(version);
-
-+	/* save power state b4 pci_enable_device overwrites it */
-+	pm = pci_find_capability(pdev, PCI_CAP_ID_PM);
-+	if (pm) {
-+		u16 pwr_command;
-+		pci_read_config_word(pdev, pm + PCI_PM_CTRL, &pwr_command);
-+		acpi_idle_state = pwr_command & PCI_PM_CTRL_STATE_MASK;
-+	}
-+
-+	if (pci_enable_device(pdev))
-+		goto err_out_none;
-+
- 	if (!request_region(pci_resource_start(pdev, 1),
- 			pci_resource_len(pdev, 1), "eepro100")) {
- 		printk (KERN_ERR "eepro100: cannot reserve I/O ports\n");
-@@ -586,17 +597,6 @@
- 		printk("Found Intel i82557 PCI Speedo, MMIO at %#lx, IRQ %d.\n",
- 			   pci_resource_start(pdev, 0), irq);
- #endif
--
--	/* save power state b4 pci_enable_device overwrites it */
--	pm = pci_find_capability(pdev, PCI_CAP_ID_PM);
--	if (pm) {
--		u16 pwr_command;
--		pci_read_config_word(pdev, pm + PCI_PM_CTRL, &pwr_command);
--		acpi_idle_state = pwr_command & PCI_PM_CTRL_STATE_MASK;
--	}
--
--	if (pci_enable_device(pdev))
--		goto err_out_free_mmio_region;
-
- 	pci_set_master(pdev);
-
+Right now I'm down to one known problem with 2.96 and 2.4.x kernels - which
+is that CVS gcc and 2.96 accidentally changed the ABI and broke the bitfield
+assumptions in DAC960.c/h. JJ I believe just committed patches for that one
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

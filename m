@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261223AbSJYDqW>; Thu, 24 Oct 2002 23:46:22 -0400
+	id <S261263AbSJYDqd>; Thu, 24 Oct 2002 23:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261238AbSJYDqW>; Thu, 24 Oct 2002 23:46:22 -0400
-Received: from p50813471.dip.t-dialin.net ([80.129.52.113]:13696 "EHLO
-	debian.at.home.org") by vger.kernel.org with ESMTP
-	id <S261223AbSJYDqW>; Thu, 24 Oct 2002 23:46:22 -0400
-Message-ID: <3DB8C002.D2B94577@kph.uni-mainz.de>
-Date: Fri, 25 Oct 2002 05:52:34 +0200
-From: Thomas Reifferscheid <reiffer@kph.uni-mainz.de>
-Organization: Institut =?iso-8859-1?Q?f=FCr?= Kernphysik, Mainz
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Patch for 2.4.19pre11/fs/filesystems.c
+	id <S261246AbSJYDqd>; Thu, 24 Oct 2002 23:46:33 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:21920 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261238AbSJYDqb>; Thu, 24 Oct 2002 23:46:31 -0400
+Date: Thu, 24 Oct 2002 23:53:53 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: Philippe Troin <phil@fifi.org>
+Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, tmolina@cox.net, haveblue@us.ibm.com
+Subject: Re: more aic7xxx boot failure
+Message-ID: <20021025035353.GA3556@redhat.com>
+Mail-Followup-To: Philippe Troin <phil@fifi.org>,
+	Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org, tmolina@cox.net, haveblue@us.ibm.com
+References: <8800000.1035498319@w-hlinder> <87lm4nxxnj.fsf@ceramic.fifi.org> <16660000.1035501142@w-hlinder> <87hefbxw3d.fsf@ceramic.fifi.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <87hefbxw3d.fsf@ceramic.fifi.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I do
-CONFIG_NFSD=M 
-and want to insert the module I get:
+On Thu, Oct 24, 2002 at 04:20:38PM -0700, Philippe Troin wrote:
+> Hanna Linder <hannal@us.ibm.com> writes:
+> 
+> > Pending list: 2
+> > Kernel Free SCB list: 1 0
+> > Untagged Q(0): 2
+> > DevQ(0:0:0):0 waiting
+> > qinpos = 0, SCB index = 3
+> > Kernel panic: Loop 1
+> 
+> Had the same problem.
+> 
+> Booted noapic, problem solved...
+> 
+> Now, if the driver could be fixed, that would be nicer...
 
-unresolved symbol nfsd_linkage
+If noapic solves the problem then the driver isn't where the bug is, it's 
+in the SMP irq table or ACPI irq routing or PCI interrupt routing, but it 
+is *not* the driver.
 
-which already was described by Jean-Luc Fontaine in 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=98173746131993&w=2
+I will repeat, if "noapic" ever solves a driver bug, then the problem 
+wasn't a driver bug in the first place!
 
+/me has been listening to people wrongly accuse drivers of IRQ routing 
+bugs for going on three years now, ever since the MP table parsing and 
+IO-APIC code was first put into the linux kernel and now tends to be a bit 
+testy when people make the mistake of calling an IRQ routing bug a driver 
+bug.
 
-My patch solves this and works for me.
-
-Cheers,
-Thomas
-
-
---- linux-2.4.20pre11-orig/fs/filesystems.c     Sat Aug  3 02:39:45 2002
-+++ linux-2.4.20pre11/fs/filesystems.c  Fri Oct 25 04:44:15 2002
-@@ -13,7 +13,7 @@
- #include <linux/kmod.h>
- #include <linux/nfsd/interface.h>
- 
--#if ! defined(CONFIG_NFSD)
-+#if ! defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
- struct nfsd_linkage *nfsd_linkage;
- 
- long
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264064AbUKAWRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269276AbUKAWWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264064AbUKAWRH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 17:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S325749AbUKAWOt
+	id S269276AbUKAWWY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 17:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S325728AbUKAWOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 17:14:49 -0500
-Received: from proxy.vc-graz.ac.at ([193.171.121.30]:10724 "EHLO
-	proxy.vc-graz.ac.at") by vger.kernel.org with ESMTP id S292292AbUKATkl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 14:40:41 -0500
-From: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Subject: Re: 2.6.9 USB storage problems
-Date: Mon, 1 Nov 2004 20:40:32 +0100
-User-Agent: KMail/1.7
-Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-References: <200410121424.59584.worf@sbox.tu-graz.ac.at> <200411011850.47870.worf@sbox.tu-graz.ac.at> <20041101191036.GA18227@one-eyed-alien.net>
-In-Reply-To: <20041101191036.GA18227@one-eyed-alien.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411012040.33285.worf@sbox.tu-graz.ac.at>
+	Mon, 1 Nov 2004 17:14:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51398 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S291939AbUKATaj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 14:30:39 -0500
+Date: Mon, 1 Nov 2004 19:30:21 GMT
+Message-Id: <200411011930.iA1JULxi023187@warthog.cambridge.redhat.com>
+From: dhowells@redhat.com
+To: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com
+cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: [PATCH 5/14] FRV: Fork fixes
+In-Reply-To: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com> 
+References: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com> 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 1. November 2004 20:10 schrieb Matthew Dharm:
-> You're using the UB driver.  Does it work if you turn that off and use the
-> usb-storage driver instead?
+The attached patch fixes fork to get rid of the assumption that THREAD_SIZE >=
+PAGE_SIZE (on the FR-V the smallest available page size is 16KB).
 
-Damn, you are right - this is a new driver...
-I didn't notice that, i did rely on hotplug to load the correct modules.
+Signed-Off-By: dhowells@redhat.com
+---
+diffstat frv-fork-2610rc1bk10.diff
+ fork.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
-Removed the ub driver and everything is fine now.
-
-That means - just unloadin ub and loading usb-storage didn't work. 
-
-I had to remove it from the kernel config and rebuild the modules. Actually 
-usb-storage was the only module being rebuilt. Looks like usb-storage's 
-functionality is different if ub is built.
-
-So, my system works fine again, thank you.
-But it leaves the question: why does ub perform so badly?
-
-And: could maybe somebody put some hints into the ub help?
-"This driver supports certain USB attached storage devices such as flash 
-keys." didn't sound so bad to me...
-
-Worf
+diff -uNr /warthog/kernels/linux-2.6.10-rc1-bk10/kernel/fork.c linux-2.6.10-rc1-bk10-frv/kernel/fork.c
+--- /warthog/kernels/linux-2.6.10-rc1-bk10/kernel/fork.c	2004-11-01 11:45:34.740160149 +0000
++++ linux-2.6.10-rc1-bk10-frv/kernel/fork.c	2004-11-01 11:47:05.153633406 +0000
+@@ -118,7 +118,12 @@
+ 	 * value: the thread structures can take up at most half
+ 	 * of memory.
+ 	 */
++#if THREAD_SIZE >= PAGE_SIZE
+ 	max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
++#else
++	max_threads = mempages / 8;
++#endif
++
+ 	/*
+ 	 * we need to allow at least 20 threads to boot a system
+ 	 */

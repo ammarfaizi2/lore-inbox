@@ -1,81 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291160AbSBGPGH>; Thu, 7 Feb 2002 10:06:07 -0500
+	id <S291164AbSBGPNI>; Thu, 7 Feb 2002 10:13:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291161AbSBGPFv>; Thu, 7 Feb 2002 10:05:51 -0500
-Received: from florin.dsl.visi.com ([209.98.146.184]:33836 "HELO
-	beaver.iucha.org") by vger.kernel.org with SMTP id <S291160AbSBGPFc>;
-	Thu, 7 Feb 2002 10:05:32 -0500
-Date: Thu, 7 Feb 2002 09:05:25 -0600
-To: Matt_Domsch@dell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: SIS900 driver unresolved dependency crc32_be in 2.5.3
-Message-ID: <20020207150525.GA4629@iucha.net>
-Mail-Followup-To: Matt_Domsch@dell.com, linux-kernel@vger.kernel.org
+	id <S291166AbSBGPMt>; Thu, 7 Feb 2002 10:12:49 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:5248 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291164AbSBGPMi>;
+	Thu, 7 Feb 2002 10:12:38 -0500
+Date: Thu, 07 Feb 2002 07:10:37 -0800 (PST)
+Message-Id: <20020207.071037.74749998.davem@redhat.com>
+To: phillips@bonn-fries.net
+Cc: riel@conectiva.com.br, Ulrich.Weigand@de.ibm.com, zaitcev@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: The IBM order relaxation patch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E16Yq9D-0000bD-00@starship.berlin>
+In-Reply-To: <Pine.LNX.4.33L.0202071254430.17850-100000@imladris.surriel.com>
+	<E16Yq9D-0000bD-00@starship.berlin>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-message-flag: Outlook: Where do you want [your files] to go today?
-From: florin@iucha.net (Florin Iucha)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Daniel Phillips <phillips@bonn-fries.net>
+   Date: Thu, 7 Feb 2002 16:07:39 +0100
+   
+   I'd rather see rmap go in in its simplest possible form, outperforming the
+   current virtual scanning method on basic page replacement performance, rather 
+   that using the other things we know rmap can do as the argument for inclusion.
+   It's for this reason that I'm concentrating on the fork speedup.
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-I have a K7S5A with onboard LAN.=20
-
-I am compiling the driver (SIS900) as module and I have crc32 lib built
-in the kernel. When I run "make modules_install" or "modprobe sis900"
-afterwards I get=20
-
-bear:~# modprobe sis900
-/lib/modules/2.5.3-xfs-k7/kernel/drivers/net/sis900.o: unresolved symbol
-crc32_be
-/lib/modules/2.5.3-xfs-k7/kernel/drivers/net/sis900.o: insmod
-/lib/modules/2.5.3-xfs-k7/kernel/drivers/net/sis900.o failed
-/lib/modules/2.5.3-xfs-k7/kernel/drivers/net/sis900.o: insmod sis900
-failed
-
-Relevant portions of .config:
-
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-# CONFIG_8139TOO_8129 is not set
-CONFIG_SIS900=3Dm
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-
-#
-# Library routines
-#
-CONFIG_CRC32=3Dy
-CONFIG_ZLIB_INFLATE=3Dm
-# CONFIG_ZLIB_DEFLATE is not set  =20
-
-florin
-
---=20
-
-"If it's not broken, let's fix it till it is."
-
-41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8Ype1NLPgdTuQ3+QRAjTvAJ45FQgr5rOtmPCAHt6KmWfP1Zv+7QCfS7eX
-9LCZqo5vSvsgMR+sUCN0MQA=
-=eE+/
------END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--
+Ok, but just keep in mind that failing for < 3 order page allocations
+would be a regression from what is in there now.

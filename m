@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUHCCD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUHCCEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUHCCD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 22:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbUHCCD4
+	id S264960AbUHCCEy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 22:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUHCCEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 22:03:56 -0400
-Received: from holomorphy.com ([207.189.100.168]:9905 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264903AbUHCCDz (ORCPT
+	Mon, 2 Aug 2004 22:04:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40897 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264960AbUHCCEu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 22:03:55 -0400
-Date: Mon, 2 Aug 2004 19:03:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-Subject: Re: [PATCH] V-3.0 Single Priority Array O(1) CPU Scheduler Evaluation
-Message-ID: <20040803020345.GU2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Peter Williams <pwil3058@bigpond.net.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-References: <410DDFD2.5090400@bigpond.net.au> <20040802134257.GE2334@holomorphy.com> <410EDD60.8040406@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Aug 2004 22:04:50 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Mon, 2 Aug 2004 19:03:39 -0700
+User-Agent: KMail/1.6.2
+Cc: Jon Smirl <jonsmirl@yahoo.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+References: <20040730221528.2702.qmail@web14922.mail.yahoo.com> <200408021002.31117.jbarnes@engr.sgi.com> <1091489449.1669.14.camel@localhost.localdomain>
+In-Reply-To: <1091489449.1669.14.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <410EDD60.8040406@bigpond.net.au>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408021903.39273.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> Hmm. Given do_promotions() I'd expect fenceposts, not iteration over
->> the priority levels of the runqueue.
+On Monday, August 2, 2004 4:30 pm, Alan Cox wrote:
+> What guarantees the ROM already has an assigned PCI address ?
 
-On Tue, Aug 03, 2004 at 10:33:36AM +1000, Peter Williams wrote:
-> I don't understand what you mean.  Do you mean something like the more 
-> complex promotion mechanism in the (earlier) EBS scheduler where tasks 
-> only get promoted if they've been on a queue without being serviced 
-> within a given time?
+Presumably the PCI core.  If that's a bad assumption, then clearly this code 
+won't work as is and will need additional checks/setup code.
 
-An array of size N can be rotated in O(1) time if an integer is kept
-along with it to represent an offset that has to be added to externally-
-visible indices mod N to recover the true index.
-
-
--- wli
+Jesse

@@ -1,58 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263298AbREWWfF>; Wed, 23 May 2001 18:35:05 -0400
+	id <S263309AbREWWz3>; Wed, 23 May 2001 18:55:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263300AbREWWez>; Wed, 23 May 2001 18:34:55 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:42757 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S263298AbREWWef>; Wed, 23 May 2001 18:34:35 -0400
-Date: Wed, 23 May 2001 19:34:30 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "G. Hugh Song" <ghsong@kjist.ac.kr>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Swap strangeness using 2.4.5pre2aa1
-In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr>
-Message-ID: <Pine.LNX.4.33.0105231931580.311-100000@duckman.distro.conectiva>
+	id <S263308AbREWWzJ>; Wed, 23 May 2001 18:55:09 -0400
+Received: from echo.sound.net ([205.242.192.21]:49636 "HELO echo.sound.net")
+	by vger.kernel.org with SMTP id <S263306AbREWWzA>;
+	Wed, 23 May 2001 18:55:00 -0400
+Date: Wed, 23 May 2001 17:53:33 -0500 (CDT)
+From: Hal Duston <hald@sound.net>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: PS/2 Esdi Patch #6
+Message-ID: <Pine.GSO.4.10.10105231735210.23376-200000@sound.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-990657582=:23376"
+Content-ID: <Pine.GSO.4.10.10105231753200.23376@sound.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 May 2001, G. Hugh Song wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> My Alpha/LInux UP2000 SMP with 1GB memory is running kernel
+---559023410-851401618-990657582=:23376
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.GSO.4.10.10105231753201.23376@sound.net>
 
-> The following is the output from "free"
-> =========================================================================
->              total       used       free     shared    buffers     cached
-> Mem:       1023128    1015640       7488          0        544     948976
-> -/+ buffers/cache:      66120     957008
-> Swap:      1021936    1021936          0
-> ==========================================================================
+Use information from ADF file to update/correct the driver.
 
-> I understand that free swap space may become close to 0 and stay
-> there for a while once it ever reached down close to zero.
-> However, it should back up some nonzero number if the situation
-> is cleared.
+Save POS data.
+Rewrite /proc entry based on POS data only.  (Gleaned from the ADF file.)
+Correct the I/O region requested.  (Also gleaned from the ADF file.)
 
-Something is wrong with the 2.4 VM.  As of yet, it cannot reclaim
-swap space once it is full. This is pretty much the next thing on
-my TODO list, right after the worst highmem lockups and balancing
-issues have been fixed.
+Also available etc... at 
+http://www.sound.net/~hald/projects/ps2esdi/ps2esdi-2.4.4-patch2
 
-Watch http://www.surriel.com/patches/ closely, swap reclaiming is
-next on my TODO list ;)
+Hal Duston
+hald@sound.net
 
-regards,
+---559023410-851401618-990657582=:23376
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="ps2esdi-2.4.4-patch2"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.10.10105231739420.23376@sound.net>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="ps2esdi-2.4.4-patch2"
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+VXNlIGluZm9ybWF0aW9uIGZyb20gQURGIGZpbGUgdG8gdXBkYXRlL2NvcnJl
+Y3QgdGhlIGRyaXZlci4NCg0KU2F2ZSBQT1MgZGF0YS4NClJld3JpdGUgL3By
+b2MgZW50cnkgYmFzZWQgb24gUE9TIGRhdGEgb25seS4gIChHbGVhbmVkIGZy
+b20gdGhlIEFERiBmaWxlLikNCkNvcnJlY3QgdGhlIEkvTyByZWdpb24gcmVx
+dWVzdGVkLiAgKEFsc28gZ2xlYW5lZCBmcm9tIHRoZSBBREYgZmlsZS4pDQoN
+Ci0tLSBsaW51eC0yLjQuNS1wcmU0L2RyaXZlcnMvYmxvY2svcHMyZXNkaS5j
+LjEJTW9uIE1heSAyMSAwMDowMDowMCAyMDAxDQorKysgbGludXgtMi40LjUt
+cHJlNC9kcml2ZXJzL2Jsb2NrL3BzMmVzZGkuYy4yCU1vbiBNYXkgMjEgMDA6
+MDM6MDIgMjAwMQ0KQEAgLTEyMyw2ICsxMjMsNyBAQA0KIHN0YXRpYyBzdHJ1
+Y3QgdGltZXJfbGlzdCBlc2RpX3RpbWVyID0geyBmdW5jdGlvbjogcHMyZXNk
+aV9yZXNldF90aW1lciB9Ow0KIHN0YXRpYyBpbnQgcmVzZXRfc3RhdHVzOw0K
+IHN0YXRpYyBpbnQgcHMyZXNkaV9zbG90ID0gLTE7DQorc3RhdGljIHVfY2hh
+ciBwczJlc2RpX3Bvc1s4XTsNCiBzdGF0aWMgaW50IHRwNzIwZXNkaSA9IDA7
+CS8qIElzIGl0IEludGVncmF0ZWQgRVNESSBvZiBUaGlua1BhZC03MjA/ICov
+DQogc3RhdGljIGludCBpbnRnX2VzZGkgPSAwOyAgICAgICAvKiBJZiBpbnRl
+Z3JhdGVkIGFkYXB0ZXIgKi8NCiBzdHJ1Y3QgcHMyZXNkaV9pX3N0cnVjdCB7
+DQpAQCAtMjgxLDExICsyODIsOTMgQEANCiB7DQogCWludCBsZW4gPSAwOw0K
+IA0KKwlpZiAocHMyZXNkaV9wb3NbMF0gPT0gMHhmZiAmJiBwczJlc2RpX3Bv
+c1sxXSA9PSAweGRkKSB7DQorCQlsZW4gKz0gc3ByaW50ZihidWYgKyBsZW4s
+ICJBZGFwdGVyIE1lbW9yeSBMb2NhdGlvbjogIik7DQorCQlzd2l0Y2gocHMy
+ZXNkaV9wb3NbM10gJiAweDBmKSB7DQorCQljYXNlIDB4MDI6DQorCQkJbGVu
+ICs9IHNwcmludGYoYnVmICsgbGVuLCAiU2VnbWVudCBDODAwXG4iKTsNCisJ
+CQlicmVhazsNCisJCWNhc2UgMHgwMzoNCisJCQlsZW4gKz0gc3ByaW50Zihi
+dWYgKyBsZW4sICJTZWdtZW50IENDMDBcbiIpOw0KKwkJCWJyZWFrOw0KKwkJ
+Y2FzZSAweDA0Og0KKwkJCWxlbiArPSBzcHJpbnRmKGJ1ZiArIGxlbiwgIlNl
+Z21lbnQgRDAwMFxuIik7DQorCQkJYnJlYWs7DQorCQljYXNlIDB4MDU6DQor
+CQkJbGVuICs9IHNwcmludGYoYnVmICsgbGVuLCAiU2VnbWVudCBENDAwXG4i
+KTsNCisJCQlicmVhazsNCisJCWNhc2UgMHgwNjoNCisJCQlsZW4gKz0gc3By
+aW50ZihidWYgKyBsZW4sICJTZWdtZW50IEQ4MDBcbiIpOw0KKwkJCWJyZWFr
+Ow0KKwkJY2FzZSAweDA3Og0KKwkJCWxlbiArPSBzcHJpbnRmKGJ1ZiArIGxl
+biwgIlNlZ21lbnQgREMwMFxuIik7DQorCQkJYnJlYWs7DQorCQljYXNlIDB4
+MDg6DQorCQljYXNlIDB4MDk6DQorCQljYXNlIDB4MGE6DQorCQljYXNlIDB4
+MGI6DQorCQljYXNlIDB4MGM6DQorCQljYXNlIDB4MGQ6DQorCQljYXNlIDB4
+MGU6DQorCQljYXNlIDB4MGY6DQorCQkJbGVuICs9IHNwcmludGYoYnVmICsg
+bGVuLCAiUk9NIERpc2FibGVkXG4iKTsNCisJCQlicmVhazsNCisJCX0NCisJ
+fQ0KIAlsZW4gKz0gc3ByaW50ZihidWYgKyBsZW4sICJETUEgQXJiaXRyYXRp
+b24gTGV2ZWw6ICVkXG4iLA0KLQkJICAgICAgIGRtYV9hcmJfbGV2ZWwpOw0K
+LQlsZW4gKz0gc3ByaW50ZihidWYgKyBsZW4sICJJTyBQb3J0OiAleFxuIiwg
+aW9fYmFzZSk7DQotCWxlbiArPSBzcHJpbnRmKGJ1ZiArIGxlbiwgIklSUTog
+MTRcbiIpOw0KLQlsZW4gKz0gc3ByaW50ZihidWYgKyBsZW4sICJEcml2ZXM6
+ICVkXG4iLCBwczJlc2RpX2RyaXZlcyk7DQorCQkgICAgICAgKHBzMmVzZGlf
+cG9zWzJdID4+IDIpICYgMHgwNyk7DQorCWlmIChwczJlc2RpX3Bvc1swXSA9
+PSAweDlmICYmIHBzMmVzZGlfcG9zWzFdID09IDB4ZGYpIHsNCisJCWxlbiAr
+PSBzcHJpbnRmKGJ1ZiArIGxlbiwgIkRNQSBCdXJzdCBQYWNpbmcgSW50ZXJ2
+YWw6ICIpOw0KKwkJc3dpdGNoKChwczJlc2RpX3Bvc1szXSA+PiA0KSAmIDB4
+MDMpIHsNCisJCWNhc2UgMHgwMDoNCisJCQlsZW4gKz0gc3ByaW50ZihidWYg
+KyBsZW4sICJCdXJzdCBEaXNhYmxlZFxuIik7DQorCQkJYnJlYWs7DQorCQlj
+YXNlIDB4MDE6DQorCQkJbGVuICs9IHNwcmludGYoYnVmICsgbGVuLCAiMTYg
+TWljcm9zZWNvbmRzXG4iKTsNCisJCQlicmVhazsNCisJCWNhc2UgMHgwMjoN
+CisJCQlsZW4gKz0gc3ByaW50ZihidWYgKyBsZW4sICIyNCBNaWNyb3NlY29u
+ZHNcbiIpOw0KKwkJCWJyZWFrOw0KKwkJY2FzZSAweDAzOg0KKwkJCWxlbiAr
+PSBzcHJpbnRmKGJ1ZiArIGxlbiwgIjMxIE1pY3Jvc2Vjb25kc1xuIik7DQor
+CQkJYnJlYWs7DQorCQl9DQorCX0NCisJZWxzZSB7DQorCQlsZW4gKz0gc3By
+aW50ZihidWYgKyBsZW4sICJETUEgQnVyc3QgUGFjaW5nIExlbmd0aDogIik7
+DQorCQlzd2l0Y2goKHBzMmVzZGlfcG9zWzNdID4+IDQpICYgMHgwMykgew0K
+KwkJY2FzZSAweDAwOg0KKwkJCWxlbiArPSBzcHJpbnRmKGJ1ZiArIGxlbiwg
+IkJ1cnN0IERpc2FibGVkXG4iKTsNCisJCQlicmVhazsNCisJCWNhc2UgMHgw
+MToNCisJCQlsZW4gKz0gc3ByaW50ZihidWYgKyBsZW4sICI4IFdvcmQgQnVy
+c3RcbiIpOw0KKwkJCWJyZWFrOw0KKwkJY2FzZSAweDAyOg0KKwkJCWxlbiAr
+PSBzcHJpbnRmKGJ1ZiArIGxlbiwgIjE2IFdvcmQgQnVyc3RcbiIpOw0KKwkJ
+CWJyZWFrOw0KKwkJY2FzZSAweDAzOg0KKwkJCWxlbiArPSBzcHJpbnRmKGJ1
+ZiArIGxlbiwgIjI0IFdvcmQgQnVyc3RcbiIpOw0KKwkJCWJyZWFrOw0KKwkJ
+fQ0KKwl9DQorCWxlbiArPSBzcHJpbnRmKGJ1ZiArIGxlbiwgIkRNQSBQYWNp
+bmcgQ29udHJvbDogJXNcbiIsIChwczJlc2RpX3Bvc1s0XSAmIDB4MDEpID8g
+IkRpc2FibGVkIiA6ICJFbmFibGVkIik7DQorCWlmIChwczJlc2RpX3Bvc1sw
+XSA9PSAweDlmICYmIHBzMmVzZGlfcG9zWzFdID09IDB4ZGYpIHsNCisJCWxl
+biArPSBzcHJpbnRmKGJ1ZiArIGxlbiwgIlRpbWUgdG8gUmVsZWFzZTogIik7
+DQorCQlzd2l0Y2goKHBzMmVzZGlfcG9zWzRdID4+IDEpICYgMHgwMykgew0K
+KwkJY2FzZSAweDAwOg0KKwkJCWxlbiArPSBzcHJpbnRmKGJ1ZiArIGxlbiwg
+IjYgTWljcm9zZWNvbmRzXG4iKTsNCisJCQlicmVhazsNCisJCWNhc2UgMHgw
+MToNCisJCQlsZW4gKz0gc3ByaW50ZihidWYgKyBsZW4sICIzIE1pY3Jvc2Vj
+b25kc1xuIik7DQorCQkJYnJlYWs7DQorCQljYXNlIDB4MDI6DQorCQljYXNl
+IDB4MDM6DQorCQkJbGVuICs9IHNwcmludGYoYnVmICsgbGVuLCAiSW1tZWRp
+YXRlXG4iKTsNCisJCQlicmVhazsNCisJCX0NCisJfQ0KKwlsZW4gKz0gc3By
+aW50ZihidWYgKyBsZW4sICJGYWlybmVzcyBPbi9PZmY6ICVzXG4iLCAoKHBz
+MmVzZGlfcG9zWzJdID4+IDYpICYgMHgwMSkgPyAiT24iIDogIk9mZiIpOw0K
+KwlsZW4gKz0gc3ByaW50ZihidWYgKyBsZW4sICJQcmltYXJ5L0FsdGVybmF0
+ZSBQb3J0IEFkZHJlc3NlczogJXNcbiIsICgocHMyZXNkaV9wb3NbMl0gPj4g
+MSkgJiAweDAxKSA/ICJBbHRlcm5hdGUiIDogIlByaW1hcnkiKTsNCiANCiAJ
+cmV0dXJuIGxlbjsNCiB9DQpAQCAtMzA3LDcgKzM5MCw2IEBADQogCSAqLw0K
+IA0KIAlpbnQgc2xvdCA9IDAsIGksIHJlc2V0X3N0YXJ0LCByZXNldF9lbmQ7
+DQotCXVfY2hhciBzdGF0dXM7DQogCXVuc2lnbmVkIHNob3J0IGFkYXB0ZXJJ
+RDsNCiANCiAJaWYgKChzbG90ID0gbWNhX2ZpbmRfYWRhcHRlcihJTlRHX0VT
+RElfSUQsIDApKSAhPSBNQ0FfTk9URk9VTkQpIHsNCkBAIC0zNDUsOSArNDI3
+LDExIEBADQogCSAgIDAgICAgICAgICAgICAgYWRhcHRlciBlbmFibGUNCiAJ
+ICovDQogDQotCXN0YXR1cyA9IG1jYV9yZWFkX3N0b3JlZF9wb3Moc2xvdCwg
+Mik7DQorCWZvcihpID0gMDsgaSA8IDg7ICsraSkgew0KKwkJcHMyZXNkaV9w
+b3NbaV0gPSBtY2FfcmVhZF9zdG9yZWRfcG9zKHNsb3QsIGkpOw0KKwl9DQog
+CS8qIGlzIGl0IGVuYWJsZWQgPyAqLw0KLQlpZiAoIShzdGF0dXMgJiBTVEFU
+VVNfRU5BQkxFRCkpIHsNCisJaWYgKCEocHMyZXNkaV9wb3NbMl0gJiBTVEFU
+VVNfRU5BQkxFRCkpIHsNCiAJCXByaW50aygiJXM6IEVTREkgYWRhcHRlciBk
+aXNhYmxlZFxuIiwgREVWSUNFX05BTUUpOw0KIAkJcmV0dXJuOw0KIAl9DQpA
+QCAtMzYxLDEzICs0NDUsMTMgQEANCiAJCXByaW50aygiJXM6IFVuYWJsZSB0
+byBnZXQgSVJRICVkXG4iLCBERVZJQ0VfTkFNRSwgUFMyRVNESV9JUlEpOw0K
+IAkJcmV0dXJuOw0KIAl9DQotCWlmIChzdGF0dXMgJiBTVEFUVVNfQUxURVJO
+QVRFKQ0KKwlpZiAocHMyZXNkaV9wb3NbMl0gJiAweDAyKQ0KIAkJaW9fYmFz
+ZSA9IEFMVF9JT19CQVNFOw0KIAllbHNlDQogCQlpb19iYXNlID0gUFJJTUFS
+WV9JT19CQVNFOw0KIA0KIAkvKiBnZXQgdGhlIGRtYSBhcmJpdHJhdGlvbiBs
+ZXZlbCAqLw0KLQlkbWFfYXJiX2xldmVsID0gKHN0YXR1cyA+PiAyKSAmIDB4
+ZjsNCisJZG1hX2FyYl9sZXZlbCA9IChwczJlc2RpX3Bvc1syXSA+PiAyKSAm
+IDB4ZjsNCiANCiAJLyogQkEgKi8NCiAJcHJpbnRrKCIlczogRE1BIGFyYml0
+cmF0aW9uIGxldmVsIDogJWRcbiIsDQpAQCAtNDE4LDcgKzUwMiw3IEBADQog
+CQlwczJlc2RpX2Jsb2Nrc2l6ZXNbaV0gPSAxMDI0Ow0KIA0KIAlyZXF1ZXN0
+X2RtYShkbWFfYXJiX2xldmVsLCAiZWQiKTsNCi0JcmVxdWVzdF9yZWdpb24o
+aW9fYmFzZSwgNCwgImVkIik7DQorCXJlcXVlc3RfcmVnaW9uKGlvX2Jhc2Us
+IDgsICJlZCIpOw0KIAlibGtzaXplX3NpemVbTUFKT1JfTlJdID0gcHMyZXNk
+aV9ibG9ja3NpemVzOw0KIA0KIAlmb3IgKGkgPSAwOyBpIDwgcHMyZXNkaV9k
+cml2ZXM7IGkrKykgew0K
+---559023410-851401618-990657582=:23376--

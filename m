@@ -1,120 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVAMWNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVAMWxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261740AbVAMWNq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 17:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVAMWMv
+	id S261814AbVAMWxO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 17:53:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVAMWvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 17:12:51 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:40709 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261740AbVAMV61 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:58:27 -0500
-Subject: [patch 06/11] uml: allow free ubd flag ordering
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Thu, 13 Jan 2005 22:01:00 +0100
-Message-Id: <20050113210101.0A34F1FB6F@zion>
+	Thu, 13 Jan 2005 17:51:10 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:44769 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261803AbVAMWqC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 17:46:02 -0500
+Date: Thu, 13 Jan 2005 23:41:07 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Adam Anthony <AAnthony@sbs.com>
+Cc: khc@pm.waw.pl, linux-kernel@vger.kernel.org
+Subject: Re: Linux HDLC Stack - N2 module
+Message-ID: <20050113224107.GA32656@electric-eye.fr.zoreil.com>
+References: <4F23E557A0317D45864097982DE907941A38A8@pilotmail.sbscorp.sbs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4F23E557A0317D45864097982DE907941A38A8@pilotmail.sbscorp.sbs.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adam Anthony <AAnthony@sbs.com> :
+[...]
+> It seems like the transmit buffers aren't getting emptied after transmit,
+> because I can only transmit a few frames before traffic halts.  Transmit
+> statistics don't increment either, but I am seeing frames on the remote end.
+> 	Has the N2 module been tested with recent kernels?  Is it useable?
 
-When parsing the <flags> section in ubd<n><flags>=file[,file2], instead of
-requiring that the flags are specified in a certain order, just make the code
-smarter.
+No idea.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+> If not, which module will show me the genius of the Linux HDLC "stack"?
 
- linux-2.6.11-paolo/arch/um/drivers/ubd_kern.c |   48 +++++++++++++++-----------
- 1 files changed, 29 insertions(+), 19 deletions(-)
+struct foo_dev_priv {
+	/*
+	   Device private stuff here
+	 */
+	...
+	struct net_device *dev;
+}
 
-diff -puN arch/um/drivers/ubd_kern.c~uml-ubd-free-flag-ordering arch/um/drivers/ubd_kern.c
---- linux-2.6.11/arch/um/drivers/ubd_kern.c~uml-ubd-free-flag-ordering	2005-01-13 03:11:22.564889912 +0100
-+++ linux-2.6.11-paolo/arch/um/drivers/ubd_kern.c	2005-01-13 03:11:22.567889456 +0100
-@@ -250,7 +250,7 @@ static int ubd_setup_common(char *str, i
- 	struct ubd *dev;
- 	struct openflags flags = global_openflags;
- 	char *backing_file;
--	int n, err;
-+	int n, err, i;
- 
- 	if(index_out) *index_out = -1;
- 	n = *str;
-@@ -312,29 +312,40 @@ static int ubd_setup_common(char *str, i
- 	dev = &ubd_dev[n];
- 	if(dev->file != NULL){
- 		printk(KERN_ERR "ubd_setup : device already configured\n");
--		goto out2;
-+		goto out;
- 	}
- 
--	if(index_out) *index_out = n;
-+	if (index_out)
-+		*index_out = n;
- 
--	if (*str == 'r'){
--		flags.w = 0;
--		str++;
--	}
--	if (*str == 's'){
--		flags.s = 1;
--		str++;
--	}
--	if (*str == 'd'){
--		dev->no_cow = 1;
-+	for (i = 0; i < 4; i++) {
-+		switch (*str) {
-+		case 'r':
-+			flags.w = 0;
-+			break;
-+		case 's':
-+			flags.s = 1;
-+			break;
-+		case 'd':
-+			dev->no_cow = 1;
-+			break;
-+		case '=':
-+			str++;
-+			goto break_loop;
-+		default:
-+			printk(KERN_ERR "ubd_setup : Expected '=' or flag letter (r,s or d)\n");
-+			goto out;
-+		}
- 		str++;
- 	}
- 
--	if(*str++ != '='){
-+        if (*str == '=')
-+		printk(KERN_ERR "ubd_setup : Too many flags specified\n");
-+        else
- 		printk(KERN_ERR "ubd_setup : Expected '='\n");
--		goto out2;
--	}
-+	goto out;
- 
-+break_loop:
- 	err = 0;
- 	backing_file = strchr(str, ',');
- 
-@@ -354,7 +365,7 @@ static int ubd_setup_common(char *str, i
- 	dev->file = str;
- 	dev->cow.file = backing_file;
- 	dev->boot_openflags = flags;
-- out2:
-+out:
- 	spin_unlock(&ubd_lock);
- 	return(err);
- }
-@@ -385,8 +396,7 @@ __uml_help(ubd_setup,
- "    machine by running 'dd' on the device. <n> must be in the range\n"
- "    0 to 7. Appending an 'r' to the number will cause that device\n"
- "    to be mounted read-only. For example ubd1r=./ext_fs. Appending\n"
--"    an 's' (has to be _after_ 'r', if there is one) will cause data\n"
--"    to be written to disk on the host immediately.\n\n"
-+"    an 's' will cause data to be written to disk on the host immediately.\n\n"
- );
- 
- static int fakehd_set = 0;
-_
+...
+
+static int foo_init_one(...)
+{
+	struct foo_dev_priv *priv;
+	struct net_device *dev;
+	hdlc_device *hdlc;
+
+	priv = kmalloc(sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		goto damn_it;
+	memset(priv, 0, ...);
+
+	dev = alloc_hdlcdev(priv);
+	if (!dev)
+		goto crap;
+	memset(dev, 0, ...);
+
+	priv->dev = dev;
+
+	hdlc = dev_to_hdlc(dev);
+	
+	hdlc->xmit = foo_start_xmit();
+	hdlc->attach = foo_hdlc_attach();
+
+	ret = register_hdlc_device(hdlc);
+	if (ret < 0)
+		goto not_my_day;
+	...
+}
+
+static int foo_start_xmit(struct sk_buff *skb, struct net_device *dev)
+{
+	/* The usual linux hard_start_xmit() handler of a net_device */
+	...
+}
+
+unregister_hdlc_device() balances register_hdlc_device().
+hdlc_to_dev(hdlc) is the counterpart of dev_to_hdlc(dev).
+
+Impressing, is not it ?
+
+--
+Ueimor

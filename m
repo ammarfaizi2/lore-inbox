@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272942AbRIRJHh>; Tue, 18 Sep 2001 05:07:37 -0400
+	id <S273240AbRIRJUA>; Tue, 18 Sep 2001 05:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273230AbRIRJH1>; Tue, 18 Sep 2001 05:07:27 -0400
-Received: from t2.redhat.com ([199.183.24.243]:45816 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S272942AbRIRJHM>; Tue, 18 Sep 2001 05:07:12 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3BA69421.6020304@foogod.com> 
-In-Reply-To: <3BA69421.6020304@foogod.com>  <E15ixGu-0006ym-00@the-village.bc.nu> 
-To: Alex Stewart <alex@foogod.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lazy umount (1/4) 
-Mime-Version: 1.0
+	id <S273253AbRIRJTv>; Tue, 18 Sep 2001 05:19:51 -0400
+Received: from ip122-15.asiaonline.net ([202.85.122.15]:61376 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S273240AbRIRJTj>; Tue, 18 Sep 2001 05:19:39 -0400
+Message-ID: <3BA710EF.FC38A28B@rcn.com.hk>
+Date: Tue, 18 Sep 2001 17:16:31 +0800
+From: David Chow <davidchow@rcn.com.hk>
+Organization: Resources Computer Network Ltd.
+X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.4-1DC i686)
+X-Accept-Language: zh_TW, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: EFAULT from file read.
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 18 Sep 2001 10:07:25 +0100
-Message-ID: <20391.1000804045@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear all,
 
-alex@foogod.com said:
-> >>1) Be able kill -9 processes from "D" state.
+I am having trouble in reading a file in the kernel space using the
+file->f_op->read call, everything is ok. I start off file->f_pos = 0 . I
+also did a mntget to the super block before I call
+"file=dentry_open(.....)" . I intend to open the file in read only mode.
+What can be wrong? I have also check the inode->i_size is large enough
+for me to just read 8 bytes from the file. I keep having EFAULT error
+from the read call... also before calling mntget, also did a dget to the
+dentry. Any help is welcomed. Thanks.
 
-> Please note that there is a reason why the "D" state exists, and it is
->  because there are certain times when interrupting a process can have
-> significant consequences on the integrity of the entire filesystem (or
->  other global resource) and must not be allowed for consistency.  As
-> it  happens, most of the conditions which cause processes to get
-> "stuck" in  disk-wait state (usually because of hardware issues)
-> happen to be  exactly the places where it's most difficult to work
-> around this (at  least for physically-backed filesystems, less so for
-> NFS et al)
+regards,
 
-What you say is true - implementing proper cleanup code for the case where
-an operation is interrupted is complex and not always reasonably possible.
-
-But that's an exceedingly poor excuse for not bothering to do so, in many
-situations.
-
---
-dwmw2
-
-Filesystems are hard. Let's go shopping.
-
+David Chow

@@ -1,38 +1,177 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131736AbQKVNmK>; Wed, 22 Nov 2000 08:42:10 -0500
+        id <S129851AbQKVNun>; Wed, 22 Nov 2000 08:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129851AbQKVNlv>; Wed, 22 Nov 2000 08:41:51 -0500
-Received: from [209.249.10.20] ([209.249.10.20]:35241 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S131736AbQKVNlt>; Wed, 22 Nov 2000 08:41:49 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 22 Nov 2000 05:11:48 -0800
-Message-Id: <200011221311.FAA20824@baldur.yggdrasil.com>
-To: hch@caldera.de
-Subject: Re: Patch(?): pci_device_id tables for drivers/scsi in 2.4.0-test11
-Cc: linux-kernel@vger.kernel.org
+        id <S130772AbQKVNud>; Wed, 22 Nov 2000 08:50:33 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:31471 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S129851AbQKVNuW>;
+        Wed, 22 Nov 2000 08:50:22 -0500
+Date: Wed, 22 Nov 2000 14:20:14 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011221320.OAA140634.aeb@aak.cwi.nl>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] isofs/inode.c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@caldera.de> writes:
+Here the second patch in the isofs series.
+inode.c:isofs_read_super() dereferences the variable pri
+that need not be set in case of a Joliet CD, causing an Oops.
+Patch below.
 
->Neither there are lots of NULL-initilized fields nor is
->there any reason to add new fields (the pci tables are external
->API, because of MODULE_DEVICE_TABLE).
+Andries
 
-	PCI ID matching relies on the zeros being filled in for
-an empty value in the case of class_mask.  depmod deliberately
-includes a format comment at the start of modules.pcimap so that the
-structure can be changed in the future.
+[While editing the diff, I left a fix for aha1542.c,
+maybe you got it already.  I also left something else
+that always annoyed me: valuable screen space (on a 24x80 vt)
+is lost by these silly [< >] around addresses in an Oops.
+They provide no information at all, but on the other hand
+cause loss of information because these lines no longer
+fit in 80 columns causing line wrap and the loss of the
+top of the Oops.]
 
-	However, thanks for your feedback.  I will take it into
-consideration.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+diff -u --recursive --new-file ../linux-2.4.0-test11/linux/arch/i386/kernel/traps.c ./linux/arch/i386/kernel/traps.c
+--- ../linux-2.4.0-test11/linux/arch/i386/kernel/traps.c	Tue Nov 21 21:44:05 2000
++++ ./linux/arch/i386/kernel/traps.c	Mon Nov 20 12:17:11 2000
+@@ -146,7 +146,7 @@
+ 		    ((addr >= module_start) && (addr <= module_end))) {
+ 			if (i && ((i % 8) == 0))
+ 				printk("\n       ");
+-			printk("[<%08lx>] ", addr);
++			printk("%08lx ", addr);	/* not [<...>] */
+ 			i++;
+ 		}
+ 	}
+@@ -166,7 +166,7 @@
+ 		esp = regs->esp;
+ 		ss = regs->xss & 0xffff;
+ 	}
+-	printk("CPU:    %d\nEIP:    %04x:[<%08lx>]\nEFLAGS: %08lx\n",
++	printk("CPU:    %d\nEIP:    %04x:%08lx\nEFLAGS: %08lx\n",
+ 		smp_processor_id(), 0xffff & regs->xcs, regs->eip, regs->eflags);
+ 	printk("eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
+ 		regs->eax, regs->ebx, regs->ecx, regs->edx);
+diff -u --recursive --new-file ../linux-2.4.0-test11/linux/drivers/scsi/aha1542.c ./linux/drivers/scsi/aha1542.c
+--- ../linux-2.4.0-test11/linux/drivers/scsi/aha1542.c	Tue Nov 21 21:44:10 2000
++++ ./linux/drivers/scsi/aha1542.c	Tue Nov 21 18:01:57 2000
+@@ -1416,6 +1416,7 @@
+ 			SCtmp = HOSTDATA(SCpnt->host)->SCint[i];
+ 			if (SCtmp->host_scribble) {
+ 				scsi_free(SCtmp->host_scribble, 512);
++				SCtmp->host_scribble = NULL;
+ 			}
+ 			HOSTDATA(SCpnt->host)->SCint[i] = NULL;
+ 			HOSTDATA(SCpnt->host)->mb[i].status = 0;
+@@ -1478,6 +1479,7 @@
+ 			}
+ 			if (SCtmp->host_scribble) {
+ 				scsi_free(SCtmp->host_scribble, 512);
++				SCtmp->host_scribble = NULL;
+ 			}
+ 			HOSTDATA(SCpnt->host)->SCint[i] = NULL;
+ 			HOSTDATA(SCpnt->host)->mb[i].status = 0;
+@@ -1546,6 +1548,7 @@
+ 			}
+ 			if (SCtmp->host_scribble) {
+ 				scsi_free(SCtmp->host_scribble, 512);
++				SCtmp->host_scribble = NULL;
+ 			}
+ 			HOSTDATA(SCpnt->host)->SCint[i] = NULL;
+ 			HOSTDATA(SCpnt->host)->mb[i].status = 0;
+@@ -1681,8 +1684,10 @@
+ 				Scsi_Cmnd *SCtmp;
+ 				SCtmp = HOSTDATA(SCpnt->host)->SCint[i];
+ 				SCtmp->result = DID_RESET << 16;
+-				if (SCtmp->host_scribble)
++				if (SCtmp->host_scribble) {
+ 					scsi_free(SCtmp->host_scribble, 512);
++					SCtmp->host_scribble = NULL;
++				}
+ 				printk(KERN_WARNING "Sending DID_RESET for target %d\n", SCpnt->target);
+ 				SCtmp->scsi_done(SCpnt);
+ 
+@@ -1725,8 +1730,10 @@
+ 						Scsi_Cmnd *SCtmp;
+ 						SCtmp = HOSTDATA(SCpnt->host)->SCint[i];
+ 						SCtmp->result = DID_RESET << 16;
+-						if (SCtmp->host_scribble)
++						if (SCtmp->host_scribble) {
+ 							scsi_free(SCtmp->host_scribble, 512);
++							SCtmp->host_scribble = NULL;
++						}
+ 						printk(KERN_WARNING "Sending DID_RESET for target %d\n", SCpnt->target);
+ 						SCtmp->scsi_done(SCpnt);
+ 
+diff -u --recursive --new-file ../linux-2.4.0-test11/linux/fs/isofs/inode.c ./linux/fs/isofs/inode.c
+--- ../linux-2.4.0-test11/linux/fs/isofs/inode.c	Tue Nov 21 21:44:14 2000
++++ ./linux/fs/isofs/inode.c	Wed Nov 22 13:22:09 2000
+@@ -500,15 +500,13 @@
+  	 * that value.
+  	 */
+  	blocksize = get_hardblocksize(dev);
+- 	if(    (blocksize != 0)
+- 	    && (blocksize > opt.blocksize) )
+- 	  {
++ 	if(blocksize > opt.blocksize) {
+  	    /*
+  	     * Force the blocksize we are going to use to be the
+  	     * hardware blocksize.
+  	     */
+  	    opt.blocksize = blocksize;
+- 	  }
++	}
+  
+ 	blocksize_bits = 0;
+ 	{
+@@ -594,6 +592,7 @@
+ 	    brelse(bh);
+ 	    bh = NULL;
+ 	}
++
+ 	/*
+ 	 * If we fall through, either no volume descriptor was found,
+ 	 * or else we passed a primary descriptor looking for others.
+@@ -605,9 +604,7 @@
+ 	pri_bh = NULL;
+ 
+ root_found:
+-	brelse(pri_bh);
+-
+-	if (joliet_level && opt.rock == 'n') {
++	if (joliet_level && (pri == NULL || opt.rock == 'n')) {
+ 	    /* This is the case of Joliet with the norock mount flag.
+ 	     * A disc with both Joliet and Rock Ridge is handled later
+ 	     */
+@@ -704,6 +701,7 @@
+ 	 * We're all done using the volume descriptor, and may need
+ 	 * to change the device blocksize, so release the buffer now.
+ 	 */
++	brelse(pri_bh);
+ 	brelse(bh);
+ 
+ 	/*
+@@ -873,8 +871,8 @@
+ /* Life is simpler than for other filesystem since we never
+  * have to create a new block, only find an existing one.
+  */
+-int isofs_get_block(struct inode *inode, long iblock,
+-		    struct buffer_head *bh_result, int create)
++static int isofs_get_block(struct inode *inode, long iblock,
++			   struct buffer_head *bh_result, int create)
+ {
+ 	unsigned long b_off;
+ 	unsigned offset, sect_size;
+diff -u --recursive --new-file ../linux-2.4.0-test11/linux/include/linux/iso_fs.h ./linux/include/linux/iso_fs.h
+--- ../linux-2.4.0-test11/linux/include/linux/iso_fs.h	Tue Nov 21 21:44:16 2000
++++ ./linux/include/linux/iso_fs.h	Tue Nov 21 13:39:44 2000
+@@ -185,7 +185,6 @@
+ int get_acorn_filename(struct iso_directory_record *, char *, struct inode *);
+ 
+ extern struct dentry *isofs_lookup(struct inode *, struct dentry *);
+-extern int isofs_get_block(struct inode *, long, struct buffer_head *, int);
+ extern int isofs_bmap(struct inode *, int);
+ extern struct buffer_head *isofs_bread(struct inode *, unsigned int, unsigned int);
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

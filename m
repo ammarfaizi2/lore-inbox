@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbTFQB6m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 21:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbTFQB5G
+	id S264536AbTFQBzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 21:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTFQBxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 21:57:06 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:58803 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S264538AbTFQB4S (ORCPT
+	Mon, 16 Jun 2003 21:53:32 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:64671 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S264531AbTFQBxG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 21:56:18 -0400
-Date: Mon, 16 Jun 2003 19:10:10 -0700
+	Mon, 16 Jun 2003 21:53:06 -0400
+Date: Mon, 16 Jun 2003 19:06:59 -0700
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Jeff Garzik <jgarzik@pobox.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] Static init fixes
-Message-ID: <20030617021010.GJ30944@bougret.hpl.hp.com>
+Subject: [PATCH 2.4] Secondary nack code fixes
+Message-ID: <20030617020659.GF30944@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,47 +27,43 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir241_static_init.diff :
-	o [CORRECT] fix some obvious static init bugs.
+ir241_secondary_rr.diff :
+	o [CORRECT] fix the secondary function to send RR and frames without
+		the poll bit when it detect packet losses
 
 
-diff -u -p linux/net/irda/irda_device.d0.c linux/net/irda/irda_device.c
---- linux/net/irda/irda_device.d0.c	Mon Jun 16 16:57:31 2003
-+++ linux/net/irda/irda_device.c	Mon Jun 16 17:06:46 2003
-@@ -68,6 +68,7 @@ extern int actisys_init(void);
- extern int girbil_init(void);
- extern int sa1100_irda_init(void);
- extern int ep7211_ir_init(void);
-+extern int mcp2120_init(void);
- 
- static void __irda_task_delete(struct irda_task *task);
- 
-@@ -122,6 +123,9 @@ int __init irda_device_init( void)
- 	/* 
- 	 * Call the init function of the device drivers that has not been
- 	 * compiled as a module 
-+	 * Note : non-modular IrDA is not supported in 2.4.X, so don't
-+	 * waste too much time fixing this code. If you require it, please
-+	 * upgrade to the IrDA stack in 2.5.X. Jean II
- 	 */
- #ifdef CONFIG_IRTTY_SIR
- 	irtty_init();
-@@ -135,7 +139,7 @@ int __init irda_device_init( void)
- #ifdef CONFIG_NSC_FIR
- 	nsc_ircc_init();
- #endif
--#ifdef CONFIG_TOSHIBA_FIR
-+#ifdef CONFIG_TOSHIBA_OLD
- 	toshoboe_init();
- #endif
- #ifdef CONFIG_SMC_IRCC_FIR
-@@ -161,6 +165,9 @@ int __init irda_device_init( void)
- #endif
- #ifdef CONFIG_EP7211_IR
-  	ep7211_ir_init();
-+#endif
-+#ifdef CONFIG_MCP2120_DONGLE
-+	mcp2120_init();
- #endif
- 	return 0;
- }
+diff -u -p linux/net/irda/irlap_event.d8.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d8.c	Mon Dec  2 16:12:36 2002
++++ linux/net/irda/irlap_event.c	Mon Dec  2 16:14:20 2002
+@@ -1869,7 +1869,7 @@ static int irlap_state_nrm_s(struct irla
+ 				irlap_update_nr_received(self, info->nr);
+ 			
+ 				irlap_wait_min_turn_around(self, &self->qos_tx);
+-				irlap_send_rr_frame(self, CMD_FRAME);
++				irlap_send_rr_frame(self, RSP_FRAME);
+ 			
+ 				irlap_start_wd_timer(self, self->wd_timeout);
+ 			}
+@@ -2033,18 +2033,18 @@ static int irlap_state_nrm_s(struct irla
+ 		irlap_update_nr_received(self, info->nr);
+ 		if (self->remote_busy) {
+ 			irlap_wait_min_turn_around(self, &self->qos_tx);
+-			irlap_send_rr_frame(self, CMD_FRAME);
++			irlap_send_rr_frame(self, RSP_FRAME);
+ 		} else
+-			irlap_resend_rejected_frames(self, CMD_FRAME);
++			irlap_resend_rejected_frames(self, RSP_FRAME);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		break;
+ 	case RECV_SREJ_CMD:
+ 		irlap_update_nr_received(self, info->nr);
+ 		if (self->remote_busy) {
+ 			irlap_wait_min_turn_around(self, &self->qos_tx);
+-			irlap_send_rr_frame(self, CMD_FRAME);
++			irlap_send_rr_frame(self, RSP_FRAME);
+ 		} else
+-			irlap_resend_rejected_frame(self, CMD_FRAME);
++			irlap_resend_rejected_frame(self, RSP_FRAME);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		break;
+ 	case WD_TIMER_EXPIRED:

@@ -1,96 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318216AbSHKJNJ>; Sun, 11 Aug 2002 05:13:09 -0400
+	id <S318261AbSHKJOp>; Sun, 11 Aug 2002 05:14:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318242AbSHKJNJ>; Sun, 11 Aug 2002 05:13:09 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:52356 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S318216AbSHKJNH>;
-	Sun, 11 Aug 2002 05:13:07 -0400
-To: <linux-kernel@vger.kernel.org>
-Cc: marcelo@conectiva.com.br, Stephane Wirtel <stephane.wirtel@belgacom.net>
-Subject: Re: [PATCH] 2.4.20-pre1 warnings cleanup
-References: <m3y9be2ulv.fsf@defiant.pm.waw.pl>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 11 Aug 2002 10:48:21 +0200
-In-Reply-To: <m3y9be2ulv.fsf@defiant.pm.waw.pl>
-Message-ID: <m3r8h5233e.fsf@defiant.pm.waw.pl>
+	id <S318262AbSHKJOp>; Sun, 11 Aug 2002 05:14:45 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:59354 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S318261AbSHKJOo>;
+	Sun, 11 Aug 2002 05:14:44 -0400
+Date: Sun, 11 Aug 2002 05:18:30 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Leopold Gouverneur <lgouv@pi.be>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3[01] does not boot for me
+In-Reply-To: <20020811081929.GA693@gouv>
+Message-ID: <Pine.GSO.4.21.0208110510280.12398-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
 
-Oops,
 
-Krzysztof Halasa <khc@pm.waw.pl> writes:
+On Sun, 11 Aug 2002, Leopold Gouverneur wrote:
 
-> The following patch clears some compiler warning messages from 2.4.20-pre1
-> and eliminates unused code.
+> 2.5.31 hangs during boot after:
+> 
+> hde 60036480 sectors w/1916 KiB cache CHS=59560/16/63, UDMA(44)
+> hde hde1 hde2 hde3 hde4 <
+> 
+> hde is a  IBM-DTLA-307030 on a HPT366 (Abit BP6) 2.5.29 boot OK
+> Sorry if it is a known problem!
 
-The patch is attached.
--- 
-Krzysztof Halasa
-Network Administrator
+Hrrmm...  That definitely sounds like partition-parser getting
+screwed in the middle of IO - it _does_ read the first sector
+and apparently hangs in attempt to read another one.  Very
+interesting, since AFAICS all changes that could have affected
+that place happened between .28 and .29.
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=warnings-2.4.20-pre1.patch
+Deadlocks in surrounding code are very unlikely, since it simply
+doesn't care about block number and would just as happily hang
+while reading the first sector.  Which it hadn't.
 
---- linux/arch/i386/kernel/dmi_scan.c.orig	Sat Aug  3 17:13:28 2002
-+++ linux/arch/i386/kernel/dmi_scan.c	Sat Aug  3 19:02:47 2002
-@@ -186,12 +186,13 @@
- #define MATCH(a,b)	{ a, b }
- 
- /*
-- *	We have problems with IDE DMA on some platforms. In paticular the
-+ *	We have problems with IDE DMA on some platforms. In particular the
-  *	KT7 series. On these it seems the newer BIOS has fixed them. The
-  *	rule needs to be improved to match specific BIOS revisions with
-  *	corruption problems
-- */ 
-- 
-+ */
-+
-+#if 0
- static __init int disable_ide_dma(struct dmi_blacklist *d)
- {
- #ifdef CONFIG_BLK_DEV_IDE
-@@ -204,6 +205,7 @@
- #endif	
- 	return 0;
- }
-+#endif
- 
- /* 
-  * Reboot options and system auto-detection code provided by
---- linux/init/do_mounts.c.orig	Sat Aug  3 17:14:32 2002
-+++ linux/init/do_mounts.c	Sat Aug  3 18:26:32 2002
-@@ -882,6 +882,7 @@
- #define WSIZE 0x8000    /* window size--must be a power of two, and */
- 			/*  at least 32K for zip's deflate method */
- 
-+#ifdef CONFIG_BLK_DEV_RAM
- static uch *inbuf;
- static uch *window;
- 
-@@ -1006,5 +1007,6 @@
- 	kfree(window);
- 	return result;
- }
-+#endif /* CONFIG_BLK_DEV_RAM */
- 
- #endif  /* BUILD_CRAMDISK */
---- linux/arch/i386/kernel/setup.c.orig	Sat Aug  3 17:13:29 2002
-+++ linux/arch/i386/kernel/setup.c	Sat Aug  3 19:17:22 2002
-@@ -175,6 +175,8 @@
- static int disable_x86_fxsr __initdata = 0;
- static int disable_x86_ht __initdata = 0;
- 
-+static int __init have_cpuid_p(void);
-+
- int enable_acpi_smp_table;
- 
- #if defined(CONFIG_AGP) || defined(CONFIG_AGP_MODULE)
+Could you give the output of fdisk -lu /dev/hde? (after booting a working
+kernel, obviously ;-)
 
---=-=-=--

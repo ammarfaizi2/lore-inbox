@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVDEJkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVDEJog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVDEJkN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVDEJfr
+	id S261652AbVDEJog (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVDEJnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:35:47 -0400
-Received: from verein.lst.de ([213.95.11.210]:20919 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261656AbVDEJdS (ORCPT
+	Tue, 5 Apr 2005 05:43:15 -0400
+Received: from smtp2.wanadoo.fr ([193.252.22.29]:24470 "EHLO smtp2.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261652AbVDEJgo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:33:18 -0400
-Date: Tue, 5 Apr 2005 11:32:58 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ian Campbell <ijc@hellion.org.uk>, Sven Luther <sven.luther@wanadoo.fr>,
-       "Theodore Ts'o" <tytso@mit.edu>, Greg KH <greg@kroah.com>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+	Tue, 5 Apr 2005 05:36:44 -0400
+X-ME-UUID: 20050405093640826.C9A4D1C001DA@mwinf0206.wanadoo.fr
+Date: Tue, 5 Apr 2005 11:33:20 +0200
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, Matthew Wilcox <matthew@wil.cx>,
+       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org, Jes Sorensen <jes@trained-monkey.org>,
+       linux-acenic@sunsite.dk
 Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050405093258.GA18523@lst.de>
-References: <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian> <20050405083217.GA22724@pegasos> <1112690965.3086.107.camel@icampbell-debian> <20050405091144.GA18219@lst.de> <1112693287.6275.30.camel@laptopd505.fenrus.org>
+Message-ID: <20050405093320.GA26377@pegasos>
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk> <42519BCB.2030307@pobox.com> <20050404202706.GB3140@pegasos> <4251A7E8.6050200@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1112693287.6275.30.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <4251A7E8.6050200@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 11:28:07AM +0200, Arjan van de Ven wrote:
-> I think they will be accepted if they first introduce a transition
-> period where tg3 will do request_firmware() and only use the built-in
-> firmware if that fails.
+Hello Jeff, ...
 
-Fine with me.
+If i can believe what i see in :
 
-> Second step is to make the built-in firmware a
-> config option and then later on when the infrastructure matures for
-> firmware loading/providing firmware it can be removed from the driver
-> entirely.
+  http://linux.bkbits.net:8080/linux-2.6/anno/drivers/net/tg3.c@1.255?nav=index.html|src/|src/drivers|src/drivers/net|related/drivers/net/tg3.c|cset@1.2181.28.39
 
-I think the infrasturcture is quite mature.  We have a lot of drivers
-that require it to function.
+(which may or may not be correct and complete, since i am not really familiar
+with bk and how things where back then), you imported the tg3 firmware in our
+bk repo on 2002/03/07 :
 
-> One of the sticking points will be how people get the firmware; I can
-> see the point of a kernel-distributable-firmware project related to the
-> kernel (say on kernel.org) which would provide a nice collection of
-> distributable firmwares (and is appropriately licensed). Without such
-> joint infrastructure things will always be a mess and in that context I
-> can see the point of the driver authors not immediately wanting to
-> switch exclusively. Simply because they'll get swamped with email about
-> how the driver doesn't work...
+2002/03/07 jgarzik            | 	0x00000000, 0x10000003, 0x00000000, 0x0000000d, 0x0000000d, 0x3c1d0800,
+2002/03/07 jgarzik            | 	0x37bd3ffc, 0x03a0f021, 0x3c100800, 0x26100000, 0x0e000018, 0x00000000,
+2002/03/07 jgarzik            | 	0x0000000d, 0x3c1d0800, 0x37bd3ffc, 0x03a0f021, 0x3c100800, 0x26100034,
 
-I agree.  And that really doesn't need a lot of infrastructure,
-basically just a tarball that unpacks to /lib/firmware, maybe a specfile
-and debian/ dir in addition.
+The changelog importing them says :
+
+  Merge new tg3 version 0.96 gigabit ethernet driver. 
+
+So i suppose this comes from a pre-bk tree or something, altough the whole
+copyright of that file is marked as copyrighted by you and davem.
+
+Where did you get that firmware from and under which licence ? And would you
+approve of a patch marking this blob as non-GPLed, and we could add the
+licencing text for it that you originally got it under ? Does this make sense ?
+
+Or do you believe i should go ahead and approach broadcom, claiming something
+like the following :
+
+  "We have noticed that an unlicenced firmware blob whose copyright you hold
+  is present in the linux tg3 driver. In order to clarify this situation, we
+  would like to know if it is ok to distribute said binary firmware blob, and
+  know under what licence it comes."
+
+BTW, also, i am not entirely sure if such changes can be done only by you, or
+need approval of everyone who contributed GPL code to that file since then,
+altough i believe that since the firmware blob is an agregation, it should not
+matter, and only the original checkin you did is the one we need to account
+for.
+
+I understand this is bothersome to everyone, but the code base will be a
+cleaner one once we solve this issue, don't you think ? 
+
+Friendly,
+
+Sven Luther
+
+

@@ -1,15 +1,15 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUGYIK7 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 25 Jul 2004 04:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbUGYIK5
+	id S262382AbUGYMIA (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 25 Jul 2004 08:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUGYMH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 04:10:57 -0400
-Received: from [193.0.243.250] ([193.0.243.250]:40657 "EHLO postfix7.ofir.com")
-	by vger.kernel.org with ESMTP id S263740AbUGYIKu convert rfc822-to-8bit
+	Sun, 25 Jul 2004 08:07:59 -0400
+Received: from [193.0.243.246] ([193.0.243.246]:62945 "EHLO postfix3.ofir.com")
+	by vger.kernel.org with ESMTP id S262380AbUGYMHx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 04:10:50 -0400
-X-WM-Posted-At: webmail1.ofir.dk; Sun, 25 Jul 04 10:10:44 +0200
-Date: Sun, 25 Jul 2004 10:10:44 +0200
+	Sun, 25 Jul 2004 08:07:53 -0400
+X-WM-Posted-At: webmail1.ofir.dk; Sun, 25 Jul 04 14:07:43 +0200
+Date: Sun, 25 Jul 2004 14:07:43 +0200
 From: benedicta hendircks <dircks1000@ofir.dk>
 X-EXP32-SerialNo: 00002117
 Subject: Hello
@@ -17,11 +17,11 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 X-Mailer: WebMail (Hydra) SMTP v3.51
-Message-Id: <20040725081046.87D64AC1B3@postfix7.ofir.com>
+Message-Id: <20040725120539.B268C1A2E7A@postfix3.ofir.com>
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S263775AbUGYIK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262382AbUGYMIA@vger.kernel.org>
 
 Greetings,
 

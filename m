@@ -1,21 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261866AbSKCNqJ>; Sun, 3 Nov 2002 08:46:09 -0500
+	id <S261861AbSKCNsy>; Sun, 3 Nov 2002 08:48:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261868AbSKCNqJ>; Sun, 3 Nov 2002 08:46:09 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:22912 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261866AbSKCNqI>; Sun, 3 Nov 2002 08:46:08 -0500
-Cc: Oliver Xymoron <oxymoron@waste.org>, Alexander Viro <viro@math.psu.edu>,
-       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <davej@suse.de>
-References: <Pine.LNX.4.44.0211022144070.2934-100000@home.transmeta.com>
+	id <S261868AbSKCNsy>; Sun, 3 Nov 2002 08:48:54 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:39301 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261861AbSKCNsx>; Sun, 3 Nov 2002 08:48:53 -0500
+Cc: Dax Kelson <dax@gurulabs.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Alexander Viro <viro@math.psu.edu>, "Theodore Ts'o" <tytso@mit.edu>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "davej@suse.de" <davej@suse.de>
+References: <20021103035017.GD18884@waste.org>
+	<Pine.LNX.4.44.0211022052180.20616-100000@mooru.gurulabs.com>
+	<20021103041055.GE18884@waste.org>
 From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-To: Linus Torvalds <torvalds@transmeta.com>
+To: Oliver Xymoron <oxymoron@waste.org>
 Subject: Re: Filesystem Capabilities in 2.6?
-Date: Sun, 03 Nov 2002 14:52:18 +0100
-Message-ID: <877kfuvjzh.fsf@goat.bogus.local>
+Date: Sun, 03 Nov 2002 14:55:13 +0100
+Message-ID: <87smyisqpq.fsf@goat.bogus.local>
 User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
  i386-debian-linux)
 MIME-Version: 1.0
@@ -23,33 +26,23 @@ Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Oliver Xymoron <oxymoron@waste.org> writes:
 
-> On the other hand, I have this suspicion that the most secure setup is one 
-> that the sysadmin is _used_ to, and knows all the pitfalls of. Which 
-> obviously is a big argument for just maintaining the status quo with suid 
-> binaries.
+> Generally, though there'd need to be an option to emulate, say, setgid
+> mail.
 
-As is shown every now and then, when the next security hole is
-reported. So we stay at the lowest common denominator.
+Look at sucap and execcap available with libcap. Combine them and you
+get a capability wrapper.
 
-I've always had good experience with educating people, not with
-dumbing them down. But maybe I've been just lucky then and worked
-with very smart people.
+> On Sat, Nov 02, 2002 at 09:00:38PM -0700, Dax Kelson wrote:
+>
+>> Currently all capabilities are cleared when non-root app does a execp. 
+>> This would need to be addressed.
+>
+> Hrmm. I thought the inherit mask dealt with that. 
 
-> We have decades of knowledge on how to minimize the negative impact of
-> suid (I've used sendmail as an example of a suid program, and yet last I
-> looked sendmail was actually pretty careful about dropping all unnecessary
-> privileges very early on).
-
-So we throw out the baby with the bath water. This is conservatism at
-it's worst.
-
-> And as Al points out, new security features don't mean that you can just
-> stop being careful. 
-
-Stating the obvious. Capabilities are not an end in itself, nor is suid
-root. It's just another line of defense to help with these binaries,
-which are _not_ capability aware.
+You need the inherit set of the parent process _and_ the inherit set
+of the binary to agree. For the latter you need some sort of fs
+capabilities.
 
 Regards, Olaf.

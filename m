@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264105AbTKJTsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 14:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbTKJTsJ
+	id S264087AbTKJTfD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 14:35:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTKJTeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 14:48:09 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:52677 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264105AbTKJTsH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 14:48:07 -0500
-Message-ID: <3FAFEB6A.9030206@colorfullife.com>
-Date: Mon, 10 Nov 2003 20:47:54 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-CC: Petr Vandrovec <vandrove@vc.cvut.cz>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: EFAULT reading /dev/mem... - broken x86info
-References: <20031108162737.GB26350@vana.vc.cvut.cz> <20031110161114.GM10144@redhat.com> <3FAFC1D1.3090309@colorfullife.com> <20031110165654.GS10144@redhat.com> <3FAFC831.4090108@colorfullife.com> <20031110180551.GA20168@vana.vc.cvut.cz> <3FAFDFFF.70100@colorfullife.com> <3FAFE8D5.4020102@kolumbus.fi>
-In-Reply-To: <3FAFE8D5.4020102@kolumbus.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 10 Nov 2003 14:34:02 -0500
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:52752 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S264094AbTKJTcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 14:32:51 -0500
+Date: Mon, 10 Nov 2003 20:31:34 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: David Hinds <dahinds@users.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] pcmcia/sa1100_stork.c doesn't need i2c
+Message-Id: <20031110203134.7cf624f7.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mika Penttilä wrote:
+Hi David, hi all,
 
-> afaics, agp uses change_apge_attr() to turn on NOCACHE bit, and 
-> doesn't remove the mapping.
+The pcmcia/sa1100_stork.c file has an include on i2c.h, while it doesn't seem to make any use of it. The simple patch below fixes that. Same applies to Linux 2.6, post follows.
 
-Ops, you are right. Hmm. I'll add code to /dev/mem for DEBUG_PAGEALLOC, 
-but it might take some time.
+--- linux-2.4.23-pre9/drivers/pcmcia/sa1100_stork.c.orig	Tue Jul 15 12:23:03 2003
++++ linux-2.4.23-pre9/drivers/pcmcia/sa1100_stork.c	Mon Nov 10 19:58:18 2003
+@@ -24,7 +24,6 @@
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+-#include <linux/i2c.h>
+ 
+ #include <asm/hardware.h>
+ #include <asm/irq.h>
 
---
-    Manfred
+Please apply.
 
-
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

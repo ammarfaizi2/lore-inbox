@@ -1,56 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266981AbTBLJtK>; Wed, 12 Feb 2003 04:49:10 -0500
+	id <S266989AbTBLJ62>; Wed, 12 Feb 2003 04:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266987AbTBLJtK>; Wed, 12 Feb 2003 04:49:10 -0500
-Received: from ishtar.tlinx.org ([64.81.58.33]:42935 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id <S266981AbTBLJtJ>;
-	Wed, 12 Feb 2003 04:49:09 -0500
-From: "LA Walsh" <law@tlinx.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: lsm truly "generic" allowing complete choice?  Clean? Simple? Idon't think so.
-Date: Wed, 12 Feb 2003 01:58:53 -0800
-Message-ID: <004301c2d27d$5997c9e0$1403a8c0@sc.tlinx.org>
+	id <S266986AbTBLJ62>; Wed, 12 Feb 2003 04:58:28 -0500
+Received: from [128.222.32.10] ([128.222.32.10]:17376 "EHLO mxic1.corp.emc.com")
+	by vger.kernel.org with ESMTP id <S266983AbTBLJ6Y>;
+	Wed, 12 Feb 2003 04:58:24 -0500
+Message-ID: <70652A801D9E0C469C28A0F8BCF49CF9012EBA15@itmi1mx2.corp.emc.com>
+From: Ballabio_Dario@emc.com
+To: manfred@colorfullife.com, warp@mercury.d2dc.net
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-eata@i-connect.net
+Subject: RE: eata irq abuse (was: Re: Linux 2.5.60)
+Date: Wed, 12 Feb 2003 05:08:07 -0500
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <200302121010.56366.russell@coker.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Russell Coker
-> linux-kernel mailing list removed from the CC list (again), they've 
-> probably heard too much of this discussion already.  
----
-	It was isolation away from the mainline kernel list that allowed
-the current patchwork design.  Attempts to clarify the LSM list charter
-which ended up on lkml resulted in movements to silence those 
-questioning the emperor's new clothes (or lack thereof).  LSM project
-members want their changes in the kernel code *today*.  It is appropriate
-to discuss design methodolgy on the kernel list since design
-methodology discussion was forbidden on lkml as was any interaction 
-with the linux community.  Quite frankly, the brown-nosing, back-slapping
-politics really put a bitter taste on things that were naively believed
-to be based more on technocracy than making people 'look good' and
-commercial self-interest.
+Yes, you are correct. I used spin_unlock in order to release the local
+driver lock
+during the scsi_register call, but I forgot that I had the irq disabled as
+well.
+SO the correct fix is to use spin_unlock_irq/spin_lock_irq around the
+scsi_register call. Same fix applies to the u14-34f driver.
 
-> If making the DAC code a module slows down non-LSM servers 
-> and takes a lot of 
-> programmer time to implement, is it a useful effort?
----
+Cheers,
 
-	It was already done -- the mainline kernel modules were done in
-about 2 person-months of motivated programmer time.   There was no measured slowdown of non-LSM servers.  Changes done earlier by
-the same project
-lead of that project had all changes in the mainline kernel code compile
-to nothing when compiled out.  Performance was a consideration in the
-implementation.
+*********************************
+Ph.D. Dario Ballabio
+EMC Computer Systems Italia spa
+Mobile phone +393487978851
+Office phone +390244571315
+Mobile fax   +393487951622
 
--l
+*** Si vis pacem, para bellum ***
 
+
+-----Original Message-----
+From: Manfred Spraul [mailto:manfred@colorfullife.com]
+Sent: Tuesday, February 11, 2003 6:46 PM
+To: Zephaniah E. Hull
+Cc: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org;
+linux-eata@i-connect.net
+Subject: eata irq abuse (was: Re: Linux 2.5.60)
+
+
+Zephaniah wrote:
+
+>kernel BUG at mm/slab.c:1102!
+
+Slab notices that a function that expects enabled local interrupts is called
+with disabled local interrupts.
+
+
+>Call Trace:
+> [<c014a3b3>] do_tune_cpucache+0x83/0x240
+
+do_tune_cpucache:
+the function call smp_call_function(), and that is only permitted with
+enabled local interrupts. The complain is correct.
+
+
+> [<c014a300>] do_ccpupdate_local+0x0/0x30
+> [<c014a5c1>] enable_cpucache+0x51/0x80
+> [<c0148ea5>] kmem_cache_create+0x4a5/0x560
+
+Within kmem_cache_create. kmem_cache_create checks for in_interrupt(), thus
+someone probably does
+
+	spin_lock_irqsave();
+	kmem_cache_create();
+
+
+> [<c0285dd2>] scsi_setup_command_freelist+0xa2/0x130
+
+calls kmem_cache_create()
+
+> [<c02887e0>] scsi_register+0x3c0/0x660
+
+calls scsi_setup_command_freelist
+
+
+> [<c02919a1>] get_pci_dev+0x31/0x50
+
+?? probably stale
+
+> [<c0291df2>] port_detect+0x3c2/0xe50
+
+Do you have an eata scsi controller?
+
+Ugs.
+eata2x_detect():
+* spin_lock_irqsave();
+* calls port_detect();
+* * spin_unlock();
+* * scsi_register.
+
+Eata maintainers: Is that necessary?
+Why do the interrupts remain disabled across scsi_register?
+Is that a bug workaround, or an oversight?
+I'd use
+
+	spin_unlock_irq();
+	scsi_register();
+	spin_lock_irq();
+
+--
+	Manfred
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

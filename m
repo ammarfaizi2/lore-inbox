@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTKYBxv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 20:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTKYBxv
+	id S261842AbTKYCFn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 21:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTKYCFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 20:53:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19363 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261916AbTKYBxu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 20:53:50 -0500
-Date: Mon, 24 Nov 2003 18:00:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: Re: 2.6.-test10: bad "__might_sleep" in ALSA sound drivers
-Message-Id: <20031124180017.70d58566.akpm@osdl.org>
-In-Reply-To: <1069718546.2268.9.camel@moria.arnor.net>
-References: <1069718546.2268.9.camel@moria.arnor.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 24 Nov 2003 21:05:43 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:44449 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S261842AbTKYCFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 21:05:39 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Date: Tue, 25 Nov 2003 13:05:26 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16322.47334.29252.724441@notabene.cse.unsw.edu.au>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       oliver@neukum.name, aliakc@web.de, lenehan@twibble.org,
+       mingo@redhat.com
+Subject: Re: kernel BUG at raid5.c:337!
+In-Reply-To: message from Albert Cahalan on  November 24
+References: <1069721971.723.408.camel@cube>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Torrey Hoffman <thoffman@arnor.net> wrote:
->
-> I get this every time I boot 2.6.0-test10.  I think this problem has
-> been around for a while.
+On  November 24, albert@users.sourceforge.net wrote:
+> Got a picture of a crash on a kiosk or something, as
+> a Linux example in Slashdot's public BSOD sightings...
 > 
-> Debug: sleeping function called from invalid context at
-> include/asm/semaphore.h:119
-> in_atomic():1, irqs_disabled():0
-> Call Trace:
->  [<c01229d0>] __might_sleep+0xab/0xc9
->  [<fcff57bd>] ap_cs8427_sendbytes+0x38/0xd2 [snd_ice1712]
->  [<fcfa825a>] snd_i2c_sendbytes+0x22/0x26 [snd_i2c]
->  [<fcfaf15e>] snd_cs8427_reg_read+0x2c/0x8c [snd_cs8427]
->  [<fcfaf414>] snd_cs8427_create+0xa4/0x347 [snd_cs8427]
->  [<c02dc4b0>] snd_device_new+0x20/0x6a
->  [<fcff151a>] snd_ice1712_init_cs8427+0x2f/0x6f [snd_ice1712]
->  [<fcff6153>] snd_ice1712_delta_init+0x230/0x2b9 [snd_ice1712]
->  [<fcff5227>] snd_ice1712_probe+0x323/0x34c [snd_ice1712]
+> http://w3.physics.uiuc.edu/~menscher/tekram1.jpg
+> 
+> So... unknown kernel version, but there's a
+> line number that ought to narrow things down.
+> 
+> Can anybody help this guy?  :-)
+> 
 
-snd_cs8427_create() does:
+Well, given that it could be any release, pre-release, vendor, or
+local-patched kernel since 2.2.something, even if you found one with a
+BUG at raid5.c:337 you couldn't be sure that you had found the right
+one, the only suggestion that I would have, assuming the owner of the
+machine wanted a suggestion, is "Upgrade to a current kernel".
 
-	snd_i2c_lock(bus);
-	if ((err = snd_cs8427_reg_read(device, CS8427_REG_ID_AND_VER)) != CS8427_VER8427A) {
-
-the first statement takes a spinlock.  snd_cs8427_reg_read() then calls
-ap_cs8427_sendbytes() which downs a semaphore.
-
-
-It might be more appropriate to use a semaphore for ice1712_t.gpio_mutex?
-
+NeilBrown
 

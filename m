@@ -1,60 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUGUIeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUGUJNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266467AbUGUIeO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 04:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUGUIeO
+	id S266476AbUGUJNf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 05:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUGUJNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 04:34:14 -0400
-Received: from tentacle.s2s.msu.ru ([193.232.119.109]:60549 "EHLO
-	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
-	id S266467AbUGUIeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 04:34:09 -0400
-Date: Wed, 21 Jul 2004 12:34:06 +0400
-From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: r8169 in 2.6.7: transfer stops after few seconds
-Message-ID: <20040721083406.GA5785@usr.lcm.msu.ru>
+	Wed, 21 Jul 2004 05:13:34 -0400
+Received: from cantor.suse.de ([195.135.220.2]:51118 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266476AbUGUJNa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 05:13:30 -0400
+Date: Wed, 21 Jul 2004 11:12:49 +0200
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org, Paul Mackeras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Olaf Hering <olh@suse.de>
+Subject: reserve legacy io regions on powermac
+Message-ID: <20040721091249.GA1336@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-X-Organization: Moscow State Univ., Dept. of Mechanics and Mathematics
-X-Operating-System: Linux 2.4.26
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-My realtek-8169 based NIC doesn't work with 2.6.
-Kernel versions tried: 2.6.7, 2.6.7-mm7.
-Works OK with 2.4.26.
+Anton pointed this out.
 
-Symptoms: after few dozen packets, transfer stops,
-both with TCP and with flood ping.
-I can revive NIC by doing ifdown and ifup again.
+ppc32 can boot one single binary on prep, chrp and pmac boards.
+pmac has no legacy io, probing for PC style legacy hardware leads to a
+hard crash.
+Several patches exist to prevent serial, floppy, ps2, parport and other
+drivers from probing these io ports.
+I think the simplest fix for 2.6 is a request_region of the problematic
+areas.
+PCMCIA is still missing.
+I found that partport_pc.c pokes at varios ports, without claiming the
+ports first. Should this be fixed?
+smsc_check(), winbond_check(), winbond_check2()
 
-The card is NetInfo NA-G32:
 
-0000:00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit Ethernet (rev 10)
-        Subsystem: Realtek Semiconductor Co., Ltd. RTL-8169 Gigabit Ethernet
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (8000ns min, 16000ns max), Cache Line Size: 0x08 (32 bytes)
-        Interrupt: pin A routed to IRQ 10
-        Region 0: I/O ports at c800 [size=256]
-        Region 1: Memory at efffbf00 (32-bit, non-prefetchable) [size=256]
-        Expansion ROM at effd0000 [disabled] [size=64K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-        Capabilities: [60] Vital Product Data
+If this approach is acceptable, ppc64 needs something similar.
+Maybe we can put that into generic code, hidden inside CONFIG_PPC_PMAC?
 
-I'm trying to use this NIC with AMD750-based motherboard (Gigabyte 7IXE4).
 
-Is there any other info I can supply you with to debug this problem?
+--- linux-2.6.8-rc2/arch/ppc/platforms/pmac_pci.c	2004-06-16 07:19:23.000000000 +0200
++++ linux-2.6.8-rc2-legacy/arch/ppc/platforms/pmac_pci.c	2004-07-21 10:46:50.000000000 +0200
+@@ -883,11 +883,59 @@ pcibios_fixup_OF_interrupts(void)
+ 	}
+ }
+ 
++#define I8042_DATA_REG 0x60UL
++#define I8250_2_DATA_REG 0x2e0UL
++#define I8250_3_DATA_REG 0x3e0UL
++
++#define PARPORT_278_DATA_REG 0x278UL
++#define PARPORT_371_DATA_REG 0x371UL
++#define PARPORT_378_DATA_REG 0x378UL
++#define PARPORT_3BC_DATA_REG 0x3bcUL
++#define PARPORT_678_DATA_REG 0x678UL
++#define PARPORT_778_DATA_REG 0x778UL
++#define PARPORT_7BC_DATA_REG 0x7bcUL
++
++#define ISAPNP_WRITE_213_DATA_REG 0x213UL
++#define ISAPNP_WRITE_233_DATA_REG 0x233UL
++#define ISAPNP_WRITE_253_DATA_REG 0x253UL
++#define ISAPNP_WRITE_273_DATA_REG 0x273UL
++#define ISAPNP_WRITE_393_DATA_REG 0x393UL
++#define ISAPNP_WRITE_3B3_DATA_REG 0x3b3UL
++#define ISAPNP_WRITE_3D3_DATA_REG 0x3d3UL
++#define ISAPNP_WRITE_3F3_DATA_REG 0x3f3UL
++#define ISAPNP_WRITE_A19_DATA_REG 0xa19UL
++
++static void __init
++pmac_request_regions(void)
++{
++	printk("%s(%u)\n",__FUNCTION__,__LINE__);
++	request_region(I8042_DATA_REG, 16, "reserved (no i8042)");
++	request_region(I8250_2_DATA_REG, 32, "reserved (no i8250)");
++	request_region(I8250_3_DATA_REG, 32, "reserved (no i8250)");
++	request_region(PARPORT_278_DATA_REG, 8, "reserved (no parport");
++	request_region(PARPORT_371_DATA_REG, 7, "reserved (no parport");
++	request_region(PARPORT_378_DATA_REG, 8, "reserved (no parport");
++	request_region(PARPORT_3BC_DATA_REG, 8, "reserved (no parport");
++	request_region(PARPORT_678_DATA_REG, 8, "reserved (no parport");
++	request_region(PARPORT_778_DATA_REG, 8, "reserved (no parport");
++	request_region(PARPORT_7BC_DATA_REG, 8, "reserved (no parport");
++	request_region(ISAPNP_WRITE_A19_DATA_REG, 1, "reserved (no isa-pnp)");
++	request_region(ISAPNP_WRITE_213_DATA_REG, 1, "reserved (no isa-pnp)");
++	request_region(ISAPNP_WRITE_233_DATA_REG, 1, "reserved (no isa-pnp)");
++	request_region(ISAPNP_WRITE_253_DATA_REG, 1, "reserved (no isa-pnp)");
++	request_region(ISAPNP_WRITE_273_DATA_REG, 1, "reserved (no isa-pnp)");
++	request_region(ISAPNP_WRITE_393_DATA_REG, 1, "reserved (no isa-pnp)");
++	request_region(ISAPNP_WRITE_3B3_DATA_REG, 1, "reserved (no isa-pnp)");
++	request_region(ISAPNP_WRITE_3D3_DATA_REG, 1, "reserved (no isa-pnp)");
++	request_region(ISAPNP_WRITE_3F3_DATA_REG, 1, "reserved (no isa-pnp)");
++}
++
+ void __init
+ pmac_pcibios_fixup(void)
+ {
+ 	/* Fixup interrupts according to OF tree */
+ 	pcibios_fixup_OF_interrupts();
++	pmac_request_regions();
+ }
+ 
+ int __pmac
 
-~
-:wq
-                                        With best regards, 
-                                           Vladimir Savkin. 
+-- 
+USB is for mice, FireWire is for men!
 
+sUse lINUX ag, nÜRNBERG

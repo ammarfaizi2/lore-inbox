@@ -1,54 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265289AbSJaV0m>; Thu, 31 Oct 2002 16:26:42 -0500
+	id <S265309AbSJaV1v>; Thu, 31 Oct 2002 16:27:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265303AbSJaV0m>; Thu, 31 Oct 2002 16:26:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27663 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265289AbSJaV0e>;
-	Thu, 31 Oct 2002 16:26:34 -0500
-Message-ID: <3DC1A14D.7040701@pobox.com>
-Date: Thu, 31 Oct 2002 16:31:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S265325AbSJaV1v>; Thu, 31 Oct 2002 16:27:51 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:38133 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265309AbSJaV1r>;
+	Thu, 31 Oct 2002 16:27:47 -0500
+Subject: Re: Proposal for new lock ownership scheme to support NFS over distributed
+ filesystems
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       willy@www.linux.org.uk
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OF189FE435.22D1CABF-ON87256C63.00761152@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Thu, 31 Oct 2002 13:34:07 -0800
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0|September 26, 2002) at
+ 10/31/2002 14:34:06
 MIME-Version: 1.0
-To: dean.mcewan@eudoramail.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] New modem driver made
-References: <DJHBKMIAAAJPEBAA@shared1-mail.whowhere.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dean McEwan wrote:
-
->A new modem driver for the Diamond Supra Pro SST DF has been created,
->to get a copy, mail me to become a tester.
->
->Sent it again in case people were put off reading the mail from that
->crap NTL account of mine.
->
->This is significant, because I BACKWARDS engineered the WINMODEM to
->do it. This should speed development up (of winmodems).
->
->Works on 2.5.** (made for 2.5.33, really, but works on others).
->
->Anyone who tests it gets a free lolly. Perhaps not.
->  
->
-
-What about posting it somewhere for people to download?
-
-I can throw it up on an FTP or Web site for you, if you do not have 
-access to do so...
-
-If this is as significant as you claim, then you should not rely on 
-individual requests to slow down the process.
-
-    Jeff
 
 
+
+
+Sure I can also cc that list.
+
+Regarding your comments I do have a test implementation that takes care of
+storing files_struct for local locks so this is not a problem.
+(By the way, the use of that field to store that seems very bad idea imho)
+
+Regarding IPv4 not being the only protocol, I would say yes that is a
+problem and in fact I the one solution to this would be to enlarge
+fl_owner field, but thats a lot of work.
+
+In any case my main problem is to find a unique node identifier that is not
+bound to the underlying protocol you are using without requiring
+clustering between the nodes that are participating as part of nas head,
+suggestions on how to create a clean portable solution are welcome.
+
+
+Juan
+
+
+
+|---------+---------------------------->
+|         |           Matthew Wilcox   |
+|         |           <willy@debian.org|
+|         |           >                |
+|         |           Sent by:         |
+|         |           <willy@www.linux.|
+|         |           org.uk>          |
+|         |                            |
+|         |                            |
+|         |           10/31/02 01:08 PM|
+|         |                            |
+|---------+---------------------------->
+  >------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                  |
+  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                     |
+  |       cc:       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org                                      |
+  |       Subject:  Re: Proposal for new lock ownership scheme to support NFS over distributed filesystems           |
+  |                                                                                                                  |
+  |                                                                                                                  |
+  >------------------------------------------------------------------------------------------------------------------|
+
+
+
+
+Hey, how about cc'ing either me or linux-fsdevel when discussing file
+locking in the future as described in MAINTAINERS?
+
+Your idea doesn't work because we need fl_owner to be the files_struct
+for local locks.  It also doesn't work because IPv4 is not the only
+protocol which NFS runs over.
+
+--
+Revolutions do not require corporate support.
 
 
 

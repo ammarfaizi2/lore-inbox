@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272541AbRH3XCe>; Thu, 30 Aug 2001 19:02:34 -0400
+	id <S272540AbRH3XCO>; Thu, 30 Aug 2001 19:02:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272542AbRH3XCZ>; Thu, 30 Aug 2001 19:02:25 -0400
-Received: from t2.redhat.com ([199.183.24.243]:41719 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S272541AbRH3XCS>; Thu, 30 Aug 2001 19:02:18 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200108302247.f7UMl4f31365@oboe.it.uc3m.es> 
-In-Reply-To: <200108302247.f7UMl4f31365@oboe.it.uc3m.es> 
-To: ptb@it.uc3m.es
-Cc: "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
-        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
+	id <S272541AbRH3XCE>; Thu, 30 Aug 2001 19:02:04 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:13781 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S272540AbRH3XB6>; Thu, 30 Aug 2001 19:01:58 -0400
+Date: Thu, 30 Aug 2001 23:25:51 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Paul Larson <plars@austin.ibm.com>
+Cc: Frank Davis <fdavis@si.rr.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.9-ac4: undefined reference pgtable_cache_init
+Message-ID: <20010830232551.J1149@flint.arm.linux.org.uk>
+In-Reply-To: <3B8E6467.1030204@si.rr.com> <20010830172612.F1149@flint.arm.linux.org.uk> <999184657.9362.32.camel@plars.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 31 Aug 2001 00:02:05 +0100
-Message-ID: <12803.999212525@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <999184657.9362.32.camel@plars.austin.ibm.com>; from plars@austin.ibm.com on Thu, Aug 30, 2001 at 03:17:36PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 30, 2001 at 03:17:36PM +0000, Paul Larson wrote:
+> I've seen this as well on i386.  It crops up when you are using HIGHMEM.
+> In include/asm-i386/pgtable.h you declare pgtable_cache_init if HIGHMEM
+> is on, or define it to the empty while loop if not.  It really needs to
+> be calling init_pae_pgd_cache instead though.  Try this patch against
+> 2.4.9-ac4.  I don't know if changing the name of init_pae_pgd_cache was
+> the Right Thing (tm) to do, but it worked for me.  It's not getting
+> called anywhere else anyways.
 
-ptb@it.uc3m.es said:
->  Well, I understand what you mean, but if the linux kernel wants it
-> and the C spec doesn't forbid it, then it'll either stay that way or
-> an "official" way will be found of evoking the desired behaviour. 
-
-In the world I've been living in for the last few years, GCC people don't
-seem to take that much care to avoid breaking the kernel, especially when
-the kernel is being gratuitously broken. David's __builtin_ct_assertion()
-stuff looks like a sane way of getting the desired behaviour without having
-to sacrifice any chickens, and getting that merged into GCC so that we can 
-start to use it seems like a good idea.
-
->  OTOH I now can't get #__LINE__ to expand as I want it where I want
-> it. 
-
-Heh. That's magic.
+It got changed because we don't want to add multiple architecture
+specific functions to init/main.c, but rather have one generic call
+which any architecture can use for this type of thing.
 
 --
-dwmw2
-
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

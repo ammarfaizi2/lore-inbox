@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUFPNIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUFPNBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbUFPNIx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 09:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266287AbUFPNI2
+	id S266296AbUFPNBG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 09:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUFPNBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 09:08:28 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:38021 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S266291AbUFPNFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 09:05:40 -0400
-Date: Wed, 16 Jun 2004 15:05:23 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: JFS compilation fix [was Re: Linux 2.6.7]
-Message-ID: <20040616130523.GE1571@louise.pinerecords.com>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org> <20040616080740.GC23998@louise.pinerecords.com> <1087390524.29047.10.camel@shaggy.austin.ibm.com>
+	Wed, 16 Jun 2004 09:01:02 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:3218 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S266296AbUFPM7N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 08:59:13 -0400
+Date: Wed, 16 Jun 2004 14:59:10 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] atime on devices
+Message-ID: <20040616125909.GY20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	viro@parcelfarce.linux.theplanet.co.uk
+References: <riqhdtkke3i.fsf@maggie.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6mNb9iemI/dmi7Z+"
 Content-Disposition: inline
-In-Reply-To: <1087390524.29047.10.camel@shaggy.austin.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <riqhdtkke3i.fsf@maggie.uio.no>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun-16 2004, Wed, 07:55 -0500
-Dave Kleikamp <shaggy@austin.ibm.com> wrote:
 
-> On Wed, 2004-06-16 at 03:07, Tomas Szepe wrote:
-> > Here's a trivial patch to fix JFS compilation in 2.6.7.  The error
-> > only happens in specific configs -- one such config can be found here:
-> > http://www.pinerecords.com/kala/_nonpub/.config.louise26
-> 
-> I don't know why gcc-3.2.2 doesn't complain about this one, as I have
-> compiled this numerous times.
-> 
-> Your patch has an unnecessary include of jfs_dtree.h.  jfs_dtree.h is
-> included by jfs_inline.h, and is not needed in jfs_dtree.c.
+--6mNb9iemI/dmi7Z+
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Oh, right.
+On Wed, 2004-06-09 16:20:17 +0200, Sturle Sunde <sturle.sunde@usit.uio.no>
+wrote in message <riqhdtkke3i.fsf@maggie.uio.no>:
+> Some software use access times on device files to check if there is
+> mouse or keyboard activity on the console.  This used to work in old
+> kernels, or perhaps it was old hardware, but not any more.  Google
+> didn't find any other portable ways of checking for mouse or keyboard
+> activity without accessing the X11 display.
 
-> > I don't have the time to narrow the problem down to the config
-> > entry that gets jfs_dtree.c to include jfs_dtree.h (jfs_dtree.c
-> > itself doesn't have any relevat ifdefs).
-> 
-> My guess is the config entry is CONFIG_JFS_FS. :^)
+open() /dev/input/evdev* and select() on them?
 
-Well, it just so happens that I have two .config files, both listing
-CONFIG_JFS_FS=m, and without the patch, exactly one of them fails
-compilation (on the same cluster, distcc gcc 3.4.0).  That is why
-I assumed the include was missing -- the moving of the declaration
-in my patch was only meant as an extra clean up for bonus points.
-;)
+MfG, JBG
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--6mNb9iemI/dmi7Z+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA0EQdHb1edYOZ4bsRApiLAKCGmBmdJOuhE25amemWb4rpnGkpZACgk7/G
+vbQQcFyasy0xcBGnpF0jqdg=
+=yKc5
+-----END PGP SIGNATURE-----
+
+--6mNb9iemI/dmi7Z+--

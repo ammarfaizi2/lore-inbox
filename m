@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132347AbQKDB3d>; Fri, 3 Nov 2000 20:29:33 -0500
+	id <S132296AbQKDBcX>; Fri, 3 Nov 2000 20:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132361AbQKDB3P>; Fri, 3 Nov 2000 20:29:15 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:54567 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132347AbQKDB3J>; Fri, 3 Nov 2000 20:29:09 -0500
-Date: Sat, 4 Nov 2000 02:29:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Gareth Hughes <gareth@valinux.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, dledford@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: SETFPXREGS fix
-Message-ID: <20001104022905.E32767@athlon.random>
-In-Reply-To: <20001103174105.C857@athlon.random> <3A034F28.5DB994F4@valinux.com> <20001104020709.D32767@athlon.random> <3A0362BD.D6068EDE@valinux.com>
+	id <S132326AbQKDBcN>; Fri, 3 Nov 2000 20:32:13 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:47378 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S132296AbQKDBcD>; Fri, 3 Nov 2000 20:32:03 -0500
+Date: Fri, 3 Nov 2000 19:31:51 -0600
+To: matthew <matthew@mattshouse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test10 Sluggish After Load
+Message-ID: <20001103193151.K1041@wire.cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.21.0011021152310.15168-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0011021016120.12598-100000@matthew.linuxnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3A0362BD.D6068EDE@valinux.com>; from gareth@valinux.com on Sat, Nov 04, 2000 at 12:13:33PM +1100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0011021016120.12598-100000@matthew.linuxnet>; from matthew@mattshouse.com on Thu, Nov 02, 2000 at 10:22:22AM -0600
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2000 at 12:13:33PM +1100, Gareth Hughes wrote:
-> Yes, we can certainly mask out the mxcsr value in both cases.  I just
-	  ^^^
-s/can/must/
 
-> think this makes the code a lot simpler and cleaner as a result - three
+[matthew]
+> ls /proc > killscript
+> added "kill -9" to the beginning and "\" to the end of each line,
+> ran it as the database user.  It worked pretty well.
 
-I agree about the three vs one copy issue. Anyways my first priority was that
-the the code was safe, and the previous one was completly safe too (ok, I admit
-I had to check out the asm generated before trusting it 8).
+Sounds like a lot of trouble.
 
-Andrea
+  su {oracle} -c 'kill -9 -1'
+
+Or is there some reason that wouldn't have worked in your case?
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbVAUGmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVAUGnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262293AbVAUGmY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 01:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbVAUGmY
+	id S262283AbVAUGnz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 01:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVAUGnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 01:42:24 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23384
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262283AbVAUGlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 01:41:51 -0500
-Date: Fri, 21 Jan 2005 07:41:47 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, npiggin@novell.com,
-       Rik van Riel <riel@redhat.com>
-Subject: Re: writeback-highmem
-Message-ID: <20050121064147.GC17050@dualathlon.random>
-References: <20050121054840.GA12647@dualathlon.random> <20050121054916.GB12647@dualathlon.random> <20050121054945.GC12647@dualathlon.random> <20050121055004.GD12647@dualathlon.random> <20050121055043.GE12647@dualathlon.random> <20050121060135.GF12647@dualathlon.random> <20050120222630.6168a4cb.akpm@osdl.org>
+	Fri, 21 Jan 2005 01:43:55 -0500
+Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:55307 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262283AbVAUGnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 01:43:42 -0500
+Date: Fri, 21 Jan 2005 07:46:24 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Nicolas Pitre <nico@cam.org>
+Cc: LM Sensors <sensors@Stimpy.netroedge.com>,
+       lkml <linux-kernel@vger.kernel.org>, Jonas Munsin <jmunsin@iki.fi>,
+       Simone Piunno <pioppo@ferrara.linux.it>, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
+Message-Id: <20050121074624.3db5af6a.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.61.0501201536240.5315@localhost.localdomain>
+References: <s62KuN6T.1106238493.8706410.khali@localhost>
+	<Pine.LNX.4.61.0501201536240.5315@localhost.localdomain>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050120222630.6168a4cb.akpm@osdl.org>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 10:26:30PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > This needed highmem fix from Rik is still missing too, so please apply
-> >  along the other 5 (it's orthogonal so you can apply this one in any
-> >  order you want).
-> > 
-> >  From: Rik van Riel <riel@redhat.com>
-> >  Subject: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+Hi Nicolas,
+
+> I confirm that 0x7f is full speed.
+
+So at least the polarity bit is correct, and Gigabyte isn't to blame.
+
+> > Once you know if the polarity is correct, you can try different
+> > values of PWM between 0x00 and 0x7F and see how exactly your fan
+> > reacts to them.
 > 
-> I've held off on this one because the recent throttling fix should have
-> helped this problem.  Has anyone confirmed that this patch still actually
-> fixes something?  If so, what was the scenario?
+> That's where things get really really interesting.  As mentioned
+> above 0x7f drives the fan full speed (2596 RPM).  Now lowering that
+> value slows the CPU fan gradually down to a certain point.  With a
+> value of 0x3f the fan turns at 1041 RPM.  But below 0x3f the fan
+> starts speeding up again to reach a peak of 2280 RPM with a value
+> of 0x31, then it slows  down again toward 0 RPM as the register
+> value is decreased down to 0.
+> 
+> Bit 3 of register 0x14, when set, only modifies the curve so the
+> first minimum is instead reached at 0x30 then the peak occurs at 0x1d
+> before dropping to 0.
+> 
+> Changing the PWM base clock select has no effect.
 
-Without this fix write throttling is completely broken for a blkdev and
-it won't start _at_all_ and it'll just keep hanging in the allocation
-routines. I agree it won't explain oom (with the other fixes the VM
-should writeback synchronously instead of running oom) but it may make
-the box completely unusable under a cp /dev/zero /dev/somedevice.
+Wow! Unexpected, to say the least. First time I see such a behavior.
 
-There is a reason why we start write throttling before 100% of ram is
-being locked by dirty pages in the pagecache path.
+Could it be that your CPU fan isn't a simple passive device but one of
+these high-tech models with an embedded thermal sensor and automatic
+speed adjustment? This would possibly interact with the motherboard PWM
+capability and could explain the strange speed curve your obtained.
 
-The beauty of this fix is that Rik allowed the pagecache not to have the
-limit (in 2.4 pagecache had the limit too). Probably async writeback
-won't start but at least the write throttling will and that's all we
-need to keep the box running other apps at the same time of the write.
+I would also like you to try a similar test with your case fan. Enable
+"smart guardian" mode for this one (by writing 0x73 to register 0x13),
+then scan the 0x7f-0x00 range (register 0x16) like you did for your CPU
+fan. I wonder if you will obtain the same kind of result or a standard
+linear curve.
 
-If the system goes unresponsive for 10 minutes and swaps during backups
-or workloads working on the blkdev, they'll file bugreports and they'd
-be correct.
+(Note that PWM2 might not be wired at all on your motherboard, so don't
+be surprised if the case fan speed doesn't change at all.)
 
-In short I agree this shouldn't be applied for oom, but it's still
-definitely a correct and needed fix (and I rate it a bit more than just
-an optimization).
+Thanks,
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

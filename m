@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261446AbSKGQge>; Thu, 7 Nov 2002 11:36:34 -0500
+	id <S261462AbSKGQsm>; Thu, 7 Nov 2002 11:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261447AbSKGQge>; Thu, 7 Nov 2002 11:36:34 -0500
-Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:33801
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261446AbSKGQgc>; Thu, 7 Nov 2002 11:36:32 -0500
-Date: Thu, 7 Nov 2002 11:41:23 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH][2.5-AC] Forced enable/disable local APIC
-In-Reply-To: <15818.37221.445746.346901@kim.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0211071140310.27141-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261504AbSKGQsm>; Thu, 7 Nov 2002 11:48:42 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:15002 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S261462AbSKGQsl>; Thu, 7 Nov 2002 11:48:41 -0500
+Message-ID: <5890690.1036687877193.JavaMail.nobody@web54.us.oracle.com>
+Date: Thu, 7 Nov 2002 08:51:17 -0800 (PST)
+From: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
+To: devilkin-lkml@blindguardian.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.44] Poweroff after warm reboot
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-Mailer: Oracle Webmail Client
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Nov 2002, Mikael Pettersson wrote:
+> On Tuesday 29 October 2002 12:21, DevilKin wrote:
+> > On Tuesday 29 October 2002 11:09, Jos Hulzink wrote:
+> > > On Tuesday 29 October 2002 10:31, DevilKin wrote:
+> > > > Hello,
+> > > >
+> > > > If I reboot my laptop with kernel 2.5.44 (warm reboot), the machine
+> > > > reboots, loads the kernel, and then in the middle of the booting
+> > > > process powers off.
+> > >
+> > > Hmm... maybe it has something to do with ACPI ? Could you try booting the
+> > > kernel after a warm reboot with ACPI disabled ?
+> >
+> > It's APM, not ACPI (luckely :oP)
+> This problem is still present with 2.5.45 and 2.5.46.
 
-> Zwane Mwaikambo writes:
->  > +int enable_local_apic_flag __initdata = 0; /* 0=probe, 1=force, 2=disable e.g. DMI */
-> ...
->  > +	if (enable_local_apic_flag == 1)
->  > +		goto force_apic;
->  >  
->  >  	switch (boot_cpu_data.x86_vendor) {
->  >  	case X86_VENDOR_AMD:
->  > @@ -642,6 +661,7 @@
->  >  		goto no_apic;
->  >  	}
->  >  
->  > +force_apic:
->  >  	if (!cpu_has_apic) {
->  >  		/*
->  >  		 * Some BIOSes disable the local APIC in the
-> 
-> Of what use is the force case? If someone boots with "lapic" on a CPU
-> where the APIC feature bit is off, then the code will rdmsr/wrmsr on
-> APICBASE, even though we (the kernel) haven't verified that the CPU
-> actually has that MSR. This is doubleplusungood.
+<AOL>same here</AOL>
 
-We still honour the APIC feature bit, its just that we bypass the cpuid 
-checks. Looks sane no?
+Actually I haven't tested further kernels than 2.5.45 as I just spent the night moving
+ files from the laptop that suffered, alas, uncorrectable drive errors. Luckily the only
+ file lost was linux-2.5.45.tar :) I only hope that the poweroffs didn't help the drive
+ to die earlier than it should have :/
 
-	Zwane
--- 
-function.linuxpower.ca
-
+--alessandro

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281874AbRKSBu4>; Sun, 18 Nov 2001 20:50:56 -0500
+	id <S281871AbRKSBp0>; Sun, 18 Nov 2001 20:45:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281876AbRKSBug>; Sun, 18 Nov 2001 20:50:36 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:19987 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S281874AbRKSBua>;
-	Sun, 18 Nov 2001 20:50:30 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200111190150.fAJ1oSZ68274@saturn.cs.uml.edu>
-Subject: Re: Linux ACL designe - why the POSIX draft?
-To: nmiell@home.com (Nicholas Miell)
-Date: Sun, 18 Nov 2001 20:50:28 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BEF7FD8.D9FFB716@home.com> from "Nicholas Miell" at Nov 11, 2001 11:52:56 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S281872AbRKSBpG>; Sun, 18 Nov 2001 20:45:06 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:18445 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281871AbRKSBpB>;
+	Sun, 18 Nov 2001 20:45:01 -0500
+Date: Sun, 18 Nov 2001 23:44:35 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Shaya Potter <spotter@cs.columbia.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: replacing the page replacement algo.
+In-Reply-To: <1006129088.605.2.camel@zaphod>
+Message-ID: <Pine.LNX.4.33L.0111182344150.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas Miell writes:
+On 18 Nov 2001, Shaya Potter wrote:
 
-> With all the recent discussion about ACLs and Linux on
-> linux-kernel, I was wondering why the ACL implementations
-> for Linux are based off the withdrawn POSIX 1003.1e draft
-> 17?
+> If I wanted to experiment with different algorithms that chose which
+> page to replace (say on a page fault) what functions would I have to
+> replace?
 
-As a group, we are short-sighted herd followers.
+try_to_free_pages() and all the functions it calls.
 
-> Is there any particular reason why this was chosen for
-> the basis for the Linux ACL system, besides the fact
-> that its what everybody else did? (It is a only a
-> withdrawn draft after all, there's no reason to actually
-> follow it...)
-> 
-> Wouldn't a more flexible solution, perhaps one based on 
-> the NFSv4 ACL design[1] be better?
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
 
-Of course it would be better, but then we'd all argue over
-the details. (compatibility, API, user interface...)
+http://www.surriel.com/		http://distro.conectiva.com/
 
-> Because the NFSv4 design is in effect a superset of the
-> POSIX 1003.1e draft functionality, all Unix filesystems
-> with ACLs could be easily supported by the Linux VFS, and
-> the task of implementing NFSv4, NTFS, and SMB would be
-> made easier[2] because of it.
-
-Sure. Problem is, few have seen NFSv4 ACLs. There is also a
-prejudice against anything that even remotely resembles NT,
-never minding if it is better or is what businesses want.

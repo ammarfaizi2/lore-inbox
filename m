@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVCROx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVCRPBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbVCROx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 09:53:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVCROx5
+	id S261621AbVCRPBD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVCRPBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 09:53:57 -0500
-Received: from hyperion.affordablehost.com ([12.164.25.86]:23177 "EHLO
-	hyperion.affordablehost.com") by vger.kernel.org with ESMTP
-	id S261620AbVCROxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 09:53:54 -0500
-Subject: Where is a reference for ioctl32() usage?
-From: Alan Kilian <kilian@bobodyne.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1111103837.11071.83.camel@desk>
-References: <1111103837.11071.83.camel@desk>
-Content-Type: text/plain
-Date: Fri, 18 Mar 2005 08:53:52 -0600
-Message-Id: <1111157632.11071.92.camel@desk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hyperion.affordablehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - bobodyne.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 18 Mar 2005 10:01:02 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:53485 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261621AbVCRPA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 10:00:56 -0500
+Date: Fri, 18 Mar 2005 07:00:06 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mel Gorman <mel@csn.ul.ie>, linux-ia64@vger.kernel.org,
+       Jens.Maurer@gmx.net
+Subject: Re: [PATCH] add a clear_pages function to clear pages of higher
+ order
+In-Reply-To: <200503181154.37414.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.58.0503180652350.15022@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com>
+ <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua>
+ <Pine.LNX.4.58.0503161720570.1787@schroedinger.engr.sgi.com>
+ <200503181154.37414.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 18 Mar 2005, Denis Vlasenko wrote:
 
+> NT stores are not about 5% increase. 200%-300%. Provided you are ok with
+> the fact that zeroed page ends up evicted from cache. Luckily, this is exactly
+> what you want with prezeroing.
 
-    Thanks for all the help in the past, and I'm once again knocking
-    at your door for more help.
+These are pretty significant results. Maybe its best to use non-temporal
+stores in general for clearing pages? I checked and Itanium has always
+used non-temporal stores. So there will be no benefit for us from this
+approach (we have 16k and 64k page sizes which may make the situation a
+bit different). Try to update the i386 architectures to do the same?
 
-    I am trying to get my PCI bus device driver running on an Xeon 
-    64-bit FC-3 distribution for the first time. It works fine on a
-    32-bit FC-3 distribution.
-
-    I got the compiler warnings all cleaned up, the driver compiles and 
-    loads, but the test executable which was compiled on a 32-bit FC-3 
-    distribution is causing these messages in /var/log/messages:
-
-	Mar 17 15:42:55 noble kernel: ioctl32(boardtest:3730): 
-	Unknown cmd fd(3) cmd(8004440e){00} arg(ffffd824) on /dev/sse0
-	Mar 17 15:42:55 noble kernel: ioctl32(boardtest:3730): 
-	Unknown cmd fd(3) cmd(8004440e){00} arg(ffffd8c4) on /dev/sse0
-	Mar 17 15:42:55 noble kernel: ioctl32(boardtest:3730): 
-	Unknown cmd fd(3) cmd(40044414){00} arg(00000000) on /dev/sse0
-	Mar 17 15:42:55 noble kernel: ioctl32(boardtest:3730): 
-	Unknown cmd fd(3) cmd(80044403){00} arg(0804f780) on /dev/sse0
-
-    It's probably a simple thing to change my ioctl() interface in the
-    driver, but I googled myself blue in the face, and I didn't find it,
-    so I come to you, hat-in-hand for help.
-
-    Where can I find out how to change my driver so I can have a 32-bit
-    executable talk to it using ioctl()?
-
-    I did change the "type" argument in _IOR and _IOW to uint32_t from
-    int, but that didn't change things.
-
-			-Alan
-
--- 
-- Alan Kilian <kilian(at)bobodyne.com>
-
+Or for prezeroing, you could register a zeroing driver that would use the
+non-temporal stores with V8 of the prezeroing patches. In any case the
+clear_pages patch is not useful the way it was intended for us and I am
+have dropped this from the prezeroing patch.
 

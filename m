@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265484AbUGDIoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265483AbUGDJZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265484AbUGDIoU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 04:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUGDIoU
+	id S265483AbUGDJZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 05:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUGDJZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 04:44:20 -0400
-Received: from tag.witbe.net ([81.88.96.48]:64960 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S265484AbUGDIoT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 04:44:19 -0400
-Message-Id: <200407040844.i648iGX08954@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Milton Miller'" <miltonm@bga.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Init single and Serial console : How to ?
-Date: Sun, 4 Jul 2004 10:44:12 +0200
-Organization: AS2917
+	Sun, 4 Jul 2004 05:25:26 -0400
+Received: from web20806.mail.yahoo.com ([216.136.226.195]:1156 "HELO
+	web20806.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265483AbUGDJZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 05:25:24 -0400
+Message-ID: <20040704092523.58214.qmail@web20806.mail.yahoo.com>
+Date: Sun, 4 Jul 2004 02:25:23 -0700 (PDT)
+From: Fawad Lateef <fawad_lateef@yahoo.com>
+Subject: Need help in creating 8GB RAMDISK
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <69CB182A-CD80-11D8-9463-003065DC03B0@bga.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcRhjVuzRXfSNJIcTXmDxEmE4pNeFQAFYrpA
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Milton,
-> 
-> Not quite single mode, but what I have done in similar situations is 
-> boot with
-> console=ttyS0 init=/bin/sh
+Hello
 
-Should do the trick. Single mode was good because it was not running
-rl 3 init-scripts.
-Not running any of them is good too :-)
-The trick was to have the serial console/shell without having to
-go thru the ioctlsave stuff.
+I am creating a RAMDISK of 7GB (from 1GB to 8GB). I
+reserved the RAM by changing the code in
+arch/i386/mm/init.c .......... 
+
+But I am not able to access the RAM from 1GB to 8GB in
+a kernel module ........ after crossing the 4GB RAM,
+the system goes into standby state. But if I insert
+the same module 2 times means one for 1GB to 4GB and
+other for 4GB to 8GB. and mount them seprately both
+works fine ............ 
+
+Can any one tell me the reason behind this ??? I think
+that in a single module we can't access more than 4GB
+RAM ...... If this is the reason then what to do ??? I
+need 7GB RAMDISK as a single drive ....
+
+Thanks and Regards,
+
+Fawad Lateef
 
 
-Regards,
-Paul
-
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - You care about security. So do we.
+http://promotions.yahoo.com/new_mail

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315607AbSHRS4X>; Sun, 18 Aug 2002 14:56:23 -0400
+	id <S315746AbSHRTP3>; Sun, 18 Aug 2002 15:15:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315708AbSHRS4X>; Sun, 18 Aug 2002 14:56:23 -0400
-Received: from smtp3.vol.cz ([195.250.128.83]:3846 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S315607AbSHRS4X>;
-	Sun, 18 Aug 2002 14:56:23 -0400
-Date: Sun, 18 Aug 2002 20:56:20 +0200
-From: Stanislav Brabec <utx@penguin.cz>
-To: Paul Bristow <paul@paulbristow.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: ide-floppy & devfs - /dev entry not created if drive is empty
-Message-ID: <20020818185620.GA6013@utx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Accept-Language: cs, sk, en
+	id <S315748AbSHRTP3>; Sun, 18 Aug 2002 15:15:29 -0400
+Received: from dsl-213-023-039-196.arcor-ip.net ([213.23.39.196]:6618 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315746AbSHRTP2>;
+	Sun, 18 Aug 2002 15:15:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: linux-kernel@vger.kernel.org
+Subject: Generic list push/pop
+Date: Sun, 18 Aug 2002 21:21:41 +0200
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17gVcL-00031m-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo Paul Bristow,
+I took a run at writing generic single-linked list push and pop macros, to be 
+used in the form:
 
-I have tested ide-floppy on my Linux 2.4.19 with ATAPI ZIP 100. I am
-using devfs.
+	push_list(foo_list, foo_node);
 
-I found following problem:
+and
+	foo_node = pop_list(foo_list);
 
-If module ide-floppy is loaded and no disc is present in the drive,
-/dev/ide/host0/bus1/target1/lun0/disc entry is not created. Later
-inserted media cannot be checked in any way, because no /dev entry
-exists.
+They came out predictably ugly:
 
-Older kernels have also this behavior.
+#define push_list(_LIST_, _NODE_) \
+	_NODE_->next = _LIST_; \
+	_LIST_ =_NODE_;
 
-Fix: Create .../disc entry in all cases, even if no disc is present.
+#define pop_list(_LIST_) ({ \
+	typeof(_LIST_) _NODE_ = _LIST_; \
+	_LIST_ = _LIST_->next; \
+	_NODE_; })
+
+These work but imho, they are too ugly to live.  For one thing, they assume 
+the link field is named 'next' and I don't see a nice way around that.
+Before moving them to my scraps.c file I thought I'd let other people throw 
+some tomatoes at them.
 
 -- 
-Stanislav Brabec
-http://www.penguin.cz/~utx
+Daniel

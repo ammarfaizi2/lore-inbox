@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132805AbRDSWKH>; Thu, 19 Apr 2001 18:10:07 -0400
+	id <S135730AbRDSWHs>; Thu, 19 Apr 2001 18:07:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132806AbRDSWJ6>; Thu, 19 Apr 2001 18:09:58 -0400
-Received: from ns.suse.de ([213.95.15.193]:15367 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132805AbRDSWJs>;
-	Thu, 19 Apr 2001 18:09:48 -0400
-Date: Fri, 20 Apr 2001 00:09:46 +0200
-From: Andi Kleen <ak@suse.de>
-To: Matthew Jacob <mjacob@feral.com>
-Cc: "Brian J. Watson" <Brian.J.Watson@compaq.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: active after unmount?
-Message-ID: <20010420000946.A4982@gruyere.muc.suse.de>
-In-Reply-To: <3ADF5DCB.EEADD4E0@compaq.com> <Pine.BSF.4.21.0104191454390.81926-100000@beppo.feral.com>
+	id <S135732AbRDSWHi>; Thu, 19 Apr 2001 18:07:38 -0400
+Received: from email.cwcom.net ([195.44.0.150]:2055 "EHLO cwcom.net")
+	by vger.kernel.org with ESMTP id <S135730AbRDSWH0>;
+	Thu, 19 Apr 2001 18:07:26 -0400
+To: linux-kernel@vger.kernel.org
+From: Jonathan Hudson <jonathan@daria.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.BSF.4.21.0104191454390.81926-100000@beppo.feral.com>; from mjacob@feral.com on Thu, Apr 19, 2001 at 02:56:15PM -0700
+X-Newsreader: knews 1.0b.1
+x-no-productlinks: yes
+Subject: aha1542 fails in 2.4.4-pre4
+X-Newsgroups: fa.linux.kernel
+Content-Type: text/plain; charset=iso-8859-1
+NNTP-Posting-Host: 192.168.1.1
+Message-ID: <7b0.3adf600b.aeeec@trespassersw.daria.co.uk>
+Date: Thu, 19 Apr 2001 22:00:43 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19, 2001 at 02:56:15PM -0700, Matthew Jacob wrote:
-> 
-> 
-> On Thu, 19 Apr 2001, Brian J. Watson wrote:
-> 
-> > > Unmounting a SCSI disk device succeeded, and yielded:
-> > > 
-> > > Red Hat Linux release 6.2 (Zoot)
-> > > Kernel 2.4.3 on a 2-processor i686
-> > > 
-> > > chico login: VFS: Busy inodes after unmount. Self-destruct in 5 seconds. Have
-> > > a nice day...
-> > > 
-> > 
-> > 
-> > This message comes out of kill_super(). I would guess that somebody's
-> > mismanaging VFS refcounts, but there's not enough info here to diagnose the
-> > problem. What filesystem are you using? Is this reproducible? What do you have
-> > to do between mounting and unmounting to reproduce the problem?
-> 
-> >>>>>>ext2<<<<<<, haven't reproduced it yet, on a 2x686 256MB memory,
-> SCSI midlayer default, with 2.4.3.
 
-I've seen it a lot with the autofs. You can check what it is with the
-following small debug patch.
+Just rebuilt an old box (Celeron 400) with an aha1542 and SCSI
+CD-ROM. Get the following:
 
-Index: fs/inode.c
-===================================================================
-RCS file: /cvs/linux/fs/inode.c,v
-retrieving revision 1.122
-diff -u -u -r1.122 inode.c
---- fs/inode.c	2001/03/24 09:36:25	1.122
-+++ fs/inode.c	2001/04/19 22:07:17
-@@ -443,6 +443,13 @@
- 			count++;
- 			continue;
- 		}
-+#if 1
-+		printk("inode %u:%lu busy\n", inode->i_dev, inode->i_ino); 
-+		if (inode->i_dentry.next != &inode->i_dentry) 
-+			printk("for file %s\n", 
-+	list_entry(inode->i_dentry.next, struct dentry, d_alias)->d_name.name);  
-+#endif		
-+		
- 		busy = 1;
- 	}
- 	/* only unused inodes may be cached with i_count zero */
+(aha1542 as module)
+ 
+Apr 19 21:22:04 kanga kernel: Configuring Adaptec (SCSI-ID 7) at IO:330, IRQ 10, DMA priority 6 
+Apr 19 21:22:04 kanga kernel: scsi0 : Adaptec 1542 
+Apr 19 21:22:04 kanga kernel:   Vendor: SONY      Model: CD-ROM CDU-8003A  Rev: 1.9a 
+Apr 19 21:22:04 kanga kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02 
+Apr 19 21:22:04 kanga kernel: Detected scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0 
+Apr 19 21:22:06 kanga kernel: sr0: scsi-1 drive 
+Apr 19 21:22:06 kanga kernel: Uniform CD-ROM driver Revision: 3.12 
+Apr 19 21:22:20 kanga kernel: sr: ran out of mem for scatter pad 
+Apr 19 21:22:20 kanga kernel:  I/O error: dev 0b:00, sector 376 
+Apr 19 21:22:20 kanga kernel: isofs_read_super: bread failed, dev=0b:00, iso_blknum=94, block=188 
+Apr 19 21:23:41 kanga kernel: sr: ran out of mem for scatter pad 
+Apr 19 21:23:41 kanga kernel:  I/O error: dev 0b:00, sector 64 
 
+(aha1542 in kernel)
+Apr 19 22:37:49 kanga automount[247]: attempting to mount entry /mnt/cdrom
+Apr 19 22:37:50 kanga kernel: sr: ran out of mem for scatter pad
+Apr 19 22:37:50 kanga kernel: Kernel panic: scsi_free:Bad offset
 
--Andi
+Works fine in 2.2.19.
+

@@ -1,105 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVCWJMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVCWJPL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbVCWJMR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 04:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVCWJJf
+	id S262899AbVCWJPL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 04:15:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbVCWJOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 04:09:35 -0500
-Received: from alt.aurema.com ([203.217.18.57]:34494 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S262889AbVCWJHa (ORCPT
+	Wed, 23 Mar 2005 04:14:12 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:43883 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262889AbVCWJNe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 04:07:30 -0500
-Date: Wed, 23 Mar 2005 20:02:54 +1100
-From: kingsley@aurema.com
-To: Tom Zanussi <zanussi@us.ibm.com>, Karim Yaghmour <karim@opersys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: read() on relayfs channel returns premature 0
-Message-ID: <20050323090254.GA10630@aurema.com>
-Mail-Followup-To: Tom Zanussi <zanussi@us.ibm.com>,
-	Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Wed, 23 Mar 2005 04:13:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=nCGcNAAmYhcBsylm9ulEoymKkBSgeiqKo2FyE5iZAGFukOsplb5u018U0JvILbJc+NbtqLeQyLoUcPIlNjZLY781JCQR3ZVgXSK8YwiIf6pBf5acmjEriEPXYFW7mkExieHzmtd/cNmrdcLTW3HI5My1HnSiQl7KmJ2nnlCtLUE=
+Message-ID: <42413336.2010004@gmail.com>
+Date: Wed, 23 Mar 2005 18:13:26 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 07/08] scsi: remove bogus	{get|put}_device()
+ calls
+References: <20050323021335.960F95F8@htj.dyndns.org>	 <20050323021335.0D9E25EE@htj.dyndns.org> <1111551355.5520.100.camel@mulgrave>
+In-Reply-To: <1111551355.5520.100.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi,
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+James Bottomley wrote:
+> On Wed, 2005-03-23 at 11:14 +0900, Tejun Heo wrote:
+> 
+>>	So, basically, SCSI high-level object (scsi_disk) and
+>>	mid-level object (scsi_device) are reference counted by users,
+>>	not the requests they submit.  Reference count cannot go zero
+>>	with active users and users cannot access the object once the
+>>	reference count reaches zero.
+> 
+> 
+> Actually, no.  Unfortunately we still have some fire and forget APIs, so
+> the contention that we always have an open refcounted descriptor isn't
+> always true.
 
-Hi 
+  Yeap, you're right.  So, what we have is
 
-I'm using relayfs to relay data from a kernel module to user space on
-a SuSE 2.6.5 kernel.  I'm not absolutely sure what version of relayfs
-has been back ported to it.
+  * All high-level users have open access to the scsi high-level
+    object on issueing requests, but may close it before its requests
+    complete.
+  * All mid-layer users do get_device() before submitting requests,
+    but may put_device() before its requests complete.
 
-While reading data from the channel I've been seeing read() return 0
-prematurely.  However, the 0 does not signify that the file is being
-closed for there is still data available afterwards.  
+  Thanks for pointing that out.  :-)
 
-I've noticed that zeros occur when roughly one page of data has been
-read.  I suspect that they occur whenever there is a read across the
-relayfs sub-buffers.
-
-Now I understand that this is not the latest release of relayfs (there
-are the redux patches, which I have yet to try).  Nonetheless I'd like
-to know whether this behaviour is deliberate.  Is it? 
-
-Thanks,
 -- 
-		Kingsley
+tejun
 
-P.S. I've been able to get around this by deliberately modifying
-do_read() with the attached patch.  I'm not absolutely sure its
-correct but it seems to work.
-
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="relayfs-premature-zero.patch"
-
-Index: fs/relayfs/relay.c
-===================================================================
-RCS file: /export/cvsroot/SuSE-Kernel-2.4.21/fs/relayfs/Attic/relay.c,v
-retrieving revision 1.1.2.1
-diff -u -r1.1.2.1 relay.c
---- fs/relayfs/relay.c	18 Feb 2005 00:00:51 -0000	1.1.2.1
-+++ fs/relayfs/relay.c	23 Mar 2005 09:00:42 -0000
-@@ -1445,26 +1445,22 @@
- 
- 	avail_offset = cur_idx = relay_get_offset(rchan, &max_offset);
- 
-+	last_buf_byte_offset = (read_bufno + 1) * buf_size - 1;
- 	if (cur_idx == read_offset) {
- 		if (atomic_read(&rchan->suspended) == 1) {
--			read_offset += 1;
-+			read_offset = last_buf_byte_offset + 1;
- 			if (read_offset >= max_offset)
- 				read_offset = 0;
- 			*actual_read_offset = read_offset;
- 		} else {
--			*new_offset = read_offset;
-+			*new_offset = read_offset; 
- 			return 0;
- 		}
--	} else {
--		last_buf_byte_offset = (read_bufno + 1) * buf_size - 1;
--		if (read_offset == last_buf_byte_offset) {
--			if (unused_bytes != 1) {
--				read_offset += 1;
--				if (read_offset >= max_offset)
--					read_offset = 0;
--				*actual_read_offset = read_offset;
--			}
--		}
-+	} else if ((read_offset + unused_bytes) > last_buf_byte_offset) {
-+		read_offset = last_buf_byte_offset + 1;
-+		if (read_offset >= max_offset)
-+			read_offset = 0;
-+		*actual_read_offset = read_offset;
- 	}
- 
- 	read_bufno = read_offset / buf_size;
-
---qMm9M+Fa2AknHoGS--

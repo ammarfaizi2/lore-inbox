@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310492AbSCCA4H>; Sat, 2 Mar 2002 19:56:07 -0500
+	id <S292574AbSCCAy6>; Sat, 2 Mar 2002 19:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310493AbSCCAzy>; Sat, 2 Mar 2002 19:55:54 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:41733
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S310492AbSCCAzl>; Sat, 2 Mar 2002 19:55:41 -0500
-Message-Id: <5.1.0.14.2.20020302195020.01d0c948@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 02 Mar 2002 19:50:45 -0500
-To: erich@uruk.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: Network Security hole (was -> Re: arp bug ) 
-Cc: ja@ssi.bg (Julian Anastasov), szekeres@lhsystems.hu (Szekeres Bela),
-        dang@fprintf.net (Daniel Gryniewicz),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <E16hFeV-0000Nj-00@trillium-hollow.org>
-In-Reply-To: <Your message of "Sat, 02 Mar 2002 19:14:55 GMT." <E16hEy7-000875-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S310492AbSCCAyh>; Sat, 2 Mar 2002 19:54:37 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49415 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292574AbSCCAye>;
+	Sat, 2 Mar 2002 19:54:34 -0500
+Date: Sat, 2 Mar 2002 18:58:10 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Paul P Komkoff Jr <i@stingr.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SSSCA: We're in trouble now
+In-Reply-To: <20020302183041.P6075@stingr.net>
+Message-ID: <Pine.LNX.4.44L.0203021857380.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:58 AM 3/2/2002 -0800, erich@uruk.org wrote:
+On Sat, 2 Mar 2002, Paul P Komkoff Jr wrote:
 
->I would think that making the IP stack, for each MAC/interface path
->on reception, just check against the exact expected input address,
->would actually be a performance improvement on machines with multiple
->NICs.
+> govt thinks that crowd is dumb-silent and finally about 160 millions of
+> slaves (or prisoners). this is the 'final destination' to which lead
+> such attempts of total control :(
+>
+> unfortunately 98% don't care about such things. they sit on their
+> g-spots and drink vodka (or something). they DON'T NEED computers. or
+> anything else except their drinks.
 
-Two words: Broadcast addresses.
+vodka ?   I think you mean "budweiser" ...
 
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
+http://www.surriel.com/		http://distro.conectiva.com/
 

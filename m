@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318282AbSHZUHq>; Mon, 26 Aug 2002 16:07:46 -0400
+	id <S318290AbSHZUJh>; Mon, 26 Aug 2002 16:09:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318283AbSHZUHq>; Mon, 26 Aug 2002 16:07:46 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:34576 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318282AbSHZUHp>; Mon, 26 Aug 2002 16:07:45 -0400
-Date: Mon, 26 Aug 2002 21:11:59 +0100
-From: Christoph Hellwig <hch@infradead.org>
+	id <S318292AbSHZUJh>; Mon, 26 Aug 2002 16:09:37 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:11518 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318290AbSHZUJg>; Mon, 26 Aug 2002 16:09:36 -0400
+Subject: Re: [PATCH] hyperthreading scheduler improvement
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Robert Love <rml@tech9.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-arch load balancing
-Message-ID: <20020826211159.A6186@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Robert Love <rml@tech9.net>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <1030392283.1020.407.camel@phantasy>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1030392337.15007.413.camel@phantasy>
+References: <1030392337.15007.413.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 26 Aug 2002 21:15:08 +0100
+Message-Id: <1030392908.2776.17.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1030392283.1020.407.camel@phantasy>; from rml@tech9.net on Mon, Aug 26, 2002 at 04:04:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 04:04:43PM -0400, Robert Love wrote:
+On Mon, 2002-08-26 at 21:05, Robert Love wrote:
 > Linus,
 > 
-> The attached patch implements (optional) per-architecture load balancing
-> so we can cleanly implement specialized load balancing behavior for
-> NUMA, hyperthreading, etc.
-> 
-> The new method is "arch_load_balance()" and is defined (if available) in
-> asm/smp_balance.h - otherwise it defines away.  Currently, we call it
-> from "find_busiest_queue()".
+> This patch implements a per-arch load balancing scheme for P4s to better
+> balance across the virtual CPUs (e.g. prefer fully unused CPUs to a
+> single available HT unit).  This is the same logic in 2.4-ac, 2.4-aa,
+> etc.
 
-Can we have a asm/sched.h instead?  especially if we might add additional
-per-arch scheduler bits.  Also I think a asm-generic version is better than
-linux/smp_balance.h + the ARCH_HAS_SMP_BALANCE hack.  I'd prefer if you
-would move the #include ontop ot sched.c, too - includes in the middle of
-a file are really messy.
+This patch is disabled in -ac because it caused crashes for some users
 

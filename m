@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286373AbSAAXnv>; Tue, 1 Jan 2002 18:43:51 -0500
+	id <S286386AbSAAXqD>; Tue, 1 Jan 2002 18:46:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286382AbSAAXnl>; Tue, 1 Jan 2002 18:43:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29703 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286373AbSAAXn3>; Tue, 1 Jan 2002 18:43:29 -0500
-Subject: Re: Why would a valid DVD show zero files on Linux?
-To: gbj@theforce.com.au (Grahame Jordan)
-Date: Tue, 1 Jan 2002 23:53:39 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), bryce@obviously.com (Bryce Nesbitt),
-        linux-kernel@vger.kernel.org, Lionel.Bouton@free.fr (Lionel Bouton),
-        Andries.Brouwer@cwi.nl
-In-Reply-To: <1009927797.5016.2.camel@falcon> from "Grahame Jordan" at Jan 02, 2002 10:29:53 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S286385AbSAAXpz>; Tue, 1 Jan 2002 18:45:55 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:33739
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S286382AbSAAXpj>; Tue, 1 Jan 2002 18:45:39 -0500
+Date: Tue, 1 Jan 2002 16:45:46 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] mesh: target 0 aborted
+Message-ID: <20020101234546.GO28513@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <87lmfhy9kh.fsf@fadata.bg>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LYix-0001wN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <87lmfhy9kh.fsf@fadata.bg>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is this similar to the VCD problem I have where I can mount the cd and
-> read the smaller files but cannot read the mpg file (avseq01.dat)?
+On Wed, Jan 02, 2002 at 12:45:34AM +0200, Momchil Velikov wrote:
 
-Unrelated. The .dat files are not normal ISO9660 files they are indexes into
-the VCD data which is physical layer stuff and sorted into tracks audio
-style.
+> This patch makes mesh.c compile, by adapting it to the new
+> pmac_feature API (ported from the ppc tree).
+> 
+> In addition it contains the fix from Thomas Capricelli for the
+> infamous "mesh: target 0 aborted" error, which I've been personally
+> observing since 2.1.13x.
 
-> it should be done there.  If it nees to be done in userspace then where
-> in userspace does this need to be fixed?  I am willing to help but know
-> not where to start.
+Er, what exactly is this against?  If this is just what's in the
+linuxppc_2_4 tree against current 2.4.18pre, this is either (or will be
+now :)) on BenH's list of things to resend to Marcelo, or there's a
+problem with it still.  If you added in another patch, please re-send
+this vs the linuxppc_2_4 tree.
 
-Xine seems to play my videocd's nicely.
-
-Alan
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

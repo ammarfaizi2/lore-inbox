@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281645AbRLAMtq>; Sat, 1 Dec 2001 07:49:46 -0500
+	id <S284095AbRLANFr>; Sat, 1 Dec 2001 08:05:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284092AbRLAMtg>; Sat, 1 Dec 2001 07:49:36 -0500
-Received: from mail020.mail.bellsouth.net ([205.152.58.60]:5690 "EHLO
-	imf20bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281645AbRLAMt1>; Sat, 1 Dec 2001 07:49:27 -0500
-Message-ID: <3C08D1D1.F3EAC851@mandrakesoft.com>
-Date: Sat, 01 Dec 2001 07:49:21 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S284096AbRLANFh>; Sat, 1 Dec 2001 08:05:37 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:17577 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S284095AbRLANFZ>; Sat, 1 Dec 2001 08:05:25 -0500
+Date: Sat, 1 Dec 2001 15:10:08 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] if (foo) kfree(foo) /fs cleanup
 In-Reply-To: <E16A9WI-00073W-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.33.0112011500590.11026-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
+On Sat, 1 Dec 2001, Alan Cox wrote:
+
 > IMHO this is precisely the wrong thing to do.
-> 
+>
 > We should make the = NULL check within kfree do a BUG() call. That way we
 > fix the cases not being considered instead of hiding real bugs
 
-I actually agree with the general sentiment, but,
+I agree, but looking at the common case, it would mean lots of extra null
+checks all over the place. And most people seem used to the idea of free
+doing nothing when called with a NULL pointer, of course people can always
+change...
 
-Then you have to fix all the code which has assumed such, breaking
-previously-correct code.  bcrl (IIRC) was the one who told me about
-kfree doing the NULL check; likewise akpm for brelse.  So people are
-using these things.
+Cheers,
+	Zwane Mwaikambo
 
-Do you really want to audit every single kfree and brelse to implement
-this change?
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
 

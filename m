@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269126AbUIBVKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269082AbUIBVJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269126AbUIBVKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 17:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269107AbUIBVJ5
+	id S269082AbUIBVJp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 17:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUIBVCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:09:57 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:13466
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268370AbUIBVJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:09:14 -0400
-Date: Thu, 2 Sep 2004 14:07:59 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: benh@kernel.crashing.org, akpm@osdl.org, wli@holomorphy.com,
-       davem@redhat.com, raybry@sgi.com, ak@muc.de, manfred@colorfullife.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       vrajesh@umich.edu, hugh@veritas.com
-Subject: Re: page fault scalability patch final : i386 tested, x86_64
- support added
-Message-Id: <20040902140759.5f1003d5.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.58.0409021358540.28182@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com>
-	<20040815185644.24ecb247.davem@redhat.com>
-	<Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
-	<20040816143903.GY11200@holomorphy.com>
-	<B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
-	<B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
-	<B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
-	<Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
-	<1094012689.6538.330.camel@gaston>
-	<Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com>
-	<1094080164.4025.17.camel@gaston>
-	<Pine.LNX.4.58.0409012140440.23186@schroedinger.engr.sgi.com>
-	<20040901215741.3538bbf4.davem@davemloft.net>
-	<Pine.LNX.4.58.0409020920570.26893@schroedinger.engr.sgi.com>
-	<20040902131057.0341e337.davem@davemloft.net>
-	<Pine.LNX.4.58.0409021358540.28182@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 2 Sep 2004 17:02:12 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:33240 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S269107AbUIBU7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 16:59:11 -0400
+Date: Thu, 2 Sep 2004 13:58:45 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Spam <spam@tnonline.net>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040902205845.GA7541@taniwha.stupidest.org>
+References: <rlrevell@joe-job.com> <1094079071.1343.25.camel@krustophenia.net> <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl> <1535878866.20040902214144@tnonline.net> <20040902194909.GA8653@atrey.karlin.mff.cuni.cz> <1094155277.11364.92.camel@krustophenia.net> <20040902204351.GE8653@atrey.karlin.mff.cuni.cz> <1094158060.1347.16.camel@krustophenia.net> <20040902204949.GA7449@taniwha.stupidest.org> <1094158626.1347.28.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094158626.1347.28.camel@krustophenia.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Sep 2004 14:02:47 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+On Thu, Sep 02, 2004 at 04:57:06PM -0400, Lee Revell wrote:
 
-> I have the similar issues with the page scalability patch. Should I not do
-> the legacy thing for platforms that do not have atomic pte operations?
-> '
+> How are permissions handled?  If root lists the contents of a tar
+> file that is world readable, then joeuser comes along and does the
+> same, can joeuser sees the cached listing?
 
-I think your situation is different.  The set_pte() changes are modifying
-the arguments of an existing interface.
+everyone has their own cache i guess, works well enough elsewhere
 
-Your changes are adding support for taking advantage of a facility
-that may or may not exist on a platform.
+also, am i the only person scared by the code complexity when it comes
+to root and setuid code here?  sounds like a disaster waiting to
+happen

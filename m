@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263385AbTH0OVN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 10:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTH0OVN
+	id S263406AbTH0OZc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 10:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTH0OZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 10:21:13 -0400
-Received: from 213.237.25.228.adsl.van.worldonline.dk ([213.237.25.228]:59952
-	"EHLO www.zensonic.dk") by vger.kernel.org with ESMTP
-	id S263385AbTH0OVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 10:21:11 -0400
-Date: Wed, 27 Aug 2003 16:20:35 +0200
-From: "Thomas S. Iversen" <zensonic@zensonic.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Help with debugging of a framebuffer driver on a legacyfree system.
-Message-ID: <20030827142035.GA25937@zensonic.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Wed, 27 Aug 2003 10:25:32 -0400
+Received: from [210.53.66.248] ([210.53.66.248]:40975 "EHLO cnc.intra")
+	by vger.kernel.org with ESMTP id S263406AbTH0OZZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 10:25:25 -0400
+From: "dl-ipaddr" <dl-ipaddress@china-netcom.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Pentium Pro - sysenter - doublefault
+Date: Wed, 27 Aug 2003 22:25:21 +0800
+Message-ID: <001a01c36ca7$0c715cc0$fecf53d2@xuxp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <20030827140121.GA1973@mail.jlokier.co.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+X-OriginalArrivalTime: 27 Aug 2003 14:27:35.0764 (UTC) FILETIME=[5C22F940:01C36CA7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there 
+did you notice the announcement from www.apache.org and www.debian.org?
 
-As part of a project I am trying to write a framebuffer device
-driver for a graphic chip. Up until now I have compiled my
-code as a module and been doing insmod, rmmod and that have worked
-nicely.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jamie Lokier
+Sent: Wednesday, August 27, 2003 10:01 PM
+To: Jim Houston; linux-kernel@vger.kernel.org; jim.houston@ccur.com
+Subject: Re: [PATCH] Pentium Pro - sysenter - doublefault
 
-I then tried to compile the driver into the kernel but that
-makes the kernel hang. As my development system are a legacy
-free laptop and my driver initializes the screen, the kernel
-hangs without me being able to figure out where and why that
-happend.
 
-So I seek advice on how to debug the driver! As said, the
-laptop are legacy free, so I have not got a serial port. 
-I have tried a usb->serial adapter, but that requires a driver.
-Can I do USB->USB on another computer? Or?
+Richard Curnow wrote:
+> OK, since I get something different to the other reports I saw:
+> 
+>  1:20PM-malvern-0-534-% ./sysenter  1:20PM-malvern-STKFLT-535-% echo 
+> $? 144
 
-Or am I stuck with coding my own printk variant and writing to the
-screen or is there any other option I have not thought of?
+Hi Richard,
 
-Regards Thomas, Denmark
+That's because you ran it on a 2.5/2.6 kernel, right?  The test code is
+meant for 2.4 kernels and earlier :)
+
+Here is a more universal test:
+
+	int main () {
+		asm ("movl %%esp,%%ebp;sysenter" : : "a" (1), "b" (0));
+		return 0;
+	}
+
+I expect it to do the first of these which is applicable:
+
+	- raise SIGILL on Pentium and earlier Intel CPUs
+	- raise SIGILL on non-Intel CPUs which don't have the SEP
+capability
+	- raise SIGSEGV on Pentium Pro CPUs
+	- raise SIGSEGV on Pentium II CPUs with model == 3 and stepping
+< 3
+	- raise SIGSEGV on 2.4 kernels
+	- exit with status 0 on 2.6 kernels
+
+Enjoy,
+-- Jamie
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in the body of a message to majordomo@vger.kernel.org More majordomo
+info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVANMlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVANMnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbVANMlz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 07:41:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVANMlz
+	id S261973AbVANMnY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 07:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVANMnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 07:41:55 -0500
-Received: from main.gmane.org ([80.91.229.2]:49585 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261972AbVANMlu (ORCPT
+	Fri, 14 Jan 2005 07:43:23 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:62610 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261973AbVANMmI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 07:41:50 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: jtjm@xenoclast.org (Julian T. J. Midgley)
-Subject: Re: thoughts on kernel security issues
-Date: Fri, 14 Jan 2005 12:10:07 +0000 (UTC)
-Message-ID: <cs8cqv$jo5$1@sea.gmane.org>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <1105643984.5193.95.camel@localhost.localdomain> <20050113204415.GF24970@beowulf.thanes.org> <20050114102249.GA3539@wiggy.net>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: hanjague.menavaur.org
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: jtjm@skaffen.home.xenoclast.org (Julian T. J. Midgley)
+	Fri, 14 Jan 2005 07:42:08 -0500
+Message-Id: <200501141239.j0ECdaRj005677@laptop11.inf.utfsm.cl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues 
+In-Reply-To: Message from Linus Torvalds <torvalds@osdl.org> 
+   of "Thu, 13 Jan 2005 09:33:38 -0800." <Pine.LNX.4.58.0501130926260.2310@ppc970.osdl.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Fri, 14 Jan 2005 09:39:36 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 14 Jan 2005 09:39:45 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050114102249.GA3539@wiggy.net>,
-Wichert Akkerman  <wichert@wiggy.net> wrote:
->Previously Marek Habersack wrote:
->> So it sounds that we, the men-in-the-crowd are really left out in the crowd,
->> people who are affected the most by the issues. Since the vendors are not
->> affected by the bugs (playing a devil's advocate here), since they fix them
->> for their machines as they appear, way before they get public.
->
->vendor suffer from that as well. Suppose vendors learn of a problem in
->a product they visibly use such as apache or rsync. If all vendors
->suddenly update their versions or disable things that will be noticed as
->well, so vendors can't do that.
+Linus Torvalds <torvalds@osdl.org> said:
+> On Thu, 13 Jan 2005, Alan Cox wrote:
+> > On Iau, 2005-01-13 at 16:38, Linus Torvalds wrote:
 
-I don't buy that at all.  There are numerous reasons for updating
-programs or disabling things, of which fixing security holes is but
-one.  Furthermore, even if fixing security holes was the only reason,
-updating a service would indicate only that a bug had been found.  It
-doesn't tell the observer what the bug is, or how to exploit it, so it
-doesn't increase the risk to the end users.  The observant black hat
-now knows that there is a bug in, say, apache, and can set about
-reading the source code to try to find it, but he was probably looking
-there anyway, so I don't think that need worry you much.  
+> > > It wouldn't be a global flag. It's a per-process flag. For example,
+> > > many people _do_ need to execute binaries in their home directory. I
+> > > do it all the time. I know what a compiler is.
 
-So, the reason for not updating the software isn't "letting the black
-hats know", which leaves "not being seen to break the embargo" as the
-only possible explanation for such action.  But the embargo is there
-to protect the end users, not to protect the vendors, so what the hell
-does it matter if the information that there is a (non-disclosed) bug
-in $CRITICAL_SERVER leaks so that the vendors can ensure that their
-users are not put in danger of downloading binaries from a compromised
-machine.  
+> > noexec has never been worth anything because of scripts. Kernel won't
+> > load that binary, I can write a script to do it.
 
-If instead the vendors have drunk so heavily from the kool-aid that
-they believe they must leave their machines vulnerable in order either
-not to break the (apparently flawed) rules of vendor-sec, or, even
-worse, to avoid annoying some dime-a-dozen "security researcher" who's
-desperate to make a big name for himself, then things have reached a
-very sorry state indeed.
+> Scripts can only do what the interpreter does. And it's often a lot harder
+> to get the interpreter to do certain things. For example, you simply
+> _cannot_ get any thread race conditions with most scripts out there, nor 
+> can you generally use magic mmap patterns.
 
-Julian
+But you can trivially run an executable via e.g.:
+
+    /lib/ld-2.3.4.so some-nice-proggie
+
+and the execute permissions (and noexec, etc) on some-nice-proggie don't
+matter.
+
+> Am I claiming that disallowing self-written ELF binaries gets rid of all 
+> security holes? Obviously not.
+
+It makes their running a bit harder, but not much.
+
+>                                I'm claiming that there are things that 
+> people can do that make it harder, and that _real_ security is not about 
+> trusting one subsystem, but in making it hard enough in many independent 
+> ways that it's just too effort-intensive to attack.
+
+Right. But this is a broken idea, IMVHO.
+
+
+Besides, something that has been overlooked in all this discussion so far:
+It does routinely happen that fixing some "just an ordinary bug" really
+does correct a security problem. Plus backporting "only security fixes"
+gets harder and harder as they start depending on other random changes.
 -- 
-Julian T. J. Midgley                       http://www.xenoclast.org/
-Cambridge, England.
-PGP: BCC7863F FP: 52D9 1750 5721 7E58 C9E1  A7D5 3027 2F2E BCC7 863F
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

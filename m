@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263062AbTCLGI5>; Wed, 12 Mar 2003 01:08:57 -0500
+	id <S263064AbTCLGZX>; Wed, 12 Mar 2003 01:25:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263063AbTCLGI5>; Wed, 12 Mar 2003 01:08:57 -0500
-Received: from almesberger.net ([63.105.73.239]:12560 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S263062AbTCLGI4>; Wed, 12 Mar 2003 01:08:56 -0500
-Date: Wed, 12 Mar 2003 03:19:31 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Zack Brown <zbrown@tumblerings.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030312031930.X2791@almesberger.net>
-References: <20030311184043.GA24925@renegade> <200303120347.h2C3loEG002703@eeyore.valparaiso.cl> <20030312052225.GO4716@renegade>
+	id <S263065AbTCLGZX>; Wed, 12 Mar 2003 01:25:23 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:39659 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263064AbTCLGZX>;
+	Wed, 12 Mar 2003 01:25:23 -0500
+Date: Tue, 11 Mar 2003 22:35:49 -0800 (PST)
+Message-Id: <20030311.223549.53161356.davem@redhat.com>
+To: ak@suse.de
+Cc: alan@lxorguk.ukuu.org.uk, shemminger@osdl.org,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernelorg
+Subject: Re: [PATCH] (8/8) Kill brlock
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <p73smtt3z7q.fsf@amdsimf.suse.de>
+References: <Pine.LNX.4.44.0303111644060.3002-100000@home.transmeta.com.suse.lists.linux.kernel>
+	<1047436263.20968.5.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel>
+	<p73smtt3z7q.fsf@amdsimf.suse.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312052225.GO4716@renegade>; from zbrown@tumblerings.org on Tue, Mar 11, 2003 at 09:22:25PM -0800
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zack Brown wrote:
-> Maybe the system should simply ignore the whole concept of time as occurring
-> in discrete ticks, and just measure time as the relative history of
-> changesets.
+   From: Andi Kleen <ak@suse.de>
+   Date: 12 Mar 2003 06:56:09 +0100
 
-Real time is still useful, if only as a hint to users. E.g.
-assume that you have dependencies the SCM doesn't know about.
+   Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+   
+   > If Linus is scared ;) then throw them at me for -ac by all means. Anyone
+   > running -ac IDE test sets is brave enough to run rcu network code 8)
+   
+   It's unlikely to cause problems, unless you start/stop tcpdump all day.
+   
+   Protocol addition/deletion is really rare.
 
-Example: somebody posts on linux-kernel a one-line fix for a
-remote root exploit. You'll instantly get dozens of people who
-will apply that one to their local views, without waiting or
-making a common unique change set.
+True, and this is why people should wrap their brains around
+the patch or stress these specific cases really hard.
 
-Some of those view may have branched from a long time ago, and
-not have touched any common change set for months. So the
-partial order of applied change sets tells you very little.
-
-Naturally, such one-line fixes will be slightly different, and
-eventually, some of them will merge ...
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Rusty's module stress testers might be useful here.

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263809AbUCXUBI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 15:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbUCXUBI
+	id S261723AbUCXUCP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 15:02:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbUCXUCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 15:01:08 -0500
-Received: from holomorphy.com ([207.189.100.168]:17285 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263809AbUCXUBD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 15:01:03 -0500
-Date: Wed, 24 Mar 2004 12:00:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] anobjrmap 1/6 objrmap
-Message-ID: <20040324200054.GJ791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2924080000.1079886632@[10.10.2.4]> <20040321235207.GC3649@dualathlon.random> <1684742704.1079970781@[10.10.2.4]> <20040324061957.GB2065@dualathlon.random> <24560000.1080143798@[10.10.2.4]> <20040324162116.GQ2065@dualathlon.random> <35130000.1080146145@[10.10.2.4]> <20040324170841.GT2065@dualathlon.random>
+	Wed, 24 Mar 2004 15:02:14 -0500
+Received: from pirx.hexapodia.org ([65.103.12.242]:64115 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S263811AbUCXUBX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 15:01:23 -0500
+Date: Wed, 24 Mar 2004 14:01:21 -0600
+From: Andy Isaacson <adi@hexapodia.org>
+To: ameer armaly <ameer@charter.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: missing files in bk trees?
+Message-ID: <20040324200121.GF20793@hexapodia.org>
+References: <Pine.LNX.4.58.0403232140160.7713@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040324170841.GT2065@dualathlon.random>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.58.0403232140160.7713@debian>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 24, 2004 at 06:08:41PM +0100, Andrea Arcangeli wrote:
-> nitpick, it's not PAE but highmem that makes it worse (even with PAE off).
+On Tue, Mar 23, 2004 at 09:41:46PM -0500, ameer armaly wrote:
+> I got the latest kernel tree from linux.bkbits.net, and I try to make
+> config, and it complains about a missing zconf.tab.h.  However, it has
+> decrypted the other sccs files, but for some oodd reason it can't find
+> this particular one.  Suggestions would be appriciated.
 
-Please give me a little more credit than that. This is largely over,
-but when assessing it, do note:
+The build fails on this file because the kernel makefiles don't have
+complete dependency information.  Make is smart enough to automatically
+check out foo.c and foo.h if you say
 
-#if defined(CONFIG_HIGHPTE) && defined(CONFIG_HIGHMEM4G)
-typedef u32 pte_addr_t;
-#endif
+foo.o: foo.c foo.h
+	$(CC) -c foo.c -o foo.o
 
-#if defined(CONFIG_HIGHPTE) && defined(CONFIG_HIGHMEM64G)
-typedef u64 pte_addr_t;
-#endif
+but in the absence of that information, make cannot deduce it.
 
-#if !defined(CONFIG_HIGHPTE)
-typedef pte_t *pte_addr_t;
-#endif
+The work-around is to simply check out everything before running make:
+% bk -Ur get -S
 
-Yes, I also realized that in principle, one could have only used
-PG_direct if the pagetable fell into the lower 32GB or stuffed the 33rd
-bit into PG_arch and so on and so forth wrt. the 33rd bit.
-
--- wli
+-andy

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263349AbUCNML7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 07:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbUCNML6
+	id S263355AbUCNMMM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 07:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbUCNMML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 07:11:58 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:17659 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S263349AbUCNML4 (ORCPT
+	Sun, 14 Mar 2004 07:12:11 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:21755 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S263355AbUCNMMH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 07:11:56 -0500
-Date: Sun, 14 Mar 2004 13:11:49 +0100 (MET)
-Message-Id: <200403141211.i2ECBnJw008435@harpo.it.uu.se>
+	Sun, 14 Mar 2004 07:12:07 -0500
+Date: Sun, 14 Mar 2004 13:12:05 +0100 (MET)
+Message-Id: <200403141212.i2ECC5vo008463@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@suse.de, torvalds@osdl.org
-Subject: Re: [PATCH] Fix a 64bit bug in kobject module request
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+To: jo@sommrey.de, linux-kernel@vger.kernel.org
+Subject: Re: NMI watchdog in 2.6.3-mm4/2.6.4-mm1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Mar 2004 05:09:43 +0100, Andi Kleen wrote:
->>From Takashi Iwai
+On Sat, 13 Mar 2004 22:42:55 +0100, Joerg Sommrey wrote:
+>in my box (Tyan Tiger MPX / 2x AMD Athlon) the NMI watchdog never worked
+>on any kernel that I tried (2.4.x, 2.6.x). I always found:
+>| activating NMI Watchdog ... done.
+>| testing NMI watchdog ... CPU#0: NMI appears to be stuck!
 >
->kobj_lookup had a 64bit bug, which caused the request of a unknown
->character device to burn CPU instead of failing quickly.
+>But there is one exception: 2.6.3-mm4 shows:
+>| activating NMI Watchdog ... done.
+>| testing NMI watchdog ... OK.
 >
->diff -burpN -X ../KDIFX linux-vanilla/drivers/base/map.c linux-2.6.4-amd64/drivers/base/map.c
->--- linux-vanilla/drivers/base/map.c	2003-09-23 08:03:40.000000000 +0200
->+++ linux-2.6.4-amd64/drivers/base/map.c	2004-03-08 15:23:45.000000000 +0100
->@@ -96,7 +96,7 @@ struct kobject *kobj_lookup(struct kobj_
-> {
-> 	struct kobject *kobj;
-> 	struct probe *p;
->-	unsigned best = ~0U;
->+	unsigned long best = ~0UL;
-> 
-> retry:
-> 	down_read(domain->sem);
+>[2.6.3-mm4 was the only -mmX kernel I tried so far.]
+>
+>With 2.6.4-mm1 the NMI watchdog is again not functional in my box. Any
+>ideas?
 
-My Athlon64 (FC1/x86_64 user-space) has been having mysterious
-module autoloading failures where some modules (char-major-10-$N)
-autoloaded just fine, but many ({char,block}-major-$N) did not.
-This patch solved that problem.
+Insufficient data. Please try a standard 2.6.4 or 2.4.25 kernel
+and provide the complete dmesg boot log and the .config used.
 
-Thanks Andi.
+nmi_watchdog=1 may be broken on some chipsets, but nmi_watchdog=2
+should work, at least in a standard kernel with oprofile disabled.
 
 /Mikael

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264969AbSJPITr>; Wed, 16 Oct 2002 04:19:47 -0400
+	id <S264959AbSJPIR0>; Wed, 16 Oct 2002 04:17:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264970AbSJPITr>; Wed, 16 Oct 2002 04:19:47 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:36851 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S264969AbSJPITq>;
-	Wed, 16 Oct 2002 04:19:46 -0400
-Message-ID: <3DAD2263.2C8EAF7D@mvista.com>
-Date: Wed, 16 Oct 2002 01:25:07 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Linus Torvalds <torvalds@transmeta.com>, rread@clusterfs.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.43 nfs fails to boot, fix
-References: <Pine.NEB.4.44.0210160922280.20607-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: multipart/mixed;
- boundary="------------0A8F24DC55619D8C41286B2F"
+	id <S264960AbSJPIR0>; Wed, 16 Oct 2002 04:17:26 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58530 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264959AbSJPIRY>; Wed, 16 Oct 2002 04:17:24 -0400
+Date: Wed, 16 Oct 2002 04:22:09 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@digeo.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] mmap-speedup-2.5.42-C3
+Message-ID: <20021016042209.D5659@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20021016040754.C5659@devserv.devel.redhat.com> <Pine.LNX.4.44.0210161023530.4906-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210161023530.4906-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Oct 16, 2002 at 10:27:07AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 16, 2002 at 10:27:07AM +0200, Ingo Molnar wrote:
+> 
+> On Wed, 16 Oct 2002, Jakub Jelinek wrote:
+> 
+> > Libraries mapped by dynamic linker are mapped without MAP_FIXED and
+> > unless you use prelinking, with 0 virtual address, ie. they all end up
+> > above 1GB. And 99% of libraries uses different protections, for the
+> > read-only and read-write segment.
+> 
+> right - only the bss (brk-allocated) ones are below 1GB it appears. I did
+> a quick check on a KDE app and 3 mappings were below 1GB, and 116(!)  
+> mappings were above 1GB. And even if it wasnt for the different
+> protections, they use different files to map to so they have to be in
+> different vmas, no matter what.
+> 
+> i'm wondering about prelinking though - wont that reduce the number of
+> mappings radically?
 
-This is a multi-part message in MIME format.
---------------0A8F24DC55619D8C41286B2F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+It won't, the number of mappings will be exactly the same. It still needs
+to mmap all the libraries and honour the protections.
+But you might have holes in between the mappings if prelinking, while
+you usually don't have many if not prelinking.
+That's because prelink assigns a separate VA slot for each library (well,
+with --conserve-memory two libraries might get the same VA slot if they
+never appear together in any program).
 
-Don't know if this is the correct fix, but it at least lets
-the system boot with nfs.
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
---------------0A8F24DC55619D8C41286B2F
-Content-Type: text/plain; charset=us-ascii;
- name="fix-2.5.43-nfs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-2.5.43-nfs.patch"
-
---- /usr/src/linux-2.5.43-posix/fs/nfs/proc.c~	Wed Oct 16 00:18:10 2002
-+++ linux/fs/nfs/proc.c	Wed Oct 16 01:10:40 2002
-@@ -490,7 +490,7 @@
- 
- 	dprintk("NFS call  fsinfo\n");
- 	info->fattr->valid = 0;
--	status = rpc_call(server->client, NFSPROC_STATFS, fhandle, &info, 0);
-+	status = rpc_call(server->client, NFSPROC_STATFS, fhandle, info, 0);
- 	dprintk("NFS reply fsinfo: %d\n", status);
- 	if (status)
- 		goto out;
-
-
---------------0A8F24DC55619D8C41286B2F--
-
+	Jakub

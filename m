@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUJOMwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUJONGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266204AbUJOMwp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 08:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUJOMwp
+	id S266459AbUJONGU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 09:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUJONGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 08:52:45 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:20353 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S266204AbUJOMvq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 08:51:46 -0400
-Date: Fri, 15 Oct 2004 14:48:21 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: signed kernel modules? 
-In-Reply-To: <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0410151444510.877@scrub.home>
-References: <27277.1097702318@redhat.com>  <1097626296.4013.34.camel@localhost.localdomain>
- <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
- <20040812092029.GA30255@devserv.devel.redhat.com> <20040811211719.GD21894@kroah.com>
- <OF4B7132F5.8BE9D947-ON87256EEB.007192D0-86256EEB.00740B23@us.ibm.com>
- <1092097278.20335.51.camel@bach> <20040810002741.GA7764@kroah.com>
- <1092189167.22236.67.camel@bach> <19388.1092301990@redhat.com>
- <30797.1092308768@redhat.com> <20040812111853.GB25950@devserv.devel.redhat.com>
- <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
- <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
- <10345.1097507482@redhat.com> <1097507755.318.332.camel@hades.cambridge.redhat.com>
- <1097534090.16153.7.camel@localhost.localdomain>
- <1097570159.5788.1089.camel@baythorne.infradead.org>  <23446.1097777340@redhat.com>
- <Pine.LNX.4.61.0410151253360.7182@scrub.home> <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Oct 2004 09:06:20 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34279 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266459AbUJONGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 09:06:17 -0400
+Date: Fri, 15 Oct 2004 08:06:02 -0500
+From: Robin Holt <holt@sgi.com>
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org, fastboot@osdl.org
+Subject: Re: Yet another crash dump tool
+Message-ID: <20041015130602.GA32020@lnx-holt.americas.sgi.com>
+References: <20041014074718.26E6.ODA@valinux.co.jp> <20041014112938.GE19122@lnx-holt.americas.sgi.com> <20041015081246.26EB.ODA@valinux.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041015081246.26EB.ODA@valinux.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Oct 15, 2004 at 09:08:41AM +0900, Itsuro Oda wrote:
+> Hi,
+> 
+> > dump device.  Can you dump device span multiple volumes?  If I
+> yes. (maybe. suppose logical volume.)
 
-On Fri, 15 Oct 2004, Richard B. Johnson wrote:
+1TB of memory being written to device at 200Mb/sec will take
+1 1/2 hours to dump.  That seems like a long time.  I start
+getting frustrated at a few minutes of lost production.  Can
+you add a feature to only dump kernel pages, kernel pages +
+page/buffer cache, or all of memory?  If not, this is a step
+backwards in dumping.  We have seen RFPs from some potential
+customers for as much as 16PB of memory.  I am not sure that
+anybody builds hardware that scales to that level, but it
+certainly shows you a problem.
 
-> Freedom isn't lost in one big step when the storm-troopers
-> show up at your door. It is lost in little pieces, each
-> so small that they tend to be ignored.
+> 
+> > have a system using 1TB of physical memory, but 98% of that
+> > is allocated as huge TLB pages for users, do I _REALLY_ need to
+> > dump them all?
+> yes, absolutely, for us.
+> 
+> Our target is customer's production system, not developping/debugging
+> system. The chance of capturing fault analysis materials may be only
+> one time. If a kernel destroy the memory using user process(page cache
+> , buffer cache), looking the pattern of destroy is great helpful to 
+> analyze. (note that I have encountered such case many times)
+> We also analyze user proccesses at the crash time from the dump.
 
-Unless you have a technical argument, could you please stop your 
-nonsensical rambling? Thanks.
+I have analyzed many dumps and never even had the desire to look at
+the user processes.  Additionally, some of our customers have
+classified data.  They require assurances that the minimal amount
+of their unclassified data is being sent outside their control to
+reduce the chance that someone can infer their methods.
 
-bye, Roman
+> 
+> > lkcd, and I would hope others, only dump kernel pages unless
+> > configured to do otherwise.
+> 
+> You should chose a dump tool you like.
+> 
+> We believe we need whole memory. But we understand there is an opinion
+> like you (reduce saving memory is better). We don't force to use our
+> tool. We make "mini kernel dump" as independent from kernel as possible.
+> 
+
+
+Thanks,
+Robin Holt

@@ -1,170 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289148AbSAVElp>; Mon, 21 Jan 2002 23:41:45 -0500
+	id <S287565AbSAVEqF>; Mon, 21 Jan 2002 23:46:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289146AbSAVEl0>; Mon, 21 Jan 2002 23:41:26 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:61361 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289148AbSAVElO>; Mon, 21 Jan 2002 23:41:14 -0500
-Date: Mon, 21 Jan 2002 20:41:02 -0800 (PST)
-From: Dave Olien <oliendm@us.ibm.com>
-Message-Id: <200201220441.g0M4f2c25338@eng2.beaverton.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.2 fixing pthread support for SEM_UNDO in semop()
-Cc: marcelo@conectiva.com.br, torvalds@transmeta.com
+	id <S289149AbSAVEpz>; Mon, 21 Jan 2002 23:45:55 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:4880 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S287565AbSAVEpn>; Mon, 21 Jan 2002 23:45:43 -0500
+Date: Tue, 22 Jan 2002 15:45:49 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
+Cc: akeys@post.cis.smu.edu, partha@us.ibm.com, linux-kernel@vger.kernel.org,
+        mingo@elte.hu
+Subject: Re: Performance Results for Ingo's O(1)-scheduler
+Message-Id: <20020122154549.7decbeb9.rusty@rustcorp.com.au>
+In-Reply-To: <200201212016.29055.bodnar42@phalynx.dhs.org>
+In-Reply-To: <OF4544D2BC.16B7A12D-ON85256B48.00817250@raleigh.ibm.com>
+	<20020122035540.ZUVU10199.rwcrmhc53.attbi.com@there>
+	<200201212016.29055.bodnar42@phalynx.dhs.org>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 21 Jan 2002 20:16:28 -0800
+Ryan Cumming <bodnar42@phalynx.dhs.org> wrote:
 
-[PATCH] 2.5.2 fixing pthread support for SEM_UNDO in semop()
+> On January 21, 2002 19:55, Adam Keys wrote:
+> > I'm curious about the performance of the 4-way and 8-way systems.  I know
+> > nothing about this benchmark.  IIRC correctly it simulates chat clients
+> > connecting to a server and talking to each other.  Is it a CPU, memory, or
+> > disk bound benchmark?  What is causing the 4-way machines to be only 2x the
+> > performance of the 1-way machine and the 8-way machines to be < 3x the
+> > performance?  Is the system bus the limiting factor on those machines?
+> 
+> Memory bus, lock contention, syncronization issues. SMP really isn't as 
+> magical as people think after the overhead is taken in to account.
 
-The Linux semop() System V semaphore SEM_UNDO should perform SEM_UNDO cleanup
-during "process" exit, not during "pthread" exit.  Following is a brief
-explanation of the problem, followed by the test program,
-followed by a patch for linux 2.4.17.
+Volcanomark is a Java(TM) chatroom benchmark: multiple rooms, where for each
+room, every input from a client generates a write to every other client
+(think broadcast storm).
 
-The test program is pretty simple.  The application creates
-several threads using pthread_create().  When one thread performs a semop()
-with the SEM_UNDO flag set, the change in sempaphore value performed by
-that semop should be "undone" only when the entire application exits, NOT when
-that thread exits.  This would be consistent with the description on the
-semop(2) manual page, and also with the semop() implementation on many other
-UNIX implementations.
+chat (which is a C version of Volcanomark) is useful for testing, as is
+hackbench2 (which is cut down to just exhibit the runqueue problem, and
+doesn't even use threads).
 
-However, In the current Linux implementation, the semop is "undone" when the
-thread that performed the semop() exits.  This is too soon.  This behavior
-has created difficulty in porting to Linux some threaded applications that use
-semop().
-
-In the current Linux implementation, each thread currently maintains its own
-private list of semundo structures, referenced by current->semundo.  The bug
-is that the list of sem_undo structures for a threaded process should be
-shared among all the threads in that process.
-
-My patch adds a structure (sem_undohd) that is shared by all the threads in
-the threaded application, and controls access to the shared list of sem_undo
-structures. current->semundo references are replaced with current->semundohd
-references.  I've tried to minimize the impact on tasks that are not using
-SEM_UNDO semop() operations, or that are not using pthread_create().
-
-One issue is WHEN should a child task share its sem_undo structures list with
-its parent.  Linux uses a collection of flags (CLONE_VM, CLONE_FS, etc) to the
-fork() system call, to cause the child task to share various components of
-the parent's state.  There is no flag indicating when the child task should
-share sem_undo state.  When should a parent task and its child conform to the
-POSIX threads behavior for system V semaphores? See the code in copy_semundo()
-for how this decision was made.
-
-Below is a test program for this.  The test program's output SHOULD look like:
-
-Waiter, pid = 11490
-Poster, pid = 11490, posting
-Poster posted
-Poster exiting
-Waiter waiting, pid = 11490
-Waiter done waiting
-
-The Incorrect output on Linux is:
-
-Waiter, pid = 712
-Poster, pid = 713, posting
-Poster posted
-Poster exiting
-Waiter waiting, pid = 712
-
-
----------------------tsem.c---------------------------------------------------
-
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/sem.h>
-#include <errno.h>
-#include <pthread.h>
-
-#define KEY 0x1234
-
-#define NUMTHREADS 2
-
-void *retval[NUMTHREADS]; 
-void * waiter(void *);
-void * poster(void *);
-
-struct sembuf Psembuf = {0, -1, SEM_UNDO};
-struct sembuf Vsembuf = {0, 1, SEM_UNDO};
-
-int sem_id;
-
-main()
-{
-    int i, pid, rc;
-    
-    pthread_t pt[NUMTHREADS];
-    pthread_attr_t attr;
-
-    /* Create the semaphore set */
-    sem_id = semget(KEY, 1, 0666 | IPC_CREAT);
-    if (sem_id < 0)
-    {
-	printf ("semget failed, errno = %d\n", errno);
-	exit (1);
-    }
-    
-    /* setup the attributes of the thread        */
-    /* set the scope to be system to make sure the process competes on a  */
-    /* global scale for cpu   */
-    pthread_attr_init(&attr);
-    pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
-
-    /* Create the threads */
-    for (i=0; i<NUMTHREADS; i++)
-    {
-	if (i == 0)
-	    rc = pthread_create(&pt[i], &attr, waiter, retval[i]);
-	else
-	    rc = pthread_create(&pt[i], &attr, poster, retval[i]);
-    }
-
-    /* Sleep long enough to see that the other threads do what they are supposed to do */
-    sleep(20);
-
-    exit(0);
-}
-
-
-/* This thread sleeps 10 seconds then waits on the semaphore.  As long
-   as someone has posted on the semaphore, and no undo has taken
-   place, the semop should complete and we'll print "Waiter done
-   waiting." */
-void * waiter(void * foo)
-{
-    int pid;
-    pid = getpid();
-
-    printf ("Waiter, pid = %d\n", pid);
-    sleep(10);
-
-    printf("Waiter waiting, pid = %d\n", pid);
-    semop(sem_id, &Psembuf, 1);
-    printf("Waiter done waiting\n");
-   
-    pthread_exit(0);
-}
-
-/* This thread immediately posts on the semaphore and then immediately
-   exits.  If the *thread* exits, the undo should not happen, and the
-   waiter thread which will start waiting on it in 10 seconds, should
-   still get it.   */
-void * poster(void * foo)
-{
-    int pid;
-   
-    pid = getpid();
-    printf ("Poster, pid = %d, posting\n", pid);
-    semop(sem_id, &Vsembuf, 1);
-    printf ("Poster posted\n");
-    printf ("Poster exiting\n");
-    
-    pthread_exit(0);
-}
-
-------------------------Begin Patch for linux 2.4.17-------------------------
+Hope that helps,
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

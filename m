@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSFDWCF>; Tue, 4 Jun 2002 18:02:05 -0400
+	id <S316844AbSFDWER>; Tue, 4 Jun 2002 18:04:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316856AbSFDWCE>; Tue, 4 Jun 2002 18:02:04 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:37850 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S316844AbSFDWCC>;
-	Tue, 4 Jun 2002 18:02:02 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S316856AbSFDWEQ>; Tue, 4 Jun 2002 18:04:16 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:42488 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S316844AbSFDWEP>; Tue, 4 Jun 2002 18:04:15 -0400
+Date: Tue, 4 Jun 2002 18:04:16 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Chris Mason <mason@suse.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 12/16] fix race between writeback and unlink
+Message-ID: <20020604180416.E9111@redhat.com>
+In-Reply-To: <3CFD25A2.FCC7F66A@zip.com.au> <Pine.LNX.4.44.0206041428080.983-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15613.14457.3095.983212@argo.ozlabs.ibm.com>
-Date: Wed, 5 Jun 2002 08:00:25 +1000 (EST)
-To: Patrick Mochel <mochel@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
-In-Reply-To: <Pine.LNX.4.33.0206040749530.654-100000@geena.pdx.osdl.net>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel writes:
+On Tue, Jun 04, 2002 at 02:37:26PM -0700, Linus Torvalds wrote:
+> That's a good start, but before even egtting that far there is some need
+> for a way to get a picture of the FS layout in a reasonably fs-independent
+> way.
 
-> The problem: bus_types are registered with the system, which intializes 
-> all the internal fields, making them ready for use. The PCI bus is being 
-> probed before the PCI bus type has been registered. 
+Al Viro actually came up with a beautiful mechanism for it: present 
+the filesystem's metadata as a filesystem itself.  Blocks within a 
+particular inode can then be viewed with cat, and suggested replacements 
+can be made via echo.  Such a best could be called ext2metafs and work 
+cooperatively with the existing filesystem code.  It's quite an elegant 
+design that has utility beyond the simple case of defragmenting.
 
-We hit this on PPC too.
+> Add a nice graphical front-end, and you can make it a useful screen-saver.
 
-> Can pcibios_init() be demoted to a device_initcall? This would delay 
-> probing until all the subsystems could be setup...
+Heh, that would be excellent.
 
-No, because we have device drivers that are initialized with a
-device_initcall and which reasonably expect the PCI subsystem to be
-set up before they are called.
-
-I can see two solutions: either rename "unused_initcall" to "sys_init"
-or something similar and use it for sys_bus_init, or else make an
-alias for fs_initcall called "bus_init" or something and use that for
-pcibios_init.
-
-Paul.
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

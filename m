@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263259AbTJQAF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 20:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbTJQAF0
+	id S263260AbTJQAKH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 20:10:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTJQAKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 20:05:26 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:51076 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S263259AbTJQAFV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 20:05:21 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: jw schultz <jw@pegasys.ws>
-Cc: linux-kernel@vger.kernel.org
-Date: Thu, 16 Oct 2003 16:53:12 -0700 (PDT)
-Subject: Re: Transparent compression in the FS
-In-Reply-To: <20031016235811.GE29279@pegasys.ws>
-Message-ID: <Pine.LNX.4.58.0310161648190.4792@dlang.diginsite.com>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl>
- <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random>
- <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14>
- <20031016230448.GA29279@pegasys.ws> <3F8F2A32.90101@pobox.com>
- <20031016235811.GE29279@pegasys.ws>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Oct 2003 20:10:06 -0400
+Received: from mcgroarty.net ([64.81.147.195]:38101 "EHLO pinkbits.internal")
+	by vger.kernel.org with ESMTP id S263260AbTJQAKD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 20:10:03 -0400
+Date: Thu, 16 Oct 2003 19:09:54 -0500
+To: linux-kernel@vger.kernel.org
+Subject: ns83820 - Strange behavior w/Dlink DGE-500T
+Message-ID: <20031017000954.GA10635@mcgroarty.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Debian-GNU-Linux: Rocks
+From: Brian McGroarty <brian@mcgroarty.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Oct 2003, jw schultz wrote:
+With a Dlink DGE-550T and the 2.4.22 ns83820 driver, I'm seeing some
+peculiar behavior. After installing the kernel module and bringing up
+the interface, I see a lot of:
 
-> Date: Thu, 16 Oct 2003 16:58:11 -0700
-> From: jw schultz <jw@pegasys.ws>
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: Transparent compression in the FS
->
-> On Thu, Oct 16, 2003 at 07:30:58PM -0400, Jeff Garzik wrote:
-> > jw schultz wrote:
-> > >Because each hash algorithm has different pathologies
-> > >multiple hashes are generally better than one but their
-> > >effective aggregate bit count is less than the sum of the
-> > >separate bit counts.
-> >
-> > I was coming to this conclusion too...  still, it's safer simply to
-> > handle collisions.
->
-> And because, in a filesystem, you have to handle collisions
-> you balance the cost of the hash quality against the cost of
-> collision.  A cheap hash with low colission rate is probably
-> better than an expensive hash with a near-zero colission
-> rate.
+Oct 16 18:44:39 slate kernel: eth0: link now 1000 mbps, full duplex and up.
+Oct 16 18:44:42 slate kernel: eth0: link now down.
+Oct 16 18:44:45 slate kernel: eth0: link now 1000 mbps, full duplex and up.
+Oct 16 18:44:47 slate kernel: eth0: link now down.
+Oct 16 18:44:50 slate kernel: eth0: link now 1000 mbps, full duplex and up.
+Oct 16 18:44:53 slate kernel: eth0: link now down.
+Oct 16 18:44:55 slate kernel: eth0: link now 1000 mbps, full duplex and up.
+Oct 16 18:44:58 slate kernel: eth0: link now down.
+Oct 16 18:45:01 slate kernel: eth0: link now 1000 mbps, full duplex and up.
 
-true, but one advantage of useing multiple hashes is that once you already
-have the data in the CPU you can probably do multiple cheap hashes for the
-same cost as a single one (the same reason that calculating a checksum is
-essentially free if you are already having the CPU touch the data) when
-the CPU is 12x+ faster then the memory bus you have a fair bit of CPU time
-available for each byte of data that you are dealing with.
+Adding several seconds of sleep after the insmod and again after bringing
+the interface up makes just one or two of these happen.
 
-David Lang
+Attempting net traffic without the sleep commands leaves the above
+bouncing happening continuously until traffic attempts stop.
+
+Once the network is up, the bouncing never happens anymore.
+
+I've tried two different DGE-550Ts, a different switch, and a
+different cable, but the problem seems consistent.

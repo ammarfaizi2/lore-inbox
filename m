@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130424AbQKQROc>; Fri, 17 Nov 2000 12:14:32 -0500
+	id <S130451AbQKQRRW>; Fri, 17 Nov 2000 12:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130468AbQKQROW>; Fri, 17 Nov 2000 12:14:22 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:57838 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S130450AbQKQROP>;
-	Fri, 17 Nov 2000 12:14:15 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3A155F6A.28783D4A@mandrakesoft.com> 
-In-Reply-To: <3A155F6A.28783D4A@mandrakesoft.com>  <Pine.LNX.4.10.10011170814440.2272-100000@penguin.transmeta.com> <5178.974478881@redhat.com> 
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Russell King <rmk@arm.linux.org.uk>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, David Hinds <dhinds@valinux.com>,
-        tytso@valinux.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcmcia event thread. (fwd) 
-Mime-Version: 1.0
+	id <S130576AbQKQRRM>; Fri, 17 Nov 2000 12:17:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65296 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130451AbQKQRQ6>;
+	Fri, 17 Nov 2000 12:16:58 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011171646.QAA01224@raistlin.arm.linux.org.uk>
+Subject: Re: VGA PCI IO port reservations
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Fri, 17 Nov 2000 16:46:44 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, mj@suse.cz
+In-Reply-To: <3A155E8C.7D345649@mandrakesoft.com> from "Jeff Garzik" at Nov 17, 2000 11:36:28 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 17 Nov 2000 16:43:49 +0000
-Message-ID: <5997.974479429@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik writes:
+> > For example, S3 cards typically use:
+> > 
+> >  0x0102,  0x42e8,  0x46e8,  0x4ae8,  0x8180 - 0x8200,  0x82e8,  0x86e8,
+> >  0x8ae8,  0x8ee8,  0x92e8,  0x96e8,  0x9ae8,  0x9ee8,  0xa2e8,  0xa6e8,
+> >  0xaae8,  0xaee8,  0xb2e8,  0xb6e8,  0xbae8,  0xbee8,  0xe2e8,
+> >  0xff00 - 0xff44
+      ^^^^ PCI IO addresses
 
-jgarzik@mandrakesoft.com said:
->  For these two, it sounds to me like you need to be doing a PCI probe,
-> and getting the irq and I/O port info from pci_dev.  And calling
-> pci_enable_device, which may or may not be a showstopper here... 
+> I tried to push this through when I was hacking heavily on fbdev
+> drivers, especially S3, and it didn't fly.  On x86's, those addresses
+> are already reserved:
 
-Yep. The same code is already present in David Hinds' i82365.c, but appears 
-to have been stripped out when CardBus sockets started to be supported 
-elsewhere. 
+No they're not.
 
---
-dwmw2
+> [jgarzik@rum linux_2_4]$ cat /proc/iomem
+> 00000000-0009efff : System RAM
+> 000a0000-000bffff : Video RAM area
+> 000c0000-000c7fff : Video ROM
+> 000f0000-000fffff : System ROM
+> [...]
 
+   ^^^^^^^^^^^^^ PCI memory addresses.
 
+> Another alternative I thought of is freeing the resource if it is
+> allocated by the system, and having the driver allocate its own
+> resource.  When the driver unloads, it frees its resources and allocates
+> the whole region back to the system.  I look at this as the fbdev
+> driver's "clarifying the picture" of the hardware resource usage. 
+
+If the driver isn't loaded, the port is still used by the hardware.  Therefore,
+it should be reserved independent of whether we have the driver loaded/in kernel
+or not.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

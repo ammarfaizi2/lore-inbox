@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbQKAUQm>; Wed, 1 Nov 2000 15:16:42 -0500
+	id <S130372AbQKAURw>; Wed, 1 Nov 2000 15:17:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129713AbQKAUQd>; Wed, 1 Nov 2000 15:16:33 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:50757 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S129055AbQKAUQ0>;
-	Wed, 1 Nov 2000 15:16:26 -0500
-Date: Wed, 1 Nov 2000 20:16:35 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Jean-Francois Patenaude <jf.patenaude@bell.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kernel panic while copying files
-In-Reply-To: <3A00400D.4981E278@bell.ca>
-Message-ID: <Pine.LNX.4.21.0011012012580.5182-100000@saturn.homenet>
+	id <S130348AbQKAURm>; Wed, 1 Nov 2000 15:17:42 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28960 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129713AbQKAURd>; Wed, 1 Nov 2000 15:17:33 -0500
+Subject: Re: 2.2.18p18 eepro100 issues (packets per irq, shared irqs)
+To: pc_pimp@hotmail.com (KJ Pickett)
+Date: Wed, 1 Nov 2000 20:18:15 +0000 (GMT)
+Cc: eepro100@scyld.com, linux-kernel@vger.kernel.org
+In-Reply-To: <F14h29cM3oryKFRJrzd00005763@hotmail.com> from "KJ Pickett" at Nov 01, 2000 07:35:32 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13r4Kv-0000nC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean-Francois,
+> They share an irq, no matter if I'm using intels e100.o driver or the stock 
+> linux one.  For performance reasons, can I make them each have a different 
+> irq?  Doing it from ifconfig gives me a notsupported error, with either 
+> driver.
 
-You are reporting a panic but missing the most important ingredient:
+Under 2.2 no. Under 2.4 maybe
 
-On Wed, 1 Nov 2000, Jean-Francois Patenaude wrote:
-> [5.] Output of Oops.. message (if applicable) with symbolic information 
->      resolved (see Documentation/oops-tracing.txt)
-> 
-> xx
-> 
+> no kernel hacker...can I get the stock linux driver to do multiple packets 
+> per irq with some config settings?
 
-If "xx" means "kiss-kiss" then you can "kiss good bye" to any hope of
-resolving this panic until you send the oops message passed through
-ksymoops. If this is really a panic and not an oops then you need to
-capture it through a serial console and then pass through ksymoops on the
-next boot.
-
-Regards,
-Tigran
-
-
+We dont have sufficient docs to figure this out easily. Intel upload magic
+numbers to the card microcode
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

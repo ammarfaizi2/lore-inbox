@@ -1,68 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUGRDx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUGREPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUGRDx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 23:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUGRDx4
+	id S262085AbUGREPO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 00:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUGREPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 23:53:56 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55513 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261451AbUGRDxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 23:53:54 -0400
-Date: Sun, 18 Jul 2004 05:53:49 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [patch] 2.6.8-rc1-mm1: work around broken USB DocBook generation
-Message-ID: <20040718035349.GR14733@fs.tum.de>
-References: <20040713182559.7534e46d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040713182559.7534e46d.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sun, 18 Jul 2004 00:15:14 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:30340 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S262085AbUGREPC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 00:15:02 -0400
+Date: Sun, 18 Jul 2004 06:14:59 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Comparing struct pt_regs : asm-i386 vs asm-x86_64
+In-Reply-To: <Pine.LNX.4.44.0407171943430.24250-100000@hubble.stokkie.net>
+Message-ID: <Pine.LNX.4.44.0407180607320.9290-100000@hubble.stokkie.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 06:25:59PM -0700, Andrew Morton wrote:
->...
-> All 252 patches:
->...
-> bk-usb.patch
->...
+On Sat, 17 Jul 2004, Robert M. Stockmann wrote:
 
-This causes the following error during "make psdocs":
+> Hi,
+> 
+> The (X86_64/AMD64/Opteron) platform is pretty compatible with 32 bits
+> software written for the ia32 architecture, so to seems.
+> 
+> However when going down to assembly language it breaks down to pieces :
+> 
+> include/asm-i386/ptrace.h :
+> ===========================
+> 
+> /* this struct defines the way the registers are stored on the
+>    stack during a system call. */
+> 
+> struct pt_regs {
+>         long ebx;
+>         long ecx;
+>         long edx;
+>         long esi;
+>         long edi;
+>         long ebp;
+>         long eax;
+>         int  xds;
+>         int  xes;
+>         long orig_eax;
+>         long eip;
+>         int  xcs;
+>         long eflags;
+>         long esp;
+>         int  xss;
+> };
+> 
+> 
+> include/asm-x86_64/ptrace.h :
+> =============================
+> 
+> #ifndef __ASSEMBLY__
+> 
+> struct pt_regs {
+>         unsigned long r15;
+>         unsigned long r14;
+>         unsigned long r13;
+>         unsigned long r12;
+>         unsigned long rbp;
+>         unsigned long rbx;
+> /* arguments: non interrupts/non tracing syscalls only save upto here*/
+>         unsigned long r11;
+>         unsigned long r10;
+>         unsigned long r9;
+>         unsigned long r8;
+>         unsigned long rax;
+>         unsigned long rcx;
+>         unsigned long rdx;
+>         unsigned long rsi;
+>         unsigned long rdi;
+>         unsigned long orig_rax;
+> /* end of arguments */
+> /* cpu exception frame or undefined */
+>         unsigned long rip;
+>         unsigned long cs;
+>         unsigned long eflags;
+>         unsigned long rsp;
+>         unsigned long ss;
+> /* top of stack page */
+> };
+> 
+> So when porting i386 C-code (which uses the struct pt_regs from
+> include/asm-i386/ptrace.h) how does the pt_regs structure translate into
+> the struct pt_regs from include/asm-x86_64/ptrace.h  ?
+> 
 
-<--  snip  -->
+I came across this "Gentle Introduction" on www.x86-64.org :
 
-...
-  DB2PS   Documentation/DocBook/usb.ps
-Using catalogs: /etc/sgml/catalog
-Using stylesheet: /usr/share/docbook-utils/docbook-utils.dsl#print
-Working on: 
-/home/bunk/linux/kernel-2.6/linux-2.6.8-rc1-mm1-full/Documentation/DocBook/usb.sgml
-jade:/home/bunk/linux/kernel-2.6/linux-2.6.8-rc1-mm1-full/Documentation/DocBook/usb.sgml:549:16:E: 
-end tag for "VARIABLELIST" which is not finished
-make[1]: *** [Documentation/DocBook/usb.ps] Error 8
+"Gentle Introduction to x86-64 Assembly "
+http://www.x86-64.org/documentation/assembly :
 
-<--  snip  -->
+Where the most striking remark is this :
 
+"This document is meant to summarise differences between x86-64 and i386 
+assembly assuming that you already know well the i386 gas syntax. I will try 
+to keep this document up to date until official documentation is available."
 
-The patch below works around this issue by not letting it look like a 
-valid kerneldoc.
+Amazing stuff! How can one manufacture full-functional x86_64 AMD64 and
+Opteron CPU's in silicon print, while the white-paper print of the "official
+documentation" on assembly programming on x86_64 is NOT available ??
 
+regards,
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.8-rc1-mm1-full/include/linux/usb.h.old	2004-07-18 05:47:38.000000000 +0200
-+++ linux-2.6.8-rc1-mm1-full/include/linux/usb.h	2004-07-18 05:47:51.000000000 +0200
-@@ -289,7 +289,7 @@
- 
- struct usb_tt;
- 
--/**
-+/*
-  * struct usb_device - kernel's representation of a USB device
-  *
-  * FIXME: Write the kerneldoc!
+Robert
+-- 
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
 

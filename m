@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130245AbQKINl3>; Thu, 9 Nov 2000 08:41:29 -0500
+	id <S130843AbQKINm2>; Thu, 9 Nov 2000 08:42:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130738AbQKINlM>; Thu, 9 Nov 2000 08:41:12 -0500
-Received: from iisc.ernet.in ([144.16.64.3]:9997 "EHLO iisc.ernet.in")
-	by vger.kernel.org with ESMTP id <S130245AbQKINky>;
-	Thu, 9 Nov 2000 08:40:54 -0500
-From: anand@eis.iisc.ernet.in (SVR Anand)
-Message-Id: <200011091340.TAA05912@eis.iisc.ernet.in>
-Subject: Buffer copying latency
-To: linux-kernel@vger.kernel.org
-Date: Thu, 9 Nov 2000 19:10:42 +0530 (GMT+05:30)
-X-Mailer: ELM [version 2.5 PL2]
+	id <S130849AbQKINmS>; Thu, 9 Nov 2000 08:42:18 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37713 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130843AbQKINmK>; Thu, 9 Nov 2000 08:42:10 -0500
+Subject: Re: Installing kernel 2.4
+To: mwm@i.am (Mark W. McClelland)
+Date: Thu, 9 Nov 2000 13:40:38 +0000 (GMT)
+Cc: jmerkey@timpanogas.org (Jeff V. Merkey), linux-kernel@vger.kernel.org
+In-Reply-To: <3A333D47.6B839036@i.am> from "Mark W. McClelland" at Dec 10, 2000 12:22:31 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13trwW-0001AR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I would like to see some features added to ELF. Resource binding support
+> would be nice, i.e. bitmaps used internally by GUI apps and such, so
+> that they can be shared between processes if they are in a shared lib,
 
-Sorry if it is a naive question.
+You can do shared mappings of almost anything anyway. In fact most of the
+shared library loading is done in user space via mmap. 
 
-I would like to know if there are any measurements made on a typical Pentium
-machine with respect to the latency for buffer copying from the user to kernel 
-and vice versa. While there are many papers, and arguments that attempt to
-ban buffering copying of any sort, especially the ones that cross protection
-boubdaries, I am searching in vain to obtain the numbers that highlight the 
-overheads. Can you help me getting this information ?
+There are good reasons for not putting resources into the program itself too,
+one of which is customisability.
 
-
-It also causes a bit of worry that the recent trends seem to violate the nice
-conventional Unix philosophy in the name of performance,... just because the
-current RAM access speeds are not upto the mark. What would happen if some
-technology breakthrough occurs and the RAM access times fall drastically ?
-
-Regards
-Anand
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

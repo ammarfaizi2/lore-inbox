@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269690AbTGOVHH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 17:07:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269710AbTGOVHH
+	id S269688AbTGOVFq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 17:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269696AbTGOVFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 17:07:07 -0400
-Received: from tazz.wtf.dk ([80.199.6.58]:14464 "EHLO sokrates")
-	by vger.kernel.org with ESMTP id S269690AbTGOVGU (ORCPT
+	Tue, 15 Jul 2003 17:05:46 -0400
+Received: from hell.org.pl ([212.244.218.42]:30215 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S269710AbTGOVFk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 17:06:20 -0400
-Date: Tue, 15 Jul 2003 23:21:40 +0200
-From: Michael Kristensen <michael@wtf.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Unable to boot linux-2.6-test1
-Message-ID: <20030715212139.GA2008@sokrates>
-References: <20030715180346.GB3843@sokrates> <20030715200707.GA581@sokrates> <20030715205649.GA5318@kroah.com>
+	Tue, 15 Jul 2003 17:05:40 -0400
+Date: Tue, 15 Jul 2003 23:22:10 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: pavel@ucw.cz
+Cc: Jamie Lokier <jamie@shareable.org>, Kent Borg <kentborg@borg.org>,
+       Pavel Machek <pavel@suse.cz>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Nigel Cunningham <ncunningham@clear.net.nz>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] RE:Re: Thoughts wanted on merging Softwa
+Message-ID: <20030715212210.GB10046@hell.org.pl>
+Mail-Followup-To: pavel@ucw.cz, Jamie Lokier <jamie@shareable.org>,
+	Kent Borg <kentborg@borg.org>, Pavel Machek <pavel@suse.cz>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	Nigel Cunningham <ncunningham@clear.net.nz>,
+	swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030715182117.BE2841675D3@smtp-out1.iol.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030715205649.GA5318@kroah.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030715182117.BE2841675D3@smtp-out1.iol.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH <greg@kroah.com> [2003-07-15 23:01:23]:
-> On Tue, Jul 15, 2003 at 10:07:07PM +0200, Michael Kristensen wrote:
-> Errors on your side.  Please install the module-init-tools package.
-> 
-> If you have installed that, please let us know what these errors are.
+Thus wrote pavel@ucw.cz:
+> Anyway, depending on acpi is wrong and needs to be fixed in 2.7.
 
-I have. The errors are simply that it says it couldn't load the module,
-because it has some unresolved symbols in it. I really don't think the
-errors are on my side, but I don't see what else it could be.
+Could you elaborate on that? Do you mean S4, or any suspend state in
+general?
+Best regards,
 
 -- 
-Med Venlig Hilsen/Best Regards/Mit freundlichen Grüßen
-Michael Kristensen <michael@wtf.dk>
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

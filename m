@@ -1,89 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267776AbTBYHMA>; Tue, 25 Feb 2003 02:12:00 -0500
+	id <S267782AbTBYHNs>; Tue, 25 Feb 2003 02:13:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267780AbTBYHMA>; Tue, 25 Feb 2003 02:12:00 -0500
-Received: from [217.78.76.157] ([217.78.76.157]:10585 "HELO coolre4107.com")
-	by vger.kernel.org with SMTP id <S267776AbTBYHL7> convert rfc822-to-8bit;
-	Tue, 25 Feb 2003 02:11:59 -0500
-From: "MRS CEDIA ESTRADA" <estrada_11@linuxmail.org>
-Reply-To: estrada_102@phantomemail.com
+	id <S267783AbTBYHNs>; Tue, 25 Feb 2003 02:13:48 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:16659 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S267782AbTBYHNr>; Tue, 25 Feb 2003 02:13:47 -0500
+Date: Tue, 25 Feb 2003 16:24:03 +0900 (JST)
+Message-Id: <20030225.162403.106358044.yoshfuji@linux-ipv6.org>
 To: linux-kernel@vger.kernel.org
-Date: Mon, 24 Feb 2003 20:19:47 +0100
-Subject: MRS CEDIA ESTRADA
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20030225071159Z267776-29901+3268@vger.kernel.org>
+Subject: [PATCH] drivers/pcmcia/i82365.c compilation failure
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir, 
+Failed to compile linux-2.5.63 at drivers/pcmcia/i82365.c.
+Here's the fix.
 
-My name is CEDIA D.ESTRADA,The wife of Mr. JOSEPH 
-ESTRADA, the former President of Philippines located 
-in the South East Asia. 
+Index: drivers/pcmcia/i82365.c
+===================================================================
+RCS file: /cvsroot/usagi/usagi/kernel/linux25/drivers/pcmcia/i82365.c,v
+retrieving revision 1.1.1.12
+retrieving revision 1.2
+diff -u -r1.1.1.12 -r1.2
+--- drivers/pcmcia/i82365.c	25 Feb 2003 05:29:17 -0000	1.1.1.12
++++ drivers/pcmcia/i82365.c	25 Feb 2003 07:05:37 -0000	1.2
+@@ -846,7 +846,7 @@
+ 	
+ 	    printk("PNP ");
+ 	    
+-	    if (pnp_activate_dev(dev, NULL) < 0) {
++	    if (pnp_activate_dev(dev) < 0) {
+ 		printk("activate failed\n");
+ 		pnp_device_detach(dev);
+ 		break;
 
-My husband was recently impeached from office by a 
-backed uprising of mass demonstrators and the Senate. 
-
-My husband is presently in jail and facing trial on 
-charges of corruption, embezzlement, and the 
-mysterious 
-
-charge of plunder which might lead to death sentence. 
-The present government is forcing my husband out of 
-manila to avoid demonstration by his supporter. 
-
-During my husband's regime as president of Philippine, 
-I realized some reasonable amount of money from 
-various deals that I successfully executed. I have 
-plans to invest this money for my children's future on real 
-estate and industrial production. My husband is not 
-aware of this because I wish to do it secretly for 
-now. 
-
-Before my husband was impeached, I secretly siphoned 
-the sum of $30,000,000 million USD 
-(Thirty million United states dollars) out of 
-Philippines and deposited the money with a security 
-firm that transports valuable goods and consignments 
-through diplomatic means. I also declared that the 
-consignment was solid gold and my foreign business 
-partner owned it. 
-
-I am contacting you because I want you to go to the 
-security company and claim the money on my behalf 
-since I have declared that the consignment belong to 
-my foreign business partner. You shall also be 
-required to assist me in investment in your country. 
-
-I hope to trust you as a God fearing person who will 
-not sit on this money when you claim it, rather assist me 
-properly, I expect you to declare what percentage of 
-the total money you will take for your assistance. 
-
-When I receive your positive response I will let you 
-know where the security company is 
-and the payment pin code to claim the money which is 
-very important. 
-
-For now, let all our communication is by e-mail 
-because my line are right now connected to the 
-Philippines Telecommunication Network services. Please 
-
-also send me your telephone and fax number. 
-
-I will ask my son contact you to give you more details 
-on after i have received a responce from you.
-
-Thank you and God bless you and family. 
-
-
-MRS CEDIA ESTRADA 
-
-
-
-
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268680AbUIXKwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268681AbUIXLF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268680AbUIXKwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 06:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268679AbUIXKwZ
+	id S268681AbUIXLF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 07:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268682AbUIXLF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 06:52:25 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:60893 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S268680AbUIXKwJ (ORCPT
+	Fri, 24 Sep 2004 07:05:56 -0400
+Received: from relay.pair.com ([209.68.1.20]:65294 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S268681AbUIXLFy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 06:52:09 -0400
-Date: Fri, 24 Sep 2004 12:52:07 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Pawe?? Sikora <pluto@pld-linux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: unresolved symbol __udivsi3_i4
-Message-ID: <20040924105207.GH22710@lug-owl.de>
-Mail-Followup-To: Pawe?? Sikora <pluto@pld-linux.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040924021050.689.qmail@web53608.mail.yahoo.com> <200409240801.57848.pluto@pld-linux.org> <Pine.GSO.4.61.0409241031410.27692@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="b+Jngg6VfPgvparx"
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.61.0409241031410.27692@waterleaf.sonytel.be>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Fri, 24 Sep 2004 07:05:54 -0400
+X-pair-Authenticated: 66.188.111.210
+Message-ID: <4153FF90.1010209@cybsft.com>
+Date: Fri, 24 Sep 2004 06:05:52 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm3-S5
+References: <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <415384E1.2080907@cybsft.com> <415394EE.50106@cybsft.com> <20040924074026.GB17368@elte.hu>
+In-Reply-To: <20040924074026.GB17368@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> 
+>>The following, on top of Ingo's patch above, fixes the problem with
+>>dropping new connections and doesn't have any adverse affects that
+>>I've seen:
+>>
+>>--- linux-2.6.9-rc2-pre-mm3/net/ipv4/tcp_output.c.orig  2004-09-23 
+>>22:16:42.249435870 -0500
+>>+++ linux-2.6.9-rc2-pre-mm3/net/ipv4/tcp_output.c       2004-09-23 
+>>22:12:03.911811945 -0500
+>>@@ -699,11 +699,6 @@
+>>
+>>                        tcp_minshall_update(tp, mss_now, skb);
+>>                        sent_pkts = 1;
+>>-                       /*
+>>-                        * Break out early - we'll continue later:
+>>-                        */
+>>-                       if (softirq_need_resched())
+>>-                               break;
+> 
+> 
+> hm, ok, i'll revert this in my tree. I suspect we'll see some latencies
+> resurfacing under high network load again, but correctness goes first
+> obviously. If then we'll have to find some other method to break that
+> critical path.
+> 
+> 	Ingo
+> 
+Ingo,
 
---b+Jngg6VfPgvparx
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Maybe this wasn't the right way to fix the problem? I just looked at the 
+S4 patch and it had the same change in it, but did not exhibit the same 
+problem. Not knowing exactly what I was looking for, I just started 
+looking for obvious changes that might affect dropping tcp connections 
+and this one seemed reasonable. I made the change and the problem went 
+away. Maybe this needs looking at a little closer.
 
-On Fri, 2004-09-24 10:33:12 +0200, Geert Uytterhoeven <geert@linux-m68k.org>
-wrote in message <Pine.GSO.4.61.0409241031410.27692@waterleaf.sonytel.be>:
-> On Fri, 24 Sep 2004, [utf-8] Pawe? Sikora wrote:
-> > On Friday 24 of September 2004 04:10, Donald Duckie wrote:
-> > > can somebody please help me how to overcome this
-> > > problem:
-> > > unresolved symbol __udivsi3_i4
-> > # objdump -T /lib/libgcc_s.so.1|grep div
-> > 000024c0 g    DF .text  00000162  GLIBC_2.0   __divdi3
-> > 00002b80 g    DF .text  000001ed  GCC_3.0     __udivmoddi4
-> > 00002870 g    DF .text  00000120  GLIBC_2.0   __udivdi3
-> >=20
-> > you can link module with libgcc.a or fix it.
->=20
-> Just add an implementation for __udivsi3_i4 to arch/sh/lib/. They already=
- have
-> udivdi3.c over there.
-
-Either that (which I don't like!), or have a try compiling the kernel
-with -ffreestanding, if your toolchain accepts that. Maybe that doesn't
-create these external function calls at all...
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---b+Jngg6VfPgvparx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBU/xXHb1edYOZ4bsRAougAJ9sgS54peb5RHhEo+VtwEyNZUW9MgCggbIu
-1RYtoZICYVEecp7oK7tUQvU=
-=WYLc
------END PGP SIGNATURE-----
-
---b+Jngg6VfPgvparx--
+kr

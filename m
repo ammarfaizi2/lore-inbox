@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbRBEXUP>; Mon, 5 Feb 2001 18:20:15 -0500
+	id <S131207AbRBEXZF>; Mon, 5 Feb 2001 18:25:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130435AbRBEXUF>; Mon, 5 Feb 2001 18:20:05 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:16355 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129030AbRBEXTd>;
-	Mon, 5 Feb 2001 18:19:33 -0500
-Date: Mon, 5 Feb 2001 23:16:47 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
+	id <S135979AbRBEXYz>; Mon, 5 Feb 2001 18:24:55 -0500
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:53977 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S131207AbRBEXYn>; Mon, 5 Feb 2001 18:24:43 -0500
+Message-ID: <3A7F3619.DC498502@alumni.caltech.edu>
+Date: Mon, 05 Feb 2001 15:24:09 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Reply-To: dank@alumni.caltech.edu
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Steve Lord <lord@sgi.com>, linux-kernel@vger.kernel.org,
-        kiobuf-io-devel@lists.sourceforge.net,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-Message-ID: <20010205231647.C1167@redhat.com>
-In-Reply-To: <20010205225804.Z1167@redhat.com> <E14Puih-0004Rk-00@the-village.bc.nu>
-Mime-Version: 1.0
+CC: Tony Finch <dot@dotat.at>, Linus Torvalds <torvalds@transmeta.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: TCP_NOPUSH on FreeBSD, TCP_CORK on Linux (was: Is sendfile all that
+In-Reply-To: <E14Puvx-0004TB-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E14Puih-0004Rk-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 05, 2001 at 11:06:48PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, Feb 05, 2001 at 11:06:48PM +0000, Alan Cox wrote:
-> > do you then tell the application _above_ raid0 if one of the
-> > underlying IOs succeeds and the other fails halfway through?
+Alan Cox wrote:
 > 
-> struct 
-> {
-> 	u32 flags;	/* because everything needs flags */
-> 	struct io_completion *completions;
-> 	kiovec_t sglist[0];
-> } thingy;
+> > How close is TCP_NOPUSH to behaving identically to TCP_CORK now?
+> > If it does behave identically, it might be time to standardize
+> > the symbolic name for this option, to make apps more portable
+> > between the two OS's.  (It'd be nice to also standardize the
+> > numeric value, in the interest of making the ABI's more compatible, too.)
 > 
-> now kmalloc one object of the header the sglist of the right size and the
-> completion list. Shove the completion list on the end of it as another
-> array of objects and what is the problem.
+> That one isnt practical because of the way the implementations handle
+> boolean options. BSD uses bitmask based option setting for the basic
+> options and Linus uses switch statements
 
-XFS uses both small metadata items in the buffer cache and large
-pagebufs.  You may have merged a 512-byte read with a large pagebuf
-read: one completion callback is associated with a single sg fragment,
-the next callback belongs to a dozen different fragments.  Associating
-the two lists becomes non-trivial, although it could be done.
-
---Stephen
+OK, well, at least a common symbolic name could be chosen.
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

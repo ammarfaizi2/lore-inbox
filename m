@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274434AbRJTUvF>; Sat, 20 Oct 2001 16:51:05 -0400
+	id <S274362AbRJTVaT>; Sat, 20 Oct 2001 17:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274505AbRJTUu4>; Sat, 20 Oct 2001 16:50:56 -0400
-Received: from dsl027-178-158.sfo1.dsl.speakeasy.net ([216.27.178.158]:1408
-	"HELO whiskey.synfin.net") by vger.kernel.org with SMTP
-	id <S274434AbRJTUui>; Sat, 20 Oct 2001 16:50:38 -0400
-Date: Sat, 20 Oct 2001 13:49:19 -0700 (PDT)
-From: <justme@pobox.com>
-X-X-Sender: <aturner@whiskey.synfin.net>
-To: Greg KH <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.13pre5 breaks usb-storage ?
-In-Reply-To: <20011020125945.B4314@kroah.com>
-Message-ID: <Pine.LNX.4.33.0110201348080.1498-100000@whiskey.synfin.net>
+	id <S274368AbRJTVaI>; Sat, 20 Oct 2001 17:30:08 -0400
+Received: from mail1.svr.pol.co.uk ([195.92.193.18]:36965 "EHLO
+	mail1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S274362AbRJTV34>; Sat, 20 Oct 2001 17:29:56 -0400
+Message-ID: <00d401c159ae$6000c7d0$5cbefea9@moya>
+From: "MichaelM" <michail@manegakis.freeserve.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: The new X-Kernel !
+Date: Sat, 20 Oct 2001 22:30:00 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-7"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+People need a nice stable Operating System for networking purposes of any
+type, and this exists, linux of course. What else should the world need?
 
-On Sat, 20 Oct 2001, Greg KH wrote:
+People need a nice stable Operating System for Desktop and Multimedia
+purposes and this doesn't exist. We should create a new stable X-Kernel with
+build in support for X. Pressing Alt-F1 a console should pop up.
 
-> If you use usb-uhci.o instead of uhci.o on 2.4.13-pre5, does that work?
-> 
-> The uhci.o driver has changed between -pre3 and -pre5, not usb-storage.
+Boots up with X, that means.
 
-Yep, that works for me.
+Come on Linus, show the world what you can do, release the X-Kernel 1.01.
 
--- 
-Aaron
+Hit the MS dominar where it hurts, THE DESKTOP.
+
+Parallel release of Kernel and X-Kernel, will put Linux where it belongs,
+THE TOP of course.
 

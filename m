@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271927AbRIIRlc>; Sun, 9 Sep 2001 13:41:32 -0400
+	id <S272998AbRIIRqX>; Sun, 9 Sep 2001 13:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272995AbRIIRlV>; Sun, 9 Sep 2001 13:41:21 -0400
-Received: from spr-tik2.ethz.ch ([129.132.119.69]:10681 "EHLO tik2.ethz.ch")
-	by vger.kernel.org with ESMTP id <S271927AbRIIRlS>;
-	Sun, 9 Sep 2001 13:41:18 -0400
-Date: Sun, 9 Sep 2001 19:41:38 +0200
-From: Lukas Ruf <ruf@tik.ee.ethz.ch>
-To: Linux Kernel ml <linux-kernel@vger.kernel.org>
-Subject: proc_mkdir -> where is proc_rmdir ?
-Message-ID: <20010909194137.B1968@tik.ee.ethz.ch>
-Reply-To: Lukas Ruf <ruf@tik.ee.ethz.ch>
+	id <S273005AbRIIRqN>; Sun, 9 Sep 2001 13:46:13 -0400
+Received: from AMontpellier-201-1-1-55.abo.wanadoo.fr ([193.252.31.55]:27922
+	"EHLO awak") by vger.kernel.org with ESMTP id <S272998AbRIIRp4>;
+	Sun, 9 Sep 2001 13:45:56 -0400
+Subject: Re: COW fs (Re: Editing-in-place of a large file)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: John Ripley <jripley@riohome.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <3B9B9917.DA1CC12F@riohome.com>
+In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu>
+	<318476047.20010903002818@port.imtp.ilyichevsk.odessa.ua>
+	<3B9B80E2.C9D5B947@riohome.com>  <3B9B9917.DA1CC12F@riohome.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.07.02.46 (Preview Release)
+Date: 09 Sep 2001 19:41:31 +0200
+Message-Id: <1000057292.1867.1.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-Organization: TIK, ETHZ, Switzerland
-X-ID: 0xD20BA2ED
-X-URL: www.tik.ee.ethz.ch/~ruf
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+le dim 09-09-2001 at 18:30 John Ripley a _rit :
 
-I created some directories below /proc while a module got installed.
-When I de-install the module, I would like to remove these directories as
-well?
+> /dev/sda6 - /tmp	-  210845 blocks,  17697 duplicates,  8.39%
+> /dev/sda7 - /var	-   32122 blocks,   5327 duplicates, 16.58%
+> /dev/sdb5 - /home	-  220885 blocks,  24541 duplicates, 11.11%
+> /dev/sdc7 - /usr	- 1084379 blocks, 122370 duplicates, 11.28%
 
-First, I remove the entries within the directory by remove_proc_entry().
-So, the directories are empty.  But when I try to remove the self-created
-directories with a similar call to remove_proc_entry(), nothing happens.
+How many of these blocks actually belong to file data ?
 
-So, I simply ask: is there somewhere a proc_rmdir() ?  If not, how do I
-need to call the remove_proc_entry() such that the directory gets removed?
+	Xav
 
-Thanks for any help!
-
-Lukas
-
--- 
-Lukas Ruf                        Swiss Federal Institute of Technology
-Office: ETZ-G61.2                             Computer Engineering and
-Phone: +41/1/632 7312                        Networks Laboratory (TIK)
-Fax:   +41/1/632 1035                                      ETH Zentrum
-PGP 2.6: ID D20BA2ED;                                    Gloriastr. 35
-Fingerprint 6323 B9BC 9C8E 6563  B477 BADD FEA6 E6B7    CH-8092 Zurich

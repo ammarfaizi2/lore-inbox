@@ -1,188 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263190AbVCKFpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263219AbVCKFut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263190AbVCKFpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 00:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263222AbVCKFnL
+	id S263219AbVCKFut (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 00:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263222AbVCKFut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 00:43:11 -0500
-Received: from gate.crashing.org ([63.228.1.57]:62937 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263190AbVCKFkE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 00:40:04 -0500
-Subject: [PATCH] ppc32: move powermac backlight stuff to a workqueue
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 11 Mar 2005 16:39:53 +1100
-Message-Id: <1110519593.5751.9.camel@gaston>
+	Fri, 11 Mar 2005 00:50:49 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:54279 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263223AbVCKFnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 00:43:18 -0500
+Date: Fri, 11 Mar 2005 06:43:08 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Felix Matathias <felix@nevis.columbia.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: select() doesn't respect SO_RCVLOWAT ?
+Message-ID: <20050311054307.GF30052@alpha.home.local>
+References: <Pine.LNX.4.61.0503101645190.29442@shang.nevis.columbia.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0503101645190.29442@shang.nevis.columbia.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Thu, Mar 10, 2005 at 04:58:51PM -0500, Felix Matathias wrote:
+> 
+> I am running a 2.4.21-9.0.3.ELsmp #1 kernel and I can setsockopt and 
+> getsockopt correctly the SO_RCVLOWAT option, but select() seems to mark a 
+> socket readable even if a single byte is ready to be read. Then, a read() 
+> blocks until the specified number of bytes in SO_RCVLOWAT makes it to the 
+> socket buffer.
 
-The powermac has a kernel-based driver for controlling the backlight
-from the keyboard that used to call into some fbdev's from interrupt
-contexts. This patch moves it to a workqueue (and additionally makes
-sure the console semaphore is taken and held).
+as discussed in a previous thread, if you use select(), you should also
+use non-blocking sockets. There are cases where select() can wake you up
+without anything to read, eg if there is a packet waiting with a wrong
+checksum.
 
-I hope I'll replace this by the new backlight framework in a future
-kernel version, but for now, this will fix the immediate issues with
-radeon.
+> This is the exact opposite behaviour of what I yould have 
+> expected/desired. Our application receives data at many Khz rate and we 
+> want to avoid reading the socket until a predetermined amount of data is 
+> sent, to avoid partial reads. SO_RCVLOWAT seemed to be a nice way to 
+> implement that.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+I too came across this problem a long time ago and concluded that LOWAT
+was not really usable on Linux. But in the end, this is not really a big
+deal, because as long as your application doesn't eat all CPU, it does
+not change anything performance-wise, and when it becomes to eat a lot
+of CPU, the latency will increase, letting more data come in when you
+do one read.
 
-Index: linux-work/arch/ppc/platforms/pmac_backlight.c
-===================================================================
---- linux-work.orig/arch/ppc/platforms/pmac_backlight.c	2005-01-24 17:09:23.000000000 +1100
-+++ linux-work/arch/ppc/platforms/pmac_backlight.c	2005-03-11 15:18:54.000000000 +1100
-@@ -25,14 +25,19 @@
- #include <linux/adb.h>
- #include <linux/pmu.h>
- 
--static struct backlight_controller *backlighter = NULL;
--static void* backlighter_data = NULL;
--static int backlight_autosave = 0;
-+static struct backlight_controller *backlighter;
-+static void* backlighter_data;
-+static int backlight_autosave;
- static int backlight_level = BACKLIGHT_MAX;
- static int backlight_enabled = 1;
-+static int backlight_req_level = -1;
-+static int backlight_req_enable = -1;
- 
--void __pmac
--register_backlight_controller(struct backlight_controller *ctrler, void *data, char *type)
-+static void backlight_callback(void *);
-+static DECLARE_WORK(backlight_work, backlight_callback, NULL);
-+
-+void __pmac register_backlight_controller(struct backlight_controller *ctrler,
-+					  void *data, char *type)
- {
- 	struct device_node* bk_node;
- 	char *prop;
-@@ -83,16 +88,18 @@
- 		backlight_level = req.reply[0] >> 4;
- 	}
- #endif
-+	acquire_console_sem();
- 	if (!backlighter->set_enable(1, backlight_level, data))
- 		backlight_enabled = 1;
-+	release_console_sem();
- 
--	printk(KERN_INFO "Registered \"%s\" backlight controller, level: %d/15\n",
--		type, backlight_level);
-+	printk(KERN_INFO "Registered \"%s\" backlight controller,"
-+	       "level: %d/15\n", type, backlight_level);
- }
- EXPORT_SYMBOL(register_backlight_controller);
- 
--void __pmac
--unregister_backlight_controller(struct backlight_controller *ctrler, void *data)
-+void __pmac unregister_backlight_controller(struct backlight_controller
-+					    *ctrler, void *data)
- {
- 	/* We keep the current backlight level (for now) */
- 	if (ctrler == backlighter && data == backlighter_data)
-@@ -100,22 +107,29 @@
- }
- EXPORT_SYMBOL(unregister_backlight_controller);
- 
--int __pmac
--set_backlight_enable(int enable)
-+static int __pmac __set_backlight_enable(int enable)
- {
- 	int rc;
- 
- 	if (!backlighter)
- 		return -ENODEV;
--	rc = backlighter->set_enable(enable, backlight_level, backlighter_data);
-+	acquire_console_sem();
-+	rc = backlighter->set_enable(enable, backlight_level,
-+				     backlighter_data);
- 	if (!rc)
- 		backlight_enabled = enable;
-+	release_console_sem();
- 	return rc;
- }
-+int __pmac set_backlight_enable(int enable)
-+{
-+	backlight_req_enable = enable;
-+	schedule_work(&backlight_work);
-+}
-+
- EXPORT_SYMBOL(set_backlight_enable);
- 
--int __pmac
--get_backlight_enable(void)
-+int __pmac get_backlight_enable(void)
- {
- 	if (!backlighter)
- 		return -ENODEV;
-@@ -123,8 +137,7 @@
- }
- EXPORT_SYMBOL(get_backlight_enable);
- 
--int __pmac
--set_backlight_level(int level)
-+static int __pmac __set_backlight_level(int level)
- {
- 	int rc = 0;
- 
-@@ -134,10 +147,12 @@
- 		level = BACKLIGHT_OFF;
- 	if (level > BACKLIGHT_MAX)
- 		level = BACKLIGHT_MAX;
-+	acquire_console_sem();
- 	if (backlight_enabled)
- 		rc = backlighter->set_level(level, backlighter_data);
- 	if (!rc)
- 		backlight_level = level;
-+	release_console_sem();
- 	if (!rc && !backlight_autosave) {
- 		level <<=1;
- 		if (level & 0x10)
-@@ -146,13 +161,35 @@
- 	}
- 	return rc;
- }
-+int __pmac set_backlight_level(int level)
-+{
-+	backlight_req_level = level;
-+	schedule_work(&backlight_work);
-+}
-+
- EXPORT_SYMBOL(set_backlight_level);
- 
--int __pmac
--get_backlight_level(void)
-+int __pmac get_backlight_level(void)
- {
- 	if (!backlighter)
- 		return -ENODEV;
- 	return backlight_level;
- }
- EXPORT_SYMBOL(get_backlight_level);
-+
-+static void backlight_callback(void *dummy)
-+{
-+	int level, enable;
-+
-+	do {
-+		level = backlight_req_level;
-+		enable = backlight_req_enable;
-+		mb();
-+
-+		if (level >= 0)
-+			__set_backlight_level(level);
-+		if (enable >= 0)
-+			__set_backlight_enable(enable);
-+	} while(cmpxchg(&backlight_req_level, level, -1) != level ||
-+		cmpxchg(&backlight_req_enable, enable, -1) != enable);
-+}
+> An earlier message by Alan Cox was a bit cryptic:
+> 
+> "But is the cost of all those special case checks and all the handling
+> for it such as select computing if enough tcp packets together accumulated
+> worth the cost on every app not using LOWAT for the microscopic gain given
+> that essentially nobody uses it."
+> 
+> Does this mean that select() in Linux will wake up no matter what 
+> SO_RCVLOWAT is set to ?
 
+Yes.
+
+Regards,
+Willy
 

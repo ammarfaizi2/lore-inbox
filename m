@@ -1,187 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315167AbSFTQ0R>; Thu, 20 Jun 2002 12:26:17 -0400
+	id <S314783AbSFTQY6>; Thu, 20 Jun 2002 12:24:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315207AbSFTQ0R>; Thu, 20 Jun 2002 12:26:17 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:28206 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315167AbSFTQ0N>; Thu, 20 Jun 2002 12:26:13 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: [PATCH] Fixed set_affinity/get_affinity syscalls
-Date: Fri, 21 Jun 2002 02:30:22 +1000
-Message-Id: <E17L4pD-0007ih-00@wagner.rustcorp.com.au>
+	id <S315167AbSFTQY5>; Thu, 20 Jun 2002 12:24:57 -0400
+Received: from chfdns02.ch.intel.com ([143.182.246.25]:50160 "EHLO
+	melete.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S314783AbSFTQY4>; Thu, 20 Jun 2002 12:24:56 -0400
+Message-ID: <59885C5E3098D511AD690002A5072D3C057B49A4@orsmsx111.jf.intel.com>
+From: "Gross, Mark" <mark.gross@intel.com>
+To: "'Dave Hansen'" <haveblue@us.ibm.com>,
+       "Gross, Mark" <mark.gross@intel.com>
+Cc: "'Russell Leighton'" <russ@elegant-software.com>,
+       Andrew Morton <akpm@zip.com.au>, mgross@unix-os.sc.intel.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net,
+       "Griffiths, Richard A" <richard.a.griffiths@intel.com>
+Subject: RE: [Lse-tech] Re: ext3 performance bottleneck as the number of s
+	pindles gets large
+Date: Thu, 20 Jun 2002 09:24:54 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's a little more kernel code, but it allows userspace to do:
+I'm don't have much visibility into this platform's journaling requirements.
+I suspect its to enable fast reboot / recovery from some klutz bumping the
+power cord or a crash of some sort.
 
-     unsigned int mask = (1 << cpu);
-     sys_setaffinity(getpid(), LINUX_AFFINITY_INCLUDE, mask, sizeof(mask));
+I will raise the issue with the platform folks.  However; for now I'm
+looking for ways to make it scale competitively WRT adapters and spindles
+for writes without changing the file system.  If this turns out to be a dead
+end then, hopefully, we'll move to a more spindle friendly file system.
 
-And it will always do the Right Thing.
+The workload is http://www.coker.com.au/bonnie++/ (one of the newer versions
+;)
 
-Applies on top of last patch.
-Comments?
+--mgross
 
-Name: Modified set_affinity/get_affinity syscalls
-Author: Rusty Russell
-Status: Experimental
-Depends: Hotcpu/cpumask.patch.gz
+(W) 503-712-8218
+MS: JF1-05
+2111 N.E. 25th Ave.
+Hillsboro, OR 97124
 
-D: This allows userspace to have cpu affinity control without needing
-D: to know the size of kernel datastructures and allows them to
-D: control what happens when new CPUs are brought online.  It also
-D: means that in the future we can sanely interpret affinity in
-D: HyperThreading.
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.23-sent-to-linus/include/linux/affinity.h working-2.5.23-sched/include/linux/affinity.h
---- working-2.5.23-sent-to-linus/include/linux/affinity.h	Thu Jan  1 10:00:00 1970
-+++ working-2.5.23-sched/include/linux/affinity.h	Fri Jun 21 02:09:06 2002
-@@ -0,0 +1,9 @@
-+#ifndef _LINUX_AFFINITY_H
-+#define _LINUX_AFFINITY_H
-+enum {
-+	/* Set affinity to these processors */
-+	LINUX_AFFINITY_INCLUDE,
-+	/* Set affinity to all *but* these processors */
-+	LINUX_AFFINITY_EXCLUDE,
-+};
-+#endif
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.23-sent-to-linus/kernel/sched.c working-2.5.23-sched/kernel/sched.c
---- working-2.5.23-sent-to-linus/kernel/sched.c	Fri Jun 21 01:49:47 2002
-+++ working-2.5.23-sched/kernel/sched.c	Fri Jun 21 02:08:54 2002
-@@ -25,6 +25,7 @@
- #include <asm/mmu_context.h>
- #include <linux/interrupt.h>
- #include <linux/completion.h>
-+#include <linux/affinity.h>
- #include <linux/kernel_stat.h>
- 
- /*
-@@ -1314,25 +1315,54 @@
- /**
-  * sys_sched_setaffinity - set the cpu affinity of a process
-  * @pid: pid of the process
-+ * @include: is this include or exclude?
-  * @len: length in bytes of the bitmask pointed to by user_mask_ptr
-- * @user_mask_ptr: user-space pointer to the new cpu mask
-+ * @user_mask_ptr: user-space pointer to bitmask of cpus to include/exclude
-  */
--asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
--				      unsigned long *user_mask_ptr)
-+asmlinkage int sys_sched_setaffinity(pid_t pid,
-+				     int include,
-+				     unsigned int len,
-+				     unsigned char *user_mask_ptr)
- {
--	cpu_mask_t online_mask, new_mask;
-+	cpu_mask_t new_mask, tmp;
- 	int retval;
- 	task_t *p;
-+	unsigned int i;
- 
--	if (len < sizeof(new_mask))
--		return -EINVAL;
--
--	if (copy_from_user(&new_mask, user_mask_ptr, sizeof(new_mask)))
-+	memset(&new_mask, 0, sizeof(new_mask));
-+	if (copy_from_user(&new_mask, user_mask_ptr,
-+			   min((size_t)len, sizeof(new_mask))))
- 		return -EFAULT;
- 
--	cpu_online_mask(&online_mask, new_mask);
--	if (find_first_bit((unsigned long *)online_mask, NR_CPUS) == NR_CPUS)
-+	/* longer is OK, as long as they don't actually set any of the bits. */
-+	if (len > sizeof(new_mask)) {
-+		unsigned char c;
-+		for (i = sizeof(new_mask); i < len; i++) {
-+			if (get_user(c, user_mask_ptr+i))
-+				return -EFAULT;
-+			if (c != 0)
-+				return -ENOENT;
-+		}
-+	}
-+
-+	/* Check for mention of cpus that aren't online/don't exist */
-+	cpu_online_mask(&tmp, new_mask);
-+	if (memcmp(&tmp, &new_mask, sizeof(new_mask)) != 0)
-+		return -ENOENT;
-+
-+	/* Invert the mask in the exclude case. */
-+ 	if (include == LINUX_AFFINITY_EXCLUDE) {
-+		for (i = 0; i < sizeof(new_mask)/sizeof(long); i++)
-+			((unsigned long *)&new_mask)[i] ^= -1UL;
-+	} else if (include != LINUX_AFFINITY_INCLUDE) {
- 		return -EINVAL;
-+	}
-+
-+	/* The new mask must mention some online cpus */
-+	cpu_online_mask(&tmp, new_mask);
-+	if (find_first_bit((unsigned long *)&tmp, NR_CPUS) == NR_CPUS)
-+		/* This is kinda true... */
-+		return -EWOULDBLOCK;
- 
- 	read_lock(&tasklist_lock);
- 
-@@ -1356,7 +1386,7 @@
- 		goto out_unlock;
- 
- 	retval = 0;
--	set_cpus_allowed(p, online_mask);
-+	set_cpus_allowed(p, new_mask);
- 
- out_unlock:
- 	put_task_struct(p);
-@@ -1368,36 +1398,27 @@
-  * @pid: pid of the process
-  * @len: length in bytes of the bitmask pointed to by user_mask_ptr
-  * @user_mask_ptr: user-space pointer to hold the current cpu mask
-+ * Returns the size required to hold the complete cpu mask.
-  */
- asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
--				      unsigned long *user_mask_ptr)
-+				     void *user_mask_ptr)
- {
--	unsigned int real_len;
- 	cpu_mask_t mask;
--	int retval;
- 	task_t *p;
- 
--	real_len = sizeof(mask);
--	if (len < real_len)
--		return -EINVAL;
--
- 	read_lock(&tasklist_lock);
--
--	retval = -ESRCH;
- 	p = find_process_by_pid(pid);
--	if (!p)
--		goto out_unlock;
--
--	retval = 0;
--	cpu_online_mask(&mask, p->cpus_allowed);
--
--out_unlock:
-+	if (!p) {
-+		read_unlock(&tasklist_lock);
-+		return -ESRCH;
-+	}
-+	mask = p->cpus_allowed;
- 	read_unlock(&tasklist_lock);
--	if (retval)
--		return retval;
--	if (copy_to_user(user_mask_ptr, &mask, real_len))
-+
-+	if (copy_to_user(user_mask_ptr, &mask,
-+			 min((unsigned int)sizeof(mask), len)))
- 		return -EFAULT;
--	return real_len;
-+	return sizeof(mask);
- }
- 
- asmlinkage long sys_sched_yield(void)
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> -----Original Message-----
+> From: Dave Hansen [mailto:haveblue@us.ibm.com]
+> Sent: Thursday, June 20, 2002 9:10 AM
+> To: Gross, Mark
+> Cc: 'Russell Leighton'; Andrew Morton; mgross@unix-os.sc.intel.com;
+> Linux Kernel Mailing List; lse-tech@lists.sourceforge.net; Griffiths,
+> Richard A
+> Subject: Re: [Lse-tech] Re: ext3 performance bottleneck as 
+> the number of
+> spindles gets large
+> 
+> 
+> Gross, Mark wrote:
+> > We will get around to reformatting our spindles to some 
+> other FS after 
+> > we get as much data and analysis out of our current 
+> configuration as we 
+> > can get. 
+> >  
+> > We'll report out our findings on the lock contention, and 
+> throughput 
+> > data for some other FS then.  I'd like recommendations on what file 
+> > systems to try, besides ext2.
+> 
+> Do you really need a journaling FS?  If not, I think ext2 is a sure 
+> bet to be the fastest.  If you do need journaling, try 
+> reiserfs and jfs.
+> 
+> BTW, what kind of workload are you running under?
+> 
+> -- 
+> Dave Hansen
+> haveblue@us.ibm.com
+> 

@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282271AbRLVUiD>; Sat, 22 Dec 2001 15:38:03 -0500
+	id <S282378AbRLVUvt>; Sat, 22 Dec 2001 15:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282276AbRLVUhx>; Sat, 22 Dec 2001 15:37:53 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:1963 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S282271AbRLVUhj>;
-	Sat, 22 Dec 2001 15:37:39 -0500
-Date: Sat, 22 Dec 2001 23:35:10 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Ashok Raj <ashokr2@attbi.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: affinity and tasklets...
-In-Reply-To: <PPENJLMFIMGBGDDHEPBBIEKFCAAA.ashokr2@attbi.com>
-Message-ID: <Pine.LNX.4.33.0112222327410.10048-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282597AbRLVUvj>; Sat, 22 Dec 2001 15:51:39 -0500
+Received: from mnh-1-06.mv.com ([207.22.10.38]:39688 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S282511AbRLVUva>;
+	Sat, 22 Dec 2001 15:51:30 -0500
+Message-Id: <200112222211.RAA08992@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Andreas Kinzler <akinzler@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Injecting packets into the kernel 
+In-Reply-To: Your message of "Sat, 22 Dec 2001 21:22:06 +0100."
+             <20011222202340Z282222-18284+6230@vger.kernel.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 22 Dec 2001 17:11:49 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+akinzler@gmx.de said:
+> but the packets written to such a device have no effect, they do not
+> seem to make their way through the kernel.
 
-On Sat, 22 Dec 2001, Ashok Raj wrote:
+Hmmm, well that's exactly what UML does and its packets are treated in
+exactly the way you seem to want.  They are treated as coming from a totally
+different machine (although UML, as a complete machine, has a complete network
+stack, network devices with their own IP addresses, etc, so you might just
+not be making your packets look "remote" enough).
 
-> The natual affinity of tasklet execution is really the one iam trying
-> to get away from.
-
-some form of interrupt source is needed to load-balance IRQ load to other
-CPUs - some other, unrelated processor wont just start executing the
-necessery function, without that CPU getting interrupted in some way.
-(polling is an option too, but that's out of question for a generic
-solution.)
-
-there are a number of solutions to this problem.
-
-0) is it truly necessery to process the 3 virtual devices in parallel? Are
-they independent and is the processing needed heavy enough that it demands
-distribution between CPUs?
-
-1) the hardware could generate real IRQs for the virtual devices too,
-which would get load-balanced automatically. I suspect this is not an
-option in your case, right?
-
-2) the 'hard' IRQ you generate could be broadcasted to multiple CPUs at
-once. Your IRQ handler would have the target CPU number hardcoded. This is
-pretty inflexible and needs some lowlevel APIC code changes.
-
-3) upon receiving the hard-IRQ, you could also trigger execution on other
-CPUs, via smp_call_function().
-
-i think #3 is the most generic solution. You'll have to do the
-load-balancing by determining the target CPU of smp_call_function().
-
-	Ingo
+				Jeff
 

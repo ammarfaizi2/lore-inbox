@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313690AbSDPORL>; Tue, 16 Apr 2002 10:17:11 -0400
+	id <S313691AbSDPOVg>; Tue, 16 Apr 2002 10:21:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313694AbSDPORK>; Tue, 16 Apr 2002 10:17:10 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:29756 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S313690AbSDPORJ>; Tue, 16 Apr 2002 10:17:09 -0400
-Date: Tue, 16 Apr 2002 16:17:22 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>, hch@infradead.org
-Subject: Re: Linux 2.4.19-pre7
-Message-ID: <20020416161722.F25328@dualathlon.random>
-In-Reply-To: <Pine.LNX.4.21.0204160049130.18896-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S313692AbSDPOVf>; Tue, 16 Apr 2002 10:21:35 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:783 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S313691AbSDPOVe>;
+	Tue, 16 Apr 2002 10:21:34 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Anton Altaparmakov <aia21@cantab.net>
+Date: Tue, 16 Apr 2002 16:21:04 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: linux-2.4.19-pre7: undefined reference to  `page_cache_
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <28950BF574F@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 12:50:13AM -0300, Marcelo Tosatti wrote:
-> <hch@infradead.org> (02/04/15 1.409)
-> 	[PATCH] unlock buffer_head _after_ end_kio_request
+On 16 Apr 02 at 14:59, Anton Altaparmakov wrote:
+> 
+> I have already submitted a patch to fix this earlier today... and in fact 
+> it is identical to yours. (-:
 
-This is wrong.
+> >fs/fs.o: In function `create_data_partitions':
+> >fs/fs.o(.text+0x2594d): undefined reference to `page_cache_release'
+> >fs/fs.o(.text+0x25a05): undefined reference to `page_cache_release'
 
-Andrea
+But adding #include <linux/pagemap.h> into fs/partitions/check.h
+instead of fs/partitions/ldm.c fixes also problem for other partition
+schemes, like acorn.c is ...
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVDESSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVDERpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbVDESSa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVDESSX
+	id S261844AbVDERpv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 13:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVDERoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:18:23 -0400
-Received: from hammer.engin.umich.edu ([141.213.40.79]:5341 "EHLO
-	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S261848AbVDESRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:17:45 -0400
-Date: Tue, 5 Apr 2005 14:17:36 -0400 (EDT)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
- (with APIC enabled)
-In-Reply-To: <m18y3x16rj.fsf@muc.de>
-Message-ID: <Pine.LNX.4.58.0504051402590.13242@hammer.engin.umich.edu>
-References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
- <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
+	Tue, 5 Apr 2005 13:44:02 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:30116 "EHLO
+	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261836AbVDERU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 13:20:29 -0400
+Message-ID: <4252C8D8.9040109@arcor.de>
+Date: Tue, 05 Apr 2005 19:20:24 +0200
+From: Prakash Punnoor <prakashp@arcor.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050324)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert Love <rml@novell.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] inotify for 2.6.11
+References: <1109961444.10313.13.camel@betsy.boston.ximian.com>	 <4252453E.7060407@arcor.de> <1112717566.7324.19.camel@betsy>
+In-Reply-To: <1112717566.7324.19.camel@betsy>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig579286DA9FA843BAED90EC92"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I booted with 'apic=debug' in case this is useful to find out what's
-wrong.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig579286DA9FA843BAED90EC92
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
+Robert Love schrieb:
+> On Tue, 2005-04-05 at 09:58 +0200, Prakash Punnoor wrote:
+> 
+>>I am having a little trouble with inotify 0.22. Previous version worked w/o
+>>trouble (even with nvidia and nvsound loaded) with 2.6.12-rc1-kb2 and gamin
+>>
+>>Now I use 2.6.12-rc2 with inotify 0.22 and got this after a few minutes of
+>>uptime (compiling some stuff):
+> 
+> 
+> Ah, thanks.  That was not even related to the semaphore rewrite, but a
+> small bug fix I slipped in.  But of course.
+> 
+> Gamin is an interesting test case for us because it does so many
+> ignores.
 
-dmesg of 2.6.11.6 with ACPI enabled, APIC enabled, 'apic=debug':
+BTW, what else could I use to make use of inotify? I know fam, which afaik
+only uses dnotify.
 
-	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-acpi-apicdebug
-	(clock runs at double speed)
+> Anyhow, this should fix it.  Confirm?
 
-dmesg of 2.6.11.6 with ACPI enabled, but disabled for PCI routing, APIC
-enabled ('pci=noacpi apic=debug'):
+So far no problems. Interesting enough the previous patch worked w/o problem
+the last hours...
 
-	http://www-personal.engin.umich.edu/~wingc/apictimer/dmesg/dmesg-2.6.11.6-nopciacpi-apicdebug
-	(system hangs when loading SATA driver)
+Cheers
 
+-- 
+Prakash Punnoor
 
+--------------enig579286DA9FA843BAED90EC92
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-One difference I see between ACPI IRQ routing and 'pci=noacpi' is this:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-(with ACPI IRQ routing)
-	..TIMER: vector=0x31 pin1=2 pin2=-1
+iD8DBQFCUsjcxU2n/+9+t5gRAgBGAJ9dPei9Q/Jnc3bVMGR/6IUiFOkguwCeNzZ3
+RiG0xnsL+P7TngsyUfb6WF8=
+=W0QO
+-----END PGP SIGNATURE-----
 
-(with 'pci=noacpi')
-	..TIMER: vector=0x31 pin1=2 pin2=0
-
-
-so it would seem that mp_irqs[] differs between the ACPI case and
-'pci=noacpi' for mp_ExtINT.
-
-
--Chris
-wingc@engin.umich.edu
-
-
-On Tue, 5 Apr 2005, Andi Kleen wrote:
-
-> Alternatively you can try to boot with noapic. Does that help?
->
-> -Andi
+--------------enig579286DA9FA843BAED90EC92--

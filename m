@@ -1,126 +1,218 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271414AbTHHPpf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 11:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271415AbTHHPpf
+	id S271408AbTHHPoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 11:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271414AbTHHPoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 11:45:35 -0400
-Received: from mail.bbb2.mdc-berlin.de ([141.80.34.25]:4877 "EHLO
-	mail.bbb2.mdc-berlin.de") by vger.kernel.org with ESMTP
-	id S271414AbTHHPpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 11:45:30 -0400
-Subject: 2.6.0-test2 does not boot with matroxfb
-From: Juergen Rose <rose@rz.uni-potsdam.de>
-To: linux-kernel@vger.kernel.org
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>
-Content-Type: multipart/mixed; boundary="=-orS6YCFmBEQgfbr3zNYc"
-Organization: Max-Delbrueck-Zentrum
-Message-Id: <1060357528.19833.11.camel@moen.bioinf.mdc-berlin.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 08 Aug 2003 17:45:28 +0200
+	Fri, 8 Aug 2003 11:44:16 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:15570
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271408AbTHHPoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 11:44:07 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH]O14int
+Date: Sat, 9 Aug 2003 01:49:25 +1000
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Cliff White <cliffw@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308090149.25688.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+More duck tape interactivity tweaks
 
---=-orS6YCFmBEQgfbr3zNYc
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Changes
 
-I tried on my PC with a Matrox-G450 several kernel and boot options.
-Every time when the console should work with matrox framebuffer, linux
-was crashed. With 2.6.0-test2 and 2.6.0-test2-bk7 I had the following
-warning performing ''make modules_install''
-WARNING:
-/lib/modules/2.6.0-test2[-bk7]/kernel/drivers/video/matrox/matroxfb_crtc2.ko needs unknown symbol matroxfb_enable_irq
-This WARNING disapears for 2.6.0-test2-mm5. But also 2.6.0-test2-mm5
-does not work with framebuffer. I tested the following combinations of
-parameters:
+Put some bounds on the interactive_credit and specified a size beyond which a 
+task is considered highly interactive or not.
 
-                            |VGA = 6  |  VGA = 775    |
-                            |         |               |video=matrox:
-                            |         |               |   vesa:0x31C 
-----------------------------+---------+---------------+---------------
-2.4.22-pre6-ac1             |         |               |
-CONFIG_FB=y                 | VGA=6   |  VGA=775      | vesa:0x31C
-CONFIG_VIDEO_SELECT=y       |         |               |
-----------------------------+---------+---------------+---------------
-2.6.0-test2                 |         |crashes        |crashes        
-CONFIG_FRAMEBUFFER_CONSOLE=y|  VGA=6  |after          |after          
-CONFIG_VIDEO_SELECT=y       |         |BIOS DATA CHECK|BIOS DATA CHECK
-----------------------------+---------+---------------+---------------
-2.6.0-test2                 |         |               | 
-CONFIG_FRAMEBUFFER_CONSOLE=y| 640x480 |  640x480      |  640x480
-CONFIG_VIDEO_SELECT=n       |         |               |  
-----------------------------+---------+---------------+---------------
-2.6.0-test2                 |         |crashes        |crashes
-without console-fb          |  VGA=6  |after          |after
-CONFIG_VIDEO_SELECT=y       |         |BIOS DATA CHECK|BIOS DATA CHECK
-----------------------------+---------+---------------+---------------
-2.6.0-test2                 |         |               |
-without console-fb          | 640x480 |  640x480      |  640x480
-CONFIG_VIDEO_SELECT=n       |         |               |
-----------------------------+---------+---------------+---------------
-2.6.0-test2-bk7             |         |crashes        |crashes
-with console-fb             | VGA=6   |after          |after
-CONFIG_VIDEO_SELECT=y       |         |BIOS DATA CHECK|BIOS DATA CHECK
-----------------------------+---------+---------------+---------------
-2.6.0-test2-mm5             |         |crashes        |crashes
-CONFIG_FRAMEBUFFER_CONSOLE=y| VGA=6   |after          |after
-CONFIG_VIDEO_SELECT=y       |         |BIOS DATA CHECK|BIOS DATA CHECK
-----------------------------+---------+---------------+---------------
+Moved the uninterruptible sleep limiting to within recalc_task_prio removing 
+one call of the sched_clock() and being more careful about the limits.
 
-Because I am afraid, that the lines of the table are wrapped by the mail
-client, the is alsa attached to this mail. Any hint would very much
-appreciated.
+Wli pointed out an error in the nanosecond to jiffy conversion which may have 
+been causing too easy to migrate tasks on smp (? performance change).
 
-	Regards
-		Juergen
+Put greater limitation on the requeuing code; now it only requeues interactive 
+tasks thereby letting cpu hogs run their full timeslice unabated which should 
+improve cpu intensive task performance.
 
--- 
-Juergen Rose <rose@rz.uni-potsdam.de>
-Max-Delbrueck-Zentrum
+Made highly interactive tasks earn all their waiting time on the runqueue
+during requeuing as sleep_avg.
 
---=-orS6YCFmBEQgfbr3zNYc
-Content-Disposition: attachment; filename=2.6.0-test2_problems_table.txt
-Content-Type: text/plain; name=2.6.0-test2_problems_table.txt; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
+Patch applies onto 2.6.0-test2-mm5
 
-Results of some kernel and boot parameters:
+http://kernel.kolivas.org/2.5
+has the patch and a full patch against 2.6.0-test2
 
-                            |VGA = 6  |  VGA = 775    |
-                            |         |               |video=matrox:
-                            |         |               |   vesa:0x31C 
-----------------------------+---------+---------------+---------------
-2.4.22-pre6-ac1             |         |               |
-CONFIG_FB=y                 | VGA=6   |  VGA=775      | vesa:0x31C
-CONFIG_VIDEO_SELECT=y       |         |               |
-----------------------------+---------+---------------+---------------
-2.6.0-test2                 |         |crashes        |crashes        
-CONFIG_FRAMEBUFFER_CONSOLE=y|  VGA=6  |after          |after          
-CONFIG_VIDEO_SELECT=y       |         |BIOS DATA CHECK|BIOS DATA CHECK
-----------------------------+---------+---------------+---------------
-2.6.0-test2                 |         |               | 
-CONFIG_FRAMEBUFFER_CONSOLE=y| 640x480 |  640x480      |  640x480
-CONFIG_VIDEO_SELECT=n       |         |               |  
-----------------------------+---------+---------------+---------------
-2.6.0-test2                 |         |crashes        |crashes
-without console-fb          |  VGA=6  |after          |after
-CONFIG_VIDEO_SELECT=y       |         |BIOS DATA CHECK|BIOS DATA CHECK
-----------------------------+---------+---------------+---------------
-2.6.0-test2                 |         |               |
-without console-fb          | 640x480 |  640x480      |  640x480
-CONFIG_VIDEO_SELECT=n       |         |               |
-----------------------------+---------+---------------+---------------
-2.6.0-test2-bk7             |         |crashes        |crashes
-with console-fb             | VGA=6   |after          |after
-CONFIG_VIDEO_SELECT=y       |         |BIOS DATA CHECK|BIOS DATA CHECK
-----------------------------+---------+---------------+---------------
-2.6.0-test2-mm5             |         |crashes        |crashes
-CONFIG_FRAMEBUFFER_CONSOLE=y| VGA=6   |after          |after
-CONFIG_VIDEO_SELECT=y       |         |BIOS DATA CHECK|BIOS DATA CHECK
-----------------------------+---------+---------------+---------------
+Patch O13.1-O14int:
 
-
---=-orS6YCFmBEQgfbr3zNYc--
+--- linux-2.6.0-test2-mm5-O13.1/kernel/sched.c	2003-08-08 22:47:08.000000000 +1000
++++ linux-2.6.0-test2-mm5/kernel/sched.c	2003-08-09 01:27:47.000000000 +1000
+@@ -130,6 +130,15 @@
+ #define JUST_INTERACTIVE_SLEEP(p) \
+ 	(MAX_SLEEP_AVG - (DELTA(p) * AVG_TIMESLICE))
+ 
++#define HIGH_CREDIT(p) \
++	((p)->interactive_credit > MAX_SLEEP_AVG)
++
++#define LOW_CREDIT(p) \
++	((p)->interactive_credit < -MAX_SLEEP_AVG)
++
++#define VARYING_CREDIT(p) \
++	(!(HIGH_CREDIT(p) || LOW_CREDIT(p)))
++
+ #define TASK_PREEMPTS_CURR(p, rq) \
+ 	((p)->prio < (rq)->curr->prio || \
+ 		((p)->prio == (rq)->curr->prio && \
+@@ -364,7 +373,7 @@ static void recalc_task_prio(task_t *p, 
+ 	unsigned long long __sleep_time = now - p->timestamp;
+ 	unsigned long sleep_time;
+ 
+-	if (!p->sleep_avg)
++	if (!p->sleep_avg && VARYING_CREDIT(p))
+ 		p->interactive_credit--;
+ 
+ 	if (__sleep_time > NS_MAX_SLEEP_AVG)
+@@ -373,7 +382,6 @@ static void recalc_task_prio(task_t *p, 
+ 		sleep_time = (unsigned long)__sleep_time;
+ 
+ 	if (likely(sleep_time > 0)) {
+-
+ 		/*
+ 		 * User tasks that sleep a long time are categorised as
+ 		 * idle and will get just interactive status to stay active &
+@@ -387,20 +395,38 @@ static void recalc_task_prio(task_t *p, 
+ 		else {
+ 			/*
+ 			 * The lower the sleep avg a task has the more
+-			 * rapidly it will rise with sleep time. Tasks
+-			 * without interactive_credit are limited to
+-			 * one timeslice worth of sleep avg bonus.
++			 * rapidly it will rise with sleep time.
+ 			 */
+ 			sleep_time *= (MAX_BONUS + 1 -
+ 					(NS_TO_JIFFIES(p->sleep_avg) *
+ 					MAX_BONUS / MAX_SLEEP_AVG));
+ 
+-			if (p->interactive_credit < 0 &&
++			/*
++			 * Tasks with low interactive_credit are limited to
++			 * one timeslice worth of sleep avg bonus.
++			 */
++			if (LOW_CREDIT(p) &&
+ 				sleep_time > JIFFIES_TO_NS(task_timeslice(p)))
+ 					sleep_time =
+ 						JIFFIES_TO_NS(task_timeslice(p));
+ 
+ 			/*
++			 * Non high_credit tasks waking from uninterruptible
++			 * sleep are limited in their sleep_avg rise
++			 */
++			if (!HIGH_CREDIT(p) && p->activated == -1){
++				if (p->sleep_avg >=
++					JIFFIES_TO_NS(JUST_INTERACTIVE_SLEEP(p)))
++						sleep_time = 0;
++				else if (p->sleep_avg + sleep_time >=
++					JIFFIES_TO_NS(JUST_INTERACTIVE_SLEEP(p))){
++						p->sleep_avg =
++							JIFFIES_TO_NS(JUST_INTERACTIVE_SLEEP(p));
++						sleep_time = 0;
++					}
++			}
++
++			/*
+ 			 * This code gives a bonus to interactive tasks.
+ 			 *
+ 			 * The boost works by updating the 'average sleep time'
+@@ -418,7 +444,7 @@ static void recalc_task_prio(task_t *p, 
+ 			 */
+ 			if (p->sleep_avg > NS_MAX_SLEEP_AVG){
+ 				p->sleep_avg = NS_MAX_SLEEP_AVG;
+-				p->interactive_credit++;
++				p->interactive_credit += VARYING_CREDIT(p);
+ 			}
+ 		}
+ 	}
+@@ -588,11 +614,7 @@ repeat_lock_task:
+ 				 * Tasks on involuntary sleep don't earn
+ 				 * sleep_avg beyond just interactive state.
+ 				 */
+-				if (NS_TO_JIFFIES(p->sleep_avg) >=
+-					JUST_INTERACTIVE_SLEEP(p)){
+-						p->timestamp = sched_clock();
+-						p->activated = -1;
+-				}
++				p->activated = -1;
+ 			}
+ 			if (sync)
+ 				__activate_task(p, rq);
+@@ -1156,9 +1178,9 @@ skip_queue:
+ 	 * 3) are cache-hot on their current CPU.
+ 	 */
+ 
+-#define CAN_MIGRATE_TASK(p,rq,this_cpu)					\
+-	((!idle || (((now - (p)->timestamp)>>10) > cache_decay_ticks)) &&\
+-		!task_running(rq, p) &&					\
++#define CAN_MIGRATE_TASK(p,rq,this_cpu)	\
++	((!idle || (NS_TO_JIFFIES(now - (p)->timestamp) > \
++		cache_decay_ticks)) && !task_running(rq, p) && \
+ 			cpu_isset(this_cpu, (p)->cpus_allowed))
+ 
+ 	curr = curr->prev;
+@@ -1366,13 +1388,23 @@ void scheduler_tick(int user_ticks, int 
+ 		 * requeue this task to the end of the list on this priority
+ 		 * level, which is in essence a round-robin of tasks with
+ 		 * equal priority.
++		 *
++		 * This only applies to user tasks in the interactive
++		 * delta range with at least MIN_TIMESLICE left.
+ 		 */
+-		if (p->mm && !((task_timeslice(p) - p->time_slice) %
+-			TIMESLICE_GRANULARITY) && (p->time_slice > MIN_TIMESLICE) &&
++		if (p->mm && TASK_INTERACTIVE(p) && !((task_timeslice(p) -
++			p->time_slice) % TIMESLICE_GRANULARITY) &&
++			(p->time_slice > MIN_TIMESLICE) &&
+ 			(p->array == rq->active)) {
+ 
+ 			dequeue_task(p, rq->active);
+ 			set_tsk_need_resched(p);
++			/*
++			 * Tasks with interactive credit get all their
++			 * time waiting on the run queue credited as sleep
++			 */
++			if (HIGH_CREDIT(p))
++				p->activated = 2;
+ 			enqueue_task(p, rq->active);
+ 		}
+ 	}
+@@ -1426,7 +1458,7 @@ need_resched:
+ 	 * as their sleep_avg decreases to slow them losing their
+ 	 * priority bonus
+ 	 */
+-	if (prev->interactive_credit > 0)
++	if (HIGH_CREDIT(prev))
+ 		run_time /= (MAX_BONUS + 1 -
+ 			(NS_TO_JIFFIES(prev->sleep_avg) * MAX_BONUS /
+ 			MAX_SLEEP_AVG));
+@@ -1484,12 +1516,12 @@ pick_next_task:
+ 		if (next->activated == 1)
+ 			delta = delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
+ 
+-		next->activated = 0;
+ 		array = next->array;
+ 		dequeue_task(next, array);
+ 		recalc_task_prio(next, next->timestamp + delta);
+ 		enqueue_task(next, array);
+ 	}
++	next->activated = 0;
+ switch_tasks:
+ 	prefetch(next);
+ 	clear_tsk_need_resched(prev);
 

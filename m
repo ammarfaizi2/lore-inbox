@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261516AbSJMNJl>; Sun, 13 Oct 2002 09:09:41 -0400
+	id <S261535AbSJMPWh>; Sun, 13 Oct 2002 11:22:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbSJMNJk>; Sun, 13 Oct 2002 09:09:40 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:34003 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S261516AbSJMNJd>; Sun, 13 Oct 2002 09:09:33 -0400
-Message-ID: <4649460.1034514705718.JavaMail.nobody@web11.us.oracle.com>
-Date: Sun, 13 Oct 2002 05:11:45 -0800 (GMT-08:00)
-From: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
-To: felix.seeger@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.42 compile error in timers/timer_tsc.c
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_124_6447144.1034514705715"
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+	id <S261536AbSJMPWh>; Sun, 13 Oct 2002 11:22:37 -0400
+Received: from gemini.nr.no ([156.116.2.76]:13209 "EHLO gemini.nr.no")
+	by vger.kernel.org with ESMTP id <S261535AbSJMPWg>;
+	Sun, 13 Oct 2002 11:22:36 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Bug/panic: ATAPI fails with 2.4.20-pre10-ac2
+From: Thor Kristoffersen <Thor.Kristoffersen@nr.no>
+Date: 13 Oct 2002 17:28:23 +0200
+Message-ID: <yznit06jr3c.fsf@triumph.nr.no>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *180kfI-0001ia-00*5eomIdWfgbY*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_124_6447144.1034514705715
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+System:
+  MSI KT3 Ultra2 (KT333/VT8235 bridges)
+  XP1700+
+  1G DDR RAM
+  Seagate ST380021A
+  Plexwriter PX-W2410A
+  Radeon 32M SDR
+  Ensoniq 5880 AudioPCI
+  SMC EtherPower II
+  RedHat 8.0
+  GCC 3.2
 
-> Hi
-> I get this:
->   gcc -Wp,-MD,arch/i386/kernel/timers/.timer.o.d -D__KERNEL__ -Iinclude -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
-> -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    
-> -DKBUILD_BASENAME=timer   -c -o arch/i386/kernel/timers/timer.o 
-> arch/i386/kernel/timers/timer.c
->   gcc -Wp,-MD,arch/i386/kernel/timers/.timer_tsc.o.d -D__KERNEL__ -Iinclude 
-> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
-> -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    
-> -DKBUILD_BASENAME=timer_tsc   -c -o arch/i386/kernel/timers/timer_tsc.o 
-> arch/i386/kernel/timers/timer_tsc.c
-> arch/i386/kernel/timers/timer_tsc.c: In function `time_cpufreq_notifier':
-> arch/i386/kernel/timers/timer_tsc.c:181: `CPUFREQ_PRECHANGE' undeclared (first 
-> use in this function)
 
-[snip]
+Linux 2.4.20-pre10:
 
-Attached patch (which simply includes<linux/cpufreq.h>) makes it compile. Don't know
- whether it's the Right Fix (TM), so...
+Setup A: IDE0 = HD, IDE1 = HD
+and
+Setup B: IDE0 = HD, IDE1 = ATAPI CD-Writer w/ide-scsi driver
 
---alessandro
-------=_Part_124_6447144.1034514705715
-Content-Type: application/octet-stream; name=cpufreq.diff
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=cpufreq.diff
+  Everything works, but only in PIO mode.
 
---- timer_tsc.c.orig	Sun Oct 13 00:43:36 2002
-+++ timer_tsc.c	Sun Oct 13 00:43:11 2002
-@@ -7,6 +7,7 @@
- #include <linux/init.h>
- #include <linux/timex.h>
- #include <linux/errno.h>
-+#include <linux/cpufreq.h>
- 
- #include <asm/timer.h>
- #include <asm/io.h>
 
-------=_Part_124_6447144.1034514705715--
+Linux 2.4.20-pre10-ac2:
 
+Setup A: IDE0 = HD, IDE1 = HD
+
+  Everything works in UDMA mode 5.
+
+
+Setup B: IDE0 = HD, IDE1 = ATAPI CD-Writer w/ide-scsi driver
+
+  The HD works in UDMA mode 5, but the ATAPI CD-Writer is unusable.
+  When I try to mount a CD-ROM, the kernel spews lots of messages like these:
+    hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+    hdc: drive not ready for command
+    hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+    hdc: drive not ready for command
+    hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+    hdc: drive not ready for command
+    hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+    hdc: drive not ready for command
+    hdc: status error: status=0x49 { DriveReady DataRequest Error }
+    hdc: status error: error=0x04
+    hdc: drive not ready for command
+    hdc: ATAPI reset complete
+  Usually the CD-ROM can be mounted and read, although it is extremely
+  slow.  Once, however, the kernel paniced before it got as far as mounting
+  it.  Unfortunately the oops was not captured in the logs, but I think its
+  last words were something like "AIEEE, killed interrupt handler".
+
+
+If anyone is willing to look into this problem I'd be happy to send you
+whatever logs, config, and /proc information you need.  I can also try out
+new patches.
+
+
+Thor

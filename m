@@ -1,39 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317096AbSHOPNZ>; Thu, 15 Aug 2002 11:13:25 -0400
+	id <S317091AbSHOPMD>; Thu, 15 Aug 2002 11:12:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317101AbSHOPNZ>; Thu, 15 Aug 2002 11:13:25 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:33995 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317096AbSHOPNY>;
-	Thu, 15 Aug 2002 11:13:24 -0400
-Date: Thu, 15 Aug 2002 17:16:38 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] clone-detached-2.5.31-B0
-In-Reply-To: <Pine.LNX.4.44.0208132307340.12804-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208151715320.2982-100000@localhost.localdomain>
+	id <S317096AbSHOPMC>; Thu, 15 Aug 2002 11:12:02 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:2459 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S317091AbSHOPMC>;
+	Thu, 15 Aug 2002 11:12:02 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15707.50603.860391.251920@kim.it.uu.se>
+Date: Thu, 15 Aug 2002 17:15:55 +0200
+To: linux-kernel@vger.kernel.org
+CC: martin@dalecki.de
+Subject: 2.5.31 boot failure on pdc20267
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Booting 2.5.31 (non-bk) on hde5, a UDMA(66) Quantum Fireball
+on a PDC20267 add-on card, resulted in a complete hang as init
+came to its "mount -n -o remount,rw /" point. No visible messages
+or anything in the log.
 
-one of the debugging tests triggered a false-positive BUG() when a
-detached thread was straced. Fix against BK-curr attached.
-
-	Ingo
-
---- kernel/signal.c.orig	Thu Aug 15 17:12:02 2002
-+++ kernel/signal.c	Thu Aug 15 17:12:34 2002
-@@ -774,7 +774,7 @@
- 	int why, status;
- 
- 	/* is the thread detached? */
--	if (sig == -1 || tsk->exit_signal == -1)
-+	if (sig == -1)
- 		BUG();
- 
- 	info.si_signo = sig;
-
+2.5.29 worked ok on this box, as does 2.4 and 2.2+Andre's IDE code.
+ASUS P3B-F, 440BX UDMA(33) chipset, disks on a Promise Ultra100 card.

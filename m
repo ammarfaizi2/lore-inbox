@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273030AbTHFFXq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 01:23:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274820AbTHFFXq
+	id S274838AbTHFFdA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 01:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274820AbTHFFdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 01:23:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17120 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S273030AbTHFFXV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 01:23:21 -0400
-Message-Id: <200308060523.h765NII31787@mail.osdl.org>
-From: OSDL <torvalds@osdl.org>
-Subject: Re: 2.6.0-test2 oops - NPTL triggered
-To: Greg Schafer <gschafer@zip.com.au>, linux-kernel@vger.kernel.org
-Reply-To: torvalds@osdl.org
-Date: Tue, 05 Aug 2003 22:23:18 -0700
-References: <20030806021316.GA408@tigers-lfs.nsw.bigpond.net.au>
-Organization: OSDL
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
+	Wed, 6 Aug 2003 01:33:00 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:31405 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S274838AbTHFFc6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 01:32:58 -0400
+Date: Wed, 6 Aug 2003 11:08:07 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jeremy@goop.org, dick.streefland@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] autofs4 doesn't expire
+Message-ID: <20030806053807.GC1298@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <4b0c.3f302ca5.93873@altium.nl> <20030805164904.36b5d2cc.akpm@osdl.org> <20030806042853.GA1298@in.ibm.com> <1060144454.18625.5.camel@ixodes.goop.org> <20030806050003.GB1298@in.ibm.com> <20030805220848.3ee1111a.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Disposition: inline
+In-Reply-To: <20030805220848.3ee1111a.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Schafer wrote:
+On Tue, Aug 05, 2003 at 10:08:48PM -0700, Andrew Morton wrote:
+> Maneesh Soni <maneesh@in.ibm.com> wrote:
+> >
+> >  +	if (vfs) {
+> >  +		if (is_vfsmnt_tree_busy(vfs))
+> >  +			ret--;
+> >  +		/* just to reduce ref count taken in lookup_mnt
+> >  +	 	 * cannot call mntput() here
+> >  +	 	 */
+> >  +		atomic_dec(&vfs->mnt_count);
+> >  +	}
 > 
-> An otherwise fine running kernel-2.6.0-test2 repeatably gives this when
-> running the NPTL testsuite.
+> Doesn't work, does it?  If someone else does a mntput() just beforehand,
+> __mntput() never gets run.
 > 
-> ksymoops output attached.
-> 
->  - kernel compiled with gcc-2.95.4 (s'pose I should try 3.2.3)
->  - recent binutils
->  - board is Tyan S2466N-4M with pair of Athlon 2200's
-> 
-> This is a UP kernel (trying to narrow down the cause).
 
-It looks like the list poisoning triggers:
+no.. it will not work. looks like we have to unlock and lock dcache_lock and
+use mntput as I did earlier. But I think, it will be really nice if Jermey
+can revisit is_tree_busy() code.
 
-        ecx: 00200200 edx: 00100100
+There can be other problems like the checking d_count for dentries under
+dcache_lock(). As users can do dget() or dput() manipulating d_count without
+dcache_lock(). 
 
-those are the poison values for the prev/next fields of lists (see
-<linux/list.h>).
+Maneesh
 
-So it looks like switch_exec_pids() is removing a list entry that was
-already removed.
-
-                Linus
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

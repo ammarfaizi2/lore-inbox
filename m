@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUFBNdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbUFBNgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUFBNdg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 09:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUFBNdg
+	id S262802AbUFBNgv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 09:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbUFBNgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 09:33:36 -0400
-Received: from zero.aec.at ([193.170.194.10]:9479 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262634AbUFBNd2 (ORCPT
+	Wed, 2 Jun 2004 09:36:51 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:15565 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262802AbUFBNgm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 09:33:28 -0400
-To: <rol@as2917.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP retransmission : how to detect from an application ?
-References: <22DFj-7Zd-1@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 02 Jun 2004 15:33:22 +0200
-In-Reply-To: <22DFj-7Zd-1@gated-at.bofh.it> (Paul Rolland's message of "Wed,
- 02 Jun 2004 15:10:05 +0200")
-Message-ID: <m3zn7m5bkt.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 2 Jun 2004 09:36:42 -0400
+Date: Wed, 2 Jun 2004 15:36:08 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Yury Umanets <torque@ukrpost.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.6 buffer.c: bio_alloc() check
+Message-ID: <20040602133606.GW28915@suse.de>
+References: <1086182887.2898.89.camel@firefly.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1086182887.2898.89.camel@firefly.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul Rolland" <rol@as2917.net> writes:
+On Wed, Jun 02 2004, Yury Umanets wrote:
+> [PATCH] 2.6.6 buffer.c: adds bio_alloc() check and error handling in
+> fs/buffer.c.
+> 
+> Signed-off-by: Yury Umanets <torque@ukrpost.net>
+> 
+>  buffer.c |   25 +++++++++++++++++++++++++
+>  1 files changed, 25 insertions(+)
+> 
+> diff -rupN ./linux-2.6.6/fs/buffer.c ./linux-2.6.6-modified/fs/buffer.c
+> --- ./linux-2.6.6/fs/buffer.c	Mon May 10 05:32:38 2004
+> +++ ./linux-2.6.6-modified/fs/buffer.c	Wed Jun  2 15:21:47 2004
+> @@ -2712,6 +2712,31 @@ void submit_bh(int rw, struct buffer_hea
+>  	 * submit_bio -> generic_make_request may further map this bio around
+>  	 */
+>  	bio = bio_alloc(GFP_NOIO, 1);
+> +	if (bio == NULL) {
 
-> I've an application that is establishing TCP connection, and exchanges some
-> data.
-> However, from time to time, I suspect there are some packet loss, which are
-> corrected by the kernel (hell, TCP is reliable, isn't it :-), but I'd like
-> to know if an application can detect this (well, I don't want to be notified
-> of a packet loss once detected, but I'd like to get some stats before
-> closing
-> the connection).
->
-> Is there something possible ? Some ioctl ? Some /proc/magic-interface ?
+This is wrong, bio_alloc() never fails if it's called with __GFP_WAIT in
+the gfp mask.
 
-RTFM. man tcp -> TCP_INFO 
-
--Andi
+-- 
+Jens Axboe
 

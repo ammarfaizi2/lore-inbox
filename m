@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbRADQ7t>; Thu, 4 Jan 2001 11:59:49 -0500
+	id <S129348AbRADRA7>; Thu, 4 Jan 2001 12:00:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbRADQ7k>; Thu, 4 Jan 2001 11:59:40 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:20471 "EHLO
+	id <S129927AbRADRAt>; Thu, 4 Jan 2001 12:00:49 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:37111 "EHLO
 	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129325AbRADQ7J>; Thu, 4 Jan 2001 11:59:09 -0500
-Date: Thu, 4 Jan 2001 14:58:19 -0200 (BRDT)
+	id <S129348AbRADRAk>; Thu, 4 Jan 2001 12:00:40 -0500
+Date: Thu, 4 Jan 2001 14:59:49 -0200 (BRDT)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Christoph Rohland <cr@sap.com>, Chris Mason <mason@suse.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] filemap_fdatasync & related changes
-In-Reply-To: <Pine.LNX.4.21.0101041236400.1355-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0101041437550.1188-100000@duckman.distro.conectiva>
+To: Andrea Arcangeli <andrea@e-mind.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dcache 2nd chance replacement
+In-Reply-To: <20010104175238.F1507@athlon.random>
+Message-ID: <Pine.LNX.4.21.0101041459050.1188-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Marcelo Tosatti wrote:
-> On 4 Jan 2001, Christoph Rohland wrote:
-> > Chris Mason <mason@suse.com> writes:
+On Thu, 4 Jan 2001, Andrea Arcangeli wrote:
 
-> > > That would loop forever if the writepage func kept returning 1 though
-	[snip]
+> This is totally offtopic. We were _not_ talking about other
+> algorithms.  We were _only_ talking about _when_ the 1 bit of
+> aging I introduced with my algorithm improves performance at
+> max.  My answer is that the max performance improvement happens
+> when there's the _highest_ VFS load in background and you
+> disagreed.  Everything else has nothing to do with this our
+> previous discussion so your above reply partly still doesn't
+> make sense to me.
 
-> > return 1 if the swap space is exhausted. So everybody using shared
-> > anonymous, SYSV shared or POSIX shared memory can hit this.
-> 
-> In case of swap exhausted I think we should just fail.
+Not only did I disagree, I also explained you why it
+doesn't work the way you envision.
 
-No. In case of swap exhausted the page needs to be moved to
-the active list so we don't clog up the inactive_dirty list
-and have the possibility of a deadlock (already done).
+Unfortunately you seem to ignore my arguments, so lets
+close this thread.
 
-In case of "write ordering not yet satisfied", the writepage
-function should leave the page on the inactive_dirty list and
-maybe write out something else (reiserfs, ext3, xfs...).
-
-regards,
+EOT,
 
 Rik
 --

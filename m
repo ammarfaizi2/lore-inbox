@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSKCXKv>; Sun, 3 Nov 2002 18:10:51 -0500
+	id <S263968AbSKCXL1>; Sun, 3 Nov 2002 18:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263320AbSKCXKv>; Sun, 3 Nov 2002 18:10:51 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:51212 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263313AbSKCXKu>; Sun, 3 Nov 2002 18:10:50 -0500
-From: Han-Wen Nienhuys <hanwen@cs.uu.nl>
+	id <S264610AbSKCXL1>; Sun, 3 Nov 2002 18:11:27 -0500
+Received: from msdo0001.xtend.de ([217.27.0.68]:64460 "EHLO msdo0001.xtend.de")
+	by vger.kernel.org with ESMTP id <S263968AbSKCXLK>;
+	Sun, 3 Nov 2002 18:11:10 -0500
+Message-ID: <3DC5AE86.7010404@triaton-webhosting.com>
+Date: Mon, 04 Nov 2002 00:17:26 +0100
+From: Georg Chini <georg.chini@triaton-webhosting.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Sparc 32/64 - freeswan - iptables 
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15813.44941.592105.853906@blauw.xs4all.nl>
-Date: Mon, 4 Nov 2002 00:21:49 +0100
-To: James Stevenson <james-lists@stev.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Help!] 2.4.20 IDE-SCSI / CD-writing crash
-In-Reply-To: <1036365120.1540.11.camel@god.stev.org>
-References: <3DC59E5B.2040007@yahoo.com>
-	<200211032253.gA3Mrw1B008818@smtpzilla1.xs4all.nl>
-	<1036365120.1540.11.camel@god.stev.org>
-X-Mailer: VM 7.05 under Emacs 21.2.1
-Reply-To: hanwen@cs.uu.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-james-lists@stev.org writes:
-> yeah this happens to me under certin combinations of hardware
-> eg dont put a cd write on the same channel as a disk or
-> you seem to run into problems.
+Hi,
 
-The writer is on 2nd IDE channel (hdd), the HD is on  the 1st (hda).
+when I try to use freeswan on my sparcs, I have the following problems:
 
-> you saw 2.4.20 ? i dont think that kernel is out yet.
+1) freeswan+iptables crashes the system on sparc 32
+2) freeswan does not work on ethX interfaces but on ppp0
+3) freeswan crashes the system on sparc64
 
-20-rc1
+1)for half a year I have been trying to make freeswan work on
+   my Sparc Station 5  or Ultra 1.  I used several kernel  and
+   freeswan versions. A few days ago, I found out that it works
+   on my ppp0 (pppoe) interface, but not on ethX interfaces.
+  The problem is, that ipsec is stable on the sparc 32 as long as the 
+netfilter
+  code is not in the kernel.  As soon as I load the iptable modules
+  (or ipchains) the machine crashes without any message when
+  I use the tunnel, even if there are no rules in place.
+  Iptables without ipsec works fine.
+  I compiled all the code into the kernel, but it had no effect.
+  The same configuration works well on my Intel machine.
+  I am currently using 2.4.20-rc1 with freeswan-2.00 or 1.98b.
 
-FWIW, I also tried disabling DMA on the cdrom drive; no-go:   at the
-3rd burn, the ATAPI resets were all over the place.
+2) When I use ipsec over an ethX interface,  the ipsec interface drops the
+     outgoing packets and reports an error. As far as I found out, the
+     ip_route_output call in line 1898 of ipsec_tunnel.c returns an
+    error.I am not able to get the errorcode returned, because the
+    system crashes when I try to print it out. I have the same problem
+    on the 32 bit and 64 bit platform. I posted that problem in the freeswan
+    lists a while ago, but nobody could help me.
 
--- 
+3)I patched sys_ioctl32.c on the ultra (horrible hack I suppose,
+    I'm no C-programmer). On ppp0 the sparc 64 is able to establish
+    an ipsec connection, but crashes as soon as I try to use the tunnel.
+   
+Can anyone help me to solve one of my problems?
 
-Han-Wen Nienhuys   |   hanwen@cs.uu.nl   |   http://www.cs.uu.nl/~hanwen 
+Thanks in advance
+                                    Georg Chini
+

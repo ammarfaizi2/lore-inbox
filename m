@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317381AbSGIT0u>; Tue, 9 Jul 2002 15:26:50 -0400
+	id <S317387AbSGIT3D>; Tue, 9 Jul 2002 15:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317384AbSGIT0t>; Tue, 9 Jul 2002 15:26:49 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:2294 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S317381AbSGIT0s>; Tue, 9 Jul 2002 15:26:48 -0400
-Message-ID: <3D2B3979.2A63BE46@nortelnetworks.com>
-Date: Tue, 09 Jul 2002 15:28:57 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: who is the ATM/SONET maintainer?
-References: <3D2B2573.5F16259F@nortelnetworks.com> <3D2B2FC3.4060007@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317388AbSGIT3C>; Tue, 9 Jul 2002 15:29:02 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:36065 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317387AbSGIT3A>;
+	Tue, 9 Jul 2002 15:29:00 -0400
+Message-Id: <200207091931.g69JVD417360@eng4.beaverton.ibm.com>
+To: Greg KH <greg@kroah.com>
+cc: Dave Hansen <haveblue@us.ibm.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal 
+In-reply-to: Your message of "Mon, 08 Jul 2002 21:38:58 PDT."
+             <20020709043857.GA24418@kroah.com> 
+Date: Tue, 09 Jul 2002 12:31:13 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+I wrote:
 
-> No real maintainer...  want the job?  :)
+    > The problem is, of course, that to responsibly use the BKL, you must
+    > fully understand ALL the code that utilizes it, so that you know your
+    > new use of it doesn't conflict or interfere with existing code and
+    > usage.  That's the same problem we have when it DOES show contention --
+    > is the problem in the functions which can't grab it (for trying
+    > unnecessarily), or in the functions that can (for holding it
+    > unnecessarily)?
+    
+Greg responded:
 
-<shudder>  I don't think so...I've seen how much work it can be.  Although I
-suspect ATM would be a lot less churn than, say, ethernet.
+    But the driverfs and USB code do _not_ show contention.  Or if they
+    do (as Dave pointed out in the driverfs code) it's in a
+    non-critical point in the kernel's life (boot time, USB device
+    removal, etc.)
 
-I'll try going through the guys listed at sourceforge first.
+Ok, I think this underscores something I haven't seen clearly stated
+here before.  Yes, if you can demonstrate contention, you have a
+problem that needs fixing, and I think few would argue it shouldn't be
+addressed.
 
-Chris  
+However, I look at this from a supportability point of view as well --
+a lock such as the BKL which is used for multiple reasons by multiple
+subsystems, when it DOES show contention, is harder to fix.  People
+trying to fix old code wonder if a particular section really needs the
+BKL, and give up figuring it out because its too hard.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+So while contention can bring a lot of (unwanted) attention to a
+spinlock, including the BKL, I want to see the BKL reduced even if it's
+NOT showing contention, because it makes it easier to debug the cases
+where it IS being used.  Unless a developer is relying on the
+release-on-sleep mechanism or the nested-locks-without-deadlock
+mechanism, there's no reason an instance of the BKL can't be replaced
+with another spinlock.
+
+Arguing that efforts to replace it have indicated we don't know
+how it is really used just supports my point.  I don't think anybody
+exists who can claim (or will admit :) that they know why the BKL is
+used everywhere it is.  We either need to develop that person (and keep
+them safe from harm!) or make it easier to understand "on the fly".
+I believe that reducing the varied usages, even harmless ones", will
+make it easier to either clearly document the remaining usages or
+to understand it "on the fly".
+
+Rick

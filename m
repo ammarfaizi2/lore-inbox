@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273918AbRJNDur>; Sat, 13 Oct 2001 23:50:47 -0400
+	id <S274055AbRJNDxt>; Sat, 13 Oct 2001 23:53:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274055AbRJNDuh>; Sat, 13 Oct 2001 23:50:37 -0400
-Received: from mail.ask.ne.jp ([203.179.96.3]:57837 "EHLO mail.ask.ne.jp")
-	by vger.kernel.org with ESMTP id <S273918AbRJNDuU>;
-	Sat, 13 Oct 2001 23:50:20 -0400
-Date: Sun, 14 Oct 2001 12:50:43 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: David Ronis <ronis@montroll.chem.mcgill.ca>
+	id <S274062AbRJNDxj>; Sat, 13 Oct 2001 23:53:39 -0400
+Received: from confused.landsberger.com ([216.160.68.107]:58377 "EHLO
+	mephistopheles.landsberger.com") by vger.kernel.org with ESMTP
+	id <S274055AbRJNDxg>; Sat, 13 Oct 2001 23:53:36 -0400
+Subject: Re: mount hanging 2.4.12
+From: Brian Landsberger <brian@landsberger.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Module Build Failure in 2.4.12
-Message-Id: <20011014125043.4031e6d8.bruce@ask.ne.jp>
-In-Reply-To: <200110140325.f9E3Pttt002153@montroll.chem.mcgill.ca>
-In-Reply-To: <200110140325.f9E3Pttt002153@montroll.chem.mcgill.ca>
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <Pine.GSO.4.21.0110132201150.3903-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0110132201150.3903-100000@weyl.math.psu.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 13 Oct 2001 20:55:31 -0700
+Message-Id: <1003031732.1261.1.camel@fux0r.landsberger.com>
+Mime-Version: 1.0
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Oct 2001 23:25:55 -0400
-David Ronis <ronis@montroll.chem.mcgill.ca> wrote:
+I've noticed this happening once in a while on my CF loader (Sandisk
+Imagemate) on and off again ever since 2.4.9. FAT filesystem,
+usb-storage.
 
-> I've been trying to build 2.4.12 on an i586-linux-gnu box [an out of the 
-> package Slackware8.0 system].  The build fails in building the parport
-> driver
-> module.  Specfically:
+
+
+On Sat, 2001-10-13 at 19:02, Alexander Viro wrote:
 > 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.12/include -Wall -Wstrict-prototypes
-> -Wno-
-> trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
-> -mpref
-> erred-stack-boundary=2 -march=i586 -DMODULE   -c -o ieee1284_ops.o
-> ieee1284_ops.
-> c
-> ieee1284_ops.c: In function `ecp_forward_to_reverse':
-> ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this
-> func
-> tion)
-> ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-> ieee1284_ops.c:365: for each function it appears in.)
-> ieee1284_ops.c: In function `ecp_reverse_to_forward':
-> ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this
-> func
-> tion)
-> make[2]: *** [ieee1284_ops.o] Error 1
-> make[2]: Leaving directory `/usr/src/linux-2.4.12/drivers/parport'
-> make[1]: *** [_modsubdir_parport] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.4.12/drivers'
-> make: *** [_mod_drivers] Error 2
- 
-[SNIP]
-
-> I'm going to remove this support and try again, but the problem should be
-> fixed.
-
-It has been, many times in the last few days... try searching the l-k archives
-before posting.
+> 
+> On Sat, 13 Oct 2001, Ed Tomlinson wrote:
+> 
+> > 
+> > >On Sun, 14 Oct 2001, Riley Williams wrote:
+> > 
+> > >> He said in his original email that it was a USB SmartMedia reader,
+> > >> which reads the SmartMedia cards used with FujiFilm digital cameras
+> > >> (amongst others). The actual file system is determined by the cards
+> > >> themselves and can't be changed.
+> > 
+> > >Ahem.  Which fs driver is used when it's successfully mounted?
+> > 
+> > fat.  Would an strace help?
+> 
+> It might, but another thing I'd like to see is stack trace of hung mount.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
-Bruce

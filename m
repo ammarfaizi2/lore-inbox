@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264080AbRGCLtz>; Tue, 3 Jul 2001 07:49:55 -0400
+	id <S264244AbRGCMDg>; Tue, 3 Jul 2001 08:03:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264092AbRGCLte>; Tue, 3 Jul 2001 07:49:34 -0400
-Received: from viper.haque.net ([66.88.179.82]:2199 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S264080AbRGCLt3>;
-	Tue, 3 Jul 2001 07:49:29 -0400
-Message-ID: <3B41B146.7669DF58@haque.net>
-Date: Tue, 03 Jul 2001 07:49:26 -0400
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
-X-Accept-Language: en
+	id <S264215AbRGCMD0>; Tue, 3 Jul 2001 08:03:26 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52485 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264214AbRGCMDL>; Tue, 3 Jul 2001 08:03:11 -0400
+Subject: Re: [RFC] I/O Access Abstractions
+To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
+Date: Tue, 3 Jul 2001 13:02:53 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010702235447.1201@smtp.wanadoo.fr> from "Benjamin Herrenschmidt" at Jul 03, 2001 01:54:47 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Blesson Paul <blessonpaul@usa.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel still resides in the root
-In-Reply-To: <20010703054924.20200.qmail@nwcst340.netaddress.usa.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15HOtJ-0007cN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blesson Paul wrote:
->                 I just completed the full compilation. But there is one still
-> missing factor. I uncommented the INSTALL_PATH=/boot. But still the vmlinux
-> still resides in the directory where i compiled the kernel. Why is it so. What
-> to do if the kernel should be present in the boot directory.
+> I'm more concerned about having all that space mapped permanently in
+> kernel virtual space. I'd prefer mapping on-demand, and that would
+> require a specific ioremap for IOs.
 
-You did run make install? Do you have a custom install script in
-/sbin/installkernel?
+I have no problem with the idea of a function to indicate which I/O maps you
+are and are not using. But passing resource structs around is way too heavy
 
-The vmlinux you see is the uncompressed kernel. If you compiled with
-make bzImage, zImage, etc the resulting compressed kernel is at
-arch/<your arch>/boot/. You then either run make install or 
-	cp ./System.map arch/<your arch>/boot/<kernel> /boot 
+Alan
 
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================

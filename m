@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268453AbTGTVXH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 17:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268495AbTGTVXH
+	id S268419AbTGTV0z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 17:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268452AbTGTV0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 17:23:07 -0400
-Received: from rrcs-west-24-24-160-174.biz.rr.com ([24.24.160.174]:34233 "EHLO
-	pacserv.unco.de") by vger.kernel.org with ESMTP id S268453AbTGTVXE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 17:23:04 -0400
-Date: Sun, 20 Jul 2003 14:38:03 -0700
-From: Hielke Christian Braun <hcb@unco.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 cryptoloop & aes & xfs
-Message-ID: <20030720213803.GA777@jolla>
-References: <20030720005726.GA735@jolla> <20030720103852.A11298@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030720103852.A11298@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.4i
+	Sun, 20 Jul 2003 17:26:55 -0400
+Received: from mithril.c-zone.net ([63.172.74.235]:25609 "EHLO mail.c-zone.net")
+	by vger.kernel.org with ESMTP id S268419AbTGTV0y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 17:26:54 -0400
+Message-ID: <3F1B0CC7.70400@c-zone.net>
+Date: Sun, 20 Jul 2003 14:42:31 -0700
+From: jiho@c-zone.net
+Organization: Kidding of Course
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
+       B.Zolnierkiewicz@elka.pw.edu.pl, vojtech@suse.cz
+Subject: [PATCH] 2.4.21 - IDE driver VIA support (obscure bug)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the tip. With util-linux-2.12 i can setup the device.
+(Apoligies if line-wrapping is nuts, I've been confined to Mozilla....)
 
-So the new cryptoloop in 2.6.0 is incompatible to the one in the
-international crypto patch? 
+This patch fixes a *very* obscure bug, which only applies to VIA chipsets that
+support UDMA-133 mode, and which is only known to be tickled by one UDMA-66 hard
+drive (Maxtor 91360U4) that happens to report 80-wire cable detection opposite to
+the ATA standard.
 
-I could not access my old data. So i created a new one. But when 
-i copy some data onto it, i get: 
+The bug appears in a test to see how the BIOS set up UDMA timing.  This test is
+only reached when the drive says 80-wire *and* the chipset says 40-wire (which is
+only known to happen with this drive).
 
-XFS mounting filesystem loop5
-Ending clean XFS mount for filesystem: loop5
-xfs_force_shutdown(loop5,0x8) called from line 1070 of file fs/xfs/xfs_trans.c. Return address = 0xc02071ab
-Filesystem "loop5": Corruption of in-memory data detected. Shutting down filesystem: loop5
-Please umount the filesystem, and rectify the problem(s)
- 
-To setup, i did this:
+The timing bits that are checked represent clocks T minus 2, i.e., ((N - 2) * T).
+But Vojtech forgot to subtract 2, and applied N = 8 rather than N = 6 in the
+test.  Since the test masks the bits at 7, they are always less than 8, and the
+test always succeeds, even though the BIOS set UDMA-33.
 
-losetup -e aes /dev/loop5 /dev/hda4
-mkfs.xfs /dev/hda4
 
-Regards,
- Christian.
+--- drivers/ide/pci/via82cxxx.c-orig	Fri Jun 13 07:51:33 2003
++++ drivers/ide/pci/via82cxxx.c	Sun Jul 20 11:38:42 2003
+@@ -484,7 +484,7 @@
+			for (i = 24; i >= 0; i -= 8)
+				if (((u >> i) & 0x10) ||
+				    (((u >> i) & 0x20) &&
+-				     (((u >> i) & 7) < 8))) {
++				     (((u >> i) & 7) < 6))) {
+					/* BIOS 80-wire bit or
+					 * UDMA w/ < 60ns/cycle
+					 */
+
+
+
+
 

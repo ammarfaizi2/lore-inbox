@@ -1,87 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129687AbQKJQus>; Fri, 10 Nov 2000 11:50:48 -0500
+	id <S129822AbQKJQyi>; Fri, 10 Nov 2000 11:54:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129822AbQKJQui>; Fri, 10 Nov 2000 11:50:38 -0500
-Received: from mail-04-real.cdsnet.net ([63.163.68.109]:64524 "HELO
-	mail-04-real.cdsnet.net") by vger.kernel.org with SMTP
-	id <S129687AbQKJQuX>; Fri, 10 Nov 2000 11:50:23 -0500
-Message-ID: <3A0C2813.E7CB42D2@mvista.com>
-Date: Fri, 10 Nov 2000 08:53:39 -0800
-From: George Anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dan Aloni <karrde@callisto.yi.org>
-CC: Ivan Passos <lists@cyclades.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Patch generation
-In-Reply-To: <Pine.LNX.4.21.0011100051190.31850-100000@callisto.yi.org>
+	id <S131067AbQKJQyV>; Fri, 10 Nov 2000 11:54:21 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:27908 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129822AbQKJQyJ>;
+	Fri, 10 Nov 2000 11:54:09 -0500
+Date: Fri, 10 Nov 2000 17:54:05 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+Cc: richardj_moore@uk.ibm.com, Paul Jakma <paulj@itg.ie>,
+        Michael Rothwell <rothwell@holly-springs.nc.us>,
+        Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+Message-ID: <20001110175405.A14799@gruyere.muc.suse.de>
+In-Reply-To: <80256993.0047077C.00@d06mta06.portsmouth.uk.ibm.com> <200011101624.LAA22004@tsx-prime.MIT.EDU>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200011101624.LAA22004@tsx-prime.MIT.EDU>; from tytso@MIT.EDU on Fri, Nov 10, 2000 at 11:24:28AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Aloni wrote:
-> 
-> On Thu, 9 Nov 2000, Ivan Passos wrote:
-> 
-> > Where in the src tree can I find (or what is) the command to generate a
-> > patch file from two Linux kernel src trees, one being the original and the
-> > other being the newly changed one??
-> 
-> The syntex looks like this one:
-> 
-> diff -urN old_tree new_tree > your_patch_file
-> 
-> > I've tried 'diff -ruN', but that does diff's on several files that could
-> > stay out of the comparison (such as the files in include/config, .files,
-> > etc.).
-> 
-> You can use the --exclude switch of diff, or make mrproper before you
-> diff, or you can cp -al a clean source tree before you build the kernel
-> on top of it.
-> 
-> Another way, is to use *one* source tree, copying the files you change -
-> adding them the '.orig' extention to their name.
-> 
-> Then you run this script (I got it when Riel pasted it on IRC)
-> 
-> for i in `find ./ -name \*.orig` ; do diff -u $i `dirname $i`/`basename $i
-> .orig` ; done
-> 
-> About the other method: cp -al is fast, creating a copy of tree without
-> taking much diskspace, it copies the tree by hard linking the files.
-> 
-> BTW, 'patch' unlinks files before modifing so you can have lots of kernel
-> trees from different releases with little diskspace waste:
-> 
-> [karrde@callisto ~/usr/src/kernel/work]$ ls -1
-> linux-2.4.0-test10
-> linux-2.4.0-test10.build
-> linux-2.4.0-test11-pre1
-> linux-2.4.0-test6
-> 
-> I did 'cp -al linux-2.4.0-test10 linux-2.4.0-test10.build', and on
-> linux-2.4.0-test10.build I did 'make bzImage' and all the rest.
-> 
-> When Linus releasd test11-pre1 I did 'cp -al' from test10 to test11-pre1
-> and patched the test11-pre1 dir with the patch Linus released. the test10
-> dir remained intact.
-> 
-> [karrde@callisto ~/usr/src/kernel/work]$ du . -s
-> 193004  .
-> 
-> 4 kernel trees, one after make dep ; make bzImage, and all taking together
-> just 193MB, instead of about 400MB... hard links, gotta love'em.
+On Fri, Nov 10, 2000 at 11:24:28AM -0500, Theodore Y. Ts'o wrote:
+> Right.  So what you're saying is that GKHI is adding complexity to the
+> kernel to make it easier for peopel to put in non-standard patches which
+> exposes non-standard interfaces which will lead to kernels not supported
+> by the Linux Kernel Development Community.  Right?
 
-Ok, this is cool, but suppose I have the same file linked to all these
-and want to change it in all the trees, i.e. still have one file.  Is
-there an editor that doesn't unlink.  Or maybe cp of the edited file?? 
-How would you do this?  (I prefer EMACS, which likes to unlink.)
+My understanding is that GKHI does not change the kernel at all, except
+for the three hooks needed for dprobes. All GKHI hooks are implemented 
+as dynamic probes, which are just like debugger breakpoints. 
+A dynamic probes breakpoint does not require any source
+changes, but you have to check the assembly to find the right point for
+them (at least in the current version, I don't know if IBM is planning 
+to support source level dprobes using the debugging information) 
 
-George
+IMHO GKHI does not make mainteance of additional modules any easier, because
+you always have to recheck the assembly if the dynamic probe still fits
+(which may in some cases even be more work than reporting source patches,
+it is also harder when you want to cover multiple architectures) 
+
+It will just help some people who have a unrational aversion against kernel
+recompiles and believe in vendor blessed binaries.
+
+
+-Andi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

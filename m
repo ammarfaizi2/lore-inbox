@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318796AbSG0SIE>; Sat, 27 Jul 2002 14:08:04 -0400
+	id <S317752AbSG0T6s>; Sat, 27 Jul 2002 15:58:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318797AbSG0SIE>; Sat, 27 Jul 2002 14:08:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18951 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318796AbSG0SID>; Sat, 27 Jul 2002 14:08:03 -0400
-Date: Sat, 27 Jul 2002 19:11:19 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@redhat.com
-Subject: Serial Oopsen caused by global IRQ chanes
-Message-ID: <20020727191119.C32766@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S318812AbSG0T6s>; Sat, 27 Jul 2002 15:58:48 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:52236 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S317752AbSG0T6r>; Sat, 27 Jul 2002 15:58:47 -0400
+Date: Sat, 27 Jul 2002 13:01:56 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Ewan Mac Mahon <ecm103@york.ac.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [PATCH] Second set of console changes.
+In-Reply-To: <Pine.LNX.4.44.0207251402530.31229-100000@kitt.york.ac.uk>
+Message-ID: <Pine.LNX.4.44.0207271244040.17619-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Two people have now reported to me a couple of oopsen which appear to be
-caused by a change in 2.5.29 to synchronize_irq(), which I believe has
-made synchronize_irq() useless.
+On Thu, 25 Jul 2002, Ewan Mac Mahon wrote:
 
-In effect, we no longer guarantee that any IRQ handlers for a particular
-IRQ will have finished running by the time free_irq() returns.  So, code
-which has:
+> On Wed, 24 Jul 2002, James Simmons wrote:
+> >
+> >    To the people with the devfs issues. Please send me a log of what
+> > exactly happened and a detail ksymoop if you can. I just tried it on my
+> > system with devfs enabled and it works for me.
+>
+> It doesn't oops, it just doesn't register the devices so you can't open
+> gettys on them. Other than that the kernel boots fine and you can log in
+> over the network. Doing that you can see a couple of big difference in
+> /dev:
 
-int bar;
-int *foo = &bar;
+I tracked down the problem. Originally the code initialized the VT tty
+early before kmalloc. So we had this:
 
-irq_handler()
-{
-	*foo = 0;
+console_driver.flags |= TTY_DRIVER_NO_DEVFS;
+
+Now in tty_register_driver, which was called right afterwards, we have
+this bit of code.
+
+if ( !(driver->flags & TTY_DRIVER_NO_DEVFS) ) {
+                for(i = 0; i < driver->num; i++)
+                    tty_register_devfs(driver, 0, driver->minor_start + i);
 }
 
-void module_exit(void)
-{
-	free_irq(irq, NULL);
-	foo = NULL;
-}
+In the old code code the above was never called. Instead the code in
+con_init_devfs was called.
 
-is currently broken in two ways:
+Now in the new code we don't have TTY_DRIVER_NO_DEVFS set so the above is
+called. The problem is the default flag that is passed into
+tty_register_devfs. It is automatically 0 whereas before it was
+DEVFS_FL_AOPEN_NOTIFY. The problem is the flag being passed.
 
-1. it's possible for irq_handler to dereference foo on another CPU _after_
-   free_irq has returned.
-2. it's possible for the module to be unloaded while the irq_handler is
-   still running on another CPU.
+I tried out devfs and found the problem is only root is now only allowed
+to access vc/X. This is the problem. I haven't figured out a solution yet.
+Any ideas anyone?
 
-Would someone else (Ingo?) like to comment on the above please?
-The serial code regularly trips up because of this on SMP boxen.
-
-Thanks.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

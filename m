@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131264AbQL1VrF>; Thu, 28 Dec 2000 16:47:05 -0500
+	id <S131914AbQL1VwP>; Thu, 28 Dec 2000 16:52:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131914AbQL1Vqz>; Thu, 28 Dec 2000 16:46:55 -0500
-Received: from ANancy-101-1-1-133.abo.wanadoo.fr ([193.251.70.133]:44038 "HELO
-	the-truth.nobis.phear.org") by vger.kernel.org with SMTP
-	id <S131264AbQL1Vqo>; Thu, 28 Dec 2000 16:46:44 -0500
-Message-ID: <20001228211937.7175.qmail@the-truth.nobis.phear.org>
-From: Pixel@the-truth.nobis.phear.org
-Subject: New driver
-To: linux-kernel@vger.kernel.org
-Date: Thu, 28 Dec 2000 22:19:37 +0100 (CET)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131942AbQL1VwG>; Thu, 28 Dec 2000 16:52:06 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:14837 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131914AbQL1Vvq>; Thu, 28 Dec 2000 16:51:46 -0500
+Date: Thu, 28 Dec 2000 19:21:10 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [wildly off-topic] Re: test13-pre5
+In-Reply-To: <Pine.LNX.4.21.0012281718320.12364-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0012281919320.1403-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 28 Dec 2000, Marcelo Tosatti wrote:
+> On Thu, 28 Dec 2000, Linus Torvalds wrote:
+> 
+> > If somebody (you? hint, hint) wants to do this,
+> 
+> Ok, I'll do it because I love Tove. 
 
-I've just joined this mailing-list so forgive-me if I do some mistakes.
+Marcelo, you should buy some glasses ;)
 
-I've done a little add-on to the linux kernel source in order to build
-directly the driver for the em8300 chip. This chip is the main chip
-of the DXR3 and Hollywood Plus mpeg decompression cards. Since now, the
-source of this driver was an external source tree and it builded four
-modules that drives the cards. But since the major update of the
-2.4.0's Makefiles, it wasn't able to compile up.
+Tove != Tux
 
-As I really wanted to use both of them, I tried my best to make it
-working and it cames into a patch against the linux-2.4.0-test13-pre4
-kernel.
+It's ok and probably safe to love Tux, the nice cuddly
+penguin everybody loves.
 
-It adds a new section into the configuration tree in order to support
-the mpeg decompression cards. And so it builds correctly this driver.
+However, loving the (6-time ??) Finnish female karate
+champion, who happens to be married to Linus is probably
+quite a bit less safe ...
 
-I wanted to share what I've done but since I'm very new to kernel hacking
-I don't know what to do with my patch. Could you give me some hints?
+cheers,
 
-Thanks!
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

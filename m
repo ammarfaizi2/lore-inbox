@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbQJ3TMn>; Mon, 30 Oct 2000 14:12:43 -0500
+	id <S129554AbQJ3TQa>; Mon, 30 Oct 2000 14:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129033AbQJ3TMc>; Mon, 30 Oct 2000 14:12:32 -0500
-Received: from anime.net ([63.172.78.150]:50186 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S129026AbQJ3TM1>;
-	Mon, 30 Oct 2000 14:12:27 -0500
-Date: Mon, 30 Oct 2000 11:11:52 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Ingo Molnar <mingo@elte.hu>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <20001030184109.C21935@athlon.random>
-Message-ID: <Pine.LNX.4.21.0010301110450.12201-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129450AbQJ3TQK>; Mon, 30 Oct 2000 14:16:10 -0500
+Received: from mail2.mail.iol.ie ([194.125.2.193]:18702 "EHLO mail.iol.ie")
+	by vger.kernel.org with ESMTP id <S129026AbQJ3TQG>;
+	Mon, 30 Oct 2000 14:16:06 -0500
+Date: Mon, 30 Oct 2000 19:15:58 +0000
+From: Kenn Humborg <kenn@linux.ie>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Third arg to switch_to()
+Message-ID: <20001030191558.A10744@excalibur.research.wombat.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000, Andrea Arcangeli wrote:
-> TUX modules are kernel modules (I mean you have to write kernel space code for
-> doing TUX ftp). Don't you agree that zero-copy sendfile like ftp serving would
-> be able to perform equally well too?
 
-For this to bw useful for ftp we need a sendfile() that can write from a
-socket to a diskfile also.
+Can anyone point me to an explanation of the third arg to 
+switch_to(prev, next, last)?
 
--Dan
+It appeared in 2.2.8.
+
+What exactly is supposed to be written to it?
+
+Thanks,
+Kenn
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

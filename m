@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUG0ETk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266248AbUG0E2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266242AbUG0ETk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 00:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUG0ETk
+	id S266248AbUG0E2j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 00:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUG0E2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 00:19:40 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:5587 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266242AbUG0ETh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 00:19:37 -0400
-Subject: Re: [PATCH] fix readahead breakage for sequential after random
-	reads
-From: Ram Pai <linuxram@us.ibm.com>
+	Tue, 27 Jul 2004 00:28:39 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:63449 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266254AbUG0E0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 00:26:54 -0400
+Subject: Re: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
+From: Lee Revell <rlrevell@joe-job.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20040726170843.3fe5615c.akpm@osdl.org>
-References: <E1BmKAd-0001hz-00@dorka.pomaz.szeredi.hu>
-	 <20040726162950.7f4a3cf4.akpm@osdl.org>
-	 <1090886218.8416.3.camel@dyn319181.beaverton.ibm.com>
-	 <20040726170843.3fe5615c.akpm@osdl.org>
+Cc: Andrew Chew <achew@nvidia.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+In-Reply-To: <20040726173806.7cc0e9d5.akpm@osdl.org>
+References: <DBFABB80F7FD3143A911F9E6CFD477B03F95DD@hqemmail02.nvidia.com>
+	 <20040726173806.7cc0e9d5.akpm@osdl.org>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1090901926.8416.13.camel@dyn319181.beaverton.ibm.com>
+Message-Id: <1090902426.1094.33.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Jul 2004 21:18:47 -0700
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 27 Jul 2004 00:27:07 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-26 at 17:08, Andrew Morton wrote:
-> Ram Pai <linuxram@us.ibm.com> wrote:
+On Mon, 2004-07-26 at 20:38, Andrew Morton wrote:
+> "Andrew Chew" <achew@nvidia.com> wrote:
 > >
-> > Andrew,
-> > 	Yes the patch fixes a valid bug.
-> > 
+> > This patch updates include/linux/pci_ids.h with the CK804 audio
+> >  controller ID, and adds the CK804 audio controller to the
+> >  sound/pci/intel8x0.c audio driver.
 > 
-> Please don't top-post :(
-> > RP
-> > 
-> > On Mon, 2004-07-26 at 16:29, Andrew Morton wrote:
-> > > Miklos Szeredi <miklos@szeredi.hu> wrote:
-> > > >
-> > > > Current readahead logic is broken when a random read pattern is
-> > > >  followed by a long sequential read.  The cause is that on a window
-> > > >  miss ra->next_size is set to ra->average, but ra->average is only
-> > > >  updated at the end of a sequence, so window size will remain 1 until
-> > > >  the end of the sequential read.
-> > > > 
-> > > >  This patch fixes this by taking the current sequence length into
-> > > >  account (code taken from towards end of page_cache_readahead()), and
-> > > >  also setting ra->average to a decent value in handle_ra_miss() when
-> > > >  sequential access is detected.
-> > > 
-> > > Thanks.   Do you have any performance testing results from this patch?
-> > > 
-> > Ram Pai <linuxram@us.ibm.com> wrote:
-> >
-> > Andrew,
-> > 	Yes the patch fixes a valid bug.
+> I'm getting many workwrapped and tab-replaced patches nowadays.  Could
+> people pleeeeze ensure that their email clients are sending unmangled
+> patches?
 > 
-> Fine, but the readahead code is performance-sensitive, and it takes quite
-> some time for any regressions to be discovered.  So I'm going to need to
-> either sit on this patch for a very long time, or extensively test it
-> myself, or await convincing test results from someone else.
+> I fixed this one up.  I usually do :(
 > 
-> Can you help with that?
 
-yes I will run all my standard testsuites before we take this patch.
-(DSS workload, iozone, sysbench). I will get back with some results
-sooon. Probably by the end of this week.
+The problem is not people's email clients, the problem is that xterm,
+gnome-terminal, and konsole all mangle tabs to spaces when copying
+text.  There is nothing the mailer can do about it.  For now the only
+fix for people using an X environment is to pipe to a text file and then
+use their email client's 'insert file' feature.  There is an open Debian
+bug report for xterm regarding this issue, I encourage everyone bothered
+by this to add comments.
 
-Also I think the bug that Miklos, found is really hard to reproduce. Did
-he find this bug by code inspection? Its really really hard to get into
-a state where the current window is of size 1 page with zero pages in
-the readahead window, and then the sequential read pattern to just right
-then. 
+I realize it has always been this way, but people coming from any other
+OS expect to be able to copy and paste a tab and have it stay a tab.
 
-RP
+Many other devel lists encourage patches be sent as MIME attachents due
+to this issue.  I would prefer that the console apps be fixed.
 
-> 
+Lee
 

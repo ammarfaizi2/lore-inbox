@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261297AbTCOCGC>; Fri, 14 Mar 2003 21:06:02 -0500
+	id <S261302AbTCOCSV>; Fri, 14 Mar 2003 21:18:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261302AbTCOCGC>; Fri, 14 Mar 2003 21:06:02 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:18918 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261297AbTCOCGB>; Fri, 14 Mar 2003 21:06:01 -0500
-Date: Fri, 14 Mar 2003 18:05:51 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: colpatch@us.ibm.com
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] NUMAQ subarchification
-Message-ID: <247240000.1047693951@flay>
-In-Reply-To: <3E7285E7.8080802@us.ibm.com>
-References: <1047676332.5409.374.camel@mulgrave> <3E7284CA.6010907@us.ibm.com> <3E7285E7.8080802@us.ibm.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261303AbTCOCSV>; Fri, 14 Mar 2003 21:18:21 -0500
+Received: from adsl-67-121-154-32.dsl.pltn13.pacbell.net ([67.121.154.32]:8416
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id <S261302AbTCOCSU>; Fri, 14 Mar 2003 21:18:20 -0500
+Date: Fri, 14 Mar 2003 18:29:08 -0800
+To: Christian Daudt <csd_ob@daudt.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-kernel-revision-control list (was: Re: Never ever use word BitKeeper if Larry does not like you)
+Message-ID: <20030315022908.GA6917@triplehelix.org>
+References: <Pine.LNX.4.44.0303141120240.8584-100000@bushido> <1047659289.2566.109.camel@sisko.scot.redhat.com> <20030314163727.GE8937@work.bitmover.com> <200303140856.11839.csd_ob@daudt.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
 Content-Disposition: inline
+In-Reply-To: <200303140856.11839.csd_ob@daudt.org>
+User-Agent: Mutt/1.5.3i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> This patch adds a new file, arch/i386/kernel/summit.c, for 
->>> summit-specific code.  Adds some structures to mach_mpparse.h.  Also 
->>> adds a hook in setup_arch() to dig out the PCI info, and stores it in 
->>> the mp_bus_id_to_node[] array, where it can be read by the topology 
->>> functions.
->> 
->> Wouldn't this file be better in arch/i386/mach-summit in keeping with
->> all the other subarch stuff?
->> 
->> While you're creating a separate file for summit, could you move the
->> summit specific variables (mpparse.c:x86_summit is the only one, I
->> think) into it so we can clean all the summit references out of the main
->> line?
->> 
->> Thanks,
->> 
->> James
-> 
-> While I was at it, I subarchified (I'll cc Websters with the new word ;) numaq as well.  Copied mach-defaults setup.c, topology.c, and Makefile.   Moved arch/i386/kernel/numaq.c into mach-numaq.  Compiles.
 
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No, *please* don't do this. Subarch for .c files is *broken*.
+On Fri, Mar 14, 2003 at 08:56:11AM -0800, Christian Daudt wrote:
+> This BitKeeper subject resurfaces every week or so and probably accounts =
+for=20
+> 5-10% of the linux-kernel mailing list traffic. While a terribly interest=
+ing=20
+> topic to some - it really isn't about the kernel. Could someone be so kin=
+d as=20
+> to create a linux-kernel-bitkeeper (or linux-kernel-revision-control) mai=
+ling=20
+> list so that these discussions (which obviously are not going away) can h=
+ave=20
+> a proper home?
 
-Last time I looked (and I don't think anyone has fixed it since) 
-it requires copying files all over the place, making an unmaintainable
-nightmare. Either subarch needs fixing first, or we don't use it.
+Use mutt - then you can ^R entire threads about BK if you're sick (like
+me) of reading them. All this hubbub is turning into a freaking soap
+opera. I can vividly imagine it as truly being one...
 
-Let's just stick with your original patch - it's fine.
+"As The SCM Turns"
 
-M.
+Regards,
+Josh
 
+--
+New PGP public key: 0x27AFC3EE
+
+--Nq2Wo0NMKNjxTN9z
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+co/0T2bz5yevw+4RAqhIAKDYMP2v5tyka/dG4cXbObm0peweIACfWpyd
+67qaLNGeS/DCIisDlMpJT4Y=
+=BhXc
+-----END PGP SIGNATURE-----
+
+--Nq2Wo0NMKNjxTN9z--

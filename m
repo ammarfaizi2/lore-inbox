@@ -1,67 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbUKDULA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbUKDULB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262375AbUKDULA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 15:11:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUKDUH5
+	id S262276AbUKDULB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 15:11:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbUKDUHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 15:07:57 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:30219 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262434AbUKDUDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 15:03:38 -0500
-Date: Thu, 4 Nov 2004 21:03:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Ian Hastie <ianh@iahastie.clara.net>
-Cc: Valdis.Kletnieks@vt.edu, Adam Heath <doogie@debian.org>,
-       Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers
-Message-ID: <20041104200303.GO4013@stusta.de>
-References: <41894779.10706@techsource.com> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu> <200411041936.27100.ianh@iahastie.local.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411041936.27100.ianh@iahastie.local.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 4 Nov 2004 15:07:23 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:28804 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262276AbUKDUEb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 15:04:31 -0500
+Message-ID: <418A8BBF.8040901@tmr.com>
+Date: Thu, 04 Nov 2004 15:06:23 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell Miller <rmiller@duskglow.com>
+CC: Doug McNaught <doug@mcnaught.org>, Jim Nelson <james4765@verizon.net>,
+       DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>,
+       linux-kernel@vger.kernel.org,
+       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: is killing zombies possible w/o a reboot?
+References: <87k6t24jsr.fsf@asmodeus.mcnaught.org><87k6t24jsr.fsf@asmodeus.mcnaught.org> <200411031733.30469.rmiller@duskglow.com>
+In-Reply-To: <200411031733.30469.rmiller@duskglow.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 07:36:26PM +0000, Ian Hastie wrote:
-> On Thursday 04 Nov 2004 17:04, Valdis.Kletnieks@vt.edu wrote:
-> > On Thu, 04 Nov 2004 10:50:38 CST, Adam Heath said:
-> > > I didn't deny the speed difference of older and newer compilers.
-> > >
-> > > But why is this an issue when compiling a kernel?  How often do you
-> > > compile your kernel?
-> >
-> > If you're working on older hardware (note the number of people on this
-> > list still using 500mz Pentium3 and similar), and a kernel developer, the
-> > difference between 2 hours to build a kernel and 4 hours to build a
-> > kernel matters quite a bit.
+Russell Miller wrote:
+> On Wednesday 03 November 2004 17:03, Doug McNaught wrote:
 > 
-> How often is it necessary to do a full rebuild of the kernel?  If the 
-> dependencies in the make system work properly then only the amended parts 
-> should be recompiled.  That'd be a much bigger time saving than just using an 
-> older compiler.
+> 
+>>It was already mentioned in this thread that the bookkeeping required
+>>to clean up properly from such an abort would add a lot of overhead
+>>and slow down the normal, non-buggy case.
+>>
+> 
+> I am going to continue pursuing this at the risk of making a bigger fool of 
+> myself than I already am, but I want to make sure that I understand the 
+> issues - and I did read the message you are referring to.
+> 
+> I think what you are saying is that there is kind of a race condition here.
 
-As soon as you touch include files, a full recompile occurs pretty 
-often because there are some include files pretty every other file 
-depends on (and has to depend on).
+At least in the usual sense, no. There is a condition from which there 
+is no graceful way back, only forward.
 
-Well, although I'm doing full kernel compiles sometimes several times a 
-day I'm not that much addicted to compiler speed but I do understand 
-others are.
+> When something is on the wait queue, it has to be followed through to 
+> completion.  An interrupt could be received at any time, and if it's taken 
+> off of the wait queue prematurely, it'll crash the kernel, because the 
+> interrupt has no way of telling that.
 
-> Ian.
+That's part of it, but in some cases there's also i/o in progress, the 
+hardware may not have a way to HALT the transfer, so the memory in 
+question can't be used for something else.
+> 
+> That's fine as it goes, I understand that.  But I submit that this is a 
+> horrible design.  I've been bitten by this more than once - usually regarding 
+> broken NFS connections.
+> 
+> But what I don't understand is why the bookkeeping would be so inefficient.  
+> It seems to me that all that would be required is a bitfield of some sort.  
+> If that position in the qait queue becomes invalid, when the interrupt is 
+> received to process it, the kernel notes that a flag is set invalidating that 
+> part of the wait queue, dumps the output to dave null, and goes on to the 
+> next.  This doesn't seem inefficient to me, unless I'm missing something.
+> A little more inefficient, yes, but not to near the cost that seems to be 
+> implied.
+> 
+> And I also have to ask this question:  what is more inefficient, slowing down 
+> processing of output waiting on the queue, or having to reboot when a process 
+> gets stuck due to faulty drivers?  At the very least, a compile option seems 
+> like it would be worthwhile for those that would like this behavior.
+> 
+> And I probably am.  Missing something, that is.
 
-cu
-Adrian
+You are asking to program around a problem rather than fix it. These 
+hangs (usually) happen because the hardware behaviour is either 
+undocumented, incorrectly documented, or flat out broken. Second likely 
+cause is a bug in the driver.
+
+In the case of a real bug, adding code to bypass the error instead of 
+fixing it is more effort, more complex in most cases, and therefore less 
+reliable. Where the hardware does something unexpected, the driver needs 
+to fit the behaviour rather than the spec. And where the hardware is 
+broken, you fix or replace it. None of those cases suggest "pretend it 
+didn't happen," because in most cases you can't.
+
+What I think you are missing:
+
+Processes hung in D state are the result of real problems, and ignoring 
+rather than fixing them is like giving a cancer patient a face lift; it 
+doesn't fix the problem, it just gives you a good looking corpse.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

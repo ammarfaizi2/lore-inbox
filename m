@@ -1,78 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSHGDkS>; Tue, 6 Aug 2002 23:40:18 -0400
+	id <S316775AbSHGDsb>; Tue, 6 Aug 2002 23:48:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316775AbSHGDkS>; Tue, 6 Aug 2002 23:40:18 -0400
-Received: from vic7-adsl-050.tpgi.com.au ([203.213.71.50]:15013 "EHLO
-	coralshark.bluereef.com.au") by vger.kernel.org with ESMTP
-	id <S316768AbSHGDkR>; Tue, 6 Aug 2002 23:40:17 -0400
-Message-ID: <019501c23dc5$a01493f0$2b01010a@bluereef.local>
-From: "Andrew" <temp01@bluereef.com.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2.21 kernel with initrd not loading intermittently
-Date: Wed, 7 Aug 2002 13:50:52 +1000
+	id <S316786AbSHGDsa>; Tue, 6 Aug 2002 23:48:30 -0400
+Received: from [61.140.60.248] ([61.140.60.248]:27180 "HELO 21cn.com")
+	by vger.kernel.org with SMTP id <S316775AbSHGDsa>;
+	Tue, 6 Aug 2002 23:48:30 -0400
+Content-Type: multipart/mixed;
+  boundary="---------=_nNQEtRovdjPLrluwTJGsjuNTCqjyOlbkQBDyPr";
+  charset="gb2312"
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <4m979192885198.03774@webmail1.inner-21cn.com>
+X-AIMailer: AIMC 2.9.5.2 2001.11.29
+X-AIMime: MIME/SMIME Lib 2.9 2.9 2001.11.29
+Date: Wed, 7 Aug 2002 11:48:01 +0800 (CST)
+From: "TARZAN LION" <tarzanboy@21cn.com>
+To: mec@shout.net
+Cc: linux-kernel@vger.kernel.org
+Subject: An Error Report
 X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem that I have been wrestling with now for a number of days
-with no solution, and I'm hoping someone can help.
 
-I have a stock 2.2.20 kernel with ramdisk and initrd support compiled in.
-RAMdisk size is 64MB although I've also tried 32MB and 128MB.
-I have tried kernel builds with module support and without (everything
-compiled in)
-I'm using the latest lilo I can find with the following config:
+-----------=_nNQEtRovdjPLrluwTJGsjuNTCqjyOlbkQBDyPr
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-boot=/dev/hdc
-disk=/dev/hdc
- bios=0x80
-map=/map
-install=/boot.b
-backup=/boot.1600
-prompt
-linear
-timeout=50
-password=maintenance
-restricted
-image=/vmlinuz-2.2.20up
-        label=test
-        ramdisk=65536
-        initrd=/rootfs.img
-        root=/dev/ram
+Hello sir:	
+	
+I have some Error report when I use boot_logo, after I patch it into my 
+kernel-2.4.18, and try to select following menu:
+			Main Menu
+				==>Console drivers -->
+					==>Frame-buffer support -->
 
-The server is a uni processor PIII server with 512MB of RAM
+some report like following message:
+			Q> scripts/Menuconfig: MCmenu64: command not found
 
-The sizes of my rootfs.img and kernel are:
- 8713856 Aug  7 12:55 rootfs.img (this is an ext2 compressed image)
- 787022 Aug  7 12:17 vmlinuz-2.2.20up (this is a monolithic bzImage kernel)
+My kernel version is: 2.4.18
 
-My problem is that when my kernel loads, sometimes lilo doesn't seem to load
-the rootfs.img into RAM for the kernel to find. That is I don't get the
-kernel message 'RAMDISK found at 0' message and thus Linux panics with
-something like "root file system not found on dev 1:0".
+finally, I have to telling you, sir, my english is very poor.
 
-Lilo when building doesn't report any errors in fact it says it successfully
-maps the RAMdisk ok
+						tarzanboy@21cn.com
+							Aug/07/2002
+							Thanks a lot.
+----------------------------------------------
+玩蜘蛛侠游戏,日日送大奖,每天头奖爱立信T68手机 
+http://sms.21cn.com/game_a04.jsp 
+手机号码占卜你的财运,免费试用 
+http://sms.21cn.com/game_mc001.jsp 
+多款机型图片铃声,引领手机潮流 
+http://211.147.1.182/21CN/modules/pic/ 
+收费邮箱五包承诺:包退包换包满意 厚礼双包送大奖 
+http://mail.21cn.com/5bao/5bao2.html 
 
-The only trick that I have been able to use to get around it, is to
-selectively remove some files OR selectively remove some kernel components
-when compiling - but it's not consistent. It almost seems like there is some
-finite size limit that my rootfs.img+kernel is greater than that stops the
-RAMdisk being loaded or being found if it is infact being loaded.
 
-I have not tried a 2.4 level kernel as I need this to work consistently with
-2.2.
 
-Any help much appreciated.
+-----------=_nNQEtRovdjPLrluwTJGsjuNTCqjyOlbkQBDyPr
+Content-Type: text/plain;
+  name="report.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+  filename="report.txt"
 
-Andrew.
+Hello sir:=09
+=09
+I have some Error report when I use boot_logo, after I patch it into my=20
+kernel-2.4.18, and try to select following menu:
+=09=09=09Main Menu
+=09=09=09=09=3D=3D>Console drivers -->
+=09=09=09=09=09=3D=3D>Frame-buffer support -->
 
+some report like following message:
+=09=09=09Q> scripts/Menuconfig: MCmenu64: command not found
+
+My kernel version is: 2.4.18
+
+finally, I have to telling you, sir, my english is very poor.
+
+=09=09=09=09=09=09tarzanboy@21cn.com
+=09=09=09=09=09=09=09Aug/07/2002
+=09=09=09=09=09=09=09Thanks a lot.
+
+=09<mec@shout.net>
+=09<linux-kernel@vger.kernel.org>
+-----------=_nNQEtRovdjPLrluwTJGsjuNTCqjyOlbkQBDyPr--
 

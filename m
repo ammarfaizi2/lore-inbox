@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbUC3UDO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 15:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbUC3UDO
+	id S261340AbUC3UFf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 15:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUC3UFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 15:03:14 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:20612 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261181AbUC3UDJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 15:03:09 -0500
-Message-ID: <4069D3D2.2020402@tmr.com>
-Date: Tue, 30 Mar 2004 15:08:50 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-CC: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Willy Tarreau <willy@w.ods.org>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-References: <4069A359.7040908@nortelnetworks.com> <1080668673.989.106.camel@dhcppc4>
-In-Reply-To: <1080668673.989.106.camel@dhcppc4>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 15:05:35 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:35006 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261221AbUC3UFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 15:05:20 -0500
+Message-Id: <200403302004.i2UK4JF23059@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andy Whitcroft'" <apw@shadowen.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, "Ray Bryant" <raybry@sgi.com>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Cc: <anton@samba.org>, <sds@epoch.ncsc.mil>, <ak@suse.de>,
+       <lse-tech@lists.sourceforge.net>, <linux-ia64@vger.kernel.org>
+Subject: RE: [PATCH] [0/6] HUGETLB memory commitment
+Date: Tue, 30 Mar 2004 12:04:18 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQWViZdcApwN7MSSjqhELA2fpbnVgANOuDA
+In-Reply-To: <20541286.1080655059@42.150.104.212.access.eclipse.net.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
-> Sorry I didn't reply to this thread, after Alan wrote I figured
-> the topic was closed;-)
-> 
-> Yes, per my initial message, gcc _will_ generate cmpxchg for the 80386
-> build.  Indeed, it has been doing so for over a year with ACPI's
-> previous private (and flawed) asm() invocation of cmpxchg.
-> 
-> Andi/Alan suggested we invoke cmpxchg always in ACPI,
-> but disable ACPI at boot-time in the unlikely event we find
-> ourselves running on a cpu without that instruction.
+>>>>> Andy Whitcroft wrote on Tuesday, March 30, 2004 4:58 AM
+> >
+> > Just to follow up myself, I meant overcommit accounting is not done
+> > for mmap hugetlb page.  (typical Monday morning symptom :))
+>
+> Essentially, hugetlb pages can only be part of a shared mapping in
+> the current implementation.  As a result all commitments are made
+> and checked at segment create time.  The commitment cannot change.
+>
+> Hope that's what you meant.
 
-Is there no reasonable way to avoid using it in ACPI? It's not as if 
-performance was critical there, or the code gets run often. Too bad it 
-can't just be emulated like floating point, but I don't think it can on SMP.
+Not quite, I can simply mmap on a hugetlbfs backed file to get hugetlb
+pages.  File expansion is transparent.  It gets even trickier with file
+that has holes in it.
 
-I have to think Alan is right as usual.
+I can do:
+	fd = open("/mnt/htlb/myhtlbfile", O_CREAT|O_RDWR, 0755);
+	mmap(..., fd, offset);
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Accounting didn't happen in this case, (grep Huge /proc/meminfo):
+
+HugePages_Total:    10
+HugePages_Free:      9
+Hugepagesize:    262144 kB
+HugeCommitted_AS:     0 kB
+
+Now if I remove the file "myhtlbfile", accounting is done for inode
+removal and hugetlb_committed_space underflows.
+
+HugePages_Total:    10
+HugePages_Free:     10
+Hugepagesize:    262144 kB
+HugeCommitted_AS: 18446744073709289472 kB
+
+

@@ -1,168 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261307AbSJYIa1>; Fri, 25 Oct 2002 04:30:27 -0400
+	id <S261317AbSJYIio>; Fri, 25 Oct 2002 04:38:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261309AbSJYIa0>; Fri, 25 Oct 2002 04:30:26 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:30215 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S261307AbSJYIaY>;
-	Fri, 25 Oct 2002 04:30:24 -0400
-Date: Fri, 25 Oct 2002 10:35:57 +0200 (CEST)
-From: venom@sns.it
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: linux-kernel@vger.kernel.org, <arjanv@redhat.com>
+	id <S261316AbSJYIi3>; Fri, 25 Oct 2002 04:38:29 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:44046 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S261313AbSJYIiB>; Fri, 25 Oct 2002 04:38:01 -0400
+Message-Id: <200210250838.g9P8cop14595@Port.imtp.ilyichevsk.odessa.ua>
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
 Subject: Re: [CFT] faster athlon/duron memory copy implementation
+Date: Fri, 25 Oct 2002 11:31:21 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: arjanv@redhat.com
+References: <3DB82ABF.8030706@colorfullife.com>
 In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
-Message-ID: <Pine.LNX.4.43.0210251031470.11695-100000@cibs9.sns.it>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_9KHJT6C61YQ5FO7ROGDJ"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-on a DUAL Athlon 2100+ (2GB RAM, kernel 2.4.19):
+--------------Boundary-00=_9KHJT6C61YQ5FO7ROGDJ
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-I get:
+On 24 October 2002 15:15, Manfred Spraul wrote:
+> AMD recommends to perform memory copies with backward read operations
+> instead of prefetch.
+>
+> http://208.15.46.63/events/gdc2002.htm
+>
+> Attached is a test app that compares several memory copy
+> implementations. Could you run it and report the results to me,
+> together with cpu, chipset and memory type?
+>
+> Please run 2 or 3 times.
 
+There are the couple of wrinkles:
+
+        __asm__ __volatile__ ( " fsave %0; fwait\n"::"m"(fpu_save[0]) );
+Wrong. Parameter is output. Remove one ':', replace "m" -> "=m".
+
+        __asm__ __volatile__ (
+                " femms\n" : :
+        );
+What for? frstor will nuke out MMX state anyway.
+
+static void fast_copy_page(void *to, void *from)
+has two fsaves and no frstor ;)
+
+"run three times" - can program do that on its own and find minimum?
+
+I modified your test to be able to run it on Celeron.
+(#defined out femms, replaced prefetch -> prefetchnta). Results are below.
+
+I think it is impossible to make Best for all CPUs (tm) copy
+function, we will newer know... maybe Hammer will do fastest copies
+by rep movsb?
+
+Btw, I used Arjan's program too, attaching my version...
+Your method is indeed faster (see npf_copy.c).
+
+We should avoid doing the same thing again and again...
+There are several block ops in the kernel (memcpys, 
+csum_copy routines (see my other post)), can we
+coordinate efforts to speed them up too?
+
+FWIW, here's my results (Celeron 1200):
+# ./a.out
 Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
-
 copy_page() tests
-copy_page function 'warm up run'         took 21467 cycles per page
-copy_page function '2.4 non MMX'         took 24583 cycles per page
-copy_page function '2.4 MMX fallback'    took 24534 cycles per page
-copy_page function '2.4 MMX version'     took 21312 cycles per page
-copy_page function 'faster_copy'         took 12060 cycles per page
-copy_page function 'even_faster'         took 12152 cycles per page
-copy_page function 'no_prefetch'         took 10587 cycles per page
-
-
+copy_page function 'warm up run'         took 42394 cycles per page
+copy_page function '2.4 non MMX'         took 41923 cycles per page
+copy_page function '2.4 MMX fallback'    took 41903 cycles per page
+copy_page function '2.4 MMX version'     took 43036 cycles per page
+copy_page function 'faster_copy'         took 28337 cycles per page
+copy_page function 'even_faster'         took 24632 cycles per page
+copy_page function 'no_prefetch'         took 23087 cycles per page
+# ./a.out
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
 copy_page() tests
-copy_page function 'warm up run'         took 21458 cycles per page
-copy_page function '2.4 non MMX'         took 24592 cycles per page
-copy_page function '2.4 MMX fallback'    took 24585 cycles per page
-copy_page function '2.4 MMX version'     took 21334 cycles per page
-copy_page function 'faster_copy'         took 12090 cycles per page
-copy_page function 'even_faster'         took 12146 cycles per page
-copy_page function 'no_prefetch'         took 10583 cycles per page
-
-
+copy_page function 'warm up run'         took 45152 cycles per page
+copy_page function '2.4 non MMX'         took 44443 cycles per page
+copy_page function '2.4 MMX fallback'    took 45530 cycles per page
+copy_page function '2.4 MMX version'     took 45441 cycles per page
+copy_page function 'faster_copy'         took 29266 cycles per page
+copy_page function 'even_faster'         took 25849 cycles per page
+copy_page function 'no_prefetch'         took 24014 cycles per page
+# ./a.out
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
 copy_page() tests
-copy_page function 'warm up run'         took 21433 cycles per page
-copy_page function '2.4 non MMX'         took 24557 cycles per page
-copy_page function '2.4 MMX fallback'    took 24570 cycles per page
-copy_page function '2.4 MMX version'     took 21331 cycles per page
-copy_page function 'faster_copy'         took 12039 cycles per page
-copy_page function 'even_faster'         took 12126 cycles per page
-copy_page function 'no_prefetch'         took 10576 cycles per page
+copy_page function 'warm up run'         took 45850 cycles per page
+copy_page function '2.4 non MMX'         took 44603 cycles per page
+copy_page function '2.4 MMX fallback'    took 45631 cycles per page
+copy_page function '2.4 MMX version'     took 57267 cycles per page
+copy_page function 'faster_copy'         took 29628 cycles per page
+copy_page function 'even_faster'         took 25989 cycles per page
+copy_page function 'no_prefetch'         took 23987 cycles per page
 
+--------------Boundary-00=_9KHJT6C61YQ5FO7ROGDJ
+Content-Type: application/x-bzip2;
+  name="timing_clear_copy.tar.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="timing_clear_copy.tar.bz2"
 
+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
+UJDbbHAb
 
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 1733.362
-cache size      : 256 KB
-Physical processor ID   : 0
-Number of siblings      : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 3432.80
-
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 1733.362
-cache size      : 256 KB
-Physical processor ID   : 0
-Number of siblings      : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
-bogomips        : 3466.21
-
-
-CI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System
-Controller (rev 17).
-      Master Capable.  Latency=64.
-      Prefetchable 32 bit memory at 0xf8000000 [0xfbffffff].
-      Prefetchable 32 bit memory at 0xf6200000 [0xf6200fff].
-      I/O at 0x1810 [0x1813].
-  Bus  0, device   1, function  0:
-    PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP
-Bridge (rev 0).
-      Master Capable.  Latency=64.  Min Gnt=4.
-  Bus  0, device   7, function  0:
-    ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 5).
-  Bus  0, device   7, function  1:
-    IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev
-4).
-      Master Capable.  Latency=64.
-      I/O at 0xf000 [0xf00f].
-  Bus  0, device   7, function  3:
-    Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 3).
-      Master Capable.  Latency=64.
-  Bus  0, device  10, function  0:
-    SCSI storage controller: Adaptec AIC-7899P U160/m (rev 1).
-      IRQ 10.
-      Master Capable.  Latency=72.  Min Gnt=40.Max Lat=25.
-      I/O at 0x1000 [0x10ff].
-      Non-prefetchable 64 bit memory at 0xf4000000 [0xf4000fff].
-  Bus  0, device  10, function  1:
-    SCSI storage controller: Adaptec AIC-7899P U160/m (#2) (rev 1).
-      IRQ 11.
-      Master Capable.  Latency=72.  Min Gnt=40.Max Lat=25.
-      I/O at 0x1400 [0x14ff].
-      Non-prefetchable 64 bit memory at 0xf4001000 [0xf4001fff].
-  Bus  0, device  16, function  0:
-    PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 5).
-      Master Capable.  Latency=99.  Min Gnt=12.
-  Bus  2, device   0, function  0:
-    USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev
-7).
-      IRQ 10.
-      Master Capable.  Latency=64.  Max Lat=80.
-      Non-prefetchable 32 bit memory at 0xf4100000 [0xf4100fff].
-  Bus  2, device   7, function  0:
-    VGA compatible controller: ATI Technologies Inc Rage XL (rev 39).
-      Master Capable.  Latency=66.  Min Gnt=8.
-      Non-prefetchable 32 bit memory at 0xf5000000 [0xf5ffffff].
-      I/O at 0x2000 [0x20ff].
-      Non-prefetchable 32 bit memory at 0xf4101000 [0xf4101fff].
-  Bus  2, device   8, function  0:
-    Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
-[Python-T] (rev 120).
-      IRQ 5.
-      Master Capable.  Latency=80.  Min Gnt=10.Max Lat=10.
-      I/O at 0x2400 [0x247f].
-      Non-prefetchable 32 bit memory at 0xf4102000 [0xf410207f].
-  Bus  2, device   9, function  0:
-    Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
-[Python-T] (#2) (rev 120).
-      IRQ 9.
-      Master Capable.  Latency=80.  Min Gnt=10.Max Lat=10.
-      I/O at 0x2480 [0x24ff].
-      Non-prefetchable 32 bit memory at 0xf4102400 [0xf410247f].
-
-
+--------------Boundary-00=_9KHJT6C61YQ5FO7ROGDJ--

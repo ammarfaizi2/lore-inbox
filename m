@@ -1,123 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTF2TWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 15:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTF2TWZ
+	id S261769AbTF2TVN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 15:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTF2TVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 15:22:25 -0400
-Received: from smtp-out.comcast.net ([24.153.64.109]:44012 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S263062AbTF2TWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 15:22:10 -0400
-Date: Sun, 29 Jun 2003 15:35:05 -0400
-From: rmoser <mlmoser@comcast.net>
+	Sun, 29 Jun 2003 15:21:12 -0400
+Received: from post.pl ([212.85.96.51]:59399 "HELO matrix01b.home.net.pl")
+	by vger.kernel.org with SMTP id S261769AbTF2TVL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 15:21:11 -0400
+Message-ID: <3EFF3FFA.60806@post.pl>
+Date: Sun, 29 Jun 2003 21:37:30 +0200
+From: "Leonard Milcin Jr." <thervoy@post.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rmoser <mlmoser@comcast.net>, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: File System conversion -- ideas
-In-reply-to: <20030629192847.GB26258@mail.jlokier.co.uk>
-To: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Message-id: <200306291535050230.0209B20B@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
- <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl>
- <20030629192847.GB26258@mail.jlokier.co.uk>
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl> <200306291445470220.01DC8D9F@smtp.comcast.net>
+In-Reply-To: <200306291445470220.01DC8D9F@smtp.comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Nrrrg.  Yeah, I've got 80 gig and only CDR's to back up to, and no money.
+> A CDR may read for me the day it's written, and then not work the next
+> day.  Still a risk.
+
+Say, why you would want to change filesystem type?
+
+If you have to change filesystem type, I think it is because you have a 
+good reason to do it. I can't imagine the reason explaining the need of 
+converting filesystem if you use this system as home desktop. For 
+ordinary user filesystem is just used for storing data and managing 
+permissions to that data. These are not real-time or 
+performance-critical systems. Thus most of the popular filesystems like 
+ext2, ext3, reiserfs basically fit their needs. If they choose right 
+filesystem type at startup, they could use it for a time of life of 
+their hard disk.
+
+There are very few situations when you really need to convert 
+filesystem. Most of the time this operation is done by person who have 
+some experience with computers, and highly probable by person who has 
+access to additional hard disks, etc. I have never heard of one who had 
+to change filesystem type, and had no access to additional equipment.
+
+I don't want to say it is not possible, to provide such a function 
+safely. What I want to say is that kernel developers should not 
+complicate filesystem code without *very* good reason. I think that 
+providing on-the-fly conversion capability is not a good reason. Good 
+reason is when you can improve usability for many users and most of the 
+time, not when you ease one operation needed by very few users few times 
+in their life, especially when they can do what they need by just 
+transferring their data back and forth to another disk, or machine.
 
 
-*********** REPLY SEPARATOR  ***********
-
-On 6/29/2003 at 8:28 PM Jamie Lokier wrote:
-
->Leonard Milcin Jr. wrote:
->> I think that filesystem conversion on-the-fly is useless. Why? If you're
->> making conversion of filesystem, you have to make good backup of data
->> from that filesystem.
->
->I disagree with this statement.
->
-
-Me too.  It's a GOOD IDEA.  But... heck we don't all have tape backups.
-
->> It is likely that when something goes wrong during
->> conversion (power loss) filesystem will be corrupted, and data will be
->> lost.
->
->Only if the converter stores a temporarily inconsistent state on the
->filesystem.  Sometimes it is possible to write a converter where the
->filesystem is in a consistent state throughout, except perhaps during
->a critical transition from one filesystem type to the other.
->
-
-Dude come on I said put a journal in the datasystem so you DON'T get
-inconsistencies like that! (A roll-back journal)
-
->> If you think the data is not worth to make backup - you don't have
->> to convert it. Just delete worthless filesystem, and create new one.
->> I
->> the data is worth making backup, and finally you make it - you don't
->> need to convert it.
->
->You are discounting the existence of data which is valuable enough not
->to have deleted already, yet which is not valuable enough to backup.
->I'd count local mirrors in this category: backup is too expensive, yet
->the cost of recreating the mirror is significant (days of
->downloading), therefore worth keeping if possible.
->
-
-Mmhmm
-
->Also MP3 & DIVX collections etc.  If you lose them it's not the end of
->the world, but you'd rather not.
->
-
-HEY!  It IS the end of the world if I lose /data/audio !!!!!!! I can't code
-without music!
-
->> You could just delete filesystem, and restore data
->> from copy. If in turn one think the data is worth to protect it from
->> loss, but he will not do it... he risks that the data will be lost, and
->> he should not get access to such things.
->     ^^^^^^
->
->It may not be worth it to _you_, but to me the cost of spare disks is
->significant enough that I choose to risk my less valuable data.  It's
->my data hence my choice.
->
-
-You forgot something.  I only risk bugs in the code, that's why there's a
-journal.  You can have a bug in the filesystem code.  You're taking the
-same risks doing the conversion that you are mounting th efilesystem.
-
->> I think that copying data to another filesystem, and restoring it to
->> newly created  is most of the time best and fastest method of converting
->> filesystems.
->
->You are right that this diminishes the value of an in-place filesystem
->converter (and defragmenter), because it is not necessary if you have
->the foresight to use multiple partitions or LVM, and enough spare disk
->space.q
->
-
-Erm?  Not everyone has spare disk space or wants to be assed with it.
-Those methods take more work.
-
->However it would still be useful to some people, some of the time.
->
->Consider that many people choose ext3 rather than reiser simply
->because it is easy to convert ext2 to ext3, and hard to convert ext2
->to reiser (and hard to convert back if they don't like it).  I have
->seen this written by many people who choose to use ext3.  Thus proving
->that there is value in in-place filesystem conversion :)
->
-
-that's me.  I cite that I want to go from reiser3.6 to reiser4, but I have only
-one reiser3.6.  I used to have all reiserfs, and yes it was a lot faster.  Now
-I want it back.
-
->-- Jamie
+Regards,
 
 
+Leonard Milcin Jr.
+
+
+-- 
+"Unix IS user friendly... It's just selective about who its friends are."
+                                                        -- Tollef Fog Heen
 

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264240AbTJOTtH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 15:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264243AbTJOTtH
+	id S264214AbTJOThg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 15:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264215AbTJOThg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 15:49:07 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:6470 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id S264240AbTJOTtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 15:49:04 -0400
-Date: Wed, 15 Oct 2003 20:48:59 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tmpfs 2/7 LTP S_ISGID dir
-In-Reply-To: <20031015193404.GT7665@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0310152046250.6969-100000@localhost.localdomain>
+	Wed, 15 Oct 2003 15:37:36 -0400
+Received: from [217.157.19.70] ([217.157.19.70]:16142 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S264214AbTJOThe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 15:37:34 -0400
+From: Thomas Horsten <thomas@horsten.com>
+To: Karel =?iso-8859-1?q?Kulhav=FD?= <clock@twibright.com>,
+       Michael Still <mikal@stillhq.com>
+Subject: Re: make htmldocs
+Date: Wed, 15 Oct 2003 20:37:25 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <20031014120946.A4969@beton.cybernet.src> <Pine.LNX.4.44.0310142106220.16081-100000@diskbox.stillhq.com> <20031014160947.A13499@beton.cybernet.src>
+In-Reply-To: <20031014160947.A13499@beton.cybernet.src>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200310152037.25614.thomas@horsten.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Wed, Oct 15, 2003 at 07:19:46PM +0100, Hugh Dickins wrote:
-> > LTP tests the filesystem on /tmp: many failures when tmpfs because
-> > it missed the way giddy directories hand down their gid.  Also fix
-> > ramfs and hugetlbfs.
-> 
-> *the* way?  I can think of at least two...
+On Tuesday 14 October 2003 15:09, Karel Kulhavý wrote:
 
-You mean, the way they do directories and the way they do non-directories?
-Or, the way they do it if they do it, and the way they do it if they don't?
-Or something else?  Please, share your thought!
+> Again, please tell me, how to compile Linux Kernel HTML Documentation.
 
-Thanks,
-Hugh
+You know, Linux is a collaborative effort and you seem to think you can come in here
+and order people around.
+
+If you want this included in the documentation, by all means, do the research, come
+up with a formula, add it to the README and submit a patch to Linus.
+
+Thanks.
+
+PS: I know - "Don't feed the trolls".. I won't write any more in this thread.
 

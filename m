@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTENLhO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 07:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTENLhN
+	id S261840AbTENLgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 07:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTENLgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 07:37:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47560 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261861AbTENLhH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 07:37:07 -0400
-Date: Wed, 14 May 2003 12:49:53 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Subject: Re: [PATCH] PAG support, try #2
-Message-ID: <20030514114953.GS29534@parcelfarce.linux.theplanet.co.uk>
-References: <24225.1052909011@warthog.warthog>
+	Wed, 14 May 2003 07:36:17 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6560
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261840AbTENLgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 07:36:16 -0400
+Subject: Re: Digital Rights Management - An idea
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dean McEwan <dean_mcewan@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030514083039.26350.qmail@linuxmail.org>
+References: <20030514083039.26350.qmail@linuxmail.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052909440.2102.0.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <24225.1052909011@warthog.warthog>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 May 2003 11:50:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 11:43:31AM +0100, David Howells wrote:
-> +typedef int		__kernel_pag_t;
+On Mer, 2003-05-14 at 09:30, Dean McEwan wrote:
+>     I had an idea for DRM, what about a kernel that forces everything downloaded to have a 
+> valid signature, and doesn't let the file/program be accessed otherwise?
 
-> +typedef __kernel_pag_t		pag_t;
+You can set this up with both rsbac and selinux
 
-> +static pag_t vfs_pag_next = 1;
-
-> +	vfspag->pag = vfs_pag_next++;
-> +	if (vfspag->pag < 1)
-> +		vfspag->pag = 1;
-
-Is there a reason pag_t isn't an unsigned int?  Seems to me you'll have
-2^31 good times followed by 2^31 bad times.  Also, isn't signed overflow
-one of these undefined things?  I wouldn't mention it except that gcc
-seem to be more and more fond of obeying the letter of the standard
-rather than doing useful stuff.
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263719AbUCVWWX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 17:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263720AbUCVWWX
+	id S263720AbUCVWXl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 17:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbUCVWXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 17:22:23 -0500
-Received: from mail.tpgi.com.au ([203.12.160.59]:13230 "EHLO mail3.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S263719AbUCVWWV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 17:22:21 -0500
-Subject: Re: swsusp 2.0 with kernel 2.6.4, failure to suspend (vaio fx701)
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: romano@dea.icai.upco.es
-Cc: Romano Giannetti <romano@pern.dea.icai.upco.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Patrick Mochel <mochel@osdl.org>
-In-Reply-To: <20040322100521.GA26767@pern.dea.icai.upco.es>
-References: <20040322100521.GA26767@pern.dea.icai.upco.es>
-Content-Type: text/plain
-Message-Id: <1079990542.2770.25.camel@calvin.wpcb.org.au>
+	Mon, 22 Mar 2004 17:23:41 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21452 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263720AbUCVWXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 17:23:37 -0500
+Date: Mon, 22 Mar 2004 23:23:29 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Jos Hulzink <jos@hulzink.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OSS: cleanup or throw away
+Message-ID: <20040322222329.GW16746@fs.tum.de>
+References: <200403221955.52767.jos@hulzink.net> <20040322202220.GA13042@mulix.org> <20040322215921.GU16746@fs.tum.de> <20040322220326.GF13042@mulix.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2.norlug 
-Date: Tue, 23 Mar 2004 09:22:22 +1200
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040322220326.GF13042@mulix.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, Mar 23, 2004 at 12:03:27AM +0200, Muli Ben-Yehuda wrote:
+> On Mon, Mar 22, 2004 at 10:59:21PM +0100, Adrian Bunk wrote:
+> > On Mon, Mar 22, 2004 at 10:22:21PM +0200, Muli Ben-Yehuda wrote:
+> > >...
+> > > I've seen
+> > > multiple bug reports of cards that work with OSS and don't work with
+> > > ALSA (and vice versa), so keeping both seems the proper thing to
+> > >...
+> > 
+> > Wouldn't it be better to get the ALSA drivers working in such cases?
+> 
+> It would; but until they do, ditching OSS is a regression. 
+>...
 
-Thanks for the report; The end of your log shows us that it was
-saslauthd that was causing the freezing failure. I'll look at what
-adjustments would fix that issue.
+Clearly.
 
-Regarding getting more debugging info, you need to use debug_sections as
-well as the default_console_level; the console level says how much
-information you want. debug_sections says what information you want.
-(Suspend it capable of printing an awful lot of debugging info; usually
-we're only interested in one particular area).
+Ditching OSS at the beginning of 2.7 will give several years to identify 
+and fix such regressions.
 
-Regards,
+> Cheers, 
+> Muli 
 
-Nigel
-   
+cu
+Adrian
+
 -- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
 
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270995AbTHKEzv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 00:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271002AbTHKEzv
+	id S270982AbTHKFCD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 01:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271002AbTHKFBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 00:55:51 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:31621 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270995AbTHKEzt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 00:55:49 -0400
-Date: Mon, 11 Aug 2003 05:55:31 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       davem@redhat.com, chip@pobox.com
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-Message-ID: <20030811045531.GH10446@mail.jlokier.co.uk>
-References: <1060488233.780.65.camel@cube> <20030810072945.GA14038@alpha.home.local>
+	Mon, 11 Aug 2003 01:01:05 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:58034 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271118AbTHKE7z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 00:59:55 -0400
+Date: Sun, 10 Aug 2003 21:54:22 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: mpm@selenic.com, linux-kernel@vger.kernel.org, jmorris@intercode.com.au
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-Id: <20030810215422.0db6192a.davem@redhat.com>
+In-Reply-To: <20030811021512.GF10446@mail.jlokier.co.uk>
+References: <20030809074459.GQ31810@waste.org>
+	<20030809010418.3b01b2eb.davem@redhat.com>
+	<20030809140542.GR31810@waste.org>
+	<20030809103910.7e02037b.davem@redhat.com>
+	<20030809194627.GV31810@waste.org>
+	<20030809131715.17a5be2e.davem@redhat.com>
+	<20030810081529.GX31810@waste.org>
+	<20030811021512.GF10446@mail.jlokier.co.uk>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030810072945.GA14038@alpha.home.local>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> > I looked at the assembly (ppc, gcc 3.2.3) and didn't
-> > see any overhead.
+On Mon, 11 Aug 2003 03:15:12 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
+
+> Matt Mackall wrote:
+> > > > Ok, can I export some more cryptoapi primitives?
 > 
-> same here on x86, gcc-2.95.3 and gcc-3.3.1. The compiler is smart enough not
-> to add several intermediate tests for !!(x).
+> Why so complicated?  Just move the "sha1_transform" function to its
+> own file in lib, and call it from both drivers/char/random.c and
+> crypto/sha1.c.
 
-What I recall is no additional tests, but the different forms affected
-the compilers choice of instructions on x86, making one form better
-than another.  Unfortunately I don't recall what that was, or what
-test it showed up in :(
+This is also broken.
 
-> I agree (I didn't think about pointers, BTW). But what I meant is that we
-> don't need the result to be precisely 1, but we need it to be something the
-> compiler interpretes as different from zero, to match the condition. So it
-> should be cleaner to always check against 0 which is also OK for pointers,
-> whatever their type (according to Chip's link) :
-> 
->   likely => __builtin_expect(!(x), 0)
+The whole point of the 'tfm' the Crypto API makes you allocate is
+that it provides all of the state and configuration information
+needed to do the transforms.
 
-This will break "if (likely(p)) { ... }"
-
-> unlikely => __builtin_expect((x), 0)
-
-This will give a warning with "if (unlikely(p)) { ... }"
-
--- Jamie
+There is no reason why random.c's usage of the crypto-API cannot be
+done cleanly and efficiently such that it is both faster and resulting
+in smaller code size than what random.c uses now.  All of this _WITHOUT_
+bypassing and compromising the well designed crypto API interfaces to these
+transformations.

@@ -1,67 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314060AbSDQExZ>; Wed, 17 Apr 2002 00:53:25 -0400
+	id <S314061AbSDQE6o>; Wed, 17 Apr 2002 00:58:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314061AbSDQExY>; Wed, 17 Apr 2002 00:53:24 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:2576 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S314060AbSDQExY>;
-	Wed, 17 Apr 2002 00:53:24 -0400
-Date: Tue, 16 Apr 2002 20:52:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] USB device support for 2.5.8 (take 2)
-Message-ID: <20020417035236.GC29897@kroah.com>
-In-Reply-To: <20020417025104.GC29064@kroah.com> <Pine.LNX.4.33.0204162121060.13362-100000@home.transmeta.com>
-Mime-Version: 1.0
+	id <S314063AbSDQE6n>; Wed, 17 Apr 2002 00:58:43 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:6304 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S314061AbSDQE6m>;
+	Wed, 17 Apr 2002 00:58:42 -0400
+Date: Tue, 16 Apr 2002 21:59:08 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>, Frank Davis <fdavis@si.rr.com>
+cc: linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
+Message-ID: <2635845054.1018994347@[10.10.2.3]>
+In-Reply-To: <20020417024707.GA24105@www.kroptech.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 20 Mar 2002 01:21:46 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 09:35:33PM -0700, Linus Torvalds wrote:
+xquad_portio is indeed only for CONFIG_MULTIQUAD. However, you
+shouldn't need the #ifdef's in the code to make this work -
+clustered_apic_mode isn't a variable at all, it's a magic
+trick that's actually 1 or 0 depending on CONFIG_MULTIQUAD.
+
+Look at 2.5.8 virgin, it has the same code.
+
+M.
+
+--On Tuesday, April 16, 2002 10:47 PM -0400 Adam Kropelin
+<akropel1@rochester.rr.com> wrote:
+
+> On Mon, Apr 15, 2002 at 10:19:24PM -0400, Frank Davis wrote:
+>> Hello all,
+>>   While a 'make bzImage', I received the following compile error:
+>> Regards,
+>> Frank
+>> 
+>> smpboot.c:1008: parse error before `0'
+>> smpboot.c: In function `smp_boot_cpus':
+>> smpboot.c:1023: invalid lvalue in assignment
+>> make[1]: *** [smpboot.o] Error 1
+>> make[1]: Leaving directory `/usr/src/linux/arch/i386/kernel'
+>> make: *** [_dir_arch/i386/kernel] Error 2
 > 
+> There's an optimization in io.h for !CONFIG_MULTIQUAD which doesn't seem
+> to have been carried through all the way...
 > 
-> On Tue, 16 Apr 2002, Greg KH wrote:
-> >
-> > Linus, here is an updated changeset series with the USB device support.
+> The following patch seems logical, but I'm no expert. In particular, I'm
+> not sure if the ioremapping bit ever needs to be run when
+> !CONFIG_MULTIQUAD...
 > 
-> Since I haven't pulled any of the usb device updates yet, might I suggest:
+> --Adam
 > 
->  - redoing the BK archive completely without the broken series (ie an
->    actual "bk undo")
-
-Well since you don't want to pull it, I can just trash this tree, it
-only contains the Lineo code.
-
->  - explaining to me what a "usb device" is, that isn't a normal USB
->    device? Why is "usb/device/xxx" different from the existing USB device
->    drivers?
-
-It's code to be a USB client device, not a USB host device, which is
-what we currently have.  It is used in embedded devices that run Linux,
-like the new Sharp device (can't remember the name right now...)
-
-> In other words, please explain what the _point_ of this code is?
-> Especially since the code is obvious crap, from the little I looked at it,
-> and quite frankly my immediate reaction is that it shouldn't get even
-> _close_ to the kernel before it has gone through some _major_ cleanup.
+> --- linux-2.5.8-dj1-virgin/arch/i386/kernel/smpboot.c	Tue Apr 16 16:21:24
+> 2002 +++ linux-2.5.8-dj1+smpboot-fix/arch/i386/kernel/smpboot.c	Tue Apr
+> 16 21:12:13 2002 @@ -1004,8 +1004,11 @@
+>  extern int prof_counter[NR_CPUS];
+>  
+>  static int boot_cpu_logical_apicid;
+> +
+>  /* Where the IO area was mapped on multiquad, always 0 otherwise */
+> +#ifdef CONFIG_MULTIQUAD
+>  void *xquad_portio = NULL;
+> +#endif
+>  
+>  int cpu_sibling_map[NR_CPUS] __cacheline_aligned;
+>  
+> @@ -1013,6 +1016,7 @@
+>  {
+>  	int apicid, cpu, bit;
+>  
+> +#ifdef CONFIG_MULTIQUAD
+>          if (clustered_apic_mode && (numnodes > 1)) {
+>                  printk("Remapping cross-quad port I/O for %d quads\n",
+>  			numnodes);
+> @@ -1022,6 +1026,7 @@
+>                  xquad_portio = ioremap (XQUAD_PORTIO_BASE, 
+>  			numnodes * XQUAD_PORTIO_LEN);
+>          }
+> +#endif
+>  
+>  #ifdef CONFIG_MTRR
+>  	/*  Must be done before other processors booted  */
 > 
-> Let's face it, look at the absolute SHIT in usbd-debug.c, where somebody
-> has re-created strcmp/strcpy/etc, except with stupid names, and bad
-> implementation.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> In short, I refuse to pull this crap. The people who wrote it were either
-> on drugs, incompetent, or just plain crazy. "Just say no".
 
-Sorry.  I spend most of my time on this code just cleaning the format
-and removing build errors, instead of looking at the content :(
 
-I'll work on fixing all of the crap before submitting it again.
-
-thanks,
-
-greg k-h

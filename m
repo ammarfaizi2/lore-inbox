@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267083AbSK2PdA>; Fri, 29 Nov 2002 10:33:00 -0500
+	id <S267082AbSK2Pcu>; Fri, 29 Nov 2002 10:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267084AbSK2PdA>; Fri, 29 Nov 2002 10:33:00 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:12742 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S267083AbSK2Pcr>;
+	id <S267084AbSK2Pcu>; Fri, 29 Nov 2002 10:32:50 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:12486 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S267082AbSK2Pcr>;
 	Fri, 29 Nov 2002 10:32:47 -0500
-Date: Fri, 29 Nov 2002 17:54:10 -0500
+Date: Fri, 29 Nov 2002 17:54:06 -0500
 From: Christoph Hellwig <hch@sgi.com>
 To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] backport 2.5 inode allocation changes
-Message-ID: <20021129175410.B12830@sgi.com>
+Subject: [PATCH] cleanup b_inode usage and fix onstack inode abuse
+Message-ID: <20021129175406.A12830@sgi.com>
 Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, marcelo@conectiva.com.br,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -21,333 +21,239 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds ->alloc_inode and ->destroy_inode super operations to
-allow the filesystem control the allocation of struct inode, e.g. to
-have it's private inode and the VFS one n the same slab cache.
+Currently the b_inode of struct buffer_head is a pointer to an inode, but
+it only always used as bool value.
 
-It allows to break worst-offenders like NFS out of the big inode union
-and make VM balancing better by wasting less ram for inodes.  It also
-speedups filesystems that don't want to touch that union in struct
-inode, like JFS, XFS or FreeVxFS (once switched over).  It is a straight
-backport from Al's code in 2.5 and has proven stable in Red Hat's
-recent beta releases (limbo, null).  Al has ACKed my patch submission.
+This patch changes it to be a flag bit in the bh state.  This allows
+us to shape of 32bit rom struct buffer_head for other uses like
+the lower layer private data that LVM2 needs or an increase of b_size
+that IA64 boxens with 64k pages need.
 
-Credits go to Daniel Phillips for the initial design.
+I also cleanes up buffer.c be removing lots of duplicated code and
+enables the alloc_inode patch by removing the last on-stack inodes.
 
-NOTE: you want my b_inode removal patch applied before this one.
+The patch has been ACKed by akpm and sct and a very similar change
+went into early 2.5.
 
 
-diff -Nru a/fs/inode.c b/fs/inode.c
---- a/fs/inode.c	Thu Aug 29 03:02:23 2002
-+++ b/fs/inode.c	Thu Aug 29 03:02:23 2002
-@@ -75,13 +75,59 @@
+diff -uNr -Xdontdiff -p linux-2.4.20-pre4/fs/buffer.c linux/fs/buffer.c
+--- linux-2.4.20-pre4/fs/buffer.c	Tue Aug 13 15:56:00 2002
++++ linux/fs/buffer.c	Sun Aug 25 19:28:55 2002
+@@ -583,37 +583,29 @@ struct buffer_head * get_hash_table(kdev
+ 	return bh;
+ }
  
- static kmem_cache_t * inode_cachep;
- 
--#define alloc_inode() \
--	 ((struct inode *) kmem_cache_alloc(inode_cachep, SLAB_KERNEL))
-+static struct inode *alloc_inode(struct super_block *sb)
-+{
-+	static struct address_space_operations empty_aops;
-+	static struct inode_operations empty_iops;
-+	static struct file_operations empty_fops;
-+	struct inode *inode;
-+
-+	if (sb->s_op->alloc_inode)
-+		inode = sb->s_op->alloc_inode(sb);
-+	else {
-+		inode = (struct inode *) kmem_cache_alloc(inode_cachep, SLAB_KERNEL);
-+		/* will die */
-+		if (inode)
-+			memset(&inode->u, 0, sizeof(inode->u));
-+	}
-+
-+	if (inode) {
-+		struct address_space * const mapping = &inode->i_data;
-+
-+		inode->i_sb = sb;
-+		inode->i_dev = sb->s_dev;
-+		inode->i_blkbits = sb->s_blocksize_bits;
-+		inode->i_flags = 0;
-+		atomic_set(&inode->i_count, 1);
-+		inode->i_sock = 0;
-+		inode->i_op = &empty_iops;
-+		inode->i_fop = &empty_fops;
-+		inode->i_nlink = 1;
-+		atomic_set(&inode->i_writecount, 0);
-+		inode->i_size = 0;
-+		inode->i_blocks = 0;
-+		inode->i_generation = 0;
-+		memset(&inode->i_dquot, 0, sizeof(inode->i_dquot));
-+		inode->i_pipe = NULL;
-+		inode->i_bdev = NULL;
-+		inode->i_cdev = NULL;
-+
-+		mapping->a_ops = &empty_aops;
-+		mapping->host = inode;
-+		mapping->gfp_mask = GFP_HIGHUSER;
-+		inode->i_mapping = mapping;
-+	}
-+	return inode;
-+}
-+
- static void destroy_inode(struct inode *inode) 
+-void buffer_insert_inode_queue(struct buffer_head *bh, struct inode *inode)
++void buffer_insert_list(struct buffer_head *bh, struct list_head *list)
  {
- 	if (inode_has_buffers(inode))
- 		BUG();
--	kmem_cache_free(inode_cachep, (inode));
-+	if (inode->i_sb->s_op->destroy_inode)
-+		inode->i_sb->s_op->destroy_inode(inode);
-+	else
-+		kmem_cache_free(inode_cachep, inode);
+ 	spin_lock(&lru_list_lock);
+-	if (bh->b_inode)
++	if (buffer_attached(bh))
+ 		list_del(&bh->b_inode_buffers);
+-	bh->b_inode = inode;
+-	list_add(&bh->b_inode_buffers, &inode->i_dirty_buffers);
++	set_buffer_attached(bh);
++	list_add(&bh->b_inode_buffers, list);
+ 	spin_unlock(&lru_list_lock);
  }
  
- 
-@@ -90,27 +136,30 @@
-  * once, because the fields are idempotent across use
-  * of the inode, so let the slab aware of that.
-  */
-+void inode_init_once(struct inode *inode)
-+{
-+	memset(inode, 0, sizeof(*inode));
-+	init_waitqueue_head(&inode->i_wait);
-+	INIT_LIST_HEAD(&inode->i_hash);
-+	INIT_LIST_HEAD(&inode->i_data.clean_pages);
-+	INIT_LIST_HEAD(&inode->i_data.dirty_pages);
-+	INIT_LIST_HEAD(&inode->i_data.locked_pages);
-+	INIT_LIST_HEAD(&inode->i_dentry);
-+	INIT_LIST_HEAD(&inode->i_dirty_buffers);
-+	INIT_LIST_HEAD(&inode->i_dirty_data_buffers);
-+	INIT_LIST_HEAD(&inode->i_devices);
-+	sema_init(&inode->i_sem, 1);
-+	sema_init(&inode->i_zombie, 1);
-+	spin_lock_init(&inode->i_data.i_shared_lock);
-+}
-+
- static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
- {
- 	struct inode * inode = (struct inode *) foo;
- 
- 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
- 	    SLAB_CTOR_CONSTRUCTOR)
--	{
--		memset(inode, 0, sizeof(*inode));
--		init_waitqueue_head(&inode->i_wait);
--		INIT_LIST_HEAD(&inode->i_hash);
--		INIT_LIST_HEAD(&inode->i_data.clean_pages);
--		INIT_LIST_HEAD(&inode->i_data.dirty_pages);
--		INIT_LIST_HEAD(&inode->i_data.locked_pages);
--		INIT_LIST_HEAD(&inode->i_dentry);
--		INIT_LIST_HEAD(&inode->i_dirty_buffers);
--		INIT_LIST_HEAD(&inode->i_dirty_data_buffers);
--		INIT_LIST_HEAD(&inode->i_devices);
--		sema_init(&inode->i_sem, 1);
--		sema_init(&inode->i_zombie, 1);
--		spin_lock_init(&inode->i_data.i_shared_lock);
--	}
-+		inode_init_once(inode);
- }
- 
- /*
-@@ -757,72 +806,28 @@
- 	return inode;
- }
- 
--/*
-- * This just initializes the inode fields
-- * to known values before returning the inode..
-- *
-- * i_sb, i_ino, i_count, i_state and the lists have
-- * been initialized elsewhere..
-- */
--static void clean_inode(struct inode *inode)
+-void buffer_insert_inode_data_queue(struct buffer_head *bh, struct inode *inode)
 -{
--	static struct address_space_operations empty_aops;
--	static struct inode_operations empty_iops;
--	static struct file_operations empty_fops;
--	memset(&inode->u, 0, sizeof(inode->u));
--	inode->i_sock = 0;
--	inode->i_op = &empty_iops;
--	inode->i_fop = &empty_fops;
--	inode->i_nlink = 1;
--	atomic_set(&inode->i_writecount, 0);
--	inode->i_size = 0;
--	inode->i_blocks = 0;
--	inode->i_generation = 0;
--	memset(&inode->i_dquot, 0, sizeof(inode->i_dquot));
--	inode->i_pipe = NULL;
--	inode->i_bdev = NULL;
--	inode->i_cdev = NULL;
--	inode->i_data.a_ops = &empty_aops;
--	inode->i_data.host = inode;
--	inode->i_data.gfp_mask = GFP_HIGHUSER;
--	inode->i_mapping = &inode->i_data;
+-	spin_lock(&lru_list_lock);
+-	if (bh->b_inode)
+-		list_del(&bh->b_inode_buffers);
+-	bh->b_inode = inode;
+-	list_add(&bh->b_inode_buffers, &inode->i_dirty_data_buffers);
+-	spin_unlock(&lru_list_lock);
 -}
 -
- /**
-- * get_empty_inode 	- obtain an inode
-+ *	new_inode 	- obtain an inode
-+ *	@sb: superblock
-  *
-- * This is called by things like the networking layer
-- * etc that want to get an inode without any inode
-- * number, or filesystems that allocate new inodes with
-- * no pre-existing information.
-- *
-- * On a successful return the inode pointer is returned. On a failure
-- * a %NULL pointer is returned. The returned inode is not on any superblock
-- * lists.
-+ *	Allocates a new inode for given superblock.
-  */
-  
--struct inode * get_empty_inode(void)
-+struct inode * new_inode(struct super_block *sb)
+-/* The caller must have the lru_list lock before calling the 
+-   remove_inode_queue functions.  */
++/*
++ * The caller must have the lru_list lock before calling the 
++ * remove_inode_queue functions.
++ */
+ static void __remove_inode_queue(struct buffer_head *bh)
  {
- 	static unsigned long last_ino;
- 	struct inode * inode;
+-	bh->b_inode = NULL;
+ 	list_del(&bh->b_inode_buffers);
++	clear_buffer_attached(bh);
+ }
  
- 	spin_lock_prefetch(&inode_lock);
+ static inline void remove_inode_queue(struct buffer_head *bh)
+ {
+-	if (bh->b_inode)
++	if (buffer_attached(bh))
+ 		__remove_inode_queue(bh);
+ }
+ 
+@@ -827,10 +819,10 @@ inline void set_buffer_async_io(struct b
+ int fsync_buffers_list(struct list_head *list)
+ {
+ 	struct buffer_head *bh;
+-	struct inode tmp;
++	struct list_head tmp;
+ 	int err = 0, err2;
  	
--	inode = alloc_inode();
--	if (inode)
--	{
-+	inode = alloc_inode(sb);
-+	if (inode) {
- 		spin_lock(&inode_lock);
- 		inodes_stat.nr_inodes++;
- 		list_add(&inode->i_list, &inode_in_use);
--		inode->i_sb = NULL;
--		inode->i_dev = 0;
--		inode->i_blkbits = 0;
- 		inode->i_ino = ++last_ino;
--		inode->i_flags = 0;
--		atomic_set(&inode->i_count, 1);
- 		inode->i_state = 0;
- 		spin_unlock(&inode_lock);
--		clean_inode(inode);
+-	INIT_LIST_HEAD(&tmp.i_dirty_buffers);
++	INIT_LIST_HEAD(&tmp);
+ 	
+ 	spin_lock(&lru_list_lock);
+ 
+@@ -838,10 +830,10 @@ int fsync_buffers_list(struct list_head 
+ 		bh = BH_ENTRY(list->next);
+ 		list_del(&bh->b_inode_buffers);
+ 		if (!buffer_dirty(bh) && !buffer_locked(bh))
+-			bh->b_inode = NULL;
++			clear_buffer_attached(bh);
+ 		else {
+-			bh->b_inode = &tmp;
+-			list_add(&bh->b_inode_buffers, &tmp.i_dirty_buffers);
++			set_buffer_attached(bh);
++			list_add(&bh->b_inode_buffers, &tmp);
+ 			if (buffer_dirty(bh)) {
+ 				get_bh(bh);
+ 				spin_unlock(&lru_list_lock);
+@@ -861,8 +853,8 @@ int fsync_buffers_list(struct list_head 
+ 		}
  	}
- 	return inode;
- }
-@@ -837,7 +842,7 @@
- {
- 	struct inode * inode;
  
--	inode = alloc_inode();
-+	inode = alloc_inode(sb);
- 	if (inode) {
- 		struct inode * old;
- 
-@@ -848,16 +853,9 @@
- 			inodes_stat.nr_inodes++;
- 			list_add(&inode->i_list, &inode_in_use);
- 			list_add(&inode->i_hash, head);
--			inode->i_sb = sb;
--			inode->i_dev = sb->s_dev;
--			inode->i_blkbits = sb->s_blocksize_bits;
- 			inode->i_ino = ino;
--			inode->i_flags = 0;
--			atomic_set(&inode->i_count, 1);
- 			inode->i_state = I_LOCK;
- 			spin_unlock(&inode_lock);
--
--			clean_inode(inode);
- 
- 			/* reiserfs specific hack right here.  We don't
- 			** want this to last, and are looking for VFS changes
-diff -Nru a/fs/super.c b/fs/super.c
---- a/fs/super.c	Thu Aug 29 03:02:23 2002
-+++ b/fs/super.c	Thu Aug 29 03:02:23 2002
-@@ -262,6 +262,7 @@
+-	while (!list_empty(&tmp.i_dirty_buffers)) {
+-		bh = BH_ENTRY(tmp.i_dirty_buffers.prev);
++	while (!list_empty(&tmp)) {
++		bh = BH_ENTRY(tmp.prev);
+ 		remove_inode_queue(bh);
+ 		get_bh(bh);
+ 		spin_unlock(&lru_list_lock);
+@@ -1134,7 +1126,7 @@ struct buffer_head * bread(kdev_t dev, i
   */
- static struct super_block *alloc_super(void)
+ static void __put_unused_buffer_head(struct buffer_head * bh)
  {
-+	static struct super_operations empty_sops = {};
- 	struct super_block *s = kmalloc(sizeof(struct super_block),  GFP_USER);
- 	if (s) {
- 		memset(s, 0, sizeof(struct super_block));
-@@ -279,6 +280,7 @@
- 		sema_init(&s->s_dquot.dqio_sem, 1);
- 		sema_init(&s->s_dquot.dqoff_sem, 1);
- 		s->s_maxbytes = MAX_NON_LFS;
-+		s->s_op = &empty_sops;
- 	}
- 	return s;
+-	if (bh->b_inode)
++	if (unlikely(buffer_attached(bh)))
+ 		BUG();
+ 	if (nr_unused_buffer_heads >= MAX_UNUSED_BUFFERS) {
+ 		kmem_cache_free(bh_cachep, bh);
+diff -uNr -Xdontdiff -p linux-2.4.20-pre4/fs/reiserfs/inode.c linux/fs/reiserfs/inode.c
+--- linux-2.4.20-pre4/fs/reiserfs/inode.c	Tue Aug 13 15:56:01 2002
++++ linux/fs/reiserfs/inode.c	Tue Aug 20 11:39:48 2002
+@@ -102,9 +102,9 @@ inline void make_le_item_head (struct it
  }
-diff -Nru a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	Thu Aug 29 03:02:23 2002
-+++ b/include/linux/fs.h	Thu Aug 29 03:02:23 2002
-@@ -873,6 +873,9 @@
-  * without the big kernel lock held in all filesystems.
-  */
- struct super_operations {
-+   	struct inode *(*alloc_inode)(struct super_block *sb);
-+	void (*destroy_inode)(struct inode *);
+ 
+ static void add_to_flushlist(struct inode *inode, struct buffer_head *bh) {
+-    struct inode *jinode = &(SB_JOURNAL(inode->i_sb)->j_dummy_inode) ;
++    struct reiserfs_journal *j = SB_JOURNAL(inode->i_sb) ;
+ 
+-    buffer_insert_inode_queue(bh, jinode) ;
++    buffer_insert_list(bh, &j->j_dirty_buffers) ;
+ }
+ 
+ //
+diff -uNr -Xdontdiff -p linux-2.4.20-pre4/fs/reiserfs/journal.c linux/fs/reiserfs/journal.c
+--- linux-2.4.20-pre4/fs/reiserfs/journal.c	Sat Aug 17 14:54:39 2002
++++ linux/fs/reiserfs/journal.c	Tue Aug 20 11:39:48 2002
+@@ -1937,7 +1937,7 @@ int journal_init(struct super_block *p_s
+   memset(journal_writers, 0, sizeof(char *) * 512) ; /* debug code */
+ 
+   INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_bitmap_nodes) ;
+-  INIT_LIST_HEAD(&(SB_JOURNAL(p_s_sb)->j_dummy_inode.i_dirty_buffers)) ;
++  INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_dirty_buffers) ;
+   reiserfs_allocate_list_bitmaps(p_s_sb, SB_JOURNAL(p_s_sb)->j_list_bitmap, 
+                                  SB_BMAP_NR(p_s_sb)) ;
+   allocate_bitmap_nodes(p_s_sb) ;
+@@ -2933,7 +2933,7 @@ printk("journal-2020: do_journal_end: BA
+   SB_JOURNAL_LIST_INDEX(p_s_sb) = jindex ;
+ 
+   /* write any buffers that must hit disk before this commit is done */
+-  fsync_inode_buffers(&(SB_JOURNAL(p_s_sb)->j_dummy_inode)) ;
++  fsync_buffers_list(&(SB_JOURNAL(p_s_sb)->j_dirty_buffers)) ;
+ 
+   /* honor the flush and async wishes from the caller */
+   if (flush) {
+diff -uNr -Xdontdiff -p linux-2.4.20-pre4/include/linux/fs.h linux/include/linux/fs.h
+--- linux-2.4.20-pre4/include/linux/fs.h	Tue Aug 20 11:37:00 2002
++++ linux/include/linux/fs.h	Sun Aug 25 19:20:22 2002
+@@ -219,6 +219,7 @@ enum bh_state_bits {
+ 	BH_Async,	/* 1 if the buffer is under end_buffer_io_async I/O */
+ 	BH_Wait_IO,	/* 1 if we should write out this buffer */
+ 	BH_Launder,	/* 1 if we can throttle on this buffer */
++	BH_Attached,	/* 1 if b_inode_buffers is linked into a list */
+ 	BH_JBD,		/* 1 if it has an attached journal_head */
+ 
+ 	BH_PrivateStart,/* not a state bit, but the first bit available
+@@ -266,7 +267,6 @@ struct buffer_head {
+ 	unsigned long b_rsector;	/* Real buffer location on disk */
+ 	wait_queue_head_t b_wait;
+ 
+-	struct inode *	     b_inode;
+ 	struct list_head     b_inode_buffers;	/* doubly linked list of inode dirty buffers */
+ };
+ 
+@@ -1167,8 +1167,18 @@ static inline void mark_buffer_clean(str
+ extern void FASTCALL(__mark_dirty(struct buffer_head *bh));
+ extern void FASTCALL(__mark_buffer_dirty(struct buffer_head *bh));
+ extern void FASTCALL(mark_buffer_dirty(struct buffer_head *bh));
+-extern void FASTCALL(buffer_insert_inode_queue(struct buffer_head *, struct inode *));
+-extern void FASTCALL(buffer_insert_inode_data_queue(struct buffer_head *, struct inode *));
 +
- 	void (*read_inode) (struct inode *);
-   
-   	/* reiserfs kludge.  reiserfs needs 64 bits of information to
-@@ -1336,6 +1339,7 @@
- #define user_path_walk(name,nd)	 __user_walk(name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, nd)
- #define user_path_walk_link(name,nd) __user_walk(name, LOOKUP_POSITIVE, nd)
++extern void FASTCALL(buffer_insert_list(struct buffer_head *, struct list_head *));
++
++static inline void buffer_insert_inode_queue(struct buffer_head *bh, struct inode *inode)
++{
++	buffer_insert_list(bh, &inode->i_dirty_buffers);
++}
++
++static inline void buffer_insert_inode_data_queue(struct buffer_head *bh, struct inode *inode)
++{
++	buffer_insert_list(bh, &inode->i_dirty_data_buffers);
++}
  
-+extern void inode_init_once(struct inode *);
- extern void iput(struct inode *);
- extern void force_delete(struct inode *);
- extern struct inode * igrab(struct inode *);
-@@ -1349,18 +1353,7 @@
+ static inline int atomic_set_buffer_dirty(struct buffer_head *bh)
+ {
+@@ -1183,6 +1193,21 @@ static inline void mark_buffer_async(str
+ 		clear_bit(BH_Async, &bh->b_state);
  }
  
- extern void clear_inode(struct inode *);
--extern struct inode * get_empty_inode(void);
--
--static inline struct inode * new_inode(struct super_block *sb)
--{
--	struct inode *inode = get_empty_inode();
--	if (inode) {
--		inode->i_sb = sb;
--		inode->i_dev = sb->s_dev;
--		inode->i_blkbits = sb->s_blocksize_bits;
--	}
--	return inode;
--}
-+extern struct inode *new_inode(struct super_block *sb);
- extern void remove_suid(struct inode *inode);
- 
- extern void insert_inode_hash(struct inode *);
-diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
---- a/kernel/ksyms.c	Thu Aug 29 03:02:23 2002
-+++ b/kernel/ksyms.c	Thu Aug 29 03:02:23 2002
-@@ -138,6 +138,7 @@
- EXPORT_SYMBOL(iunique);
- EXPORT_SYMBOL(iget4);
- EXPORT_SYMBOL(iput);
-+EXPORT_SYMBOL(inode_init_once);
- EXPORT_SYMBOL(force_delete);
- EXPORT_SYMBOL(follow_up);
- EXPORT_SYMBOL(follow_down);
-@@ -518,7 +519,7 @@
- EXPORT_SYMBOL(init_special_inode);
- EXPORT_SYMBOL(read_ahead);
- EXPORT_SYMBOL(get_hash_table);
--EXPORT_SYMBOL(get_empty_inode);
-+EXPORT_SYMBOL(new_inode);
++static inline void set_buffer_attached(struct buffer_head *bh)
++{
++	__set_bit(BH_Attached, &bh->b_state);
++}
++
++static inline void clear_buffer_attached(struct buffer_head *bh)
++{
++	clear_bit(BH_Attached, &bh->b_state);
++}
++
++static inline int buffer_attached(struct buffer_head *bh)
++{
++	return test_bit(BH_Attached, &bh->b_state);
++}
++
+ /*
+  * If an error happens during the make_request, this function
+  * has to be recalled. It marks the buffer as clean and not
+diff -uNr -Xdontdiff -p linux-2.4.20-pre4/include/linux/reiserfs_fs_sb.h linux/include/linux/reiserfs_fs_sb.h
+--- linux-2.4.20-pre4/include/linux/reiserfs_fs_sb.h	Tue Aug 13 15:56:04 2002
++++ linux/include/linux/reiserfs_fs_sb.h	Tue Aug 20 15:26:38 2002
+@@ -312,7 +312,7 @@ struct reiserfs_journal {
+   int j_free_bitmap_nodes ;
+   int j_used_bitmap_nodes ;
+   struct list_head j_bitmap_nodes ;
+-  struct inode j_dummy_inode ;
++  struct list_head j_dirty_buffers ;
+   struct reiserfs_list_bitmap j_list_bitmap[JOURNAL_NUM_BITMAPS] ;	/* array of bitmaps to record the deleted blocks */
+   struct reiserfs_journal_list j_journal_list[JOURNAL_LIST_COUNT] ;	    /* array of all the journal lists */
+   struct reiserfs_journal_cnode *j_hash_table[JOURNAL_HASH_SIZE] ; 	    /* hash table for real buffer heads in current trans */ 
+diff -uNr -Xdontdiff -p linux-2.4.20-pre4/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux-2.4.20-pre4/kernel/ksyms.c	Tue Aug 13 15:56:05 2002
++++ linux/kernel/ksyms.c	Sun Aug 25 19:32:04 2002
+@@ -525,8 +527,7 @@ EXPORT_SYMBOL(get_hash_table);
+ EXPORT_SYMBOL(get_empty_inode);
  EXPORT_SYMBOL(insert_inode_hash);
  EXPORT_SYMBOL(remove_inode_hash);
- EXPORT_SYMBOL(buffer_insert_inode_queue);
-diff -Nru a/net/socket.c b/net/socket.c
---- a/net/socket.c	Thu Aug 29 03:02:23 2002
-+++ b/net/socket.c	Thu Aug 29 03:02:23 2002
-@@ -437,11 +437,11 @@
- 	struct inode * inode;
- 	struct socket * sock;
- 
--	inode = get_empty_inode();
-+	inode = new_inode(sock_mnt->mnt_sb);
- 	if (!inode)
- 		return NULL;
- 
--	inode->i_sb = sock_mnt->mnt_sb;
-+	inode->i_dev = NODEV;
- 	sock = socki_lookup(inode);
- 
- 	inode->i_mode = S_IFSOCK|S_IRWXUGO;
+-EXPORT_SYMBOL(buffer_insert_inode_queue);
+-EXPORT_SYMBOL(buffer_insert_inode_data_queue);
++EXPORT_SYMBOL(buffer_insert_list);
+ EXPORT_SYMBOL(make_bad_inode);
+ EXPORT_SYMBOL(is_bad_inode);
+ EXPORT_SYMBOL(event);

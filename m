@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263731AbTEOFvi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 01:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTEOFvi
+	id S263859AbTEOGAC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 02:00:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263867AbTEOGAC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 01:51:38 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:39420 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263731AbTEOFvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 01:51:37 -0400
-Date: Thu, 15 May 2003 00:04:17 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Scott McDermott <vaxerdec@frontiernet.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT write to file by block-aligned, block-multiple buf fails?
-Message-ID: <20030515000417.D10503@schatzie.adilger.int>
-Mail-Followup-To: Scott McDermott <vaxerdec@frontiernet.net>,
-	linux-kernel@vger.kernel.org
-References: <20030515013350.B1540@newbox.localdomain>
+	Thu, 15 May 2003 02:00:02 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:40917 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263859AbTEOGAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 02:00:01 -0400
+Date: Wed, 14 May 2003 23:14:14 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: 2.5.69-mm5: reverting i8259-shutdown.patch
+Message-Id: <20030514231414.42398dda.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0305141935440.9816-100000@cherise>
+References: <20030514193300.58645206.akpm@digeo.com>
+	<Pine.LNX.4.44.0305141935440.9816-100000@cherise>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030515013350.B1540@newbox.localdomain>; from vaxerdec@frontiernet.net on Thu, May 15, 2003 at 01:33:50AM -0400
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 May 2003 06:12:46.0172 (UTC) FILETIME=[00CCC1C0:01C31AA9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 15, 2003  01:33 -0400, Scott McDermott wrote:
-> This should mean I can write aligned pages with direct IO, right?
+Patrick Mochel <mochel@osdl.org> wrote:
+>
+> > Eric, maybe we need to turn it off by hand at the right time rather than
+>  > relying on driver model shutdown ordering?
 > 
->         write: Invalid argument
+>  Interesting. This is yet more proof that system-level devices cannot be
+>  treated as common, everyday devices. Sure, it's nice to see them show up
+>  in sysfs with little overhead, and very nice not to have to work about
+>  them during shutdown or power transitions. But there are just too many
+>  special cases (like getting the ordering right ;) that you have to worry
+>  about.
 > 
->         $ grep /tmp /proc/mounts
->         /dev/hda5 /mnt/tmp ext3 rw 0 0
+>  So, what do we do with them? 
 
-ext3 does not support O_DIRECT in 2.4 yet.
+I'd say that as long as the shutdown routines are executed in reverse
+order of startup, then the core driver stuff has fulfilled its
+obligations.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+In this case we need to understand why the lockup is happening - what
+code is requiring 8259 services after the thing has been turned off?
+Could be that the bug lies there.
+
+Felipe, please send your .config.   (again - in fact you may as well do
+cp .config ~/.signature)
+
+
 

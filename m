@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270601AbTGTCMK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 22:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270597AbTGTCMK
+	id S270600AbTGTC0b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 22:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270602AbTGTC0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 22:12:10 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:16901 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S270596AbTGTCMH (ORCPT
+	Sat, 19 Jul 2003 22:26:31 -0400
+Received: from main.gmane.org ([80.91.224.249]:6800 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270600AbTGTC03 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 22:12:07 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: libata driver update posted
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <3F19A651.2080503@pobox.com>
-Date: 19 Jul 2003 22:27:00 -0400
-Message-ID: <m3ispyx79n.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Jul 2003 22:26:29 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Date: Sun, 20 Jul 2003 04:27:22 +0200
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2003.07.20.02.27.22.526885@terra.com.br>
+References: <200301201338.h0KDcLjd001178@eeyore.valparaiso.cl> <E18bHfV-0002QE-00@fencepost.gnu.org> <20030122162107.GA26725@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I gave this (pulled into linus' bk current) a try on my laptop.
+On Wed, 22 Jan 2003 11:21:07 -0500, Mark Mielke wrote:
 
-It has this pata chip:
+> Good. So go fight with RedHat, Debian, and all the other distros to ensure
+> that they give you whatever credit you want.
 
-00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory Controller Hub (rev 04)
-00:1f.1 IDE interface: Intel Corp. 82801BAM IDE U100 (rev 03)
+	Debian actually calls it GNU/Linux.
 
-aka
 
-00:00.0 Class 0600: 8086:1130 (rev 04)
-        Flags: bus master, fast devsel, latency 0
-        Memory at e8000000 (32-bit, prefetchable) [size=64M]
-00:1f.1 Class 0101: 8086:244a (rev 03)
-        Subsystem: 8086:4541
-        Flags: bus master, medium devsel, latency 0
-        I/O ports at bfa0 [size=16]
+-- 
+ _   Leandro Guimarães Faria Corsetti Dutra     +41 (21) 648 11 34
+/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
+\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
+/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
 
-I left out the regualt ide support and added:
-
-CONFIG_SCSI_ATA=y
-CONFIG_SCSI_ATA_PATA=y
-CONFIG_SCSI_ATA_ATAPI=y
-CONFIG_SCSI_ATA_PIIX=y
-
-The laptop has its fixed drive at hda, its fixed cd/dvd at hdb and
-its media bay drive (whatever may be installed) at hdc.
-
-root=/dev/sda3 failed to find the root fs.
-
-I don't have anything here to plug into the serial port, so I cannot
-record the boot messages.  
-
-Is my controller among the supported PIIX/ICH PATA chipsets?
-
--JimC
 

@@ -1,75 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269249AbRGaLAJ>; Tue, 31 Jul 2001 07:00:09 -0400
+	id <S269246AbRGaKzT>; Tue, 31 Jul 2001 06:55:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269250AbRGaK77>; Tue, 31 Jul 2001 06:59:59 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:1028 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S269249AbRGaK7m>; Tue, 31 Jul 2001 06:59:42 -0400
-Message-ID: <3B668FA2.5E76BE1E@namesys.com>
-Date: Tue, 31 Jul 2001 14:59:46 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S269247AbRGaKzK>; Tue, 31 Jul 2001 06:55:10 -0400
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:49677 "EHLO
+	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
+	id <S269246AbRGaKzF>; Tue, 31 Jul 2001 06:55:05 -0400
+Date: Tue, 31 Jul 2001 12:55:12 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+cc: <pworach@mysun.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: eepro100 2.4.7-ac3 problems (apm related)
+Message-ID: <Pine.LNX.4.33.0107311246360.3857-100000@chaos.tp1.ruhr-uni-bochum.de>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Rik van Riel <riel@conectiva.com.br>, Christoph Hellwig <hch@caldera.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <Pine.LNX.4.33L.0107301904060.5582-100000@duckman.distro.conectiva> <3B65E177.D77ACA45@namesys.com> <20010731223203.B7257@weta.f00f.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Chris Wedgwood wrote:
-> 
-> On Tue, Jul 31, 2001 at 02:36:39AM +0400, Hans Reiser wrote:
-> 
->     If you could halve linux memory manager performance and check as
->     many things as reiserfs checks, would you do it.  I think not, or
->     else you would have.  You made the right choice.  Now, if you add
->     a #define, you can check as many things as ReiserFS checks, and
->     still go just as fast....
-> 
-> The memory manager is stress much more often that reiserfs, EVERYBODY
-> has it.
-> 
-> The MM system does have various sanity checks, things might be
-> slightly faster without them, but having the sanity checks is still
-> very important.
-> 
-> If the memory manager does something bad, chances are your system will
-> go boom --- upon reboot all is happy.  If as fs goes bad, that
-> corruption might still be there when you reboot, even if to another
-> kernel!  This is a major difference.
-> 
-> Anyhow, I use resierfs with debugging/checking on in lots of places.
-> The speed difference is negligible, so I think this whole thread is
-> pointless.
-> 
-> FWIW, if the mainline kernels remove the debugging option, I will hack
-> it back in --- I for one am happy with the performance and am pleased
-> there is additional sanity checking.
-> 
->   --cw
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Tue, 31 Jul 2001, Martin Knoblauch wrote:
 
+> > The eepro100 interface in my Fujitsy/Siemens Lifebook S-4546
+> > won't come up after a suspend, if I unload the module and load it again
+> > it works fine...
+> > "ioctl SIOCSIFFLAGS: No such device" is the error message.
+> 
+>  same here with an eepro100 inside a IBM Thinkpad570. Happened with
+> 2.4.6-ac2. Since then I apply the appended patch after installing "-ac"
+> stuff. This completely disables power state handling for the device. Not
+> very clean, but I do not care in this particular case. It probably shows
+> a more principal issue with the eepro100. Kai - did you look deeper into
+> the issue?
 
-Last I ran benchmarks the performance cost was 30-40%, but this was some time
-ago.  I think that the coders have been quietly culling some checks out of the
-FS, and so it does not cost as much anymore.  I would prefer that the "excesive"
-checks had stayed in.
+I didn't look to deep, since my eepro100 works fine here, so I can't 
+reproduce your problem.
 
-Sigh, I see I cannot persuade in this argument.  It seems Linus is right, and
-debugging checks don't belong in debugged code even if they would make it easier
-for persons hacking on the code to debug their latest hacks.
+However, I'm wondering if the problems you guys are having are really the 
+same. IIRC, Martin's eepro100 wouldn't ever come up from state D2 into 
+working state again until the next reboot, right?
 
-Hans
+Whereas Pawel's eepro100 can be revived by reloading the module, so there 
+seems to be a difference. For Pawel, can you supply lspci -vvxxx output 
+before and after the suspend. That should give some hints.
+
+Martin, if you want to spend some work on your problem, you could try to 
+collect some more data an your problem, particularly what about using 
+another state (D1/D3) when the interface is down. D3 will probably mean 
+that you have to save/restore PCI config space, so it's a bit more 
+tedious. Also, is there anything which makes your card work again after it 
+was in state D2? Like suspend/resume, or putting it into D3 and back into 
+D0? Does a warm reboot suffice, or do you need to power cycle.
+
+As it stands, I don't see an alternative to Martin's problem apart from
+the patch he's using - well, that could be done a bit more nicely, like
+having a config option for the sleep D state, which would increase chances
+Alan would take it as an -ac patch.
+
+--Kai
+

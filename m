@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264929AbRFUILP>; Thu, 21 Jun 2001 04:11:15 -0400
+	id <S264932AbRFUIMP>; Thu, 21 Jun 2001 04:12:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264931AbRFUILF>; Thu, 21 Jun 2001 04:11:05 -0400
-Received: from www.wen-online.de ([212.223.88.39]:41222 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S264929AbRFUIKu>;
-	Thu, 21 Jun 2001 04:10:50 -0400
-Date: Thu, 21 Jun 2001 10:10:14 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac15
-In-Reply-To: <Pine.LNX.4.21.0106210226330.14247-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0106210934460.1243-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264931AbRFUIMF>; Thu, 21 Jun 2001 04:12:05 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:36058 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S264930AbRFUIMC>; Thu, 21 Jun 2001 04:12:02 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [OT] Threads, inelegance, and Java
+Date: Thu, 21 Jun 2001 08:12:00 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9gsa8g$ko2$1@forge.intermeta.de>
+In-Reply-To: <XFMail.20010620093214.davidel@xmailserver.org> <3B30D776.5090902@magenta-netlogic.com> <01062011105507.00776@localhost.localdomain> <3B310650.4050408@magenta-netlogic.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 993111120 30744 212.34.181.4 (21 Jun 2001 08:12:00 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 21 Jun 2001 08:12:00 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
+Tony Hoyle <tmh@magenta-netlogic.com> writes:
 
-> On Thu, 21 Jun 2001, Mike Galbraith wrote:
->
-> > On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
-> >
-> > > >  2  4  2  77084   1524  18396  66904   0 1876   108  2220 2464 66079   198   1
-> >                                                                    ^^^^^
-> > > Ok, I suspect that GFP_BUFFER allocations are fucking up here (they can't
-> > > block on IO, so they loop insanely).
-> >
-> > Why doesn't the VM hang the syncing of queued IO on these guys via
-> > wait_event or such instead of trying to just let the allocation fail?
->
-> Actually the VM should limit the amount of data being queued for _all_
-> kind of allocations.
+>'Win32'.  They kept saying 'Cross platform' and 'Open standards' (the 
+>VM* has been submitted to ECMA apparently)....
 
-Limiting the amount of data being queued for IO will make things less
-ragged, but you can't limit the IO.. pages returning to service upon
-completion is the only thing keeping you alive.  That's why I hate not
-seeing my disk utterly saturated when things get hot and heavy.  The
-only thing that I can see that's possible is to let tasks proceed in
-an ordered fashion as pages return.. take a number and wait.  IMHO,
-right now we try to maintain low latency way too long and end up with
-the looping problem because of that.  We need a more controlled latency
-roll-down to the full disk speed wall.  We hit it and go splat ;-)
+Relax. That's their stunt at Sun. Once they killed the Java VM (that's
+what they hope), they will not give a hoot about the "Standards" they
+helped to create. Note that in all their "open" and "cross platform"
+and "multi language" slides, the absence of Java screams loudly.
 
-> The problem is the lack of a mechanism which allows us to account the
-> approximated amount of queued IO by the VM. (except for swap pages)
+	Regards
+		Henning
 
-Ingo once mentioned an io thingy for vm, but I got kind of dizzy trying
-to figure out exactly how I'd impliment, what with clustering and getting
-information to seperate io threads and back ;-)
 
-> You can see it this way: To get free memory we're "polling" instead of
-> waiting on the IO completion of pages.
->
-> > (which seems to me will only cause the allocation to be resubmitted,
-> > effectively changing nothing but adding overhead)
->
-> Yes.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-(not that overhead really matters once you are well and truely iobound)
-
-	-Mike
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271412AbTHMHTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 03:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271420AbTHMHTZ
+	id S271414AbTHMHLF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 03:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271420AbTHMHLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 03:19:25 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:1036 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S271412AbTHMHTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 03:19:24 -0400
-Message-Id: <200308130718.h7D7ISd20208@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Nufarul Alb <nufarul.alb@home.ro>
-Subject: Re: multibooting the linux kernel
-Date: Wed, 13 Aug 2003 10:18:27 +0300
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <3F396C04.90608@home.ro> <20030813002944.GJ32488@holomorphy.com>
-In-Reply-To: <20030813002944.GJ32488@holomorphy.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Wed, 13 Aug 2003 03:11:05 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:56069
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S271414AbTHMHLD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 03:11:03 -0400
+Subject: Re: [PATCH] revert zap_other_threads breakage, disallow
+	CLONE_THREAD without CLONE_DETACHED
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Wilson <msw@redhat.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>
+In-Reply-To: <200308120752.h7C7qQT20085@magilla.sf.frob.com>
+References: <200308120752.h7C7qQT20085@magilla.sf.frob.com>
+Content-Type: text/plain
+Message-Id: <1060758660.18727.17.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 13 Aug 2003 00:11:00 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 August 2003 03:29, William Lee Irwin III wrote:
-> On Wed, Aug 13, 2003 at 01:36:52AM +0300, Nufarul Alb wrote:
-> > There is a patch for the kernel that make it able to preload modules 
-> > before the acutal booting.
-> > I wonder if this feature will be included in the official linux kernel.
-> > The patch can be found at 
-> > http://home.t-online.de/home/ChristianK./patches/ .
-> > thanks;-)
-> 
-> No idea. It might help if someone (this means you) started maintaining
-> it and sending it in. =)
+On Tue, 2003-08-12 at 00:52, Roland McGrath wrote:
+> Please apply this patch to get us back out of this useless quagmire and
+> disallow the problematic case that noone wants to try to use any more.
 
-Do we want to stuff every imaginable early userspace stuff into kernel?
+It seems to me there's a couple of problems with this patch:
 
-<sarcasm>
-I vote for iwconfig and cipe tunnels, because I mount my root filesystem
-over them!
-</sarcasm>
---
-vda
+One is that it prevents any single piece of code using
+clone(CLONE_THREAD) from working on both 2.4 and 2.6.  While clone() is
+mostly hidden under libpthread.so, there are some applications which use
+it directly for various good reasons.  I've implemented two versions of
+my clone/wait stuff in Valgrind to cope with this, but not everyone will
+have yet.  Perhaps I'm the only person in the world to use CLONE_THREAD,
+but it seems unlikely.  After all, clone() is a public interface.
+
+The other reason is that this seems to be covering over an actual
+conceptual problem rather than fixing it.  I can't say I really
+understand this piece of the kernel (which isn't too surprising that it
+is very complicated because it represents 30 years of Unix history
+packed into a dense mass), but one niggling concern I have is that even
+when you're using CLONE_DETACHED, if you've attached with ptrace(), you
+effectively become a parent who can wait on the detached clone.  If you
+can wait via ptrace, then doesn't it mean that all the wait-related
+problems are still visible?  I've tried to reproduce some of the
+problems I've been seeing with non-detached threads in the case where
+they are detached traced threads, but so far it seems OK.  But that may
+be because I haven't hit it properly yet.
+
+I guess my concern is that I'm not convinced we really understand what's
+going wrong here, and so I'm not convinced that this patch really fixes
+things.
+
+	J
+

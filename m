@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265022AbSKAOGf>; Fri, 1 Nov 2002 09:06:35 -0500
+	id <S265021AbSKAOJf>; Fri, 1 Nov 2002 09:09:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265023AbSKAOGf>; Fri, 1 Nov 2002 09:06:35 -0500
-Received: from ns.suse.de ([213.95.15.193]:15879 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265022AbSKAOGe>;
-	Fri, 1 Nov 2002 09:06:34 -0500
-Date: Fri, 1 Nov 2002 15:13:01 +0100
-From: Dave Jones <davej@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>,
-       kernel-janitor-discuss@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: might_sleep() in copy_{from,to}_user and friends?
-Message-ID: <20021101151301.C20859@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Andrew Morton <akpm@digeo.com>,
-	Arnd Bergmann <arnd@bergmann-dalldorf.de>,
-	kernel-janitor-discuss@lists.sourceforge.net,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200211011302.05461.arnd@bergmann-dalldorf.de> <3DC25CA5.B15848E0@digeo.com>
+	id <S265026AbSKAOJf>; Fri, 1 Nov 2002 09:09:35 -0500
+Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:19884 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S265021AbSKAOJd>; Fri, 1 Nov 2002 09:09:33 -0500
+Date: Fri, 1 Nov 2002 07:12:40 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
+       Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+Message-ID: <20021101141240.GC815@opus.bloom.county>
+References: <20021031172405.GB30193@opus.bloom.county> <Pine.LNX.3.96.1021031210453.22444H-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3DC25CA5.B15848E0@digeo.com>; from akpm@digeo.com on Fri, Nov 01, 2002 at 02:51:17AM -0800
+In-Reply-To: <Pine.LNX.3.96.1021031210453.22444H-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 02:51:17AM -0800, Andrew Morton wrote:
- > And if you're feeling really keen, Dave Jones has a patch which
- > makes the might_sleep check a real config option rather than
- > overloading CONFIG_DEBUG_KERNEL - would be nice to squeeze that
- > out of him if poss.
+On Thu, Oct 31, 2002 at 09:09:20PM -0500, Bill Davidsen wrote:
+> On Thu, 31 Oct 2002, Tom Rini wrote:
+> 
+> > On Thu, Oct 31, 2002 at 12:12:40PM -0500, Mark Mielke wrote:
+> > 
+> > > On Thu, Oct 31, 2002 at 10:04:20AM -0700, Tom Rini wrote:
+> > > > On Thu, Oct 31, 2002 at 11:51:13AM -0500, Mark Mielke wrote:
+> > > > > Or specified more clearly: If the compiler optimization flag is
+> > > > > configurable, choosing CONFIG_TINY should default the optimization flag
+> > > > > to -Os before it defaults the optimization flag to -O2.
+> > > > You're still missing the point of flexibility remark.  Changing the
+> > > > optimization level has nothing to do with CONFIG_TINY, and is a
+> > > > generally useful option, and should be done seperate from CONFIG_TINY.
+> > > > In fact people seem to be getting the wrong idea about CONFIG_TINY.  We
+> > > > ...
+> > > 
+> > > Please read it again... even if the optimization flag was
+> > > configurable, choosing CONFIG_TINY should *default* the optimization
+> > > flag to -Os before it defaults the optimization flag to -O2.
+> > 
+> > Yes, and I'm saying that CONFIG_TINY shouldn't exist.  It should be
+> > CONFIG_FINE_TUNE (or so), to allow anyone to fine tune the optimization
+> > level.  Changing optimization levels is a speed / size tradeoff (if it
+> > wasn't, there wouldn't be -O2 / -Os, they would do the same thing) which
+> > you cannot pick a sane default for.
+> 
+> By that reasoning there shouldn't be -O2 either, everyone should be forced
+> to diddle everything for their architecture, cache size, gcc revision,
+> patch level... does that sound as unrealistic to you as it does to me? -Os
+> is a default, just like -O2, and if you want small -Os is probably a
+> better starting point.
 
-Will update to the new kconfig thingy later, and forward it on..
-
-        Dave
+You're making the assumption that the biggest problem facing embedded
+Linux developers is that the kernel is too big and that the size must be
+reduced at all costs.  It's not.  It's that trying to tweak things which
+aren't trivial to do (unlike changing the optimization level) require an
+indepth knowledge of the subsystem.  It doesn't have to be this way.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

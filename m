@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129466AbRCFUnr>; Tue, 6 Mar 2001 15:43:47 -0500
+	id <S129478AbRCFUqr>; Tue, 6 Mar 2001 15:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129469AbRCFUnh>; Tue, 6 Mar 2001 15:43:37 -0500
-Received: from ns.suse.de ([213.95.15.193]:13836 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129466AbRCFUnc>;
-	Tue, 6 Mar 2001 15:43:32 -0500
-To: John Kodis <kodis@mail630.gsfc.nasa.gov>
-Cc: Jeff Coy <jcoy@klah.net>, Peter Samuelson <peter@cadcamlab.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: binfmt_script and ^M
-In-Reply-To: <20010306121510.A28368@cadcamlab.org>
-	<Pine.LNX.4.10.10103061126490.27694-100000@aahz.klah.net>
-	<20010306152628.A10091@tux.gsfc.nasa.gov>
-X-Yow: Then, it's off to RED CHINA!!
-From: Andreas Schwab <schwab@suse.de>
-Date: 06 Mar 2001 21:43:24 +0100
-In-Reply-To: <20010306152628.A10091@tux.gsfc.nasa.gov>
-Message-ID: <jewva2iq6r.fsf@hawking.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.100
+	id <S129473AbRCFUqh>; Tue, 6 Mar 2001 15:46:37 -0500
+Received: from windsormachine.com ([206.48.122.28]:40465 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S129419AbRCFUqY>; Tue, 6 Mar 2001 15:46:24 -0500
+Date: Tue, 6 Mar 2001 15:44:59 -0500 (EST)
+From: Mike Dresser <mdresser@windsormachine.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Microsoft ZERO Sector Virus, Result of Taskfile WAR
+In-Reply-To: <Pine.LNX.4.10.10103061206270.13719-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.3.96.1010306154042.27044A-100000@router.windsormachine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Kodis <kodis@mail630.gsfc.nasa.gov> writes:
+Sorry Andre, but this one's a hoax.
 
-|> On Tue, Mar 06, 2001 at 11:36:29AM -0700, Jeff Coy wrote:
-|> 
-|> > '#!/usr/bin/perl -w^M' works without any special handling; the link is
-|> > not needed:
-|> 
-|> This is the main reason that I think that the kernel should treat \r
-|> as just another whitespace character: it's what most shells do
+http://service1.symantec.com/sarc/sarc.nsf/html/Virtual.Card.for.you.html
 
-Do they?  Bourne shells don't, tcsh doesn't, zsh doesn't.
+On Tue, 6 Mar 2001, Andre Hedrick wrote:
 
-Andreas.
+> > >This virus acts in the following manner: It sends
+> > >itself automatically to all contacts on your list
+> > >with the title "A Virtual Card for You". As >soon as
+> > >the supposed virtual card is opened, the computer
+> > >freezes so that the user has to reboot.
+> > >When the ctrl+alt+del keys or the reset button are
+> > >pressed, the virus destroys Sector Zero, thus
+> > >permanently destroying the hard disk.
 
--- 
-Andreas Schwab                                  "And now for something
-SuSE Labs                                        completely different."
-Andreas.Schwab@suse.de
-SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

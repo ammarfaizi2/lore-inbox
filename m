@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313628AbSHMIi2>; Tue, 13 Aug 2002 04:38:28 -0400
+	id <S313181AbSHMJPw>; Tue, 13 Aug 2002 05:15:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314077AbSHMIi1>; Tue, 13 Aug 2002 04:38:27 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3570 "HELO
+	id <S313563AbSHMJPw>; Tue, 13 Aug 2002 05:15:52 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27889 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S313628AbSHMIi0>; Tue, 13 Aug 2002 04:38:26 -0400
-Date: Tue, 13 Aug 2002 10:42:13 +0200 (CEST)
+	id <S313181AbSHMJPu>; Tue, 13 Aug 2002 05:15:50 -0400
+Date: Tue, 13 Aug 2002 11:19:38 +0200 (CEST)
 From: Adrian Bunk <bunk@fs.tum.de>
 X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: John Kim <john@larvalstage.com>
-cc: linux-kernel@vger.kernel.org, <drew@colorado.edu>
-Subject: Re: devfs compile breaks on 2.4.20-pre2
-In-Reply-To: <Pine.LNX.4.44.0208130011120.1762-100000@daria.larvalstage.com>
-Message-ID: <Pine.NEB.4.44.0208131041160.14606-100000@mimas.fachschaften.tu-muenchen.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Greg Kroah-Hartman <greg@kroah.com>,
+       Kai Germaschewski <kai.germaschewski@gmx.de>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre2
+In-Reply-To: <Pine.LNX.4.44.0208121943150.3382-100000@freak.distro.conectiva>
+Message-ID: <Pine.NEB.4.44.0208131116270.14606-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Aug 2002, John Kim wrote:
+On Mon, 12 Aug 2002, Marcelo Tosatti wrote:
 
-> has been modified from 2.4.20-pre1.  I see that 'number' member has been
-> removed from hd_struct in include/linux/genhd.h.
->
-> Functions devfs_register_disc and devfs_register_partitions in
-> fs/partitions/check.c is still expecting "number" it to be there.
+>...
+> Greg Kroah-Hartman <greg@kroah.com>:
+>...
+>   o USB: removed the devrequest typedef
 >...
 
+This broke the compilation of drivers/isdn/hisax/st5481_usb.c:
 
-The following patch made by Christoph Hellwig fixes it:
+<--  snip  -->
 
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=k6  -DHISAX_MAX_CARDS=8 -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=st5481_usb  -c -o
+st5481_usb.o st5481_usb.c
+st5481_usb.c: In function `usb_next_ctrl_msg':
+st5481_usb.c:43: structure has no member named `request'
+st5481_usb.c:44: structure has no member named `value'
+st5481_usb.c:45: structure has no member named `index'
+st5481_usb.c: In function `usb_ctrl_msg':
+st5481_usb.c:72: structure has no member named `requesttype'
+st5481_usb.c:73: structure has no member named `request'
+st5481_usb.c:74: structure has no member named `value'
+st5481_usb.c:75: structure has no member named `index'
+st5481_usb.c:76: structure has no member named `length'
+st5481_usb.c: In function `usb_ctrl_complete':
+st5481_usb.c:143: structure has no member named `request'
+st5481_usb.c:147: structure has no member named `index'
+st5481_usb.c:148: structure has no member named `index'
+st5481_usb.c:152: structure has no member named `index'
+st5481_usb.c:152: structure has no member named `index'
+st5481_usb.c:153: structure has no member named `index'
+st5481_usb.c:154: structure has no member named `index'
+make[4]: *** [st5481_usb.o] Error 1
+make[4]: Leaving directory
+`/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/isdn/hisax'
 
---- linux-2.4.20-bk-20020810/include/linux/genhd.h	Sat Aug 10 14:37:16 2002
-+++ linux/include/linux/genhd.h	Mon Aug 12 23:40:37 2002
-@@ -62,7 +62,9 @@ struct hd_struct {
- 	unsigned long start_sect;
- 	unsigned long nr_sects;
- 	devfs_handle_t de;              /* primary (master) devfs entry  */
--
-+#ifdef CONFIG_DEVFS_FS
-+	int number;
-+#endif /* CONFIG_DEVFS_FS */
- #ifdef CONFIG_BLK_STATS
- 	/* Performance stats: */
- 	unsigned int ios_in_flight;
-
-> John Kim
+<--  snip  -->
 
 cu
 Adrian
@@ -56,4 +71,5 @@ Adrian
 You only think this is a free country. Like the US the UK spends a lot of
 time explaining its a free country because its a police state.
 								Alan Cox
+
 

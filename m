@@ -1,38 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUFWP2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUFWPbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbUFWP2v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 11:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUFWP2u
+	id S262256AbUFWPbP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 11:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUFWPbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 11:28:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:57533 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261988AbUFWP2t (ORCPT
+	Wed, 23 Jun 2004 11:31:15 -0400
+Received: from [66.199.228.3] ([66.199.228.3]:23822 "EHLO xdr.com")
+	by vger.kernel.org with ESMTP id S262256AbUFWPbO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 11:28:49 -0400
-Date: Tue, 22 Jun 2004 17:04:34 -0700
-From: Greg KH <greg@kroah.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: tom.l.nguyen@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix MSI-X setup
-Message-ID: <20040623000434.GH13197@kroah.com>
-References: <52lligqqlc.fsf@topspin.com> <521xk8qlx1.fsf@topspin.com> <52smcop5v7.fsf_-_@topspin.com> <20040622232301.GB13197@kroah.com> <52isdjkuwu.fsf@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <52isdjkuwu.fsf@topspin.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 23 Jun 2004 11:31:14 -0400
+Date: Wed, 23 Jun 2004 08:31:12 -0700
+From: David Ashley <dash@xdr.com>
+Message-Id: <200406231531.i5NFVCuf018957@xdr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Cached memory never gets released
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 22, 2004 at 04:57:53PM -0700, Roland Dreier wrote:
->     Greg> Applied, thanks.
-> 
-> Great... I would suggest looking at applying the big patch that Long
-> posted today, too, as it has lots of improvements.
+Linux 2.4.23 on x86, 128M memory available
+Free outputs this:
+             total       used       free     shared    buffers     cached
+Mem:        119204     109592       9612          0         60      92136
+-/+ buffers/cache:      17396     101808
+Swap:            0          0          0
 
-Yes, I saw it, but it's just out for review, not ready to apply just
-yet.  :)
+The root filesystem is NFS, no hard drives involved.
+When I run a simple program that just mallocs memory and fills it with
+random data, the kernel kills the process after it has only allocated 8 or
+9 megs. The 92136K of cached memory can't get released for some reason.
+What is happening?
 
-thanks,
-
-greg k-h
+Thanks very much!
+-Dave

@@ -1,57 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130263AbQKHIdL>; Wed, 8 Nov 2000 03:33:11 -0500
+	id <S129512AbQKHIgB>; Wed, 8 Nov 2000 03:36:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130219AbQKHIdB>; Wed, 8 Nov 2000 03:33:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2567 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129512AbQKHIcq>;
-	Wed, 8 Nov 2000 03:32:46 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011080812.eA88Ccl01753@flint.arm.linux.org.uk>
-Subject: Re: [RANT] Linux-IrDA status
-To: jt@hpl.hp.com
-Date: Wed, 8 Nov 2000 08:12:38 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Linux kernel mailing list),
-        dagb@fast.no (Dag Brattli)
-In-Reply-To: <20001107173809.A24129@bougret.hpl.hp.com> from "Jean Tourrilhes" at Nov 07, 2000 05:38:09 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129699AbQKHIfw>; Wed, 8 Nov 2000 03:35:52 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:31752 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129512AbQKHIfs>; Wed, 8 Nov 2000 03:35:48 -0500
+Date: Wed, 8 Nov 2000 03:35:43 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: ide-probe.c:400: `rtc_lock' undeclared and /lib/modules/..../build
+In-Reply-To: <6444.973655982@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.21.0011080333350.10929-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes writes:
-> 	If you can break up stuff that has accumulated over one year,
-> please tell me so. Most of the original patches have been lost in the
-> mist of time. We could send it file by file, but that would give some
-> interesting results ;-)
+On Wed, 8 Nov 2000, Keith Owens wrote:
 
-<rant mode=on>
-That doesn't work either ;(  Some of Dag's patches were from me, and I
-have even tried sending Linus small self-contained obviously correct patches
-for IrDA, but they just don't go in, and, dispite me asking several times
-for an explaination why they are not, I've never received an answer.
+>Date: Wed, 08 Nov 2000 14:59:42 +1100
+>From: Keith Owens <kaos@ocs.com.au>
+>To: Mike A. Harris <mharris@opensourceadvocate.org>
+>Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+>Content-Type: text/plain; charset=us-ascii
+>Subject: Re: ide-probe.c:400: `rtc_lock' undeclared and
+>    /lib/modules/..../build 
+>
+>On Tue, 7 Nov 2000 21:48:59 -0500 (EST), 
+>"Mike A. Harris" <mharris@opensourceadvocate.org> wrote:
+>>On Tue, 7 Nov 2000, Alan Cox wrote:
+>>>Actually they do. I agree that it wants sorting. Im just wondering what the
+>>>best approach is - maybe check modutils rev and only add the link if its high
+>>>enough ?
+>>
+>>What if build-machine != machine-kernel-was-built-for?
+>
+>Then you are SOL, but that is a generic cross compile problem.  Anybody
+>doing cross compile has to do extra steps to copy the results to the
+>other machine and they can take care of problems like the build symlink
+>themselves.  The patch in 2.2.18-pre20 fixes the problem for local
+>compiles, which are 95%+ (SWAG) of the compiles.
 
-Its almost although Linus is no longer interested in kernel support for IrDA.
-I really don't know why Linus doesn't drop the whole IrDA stuff out of the
-kernel if he's not willing to let people maintain it.
+I'm not refering to cross compiling.  I'm talking about if I
+compile my kernel on machine A, and want to run this on 100%
+hardware identical machine B.  What if machine B doesn't run the
+same version of modutils?  In other words same hardware setup
+different distribution or version of Linux?
 
-The latest changes to the initcall stuff in 2.4.0-test10 *did* affect IrDA,
-but now every IrDA patch out there to get it working requires fixing up.
 
-Linus, can we PLEASE have an explaination as to what is going on with IrDA?
-<rant mode=off>
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+
+----------------------------------------------------------------------
+   NOTE:  My new email address is:  mharris@opensourceadvocate.org
+
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+              Computer Consultant - Capslock Consulting
+                 Copyright 2000 all rights reserved
+----------------------------------------------------------------------
+
+#[Mike A. Harris bash tip #2 - custom colorized bash prompts]
+# For a color prompt, put the following at the bottom of your ~/.bash_profile
+TTYNAME=$(tty | sed -e 's/^\/dev\///' -e 's/^tty//');DRED=31;DGREEN=32
+BROWN=33;DBLUE=34;DMAGENTA=35;DCYAN=36;GREY=37;DGREY=30\;1;RED=31\;1
+GREEN=32\;1;YELLOW=33\;1;BLUE=34\;1;MAGENTA=35\;1;CYAN=36\;1;WHITE=37\;1
+CLRUSER=$CYAN ; CLRHOST=$YELLOW   # Set the user and host colors here
+PS1="$TTYNAME \[\033[${CLRUSER}m\]\u\[\033[0;m\]"
+export PS1="${PS1}@\[\033[${CLRHOST}m\]\h\\[\033[0;m\]:\w\$ "
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

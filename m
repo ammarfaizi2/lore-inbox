@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbULNKKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbULNKSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbULNKKw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 05:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbULNKKw
+	id S261308AbULNKSr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 05:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbULNKSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 05:10:52 -0500
-Received: from lech.pse.pl ([194.92.3.7]:33690 "EHLO lech.pse.pl")
-	by vger.kernel.org with ESMTP id S261478AbULNKKs (ORCPT
+	Tue, 14 Dec 2004 05:18:47 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:48073 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261308AbULNKSq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 05:10:48 -0500
-Date: Tue, 14 Dec 2004 11:10:44 +0100
-From: Lech Szychowski <lech.szychowski@pse.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tulip question: tulip.o vs de4x5.o
-Message-ID: <20041214101044.GA8210@lech.pse.pl>
-Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0411231216470.3740@p500> <20041124073628.GJ2067@lug-owl.de> <41A4DF61.8050008@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41A4DF61.8050008@pobox.com>
-Organization: Polskie Sieci Elektroenergetyczne S.A.
-User-Agent: Mutt/1.5.6i
+	Tue, 14 Dec 2004 05:18:46 -0500
+Date: Tue, 14 Dec 2004 11:18:41 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Adrian von Bidder <avbidder@fortytwo.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: cdrecording status
+In-Reply-To: <200412141049.39499@fortytwo.ch>
+Message-ID: <Pine.LNX.4.61.0412141117240.18625@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0412132255060.7005@yvahk01.tjqt.qr>
+ <200412141049.39499@fortytwo.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >You can actually see the difference on older Alphas: de4x5 works while
-> >tulip doesn't transmit or receive a single packet (getting netdev
-> >watchdogs later on...).
-> 
-> That's a bug in tulip.
+>> I have played a little with my new cd/dvd/whatnot writer and just had
+>> this idea (see pic). Well then, DVD+RW makes it possible.
+>>     http://linux01.org:2222/gfx0/madness.jpg
+>
+>Just wondering: how many write cycles do DVD+RW media support?
 
-Speaking of bugs in tulip: I am still unable to use tulip driver
-from 2.4.28 on my x86 SMP box (Asus P2B-DS) with Adaptec AN-6944A/TX
-network card. While de4x5 works fine, with tulip at least one of the
-Ethernet interfaces is unable to send/receive packets. More details
-available on request.
+Honestly I do not know, but I hope they can at least sustain as much as CD-RW 
+can (usually 1000x). Plus, it's for DVD+RW, it always uses packet mode, and as 
+such I damn hope that DVD+RW manufacturers keep in mind that a byte position 
+might be overwritten more than 1000 times.
 
--- 
-	Leszek.
-
--- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
--- speaking just for myself...

@@ -1,97 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266045AbTIJXhc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 19:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266046AbTIJXhc
+	id S265829AbTIKAdi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 20:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbTIKAdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 19:37:32 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:21137 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266045AbTIJXh1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 19:37:27 -0400
-Date: Thu, 11 Sep 2003 00:37:20 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Virtual alias cache coherency results (was: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this)
-Message-ID: <20030910233720.GA25756@mail.jlokier.co.uk>
-References: <20030910210416.GA24258@mail.jlokier.co.uk> <20030910233951.Q30046@flint.arm.linux.org.uk>
+	Wed, 10 Sep 2003 20:33:37 -0400
+Received: from mail5.intermedia.net ([206.40.48.155]:60421 "EHLO
+	mail5.intermedia.net") by vger.kernel.org with ESMTP
+	id S265829AbTIKAdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 20:33:33 -0400
+Subject: Re: [OOPS] Linux-2.6.0-test5-bk
+From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>
+In-Reply-To: <20030911002404.GA7178@kroah.com>
+References: <1063232210.4441.14.camel@ranjeet-pc2.zultys.com>
+	 <20030910154608.14ad0ac8.akpm@osdl.org>
+	 <1063239544.1328.22.camel@ranjeet-pc2.zultys.com>
+	 <20030911002404.GA7178@kroah.com>
+Content-Type: text/plain
+Organization: Zultys Technologies Inc.
+Message-Id: <1063240611.1327.37.camel@ranjeet-pc2.zultys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910233951.Q30046@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 10 Sep 2003 17:36:51 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> >     CPUs with incoherent write buffers: PA-RISC 2.0, 68040 and ARMs.
-> 
-> Some StrongARM CPUs seem to exhibit non-coherence in their write buffers.
-> I don't think we've done enough testing to make any statement like "ARMs
-> have uncoherent write buffers."
-
-It should be read as "some ARMs", as in you can't rely on an ARM
-userspace having coherent write buffers unless you know you're using
-the right chip _or_ the right kernel.
-
-Similarly we don't know that all PA-RISCs or all 68040s have
-incoherent write buffers, we just know that some of them do.
-
-> >     SHMLBA not valid:		ARM, m68k
+On Wed, 2003-09-10 at 17:24, Greg KH wrote:
+> On Wed, Sep 10, 2003 at 05:19:05PM -0700, Ranjeet Shetye wrote:
 > > 
-> > Note that "SHMLBA" is defined for some architectures on which it
-> > doesn't actually provide coherent virtual aliases.  On the ARM this is
-> > believed to be due to a chip bug, and very recent kernels may contain
-> > a workaround for it (disabling the write buffer for aliased pages).
+> > Your changes fixed the issue. Thanks a lot for your help. I still get
+> > this call trace, but no more OOPS on bootup.
+> > 
+> > kobject_register failed for Ensoniq AudioPCI (-17)
+> > Call Trace:
+> >  [<c026f45c>] kobject_register+0x50/0x59
+> >  [<c02f8003>] bus_add_driver+0x4c/0xaf
+> >  [<c02f8453>] driver_register+0x31/0x35
+> >  [<c027c3bf>] pci_populate_driver_dir+0x29/0x2b
+> >  [<c027c491>] pci_register_driver+0x5e/0x83
+> >  [<c06a145f>] alsa_card_ens137x_init+0x15/0x41
+> >  [<c068475a>] do_initcalls+0x2a/0x97
+> >  [<c012e920>] init_workqueues+0x12/0x2a
+> >  [<c01050a3>] init+0x39/0x196
+> >  [<c010506a>] init+0x0/0x196
+> >  [<c0108f31>] kernel_thread_helper+0x5/0xb
 > 
-> Not correct.  Because of the fundamental nature of VIVT caches, there
-> is no "SHMLBA" value which prevents aliases occuring.  Think carefully
-> about the structure of a VIVT cache and how it would be searched.  This
-> isn't a chip bug.
+> Odds are that the pci driver is trying to register 2 drivers with the
+> pci core with the same name.  What does /sys/bus/pci/drivers show?
+> 
+> thanks,
+> 
+> greg k-h
 
-I am describing coherence seen by the application.  That is a function
-of the kernel, not the chip.  I'll make that clearer in any next
-revision of the document.
+Hi Greg,
 
-The kernel can make virtual aliases coherent on _any_ CPU, using
-software techniques if necessary.
+I didn't find a /proc/sys/bus/pci/drivers, but I did find a
+/proc/bus/pci/devices - which is what I am guessing you meant. If you
+did in fact mean '/proc/sys/bus/pci/drivers' then I dont have any such
+file. In fact I dont have a bus sub-directory under /proc/sys/
 
-Therefore the VIVT cache is not something the application cares about.
-It's irrelevant, an implementation detail for the kernel to handle.
-In this case, by making aliased pages uncacheable.  The application
-only cares whether the pages appear coherent, and how fast that is.
+Anyways, here's the output:
 
-The unexpected chip behaviour is the reason why the (old) ARM kernel
-doesn't succesfully make alias appear coherent.
+cat /proc/bus/pci/devices
 
-> The kernel works around this, but, due to some bugs on StrongARM chips
-> in the write buffer, it appears that we need further work-arounds, which
-> are already implemented.
+0000    80862560        0       f0000008        00000000       
+00000000        00000000        00000000        00000000       
+00000000        08000000        00000000   00000000       
+00000000        00000000        00000000        00000000       
+agpgart-intel
 
-In other words, there _is_ an SHMLBA value which prevents alias
-incoherence on the ARM, because the kernel implements a workaround, if
-it's a recent kernel.  That value is one page.
+0010    80862562        10      e8000008        ff680000       
+00000000        00000000        00000000        00000000       
+00000000        08000000        00080000   00000000       
+00000000        00000000        00000000        00000000
 
-I put ARM in the "don't rely on this" category simply because there
-are older kernels in use which don't have the correct workaround.
-Otherwise, I would have said ARM has a reliable SHMLBA, of one page.
-To the application, this is correct.
+00e8    808624c2        10      00000000        00000000       
+00000000        00000000        0000ff81        00000000       
+00000000        00000000        00000000   00000000       
+00000000        00000020        00000000        00000000        uhci-hcd
 
-There is one thing which puzzles me.  The ARM test program outputs
-I've been sent say that the cache is incoherent, _not_ just the write
-buffers.  You said you have results which report write buffers, but I
-don't have those in detail, only descriptions.
+00e9    808624c4        13      00000000        00000000       
+00000000        00000000        0000ff61        00000000       
+00000000        00000000        00000000   00000000       
+00000000        00000020        00000000        00000000        uhci-hcd
 
-Does your fix, which makes pages uncacheable andq disables write
-combining (correct?) only fix your test results which intermittently
-reported write buffer problems, or does it fix _all_ the ARM test
-results I received, including those which don't report write buffer
-problems?
+00ea    808624c7        12      00000000        00000000       
+00000000        00000000        0000ff41        00000000       
+00000000        00000000        00000000   00000000       
+00000000        00000020        00000000        00000000        uhci-hcd
 
-If the former, then I have to say that ARM Linux _in general_ still
-doesn't have coherent virtual aliases.  If they are all fixed, then
-there's a flaw in the test program because it should have been
-reporting write buffer problems, not general cache incoherence.
+00ef    808624cd        17      ffa00800        00000000       
+00000000        00000000        00000000        00000000       
+00000000        00000400        00000000   00000000       
+00000000        00000000        00000000        00000000        ehci_hcd
 
-Thanks,
--- Jamie
+00f0    8086244e        0       00000000        00000000       
+00000000        00000000        00000000        00000000       
+00000000        00000000        00000000   00000000       
+00000000        00000000        00000000        00000000
+
+00f8    808624c0        0       00000000        00000000       
+00000000        00000000        00000000        00000000       
+00000000        00000000        00000000   00000000       
+00000000        00000000        00000000        00000000
+
+00f9    808624cb        12      00000000        00000000       
+00000000        00000000        0000ffa1        10000000       
+00000000        00000000        00000000   00000000       
+00000000        00000010        00000400        00000000        PIIX IDE
+
+00fb    808624c3        11      00000000        00000000       
+00000000        00000000        0000dc81        00000000       
+00000000        00000000        00000000   00000000       
+00000000        00000020        00000000        00000000
+
+00fd    808624c5        11      0000d801        0000dc41       
+ffa00400        ffa00000        00000000        00000000       
+00000000        00000100        00000040   00000200       
+00000100        00000000        00000000        00000000        Intel
+ICH
+
+0138    16ae1141        10      f80fe008        00000000       
+00000000        00000000        00000000        00000000       
+00000000        00002000        00000000   00000000       
+00000000        00000000        00000000        00000000
+
+0140    10ec8139        11      0000ec01        ff8ffc00       
+00000000        00000000        00000000        00000000       
+00000000        00000100        00000100   00000000       
+00000000        00000000        00000000        00000000        8139too
+
+0160    8086100e        12      ff8c0000        00000000       
+0000e8c1        00000000        00000000        00000000       
+00000000        00020000        00000000   00000040       
+00000000        00000000        00000000        00000000        e1000
+
+thanks,
+
+-- 
+
+Ranjeet Shetye
+Senior Software Engineer
+Zultys Technologies
+Ranjeet dot Shetye2 at Zultys dot com
+http://www.zultys.com/
+ 
+The views, opinions, and judgements expressed in this message are solely
+those of the author. The message contents have not been reviewed or
+approved by Zultys.
+
+

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310517AbSC0AUM>; Tue, 26 Mar 2002 19:20:12 -0500
+	id <S312867AbSC0A3W>; Tue, 26 Mar 2002 19:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312862AbSC0AUC>; Tue, 26 Mar 2002 19:20:02 -0500
-Received: from web21203.mail.yahoo.com ([216.136.130.22]:24931 "HELO
-	web21203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S310517AbSC0AT4>; Tue, 26 Mar 2002 19:19:56 -0500
-Message-ID: <20020327001955.99099.qmail@web21203.mail.yahoo.com>
-Date: Tue, 26 Mar 2002 16:19:55 -0800 (PST)
-From: Melkor Ainur <melkorainur@yahoo.com>
-Subject: signal_pending() and schedule()
-To: linux-kernel@vger.kernel.org
+	id <S312871AbSC0A3M>; Tue, 26 Mar 2002 19:29:12 -0500
+Received: from ligur.expressz.com ([212.24.178.154]:16575 "EHLO expressz.com")
+	by vger.kernel.org with ESMTP id <S312867AbSC0A25>;
+	Tue, 26 Mar 2002 19:28:57 -0500
+Date: Wed, 27 Mar 2002 01:28:02 +0100 (CET)
+From: "BODA Karoly jr." <woockie@expressz.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Malcolm Mallardi <magamo@ranka.2y.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre4-ac1 vmware and emu10k1 problems
+In-Reply-To: <E16q0ZJ-0004D0-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1020327012531.18245B-100000@ligur.expressz.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Tue, 26 Mar 2002, Alan Cox wrote:
 
-I have been writing a hw driver for SAN. In my 
-implementation of tcp_sendmsg, I attempt to force
-the application to sleep until the data buffer has
-been dma-ed:
+> > The vmware modules will not compile properly under 2.4.19-pre4-ac1, or
+> > under 2.4.19-pre2-ac2, but compile fine on their mainline kernel
+> > counterparts.  Here is the errors that I get from vmware-config.pl:
+> Please take vmware problems up with the vmware folks
 
+	I think it would be easy to fix.. He wrote this:
 
-    if (signal_pending(current)) {
-      return -ERESTARTSYS;
-    }
-// no signal was pending
+/lib/modules/2.4.19-pre4-ac1/build/include/linux/malloc.h:4: #error
+linux/malloc.h is deprecated, use linux/slab.h instead.
+make[2]: *** [driver.d] Error 1
 
-// timeo == MAX_SCHEDULE_TIMEOUT in this case
-    timeo = schedule_timeout(timeo);
-// signal is always pending
-    if (signal_pending(current)) {
-      return -ERESTARTSYS;
-    }
-This works fine for some applications like netcat,etc
-but fails for netscape. In debugging this, I observe
-that after calling schedule_timeout(), the sigpending
-bit appears to be set immediately and thus 
-schedule() doesn't actually put the process to sleep.
-I will continue to look for where schedule_timeout()
-or schedule() could affect sigpending. In the mean 
-time, I am hoping for any hints/suggestions that could
-help me solve this issue of why schedule_timeout 
-appears to affect sigpending. (2.4.7-10smp on x86)
+	So change in the file where it appeared the 
+#include <linux/malloc.h> 
+to
+#include <linux/slab.h>
 
-                                    Thanks,
-                                    Melkor
+-- 
+						Woockie
+..."what is there in this world that makes living worthwhile?"
+Death thought about it. "CATS," he said eventually, "CATS ARE NICE."
+			           (Terry Pratchett, Sourcery)
 
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Movies - coverage of the 74th Academy Awards®
-http://movies.yahoo.com/

@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285210AbRLMWKD>; Thu, 13 Dec 2001 17:10:03 -0500
+	id <S285230AbRLMWXO>; Thu, 13 Dec 2001 17:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285216AbRLMWJx>; Thu, 13 Dec 2001 17:09:53 -0500
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:30225 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S285210AbRLMWJg>; Thu, 13 Dec 2001 17:09:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Jaskiewicz <adamjaskie@yahoo.com>
-Reply-To: adamjaskie@yahoo.com
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Graphical boot ( under kernel and not lilo)
-Date: Thu, 13 Dec 2001 17:09:34 -0500
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20011213144704.A1833@pcmaftoul.esrf.fr>
-In-Reply-To: <20011213144704.A1833@pcmaftoul.esrf.fr>
+	id <S285233AbRLMWXE>; Thu, 13 Dec 2001 17:23:04 -0500
+Received: from colorfullife.com ([216.156.138.34]:16649 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S285230AbRLMWW5>;
+	Thu, 13 Dec 2001 17:22:57 -0500
+Message-ID: <3C192A37.4547D2A7@colorfullife.com>
+Date: Thu, 13 Dec 2001 23:22:47 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.1-pre10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Message-Id: <01121317093400.05946@aragorn>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+CC: ak@suse.de
+Subject: optimize DNAME_INLINE_LEN
+Content-Type: multipart/mixed;
+ boundary="------------D62923DC8347475E35E3D70B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 December 2001 08:47 am, Samuel Maftoul wrote:
-> Hello hackers,
-> I think that linux has somehow grown up and I would like to suggest we (
-> mostly you as my knowledge ... ) integrate the "new version" of
-> linux_logo.h which makes fullscreen tty1 graphical(maybe as non default
-> ).
-> What do you think about that ?
->
->         Sam
+This is a multi-part message in MIME format.
+--------------D62923DC8347475E35E3D70B
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-IIRC, you can already do that using the framebuffer device. Please tell me if 
-I am wrong.
+The dcache entries are allocated with SLAB_HWCACHE_ALIGN. For better
+memory usage, we should increase DNAME_INLINE_LEN so that sizeof(struct
+dentry) becomes a multiple of the L1 cache line size.
 
--- 
-Adam Jaskiewicz
-adamjaskie@yahoo.com
-http://middlearth.d2g.com:3141
-talk:  adam@middlearth.d2g.com
+On i386 the DNAME_INLINE_LEN becomes 36 bytes instead of 16, which saves
+thousands of kmallocs for external file names. (12818 on my debug
+system, after updatedb)
+
+The attached patch is preliminary, it doesn't compile with egcs-1.1.2.
+Which gcc version added support for unnamed structures?
+
 --
-Test-tube babies shouldn't throw stones.
+	Manfred
+--------------D62923DC8347475E35E3D70B
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-dcache"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-dcache"
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+--- 2.5/include/linux/dcache.h	Thu Oct 11 15:20:18 2001
++++ build-2.5/include/linux/dcache.h	Thu Dec 13 22:55:50 2001
+@@ -61,9 +61,7 @@
+ 	return end_name_hash(hash);
+ }
+ 
+-#define DNAME_INLINE_LEN 16
+-
+-struct dentry {
++struct dentry_nameless {
+ 	atomic_t d_count;
+ 	unsigned int d_flags;
+ 	struct inode  * d_inode;	/* Where the name belongs to - NULL is negative */
+@@ -80,6 +78,12 @@
+ 	struct super_block * d_sb;	/* The root of the dentry tree */
+ 	unsigned long d_vfs_flags;
+ 	void * d_fsdata;		/* fs-specific data */
++};
++#define DNAME_INLINE_LEN \
++	(16 + L1_CACHE_BYTES - (16+sizeof(struct dentry_nameless))%L1_CACHE_BYTES)
++
++struct dentry {
++	struct dentry_nameless;
+ 	unsigned char d_iname[DNAME_INLINE_LEN]; /* small names */
+ };
+ 
+
+--------------D62923DC8347475E35E3D70B--
 

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131620AbQKZPXy>; Sun, 26 Nov 2000 10:23:54 -0500
+        id <S131675AbQKZPli>; Sun, 26 Nov 2000 10:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131602AbQKZPXp>; Sun, 26 Nov 2000 10:23:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13835 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S131620AbQKZPX3>;
-        Sun, 26 Nov 2000 10:23:29 -0500
-Date: Sun, 26 Nov 2000 14:52:53 +0000
+        id <S131985AbQKZPl2>; Sun, 26 Nov 2000 10:41:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41739 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S131675AbQKZPlX>;
+        Sun, 26 Nov 2000 10:41:23 -0500
+Date: Sun, 26 Nov 2000 15:11:20 +0000
 From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Tim Waugh <twaugh@redhat.com>, James A Sutherland <jas88@cam.ac.uk>,
-        Andries Brouwer <aeb@veritas.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001126145253.U2272@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20001125235511.A16662@redhat.com> <Pine.LNX.4.21.0011261036001.1015-100000@penguin.homenet>
+To: Anders Torger <torger@ludd.luth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to transfer memory from PCI memory directly to user space safely and portable?
+Message-ID: <20001126151120.V2272@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <00112614213105.05228@paganini>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0011261036001.1015-100000@penguin.homenet>; from tigran@veritas.com on Sun, Nov 26, 2000 at 10:37:07AM +0000
+In-Reply-To: <00112614213105.05228@paganini>; from torger@ludd.luth.se on Sun, Nov 26, 2000 at 02:21:31PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2000 at 10:37:07AM +0000, Tigran Aivazian wrote:
-> On Sat, 25 Nov 2000, Tim Waugh wrote:
-> > Why doesn't the compiler just leave out explicit zeros from the
-> > 'initial data' segment then?  Seems like it ought to be tought to..
-> 
-> yes, taught to, _BUT_ never let this to be a default option, please.
-> Because there are valid cases where a programmer things "this is in .data"
+On Sun, Nov 26, 2000 at 02:21:31PM +0100, Anders Torger wrote:
+> 	memcpy_toio(iobase, user_space_src, count);
 
-That's what __attribute__ ((section (".data"))) is for.
+I hope count isn't provided by userspace here ?
 
-> and that means this should be in .data. Think of binary patching an object
-> as one valid example (there may be others, I forgot).
+> 1. What happens if the user space memory is swapped to disk? Will 
+> verify_area() make sure that the memory is in physical RAM when it returns, 
+> or will it return -EFAULT, or will something even worse happen?
 
-can you think of any valid examples that apply to the kernel ?
+On i386, you'll sleep implicitly waiting for the page fault to be handled;  in
+the generic case, anything could happen.
+
+> 2. Is this code really portable? I currently have an I386 architecture, and I 
+> could use copy_to/from_user on that instead, but that is not portable. Now, 
+> by using memcpy_to/fromio instead, is this code fully portable?
+
+No.  It would be portable if you were using memcpy_fromuser_toio and it
+existed.
+
+> 3. Will the current process always be the correct one? The copy functions is 
+> directly initiated by the user, and not through an interrupt, so I think the 
+> user space mapping will always be to the correct process. Is that correct?
+
+current should be fine if you're not in a bh/interrupt/kernel thread.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

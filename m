@@ -1,81 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbTDQVZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 17:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbTDQVZ0
+	id S262623AbTDQV3e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 17:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbTDQV3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 17:25:26 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:1940 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262620AbTDQVZZ (ORCPT
+	Thu, 17 Apr 2003 17:29:34 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:49824 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262623AbTDQV3d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 17:25:25 -0400
-Date: Thu, 17 Apr 2003 14:37:37 -0700
-From: Dave Olien <dmo@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com
-Subject: [PATCH] DAC960 2.5.67 add call to blk_queue_bounce_limit
-Message-ID: <20030417213737.GA21387@osdl.org>
-Mime-Version: 1.0
+	Thu, 17 Apr 2003 17:29:33 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16031.7829.215702.474821@lepton.softprops.com>
+Date: Thu, 17 Apr 2003 16:37:25 -0500
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'karim@opersys.com'" <karim@opersys.com>,
+       "'Martin Hicks'" <mort@wildopensource.com>,
+       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
+       "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'hpa@zytor.com'" <hpa@zytor.com>,
+       "'pavel@ucw.cz'" <pavel@ucw.cz>,
+       "'jes@wildopensource.com'" <jes@wildopensource.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'wildos@sgi.com'" <wildos@sgi.com>,
+       "'Tom Zanussi'" <zanussi@us.ibm.com>
+Subject: RE: [patch] printk subsystems
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C2630D5@orsmsx116.jf.intel.com>
+References: <A46BBDB345A7D5118EC90002A5072C780C2630D5@orsmsx116.jf.intel.com>
+X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-The following patch adds a call to blk_queue_bounce_limit to the
-DAC960 driver.  Otherwise, it uses bounce buffering more than it
-needs to.
+Perez-Gonzalez, Inaky writes:
+ > > 
+ > > relayfs is there to solve the data transfer problems for the most
+ > > demanding of applications. Sending a few messages here and there
+ > > isn't really a problem. Sending messages/events/what-you-want-to-call-it
+ > > by the thousand every second, while using as little locking as possible
+ > > (lockless-logging is implemented in the case of relayfs' buffer handling
+ > > routines), and providing per-cpu buffering requires a different beast.
+ > 
+ > Well, you are doing an IRQ lock (relay_lock_channel()), so it is not
+ > lockless. Or am I missing anything here? Please let me know, I am
+ > really interested on how to reduce locking in for logging to the 
+ > minimal.
 
--------------------------------------------------------------------------------
+relayfs actually uses 2 mutually-exclusive schemes internally -
+'lockless' and 'locking', depending on the availability of a cmpxchg
+instruction (lockless needs cmpxchg).  If the lockless scheme is being
+used, relay_lock_channel() does no locking or irq disabling of any
+kind i.e. it's basically a no-op in that case.  It's only when the
+'locking' scheme is in use that relay_lock_channel() does locking/irq
+disabling.  Normally the lockless scheme would be in use - the locking
+scheme is there mainly as a fallback, so normally relay_lock_channel()
+would indeed cause no locking.
 
-diff -ur linux-2.5.67_original/drivers/block/DAC960.c linux-2.5.67_DACpatch/drivers/block/DAC960.c
---- linux-2.5.67_original/drivers/block/DAC960.c	2003-04-07 10:32:18.000000000 -0700
-+++ linux-2.5.67_DACpatch/drivers/block/DAC960.c	2003-04-16 10:56:03.000000000 -0700
-@@ -1069,6 +1069,7 @@
-   
-   if (pci_set_dma_mask(Controller->PCIDevice, DAC690_V1_PciDmaMask))
- 	return DAC960_Failure(Controller, "DMA mask out of range");
-+  Controller->BounceBufferLimit = DAC690_V1_PciDmaMask;
- 
-   if ((hw_type == DAC960_PD_Controller) || (hw_type == DAC960_P_Controller)) {
-     CommandMailboxesSize =  0;
-@@ -1271,6 +1272,7 @@
- 
-   if (pci_set_dma_mask(Controller->PCIDevice, DAC690_V2_PciDmaMask))
- 	return DAC960_Failure(Controller, "DMA mask out of range");
-+  Controller->BounceBufferLimit = DAC690_V2_PciDmaMask;
- 
-   /* This is a temporary dma mapping, used only in the scope of this function */
-   CommandMailbox =
-@@ -2386,6 +2388,7 @@
-   */
-   RequestQueue = &Controller->RequestQueue;
-   blk_init_queue(RequestQueue, DAC960_RequestFunction, &Controller->queue_lock);
-+  blk_queue_bounce_limit(RequestQueue, Controller->BounceBufferLimit);
-   RequestQueue->queuedata = Controller;
-   blk_queue_max_hw_segments(RequestQueue,
- 			    Controller->DriverScatterGatherLimit);
-diff -ur linux-2.5.67_original/drivers/block/DAC960.h linux-2.5.67_DACpatch/drivers/block/DAC960.h
---- linux-2.5.67_original/drivers/block/DAC960.h	2003-04-07 10:32:18.000000000 -0700
-+++ linux-2.5.67_DACpatch/drivers/block/DAC960.h	2003-04-16 10:48:37.000000000 -0700
-@@ -62,11 +62,6 @@
- 
- /*
-   Define the pci dma mask supported by DAC960 V1 and V2 Firmware Controlers
--
--  For now set the V2 mask to only 32 bits.  The controller IS capable
--  of doing 64 bit dma.  But I have yet to find out whether this needs to
--  be explicitely enabled in the controller, or of the controller adapts
--  automatically.
-  */
- 
- #define DAC690_V1_PciDmaMask	0xffffffff
-@@ -2370,6 +2365,7 @@
-   unsigned short ControllerScatterGatherLimit;
-   unsigned short DriverScatterGatherLimit;
-   unsigned int ControllerUsageCount;
-+  u64		BounceBufferLimit;
-   unsigned int CombinedStatusBufferLength;
-   unsigned int InitialStatusLength;
-   unsigned int CurrentStatusLength;
+-- 
+Regards,
+
+Tom Zanussi <zanussi@us.ibm.com>
+IBM Linux Technology Center/RAS
+

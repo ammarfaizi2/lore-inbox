@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268678AbUHaOzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268690AbUHaPH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268678AbUHaOzu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 10:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268685AbUHaOzu
+	id S268690AbUHaPH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 11:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268696AbUHaPH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 10:55:50 -0400
-Received: from mail.tmr.com ([216.238.38.203]:62469 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268678AbUHaOzs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 10:55:48 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: an oops possibly due to an SMP related bug in netfilter
-Date: Tue, 31 Aug 2004 10:56:36 -0400
-Organization: TMR Associates, Inc
-Message-ID: <ch2357$8hi$1@gatekeeper.tmr.com>
-References: <20040830165753.GA22979@sch.bme.hu><20040830165753.GA22979@sch.bme.hu> <20040830172557.GD1029@always.joy.eth.net>
+	Tue, 31 Aug 2004 11:07:59 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:14292 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S268690AbUHaPHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 11:07:55 -0400
+Subject: Re: What policy for BUG_ON()?
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: bunk@fs.tum.de, arjanv@redhat.com, axboe@suse.de, torvalds@osdl.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1093964782.434.7054.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 31 Aug 2004 11:06:22 -0400
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1093963752 8754 192.168.12.100 (31 Aug 2004 14:49:12 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <20040830172557.GD1029@always.joy.eth.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua N Pritikin wrote:
-> On Mon, Aug 30, 2004 at 06:57:53PM +0200, KOVACS Krisztian wrote:
-> 
->>On Mon, Aug 30, 2004 at 05:38:09PM +0530, Joshua N Pritikin wrote:
->>
->>>(Perhaps I am one of the few people crazy enough to run a firewall on
->>>an SMP machine.  ;-)
->>> 
->>>CPU:    0 
->>>EIP:    0060:[<c8895955>]    Not tainted 
->>>EFLAGS: 00010246   (2.6.7)  
->>>EIP is at __ip_conntrack_find+0x179/0x1a0 [ip_conntrack] 
->>>eax: 00000001   ebx: 00000000   ecx: c0353cc0   edx: 00000000 
->>>esi: 00000000   edi: 00000000   ebp: c0353c88   esp: c0353c6c 
->>>ds: 007b   es: 007b   ss: 0068 
->>>Process swapper (pid: 0, threadinfo=c0352000 task=c0300980)
->>
->>  I don't think you're the only one running iptables on SMP... This looks
->>like a conntrack hash table corruption, so the first thing you should
->>check is your memory, of course. Are you 100 percent sure that it is ok?
-> 
-> 
-> Fair enough.
-> 
-> Memtest86 doesn't spot anything BUT it could be due to voltage
-> fluctuation.  I guess I can't run this motherboard without a UPS.
-> 
-Bad to guess, there's a program called memburn which may also be used. 
-It's doing testing in a different way and I just grabbed it because 
-someone in comp.sys.intel reported finding problems which memtest didn't 
-show.
+On Mon, 30 Aug 2004, Adrian Bunk wrote:
 
-I run firewall on a LOT of dual Xeon+HT and ran iptables firewall on 
-dual P5-166 until it died. I don't think there are problems.
+> Let me try to summarize the different options regarding BUG_ON, 
+> concerning whether the argument to BUG_ON might contain side effects, 
+> and whether it should be allowed in some "do this only if you _really_ 
+> know what you are doing" situations to let BUG_ON do nothing.
+> 
+> Options:
+> 1. BUG_ON must not be defined to do nothing
+> 1a. side effects are allowed in the argument of BUG_ON
+> 1b. side effects are not allowed in the argument of BUG_ON
+> 2. BUG_ON is allowed to be defined to do nothing
+> 2a. side effects are allowed in the argument of BUG_ON
+> 2b. side effects are not allowed in the argument of BUG_ON
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+It comes down to the relative importance of:
+
+i.  BUG_ON(expensive_and_unneeded_debug_test())
+ii. BUG_ON(something_that_must_execute())
+
+I think case i should get priority, since then the
+removal of side effects is a nice way to eliminate
+the expensive code for non-debug builds.
+
+For case ii, it's easy enough to split out the
+need-to-execute code and assign results to a
+variable that can be checked later. Since it is
+something that must execute, you probably need
+the return value anyway.
+
+The normal expectation for non-debug builds
+would be this:
+
+#define BUG_ON(x)
+
+

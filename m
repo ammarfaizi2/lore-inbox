@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUHXRFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268112AbUHXRRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266680AbUHXRFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 13:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268125AbUHXRFz
+	id S268112AbUHXRRl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 13:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268130AbUHXRRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 13:05:55 -0400
-Received: from holomorphy.com ([207.189.100.168]:34692 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266680AbUHXRFx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 13:05:53 -0400
-Date: Tue, 24 Aug 2004 10:05:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: fix text reporting in O(1) proc_pid_statm()
-Message-ID: <20040824170547.GP2793@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040822013402.5917b991.akpm@osdl.org> <20040823202158.GJ4418@holomorphy.com> <20040823231454.62734afb.akpm@osdl.org> <20040824075539.GA2793@holomorphy.com>
+	Tue, 24 Aug 2004 13:17:41 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:4239 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268112AbUHXRRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 13:17:39 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P8
+From: Lee Revell <rlrevell@joe-job.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <412B4736.4040706@cybsft.com>
+References: <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
+	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
+	 <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>
+	 <20040820195540.GA31798@elte.hu> <20040821140501.GA4189@elte.hu>
+	 <20040823210151.GA10949@elte.hu> <1093312154.862.17.camel@krustophenia.net>
+	 <20040824054128.GA29027@elte.hu> <1093326406.817.7.camel@krustophenia.net>
+	 <412B4736.4040706@cybsft.com>
+Content-Type: text/plain
+Message-Id: <1093365170.817.27.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040824075539.GA2793@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 24 Aug 2004 13:17:40 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 12:55:39AM -0700, William Lee Irwin III wrote:
-> Merely removing down_read(&mm->mmap_sem) from task_vsize() is too
-> half-assed to let stand. The following patch removes the vma iteration
-> as well as the down_read(&mm->mmap_sem) from both task_mem() and
-> task_statm() and callers for the CONFIG_MMU=y case in favor of
-> accounting the various stats reported at the times of vma creation,
-> destruction, and modification. Unlike the 2.4.x patches of the same
-> name, this has no per-pte-modification overhead whatsoever.
-> This patch quashes end user complaints of top(1) being slow as well as
-> kernel hacker complaints of per-pte accounting overhead simultaneously.
-> Incremental atop the task_vsize() de-mmap_sem-ification of 2.6.8.1-mm4:
+On Tue, 2004-08-24 at 09:48, K.R. Foley wrote:
+> Lee Revell wrote:
+> > On Tue, 2004-08-24 at 01:41, Ingo Molnar wrote:
+> > 
+> >>* Lee Revell <rlrevell@joe-job.com> wrote:
+> >>
+> >>
+> >>>> - reduce netdev_max_backlog to 8 (Mark H Johnson)
+> >>>
+> >>>On my system this setting has absolutely no effect on the skb related
+> >>>latencies. [...]
+> >>
+> >>it has an effect on input queue length. Output queue lengths can be
+> >>reduced via 'ifconfig eth0 txqueuelen 8'.
+> >>
+> > 
+> > 
+> > OK.  With both of these set to 4, the largest latency I was able to
+> > generate by ping flooding was 253 usecs.
+> > 
+> 
+> Even with both of these set to 4, I still get similar results ~647 usec :(
+> 
 
-Some kind of brainfart happened here, though it's not visible on the
-default display from top(1) etc. This patch fixes up the gibberish I
-mistakenly put down for text with the proper text size, and subtracts
-it from data as per the O(vmas) code beforehand.
+I am able to generate a 1012 usec latency by flood pinging the broadcast
+address.  These are pretty pathological cases, but if we are going for
+bounded latency it seems like they should be addressed.
 
+Lee
 
-Index: mm4-2.6.8.1/fs/proc/task_mmu.c
-===================================================================
---- mm4-2.6.8.1.orig/fs/proc/task_mmu.c	2004-08-23 18:29:33.000000000 -0700
-+++ mm4-2.6.8.1/fs/proc/task_mmu.c	2004-08-24 10:00:21.530755896 -0700
-@@ -36,8 +36,8 @@
- 	       int *data, int *resident)
- {
- 	*shared = mm->shared_vm;
--	*text = mm->exec_vm - ((mm->end_code - mm->start_code) >> PAGE_SHIFT);
--	*data = mm->total_vm - mm->shared_vm;
-+	*text = (mm->end_code - mm->start_code) >> PAGE_SHIFT;
-+	*data = mm->total_vm - mm->shared_vm - *text;
- 	*resident = mm->rss;
- 	return mm->total_vm;
- }

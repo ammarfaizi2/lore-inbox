@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVCaRRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVCaRm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbVCaRRe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 12:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVCaRRe
+	id S261586AbVCaRm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 12:42:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVCaRm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 12:17:34 -0500
-Received: from sarvega.com ([161.58.151.164]:61712 "EHLO sarvega.com")
-	by vger.kernel.org with ESMTP id S261573AbVCaRRX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 12:17:23 -0500
-Date: Thu, 31 Mar 2005 11:10:44 -0600
-From: John Lash <jkl@sarvega.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
-       mage@adamant.ua
-Subject: Re: sata_sil Mod15Write quirk workaround patch for vanilla kernel
- avaialble.
-Message-ID: <20050331111044.4a3672cd@homer.sarvega.com>
-In-Reply-To: <424C10C3.9080102@gmail.com>
-References: <424C10C3.9080102@gmail.com>
-X-Mailer: Sylpheed-Claws 1.0.0cvs28 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 31 Mar 2005 12:42:28 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:29660 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261586AbVCaRmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 12:42:23 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Esben Nielsen <simlo@phys.au.dk>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050331141040.GA2544@elte.hu>
+References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
+	 <1112212608.3691.147.camel@localhost.localdomain>
+	 <1112218750.3691.165.camel@localhost.localdomain>
+	 <20050331110330.GA24842@elte.hu>
+	 <1112273378.3691.228.camel@localhost.localdomain>
+	 <20050331141040.GA2544@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 31 Mar 2005 12:41:56 -0500
+Message-Id: <1112290916.12543.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Apr 2005 00:01:23 +0900
-Tejun Heo <htejun@gmail.com> wrote:
-
+On Thu, 2005-03-31 at 16:10 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
->  Hello, guys.
+> > One more thing. Was this on SMP or UP.  I haven't tested this on SMP 
+> > yet. When my laptop (HT) gets done with its work, I'll give it a try 
+> > there. Of course I need to disable NVidia on it first.
 > 
->  I  generated m16w workaround patch for 2.6.11.6 (by just removing two
-> lines :-) and set up a page regarding m15w quirk and the workaournd.
-> I'm planning on updating m15w patch against the vanilla tree until it
-> gets into the mainline so that impatient users can try out and it gets
-> more testing.
-> 
->  http://home-tj.org/m15w
-> 
->  Thanks.
-> 
-> -- 
-> tejun
-> 
+> i've booted the latest tree on a 4-way testbox and everything seems ok.
 
-Tejun,
+Thanks Ingo.
 
-I applied the patch to a clean 2.6.11.6 kernel and got an unresolved
-symbol error for "ATA_TFLAG_LBA". I tried changing that to "ATA_TFLAG_LBA48" and
-it compiles and runs.
+Oh, and did your really want to assign debug = .1?
 
-So far, no problems. Thanks a lot for the patch.
+-- Steve
 
---john
-
-diff -ru format
------
-
-linux-2.6.11.6-sata_sil/drivers/scsi/sata_sil.c ---
-linux-2.6.11.6/drivers/scsi/sata_sil.c      2005-03-31 10:58:59.000000000 -0600
-+++ linux-2.6.11.6-sata_sil/drivers/scsi/sata_sil.c     2005-03-31
-11:05:00.000000000 -0600 @@ -280,7 +280,7 @@ {
-        u64 block = 0;
- 
--       BUG_ON(!(tf->flags & ATA_TFLAG_LBA));
-+       BUG_ON(!(tf->flags & ATA_TFLAG_LBA48));
- 
-        block |= (u64)tf->lbal;
-        block |= (u64)tf->lbam << 8;
-@@ -299,7 +299,7 @@
- static inline void sil_m15w_rewrite_tf (struct ata_taskfile *tf,
-                                        u64 block, u16 nsect)
- {
--       BUG_ON(!(tf->flags & ATA_TFLAG_LBA));
-+       BUG_ON(!(tf->flags & ATA_TFLAG_LBA48));
- 
-        tf->nsect = nsect & 0xff;
-        tf->lbal = block & 0xff;
+Here you go:
 
 
+--- ./include/linux/rt_lock.h.orig	2005-03-31 12:38:31.583913080 -0500
++++ ./include/linux/rt_lock.h	2005-03-31 12:38:35.499061576 -0500
+@@ -125,7 +125,7 @@
+ # ifdef CONFIG_RT_DEADLOCK_DETECT
+ #  define __RW_LOCK_UNLOCKED \
+ 	.wait_lock = __RAW_SPIN_LOCK_UNLOCKED, .save_state = 1, \
+-	.debug = .1, .file = __FILE__, .line = __LINE__
++	.debug = 1, .file = __FILE__, .line = __LINE__
+ #  define _RW_LOCK_UNLOCKED(lock) \
+ 	(rwlock_t) { { { __RW_LOCK_UNLOCKED, .name = #lock } } }
+ #  define RW_LOCK_UNLOCKED \
 
 

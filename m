@@ -1,115 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280720AbRKGAdQ>; Tue, 6 Nov 2001 19:33:16 -0500
+	id <S280722AbRKGAe0>; Tue, 6 Nov 2001 19:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280709AbRKGAc5>; Tue, 6 Nov 2001 19:32:57 -0500
-Received: from web20401.mail.yahoo.com ([216.136.226.120]:27562 "HELO
-	web20401.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280695AbRKGAcu>; Tue, 6 Nov 2001 19:32:50 -0500
-Message-ID: <20011107003249.52102.qmail@web20401.mail.yahoo.com>
-Date: Tue, 6 Nov 2001 16:32:49 -0800 (PST)
-From: Brad Chapman <jabiru_croc@yahoo.com>
-Subject: [RFC] Don't replace /proc (Re: Digest message 23, PROPOSAL: /proc standards)
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200111062247.fA6Ml2E11597@lists.us.dell.com>
+	id <S280723AbRKGAeU>; Tue, 6 Nov 2001 19:34:20 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:3499 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S280709AbRKGAdo>;
+	Tue, 6 Nov 2001 19:33:44 -0500
+Date: Wed, 07 Nov 2001 00:33:40 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Alexander Viro <viro@math.psu.edu>, Ricky Beam <jfbeam@bluetopia.net>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+Message-ID: <812030885.1005093219@[195.224.237.69]>
+In-Reply-To: <Pine.GSO.4.21.0111061709340.29465-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0111061709340.29465-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Everyone,
 
---- linux-kernel-digest-request@lists.us.dell.com wrote:
->   23. Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc (J .
-> A . Magallon)
+
+--On Tuesday, 06 November, 2001 5:14 PM -0500 Alexander Viro 
+<viro@math.psu.edu> wrote:
+
+> On Tue, 6 Nov 2001, Ricky Beam wrote:
 >
->Message: 23
->Date:   Tue, 6 Nov 2001 23:53:03 +0100
->From: "J . A . Magallon" <jamagallon@able.es>
->To: erik@hensema.net
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+> [snip]
+>> And those who *will* complain that binary structures are hard to work 
+with,
+>> (you're idiots too :-)) a struct is far easier to deal with than text
+>> processing, esp. for anyone who knows what they are doing.  Yes, changes
 >
+> Learn C, then learn some respect to your betters[1], then come back.
 >
->>On 20011106 Erik Hensema wrote:
->>Stephen Satchell (satch@concentric.net) wrote:
->>>The RIGHT tool to fix the problem is the pen, not the coding pad.  I
->>>hereby pick up that pen and put forth version 0.0.0.0.0.0.0.0.1 of the
->>>Rules of /Proc:
->>
->>Agreed.
->>
->>>
->>>7)  The /proc data may include comments.  Comments start when an  unescaped 
->>>hash character "#" is seen, and end at the next newline \n.  Comments may 
->>>appear on a line of data, and the unescaped # shall be treated as end of 
->>>data for that line.
->>
+> *PLONK*
 >
->Well, perhaps this is a stupid idea. But I throw it.
->ASCII is good for humans, bin is good to read all info easily in a program.
->Lets have both.
->
->Once I thought the solution could be to make /proc entries behave
->differently in two scenarios. Lets suppose you could open files in ASCII
->or binary mode. An entry opened in ASCII returns printable info and opened
->in binary does the binay output. As there is no concept of ASCII or binary
->files in low-level file management, the O_DIRECT flag (or any new flag) could
->be used.
->
->And (supposing all fies in /proc are 0-sized) perhaps a seek position could be
->defined for reading a format string or a set of field names, ie:
->lseek(SEEK_FORMAT); read(...);
->
->Same for writing, opening in "wa" allows to write a formatted number (ie,
->echo 0xFF42 > /proc/the/fd) and  "wb" allows to write binary data
->(write("/proc/the/fd",&myValue)).
->
->Just an idea...
+> [1] like, say it, guys who had invented UNIX and C.
 
-	I have a better idea. IMO, DON'T CHANGE /proc. Period.
+What amuses me about those arguing for binary structures as a long term
+solution for communicating, on a flexible but long lived basis, is that the
+entire OS Genre they appear to be advocating (UNIX et al.) has been doing
+this, on an app to app (as opposed to kernel to app) basis, for far longer
+than most of them can remember, in situations where performance is far more
+relevant, and pitted against far more 3l33t 5tud3nt2 than we we shake a
+stick at, but /still/ they persist.
 
-	The reason is that it would take a horribly long time to actually
-migrate all the broken userspace programs over to the new, changed, updated
-/proc. Therefore, I have a proposal: create TWO new filesystems:
+Through minor local idiocy, I had trashed my local lilo partition, and had
+to try and boot with a Debian CD-Rom with a 2.2 kernel. I forgot to ask for
+single user more. Not only did it boot first time, it booted fully, apart
+from two minor things: no iptables, and (shock horror) the sound card
+didn't work it wasn't compatible. Similarly, I've loaded 2.4 kernels with
+no problems onto 2.2 systems.
 
-	procfs2 - PROCess FileSystem version 2
-		A listing of all system processes in whatever format wins
+This "dreadful" /proc interface everyone talks about has been *STAGGERINGLY
+GOOD* in terms of forward and backward compatibility. Sure, the innards may
+smell unpleasant, but I reckon the interface, in practice, whilst not in
+BNF format (BTW what is, and and, for the compsci philosophers amongst you,
+'.*' as a regexp is easilly convertible into BNF and describes the /proc
+interface completely - lexical and synatical analysis is immaterial without
+tight semantic definition), has worked well just because kernel developers
+and maintainers have showed themselves unwilling to break existing
+userspace tools, and vice versa.
 
-	kernelfs - KERNEL FileSystem
-		A configuration/feedback kernel interface in whatever
-		format wins
+I think/thought we learnt our lesson on this in the fallout of the
+Net2E/Net2D 'debate'. If someone is willing to stand up and say that /proc
+external interface causes as many problems as the networking code did at
+the time, please stand up and be counted now, preferably holding your
+thesis on how to fix this for inter-app comms in Un*x in general, & forming
+an orderly queue for the exit door :-)
 
-	Put ALL process-related stuff in procfs2, and all kernel-related
-stuff (/proc/bus, /proc/pci, /proc/sys, /proc/net, etc.......) in kernelfs.
-Then choose how many kernel blocks procfs1 will remain available (i.e.
-the Great Overlord Linus decrees, "Thou shalt not remove procfs1 until 2.7")
-
-	This way, people who hate /proc get their new format, every single
-person who wrote a program based on /proc can take their time migrating to the
-new formats, and you get more granular control over kernel-related stuff 
-(i.e. if you don't need to mess with kernel settings, don't mount kernelfs).
-
-	Comments, anyone? From the e-mails I've been reading, it seems
-that this way, everybody wins....... unless you consider code duplication.....
-
->
->-- 
->J.A. Magallon
-
-Brad
-
-
-
-=====
-Brad Chapman
-
-Permanent e-mails: kakadu_croc@yahoo.com
-		   jabiru_croc@yahoo.com
-Alternate e-mails: kakadu@adelphia.net
-		   kakadu@netscape.net
-
-__________________________________________________
-Do You Yahoo!?
-Find a job, post your resume.
-http://careers.yahoo.com
+--
+Alex Bligh

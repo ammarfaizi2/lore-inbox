@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbTDLXME (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 19:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbTDLXME (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 19:12:04 -0400
-Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:2833 "EHLO
-	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S261632AbTDLXMD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 19:12:03 -0400
-Message-ID: <3E98A050.2090005@torque.net>
-Date: Sun, 13 Apr 2003 09:25:04 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, jim_jim33@hotmail.com
-Subject: Re: USB Mass Storage Device
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S262239AbTDLXQM (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 19:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbTDLXQM (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 19:16:12 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15537 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262239AbTDLXQL (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 19:16:11 -0400
+Date: Sat, 12 Apr 2003 19:27:40 -0400
+From: Havoc Pennington <hp@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       message-bus-list@redhat.com
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Message-ID: <20030412192740.B739@devserv.devel.redhat.com>
+References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net> <20030411190717.GH1821@kroah.com> <20030411152920.C17638@devserv.devel.redhat.com> <20030412080721.GA2768@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030412080721.GA2768@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Bean wrote:
- > The following USB Mass Storage device is found during bootup:
- >
- > scsi0 : SCSI emulation for USB
- > Mass Storage devices
- >   Vendor: SOYO      Model: USB Storage-SMC   Rev: 0214
- >   Type:   Direct-Access                      ANSI SCSI revision: 02
- > Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
- >
- > Is it a CompactFlash reader that plugs directly into a USB1 header
- > on my motherboard.
 
- > /sys/bus/scsi/devices/0:0:0:0/* contains information regarding
- > the device, however there is nothing
- > /dev/scsi/host0/bus0/target0/lun0 for me to mount, regardless
- > of whether there is a card in the drive or not.  I have
- > hotplug enables, and inserting a card in the drive does not
- > generate any new messages under dmesg (although verbosity
- > stuff is not enabled).  Is this device not yet supported,
- > or am I missing something that I need to enable?
+On Sat, Apr 12, 2003 at 01:07:21AM -0700, Greg KH wrote: 
+> Oh, and to compare sizes, with udev linked against klibc (static link)
+> it comes out to a whopping big 6004 bytes:
+> $ size udev
+>    text    data     bss     dec     hex filename
+>    5572       4     392    5968    1750 udev
+> 
 
-Jim,
-Have a look in /var/log/messages for errors coming from the
-sd driver (e.g. it could be stuck on a READ CAPACITY or MODE
-SENSE command). Other than that it could be a problem with
-devfs. You could make a temporary device node (e.g.
-'cd /root; mknod my_sda b 8 0') then try fdisk on my_sda.
+If it isn't obvious (I guess it is), that's an apples and oranges
+comparison - though udev being smaller than /bin/true is either bad
+for /bin/true or pretty good for udev. ;-)
 
-Doug Gilbert
+I would want to compare D-BUS to a CORBA implementation, DCOP, M-BUS,
+SOAP, or something like that (though it's reasonably different from
+all of those). It's about the same size as DCOP, and about half the
+size of ORBit2 which is a small CORBA. Then there's a large CORBA like
+MICO that uses several megabytes. No clue how big an M-BUS
+implementation is.
+
+The important thing though in my mind isn't the raw size comparison
+but what the size is "spent" on - for D-BUS the size is partially
+spent on avoiding dependencies (DCOP and ORBit rely on GLib/Qt for
+many things), and robustness (thread locks, OOM handling, robust API,
+unit testability, and careful input validation). There's also size
+cost to the abstractions made: system vs. per-session bus, bus daemon
+vs. one-to-one, network transport (tcp vs. unix domain vs. whatever),
+authentication mechanism (cookies, socket credentials, kerberos), and
+so forth.
+
+Other IPC sofware that's about the same size spends its code size on
+different things, it's all about the tradeoffs.
+
+Havoc
+
+
+
 

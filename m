@@ -1,46 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbTD3MrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 08:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTD3MrJ
+	id S262156AbTD3Myv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 08:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbTD3Myv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 08:47:09 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:43159 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262157AbTD3MrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 08:47:07 -0400
-Date: Wed, 30 Apr 2003 14:59:13 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: rmoser <mlmoser@comcast.net>, John Bradford <john@grabjohn.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Swap Compression
-Message-ID: <20030430125913.GA21016@wohnheim.fh-wedel.de>
-References: <200304292114.h3TLEHBu003733@81-2-122-30.bradfords.org.uk> <200304292059150060.002E747A@smtp.comcast.net> <200304301248.07777.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200304301248.07777.kernel@kolivas.org>
-User-Agent: Mutt/1.3.28i
+	Wed, 30 Apr 2003 08:54:51 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:29939 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP id S262156AbTD3Myt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 08:54:49 -0400
+Date: Wed, 30 Apr 2003 14:07:09 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Reply-To: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: [BK-PATCH-2.5] NTFS 2.1.4 release: many fixes / sync up with 2.4.x driver
+Message-ID: <Pine.SOL.3.96.1030430134249.19762B-100000@virgo.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 April 2003 12:48:07 +1000, Con Kolivas wrote:
-> 
-> I don't think a parallel project is a bad idea either. I was just suggesting 
-> adding the minilzo algorithm from the linuxcompressed project as one of the 
-> compression algorithms available.
+Linus,
 
-Actually, I'd like a central compression library with a large
-assortment of algorithms. That way the really common code is shared
-between both (or more) projects is shared.
+Please do a:
 
-Also, yet another unused compression algorithm hurts about as bad, as
-yet another unused device driver. It just grows the kernel .tar.bz2.
+	bk pull http://linux-ntfs.bkbits.net/ntfs-2.5
 
-Jörn
+This will update NTFS to version 2.1.4 which fixes all known bugs and
+compiler issues and brings the driver up to date with its 2.4.x kernel
+counterpart where all development has been happening in recent time. (Due
+to distributions like Mandrake Linux and SuSE Linux having added it to
+their kernels and hence us getting a lot of testing and feedback.)
 
+I am not including a patch as it is quite big but the bk pull will only
+touch fs/ntfs/* and Documentation/filesystems/ntfs.txt as below summary
+shows:
+
+ Documentation/filesystems/ntfs.txt |   13 ++
+ fs/ntfs/ChangeLog                  |   33 ++++-
+ fs/ntfs/Makefile                   |    8 -
+ fs/ntfs/aops.c                     |   33 ++---
+ fs/ntfs/attrib.c                   |   56 ++++----
+ fs/ntfs/attrib.h                   |    8 -
+ fs/ntfs/compress.c                 |   94 +++++++++++---
+ fs/ntfs/dir.c                      |  146 +++++++++++-----------
+ fs/ntfs/inode.c                    |  240 ++++++++++++++++++-------------------
+ fs/ntfs/inode.h                    |   38 ++---
+ fs/ntfs/layout.h                   |  182 ++++++++++++++++------------
+ fs/ntfs/mft.c                      |   28 ++--
+ fs/ntfs/namei.c                    |   10 -
+ fs/ntfs/super.c                    |  193 +++++++++++++++++------------
+ fs/ntfs/unistr.c                   |   10 -
+ fs/ntfs/upcase.c                   |   10 -
+ 16 files changed, 625 insertions(+), 477 deletions(-)
+
+The ChangeLog since the previous 2.5 series NTFS release (2.1.0) follows
+below:
+
+2.1.4 - Reduce compiler requirements. 
+
+- Remove all uses of unnamed structs and unions in the driver to make
+  old and newer gcc versions happy. Makes it a bit uglier IMO but at
+  least people will stop hassling me about it. 
+
+2.1.3 - Important bug fixes in corner cases. 
+
+- super.c::parse_ntfs_boot_sector(): Correct the check for 64-bit
+  clusters. (Philipp Thomas)
+- attrib.c::load_attribute_list(): Fix bug when initialized_size is a
+  multiple of the block_size but not the cluster size. (Szabolcs
+  Szakacsits <szaka@sienet.hu>) 
+
+2.1.2 - Important bug fixes aleviating the hangs in statfs. 
+
+- Fix buggy free cluster and free inode determination logic. 
+
+2.1.1 - Minor updates. 
+
+- Add handling for initialized_size != data_size in compressed files.  -
+  Reduce function local stack usage from 0x3d4 bytes to just noise in
+  fs/ntfs/upcase.c. (Randy Dunlap <rddunlap@osdl.ord>)  - Remove compiler
+  warnings for newer gcc. 
+
+Best regards,
+
+	Anton
 -- 
-Time? What's that? Time is only worth what you do with it.
--- Theo de Raadt
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

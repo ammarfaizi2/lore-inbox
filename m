@@ -1,39 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264628AbSK0RVD>; Wed, 27 Nov 2002 12:21:03 -0500
+	id <S264631AbSK0Rgj>; Wed, 27 Nov 2002 12:36:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264644AbSK0RVD>; Wed, 27 Nov 2002 12:21:03 -0500
-Received: from bitmover.com ([192.132.92.2]:22499 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S264628AbSK0RVC>;
-	Wed, 27 Nov 2002 12:21:02 -0500
-Date: Wed, 27 Nov 2002 09:28:18 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Richard B. Tilley  (Brad)" <rtilley@vt.edu>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Verifying Kernel source
-Message-ID: <20021127092818.Q24374@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Richard B. Tilley  (Brad)" <rtilley@vt.edu>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <1038408874.12143.14.camel@oubop4.bursar.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1038408874.12143.14.camel@oubop4.bursar.vt.edu>; from rtilley@vt.edu on Wed, Nov 27, 2002 at 09:54:34AM -0500
-X-MailScanner: Found to be clean
+	id <S264638AbSK0Rgj>; Wed, 27 Nov 2002 12:36:39 -0500
+Received: from mail.wincom.net ([209.216.129.3]:20487 "EHLO wincom.net")
+	by vger.kernel.org with ESMTP id <S264631AbSK0Rgi>;
+	Wed, 27 Nov 2002 12:36:38 -0500
+From: "Dennis Grant" <trog@wincom.net>
+Reply-to: trog@wincom.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Wed, 27 Nov 2002 12:52:45 -0500
+Subject: Re: A Kernel Configuration Tale of Woe
+X-Mailer: CWMail Web to Mail Gateway 2.4e, http://netwinsite.com/top_mail.htm
+Message-id: <3de507c7.1c64.0@wincom.net>
+X-User-Info: 129.9.27.146
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What is the proper way to verify the kernel source before compiling?
-> There have been too many trojans of late in open source and free
-> software and I, for one, am getting paranoid.
+>On Tue, 2002-11-26 at 19:28, Dennis Grant wrote:
 
-If it's in BK you can be pretty sure that it is what was checked in,
-BK checksums every diff in every file.  It's not at all impossible
-to fool the checksum but it is very unlikely that you can cause 
-semantic differences in the form of a trojan horse and still fool 
-the checksums.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+>> Agreed - so then the association between "board" 
+>> and "chipset" must be capable of being multi-valued,
+>> and when there is a mult-valued match there must be 
+>> some means of further interrogating the user (or user agent)
+>> for more information.
+
+> Much simpler to just include "modular everything" and let
+> user space sort it out. Guess why every vendor takes this path
+
+Oh, OK... Now I see what you're getting at.
+
+Build a kernel where everything is a module, boot with some sort of absolute-bare-minimum
+bootloader kernel, and then self-configure dynamically. Either to, from there,
+generate a specific kernel config file from which to build a box-specific kernel
+- or just to hell with it, and self-configure every time at boot.
+
+Well... yeah. Assuming all the modules can autodetect, or that there's some
+sort of sane userspace module loader doing autodetection, reading from a config
+file, or both... yeah, that works.
+
+I'll be honest - certain aspects of this offends some of my asthetics... but
+that's not a requirement. Functionality is.
+
+And with the assumption that all the modules needed, plus the mechanism to determine
+if a given module is/is not loaded (and if loaded, how it is to be configured)
+are availible on the box, this is 100% functional.
+
+But....
+
+I don't think this would have solved any of my problems.
+
+I haven't had the opportunity to test it yet, but I have every confidence that
+my ATA speed problems are a product of an incompletely-supported motherboard
+chipset (wrt the kernel I compiled), and that once the 20-pre3+ac patches are
+applied, that I'll have the correct drivers availible and everything will Just
+Work. Certainly this was the case with the onboard Ethernet (I had to track
+down a vendor driver, as it appears there is no support anywhere in a 2.4 series
+kernel as of yet).
+
+So even if 2.4.19 _had_ the "everything as modules" option, plus the required
+userspace glue, you'd still be hearing from me, because there is no module there
+to be autoloaded that matches my hardware.
+
+And then there's still the issue of enough information being presented out of
+the modules to allow one to examine the dmesg output from a boot and actually
+determine that modules were missing (or missing features, or whatever)
+
+So I think there's still a need for the hardware->kernel version+config database.
+Perhaps the need for the query mechanism to generate an actual working kernel
+config is less than I first imagined, but certainly the ability to generate
+(if nothing else) the minimum kernel version required to support a give set
+of hardware has value - it would have kept me away at least. :)
+
+DG 

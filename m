@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbTENOZR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 10:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTENOZR
+	id S262348AbTENOfD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:35:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTENOev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 10:25:17 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:44706 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262288AbTENOZP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 10:25:15 -0400
-MIME-Version: 1.0
+	Wed, 14 May 2003 10:34:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31197 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262348AbTENOeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 10:34:46 -0400
+Date: Wed, 14 May 2003 16:47:28 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       Franco Venturi <fventuri@mediaone.net>
+Subject: 2.5.69-mm5: sb1000.c: undefined reference to `alloc_netdev'
+Message-ID: <20030514144727.GG1346@fs.tum.de>
+References: <20030514012947.46b011ff.akpm@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16066.21702.890215.630000@gargle.gargle.HOWL>
-Date: Wed, 14 May 2003 16:37:58 +0200
-From: mikpe@csd.uu.se
-To: alexander.riesen@synopsys.COM
-Cc: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69+bk: oops in apmd after waking up from suspend mode
-In-Reply-To: <20030514141121.GA17036@Synopsys.COM>
-References: <20030514094813.GA14904@Synopsys.COM>
-	<16066.16102.618836.204556@gargle.gargle.HOWL>
-	<20030514134600.GA16533@Synopsys.COM>
-	<16066.19659.609760.316141@gargle.gargle.HOWL>
-	<20030514141121.GA17036@Synopsys.COM>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20030514012947.46b011ff.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Riesen writes:
- > I'm not sure if my glibc uses sysenter. But I'd like to have the system
- > prepared if I eventually get one which does.
+It seems the following compile error comes from Linus' tree:
 
-RH9 on a P6/K7 or higher will use sysenter. Old P5s don't have it.
+<--  snip  -->
 
- > not really. Somewhere fix_processor_context+0x5f/0x100, that's where EIP
- > points.
+...
+  gcc -Wp,-MD,drivers/net/.sb1000.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default -nostdinc 
+-iwithprefix include    -DKBUILD_BASENAME=sb1000 -DKBUILD_MODNAME=sb1000 -c -o 
+drivers/net/sb1000.o drivers/net/sb1000.c
+drivers/net/sb1000.c: In function `sb1000_probe_one':
+drivers/net/sb1000.c:191: warning: implicit declaration of function 
+`alloc_netdev'
+drivers/net/sb1000.c:191: warning: assignment makes pointer from integer 
+without a cast
+drivers/net/sb1000.c:154: warning: `dev' might be used uninitialized in 
+this function
+...
+... --end-group  -o .tmp_vmlinux1
+drivers/built-in.o(.text+0x22e7b5): In function `sb1000_probe_one':
+: undefined reference to `alloc_netdev'
+...
+make: *** [.tmp_vmlinux1] Error 1
 
-I need to know your .config and gcc version if I'm to investigate this.
-Otherwise I can't build a kernel similar to yours, and without that,
-the EIP address you quoted is meaningless to me.
+<--  snip  -->
 
-/Mikael
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

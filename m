@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261922AbTCQTcG>; Mon, 17 Mar 2003 14:32:06 -0500
+	id <S261840AbTCQTpR>; Mon, 17 Mar 2003 14:45:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261927AbTCQTcG>; Mon, 17 Mar 2003 14:32:06 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:58001 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S261922AbTCQTcE>; Mon, 17 Mar 2003 14:32:04 -0500
-Date: Mon, 17 Mar 2003 20:42:31 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Vitezslav Samel <samel@mail.cz>
-cc: Matthew Wilcox <willy@debian.org>, Eric Piel <Eric.Piel@Bull.Net>,
-       <davidm@hpl.hp.com>, <linux-ia64@linuxia64.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [BUG & WORKAROUND] nanosleep() granularity bumps up in 2.5.64
-In-Reply-To: <Pine.LNX.4.33.0303171445110.23224-100000@gans.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.33.0303172033150.25119-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261853AbTCQTpR>; Mon, 17 Mar 2003 14:45:17 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:43397 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S261840AbTCQTpQ>; Mon, 17 Mar 2003 14:45:16 -0500
+Date: Mon, 17 Mar 2003 19:56:07 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.20 modem control
+Message-ID: <20030317195607.GB11881@mail.jlokier.co.uk>
+References: <Pine.LNX.4.53.0303171116160.22652@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0303171116160.22652@chaos>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Mar 2003, Tim Schmielau wrote:
+Richard B. Johnson wrote:
+> Now, the hang-up sequence appears to be queued. It can (and does)
+> happen after the previous terminal owner has expired and another
+> owner has opened the device. This makes /dev/ttyS0 useless for remote
+> log-ins.
+> 
+> It needs to be, that a 'close()' of a terminal, configured as a modem,
+> cannot return to the caller until after the DTR has been lowered, and
+> preferably, after waiting a few hundred milliseconds. Without this,
+> once logged in, the modem will never disconnect so a new caller
+> can't log in.
 
-> On Mon, 17 Mar 2003, Vitezslav Samel wrote:
->
-> >   The nanosleep() bug narrowed down to 2.5.63-bk2. That's version, the "initial
-> > jiffies" patch went in. And yes, it's on i686 machine.
->
-> You can easily check whether it's connected with this change by setting
-> INITIAL_JIFFIES to zero. This should exactly recover the previous
-> situation.
+Better would be if the hang-up sequence is still queued, but a new
+open() is delayed until the hangup has completed.
 
-OK. I've done the test myself and I plead guilty. As a temporary
-workaround you can apply the following patch:
-
-
---- linux-2.5.64/include/linux/time.h.orig	Wed Mar  5 04:29:24 2003
-+++ linux-2.5.64/include/linux/time.h	Mon Mar 17 20:31:06 2003
-@@ -31,7 +31,7 @@
-  * Have the 32 bit jiffies value wrap 5 minutes after boot
-  * so jiffies wrap bugs show up earlier.
-  */
--#define INITIAL_JIFFIES ((unsigned int) (-300*HZ))
-+#define INITIAL_JIFFIES 0
-
- /*
-  * Change timeval to jiffies, trying to avoid the
-
-
-Still, after half an hour of glancing at the code I can't see my mistake.
-I've re-checked that the problem does not occur with the original "initial
-jiffies" patch for 2.4. So I must have missed a (subtle?) difference
-between 2.4 and 2.5 when I did the forward-port.
-
-Sorry,
-Tim
-
+-- Jamie

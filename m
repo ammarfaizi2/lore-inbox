@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264232AbTDJXGh (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbTDJXGh (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 19:06:37 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:59472 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S264232AbTDJXGg (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 19:06:36 -0400
-Date: Thu, 10 Apr 2003 16:18:26 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] first try for swap prefetch
-Message-Id: <20030410161826.04332890.akpm@digeo.com>
-In-Reply-To: <200304101948.12423.schlicht@uni-mannheim.de>
-References: <200304101948.12423.schlicht@uni-mannheim.de>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id S264279AbTDJXHb (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbTDJXHa (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 19:07:30 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:18608 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264254AbTDJXHX convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 19:07:23 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Apr 2003 23:18:13.0908 (UTC) FILETIME=[75BAF540:01C2FFB7]
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
+Date: Thu, 10 Apr 2003 16:16:40 -0700
+User-Agent: KMail/1.4.1
+References: <UTC200304102309.h3AN9EV07692.aeb@smtp.cwi.nl>
+In-Reply-To: <UTC200304102309.h3AN9EV07692.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304101616.40617.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
+On Thursday 10 April 2003 04:09 pm, Andries.Brouwer@cwi.nl wrote:
+>     > A different way out, especially when we use 32+32, is to kill this
+>     > sd_index_bits[] array, and give each disk a new number: replace
+>     > 	index = find_first_zero_bit(sd_index_bits, SD_DISKS);
+>     > by
+>     > 	index = next_index++;
 >
-> Hi,
-> 
-> as mentioned a few days ago I was going to try to implement a swap prefetch to 
-> better utilize the free memory. Now here is my first try.
+>     I wish it is that simple. We use sd_index_bits[] since we could
+>     sd_detach() and then sd_attach()  few disks. We will end up with
+>     holes, name slippage without this. We need to know what disks are
+>     currently being in use.
+>
+> It is that simple. (At least with 64-bit dev_t.)
+> Look at the use of sd_index_bits[]. It is static in sd.c.
+> There is the definition, the first free bit is found (and set)
+> in sd_attach() to provide our disk with a number, this bit is
+> cleared again in sd_detach().
+>
+> That is all. In other words, a mechanism to give an unused number
+> to each disk for which sd_attach() is called.
+>
+> Now suppose we do nothing in sd_detach().
+> Then we don't know which disks have disappeared. Pity.
+> If the number space is infinite then
+> 	index = next_index++;
+> gives a new number each time we need one.
 
-That's surprisingly cute.  Does it actually do anything noticeable?
+Yes !! I agree. I am not worried about running out them.
+I am more worried about names slipping. I atleast hope
+to see device names not changing by just doing
+rmmod/insmod. 
 
-+	swapped_entry = kmalloc(sizeof(*swapped_entry), GFP_ATOMIC);
-
-These guys will need a slab cache (not SLAB_HW_CACHE_ALIGNED) to save space.
-
-+	swapped_entry = radix_tree_lookup(&swapped_root.tree, entry.val);
-+	if(swapped_entry) {
-+		list_del(&swapped_entry->list);
-+		radix_tree_delete(&swapped_root.tree, entry.val);
-
-you can just do
-
-	if (radix_tree_delete(...) != -ENOENT)
-		list_del(...)
-
-+		read_swap_cache_async(entry);
-
-What you want here is a way of telling if the disk(s) which back the swap are
-idle.  We used to have that, but Hugh deleted it.  It can be put back, but
-it's probably better to put a `last_read_request_time' and
-`last_write_request_time' into struct backing_dev_info.  If nobody has used
-the disk in the past N milliseconds, then start the speculative swapin.
-
-It might make sense to poke the speculative swapin code in the page-freeing
-path too.
-
-And to put the speculatively-swapped-in pages at the tail of the inactive
-list (perhaps).
-
-But first-up, some demonstrated goodness is needed...
-
+Thanks,
+Badari

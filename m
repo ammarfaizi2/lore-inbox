@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271667AbRIROxB>; Tue, 18 Sep 2001 10:53:01 -0400
+	id <S271719AbRIRO5B>; Tue, 18 Sep 2001 10:57:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271711AbRIROwv>; Tue, 18 Sep 2001 10:52:51 -0400
-Received: from mail2.aracnet.com ([216.99.193.35]:52753 "EHLO
-	mail2.aracnet.com") by vger.kernel.org with ESMTP
-	id <S271667AbRIROwf>; Tue, 18 Sep 2001 10:52:35 -0400
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "Neulinger, Nathan" <nneul@umr.edu>, <linux-kernel@vger.kernel.org>
-Subject: RE: How much performance hit from running SMP kernel on UP box?
-Date: Tue, 18 Sep 2001 07:54:08 -0700
-Message-ID: <HBEHIIBBKKNOBLMPKCBBMEFODMAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S271877AbRIRO4v>; Tue, 18 Sep 2001 10:56:51 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:33028 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S271719AbRIRO4q>; Tue, 18 Sep 2001 10:56:46 -0400
+Date: Tue, 18 Sep 2001 17:55:39 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <16133872776.20010918175539@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+CC: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+Subject: [PATCH] Extra memory prefetch in mmx.c
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 1 (Highest)
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: High
-In-Reply-To: <6CAC36C3427CEB45A4A6DF0FBDABA56D86D74D@umr-mail03.cc.umr.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This question as it stands is more or less meaningless, as are the rumored
-values of 5-10%. There are two types of performance measures commonly used:
-throughput -- the number of operations of a given type completed in a given
-amount of time -- and response time -- the time it takes to complete a given
-operation. To some extent, there are tradeoffs between the two. As load
-increases, all other things being equal, throughput will increase and so
-will response times for the operations. So I think the question you need to
-be asking is, for any specific benchmark or application, "How does
-throughput differ between the two environments with all other things -- load
-and response time, for example -- being equal?" or "How does response time
-differ between the two environments with all other things being equal?"
+Hi,
 
-The other point I think needs to be made is that, while performance of the
-*kernel* and its mechanisms is important to the folks on this list, it is
-*not* for the most part what people buy computers for. For the most part,
-people buy computers to accomplish *tasks*, for example running an
-e-commerce business, processing astronomical images, editing documents,
-creating electronic music, communicating with the Internet or operating a
-manufacturing production line. How the *application code* performs, and *how
-the kernel manages competing demands for resources from applications and
-their users* are what matters. In other words, an inefficient kernel is a
-bad thing, but inefficient applications on top of a perfect kernel are much
-much worse.
---
-M. Edward (Ed) Borasky
-http://www.aracnet.com/~znmeb
-mailto:znmeb@aracnet.com
+Looking at arch/i386/lib/mmx.c I see that MMX fast_copy_page()
+makes extra prefetches past the end of source page.
+This is harmless but wastes CPU cycles and pollutes cache.
+Pls find a patch below.
+Diffed against 2.4.9.
 
-Stand-Up Comedy: Because Man Does Not Live By Dread Alone
+If you want to test it, be sure to disable K7 optimization
+or else this code will be ifdef'ed out :-)
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
+
+--- mmx.c.orig  Tue May 22 15:23:16 2001
++++ mmx.c       Tue Sep 18 16:51:50 2001
+@@ -293,7 +293,7 @@
+                ".previous"
+                : : "r" (from) );
+ 
+-       for(i=0; i<4096/64; i++)
++       for(i=0; i<(4096-320)/64; i++)
+        {
+                __asm__ __volatile__ (
+                "1: prefetch 320(%0)\n"
+@@ -321,6 +321,29 @@
+                "       .align 4\n"
+                "       .long 1b, 3b\n"
+                ".previous"
++               : : "r" (from), "r" (to) : "memory");
++               from+=64;
++               to+=64;
++       }
++       for(i=(4096-320)/64; i<4096/64; i++)
++       {
++               __asm__ __volatile__ (
++               "2: movq (%0), %%mm0\n"
++               "   movq 8(%0), %%mm1\n"
++               "   movq 16(%0), %%mm2\n"
++               "   movq 24(%0), %%mm3\n"
++               "   movq %%mm0, (%1)\n"
++               "   movq %%mm1, 8(%1)\n"
++               "   movq %%mm2, 16(%1)\n"
++               "   movq %%mm3, 24(%1)\n"
++               "   movq 32(%0), %%mm0\n"
++               "   movq 40(%0), %%mm1\n"
++               "   movq 48(%0), %%mm2\n"
++               "   movq 56(%0), %%mm3\n"
++               "   movq %%mm0, 32(%1)\n"
++               "   movq %%mm1, 40(%1)\n"
++               "   movq %%mm2, 48(%1)\n"
++               "   movq %%mm3, 56(%1)\n"
+                : : "r" (from), "r" (to) : "memory");
+                from+=64;
+                to+=64;
+
 

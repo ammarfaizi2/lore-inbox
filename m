@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261724AbTANIcS>; Tue, 14 Jan 2003 03:32:18 -0500
+	id <S261723AbTANIh7>; Tue, 14 Jan 2003 03:37:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbTANIbV>; Tue, 14 Jan 2003 03:31:21 -0500
-Received: from dp.samba.org ([66.70.73.150]:23442 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261723AbTANIbS>;
-	Tue, 14 Jan 2003 03:31:18 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Corey Minyard <minyard@mvista.com>
-Subject: IPMI
-Date: Tue, 14 Jan 2003 19:29:48 +1100
-Message-Id: <20030114084011.6AB412C466@lists.samba.org>
+	id <S261847AbTANIh7>; Tue, 14 Jan 2003 03:37:59 -0500
+Received: from packet.digeo.com ([12.110.80.53]:2538 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261723AbTANIh6> convert rfc822-to-8bit;
+	Tue, 14 Jan 2003 03:37:58 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Morton <akpm@digeo.com>
+To: fcorneli@elis.rug.ac.be, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ptrace, kernel 2.5.56
+Date: Tue, 14 Jan 2003 00:47:25 -0800
+User-Agent: KMail/1.4.3
+Cc: Frank.Cornelis@elis.rug.ac.be
+References: <Pine.LNX.4.44.0301140917240.11512-100000@tom.elis.rug.ac.be>
+In-Reply-To: <Pine.LNX.4.44.0301140917240.11512-100000@tom.elis.rug.ac.be>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301140047.25074.akpm@digeo.com>
+X-OriginalArrivalTime: 14 Jan 2003 08:46:43.0670 (UTC) FILETIME=[76CB5760:01C2BBA9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From "make oldconfig":
+On Tue January 14 2003 00:25, fcorneli@elis.rug.ac.be wrote:
+>
+> Hi,
+> 
+> According to Documentation/cachetlb.txt flush_dcache_page should also be 
+> called when the kernel _is about_ to read from a page and user space 
+> shared&writable mappings of this page potentially exist. I think 
+> kernel/ptrace.c should be fixed on this issue.
+> I already posted this patch on the lkml a few months ago, but it got lost 
+> I guess.
+> Where should I send ptrace patches to in the future? Anyone out there who 
+> maintains the ptrace stuff?
+> 
 
-	*
-	* IPMI
-	*
-	IPMI top-level message handler (IPMI_HANDLER) [N/m/y/?] (NEW) ?
-	
-	This enables the central IPMI message handler, required for IPMI
-	to work.  Note that you must have this enabled to do any other IPMI
-	things.  See IPMI.txt for more details.
-	
-	IPMI top-level message handler (IPMI_HANDLER) [N/m/y/?] (NEW) 
+Actually, I've had this patch in the -mm patches since you sent it.  But Dave
+Miller says it's not quite right, and that we need additional infrastructure
+to correctly solve the problem which you have identified.
 
-Telling me what IPMI is, and why I might need it, would be a good
-thing...  Please, Corey, I'm feeling generation-gapped by the
-acronyms...
+So I've kept your patch in place as a reminder to bug Dave ;)
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

@@ -1,114 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263126AbUFRVHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264412AbUFRWtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263126AbUFRVHf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 17:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUFRVGo
+	id S264412AbUFRWtR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 18:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbUFRWtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 17:06:44 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:22977 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263687AbUFRU74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:59:56 -0400
-Message-ID: <40D357CB.8020904@opensound.com>
-Date: Fri, 18 Jun 2004 13:59:55 -0700
-From: 4Front Technologies <dev@opensound.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Stop the Linux kernel madness
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay> <40D23701.1030302@opensound.com> <20040618204655.GA4441@mars.ravnborg.org>
-In-Reply-To: <20040618204655.GA4441@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 18 Jun 2004 18:49:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63390 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264412AbUFRWpp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 18:45:45 -0400
+Date: Fri, 18 Jun 2004 15:43:02 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: sam@ravnborg.org, willy@w.ods.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] save kernel version in .config file
+Message-Id: <20040618154302.01fc46c2.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0406190036440.10292@scrub.local>
+References: <20040617220651.0ceafa91.rddunlap@osdl.org>
+	<20040618053455.GF29808@alpha.home.local>
+	<20040618205602.GC4441@mars.ravnborg.org>
+	<20040618150535.6a421bdb.rddunlap@osdl.org>
+	<Pine.LNX.4.58.0406190036440.10292@scrub.local>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+On Sat, 19 Jun 2004 00:42:19 +0200 (CEST) Roman Zippel wrote:
 
-> On Thu, Jun 17, 2004 at 05:27:45PM -0700, 4Front Technologies wrote:
-> 
->>Our commercial OSS drivers work perfectly with Linux 2.6.5, 2.6.6, 2.6.7
->>and they are failing to install with SuSE's 2.6.5 kernel. The reason is that
->>they have gone and changed the kernel headers which mean that nothing works.
->>
->>For instance our kernel interface module doesn't compile anymore we see the 
->>following
->>errors:
->>
->>
->>>make -C /lib/modules/`uname -r`/build scripts scripts_basic 
->>>include/linux/version.h
->>>make[1]: Entering directory `/usr/src/linux-2.6.5-7.75-obj/i386/bigsmp'
->>>make[1]: Nothing to be done for `scripts'.
->>>make[1]: *** No rule to make target `scripts_basic'.  Stop.
->>>make[1]: Leaving directory `/usr/src/linux-2.6.5-7.75-obj/i386/bigsmp'
->>>make: *** [ossbuild] Error 2
->>>
->>>Trying to compile using 
->>>INCLUDE=/lib/modules/2.6.5-7.75-bigsmp/build/include
->>>In file included from /usr/include/asm/smp.h:18,
->>>                from /usr/include/linux/smp.h:17,
->>>                from /usr/include/linux/sched.h:23,
->>>                from /usr/include/linux/module.h:10,
->>>                from src/sndshield.c:49:
->>>/usr/include/asm/mpspec.h:6:25: mach_mpspec.h: No such file or directory
->>>In file included from /usr/include/asm/smp.h:18,
->>>                from /usr/include/linux/smp.h:17,
->>>                from /usr/include/linux/sched.h:23,
->>>                from /usr/include/linux/module.h:10,
->>
->>
->>
->>Why is this happening?. It's working fine with Linux 2.6.5 and also worked 
->>with
->>Linux 2.6.4 kernels from SuSE 9.1
-> 
-> 
-> It looks like SuSE as the first distribution took the sane approach to
-> seperate source and output files.
-> I presume they have documented this somewhere - and I have a patch
-> from Andreas G. that should actually solve this if a module is
-> compiled in the usual way like you do.
-> 
-> So you seems to be bitten by a distributor starting to use a new
-> facility in kbuild.
-> 
-> Why did you not post the error in your first mail btw?
-> 
-> 	Sam
-> 
+| Hi,
+| 
+| On Fri, 18 Jun 2004, Randy.Dunlap wrote:
+| 
+| Did you test this with anything else than menuconfig?
 
+Nope...
 
-Sam,
+| > +		     (char *)sym->curr.val, ctime(&now));
+| 
+| Try to avoid poking around in that structure. First the value needs to be 
+| calculated with sym_calc_value() and then it can be accessed with 
+| sym_get_string_value().
 
-The problem is that we had our software working correctly with Linux 2.6.7
-and when we started to get a flood of support requests from our customers, I
-just pulled down the sources from kernel.org to see what might be the
-differences and when you start seeing huge 12.8 Megs of differences between
-2.6.5 from kernel.org and SuSE's 2.6.5 kernel, you start to wonder if the
-problem is with your software.
+Thanks, will use that info.
 
-The fact is that we discovered belatedly that the whole problem
-was nothing but a broken build link to the correct sources makes my point
-that a) there are no standards for shipping sources for out-of-kernel modules
-to be able to build b) massive variations from the vanilla kernels causes
-developers to have to keep doing #ifdef SUSE or #ifdef REDHAT or #ifdef DEBIAN
-and #if (SUSE && LINUX-2.6.5) && !(REDHAT && LINUX 2.6.5) and so on....is a
-cause for massive amounts of grief.
-
-I apologize for not having the forsight to figure out that KBUILD was the
-problem.
-
-
-best regards
-
-Dev Mazumdar
------------------------------------------------------------
-4Front Technologies
-4035 Lafayette Place, Unit F, Culver City, CA 90232, USA.
-Tel: (310) 202 8530		URL: www.opensound.com
-Fax: (310) 202 0496 		Email: info@opensound.com
------------------------------------------------------------
+--
+~Randy

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262962AbRE1E6D>; Mon, 28 May 2001 00:58:03 -0400
+	id <S263028AbRE1Kyv>; Mon, 28 May 2001 06:54:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262963AbRE1E5w>; Mon, 28 May 2001 00:57:52 -0400
-Received: from [164.164.82.20] ([164.164.82.20]:51185 "EHLO subexgroup.com")
-	by vger.kernel.org with ESMTP id <S262962AbRE1E5t>;
-	Mon, 28 May 2001 00:57:49 -0400
+	id <S263030AbRE1Kyb>; Mon, 28 May 2001 06:54:31 -0400
+Received: from [164.164.82.20] ([164.164.82.20]:35580 "EHLO subexgroup.com")
+	by vger.kernel.org with ESMTP id <S263028AbRE1KyX>;
+	Mon, 28 May 2001 06:54:23 -0400
 From: "Anil Kumar" <anilk@subexgroup.com>
 To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: File read.
-Date: Thu, 28 Jun 2001 10:42:38 +0530
-Message-ID: <NEBBIIKAMMOCGCPMPBJOMEJLCDAA.anilk@subexgroup.com>
+Subject: Kernel Address
+Date: Thu, 28 Jun 2001 16:32:06 +0530
+Message-ID: <NEBBIIKAMMOCGCPMPBJOMEJPCDAA.anilk@subexgroup.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -25,9 +25,7 @@ X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-How do i read file within the kernel modules. I hope we can't use the FS
-open... calls within kernel.
-thanks
+Under which directory is the Linus's kernel?
 
+anil
 

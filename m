@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVCQMhp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVCQNIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVCQMhp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 07:37:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCQMhp
+	id S262056AbVCQNIj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 08:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbVCQNIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 07:37:45 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:52101 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262069AbVCQMhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 07:37:31 -0500
-Message-ID: <42397A04.2060703@yahoo.com.au>
-Date: Thu, 17 Mar 2005 23:37:24 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-CC: linux-kernel@vger.kernel.org, garloff@suse.de, ak@suse.de
-Subject: Re: 2.6.11 vs 2.6.10 slowdown on i686
-References: <E1DBtvc-0002c4-00@mta1.cl.cam.ac.uk>
-In-Reply-To: <E1DBtvc-0002c4-00@mta1.cl.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Mar 2005 08:08:39 -0500
+Received: from pastinakel.tue.nl ([131.155.2.7]:55311 "EHLO pastinakel.tue.nl")
+	by vger.kernel.org with ESMTP id S262056AbVCQNIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 08:08:37 -0500
+Date: Thu, 17 Mar 2005 14:07:14 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Berkley Shands <berkley@cs.wustl.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Devices/Partitions over 2TB
+Message-ID: <20050317130714.GA5439@pclin040.win.tue.nl>
+References: <200503141644.j2EGiVh0000022634@mudpuddle.cs.wustl.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503141644.j2EGiVh0000022634@mudpuddle.cs.wustl.edu>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Pratt wrote:
-> Folks, 
-> 
-> When we upgraded arch xen/x86 to kernel 2.6.11, we noticed a slowdown
-> on a number of micro-benchmarks. In order to investigate, I built
-> native (non Xen) i686 uniprocessor kernels for 2.6.10 and 2.6.11 with
-> the same configuration and ran lmbench-3.0-a3 on them. The test
-> machine was a 2.4GHz Xeon box, gcc 3.3.3 (FC3 default) was used to
-> compile the kernels, NOHIGHMEM=y (2-level only).
-> 
-> On the i686 fork and exec benchmarks I found that there's been a
-> significant slowdown between 2.6.10 and 2.6.11. Some of the other
-> numbers a bit ugly too (see attached).
-> 
-> fork: 166 -> 235  (40% slowdown)
-> exec: 857 -> 1003 (17% slowdown)
-> 
-> I'm guessing this is down to the 4 level pagetables. This is rather a
-> surprise as I thought the compiler would optimise most of these
-> changes away. Apparently not. 
-> 
+On Mon, Mar 14, 2005 at 10:44:31AM -0600, Berkley Shands wrote:
 
-There are some changes in the current -bk tree (which are a
-bit in-flux at the moment) which introduce some optimisations.
+> 	With a Broadcom BC4852 and suitable Sata drives, it is easy to create
+> functional devices with well in excess of 2TB raw space. This presents a severe
+> problem to partitioning tools, such as fdisk/cfdisk and the like as the
+> kernel partition structure has a 32 bit integer max for sector counts. Since
+> the read_int() function combined with cround() overflows, ...
 
-They should bring 2-level performance close to par with 2.6.10.
-If not, complain again :)
+You should not read fdisk source but think about the DOS-type partition table.
+An entry in such a table describes partition start and end in CHS terms
+using 24 bits for start and end, and describes partition start and size
+in LBA terms using 32 bits for start and size. If you use sectors of size
+512, that limits the use of DOS-type partition tables to disks of at most
+2^41 bytes, that is, 2 TiB.
 
-Thanks,
-Nick
+What to do afterwards? Last year I made a hack, reserving type 88 hex for
+a Linux plaintext partition table. You must be able to find the kernel patch
+somewhere on Google, otherwise ask. No fdisk required, the partition table
+is just plaintext that you edit using emacs or vi.
+The idea here is to use an ordinary DOS-type partition table for the start
+of the disk, and let the type 88 partition describe the rest.
 
+There is also the EFI/GPT disk descriptor that is common on IA64, but not much
+used elsewhere. Maybe parted supports it.
+
+Andries

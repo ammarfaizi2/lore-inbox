@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbUBYRfy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 12:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUBYRfy
+	id S261472AbUBYReZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 12:34:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUBYReZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 12:35:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30394 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261475AbUBYRfn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 12:35:43 -0500
-Date: Wed, 25 Feb 2004 17:35:40 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: "'Christoph Hellwig'" <hch@infradead.org>, "Mukker, Atul" <Atulm@lsil.com>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Paul Wagland'" <paul@wagland.net>, Matthew Wilcox <willy@debian.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: Re: [SUBJECT CHANGE]: megaraid unified driver version 2.20.0.0-alpha1
-Message-ID: <20040225173540.GB25779@parcelfarce.linux.theplanet.co.uk>
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC3E2@exa-atlanta.se.lsil.com> <20040225131640.A3966@infradead.org> <20040225112839.A14838@lists.us.dell.com>
-Mime-Version: 1.0
+	Wed, 25 Feb 2004 12:34:25 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:20634 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261472AbUBYReX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 12:34:23 -0500
+To: Timothy Miller <miller@techsource.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+References: <Pine.LNX.4.44.0402242238020.15091-100000@chimarrao.boston.redhat.com>
+	<403CCC77.6030405@techsource.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 25 Feb 2004 09:34:21 -0800
+In-Reply-To: <403CCC77.6030405@techsource.com>
+Message-ID: <52k72bjc6a.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040225112839.A14838@lists.us.dell.com>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 25 Feb 2004 17:34:22.0705 (UTC) FILETIME=[9B2CF610:01C3FBC5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 11:28:39AM -0600, Matt Domsch wrote:
-> The list of PCI devices should be ordered in two buckets: ROMBs first,
-> then add in cards; secondarily, oldest to newest.  We do this with
-> aacraid today.
+    Timothy> On the other hand, if something else is better or
+    Timothy> adequate, like PCI Express (wasn't that based in
+    Timothy> infiniband?), then there's no point.
 
-In 2.4, you can do what you like.  The list of PCI devices is in PCI
-bus number order, and that's the order you get when you use the hotplug
-interfaces.  Yes, this is a painful customer-visible change, but if
-they use scsi discs, they must already be used to devices changing name
-at random.
+PCI Express is not an InfiniBand replacement.  While it is true (I
+think this is what you meant) that the PCI Express electrical
+signaling is based on InfiniBand (they both use multiple lanes of 2.5
+Gb/sec high-speed serial), the upper layers of the two standards are
+quite different.  PCI Express and InfiniBand are really quite
+complementary.  In fact (just to plug my employer :) we have
+demonstrated an Infiniband host adapter that has two 4X IB (10 Gb/sec
+ports) and plugs into an 8X PCI Express slot:
+  http://www.topspin.com/news/pressrelease/pr_021704b.html
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+PCI Express (once products ship) will be essentially a faster PCI-X
+replacement.  You will get a system with PCI Express slots and plug
+PCI Express adapter cards into them.  There is something called PCI
+Express "Advanced Switching" but that is quite a long way away from
+being something you could build a cluster with.
+
+InfiniBand on the other hand has evolved into a cluster interconnect.
+In the beginning it was pitched as a PCI replacement but that was
+given up long ago.  However, it evolved into an excellent cluster
+interconnect.  Right now you can buy 10 Gb/sec host adapters and a
+variety of switches (up to 96 ports).  There are a number of quite
+large IB clusters already built and in production already.
+
+Best,
+  Roland

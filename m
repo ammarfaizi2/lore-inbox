@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbUKETG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbUKETMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbUKETG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 14:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbUKETG4
+	id S261166AbUKETMa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 14:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbUKETM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 14:06:56 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:47262 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261164AbUKETGm (ORCPT
+	Fri, 5 Nov 2004 14:12:29 -0500
+Received: from webmail.cs.unm.edu ([64.106.20.39]:2007 "EHLO mail.cs.unm.edu")
+	by vger.kernel.org with ESMTP id S261166AbUKETM0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 14:06:42 -0500
-Message-Id: <200411051906.iA5J6XJd014410@laptop11.inf.utfsm.cl>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: davids@webmaster.com, jp@enix.org, linux-kernel@vger.kernel.org
-Subject: Re: Possible GPL infringement in Broadcom-based routers 
-In-Reply-To: Message from "Adam J. Richter" <adam@yggdrasil.com> 
-   of "Sat, 06 Nov 2004 02:40:35 -0800." <200411061040.iA6AeZp03452@freya.yggdrasil.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Fri, 05 Nov 2004 16:06:33 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 5 Nov 2004 14:12:26 -0500
+Message-ID: <418BD090.1020702@cs.unm.edu>
+Date: Fri, 05 Nov 2004 12:12:16 -0700
+From: Sushant Sharma <sushant@cs.unm.edu>
+User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: system calls in 2.6.3
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *1CQ9VQ-0008F5-00*gZAHFGzQOGc*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> said:
+Hi all
+I have added a system call to the kernel 2.6.3.
+Can someone tell me, if I have to recompile gcc or glibc inorder to
+use that system call from user space. Right now its required
+to do
+#define __NR_syscallname 274 /*(syscall number)*/
+static inline _syscall1(.....); /*stub*/
 
-[...]
+inside my own header file from user space.
 
-> 	I think you're missing the idea that that such drivers are
-> _contributory_ infringement to the direct infringement that occurs when
-> the user loads the module.  In other words, even for a driver that has
-> not a byte of code derived from the kernel, if all its uses involve it
-> being loaded into a GPL'ed kernel to form an infringing derivative
-> work in RAM by the user committing direct copyright infringement against
-> numerous GPL'ed kernel components, then it fails the test of having
-> a substantial non-infringing use, as established in the Betamax decision,
-> and distributing it is contributory infringement of those GPL'ed
-> components of the kernel.
+Will recompiling gcc or glibc will update header files
+in /usr/include directory so that I dont need to include
+above statements in my header file?
 
-This is nonsense: If so, I'd be commiting a crime each time I fire up emacs
-on Solaris (linking (GPLed) emacs to (propietary) libc in RAM). [Yes, just
-an example; haven't done so for the best part of 5 years now...]
+Thanks
+Sushant
 
-Besides, Linus has _explicitly_ said that binary (closed source) modules
-are OK (under certain conditions). And AFAIU there was legitimate
-discussion wether this particular excemption was required at al.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+ps: pleace cc the reply to me as I am not subscribed to the list
+
+
+<Sushant Sharma At cs dot unm dot edu>
+http://cs.unm.edu/~sushant/
+

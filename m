@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263230AbSJCKuy>; Thu, 3 Oct 2002 06:50:54 -0400
+	id <S263286AbSJCKzi>; Thu, 3 Oct 2002 06:55:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263234AbSJCKuy>; Thu, 3 Oct 2002 06:50:54 -0400
-Received: from cmailm1.svr.pol.co.uk ([195.92.193.18]:50694 "EHLO
-	cmailm1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S263230AbSJCKux>; Thu, 3 Oct 2002 06:50:53 -0400
-Date: Thu, 3 Oct 2002 11:56:10 +0100
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: block device size in 2.5
-Message-ID: <20021003105610.GA12071@fib011235813.fsnet.co.uk>
-References: <20021003103414.GA11966@fib011235813.fsnet.co.uk> <Pine.GSO.4.21.0210030645200.13480-100000@weyl.math.psu.edu>
+	id <S263287AbSJCKzi>; Thu, 3 Oct 2002 06:55:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61904 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263286AbSJCKzh>;
+	Thu, 3 Oct 2002 06:55:37 -0400
+Date: Thu, 03 Oct 2002 03:53:52 -0700 (PDT)
+Message-Id: <20021003.035352.132919623.davem@redhat.com>
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+Newsgroups: hometree.linux.kernel
+Subject: Re: Sequence of IP fragment packets on the wire
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <anh7es$mpl$1@forge.intermeta.de>
+References: <anh7es$mpl$1@forge.intermeta.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0210030645200.13480-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 06:46:30AM -0400, Alexander Viro wrote:
-> 
-> 
-> On Thu, 3 Oct 2002, Joe Thornber wrote:
-> 
-> > Why is the total size of a block device held in struct gendisk rather
-> > than struct block_device ?
-> 
-> It is mirrored into bdev->bd_inode->i_size.  However, struct block_device
-> is not persistent - persistent stuff lives in struct gendisk.
+   From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+   Date: Thu, 3 Oct 2002 10:51:08 +0000 (UTC)
 
-Thanks.
+   as far as I can see, Linux sends out fragmented IP packets
+   "butt-first":
+   
+Right.
+   
+   Is there a way to configure this? Maybe even connection specific? 
 
-Is gendisk the right name for that structure now ?  Since all block
-devices now have to use it.  I've always avoided using gendisk before,
-arguing that dm produces block devices, not disks.  I don't need
-partitions and I don't particularly want the devices to appear in
-/proc/partitions.
-
-Joe Thornber
+No.

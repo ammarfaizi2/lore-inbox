@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263434AbUKZWZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263437AbUKZWZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbUKZWZq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbUKZWZ0
+	id S263437AbUKZWZB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 17:25:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbUKZWKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 17:25:26 -0500
-Received: from pop.gmx.net ([213.165.64.20]:45012 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263402AbUKZWWN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 17:22:13 -0500
-X-Authenticated: #20450766
-Date: Fri, 26 Nov 2004 23:21:23 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       Jan Dittmer <jdittmer@ppp0.net>
-Subject: Re: [SMP, USB] UHCI interrupt wrongly routed?
-In-Reply-To: <Pine.LNX.4.60.0411252233470.2518@poirot.grange>
-Message-ID: <Pine.LNX.4.60.0411262317200.2279@poirot.grange>
-References: <Pine.LNX.4.60.0411242352370.3896@poirot.grange>
- <20041125012629.GA21569@kroah.com> <Pine.LNX.4.60.0411252233470.2518@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Nov 2004 17:10:54 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:43701 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S264014AbUKZV6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 16:58:12 -0500
+Subject: Re: Suspend 2 merge: 50/51: Device mapper support.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125235829.GJ2909@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101300802.5805.398.camel@desktop.cunninghams>
+	 <20041125235829.GJ2909@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101427667.27250.175.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 11:07:47 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hi.
 
-On Thu, 25 Nov 2004, Guennadi Liakhovetski wrote:
-> On Wed, 24 Nov 2004, Greg KH wrote:
-> > On Wed, Nov 24, 2004 at 11:57:15PM +0100, Guennadi Liakhovetski wrote:
-> > > 2-way running 2.6.9 the onboard UHCI device is configured to IRQ 9 via 
-> > > XT-PIC???
-> > > 
-> > >            CPU0       CPU1       
-> > >   0:     588054        123    IO-APIC-edge  timer
-> > >   1:        360          0    IO-APIC-edge  i8042
-> > >   2:          0          0          XT-PIC  cascade
-> > >   8:          4          0    IO-APIC-edge  rtc
-> > >   9:          0          0    IO-APIC-edge  acpi
-> > >  11:          0          0          XT-PIC  uhci_hcd
-> > >  15:          2          0    IO-APIC-edge  ide1
-> > >  16:        173          1   IO-APIC-level  ehci_hcd
-> > >  17:          0          0   IO-APIC-level  ohci_hcd
-> > >  18:          0          0   IO-APIC-level  ohci_hcd
-> > >  19:      99999          1   IO-APIC-level  ohci_hcd
-> > >  20:        332          0   IO-APIC-level  eth0
-> > >  21:       2576          0   IO-APIC-level  sym53c8xx
-> > > NMI:          0          0 
-> > > LOC:     587726     587988 
-> > > ERR:          0
-> > > MIS:          0
-> ...
+On Fri, 2004-11-26 at 10:58, Pavel Machek wrote:
+> Hi!
 > 
-> > > Linux version 2.6.9-rc4-tmscsim (lyakh@poirot.grange) (gcc version 3.3.2 (Debian)) #1 SMP Mon Oct 25 23:38:23 CEST 2004
-> > 
-> > Can you try 2.6.10-rc2 or the latest -bk snapshot?  Hopefully this is
-> > fixed there.
+> > This is the device mapper support plugin. Its sole purpose is to ensure
+> > that the device mapper allocates enough memory to process all of the I/O
+> > we want to throw at it.
 > 
-> Unfortunately, the problem is still there with rc2. Do you expect a later 
+> This needs to go through dm people....
 
-...
+Yes. I'll look for contact details.
 
-> in (stock) kernel, without quirks? Is my only solution PCI rescan with 
-> dummy-php? Or fix acpi table?... I just still don't understand why irq 11 
-> is configured as XT-PIC?
+> > +static struct suspend_proc_data disable_dm_support_proc_data = {
+> > +	.filename			= "disable_device_mapper_support",
+> > +	.permissions			= PROC_RW,
+> > +	.type				= SUSPEND_PROC_DATA_INTEGER,
+> > +	.data = {
+> > +		.integer = {
+> > +			.variable	= &suspend_dm_ops.disabled,
+> > +			.minimum	= 0,
+> > +			.maximum	= 1,
+> > +		}
+> > +	}
+> > +};
+> 
+> What is this good for? Debugging switch?
 
-fakephp worked out like a charm! Thanks, Jan!
+Nod. If built as modules, you can of course just rmmod.
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129309AbQKVAbd>; Tue, 21 Nov 2000 19:31:33 -0500
+	id <S129259AbQKVAfz>; Tue, 21 Nov 2000 19:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130109AbQKVAbX>; Tue, 21 Nov 2000 19:31:23 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:40455 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129309AbQKVAbK>; Tue, 21 Nov 2000 19:31:10 -0500
-Message-ID: <3A1B0BCF.71731541@timpanogas.org>
-Date: Tue, 21 Nov 2000 16:57:03 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Oops in 2.2.18-22 with non-existent TCPIP route
+	id <S130109AbQKVAff>; Tue, 21 Nov 2000 19:35:35 -0500
+Received: from lahmed.Stanford.EDU ([171.65.76.205]:48535 "EHLO
+	lahmed.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S129259AbQKVAf1>; Tue, 21 Nov 2000 19:35:27 -0500
+From: David Hinds <dhinds@lahmed.stanford.edu>
+Date: Tue, 21 Nov 2000 16:04:44 -0800
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why not PCMCIA built-in and yenta/i82365 as modules
+Message-ID: <20001121160443.B18150@lahmed.stanford.edu>
+In-Reply-To: <Pine.LNX.4.21.0011212328570.30344-100000@svea.tellus>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.21.0011212328570.30344-100000@svea.tellus>; from tori@tellus.mine.nu on Tue, Nov 21, 2000 at 11:34:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 21, 2000 at 11:34:45PM +0100, Tobias Ringstrom wrote:
+> The subject says it all. Is there any particular (technical) reason why I
+> must have both the generic pcmcia code and the controller support
+> built-in, or build all of them as modules?
 
-Alan,
+Is there a technical reason for this?  Not that I know of; but then I
+also cannot think of a good reason for wanting, say, the generic code
+built in but the controller support as modules.  I do see reasonable
+arguments for all-builtin or all-modules.
 
-I have an Oops with 2.2.18-22 that only shows up on a Linux server
-that's configured as a pppd dial in server with dynamic address
-assignment (no DHCP).  Host IP addresses are configured in an
-options.ttyS0(192.168.0.1) and options.ttyS1(192.168.0.2) files in
-/etc/ppp.  
-
-We caused the Oops by accident when we misconfigured our Cisco CPA 2501
-router with a static route for network 207.225.212.40 (mask
-255.255.255.248) that pointed to this server (the server had no routes
-to this network but used to).  We were moving some servers around to
-segregate the law firm onto a private network.
-
-I was not running ksymoops but have it setup now and we are attempting
-to recreate the conditions that produced the oops.  The Oops reported is
-crashed in process slocate (clearly misleading -- looks like an Oops
-from an interrupt).   We will attempt to get the Oops again.  
-
-Jeff
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263124AbUDAWnY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 17:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbUDAWnY
+	id S262536AbUDAWmv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 17:42:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbUDAWmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 17:43:24 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:7626 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263124AbUDAWnV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 17:43:21 -0500
-Date: Thu, 1 Apr 2004 14:42:34 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: remove bitmap_shift_*() bitmap length limits
-Message-Id: <20040401144234.2ef3c205.pj@sgi.com>
-In-Reply-To: <20040401133033.435a3857.pj@sgi.com>
-References: <20040330065152.GJ791@holomorphy.com>
-	<20040330073604.GK791@holomorphy.com>
-	<20040330081142.GL791@holomorphy.com>
-	<20040401133033.435a3857.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 1 Apr 2004 17:42:51 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:24841 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262536AbUDAWmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 17:42:49 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: disable-cap-mlock
+Date: Fri, 2 Apr 2004 00:43:13 +0200
+User-Agent: KMail/1.6.1
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>, kenneth.w.chen@intel.com
+References: <20040401135920.GF18585@dualathlon.random> <20040401115252.7cdb9d6f.akpm@osdl.org> <20040401223619.GB18585@dualathlon.random>
+In-Reply-To: <20040401223619.GB18585@dualathlon.random>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200404020043.13725@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill,
+On Friday 02 April 2004 00:36, Andrea Arcangeli wrote:
 
-Here's roughly what I mean by slow and stupid (code untested, just a way
-of presenting an alternative idea).  Perhaps my head is in a weird
-place, but I find the following easier to understand.
+Hey Andrea,
 
-lib/bitmap.c:
-=============
+> > Could you please refresh-n-send the RLIMIT_MEMLOCK patch?
 
-    static void _setbitval(unsigned long *dst,
-			    unsigned int n, int val, unsigned int nbits)
-    {
-	    if (n >= nbits)
-		    return;
-	    if (val)
-		    set_bit(n, dst);
-	    else
-		    clear_bit(n, dst);
-    }
+> I asked it to Rik too but he redirected me at some rpm, but luckily
+> Marc-Christian extracted it and he posted it on l-k some week ago, so
+> you can just check l-k (From: Marc-Christian) and you'll find it. It's
+> against 2.4 however. Problem is that it's absolutely useless for the
+> problem I had to solve, or I would be using it already instead.
 
-    static int _getbitval(unsigned long *src, unsigned int n, unsigned int nbits)
-    {
-	    if (n >= nbits)
-		    return 0;
-	    return test_bit(n, src) ? 1 : 0;
-    }
+hehe. Well. I have this flying around on my hard disk. 
 
-    void bitmap_shift_right(unsigned long *dst,
-			    const unsigned long *src, int shift, int bits)
-    {
-	    int k;
-	    for (k = 0; k < bits; k++)
-		    _setbitval(dst, k, _getbitval(src, k+shift, bits), bits);
-    }
-    EXPORT_SYMBOL(bitmap_shift_right);
+root@codeman:[/usr/src/patches/distribution] # du -skh .
+1702M    .
 
-    void bitmap_shift_left(unsigned long *dst,
-			    const unsigned long *src, int shift, int bits)
-    {
-	    int k;
-	    for (k = 0; k < bits; k++)
-		    _setbitval(dst, k, _getbitval(src, k-shift, bits), bits);
-    }
-    EXPORT_SYMBOL(bitmap_shift_left);
+almost every interesting distribution kernels are located there in extracted 
+form :)
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+It's actually this one: 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107980096115231&w=2
+
+(won't post the patch again to save lkml space ;)
+
+ciao, Marc

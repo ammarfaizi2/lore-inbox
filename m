@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVCITBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVCITFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVCITBv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 14:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVCIS7m
+	id S262201AbVCITFf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 14:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbVCITCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:59:42 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21706 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262181AbVCIS7X (ORCPT
+	Wed, 9 Mar 2005 14:02:39 -0500
+Received: from mail.tmr.com ([216.238.38.203]:15117 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262197AbVCITBO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:59:23 -0500
-Date: Wed, 9 Mar 2005 10:58:45 -0800
-From: Greg KH <greg@kroah.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, mporter@kernel.crashing.org,
-       gjaeger@sysgo.com
-Subject: Re: [patch 3/5] ppc32: Compilation fixes for Ebony, Luan and Ocotea
-Message-ID: <20050309185845.GD27268@kroah.com>
-References: <200503042117.j24LHHhN017970@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503042117.j24LHHhN017970@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.8i
+	Wed, 9 Mar 2005 14:01:14 -0500
+Date: Wed, 9 Mar 2005 13:49:33 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2.6.11-ac2
+In-Reply-To: <1110392991.3072.222.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1050309134506.4483A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 01:16:56PM -0800, akpm@osdl.org wrote:
-> 
-> From: Matt Porter <mporter@kernel.crashing.org>
-> 
-> this patch fixes the problem, that the current kernel (linux-2.6.11-rc5)
-> could not be compiled, when "support for early boot texts over serial port"
-> (CONFIG_SERIAL_TEXT_DEBUG=y) is active.
-> 
-> Signed-off-by: Gerhard Jaeger <gjaeger@sysgo.com>
-> Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+On Wed, 9 Mar 2005, Alan Cox wrote:
 
-Added to the -stable queue, thanks.
+> 
+> 2.6.11-ac2
+> o	Merge 2.6.11.2					(Greg Kroah-Hartmann)
+> 	including epoll error handling			(Georgi Guninski)
+> 	| Theoretically security
+> o	Fix a couple of pwc warnings			(Alan Cox)
+> o	Ressurect epca driver				(Alan Cox)
+> 
+> 2.6.11-ac1
+> o	Fix jbd race in ext3				(Stephen Tweedie)
 
-greg k-h
+You know what would be really useful... if www.kernel.org listed the
+"latest -ac" patch as something current instead of 2.6.10-ac12, which was
+a great patch in its day, but hasn't been current for a while.
+
+In fairness, the -mm is out of date, too. Perhaps a bit of automation
+would be appropriate here, so that no one would have to update this
+manually.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

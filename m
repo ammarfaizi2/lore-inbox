@@ -1,151 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbTEJAaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 20:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbTEJAaQ
+	id S263619AbTEJAaA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 20:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTEJAaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 20:30:16 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:34205 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263620AbTEJAaL (ORCPT
+	Fri, 9 May 2003 20:30:00 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:22925 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S263619AbTEJA36 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 20:30:11 -0400
-Message-Id: <200305092339.h49NcYGi011242@locutus.cmf.nrl.navy.mil>
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ATM] [UPDATE] unbalanced exit path in Forerunner HE he_init_one() (and an iphase patch too!) 
-In-reply-to: Your message of "Sat, 10 May 2003 00:02:22 +0200."
-             <20030510000222.A10796@electric-eye.fr.zoreil.com> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Fri, 09 May 2003 19:38:34 -0400
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	Fri, 9 May 2003 20:29:58 -0400
+Date: Sat, 10 May 2003 02:42:32 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: [PATCH] Unexpected lockups in scheduler with 2.5.60-2.5.69
+Message-ID: <20030510004231.GA12822@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->- pci_enable_device() balanced on error path in he_init_one();
->- return of atm_dev_register() isn't lost any more if he_dev allocation fails
->  in he_init_one();
->- pci_disable_device() added to he_disable_one();
+Hi Linus,
+  there is problem with send_sig_info. This function can be invoked from
+timer interrupt (timer_interrpt -> do_timer -> update_process_times ->
+-> update_one_process -> ( do_process_times, do_it_prof, do_it_virt ) ->
+-> send_sig -> send_sig_info) but it uses spin_unlock_irq instead of
+correct spin_unlock_irqrestore.
 
-i hope you dont mind, but i really dislike the goto.  one is plenty. 
-attached is a cleanup for the iphase (i made a small addition -- i believe
-the MEMDUMP_XXXXXXREG cases are also guilty of dereferencing).
+  This enables interrupts, and later scheduler_tick() locks runqueue
+(without disabling interrupts). And if we are unlucky, new interrupt
+comes at this point. And if this interrupt tries to do wake_up()
+(like RTC interrupt does), we deadlock on runqueue lock :-( And
+it is bad...
 
-[ATM]: unbalanced exit path in Forerunner HE he_init_one().  thanks to 
-       Francois Romieu <romieu@fr.zoreil.com>
+  Problem was introduced by signal-fixes-2.5.59-A4, which spilt
+original send_sig_info into two functions, and in one branch
+it started using these unsafe spinlock variants (while group
+variant uses irqsave/restore correctly).
+					Best regards,
+						Petr Vandrovec
 
---- linux-2.5.68/drivers/atm/he.c.002	Fri May  9 15:33:08 2003
-+++ linux-2.5.68/drivers/atm/he.c	Fri May  9 19:00:02 2003
-@@ -362,43 +362,54 @@
- static int __devinit
- he_init_one(struct pci_dev *pci_dev, const struct pci_device_id *pci_ent)
+
+diff -urdN linux/kernel/signal.c linux/kernel/signal.c
+--- linux/kernel/signal.c	2003-05-09 04:35:12.000000000 +0200
++++ linux/kernel/signal.c	2003-05-10 01:55:24.000000000 +0200
+@@ -1145,6 +1145,7 @@
+ int
+ send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
  {
--	struct atm_dev *atm_dev;
--	struct he_dev *he_dev;
-+	struct atm_dev *atm_dev = NULL;
-+	struct he_dev *he_dev = NULL;
-+	int err = 0;
++	unsigned long flags;
+ 	int ret;
  
- 	printk(KERN_INFO "he: %s\n", version);
- 
- 	if (pci_enable_device(pci_dev)) return -EIO;
--	if (pci_set_dma_mask(pci_dev, HE_DMA_MASK) != 0)
--	{
-+	if (pci_set_dma_mask(pci_dev, HE_DMA_MASK) != 0) {
- 		printk(KERN_WARNING "he: no suitable dma available\n");
--		return -EIO;
-+		err = -EIO;
-+		goto init_one_failure;
- 	}
- 
- 	atm_dev = atm_dev_register(DEV_LABEL, &he_ops, -1, 0);
--	if (!atm_dev) return -ENODEV;
-+	if (!atm_dev) {
-+		err = -ENODEV;
-+		goto init_one_failure;
-+	}
- 	pci_set_drvdata(pci_dev, atm_dev);
- 
- 	he_dev = (struct he_dev *) kmalloc(sizeof(struct he_dev),
- 							GFP_KERNEL);
--	if (!he_dev) return -ENOMEM;
-+	if (!he_dev) {
-+		err = -ENOMEM;
-+		goto init_one_failure;
-+	}
- 	memset(he_dev, 0, sizeof(struct he_dev));
- 
- 	he_dev->pci_dev = pci_dev;
- 	he_dev->atm_dev = atm_dev;
- 	he_dev->atm_dev->dev_data = he_dev;
- 	HE_DEV(atm_dev) = he_dev;
--	he_dev->number = atm_dev->number;	/* was devs */
-+	he_dev->number = atm_dev->number;
- 	if (he_start(atm_dev)) {
--		atm_dev_deregister(atm_dev);
- 		he_stop(he_dev);
--		kfree(he_dev);
--		return -ENODEV;
-+		err = -ENODEV;
-+		goto init_one_failure;
- 	}
- 	he_dev->next = NULL;
- 	if (he_devs) he_dev->next = he_devs;
- 	he_devs = he_dev;
--
- 	return 0;
-+
-+init_one_failure:
-+	if (atm_dev) atm_dev_deregister(atm_dev);
-+	if (he_dev) kfree(he_dev);
-+	pci_disable_device(pci_dev);
-+	return err;
+ 	/*
+@@ -1154,9 +1155,9 @@
+ 	 * going away or changing from under us.
+ 	 */
+ 	read_lock(&tasklist_lock);  
+-	spin_lock_irq(&p->sighand->siglock);
++	spin_lock_irqsave(&p->sighand->siglock, flags);
+ 	ret = specific_send_sig_info(sig, info, p);
+-	spin_unlock_irq(&p->sighand->siglock);
++	spin_unlock_irqrestore(&p->sighand->siglock, flags);
+ 	read_unlock(&tasklist_lock);
+ 	return ret;
  }
- 
- static void __devexit
-@@ -417,6 +428,7 @@
- 	kfree(he_dev);
- 
- 	pci_set_drvdata(pci_dev, NULL);
-+	pci_disable_device(pci_dev);
- }
- 
- 
-
-[ATM]: Sneak variant of "ioremap() return dereferencing".  thanks to
-       Francois Romieu <romieu@fr.zoreil.com>
-
-
---- linux-2.5.68/drivers/atm/iphase.c.002	Fri May  9 19:01:27 2003
-+++ linux-2.5.68/drivers/atm/iphase.c	Fri May  9 19:35:24 2003
-@@ -2774,7 +2774,7 @@
- 	     if (!capable(CAP_NET_ADMIN)) return -EPERM;
-              tmps = (u16 *)ia_cmds.buf;
-              for(i=0; i<0x80; i+=2, tmps++)
--                if(put_user(*(u16*)(iadev->seg_reg+i), tmps)) return -EFAULT;
-+                if(put_user((u16)(readl(iadev->seg_reg+i) & 0xffff), tmps)) return -EFAULT;
-              ia_cmds.status = 0;
-              ia_cmds.len = 0x80;
-              break;
-@@ -2782,7 +2782,7 @@
- 	     if (!capable(CAP_NET_ADMIN)) return -EPERM;
-              tmps = (u16 *)ia_cmds.buf;
-              for(i=0; i<0x80; i+=2, tmps++)
--                if(put_user(*(u16*)(iadev->reass_reg+i), tmps)) return -EFAULT;
-+                if(put_user((u16)(readl(iadev->reass_reg+i) & 0xffff), tmps)) return -EFAULT;
-              ia_cmds.status = 0;
-              ia_cmds.len = 0x80;
-              break;
-@@ -2799,10 +2799,10 @@
- 	     rfL = &regs_local->rfredn;
-              /* Copy real rfred registers into the local copy */
-  	     for (i=0; i<(sizeof (rfredn_t))/4; i++)
--                ((u_int *)rfL)[i] = ((u_int *)iadev->reass_reg)[i] & 0xffff;
-+                ((u_int *)rfL)[i] = readl(iadev->reass_reg + i) & 0xffff;
-              	/* Copy real ffred registers into the local copy */
- 	     for (i=0; i<(sizeof (ffredn_t))/4; i++)
--                ((u_int *)ffL)[i] = ((u_int *)iadev->seg_reg)[i] & 0xffff;
-+                ((u_int *)ffL)[i] = readl(iadev->seg_reg + i) & 0xffff;
- 
-              if (copy_to_user(ia_cmds.buf, regs_local,sizeof(ia_regs_t))) {
-                 kfree(regs_local);

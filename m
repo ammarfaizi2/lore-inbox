@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268117AbTCFODA>; Thu, 6 Mar 2003 09:03:00 -0500
+	id <S268111AbTCFOBN>; Thu, 6 Mar 2003 09:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268123AbTCFODA>; Thu, 6 Mar 2003 09:03:00 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38310
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268117AbTCFOC7>; Thu, 6 Mar 2003 09:02:59 -0500
-Subject: Re: [PATCH]  fix undefined reference for sis drm.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geoffrey Lee <glee@gnupilgrims.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@rustcorp.com.au
-In-Reply-To: <20030306101017.GA6479@anakin.wychk.org>
-References: <20030306101017.GA6479@anakin.wychk.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046963902.17715.37.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 06 Mar 2003 15:18:23 +0000
+	id <S268112AbTCFOBN>; Thu, 6 Mar 2003 09:01:13 -0500
+Received: from pushme.nist.gov ([129.6.16.92]:45978 "EHLO postmark.nist.gov")
+	by vger.kernel.org with ESMTP id <S268111AbTCFOBL>;
+	Thu, 6 Mar 2003 09:01:11 -0500
+To: linux-kernel@vger.kernel.org
+Subject: TransMeta longrun control utility maintainer?
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Thu, 06 Mar 2003 09:11:18 -0500
+Message-ID: <9cfy93s4mbd.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 10:10, Geoffrey Lee wrote:
-> Hi all,
-> 
-> 
-> This fixes a bug where where if sis fb is not set and sis drm is
-> selected then there will be undefined references to sis_malloc() and
-> sis_free().
-> 
-> What I've done is a sort of a bandaid because I don't have hardware
-> to fix and test. 
 
-Direct render occurs before the frame buffer so it doesn't work
-In addition you can have both modular so you'd want to make it
+I know this isn't the best place to ask, but maybe someone here knows.
 
-dep_tristate '   SiS' CONFIG_DRM_SIS $CONFIG_AGP $CONFIG_FB_SIS
+Who is maintaining the longrun(1) (should probably be longrun(8))
+utility?  The author is listed as Daniel Quinlan
+<quinlan@transmeta.com>, but mail to that address bounces.
 
-even if the order worked out.
+The longrun utility frobs the MSR on TransMeta processors to switch
+between performance and economy modes.
+
+On my laptop, currently running 2.4.21-pre5-ac1, I get the following
+error:
+
+# longrun -p
+longrun: error reading /dev/cpu/0/cpuid: Invalid argument
+
+# ls -l /dev/cpu/0
+total 0
+cr--r--r--    1 root     root     203,   0 Aug 30  2002 cpuid
+crw-------    1 root     root      10, 184 Aug 30  2002 microcode
+crw-------    1 root     root     202,   0 Aug 30  2002 msr
+
+I've seen this the last couple 2.4.2x-pre versions, but I don't know
+exactly when it stopped working.  I assume somewhere along the line
+the CPUID interface got reformatted.  I'm pretty sure this kernel is
+configured correctly:
+
+
+# CPU Frequency scaling
+#
+CONFIG_CPU_FREQ=y
+CONFIG_X86_LONGRUN=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+
+Help?
+Ian
+

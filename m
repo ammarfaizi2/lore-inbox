@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVCOK5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVCOLAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbVCOK5o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 05:57:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVCOK5o
+	id S261720AbVCOLAx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 06:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVCOLAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 05:57:44 -0500
-Received: from B.painless.aaisp.net.uk ([81.187.81.52]:60544 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S262379AbVCOK5m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 05:57:42 -0500
-Subject: Re: Problem with 2.6.11-bk[3456]
-From: Andrew Clayton <andrew@digital-domain.net>
-To: Dave Airlie <airlied@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <21d7e99705031502507704f50f@mail.gmail.com>
-References: <1110492499.2666.8.camel@alpha.digital-domain.net>
-	 <21d7e99705031502507704f50f@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 15 Mar 2005 10:57:40 +0000
-Message-Id: <1110884260.2732.8.camel@alpha.digital-domain.net>
+	Tue, 15 Mar 2005 06:00:53 -0500
+Received: from main.gmane.org ([80.91.229.2]:58056 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261720AbVCOLAt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 06:00:49 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: [PATCH 0/5] I8K driver facelift
+Date: Tue, 15 Mar 2005 11:59:22 +0100
+Message-ID: <MPG.1ca0de763cbc3456989715@news.gmane.org>
+References: <200502240110.16521.dtor_core@ameritech.net> <4233B65A.4030302@tuxrocks.com> <200503150812.j2F8CABo004744@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-11-253.37-151.net24.it
+User-Agent: MicroPlanet-Gravity/2.70.2067
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-15 at 10:50 +0000, Dave Airlie wrote:
-> > Got a problem here with the last few Linus -bk releases.
-> > 
-> > 2.6.11-bk2 is running fine.
-> > 
-> > 2.6.11-bk3 - 2.6.11-bk6 has the following problem:
-> > 
-> > Everything is fine while the machine is booting. However as soon as X
-> > starts up the screen goes blank as normal but stays blank, no gdm login
-> > screen and the hard disk and floppy drive lights are on continuously.
-> > The machine is now locked up solid and needs a hard reset.
-> > 
+> According to your patch, the C840 has 2 temp sensors. I'll have to figure
+> out what the second one is (prob either the GPU or the disk drive?)
 
-2.6.11-bk10 is a slight improvement in that the machine isn't completely
-dead and I can ctrl+alt+delete it...
+If it runs over 40 C easily it's probably the GPU :)
 
-> This is the same problem as i just mailed everyone about.. more
-> information here...
-> 
-> Dave.
-> 
+-- 
+Giuseppe "Oblomov" Bilotta
 
-Cheers,
-
-Andrew
-
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 

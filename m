@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbULCAw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbULCBDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbULCAw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 19:52:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbULCAw6
+	id S261828AbULCBDL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 20:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbULCBDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 19:52:58 -0500
-Received: from mta10.srv.hcvlny.cv.net ([167.206.5.85]:64254 "EHLO
-	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262317AbULCAwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 19:52:51 -0500
-Date: Thu, 02 Dec 2004 19:52:50 -0500
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: [Patch 2.6] Use proper documentation path
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: trivial@rustcorp.com.au, akpm@osdl.org, axboe@suse.de,
-       piggin@cyberone.com.au
-Message-id: <20041203005250.GA9185@optonline.net>
-MIME-version: 1.0
-Content-type: multipart/signed; boundary="tThc/1wpZn/ma/RB";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-Content-disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 2 Dec 2004 20:03:11 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:62090 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261828AbULCBDG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 20:03:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=HzdRcyqjOnTKy4Kou80xkxt26LkagziibY8l5du9Ae1hy0i1+B/e0Z9e7bovOIVTXI58vyipgP6/meuHKmiWBItKPan6jdMUGs/lMwK7dqoMt6zZL4QQTonLqWNTGt6ehHSPTcoY5D1F+srLKegrkWjZbxEcdTWCvl+92OB/3RI=
+Message-ID: <abc3398204120217031640ba07@mail.gmail.com>
+Date: Thu, 2 Dec 2004 19:03:06 -0600
+From: John Newman <cachehit@gmail.com>
+Reply-To: John Newman <cachehit@gmail.com>
+To: Chris Wright <chrisw@osdl.org>
+Subject: Re: kernel crashes with 2.5/2.8
+Cc: linux-kernel@vger.kernel.org, mhenderson@pointserve.com
+In-Reply-To: <20041201111617.M14339@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <abc339820412010909325c08b6@mail.gmail.com>
+	 <20041201111617.M14339@build.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, I got some time this evening to run memtest86.  With the 2650
+configured with 2 1GB sticks memtest86 started reprting errors almost
+immediately.  "Terrfic!" I thought, "this is my problem!"  The address
+seemed suspicious though:  0007ffedc80 (2047.8MB) is where all the
+errors were reported.  I decided to let it run all the way through but
+it froze at 34% of the first test.  Memtest86 also said it did not
+support this chipset when I tried to dink with advanced options.
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+So, I replaced the ram with 4 512MB sticks I had laying around from a
+different Dell machine.  I booted memtest86 again and what do you
+know.... errors @ 0007ffedc80, with completely different RAM.  So
+obviously these results are fishy.
 
-Use proper documentation path
+Someone replied to me off-list and said the only way they could get
+their Dell 2650 stable was by running 2.4.28.
 
-Signed-off-by: Josef "Jeff" Sipek <jeffpc@optonline.net>
-
-
-diff -Nru a/drivers/block/as-iosched.c b/drivers/block/as-iosched.c
---- a/drivers/block/as-iosched.c	2004-12-02 19:45:45 -05:00
-+++ b/drivers/block/as-iosched.c	2004-12-02 19:45:45 -05:00
-@@ -25,7 +25,7 @@
- #define REQ_ASYNC	0
-=20
- /*
-- * See Documentation/as-iosched.txt
-+ * See Documentation/block/as-iosched.txt
-  */
-=20
- /*
-diff -Nru a/drivers/block/deadline-iosched.c b/drivers/block/deadline-iosch=
-ed.c
---- a/drivers/block/deadline-iosched.c	2004-12-02 19:45:45 -05:00
-+++ b/drivers/block/deadline-iosched.c	2004-12-02 19:45:45 -05:00
-@@ -19,7 +19,7 @@
- #include <linux/rbtree.h>
-=20
- /*
-- * See Documentation/deadline-iosched.txt
-+ * See Documentation/block/deadline-iosched.txt
-  */
- static int read_expire =3D HZ / 2;  /* max time before a read is submitted=
-=2E */
- static int write_expire =3D 5 * HZ; /* ditto for writes, these limits are =
-SOFT! */
+--
+john
 
 
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+On Wed, 1 Dec 2004 11:16:17 -0800, Chris Wright <chrisw@osdl.org> wrote:
+> * John Newman (cachehit@gmail.com) wrote:
+> > Nov 24 21:34:10 ptscorp-nis01 kernel: Unable to handle kernel paging
+> > request at virtual address 01000004
+> 
+> Possible bad memory.  This could be 4 byte offset of NULL with one bit
+> flipped.  Have you run memtest86?
+> 
+> Also, it'd be useful to keep tabs on the Oopsen.  Are they totally
+> random, same location, etc.
+> 
+> thanks,
+> -chris
+> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBr7jiwFP0+seVj/4RAj4CAJwI/bwWdNwGmVQLqeZd123csovrNwCgjx6Z
-CYyr7SfsCTNoUm86744NjBU=
-=pUBM
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+-- 
+John

@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267219AbTBLPZf>; Wed, 12 Feb 2003 10:25:35 -0500
+	id <S267244AbTBLPag>; Wed, 12 Feb 2003 10:30:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267229AbTBLPZf>; Wed, 12 Feb 2003 10:25:35 -0500
-Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:772
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S267219AbTBLPZd>; Wed, 12 Feb 2003 10:25:33 -0500
-Date: Wed, 12 Feb 2003 10:36:16 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Adam Belay <ambx1@neo.rr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for i8042?
-Message-ID: <Pine.LNX.4.44.0302121035420.147-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267247AbTBLPag>; Wed, 12 Feb 2003 10:30:36 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25834 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267244AbTBLPad>; Wed, 12 Feb 2003 10:30:33 -0500
+Date: Wed, 12 Feb 2003 16:40:17 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Guennadi Liakhovetski <gl@dsa-ac.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.60 linking error with IDE-DMA disabled
+Message-ID: <20030212154017.GN17128@fs.tum.de>
+References: <Pine.LNX.4.33.0302111207080.1173-100000@pcgl.dsa-ac.de> <1044968542.12907.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044968542.12907.7.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 11, 2003 at 01:02:23PM +0000, Alan Cox wrote:
+> On Tue, 2003-02-11 at 11:12, Guennadi Liakhovetski wrote:
+> > Hello
+> > 
+> > If I try to compile the kernel with IDE bus-mastering disabled (which,
+> > IIRC, worked on 2.4.x), I get the following error:
+> > 
+> 
+> Looks like the 2.5 makefile is broken. If you didnt include any IDE DMA
+> support them ide-dma.c should not have been linked into the kernel. 2.4.x
+> seems to get this right (though I have to fix modular IDE there yet). 
+> I'll have a look at the rest when I try and get 2.5.60 IDE back in sync
+> with the newer 2.4 code.
 
-2.4:
-           CPU0
-  0:    2576292          XT-PIC  timer
-  1:        661          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:         10          XT-PIC  serial
-  5:    1104824          XT-PIC  soundblaster
-  8:          1          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:          7          XT-PIC  aic7xxx
- 11:      15167          XT-PIC  usb-uhci, eth0
- 14:       7554          XT-PIC  ide0
- 15:          3          XT-PIC  ide1
+It isn't ide-dma.c. The error messages talk about the functions
+init_dma_generic and ide_hwif_setup_dma and these are in pci/generic.c
+and setup-pci.c, respectively.
 
-2.5:
+These are included since he has CONFIG_BLK_DEV_IDEPCI and 
+CONFIG_BLK_DEV_GENERIC enabled.
 
-           CPU0
-  0:      36281          XT-PIC  timer
-  1:         15          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  3:        149          XT-PIC  serial
-  5:          0          XT-PIC  soundblaster
-  8:          1          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:         20          XT-PIC  aic7xxx
- 11:        324          XT-PIC  uhci-hcd, eth0
- 12:         60          XT-PIC  i8042 <--???
- 14:        723          XT-PIC  ide0
- 15:          9          XT-PIC  ide1
-NMI:          0
-LOC:      35547
-ERR:          0
-MIS:          0
+> Alan
 
-Interesting, why are we using two interrupts for the i8042 (keyboard).
+cu
+Adrian
 
-Shawn.
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

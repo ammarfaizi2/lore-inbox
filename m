@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbULaPt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbULaPxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbULaPt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 10:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbULaPt6
+	id S262113AbULaPxz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 10:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbULaPxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 10:49:58 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:36019 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262112AbULaPt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 10:49:56 -0500
-Subject: [BK PATCH] voyager (and subarch) updates
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, pazke@donpac.ru
-Content-Type: text/plain
-Date: Fri, 31 Dec 2004 09:49:41 -0600
-Message-Id: <1104508181.5247.7.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Fri, 31 Dec 2004 10:53:55 -0500
+Received: from 80-219-198-150.dclient.hispeed.ch ([80.219.198.150]:23683 "EHLO
+	xbox.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
+	id S262113AbULaPxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 10:53:54 -0500
+From: Thomas Sailer <sailer@scs.ch>
+Organization: Supercomputing Systems AG
+To: Mike Hearn <mh@codeweavers.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+Date: Fri, 31 Dec 2004 16:51:12 +0100
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, the3dfxdude@gmail.com,
+       pouech-eric@wanadoo.fr, dan@debian.org, roland@redhat.com,
+       linux-kernel@vger.kernel.org, wine-devel@winehq.com,
+       wine-patches@winehq.com, mingo@elte.hu
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> <200412311413.16313.sailer@scs.ch> <1104499860.3594.5.camel@littlegreen>
+In-Reply-To: <1104499860.3594.5.camel@littlegreen>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412311651.12516.sailer@scs.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had this in my voyager tree for a while ... it contains two bug
-fixes (double #include and a missing iounmap) and also the reboot rework
-which affects VISWS as well.
+On Freitag 31 Dezember 2004 14.31, Mike Hearn wrote:
 
-The patch is available here:
+> What about this patch?
 
-bk://linux-voyager.bkbits.net/voyager-2.6
+This works now. Happy new year...
 
-The short changelog is:
-
-Adrian Bunk:
-  o i386: reboot.c cleanups
-  o i386 voyager_smp.c: remove a duplicate #include
-
-James Bottomley:
-  o dma_release_declared_memory needs iounmap
-
-And the diffstat is:
- kernel/pci-dma.c             |    1 +
- kernel/reboot.c              |    2 +-
- mach-visws/reboot.c          |    3 ---
- mach-voyager/voyager_basic.c |    2 --
- mach-voyager/voyager_smp.c   |    3 ---
- 5 files changed, 2 insertions(+), 9 deletions(-)
-
-James
-
-
+Tom

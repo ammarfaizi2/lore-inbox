@@ -1,228 +1,448 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbSKLWnn>; Tue, 12 Nov 2002 17:43:43 -0500
+	id <S267020AbSKLWyQ>; Tue, 12 Nov 2002 17:54:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266988AbSKLWnn>; Tue, 12 Nov 2002 17:43:43 -0500
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:47836 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S266987AbSKLWnj>;
-	Tue, 12 Nov 2002 17:43:39 -0500
-Date: Tue, 12 Nov 2002 23:50:22 +0100
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Anders Gustafsson <andersg@0x63.nu>, linux-kernel@vger.kernel.org,
-       lord@sgi.com
-Subject: Re: 2.5-bk AT_GID clash
-Message-ID: <20021112225022.GA10689@gagarin>
-References: <20021112011858.GB19877@gagarin> <20021112172423.91C0C2C2DA@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021112172423.91C0C2C2DA@lists.samba.org>
-User-Agent: Mutt/1.4i
-From: Anders Gustafsson <andersg@0x63.nu>
+	id <S267018AbSKLWyQ>; Tue, 12 Nov 2002 17:54:16 -0500
+Received: from spacewalker.citi.umich.edu ([141.211.133.39]:6272 "EHLO
+	spacewalker.citi.umich.edu") by vger.kernel.org with ESMTP
+	id <S267020AbSKLWyB>; Tue, 12 Nov 2002 17:54:01 -0500
+Date: Tue, 12 Nov 2002 18:00:44 -0500 (EST)
+From: Chuck Lever <cel@citi.umich.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] NFS O_DIRECT clean-up #2
+Message-ID: <Pine.LNX.4.44.0211121758250.3001-100000@spacewalker.citi.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 13, 2002 at 04:16:56AM +1100, Rusty Russell wrote:
-> > Maybe module.h shouldn't be including elf.h, that afaik is needed by the
-> > arch-specific module loaders and not by all modules. A split into
-> > module.h for the modules and moduleloader.h for the arch-spec-loaders?
-> 
-> This might be OK too, but in practice I don't think much will be in
-> moduleloader.h: asm/module.h only really defines struct
-> mod_arch_specific, which is embedded in struct module, and struct
-> module needs to be exposed for those inlines...
+get NFS O_DIRECT support close to working.  affects only O_DIRECT paths, 
+no normal I/O paths are touched.
 
-But there are things in linux/module.h that are arch-generic but not needed
-for the modules if i understand it correctly, things that need elf.h:
-
-find_symbol_internal, module_core_alloc, module_init_alloc, apply_relocate,
-apply_relocate_add and module_finalize
-
-Something like this patch...
-
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
+against 2.5.47.
 
 
-ChangeSet@1.858, 2002-11-12 23:44:23+01:00, andersg@0x63.nu
-  Do not include elf.h into all modules via module.h
-
-
- include/linux/module.h       |   45 --------------------------------------
- include/linux/moduleloader.h |   50 +++++++++++++++++++++++++++++++++++++++++++
- kernel/module.c              |    1 
- 3 files changed, 51 insertions(+), 45 deletions(-)
-
-
-diff -Nru a/include/linux/module.h b/include/linux/module.h
---- a/include/linux/module.h	Tue Nov 12 23:46:58 2002
-+++ b/include/linux/module.h	Tue Nov 12 23:46:58 2002
-@@ -10,7 +10,6 @@
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- #include <linux/list.h>
--#include <linux/elf.h>
- #include <linux/stat.h>
- #include <linux/compiler.h>
- #include <linux/cache.h>
-@@ -143,50 +142,6 @@
- 	   keeping pointers to this stuff */
- 	char args[0];
- };
--
--/* Helper function for arch-specific module loaders */
--unsigned long find_symbol_internal(Elf_Shdr *sechdrs,
--				   unsigned int symindex,
--				   const char *strtab,
--				   const char *name,
--				   struct module *mod,
--				   struct kernel_symbol_group **group);
--
--/* These must be implemented by the specific architecture */
--
--/* vmalloc AND zero for the non-releasable code; return ERR_PTR() on error. */
--void *module_core_alloc(const Elf_Ehdr *hdr,
--			const Elf_Shdr *sechdrs,
--			const char *secstrings,
--			struct module *mod);
--
--/* vmalloc and zero (if any) for sections to be freed after init.
--   Return ERR_PTR() on error. */
--void *module_init_alloc(const Elf_Ehdr *hdr,
--			const Elf_Shdr *sechdrs,
--			const char *secstrings,
--			struct module *mod);
--
--/* Apply the given relocation to the (simplified) ELF.  Return -error
--   or 0. */
--int apply_relocate(Elf_Shdr *sechdrs,
--		   const char *strtab,
--		   unsigned int symindex,
--		   unsigned int relsec,
--		   struct module *mod);
--
--/* Apply the given add relocation to the (simplified) ELF.  Return
--   -error or 0 */
--int apply_relocate_add(Elf_Shdr *sechdrs,
--		       const char *strtab,
--		       unsigned int symindex,
--		       unsigned int relsec,
--		       struct module *mod);
--
--/* Any final processing of module before access.  Return -error or 0. */
--int module_finalize(const Elf_Ehdr *hdr,
--		    const Elf_Shdr *sechdrs,
--		    struct module *mod);
+diff -ruN 04-odirect1/fs/nfs/direct.c 05-odirect2/fs/nfs/direct.c
+--- 04-odirect1/fs/nfs/direct.c	Tue Nov 12 16:07:53 2002
++++ 05-odirect2/fs/nfs/direct.c	Tue Nov 12 16:08:54 2002
+@@ -35,10 +35,12 @@
+  */
  
- /* Free memory returned from module_core_alloc/module_init_alloc */
- void module_free(struct module *mod, void *module_region);
-diff -Nru a/include/linux/moduleloader.h b/include/linux/moduleloader.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/moduleloader.h	Tue Nov 12 23:46:58 2002
-@@ -0,0 +1,50 @@
-+#ifndef _LINUX_MODULELOADER_H
-+#define _LINUX_MODULELOADER_H
-+
-+#include <linux/elf.h>
-+
-+/* Helper function for arch-specific module loaders */
-+unsigned long find_symbol_internal(Elf_Shdr *sechdrs,
-+				   unsigned int symindex,
-+				   const char *strtab,
-+				   const char *name,
-+				   struct module *mod,
-+				   struct kernel_symbol_group **group);
-+
-+/* These must be implemented by the specific architecture */
-+
-+/* vmalloc AND zero for the non-releasable code; return ERR_PTR() on error. */
-+void *module_core_alloc(const Elf_Ehdr *hdr,
-+			const Elf_Shdr *sechdrs,
-+			const char *secstrings,
-+			struct module *mod);
-+
-+/* vmalloc and zero (if any) for sections to be freed after init.
-+   Return ERR_PTR() on error. */
-+void *module_init_alloc(const Elf_Ehdr *hdr,
-+			const Elf_Shdr *sechdrs,
-+			const char *secstrings,
-+			struct module *mod);
-+
-+/* Apply the given relocation to the (simplified) ELF.  Return -error
-+   or 0. */
-+int apply_relocate(Elf_Shdr *sechdrs,
-+		   const char *strtab,
-+		   unsigned int symindex,
-+		   unsigned int relsec,
-+		   struct module *mod);
-+
-+/* Apply the given add relocation to the (simplified) ELF.  Return
-+   -error or 0 */
-+int apply_relocate_add(Elf_Shdr *sechdrs,
-+		       const char *strtab,
-+		       unsigned int symindex,
-+		       unsigned int relsec,
-+		       struct module *mod);
-+
-+/* Any final processing of module before access.  Return -error or 0. */
-+int module_finalize(const Elf_Ehdr *hdr,
-+		    const Elf_Shdr *sechdrs,
-+		    struct module *mod);
-+
-+#endif
-diff -Nru a/kernel/module.c b/kernel/module.c
---- a/kernel/module.c	Tue Nov 12 23:46:58 2002
-+++ b/kernel/module.c	Tue Nov 12 23:46:58 2002
-@@ -17,6 +17,7 @@
- */
  #include <linux/config.h>
- #include <linux/module.h>
-+#include <linux/moduleloader.h>
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
++#include <linux/errno.h>
+ #include <linux/sched.h>
+ #include <linux/kernel.h>
+ #include <linux/file.h>
+-#include <linux/errno.h>
++#include <linux/pagemap.h>
++
+ #include <linux/nfs_fs.h>
+ #include <linux/nfs_page.h>
+ #include <linux/sunrpc/clnt.h>
+@@ -48,33 +50,39 @@
+ 
+ #define NFSDBG_FACILITY		(NFSDBG_PAGECACHE | NFSDBG_VFS)
+ #define VERF_SIZE		(2 * sizeof(__u32))
++#define MAX_DIRECTIO_SIZE	(4096UL << PAGE_SHIFT)
+ 
+ 
+ /**
+- * nfs_get_user_pages - find and set up page representing user buffer
+- * addr: user-space address of target buffer
+- * size: total size in bytes of target buffer
++ * nfs_get_user_pages - find and set up pages representing user buffer
++ * @vec: pointer to vector that defines I/O buffer
+  * @pages: returned array of page struct pointers underlying target buffer
+- * write: whether or not buffer is target of a write operation
++ * rw: whether or not buffer is target of a write operation
+  */
+ static inline int
+-nfs_get_user_pages(unsigned long addr, size_t size,
+-		struct page ***pages, int rw)
++nfs_get_user_pages(int rw, const struct iovec *vec, struct page ***pages)
+ {
++	unsigned long addr = (unsigned long) vec->iov_base;
++	size_t size = vec->iov_len;
+ 	int result = -ENOMEM;
+-	unsigned page_count = (unsigned) size >> PAGE_SHIFT;
+-	unsigned array_size = (page_count * sizeof(struct page *)) + 2U;
++	unsigned long page_count;
++	size_t array_size;
++
++	/* set an arbitrary limit to prevent arithmetic overflow */
++	if (size > MAX_DIRECTIO_SIZE)
++		return -EFBIG;
++
++	page_count = (addr + size + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	page_count -= addr >> PAGE_SHIFT;
+ 
+-	*pages = (struct page **) kmalloc(array_size, GFP_KERNEL);
++	array_size = (page_count * sizeof(struct page *));
++	*pages = kmalloc(array_size, GFP_KERNEL);
+ 	if (*pages) {
+ 		down_read(&current->mm->mmap_sem);
+ 		result = get_user_pages(current, current->mm, addr,
+-					page_count, (rw == WRITE), 0,
++					page_count, (rw == READ), 0,
+ 					*pages, NULL);
+ 		up_read(&current->mm->mmap_sem);
+-		if (result < 0)
+-			printk(KERN_ERR "%s: get_user_pages result %d\n",
+-					__FUNCTION__, result);
+ 	}
+ 	return result;
+ }
+@@ -84,141 +92,208 @@
+  * @pages: array of page struct pointers underlying target buffer
+  */
+ static inline void
+-nfs_free_user_pages(struct page **pages, unsigned count)
++nfs_free_user_pages(struct page **pages)
++{
++	kfree(pages);
++}
++
++/**
++ * nfs_iov2pagelist - convert one iov to a list of page requests
++ * rw: direction (read or write)
++ * @file: file struct of target file
++ * @iov: pointer to vector that defines I/O buffer
++ * offset: where in file to begin the read
++ * @pages: array of mapped pages to use for this I/O
++ * @requests: append new page requests to this list head
++ */
++static int
++nfs_iov2pagelist(int rw, struct file *file, const struct iovec *iov,
++		loff_t offset, struct page **pages, struct list_head *requests)
+ {
++	struct inode *inode = file->f_dentry->d_inode;
++	struct rpc_cred *cred = nfs_file_cred(file);
++	unsigned long user_addr = (unsigned long) iov->iov_base;
++	size_t bytes = iov->iov_len;
++
++	unsigned pg_offset = user_addr & ~PAGE_MASK;
+ 	unsigned page = 0;
++	int tot_bytes = 0;
++
++	while (bytes) {
++		struct nfs_page *new;
++		unsigned pg_bytes;
++
++		pg_bytes = PAGE_SIZE - pg_offset;
++		if (pg_bytes > bytes)
++			pg_bytes = bytes;
++
++		/* page is unlocked by nfs_readpage_result */
++		if (rw == READ)
++			lock_page(pages[page]);
++
++		new = nfs_create_request(cred, inode, pages[page],
++					 pg_offset, pg_bytes);
++		if (IS_ERR(new)) {
++			nfs_release_list(requests);
++			nfs_free_user_pages(pages);
++			return PTR_ERR(new);
++		}
+ 
+-	while (count--)
+-		page_cache_release(pages[page++]);
++		new->wb_index = offset >> PAGE_SHIFT;
++		new->wb_offset = offset & ~ PAGE_MASK;
++		if (rw == WRITE)
++			/* a la nfs_update_request */
++			nfs_lock_request_dontget(new);
++		else
++			/* a la nfs_scan_list */
++			nfs_lock_request(new);
++		nfs_list_add_request(new, requests);
++
++		offset += pg_bytes;
++		tot_bytes += pg_bytes;
++		bytes -= pg_bytes;
++		page++;
+ 
+-	kfree(pages);
++		/* after the first page */
++		pg_offset = 0;
++	}
++
++	return tot_bytes;
+ }
+ 
+ /**
+- * nfs_iov2pagelist - convert an array of iovecs to a list of page requests
+- * @inode: inode of target file
+- * @cred: credentials of user who requested I/O
++ * nfs_direct_read_async - Read directly using asynchronous RPC
++ * @file: target file
+  * @iov: array of vectors that define I/O buffer
+  * offset: where in file to begin the read
+  * nr_segs: size of iovec array
+- * @requests: append new page requests to this list head
++ *
++ * Flush out pending writes in the page cache first so we pick up changes
++ * made by non-direct writers.  Then convert the iovecs into a list of NFS
++ * page requests, and page them in.
+  */
+ static int
+-nfs_iov2pagelist(int rw, const struct inode *inode,
+-		const struct rpc_cred *cred,
+-		const struct iovec *iov, loff_t offset,
+-		unsigned long nr_segs, struct list_head *requests)
++nfs_direct_read_async(struct file *file, const struct iovec *iov,
++		loff_t offset, unsigned long nr_segs)
+ {
++	LIST_HEAD(requests);
++	struct page **pages;
++	struct inode *inode = file->f_dentry->d_inode;
+ 	unsigned seg;
++	int result;
+ 	int tot_bytes = 0;
+-	struct page **pages;
+ 
+-	/* for each iovec in the array... */
++	/* push any pending non-direct writes so our reads see them */
++	result = nfs_wb_all(inode);
++	if (result < 0) {
++		result = file->f_error;
++		file->f_error = 0;
++		return result;
++	}
++
+ 	for (seg = 0; seg < nr_segs; seg++) {
+-		const unsigned long user_addr =
+-					(unsigned long) iov[seg].iov_base;
+-		size_t bytes = iov[seg].iov_len;
+-		unsigned int pg_offset = (user_addr & ~PAGE_MASK);
+-		int page_count, page = 0;
++		const struct iovec *vec = &iov[seg];
++		int page_count;
+ 
+-		page_count = nfs_get_user_pages(user_addr, bytes, &pages, rw);
++		page_count = nfs_get_user_pages(READ, vec, &pages);
+ 		if (page_count < 0) {
+-			nfs_release_list(requests);
++			nfs_release_list(&requests);
++			nfs_free_user_pages(pages);
+ 			return page_count;
+ 		}
+ 
+-		/* ...build as many page requests as required */
+-		while (bytes > 0) {
+-			struct nfs_page *new;
+-			const unsigned int pg_bytes = (bytes > PAGE_SIZE) ?
+-							PAGE_SIZE : bytes;
+-
+-			new = nfs_create_request((struct rpc_cred *) cred,
+-						 (struct inode *) inode,
+-						 pages[page],
+-						 pg_offset, pg_bytes);
+-			if (IS_ERR(new)) {
+-				nfs_free_user_pages(pages, page_count);
+-				nfs_release_list(requests);
+-				return PTR_ERR(new);
+-			}
+-			new->wb_index = offset;
+-			nfs_list_add_request(new, requests);
+-
+-			/* after the first page */
+-			pg_offset = 0;
+-			offset += PAGE_SIZE;
+-			tot_bytes += pg_bytes;
+-			bytes -= pg_bytes;
+-			page++;
++		result = nfs_iov2pagelist(READ, file, vec, offset, pages,
++				&requests);
++		if (result <= 0) {
++			nfs_release_list(&requests);
++			nfs_free_user_pages(pages);
++			return result;
++		}
++		tot_bytes += result;
++
++		result = nfs_pagein_list(&requests,
++					NFS_SERVER(inode)->rpages);
++		if (result < 0) {
++			tot_bytes = result;
++			nfs_free_user_pages(pages);
++			break;
+ 		}
+ 
+-		/* don't release pages here -- I/O completion will do that */
+-		nfs_free_user_pages(pages, 0);
++		while (page_count--) {
++			struct page *page = pages[page_count];
++
++			page_cache_get(page);
++			wait_on_page_locked(page);
++			if (PageError(page))
++				tot_bytes = -EIO;
++			page_cache_release(page);
++		}
++
++		nfs_free_user_pages(pages);
++
++		if (tot_bytes < 0)
++			break;
+ 	}
+ 
+ 	return tot_bytes;
+ }
+ 
+ /**
+- * do_nfs_direct_IO - Read or write data without caching
+- * @inode: inode of target file
+- * @cred: credentials of user who requested I/O
++ * nfs_direct_write_async - Write directly using asynchronous RPC
++ * @file: file struct of target file
+  * @iov: array of vectors that define I/O buffer
+  * offset: where in file to begin the read
+  * nr_segs: size of iovec array
+  *
+- * Break the passed-in iovec into a series of page-sized or smaller
+- * requests, where each page is mapped for direct user-land I/O.
+- *
+- * For each of these pages, create an NFS page request and
+- * append it to an automatic list of page requests.
++ * Convert the iovecs into a list of NFS page requests, then flush
++ * them out.  Invalidate any cached pages for this file so that normal
++ * accessors will see these changes.
+  *
+- * When all page requests have been queued, start the I/O on the
+- * whole list.  The underlying routines coalesce the pages on the
+- * list into a bunch of asynchronous "r/wsize" network requests.
++ * nfs_writeback_done will emit COMMIT requests should they be required.
+  *
+- * I/O completion automatically unmaps and releases the pages.
++ * O_SYNC for files and "sync" for file systems causes STABLE writes
++ * that are sent one at a time.  This is for applications that have
++ * ultra-strict write ordering requirements.
+  */
+ static int
+-do_nfs_direct_IO(int rw, const struct inode *inode,
+-		const struct rpc_cred *cred, const struct iovec *iov,
++nfs_direct_write_async(struct file *file, const struct iovec *iov,
+ 		loff_t offset, unsigned long nr_segs)
+ {
+ 	LIST_HEAD(requests);
+-	int result, tot_bytes;
++	struct page **pages;
++	struct inode *inode = file->f_dentry->d_inode;
++	unsigned seg;
++	int result;
++	int tot_bytes = 0;
++	int flags = IS_SYNC(inode) ?  FLUSH_STABLE | FLUSH_WAIT : FLUSH_WAIT;
+ 
+-	result = nfs_iov2pagelist(rw, inode, cred, iov, offset, nr_segs,
+-								&requests);
+-	if (result < 0)
+-		return result;
+-	tot_bytes = result;
++	for (seg = 0; seg < nr_segs; seg++) {
++		const struct iovec *vec = &iov[seg];
+ 
+-	switch (rw) {
+-	case READ:
+-		if (IS_SYNC(inode) || (NFS_SERVER(inode)->rsize < PAGE_SIZE)) {
+-			result = nfs_direct_read_sync(inode, cred, iov, offset, nr_segs);
+-			break;
++		result = nfs_get_user_pages(WRITE, vec, &pages);
++		if (result < 0) {
++			nfs_release_list(&requests);
++			nfs_free_user_pages(pages);
++			return result;
+ 		}
+-		result = nfs_pagein_list(&requests, NFS_SERVER(inode)->rpages);
+-		break;
+-	case WRITE:
+-		if (IS_SYNC(inode) || (NFS_SERVER(inode)->wsize < PAGE_SIZE))
+-			result = nfs_direct_write_sync(inode, cred, iov, offset, nr_segs);
+-		else
+-			result = nfs_flush_list(&requests,
+-					NFS_SERVER(inode)->wpages, FLUSH_WAIT);
+ 
+-		/* invalidate cache so non-direct readers pick up changes */
+-		invalidate_inode_pages((struct inode *) inode);
+-		break;
+-	default:
+-		result = -EINVAL;
+-		break;
++		result = nfs_iov2pagelist(WRITE, file, vec, offset,
++							pages, &requests);
++		nfs_free_user_pages(pages);
++		if (result <= 0)
++			break;
++		tot_bytes += result;
++
++		result = nfs_flush_list(&requests,
++					NFS_SERVER(inode)->wpages, flags);
++		if (result < 0) {
++			tot_bytes = result;
++			break;
++		}
+ 	}
+ 
+-	if (result < 0)
+-		return result;
++	/* cause any non-direct readers to pick up our writes */
++	invalidate_inode_pages(inode->i_mapping);
+ 	return tot_bytes;
+ }
+ 
+@@ -232,27 +307,39 @@
+  *
+  * The inode's i_sem is no longer held by the VFS layer before it calls
+  * this function to do a write.
++ *
++ * For now, NFS O_DIRECT returns -EINVAL when r/wsize is smaller than
++ * PAGE_SIZE.
+  */
+ int
+ nfs_direct_IO(int rw, struct file *file, const struct iovec *iov,
+ 		loff_t offset, unsigned long nr_segs)
+ {
+-	/* None of this works yet, so prevent it from compiling. */
+-#if 0
+-	int result;
+-	struct dentry *dentry = file->f_dentry;
+-	const struct inode *inode = dentry->d_inode->i_mapping->host;
+-	const struct rpc_cred *cred = nfs_file_cred(file);
+-#endif
+-
+-	dfprintk(VFS, "NFS: direct_IO(%s) (%s/%s) off/no(%Lu/%lu)\n",
+-				((rw == READ) ? "READ" : "WRITE"),
+-				dentry->d_parent->d_name.name,
+-				dentry->d_name.name, offset, nr_segs);
++	int result = -EINVAL;
++	struct inode *inode = file->f_dentry->d_inode;
+ 
+-	result = do_nfs_direct_IO(rw, inode, cred, iov, offset, nr_segs);
++	switch (rw) {
++	case READ:
++		dfprintk(VFS, "NFS: direct_IO(read) (%s) off/no(%Lu/%lu)\n",
++			file->f_dentry->d_name.name, offset, nr_segs);
++
++		if (NFS_SERVER(inode)->rpages)
++			result = nfs_direct_read_async(file, iov, offset,
++					nr_segs);
++		break;
++	case WRITE:
++		dfprintk(VFS, "NFS: direct_IO(write) (%s) off/no(%Lu/%lu)\n",
++			file->f_dentry->d_name.name, offset, nr_segs);
++
++		if (NFS_SERVER(inode)->wpages)
++			result = nfs_direct_write_async(file, iov, offset,
++					nr_segs);
++		break;
++	default:
++		break;
++	}
+ 
+-	dfprintk(VFS, "NFS: direct_IO result = %d\n", result);
++	dfprintk(VFS, "NFS: direct_IO result=%d\n", result);
+ 
+ 	return result;
+ }
 
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.858
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch19251
-M'XL(`.*$T3T``\U8;4_;2!#^C'_%2'P!>DEV_9:7'E5ID[X(CE9I.56Z.T6;
-M]3BVZNQ&MD.A\H^_\=J$PR$AI<?I'!1CSXOG>69F=YQ]N,@P'>P)%6":S:Q]
-M>*>S?+#'KGRGK99T/=::KCN1GF.GUNI\Q51ATIE^[4P3_<TBK8\BEQ%<DG2P
-MQ]O.ZDY^O<#!WGCT]N+L9&Q9Q\?P.A)JAI\PA^-C*]?II4B"[*7(HT2K=IX*
-ME<TQ%VVIY\5*M;`9L^GC\:[#/+_@/G.[A>0!Y\+E&##;[?FN58?WL@Z^8<\Y
-MIY/'."M<MVL[UA!XN^?U@-D=SCO<!ML9N.[`=IXQ/F`,&N[@F0,M9KV"?S?H
-MUY:$H0:E<XB53)8!`B9A.Z*K7(-($ICK8)E@!I>QJ/]O1]8I>$ZWYU@?;PFU
-M6C]X6!83S'K1!%K4<7226"VO.M4C$RU(J1VMJ+1MU^6$RNUSM_`92KLOA=WW
-MO2#LXT^X[!9>U_:[%-9VGN_S6/NJ2>^[K+"[S.\7KM_W^NC[#O?8U`GY3N$U
-M`_,*S^UUV8.!U<U1.Y%W(G+ZA6?;GD.N?,^6GG!\QJ:]GK,6T7U>_DD[`6.F
-MG[8Q6[;8.7Z#,$YPL%73^AU<:ZV!?KX03).Q9HMQ?U.+L:=H,0FOXOP4<8&I
-MH0*VK6:=K32=@L%);;=5;0QK1'P!=M6S^2.:]*G2PG=/B_<D>7EMO0%>KF2F
-MX3]`*_UF_@CT`_S^.(GO&7C,VH]#@A;"Y.S]^<67R6\?AA=GH[,/)\/1>/+.
-MVB=1K'"#]$^RKA?H7ZN@S#K]@@2=(WB'B2FOI9)YK!6$.@61RJB5+5#&82SK
-MI1LJ#!D<=:RERN*9PH#NJ1E5I@HFV?5\JI,)K?U4E"(Y&"7AY%,4I'"4H:1S
-M]HNU1P<`K(Q)%\B,K/%J)95:93G(2)26>9J+Z;TB)>:X$I#>4N8W<1[1N2FJ
-M.N4FR%FJEPLX.C+GP^<5#Y\CS!#F2WK$%"&>+Q*<(Z$)8'H->82PXJ-D)\Y1
-MYLL42S:,^>6<=CPMX>1\"-\QU8;'TDQIU4HQ09&)*44G=8#/(44R5C`:CR<?
-M/X\/#H&(QS35:;MT>*GCP,`@.!.I4YP8WP<5`26S(\,L?1F@M_?7&;_#)TKB
-M(U:S2K1.VPT7-V"HG2HP!W%(%]>'!A6Y*2LEHZ8JJ0I3)))$2(FGE,9YVR+>
-MQ[L#+&W^:X`GBT5297467Z*B?-#CA:E_`E7>/\C*$J!\8W`(H[,W[16FEL%1
-M@B0NF,%35K(H74YJ1WA__6^L[VUMT931(\AE+=D=H@B"'X%9XJN0&ICWHYR0
-MTXU(81M:>`#QFOP.:MB.7%V7:Y)(8)%JB5E&!0$ZO%&=(A4Q#7JR%#73>C>G
-M=84:9_%WW%2?MT@W<K$AVGU401QN'(>J0>CIQLE;U^5<L;MC7AX]YGENX7+'
-M]LRN;*]OR]Z6:<GU_D=O)&8^WF$??]0./N0.30M#[OK@NB;7C1GYX20_:C2W
-M4MK,KE^6W[2)+$I';;'\X^9)?VT:U3GO,DINP?I=NUL-7/[N$Q=_JG?-$UK`
-M&F\)(@-1#2LS5)BN9I56I0$1&L5R^#6O'8T,-_`_9CCC?4IM<[RZ&^6+VY\9
-89(3R:[:<'T^=/F>N[%I_`[O-$U_'$```
-`
-end

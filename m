@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272654AbTG1CTC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:19:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271032AbTG1ABG
+	id S272064AbTG1CBa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272060AbTG1ABS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:01:06 -0400
+	Sun, 27 Jul 2003 20:01:18 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272869AbTG0XCK (ORCPT
+	by vger.kernel.org with ESMTP id S272941AbTG0XB5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:02:10 -0400
-Date: Sun, 27 Jul 2003 21:02:26 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307272002.h6RK2Q7v029592@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: more typo/invalid bits
+	Sun, 27 Jul 2003 19:01:57 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>,
+       "David S. Miller" <davem@redhat.com>, arjanv@redhat.com,
+       Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove module reference counting. 
+In-reply-to: Your message of "Sat, 26 Jul 2003 12:31:25 MST."
+             <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org> 
+Date: Mon, 28 Jul 2003 05:34:36 +1000
+Message-Id: <20030727193919.832302C450@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Steven Cole)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/char/n_r3964.c linux-2.6.0-test2-ac1/drivers/char/n_r3964.c
---- linux-2.6.0-test2/drivers/char/n_r3964.c	2003-07-10 21:14:51.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/char/n_r3964.c	2003-07-15 18:01:29.000000000 +0100
-@@ -669,7 +669,7 @@
-          }
-          else
-          {
--            TRACE_PE("TRANSMITTING - got illegal char");
-+            TRACE_PE("TRANSMITTING - got invalid char");
-  
-             pInfo->state = R3964_WAIT_ZVZ_BEFORE_TX_RETRY;
- 	    mod_timer(&pInfo->tmr, jiffies + R3964_TO_ZVZ);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/char/pcmcia/synclink_cs.c linux-2.6.0-test2-ac1/drivers/char/pcmcia/synclink_cs.c
---- linux-2.6.0-test2/drivers/char/pcmcia/synclink_cs.c	2003-07-10 21:07:39.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/char/pcmcia/synclink_cs.c	2003-07-15 18:01:29.000000000 +0100
-@@ -2814,7 +2814,7 @@
- 	/* verify range of specified line number */	
- 	line = tty->index;
- 	if ((line < 0) || (line >= mgslpc_device_count)) {
--		printk("%s(%d):mgslpc_open with illegal line #%d.\n",
-+		printk("%s(%d):mgslpc_open with invalid line #%d.\n",
- 			__FILE__,__LINE__,line);
- 		return -ENODEV;
- 	}
+In message <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org> you write:
+> 
+> First off - we're not changing fundamental module stuff any more.
+
+OK.  Who are you and what have you done with the real Linus?
+
+I guess it's back to fixing up reference counting in the rest of the
+kernel.  It's not hard, it's just not done. 8(
+
+> > No, it would just leak memory.  Not really a concern for developers.
+> > It's fairly trivial to hack up a backdoor "remove all freed modules
+> > and be damned" thing for developers if there's real demand.
+> 
+> It's not just a developer thing. At least installers etc used to do some 
+> device probing by loading modules and depending on the result.
+
+A similar case.  At this point you don't have random users trying to
+access things, so freeing is actually fairly safe (modulo other
+bugs).
+
+The kudzu one and Alan's USB firmware example bother me more: they
+load then unload modules currently?  Since modern device drivers are
+not supposed to fail to load just because there isn't currently
+hardware, I guess they'd have to.
+
+Oh well,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

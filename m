@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271394AbTHDGNx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 02:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTHDGNx
+	id S271390AbTHDGLo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 02:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTHDGLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 02:13:53 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:46222 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S271408AbTHDGNu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 02:13:50 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Steven Micallef <steven.micallef@world.net>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Date: Sun, 3 Aug 2003 23:12:10 -0700 (PDT)
-Subject: Re: chroot() breaks syslog() ?
-In-Reply-To: <20030804053438.GC31092@phunnypharm.org>
-Message-ID: <Pine.LNX.4.44.0308032310150.24695-100000@dlang.diginsite.com>
+	Mon, 4 Aug 2003 02:11:44 -0400
+Received: from netcore.fi ([193.94.160.1]:32774 "EHLO netcore.fi")
+	by vger.kernel.org with ESMTP id S271390AbTHDGLk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 02:11:40 -0400
+Date: Mon, 4 Aug 2003 09:10:53 +0300 (EEST)
+From: Pekka Savola <pekkas@netcore.fi>
+To: Lamont Granquist <lamont@scriptkiddie.org>
+cc: Bill Davidsen <davidsen@tmr.com>, "David S. Miller" <davem@redhat.com>,
+       Carlos Velasco <carlosev@newipnet.com>, <bloemsaa@xs4all.nl>,
+       <marcelo@conectiva.com.br>, <netdev@oss.sgi.com>,
+       <linux-net@vger.kernel.org>, <layes@loran.com>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+In-Reply-To: <20030728213933.F81299@coredump.scriptkiddie.org>
+Message-ID: <Pine.LNX.4.44.0308040908070.11876-100000@netcore.fi>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if you need any devices in /dev after the chroot you can create anything
-you need in the appropriate directory.
+Hi,
 
-with syslog you need to look at the -a option to syslogd to make things
-work the way you want them to.
+Just a thought..
 
-David Lang
+How about consider this change for 2.6 kernel series at this point, and 
+don't backport it 2.4 at least first and/or make the behaviour 
+configurable?
 
-On Mon, 4 Aug 2003, Ben Collins wrote:
+Upgrading from 2.4 to 2.6 should be a step big enough that folks should 
+revisit their more advanced configurations, causing smaller surprises.  
+Changing the behaviour inside 2.4.x series might not be reasonable.
 
-> Date: Mon, 4 Aug 2003 01:34:38 -0400
-> From: Ben Collins <bcollins@debian.org>
-> To: Steven Micallef <steven.micallef@world.net>
-> Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-> Subject: Re: chroot() breaks syslog() ?
->
-> On Mon, Aug 04, 2003 at 03:49:48PM +1000, Steven Micallef wrote:
-> > You're right - my mistake, it doesn't actually work on 2.4.8 either, I think
-> > I was looking at the wrong thing when I thought it was actually working.
+On Mon, 28 Jul 2003, Lamont Granquist wrote:
+> On Mon, 28 Jul 2003, Bill Davidsen wrote:
+> > On Sun, 27 Jul 2003, David S. Miller wrote:
+> > > This particular case has been discussed to death in the past
+> > > and I really recommend people read up there before dragging this
+> > > out further.
 > >
-> > Is it worth considering (optionally) making /dev available to chroot()'ed
-> > environments, or would that just defeat the whole purpose of chroot()?
->
-> Enable devfs, and you can mount devfs anywhere, even in chroots, and it
-> will propogate things like /dev/log.
->
-> Generally chroot environments don't want that though.
->
-> --
-> Debian     - http://www.debian.org/
-> Linux 1394 - http://www.linux1394.org/
-> Subversion - http://subversion.tigris.org/
-> WatchGuard - http://www.watchguard.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> > It will keep coming back because it's a real problem. I do agree that the
+> > hidden patch is not the desired way to solve the problem, but until there
+> > is a reasonable (not requiring a guru or large manual effort) solution
+> > people will keep bringing it up.
+> 
+> And it severely violates the principle of least surprise.  Its unfortunate
+> that this principle isn't more widely discussed and considered on lkml.
+> 
+
+-- 
+Pekka Savola                 "You each name yourselves king, yet the
+Netcore Oy                    kingdom bleeds."
+Systems. Networks. Security. -- George R.R. Martin: A Clash of Kings
+

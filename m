@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280748AbRKYHUM>; Sun, 25 Nov 2001 02:20:12 -0500
+	id <S280749AbRKYHXm>; Sun, 25 Nov 2001 02:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280749AbRKYHTy>; Sun, 25 Nov 2001 02:19:54 -0500
-Received: from mail008.syd.optusnet.com.au ([203.2.75.232]:48773 "EHLO
-	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S280748AbRKYHTa>; Sun, 25 Nov 2001 02:19:30 -0500
-Message-Id: <200111250718.fAP7IHJ03935@mail008.syd.optusnet.com.au>
-Content-Type: text/plain; charset=US-ASCII
-From: Michael Covi <thebaron22@optushome.com.au>
-To: Dietmar Schmidt <D.Schmidt@aquadetox.com>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: missing "drivers/hotplug" tree in 2.4.14 and the 2.4.15-patch
-Date: Sun, 25 Nov 2001 18:18:17 +1100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200111242000.VAA17709@terra.aquadetox.int>
-In-Reply-To: <200111242000.VAA17709@terra.aquadetox.int>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S280750AbRKYHXW>; Sun, 25 Nov 2001 02:23:22 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:61710 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S280749AbRKYHXM>;
+	Sun, 25 Nov 2001 02:23:12 -0500
+Date: Sun, 25 Nov 2001 05:23:04 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Wayne.Brown@altec.com
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.0
+Message-ID: <20011125052304.C970@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Wayne.Brown@altec.com, Linus Torvalds <torvalds@transmeta.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <86256B0F.0026CFDE.00@smtpnotes.altec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86256B0F.0026CFDE.00@smtpnotes.altec.com>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you checked to make sure you have your swap mounted ok?
+Em Sun, Nov 25, 2001 at 12:52:07AM -0600, Wayne.Brown@altec.com escreveu:
+> Is there going to be an "official" patch from 2.4.15 to 2.5.0?  I'd
+> rather not ftp the whole kernel tarball over a modem connection, and I
+> don't have the disk space on my laptop to keep both the complete 2.4 and
+> 2.5 source at the same time anyway.
 
-I had a similar problem last week after doing a install with a unfamiliar 
-distribution.  I had allocated 512M but for some reason mkswap was not run.
-So when i tried to use a memory hungry app OOM killed it as it should.
+Here it is:
 
-On Sun, 25 Nov 2001 07:00, Dietmar Schmidt wrote:
-> Hello,
->
-> I'm running 2.4.14 on top of a SuSE Linux 7.3 distribution. I took the
-> complete sources myself from kernel.org corr. to an older Latest-Is
-> Announce.
->
-> Installing, configuring, compiling and all went fine with 2.4.14 so far...
-> (in fact it works fine for me although SuSE-Kernels in some way differ from
-> orginal sources...)
->
-> My /proc/version (although I don't think it important for the further
-> problem
->
-> description...) gives:
-> > Linux version 2.4.14 (root@sirius) (gcc version 2.95.3 20010315 (SuSE))
->
-> Today I downloaded patch-2.4.15 and applied it. As I suggest it went okay
-> as no Hmm..'s came up.
->
-> When trying to configure the 2.4.15 kernel (using "make menuconfig") from
-> an konsole within kde the latter crashed.
->
-> Checking for the cause /var/log/messages gave:
-> > Nov 24 19:06:31 sirius kernel: Out of Memory: Killed process 2595
-> > (kdeinit). Nov 24 19:06:37 sirius kernel: Out of Memory: Killed process
-> > 2593 (kdeinit). Nov 24 19:06:39 sirius kernel: Out of Memory: Killed
-> > process 2604 (kdeinit).
->
+------------------------------------- 8< ----------------------------
+--- linux/Makefile.orig	Sun Nov 25 05:21:13 2001
++++ linux/Makefile	Sun Nov 25 05:21:23 2001
+@@ -1,7 +1,7 @@
+ VERSION = 2
+-PATCHLEVEL = 4
+-SUBLEVEL = 15
+-EXTRAVERSION =-greased-turkey
++PATCHLEVEL = 5
++SUBLEVEL = 0
++EXTRAVERSION =
+ 
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+ 
+------------------------------------- 8< ----------------------------
+
+RTFM http://www.kernel.org/pub/linux/kernel/v2.5/README
+
+- Arnaldo

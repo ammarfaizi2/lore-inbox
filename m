@@ -1,27 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVAXWlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVAXWho@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVAXWlB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVAXWhv
+	id S261710AbVAXWho (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:37:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVAXWgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:37:51 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:34019 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261587AbVAXWg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:36:27 -0500
-Date: Mon, 24 Jan 2005 14:36:10 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: earny@net4u.de,
-       Frank Dekervel|Smartlounge| <frank.dekervel@smartlounge.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2: Badness in local_bh_enable at kernel/softirq.c:140
-Message-ID: <20050124223610.GA10120@taniwha.stupidest.org>
-References: <200501242302.04493.frank.dekervel@smartlounge.be> <200501241919.29987.list-lkml@net4u.de>
-Mime-Version: 1.0
+	Mon, 24 Jan 2005 17:36:42 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:16010 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261705AbVAXWgS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:36:18 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501242302.04493.frank.dekervel@smartlounge.be> <200501241919.29987.list-lkml@net4u.de>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16885.30810.787188.591830@napali.hpl.hp.com>
+Date: Mon, 24 Jan 2005 14:36:10 -0800
+To: kaos@ocs.com.au
+Cc: bgerst@didntduck.org, Terence Ripperda <tripperda@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: inter_module_get and __symbol_get
+In-Reply-To: <8829.1105153800@ocs3.ocs.com.au>
+References: <8829.1105153800@ocs3.ocs.com.au>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixed in -bk on Sunday.
+Keith,
+
+I didn't see any followup to your message.  My apologies if I missed
+something.
+
+You wrote:
+
+ Keith> inter_module_* and __symbol_* solve these class of problems:
+
+ Keith> Module A can use module B if B is loaded, but A does not
+ Keith> require module B to do its work.  B is optional.
+
+ Keith> The kernel can use code in module C is C is loaded, but the
+ Keith> base kernel does not require module C.  C is optional.
+
+Why isn't this handled via weak references?  If the reference comes
+out as 0, you know the underlying module/facility isn't there and
+proceed accordingly.
+
+	--david

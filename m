@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266408AbSKZQm5>; Tue, 26 Nov 2002 11:42:57 -0500
+	id <S266407AbSKZQiQ>; Tue, 26 Nov 2002 11:38:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266411AbSKZQm5>; Tue, 26 Nov 2002 11:42:57 -0500
-Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:57736 "EHLO
+	id <S266408AbSKZQiQ>; Tue, 26 Nov 2002 11:38:16 -0500
+Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:57990 "EHLO
 	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S266408AbSKZQm5>; Tue, 26 Nov 2002 11:42:57 -0500
-Date: Tue, 26 Nov 2002 14:49:59 -0200 (BRST)
+	id <S266407AbSKZQiP>; Tue, 26 Nov 2002 11:38:15 -0500
+Date: Tue, 26 Nov 2002 14:45:12 -0200 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Paul P Komkoff Jr <i@stingr.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [RFC] [CFT] rmap 15a for 2.4.20-rc2-ac3
-In-Reply-To: <20021126163101.GL20701@stingr.net>
-Message-ID: <Pine.LNX.4.44L.0211261447590.4103-100000@imladris.surriel.com>
+To: Patrick Finnegan <pat@purdueriots.com>
+cc: Andi Kleen <ak@suse.de>, Jeff Dike <jdike@karaya.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: uml-patch-2.5.49-1
+In-Reply-To: <Pine.LNX.4.44.0211260159440.7540-100000@ibm-ps850.purdueriots.com>
+Message-ID: <Pine.LNX.4.44L.0211261443390.4103-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,15 +22,19 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Nov 2002, Paul P Komkoff Jr wrote:
+On Tue, 26 Nov 2002, Patrick Finnegan wrote:
 
-> The subject clearly described the patch.
->
-> The only thing I'm unsure about is current->mm->... etc in
-> kernel/sched.c
+> That's just one example... the idea is that you want maximal separation
+> between the guest OS's apps and the host OS.  Sort of like "VM" on IBM's
+> series of mainframe architecures.  [snip]
 
-That code shouldn't be there at all. It's not in any of my rmap
-patches and shouldn't be on bkbits.net either...
+That's a nice idea, but in practice you also want efficient
+execution of processes in the virtual machines and a virtual
+host implementation that's flexible and easy to maintain.
+
+As usual, you can't have everything so you'll have to make
+choices here and there. The end result will be a useful
+compromise between all the different ideas...
 
 Rik
 -- 

@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265358AbTLRWsd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 17:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265364AbTLRWsd
+	id S265368AbTLRWwi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 17:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265374AbTLRWwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 17:48:33 -0500
-Received: from mail.aei.ca ([206.123.6.14]:25813 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S265358AbTLRWsc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 17:48:32 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: Linux 2.6.0
-Date: Thu, 18 Dec 2003 17:48:20 -0500
-User-Agent: KMail/1.5.93
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <3FE20077.80509@namesys.com> <20031218194203.GM2069@suse.de>
-In-Reply-To: <20031218194203.GM2069@suse.de>
-MIME-Version: 1.0
+	Thu, 18 Dec 2003 17:52:38 -0500
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:2693 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id S265368AbTLRWwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 17:52:37 -0500
+Date: Thu, 18 Dec 2003 17:52:36 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Mount Rainier in 2.6
+Message-ID: <20031218225236.GA27102@delft.aura.cs.cmu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3FE16489.9060006@tiscali.cz> <20031218083530.GP2495@suse.de> <20031218114000.GB2069@suse.de> <3FE200CA.2080705@tiscali.cz> <20031218193414.GJ2069@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200312181748.21168.edt@aei.ca>
+In-Reply-To: <20031218193414.GJ2069@suse.de>
+User-Agent: Mutt/1.5.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 18, 2003 02:42 pm, Jens Axboe wrote:
-> On Thu, Dec 18 2003, Hans Reiser wrote:
-> > bill davidsen wrote:
-> > >In article <006201c3c54c$2bb00c50$0e25fe0a@southpark.ae.poznan.pl>,
-> > >
-> > >Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
-> > >| > Wondering if ALSA and Latest Usb updates from Greg KH will make it
-> > >| > into 2.6.1 ?
-> > >|
-> > >| Is anything known about reiserfs4 becoming stable enough to be
-> > >| included
-> > >
-> > >some
-> > >
-> > >| time soon. Maybe around 2.6.3-5
-> > >
-> > >I think that's vastly optimistic. As Hans has reported, it's still
-> > >pretty alpha as yet. And you can thank him for not releasing it until
-> > >he's happy with it!
-> >
-> > I don't think it is vastly optimistic, I hope we can send something in
-> > next month, but you probably know how hard it is to estimate the time to
-> > the last findable bug for a large project like ours.
->
-> Not to mention the months long period of actually getting user testing
-> and fixing all of those bugs before it's qualifiable for kernel
-> inclusion.
->
-> I hope you don't expect to actually have something that's worthy of
-> being merged into 2.6.x in a months time?
+On Thu, Dec 18, 2003 at 08:34:14PM +0100, Jens Axboe wrote:
+> On Thu, Dec 18 2003, Milos Prudek wrote:
+> Rats, I forgot to test sr. You probably don't have a SCSI mt rainier
+> drive (I doubt one was ever made), so just disable SCSI CD-ROM support.
 
-I would hope it could go into mm though...  That would give a good 
-test base.
+Actually, external USB enclosures show up as SCSI even when they
+internally have a regular IDE/ATAPI drive. Your original patches (early
+2.5?) did work nicely with an external USB2.0 writer.
 
-Ed Tomlinson
-
+Jan

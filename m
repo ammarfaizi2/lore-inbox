@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263613AbUC3LMe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 06:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUC3LMF
+	id S263602AbUC3LUL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 06:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUC3LUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 06:12:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30350 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263615AbUC3LLf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 06:11:35 -0500
-Date: Tue, 30 Mar 2004 03:11:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: tehdely_lkml@metawire.org
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: ohci1394 issues ( 2.6.5-rc2 and beyond )
-Message-Id: <20040330031131.06f54c46.akpm@osdl.org>
-In-Reply-To: <39a2add7e90d91e09dc3f15bd2ddeb76@localhost.localdomain>
-References: <39a2add7e90d91e09dc3f15bd2ddeb76@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 06:20:11 -0500
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:46996 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S263602AbUC3LUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 06:20:02 -0500
+Message-ID: <40695802.1F13AB0D@nospam.org>
+Date: Tue, 30 Mar 2004 13:20:34 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
+Reply-To: Zoltan.Menyhart@bull.net
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+CC: haveblue@us.ibm.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, iwamoto@valinux.co.jp
+Subject: Re: Migrate pages from a ccNUMA node to another - patch
+References: <4063F581.ACC5C511@nospam.org>
+		<1080321646.31638.105.camel@nighthawk>
+		<20040330082741.541B77054E@sv1.valinux.co.jp> <20040330.180523.08003015.taka@valinux.co.jp>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Baehr <tehdely_lkml@metawire.org> wrote:
->
-> I'm running a linux 2.6.5-rc2-mm5 kernel atm... motherboard is an Abit 
-> NF7-s with an onboard firewire controller (I assume Nforce2 chipset).
+Hirokazu Takahashi wrote:
 > 
-> I get this loveliness everytime I modprobe ohci1394:
+> Hello,
 > 
-> ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[5]  
-> MMIO=[e0084000-e00847ff]  Max
-> Packet=[2048]
-> Badness in get_phy_reg at drivers/ieee1394/ohci1394.c:238
-> Call Trace:
->   [<f8bb710e>] get_phy_reg+0x10e/0x120 [ohci1394]
->   [<f8bb7f3c>] ohci_devctl+0x5c/0x5d0 [ohci1394]
->   [<c03f23c0>] common_interrupt+0x18/0x20
->   [<c0113d54>] delay_tsc+0x14/0x20
->   [<f8bba058>] ohci_irq_handler+0x588/0x830 [ohci1394]
->   [<c012643f>] do_timer+0xdf/0xf0
->   [<c010a8ca>] handle_IRQ_event+0x3a/0x70
->   [<c010ac85>] do_IRQ+0xd5/0x1b0
+> > > Have you considered any common ground your patch might share with the
+> > > people doing memory hotplug?
+> > >
+> > >     http://people.valinux.co.jp/~iwamoto/mh.html
+> > >
+> > > They have a similar problem to your migration that occurs when a user
+> > > wants to remove a whole or partial NUMA node.
+> > > lhms-devel@lists.sourceforge.net
+> >
+> > Processes must be migrated to other nodes when a node is being
+> > removed.  Conversely, processes may be migrated from other nodes when
+> > a node is added.  I'm not familiar with NUMA things, and I think our
+> > team doesn't have a particular solution.  If you have some idea,
+> > that's great.
+> >
+> > BTW, it seems page migration can use my remap_onepage function.  Our
+> > code can move most kinds of pages including hugetlbfs pages and page
+> > caches.
+> 
+> I believe his patch will interest you since most of the code is
+> independent of cpu architecture and it also covers mmaped files,
+> shmem, ramdisk, mlocked pages and so on.
+> 
+> We will post new version of the memory hotplug patches in a week.
+> 
+> Thank you,
+> Hirokazu Takahashi.
 
-That's due to a debug patch in -mm which catches out code which calls
-mdelay() from hard IRQ context.   It's considered to be unsociable.
+I am afraid the "remap_onepage()" function + the modifications necessary
+at some other places are too much for me :-)
 
-But there's nothing very wrong here.
+You do a couple of retries, waits. I cannot afford spending so much as
+overhead due to some performance optimization.
 
+I can understand that if you want to remove a node / memory module, then you
+have to succeed by all means, you have to handle all kinds of pages,
+the performance is not at a premium.
+
+Regards,
+
+Zoltán Menyhárt

@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288898AbSAERcE>; Sat, 5 Jan 2002 12:32:04 -0500
+	id <S288897AbSAERen>; Sat, 5 Jan 2002 12:34:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288894AbSAERby>; Sat, 5 Jan 2002 12:31:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15373 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288893AbSAERbi>; Sat, 5 Jan 2002 12:31:38 -0500
-Subject: Re: atp870u and acard scsi HELP!
-To: genlogic@mediaone.net (Sam Krasnik)
-Date: Sat, 5 Jan 2002 17:42:41 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C368096.4070207@mediaone.net> from "Sam Krasnik" at Jan 04, 2002 11:27:02 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288894AbSAERed>; Sat, 5 Jan 2002 12:34:33 -0500
+Received: from ns.suse.de ([213.95.15.193]:56327 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288897AbSAEReU>;
+	Sat, 5 Jan 2002 12:34:20 -0500
+Date: Sat, 5 Jan 2002 18:34:18 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <200201051716.g05HGeI125715@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.33.0201051833260.27113-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Muq9-0000Ty-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Umm the atp870u is supported in 2.2 and 2.4 by the default kernels. 
-> 
-> ...so one would think...yes it is supported technically, and the atp870u
-> driver does exist...but the 2.4 one does not work, that is a known fact.
+On Sat, 5 Jan 2002, Albert D. Cahalan wrote:
 
-Which tree, and what compiler
+> Of course, /proc/bus/pci contains forbidden binary files.
+> You're supposed to be happy with ASCII text, as found in
+> the /proc/pci file.
 
-> some of the code has a different format in 2.4 than 2.2 and 2.0,
-> mostly the external stuff to load as modules...etc, but i can't get it 
-> to work.
-> so i needed help porting the old one into the new 2.4 framework
-> if you will.
+You miss the point. The point was that /proc/pci doesn't
+expose all of pci config space, whereas /proc/bus/pci does.
+The fact that it's binary instead of ascii is neither here nor there.
 
-I think you need to work out why the newer one is failing on your specific
-hardware. Standard Red Hat kernel....
-
-aec671x_detect:
-PCI: Found IRQ 10 for device 00:08.0
-   ACARD AEC-671X PCI Ultra/W SCSI-3 Host Adapter: 0    IO:d800, IRQ:10.
-         ID:  2  HP      C1537A          L105
-         ID:  5  IBM     DSAS-3540     !WS47Y
-         ID:  7  Host Adapter
-scsi0 : ACARD AEC-6710/6712/67160 PCI Ultra/W/LVD SCSI-3 Adapter Driver
-V2.4+ac
-  Vendor: HP        Model: C1537A            Rev: L105
-  Type:   Sequential-Access                  ANSI SCSI revision: 02
-  Vendor: IBM       Model: DSAS-3540     !W  Rev: S47Y
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Attached scsi disk sda at scsi0, channel 0, id 5, lun 0
-SCSI device sda: 1056768 512-byte hdwr sectors (541 MB)
- sda: sda1
-Journalled Block Device driver loaded
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

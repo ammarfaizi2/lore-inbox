@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276844AbRJCCwy>; Tue, 2 Oct 2001 22:52:54 -0400
+	id <S276842AbRJCCxE>; Tue, 2 Oct 2001 22:53:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276845AbRJCCwo>; Tue, 2 Oct 2001 22:52:44 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:2749 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S276844AbRJCCwg>;
-	Tue, 2 Oct 2001 22:52:36 -0400
-Date: Wed, 3 Oct 2001 04:52:57 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Robert Love <rml@tech9.net>
-Cc: Christof Efkemann <efkemann@uni-bremen.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Intel 830 support for agpgart
-Message-ID: <20011003045257.Q7800@khan.acc.umu.se>
-In-Reply-To: <20011002033227.6e047544.efkemann@uni-bremen.de> <1001988137.2780.53.camel@phantasy> <20011002151051.488306ee.efkemann@uni-bremen.de> <1002066345.1003.66.camel@phantasy> <20011003021658.O7800@khan.acc.umu.se> <1002075650.1237.2.camel@phantasy>
+	id <S276845AbRJCCwz>; Tue, 2 Oct 2001 22:52:55 -0400
+Received: from rj.sgi.com ([204.94.215.100]:42661 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S276842AbRJCCwm>;
+	Tue, 2 Oct 2001 22:52:42 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andreas Schwab <schwab@suse.de>, Ian Grant <Ian.Grant@cl.cam.ac.uk>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [patch] 2.4.10 build failure - atomic_dec_and_lock export 
+In-Reply-To: Your message of "Tue, 02 Oct 2001 19:52:29 +0200."
+             <15289.65245.126409.37240@charged.uio.no> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <1002075650.1237.2.camel@phantasy>; from rml@tech9.net on Tue, Oct 02, 2001 at 10:20:43PM -0400
+Date: Wed, 03 Oct 2001 12:52:57 +1000
+Message-ID: <30648.1002077577@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 02, 2001 at 10:20:43PM -0400, Robert Love wrote:
-> On Tue, 2001-10-02 at 20:16, David Weinehall wrote:
-> > If the only differences between the different cards are the nr of
-> > aperture-sizes and the status-register settings, why not have a struct
-> > which contains all the valid cards, and use a scan-routine?!
-> 
-> I suppose we could, and this is a good idea -- although we'd be
-> reapproaching the size of the current implementation which would be
-> theoretically faster, too.
+On Tue, 2 Oct 2001 19:52:29 +0200, 
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>>>>>> " " == Andreas Schwab <schwab@suse.de> writes:
+>
+>     > Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+>     > |> If you have CONFIG_SMP defined then atomic_dec_and_lock will
+>     > |> never get defined
+>
+>     > Unless you use CONFIG_MODVERSIONS, which causes
+>     > atomic_dec_and_lock to be versioned and defined as a macro via
+>     > <linux/modversions.h>.
+>
+>Oh great... That's going to confound the test in <linux/spinlock.h>
+>too.
+>
+>Urgh. Can anybody propose a less ugly solution than EXPORT_SYMBOL_NOVERS()?
 
-Afaik, speed is not really an issue (it's not like you're going to
-notice a difference anyway, even if you had a struct with 100 different
-adapters in it.) As for reapproaching the size of the current
-implementation, the difference is that you get one single function that
-you don't have to change. You just add one single line to the struct
-for each adapter.
+Use a second flag when atomic_dec_and_lock() is #defined.  No conflict
+with modversions then.
 
-Clean design is a virtue ;-)
+Index: 10.1/lib/dec_and_lock.c
+--- 10.1/lib/dec_and_lock.c Wed, 29 Aug 2001 09:36:05 +1000 kaos (linux-2.4/j/21_dec_and_lo 1.1.1.1 644)
++++ 10.1(w)/lib/dec_and_lock.c Wed, 03 Oct 2001 12:24:35 +1000 kaos (linux-2.4/j/21_dec_and_lo 1.1.1.1 644)
+@@ -26,7 +26,7 @@
+  * store-conditional approach, for example.
+  */
+ 
+-#ifndef atomic_dec_and_lock
++#ifndef ATOMIC_DEC_AND_LOCK
+ int atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock)
+ {
+ 	spin_lock(lock);
+Index: 10.1/include/linux/spinlock.h
+--- 10.1/include/linux/spinlock.h Thu, 05 Jul 2001 14:00:51 +1000 kaos (linux-2.4/X/48_spinlock.h 1.1.2.1 644)
++++ 10.1(w)/include/linux/spinlock.h Wed, 03 Oct 2001 12:27:02 +1000 kaos (linux-2.4/X/48_spinlock.h 1.1.2.1 644)
+@@ -42,6 +42,7 @@
+ #if (DEBUG_SPINLOCKS < 1)
+ 
+ #define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
++#define ATOMIC_DEC_AND_LOCK
+ 
+ /*
+  * Your basic spinlocks, allowing only a single CPU anywhere
+@@ -128,7 +129,7 @@ typedef struct {
+ #endif /* !SMP */
+ 
+ /* "lock on reference count zero" */
+-#ifndef atomic_dec_and_lock
++#ifndef ATOMIC_DEC_AND_LOCK
+ #include <asm/atomic.h>
+ extern int atomic_dec_and_lock(atomic_t *atomic, spinlock_t *lock);
+ #endif
 
-> There are only 3 possibilities right now (i830, i840, and everything
-> else).
-> 
-> Hmm, maybe I will code this nonetheless...
-
-It's your call.
-
-
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131027AbRCJQOs>; Sat, 10 Mar 2001 11:14:48 -0500
+	id <S131052AbRCJRB2>; Sat, 10 Mar 2001 12:01:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131028AbRCJQOi>; Sat, 10 Mar 2001 11:14:38 -0500
-Received: from s057.dhcp212-109.cybercable.fr ([212.198.109.57]:65029 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131027AbRCJQOY>; Sat, 10 Mar 2001 11:14:24 -0500
-Message-ID: <3AAA5273.67DC90EF@baretta.com>
-Date: Sat, 10 Mar 2001 17:12:35 +0100
-From: Alex Baretta <alex@baretta.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible bug with poll syscall
-In-Reply-To: <3AAA2ADE.E8FF41E3@baretta.com>
+	id <S131053AbRCJRBT>; Sat, 10 Mar 2001 12:01:19 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:57869 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S131052AbRCJRA7>;
+	Sat, 10 Mar 2001 12:00:59 -0500
+Date: Sat, 10 Mar 2001 18:00:13 +0100
+From: FAVRE Gregoire <greg@ulima.unil.ch>
+To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Cc: Nathan Dabney <smurf@osdlab.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aicasm db3 fiasco
+Message-ID: <20010310180013.A24505@ulima.unil.ch>
+Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
+	Chmouel Boudjnah <chmouel@mandrakesoft.com>,
+	Nathan Dabney <smurf@osdlab.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010309160145.H30901@osdlab.org> <20010310012647.A14199@ulima.unil.ch> <m3k85xr6wq.fsf@giants.mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <m3k85xr6wq.fsf@giants.mandrakesoft.com>; from chmouel@mandrakesoft.com on Sat, Mar 10, 2001 at 04:16:21PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Baretta wrote:
+Thus spake Chmouel Boudjnah (chmouel@mandrakesoft.com):
+
+> FAVRE Gregoire <greg@ulima.unil.ch> writes:
 > 
-> I am using poll with the POLLIN flag to wait for connection
-> requests on a set of listening sockets in a server process.
-> Although clients attempt to connect to those sockets, poll does
-> returns zero after the expiration of the timeout.
+> > thanks for your answer, I cannot apply your patch, don't know why, but
+> > readind it I think it won't change anything for me: I have db3 (I have a
+> > Mandrake...).
+> 
+> on which version ? it works fine for me.
 
+Mandrake Cooker, but if you read the mail I send afterthat, I explained
+that my problem what that I was having both db3 and BerkeleyDB, removing
+the last one solved the problem ;-)
 
-The very same thing happens if I use select. It seems highly
-unlikely that this should be the specified behavior of poll and
-select alike. Is one now forced to used threads to manage multiple
-ports?
-
-Greetings,
-
-Alex Baretta
+Thanks,
+ 
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

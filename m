@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315210AbSESVcI>; Sun, 19 May 2002 17:32:08 -0400
+	id <S315265AbSESVsf>; Sun, 19 May 2002 17:48:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315258AbSESVcH>; Sun, 19 May 2002 17:32:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55045 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315210AbSESVcH>;
-	Sun, 19 May 2002 17:32:07 -0400
-Message-ID: <3CE8198F.613F34CF@zip.com.au>
-Date: Sun, 19 May 2002 14:30:55 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Neil Aggarwal <neil@JAMMConsulting.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel bug in RedHat 7.3 -- Assertion failure in 
- journal_commit_transaction() at commit.c:535: "buffer_jdirty(bh)"
-In-Reply-To: <ENEBKGGOKDOEALIKAJMBOEIPCGAA.neil@JAMMConsulting.com>
+	id <S315278AbSESVse>; Sun, 19 May 2002 17:48:34 -0400
+Received: from panda.sul.com.br ([200.219.150.4]:12554 "EHLO ns.sul.com.br")
+	by vger.kernel.org with ESMTP id <S315265AbSESVsd>;
+	Sun, 19 May 2002 17:48:33 -0400
+Date: Sun, 19 May 2002 09:48:18 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: AUDIT of 2.5.15 copy_to/from_user
+Message-ID: <20020519124818.GA5481@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+	kernel-janitor-discuss@lists.sourceforge.net
+In-Reply-To: <E179IA6-0002eQ-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Aggarwal wrote:
+Em Sun, May 19, 2002 at 02:18:53PM +1000, Rusty Russell escreveu:
+> The following uses seem to be incorrect: copy_from_user and
+> copy_to_user return the number of bytes NOT copied on failure, not
+> -EFAULT.
 > 
-> Hello:
+> You can CC: fixups to trivial at rustcorp.com.au.
 > 
-> My RedHat 7.3 machine just locked up and I could not reboot it.  I had
-> to punch the reset button.
+> (I didn't look for cases where the Torvalds/McVoy philosophy says we
+> should be returning a partial result on EFAULT: that's more complex).
 > 
-> Here is what I found in the /var/log/messages file:
-> May 19 12:50:16 server1 kernel: Assertion failure in
-> journal_commit_transaction() at commit.c:535: "buffer_jdirty(bh)"
+> Thanks,
+> Rusty.
+> ================
+> Some cases are endemic: whole subsystems or drivers where the author
+> obviously thought copy_from_user follows the kernel conventions:
 
-SMP machine, presumably?
+> sound/pci/*.c
 
-The RH7.3 kernel has a bugfix which has unhappily exposed another
-bug: a race with bdflush.
+Heads up: I'm fixing now the sound/pci ones...
 
-I'm pretty sure that Red Hat's latest errata kernel fixes this.
-
-Patches against 2.4.19-pre8 which fix this are at
-	http://www.kernel.org/pub/linux/kernel/people/sct/ext3/v2.4/
-
--
+- Arnaldo

@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270257AbRHHBO6>; Tue, 7 Aug 2001 21:14:58 -0400
+	id <S270258AbRHHBU1>; Tue, 7 Aug 2001 21:20:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270258AbRHHBOs>; Tue, 7 Aug 2001 21:14:48 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:43488 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S270256AbRHHBOi>;
-	Tue, 7 Aug 2001 21:14:38 -0400
-Date: Tue, 7 Aug 2001 21:14:47 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [RFC][PATCH] parser for mount options
-In-Reply-To: <200108072352.XAA25661@vlet.cwi.nl>
-Message-ID: <Pine.GSO.4.21.0108072010260.18565-100000@weyl.math.psu.edu>
+	id <S270259AbRHHBUS>; Tue, 7 Aug 2001 21:20:18 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:63620 "HELO
+	spiral.extreme.ro") by vger.kernel.org with SMTP id <S270258AbRHHBUC>;
+	Tue, 7 Aug 2001 21:20:02 -0400
+Date: Wed, 8 Aug 2001 04:21:44 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: J Sloan <jjs@toyota.com>
+cc: Noel Koethe <noel@koethe.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x IP aliase max eth0:16 (16 aliases), where to change?
+In-Reply-To: <3B70764D.E90F96B6@lexus.com>
+Message-ID: <Pine.LNX.4.33L2.0108080418290.24309-100000@spiral.extreme.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> > The maximum aliases I can configure with a 2.4.x kernel is 16, right?
+>
+> er... I would expect you could do thousands....
 
-On Tue, 7 Aug 2001 Andries.Brouwer@cwi.nl wrote:
+Where did you come up with that '16' actually? Why not 3? 17? 100?
 
-> 	while (more_tokens) {
-> 		t = type_of_next_token();
-> 		switch (t) {
-> 		case ...
-> 		}
-> 	}
-> 
-> where the type_of_next_token() does the parsing, and the switch
-> does the assigning. Much more code. Much uglier - but tastes differ.
+Right now I'm running with 2.4.6-ac5, eth0 and 20 aliases for it
+(eth0:1..eth0:20). As expected, it didn't complain nor did anything
+different for 17th, as opposed to 16th interface. Perhaps you're running
+some old net tools/ifconfig, if you tested at all that is.
 
-I would agree, if in all cases it was about assigning a single value.
-It isn't.
+I have:
+net-tools 1.59
+ifconfig 1.40 (2000-05-21)
 
-> If you see strange warts in my parser it is mostly because
-> it was a patch without user-visible changes, so all existing
-> msdos option peculiarities had to be accommodated.
+Cheers, Dan.
 
-But that's precisely the point. It's accomodated to warts of random syntax
-and basically says "OK, nobody will ever want something that would not be
-covered by it".
-
-> Once such code is in place one needs a very good reason to
-> invent option syntax not covered by it.
-
-In other words, we can optimize for pretty arbitrary limitations.  Sure.
-It had been done before.  Who might think that we'll ever need something
-besides the array of integers or a string for sysctls?  Not too random,
-in that case...  Well, just look at the thing now.  Famous last words:
-"nobody will ever do that"...
-
-By the way, I wouldn't be surprised if it turned out that now we have
-a wart not covered by ones that were there 5 years ago.  I'm sure that
-it also can be dealt with - no arguments here.  However, it still
-doesn't deal with:
-
-	* syntax being not transparent.
-	* the whole interface being basically _defined_ by a snapshot
-of warts taken at some point.
-
-How it was? "The difference between good and bad programs is that good
-ones end up used in ways authors had never anticipated"?
-
-Sigh... Let me put it that way - what you had described is, IMO, a kludge.
-I don't think that it would be an improvement compared to the current
-state of the things, but if you want it in the tree - you know where to
-submit it.  Tastes differ, your and mine - quite seriously.
 

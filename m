@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315859AbSEMHhY>; Mon, 13 May 2002 03:37:24 -0400
+	id <S315867AbSEMHv5>; Mon, 13 May 2002 03:51:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315865AbSEMHhX>; Mon, 13 May 2002 03:37:23 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:28112 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S315859AbSEMHhV>; Mon, 13 May 2002 03:37:21 -0400
-Message-ID: <3CDF6CE0.4080604@drugphish.ch>
-Date: Mon, 13 May 2002 09:36:00 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020512
-X-Accept-Language: en-us, en
+	id <S315866AbSEMHv4>; Mon, 13 May 2002 03:51:56 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:47620 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S310806AbSEMHvz>; Mon, 13 May 2002 03:51:55 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200205130751.JAA19259@green.mif.pg.gda.pl>
+Subject: Re: [PATCH] CONFIG_ISA
+To: thunder@ngforever.de
+Date: Mon, 13 May 2002 09:51:09 +0200 (CEST)
+Cc: axel@hh59.org, ak@muc.de, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Reply-To: om@green.mif.pg.gda.pl, "Thunder from the hill"@green.mif.pg.gda.pl,
+        at@green.mif.pg.gda.pl, May@green.mif.pg.gda.pl,
+        12@green.mif.pg.gda.pl, 2@green.mif.pg.gda.pl,
+        01:00:36@green.mif.pg.gda.pl, pm@green.mif.pg.gda.pl
+In-Reply-To: <Pine.LNX.4.44.0205121258430.4369-100000@hawkeye.luckynet.adm> from "Thunder from the hill" at May 12, 2 01:00:36 pm
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
-To: Narancs v1 <narancs@narancs.tii.matav.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: net/ipv4/conf/* config order
-In-Reply-To: <Pine.LNX.4.44.0205130845570.2881-100000@helka>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+"F wrote:"
+> On Sun, 12 May 2002, Axel H. Siebenwirth wrote:
+> > Isn't there a config option called CONFIG_EISA?
+> 
+> Indeed.
+> 
+> > Which is about the same as ISA?
+> 
+> Nope, it's for EISA stuff (enhanced industry standard arch). It differs 
+> somewhat from what we know as ISA. A computer can have ISA bus and no 
+> EISA, and vv.
+           ^^^^
 
-> sysctl -a|grep source
-> net/ipv4/conf/eth2/accept_source_route = 1
-> net/ipv4/conf/eth1/accept_source_route = 1
-> net/ipv4/conf/eth0/accept_source_route = 1
-> net/ipv4/conf/lo/accept_source_route = 1
-> net/ipv4/conf/default/accept_source_route = 1
-> net/ipv4/conf/all/accept_source_route = 0
+I think that EISA support with no ISA support should not be assumed.
+AFAIK, EISA support provides ISA support as EISA is a superset of ISA. 
 
-Basically, accept_source_route says how to handle packets with the SRR 
-option set. If 1 (default for a router) it accepts those packets, if 0 
-(default for a host) it will drop them. [This is actually written in 
-../Documentation/networking/ip-sysctl.txt]
+so 
+CONFIG_EISA = "y"   should imply   CONFIG_ISA = "y"
+CONFIG_ISA = "n"    should imply   CONFIG_EISA = "n"
 
-> so does it mean, that source routed packets are all dropped in all
-> interfaces, or does it mean that all accepted?
-
-They will be dropped on all interfaces since /all/accept_source_route=0.
-Now you need to know that:
-
-/all/${var}     means: enable this feature ${var}
-/default/${var} means: inherit /all/${var} on newly instances of a
-                        physical interface
-
-> Yes, I want to disable it, and some other parameters, too, so shall I set
-> all of them respectively to 0 or 'all' = 0 will do the task?
-
-all=0 should do the task.
-
-Best regards,
-Roberto Nibali, ratz
-
-ps.: I don't think this question belongs to lkml, next time you should
-      maybe choose linux-net@vger.kernel.org.
+Andrzej
 -- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
-
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

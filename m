@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVCRP3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVCRPaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVCRP3n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVCRP1O
+	id S261663AbVCRPaP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVCRP0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:27:14 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:55779 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261641AbVCRPZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:25:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=dBdu2a4YfSoh1WCz/8NonunIgFPWP+wClhplSrQmwsS0v87q9O1JyTUW7YIlBJmTkpn7fqYeFN3Wqf4RFp1+HOaPQmVGQfxdRwaUbUp1TfsNKbrZcQuxgH+zjy/lfqxYXwdWVzGtyP91t6Odd3rkDVvDCV7qIm/Qu4aGAMPYZzA=
-Message-ID: <2a4f155d05031807256826bf79@mail.gmail.com>
-Date: Fri, 18 Mar 2005 17:25:35 +0200
-From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Subject: Re: 2.6.11: CDROM_SEND_PACKET as non-root?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050318154546.41b18776@phoebee>
+	Fri, 18 Mar 2005 10:26:33 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:45288 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261639AbVCRP0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 10:26:00 -0500
+Date: Fri, 18 Mar 2005 10:25:54 -0500
+To: Hong Kong Phoey <hongkongphoey@gmail.com>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DM9000 network driver
+Message-ID: <20050318152554.GH17865@csclub.uwaterloo.ca>
+References: <20050318133143.GA20838@metis.extern.pengutronix.de> <4f6c1bdf0503180711148b8f02@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050318154546.41b18776@phoebee>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4f6c1bdf0503180711148b8f02@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-growisofs works as a non-root user here.
+On Fri, Mar 18, 2005 at 08:41:52PM +0530, Hong Kong Phoey wrote:
+> Sacrificing readibility a little bit, you could do something useful.
+> Instead of those ugly switch statements you could define function
+> pointer arrays and call appropriate function
+> 
+> switch(foo) {
+> 
+>   case 1:
+>              f1();
+>   case2 :
+>              f2();
+> };
+> 
+> could well become
+> 
+> void (*func)[] = { f1, f2 };
+> 
+> func(i);
 
+Ewww!
 
-On Fri, 18 Mar 2005 15:45:46 +0100, Martin Zwickel
-<martin.zwickel@technotrend.de> wrote:
-> Hi all!
-> 
-> I have a small question:
-> What do I have to do, to let the ioctl CDROM_SEND_PACKET work as a
-> non-root user under 2.6.11?
-> 
-> I try to burn a DVD with growisofs as a non-root user without success.
-> 
-> I know that there were some changes about access restriction (since
-> 2.6.8), but I haven't found anything to get a clue about the current
-> status.
-> 
-> So is it just impossible to send a packet to the DVD burner without root
-> access? Do I have to use a wrapper that sets the effective user id to
-> root and then runs growisofs?
-> 
-> 
-> It's friday, so sorry for that stupid question, but a comment on that
-> would be fine :)
-> 
-> Regards,
-> Martin
-> 
-> -- 
-> MyExcuse:
-> Recursive traversal of loopback mount points
-> 
-> Martin Zwickel <martin.zwickel@technotrend.de>
-> Research & Development
-> 
-> TechnoTrend AG <http://www.technotrend.de>
-> 
-> 
+How about sticking with obvious readable code rather than trying to save
+a couple of conditional branches.  If it is an obvious good
+optimization, let the compiler do it.  of course if you ever needed to
+pass different parameters to f1 and/or f2 it would have to be rewritten
+back to the original again.
 
--- 
-Time is what you make of it
+Len Sorensen

@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265693AbTGIFh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 01:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbTGIFh5
+	id S265713AbTGIGEO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 02:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265714AbTGIGEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 01:37:57 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:39645 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S265693AbTGIFh4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 01:37:56 -0400
-Date: Tue, 08 Jul 2003 22:52:15 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Max Valdez <maxvalde@fis.unam.mx>, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: undefined reference to `xapic_support`
-Message-ID: <58290000.1057729934@[10.10.2.4]>
-In-Reply-To: <1057683423.4000.6.camel@garaged.homeip.net>
-References: <20030708184726.GA900@magma.unil.ch> <200307082053.03878.m.c.p@wolk-project.de> <20030708192445.GB900@magma.unil.ch> <1057682998.3999.3.camel@garaged.homeip.net> <1057683423.4000.6.camel@garaged.homeip.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 9 Jul 2003 02:04:14 -0400
+Received: from f22.mail.ru ([194.67.57.55]:49165 "EHLO f22.mail.ru")
+	by vger.kernel.org with ESMTP id S265713AbTGIGEO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 02:04:14 -0400
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: printk in atomic context
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Wed, 09 Jul 2003 10:18:34 +0400
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E19a8Hi-0004GN-00.arvidjaar-mail-ru@f22.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> CONFIG_X86_CLUSTERED_APIC=y
 
-Why? Do you really need this?
- 
-M.
+Is it possible (safe) to use printk in atomic context, i.e. under
+spinlock or inside of preemption-disabled region?
 
+The same question about 2.4 (here I guess only spinlock?)
 
+TIA
+
+-andrey

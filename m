@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbTLZA5n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 19:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbTLZA5n
+	id S264428AbTLZBHb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 20:07:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTLZBHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 19:57:43 -0500
-Received: from mail.nvc.net ([64.68.160.43]:20484 "EHLO garbanzo.nvc.net")
-	by vger.kernel.org with ESMTP id S264411AbTLZA5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 19:57:42 -0500
-Message-ID: <3FEB8785.6070404@dakotainet.net>
-Date: Thu, 25 Dec 2003 18:57:41 -0600
-From: merwan kashouty <kashouty@dakotainet.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221
-X-Accept-Language: en-us, en
+	Thu, 25 Dec 2003 20:07:31 -0500
+Received: from c-67-166-107-168.client.comcast.net ([67.166.107.168]:35719
+	"EHLO eglifamily.dnsalias.net") by vger.kernel.org with ESMTP
+	id S264428AbTLZBH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 20:07:29 -0500
+Date: Fri, 26 Dec 2003 01:07:15 +0000 (UTC)
+From: dan@eglifamily.dnsalias.net
+To: Eric <eric@cisu.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 problems
+In-Reply-To: <200312251607.31868.eric@cisu.net>
+Message-ID: <Pine.LNX.4.44.0312260106510.1888-100000@eglifamily.dnsalias.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mpt-fusion driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-SA-Exim-Mail-From: dan@eglifamily.dnsalias.net
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i bought a  new scsi controller , lsi21320 and was running 2.4.23 , 
-after about 20 hrs the system became sluggish and then locked up... i 
-switched back to a tekram u160 card i had and after a few days found this.
+On Thu, 25 Dec 2003, Eric wrote:
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0310.3/0068.html
+> On Thursday 25 December 2003 02:57 pm, dan@eglifamily.dnsalias.net wrote:
+> > I grabbed the 2.6.0 code yesterday. But when I tried to compile a
+> > modular kernel, I got a *LOT* of unresolved symbols in the modules. I'm
+> > attaching the stderr output from depmod's run of make modules_install.
+> 	I had this problem with a RH9 install. Instead of modutils, upgrade the the 
+> latest module-init-tools from ftp://kernel.org.
+> 	The problem is that most of the module loading code has been moved from 
+> userspace to kernel code to make module loading more portable. Be sure to 
+> follow the upgrade instructions carefully. If done correctly it will keep 
+> your old modutils in case you load a 2.4.x kernel and will default to the new 
+> module-init-tools for 2.6.x kernels.
 
-in the messege is a link to a driver update released by lsi
+I'll try that, thanks!
 
-ftp://ftp.lsil.com/HostAdapterDrivers/linux/Fusion-MPT/2.05.10/mptlinux-2.05
+Any ideas on the blank screen issue?
 
-so i applied the updated driver patch to my kernel recompiled and its 
-been running great ever since.. very fast too....
+--- Dan
 
- Timing buffered disk reads:  316 MB in  3.02 seconds = 104.77 MB/sec
 
-could this possibly find its way into the 2.4.23 or atleast 2.4.24 if it 
-isnt already.
 
-ciao
-
-merwan
-
-i am not a subscriber to the lkml so CC me if not to much trouble

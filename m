@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317266AbSFLLwT>; Wed, 12 Jun 2002 07:52:19 -0400
+	id <S317270AbSFLL6A>; Wed, 12 Jun 2002 07:58:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317270AbSFLLwS>; Wed, 12 Jun 2002 07:52:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37328 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317266AbSFLLwR>;
-	Wed, 12 Jun 2002 07:52:17 -0400
-Date: Wed, 12 Jun 2002 04:47:59 -0700 (PDT)
-Message-Id: <20020612.044759.115989376.davem@redhat.com>
-To: wjhun@ayrnetworks.com
-Cc: paulus@samba.org, roland@topspin.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020610110740.B30336@ayrnetworks.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317297AbSFLL57>; Wed, 12 Jun 2002 07:57:59 -0400
+Received: from mons.uio.no ([129.240.130.14]:64958 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S317270AbSFLL56>;
+	Wed, 12 Jun 2002 07:57:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo, Norway
+To: Simon Matthews <simon@paxonet.com>
+Subject: Re: NFS Client mis-behaviour?
+Date: Wed, 12 Jun 2002 13:57:45 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206102041020.11116-100000@spare> <4.3.1.2.20020611092415.031616a0@coremail>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206121357.45980.trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: William Jhun <wjhun@ayrnetworks.com>
-   Date: Mon, 10 Jun 2002 11:07:40 -0700
+On Tuesday 11 June 2002 18:28, Simon Matthews wrote:
 
-   On Sun, Jun 09, 2002 at 09:27:05PM -0700, David S. Miller wrote:
-   > I'm trying to specify this such that knowledge of cachelines and
-   > whatnot don't escape the arch specific code, ho hum...  Looks like
-   > that isn't possible.
-   
-   Perhaps provide macros in asm/pci.h that will:
-   
-You don't understand, I think.  I want to avoid the drivers doing
-any of the "align this, align that" stuff.  I want the allocation
-to do it for them, that way the code is in one place.
+> Other packets were able to make it into and out of the machine: I could
+> telnet/ssh/rlogin. The user could not interrupt the process, despite the
+> fact that the mount options included "intr".
+
+There is a well known problem with 'intr': if one process is waiting on the 
+page lock, then there is no provision for interrupting (that's a known 
+weakness with the MM layer).
+Since taking the page lock is usually done by some process that wants to read 
+from a page, the usual cause of such a hangup is the fact that some other 
+process is in the middle of an NFS READ. For this reason, if you kill *all* 
+READ operations (by doing 'killall -9 rpciod) then you can usually recover. 
+That's something that is only possible for 'root' though...
+
+> My point is that the use of half-duplex may prevent the NFS client from
+> sending or receiving (probably sending) some packets. But, since the
+> processes that caused the load had stopped doing anything and other packets
+> were passing in and out, the NFS client should have been able to recover
+> earlier.
+
+As I said, all the client is required to do is to retry (unless it gets 
+interrupted). I'm not sure what else you mean by 'recover' in the above 
+sentence.
+
+Cheers,
+  Trond

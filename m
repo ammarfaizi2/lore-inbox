@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270333AbRHSLAg>; Sun, 19 Aug 2001 07:00:36 -0400
+	id <S270314AbRHSK4g>; Sun, 19 Aug 2001 06:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270336AbRHSLA0>; Sun, 19 Aug 2001 07:00:26 -0400
-Received: from aeon.tvd.be ([195.162.196.20]:16179 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S270333AbRHSLAO>;
-	Sun, 19 Aug 2001 07:00:14 -0400
-Date: Sun, 19 Aug 2001 12:55:23 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Adam J. Richter" <adam@ns1.yggdrasil.com>
-cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        mj@ucw.cz
-Subject: Re: [Linux-fbdev-devel] Patch, please TEST: linux-2.4.9 console font
- modularization
-In-Reply-To: <200108191028.DAA01752@ns1.yggdrasil.com>
-Message-ID: <Pine.LNX.4.05.10108191252190.16179-100000@callisto.of.borg>
+	id <S270333AbRHSK40>; Sun, 19 Aug 2001 06:56:26 -0400
+Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:55812 "EHLO
+	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S270331AbRHSK4N>; Sun, 19 Aug 2001 06:56:13 -0400
+From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
+Message-Id: <200108191056.f7JAuLH09380@wildsau.idv-edu.uni-linz.ac.at>
+Subject: please remove min/max from kernel.h
+To: linux-kernel@vger.kernel.org
+Date: Sun, 19 Aug 2001 12:56:21 +0200 (MET DST)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Aug 2001, Adam J. Richter wrote:
-> >What's wrong with the ancient console ioctl()s to change the font at runtine?
-> >(damned, I can't remember the name of the command)
-> 
-> 	I don't know enough about fbdev vs. the old PC VGA console 
-> to know whether those ioctl's are available for fbdev.
 
-Yes, they should work, through the console->con_font_op() call.
+hi,
 
-> 	As far as I'm concerned, loading fonts by user level programs
-> would be even better than by loading modules, although, I think that,
-> when trying to move a facility from kernel to userland, people are a
-> lot more willing to try that change if the kernel-based way is still
-> available, but normally just compiled as modules that people gradually
-> stop using.
+I found that those 3-argumented macros min/max in linux/kernel.h wont
+only break my modules, but others as well, e.g. I tried to compile
+2.4.9 with IPSec (Freeswan). It gives me:
 
-Yes, and the user-land support is even older than the kernel support, except
-for the one builtin font that fbdev requires (on VGA text the font is in the
-VGA BIOS ROM).
+  : make[1]: Leaving directory `/data/root/linux-2.4.9'
+  : utils/errcheck out.kbuild
+  : 
+  : ***ERRORS DETECTED in out.kbuild (examine file for details):
+  : radij.c:274: parse error before `__x'
+  : make[4]: *** [radij.o] Error 1
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+"__x". does that ring a bell? let's please have min/max macros with
+two arguments only as god wanted them to have and get rid of the
+three-eyed zyclops, who only exists in greek mythology. for my part,
+I will #undef min, #undef max anyway.
 

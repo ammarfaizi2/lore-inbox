@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268166AbUJGWP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268340AbUJGWvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268166AbUJGWP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269851AbUJGWNg
+	id S268340AbUJGWvd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269852AbUJGWSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:13:36 -0400
-Received: from mailfe07.swip.net ([212.247.154.193]:26584 "EHLO
-	mailfe07.swip.net") by vger.kernel.org with ESMTP id S269845AbUJGWI4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:08:56 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Fri, 8 Oct 2004 00:08:51 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sebastien.hinderer@libertysurf.fr
-Subject: Re: [Patch] new serial flow control
-Message-ID: <20041007220851.GD2296@bouh.is-a-geek.org>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	sebastien.hinderer@libertysurf.fr
-References: <200410051249_MC3-1-8B8B-5504@compuserve.com> <20041005172522.GA2264@bouh.is-a-geek.org> <1097176130.31557.117.camel@localhost.localdomain> <20041007212722.G8579@flint.arm.linux.org.uk>
+	Thu, 7 Oct 2004 18:18:44 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:7808 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S269856AbUJGWRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:17:52 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: lsm: add bsdjail documentation
+Date: Fri, 08 Oct 2004 00:17:09 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.10.07.22.17.09.105723@smurf.noris.de>
+References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094358.6939.13.camel@serge.austin.ibm.com>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041007212722.G8579@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6i-nntp
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: server.smurf.noris.de 1097187429 31272 192.109.102.35 (7 Oct 2004 22:17:09 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Thu, 7 Oct 2004 22:17:09 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 07 oct 2004 à 21:27:22 +0100, Russell King a écrit:
-> I can't help but wonder whether moving some of the usual modem line
-> status change processing should also be moved into the higher levels.
+Hi, Serge Hallyn wrote:
 
-The more I'm thinking about it, the more I think it's not a good idea:
-that would require *every* line discipline to implement hardware flow
-control (just like xon/xoff), while I think they shouldn't really care
-about it.
+> +       echo -n "ip 2.2.2.2" > /proc/$$/attr/exec (optional)
 
-The asynchronous ppp ldisc for instance can be used on a serial line,
-but can very well be used on a ssh tunnel (in which case rts/cts flow
-control has no meaning).
+Please use RFC private addresses in example code.
 
-I can understand that xon/xoff processing be implemented in ldiscs
-since it is characters stuff, but one can't ask the ldisc to know
-details about hardware flow control which depends on the tty it is
-used on.
+That being said, bsdjail is a very good idea (which is why we're stealing
+it from BSD after all ...). It affords lightweight compartmentalization,
+in other words a chroot-on-steroids, which is exactly what I need to split
+one box into a couple of mostly-independent realms, and I assume that many
+ISP/ASP/whatever hosting people will agree.
 
-Regards,
-Samuel Thibault
+Anyway, that's my vote for adding it to the kernel.
+
+-- 
+Matthias Urlichs

@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131488AbRBJPDS>; Sat, 10 Feb 2001 10:03:18 -0500
+	id <S131469AbRBJPNC>; Sat, 10 Feb 2001 10:13:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131469AbRBJPC7>; Sat, 10 Feb 2001 10:02:59 -0500
-Received: from front3.grolier.fr ([194.158.96.53]:59101 "EHLO
-	front3.grolier.fr") by vger.kernel.org with ESMTP
-	id <S131450AbRBJPCu> convert rfc822-to-8bit; Sat, 10 Feb 2001 10:02:50 -0500
-Date: Sat, 10 Feb 2001 15:01:50 +0100 (CET)
-From: Gérard Roudier <groudier@club-internet.fr>
-To: Linux <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: SYM-2 / SYM-1 / NCR-3 drivers UPdates
-Message-ID: <Pine.LNX.4.10.10102101443540.1796-100000@linux.local>
+	id <S131475AbRBJPMw>; Sat, 10 Feb 2001 10:12:52 -0500
+Received: from colorfullife.com ([216.156.138.34]:15365 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131469AbRBJPMk>;
+	Sat, 10 Feb 2001 10:12:40 -0500
+Message-ID: <3A855A85.A33BBF7F@colorfullife.com>
+Date: Sat, 10 Feb 2001 16:13:09 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Tom Leete <tleete@mountain.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Athlon-SMP compiles & runs. inline fns honored.
+In-Reply-To: <3A8554FA.AB33BE05@mountain.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tom Leete wrote:
+> 
+> +
+> +#ifndef _LINUX_MM_H
+> +struct vm_area_struct;
+> +#endif
+> +
+Are the #ifndef's necessary?
+Could you try to remove the #ifndef and always declare the struct? gcc
+shouldn't complain.
 
-Updated drivers for SYMBIOS 53C[8XX|1010] chips are available from 
-the ftp.tux.org site.
+> +
+> +/* Try removing /linux/fs.h in capability.h first
+> +#ifndef _LINUX_CAPABILITY_H
+> +typedef struct bogus_cap_struct {
+> +       __u32 cap;
+> +} kernel_cap_t;
+> +#endif
+> +*/
+> +
+Is is possible to get rid of that one?
+What if somone modifies capability.h?
 
-sym53c8xx-1.7.3-pre1 + ncr53c8xx-3.4.3-pre1
--------------------------------------------
-URL (entered by hand):
-ftp.tux.org://roudier/drivers/linux/stable/sym-1.7.3-ncr-3.4.3-pre1.tar.gz
-
-sym-2.1.6
----------
-URL (entered by foot :))
-ftp.tux.org://roudier/drivers/portable/sym-2.1.6-20010207.tar.gz
-
-The former is an update for the driver bundle currently in 2.2 and 2.4.
-The latter is the portable sym driver that for now supports Linux and 
-FreeBSD.
-
-Stock sym/ncr drivers in both 2.2 and 2.4 are more than 6 months old and
-need to be updated. My plan is to leave kernel maintainers the choice
-between sym-1/ncr-3 and sym-2. Btw, sym-2 is anyway candidate for 2.5.
-
-The both (tri?) drivers do call pci_enable_device() prior to looking 
-into the pcidev structure. Donnot colour me happy of that, but given that
-it is not me but kernel maintainers that will be bashed if this breaks
-firmware RAID, I didn't see any problem for this change. :-)
-
-If some additionnal testing could be performed this week-end by courageous
-Linux users, this will avoid some noise once sent to kernel maintainers,
-if I missed something important in the updates.
-
-  Gérard.
-
-
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

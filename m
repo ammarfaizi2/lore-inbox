@@ -1,96 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRDSQJK>; Thu, 19 Apr 2001 12:09:10 -0400
+	id <S131191AbRDSQJK>; Thu, 19 Apr 2001 12:09:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131205AbRDSQJA>; Thu, 19 Apr 2001 12:09:00 -0400
-Received: from user-vc8ftn3.biz.mindspring.com ([216.135.246.227]:63244 "EHLO
-	mail.ivivity.com") by vger.kernel.org with ESMTP id <S130768AbRDSQIu>;
-	Thu, 19 Apr 2001 12:08:50 -0400
-Message-ID: <25369470B6F0D41194820002B328BDD27C91@ATLOPS>
-From: Marc Karasek <marc_karasek@ivivity.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: FW: Bug in serial.c 
-Date: Thu, 19 Apr 2001 12:08:42 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130768AbRDSQJB>; Thu, 19 Apr 2001 12:09:01 -0400
+Received: from ns.caldera.de ([212.34.180.1]:58630 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S131191AbRDSQIv>;
+	Thu, 19 Apr 2001 12:08:51 -0400
+Date: Thu, 19 Apr 2001 18:08:42 +0200
+From: Marcus Meissner <Marcus.Meissner@caldera.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/sound/nm256_audio.c
+Message-ID: <20010419180842.A16881@caldera.de>
+In-Reply-To: <20010419173502.A13934@caldera.de> <3ADF0A91.F803266F@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <3ADF0A91.F803266F@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Apr 19, 2001 at 11:56:01AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-
------Original Message-----
-From: Marc Karasek
-To: 'Richard B. Johnson '
-Sent: 4/19/01 11:53 AM
-Subject: RE: Bug in serial.c 
-
- Did something change between 2.4.2 & 2.4.3? Under 2.4.2 I did not have
-to init the terminal (are you refering to the host or client side?) and
-just accepted the defaults (9600, 8n1) which was fine for debug and
-terminal I/O.  
-
-My issue is with 2.4.2 it works with 2.4.3 (same .config) it does not.
-So in my mind this is a bug of some type.....  :-) 
-
-Which kernel are you using in your embedded project??
-
-
-
-
------Original Message-----
-From: Richard B. Johnson
-To: Marc Karasek
-Cc: 'linux-kernel@vger.kernel.org'
-Sent: 4/19/01 11:43 AM
-Subject: Re: Bug in serial.c 
-
-On Thu, 19 Apr 2001, Marc Karasek wrote:
-
-> I am doing some embedded development with the 2.4.x series and have
-noticed
-> a few things..
->
-[SNIPPED...]
- 
+On Thu, Apr 19, 2001 at 11:56:01AM -0400, Jeff Garzik wrote:
+> Marcus Meissner wrote:
+> > 
+> > Hi,
+> > 
+> > This updates the nm256_audio driver to the 2.4 PCI API.
+> > 
+> > Patch is against 2.4.3-ac9, verified on Sony VAIO Laptop.
 > 
-> 2) In 2.4.3 the console port using ttySX is broken.  It dumps fine to
-the
-> terminal but when you get to a point of entering data (login,
-configuration
-> scripts, etc) the terminal does not accept any input.  
->
+> "verified" is the really important part with this driver, since its
+> really finicky.  I have a patch I would love to bounce to you in
+> private, that I have been searching for a tester for -months- because I
+> had no test hardware of my own.
 
-It is not broken. It is used all the while in our embeded systems.
- 
-> So far I have been able to debug to the point where I see that the
-kernel is
-> receiving the characters from the serial.c driver.  But it never echos
-them
-> or does anything else with them.  I will continue to look into this at
-this
-> end.  
+Feel free to send (I have a NM256AV card in that VAIO).
+
+> Your patch looks ok to me and I would say apply it.  But I also think it
+> is incomplete.
 > 
+> * there is no need for a linked list of cards, since
+> pci_{get,set}_drvdata is used.  This eliminates the list walk in
+> nm256_remove
 
-Did you ever initialize the terminal? And I'm not talking about
-baud-rate.
-There is a termios structure of information necessary to configure a
-terminal for I/O.
+The problem is with device opens, which just pass numbers, most other
+sound drivers still use linked lists.
 
-> I was also wondering if anyone else has seen this or if a patch is
-avail for
-> this bug??
+Hmm, but via8xxxx_audio.c doesn't, I will take this as example.
 
-You refer to a BUG?  There isn't any of the kind you describe.
+> * the new PCI API has suspend/resume hooks, and those should be used in
+> preference to register_pm_...
 
+Ok, will have another look at the other issues.
 
-Cheers,
-Dick Johnson
+And I hope my colleague brings his VAIO to work tomorrow ;)
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+Ciao, Marcus

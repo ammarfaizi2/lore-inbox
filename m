@@ -1,83 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263011AbVALHBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263012AbVALHDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbVALHBN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 02:01:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbVALHBN
+	id S263012AbVALHDF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 02:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbVALHDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 02:01:13 -0500
-Received: from rly-ip04.mx.aol.com ([64.12.138.8]:4335 "EHLO
-	rly-ip04.mx.aol.com") by vger.kernel.org with ESMTP id S263011AbVALHA6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 02:00:58 -0500
-Message-ID: <41E4CBC3.4070302@yahoo.co.uk>
-Date: Wed, 12 Jan 2005 07:03:31 +0000
-From: christos gentsis <christos_gentsis@yahoo.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: root <root@mail.gadugi.org>, linux-kernel@vger.kernel.org
-Subject: Re: Cherokee Nation Posts Open Source Legisation - Invites comments
- from Community Members
-References: <20050106180414.GA11597@mail.gadugi.org> <200501061836.j06IakHo030551@turing-police.cc.vt.edu>            <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu>
-In-Reply-To: <200501061935.j06JZMq4013855@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AOL-IP: 195.93.52.87
+	Wed, 12 Jan 2005 02:03:04 -0500
+Received: from mail.suse.de ([195.135.220.2]:5298 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263012AbVALHBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 02:01:31 -0500
+Date: Wed, 12 Jan 2005 08:01:30 +0100
+From: Andi Kleen <ak@suse.de>
+To: torvalds@osdl.org, akpm@osdl.org, discuss@x86-64.org, vandrove@vc.cvut.cz,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] x86_64: Fix ACPI NUMA parsing
+Message-ID: <20050112070130.GB532@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 06 Jan 2005 12:37:25 CST, root said:
-> 
-> 
->>It's based on the design of the license.  Under Cherokee Nation Law, you
->>can have and claim trade secrets in public code released under a public
->>license.  This makes it very easy for individual contributors to 
->>enforce their rights in the US.  We spent months researching this, and yes,
->>it holds up under our laws.  
-> 
-> 
-> You will have trouble with "rights in the US", because of the definition of
-> "trade secret" includes 18 USC 1839 (3):
-> 
-> (3) the term "trade secret" means all forms and types of financial,
-> business, scientific, technical, economic, or engineering information,
-> including patterns, plans, compilations, program devices, formulas, designs,
-> prototypes, methods, techniques, processes, procedures, programs, or codes,
-> whether tangible or intangible, and whether or how stored, compiled, or
-> memorialized physically, electronically, graphically, photographically, or in
-> writing if --
-> 
-> (A) the owner thereof has taken reasonable measures to keep such information secret; and
-> 
-> (B) the information derives independent economic value, actual or potential,
-> from not being generally known to, and not being readily ascertainable through
-> proper means by, the public; and
-> 
-> You'll have a hard time convincing a jury not on the reservation that publishing
-> something as open source is at all a "reasonable measure to keep it secret".
-> 
-> In fact, you're going to have a hard time - if you're not a sovereign nation,
-> then 18 USC 1839 will trump your law.  And if you *are* a sovereign nation,
-> you better get some lobbyists that can read and understand the implications
-> of 19 USC 2242(a)(1)(A) and/or 19 USC 2242(b)(1).....
+Fix SRAT NUMA parsing
 
-hello all
+Fix fallout from the recent nodemask_t changes. The node ids assigned 
+in the SRAT parser were off by one.
 
-sorry about this question but i didn't understand something in all this 
-"trade secret" situation...
+I added a new first_unset_node() function to nodemask.h to allocate
+IDs sanely.
 
-first: Is there any impact in GNU GPL?
+Signed-off-by: Andi Kleen <ak@suse.de>
 
-second: does this US law means that everything could be a "trade 
-secret"? even something like the  GUI? or a process bar? and in case 
-that someone will register them what is going to happens?
-
-third: this under US law, is it applied in EU etc????
-
-thanks for your time
-Christos
-
-
-
+Index: linux/arch/x86_64/mm/srat.c
+===================================================================
+--- linux.orig/arch/x86_64/mm/srat.c	2005-01-09 18:19:17.%N +0100
++++ linux/arch/x86_64/mm/srat.c	2005-01-12 04:15:43.%N +0100
+@@ -20,17 +20,20 @@
+ 
+ static struct acpi_table_slit *acpi_slit;
+ 
+-static DECLARE_BITMAP(nodes_parsed, MAX_NUMNODES) __initdata;
++static nodemask_t nodes_parsed __initdata;
++static nodemask_t nodes_found __initdata;
+ static struct node nodes[MAX_NUMNODES] __initdata;
+ static __u8  pxm2node[256] __initdata = { [0 ... 255] = 0xff };
+ 
+ static __init int setup_node(int pxm)
+ {
+-	if (pxm2node[pxm] == 0xff) {
+-		if (num_online_nodes() >= MAX_NUMNODES)
++	unsigned node = pxm2node[pxm];
++	if (node == 0xff) {
++		if (nodes_weight(nodes_found) >= MAX_NUMNODES)
+ 			return -1;
+-		pxm2node[pxm] = num_online_nodes();
+-		node_set_online(num_online_nodes());
++		node = first_unset_node(nodes_found); 
++		node_set(node, nodes_found);
++		pxm2node[pxm] = node;
+ 	}
+ 	return pxm2node[pxm];
+ }
+@@ -140,7 +143,7 @@
+ 		return;
+ 	}
+ 	nd = &nodes[node];
+-	if (!test_and_set_bit(node, &nodes_parsed)) {
++	if (!node_test_and_set(node, nodes_parsed)) {
+ 		nd->start = start;
+ 		nd->end = end;
+ 	} else {
+@@ -171,7 +174,7 @@
+ 		return -1;
+ 	}
+ 	for (i = 0; i < MAX_NUMNODES; i++) {
+-		if (!test_bit(i, &nodes_parsed))
++		if (!node_isset(i, nodes_parsed))
+ 			continue;
+ 		cutoff_node(i, start, end);
+ 		if (nodes[i].start == nodes[i].end)
+Index: linux/include/linux/nodemask.h
+===================================================================
+--- linux.orig/include/linux/nodemask.h	2005-01-12 02:43:49.%N +0100
++++ linux/include/linux/nodemask.h	2005-01-12 04:15:43.%N +0100
+@@ -38,6 +38,8 @@
+  *
+  * int first_node(mask)			Number lowest set bit, or MAX_NUMNODES
+  * int next_node(node, mask)		Next node past 'node', or MAX_NUMNODES
++ * int first_unset_node(mask)		First node not set in mask, or 
++ *					MAX_NUMNODES.
+  *
+  * nodemask_t nodemask_of_node(node)	Return nodemask with bit 'node' set
+  * NODE_MASK_ALL			Initializer - all bits set
+@@ -238,6 +240,13 @@
+ 	m;								\
+ })
+ 
++#define first_unset_node(mask) __first_unset_node(&(mask))
++static inline int __first_unset_node(const nodemask_t *maskp)
++{
++	return min_t(int,MAX_NUMNODES,
++			find_first_zero_bit(maskp->bits, MAX_NUMNODES));
++}
++
+ #define NODE_MASK_LAST_WORD BITMAP_LAST_WORD_MASK(MAX_NUMNODES)
+ 
+ #if MAX_NUMNODES <= BITS_PER_LONG

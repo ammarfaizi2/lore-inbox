@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272378AbTHMM4t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 08:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272389AbTHMM4t
+	id S274944AbTHMNPj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 09:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274964AbTHMNPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 08:56:49 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:33957
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272378AbTHMM4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 08:56:48 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test3-mm2
-Date: Wed, 13 Aug 2003 23:02:26 +1000
-User-Agent: KMail/1.5.3
-References: <20030813013156.49200358.akpm@osdl.org>
-In-Reply-To: <20030813013156.49200358.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308132302.26656.kernel@kolivas.org>
+	Wed, 13 Aug 2003 09:15:39 -0400
+Received: from f16.mail.ru ([194.67.57.46]:7689 "EHLO f16.mail.ru")
+	by vger.kernel.org with ESMTP id S274944AbTHMNPa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 09:15:30 -0400
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: =?koi8-r?Q?=22?=Andrew Morton=?koi8-r?Q?=22=20?= <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: new dev_t printable convention and lilo
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Wed, 13 Aug 2003 17:15:19 +0400
+In-Reply-To: <20030809161221.1a94eb2c.akpm@osdl.org>
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E19mvTD-0007gz-00.arvidjaar-mail-ru@f16.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this on running lilo (scary but it didn't kill my bootblock).
 
-Aug 13 22:54:58 pc kernel:  ------------[ cut here ]------------
-Aug 13 22:54:58 pc kernel: kernel BUG at mm/filemap.c:1930!
-Aug 13 22:54:58 pc kernel: invalid operand: 0000 [#2]
-Aug 13 22:54:58 pc kernel: PREEMPT
-Aug 13 22:54:58 pc kernel: CPU:    0
-Aug 13 22:54:58 pc kernel: EIP:    0060:[<c013b519>]    Not tainted VLI
-Aug 13 22:54:58 pc kernel: EFLAGS: 00010282
-Aug 13 22:54:58 pc kernel: EIP is at generic_file_aio_write_nolock+0xe8/0xf5
-Aug 13 22:54:58 pc kernel: eax: 00000000   ebx: 00000000   ecx: df5a4ab0   
-edx: df5a4ab0
-Aug 13 22:54:58 pc kernel: esi: 00000000   edi: deecdf6c   ebp: deecde84   
-esp: deecde40
-Aug 13 22:54:58 pc kernel: ds: 007b   es: 007b   ss: 0068
-Aug 13 22:54:58 pc kernel: Process lilo (pid: 396, threadinfo=deecc000 
-task=c17ac6a0)
-Aug 13 22:54:58 pc kernel: Stack: deecc000 00034001 00000000 00000129 00000138 
-c17a7c80 c17a7d10 df909980
-Aug 13 22:54:58 pc kernel:        deecde84 df909980 00000000 00000000 c013b682 
-deecde84 deecdf6c 00000001
-Aug 13 22:54:58 pc kernel:        df9099a0 0806f220 00000200 00000000 00000001 
-ffffffff df909980 de86ee68
-Aug 13 22:54:58 pc kernel: Call Trace:
-Aug 13 22:54:58 pc kernel:  [<c013b682>] generic_file_write_nolock+0xa2/0xba
-Aug 13 22:54:58 pc kernel:  [<c011f126>] autoremove_wake_function+0x0/0x4f
-Aug 13 22:54:58 pc kernel:  [<c01a4ba9>] reiserfs_bmap+0x62/0xa6
-Aug 13 22:54:58 pc kernel:  [<c01a89ce>] reiserfs_aop_bmap+0x0/0x23
-Aug 13 22:54:58 pc kernel:  [<c0158a7b>] generic_block_bmap+0x38/0x40
-Aug 13 22:54:58 pc kernel:  [<c01c46e2>] reiserfs_ioctl+0x2b2/0x2b9
-Aug 13 22:54:58 pc kernel:  [<c015c939>] blkdev_file_write+0x37/0x3b
-Aug 13 22:54:58 pc kernel:  [<c015420c>] vfs_write+0xbc/0x127
-Aug 13 22:54:58 pc kernel:  [<c015b7e8>] block_llseek+0x0/0xd5
-Aug 13 22:54:58 pc kernel:  [<c015431c>] sys_write+0x42/0x63
-Aug 13 22:54:58 pc kernel:  [<c031280f>] syscall_call+0x7/0xb
-Aug 13 22:54:58 pc kernel:  [<c031007b>] pfkey_spdflush+0xb8/0xd6
-Aug 13 22:54:58 pc kernel:
-Aug 13 22:54:58 pc kernel: Code: eb f2 8b 54 24 40 89 7c 24 04 c7 44 24 08 01 
-00 00 00 89 54 24 0c 89 2c 24 e8 75 f4 ff ff 8
-3 7d 10 ff 89 c7 75 ce e9 70 ff ff ff <0f> 0b 8a 07 3f b7 32 c0 e9 54 ff ff ff 
-53 ba 00 e0 ff ff 21 e2
+
+-----Original Message-----
+
+> 
+> Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+> >
+> > {pts/2}% cat /proc/cmdline
+> > BOOT_IMAGE=260-t3smp2 ro root=345 devfs=mount
+> > 
+> > I guess it has to use 03:45 now? Does it mean lilo has to be updated to handle 
+> > new convention?
+> > 
+> 
+> I think we need to teach the parsing code to handle both styles.
+> 
+> It's a bit of a screwup.
+> 
+
+sorry for late reply.
+
+I was wrong, the code that actually uses root= was unaffected.
+
+It happens in name_to_dev_t:
+
+ 	if (strncmp(name, "/dev/", 5) != 0) {
+ 		res = (dev_t) simple_strtoul(name, &p, 16);
+ 		if (*p)
+ 			goto fail;
+ 		goto done;
+ 	}
+
+it means handle-old-dev_t is meaningless and has to be removed ; and if we want people to use new format, it needs to go into name_to_dev_t.
+
+sorry for confusion :(
 

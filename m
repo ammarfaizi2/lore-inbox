@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267042AbTAFREx>; Mon, 6 Jan 2003 12:04:53 -0500
+	id <S267039AbTAFRE0>; Mon, 6 Jan 2003 12:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267043AbTAFREw>; Mon, 6 Jan 2003 12:04:52 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:3279 "EHLO
+	id <S267042AbTAFRE0>; Mon, 6 Jan 2003 12:04:26 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:53198 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267042AbTAFREv>; Mon, 6 Jan 2003 12:04:51 -0500
+	id <S267039AbTAFRE0>; Mon, 6 Jan 2003 12:04:26 -0500
 From: Richard Stallman <rms@gnu.org>
-To: acahalan@cs.uml.edu
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <200301050802.h0582u4214558@saturn.cs.uml.edu>
-	(acahalan@cs.uml.edu)
-Subject: Re: Nvidia and its choice to read the GPL "differently"
+To: mark@mark.mielke.cc
+CC: lm@bitmover.com, linux-kernel@vger.kernel.org, billh@gnuppy.monkey.org,
+       paul@clubi.ie, riel@conectiva.com.br, Hell.Surfers@cwctv.net
+In-reply-to: <20030105221345.GA31840@mark.mielke.cc> (message from Mark Mielke
+	on Sun, 5 Jan 2003 17:13:45 -0500)
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 Reply-to: rms@gnu.org
-References: <200301050802.h0582u4214558@saturn.cs.uml.edu>
-Message-Id: <E18Vaoa-0002Pm-00@fencepost.gnu.org>
-Date: Mon, 06 Jan 2003 12:13:28 -0500
+References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc>
+Message-Id: <E18Vao9-0002JZ-00@fencepost.gnu.org>
+Date: Mon, 06 Jan 2003 12:13:01 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    By "GNU" you mean the Hurd?
+    You *chose* GNU/Linux to parallel Unix? I assume you mean that you
+    influenced GNU into using a Unix base with the eventual goal of having
+    some sort of GNU Unix base (the Hurd?). The words you selected above
+    are rather assuming.
 
-GNU means the entire system that we set out from the beginning to
-develop.  The Hurd is just one piece of GNU--it is the upper layer of
-the kernel.
+I decided in 1983 to develop a Unix-compatible operating system, and
+then chose the name GNU for it.  In 1990, after finding or writing
+most of the necessary components, we started developing a kernel for
+the GNU system; that kernel is the GNU Hurd.  Since Linux was working
+long before the Hurd, people mostly use GNU with Linux instead.
 
-				That's not nice at all. Just where
-    did you get your network stack from? How about the bulk of the
-    hardware drivers?
-
-The TCP/IP implementation in the Hurd comes from Linux, but the Hurd
-as a whole is very different from Linux.  (There are no drivers in the
-Hurd.)
-
-Linux is a small part of the GNU/Linux system, but there are
-various reasons to call it "GNU/Linux" than just "GNU".  See
-http://www.gnu.org/gnu/gnu-linux-faq.html#justgnu.
-
-    So Freax is our kernel, and Linux is the OS.
-
-Anyone for renaming this list to freax@vger.kernel.org?
-
-
+See http://www.gnu.org/gnu/linux-and-gnu.html for the history of GNU.

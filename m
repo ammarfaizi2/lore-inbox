@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262144AbSJAQYu>; Tue, 1 Oct 2002 12:24:50 -0400
+	id <S262150AbSJAQZz>; Tue, 1 Oct 2002 12:25:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262147AbSJAQYu>; Tue, 1 Oct 2002 12:24:50 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:6452 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S262144AbSJAQYc>;
-	Tue, 1 Oct 2002 12:24:32 -0400
-Date: Tue, 1 Oct 2002 18:29:55 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Skip Ford <skip.ford@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: KDSETKEYCODE work with new input layer?
-Message-ID: <20021001162955.GA19132@win.tue.nl>
-References: <200209301440.g8UEeBOp000435@pool-141-150-241-241.delv.east.verizon.net> <20021001115413.B9131@ucw.cz> <200210011231.g91CVCdG000289@pool-141-150-241-241.delv.east.verizon.net> <20021001151722.A11750@ucw.cz> <200210011532.g91FW4fG000308@pool-141-150-241-241.delv.east.verizon.net> <20021001174129.A12995@ucw.cz> <20021001155428.GA19122@win.tue.nl> <20021001175537.A13220@ucw.cz>
+	id <S262151AbSJAQZz>; Tue, 1 Oct 2002 12:25:55 -0400
+Received: from ithilien.qualcomm.com ([129.46.51.59]:18601 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S262150AbSJAQZv>; Tue, 1 Oct 2002 12:25:51 -0400
+Message-Id: <5.1.0.14.2.20021001092848.078ba5d8@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 01 Oct 2002 09:29:49 -0700
+To: Florian Thiel <thiel@ksan.de>, marcelo@conectiva.com.br, davej@suse.de,
+       max_mk@yahoo.com
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: Re: Kernel TUN/TAP Documentation rework
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <20021001065516.GA18838@grok.noroute.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021001175537.A13220@ucw.cz>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 05:55:37PM +0200, Vojtech Pavlik wrote:
+Hi Florian,
 
-> Ok. Where is the most recent version of [gs]etkeycodes?
+>The existing documentation for the tun/tap interface was outdated and in
+>some ways just plain wrong. It took me at least an evening to figure out
+>how to get tun/tap to work. I did a rework that should now be correct.
+>
+>The documentation only applies to Linux! I feel it should be included in
+>both 2.4 and 2.5. I also send the patch to the author of tun/tap and the
+>"small fix" maintainers for 2.4 and 2.5. Hope, this is correct.
 
-In kbd-1.06. It is from May 2001, and I have been planning kbd-1.07
-for a while but there were no urgent changes, just more fonts and
-keymaps and the like. When you are done it is a good occasion for
-kbd-1.07.
+Looks ok to me.
+Marcelo, Dave, please apply to your trees.
 
-Andries
+Thanks
+Max
 
-Begin3
-Title:          Keyboard and console utilities for Linux
-Version:        1.06
-Entered-date:   2001-05-19
-Description:    loadkeys dumpkeys setfont chvt openvt kbd.FAQ A20 etc.
-Keywords:       keyboard mapping console font unicode
-Author:         several
-Maintained-by:  Andries E. Brouwer (aeb@cwi.nl)
-Primary-site:   ftp://ftp.win.tue.nl/pub/linux-local/utils/kbd
-                773433 kbd-1.06.tar.gz
-Alternate-site: ftp://ftp.*.kernel.org/pub/linux/utils/kbd
-Alternate-site: ftp://sunsite.unc.edu/pub/Linux/system/keyboards
-Alternate site: ftp://ftp.cwi.nl/pub/aeb/kbd
-Copying-policy: GPL
-End

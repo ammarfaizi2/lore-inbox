@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132845AbRDQTqL>; Tue, 17 Apr 2001 15:46:11 -0400
+	id <S132855AbRDQTqK>; Tue, 17 Apr 2001 15:46:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132851AbRDQTp4>; Tue, 17 Apr 2001 15:45:56 -0400
-Received: from geos.coastside.net ([207.213.212.4]:29842 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S132853AbRDQTpT>; Tue, 17 Apr 2001 15:45:19 -0400
-Mime-Version: 1.0
-Message-Id: <p05100b1fb7024d43a425@[207.213.214.34]>
-In-Reply-To: <20010417222221.K805@mea-ext.zmailer.org>
-In-Reply-To: <20010417222221.K805@mea-ext.zmailer.org>
-Date: Tue, 17 Apr 2001 12:43:35 -0700
-To: linux-kernel@vger.kernel.org
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: That leaked spam...
-Content-Type: text/plain; charset="us-ascii"
+	id <S132854AbRDQTpy>; Tue, 17 Apr 2001 15:45:54 -0400
+Received: from mx1out.umbc.edu ([130.85.253.51]:26581 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S132845AbRDQToo>;
+	Tue, 17 Apr 2001 15:44:44 -0400
+Date: Tue, 17 Apr 2001 15:44:32 -0400
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Disconnect <lkml@sigkill.net>
+cc: Dave Zarzycki <dave@zarzycki.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Your response is requested
+In-Reply-To: <20010417152748.J11536@sigkill.net>
+Message-ID: <Pine.SGI.4.31L.02.0104171543370.4300774-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:22 PM +0300 2001-04-17, Matti Aarnio wrote:
->  Oops, something leaked thru, now I added couple filters which should
->  bite on this, and one other mutation of the same kind...
->  (Naturally I had to remove trap key-phrases from the text..)
+On Tue, 17 Apr 2001, Disconnect wrote:
 
-Does that mean I don't get my half million dollars every 4 to 5 months? Darn!
-
->/Matti Aarnio
+> (Sending to LKML just so nobody else flips out)
 >
->On Tue, Apr 17, 2001 at 03:36:36PM +0000, J.I. wrote:
->> From:	J. I.
->> Date:	Tue, 17 Apr 2001 15:36:36
->> To:	linux-kernel@vger.kernel.org
->> Subject: Your response is requested
->>
->> Dear Friend:
->>
->> YOU CAN make over a half million dollars every 4 to 5 months from
->> your home for a one time investment of only twenty five U.S.
->> Dollars.
->...
+> OK it wasn't just us.  Lemme reassure the admins I just forwarded it to ;)
+>
+> It seems to list the hostname of whoever receives it (neat trick).
 
--- 
-/Jonathan Lundell.
+sendmail, by default, appends its domainname to incoming email that
+doesn't have one.
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+

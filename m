@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278795AbRJ3XyF>; Tue, 30 Oct 2001 18:54:05 -0500
+	id <S276751AbRJ3X7Z>; Tue, 30 Oct 2001 18:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278803AbRJ3Xxy>; Tue, 30 Oct 2001 18:53:54 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:39879 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S278795AbRJ3Xxq>; Tue, 30 Oct 2001 18:53:46 -0500
-Message-ID: <3BDF304F.80F88433@oracle.com>
-Date: Tue, 30 Oct 2001 23:57:19 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre5-ext3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "P.Agenbag" <internet@psimation.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13 kernel and ext3???
-In-Reply-To: <3BDEE870.1060104@psimation.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S276759AbRJ3X7P>; Tue, 30 Oct 2001 18:59:15 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:40755 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S276751AbRJ3X7E>; Tue, 30 Oct 2001 18:59:04 -0500
+Date: Tue, 30 Oct 2001 18:59:43 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200110302359.f9UNxht09639@devserv.devel.redhat.com>
+To: rjk@greenend.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: problem with ide-scsi and IDE tape drive
+In-Reply-To: <mailman.1004484541.12716.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1004484541.12716.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"P.Agenbag" wrote:
+> I originally found this under 2.2.19, and upgraded to 2.4.13 to see if
+> the problem was still there when running more recent code.  It is.
+
+>     mt -f $TAPE rewind
+>     echo "tape 1" | dd conv=sync of=$TAPE bs=$hsize count=1
 > 
-[snip]
-> upgrade to a newer version ( for one, I selected ext3 during install,
-> yet, now trying to install 2.4.13, I must revert back to ext2...)
+>     for x in 1 2 3; do
+>       mt -f $TAPE rewind
+>       dd if=$TAPE of=/dev/null bs=$hsize
+>       date
+>       tar -c -b 20 -f $TAPE /boot
+>     done
 
-Moving back and forth between ext2 and ext3 works transparently,
- see the docs here:
+Try "mt fsf" instead dd, see if that helps.
 
-http://www.uow.edu.au/~andrewm/linux/ext3/ext3-usage.html
-
---alessandro
-
- "we live as we dream alone / to break the spell we mix with the others
-  we were not born in isolation / but sometimes it seems that way"
-     (R.E.M., live intro to 'World Leader Pretend')
+-- Pete

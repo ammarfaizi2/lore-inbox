@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281027AbRKTLom>; Tue, 20 Nov 2001 06:44:42 -0500
+	id <S281042AbRKTLwD>; Tue, 20 Nov 2001 06:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281029AbRKTLoc>; Tue, 20 Nov 2001 06:44:32 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:47372 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S281027AbRKTLoR>; Tue, 20 Nov 2001 06:44:17 -0500
-Date: Tue, 20 Nov 2001 09:43:38 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Swap
-In-Reply-To: <E1661fQ-0001UQ-00@localhost>
-Message-ID: <Pine.LNX.4.33L.0111200943050.1491-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281040AbRKTLvx>; Tue, 20 Nov 2001 06:51:53 -0500
+Received: from ns.caldera.de ([212.34.180.1]:43984 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S281034AbRKTLvk>;
+	Tue, 20 Nov 2001 06:51:40 -0500
+Date: Tue, 20 Nov 2001 12:48:15 +0100
+Message-Id: <200111201148.fAKBmFZ10734@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: kishore@cse.iitb.ac.in (N S S Kishore K)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: write_lock_bh()
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20011120170458.A24330@cse.iitb.ac.in>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Nov 2001, Ryan Cumming wrote:
-> On November 19, 2001 18:49, Eric W. Biederman wrote:
-> > That would probably do it.  Though it is puzzling why after the file
-> > is munmaped it's pages aren't recycled.
->
-> Because they're part of the page cache now, and won't be recycled
-> until newer pages 'push' them out of memory.
+In article <20011120170458.A24330@cse.iitb.ac.in> you wrote:
+> hi
+> 	Can I call write_lock_bh() on a different lock, from a routine
+> which already called write_lock_bh() on another lock?
 
-Newer pages cannot push them out of memory, due to use-once.
-That is, unless those newer pages also get mmap()d or if they
-get accessed really often.
+Just use write_lock() the second time.
 
-Rik
+	Christoph
+
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267510AbRGWSLM>; Mon, 23 Jul 2001 14:11:12 -0400
+	id <S267511AbRGWSNC>; Mon, 23 Jul 2001 14:13:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267511AbRGWSLC>; Mon, 23 Jul 2001 14:11:02 -0400
-Received: from Odin.AC.HMC.Edu ([134.173.32.75]:46746 "EHLO odin.ac.hmc.edu")
-	by vger.kernel.org with ESMTP id <S267510AbRGWSK7>;
-	Mon, 23 Jul 2001 14:10:59 -0400
-Date: Mon, 23 Jul 2001 11:10:59 -0700 (PDT)
-From: Nate Eldredge <neldredge@hmc.edu>
-To: barbacha@Hinako.AMBusiness.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PC Speaker ocassionally hangs on an FIC VA-503+ under 2.4.[567]
-In-Reply-To: <Pine.LNX.4.21.0107231101110.28557-100000@odin.ac.hmc.edu>
-Message-ID: <Pine.LNX.4.21.0107231107060.28557-100000@odin.ac.hmc.edu>
+	id <S268325AbRGWSMw>; Mon, 23 Jul 2001 14:12:52 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267511AbRGWSMj>; Mon, 23 Jul 2001 14:12:39 -0400
+Date: Mon, 23 Jul 2001 11:11:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Jeff Dike <jdike@karaya.com>, <user-mode-linux-user@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: user-mode port 0.44-2.4.7
+In-Reply-To: <20010723195055.A16919@athlon.random>
+Message-ID: <Pine.LNX.4.33.0107231103570.13272-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I lied slightly.  It's not quite the same motherboard.  I have a FIC
-PA2013 which is the ATX version of the same board.  And on mine when the
-speaker beeped it would sometimes go into what looked like suspend mode
-(flashing light on the front) and would not awaken until another key was
-pressed.
 
-On Mon, 23 Jul 2001, Nate Eldredge wrote:
+On Mon, 23 Jul 2001, Andrea Arcangeli wrote:
+>
+> GCC internally is allowed to generate code that relies on the contents
+> of the memory to stay constant, this because of the C standard, the
+> usual example is a fast path jump table for the "case" statement.
 
-> >     I have noticed the following problem on a system which I installed
-> > on a FIC VA-503+ motherboard with a 450 Mhz K6-2 CPU. This problem is
-> > consistent and is present in kernels from 2.4.5 - 2.4.7. The problem
-> > is that occasionally the PC speaker will hang when making a beep. When
-> > the hang occurs the beep stays on, the screen blanks out, and all
-> > processing on the system appears to hang. After a few moments the
-> > system appears to unhang itself, the screen returns, and everything
-> > returns to normal.
-> 
-> Yes, I've also seen this.  Same motherboard, CPU is a K6-3 450 MHz.  I
-> think I was running early 2.4.  I tried several things to fix it; I forget
-> exactly what they were but none of them worked.  (I also remember seeing
-> dropped keystrokes while playing DOS games that used the PC speaker.)  The
-> final fix was to disable beeping in software (setterm -blength 0 on the
-> console and some xset command in X.)
-> 
-> Definitely a hardware problem, anyway.
-> 
-> -- 
-> Nate Eldredge
-> neldredge@hmc.edu
-> 
-> 
+Bah.
 
--- 
+If we have a case where we _really_ care about the value being stable, I
+_still_ claim that that is the one that we need to protect. Not waving
+some magic wand over the thing, and saying that "volatile" makes an
+unstable value ok.
 
-Nate Eldredge
-neldredge@hmc.edu
+"volatile" (in the data sense, not the "asm volatile" sense) is almost
+always a sign of a bug. If you have an algorithm that depends on the
+(compiler-specifi) behaviour of "volatile", you need to change the
+algorithm, not try to hide the fact that you have a bug.
+
+Now, the change of algorithm might be something like
+
+	/*
+	 * We need to get _one_ value here, because our
+	 * state machine ....
+	 */
+	unsigned long stable = *(volatile unsigned long *)ptr;
+
+	switch (stable) {
+	....
+	}
+
+where the volatile is in the place where we care, and the volatile is
+commented on WHY it actually is the correct thing to do.
+
+The C standard doesn't say crap about volatile. It leaves it up to the
+compiler to do something about it.
+
+This is _doubly_ true of multi-word data structures like "xtime". The
+meaning of "volatile" on the data structure is so unclear that it's not
+even funny.
+
+		Linus
 

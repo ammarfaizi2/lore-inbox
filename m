@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUFAPTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUFAPXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUFAPTw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 11:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUFAPTv
+	id S262279AbUFAPXa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 11:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUFAPXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 11:19:51 -0400
-Received: from zero.aec.at ([193.170.194.10]:1287 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S265033AbUFAPTd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 11:19:33 -0400
-To: Gabriel Ebner <ge@gabrielebner.at>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm1
-References: <22dBi-3Hb-27@gated-at.bofh.it> <22exj-4ty-15@gated-at.bofh.it>
-	<22fjG-56P-11@gated-at.bofh.it> <22i80-7v8-41@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 01 Jun 2004 17:19:27 +0200
-In-Reply-To: <22i80-7v8-41@gated-at.bofh.it> (Gabriel Ebner's message of
- "Tue, 01 Jun 2004 16:10:16 +0200")
-Message-ID: <m34qpvjog0.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 1 Jun 2004 11:23:16 -0400
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:21258 "EHLO
+	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
+	id S265084AbUFAPVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 11:21:55 -0400
+Date: Tue, 1 Jun 2004 11:21:53 -0400
+To: Thomas Babut <tb@dsc-shop.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS: Problem with user and group IDs
+Message-ID: <20040601152153.GB31631@fieldses.org>
+References: <40BC997B.2070505@dsc-shop.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40BC997B.2070505@dsc-shop.de>
+User-Agent: Mutt/1.5.6i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Ebner <ge@gabrielebner.at> writes:
+On Tue, Jun 01, 2004 at 04:58:03PM +0200, Thomas Babut wrote:
+> I've got a problem with 'squashing' user and group IDs under NFS.
+> 
+> On the NFS Server there is the directory /data/test with owner ID 1011 
+> and group ID 100.
+> 
+> Here is the /etc/exports file on the NFS server:
+> /data/test 
+> 172.16.10.1(ro,root_squash,all_squash,anon_uid=65534,anongid=65534)
+> 
+> On the client side I mount it with the command:
+> mount -t nfs 172.16.10.2:/data/test /mnt/test
+> 
+> After it has been successfully mounted, the directory on the client 
+> system has the owner ID 1011 and group ID 100, like on the server.
+> 
+> But the expected result for me is, that on the client system the 
+> directory has owner ID 65534 and group ID 65534 like it has been set in 
+> the /etc/exports file on the server.
 
-> Hello,
->
-> Andrey Panin wrote:
->> Try the attached patch, it should fix DMI related problem.
->
-> Yes, it fixes most of the DMI related problems, some persist however:
+Root-squashing only modifies the way your client credentials are seen on
+the server; it isn't applied to uid's that are returned to the client
+e.g.  when listing a directory.  So if you create a new file as a user
+on the client, that new file will be given anonymous uid and gid.  But
+if you "ls" a directory, the uid's you see will be unaffected by
+squashing.
 
-This patch should fix it.
-
--------------------------------------------------------------
-
-Fix compilation of x86-64 with NUMA off
-
-diff -u linux-2.6.7rc2-amd64/kernel/sys.c-o linux-2.6.7rc2-amd64/kernel/sys.c
---- linux-2.6.7rc2-amd64/kernel/sys.c-o	2004-05-30 16:33:00.000000000 +0200
-+++ linux-2.6.7rc2-amd64/kernel/sys.c	2004-06-01 17:16:26.000000000 +0200
-@@ -274,6 +274,7 @@
- cond_syscall(sys_mbind)
- cond_syscall(sys_get_mempolicy)
- cond_syscall(sys_set_mempolicy)
-+cond_syscall(compat_get_mempolicy)
- 
- /* arch-specific weak syscall entries */
- cond_syscall(sys_pciconfig_read)
-
-
--Andi
-
+--Bruce Fields

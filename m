@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129075AbRBOQwm>; Thu, 15 Feb 2001 11:52:42 -0500
+	id <S129107AbRBOQwC>; Thu, 15 Feb 2001 11:52:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129104AbRBOQwc>; Thu, 15 Feb 2001 11:52:32 -0500
-Received: from cold.fortyoz.org ([64.40.111.214]:31762 "HELO cold.fortyoz.org")
-	by vger.kernel.org with SMTP id <S129075AbRBOQwA>;
-	Thu, 15 Feb 2001 11:52:00 -0500
-Date: Thu, 15 Feb 2001 08:52:38 -0800
-From: David Raufeisen <david@fortyoz.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1ac14
-Message-ID: <20010215085238.A14932@fortyoz.org>
-Reply-To: David Raufeisen <david@fortyoz.org>
-In-Reply-To: <E14TPQH-0008GV-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S129104AbRBOQvx>; Thu, 15 Feb 2001 11:51:53 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34567 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129075AbRBOQvn>; Thu, 15 Feb 2001 11:51:43 -0500
+Subject: Re: [PATCH] pcnet32.c: MAC address may be in CSR registers
+To: eli.carter@inet.com (Eli Carter)
+Date: Thu, 15 Feb 2001 16:49:49 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        root@chaos.analogic.com (Richard B. Johnson),
+        tsbogend@alpha.franken.de, P.Missel@sbs-or.de (Peter Missel),
+        linux-kernel@vger.kernel.org, eli.carter@inet.com (Eli Carter)
+In-Reply-To: <3A8BFBF6.B99CFFF5@inet.com> from "Eli Carter" at Feb 15, 2001 09:55:34 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E14TPQH-0008GV-00@the-village.bc.nu>; from "Alan Cox" on Thursday, 15 February 2001, at 14:30:15 (+0000)
-X-Operating-System: Linux 2.2.17 i686
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14TRbL-0000AR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After building/playing around with some java apps on this version, something
-seems to have gone weird with X or the kernel..
+> Peter pointed out that the contents of the CSR12-14 registers are
+> initialized from the EEPROM, so reading the EEPROM is superfluous--we
+> should just read the CSRs and not read the EEPROM.  I think he has a
+> point, so I'll make that change and submit yet another patch pair.  
 
-david@prototype:~$ ps aux | grep X
-root       267  0.9 99.9 167640 4294965764 ? S<   06:50   1:11 /usr/bin/X11/X vt7 -auth /var/lib/gdm/:0.Xauth :0
+I'd rather keep the existing initialisation behaviour of using the eeprom
+for 2.2. There are also some power management cases where I am not sure
+the values are restored on the pcnet/pci.
 
-System seems mostly fine, a bit slow..
+For 2.2 conservatism is the key. For 2.4 by all means default to CSR12-14 and
+print a warning if they dont match the eeprom value and we'll see what it
+shows
 
-Nothing special in logs
+> Alan, do you want me to put your inline version in <linux/etherdevice.h>
+> while I'm at it, or what?
 
-prototype:~# free
-             total       used       free     shared    buffers     cached
-Mem:        126708     123856       2852          0      27836      71568
--/+ buffers/cache:      24452     102256
-Swap:       554232      66596     487636
-
-Would having the huge swap have anything to do with it? Needed it to install
-oracle, but the blasted thing won't install anyway (Debian Sid).
-
-On Thursday, 15 February 2001, at 14:30:15 (+0000),
-Alan Cox wrote:
-
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
-> 
-> 2.4.1-ac14
-> o	Fix tulip problems introduced by in ac13	(Manfred Spraul)
-> o	S/390x build fixes				(Ulrich Weigand)
-> o	Fix off by one error in octagon driver		(David Woodhouse)
-> o	Fix dasd driver for new queues			(Holger Smolinksi)
-> o	Networking standards compliance fixes
-> o	Fix binary layout assumptions in sym53c416	(Arjan van de Ven)
-> o	tmpfs timestamps				(Christoph Rohland)
-> o	Further mkdep changes				(Keith Owens)
-> o	Fix 16bit vfat handling				(OGAWA Hirofumi)
-> o	JIS nls fixes					(OGAWA Hirofumi)
-> o	Handle more than 8 luns				(Eric Youngdale,
-> 							 Doug Gilbert)
-> o	Minor scsi clean ups				(Eric Youngdale)
+Sure

@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315734AbSGAQFU>; Mon, 1 Jul 2002 12:05:20 -0400
+	id <S315721AbSGAQFP>; Mon, 1 Jul 2002 12:05:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315748AbSGAQFQ>; Mon, 1 Jul 2002 12:05:16 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:13703 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S315734AbSGAQFN> convert rfc822-to-8bit;
-	Mon, 1 Jul 2002 12:05:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-Subject: Re: lilo/raid?
-Date: Mon, 1 Jul 2002 18:07:45 +0200
-User-Agent: KMail/1.4.1
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200207011604.58253.roy@karlsbakk.net> <3D207DB1.80902@fabbione.net>
-In-Reply-To: <3D207DB1.80902@fabbione.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207011807.45086.roy@karlsbakk.net>
+	id <S315746AbSGAQFO>; Mon, 1 Jul 2002 12:05:14 -0400
+Received: from erasmus.off.net ([64.39.30.25]:28430 "EHLO erasmus.off.net")
+	by vger.kernel.org with ESMTP id <S315721AbSGAQFM>;
+	Mon, 1 Jul 2002 12:05:12 -0400
+Date: Mon, 1 Jul 2002 12:07:40 -0400
+From: Zach Brown <zab@zabbo.net>
+To: Samuel Thibault <samuel.thibault@fnac.net>
+Cc: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.18 linux/drivers/maestro.c dev_audio flaw
+Message-ID: <20020701120740.J28390@erasmus.off.net>
+References: <Pine.LNX.4.44.0206302335280.592-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0206302335280.592-100000@localhost.localdomain>; from Samuel.Thibault@ens-lyon.fr on Sun, Jun 30, 2002 at 11:49:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What is really importat for you anyway is to be able to boot again if one
-> of the disk is failing. 
+> It seems that the value of ess->dev_audio is wrongly interpreted. 
 
-My main concern now is to be able to boot the bloody server from something 
-apart from a floppy!
+Thanks for attacking this driver, Samuel.  Your patches have looked good
+so far.  I'm sorry I'm not more involved; its been quite a while since
+I've futzed about with the maestro(s).
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
+You may want to cc: your fixes to Takashi Iwai <tiwai@suse.de> , who
+actively maintains the ALSA equivalent drivers.  He'll have a much
+greater chance of affecting change than I do :)
 
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+- z

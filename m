@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263174AbUEXQdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263301AbUEXQpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263174AbUEXQdz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 12:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbUEXQdz
+	id S263301AbUEXQpv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 12:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbUEXQpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 12:33:55 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:3809 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S263174AbUEXQdy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 12:33:54 -0400
-Message-ID: <40B223EF.5030108@g-house.de>
-Date: Mon, 24 May 2004 18:33:51 +0200
-From: Christian <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.6+ (Windows/20040504)
-X-Accept-Language: en-us, en
+	Mon, 24 May 2004 12:45:51 -0400
+Received: from web12308.mail.yahoo.com ([216.136.173.106]:34177 "HELO
+	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263301AbUEXQpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 12:45:50 -0400
+Message-ID: <20040524164550.11639.qmail@web12308.mail.yahoo.com>
+Date: Mon, 24 May 2004 09:45:50 -0700 (PDT)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: Re: x86_64 and ioctls from 32 bit userland
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0405211854590.1296@chaos>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: Re: tarballs of patchsets?
-References: <40B21F98.1080803@g-house.de>
-In-Reply-To: <40B21F98.1080803@g-house.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian wrote:
-> hi,
+
+--- "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+> On Fri, 21 May 2004, Stephen Cameron wrote:
+[...]
 > 
-> i am trying to chase some bug and i know, it must be somewhere between 
-> 2.6.4 and 2.6.5. the 2.6.5 patch is 7.0 MB (unpacked). although i am 
-> pretty sure the lines starting with "diff -Nru a/Documentation" do seem 
-> to be involved with the issue, i am not a programmer and often have to 
+> Yes. The user-mode 32-bit pointer within a structure is no different
+> than passing a 32-bit user-mode pointer as the third parameter to
+> an ioctl(fd, WHAT, ptr).
+> 
 
-s/do seem to be involved/do _not_ seem to be involved/
+Thanks, I've got it working now.
 
--- 
-BOFH excuse #377:
+-- steve
 
-Someone hooked the twisted pair wires into the answering machine.
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Domains – Claim yours for only $14.70/year
+http://smallbusiness.promotions.yahoo.com/offer 

@@ -1,63 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbUCVALN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 19:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUCVALN
+	id S261530AbUCVAJe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 19:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUCVAJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 19:11:13 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12714 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261541AbUCVALI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 19:11:08 -0500
-Message-ID: <405E2F0D.3050001@pobox.com>
-Date: Sun, 21 Mar 2004 19:10:53 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-References: <20040320121345.2a80e6a0.akpm@osdl.org> <20040320205053.GJ2045@holomorphy.com> <20040320222639.K6726@flint.arm.linux.org.uk> <20040320224500.GP2045@holomorphy.com> <1079901914.17681.317.camel@imladris.demon.co.uk> <20040321204931.A11519@infradead.org> <1079902670.17681.324.camel@imladris.demon.co.uk> <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org> <20040321222327.D26708@flint.arm.linux.org.uk> <405E1859.5030906@pobox.com> <20040321225117.F26708@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403211504550.1106@ppc970.osdl.org> <405E23A5.7080903@pobox.com> <Pine.LNX.4.58.0403211542051.1106@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0403211542051.1106@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Mar 2004 19:09:34 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:24714
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261530AbUCVAJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 19:09:31 -0500
+Date: Mon, 22 Mar 2004 01:10:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: do we want to kill VM_RESERVED or not? [was Re: 2.6.5-rc1-aa3]
+Message-ID: <20040322001023.GD3649@dualathlon.random>
+References: <20040320210306.GA11680@dualathlon.random> <20040321120005.GC10787@dualathlon.random> <20040321121526.GD10787@dualathlon.random> <200403212042.18092@WOLK>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403212042.18092@WOLK>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Sun, Mar 21, 2004 at 08:42:18PM +0100, Marc-Christian Petersen wrote:
+> On Sunday 21 March 2004 13:15, Andrea Arcangeli wrote:
 > 
-> On Sun, 21 Mar 2004, Jeff Garzik wrote:
+> Hi Andrea,
 > 
->>That would be nice, though the reason I avoided remap_page_range() in 
->>via82cxxx_audio is that it discourages S/G.  Because remap_page_range() 
->>is easier and more portable, several drivers allocate one-big-area and 
->>then create an S/G list describing individual portions of that area.
+> first: many thanks for all your effort for objrmap and anon_vma.
+> I really appreciate it!
+
+You're welcome, you should also thank Dave and Hugh even before you
+thank me ;), since they solved many of the problems to make this
+possible years ago even before I started working on the objrmap myself.
+
+> > and here the vmware proper fix: --- vmmon-only/linux/driver.c.~1~
+> > 2004-03-21 13:07:02.869326296 +0100
+> > +++ vmmon-only/linux/driver.c	2004-03-21 13:07:28.320457136 +0100
+> > @@ -1083,6 +1083,7 @@ static int LinuxDriverMmap(struct file *
+> >     }
+> >     /* Clear VM_IO, otherwise SuSE's kernels refuse to do get_user_pages */
+> >     vma->vm_flags &= ~VM_IO;
+> > +   vma->vm_flags |= VM_RESERVED;
+> >  #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 2, 3)
+> >     vma->vm_file = filp;
+> >     filp->f_count++;
+> > You should apply both (though just applying one of the two will fix it).
+> 
+> ok, without the VMware fix, see attached oops report.
+
+it's not an oops report, it's a warning only and it should not affect
+functionality in any way (vmware should still work). The vmware fix will
+shutdown the warning so you won't be annoyed anymore by it ;)
+
+> With the VMware fix, it works fine.
+
+Good.
+
+> Both, for sure, with 2.6.5-rc2-aa1.
+> 
+> What I have noticed is this from VMware _without_ the VMware fix:
+> 
+> Mar 21 20:23:56 codeman kernel: /dev/vmnet: hub 8 does not exist, allocating 
+> memory.
+> Mar 21 20:23:56 codeman kernel: /dev/vmnet: port on hub 8 successfully opened
+> Mar 21 20:23:56 codeman VMware[init]: Unable to sendto: Operation not		<------ 
+> permitted
+> Mar 21 20:23:56 codeman VMware[init]: 
+> Mar 21 20:23:56 codeman kernel: /dev/vmnet: open called by PID 10497 
+> (vmnet-netifup)
+> Mar 21 20:23:56 codeman kernel: /dev/vmnet: port on hub 8 successfully opened
 > 
 > 
-> Note that there is really two different kinds of IO memory:
->  - real IO-mapped memory on the other side of a bus
->  - real RAM which is on the CPU side of the bus, but that has additionally 
->    been "mapped" some way as to be visible from devices.
+> With the VMware fix applied, the "Unable to sendto..." line disappears.
 
-Yes.  via audio example is DMA (second kind), and an fbdev driver would 
-need to worry about the first kind (MMIO).
+maybe a delay generated by the printk, not sure why there's a relation
+between the two, or if it's only a coincidence. WARN_ON after triggering
+should only generate a delay, no other effects.
 
-For the second kind, your solution (snipped) seems sane, though I wonder 
-where dma_unmap_to_page() is called.
-
-For the first kind, please read fb_mmap in drivers/video/fbmem.c.  Look 
-at the _horror_ of ifdefs in exporting the framebuffer.  And that horror 
-is what's often needed when letting userspace mmap(2) PCI memory IO regions.
-
-So, an mmio_map() in addition to dma_map*?
-
-	Jeff
-
-
-
+thanks!

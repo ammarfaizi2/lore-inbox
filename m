@@ -1,46 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbULOBTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbULOBXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbULOBTI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 20:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbULOBRh
+	id S261838AbULOBXm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 20:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbULOBUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 20:17:37 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:4558 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261819AbULOBJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 20:09:13 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-From: Lee Revell <rlrevell@joe-job.com>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <1103066516.12659.377.camel@cmn37.stanford.edu>
-References: <20041116134027.GA13360@elte.hu>
-	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
-	 <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
-	 <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
-	 <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu>
-	 <20041207141123.GA12025@elte.hu>  <20041214132834.GA32390@elte.hu>
-	 <1103066516.12659.377.camel@cmn37.stanford.edu>
-Content-Type: text/plain
-Date: Tue, 14 Dec 2004 20:09:12 -0500
-Message-Id: <1103072952.17186.0.camel@krustophenia.net>
+	Tue, 14 Dec 2004 20:20:14 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:19981 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261804AbULOA6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 19:58:07 -0500
+Date: Wed, 15 Dec 2004 01:58:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: wensong@linux-vs.org, ja@ssi.bg
+Cc: lvs-users@linuxvirtualserver.org, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/ipvs/: make some code static
+Message-ID: <20041215005801.GB11972@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-14 at 15:21 -0800, Fernando Lopez-Lezcano wrote:
-> I don't know which change did it, but I have network connectivity in my
-> athlon64 test box with 0.7.33-0! Woohoo! [*]
+The patch below makes some needlessly global code static.
 
-Wait, this works on x84-64 now?  There was a recent report on LAU that
-it didn't compile.
 
-Lee
+diffstat output:
+ net/ipv4/ipvs/ip_vs_app.c        |    2 +-
+ net/ipv4/ipvs/ip_vs_conn.c       |    2 +-
+ net/ipv4/ipvs/ip_vs_ctl.c        |    2 +-
+ net/ipv4/ipvs/ip_vs_proto.c      |    4 ++--
+ net/ipv4/ipvs/ip_vs_proto_icmp.c |    4 ++--
+ 5 files changed, 7 insertions(+), 7 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_app.c.old	2004-12-14 05:15:21.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_app.c	2004-12-14 05:15:28.000000000 +0100
+@@ -65,7 +65,7 @@
+ /*
+  *	Allocate/initialize app incarnation and register it in proto apps.
+  */
+-int
++static int
+ ip_vs_app_inc_new(struct ip_vs_app *app, __u16 proto, __u16 port)
+ {
+ 	struct ip_vs_protocol *pp;
+--- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_conn.c.old	2004-12-14 05:15:44.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_conn.c	2004-12-14 05:15:51.000000000 +0100
+@@ -64,7 +64,7 @@
+ } __attribute__((__aligned__(SMP_CACHE_BYTES)));
+ 
+ /* lock array for conn table */
+-struct ip_vs_aligned_lock
++static struct ip_vs_aligned_lock
+ __ip_vs_conntbl_lock_array[CT_LOCKARRAY_SIZE] __cacheline_aligned;
+ 
+ static inline void ct_read_lock(unsigned key)
+--- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_ctl.c.old	2004-12-14 05:17:03.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_ctl.c	2004-12-14 05:17:14.000000000 +0100
+@@ -62,7 +62,7 @@
+ /* 1/rate drop and drop-entry variables */
+ int ip_vs_drop_rate = 0;
+ int ip_vs_drop_counter = 0;
+-atomic_t ip_vs_dropentry = ATOMIC_INIT(0);
++static atomic_t ip_vs_dropentry = ATOMIC_INIT(0);
+ 
+ /* number of virtual services */
+ static int ip_vs_num_services = 0;
+--- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_proto.c.old	2004-12-14 05:17:33.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_proto.c	2004-12-14 05:17:47.000000000 +0100
+@@ -45,7 +45,7 @@
+ /*
+  *	register an ipvs protocol
+  */
+-int register_ip_vs_protocol(struct ip_vs_protocol *pp)
++static int register_ip_vs_protocol(struct ip_vs_protocol *pp)
+ {
+ 	unsigned hash = IP_VS_PROTO_HASH(pp->protocol);
+ 
+@@ -62,7 +62,7 @@
+ /*
+  *	unregister an ipvs protocol
+  */
+-int unregister_ip_vs_protocol(struct ip_vs_protocol *pp)
++static int unregister_ip_vs_protocol(struct ip_vs_protocol *pp)
+ {
+ 	struct ip_vs_protocol **pp_p;
+ 	unsigned hash = IP_VS_PROTO_HASH(pp->protocol);
+--- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_proto_icmp.c.old	2004-12-14 05:18:02.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_proto_icmp.c	2004-12-14 05:18:37.000000000 +0100
+@@ -22,7 +22,7 @@
+ 
+ static char * icmp_state_name_table[1] = { "ICMP" };
+ 
+-struct ip_vs_conn *
++static struct ip_vs_conn *
+ icmp_conn_in_get(const struct sk_buff *skb,
+ 		 struct ip_vs_protocol *pp,
+ 		 const struct iphdr *iph,
+@@ -49,7 +49,7 @@
+ #endif
+ }
+ 
+-struct ip_vs_conn *
++static struct ip_vs_conn *
+ icmp_conn_out_get(const struct sk_buff *skb,
+ 		  struct ip_vs_protocol *pp,
+ 		  const struct iphdr *iph,
 

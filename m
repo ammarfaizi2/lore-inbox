@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270931AbRHSXcz>; Sun, 19 Aug 2001 19:32:55 -0400
+	id <S270932AbRHSXjF>; Sun, 19 Aug 2001 19:39:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270932AbRHSXcp>; Sun, 19 Aug 2001 19:32:45 -0400
-Received: from waste.org ([209.173.204.2]:33085 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S270931AbRHSXc3>;
-	Sun, 19 Aug 2001 19:32:29 -0400
-Date: Sun, 19 Aug 2001 18:32:36 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Theodore Tso <tytso@mit.edu>
-cc: David Schwartz <davids@webmaster.com>,
-        Andreas Dilger <adilger@turbolinux.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <20010819111357.A3504@thunk.org>
-Message-ID: <Pine.LNX.4.30.0108191808350.740-100000@waste.org>
+	id <S270933AbRHSXi4>; Sun, 19 Aug 2001 19:38:56 -0400
+Received: from d-dialin-1524.addcom.de ([62.96.165.84]:51699 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S270932AbRHSXis>; Sun, 19 Aug 2001 19:38:48 -0400
+Date: Mon, 20 Aug 2001 00:19:49 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: Chris Oxenreider <oxenreid@state.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install
+ 'isdn')
+In-Reply-To: <Pine.SV4.4.10.10108191436230.4651-100000@dorthy>
+Message-ID: <Pine.LNX.4.33.0108200019320.23800-100000@vaio>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Aug 2001, Theodore Tso wrote:
 
-> The bottom line is it really depends on how paranoid you want to be,
-> and how much and how closely you want /dev/random to reliably replace
-> a true hardware random number generator which relies on some physical
-> process (by measuring quantum noise using a noise diode, or by
-> measuring radioactive decay).  For most purposes, and against most
-> adversaries, it's probably acceptable to depend on network interrupts,
-> even if the entropy estimator may be overestimating things.
+On Sun, 19 Aug 2001, Chris Oxenreider wrote:
 
-Can I propose an add_untrusted_randomness()? This would work identically
-to add_timer_randomness but would pass batch_entropy_store() 0 as the
-entropy estimate. The store would then be made to drop 0-entropy elements
-on the floor if the queue was more than, say, half full. This would let us
-take advantage of 'potential' entropy sources like network interrupts and
-strengthen /dev/urandom without weakening /dev/random.
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.9/kernel/drivers/isdn/eicon/eicon.o
+> depmod: 	vsnprintf
 
-(Yes, I see dont_count_entropy, but it doesn't appear to be used, and
-doesn't address flooding the queue with 0-entropy entries. I'd take it
-out.)
+This patch should fix it:
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+diff -u linux-2.4.9/kernel/ksyms.c linux-2.4.9.work/kernel/ksyms.c
+--- linux-2.4.9/kernel/ksyms.c	Fri Aug 17 09:57:12 2001
++++ linux-2.4.9.work/kernel/ksyms.c	Mon Aug 20 00:16:58 2001
+@@ -458,6 +458,8 @@
+ EXPORT_SYMBOL(printk);
+ EXPORT_SYMBOL(sprintf);
+ EXPORT_SYMBOL(vsprintf);
++EXPORT_SYMBOL(snprintf);
++EXPORT_SYMBOL(vsnprintf);
+ EXPORT_SYMBOL(kdevname);
+ EXPORT_SYMBOL(bdevname);
+ EXPORT_SYMBOL(cdevname);
+
+--Kai
+
 

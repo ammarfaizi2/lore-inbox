@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317777AbSGZPr6>; Fri, 26 Jul 2002 11:47:58 -0400
+	id <S317859AbSGZPyN>; Fri, 26 Jul 2002 11:54:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317785AbSGZPr6>; Fri, 26 Jul 2002 11:47:58 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:63985 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317777AbSGZPru>; Fri, 26 Jul 2002 11:47:50 -0400
-Date: Fri, 26 Jul 2002 21:24:51 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org,
-       lse <lse-tech@lists.sourceforge.net>,
-       Richard J Moore <richardj_moore@uk.ibm.com>, masonmik@us.ibm.com
-Subject: Re: [Lse-tech] Re: [RFC] Scalable statistics counters using kmalloc_percpu
-Message-ID: <20020726212451.A19119@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020726204033.D18570@in.ibm.com> <Pine.LNX.4.44L.0207261225160.3086-100000@imladris.surriel.com>
+	id <S317860AbSGZPyN>; Fri, 26 Jul 2002 11:54:13 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:35576 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317859AbSGZPyM>; Fri, 26 Jul 2002 11:54:12 -0400
+Subject: Re: [PATCH]: uClinux (MMU-less) patches against 2.5.28
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Greg Ungerer <gerg@snapgear.com>, linux-kernel@vger.kernel.org,
+       David McCullough <davidm@snapgear.com>
+In-Reply-To: <26333.1027692205@redhat.com>
+References: <1027695029.13428.45.camel@irongate.swansea.linux.org.uk> 
+	<1027680964.13428.37.camel@irongate.swansea.linux.org.uk>
+	<1027679991.13428.24.camel@irongate.swansea.linux.org.uk>
+	<3D40A3E4.9050703@snapgear.com> <3D3FA130.6020701@snapgear.com>
+	<9309.1027608767@redhat.com> <9143.1027671559@redhat.com>
+	<12015.1027676388@redhat.com> <12441.1027677534@redhat.com>  
+	<26333.1027692205@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 26 Jul 2002 18:11:25 +0100
+Message-Id: <1027703485.13429.53.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44L.0207261225160.3086-100000@imladris.surriel.com>; from riel@conectiva.com.br on Fri, Jul 26, 2002 at 12:27:40PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 26, 2002 at 12:27:40PM -0300, Rik van Riel wrote:
-> On Fri, 26 Jul 2002, Ravikiran G Thirumalai wrote:
+On Fri, 2002-07-26 at 15:03, David Woodhouse wrote:
+> Good point -- so if a writer encounters a locked page when it's trying to 
+> unmap them all, it needs to still allow other pages to be mapped in while 
+> it waits for the original page to become unlocked. That avoids the deadlock 
+> -- but leaves us with the potential for livelock, with the writer being 
+> starved by too many other things locking down the pages in question.
 > 
-> > Rik, You were interested in using this.  Does this implementation suit
-> > your needs?
-> 
-> >From a quick glance it looks like it will.
-> 
-> However, it might be more efficient to put the statistics
-> in one file in /proc with named fields, or have a way to
-> group them in one or multiple files.
-> 
-> Not sure about that, though ... really depends on how
-> expensive stat+open+read+close is compared to parsing a
-> file with multiple fields.
+> I suspect the number of pages getting locked will be sufficiently small 
+> that the deadlock does not occur. 
 
-Hi Rik,
+Well for a starter lets try user writing a block to flash which needs an
+erase from a block which happens to be not yet paged in and so still on
+the flash you are writing to.
 
-It seems that either way it might not have the scalability
-required for system monitoring software that needs faster
-access. One of the possibilities is to see if they can be
-mapped to user space, but that requires significant chage
-in the percpu allocator. Does this seem like a logical next
-step for exploration to you ?
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUIANPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUIANO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266486AbUIANPL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 09:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUIANPK
+	id S266473AbUIANO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 09:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUIANO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 09:15:10 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:6062 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266486AbUIANOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 09:14:55 -0400
-Date: Wed, 1 Sep 2004 14:14:34 +0100
-From: Dave Jones <davej@redhat.com>
-To: Romain Moyne <aero_climb@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Time runs exactly three times too fast
-Message-ID: <20040901131434.GB11182@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Romain Moyne <aero_climb@yahoo.fr>, linux-kernel@vger.kernel.org
-References: <200409021453.09730.aero_climb@yahoo.fr> <200409021708.31410.aero_climb@yahoo.fr> <20040901130011.GB10829@redhat.com> <200409021831.55002.aero_climb@yahoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200409021831.55002.aero_climb@yahoo.fr>
-User-Agent: Mutt/1.4.1i
+	Wed, 1 Sep 2004 09:14:58 -0400
+Received: from dslsmtp.struer.net ([62.242.36.21]:10768 "EHLO
+	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S266473AbUIANOp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 09:14:45 -0400
+Message-ID: <49210.194.237.142.7.1094044484.squirrel@194.237.142.7>
+In-Reply-To: <Pine.GSO.4.58.0409011341140.15681@waterleaf.sonytel.be>
+References: <20040831192642.GA15855@mars.ravnborg.org>
+    <Pine.GSO.4.58.0409011341140.15681@waterleaf.sonytel.be>
+Date: Wed, 1 Sep 2004 15:14:44 +0200 (CEST)
+Subject: Re: kbuild: Support LOCALVERSION
+From: "Sam Ravnborg" <sam@ravnborg.org>
+To: "Geert Uytterhoeven" <geert@linux-m68k.org>
+Cc: "Sam Ravnborg" <sam@ravnborg.org>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Ian Wienand" <ianw@gelato.unsw.edu.au>,
+       "Christoph Hellwig" <hch@lst.de>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 06:31:54PM +0200, Romain Moyne wrote:
- > Le Mercredi 01 Septembre 2004 15:00, Dave Jones a écrit :
- > > On Thu, Sep 02, 2004 at 05:08:30PM +0200, Romain Moyne wrote:
- > >  > >Do you have files in /sys/devices/system/cpu/cpu0/cpufreq ?
- > >  >
- > >  > I don't.
- > >
- > > what about after modprobe powernow-k8 ?
- > > (that should also print out some messages in dmesg)
- > 
- > powernow-k8 is for athlon64, no ? I have just compiled in the kernel (not as a 
- > module) the option powernow-k7 (I have a Athlon XP-M).
- > So, I can't do modprobe powernow-k7...
+> On Tue, 31 Aug 2004, Sam Ravnborg wrote:
+>> This allows one to put a short string in localversion identifying this
+>> particular configuration "-smpacpi", or to identify applied patches
+>> to the source "-llat-np".
+>>
+>> More specifically:
+>> $(srctree)/localversion-lowlatency contains "-llat"
+>> $(srctree)/localversion-scheduler-nick constins "-np"
+>>
+>> $(objtree)/localversion contains "-smpacpi"
+>>
+>> Resulting KERNELRELEASE would be:
+>> 2.6.8.rc1-smpacpi-llat-np
+>
+> Wouldn't it make more sense the other way around (i.e. first append
+> $(srctree)/localversion-*, then append $(objtree)/localversion*)?
+>
+> Hmm, from a second thought the order depends on what your most interested
+> in:
+> building kernels with different configs, or building kernels from
+> different
+> sources.
+>
+My rationale was that the config used would vary more than the source.
+I also thought about sorting the files - but if Andrew for example
+start using this it would maybe come in the middle.
+Therefore this more simple approach.
 
-You have one of the 32bit models of the athlon64. (Basically a crippled athlon64)
-(See proc/cpuinfo..)
+   Sam
 
-cpu family      : 15
-
-I've not heard reports of whether powernow-k8 works or not on these cpu's,
-but it should if the cpu reports the powernow capability bits.
-
-My suspicion is that for some reason, your cpu is booting at a low speed.
-Are there any powernow/power management settings in the BIOS that change
-this ?
-
-		Dave
 

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132693AbRDIFoI>; Mon, 9 Apr 2001 01:44:08 -0400
+	id <S132695AbRDIF4j>; Mon, 9 Apr 2001 01:56:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132695AbRDIFn6>; Mon, 9 Apr 2001 01:43:58 -0400
-Received: from mail.xmission.com ([198.60.22.22]:60423 "EHLO mail.xmission.com")
-	by vger.kernel.org with ESMTP id <S132693AbRDIFnx>;
-	Mon, 9 Apr 2001 01:43:53 -0400
-Message-ID: <3AD14C5E.5050801@xmission.com>
-Date: Sun, 08 Apr 2001 23:45:02 -0600
-From: Frank Jacobberger <f1j@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; 0.8.1) Gecko/20010327
-X-Accept-Language: en
+	id <S132696AbRDIF43>; Mon, 9 Apr 2001 01:56:29 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:4111 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132695AbRDIF4V>;
+	Mon, 9 Apr 2001 01:56:21 -0400
+Date: Mon, 9 Apr 2001 02:50:55 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Michael Peddemors <michael@linuxmagic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: goodbye
+In-Reply-To: <15057.16344.113642.668424@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0104090250001.3595-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 8139too.c and 2.4.4-pre1 kernel burp
-In-Reply-To: <3AD118F4.3050507@xmission.com> <3AD11A13.6E52A515@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Sun, 8 Apr 2001, David S. Miller wrote:
+> Rik van Riel writes:
+>  > Anyway, since linux-kernel has chosen to not receive email from me
+> 
+> Funny how this posting went through then...
+> 
+> If it is specifically when you are sending mail from some other place,
+> state so, don't make blanket statements which obviously are not wholly
+> true.
 
-> Frank Jacobberger wrote:
-> 
->> Jeff,
->> 
->> I noticed the following on boot with 2.4.4-pre1:
->> 
->> kernel: eth0: Too much work at interrupt, IntrStatus=0x0001.
->> 
->> What is this saying to me :)
-> 
-> 
-> How often does this occur?  A lot, or just once or twice?
-> 
-Every time I boot the kernel... very last statement.
+I'm temporarily using my ISP's smarthost.  However, I'll turn
+this off again soon because I'd rather stop with linux-kernel
+then give in to the guilty-by-default attitude that comes with
+DUL.
 
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315628AbSECKrM>; Fri, 3 May 2002 06:47:12 -0400
+	id <S315630AbSECLJz>; Fri, 3 May 2002 07:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315629AbSECKrL>; Fri, 3 May 2002 06:47:11 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:56811 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315628AbSECKrK>; Fri, 3 May 2002 06:47:10 -0400
-Date: Fri, 3 May 2002 12:42:46 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre8
-In-Reply-To: <Pine.LNX.4.21.0205021845430.10896-100000@freak.distro.conectiva>
-Message-ID: <Pine.NEB.4.44.0205031239430.2605-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315631AbSECLJy>; Fri, 3 May 2002 07:09:54 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:22184 "EHLO
+	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S315630AbSECLJx>; Fri, 3 May 2002 07:09:53 -0400
+Date: Fri, 3 May 2002 07:09:25 -0400
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br
+Subject: Linux 2.4.19-pre8
+Message-ID: <20020503070925.A27180@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+2.4.19-pre8 make bzImage gave this:
 
-I got the following compile error:
+ips.c: In function `ips_setup':
+ips.c:547: parse error before `static'
+ips.c: At top level:
+ips.c:505: warning: `ips_setup' defined but not used
+make[3]: *** [ips.o] Error 1
 
-<--  snip  -->
+The diff below based on 2.4.19-pre7-ac2 worked for me.
 
-...
-ld -m elf_i386  -r -o ASLX.o 8253xini.o 8253xnet.o 8253xsyn.o crc32.o
-8253xdbg.o 8253xplx.o 8253xtty.o 8253xchr.o 8253xint.o amcc5920.o
-8253xmcs.o 8253xutl.o
-make[4]: *** No rule to make target `8253xcfg.c', needed by `8253xcfg'.
-Stop.
-make[4]: Leaving directory
-`/home/bunk/linux/kernel-2.4/linux/drivers/net/wan/8253x'
+--- linux/drivers/scsi/ips.c    Fri May  3 03:25:16 2002
++++ linux-2.4.19-pre7-ac2/drivers/scsi/ips.c    Fri Apr 19 18:55:47 2002
+@@ -543,7 +543,8 @@
+    }
 
-<--  snip  -->
+    return (1);
+-
++}
++
+ __setup("ips=", ips_setup);
 
-It seems 8253xcfg.c was accidentially not included.
+ #else
+@@ -579,10 +580,10 @@
+          }
+       }
+    }
++}
 
-cu
-Adrian
+ #endif
+
+-}
+
+ /****************************************************************************/
+ /*                                                                          */
+
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+Randy Hron
 

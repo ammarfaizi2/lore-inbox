@@ -1,100 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVCJRl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262747AbVCJRrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbVCJRl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:41:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVCJRiJ
+	id S262747AbVCJRrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 12:47:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262677AbVCJRmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 12:38:09 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:44402 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262798AbVCJRfh (ORCPT
+	Thu, 10 Mar 2005 12:42:15 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:9909 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262729AbVCJRiD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:35:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=k/VsmSL56z0eHFSgCAqDJsjELX+3ri52FJnF6/XixIhhwR4of7jd+2IDoTDh/hdJuMLDaFHs+N6pf+FJPC/87LF4pLGbbb/A66BHlceGRH3Ft0qyAVR5dj2OPLzkPfGKyYxFdZ3QESFsp9ptiLTMur4Q4IKg143jLit5l6SNKu4=
-Message-ID: <29495f1d05031009357408420e@mail.gmail.com>
-Date: Thu, 10 Mar 2005 09:35:36 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH] Add TPM hardware enablement driver
-Cc: linux-kernel@vger.kernel.org, kjhall@us.ibm.com
-In-Reply-To: <1110415321526@kroah.com>
+	Thu, 10 Mar 2005 12:38:03 -0500
+Subject: Re: [PATCH] 0/2 Buddy allocator with placement policy (Version 9)
+	+ prezeroing (Version 4)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0503101421260.2105@skynet>
+References: <20050307193938.0935EE594@skynet.csn.ul.ie>
+	 <1110239966.6446.66.camel@localhost>
+	 <Pine.LNX.4.58.0503101421260.2105@skynet>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 09:37:47 -0800
+Message-Id: <1110476267.16432.27.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <20050310004115.GA32583@kroah.com> <1110415321526@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Mar 2005 16:42:01 -0800, Greg KH <greg@kroah.com> wrote:
-> ChangeSet 1.2035, 2005/03/09 10:12:19-08:00, kjhall@us.ibm.com
+On Thu, 2005-03-10 at 14:31 +0000, Mel Gorman wrote: 
+> > > There are 2 kinds of sections: user and kernel.  The traditional
+> > > ZONE_HIGHMEM is full of user sections (except for vmalloc).
 > 
-> [PATCH] Add TPM hardware enablement driver
+> And PTEs if configured to be allocated from high memory. I have not double
+> checked but I don't think they can be trivially reclaimed.
 
-<snip>
+We've run into a couple of these pieces of highmem that can't be
+reclaimed.  The latest one are pages for the new pipe buffers.  We could
+code these up with a flag something like __GFP_HIGHMEM_NORCLM, that is
+__GFP_HIGHMEM in the normal case, but 0 in the hotplug case (at least
+for now).
 
-> +void tpm_time_expired(unsigned long ptr)
-> +{
-> +       int *exp = (int *) ptr;
-> +       *exp = 1;
-> +}
-> +
-> +EXPORT_SYMBOL_GPL(tpm_time_expired);
+> > > Any
+> > > section which has slab pages or any kernel caller to alloc_pages() is
+> > > a kernel section.
+> 
+> Slab pages could be moved to the user section as long as the cache owner
+> was able to reclaim the slabs on demand.
 
-<snip>
+At least for the large consumers of slab (dentry/inode caches), they
+can't quite reclaim on demand.  I was picking Dipankar's brain about
+this one day, and there are going to be particularly troublesome
+dentries, like "/", that are going to need some serious rethinking to be
+able to forcefully free.  
 
-> +       down(&chip->timer_manipulation_mutex);
-> +       chip->time_expired = 0;
-> +       init_timer(&chip->device_timer);
-> +       chip->device_timer.function = tpm_time_expired;
-> +       chip->device_timer.expires = jiffies + 2 * 60 * HZ;
-> +       chip->device_timer.data = (unsigned long) &chip->time_expired;
-> +       add_timer(&chip->device_timer);
-> +       up(&chip->timer_manipulation_mutex);
-> +
-> +       do {
-> +               u8 status = inb(chip->vendor->base + 1);
-> +               if ((status & chip->vendor->req_complete_mask) ==
-> +                   chip->vendor->req_complete_val) {
-> +                       down(&chip->timer_manipulation_mutex);
-> +                       del_singleshot_timer_sync(&chip->device_timer);
-> +                       up(&chip->timer_manipulation_mutex);
-> +                       goto out_recv;
-> +               }
-> +               set_current_state(TASK_UNINTERRUPTIBLE);
-> +               schedule_timeout(TPM_TIMEOUT);
-> +               rmb();
-> +       } while (!chip->time_expired);
+-- Dave
 
-<snip>
-
-It seems like this use of schedule_timeout() and the others are a bit
-excessive. In this case, a timer is set to go off in 2 hours or so,
-with tpm_time_expired() as the callback. tpm_time_expired(), it seems
-just takes data and sets it to 1, which in this case is
-chip->time_expired (and is similar in the other cases). We then loop
-while (!chip->time_expired), which to me means until
-chip->device_timer goes off, checking if the request is complete every
-5 milliseconds. The chip->device_timer doesn't really do anything,
-does it? It just guarantees a maximum time (of 2 hours). Couldn't the
-same be achieved with (please excuse the lack of tabs, any real
-patches I submit will have them):
-
-unsigned long stop = jiffies + 2 * 60 * HZ;
-do {
-     u8 status = inb(chip->vendor->base + 1);
-     if ((status & chip->vendor->req_complete_mask ==
-           chip->vendor->req_complete_val)
-               goto out_recv;
-     msleep(TPM_TIMEOUT); // TPM_TIMEOUT could now be 5 ms
-     rmb();
-} while (time_before(jiffies, stop);
-
-I think similar replacements would work in the other locations.
-
-If people agree, I will send patches.
-
-Thanks,
-Nish

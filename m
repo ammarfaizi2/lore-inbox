@@ -1,149 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268524AbUIXGjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268496AbUIXGjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268524AbUIXGjt (ORCPT <rfc822;willy@w.ods.org>);
+	id S268496AbUIXGjt (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 24 Sep 2004 02:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268490AbUIXGia
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268524AbUIXGiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 02:38:30 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:11654 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268511AbUIXGgt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 02:36:49 -0400
-Message-ID: <4153BFC2.9000500@sgi.com>
-Date: Fri, 24 Sep 2004 01:33:38 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Ray Bryant <raybry@austin.rr.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Jesse Barnes <jbarnes@sgi.com>, Dan Higgins <djh@sgi.com>,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Brent Casavant <bcasavan@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <piggin@cyberone.com.au>, Paul Jackson <pj@sgi.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH 2/2] mm: eliminate node 0 bias in MPOL_INTERLEAVE
-References: <20040923043236.2132.2385.23158@raybryhome.rayhome.net> <20040923043256.2132.93167.33080@raybryhome.rayhome.net> <20040923092954.GA4836@wotan.suse.de>
-In-Reply-To: <20040923092954.GA4836@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Sep 2004 02:38:02 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:36833 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S268505AbUIXGgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 02:36:07 -0400
+Date: Thu, 23 Sep 2004 23:36:02 -0700
+From: Suresh Siddha <suresh.b.siddha@intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: asit.k.mallick@intel.com
+Subject: [Patch 1/2] Disable SW irqbalance/irqaffinity for E7520/E7320/E7525
+Message-ID: <20040923233602.B19555@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Wed, Sep 22, 2004 at 11:32:45PM -0500, Ray Bryant wrote:
-> 
->>Each of these cases potentially breaks the (assumed) invariant of
-> 
-> 
-> I would prefer to keep the invariant.
-> 
+Set TARGET_CPUS on x86_64 to cpu_online_map. This brings the code inline
+with x86 mach-default
 
-I understand, but read on...
-
-> 
->>+++ linux-2.6.9-rc2-mm1/mm/mempolicy.c	2004-09-21 17:44:58.000000000 -0700
->>@@ -435,7 +435,7 @@ asmlinkage long sys_set_mempolicy(int re
->> 		default_policy[policy] = new;
->> 	}
->> 	if (new && new->policy == MPOL_INTERLEAVE)
->>-		current->il_next = find_first_bit(new->v.nodes, MAX_NUMNODES);
->>+		current->il_next = current->pid % MAX_NUMNODES;
-> 
-> 
-> Please do the find_next/find_first bit here in the slow path. 
-> 
-> Another useful change may be to check if il_next points to a node
-> that is in the current interleaving mask. If yes don't change it.
-> This way skew when interleaving policy is set often could be avoided.
-> 
-> 
->> 	return 0;
->> }
->> 
->>@@ -714,6 +714,11 @@ static unsigned interleave_nodes(struct 
->> 
->> 	nid = me->il_next;
->> 	BUG_ON(nid >= MAX_NUMNODES);
->>+	if (!test_bit(nid, policy->v.nodes)) {
->>+		nid = find_next_bit(policy->v.nodes, MAX_NUMNODES, 1+nid);
->>+		if (nid >= MAX_NUMNODES)
->>+			nid = find_first_bit(policy->v.nodes, MAX_NUMNODES);
->>+	}
-> 
-> 
-> And remove it here.
->
-
-Regardless of whether we remove this or not, then we have a potential problem, 
-I think.  The reason is that there is a single il_next for all policies.  So 
-we get into trouble if the current process's page allocation policy and
-its page cache allocation policy are MPOL_INTERLEAVE, but the node masks for
-the two policies are significantly different. Just to be specific, suppose 
-there are 64 nodes, and the page allocation policy selects nodes 0-53 and
-the page cache allocation policy chooses nodes 54-63.  Further suppose that
-allocation requests are page, page cache, page, page cache, etc....
-
-Then if il_next starts out at zero, here are the nodes that will be selected:
-(I'm assuming here that the code I inserted above is not present.)
-
-request a page, get 0 and using the page allocation mask, next is set to 1
-
-request page cache, get 1 and using the page cache allocation mask, next is 
-set to 54
-
-request a page, get 54 and using the page allocation mask, next is set to 0
-
-request page cache, get 0  and using the page cache allocation mask, next is 
-set to 54
-
-request a page, get 54 and using the page allocation mask, next is set to 0
-etc...
-
-This is not good.  Generally speaking, all of the pages are allocated from the 
-1st page cache node and all of the page cache pages are allocated from the 1st 
-page allocation node.
-
-I guess I am back to passing an offset etc in via page cache alloc.  Or we
-have to have a second il_next for the page cache policy, and that is more
-cruft than we are willing to live with, I expect.
-
-I'll look at Steve's patch and see how he handles this.
-
-> 
->> 	next = find_next_bit(policy->v.nodes, MAX_NUMNODES, 1+nid);
->> 	if (next >= MAX_NUMNODES)
->> 		next = find_first_bit(policy->v.nodes, MAX_NUMNODES);
->>Index: linux-2.6.9-rc2-mm1/kernel/fork.c
->>===================================================================
->>--- linux-2.6.9-rc2-mm1.orig/kernel/fork.c	2004-09-21 16:24:49.000000000 -0700
->>+++ linux-2.6.9-rc2-mm1/kernel/fork.c	2004-09-21 17:41:12.000000000 -0700
->>@@ -873,6 +873,8 @@ static task_t *copy_process(unsigned lon
->> 			goto bad_fork_cleanup;
->> 		}
->> 	}
->>+	/* randomize placement of first page across nodes */
->>+	p->il_next = p->pid % MAX_NUMNODES;
-> 
-> 
-> Same here.
-> 
-> -Andi
-> 
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
 
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
-
+diff -Nru linux-2.6.9-rc2/arch/x86_64/kernel/io_apic.c linux-target/arch/x86_64/kernel/io_apic.c
+--- linux-2.6.9-rc2/arch/x86_64/kernel/io_apic.c	2004-09-12 22:32:47.000000000 -0700
++++ linux-target/arch/x86_64/kernel/io_apic.c	2004-09-03 13:27:26.500032792 -0700
+@@ -732,7 +732,7 @@
+ 		entry.delivery_mode = dest_LowestPrio;
+ 		entry.dest_mode = INT_DELIVERY_MODE;
+ 		entry.mask = 0;				/* enable IRQ */
+-		entry.dest.logical.logical_dest = TARGET_CPUS;
++		entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
+ 
+ 		idx = find_irq_entry(apic,pin,mp_INT);
+ 		if (idx == -1) {
+@@ -750,7 +750,7 @@
+ 		if (irq_trigger(idx)) {
+ 			entry.trigger = 1;
+ 			entry.mask = 1;
+-			entry.dest.logical.logical_dest = TARGET_CPUS;
++			entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
+ 		}
+ 
+ 		irq = pin_2_irq(idx, apic, pin);
+@@ -800,7 +800,7 @@
+ 	 */
+ 	entry.dest_mode = INT_DELIVERY_MODE;
+ 	entry.mask = 0;					/* unmask IRQ now */
+-	entry.dest.logical.logical_dest = TARGET_CPUS;
++	entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
+ 	entry.delivery_mode = dest_LowestPrio;
+ 	entry.polarity = 0;
+ 	entry.trigger = 0;
+@@ -1908,7 +1908,7 @@
+ 
+ 	entry.delivery_mode = dest_LowestPrio;
+ 	entry.dest_mode = INT_DELIVERY_MODE;
+-	entry.dest.logical.logical_dest = TARGET_CPUS;
++	entry.dest.logical.logical_dest = cpu_mask_to_apicid(TARGET_CPUS);
+ 	entry.trigger = edge_level;
+ 	entry.polarity = active_high_low;
+ 	entry.mask = 1;					 /* Disabled (masked) */
+@@ -1966,3 +1966,28 @@
+ 	apic_write_around(APIC_ICR, cfg);
+ }
+ #endif
++
++
++/*
++ * This function currently is only a helper for the i386 smp boot process where 
++ * we need to reprogram the ioredtbls to cater for the cpus which have come online
++ * so mask in all cases should simply be TARGET_CPUS
++ */
++void __init setup_ioapic_dest(void)
++{
++	int pin, ioapic, irq, irq_entry;
++
++	if (skip_ioapic_setup == 1)
++		return;
++
++	for (ioapic = 0; ioapic < nr_ioapics; ioapic++) {
++		for (pin = 0; pin < nr_ioapic_registers[ioapic]; pin++) {
++			irq_entry = find_irq_entry(ioapic, pin, mp_INT);
++			if (irq_entry == -1)
++				continue;
++			irq = pin_2_irq(irq_entry, ioapic, pin);
++			set_ioapic_affinity_irq(irq, TARGET_CPUS);
++		}
++
++	}
++}
+diff -Nru linux-2.6.9-rc2/arch/x86_64/kernel/smpboot.c linux-target/arch/x86_64/kernel/smpboot.c
+--- linux-2.6.9-rc2/arch/x86_64/kernel/smpboot.c	2004-09-12 22:33:39.000000000 -0700
++++ linux-target/arch/x86_64/kernel/smpboot.c	2004-09-03 13:27:26.501032640 -0700
+@@ -950,6 +950,9 @@
+ 
+ void __init smp_cpus_done(unsigned int max_cpus)
+ {
++#ifdef CONFIG_X86_IO_APIC
++	setup_ioapic_dest();
++#endif
+ 	zap_low_mappings();
+ }
+ 
+diff -Nru linux-2.6.9-rc2/include/asm-x86_64/hw_irq.h linux-target/include/asm-x86_64/hw_irq.h
+--- linux-2.6.9-rc2/include/asm-x86_64/hw_irq.h	2004-09-12 22:33:37.000000000 -0700
++++ linux-target/include/asm-x86_64/hw_irq.h	2004-09-03 13:27:26.501032640 -0700
+@@ -101,6 +101,7 @@
+ extern void print_IO_APIC(void);
+ extern int IO_APIC_get_PCI_irq_vector(int bus, int slot, int fn);
+ extern void send_IPI(int dest, int vector);
++extern void setup_ioapic_dest(void);
+ 
+ extern unsigned long io_apic_irqs;
+ 
+diff -Nru linux-2.6.9-rc2/include/asm-x86_64/smp.h linux-target/include/asm-x86_64/smp.h
+--- linux-2.6.9-rc2/include/asm-x86_64/smp.h	2004-09-12 22:31:26.000000000 -0700
++++ linux-target/include/asm-x86_64/smp.h	2004-09-03 13:27:55.155676472 -0700
+@@ -110,9 +110,13 @@
+ 
+ #endif
+ #define INT_DELIVERY_MODE 1     /* logical delivery */
+-#define TARGET_CPUS 1
+ 
+ #ifndef ASSEMBLY
++#ifdef CONFIG_SMP
++#define TARGET_CPUS cpu_online_map
++#else
++#define TARGET_CPUS cpumask_of_cpu(0)
++#endif
+ static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	return cpus_addr(cpumask)[0];

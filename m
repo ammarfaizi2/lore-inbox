@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132465AbRD1NRe>; Sat, 28 Apr 2001 09:17:34 -0400
+	id <S132482AbRD1NXH>; Sat, 28 Apr 2001 09:23:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132482AbRD1NRY>; Sat, 28 Apr 2001 09:17:24 -0400
-Received: from 13dyn184.delft.casema.net ([212.64.76.184]:18187 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132465AbRD1NRJ>; Sat, 28 Apr 2001 09:17:09 -0400
-Message-Id: <200104281317.PAA04172@cave.bitwizard.nl>
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <20010427182228.D9778@animx.eu.org> from Wakko Warner at "Apr 27,
- 2001 06:22:28 pm"
-To: Wakko Warner <wakko@animx.eu.org>
-Date: Sat, 28 Apr 2001 15:17:01 +0200 (MEST)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S132497AbRD1NWr>; Sat, 28 Apr 2001 09:22:47 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:47631 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132482AbRD1NWk>;
+	Sat, 28 Apr 2001 09:22:40 -0400
+Date: Sat, 28 Apr 2001 15:21:05 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+Cc: Fabio Riccardi <fabio@chromium.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: X15 alpha release: as fast as TUX but in user space
+In-Reply-To: <20010428161502.I3529@niksula.cs.hut.fi>
+Message-ID: <Pine.LNX.4.33.0104281516180.10295-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wakko Warner wrote:
-> > I've always been trying to convice people that 2x RAM remains a good 
-> > rule-of-thumb.
-> 
-> IMO this is pointless
-> 
->              total       used       free     shared    buffers     cached
-> Mem:        517456     505332      12124     111016      97752     236884
-> -/+ buffers/cache:     170696     346760
-> Swap:       131048      23216     107832
-> 
-> Of course for me, I'm not about to waste 1gb of disk space for swap.
-> 
-> The swap I have is 2 partitions, one on each drive both with a priority of
-> 0.  Personally, I like the way it's done on my box.
 
-So you've spent almost $200 for RAM, and refuse to spend $4 for 1Gb of
-swap space. Fine with me. 
+On Sat, 28 Apr 2001, Ville Herva wrote:
 
-			Roger. 
+> Uhh, perhaps I'm stupid, but why not cache the date field and update
+> the field once a five seconds? Or even once a second?
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+yes, that should work. but that means possibly updating thousands of (or
+more) cached headers, which has some overhead ...
+
+> I mean, at the rate of thousands of requests per second that should
+> give you some advantage over dynamically generating it -- especially
+> if that's the only thing hindering copletely sendfile()'ing the
+> answer.
+
+well, the method i suggested was to use sendfile() twice: first the
+(cached, or freshly constructed) headers put into a big file, then the
+body itself (which is the original file, accessed via cached file
+descriptors).
+
+(splitting up the header and the body has the benefit of not dual-caching
+the same webcontent. this is what TUX does too.)
+
+	Ingo
+

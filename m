@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311486AbSCTD54>; Tue, 19 Mar 2002 22:57:56 -0500
+	id <S311506AbSCTEAR>; Tue, 19 Mar 2002 23:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311501AbSCTD5u>; Tue, 19 Mar 2002 22:57:50 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:782 "EHLO vasquez.zip.com.au")
-	by vger.kernel.org with ESMTP id <S311486AbSCTD5d>;
-	Tue, 19 Mar 2002 22:57:33 -0500
-Message-ID: <3C980855.C5A8CED8@zip.com.au>
-Date: Tue, 19 Mar 2002 19:56:05 -0800
+	id <S311501AbSCTD7W>; Tue, 19 Mar 2002 22:59:22 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:28686 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311503AbSCTD65>; Tue, 19 Mar 2002 22:58:57 -0500
+Message-ID: <3C9808A9.54A5D7AB@zip.com.au>
+Date: Tue, 19 Mar 2002 19:57:29 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: lkml <linux-kernel@vger.kernel.org>
-Subject: aa-030-writeout_scheduling
+Subject: aa-093-vm_tunables
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,199 +21,158 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-1: Introduces two new bdflush tunables:
+Introduces a bunch of knobs for tuning the VM.  They're described in
+the patch.
 
-  ndirty
+They are not actually *used* in this patch.  The usage creeps in across
+subsequent patches.
 
-    The maximum number of buffers which bdflush will attempt to
-    write out in response to a wakeup.  Previously, bdflush would write
-    out the whole world.
+It's probable that the default icache shrinkage here is insufficiently
+aggressive - Al says we should shrink inode_unused with extreme
+prejudice - priority == 1.
 
-    So this limits the amount of bdflush writeout in response to a
-    single wakeup_bdflush().
+It's possible that the default dcache shrinkage is too aggressive. 
+We're shrinking the dcache by 1/6th for every 32 pages which are added
+to the swapcache.  Restoring those dcache/icache entries will be much,
+much more expensive than swapping in 32 pages.  So it's out of whack. 
+I've left it as-is at present; choosing a suitable default for the
+shrink_dcache_memory priority is on my immediate things-to-do list.
 
-    NOTE: this code appears to be broken.  If nfract_stop_bdflush
-          is set at zero, ndirty will not prevent bdflush from writing out
-          all dirty buffers.   IOW, ndirty doesn't do anything at present.
-
-  nfract_stop_bdflush
-
-    In units of "percentage of total memory".  bdflush will stop
-    writing back data when the amount of memory which is dirty on the
-    buffer LRU falls below this threshold.
-
-    So this prevents bdflush from writing out *everything*. 
-    bdflush will stop, and will leave some dirty data behind for
-    kupdate.
-
-    However, `ndirty' has prececdence.  So even if the amount of
-    dirty data is less than nfract_bdflush_stop, bdflush will still
-    attempt to write out `ndirty' buffers.
-
-
-2: The mark_buffer_dirty() -> balance_dirty() path has been changed
-   so that the process which is performing write(2) no longer starts
-   some I/O when we're between the async and sync thresholds.  Instead,
-   we just wake bdflush.
-
-   Also, when the writer reaches the sync threshold, we no longer
-   throttle the writer by waiting on some I/O.  We just start some more
-   I/O, potentially asynchronously (but, in practice, usually
-   blockingly, due to request queue exhaustion).
-
-
-   Both these changes have the effect of weakening the
-   writer-throttling at write(2) time.  Presumably this is because the
-   aa-020-sync_buffers changes now allow memory allocators to throttle
-   on bdflush-written buffers more successfully.
-
-3: kupdate no longer throttles itself on each wakeup.  That always
-   seemed rather pointless.
-
-This code works well.  Fixes the problem where copying a large file
-between two disks only exercises one disk at a time.
 
 =====================================
 
---- 2.4.19-pre3/fs/buffer.c~aa-030-writeout_scheduling	Tue Mar 19 19:48:53 2002
-+++ 2.4.19-pre3-akpm/fs/buffer.c	Tue Mar 19 19:49:17 2002
-@@ -103,22 +103,23 @@ union bdflush_param {
- 	struct {
- 		int nfract;	/* Percentage of buffer cache dirty to 
- 				   activate bdflush */
--		int dummy1;	/* old "ndirty" */
-+		int ndirty;	/* Maximum number of dirty blocks to write out per
-+				   wake-cycle */
- 		int dummy2;	/* old "nrefill" */
- 		int dummy3;	/* unused */
- 		int interval;	/* jiffies delay between kupdate flushes */
- 		int age_buffer;	/* Time for normal buffer to age before we flush it */
- 		int nfract_sync;/* Percentage of buffer cache dirty to 
- 				   activate bdflush synchronously */
--		int dummy4;	/* unused */
-+		int nfract_stop_bdflush; /* Percetange of buffer cache dirty to stop bdflush */
- 		int dummy5;	/* unused */
- 	} b_un;
- 	unsigned int data[N_PARAM];
--} bdf_prm = {{40, 0, 0, 0, 5*HZ, 30*HZ, 60, 0, 0}};
-+} bdf_prm = {{30, 500, 0, 0, 5*HZ, 30*HZ, 60, 20, 0}};
+--- 2.4.19-pre3/include/linux/swap.h~aa-093-vm_tunables	Tue Mar 19 19:48:54 2002
++++ 2.4.19-pre3-akpm/include/linux/swap.h	Tue Mar 19 19:49:15 2002
+@@ -112,6 +112,7 @@ extern void swap_setup(void);
+ /* linux/mm/vmscan.c */
+ extern wait_queue_head_t kswapd_wait;
+ extern int FASTCALL(try_to_free_pages(zone_t *, unsigned int, unsigned int));
++extern int vm_vfs_scan_ratio, vm_cache_scan_ratio, vm_lru_balance_ratio, vm_passes, vm_gfp_debug, vm_mapped_ratio;
  
- /* These are the min and max parameter values that we will allow to be assigned */
--int bdflush_min[N_PARAM] = {  0,  10,    5,   25,  0,   1*HZ,   0, 0, 0};
--int bdflush_max[N_PARAM] = {100,50000, 20000, 20000,10000*HZ, 6000*HZ, 100, 0, 0};
-+int bdflush_min[N_PARAM] = {  0,  1,    0,   0,  0,   1*HZ,   0, 0, 0};
-+int bdflush_max[N_PARAM] = {100,50000, 20000, 20000,10000*HZ, 10000*HZ, 100, 100, 0};
+ /* linux/mm/page_io.c */
+ extern void rw_swap_page(int, struct page *);
+--- 2.4.19-pre3/include/linux/sysctl.h~aa-093-vm_tunables	Tue Mar 19 19:48:54 2002
++++ 2.4.19-pre3-akpm/include/linux/sysctl.h	Tue Mar 19 19:48:54 2002
+@@ -143,6 +143,12 @@ enum
+ 	VM_MAX_MAP_COUNT=11,	/* int: Maximum number of active map areas */
+ 	VM_MIN_READAHEAD=12,    /* Min file readahead */
+ 	VM_MAX_READAHEAD=13,    /* Max file readahead */
++	VM_VFS_SCAN_RATIO=14,	/* part of the inactive vfs lists to scan */
++	VM_LRU_BALANCE_RATIO=15,/* balance active and inactive caches */
++	VM_PASSES=16,		/* number of vm passes before failing */
++	VM_GFP_DEBUG=17,	/* debug GFP failures */
++	VM_CACHE_SCAN_RATIO=18,	/* part of the inactive cache list to scan */
++	VM_MAPPED_RATIO=19,	/* amount of unfreeable pages that triggers swapout */
+ };
  
- void unlock_buffer(struct buffer_head *bh)
- {
-@@ -240,10 +241,9 @@ static int write_some_buffers(kdev_t dev
+ 
+--- 2.4.19-pre3/kernel/sysctl.c~aa-093-vm_tunables	Tue Mar 19 19:48:54 2002
++++ 2.4.19-pre3-akpm/kernel/sysctl.c	Tue Mar 19 19:48:54 2002
+@@ -30,6 +30,7 @@
+ #include <linux/init.h>
+ #include <linux/sysrq.h>
+ #include <linux/highuid.h>
++#include <linux/swap.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -260,6 +261,18 @@ static ctl_table kern_table[] = {
+ };
+ 
+ static ctl_table vm_table[] = {
++	{VM_GFP_DEBUG, "vm_gfp_debug", 
++	 &vm_gfp_debug, sizeof(int), 0644, NULL, &proc_dointvec},
++	{VM_VFS_SCAN_RATIO, "vm_vfs_scan_ratio", 
++	 &vm_vfs_scan_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
++	{VM_CACHE_SCAN_RATIO, "vm_cache_scan_ratio", 
++	 &vm_cache_scan_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
++	{VM_MAPPED_RATIO, "vm_mapped_ratio", 
++	 &vm_mapped_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
++	{VM_LRU_BALANCE_RATIO, "vm_lru_balance_ratio", 
++	 &vm_lru_balance_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
++	{VM_PASSES, "vm_passes", 
++	 &vm_passes, sizeof(int), 0644, NULL, &proc_dointvec},
+ 	{VM_BDFLUSH, "bdflush", &bdf_prm, 9*sizeof(int), 0644, NULL,
+ 	 &proc_dointvec_minmax, &sysctl_intvec, NULL,
+ 	 &bdflush_min, &bdflush_max},
+--- 2.4.19-pre3/mm/vmscan.c~aa-093-vm_tunables	Tue Mar 19 19:48:54 2002
++++ 2.4.19-pre3-akpm/mm/vmscan.c	Tue Mar 19 19:49:16 2002
+@@ -25,12 +25,42 @@
+ #include <asm/pgalloc.h>
+ 
+ /*
+- * The "priority" of VM scanning is how much of the queues we
+- * will scan in one go. A value of 6 for DEF_PRIORITY implies
+- * that we'll scan 1/64th of the queues ("queue_length >> 6")
+- * during a normal aging round.
++ * "vm_passes" is the number of vm passes before failing the
++ * memory balancing. Take into account 3 passes are needed
++ * for a flush/wait/free cycle and that we only scan 1/vm_cache_scan_ratio
++ * of the inactive list at each pass.
   */
- static void write_unlocked_buffers(kdev_t dev)
- {
--	do {
-+	do
- 		spin_lock(&lru_list_lock);
--	} while (write_some_buffers(dev));
--	run_task_queue(&tq_disk);
-+	while (write_some_buffers(dev));
- }
+-#define DEF_PRIORITY (6)
++int vm_passes = 60;
++
++/*
++ * "vm_cache_scan_ratio" is how much of the inactive LRU queue we will scan
++ * in one go. A value of 6 for vm_cache_scan_ratio implies that we'll
++ * scan 1/6 of the inactive lists during a normal aging round.
++ */
++int vm_cache_scan_ratio = 6;
++
++/*
++ * "vm_mapped_ratio" controls the pageout rate, the smaller, the earlier
++ * we'll start to pageout.
++ */
++int vm_mapped_ratio = 100;
++
++/*
++ * "vm_lru_balance_ratio" controls the balance between active and
++ * inactive cache. The bigger vm_balance is, the easier the
++ * active cache will grow, because we'll rotate the active list
++ * slowly. A value of 2 means we'll go towards a balance of
++ * 1/3 of the cache being inactive.
++ */
++int vm_lru_balance_ratio = 2;
++
++/*
++ * "vm_vfs_scan_ratio" is what proportion of the VFS queues we will scan
++ * in one go. A value of 6 for vm_vfs_scan_ratio implies that 1/6th of
++ * the unused-inode, dentry and dquot caches will be freed during a normal
++ * aging round.
++ */
++int vm_vfs_scan_ratio = 6;
  
  /*
-@@ -281,12 +281,6 @@ static int wait_for_buffers(kdev_t dev, 
- 	return 0;
- }
- 
--static inline void wait_for_some_buffers(kdev_t dev)
--{
--	spin_lock(&lru_list_lock);
--	wait_for_buffers(dev, BUF_LOCKED, 1);
--}
--
- static int wait_for_locked_buffers(kdev_t dev, int index, int refile)
- {
- 	do {
-@@ -1070,6 +1064,21 @@ static int balance_dirty_state(void)
- 	return -1;
- }
- 
-+static int bdflush_stop(void)
-+{
-+	unsigned long dirty, tot, dirty_limit;
-+
-+	dirty = size_buffers_type[BUF_DIRTY] >> PAGE_SHIFT;
-+	tot = nr_free_buffer_pages();
-+
-+	dirty *= 100;
-+	dirty_limit = tot * bdf_prm.b_un.nfract_stop_bdflush;
-+
-+	if (dirty > dirty_limit)
-+		return 0;
-+	return 1;
-+}
-+
- /*
-  * if a new dirty buffer is created we need to balance bdflush.
-  *
-@@ -1084,19 +1093,16 @@ void balance_dirty(void)
- 	if (state < 0)
- 		return;
- 
--	/* If we're getting into imbalance, start write-out */
--	spin_lock(&lru_list_lock);
--	write_some_buffers(NODEV);
-+	wakeup_bdflush();
- 
- 	/*
- 	 * And if we're _really_ out of balance, wait for
--	 * some of the dirty/locked buffers ourselves and
--	 * start bdflush.
-+	 * some of the dirty/locked buffers ourselves.
- 	 * This will throttle heavy writers.
- 	 */
- 	if (state > 0) {
--		wait_for_some_buffers(NODEV);
--		wakeup_bdflush();
-+		spin_lock(&lru_list_lock);
-+		write_some_buffers(NODEV);
- 	}
- }
- 
-@@ -2957,13 +2963,18 @@ int bdflush(void *startup)
- 	complete((struct completion *)startup);
- 
- 	for (;;) {
-+		int ndirty = bdf_prm.b_un.ndirty;
-+
- 		CHECK_EMERGENCY_SYNC
- 
--		spin_lock(&lru_list_lock);
--		if (!write_some_buffers(NODEV) || balance_dirty_state() < 0) {
--			wait_for_some_buffers(NODEV);
--			interruptible_sleep_on(&bdflush_wait);
-+		while (ndirty > 0) {
-+			spin_lock(&lru_list_lock);
-+			if (!write_some_buffers(NODEV))
-+				break;
-+			ndirty -= NRSYNC;
- 		}
-+		if (ndirty > 0 || bdflush_stop())
-+			interruptible_sleep_on(&bdflush_wait);
- 	}
- }
- 
-@@ -2992,8 +3003,6 @@ int kupdate(void *startup)
- 	complete((struct completion *)startup);
- 
- 	for (;;) {
--		wait_for_some_buffers(NODEV);
--
- 		/* update interval */
- 		interval = bdf_prm.b_un.interval;
- 		if (interval) {
-@@ -3021,6 +3030,7 @@ int kupdate(void *startup)
- 		printk(KERN_DEBUG "kupdate() activated...\n");
+  * The swap-out function returns 1 if it successfully
+@@ -579,7 +609,7 @@ static int shrink_caches(zone_t * classz
+ 	shrink_dcache_memory(priority, gfp_mask);
+ 	shrink_icache_memory(priority, gfp_mask);
+ #ifdef CONFIG_QUOTA
+-	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
++	shrink_dqcache_memory(priority, gfp_mask);
  #endif
- 		sync_old_buffers();
-+		run_task_queue(&tq_disk);
- 	}
- }
+ 
+ 	return nr_pages;
+@@ -587,7 +617,7 @@ static int shrink_caches(zone_t * classz
+ 
+ int try_to_free_pages(zone_t *classzone, unsigned int gfp_mask, unsigned int order)
+ {
+-	int priority = DEF_PRIORITY;
++	int priority = 6;
+ 	int nr_pages = SWAP_CLUSTER_MAX;
+ 
+ 	gfp_mask = pf_gfp_mask(gfp_mask);
+--- 2.4.19-pre3/mm/page_alloc.c~aa-093-vm_tunables	Tue Mar 19 19:48:54 2002
++++ 2.4.19-pre3-akpm/mm/page_alloc.c	Tue Mar 19 19:49:15 2002
+@@ -39,6 +39,8 @@ static int zone_balance_ratio[MAX_NR_ZON
+ static int zone_balance_min[MAX_NR_ZONES] __initdata = { 20 , 20, 20, };
+ static int zone_balance_max[MAX_NR_ZONES] __initdata = { 255 , 255, 255, };
+ 
++int vm_gfp_debug = 0;
++
+ /*
+  * Free_page() adds the page to the free lists. This is optimized for
+  * fast normal cases (no error jumps taken normally).
+
+-

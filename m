@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVAHDp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVAHEAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbVAHDp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 22:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVAHDp3
+	id S261777AbVAHEAN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 23:00:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVAHEAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 22:45:29 -0500
-Received: from waste.org ([216.27.176.166]:11165 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261689AbVAHDpZ (ORCPT
+	Fri, 7 Jan 2005 23:00:13 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:36167 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261777AbVAHEAJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 22:45:25 -0500
-Date: Fri, 7 Jan 2005 19:45:22 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: linux-tiny@selenic.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       celinux-dev@tree.celinuxforum.org
-Subject: 2.6.10-tiny1 released
-Message-ID: <20050108034522.GF2940@waste.org>
+	Fri, 7 Jan 2005 23:00:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Nb5iwckrGw40GY5GwZ6VfonZ8sTq7q1cqRd26iUnkZcRPMz2b6hCk80wmZ+ZB/SF2J4JkyhQYOPeciYPqm69jXmZD1SR3zD6vAmFOpAU5DRymZ1jwjL59afideUpj/IiCf/8HuKoqiLpKDfWvZTy7u3nHRlInlh37kIVxMTlaS0=
+Message-ID: <9e4733910501072000491d6c04@mail.gmail.com>
+Date: Fri, 7 Jan 2005 23:00:09 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Terence Ripperda <tripperda@nvidia.com>
+Subject: Re: inter_module_get and __symbol_get
+Cc: Brian Gerst <bgerst@didntduck.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Airlie <airlied@linux.ie>
+In-Reply-To: <20050106225140.GO6184@hygelac>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050106213225.GJ6184@hygelac> <41DDB465.8000705@didntduck.org>
+	 <20050106225140.GO6184@hygelac>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a resync of the -tiny tree against 2.6.10.
+The inter_module_xxx free DRM is already in Linus BK. Sooner or later
+the inter_module_xx exports in the AGP driver should disappear too.
 
-The latest patch can be found at:
-
- http://selenic.com/tiny/2.6.9-tiny1.patch.bz2
- http://selenic.com/tiny/2.6.9-tiny1-broken-out.tar.bz2
-
-There's a mailing list for linux-tiny development at:
- 
- linux-tiny at selenic.com
- http://selenic.com/mailman/listinfo/linux-tiny
-
-Webpage for your bookmarking pleasure:
-
- http://selenic.com/tiny-about/
+DRM now handles things at compile time. If AGP is enabled at compile
+time, AGP support gets built into the DRM module. If AGP is not
+enabled, AGP does not get compiled in. If you try to take a DRM that
+was built for AGP and move it to a system without, it's not going to
+load because it will need the AGP symbols.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Jon Smirl
+jonsmirl@gmail.com

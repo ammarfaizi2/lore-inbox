@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263496AbREYDAu>; Thu, 24 May 2001 23:00:50 -0400
+	id <S263501AbREYDHV>; Thu, 24 May 2001 23:07:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263499AbREYDAk>; Thu, 24 May 2001 23:00:40 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33529 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263496AbREYDA1>;
-	Thu, 24 May 2001 23:00:27 -0400
-Date: Thu, 24 May 2001 23:00:23 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Dawson Engler <engler@csl.Stanford.EDU>
-cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+	id <S263505AbREYDHM>; Thu, 24 May 2001 23:07:12 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:4062 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S263501AbREYDHD>;
+	Thu, 24 May 2001 23:07:03 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200105250307.UAA00899@csl.Stanford.EDU>
 Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
-In-Reply-To: <200105250248.TAA00836@csl.Stanford.EDU>
-Message-ID: <Pine.GSO.4.21.0105242257280.24864-100000@weyl.math.psu.edu>
+To: viro@math.psu.edu (Alexander Viro)
+Date: Thu, 24 May 2001 20:07:00 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0105242257280.24864-100000@weyl.math.psu.edu> from "Alexander Viro" at May 24, 2001 11:00:23 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 24 May 2001, Dawson Engler wrote:
-
-> > check_nmi_watchdog() is __init and we know exactly when it's called.
-> > The interesting cases (SMP kernel, since for UP NR_CPUS==1) are:
+> > Ah, nice --- I keep meaning to tell the checker to demote its warning
+> > about NULL bugs or large stack vars in __init routines and/or routines
+> > that have the substring "init" in them ;-)
 > 
-> Ah, nice --- I keep meaning to tell the checker to demote its warning
-> about NULL bugs or large stack vars in __init routines and/or routines
-> that have the substring "init" in them ;-)
+> Please, don't. These functions are often used from/as init_module(),
+> so they must handle the case when allocation fails. They can be
+> called long after the boot.
 
-Please, don't. These functions are often used from/as init_module(),
-so they must handle the case when allocation fails. They can be
-called long after the boot.
+I meant "demote"  to mean "reducing the ranking of these errors during
+sorting" rather than "eliminate from the error logs".  
+
 

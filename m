@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264498AbUDUJ76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264497AbUDUKHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264498AbUDUJ76 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 05:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUDUJ76
+	id S264497AbUDUKHm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 06:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbUDUKHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 05:59:58 -0400
-Received: from cmsrelay02.mx.net ([165.212.11.111]:34812 "HELO
-	cmsrelay02.mx.net") by vger.kernel.org with SMTP id S264498AbUDUJ74 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 05:59:56 -0400
-X-USANET-Auth: 165.212.8.13    AUTO slansky@usa.net uwdvg013.cms.usa.net
-Date: Wed, 21 Apr 2004 11:59:51 +0200
-From: Petr Slansky <slansky@usa.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: serial port loopback serious bug
-X-Mailer: USANET web-mailer (CM.0402.7.05)
+	Wed, 21 Apr 2004 06:07:42 -0400
+Received: from users.linvision.com ([62.58.92.114]:15340 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S264497AbUDUKHj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 06:07:39 -0400
+Date: Wed, 21 Apr 2004 12:07:38 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Miles Bader <miles@gnu.org>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Jan De Luyck <lkml@kcore.org>,
+       linux-kernel@vger.kernel.org, postmaster@vger.kernel.org
+Subject: Re: vger.kernel.org is listed by spamcop
+Message-ID: <20040421100738.GC4270@harddisk-recovery.com>
+References: <200404210722.32253.lkml@kcore.org> <20040421084434.GL1749@mea-ext.zmailer.org> <buoad15hfp2.fsf@mcspd15.ucom.lsi.nec.co.jp>
 Mime-Version: 1.0
-Message-ID: <258iDuJ8z1872S13.1082541591@uwdvg013.cms.usa.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <buoad15hfp2.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description:
+On Wed, Apr 21, 2004 at 05:56:41PM +0900, Miles Bader wrote:
+> Matti Aarnio <matti.aarnio@zmailer.org> writes:
+> > The only way to handle this is to have smarter people, who are always
+> > vigilant enough to look deeply into the message headers and do realize
+> > that some spam has leaked thru VGER's lists.
+> 
+> I'm confused -- the spamcopy info page you listed implies that hosts are
+> listed if they are an _open relay_, which is a completely different
+> thing from `spam leaking though VGER's lists.'
 
-I observe the bug in kernel 2.4.21 and 2.4.22, I guess it is general problem
-in 2.4.xx kernel. Command 'cat file >/dev/ttyS0' sends the first 4096 bytes
-again and again...
+Vger is not an open relay:
 
-DETAILS:
+% telnet vger.kernel.org smtp
+Connected to vger.kernel.org.
+Escape character is '^]'.
+220 vger.kernel.org ZMailer Server 2.99.57-pre1 #11 ESMTP ready at Wed, 21 Apr 2004 05:56:30 -0400
+EHLO harddisk-recovery.com
+250-vger.kernel.org expected "EHLO xxx.xxx.xxx"
+250-SIZE 0
+250-8BITMIME
+250-PIPELINING
+250-CHUNKING
+250-ENHANCEDSTATUSCODES
+250-DSN
+250-X-RCPTLIMIT 10000
+250-ETRN
+250 HELP
+MAIL FROM: <>
+250 2.0.0 Ok (sourcechannel 'error' accepted) Ok
+RCPT TO: <erik@harddisk-recovery.com>
+550 5.7.1 Your IP address [xx.xx.xx.xx] is not allowed to relay to email address <erik@harddisk-recovery.com> via our server; MX rule
 
-I have generic serial port on i586 machine (PC). I created loopback cable
-(TX-RX and RTS-CTS pins connected) and conected the cable to serial port
-ttyS0. Simple serial port loopback.
+Spamcop is wrong. Some spammer targeted one of the lists on vger. That
+doesn't make vger an open relay.
 
-Configuration:
-#stty 38400 raw clocal crtscts </dev/ttyS0
+> If VGER actually is an open relay, that's very bad, but presumably
+> something easily solved by the machine's maintainers.  Some spam getting
+> through to VGER list recipients, on the other hand, is just annoying
+> (and certainly shouldn't be the cause of any blacklisting).
+> 
+> The spamcop report page seems to say that the listings are due to user
+> reports; could the real problem be clueless users who don't understand
+> the difference above?
 
-Command in console1 (capture ttyS0 to file):
-#cat /dev/ttyS0 > fileI.bin
-
-Command in console2 (send a longer file to ttyS0):
-#cat fileO.bin >/dev/ttyS0
-
-The file fileO.bin have to be at least 4096 bytes long.
-
-I guess you know what is expected result but I bet you don't know real
-result under Linux. I will tell you. Only first 4096 bytes are sent to
-/dev/ttyS0. After that this sequence is read from /dev/ttyS0 again and
-again..., even when no data are send to /dev/ttyS0 anymore. I tested this
-sequence on FreeBSD 4.9 too and I had no problem with loopback like
-this there. Something is seriosly wrong in kernel 2.4.x What about 2.6.x??
-
-With regards,
-Petr
+Yes.
 
 
----------------------------------
-  Petr Slansky, slansky@usa.net
----------------------------------
+Erik
 
-
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263501AbTC3C1n>; Sat, 29 Mar 2003 21:27:43 -0500
+	id <S263502AbTC3Cez>; Sat, 29 Mar 2003 21:34:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263502AbTC3C1n>; Sat, 29 Mar 2003 21:27:43 -0500
-Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:35592 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S263501AbTC3C1f>;
-	Sat, 29 Mar 2003 21:27:35 -0500
-Subject: [Fwd: 2.5 module-init-tools/mk_initrd problems]
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-w3Vu9I+tSTPE+dNh9acP"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 30 Mar 2003 02:38:53 +0000
-Message-Id: <1048991933.850.75.camel@barrabas>
+	id <S263504AbTC3Cez>; Sat, 29 Mar 2003 21:34:55 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23568
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263502AbTC3Cey>; Sat, 29 Mar 2003 21:34:54 -0500
+Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
+From: Robert Love <rml@tech9.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200303301233.03803.kernel@kolivas.org>
+References: <3E8610EA.8080309@telia.com> <1048987260.679.7.camel@teapot>
+	 <1048989922.13757.20.camel@localhost>
+	 <200303301233.03803.kernel@kolivas.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048992365.13757.23.camel@localhost>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 29 Mar 2003 21:46:05 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2003-03-29 at 21:33, Con Kolivas wrote:
 
---=-w3Vu9I+tSTPE+dNh9acP
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Are you sure this should be called a bug? Basically X is an interactive 
+> process. If it now is "interactive for a priority -10 process" then it should 
+> be hogging the cpu time no? The priority -10 was a workaround for lack of 
+> interactivity estimation on the old scheduler.
 
-Regards
--- 
-Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
-Linux only shop
+Well, I do not necessarily think that renicing X is the problem.  Just
+an idea.
 
---=-w3Vu9I+tSTPE+dNh9acP
-Content-Disposition: inline
-Content-Description: Forwarded message - 2.5 module-init-tools/mk_initrd
-	problems
-Content-Type: message/rfc822
+We do have a problem, though.  Nearly indefinite starvation and all sort
+of weird effects like bash not able to create a new process... its a
+bug.
 
-Subject: 2.5 module-init-tools/mk_initrd problems
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-To: linux_kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 29 Mar 2003 20:46:19 +0000
-Message-Id: <1048970779.847.70.camel@barrabas>
-Mime-Version: 1.0
+Renicing X, aside from some weird client-server starvation issues with
+stuff like multimedia programs, should not cause any problem.  It should
+help, in fact.  But, you are right, its not needed in the current
+scheduler.
 
-	On both SuSE 8.1 and Mandrake 9.1rc2, I can't get mk_initrd to find
-modules.
-	I've installed module-init-tools 0.9.10 (SuSE 8.1) and 0.9.9 (Mandrake
-9.1rc2), mkinitrd 3.4.32 (SuSE 8.1) and 3.1.6 (Mandrake). "depmod -ae
-2.5.66-ac1" finds no problems. 
-"mkinitrd --preload reiserfs --preload aic7xxx /boot/initrd-2.5.66-ac1
-2.5.66-ac1" returns message on both systems e.g "no module reiserfs
-found for kernel 2.5.66-ac1".
- strace says it's at least trying to look in the right top directory ...
-stat64("/lib/modules/2.5.66-ac1", {st_mode=S_IFDIR|0755, st_size=288,
-...}) = 0
-	I can't see why it's not searching further down to where the module is.
-Regards
-Sid.
--- 
-Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
-Linux only shop
-
---=-w3Vu9I+tSTPE+dNh9acP--
+	Robert Love
 

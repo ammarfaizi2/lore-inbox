@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131604AbRCSUDX>; Mon, 19 Mar 2001 15:03:23 -0500
+	id <S131564AbRCSUAX>; Mon, 19 Mar 2001 15:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131609AbRCSUDE>; Mon, 19 Mar 2001 15:03:04 -0500
-Received: from smtp2.sentex.ca ([199.212.134.9]:34313 "EHLO smtp2.sentex.ca")
-	by vger.kernel.org with ESMTP id <S131604AbRCSUCu>;
-	Mon, 19 Mar 2001 15:02:50 -0500
-Message-ID: <3AB66449.5F5C673F@coplanar.net>
-Date: Mon, 19 Mar 2001 14:55:53 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tim Moore <timothymoore@bigfoot.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: UDMA 100 / PIIX4 question
-In-Reply-To: <20010318165246Z131240-406+1417@vger.kernel.org> <3AB65C51.3DF150E5@bigfoot.com>
+	id <S131573AbRCSUAN>; Mon, 19 Mar 2001 15:00:13 -0500
+Received: from sal.qcc.sk.ca ([198.169.27.3]:15108 "HELO sal.qcc.sk.ca")
+	by vger.kernel.org with SMTP id <S131564AbRCSUAG>;
+	Mon, 19 Mar 2001 15:00:06 -0500
+Date: Mon, 19 Mar 2001 13:59:10 -0600
+From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux should better cope with power failure
+Message-ID: <20010319135910.A3804@qcc.sk.ca>
+In-Reply-To: <3AB66233.B85881C7@bluewin.ch>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3AB66233.B85881C7@bluewin.ch>; from otto.wyss@bluewin.ch on Mon, Mar 19, 2001 at 08:46:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Moore wrote:
+Otto Wyss <otto.wyss@bluewin.ch> wrote:
+> Lately I had an USB failure, leaving me without any access to my system
+> since I only use an USB-keyboard/-mouse. All I could do in that
+> situation was switching power off and on after a few minutes of
+> inactivity. From the impression I got during the following startup, I
+> assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power
+> failiure or manually switching it off. Not even if there wasn't any
+> activity going on. 
 
-> quintaq@yahoo.co.uk wrote:
-> > I have an IBM DTLA 307030 (ATA 100 / UDMA 5) on an 815e board (Asus CUSL2), which has a PIIX4 controller.
-> > ...
-> > My problem is that (according to hdparm -t), I never get a better transfer rate than approximately 15.8 Mb/sec.  I achieve this when DMA is enabled, - without it I fall back to about 5 Mb /sec.  No amount of fiddling with other hdparm settings makes any difference.
-> > ...
->
-> 15MB/s for hdparm is about right.
+You're not using the filesystem the way you should, if you expect to be
+able to kill the power and not lose data.
 
-You should be able to get about 30 MB/s at the start of the disk (zone 0) according to IBM's datasheet at
+> How could this be accomplished:
+> 1. Flush any dirty cache pages as soon as possible. There may not be any
+> dirty cache after a certain amount of idle time.
 
-http://ssdweb01.storage.ibm.com/techsup/hddtech/prodspec/dtla_spw.pdf
+Mount the filesystem sychronously if you want this.
 
-so if you were testing say /dev/hda1 which is at the start of the disk it should be faster.
+> 2. Keep open files in a state where it doesn't matter if they where
+> improperly closed (if possible).
 
-Try hdparm -i /dev/hda (or whatever) .. . note the reported MaxMultSect= value,
-and put it in place of X in command:
+Mount the filesystem read-only if you want this.
 
-hdparm -u 1 -d 1 -m X -c 1 /dev/hda
+> 3. Swap may not contain anything which can't be discarded. Otherwise
+> swap has to be treated as ordinary disk space.
 
-Cheers,
+The kernel doesn't care about what's in swap.  Fix your applications if they
+do.
 
-Jeremy
-
-PS - please let me know if this fixed your problem, since I have a system
-with the same motherboard.
-
+Charles
+-- 
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+Any opinions expressed are just that -- my opinions.
+-----------------------------------------------------------------------

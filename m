@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136113AbREJMAl>; Thu, 10 May 2001 08:00:41 -0400
+	id <S136094AbREJMAl>; Thu, 10 May 2001 08:00:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136050AbREJMAb>; Thu, 10 May 2001 08:00:31 -0400
+	id <S136084AbREJMAc>; Thu, 10 May 2001 08:00:32 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:61671 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136087AbREJMAU>;
-	Thu, 10 May 2001 08:00:20 -0400
+	by vger.kernel.org with ESMTP id <S135900AbREJMAV>;
+	Thu, 10 May 2001 08:00:21 -0400
 MIME-Version: 1.0
-Message-ID: <15098.26967.99796.538394@charged.uio.no>
-Date: Thu, 10 May 2001 12:11:35 +0200
+Message-ID: <15098.27168.109682.272225@charged.uio.no>
+Date: Thu, 10 May 2001 12:14:56 +0200
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: Andrea Arcangeli <andrea@suse.de>, Kurt Garloff <garloff@suse.de>,
         Linux Kernel <linux-kernel@vger.kernel.org>
@@ -32,45 +32,105 @@ X-Mailing-List: linux-kernel@vger.kernel.org
      > current behaviour of munmap seems to be synchronous (1), so I
      > guess you _always_ want it to be synchronous.
 
-Yes. The NFS concept of close-to-open cache consistency requires you
-to flush out all writes upon file close(). In this case, the usual
-nfs_wb_file() + error reporting in nfs_release() won't catch anything
-that's been put out using writepage(), because the latter can't mark
-the requests using the struct file. This means we have to do something
-special for mmap...
-
-    >> Another thing (completly unrelated to the above issues) that I
-    >> noticed while looking over this nfs code is that the
-    >> __sync_one() for example called by generic_file_write(O_SYNC)
-    >> will recall fdatasync but no nfs_wb_all is put before the
-    >> fdatawait, and I'm not sure that the nfs_sync_page called by
-    >> the fdatawait is enough to rapidly flush the writepaged stuff
-    >> to the nfs server. nfs_sync_page apparently only cares about
-    >> speculative reads, not at all about committing writebacks. It
-    >> would look much saner to me if nfs_sync_page also does a
-    >> nfs_wb_all() on the inode, so that the ->sync_page callback
-    >> gets the same semantics it has for the real filesystems.
-
-     > Looks sane and will probably makes things faster.
-
-This should normally not be needed. Firstly there is logic in the
-write code to send off a request as soon as we have scheduled wsize
-bytes worth of data. Secondly there is the 'flushd' daemon that exists
-in order to time out requests, and to flush them out if the first
-logic fails to do so.
-
-That said, the __sync_one() thing is of interest to me. You'll notice
-that our lack of a write_inode() means that we don't currently support
-the sync() system call. Furthermore, we do O_SYNC through the slower
-method of actually making our commit_write() method make a synchronous
-call.
-I have a patch that implements write_inode() and removes our current
-O_SYNC code on
-
-   http://www.fys.uio.no/~trondmy/src/linux-2.4.4-write_inode.dif
-
-It's been running for a month or two on my systems, but I've been wary
-of sending it to Linus as it's not, strictly speaking, a bugfix.
+Revised patch (+ necessary change in ksyms.c) follows.
 
 Cheers,
-   Trond
+  Trond
+
+diff -u --recursive --new-file linux-2.4.4/fs/nfs/file.c linux-2.4.4-mmap/fs/nfs/file.c
+--- linux-2.4.4/fs/nfs/file.c	Fri Feb  9 20:29:44 2001
++++ linux-2.4.4-mmap/fs/nfs/file.c	Thu May 10 12:12:38 2001
+@@ -39,6 +39,7 @@
+ static ssize_t nfs_file_write(struct file *, const char *, size_t, loff_t *);
+ static int  nfs_file_flush(struct file *);
+ static int  nfs_fsync(struct file *, struct dentry *dentry, int datasync);
++static void nfs_file_close_vma(struct vm_area_struct *);
+ 
+ struct file_operations nfs_file_operations = {
+ 	read:		nfs_file_read,
+@@ -57,6 +58,11 @@
+ 	setattr:	nfs_notify_change,
+ };
+ 
++static struct vm_operations_struct nfs_file_vm_ops = {
++	nopage:		filemap_nopage,
++	close:		nfs_file_close_vma,
++};
++
+ /* Hack for future NFS swap support */
+ #ifndef IS_SWAPFILE
+ # define IS_SWAPFILE(inode)	(0)
+@@ -104,6 +110,19 @@
+ 	return result;
+ }
+ 
++static void nfs_file_close_vma(struct vm_area_struct * vma)
++{
++	struct inode * inode;
++
++	inode = vma->vm_file->f_dentry->d_inode;
++
++	filemap_fdatasync(inode->i_mapping);
++	down(&inode->i_sem);
++	nfs_wb_all(inode);
++	up(&inode->i_sem);
++	filemap_fdatawait(inode->i_mapping);
++}
++
+ static int
+ nfs_file_mmap(struct file * file, struct vm_area_struct * vma)
+ {
+@@ -115,8 +134,11 @@
+ 		dentry->d_parent->d_name.name, dentry->d_name.name);
+ 
+ 	status = nfs_revalidate_inode(NFS_SERVER(inode), inode);
+-	if (!status)
++	if (!status) {
+ 		status = generic_file_mmap(file, vma);
++		if (!status)
++			vma->vm_ops = &nfs_file_vm_ops;
++	}
+ 	return status;
+ }
+ 
+@@ -283,9 +305,11 @@
+ 	 * Flush all pending writes before doing anything
+ 	 * with locks..
+ 	 */
+-	down(&filp->f_dentry->d_inode->i_sem);
++	filemap_fdatasync(inode->i_mapping);
++	down(&inode->i_sem);
+ 	status = nfs_wb_all(inode);
+-	up(&filp->f_dentry->d_inode->i_sem);
++	up(&inode->i_sem);
++	filemap_fdatawait(inode->i_mapping);
+ 	if (status < 0)
+ 		return status;
+ 
+@@ -300,10 +324,12 @@
+ 	 */
+  out_ok:
+ 	if ((cmd == F_SETLK || cmd == F_SETLKW) && fl->fl_type != F_UNLCK) {
+-		down(&filp->f_dentry->d_inode->i_sem);
++		filemap_fdatasync(inode->i_mapping);
++		down(&inode->i_sem);
+ 		nfs_wb_all(inode);      /* we may have slept */
++		up(&inode->i_sem);
++		filemap_fdatawait(inode->i_mapping);
+ 		nfs_zap_caches(inode);
+-		up(&filp->f_dentry->d_inode->i_sem);
+ 	}
+ 	return status;
+ }
+diff -u --recursive --new-file linux-2.4.4/kernel/ksyms.c linux-2.4.4-mmap/kernel/ksyms.c
+--- linux-2.4.4/kernel/ksyms.c	Fri Apr 27 23:23:25 2001
++++ linux-2.4.4-mmap/kernel/ksyms.c	Wed May  9 18:05:58 2001
+@@ -262,6 +262,8 @@
+ EXPORT_SYMBOL(dentry_open);
+ EXPORT_SYMBOL(filemap_nopage);
+ EXPORT_SYMBOL(filemap_sync);
++EXPORT_SYMBOL(filemap_fdatasync);
++EXPORT_SYMBOL(filemap_fdatawait);
+ EXPORT_SYMBOL(lock_page);
+ 
+ /* device registration */

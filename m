@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265646AbUA0TdS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 14:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265657AbUA0Tc4
+	id S264963AbUA0T1k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 14:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265171AbUA0T1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 14:32:56 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9223 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265648AbUA0Tcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 14:32:39 -0500
-Date: Tue, 27 Jan 2004 19:32:28 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
-       Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
-Message-ID: <20040127193227.A30224@flint.arm.linux.org.uk>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
-	Kernel development list <linux-kernel@vger.kernel.org>,
-	Patrick Mochel <mochel@digitalimplant.org>
-References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org> <Pine.LNX.4.58.0401251054340.18932@home.osdl.org> <Pine.LNX.4.58.0401261435160.7855@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0401261435160.7855@serv>; from zippel@linux-m68k.org on Mon, Jan 26, 2004 at 05:22:41PM +0100
+	Tue, 27 Jan 2004 14:27:40 -0500
+Received: from ws.spps.com.br ([200.248.176.2]:4832 "EHLO ws.spps.com.br")
+	by vger.kernel.org with ESMTP id S264963AbUA0T1h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 14:27:37 -0500
+Message-ID: <4016C9FC.4030107@quatro.com.br>
+Date: Tue, 27 Jan 2004 17:28:44 -0300
+From: =?ISO-8859-1?Q?=22Fernando_O=2E_Kornd=F6rfer=22?= 
+	<fok@quatro.com.br>
+Reply-To: fok@quatro.com.br
+Organization: Quatro =?ISO-8859-1?Q?Inform=E1tica_Ltda=2E?=
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC]   "smack the penguin"
+References: <401177DB.8010901@nortelnetworks.com>	<20040124095208.GA20489@zombie.inka.de>	<yw1xbrot7j89.fsf@ford.guide>	<20040124103029.GL10487@boetes.org>	<Pine.LNX.4.58.0401242135250.30233@student.dei.uc.pt>	<Pine.LNX.4.58.0401242140230.30233@student.dei.uc.pt> <20040124231901.7a2fdd28@Genbox> <4012FA6D.6040101@netvis.co.uk>
+In-Reply-To: <4012FA6D.6040101@netvis.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam,
+	SpamAssassin (Disabled due to 10consecutive timeouts)
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 05:22:41PM +0100, Roman Zippel wrote:
-> For example pci drivers currently do something like:
-> 
-> int init()
-> {
-> 	if (pci_register_driver(drv) < 0)
-> 		pci_unregister_driver(drv);
-> }
-> 
-> void exit()
-> {
-> 	pci_unregister_driver(drv);
-> }
+Hail!
 
-I'd like to take this opportunity to mention that the above is buggy
-as written.  If pci_register_driver() fails, the device_driver structure
-is not registered, and therefore pci_unregister_driver() may cause
-Bad Things(tm) to happen.
+1216.2, but no screenshot :(
 
-(and yes, pci_module_init() is buggy as it currently stands, and I
-believe GregKH has a patch in his queue from the stability freeze
-from yours truely to fix it.)
+Neil Ferguson wrote:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> Nuno Alexandre wrote:
+>
+>> On Sat, 24 Jan 2004 21:41:19 +0000 (WET) Marcos D. Marado Torres wrote:
+>>  
+>>
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>>
+>>>
+>>> 1213.6, as a matter of fact ;-)
+>>> Well, I guess that with this URL you pro's will get really higher
+>>> hi-scores...
+>>>   
+>>
+>>
+>> hi.
+>> thx for the url.
+>>
+>> 1214.9 here :)
+>> http://ikaro.homepage.dk/pingu.jpg
+>>  
+>>
+>
+> A student pushing the boundaries, with 1215.8 :-)
+>
+> http://www.netvis.co.uk/pingu3_swf.png
+>
+> Cheers,
+>
+> Neil
+
+--
+Fernando Korndorfer
+fok@quatro.com.br

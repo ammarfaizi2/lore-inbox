@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbTBJRpe>; Mon, 10 Feb 2003 12:45:34 -0500
+	id <S262208AbTBJR5m>; Mon, 10 Feb 2003 12:57:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbTBJRpd>; Mon, 10 Feb 2003 12:45:33 -0500
-Received: from beta.bandnet.com.br ([200.195.133.131]:51979 "EHLO
-	beta.bandnet.com.br") by vger.kernel.org with ESMTP
-	id <S261874AbTBJRpc>; Mon, 10 Feb 2003 12:45:32 -0500
-From: "User &" <breno_silva@beta.bandnet.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: New demand page function
-Date: Mon, 10 Feb 2003 14:57:44 -0300
-Message-Id: <20030210175744.M61715@beta.bandnet.com.br>
-X-Mailer: Open WebMail 1.81 20021127
-X-OriginatingIP: 200.167.224.227 (breno_silva)
+	id <S262224AbTBJR5m>; Mon, 10 Feb 2003 12:57:42 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48215 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S262208AbTBJR5l>; Mon, 10 Feb 2003 12:57:41 -0500
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: suparna@in.ibm.com, linux-kernel@vger.kernel.org,
+       lkcd-devel@lists.sourceforge.net, fastboot@osdl.org
+Subject: Re: [Fastboot] Re: Kexec on 2.5.59 problems ?
+References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org>
+	<3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org>
+	<20030210164401.A11250@in.ibm.com>
+	<1044896964.1705.9.camel@andyp.pdx.osdl.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Feb 2003 11:07:06 -0700
+In-Reply-To: <1044896964.1705.9.camel@andyp.pdx.osdl.net>
+Message-ID: <m13cmwyppx.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi , i done one function for demand page.
-This do almost the same thing of the others functions , the diffence is in 
-when do the page allocations.
-This still need some tests , but i´d like to know your opinions.
+Andy Pfiffer <andyp@osdl.org> writes:
 
-struct page *f_a_page(unsigned int gfp_mask,zone_t *zone,pte_t pte)
-{
- struct page *page;
- struct page *new;
- char *kaddr;
- int i,j;
- 
- /* Teste if there are many pages to alloc and try to alloc just one page*/
+> On Mon, 2003-02-10 at 03:14, Suparna Bhattacharya wrote:
+> > I am using the OSDL versions of the kexec patches for
+> > 2.5.59 (plm 1442 and 1444) for lkcd-kexec based crash dump
+> > work.
+> 
+> <snip>
+> 
+> > 
+> > Surprisingly though, when I tried just a simple 
+> > kexec -e today (having loaded the kernel earlier on), 
+> > I ran into the following Oops, consistently:
+> > 
+> > I'm using kexec-tools-1.8, and this has worked for me
+> > earlier. The test system is a 4way SMP machine.
+> > 
+> > Has anyone seen this as well ?  (I'd already issued init 1 
+> > and unmounted filesystems by this point)
 
-reload: if((zone->free_pages >= zone->pages_min)) {
- 	page = alloc_page(gfp_mask,0);
- 		if(!page)
- 			return NOPAGE_OOM;
- /*Map alloced page*/
-	
-	kaddr = (char *)kmap(page);
-		if(!kaddr)
-			return;
+Hmm.  Would love to know which cpu this is on...
 
-	return page;
-	}
- /*If there aren´t no much pages , try to free some pages*/
+I think the primary candidate if this only occurs in smp is
+the switch_mm.  It may be that modifying the init_mm is not safe,
+or it gets zapped somewhere else.
 
-     else {
-	i = 0;
-        do {
-        	i++;
-	 	j = 2*2*i;
-		}while((j > zone->pages_min));
- 
-		new = pte_page(pte);
-		if(new) {
-			if(new->count !=0)
-				spin_lock(&zone->lock);
-				 __free_pages(new,i);
-				spin_unlock(&zone->lock);
-				goto reload;
-			}
-}
-	   
-thanks
-Breno
-----------------------
-WebMail Bandnet.com.br
+As soon as I get distractions in other directions under control
+I will take a look.
 
+Eric

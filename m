@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbUKWLEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbUKWLXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbUKWLEu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 06:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUKWLEu
+	id S262507AbUKWLXS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 06:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUKWLXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 06:04:50 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:25842 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262464AbUKWLEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 06:04:49 -0500
-From: Amon Ott <ao@rsbac.org>
-Organization: RSBAC
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: towards dynamic resource quotas
-Date: Tue, 23 Nov 2004 12:04:41 +0100
-User-Agent: KMail/1.6.2
-References: <Pine.LNX.4.53.0411230035350.28029@andrew.triumf.ca>
-In-Reply-To: <Pine.LNX.4.53.0411230035350.28029@andrew.triumf.ca>
+	Tue, 23 Nov 2004 06:23:18 -0500
+Received: from mf2.realtek.com.tw ([220.128.56.22]:48136 "EHLO
+	mf2.realtek.com.tw") by vger.kernel.org with ESMTP id S262507AbUKWLXP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 06:23:15 -0500
+Message-ID: <011501c4d14e$d00b1ce0$8b1a13ac@realtek.com.tw>
+From: "colin" <colin@realtek.com.tw>
+To: <linux-kernel@vger.kernel.org>
+Subject: I cannot stop execution by using "ctrl+c"
+Date: Tue, 23 Nov 2004 19:23:10 +0800
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-MIMETrack: Itemize by SMTP Server on msx/Realtek(Release 6.0.2CF1|June 9, 2003) at
+ 2004/11/23 =?Bog5?B?pFWkyCAwNzoyNDozMA==?=,
+	Serialize by Router on msx/Realtek(Release 6.0.2CF1|June 9, 2003) at 2004/11/23
+ =?Bog5?B?pFWkyCAwNzoyNDozMQ==?=,
+	Serialize complete at 2004/11/23 =?Bog5?B?pFWkyCAwNzoyNDozMQ==?=
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411231204.43800.ao@rsbac.org>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
+Content-Type: text/plain;
+	charset="big5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dienstag, 23. November 2004 10:25, Andrew Daviel wrote:
-> Is there any mechanism within Linux to limit the fraction of a 
-resource
-> (CPU, memory, network bandwidth) which may be allocated to a 
-particular
-> process or UID ? If not, perhaps there should be. The idea being to
-> ensure that critical tasks can always run, regardless of resource
-> depletion by other tasks
 
-The Class-based Kernel Resource Management (CKRM) project at 
-http://ckrm.sourceforge.net/ works on this.
+Hi all,
+When using gdb to debug Linux kernel, I found that it cannot be stopped
+temporarily by using "ctrl+c".
+After the first strike of "ctrl+c", nothing happen.
+After the second, Linux kernel will show these messages:
+    Interrupted while waiting for the program.
+    Give up (and stop debugging it)? (y or n)
+If choose yes, kernel will totally stop and it goes back to gdb shell.
+How can I stop kernel temporarily and then resume it?
 
-Amon.
--- 
-http://www.rsbac.org - GnuPG: 2048g/5DEAAA30 2002-10-22
+Thanks and regards,
+Colin
+

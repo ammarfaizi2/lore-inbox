@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278387AbRJMUFW>; Sat, 13 Oct 2001 16:05:22 -0400
+	id <S278388AbRJMUKn>; Sat, 13 Oct 2001 16:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278388AbRJMUFM>; Sat, 13 Oct 2001 16:05:12 -0400
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:27142 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S278387AbRJMUFH>; Sat, 13 Oct 2001 16:05:07 -0400
-Message-ID: <3BC89C7E.6040003@megapathdsl.net>
-Date: Sat, 13 Oct 2001 12:56:46 -0700
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010925
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.4.13-pre2 -- Build error -- appletalk.o: In function `ipddp_xmit' undefined reference to `atalk_find_dev_addr' and `aarp_send_ddp' 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278390AbRJMUKe>; Sat, 13 Oct 2001 16:10:34 -0400
+Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:53777
+	"EHLO ns1.serialhacker.net") by vger.kernel.org with ESMTP
+	id <S278388AbRJMUKU>; Sat, 13 Oct 2001 16:10:20 -0400
+Date: Sat, 13 Oct 2001 13:10:49 -0700
+From: Drew Bertola <drew@drewb.com>
+To: linux-kernel@vger.kernel.org
+Subject: UFS partitions + 2.4.9
+Message-ID: <20011013131049.A20572@drewb.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/net/appletalk/appletalk.o: In function `ipddp_xmit':
-drivers/net/appletalk/appletalk.o(.text+0x47): undefined reference to 
-`atalk_find_dev_addr'
-drivers/net/appletalk/appletalk.o(.text+0x120): undefined reference to 
-`aarp_send_ddp'
-drivers/net/appletalk/appletalk.o: In function `ipddp_create':
-drivers/net/appletalk/appletalk.o(.text+0x187): undefined reference to 
-`atrtr_get_dev'
-make: *** [vmlinux] Error 1
+[Please reply directly since I'm no longer subscribed]
 
-#
-# Networking options
-#
-CONFIG_PACKET=m
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_SYN_COOKIES=y
-CONFIG_ATALK=m
+I have not been able to successfully mount a ufs partition.  I've been
+pouring through as much info as I can dig up on this.  The most
+revealing info I find points to a broken ufs module.  Is that the
+case?  To be honest, this is the first time I've had to mount a
+FreeBSD UFS partition and this could all be user error.
 
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
+Specifically, I've done this:
 
-#
-# Appletalk devices
-#
-CONFIG_APPLETALK=y
-# CONFIG_LTPC is not set
-# CONFIG_COPS is not set
-CONFIG_IPDDP=y
-CONFIG_IPDDP_ENCAP=y
-CONFIG_IPDDP_DECAP=y
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
+# mount -t ufs -o ufstype=44bsd /dev/hdc7 /mnt/ufs/
+mount: wrong fs type, bad option, bad superblock on /dev/hdc7,
+       or too many mounted file systems
 
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_EL3=y
-CONFIG_VORTEX=y
+This does load the ufs module (as confirmed by lsmod).
 
+fdisk shows:
+
+Command (m for help): p
+
+Disk /dev/hdc: 16 heads, 63 sectors, 39704 cylinders
+Units = cylinders of 1008 * 512 bytes
+
+8 partitions:
+#       start       end      size     fstype   [fsize bsize   cpg]
+  a:        1         7*        6*    4.2BSD     1024  8192    16
+  b:        7*       72*       65*      swap
+  c:        1      2492*     2491*    unused        0     0
+  e:       72*       75*        2*    4.2BSD     1024  8192    16
+  f:       75*     2492*     2416*    4.2BSD     1024  8192    16
+
+
+Any help would be appreciated.
+
+
+-- 
+Drew Bertola  | Send a text message to my pager or cell ... 
+              | http://jpager.com/Drew
+
+Linux 10th Anniversary Picnic/BBQ - visit http://linux10.org

@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317586AbSFIJzy>; Sun, 9 Jun 2002 05:55:54 -0400
+	id <S317591AbSFIKDn>; Sun, 9 Jun 2002 06:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317587AbSFIJzx>; Sun, 9 Jun 2002 05:55:53 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:54171 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317586AbSFIJzx>;
-	Sun, 9 Jun 2002 05:55:53 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S317592AbSFIKDm>; Sun, 9 Jun 2002 06:03:42 -0400
+Received: from dialin-145-254-152-251.arcor-ip.net ([145.254.152.251]:20016
+	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
+	id <S317591AbSFIKDm> convert rfc822-to-8bit; Sun, 9 Jun 2002 06:03:42 -0400
+Message-ID: <3D0328D2.8CD47269@loewe-komp.de>
+Date: Sun, 09 Jun 2002 12:07:14 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: B16
+X-Mailer: Mozilla 4.79 [de] (X11; U; Linux 2.4.18-4GB-SMP i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15619.9534.521209.93822@nanango.paulus.ozlabs.org>
-Date: Sun, 9 Jun 2002 19:51:58 +1000 (EST)
-To: "David S. Miller" <davem@redhat.com>
-Cc: roland@topspin.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-In-Reply-To: <20020608.222903.122223122.davem@redhat.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+        frankeh@watson.ibm.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Futex Asynchronous Interface
+In-Reply-To: <Pine.LNX.4.44.0206081523410.11630-100000@home.transmeta.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
-
->    From: Roland Dreier <roland@topspin.com>
->    Date: 08 Jun 2002 18:26:12 -0700
+Linus Torvalds schrieb:
 > 
->    Just to make sure I'm reading this correctly, you're saying that as
->    long as a buffer is OK for DMA, it should be OK to use a
->    sub-cache-line chunk as a DMA buffer via pci_map_single(), and
->    accessing the rest of the cache line should be OK at any time before,
->    during and after the DMA.
->    
-> Yes.
-
-No.  Not on processors where the cache doesn't snoop DMA accesses to
-memory.
-
->    What alternate implementation are you proposing?
+> On Fri, 7 Jun 2002, Peter Wächtler wrote:
+> >
+> > What about /proc/futex then?
 > 
-> For non-cacheline aligned chunks in the range "start" to "end" you
-> must perform a cache writeback and invalidate. To preserve the data
-> outside of the DMA range.
+> Why?
+> 
+> Tell me _one_ advantage from having the thing exposed as a filename?
+> 
 
-This is the problem scenario.  Suppose we are doing DMA to a buffer B
-and also independently accessing a variable X which is not part of B.
-Suppose that X and the beginning of B are both in cache line C.
+There is no enforcing advantage for this.
 
-	CPU				I/O device
+newbie question: how to provide file operations like poll
+without an entry in the filesystem? (in the meantime I will try
+to answer this myself :)
 
-1.	write back & invalidate cache
-	line(s) containing B
-2.	start DMA
-3.	read X: cache line C now
-	present in cache
-4.					DMA write to B:
-					cache line C updated in memory
-5.	write X: cache line C now
-	dirty in cache
-6.					Signal DMA completion
+> The whole point with "everything is a file" is not that you have some
+> random filename (indeed, sockets and pipes show that "file" and "filename"
+> have nothing to do with each other), but the fact that you can use common
+> tools to operate on different things.
+> 
+> But there's absolutely no point in opening /dev/futex from a shell script
+> or similar, because you don't get anything from it. You still have to bind
+> the fd to it's real object.
+> 
+> In short, the name "/dev/futex" (or "/proc/futex") is _meaningless_.
+> There's no point to it. It has no life outside the FUTEX system call, and
+> the only thing that you can do by exposing it as a name is to cause
+> problems for people who don't want to mount /proc, or who do not happen to
+> have that device node in their /dev.
+> 
+> > Give it an entry in the namespace, why not with sockets (unix and ip) also?
+> 
+> Perhaps because you cannot enumerate sockets and pipes? They don't _have_
+> names before they are created. Same as futexes, btw.
+> 
 
-Now at this point the driver calls pci_unmap_single or whatever.  What
-is pci_unmap_single to do?  If it does nothing, or does a writeback,
-we lose the DMA data.  If it does an invalidate we lose the value
-written to X.  Clearly, neither is correct.
+Still you can open a file in the namespace and write some commands to it.
+Then it turns out to be a socket on port 25:
 
-The bottom line is that we can only have one writer to any given cache
-line at a time.  If a buffer is being used for DMA from a device to
-memory, the cpu MUST NOT write to any cache line that overlaps the
-buffer.
+fd=open("/dev/socket",O_RDWR);
+write(fd,"connect stream 25\n",sizeof(..));
+write(fd,"helo mail.my.com\n",..);
+...
 
-Fundamentally, this is because the hardware lacks the ability to
-transfer the "ownership" of the cache line between the cpu and the DMA
-device on demand, and so we must manage that in software.  The only
-safe way to allow the cpu to write to the cache line during a DMA
-transfer is active is to pause the DMA, invalidate the cache line, do
-the write, write back and invalidate the cache line, and restart the
-DMA.
 
-Paul.
+Just one more question: would it be possible to specify a poll operation
+for /proc/blah?

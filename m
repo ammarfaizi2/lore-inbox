@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271178AbUJVBVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271157AbUJVBSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271178AbUJVBVk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 21:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbUJVBSX
+	id S271157AbUJVBSB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 21:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271156AbUJVBPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 21:18:23 -0400
-Received: from gate.crashing.org ([63.228.1.57]:8113 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S271106AbUJVBRt (ORCPT
+	Thu, 21 Oct 2004 21:15:25 -0400
+Received: from gate.crashing.org ([63.228.1.57]:177 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S271158AbUJVBGC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 21:17:49 -0400
-Subject: Re: [PATCH] use mmiowb in tg3.c
+	Thu, 21 Oct 2004 21:06:02 -0400
+Subject: [PATCH] ppc64: Fix typo in zImage boot wrapper
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       Jeff Garzik <jgarzik@pobox.com>, gnb@sgi.com, akepner@sgi.com
-In-Reply-To: <20041021164007.4933b10b.davem@davemloft.net>
-References: <200410211613.19601.jbarnes@engr.sgi.com>
-	 <200410211628.06906.jbarnes@engr.sgi.com>
-	 <20041021164007.4933b10b.davem@davemloft.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1098407804.6071.22.camel@gaston>
+Message-Id: <1098407111.6028.17.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 11:16:45 +1000
+Date: Fri, 22 Oct 2004 11:05:11 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 09:40, David S. Miller wrote:
-> On Thu, 21 Oct 2004 16:28:06 -0700
-> Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> 
-> > This patch originally from Greg Banks.  Some parts of the tg3 driver depend on 
-> > PIO writes arriving in order.  This patch ensures that in two key places 
-> > using the new mmiowb macro.  This not only prevents bugs (the queues can be 
-> > corrupted), but is much faster than ensuring ordering using PIO reads (which 
-> > involve a few round trips to the target bus on some platforms).
-> 
-> Do other PCI systems which post PIO writes also potentially reorder
-> them just like this SGI system does?  Just trying to get this situation
-> straight in my head.
+This patch fixes a typo in the zImage boot wrapper (incorrect printf).
 
-I think the problem they have is really related to their spinlock, that
-is the IO leaking out of the spinlock vs. other CPUs.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Matthew Dharm <mdharm@momenco.com>
 
-On the other hand, as I discussed with Jesse in the past, I'd like to
-extend the semantics of mmiowb() to also define full barrier between
-cacheable and non-cacheable accesses. That would help fixing a lot of issues
-on ppc and ppc64.
+===== arch/ppc64/boot/main.c 1.9 vs edited =====
+--- 1.9/arch/ppc64/boot/main.c	2004-09-20 18:17:40 -07:00
++++ edited/arch/ppc64/boot/main.c	2004-10-21 14:17:06 -07:00
+@@ -166,7 +166,7 @@
+ 		gunzip((void *)vmlinux.addr, vmlinux.size,
+ 			(unsigned char *)vmlinuz.addr, &len);
+ 		printf("done 0x%lx bytes\n\r", len);
+-		printf("0x%x bytes of heap consumed, max in use 0x%\n\r",
++		printf("0x%x bytes of heap consumed, max in use 0x%x\n\r",
+ 		       (unsigned)(avail_high - begin_avail), heap_max);
+ 	} else {
+ 		memmove((void *)vmlinux.addr,(void *)vmlinuz.addr,vmlinuz.size);
 
-Typically, our normal "light" write barrier doesn't reorder between cacheable
-and non-cacheable (MMIO) stores, which is why we had to put some heavy sync
-barrier in our MMIO writes macros.
-
-By having an mmiowb() that allow to explicitely do this ordering, it would
-allow us to relax the barriers in the MMIO macros, and so get back a few
-percent of perfs that we lost with the "fix".
-
-I haven't had time to work on that yet though, I need to review with paulus
-all the possible race cases, but hopefully, I'll have a patch on top of
-Jesse next week or so and will start converting more drivers.
-
-Ben.
 

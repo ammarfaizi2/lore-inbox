@@ -1,51 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267655AbSLSXbz>; Thu, 19 Dec 2002 18:31:55 -0500
+	id <S267622AbSLSXaD>; Thu, 19 Dec 2002 18:30:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267659AbSLSXbz>; Thu, 19 Dec 2002 18:31:55 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:6661 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267655AbSLSXbw>;
-	Thu, 19 Dec 2002 18:31:52 -0500
-Date: Thu, 19 Dec 2002 15:37:01 -0800
-From: Greg KH <greg@kroah.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RFC: bus_type and device_class merge (or partial merge)
-Message-ID: <20021219233701.GA8536@kroah.com>
-References: <Pine.LNX.4.33.0212191355370.1286-100000@localhost.localdomain> <200212192244.OAA06433@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212192244.OAA06433@adam.yggdrasil.com>
-User-Agent: Mutt/1.4i
+	id <S267632AbSLSXaD>; Thu, 19 Dec 2002 18:30:03 -0500
+Received: from milligan.cwx.net ([216.17.176.90]:18306 "EHLO mail.acmeps.com")
+	by vger.kernel.org with ESMTP id <S267622AbSLSX36>;
+	Thu, 19 Dec 2002 18:29:58 -0500
+Message-ID: <3E025858.4000404@acmeps.com>
+Date: Thu, 19 Dec 2002 16:38:00 -0700
+From: Michael Milligan <milli@acmeps.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20: Broken AGP initialization for i845G chipset [patch]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 19, 2002 at 02:44:53PM -0800, Adam J. Richter wrote:
-> >> = Adam Richter
-> >  = Patrick Mochel
-> 
-> >Especially during the continuing evolution
-> >of the model. At least for now, and for probably a very long time, I will 
-> >not consider patches to consolidate the two object types.
-> 
-> 	Linux will be better if we decide things by weighing technical
-> benefits rather than by attempts at diktat.  I recommend you keep an
-> open mind about it.
+Chipset detection for the new Intel i845G chipset was added into the AGPGART
+driver, but it appears to call the wrong initialization routine.  Stock 
+compile
+causes some bad interaction that messes up the PCI bus such that, in my 
+case,
+the follow on initialization of the Adaptec SCSI card (PCI) hangs the 
+box.  Needless
+to say, that's very bad since that's where all the hard drives live. 
+SCSI driver
+initialization happens right after the AGP initialization... from dmesg 
+(after my patch):
+(without the patch, it would hang before "scsi0: Adaptec ..." or before 
+finding
+  any drives)
+....
+Linux video capture interface: v1.00
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 203M
+agpgart: Detected Intel i845G chipset
+agpgart: AGP aperture is 256M @ 0xe0000000
+SCSI subsystem driver Revision: 1.00
+PCI: Found IRQ 9 for device 02:0a.0
+PCI: Sharing IRQ 9 with 02:0a.1
+PCI: Found IRQ 9 for device 02:0a.1
+PCI: Sharing IRQ 9 with 02:0a.0
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
+         <Adaptec 3950B Ultra2 SCSI adapter>
+         aic7896/97: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
 
-Heh, if anyone has kept an open mind around here, it's Pat.  Look at the
-crap that the driver writers have forced him to accommodate.  Here's a
-small drawing that some people did at OLS 2002 to help get across how
-all of the wide range of busses, classes, devices, and drivers interact
-with just one kind of subsystem:
-	http://www.kroah.com/linux/images/driver_model_1_ols_2002.jpg
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
+         <Adaptec 3950B Ultra2 SCSI adapter>
+         aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/253 SCBs
 
-The existing code handles monstrosities like that quite well, because he
-has kept an open mind, and listened to the driver and subsystem authors.
+   Vendor: IBM       Model: DNES-309170Y      Rev: SAH0
+   Type:   Direct-Access                      ANSI SCSI revision: 03
+(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 30, 16bit)
+....
 
-And yes, we need to start writing more class support, it's next on my
-list too.  Patches to do this would be greatly appreciated.
+Patch below.  Calls the 845 initialization function instead of the 830MP,
+and a small formatting cleanup.  This is verified working.
 
-thanks,
+$ diff -u kernel-source-2.4.20/drivers/char/agp/agpgart_be.c.org 
+kernel-source-2.4.20/drivers/char/agp/agpgart_be.c
+--- kernel-source-2.4.20/drivers/char/agp/agpgart_be.c.org 2002-11-28 
+16:53:12.000000000 -0700
++++ kernel-source-2.4.20/drivers/char/agp/agpgart_be.c  2002-12-08 
+20:39:57.000000000 -0700
+@@ -4551,12 +4551,12 @@
+                 "Intel",
+                 "i830M",
+                 intel_830mp_setup },
+-    { PCI_DEVICE_ID_INTEL_845_G_0,
++       { PCI_DEVICE_ID_INTEL_845_G_0,
+                  PCI_VENDOR_ID_INTEL,
+                  INTEL_I845_G,
+                  "Intel",
+                  "i845G",
+-                intel_830mp_setup },
++                intel_845_setup },
+         { PCI_DEVICE_ID_INTEL_840_0,
+                 PCI_VENDOR_ID_INTEL,
+                 INTEL_I840,
 
-greg k-h
+Please note... kernel version below is that of my development box (where 
+kernel was compiled)
+
+-- System Information
+Debian Release: testing/unstable
+Kernel Version: Linux shadow 2.4.19 #3 SMP Mon Nov 25 20:48:02 MST 2002 
+i686 Pentium III (Coppermine) GenuineIntel GNU/Linux
+
+Versions of the packages kernel-source-2.4.20 depends on:
+ii  binutils       2.13.90.0.10-1 The GNU assembler, linker and binary 
+utiliti
+ii  bzip2          1.0.2-1        A high-quality block-sorting file 
+compressor
+ii  coreutils      4.5.2-1        The GNU core utilities
+ii  fileutils      4.5.2-1        GNU file management utilities
+
+
+Regards,
+Mike
+
+-- 
+Michael Milligan  --  Free Agent  --  milli@acmeps.com
+

@@ -1,121 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314050AbSDSB2A>; Thu, 18 Apr 2002 21:28:00 -0400
+	id <S314205AbSDSBfT>; Thu, 18 Apr 2002 21:35:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314205AbSDSB17>; Thu, 18 Apr 2002 21:27:59 -0400
-Received: from web14305.mail.yahoo.com ([216.136.173.81]:60167 "HELO
-	web14305.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314050AbSDSB16>; Thu, 18 Apr 2002 21:27:58 -0400
-Message-ID: <20020419012757.24839.qmail@web14305.mail.yahoo.com>
-Date: Thu, 18 Apr 2002 18:27:57 -0700 (PDT)
-From: Kanoj Sarcar <kanojsarcar@yahoo.com>
-Subject: Re: bug in fork failure path?
-To: Colin Gibbs <colin@gibbs.dhs.org>, linux-kernel@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-In-Reply-To: <1019178622.25887.630.camel@monolith>
+	id <S314232AbSDSBfS>; Thu, 18 Apr 2002 21:35:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31495 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314205AbSDSBfS>;
+	Thu, 18 Apr 2002 21:35:18 -0400
+Message-ID: <3CBF743E.9CA419BB@zip.com.au>
+Date: Thu, 18 Apr 2002 18:34:54 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: disk throughput down in 2.5.8
+In-Reply-To: <200204182336.BAA22417@harpo.it.uu.se>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mikael Pettersson wrote:
+> 
+> Is it just me or is disk I/O throughput way down in 2.5.8?
+> 
+> I was preparing to build 2.4.19-pre7 on a box running 2.5.8,
+> when I noticed that 'tar zxvf' on the kernel tarball seemed
+> slow and jerky. So I ran
+> 
+>         cd /tmp; time tar zxf /path/to/linux-2.5.8.tar.gz
+> 
+> on several boxes(*), comparing 2.4.19-pre7 with 2.5.8.
+> 
+> On the older boxes (2 PentiumIIs and one K6-III), 2.5.8 was slower
+> by factors of 2.3-4.5. A P4 with an IBM 60GXP "only" suffered a
+> 40% slowdown.
+> 
 
---- Colin Gibbs <colin@gibbs.dhs.org> wrote:
-> Hi, 
-> 
-> I came across this bug hacking on sparc32. If fork
-> fails in copy_mm ->
-> dup_mmap, destroy_context is called on the new mm
-> before
-> init_new_context. 
+I can't say that it's happening here.  The time to untar
+and sync a kernel tarball from /dev/sdb6 to /dev/sdb5:
 
-Yes, this definitely sounds like a bug. I added the
-init_new_context() call for mips64 in 2.3. With the
-way the current code is, I belive even mips64 has
-a problem.
+2.4.19-pre4:
+~/doit  6.55s user 3.69s system 53% cpu 19.225 total
+2.4.19-pre7
+~/doit  6.82s user 3.29s system 53% cpu 18.811 total
+2.5.8:
+~/doit  6.32s user 3.52s system 56% cpu 17.401 total
 
-Kanoj
+So 2.5.8 is a little quicker.  Note that this time includes
+"sync".  2.4.19-recent has more intelligent write-behind
+than other kernels, and if you don't include the /bin/sync
+time, you actually miss out on timing a lot of the I/O.
+Which is a good feature in 2.4, but it only goes so far.
 
-> 
-> fork.c:330 
-> 	retval = -ENOMEM; 
-> 	mm = allocate_mm(); 
-> 	if (!mm) 
-> 		goto fail_nomem; 
-> 
-> 	/* Copy the current MM stuff.. */ 
-> 	memcpy(mm, oldmm, sizeof(*mm)); 
-> 	if (!mm_init(mm)) 
-> 		goto fail_nomem; 
-> 
-> Failure is ok here. We don't try to do an mmput, but
-> we have memcpy'd
-> the mm struct context and all. 
-> 
-> 	down_write(&oldmm->mmap_sem); 
-> 	retval = dup_mmap(mm); 
-> 	up_write(&oldmm->mmap_sem); 
-> 
-> 	if (retval) 
-> 		goto free_pt; 
-> 
-> If we fail and call mmput, destroy_context gets
-> called before
-> init_new_context below. This removes the parent
-> process's context since
-> it was just memcpy'd from the parent's mm struct. 
-> 
-> 	/* 
-> 	 * child gets a private LDT (if there was an LDT in
-> the parent) 
-> 	 */ 
-> 	copy_segments(tsk, mm); 
-> 
-> 	if (init_new_context(tsk,mm)) 
-> 		goto free_pt; 
-> 
-> Can we move the init_new_context to just after the
-> mm_init call? Works
-> nicely on sparc. Most archs have a fairly trivial
-> init_new_context
-> anyway. 
-> 
-> Colin 
-> 
-> --- 2.4.19-pre4/kernel/fork.c	Thu Mar 28 19:49:36
-> 2002
-> +++ tortoise-19-pre4/kernel/fork.c	Wed Apr 17
-> 23:26:20 2002
-> @@ -336,6 +336,9 @@
->  	if (!mm_init(mm))
->  		goto fail_nomem;
->  
-> +	if (init_new_context(tsk,mm))
-> +		goto free_pt;
-> +
->  	down_write(&oldmm->mmap_sem);
->  	retval = dup_mmap(mm);
->  	up_write(&oldmm->mmap_sem);
-> @@ -347,9 +350,6 @@
->  	 * child gets a private LDT (if there was an LDT
-> in the parent)
->  	 */
->  	copy_segments(tsk, mm);
-> -
-> -	if (init_new_context(tsk,mm))
-> -		goto free_pt;
->  
->  good_mm:
->  	tsk->mm = mm;
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe sparclinux" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-http://vger.kernel.org/majordomo-info.html
+dbench throughput is down the tubes in 2.5.8 - partly because
+the kernel is starting too many pdflush threads, and partly
+because I (had to) take out the bit of code where bdflush
+waits on I/O completion before looking for another wakeup.
+That would be a waste of pdflush resources.  It needs to
+be addressed by other means, but not with the buffer LRUs.
 
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Tax Center - online filing with TurboTax
-http://taxes.yahoo.com/
+-

@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVCWVKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVCWVKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVCWVKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 16:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbVCWVI7
+	id S262940AbVCWVKH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 16:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVCWVJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 16:08:59 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:17552
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261338AbVCWVEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 16:04:47 -0500
-Date: Wed, 23 Mar 2005 13:01:30 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: bunk@stusta.de, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/eql.c: kill dead code
-Message-Id: <20050323130130.5aaf0d83.davem@davemloft.net>
-In-Reply-To: <20050323202823.GA11453@havoc.gtf.org>
-References: <20050322215354.GM1948@stusta.de>
-	<20050323122212.776975d4.davem@davemloft.net>
-	<20050323202823.GA11453@havoc.gtf.org>
-X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 23 Mar 2005 16:09:07 -0500
+Received: from fire.osdl.org ([65.172.181.4]:33457 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262917AbVCWVG5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 16:06:57 -0500
+Date: Wed, 23 Mar 2005 13:06:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, mahalcro@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] Keys: Pass session keyring to call_usermodehelper()
+Message-Id: <20050323130628.3a230dec.akpm@osdl.org>
+In-Reply-To: <29204.1111608899@redhat.com>
+References: <29204.1111608899@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005 15:28:23 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
+David Howells <dhowells@redhat.com> wrote:
+>
+> The attached patch makes it possible to pass a session keyring through to the
+>  process spawned by call_usermodehelper().
 
-> Note that I apply drivers/net/* stuff too, including this one...  :)
+hm.  Seems likely to attract angry emails due to breakage of out-of-tree
+stuff.  Did you consider
 
-I realized this was a possibility, BK will figure it out once
-it gets merged so no worries.
+static inline int
+call_usermodehelper(char *path, char **argv, char **envp, int wait)
+{
+	return call_usermodehelper_keys(path, argv, envp, NULL, wait);
+}
 
-Generally, besides bonding, I pretty much take the changes in
-for non-hardware drivers like eql, shaper, and friends.
+?
+

@@ -1,105 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbUL2MaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbUL2MoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbUL2MaL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 07:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbUL2MaL
+	id S261214AbUL2MoN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 07:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUL2MoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 07:30:11 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:24297 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261208AbUL2M37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 07:29:59 -0500
-Date: Wed, 29 Dec 2004 13:29:32 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve French <sfrench@samba.org>,
-       Steve French <sfrench@us.ibm.com>,
-       samba-technical <samba-technical@lists.samba.org>,
+	Wed, 29 Dec 2004 07:44:12 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:65356 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261214AbUL2MoI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 07:44:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=RoM5/u9AAwWxEtzTiXYmDt6gUnN6mOmo6NRZA+sRRlzizgcsoE0fd4sxpIQX01k3Q0Jdwiky5P1VkNm91cKuTNoFA+DBipcjsUySkpBHNk1/wc3H+7luXvKNQScmasIGLWEoj4WQEqGCZMkyeMr4mzXJquwbPDwaZErPy8T44P8=
+Message-ID: <4d8e3fd304122904442a602a8@mail.gmail.com>
+Date: Wed, 29 Dec 2004 13:44:08 +0100
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Ho ho ho - Linux v2.6.10
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/3] whitespace cleanups in fs/cifs/file.c
-Message-ID: <20041229122932.GC10308@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.61.0412270019370.3552@dragon.hygekrogen.localhost> <1104104286.16545.7.camel@localhost.localdomain> <Pine.LNX.4.61.0412290048150.3528@dragon.hygekrogen.localhost> <20041229015716.GB29323@wohnheim.fh-wedel.de> <Pine.LNX.4.61.0412290347020.28589@dragon.hygekrogen.localhost>
+In-Reply-To: <1103977161.22646.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0412290347020.28589@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+	 <1103977161.22646.6.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 December 2004 03:59:55 +0100, Jesper Juhl wrote:
+On Sat, 25 Dec 2004 12:19:24 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Gwe, 2004-12-24 at 22:39, Linus Torvalds wrote:
+> > Ok, with a lot of people taking an xmas break, here's something to play
+> > with over the holidays (not to mention an excuse for me to get into the
+> > Glögg for real ;)
 > 
-> > > @@ -408,7 +410,7 @@ cifs_close(struct inode *inode, struct f
-> > >  	struct cifs_sb_info *cifs_sb;
-> > >  	struct cifsTconInfo *pTcon;
-> > >  	struct cifsFileInfo *pSMBFile =
-> > > -		(struct cifsFileInfo *) file->private_data;
-> > > +		(struct cifsFileInfo *)file->private_data;
-> > 
-> > 	struct cifsFileInfo *pSMBFile = file->private_data;
-> > 
-> > Casting a typeless pointer is pointless.
-> > 
-> This was a 'whitespace fixes only' patch. I have no problem with going 
-> through the file and looking for pointless casts etc, but that would be a 
-> sepperate patch.
+> Merry Yule to you too.
+> 
+> Not wishing to be too ungrateful to Santa but
+> 
+> - The broken AX.25 patches are not reverted so that doesn't work on some
+> networks
+> 
+> - It seems the security hole inducing exec_id change was not reverted
+> and I've not yet found any other changes that fix the same problem
+> (setuid_app >/proc/self/mem) in 2.6.10. It was actually quite nasty as a
+> hole because you can seek the fd to the right target address before
+> execing. With the other /proc changes did I miss something on this one
+> 
+> I'll check it all over in more detail when I generate 2.6.10-ac
+> (probably tomorrow), which will be nice as the patch will be a _lot_
+> shorter and USB storage a lot happier than 2.6.9 based systems.
+> 
 
-Sure.  I noticed it while going through your patch, that's all.  If
-you find the time for a second patch, that would be nice.  Casts are a
-very effective obfuscation method and most are pretty simple to avoid.
-Maybe I should check the kernel janitor list and add this point, if
-it doesn't exist yet.
+Having at least a -rc or maintaining a 2.6.XY.Z branch would avoid
+these problems in my very humble opinion.
 
-> > > -	if(file->f_dentry) {
-> > > -		if(file->f_dentry->d_inode) {
-> > > +	if (file->f_dentry) {
-> > > +		if (file->f_dentry->d_inode) {
-> > 
-> > 	if (file->f_dentry && file->f_dentry->d_inode) {
-> > 
-> > There is too little context to see if this conversion is possible.
-> > And I'm too lazy to check myself.
-> > 
-> I didn't check that either since that's not what this patch was about - it 
-> was strictly formatting/whitespace cleanups and no code changes.
-
-Yup.  Same as above, except for the janitor list.
-
-> - there was a lot of lines in there ;)
-
-You can say that again, Mr. Hat!
-
-> I made those changes since (again) both styles are used in the file, so to 
-> make it consistent I had to choose one of the styles, and picked my 
-> personal preference - that's the only reason behind that change.
-
-Personal style is hard to argue about.  And doesn't make much of a
-difference anyway.
-
-> > > -static void reset_resume_key(struct file * dir_file, 
-> > > -				unsigned char * filename, 
-> > > -				unsigned int len,int Unicode,struct nls_table * nls_tab) {
-> > > +static void 
-> > > +reset_resume_key(struct file *dir_file, unsigned char *filename,
-> > > +		 unsigned int len, int Unicode, struct nls_table *nls_tab)
-> > > +{
-> > 
-> > Lex Linus?  Either way you don't stay within the 80 column.
-> > 
-> Whoops, my bad, I intended to.
-
-Sorry.  The whole function declaration is spread over three lines.  I
-don't mind p***ing Linus off iff putting the return type on a seperate
-line is sufficient to fit all the rest into a single line.  Doesn't
-work here, so you get to argue in favor, not me. ;)
-
-> Sepperate issue, sepperate patch.
-
-Agreed.  Google proposes "separate", btw.  
-
-Jörn
+Best,
 
 -- 
-The strong give up and move away, while the weak give up and stay.
--- unknown
+Paolo Ciarrocchi

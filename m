@@ -1,98 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265788AbUA0Uic (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:38:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265797AbUA0Uic
+	id S265751AbUA0UaA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265752AbUA0U37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:38:32 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:64241 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265788AbUA0Ui2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:38:28 -0500
-Message-ID: <4016CC1C.8020709@mvista.com>
-Date: Tue, 27 Jan 2004 12:37:48 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jim.houston@comcast.net
-CC: Andi Kleen <ak@suse.de>, akpm@osdl.org, amitkale@emsyssoft.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
-References: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>	 <20040127155619.7efec284.ak@suse.de>	 <1075225399.1020.239.camel@new.localdomain>	 <20040127190251.4edb873d.ak@suse.de> <1075232116.1020.326.camel@new.localdomain>
-In-Reply-To: <1075232116.1020.326.camel@new.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jan 2004 15:29:59 -0500
+Received: from mail.kroah.org ([65.200.24.183]:31713 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265751AbUA0U3z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 15:29:55 -0500
+Date: Tue, 27 Jan 2004 12:29:44 -0800
+From: Greg KH <greg@kroah.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
+Message-ID: <20040127202944.GE27240@kroah.com>
+References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org> <Pine.LNX.4.58.0401251054340.18932@home.osdl.org> <Pine.LNX.4.58.0401261435160.7855@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401261435160.7855@serv>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Houston wrote:
-> On Tue, 2004-01-27 at 13:02, Andi Kleen wrote:
+On Mon, Jan 26, 2004 at 05:22:41PM +0100, Roman Zippel wrote:
 > 
->>On 27 Jan 2004 12:43:20 -0500
->>Jim Houston <jim.houston@comcast.net> wrote:
-> 
-> 
->>>arch/x86_64/Kconfig
->>>arch/x86_64/Kconfig.kgdb
->>>	We used a different approach to selecting DEBUG_INFO.
->>>	I was not really happy with the way select DEBUG_INFO worked.
->>
->>You reverted it back? 
->>
->>What I did was to change all not really kgdb specific CONFIG_KGDB uses in
->>the main kernel with CONFIG_DEBUG_INFO (mostly CFI support). I don't feel
->>strongly about it, but this way there is no reference to an unknown
->>config symbol in mainline. Also DEBUG_INFO including CFI makes sense I think.
+> All this is done without a module count, this means that
+> pci_unregister_driver() cannot return before the last reference is gone.
+> For network devices this is not that much of a problem, as they can be
+> rather easily deconfigured automatically, but that's not that easy for
+> mounted block devices, so one has to be damned careful when to call the
+> exit function.
 
-If we are going to use DEBUG_INFO could we change the "-g" it produces to 
-"-gdwarft-2", especially since you (and I) are using dwarft2 CFI stuff.
+Um, not anymore.  I can yank out a mounted block device and watch the
+scsi core recover just fine.  The need to make everything hotpluggable
+has fixed up a lot of issues like this (as well as made more
+problems...)
 
--g
-> 
-> 
-> Hi Andi,
-> 
-> I'm using CONFIG_DEBUG_INFO, but I used a different mechanism to
-> select it when KGDB is selected.  I'm still learning to speak Kconfig.
-> 
-> My patch:
-> 
->    config KGDB
->         bool "Include kgdb kernel debugger"
->         depends on DEBUG_KERNEL
->         select DEBUG_INFO
->         help
->           If you say Y here, the system will be compiled with the debug
-> 
-> Your patch:
-> 
->   config DEBUG_INFO
->         bool "Compile kernel with debug information" if !KGDB
->         default y
-> 
-> Using "select DEBUG_INFO" selects the option and makes the input box
-> on xconfig disappear.  The line describing the option remains, perhaps
-> leaving a user wondering why this line doesn't have an input box.
-> 
-> With your version, the DEBUG_INFO option disappears when KGDB forces
-> it on.
-> 
-> I was looking for a way to get the old behavior where the 
-> the effect was controlled by an OR of the two options.
-> 
-> Jim Houston - Concurrent Computer Corp.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+thanks,
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+greg k-h

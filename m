@@ -1,74 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129518AbQLMAtq>; Tue, 12 Dec 2000 19:49:46 -0500
+	id <S129747AbQLMAyJ>; Tue, 12 Dec 2000 19:54:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbQLMAtg>; Tue, 12 Dec 2000 19:49:36 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:40715 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129518AbQLMAta>; Tue, 12 Dec 2000 19:49:30 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Wed, 13 Dec 2000 11:17:19 +1100 (EST)
-Message-ID: <14902.49167.834682.925490@notabene.cse.unsw.edu.au>
+	id <S129866AbQLMAyA>; Tue, 12 Dec 2000 19:54:00 -0500
+Received: from smtp1.jp.psi.net ([154.33.63.111]:46598 "EHLO smtp1.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S129747AbQLMAxx>;
+	Tue, 12 Dec 2000 19:53:53 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: Signal 11 - the continuing saga
+Date: Wed, 13 Dec 2000 09:22:55 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGAEAHCJAA.rmager@vgkk.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-cc: Jasper Spaans <jasper@spaans.ds9a.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] raid5 crash with 2.4.0-test12 [Was: Linux-2.4.0-test12]
-In-Reply-To: message from Linus Torvalds on Tuesday December 12
-In-Reply-To: <14902.45844.964925.199379@notabene.cse.unsw.edu.au>
-	<Pine.LNX.4.10.10012121539000.2348-100000@penguin.transmeta.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGKENMCIAA.rmager@vgkk.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday December 12, torvalds@transmeta.com wrote:
-> 
-> 
-> On Wed, 13 Dec 2000, Neil Brown wrote:
-> >
-> > Could you add this test to the top of md_make_request as well, because
-> > requests to raid5 don't go through generic_make_request.
-> 
-> Sure they do. Everything that calls ll_rw_block() or submit_bh() will go
-> through generic_make_request.
-> 
-> Neil, you're probably thinking about __make_request(), which only triggers
-> for "normal" devices.
+Hi again,
 
-Yes... you are right.  Alright, I can't escape it any other way so I
-guess I must admit that  it is a raid5 bug.
+	Ok, I just upgraded to 2.4.0test12 (although I don't think there was any
+work in 12 that directly addresses this signal 11 problem). When compiling
+the new kernel I chose to disable AGPGart and RDM as suggested by
+davej@suse.de. I will report later if this makes any difference.
 
-But how can raid5 be calling b_end_io on a buffer_head that was never
-passed to generic_make_request?
-Answer, it snoops on the buffer cache to try to do complete stripe
-writes.
-The following patch disabled that code.
+	On another, possibly related note, I'm getting some really weird behavior
+with a Java program. The only reason I mention it here is because it dies
+with our old friend Signal 11. Anyway, please bear with the description
+below.
+	I have a tiny bash script that launches a Java swing app. If I run my
+script from an xterm (or gnome-terminal or whatever) then it starts up fine.
+If, however, I try to launch it from my gnome taskbar's menu then it dies
+with signal 11 (the Java log is available upon request). This seems to be
+100% consistent, since I noticed it yesterday, even across reboots.
+Interestingly, the same behavior occurs if I try to run the program from
+withis JBuilder 4.
+	So, is this related to the larger signal 11 problems?
 
-NeilBrown
 
---- drivers/md/raid5.c	2000/12/13 00:13:54	1.1
-+++ drivers/md/raid5.c	2000/12/13 00:14:07
-@@ -1009,6 +1009,7 @@
- 	struct buffer_head *bh;
- 	int method1 = INT_MAX, method2 = INT_MAX;
- 
-+#if 0
- 	/*
- 	 * Attempt to add entries :-)
- 	 */
-@@ -1039,6 +1040,7 @@
- 			atomic_dec(&bh->b_count);
- 		}
- 	}
-+#endif
- 	PRINTK("handle_stripe() -- begin writing, stripe %lu\n", sh->sector);
- 	/*
- 	 * Writing, need to update parity buffer.
- 
+	What else can I do regarding these issues to help fix it? Would a core dump
+help anyone? I'd really like to contribute somehow but I need some
+direction.
+
+
+--Rainer
+
+> From: CMA [mailto:cma@mclink.it]
+> Did you already try to selectively disable L1 and L2 caches (if
+> your box has both) and see what happens?
+
+Anyone know how to do this?
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

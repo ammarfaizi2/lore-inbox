@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266575AbUFQRAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUFQRKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266575AbUFQRAN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 13:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266576AbUFQRAN
+	id S261181AbUFQRKd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 13:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUFQRKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 13:00:13 -0400
-Received: from ceiriog1.demon.co.uk ([194.222.75.230]:50816 "EHLO
-	ceiriog1.demon.co.uk") by vger.kernel.org with ESMTP
-	id S266575AbUFQRAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 13:00:09 -0400
-Subject: Re: Irix NFS servers, again :-)
-From: Peter Wainwright <prw@ceiriog1.demon.co.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040617134424.GA32272@infradead.org>
-References: <1087411925.30092.35.camel@ceiriog1.demon.co.uk>
-	 <20040617134424.GA32272@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1087491319.3677.5.camel@ceiriog1.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 17 Jun 2004 17:55:20 +0100
+	Thu, 17 Jun 2004 13:10:33 -0400
+Received: from lucidpixels.com ([66.45.37.187]:14485 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S261181AbUFQRKa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 13:10:30 -0400
+Date: Thu, 17 Jun 2004 13:10:25 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: ACPI vs. APM - Which is better for desktop and why?
+Message-ID: <Pine.LNX.4.60.0406171308080.17891@p500>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-17 at 14:44, Christoph Hellwig wrote:
-> On Wed, Jun 16, 2004 at 07:52:06PM +0100, Peter Wainwright wrote:
-> > I just upgraded one of my machines to Fedora Core 2, including
-> > kernel 2.6.5. I found myself bitten on the bum by a bug I thought
-> > had expired long ago, namely the Irix server readdir bug, or
-> > 32/64-bit cookie problem.
-> > 
-> > Therefore, I thought I should let you folks know that this problem
-> > is still there, apparently.
-> 
-> IIRC this was fixed on the IRIX side a while ago.  What IRIX version
-> do you run?
-> 
+I have enabled ACPI on my Dell GX1 (Pentium 3/500MHZ) machine and disabled 
+APM, however, what are the benefits of using ACPI over APM?
 
-Not very old, it's 6.5.21. And I do have -32bitclients
-in my /etc/exports.
+I am using Kernel 2.6.7
 
-BTW, I just found an old patch I made for glibc 2.2 to
-fix this (or a similar) problem. Maybe that's a better
-place for a fix
+I see ACPI eats up an IRQ and does not share it:
 
-Peter Wainwright
+$ cat /proc/interrupts
+            CPU0
+   0:   64997374          XT-PIC  timer
+   1:         10          XT-PIC  i8042
+   2:          0          XT-PIC  cascade
+   5:       2625          XT-PIC  Crystal audio controller
+   8:          1          XT-PIC  rtc
+   9:          0          XT-PIC  acpi
+  10:     277489          XT-PIC  ide2
+  11:   11465050          XT-PIC  ide4, ide5, eth0, eth1, eth2, eth3
+  12:         58          XT-PIC  i8042
+  14:     307536          XT-PIC  ide0
+  15:         53          XT-PIC  ide1
+NMI:          0
+LOC:   65007290
+ERR:          0
+MIS:          0
+

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263744AbTIHXC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 19:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTIHXC3
+	id S263772AbTIHXQA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 19:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTIHXQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 19:02:29 -0400
-Received: from mail.kroah.org ([65.200.24.183]:27850 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263744AbTIHXC1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 19:02:27 -0400
-Date: Mon, 8 Sep 2003 16:02:24 -0700
-From: Greg KH <greg@kroah.com>
-To: jdow <jdow@earthlink.net>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: problem with "Gadget filesystem" config prompt (bk10)
-Message-ID: <20030908230224.GA3047@kroah.com>
-References: <Pine.LNX.4.44.0309081137260.15517-100000@localhost.localdomain> <20030908221102.GA2953@kroah.com> <043301c37659$d0074490$2eedfea9@kittycat>
-Mime-Version: 1.0
+	Mon, 8 Sep 2003 19:16:00 -0400
+Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:2984
+	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id S263772AbTIHXP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 19:15:57 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <043301c37659$d0074490$2eedfea9@kittycat>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16221.3496.796304.383173@wombat.chubb.wattle.id.au>
+Date: Tue, 9 Sep 2003 09:15:52 +1000
+To: scott_list@mischko.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Plans for better performance metrics in upcoming kernels?
+In-Reply-To: <200309080754.55700.scott_list@mischko.com>
+References: <200309051641.44228.scott_list@mischko.com>
+	<200309080754.55700.scott_list@mischko.com>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 03:37:40PM -0700, jdow wrote:
-> From: "Greg KH" <greg@kroah.com> Monday, 2003 September, 08 15:11
-> 
-> > On Mon, Sep 08, 2003 at 11:40:46AM -0400, Robert P. J. Day wrote:
-> > >
-> > >   just doing a "make oldconfig", from bk9 -> bk10, being prompted for
-> the
-> > > USB_GADGETFS (Gadget filesystem), which asks
-> > >
-> > >   ... [N/m/?]  (NEW)
-> > >
-> > > without thinking, i typed "y" (not noticing that that was not a valid
-> > > answer), and what i got back was:
-> > >
-> > > Say "y" to link the driver statically, or "m" to build a
-> > > dynamically linked module called "gadgetfs".
-> > >
-> > >   which suggests that "y" *is* a valid response (when clearly it isn't).
-> > > someone might want to clarify this.
-> >
-> > You got the help information for this option.  And "y" is a valid option
-> > if one of the parent options is selected as "y".  Not much you can do
-> > here...
-> 
-> Perhaps the incorrect prompt could be fixed?
+>>>>> "Scott" == Scott Chapman <scott_list@mischko.com> writes:
 
-Patches are always welcome.
+Scott> Hi all, I received one reply to this email.  I take it there is
+Scott> nobody really heading up the implementation of improved/missing
+Scott> performance metrics in the kernel?
 
-greg k-h
+
+I've been working on microstate acounting, and am interested in better
+metrics overall, for capacity planning and for accounting.
+
+I think that SGI also have been doing some work -- see
+http://oss.sgi.com/projects/csa/ 
+
+Peter C

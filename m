@@ -1,79 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSGYNQN>; Thu, 25 Jul 2002 09:16:13 -0400
+	id <S313558AbSGYNUE>; Thu, 25 Jul 2002 09:20:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSGYNQN>; Thu, 25 Jul 2002 09:16:13 -0400
-Received: from babyruth.hotpop.com ([204.57.55.14]:31677 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP
-	id <S312973AbSGYNQM> convert rfc822-to-8bit; Thu, 25 Jul 2002 09:16:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mike Insch <vofka@hotpop.com>
-Reply-To: vofka@hotpop.com
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Oddities with HighPoint HPT374, 2.4.19-pre10-ac2
-Date: Thu, 25 Jul 2002 14:10:57 +0100
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10207250507480.4719-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10207250507480.4719-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207251410.57227.vofka@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+	id <S313477AbSGYNUE>; Thu, 25 Jul 2002 09:20:04 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:63484 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313558AbSGYNTC>; Thu, 25 Jul 2002 09:19:02 -0400
+Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Andre Hedrick <andre@linux-ide.org>, martin@dalecki.de,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1D0647598B@vcnet.vc.cvut.cz>
+References: <1D0647598B@vcnet.vc.cvut.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 25 Jul 2002 15:34:25 +0100
+Message-Id: <1027607665.9488.75.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK - Thanks for the Info.
+On Thu, 2002-07-25 at 13:50, Petr Vandrovec wrote:
+> On 25 Jul 02 at 14:08, Alan Cox wrote:
+> 
+> > +   OUT_BYTE(0x00, 0xCFB);
+> > +   OUT_BYTE(0x00, 0xCF8);
+> > +   OUT_BYTE(0x00, 0xCFA);
+> > +   if (IN_BYTE(0xCF8) == 0x00 && IN_BYTE(0xCF8) == 0x00) {
+>                                             ^^^^^
+> It should be 0xCFA according to arch/i386/pci/direct.c...
 
-For the moment, the machine in question will be simply running as a SAMBA 
-Server, and then only for one or two clients at a time (it's storing disk 
-images from PowerQuest's Drive Image Pro Software), and it (so far) seems to 
-be stable enough when data is coming in from the network.
-
-If there is any detailed info. I can give you from the system, I'll be happy 
-to pop them over to you - similarly, if I can help test any revised versions 
-in the future, I'd be happy to do so.
-
-Thanks again... :)
-
-On Thursday 25 July 2002 13:25, Andre Hedrick wrote:
-> The oddities are the fact I have not finished creating the channel and
-> drive set inner-lock sequence code :-/  If you run it in master mode only
-> one drive per channel, it is perfectly safe.  The problem happens the
-> instant you pair drives on the channels.  I have not figured out the
-> correct interrupt sequence ordering and blocking recipe.
->
-> The issue stands to deal with double hwgroups locking and having more than
-> two channels to the effective HBA.
->
-> Instead of
->
-> HPT374
->   ide4
->   ide5
-> HPT374
->   ide6
->   ide7
->
-> It has to evlolve to
->
-> HPT374
->   ide4p
->   ide4s
->   ide5p
->   ide5s
->
-> This means extened minor on the second half of each major must be created.
-> There is not enough sane bandwith in the driver, nor would anybody take
-> such an exotic solution.
->
-> Sorry,
->
-> Andre Hedrick
-> LAD Storage Consulting Group
->
-
+Correct. Martin I agree with this change.
 

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265986AbUBCKKV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 05:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265988AbUBCKKV
+	id S265982AbUBCKIT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 05:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265986AbUBCKIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 05:10:21 -0500
-Received: from pop.gmx.net ([213.165.64.20]:7581 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265986AbUBCKKP (ORCPT
+	Tue, 3 Feb 2004 05:08:18 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:49547 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265982AbUBCKIR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 05:10:15 -0500
-X-Authenticated: #4512188
-Message-ID: <401F7382.3030507@gmx.de>
-Date: Tue, 03 Feb 2004 11:10:10 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.2-rc3-mm1
-References: <20040202235817.5c3feaf3.akpm@osdl.org> <401F70E1.5070408@gmx.de>
-In-Reply-To: <401F70E1.5070408@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 3 Feb 2004 05:08:17 -0500
+Date: Tue, 3 Feb 2004 10:35:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>,
+       dipankar@in.ibm.com
+Subject: Re: New v. v. experimental HOTPLUG CPU megapatch.
+Message-ID: <20040203093502.GA4399@elte.hu>
+References: <20040202154040.GA5895@elte.hu> <20040203074322.27A892C13E@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040203074322.27A892C13E@lists.samba.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: SpamAssassin 2.60
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash K. Cheemplavam wrote:
-> Hi,
-> 
-> I am getting this on init. I think while udev inits:
-> 
-> i_size_write() called without i_sem
-> Feb  3 10:53:53 tachyon Call Trace:
-> Feb  3 10:53:53 tachyon [<c013d347>] i_size_write_check+0x57/0x60
-> Feb  3 10:53:53 tachyon [<c01767de>] simple_commit_write+0x3e/0xa0
-> Feb  3 10:53:53 tachyon [<c0167f3c>] page_symlink+0xec/0x1dd
-> Feb  3 10:5i_size_write() called without i_sem
-> Feb  3 10:53:53 tachyon Call Trace:
-> Feb  3 10:53:53 tachyon [<c013d347>] i_size_write_check+0x57/0x60
-> Feb  3 10:53:53 tachyon [<c01767de>] simple_commit_write+0x3e/0xa0
-> Feb  3 10:53:53 tachyon [<c0167f3c>] page_symlink+0xec/0x1dd
-> Feb  3 10:53:53 tachyon [<c01bbbdd>] ramfs_symlink+0x5d/0xc0
-> Feb  3 10:53:53 tachyon [<c0166e37>] vfs_symlink+0x57/0xb0
-> Feb  3 10:53:53 tachyon [<c0166f63>] sys_symlink+0xd3/0xf0
-> Feb  3 10:53:53 tachyon [<c038fa86>] sysenter_past_esp+0x43/0x65
-> 3:53 tachyon [<c01bbbdd>] ramfs_symlink+0x5d/0xc0
-> Feb  3 10:53:53 tachyon [<c0166e37>] vfs_symlink+0x57/0xb0
-> Feb  3 10:53:53 tachyon [<c0166f63>] sys_symlink+0xd3/0xf0
-> Feb  3 10:53:53 tachyon [<c038fa86>] sysenter_past_esp+0x43/0x65
 
-BTW, my root is reiserfs, my boot ext2, which shouldn't be mounted by 
-default, so this is reiferfs case.
+* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Prakash
+> Patch against 2.6.2-rc2-mm2.  Works basically, gives "APIC error on
+> CPU1: 08(08)" under stress.  Clues welcome.
+
+APIC error 08 is receive error. Ie. most likely there was a pending IPI
+(or pending hwirq) to that CPU but the CPU was zapped and the APIC
+reset. I'd suggest to add "sti;nop;cli" instructions after the IO-APIC
+masks have been redirected [note the nop - the interrupt-enable boundary
+on x86 is two instructions from sti] - to flush out pending hardirqs and
+IPIs. After this point nothing is supposed to reach this CPU. Enabling
+irqs at this point should not cause any races, because you do this
+first, right?
+
+the pending cross-CPU-IPI case should not happen if the infrastructure
+is correct, external hardirqs are not an issue unless it's an
+edge-triggered device. So the worst-case with your current code could be
+a lost timer IRQ or a lost edge-triggered PCI irq (old ne2k cards).
+
+	Ingo

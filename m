@@ -1,45 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130046AbQJ0Wn7>; Fri, 27 Oct 2000 18:43:59 -0400
+	id <S129463AbQJ0Xso>; Fri, 27 Oct 2000 19:48:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130712AbQJ0Wnt>; Fri, 27 Oct 2000 18:43:49 -0400
-Received: from mail.fluke.com ([206.138.179.200]:18698 "EHLO
-	evtvir02.tc.fluke.com") by vger.kernel.org with ESMTP
-	id <S130046AbQJ0Wni>; Fri, 27 Oct 2000 18:43:38 -0400
-Date: Fri, 27 Oct 2000 15:43:34 -0700 (PDT)
-From: David Dyck <dcd@tc.fluke.com>
-To: Brian Gerst <bgerst@didntduck.org>
-cc: <linux-kernel@vger.kernel.org>, "Barry K. Nathan" <barryn@pobox.com>
-Subject: Re: test10-pre5 mount: Unable to handle kernel paging request at 
- virtualaddress
-In-Reply-To: <39F66A65.2F9EF34B@didntduck.org>
-Message-ID: <Pine.LNX.4.30.0010271541150.470-100000@dd.tc.fluke.com>
+	id <S129495AbQJ0Xse>; Fri, 27 Oct 2000 19:48:34 -0400
+Received: from correo02.adinet.com.uy ([206.99.44.215]:50894 "EHLO
+	correo02.adinet.com.uy") by vger.kernel.org with ESMTP
+	id <S129463AbQJ0XsZ>; Fri, 27 Oct 2000 19:48:25 -0400
+Message-ID: <39FA1332.ED6EF857@adinet.com.uy>
+Date: Fri, 27 Oct 2000 20:43:46 -0300
+From: Ivan Baldo <lubaldo@adinet.com.uy>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test9 i586)
+X-Accept-Language: es, en, it
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Linux Uruguay <linux-uy@linux.org.uy>, SET <salvador@inti.gov.ar>
+Subject: [Fwd: Bug in Linux VFAT filesystem: truncating file to greather size!]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Oct 2000, Brian Gerst wrote:
+	Hello.
+	I have sent this to the maintainer of the VFAT code some time ago and
+it told me it doesn't have time.
+	It seems there is a bug and this bug still persists in 2.2.17 and
+2.4.0-test9 (test9 says there is a bug on file.c line 69 and sometimes
+on line 79 I think, I think this is the file.c of VFAT which has code
+for reporting that bug on those lines).
+	Also note that there is a bug in kernel 2.4.0-test9 regarding to long
+filenames on VFAT32 filesystems (it doesn't create them ok, test with
+Scandisk or Norton Disk Doctor), you can easily check that.
+	Sorry this is somewhat vague, but I don't have much free time right
+now, yet I will try to answer your questions or try to help you as much
+as I can, so don't doubt to email me (I am not on the mailing list!).
+	I hope you can reproduce both of this bugs and fix them.
+	Thank you very much guys!
 
-> > On Mon, 23 Oct 2000, David Dyck wrote:
-> >
-> > > I am getting a repeatable oops during the boot up phase,
-> > > with linux 2.4.0  test10-pre4
->
-> I know what your problem is now:
->
-> > > Gnu C                  2.7.2.3
->
-> GCC 2.7.2.3 miscompiles the kernel_module structure.  Since this is
-> where the exception table pointers are stored in a modular kernel, the
-> page fault handler was failing to find the exception handler and causing
-> an oops.
+	Here is the email I sent to the maintainer:
 
-Thanks Brian,  I finally got around to updating the compiler,
-and this did fix the problem
+-------- Original Message --------
+From: Ivan Baldo <lubaldo@adinet.com.uy>
+Subject: Bug in Linux VFAT filesystem: truncating file to greather size!
+To: chaffee@bmrc.cs.berkeley.edu
+CC: SET <salvador@inti.gov.ar>, Gonzalo Piano <mpsggpep@adinet.com.uy>
 
-My thanks also to Barry for posting the patch to
-Documentation/Changes
+	Hello.
+	Please, if it is not you the correct person to email the bug, then
+point me in the right direction and excuse me.
+	Do this:
+		- create a small C program that calls the "truncate()" function to
+increase the size of an already existing file. Note that I am saying
+*increase the size*, wich it is different from *truncating the file*.
+Make sure the file is in a mounted VFAT filesystem and that both the
+file and the increase in size are big (use 1mb for created file and
+increase it to 2mb for example, or use greater  random values).
+		- unmount filesystem and check with your favourite program (I have
+used Microsoft Scandisk and Norton Disk Doctor, I have not tryed
+dosfsck...). Your checking program will say that the file has some sort
+of bad allocation issues, etc. Don't worry, it does not seem to kill the
+filesystem, only the file you created and tested.
+
+	Tested with home-compiled 2.2.15 Kernel, I have used GCC 2.95.2 and
+binutils 2.9.5.0.22, most of the things are compiled statically (not as
+modules), the filesystem things are all compiled statically. Another
+friend tested with its 2.2.15 kernel, *and* another friend tested with
+its 2.0.38 kernel!!! In all cases we have managed to reproduce the
+problem! I have a little C program for doing this... it is in spanish
+language but I think you will not need it... anyway, if you want this
+program I can translate a bit of it (the code...) and send it to you.
+
+	I haven't researched which kernel doesn't has the bug, because I don't
+have older kernels (disk space and cleaning issues and my internet
+connection isn't very cheap) and because I have a big lack of free time.
+
+	I hope you can reproduce the problem and fix it easily.
+	If you want more information and maybe some more help (take in account
+that I am not a very knowledgeable person... so I can do only easy
+things...), then just email me! Maybe you want me to test a patch or
+something...
+
+	Ok, thanks you so much! Bye.
+
+P.s.: Netscape Messenger seems to rely on the ability to truncate a file
+to a bigger size, but it uses it only for non important files (the
+message files doesn't seem to have this problem, but the .summary files
+do).
+-- 
+Ivan Baldo:
+lubaldo@adinet.com.uy - http://members.xoom.com/baldo - ICQ 10215364
+Phone: (598) (2) 613 3223.
+Caldas 1781, Malvin, Montevideo, Uruguay, South America.
+
+(If you have problems with the previous addresses, try this ones:
+ibaldo@usa.net, http://baldo.home.ml.org).
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

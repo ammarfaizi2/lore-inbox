@@ -1,202 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVCRIuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVCRIvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVCRIuo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 03:50:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVCRIuo
+	id S261505AbVCRIvY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 03:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVCRIvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 03:50:44 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:40184 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261515AbVCRIuI (ORCPT
+	Fri, 18 Mar 2005 03:51:24 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:64760 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261507AbVCRIu5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 03:50:08 -0500
-Date: Fri, 18 Mar 2005 09:49:58 +0100 (MET)
-Message-Id: <200503180849.j2I8nwI5021579@alkaid.it.uu.se>
+	Fri, 18 Mar 2005 03:50:57 -0500
+Date: Fri, 18 Mar 2005 09:50:50 +0100 (MET)
+Message-Id: <200503180850.j2I8oo3T021588@alkaid.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
 To: akpm@osdl.org
-Subject: [PATCH][2.6.11-mm4] perfctr cleanups 1/3: common
+Subject: [PATCH][2.6.11-mm4] perfctr cleanups 2/3: ppc32
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-
-Here's a collection of cleanups for perfctr.
-
-Common-code cleanups for perfctr:
-- init.c: remove unused <asm/uaccess.h>, don't
-  initialise perfctr_info, don't show dummy cpu_type,
-  show driver version directly from VERSION.
-- <linux/perfctr.h>: remove types & constants not used
-  in the kernel any more, make perfctr_info kernel-only
-  and remove unused fields, use explicitly-sized integers
-  in user-visible types.
+ppc32-specific cleanups for perfctr:
+- ppc.c: don't initialise obsolete perfctr_info.cpu_type,
+  use DEFINE_SPINLOCK().
+- <asm-ppc/perfctr.h>: remove cpu_type constants and
+  PERFCTR_CPU_VERSION unused in the kernel, use
+  explicitly-sized integers in user-visible types, make
+  perfctr_cpu_control kernel-private.
 
 Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
- drivers/perfctr/init.c    |   22 ++++---------------
- drivers/perfctr/version.h |    2 -
- include/linux/perfctr.h   |   51 ++++++++++------------------------------------
- 3 files changed, 18 insertions(+), 57 deletions(-)
+ drivers/perfctr/ppc.c     |    8 +++-----
+ include/asm-ppc/perfctr.h |   43 ++++++++++++++++++-------------------------
+ 2 files changed, 21 insertions(+), 30 deletions(-)
 
-diff -rupN linux-2.6.11-mm4/drivers/perfctr/init.c linux-2.6.11-mm4.perfctr-2.7.12/drivers/perfctr/init.c
---- linux-2.6.11-mm4/drivers/perfctr/init.c	2005-03-17 19:39:42.000000000 +0100
-+++ linux-2.6.11-mm4.perfctr-2.7.12/drivers/perfctr/init.c	2005-03-18 00:49:07.000000000 +0100
-@@ -1,8 +1,8 @@
--/* $Id: init.c,v 1.76 2004/05/31 18:18:55 mikpe Exp $
-+/* $Id: init.c,v 1.81 2005/03/17 23:49:07 mikpe Exp $
-  * Performance-monitoring counters driver.
-  * Top-level initialisation code.
+diff -rupN linux-2.6.11-mm4/drivers/perfctr/ppc.c linux-2.6.11-mm4.perfctr-2.7.12/drivers/perfctr/ppc.c
+--- linux-2.6.11-mm4/drivers/perfctr/ppc.c	2005-03-17 19:39:42.000000000 +0100
++++ linux-2.6.11-mm4.perfctr-2.7.12/drivers/perfctr/ppc.c	2005-03-18 00:50:05.000000000 +0100
+@@ -1,7 +1,7 @@
+-/* $Id: ppc.c,v 1.30 2004/11/24 00:23:27 mikpe Exp $
++/* $Id: ppc.c,v 1.35 2005/03/17 23:50:05 mikpe Exp $
+  * PPC32 performance-monitoring counters driver.
   *
-- * Copyright (C) 1999-2004  Mikael Pettersson
-+ * Copyright (C) 1999-2005  Mikael Pettersson
+- * Copyright (C) 2004  Mikael Pettersson
++ * Copyright (C) 2004-2005  Mikael Pettersson
   */
  #include <linux/config.h>
- #include <linux/fs.h>
-@@ -11,27 +11,16 @@
- #include <linux/device.h>
- #include <linux/perfctr.h>
+ #include <linux/init.h>
+@@ -43,7 +43,7 @@ static enum pm_type pm_type;
  
--#include <asm/uaccess.h>
--
- #include "cpumask.h"
- #include "virtual.h"
- #include "version.h"
- 
--struct perfctr_info perfctr_info = {
--	.abi_version = PERFCTR_ABI_VERSION,
--	.driver_version = VERSION,
--};
-+struct perfctr_info perfctr_info;
- 
- static ssize_t
- driver_version_show(struct class *class, char *buf)
+ static unsigned int new_id(void)
  {
--	return sprintf(buf, "%s\n", perfctr_info.driver_version);
--}
--
--static ssize_t
--cpu_type_show(struct class *class, char *buf)
--{
--	return sprintf(buf, "%#x\n", perfctr_info.cpu_type);
-+	return sprintf(buf, "%s\n", VERSION);
- }
+-	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
++	static DEFINE_SPINLOCK(lock);
+ 	static unsigned int counter;
+ 	int id;
  
- static ssize_t
-@@ -70,7 +59,6 @@ cpus_forbidden_show(struct class *class,
- 
- static struct class_attribute perfctr_class_attrs[] = {
- 	__ATTR_RO(driver_version),
--	__ATTR_RO(cpu_type),
- 	__ATTR_RO(cpu_features),
- 	__ATTR_RO(cpu_khz),
- 	__ATTR_RO(tsc_to_cpu_mult),
-@@ -104,7 +92,7 @@ static int __init perfctr_init(void)
- 		return err;
+@@ -1005,7 +1005,6 @@ static int __init known_init(void)
+ 		return -ENODEV;
  	}
- 	printk(KERN_INFO "perfctr: driver %s, cpu type %s at %u kHz\n",
--	       perfctr_info.driver_version,
-+	       VERSION,
- 	       perfctr_cpu_name,
- 	       perfctr_info.cpu_khz);
- 	return 0;
-diff -rupN linux-2.6.11-mm4/drivers/perfctr/version.h linux-2.6.11-mm4.perfctr-2.7.12/drivers/perfctr/version.h
---- linux-2.6.11-mm4/drivers/perfctr/version.h	2005-03-17 19:39:42.000000000 +0100
-+++ linux-2.6.11-mm4.perfctr-2.7.12/drivers/perfctr/version.h	2005-03-18 01:11:49.000000000 +0100
-@@ -1 +1 @@
--#define VERSION "2.7.10"
-+#define VERSION "2.7.12"
-diff -rupN linux-2.6.11-mm4/include/linux/perfctr.h linux-2.6.11-mm4.perfctr-2.7.12/include/linux/perfctr.h
---- linux-2.6.11-mm4/include/linux/perfctr.h	2005-03-17 19:39:45.000000000 +0100
-+++ linux-2.6.11-mm4.perfctr-2.7.12/include/linux/perfctr.h	2005-03-18 01:10:53.000000000 +0100
-@@ -1,4 +1,4 @@
--/* $Id: perfctr.h,v 1.88 2005/02/20 12:03:08 mikpe Exp $
-+/* $Id: perfctr.h,v 1.91 2005/03/18 00:10:53 mikpe Exp $
-  * Performance-Monitoring Counters driver
+ 	perfctr_info.cpu_features = features;
+-	perfctr_info.cpu_type = 0; /* user-space should inspect PVR */
+ 	perfctr_cpu_name = known_name;
+ 	perfctr_info.cpu_khz = detect_cpu_khz(pll_type);
+ 	perfctr_ppc_init_tests(have_mmcr1);
+@@ -1021,7 +1020,6 @@ static int __init unknown_init(void)
+ 	if (!khz)
+ 		return -ENODEV;
+ 	perfctr_info.cpu_features = PERFCTR_FEATURE_RDTSC;
+-	perfctr_info.cpu_type = 0;
+ 	perfctr_cpu_name = unknown_name;
+ 	perfctr_info.cpu_khz = khz;
+ 	pm_type = PM_NONE;
+diff -rupN linux-2.6.11-mm4/include/asm-ppc/perfctr.h linux-2.6.11-mm4.perfctr-2.7.12/include/asm-ppc/perfctr.h
+--- linux-2.6.11-mm4/include/asm-ppc/perfctr.h	2005-03-17 19:39:43.000000000 +0100
++++ linux-2.6.11-mm4.perfctr-2.7.12/include/asm-ppc/perfctr.h	2005-03-18 00:58:54.000000000 +0100
+@@ -1,30 +1,25 @@
+-/* $Id: perfctr.h,v 1.12 2004/11/24 00:20:57 mikpe Exp $
++/* $Id: perfctr.h,v 1.16 2005/03/17 23:58:54 mikpe Exp $
+  * PPC32 Performance-Monitoring Counters driver
   *
-  * Copyright (C) 1999-2005  Mikael Pettersson
-@@ -10,43 +10,15 @@
+- * Copyright (C) 2004  Mikael Pettersson
++ * Copyright (C) 2004-2005  Mikael Pettersson
+  */
+ #ifndef _ASM_PPC_PERFCTR_H
+ #define _ASM_PPC_PERFCTR_H
  
- #include <asm/perfctr.h>
+-/* perfctr_info.cpu_type values */
+-#define PERFCTR_PPC_GENERIC	0
+-#define PERFCTR_PPC_604		1
+-#define PERFCTR_PPC_604e	2
+-#define PERFCTR_PPC_750		3
+-#define PERFCTR_PPC_7400	4
+-#define PERFCTR_PPC_7450	5
++#include <asm/types.h>
  
--struct perfctr_info {
--	unsigned int abi_version;
--	char driver_version[32];
--	unsigned int cpu_type;
--	unsigned int cpu_features;
--	unsigned int cpu_khz;
--	unsigned int tsc_to_cpu_mult;
--	unsigned int _reserved2;
--	unsigned int _reserved3;
--	unsigned int _reserved4;
--};
--
--struct perfctr_cpu_mask {
--	unsigned int nrwords;
--	unsigned int mask[1];	/* actually 'nrwords' */
--};
--
--/* abi_version values: Lower 16 bits contain the CPU data version, upper
--   16 bits contain the API version. Each half has a major version in its
--   upper 8 bits, and a minor version in its lower 8 bits. */
--#define PERFCTR_API_VERSION	0x0600	/* 6.0 */
--#define PERFCTR_ABI_VERSION	((PERFCTR_API_VERSION<<16)|PERFCTR_CPU_VERSION)
--
- /* cpu_features flag bits */
- #define PERFCTR_FEATURE_RDPMC	0x01
- #define PERFCTR_FEATURE_RDTSC	0x02
- #define PERFCTR_FEATURE_PCINT	0x04
- 
--/* user's view of mmap:ed virtual perfctr */
--struct vperfctr_state {
--	struct perfctr_cpu_state cpu_state;
--};
--
- /* virtual perfctr control object */
- struct vperfctr_control {
--	int si_signo;
--	unsigned int preserve;
-+	__s32 si_signo;
-+	__u32 preserve;
+ struct perfctr_sum_ctrs {
+-	unsigned long long tsc;
+-	unsigned long long pmc[8];
++	__u64 tsc;
++	__u64 pmc[8];	/* the size is not part of the user ABI */
  };
  
- /* commands for sys_vperfctr_control() */
-@@ -57,8 +29,8 @@ struct vperfctr_control {
- 
- /* common description of an arch-specific 32-bit control register */
- struct perfctr_cpu_reg {
--	unsigned int nr;
--	unsigned int value;
-+	__u32 nr;
-+	__u32 value;
+ struct perfctr_cpu_control_header {
+-	unsigned int tsc_on;
+-	unsigned int nractrs;		/* # of a-mode counters */
+-	unsigned int nrictrs;		/* # of i-mode counters */
++	__u32 tsc_on;
++	__u32 nractrs;	/* number of accumulation-mode counters */
++	__u32 nrictrs;	/* number of interrupt-mode counters */
  };
  
- /* state and control domain numbers
-@@ -70,14 +42,9 @@ struct perfctr_cpu_reg {
++#ifdef __KERNEL__
+ struct perfctr_cpu_control {
+ 	struct perfctr_cpu_control_header header;
+ 	unsigned int mmcr0;
+@@ -34,21 +29,22 @@ struct perfctr_cpu_control {
+ 	unsigned int ireset[8];		/* [0,0x7fffffff], for i-mode counters, physical indices */
+ 	unsigned int pmc_map[8];	/* virtual to physical index map */
+ };
++#endif
  
- /* domain numbers for common arch-specific control data */
- #define PERFCTR_DOMAIN_CPU_CONTROL	128	/* struct perfctr_cpu_control_header */
--#define PERFCTR_DOMAIN_CPU_MAP		129	/* unsigned int[] */
-+#define PERFCTR_DOMAIN_CPU_MAP		129	/* __u32[] */
- #define PERFCTR_DOMAIN_CPU_REGS		130	/* struct perfctr_cpu_reg[] */
- 
--#else
--struct perfctr_info;
--struct perfctr_cpu_mask;
--struct perfctr_sum_ctrs;
--struct vperfctr_control;
- #endif	/* CONFIG_PERFCTR */
- 
+ struct perfctr_cpu_state {
+-	unsigned int cstatus;
++	__u32 cstatus;
+ 	struct {	/* k1 is opaque in the user ABI */
+-		unsigned int id;
+-		int isuspend_cpu;
++		__u32 id;
++		__s32 isuspend_cpu;
+ 	} k1;
+ 	/* The two tsc fields must be inlined. Placing them in a
+ 	   sub-struct causes unwanted internal padding on x86-64. */
+-	unsigned int tsc_start;
+-	unsigned long long tsc_sum;
++	__u32 tsc_start;
++	__u64 tsc_sum;
+ 	struct {
+-		unsigned int map;
+-		unsigned int start;
+-		unsigned long long sum;
++		__u32 map;
++		__u32 start;
++		__u64 sum;
+ 	} pmc[8];	/* the size is not part of the user ABI */
  #ifdef __KERNEL__
-@@ -94,6 +61,12 @@ asmlinkage long sys_vperfctr_read(int fd
- 				  void __user *argp,
- 				  unsigned int argbytes);
+ 	struct perfctr_cpu_control control;
+@@ -109,9 +105,6 @@ static inline unsigned int perfctr_cstat
+ #endif
+ #define si_pmc_ovf_mask	_sifields._pad[0] /* XXX: use an unsigned field later */
  
-+struct perfctr_info {
-+	unsigned int cpu_features;
-+	unsigned int cpu_khz;
-+	unsigned int tsc_to_cpu_mult;
-+};
-+
- extern struct perfctr_info perfctr_info;
+-/* version number for user-visible CPU-specific data */
+-#define PERFCTR_CPU_VERSION	0	/* XXX: not yet cast in stone */
+-
+ #ifdef __KERNEL__
  
- #ifdef CONFIG_PERFCTR_VIRTUAL
+ #if defined(CONFIG_PERFCTR)

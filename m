@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315760AbSFTXAM>; Thu, 20 Jun 2002 19:00:12 -0400
+	id <S315783AbSFTXQV>; Thu, 20 Jun 2002 19:16:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315783AbSFTXAL>; Thu, 20 Jun 2002 19:00:11 -0400
-Received: from test.inspired.net.au ([216.122.33.55]:53442 "EHLO
-	test.inspired.net.au") by vger.kernel.org with ESMTP
-	id <S315760AbSFTXAJ>; Thu, 20 Jun 2002 19:00:09 -0400
-Message-Id: <200206202259.IAA01298@thucydides.inspired.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Fri, 21 Jun 2002 08:59:19 +1000
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Kurt Garloff <garloff@suse.de>,
+	id <S315792AbSFTXQV>; Thu, 20 Jun 2002 19:16:21 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26387 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315783AbSFTXQU>; Thu, 20 Jun 2002 19:16:20 -0400
+Date: Thu, 20 Jun 2002 16:13:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Martin Schwenke <martin@meltin.net>
+cc: Andries Brouwer <aebr@win.tue.nl>, Kurt Garloff <garloff@suse.de>,
        Linux kernel list <linux-kernel@vger.kernel.org>,
        Linux SCSI list <linux-scsi@vger.kernel.org>,
        Patrick Mochel <mochel@osdl.org>
 Subject: Re: [PATCH] /proc/scsi/map
-In-Reply-To: <Pine.LNX.4.44.0206201046340.8225-100000@home.transmeta.com>
-References: <20020620165553.GA16897@win.tue.nl>
-	<Pine.LNX.4.44.0206201046340.8225-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.90.3
-From: "Martin Schwenke" <martin@meltin.net>
-Reply-To: "Martin Schwenke" <martin@meltin.net>
-X-Music: Creedence Clearwater Revival / Willy and the Poor Boys / Effigy
+In-Reply-To: <200206202259.IAA01298@thucydides.inspired.net.au>
+Message-ID: <Pine.LNX.4.33.0206201608510.1222-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linus" == Linus Torvalds <torvalds@transmeta.com> writes:
 
-    Linus> But driverfs also gives information that /sbin/hotplug doesn't:
+On Fri, 21 Jun 2002, Martin Schwenke wrote:
+>
+> Does it have to be limited ot information that the kernel already has?
 
-    Linus> [...]
+No, but on the other hand I don't want the filesystem to be a bloat thing.
 
-    Linus> In other words, it's just a way of exposing information
-    Linus> that the kernel already has, and that the kernel has to
-    Linus> have _anyway_.
+Right now all the filesystem code is basically just the regular dentry
+tree (same as ramfs etc). And the data structures are largely data
+structures that we have to carry around anyway. 
 
-Does it have to be limited ot information that the kernel already has?
+Bit if somehting is really _useful_ to export to user space through the fs
+model and it makes things easier, that's probably good. Naming is
+definitely one of those things - I generally like how the thing looks in a
+file managers tree-view, but some of the names suck and that shows up cery 
+clearly at that point, liiking in at 10.000'.
 
-In particular, I'm thinking of the SCSI standard inquiry and EVPD
-inquiry pages.  Mike Sullivan's patch does some SCSI inquiries and
-extracts information from the results.  I'm wondering if the SCSI
-driver could just do all of the available EVPD inquiries (available
-pages are listed in the TOC on EVPD inquiry page 0), and use driverfs
-to expose all of that (binary) information.
+(Tha ACPI "shouting disease" is really sad. I remember my old VIC-20, and
+how you used all-caps, but I don't think the ACPI people were sentimental.  
+They apparently just _like_ ugly four-letter ALL-CAPS names).
 
-Right now the inquiries can be done from userspace using an ioctl().
+		Linus
 
-peace & happiness,
-martin

@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267474AbTA3Kmz>; Thu, 30 Jan 2003 05:42:55 -0500
+	id <S267478AbTA3KsP>; Thu, 30 Jan 2003 05:48:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267477AbTA3Kmz>; Thu, 30 Jan 2003 05:42:55 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33413
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267474AbTA3Kmy>; Thu, 30 Jan 2003 05:42:54 -0500
-Subject: Re: kernel craps out accessing Sony CDRW with ide-scsi
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Howard Shane <ozymandias@charter.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10301291155280.28027-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10301291155280.28027-100000@master.linux-ide.org>
-Content-Type: text/plain
+	id <S267479AbTA3KsP>; Thu, 30 Jan 2003 05:48:15 -0500
+Received: from mail1.ugr.es ([150.214.20.24]:61624 "EHLO mail1.ugr.es")
+	by vger.kernel.org with ESMTP id <S267478AbTA3KsO>;
+	Thu, 30 Jan 2003 05:48:14 -0500
+Message-ID: <3E39052F.3060903@ugr.es>
+Date: Thu, 30 Jan 2003 11:57:51 +0100
+From: Miguel Lastra <mlastral@ugr.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: es, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: data corruption on 845PE ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043927211.28133.23.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 30 Jan 2003 11:46:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-29 at 19:58, Andre Hedrick wrote:
-> Search recent history, Sony CDRW's are known problems.
+Hello,
+
+  I am experiencing some IDE problems with a Abit IT7 MAX2 V2.0 
+motherboard. It's chipset is intel 845PE . I installed the Suse 8.0 
+distribution (2.4.18 kernel) and it did no recognize the IDE controler 
+(so no dma).
+
+  I have tried with 2.4.20 and 2.4.21-pre4 kernels (stock kernels form 
+kernel.org) and with both a get ide-dma errors after a while reported 
+when using e2fsck (on my Ext3 filesystems).
+
+Is there any data corruption issue with the intel 845PE chipset ?
+
+Thanks in advance
 
 
-Still shouldnt oops later on when it resets
+    Miguel
+
+
 

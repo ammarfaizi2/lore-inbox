@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbTECPtc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 11:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbTECPtc
+	id S261175AbTECP65 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 11:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTECP65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 11:49:32 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:47774
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261166AbTECPtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 11:49:32 -0400
-Subject: Re: promise NEITHER IDE PORT ENABLED
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: "Javi Pardo (DAKOTA)" <dakota@dakotabcn.net>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ataraid-list@redhat.com
-In-Reply-To: <3EB2E9F7.9000708@gmx.net>
-References: <040101c308df$452110f0$3200000a@dakotapiv>
-	 <3EA683A8.8040303@gmx.net> <036f01c30ff0$d2197fc0$3200000a@dakotapiv>
-	 <3EB2E9F7.9000708@gmx.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051974189.24562.0.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 3 May 2003 11:58:57 -0400
+Received: from granite.he.net ([216.218.226.66]:11530 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S261175AbTECP64 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 11:58:56 -0400
+Date: Sat, 3 May 2003 08:16:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Riley Williams <Riley@Williams.Name>
+Cc: Balram Adlakha <b_adlakha@softhome.net>, linux-kernel@vger.kernel.org
+Subject: Re: wrong screen size with fbcon [2.5.68]
+Message-ID: <20030503151659.GA16996@kroah.com>
+References: <20030503003836.GA1071@kroah.com> <BKEGKPICNAKILKJKMHCAEEDKCKAA.Riley@Williams.Name>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 May 2003 16:03:10 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BKEGKPICNAKILKJKMHCAEEDKCKAA.Riley@Williams.Name>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-05-02 at 22:58, Carl-Daniel Hailfinger wrote:
-> Andre, Alan,
+On Sat, May 03, 2003 at 03:05:04PM +0100, Riley Williams wrote:
+> Hi Greg.
 > 
-> could you please take a look at this? I thought the IDE code in
-> 2.4.21-rc1 is able to force enable the ports of a promise controller.
+>  >> I posted about this when 2.5.68 was released but very few people
+>  >> responded. While using the framebuffer console driver, I seems
+>  >> that the screen is set to something like 1024x775 instead of
+>  >> 1024x768. I cannot see the bottom of my screen that is...
+>  >>
+>  >> I just checked the latest bk taken from kernel.org and still
+>  >> hasn't been fixed. The fb console was working perfectly till
+>  >> 2.5.67.
+>  >>
+>  >> If it is of any relevance, I'm using an NVIDIA tnt2 card. Has
+>  >> nobody noticed this problem?
+> 
+>  > I have, and posted pretty much the same report a few weeks ago.
+>  > Time to go write up a bug in bugzilla.kernel.org...
+> 
+> The probable response will be WONTFIX on the grounds that the NVIDIA
+> driver is a binary only driver and, as such, can't be fixed...
 
-It can - if you set the configuration option to do so
+No, I'm using the VESA framebuffer driver that is in the kernel.  This
+same thing happens on two different machines with two different video
+cards. 
 
+No binary only driver for me, don't you think I would know better?  :)
+
+thanks,
+
+greg k-h

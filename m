@@ -1,66 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSIPPuv>; Mon, 16 Sep 2002 11:50:51 -0400
+	id <S262338AbSIPPwt>; Mon, 16 Sep 2002 11:52:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262483AbSIPPuv>; Mon, 16 Sep 2002 11:50:51 -0400
-Received: from ns.suse.de ([213.95.15.193]:46866 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262414AbSIPPus>;
-	Mon, 16 Sep 2002 11:50:48 -0400
-Date: Mon, 16 Sep 2002 17:55:45 +0200
-From: Dave Jones <davej@suse.de>
-To: James Cleverdon <jamesclv@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com,
-       torvalds@transmeta.com, alan@redhat.com, mingo@redhat.com
-Subject: Re: [PATCH] Summit patch for 2.5.34
-Message-ID: <20020916175545.A21875@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	James Cleverdon <jamesclv@us.ibm.com>, linux-kernel@vger.kernel.org,
-	James.Bottomley@steeleye.com, torvalds@transmeta.com,
-	alan@redhat.com, mingo@redhat.com
-References: <200209122035.14678.jamesclv@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200209122035.14678.jamesclv@us.ibm.com>; from jamesclv@us.ibm.com on Thu, Sep 12, 2002 at 08:35:14PM -0700
+	id <S262402AbSIPPwt>; Mon, 16 Sep 2002 11:52:49 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:54028 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S262338AbSIPPwr>;
+	Mon, 16 Sep 2002 11:52:47 -0400
+Date: Mon, 16 Sep 2002 17:57:08 +0200 (CEST)
+From: venom@sns.it
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Mark Veltzer <mark@veltzer.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Hi is this critical??
+In-Reply-To: <1032185694.7129.21.camel@bip>
+Message-ID: <Pine.LNX.4.43.0209161756080.5976-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12, 2002 at 08:35:14PM -0700, James Cleverdon wrote:
- > Patch that allows IBM x440 boxes to on-line all CPUs and interrupt routing for 
- > x360s.   Fixed x360 ID bug.
+If so, why not to use S.M.A.R.T with smartd and smartctl?
+I think you will like them (loock on freshmeat for the link).
 
-Couple questions/comments.
 
-- Is this the same summit code as is in 2.4-ac ?
-  (Ie, the one that boots on non summit systems too)
-- I believe the way forward here is to work with James Bottomley,
-  who has a nice abstraction of the areas your patch touches for
-  his Voyager sub-architecture.
-  Linus has however been completley silent on the x86-subarch idea
-  despite heavyweights like Alan and Ingo adding their support...
-  If you go this route, James' base needs to go in first
-  (converting just the in-kernel visws support). After which, adding
-  support for Voyager, Summit and any other wacky x86esque hardware
-  is a simple non-intrusive patch that touches subarch specific areas.
-- Some of the code you've added looks along the lines of..
+On 16 Sep 2002, Xavier Bestel wrote:
 
-   if (numaq)
-      foo();
-   else if (summit)
-      foo2();
-   else 
-      foo3();
+> Date: 16 Sep 2002 16:14:54 +0200
+> From: Xavier Bestel <xavier.bestel@free.fr>
+> To: Mark Veltzer <mark@veltzer.org>
+> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: Hi is this critical??
+>
+> Le lun 16/09/2002 à 16:16, Mark Veltzer a écrit :
+>
+> > 2. The user who posted the question is under no circumstances a "looser"
+> > (mind the oo instead of the u...). His question is very valid and the fact
+> > that he read dmesg puts him way past any standard computer user.
+>
+> Well, actually I didn't want to depict *him* as a looser. I was talking
+> about me :) I've already been confronted with message from the IDE
+> drivers (and that's when I see them. I'm not always at the console or
+> reading syslog) and I never remember if they are critical or harmless. I
+> have to either dig through lkml archives to find what they mean, or ask
+> lkml what do they mean (to the luser I am).
+>
+> IDE error/status message aren't visible enough. I'd like to know when my
+> drive is near failing, without looking at syslog.
+>
+> 	Xav - luser
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-  Would it be over-abstracting to have some form of APIC struct,
-  defining pointers to various routines instead of lots of ugly
-  if's/switches/fall-through's.
-
-However, the last point may be completley pointless after adapting to
-use what James B has come up with..
-
-        Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

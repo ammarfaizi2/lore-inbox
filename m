@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbUAYAzb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 19:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUAYAzb
+	id S261827AbUAYAv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 19:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUAYAv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 19:55:31 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23526 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261889AbUAYAz1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 19:55:27 -0500
-Date: Sun, 25 Jan 2004 01:55:23 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, pc300@cyclades.com
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: [2.4 patch] pc300_drv.c: mark a function pointer as __devexit_p
-Message-ID: <20040125005523.GF6441@fs.tum.de>
-Mime-Version: 1.0
+	Sat, 24 Jan 2004 19:51:57 -0500
+Received: from gizmo13bw.bigpond.com ([144.140.70.23]:5080 "HELO
+	gizmo13bw.bigpond.com") by vger.kernel.org with SMTP
+	id S261827AbUAYAvz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 19:51:55 -0500
+Message-ID: <40131312.ADD37133@eyal.emu.id.au>
+Date: Sun, 25 Jan 2004 11:51:30 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.25-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.25-pre7
+References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
+		<40125540.A33B8AB2@eyal.emu.id.au> <20040125014920.54a786cc.yuasa@hh.iij4u.or.jp>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following link error in 2.4.25-pre7 when trying to compile 
-drivers/net/wan/pc300_drv.c statically into a kernel with 
-CONFIG_HOTPLUG=n :
+Yoichi Yuasa wrote:
+> >
+> > There are no it8181fb.* files there.
+> 
+> This file comes from a MIPS CVS tree.
+> 
+> I have this file.
+> You can get following.
+> 
+> http://www.hh.iij4u.or.jp/~yuasa/linux-vr/v2.4/it8181fb.c
 
-<--  snip  -->
+I added it and now get:
 
-...
-        -o vmlinux
-local symbol 0: discarded in section `.text.exit' from drivers/net/wan/wan.o
-make: *** [vmlinux] Error 1
+gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
+-Wstrict-pro
+totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer
+ -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
+-DMODULE -DM
+ODVERSIONS -include
+/data2/usr/local/src/linux-2.4-pre/include/linux/modversions
+.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=it8181fb  -c -o
+it8181fb.o 
+it8181fb.c
+it8181fb.c: In function `it8181fb_init':
+it8181fb.c:1200: `PCI_DEVICE_ID_ITE_IT8181' undeclared (first use in
+this functi
+on)
+it8181fb.c:1200: (Each undeclared identifier is reported only once
+it8181fb.c:1200: for each function it appears in.)
+it8181fb.c: At top level:
+it8181fb.c:162: warning: `fontname' defined but not used
+make[2]: *** [it8181fb.o] Error 1
+make[2]: Leaving directory
+`/data2/usr/local/src/linux-2.4-pre/drivers/video'
 
-<--  snip  -->
+So maybe it really is a MIPS only file (I am on x86)?
 
-
-The patch below fixes this issue by marking the function pointer with 
-__devexit_p .
-
-I also did the following changes to this struct:
-- added indentation
-- switched to C99 initializers
-- removed two unneeded NULL's
-
-
-Please apply
-Adrian
-
-
---- linux-2.4.25-pre7-full-nohotplug/drivers/net/wan/pc300_drv.c.old	2004-01-25 01:41:56.000000000 +0100
-+++ linux-2.4.25-pre7-full-nohotplug/drivers/net/wan/pc300_drv.c	2004-01-25 01:42:52.000000000 +0100
-@@ -3459,12 +3459,10 @@
- }
- 
- static struct pci_driver cpc_driver = {
--	name:"pc300",
--	id_table:cpc_pci_dev_id,
--	probe:cpc_init_one,
--	remove:cpc_remove_one,
--	suspend:NULL,
--	resume:NULL,
-+	.name		= "pc300",
-+	.id_table	= cpc_pci_dev_id,
-+	.probe		= cpc_init_one,
-+	.remove		= __devexit_p(cpc_remove_one),
- };
- 
- static int __init cpc_init(void)
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbUJZQo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbUJZQpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbUJZQo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbUJZQo3
+	id S261331AbUJZQpf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUJZQpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:44:29 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:44944 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261324AbUJZQoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:44:24 -0400
-Message-ID: <417E7EE6.50900@comcast.net>
-Date: Tue, 26 Oct 2004 12:44:22 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>,
+	Tue, 26 Oct 2004 12:45:34 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:25048 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261331AbUJZQpT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 12:45:19 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Robin Holt <holt@sgi.com>
+Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
+Date: Tue, 26 Oct 2004 09:44:21 -0700
+User-Agent: KMail/1.7
+Cc: Jesse Barnes <jbarnes@sgi.com>, William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Lameter <clameter@sgi.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: My thoughts on the "new development model"
-References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <417E74DD.6000203@comcast.net>
-In-Reply-To: <417E74DD.6000203@comcast.net>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com> <200410251940.30574.jbarnes@sgi.com> <20041026143513.GC28391@lnx-holt.americas.sgi.com>
+In-Reply-To: <20041026143513.GC28391@lnx-holt.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410260944.22003.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tuesday, October 26, 2004 7:35 am, Robin Holt wrote:
+> Sorry for being a stickler here, but the BTE is really part of the
+> I/O Interface portion of the shub.  That portion has a seperate clock
+> frequency from the memory controller (unfortunately slower).  The BTE
+> can zero at a slightly slower speed than the processor.  It does, as
+> you pointed out, not trash the CPU cache.
 
+I guess I was getting ahead of myself :).  I knew that it was part of the II 
+but didn't know it had a slower clock frequency than the MD.
 
+> One other feature of the BTE is it can operate asynchronously from
+> the cpu.  This could be used to, during a clock interrupt, schedule
+> additional huge page zero filling on multiple nodes at the same time.
+> This could result in a huge speed boost on machines that have multiple
+> memory only nodes.  That has not been tested thoroughly.  We have done
+> considerable testing of the page zero functionality as well as the
+> error handling.
 
-John Richard Moser wrote:
-|
-|
-[...]
+Might be worth some additional testing...
 
-| project is halted at 2.6.7, GrSec can't pass 2.6.7.  How many other
-| projects are going to sit at 2.6.7, or are going to spend too much time
-| up-porting and not enough time bugfixing and enhancing?
-
-[...]
-
-| and slate any new developments for a 2.6.7 branch to be forked off
-| whenever is appropriate.
-
-Yeah, I'm like, asleep, and stupid.  PaX/GrSec are stuck at 2.6.7,
-others may be stuck at 2.6.x or may be progressing poorly just trying to
-keep up.  Slate new developments for a 2.7 branch to be forked.  You get
-the idea.
-
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBfn7lhDd4aOud5P8RAsRCAJ9XI7SHxnUPQHlToJD90ml8fTqrXwCeMifz
-ukgT9hdWcDjejeaPRR1pc40=
-=nVRb
------END PGP SIGNATURE-----
+Jesse

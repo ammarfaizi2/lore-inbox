@@ -1,77 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266665AbUBLWei (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 17:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUBLWei
+	id S266659AbUBLWml (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 17:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUBLWml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 17:34:38 -0500
-Received: from motgate8.mot.com ([129.188.136.8]:31426 "EHLO motgate8.mot.com")
-	by vger.kernel.org with ESMTP id S266665AbUBLWec (ORCPT
+	Thu, 12 Feb 2004 17:42:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18410 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266659AbUBLWmk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 17:34:32 -0500
-X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
-	unless indicated otherwise in the message.
-From: "Gopi Palaniappan" <gpalani1@urbana.css.mot.com>
-To: <root@chaos.analogic.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: memory foorprint of kernel modules
-Date: Thu, 12 Feb 2004 16:34:25 -0600
-Message-ID: <BDEMIINGEPCMIFLFPKCKIEFFCCAA.gpalani1@urbana.css.mot.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Thu, 12 Feb 2004 17:42:40 -0500
+Date: Thu, 12 Feb 2004 14:44:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: shaggy@austin.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] JFS: sane file name handling (0 of 2)
+Message-Id: <20040212144428.05b16695.akpm@osdl.org>
+In-Reply-To: <200402122056.i1CKut1t006255@kleikamp.dyn.webahead.ibm.com>
+References: <200402122056.i1CKut1t006255@kleikamp.dyn.webahead.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <Pine.LNX.4.53.0402121543070.28272@chaos>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Richard:
-    I am not sure looking at the ksyms will give me an actual measure.
-Lets take an example,
-I have a driver "foo.o" that i insmod, lets say. If this driver uses kmalloc
-or malloc to dynamically
-utilize RAM space for its internal operation, I don't think your suggested
-method will capture
-that dynamic allocation of memory, am i correct?
-
-  I want to get a real-time ram usage of a specified dynamically loaded
-module.
-
-thanks,
-Gopi
-
-
-
-On Thu, 12 Feb 2004, Gopi Palaniappan wrote:
-
-> Is there an easy way to measure the memory/RAM footprint of dynamically
-> loaded kernel modules?
-> Are there tools similar to "pmap" for this purpose?
+shaggy@austin.ibm.com wrote:
 >
->
+> Please apply the following patches to -mm.  The first is just a cleanup, but
+> the second one changes the default translation of filenames into unicode.
+> 
+> There have been several complaints about the way that JFS tries to interpret
+> the character set of the file names rather than just treating them as strings
+> of bytes.  This patch makes the default behavior the "string of bytes"
+> treatment, while still allowing the charset-specific behavior with the
+> iocharset mount option.
+> 
+> I don't believe it will cause anyone too much trouble, but it should probably
+> spend a little time in -mm before hitting the mainline.
 
-You might make some sense of /proc/ksyms...
+Sure.  Please send them on to Linus as a bk pull when you're happy with them.
 
-This is for a module called ramdisk.
+> #   Due to its roots in OS/2, JFS has always tried to convert pathnames
+> #   into unicode. 
 
-Script started on Thu Feb 12 15:41:10 2004
-cd /proc
-# strings ksyms | grep ramdisk
-[ramdisk]
-[ramdisk]
-d4a19510 __insmod_ramdisk_S.bss_L4
-[ramdisk]
-d4a19100 __insmod_ramdisk_S.rodata_L563
-d4a18000
-__insmod_ramdisk_O/root/Message-Based/drivers/target/ramdisk.o_M4027E0AD_V13
-2120
-d4a18054 __insmod_ramdisk_S.text_L4237
-d4a19398 __insmod_ramdisk_S.data_L5
-[ramdisk]
-# exit
-
+No.....  It came from UnixWare.  I know - I read it on the internet.

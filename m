@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265003AbTFQXNv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 19:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265006AbTFQXNv
+	id S265001AbTFQXNe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 19:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265003AbTFQXNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 19:13:51 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:4508 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S265003AbTFQXNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 19:13:49 -0400
-Date: Tue, 17 Jun 2003 20:25:22 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Eric Valette <eric.valette@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-In-Reply-To: <3EE66C86.8090708@free.fr>
-Message-ID: <Pine.LNX.4.55L.0306172019550.31986@freak.distro.conectiva>
-References: <3EE66C86.8090708@free.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Jun 2003 19:13:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31187 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265001AbTFQXNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 19:13:33 -0400
+Date: Wed, 18 Jun 2003 01:27:26 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] fix for drivers/video/sis/init301.c
+Message-ID: <20030617232726.GI29247@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi James,
+
+the following patch fixes some nonsense in drivers/video/sis/init301.c . 
+I've tested the compilation with 2.5.72.
+
+--- linux-2.5.72/drivers/video/sis/init301.c.old	2003-06-18 01:22:27.000000000 +0200
++++ linux-2.5.72/drivers/video/sis/init301.c	2003-06-18 01:23:23.000000000 +0200
+@@ -5282,7 +5282,7 @@
+ #ifdef SIS315H	/* 310/325 series */
+ 
+ 	if(SiS_Pr->SiS_IF_DEF_CH70xx != 0) {
+-		temp =  temp = SiS_GetCH701x(SiS_Pr,0x61);
++		temp = SiS_GetCH701x(SiS_Pr,0x61);
+ 		if(temp < 1) {
+ 		   SiS_SetCH701x(SiS_Pr,0xac76);
+ 		   SiS_SetCH701x(SiS_Pr,0x0066);
 
 
-On Wed, 11 Jun 2003, Eric Valette wrote:
 
-> Marcelo Tosati wrote:
->
->  >The main reason I didnt want to merge it was due to its size. Its just
->  >too big.
->
->  >> Please stop leading me along. Will you EVER merge it?
->
->  >Yes, I want to, and will merge it. In 2.4.23-pre.
->
-> This kind of mails and sentence makes you lost your credibility :
-> 	1) You said that ACPI will be merged in 2.4.22-pre,
-> 	2) For many people ACPI (and aic7xxx) is top priority for 2.4 kernel
-> (see various post including alan). The reason being that most laptop are
-> unusable nowadays without ACPI,
-> 	3) You do not explicitely says what you plan for 2.4.22...
+Please apply
+Adrian
 
-My plan for 2.4.22 is:
+-- 
 
- - Include the new aic7xxx driver.
- - Include ACPI. (I now realized its importance). Already discussing with
-   Andrew the best way to do it.
- - Fix the latency/interactivity problems (Chris, Nick and Andrea working
-on that)
- - Merge obviously correct -aa VM patches.
-
-Those are the most important things that are needed now, I think.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

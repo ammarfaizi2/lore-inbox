@@ -1,71 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290824AbSBFVtY>; Wed, 6 Feb 2002 16:49:24 -0500
+	id <S290829AbSBFV5Z>; Wed, 6 Feb 2002 16:57:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290825AbSBFVtP>; Wed, 6 Feb 2002 16:49:15 -0500
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:55693 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S290824AbSBFVtE>; Wed, 6 Feb 2002 16:49:04 -0500
-Importance: Normal
-Subject: Re: The IBM order relaxation patch
-To: zaitcev@redhat.com
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF5FF19417.595BC760-ONC1256B58.00762715@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Wed, 6 Feb 2002 22:50:29 +0100
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 06/02/2002 22:50:32
+	id <S290828AbSBFV5Q>; Wed, 6 Feb 2002 16:57:16 -0500
+Received: from ip68-3-104-241.ph.ph.cox.net ([68.3.104.241]:35243 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S290829AbSBFV5L>;
+	Wed, 6 Feb 2002 16:57:11 -0500
+Message-ID: <3C61A416.3040703@candelatech.com>
+Date: Wed, 06 Feb 2002 14:45:58 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: root@chaos.analogic.com
+CC: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: want opinions on possible glitch in 2.4 network error reporting
+In-Reply-To: <Pine.LNX.3.95.1020206154220.29419A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
+However, if you use non-blocking IO you will get EAGAIN if
+there is no buffer space.  Blocking calls should always
+block untill there is buffer space.
 
-> This patch is very s/390 specific and breaks all other architectures.
->  <<they meant "zSeries specific", surely --zaitcev>>
+Also, just because select says the socket/poll is writable, it
+may not be (immediately) because you can send UDP packets
+that are larger than 2048 bytes, and that is the cutoff that
+tells select the socket is writable...
 
-B.t.w. Martin found a way to make the patch less intrusive so
-that it won't break other archs any more ...
-
->It's a stupid question, but: why can we not simply
->wait until a desired unfragmented memory area is available,
->with a GPF flag? What they describe does not happen in an
->interrupt context, so we can sleep.
-
-Because nobody even *tries* to free adjacent pages to build up
-a free order-2 area.  You could wait really long ...
-
-This looks hard to fix with the current mm layer.  Maybe Rik's
-rmap method could help here, because with reverse mappings we
-can at least try to free adjacent areas (because we then at least
-*know* who's using the pages).
-
->And another one: why not to increase a kernel-visible or "soft"
->page size to 16KB for zSeries? It's a 64 bits platform. There
->will be some increase in fragmentation, but nobody measured it.
->Perhaps it's not going to be severe. It may even improve paging
->efficiency.
-
-Because then we can mmap() to user space only on 16KB boundaries.
-This is a problem in particular for the 31-bit emulation layer,
-as 31-bit binaries are laid out on 4KB boundaries by the linker,
-so you really need to be able to mmap() on 4KB boundaries.
-
-One way to fix this could be to allow user space mappings on a
-different granularity than the 'page size' for the allocator.
-(Is this what PAGE_SIZE vs. PAGE_CACHE_SIZE had been intended
-for, maybe?  It doesn't work at the moment in any case.)
+I've actually sent a patch to Dave Miller to make select/poll
+wait untill there is 64k of buffer space (the maximum size of
+a UDP packet), but he is still reviewing the issue.
 
 
-Mit freundlichen Gruessen / Best Regards
+Enjoy,
+Ben
 
-Ulrich Weigand
+Richard B. Johnson wrote:
 
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+> On Wed, 6 Feb 2002, Chris Friesen wrote:
+> 
+> [SNIPPED...]
+> 
+> 
+> 
+>>I ran into a somewhat related issue on a 2.2.16 system, where I had an app that
+>>was calling sendto() on 217000 packets/sec, even though the wire could only
+>>handle about 127000 packets/sec.  I got no errors at all in sendto, even though
+>>over a third of the packets were not actually being sent.
+>>
+>>
+> 
+> In principle, sendto() will always succeed unless you provided the
+> wrong parameters in the function call, or the machines crashes, at
+> which time your task won't be there to receive the error code anyway.
+> 
+> Hackers code sendto as:
+> 	sendto(s,...);
+> Professional programmers use:
+> 	(void)sendto(s,...);
+> 
+> checking the return value is useless.
+> 
+> Note that the man-page specifically states that ENOBUFS can't happen.
+> 
+> You cannot assume that any sendto() data actually gets on the wire, much
+> less to its destination. With any user-datagram-protocol, both ends,
+> sender and receiver, have to work out what they will do with missing
+> packets and packets received out-of-order.
+> 
+> 
+> Cheers,
+> Dick Johnson
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

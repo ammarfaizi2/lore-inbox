@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266130AbUFUGrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266131AbUFUG4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266130AbUFUGrn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 02:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266131AbUFUGrn
+	id S266131AbUFUG4w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 02:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266132AbUFUG4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 02:47:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55454 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266130AbUFUGrl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 02:47:41 -0400
-Date: Mon, 21 Jun 2004 08:47:01 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Martin Schlemmer <azarah@nosferatu.za.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       Andreas Gruenbacher <agruen@suse.de>, Dev Mazumdar <dev@opensound.com>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Kai Germaschewski <kai@germaschewski.name>
-Subject: Re: [PATCH 0/2] kbuild updates
-Message-ID: <20040621064700.GA19511@devserv.devel.redhat.com>
-References: <20040620211905.GA10189@mars.ravnborg.org> <1087767034.14794.42.camel@nosferatu.lan> <20040620220319.GA10407@mars.ravnborg.org> <Pine.LNX.4.58.0406210242300.16975@zeus.compusonic.fi>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406210242300.16975@zeus.compusonic.fi>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Jun 2004 02:56:51 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:58511 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S266131AbUFUG4l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 02:56:41 -0400
+Date: Mon, 21 Jun 2004 09:56:31 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Another mtrr - BIOS-e820 mismatch
+In-Reply-To: <200406191349.i5JDnY5n029533@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.60.0406210955350.25562@hosting.rdsbv.ro>
+References: <200406191349.i5JDnY5n029533@harpo.it.uu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> It's a Intel MB, with 2 Pentium 4, with HT, 2GB RAM.
+>> (Sorry I could not get more info.)
+>>
+>> reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
+>> reg01: base=0x7ff80000 (2047MB), size= 512KB: uncachable, count=1
+>>
+>> BIOS-provided physical RAM map:
+>> BIOS-e820: 0000000000000000 - 000000000009b400 (usable)
+>> BIOS-e820: 000000000009b400 - 00000000000a0000 (reserved)
+>> BIOS-e820: 00000000000cc000 - 00000000000d0000 (reserved)
+>> BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+>> BIOS-e820: 0000000000100000 - 000000007ff70000 (usable)
+>> BIOS-e820: 000000007ff70000 - 000000007ff7b000 (ACPI data)
+>> BIOS-e820: 000000007ff7b000 - 000000007ff80000 (ACPI NVS)
+>> BIOS-e820: 000000007ff80000 - 0000000080000000 (reserved)
+>> BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
+>> BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+>> BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
+>> BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
+>
+> Not a problem. All "usable" memory is cacheable, which
+> is what matters for performance. You did lose some RAM
+> in the e820 map, but that's a relatively minor issue.
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks.
 
-On Mon, Jun 21, 2004 at 03:29:24AM +0300, Hannu Savolainen wrote:
-> Does something like the following sound good?
-> 
-> sh /lib/modules/`uname -r`/build/make_module $MYSUBDIR CC=$CC
-
-
-no you shold not override the compiler; the makefiles should do that instead
-automatically
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA1oRkxULwo51rQBIRAsA4AKCVh+sp5hTHdJrlRTptlkTD/aagNQCfcQuU
-bmFGkdyYD4oYgLAGVHRvmlU=
-=3iWz
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+---
+Catalin(ux aka Dino) BOIE
+catab at deuroconsult.ro
+http://kernel.umbrella.ro/

@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVCCTis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVCDE01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVCCTis (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 14:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVCCTie
+	id S261498AbVCDE01 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 23:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVCCTjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:38:34 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:5251 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261645AbVCCS4R (ORCPT
+	Thu, 3 Mar 2005 14:39:12 -0500
+Received: from mx01.qsc.de ([213.148.129.14]:3735 "EHLO mx01.qsc.de")
+	by vger.kernel.org with ESMTP id S262152AbVCCS7m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 13:56:17 -0500
-Date: Thu, 3 Mar 2005 10:56:15 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Kernel-Janitors <kernel-janitors@lists.osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kernel/timer: fix msleep_interruptible() comment
-Message-ID: <20050303185615.GN11600@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 3 Mar 2005 13:59:42 -0500
+Message-ID: <42275E98.5000203@exactcode.de>
+Date: Thu, 03 Mar 2005 19:59:36 +0100
+From: Rene Rebe <rene@exactcode.de>
+Organization: ExactCode
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050205)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
+References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <20050303184852.GA12874@kroah.com>
+In-Reply-To: <20050303184852.GA12874@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------000204010302010500080702"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000204010302010500080702
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+
 Hi,
 
-Please consider applying.
+Greg KH wrote:
 
-Description: The comment for msleep_interruptible() is wrong, as it will
-ignore wait-queue events, but will wake up early for signals.
+> Except the patch is malformed, and even after light editing, does not
+> apply to the 2.6.11 kernel :(
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Sorry - to match linux-kernel style I pasted it from gvim into 
+thunderbird to make kernel folks happy. Here you find the patch as it 
+applies to 2.6.11 attached.
+
+Yours,
+
+-- 
+René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+             http://www.exactcode.de/ | http://www.t2-project.org/
+             +49 (0)30  255 897 45
 
 
---- 2.6.11-kj-v/kernel/timer.c	2005-03-01 23:38:25.000000000 -0800
-+++ 2.6.11-kj/kernel/timer.c	2005-03-02 15:22:06.000000000 -0800
-@@ -1589,7 +1589,7 @@ void msleep(unsigned int msecs)
- EXPORT_SYMBOL(msleep);
+--------------000204010302010500080702
+Content-Type: text/plain;
+ name="arch-ppc-raid6-altivec.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="arch-ppc-raid6-altivec.patch"
+
+
+Tiny compile fix for the raid6 PowerPC/Altivec code.
+
+  - Rene Rebe <rene@exactcode.de>
+
+--- linux-2.6.11/drivers/md/raid6altivec.uc.vanilla	2005-03-02 16:44:56.407107752 +0100
++++ linux-2.6.11/drivers/md/raid6altivec.uc	2005-03-02 16:45:22.424152560 +0100
+@@ -108,7 +108,7 @@
+ int raid6_have_altivec(void)
+ {
+ 	/* This assumes either all CPUs have Altivec or none does */
+-	return cur_cpu_spec->cpu_features & CPU_FTR_ALTIVEC;
++	return cur_cpu_spec[0]->cpu_features & CPU_FTR_ALTIVEC;
+ }
+ #endif
  
- /**
-- * msleep_interruptible - sleep waiting for waitqueue interruptions
-+ * msleep_interruptible - sleep waiting for signals
-  * @msecs: Time in milliseconds to sleep for
-  */
- unsigned long msleep_interruptible(unsigned int msecs)
+
+--------------000204010302010500080702--

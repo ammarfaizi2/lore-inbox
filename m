@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132366AbRAJAdQ>; Tue, 9 Jan 2001 19:33:16 -0500
+	id <S132708AbRAJAd4>; Tue, 9 Jan 2001 19:33:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132630AbRAJAdG>; Tue, 9 Jan 2001 19:33:06 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:42198 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S132366AbRAJAcx>;
-	Tue, 9 Jan 2001 19:32:53 -0500
-Date: Wed, 10 Jan 2001 01:32:50 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200101100032.BAA04589@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org, taner@taner.net
-Subject: Re: 2.2.18 and EMU10K1 problems...
+	id <S132446AbRAJAdr>; Tue, 9 Jan 2001 19:33:47 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:45324 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132706AbRAJAdc>;
+	Tue, 9 Jan 2001 19:33:32 -0500
+Date: Wed, 10 Jan 2001 01:33:10 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Hubert Mantel <mantel@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Change of policy for future 2.2 driver submissions
+In-Reply-To: <20010109154908.F20539@suse.de>
+Message-ID: <Pine.LNX.4.30.0101100128420.11738-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Taner Halicioglu wrote:
 
->I probably missed a message or note or something about this, but when I went
->from 2.2.17 to 2.2.18, my sound card (SB Live!) stopped working.  It seems
->that in 2.2.18, it gets detected TWICE:
->
->--------------------------------
->kernel: Linux version 2.2.18
->[...]
->kernel: Creative EMU10K1 PCI Audio Driver, version 0.7, 20:05:23 Jan  7 2001 
->kernel: emu10k1: EMU10K1 rev 5 model 0x21 found, IO at 0xb400-0xb41f, IRQ 10 
->[... IDE, floppy, SCSI, eth0, partition check ...]
->kernel: Creative EMU10K1 PCI Audio Driver, version 0.7, 20:05:23 Jan  7 2001 
->--------------------------------
+On Tue, 9 Jan 2001, Hubert Mantel wrote:
 
-Known problem. Fixed in 2.2.19pre3.
+> Right, but now there is a problem: Software RAID. The RAID code of
+> 2.4.0 is not backwards compatible to the one in 2.2.18; if somebody
+> has used 2.4.0 on softraid and discovers some problem, he can not
+> switch back to some official 2.2 kernel. [...]
 
-/Mikael
+that is simply not true - at least for the RAID0 and LINEAR mdtools
+arrays. You can start up 'new' RAID devices via mdtools just fine, even if
+these new devices have RAID-superblocks. (because those superblocks are at
+the end of the device, and ext2fs knows the true size of the filesystem.)
+
+you have to keep two sets of configuration files (/etc/raidtab and
+/etc/mdtab), but that is not new nor unreasonable. The tools do not clash
+either.
+
+[ the only category impacted are people who are still using the
+RAID1/RAID4,5 code in the stock 2.2 kernel - i do believe the number of
+these people is very low, and they should imminently upgrade to the 0.90
+driver anyway, for stability and data integrity reasons. ]
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

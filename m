@@ -1,96 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263943AbTE0Qxz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 12:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbTE0Qxz
+	id S263953AbTE0RCu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTE0RCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 12:53:55 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:52891 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263943AbTE0Qxx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 12:53:53 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 27 May 2003 10:06:56 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Thomas Winischhofer <thomas@winischhofer.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sis650 irq router fix for 2.4.x
-In-Reply-To: <3ED32BA4.4040707@winischhofer.net>
-Message-ID: <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com>
-References: <3ED21CE3.9060400@winischhofer.net>
- <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>
- <3ED32BA4.4040707@winischhofer.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 May 2003 13:02:50 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6590 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263953AbTE0RCt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:02:49 -0400
+Date: Tue, 27 May 2003 19:16:05 +0200
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCHES] add ata scsi driver
+Message-ID: <20030527171605.GL845@suse.de>
+References: <1053972773.2298.177.camel@mulgrave> <20030526181852.GL845@suse.de> <1053974830.1768.190.camel@mulgrave> <20030526190707.GM845@suse.de> <1053976644.2298.194.camel@mulgrave> <20030526193327.GN845@suse.de> <20030527123901.GJ845@suse.de> <1054045594.1769.24.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054045594.1769.24.camel@mulgrave>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003, Thomas Winischhofer wrote:
+On Tue, May 27 2003, James Bottomley wrote:
+> On Tue, 2003-05-27 at 08:39, Jens Axboe wrote:
+> > James, something like this would be enough then (untested, compiles)?
+> 
+> Yes...the only concern I would have is that if you downsize the tag map,
+> you don't seem to keep any memory of what the high water mark actually
+> is.  Thus, I can drop the depth by 8 and then increase it again by 4 and
+> you won't see that the increase can be accommodated by the already
+> allocated space.
 
->
-> To Alan who is perhaps reading this: Who is an expert on this type of stuff?
+If you increase it again, the maps are resized. Is that a problem? Seems
+ok to me.
 
-Alan, are you there ?
-
-(I also Cc'ed Martin that helped me with the patch)
-
-
-> Davide Libenzi wrote:
-> > On Mon, 26 May 2003, Thomas Winischhofer wrote:
-> >
-> >
-> >>and I had (and have) no problems with irqs or USB (or anything) on any
-> >>of these machines.
->
-> First, let me say that I know NIL about irq routing. But fact is, I had
-> my machines running with webcams, floppy drives and mice (all via USB,
-> that is) - and had no problem.
->
-> But you got me puzzled: As a matter of fact, it seems that ALL (!) my
-> 650 variants show different routing tables, mostly like yours.
->
-> dmesg with pci-debug enabled and lspci -vxxx printouts attached.
->
-> 650 = "ISA bridge" revision 0
-> M650 = revision 4
-> 651 = revision 0x25
->
-> Interestingly, as soon as pci-debugging was enabled, the log is full
-> with error messages, and I suddenly actually _had_ problems with my
-> network card and my wireless card (and assumingly the USB stuff, too,
-> conclusing from the "failed" statements in the log)....
->
-> >>Are you sure that checking the revision number of the device is enough?
-> >
-> >
-> > It seems reasonble, at least without having the spec for the chipset. All
-> > my searches failed about docs. Previous cases are correctly handled like
-> > before, as you can see from the patch.
->
-> I myself doubt this now. If I am reading the dmesg output correctly,
-> even the machine with revision 0 (plain 650) is routing _some_ of the
-> interrupts with 0x6x requests...
-
-Yes, it seems that those request can be handled as pass thru, so might
-have two options :
-
-1) Use the new routing to handle only rev-04 and let users of other
-	revisions to use the "stdroute" boot line
-
-2) Use the new routing by default, except for the revisions that are known
-	to work well with the old one
-
-
-> > You happen to have the spec for the SIS650 ?
->
-> That's a good one :) I have been bugging SiS since 2001 for docs, all I
-> got was nothing.
-
-Yes, I digged badly. Nothing beat Intel about documentation.
-
-
-
-- Davide
+-- 
+Jens Axboe
 

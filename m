@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271196AbRHTLjI>; Mon, 20 Aug 2001 07:39:08 -0400
+	id <S270795AbRHTLg6>; Mon, 20 Aug 2001 07:36:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271173AbRHTLit>; Mon, 20 Aug 2001 07:38:49 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:44040 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271109AbRHTLie>; Mon, 20 Aug 2001 07:38:34 -0400
-Date: Mon, 20 Aug 2001 07:10:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mark Hemment <markhe@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kswap spinning
-In-Reply-To: <Pine.LNX.4.33.0108181538040.6247-100000@alloc.wat.veritas.com>
-Message-ID: <Pine.LNX.4.21.0108200706330.32519-100000@freak.distro.conectiva>
+	id <S271109AbRHTLgi>; Mon, 20 Aug 2001 07:36:38 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:36367 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S270795AbRHTLgb>; Mon, 20 Aug 2001 07:36:31 -0400
+Message-ID: <3B80F5FA.D9B0C8@idb.hist.no>
+Date: Mon, 20 Aug 2001 13:35:22 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: otto.wyss@bluewin.ch, linux-kernel@vger.kernel.org
+Subject: Re: Why don't have bits the same rights as humans! (flushing to disk 
+ waiting time)
+In-Reply-To: <3B802B68.ADA545DB@bluewin.ch>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Otto Wyss wrote:
+> 
+> I recently wrote some small files to the floppy disk and noticed almost nothing
+> happened immediately but after a certain time the floppy actually started
+> writing. So this action took more than 30 seconds instead just a few. This
+> remembered me of the elevator problem in the kernel. To transfer this example
+> into real live: A person who wants to take the elevator has to wait 8 hours
+> before the elevator even starts. While probably everyone agrees this is
+> ridiculous in real live astonishingly nobody complains about it in case of a disk.
+> 
+> Why don't have bits the same rights as humans! ;-)
+> 
+Bits are in no hurry.  If you want to eject - run umount.  umount
+will flush everything immediately.  If you merely want stuff out to
+disk - use sync.
+
+Putting writes on hold for a while helps the impossible to foresee
+situation when some important reads suddenly comes up.  The system don't
+_know_ yet it will happen, but it will happen in shorter time than
+it takes to write the stuff.  So writes are stalled in cache because
+you have enough of that, and it is always possible to cache a write.
+Reads must be done now and then because they aren't always in cache,
+and the kernel tries to keep devices ready to do that on short notice.
 
 
-On Sat, 18 Aug 2001, Mark Hemment wrote:
-
-> Hi,
-> 
->   Jumping from 2.4.7 to 2.4.9 has shown up a problem with the VM balancing
-> code.
->   Under load, I've seen kswapd become a CPU hog (on a 5GB box).  Now that
-> I've got a theory, I cannot reproduce the problem for confirmation, but
-> here is the theory anyway.
-> 
->   The tests in free_shortage() and inactive_shortage() assume that the
-> memory state for a zone can be improved by calling refill_inactive_scan(),
-> page_launder(), the inode/dcache shrinking functions, and the general
-> slab-cache reaping func.  Usually, some combination of the reaping
-> functions will improve a zone's state - but not always.
-> 
->   The problem is the DMA zone.  As it is (relatively) small on some archs
-> (IA-32 for example), it is possible that almost all pages from this zone
-> are being used by a sub-systems which simply won't give them up.  Examples
-> of use are; vmalloc()ed page for modules, pre-allocated socket buffs
-> for NICs, task-structs/kernel-stack - you get the idea.
-> 
->   In the case I believe I'm seeing, both free_shortage() and
-> inactive_shortage() are returning a shortage for the DMA zone which
-> triggers all the work in do_try_to_free_pages().  But as there aren't any
-> DMA pages left in the page-cache, being used as anonymous pages, or being
-> used in the other places the code looks, do_try_to_free_pages() returns
-> non-zero to kswapd() and off we go again.  This also causes callers of
-> try_to_free_pages() (from __alloc_pages()) to suck CPU cycles as well.
-> 
->   On HIGHMEM boxes, it is possible for the NORMAL zone to get into the
-> same state (although v unlikely).
-> 
->   I'd rather not get into having specialist code in mm/vmscan.c (or arch
-> specific code) to handle a small DMA zone - so what are the other
-> solutions?  (Assuming the above theory holds true.)
-> 
->   One possible solution is not to give DMA memory out, except for;
-> 	o explicit DMA allocations
-> 	o page-cache, anonymous page, allocations
-> assuming explicit DMA allocations are low, we'll at least know the
-> remaining DMA pages are somewhere we can get at them - would need to be
-> trigger by an arch specific flag for those that don't have a "tiny" zone.
-> However, I don't like this, feels like fixing the wrong problem. :(
-
-The DMA zone problem _can_ happen, but it should also happen with 2.4.7 I
-think. (I'm not completly sure, though. Maybe Linus changes to
-try_to_free_pages() are the reason...)
-
-Lets first find out the actual problem.
-
-Could you please boot with profile=2 and use readprofile to find out where
-kswapd is spending its time? 
-
+Helge Hafting

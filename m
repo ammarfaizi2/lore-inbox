@@ -1,102 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264054AbUG3BQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUG3B1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264054AbUG3BQg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 21:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUG3BQf
+	id S267553AbUG3B1D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 21:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267558AbUG3B1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 21:16:35 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:40591 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S264054AbUG3BQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 21:16:32 -0400
-Message-ID: <4109A05B.6080900@comcast.net>
-Date: Thu, 29 Jul 2004 18:11:55 -0700
-From: "Amit D. Chaudhary" <amit_ml@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Thu, 29 Jul 2004 21:27:03 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:7950 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S267555AbUG3B1A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 21:27:00 -0400
+To: Paul Jackson <pj@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, aebr@win.tue.nl, vojtech@suse.cz,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+References: <87llhjlxjk.fsf@devron.myhome.or.jp>
+	<20040716164435.GA8078@ucw.cz>
+	<20040716201523.GC5518@pclin040.win.tue.nl>
+	<871xjbkv8g.fsf@devron.myhome.or.jp>
+	<20040728115130.GA4008@pclin040.win.tue.nl>
+	<87fz7c9j0y.fsf@devron.myhome.or.jp>
+	<20040728134202.5938b275.pj@sgi.com>
+	<87llh3ihcn.fsf@ibmpc.myhome.or.jp>
+	<20040728231548.4edebd5b.pj@sgi.com>
+	<87oelzjhcx.fsf@ibmpc.myhome.or.jp>
+	<20040729024931.4b4e78e6.pj@sgi.com>
+	<20040729162423.7452e8f5.akpm@osdl.org>
+	<20040729165152.492faced.pj@sgi.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 30 Jul 2004 10:25:56 +0900
+In-Reply-To: <20040729165152.492faced.pj@sgi.com>
+Message-ID: <87pt6e2sm3.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
 MIME-Version: 1.0
-To: fedora-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: ext3 filesystem corruption with Fedora Core 2, Test 3 with latest
- 2.6.6.x kernel
-Content-Type: multipart/mixed;
- boundary="------------090406070402030907050905"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090406070402030907050905
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Paul Jackson <pj@sgi.com> writes:
 
-What happened:
-I got filesystem corrupted yesterday when using a Fedora Core 3, Test 3 
-with linux kernel 2.6.6-1.435.
+> Don't wait on me ... as indicated in my last post on this lkml thread,
+> I left this back in the hands of the expert, OGAWA Hirofumi.
 
-The filesystems were /boot and /, particularly files under /bin were 
-missing including /bin/sh, /etc/fstab, etc.
-kernel images, and other files under /boot had disappeared.
-
-Setup:
-The desktop is a HP with a P3 700 with 512 MB RAM, 2 HDD, this happenned 
-on ide0 (hda1 and hda3)
-The ext3 filesystems had the default journaling mode.
-
-How I ran into it:
-I ran vncserver from one of the mingetty (text) consoles, I am still 
-trying it out and probably used an incorrect xstartup, attached incase 
-it might be useful. Anyways, I did not connect to it, decided to log 
-onto another mingetty (CTRL+ALT+2), this took the login name and hung. 
-Now the computer went into a hard hang (No Oops, CTRL+ALT+DEL, etc did 
-not work.)
-On a reboot using grub directly went into Windows (it is a dual boot 
-system). Using the rescue disk, I noticed, since it did not mount 
-/dev/hda1 as /boot, the old /boot was being effective and suprisingly 
-did not have a link entry.
-
-I have reinstalled the OS, so no direct help is needed.
-Thought should email it to the list for information and if someone knows 
-which release this happens in and is there a fix to it.
-
-Thanks
-Amit
-
---------------090406070402030907050905
-Content-Type: text/plain;
- name="xstartup"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="xstartup"
-
-#!/bin/sh
-
-# Uncomment the following two lines for normal desktop:
-# unset SESSION_MANAGER
-# exec /etc/X11/xinit/xinitrc
-
-[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
-[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
-#Original commands
-#xsetroot -solid grey
-#vncconfig -iconic &
-#xterm -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
-#twm &
-
-#/usr/bin/gdm-binary  -nodaemon&
-/usr/bin/gnome-keyring-daemon&
-metacity&
-/usr/libexec/gnome-settings-daemon&
-xscreensaver -nosplash&
-magicdev&
-#nautilus&
-gnome-panel&
-eggcups&
-
-konsole&
-
-/usr/libexec/gnome-vfs-daemon&
-dcopserver --nosid --suicide&
-/usr/libexec/mapping-daemon&
-kded&
-klauncher&
-
---------------090406070402030907050905--
+Could you please post your lastest patch? It seems that my patch does
+not satisfy peoples.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

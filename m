@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265662AbSKAIWu>; Fri, 1 Nov 2002 03:22:50 -0500
+	id <S265659AbSKAIV0>; Fri, 1 Nov 2002 03:21:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265664AbSKAIWt>; Fri, 1 Nov 2002 03:22:49 -0500
-Received: from cih-gw.cih.com ([204.69.206.1]:29643 "HELO cih.com")
-	by vger.kernel.org with SMTP id <S265662AbSKAIWS>;
-	Fri, 1 Nov 2002 03:22:18 -0500
-Date: Fri, 1 Nov 2002 00:23:28 -0800 (PST)
-From: "Craig I. Hagan" <hagan@cih.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.4.44.0210312233190.5595-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0211010013490.3873-100000@svr.cih.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265662AbSKAIV0>; Fri, 1 Nov 2002 03:21:26 -0500
+Received: from dp.samba.org ([66.70.73.150]:10468 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265659AbSKAIVZ>;
+	Fri, 1 Nov 2002 03:21:25 -0500
+Date: Fri, 1 Nov 2002 19:23:39 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: hch@infradead.org, willy@debian.org, linux-kernel@vger.kernel.org
+Subject: Re: Where's the documentation for Kconfig?
+Message-Id: <20021101192339.199c666b.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.44.0210311659310.6949-100000@serv>
+References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.44.0210311452531.13258-100000@serv>
+	<20021031152710.A8214@infradead.org>
+	<Pine.LNX.4.44.0210311659310.6949-100000@serv>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Talk is cheap.
+On Thu, 31 Oct 2002 17:03:04 +0100 (CET)
+Roman Zippel <zippel@linux-m68k.org> wrote:
+
+> Hi,
 > 
-> I've not seen a _single_ bug-report with a fix that attributed the
-> existing LKCD patches. I might be more impressed if I had. 
+> On Thu, 31 Oct 2002, Christoph Hellwig wrote:
 > 
-> The basic issue is that we don't put patches in in the hope that they will
-> prove themselves later. Your argument is fundamentally flawed.
+> > > Here a small howto for CML1 users.
+> > 
+> > Could you please update Documentation/kbuild/config-language.txt
+> > based on that?
+> 
+> Actually I want to update it based on what's on my home page. I'll do it 
+> very soon.
 
-comment from userspace:
+Doco is great, and it'd be nice to replace what's there, but I think it's
+remarkably easy to use in a monkey-see-monkey-do fashion, which is *really*
+good because that's how people will use it.
 
-I'm going to have to side with Linus here despite my desire to see LKCD merged.
-However, we need to show him the money. This means:
+Plus, I never realized how slow the old "make oldconfig" was.
 
-	* making sure that the patches are kept up to date
-
-	* keep the LKCD patches in the list/community spotlight in a positive
-		manner ("please test this!", or  "please use this when
-		looking for help debugging a system problem"). Perhaps
-		a 2.5.x-lkcd bk tree or something like that.
-
-	* make documentation/HOWTO's available for folks so that
-		they'll know how to generate a crashdump
-		and run a some utilities against it to generate
-		a synopsis which can be submitted for debugging
-
-	* most important: squash a whole lot of bugs with
-		said dumps!
-
-If it becomes apparent through empirical data that crash dumps are a useful
-tool, I'm sure that Linus will become far more amenable. Until then, lets let
-him handle all of his other work which needs to get done.
-
--- craig
-
-
-
-	  .-    ... . -.-. .-. . -    -- . ... ... .- --. .
-
-			    Craig I. Hagan
-			   hagan(at)cih.com
-
-
-
+Thanks Roman!
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

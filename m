@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261795AbTCaTX1>; Mon, 31 Mar 2003 14:23:27 -0500
+	id <S261803AbTCaTX6>; Mon, 31 Mar 2003 14:23:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261803AbTCaTX1>; Mon, 31 Mar 2003 14:23:27 -0500
-Received: from [81.2.110.254] ([81.2.110.254]:43003 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id <S261795AbTCaTX0>;
-	Mon, 31 Mar 2003 14:23:26 -0500
-Subject: Re: flash as hda causes 2.4.18 to hang in
-	grok_partitions()...add_to_page_cache_unique()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Wuertele <dave-gnus@bfnet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m3smt3xuo1.fsf@bfnet.com>
-References: <m3smt3xuo1.fsf@bfnet.com>
-Content-Type: text/plain
+	id <S261809AbTCaTX6>; Mon, 31 Mar 2003 14:23:58 -0500
+Received: from smtp02.web.de ([217.72.192.151]:11041 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S261803AbTCaTX4>;
+	Mon, 31 Mar 2003 14:23:56 -0500
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: make menuconfig error
+Date: Mon, 31 Mar 2003 21:34:38 +0200
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049135769.1727.1.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 Mar 2003 19:36:09 +0100
+Content-Disposition: inline
+Message-Id: <200303312134.38818.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-31 at 19:22, David Wuertele wrote:
-> I've got a mipsel linux 2.4.18 system that has a compact flash IDE
-> disk as hda.  For some reason, in grok_partitions, the kernel goes
-> bye-bye.  I've traced it as far as read_page_cache().
+Hi.
 
-You might want to check with the linux-mips list since its a rather
-obscure platform an that doesn't look much like an IDE layer change.
+I don't know, if this was posted some time ago, because I was unsubscribed
+for a time.
+I unpacked a vanilla 2.5.66, copied the .config of my already configured
+2.5.64 to the new kernel, made a make menuconfig and immediately canceled
+it, without saving.
+I got this error-message:
+
+# bla ...
+  gcc  -o scripts/lxdialog/lxdialog scripts/lxdialog/checklist.o scripts/lxdialog/menubox.o scripts/lxdialog/textbox.o scripts/lxdialog/yesno.o scripts/lxdialog/inputbox.o scripts/lxdialog/util.o scripts/lxdialog/lxdialog.o scripts/lxdialog/msgbox.o -lncurses 
+./scripts/kconfig/mconf arch/i386/Kconfig
+#
+# using defaults found in .config
+#
+.config:763: trying to assign nonexistent symbol INTEL_RNG
+
+
+Your kernel configuration changes were NOT saved.
+
+
+
+Regards Michael Buesch.
 

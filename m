@@ -1,43 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264301AbTKUFtS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 00:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTKUFtS
+	id S264310AbTKUGLu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 01:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTKUGLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 00:49:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9479 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264301AbTKUFtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 00:49:09 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Announce: ndiswrapper
-Date: 20 Nov 2003 21:48:56 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bpk908$jcd$1@cesium.transmeta.com>
-References: <20031120172454.GB14608@bougret.hpl.hp.com> <Pine.LNX.3.96.1031120174823.11021B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	Fri, 21 Nov 2003 01:11:50 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:40156 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S264310AbTKUGLr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 01:11:47 -0500
+Subject: Re: Nick's scheduler v19a
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FBD4F6E.3030906@cyberone.com.au>
+References: <3FB62608.4010708@cyberone.com.au>
+	 <1069361130.13479.12.camel@midux>  <3FBD4F6E.3030906@cyberone.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-w4HEmeRkA4HTZ0g33XAj"
+Message-Id: <1069395102.16807.11.camel@midux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 21 Nov 2003 08:11:42 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.3.96.1031120174823.11021B-100000@gatekeeper.tmr.com>
-By author:    Bill Davidsen <davidsen@tmr.com>
-In newsgroup: linux.dev.kernel
-> 
-> I'm curious if the NDIS stuff could be run in ring 1 or 2, being an old
-> MULTICS guy. Not for political reasons, just good tech.
-> 
 
-Unfortunately the segmentation and paging were so poorly integrated in
-i386 that rings 1-2 are pretty much totally useless.
+--=-w4HEmeRkA4HTZ0g33XAj
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Hi nick.
+it seems that this patch changed everything, I patched against
+2.6.0-test9-bk19. I didn't upgrade any software before I booted to your
+patch. and I tested the 2.6.0-test9-bk22 without the patch it worked
+just as all other kernels without the patch. I've had the same .config
+from test3 (maybe some small changes if new drivers appeared).
+
+I can't say that 2.6 performance is bad, it's better than 2.4, but now
+this is even better.=20
+
+So now I'm booted back to your patch and I like this difference in X
+performance, I can't ask for more. :)
+
+Regards,
+
+Markus
+On Fri, 2003-11-21 at 01:34, Nick Piggin wrote:
+> Markus H=E4stbacka wrote:
+>=20
+> >Hi nick! here's some feedback.
+> >This one day last week, I thougt I could test your scheduler patch.
+> >I noticed something really good with it. My X had really fast startup.
+> >everything worked really fast. Even games worked much better than any in
+> >kernel before (I've tested all from 2.5.74).
+> >
+> >So I hope you'll port this patch for test10> if this one wont patch
+> >clearly.
+> >
+>=20
+> Hi Markus,
+> Thanks for testing. That sounds quite remarkable, is it possible that
+> some other change has made the difference? What kernel version did
+> you patch against, and did you try that same kernel and .config without
+> my patch? Anyway, I'm glad you're having good results.
+>=20
+> Yes, this one will probably apply to test10 should it ever apper. If not
+> I will port it.
+>=20
+> Nick
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme.org>
+
+--=-w4HEmeRkA4HTZ0g33XAj
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/vaye3+NhIWS1JHARAtXHAJ0U9EDojqFQiWWgf1If68W/g8xZVQCggaTI
+/Eg/reFEZ9YzcTAtAYcm33I=
+=04zM
+-----END PGP SIGNATURE-----
+
+--=-w4HEmeRkA4HTZ0g33XAj--
+

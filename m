@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268955AbUJKNsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268984AbUJKNvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268955AbUJKNsC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 09:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUJKNsB
+	id S268984AbUJKNvM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 09:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268981AbUJKNvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 09:48:01 -0400
-Received: from cmail.srv.hcvlny.cv.net ([167.206.112.40]:3794 "EHLO
-	cmail.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S268955AbUJKNr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 09:47:59 -0400
-Date: Mon, 11 Oct 2004 08:45:26 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-Subject: [PATCH] Add mailing lists for Orinoco driver
-X-X-Sender: proski@portland.hansa.lan
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Cc: David Gibson <hermes@gibson.dropbear.id.au>
-Message-id: <Pine.LNX.4.61.0410110839190.4537@portland.hansa.lan>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7BIT
+	Mon, 11 Oct 2004 09:51:11 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:35265 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268959AbUJKNtW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 09:49:22 -0400
+Message-ID: <416A8F5F.6000000@drzeus.cx>
+Date: Mon, 11 Oct 2004 15:49:19 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: MMC performance
+References: <416A68E5.6080608@drzeus.cx> <20041011131919.B19175@flint.arm.linux.org.uk>
+In-Reply-To: <20041011131919.B19175@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Russell King wrote:
 
-This patch adds mailing lists for Orinoco driver and updates the homepage 
-address.  Please apply.
+>Only if you can reliably know how many bytes you've tranferred when
+>an error occurs.  Without that, the only safe way to do a write is
+>sector by sector.
+>
+>  
+>
+What would happen if we failed the entire request? Rewriting a few 
+sectors is harmless. Or will it break in more exotic ways?
 
-Signed-off-by: Pavel Roskin <proski@gnu.org>
+Rgds
+Pierre
 
-===============================================
---- MAINTAINERS
-+++ MAINTAINERS
-@@ -1646,7 +1646,9 @@
-  M:	proski@gnu.org
-  P:	David Gibson
-  M:	hermes@gibson.dropbear.id.au
--W:	http://www.ozlabs.org/people/dgibson/dldwd
-+L:	orinoco-devel@lists.sourceforge.net
-+L:	orinoco-users@lists.sourceforge.net
-+W:	http://www.nongnu.org/orinoco/
-  S:	Maintained
-
-  PARALLEL PORT SUPPORT
-===============================================
-
--- 
-Regards,
-Pavel Roskin

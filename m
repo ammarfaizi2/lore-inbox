@@ -1,27 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316542AbSGUQ76>; Sun, 21 Jul 2002 12:59:58 -0400
+	id <S316857AbSGURRT>; Sun, 21 Jul 2002 13:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316662AbSGUQ76>; Sun, 21 Jul 2002 12:59:58 -0400
-Received: from tomts24.bellnexxia.net ([209.226.175.187]:55442 "EHLO
-	tomts24-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S316542AbSGUQ75>; Sun, 21 Jul 2002 12:59:57 -0400
-User-Agent: Pan/0.11.2 (Unix)
-From: "David Caplan" <david@polycode.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Asus-a7v/Via-Vt8233 data corruption
-Date: Sun, 21 Jul 2002 13:11:33 -0400
-References: <20020721043653.NLID8251.tomts6-srv.bellnexxia.net@david> <Pine.LNX.4.44.0207202300180.3309-100000@hawkeye.luckynet.adm>
-Message-Id: <20020721170313.EXP2648.tomts24-srv.bellnexxia.net@david>
+	id <S316928AbSGURRT>; Sun, 21 Jul 2002 13:17:19 -0400
+Received: from admin.nni.com ([216.107.0.51]:58126 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S316869AbSGURRS>;
+	Sun, 21 Jul 2002 13:17:18 -0400
+Date: Mon, 22 Jul 2002 13:18:15 -0400
+From: Andrew Rodland <arodland@noln.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -ac] Panicking in morse code v3
+Message-Id: <20020722131815.3524cb74.arodland@noln.com>
+In-Reply-To: <E17WIs3-0005to-00@starship>
+References: <20020719011300.548d72d5.arodland@noln.com>
+	<20020720173222.3286fcbb.arodland@noln.com>
+	<E17WIs3-0005to-00@starship>
+X-Mailer: Sylpheed version 0.7.8claws55 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
-I would like to add that I just had the same results, using kernel 
-2.4.19-rc3.
+On Sun, 21 Jul 2002 17:43:42 +0200
+Daniel Phillips <phillips@arcor.de> wrote:
 
-I had DMA enabled again, and I ran the dt program with the same
-parameters.
+> Here's my contribution to the ongoing beautification:
+> 
+> [snip patch]
 
-Thanks,
--David
+Nice. Thanks. Merged in spirit, if not letter. :)
+I suppose I should start putting this up on a webpage instead of
+bothering the list every time there's an improvement.
+
+

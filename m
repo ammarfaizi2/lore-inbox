@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269257AbRHTUqJ>; Mon, 20 Aug 2001 16:46:09 -0400
+	id <S269250AbRHTUqA>; Mon, 20 Aug 2001 16:46:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269274AbRHTUqA>; Mon, 20 Aug 2001 16:46:00 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:41735 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S269257AbRHTUpu>; Mon, 20 Aug 2001 16:45:50 -0400
-Date: Mon, 20 Aug 2001 16:45:52 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: select(), EOF...
-In-Reply-To: <006d01c129b8$1957f2c0$0414a8c0@10>
-Message-ID: <Pine.LNX.4.33.0108201644440.11734-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S269274AbRHTUpu>; Mon, 20 Aug 2001 16:45:50 -0400
+Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:11916 "HELO
+	lunchbox.oisec.net") by vger.kernel.org with SMTP
+	id <S269250AbRHTUpa>; Mon, 20 Aug 2001 16:45:30 -0400
+Date: Mon, 20 Aug 2001 22:45:36 +0200
+From: Cliff Albert <cliff@oisec.net>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
+Message-ID: <20010820224536.A28179@oisec.net>
+In-Reply-To: <20010820105520.A22087@oisec.net> <200108202027.f7KKRnY41946@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200108202027.f7KKRnY41946@aslan.scsiguy.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Aug 2001, Carlos Fernández Sanz wrote:
+On Mon, Aug 20, 2001 at 02:27:49PM -0600, Justin T. Gibbs wrote:
 
-> (sorry if this is a dupe, I haven't seen it come from the list, so I'm
-> resending as plain ASCII in case majordomo kills messages with strange
-> stuff)
->
-> Hi,
->
-> I need to do something similar to tail -f.
-> I was hoping that select() or poll() would block my process after reaching
-> EOF but (as the man says) EOF doesn't cause read() to block so select() and
-> poll() both say I can read. The result is (obviously) that my program waits
-> actively and uses all the CPU.
-> What's the right way of doing this? I assume the kernel provides facilities
-> to find out if there is new data to read (other than EOF).
->
-> Thanks.
+> >I'm getting similair errors on 2.4.8-ac7 on my P2B-S motherboard using
+> >the NEW AIC7xxx driver, the old isn't experiencing these problems. Further
+> >i've been getting these errors since 2.4.3.
+> >
+> >> booting with append="noapic", gives the same errors
+> 
+> Can you send me the full messages when you boot with "aic7xxx=verbose"?
+> That should help indicate the source of your problems.  I also
+> need to see the devices that are attached to the bus, so a full dmesg
+> from a successful boot with the old driver would be helpful.
 
-tail -f just alternates between open() and close(), keeping in memory the
-current byte offest into the file.
+Well booting is successful on my board, but the same errors that almost
+everyone is getting are the same i'm getting. I just turned on verbose.
+
+Most debugging info i already send to the linux-kernel mailinglist, i'll
+forward it on to you. The verbose info will be send also in about a few 
+hours.
 
 -- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
+Cliff Albert		| RIPE:	     CA3348-RIPE | www.oisec.net
+cliff@oisec.net		| 6BONE:     CA2-6BONE	 | icq 18461740

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264073AbUDFXus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 19:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264076AbUDFXus
+	id S263980AbUDGADZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 20:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUDGADZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 19:50:48 -0400
-Received: from main.gmane.org ([80.91.224.249]:18626 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264073AbUDFXuq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 19:50:46 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: 2.6.2-rc3: irq#19 - nobody cared - with an au88xx
-Date: Tue, 06 Apr 2004 16:43:35 -0700
-Message-ID: <pan.2004.04.06.23.43.34.966355@triplehelix.org>
-References: <BF1FE1855350A0479097B3A0D2A80EE0023E89C2@hdsmsx402.hd.intel.com> <1076134307.2562.1553.camel@dhcppc4> <20040406180238.GA7439@nevyn.them.org>
+	Tue, 6 Apr 2004 20:03:25 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:64217 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263980AbUDGADY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 20:03:24 -0400
+Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Jackson <pj@sgi.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mbligh@aracnet.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       colpatch@us.ibm.com
+In-Reply-To: <20040406034055.1dbe2eac.pj@sgi.com>
+References: <20040329041253.5cd281a5.pj@sgi.com>
+	 <1081128401.18831.6.camel@bach> <20040405000528.513a4af8.pj@sgi.com>
+	 <1081150967.20543.23.camel@bach> <20040405010839.65bf8f1c.pj@sgi.com>
+	 <1081227547.15274.153.camel@bach> <20040405230601.62c0b84c.pj@sgi.com>
+	 <1081233543.15274.190.camel@bach> <20040405234552.23f810cd.pj@sgi.com>
+	 <1081235999.28514.9.camel@bach>  <20040406034055.1dbe2eac.pj@sgi.com>
+Content-Type: text/plain
+Message-Id: <1081255616.28514.72.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-126-186-145.dsl.pltn13.pacbell.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 07 Apr 2004 10:02:13 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 06 Apr 2004 14:02:38 -0400, Daniel Jacobowitz wrote:
-> I still haven't figured out which kernel first introduced the problem,
-> but it's still present, at 2.6.5.  I didn't see it while I was running
-> 2.6.3-rc3, for some reason.
+On Tue, 2004-04-06 at 20:40, Paul Jackson wrote:
+> Rusty - thank-you very much for your constructive feedback so far.
 > 
-> Now I'm using the ALSA au8830 driver.  There was no output from the
-> driver before the nobody-cared message, so it was caused by one of
-> these (sound/pci/au88x0/au88x0_core.c):
+> Seems to me that we are in agreement that slimming down the
+> internals of cpumask_t is worth proceeding with, but not on possible
+> changes to the cpumask API seen by the rest of the kernel.
 
-I'm *completely* stabbing in the dark, but ISTR lots of problems with
-Vortices (?), even on Windows, were caused by the card not being on the
-bus master PCI slot (which is typically the first one on most
-motherboards.) Possibly the IRQ assignment depends on the location of the
-card?
+OK, cool.  We can have that debate later.
 
-Actually I am using my Vortex2 in a non-mastering PCI slot right now so
-maybe that's not the problem. But I'm using the snd-au8830 driver and it
-seems to work just fine in 2.6.5-mm1.
+> static inline void bitmap_and(unsigned long *d, const unsigned long *s1,
+> 			const unsigned long *s2, int nbits)
+> {
+> 	if (nbits <= BITS_PER_LONG)
+> 		d[0] = s1[0] & s2[0];
+> 	else
+> 		_bitmap_and(d, s1, s2, nbits);
+> }
 
-I'm most likely completely wrong, so feel free to correct me.
+Two suggestions:
+1) I think you only want the fastpath when it's eliminated by the
+compiler, so perhaps:
+	if (__builtin_constant_p(nbits) && nbits <= BITS_PER_LONG)
 
+2) The normal kernel naming scheme is two underscores (__bitmap_and),
+probably because it's clearer visually.
+
+Thanks,
+Rusty.
 -- 
-Joshua Kwan
-
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

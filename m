@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270092AbTGaXKk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 19:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270576AbTGaXKk
+	id S274918AbTGaXPE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 19:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274915AbTGaXO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 19:10:40 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55798 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S270092AbTGaXKg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 19:10:36 -0400
-Subject: Re: [PATCH] protect migration/%d etc from sched_setaffinity
-From: Robert Love <rml@tech9.net>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: torvalds@osdl.org, akpm@digeo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030731230635.GA7852@rudolph.ccur.com>
-References: <20030731224604.GA24887@tsunami.ccur.com>
-	 <1059692548.931.329.camel@localhost>
-	 <20030731230635.GA7852@rudolph.ccur.com>
-Content-Type: text/plain
-Message-Id: <1059693499.786.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-5) 
-Date: 31 Jul 2003 16:18:19 -0700
+	Thu, 31 Jul 2003 19:14:58 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:12709 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S274867AbTGaXMl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 19:12:41 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Pavel Machek <pavel@ucw.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
+Date: Fri, 1 Aug 2003 01:12:20 +0200
+User-Agent: KMail/1.5.1
+Cc: David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Dominik Brugger <ml.dominik83@gmx.net>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059689105.2417.195.camel@gaston> <20030731220958.GA459@elf.ucw.cz>
+In-Reply-To: <20030731220958.GA459@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308010112.20514.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-31 at 16:06, Joe Korty wrote:
+ 
+> Is not disk spin-down policy, and thus belonging to userspace? Having
+> daemon poll for inactivity of hubs once every 5 minutes and sending
+> them to sleep should not hurt, too...
+> 								Pavel
 
-> It's not all system daemons, just some of them that need protection.
-> 
-> Keeping the set of locked-down daemons to the smallest possible is
-> important when one wants to 'set aside' cpus for use only by
-> specific, need-the-lowest-latency-possible realtime applications.
+Taking precedents into account it is the kernel's job.
+Screen blanking is done in kernel, as is afaik floppy
+motor control.
 
-Yah, I know. But this is a lot of code just to prevent root from hanging
-herself, and she has plenty of other ways with which to do that.
-
-	Robert Love
-
+	Regards
+		Oliver
 

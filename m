@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbTEMNj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 09:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbTEMNj3
+	id S261221AbTEMNm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 09:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTEMNm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 09:39:29 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63898
+	Tue, 13 May 2003 09:42:28 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:65178
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261201AbTEMNj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 09:39:28 -0400
-Subject: Re: What exactly does "supports Linux" mean?
+	id S261221AbTEMNm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 09:42:27 -0400
+Subject: Re: lse conference switched to IRC to discuss 2.6 must-fix list
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20030513151630.75ad4028.skraw@ithnet.com>
-References: <20030513151630.75ad4028.skraw@ithnet.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel-janitor-discuss@lists.sourceforge.net
+In-Reply-To: <20030513111908.GU17033@suse.de>
+References: <99500000.1052781962@w-hlinder> <20030513111908.GU17033@suse.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1052830415.432.2.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1052830548.463.4.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 May 2003 13:53:37 +0100
+Date: 13 May 2003 13:55:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-13 at 14:16, Stephan von Krawczynski wrote:
-> I bought a card from some vendor, claiming "support for Linux". I tried to make
-> it work in a configuration with a standard 2.4.20 kernel from kernel.org. The
-> drivers (kernel modules) are binary-only. They did not load because of a
-> version mismatch. Asking for versions loadable with standard kernels, I got the
-> response that they only support kernels from Red Hat and SuSE, but no standard
-> kernels.
+> > 2:00pm PDT (GMT-0700), 4:00pm CDT, 5:00pm EDT Wednesday May 14, 2003.
+> 
+> How about doing it a bit earlier, for the europeans joining? At least
+> for me, 2 hours earlier looks a lot better.
 
-So send it back and consult local trading standards rules. 
+As I said before I can't do Wednesday. 
 
-> My general conclusion would be that something not working with a standard
-> kernel cannot be called "supporting linux", no matter what distros ever are
-> supported. You may call me purist...
-> Any ideas?
+( Akpm may not have received that mail as his mail host seems to bounce 
+direct mail from me)
 
-Linus owns the trademark for the USA certainly. 

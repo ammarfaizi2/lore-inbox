@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262650AbRE3VeT>; Wed, 30 May 2001 17:34:19 -0400
+	id <S262695AbRE3VbI>; Wed, 30 May 2001 17:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262656AbRE3Vd7>; Wed, 30 May 2001 17:33:59 -0400
-Received: from t2.redhat.com ([199.183.24.243]:39925 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262650AbRE3Vd6>; Wed, 30 May 2001 17:33:58 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200105302008.NAA07710@csl.Stanford.EDU> 
-In-Reply-To: <200105302008.NAA07710@csl.Stanford.EDU> 
-To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] 2.4.5-ac4 non-init functions calling init functions 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 30 May 2001 22:33:23 +0100
-Message-ID: <26484.991258403@redhat.com>
+	id <S262642AbRE3Va6>; Wed, 30 May 2001 17:30:58 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:22539 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262632AbRE3Vam>; Wed, 30 May 2001 17:30:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Ingo Molnar <mingo@elte.hu>, Nico Schottelius <nicos@pcsystems.de>
+Subject: Re: [ PATCH ]: disable pcspeaker kernel: 2.4.2 - 2.4.5
+Date: Wed, 30 May 2001 23:32:21 +0200
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0105301724570.2384-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0105301724570.2384-100000@localhost.localdomain>
+MIME-Version: 1.0
+Message-Id: <0105302332211G.06233@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 30 May 2001 17:25, Ingo Molnar wrote:
+> On Wed, 30 May 2001, Nico Schottelius wrote:
+> > > the default value is 0, that is good enough.
+> >
+> > hmm.. I don't think so... value of 1 would be much better, because
+> > 0 normally disables the speaker.
+>
+> i confused the value. Yes, an initialization to 1 would be the
+> correct, ie.:
+>
+> +++ linux-2.4.5-nc/kernel/sysctl.c      Wed May  9 23:44:30 2001
+> @@ -48,6 +49,7 @@
+>  extern int nr_queued_signals, max_queued_signals;
+>  extern int sysrq_enabled;
+>
+> +int pcspeaker_enabled = 1;
 
-engler@csl.Stanford.EDU said:
-> drivers/mtd/docprobe.c:195:DoC_Probe: ERROR:INIT: non-init fn
-> 'DoC_Probe' calling init fn 'doccheck'
-
-Strictly speaking, not actually a bug. DoC_Probe() itself is only ever 
-called from __init code. But it's probably not worth trying to make the 
-checker notice that situation - I've fixed it anyway by making DoC_Probe() 
-__init too, which saves a bit more memory. Thanks.
-
-parse_mem_cmdline() in arch/i386/kernel/setup.c is a similar false (or at
-least questionable) positive. Note that it's an inline function, only used
-inside setup_arch(), which _is_ marked __init.
+I'd go and change the whole patch so that speaker_disabled = 0 is the 
+default, but that's just me.
 
 --
-dwmw2
-
-
+Daniel

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264610AbTCDXBX>; Tue, 4 Mar 2003 18:01:23 -0500
+	id <S263204AbTCDXHi>; Tue, 4 Mar 2003 18:07:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262201AbTCDXA3>; Tue, 4 Mar 2003 18:00:29 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:37130 "EHLO
+	id <S262201AbTCDXHi>; Tue, 4 Mar 2003 18:07:38 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:38922 "EHLO
 	intra.cyclades.com") by vger.kernel.org with ESMTP
-	id <S266210AbTCDW77>; Tue, 4 Mar 2003 17:59:59 -0500
-Message-ID: <3E64C19C.6000902@cyclades.com>
-Date: Tue, 04 Mar 2003 15:09:16 +0000
+	id <S266622AbTCDXAL>; Tue, 4 Mar 2003 18:00:11 -0500
+Message-ID: <3E64C1A8.9010106@cyclades.com>
+Date: Tue, 04 Mar 2003 15:09:28 +0000
 From: Henrique Gobbi <henrique2.gobbi@cyclades.com>
 Reply-To: henrique.gobbi@cyclades.com
 Organization: Cyclades Corporation
@@ -16,26 +16,25 @@ X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] - PC300 driver for kernel 2.4  (2/6)
+Subject: [PATCH] - PC300 driver for kernel 2.4 (4/6)
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the part 2/6
+This is the part 4/6
 
-diff -ruN linux-2.4.21-pre5.orig/drivers/net/wan/hd64572.h 
-linux-2.4.21-pre5/drivers/net/wan/hd64572.h
---- linux-2.4.21-pre5.orig/drivers/net/wan/hd64572.h	Thu Jan  1 00:00:00 1970
-+++ linux-2.4.21-pre5/drivers/net/wan/hd64572.h	Thu Feb 27 09:08:33 2003
-@@ -0,0 +1,433 @@
+diff -ruN linux-2.4.21-pre5.orig/drivers/net/wan/pc300.h 
+linux-2.4.21-pre5/drivers/net/wan/pc300.h
+--- linux-2.4.21-pre5.orig/drivers/net/wan/pc300.h	Thu Jan  1 00:00:00 1970
++++ linux-2.4.21-pre5/drivers/net/wan/pc300.h	Thu Feb 27 09:08:33 2003
+@@ -0,0 +1,428 @@
 +/*
-+ * hd64572.h	Description of the Hitachi HD64572 (SCA-II), valid for
-+ * 		CPU modes 0 & 2.
++ * pc300.h	Cyclades-PC300(tm) Kernel API Definitions.
 + *
 + * Author:	Ivan Passos <ivan@cyclades.com>
 + *
-+ * Copyright:   (c) 2000-2001 Cyclades Corp.
++ * Copyright:	(c) 1999-2002 Cyclades Corp.
 + *
 + *	This program is free software; you can redistribute it and/or
 + *	modify it under the terms of the GNU General Public License
@@ -44,514 +43,637 @@ linux-2.4.21-pre5/drivers/net/wan/hd64572.h
 + *
 + */
 +
++#ifndef 
+_PC300_H
++#define 
+_PC300_H
++
++#ifndef __HDLC_IOCTL_H__
++#include <linux/hdlc/ioctl.h>
++#endif
++
++#ifndef __HDLC_H
++#include <linux/hdlc.h>
++#endif
++
 +#ifndef _HD64572_H
-+#define _HD64572_H
++#include "hd64572.h"
++#endif
++#ifndef _FALC_LH_H
++#include "pc300-falc-lh.h"
++#endif
 +
-+/* Illegal Access Register */
++#ifndef CY_TYPES
++#define CY_TYPES
++#if defined(__alpha__)
++typedef 
+unsigned long	ucdouble;	/* 64 bits, unsigned */
++typedef 
+unsigned int	uclong;		/* 32 bits, unsigned */
++#else
++typedef 
+unsigned long	uclong;		/* 32 bits, unsigned */
++#endif
++typedef 
+unsigned short	ucshort;	/* 16 bits, unsigned */
++typedef 
+unsigned char	ucchar;		/* 8 bits, unsigned */
++#endif /* CY_TYPES */
++
++#define PC300_PROTO_MLPPP 1		
++
++#define PC300_KERNEL	"2.4.x"	/* Kernel supported by this driver */
++
 +#define 
-ILAR 
-0x00
+PC300_DEVNAME 
+"hdlc" 
+/* Dev. name base (for hdlc0, hdlc1, etc.) */
++#define PC300_MAXINDEX	100	/* Max dev. name index (the '0' in hdlc0) */
 +
-+/* Wait Controller Registers */
-+#define PABR0L	0x20	/* Physical Addr Boundary Register 0 L */
-+#define PABR0H	0x21	/* Physical Addr Boundary Register 0 H */
-+#define PABR1L	0x22	/* Physical Addr Boundary Register 1 L */
-+#define PABR1H	0x23	/* Physical Addr Boundary Register 1 H */
-+#define WCRL	0x24	/* Wait Control Register L */
-+#define WCRM	0x25	/* Wait Control Register M */
-+#define WCRH	0x26	/* Wait Control Register H */
-+
-+/* Interrupt Registers */
-+#define IVR	0x60	/* Interrupt Vector Register */
-+#define IMVR	0x64	/* Interrupt Modified Vector Register */
-+#define ITCR	0x68	/* Interrupt Control Register */
-+#define ISR0	0x6c	/* Interrupt Status Register 0 */
-+#define ISR1	0x70	/* Interrupt Status Register 1 */
-+#define IER0	0x74	/* Interrupt Enable Register 0 */
-+#define IER1	0x78	/* Interrupt Enable Register 1 */
-+
-+/* Register Access Macros (chan is 0 or 1 in _any_ case) */
 +#define 
-M_REG(reg, chan)	(reg + 0x80*chan)		/* MSCI */
+PC300_MAXCARDS 
+4 
+/* Max number of cards per system */
 +#define 
-DRX_REG(reg, chan)	(reg + 0x40*chan)		/* DMA Rx */
+PC300_MAXCHAN 
+2 
+/* Number of channels per card */
++
 +#define 
-DTX_REG(reg, chan)	(reg + 0x20*(2*chan + 1))	/* DMA Tx */
+PC300_PLX_WIN 
+0x80    /* PLX control window size (128b) */
 +#define 
-TRX_REG(reg, chan)	(reg + 0x20*chan)		/* Timer Rx */
+PC300_RAMSIZE 
+0x40000 /* RAM window size (256Kb) */
 +#define 
-TTX_REG(reg, chan)	(reg + 0x10*(2*chan + 1))	/* Timer Tx */
+PC300_SCASIZE 
+0x400   /* SCA window size (1Kb) */
 +#define 
-ST_REG(reg, chan)	(reg + 0x80*chan)		/* Status Cnt */
-+#define IR0_DRX(val, chan)	((val)<<(8*(chan)))		/* Int DMA Rx */
-+#define IR0_DTX(val, chan)	((val)<<(4*(2*chan + 1)))	/* Int DMA Tx */
-+#define IR0_M(val, chan)	((val)<<(8*(chan)))		/* Int MSCI */
+PC300_FALCSIZE 
+0x400 
+/* FALC window size (1Kb) */
 +
-+/* MSCI Channel Registers */
-+#define MD0	0x138	/* Mode reg 0 */
-+#define MD1	0x139	/* Mode reg 1 */
-+#define MD2	0x13a	/* Mode reg 2 */
-+#define MD3	0x13b	/* Mode reg 3 */
-+#define CTL	0x130	/* Control reg */
-+#define RXS	0x13c	/* RX clock source */
-+#define TXS	0x13d	/* TX clock source */
-+#define EXS	0x13e	/* External clock input selection */
-+#define TMCT	0x144	/* Time constant (Tx) */
-+#define TMCR	0x145	/* Time constant (Rx) */
-+#define CMD	0x128	/* Command reg */
-+#define ST0	0x118	/* Status reg 0 */
-+#define ST1	0x119	/* Status reg 1 */
-+#define ST2	0x11a	/* Status reg 2 */
-+#define ST3	0x11b	/* Status reg 3 */
-+#define ST4	0x11c	/* Status reg 4 */
-+#define FST	0x11d	/* frame Status reg  */
-+#define IE0	0x120	/* Interrupt enable reg 0 */
-+#define IE1	0x121	/* Interrupt enable reg 1 */
-+#define IE2	0x122	/* Interrupt enable reg 2 */
-+#define IE4	0x124	/* Interrupt enable reg 4 */
-+#define FIE	0x125	/* Frame Interrupt enable reg  */
-+#define SA0	0x140	/* Syn Address reg 0 */
-+#define SA1	0x141	/* Syn Address reg 1 */
-+#define IDL	0x142	/* Idle register */
-+#define TRBL	0x100	/* TX/RX buffer reg L */
-+#define TRBK	0x101	/* TX/RX buffer reg K */
-+#define TRBJ	0x102	/* TX/RX buffer reg J */
-+#define TRBH	0x103	/* TX/RX buffer reg H */
-+#define TRC0	0x148	/* TX Ready control reg 0 */
-+#define TRC1	0x149	/* TX Ready control reg 1 */
-+#define RRC	0x14a	/* RX Ready control reg */
-+#define CST0	0x108	/* Current Status Register 0 */
-+#define CST1	0x109	/* Current Status Register 1 */
-+#define CST2	0x10a	/* Current Status Register 2 */
-+#define CST3	0x10b	/* Current Status Register 3 */
-+#define GPO	0x131	/* General Purpose Output Pin Ctl Reg */
-+#define TFS	0x14b	/* Tx Start Threshold Ctl Reg */
-+#define TFN	0x143	/* Inter-transmit-frame Time Fill Ctl Reg */
-+#define TBN	0x110	/* Tx Buffer Number Reg */
-+#define RBN	0x111	/* Rx Buffer Number Reg */
-+#define TNR0	0x150	/* Tx DMA Request Ctl Reg 0 */
-+#define TNR1	0x151	/* Tx DMA Request Ctl Reg 1 */
-+#define TCR	0x152	/* Tx DMA Critical Request Reg */
-+#define RNR	0x154	/* Rx DMA Request Ctl Reg */
-+#define RCR	0x156	/* Rx DMA Critical Request Reg */
++#define PC300_OSC_CLOCK	24576000
++#define PC300_PCI_CLOCK	33000000
 +
-+/* Timer Registers */
-+#define TCNTL	0x200	/* Timer Upcounter L */
-+#define TCNTH	0x201	/* Timer Upcounter H */
-+#define TCONRL	0x204	/* Timer Constant Register L */
-+#define TCONRH	0x205	/* Timer Constant Register H */
-+#define TCSR	0x206	/* Timer Control/Status Register */
-+#define TEPR	0x207	/* Timer Expand Prescale Register */
++#define BD_DEF_LEN	0x0800	/* DMA buffer length (2KB) */
++#define DMA_TX_MEMSZ	0x8000	/* Total DMA Tx memory size (32KB/ch) */
++#define DMA_RX_MEMSZ	0x10000	/* Total DMA Rx memory size (64KB/ch) */
 +
-+/* DMA registers */
-+#define PCR		0x40		/* DMA priority control reg */
-+#define DRR		0x44		/* DMA reset reg */
-+#define DMER		0x07		/* DMA Master Enable reg */
-+#define BTCR		0x08		/* Burst Tx Ctl Reg */
-+#define BOLR		0x0c		/* Back-off Length Reg */
-+#define DSR_RX(chan)	(0x48 + 2*chan)	/* DMA Status Reg (Rx) */
-+#define DSR_TX(chan)	(0x49 + 2*chan)	/* DMA Status Reg (Tx) */
-+#define DIR_RX(chan)	(0x4c + 2*chan)	/* DMA Interrupt Enable Reg (Rx) */
-+#define DIR_TX(chan)	(0x4d + 2*chan)	/* DMA Interrupt Enable Reg (Tx) */
-+#define FCT_RX(chan)	(0x50 + 2*chan)	/* Frame End Interrupt Counter (Rx) */
-+#define FCT_TX(chan)	(0x51 + 2*chan)	/* Frame End Interrupt Counter (Tx) */
-+#define DMR_RX(chan)	(0x54 + 2*chan)	/* DMA Mode Reg (Rx) */
-+#define DMR_TX(chan)	(0x55 + 2*chan)	/* DMA Mode Reg (Tx) */
-+#define DCR_RX(chan)	(0x58 + 2*chan)	/* DMA Command Reg (Rx) */
-+#define DCR_TX(chan)	(0x59 + 2*chan)	/* DMA Command Reg (Tx) */
++#define N_DMA_TX_BUF	(DMA_TX_MEMSZ / BD_DEF_LEN)	/* DMA Tx buffers */
++#define N_DMA_RX_BUF	(DMA_RX_MEMSZ / BD_DEF_LEN)	/* DMA Rx buffers */
 +
-+/* DMA Channel Registers */
-+#define DARL	0x80	/* Dest Addr Register L (single-block, RX only) */
-+#define DARH	0x81	/* Dest Addr Register H (single-block, RX only) */
-+#define DARB	0x82	/* Dest Addr Register B (single-block, RX only) */
-+#define DARBH	0x83	/* Dest Addr Register BH (single-block, RX only) */
-+#define SARL	0x80	/* Source Addr Register L (single-block, TX only) */
-+#define SARH	0x81	/* Source Addr Register H (single-block, TX only) */
-+#define SARB	0x82	/* Source Addr Register B (single-block, TX only) */
-+#define DARBH	0x83	/* Source Addr Register BH (single-block, TX only) */
-+#define BARL	0x80	/* Buffer Addr Register L (chained-block) */
-+#define BARH	0x81	/* Buffer Addr Register H (chained-block) */
-+#define BARB	0x82	/* Buffer Addr Register B (chained-block) */
-+#define BARBH	0x83	/* Buffer Addr Register BH (chained-block) */
-+#define CDAL	0x84	/* Current Descriptor Addr Register L */
-+#define CDAH	0x85	/* Current Descriptor Addr Register H */
-+#define CDAB	0x86	/* Current Descriptor Addr Register B */
-+#define CDABH	0x87	/* Current Descriptor Addr Register BH */
-+#define EDAL	0x88	/* Error Descriptor Addr Register L */
-+#define EDAH	0x89	/* Error Descriptor Addr Register H */
-+#define EDAB	0x8a	/* Error Descriptor Addr Register B */
-+#define EDABH	0x8b	/* Error Descriptor Addr Register BH */
-+#define BFLL	0x90	/* RX Buffer Length L (only RX) */
-+#define BFLH	0x91	/* RX Buffer Length H (only RX) */
-+#define BCRL	0x8c	/* Byte Count Register L */
-+#define BCRH	0x8d	/* Byte Count Register H */
-+
-+/* Block Descriptor Structure */
-+typedef struct {
++/* DMA Buffer Offsets */
++#define DMA_TX_BASE	((N_DMA_TX_BUF + N_DMA_RX_BUF) *	\
 + 
-unsigned long	next;		/* pointer to next block descriptor */
+		 PC300_MAXCHAN * sizeof(pcsca_bd_t))
++#define DMA_RX_BASE	(DMA_TX_BASE + PC300_MAXCHAN*DMA_TX_MEMSZ)
++
++/* DMA Descriptor Offsets */
++#define DMA_TX_BD_BASE	0x0000
++#define DMA_RX_BD_BASE	(DMA_TX_BD_BASE + ((PC300_MAXCHAN*DMA_TX_MEMSZ / \
 + 
-unsigned long	ptbuf;		/* buffer pointer */
+			BD_DEF_LEN) * sizeof(pcsca_bd_t)))
++
++/* DMA Descriptor Macros */
++#define TX_BD_ADDR(chan, n)	(DMA_TX_BD_BASE + \
 + 
-unsigned short	len;		/* data length */
+			 ((N_DMA_TX_BUF*chan) + n) * sizeof(pcsca_bd_t))
++#define RX_BD_ADDR(chan, n)	(DMA_RX_BD_BASE + \
 + 
-unsigned char	status;		/* status */
-+ 
-unsigned char	filler[5];	/* alignment filler (16 bytes) */
-+} pcsca_bd_t;
+			 ((N_DMA_RX_BUF*chan) + n) * sizeof(pcsca_bd_t))
++
++/* Macro to access the FALC registers (TE only) */
++#define F_REG(reg, chan)	(0x200*(chan) + ((reg)<<2))
++
++/***************************************
++ * Memory access functions/macros      *
++ * (required to support Alpha systems) *
++ ***************************************/
++#ifdef __KERNEL__
++#define cpc_writeb(port,val)	{writeb((ucchar)(val),(ulong)(port)); mb();}
++#define cpc_writew(port,val)	{writew((ushort)(val),(ulong)(port)); mb();}
++#define cpc_writel(port,val)	{writel((uclong)(val),(ulong)(port)); mb();}
++
++#define cpc_readb(port)		readb(port)
++#define cpc_readw(port)		readw(port)
++#define cpc_readl(port)		readl(port)
++
++#else /* __KERNEL__ */
++#define cpc_writeb(port,val)	(*(volatile ucchar *)(port) = (ucchar)(val))
++#define cpc_writew(port,val)	(*(volatile ucshort *)(port) = (ucshort)(val))
++#define cpc_writel(port,val)	(*(volatile uclong *)(port) = (uclong)(val))
++
++#define cpc_readb(port)		(*(volatile ucchar *)(port))
++#define cpc_readw(port)		(*(volatile ucshort *)(port))
++#define cpc_readl(port)		(*(volatile uclong *)(port))
++
++#endif /* __KERNEL__ */
++
++/****** Data Structures 
+*****************************************************/
 +
 +/*
++ *      RUNTIME_9050 - PLX PCI9050-1 local configuration and shared runtime
++ *      registers. This structure can be used to access the 9050 registers
++ *      (memory mapped).
++ */
++struct RUNTIME_9050 {
 + 
-Descriptor Status definitions:
+uclong 
+loc_addr_range[4]; 
+/* 00-0Ch : Local Address Ranges */
++ 
+uclong 
+loc_rom_range; 
+	/* 10h : Local ROM Range */
++ 
+uclong 
+loc_addr_base[4]; 
+/* 14-20h : Local Address Base Addrs */
++ 
+uclong 
+loc_rom_base; 
+	/* 24h : Local ROM Base */
++ 
+uclong 
+loc_bus_descr[4]; 
+/* 28-34h : Local Bus Descriptors */
++ 
+uclong 
+rom_bus_descr; 
+	/* 38h : ROM Bus Descriptor */
++ 
+uclong 
+cs_base[4]; 
+	/* 3C-48h : Chip Select Base Addrs */
++ 
+uclong 
+intr_ctrl_stat; 
+	/* 4Ch : Interrupt Control/Status */
++ 
+uclong 
+init_ctrl; 
+	/* 50h : EEPROM ctrl, Init Ctrl, etc */
++};
++
++#define PLX_9050_LINT1_ENABLE	0x01
++#define PLX_9050_LINT1_POL	0x02
++#define PLX_9050_LINT1_STATUS	0x04
++#define PLX_9050_LINT2_ENABLE	0x08
++#define PLX_9050_LINT2_POL	0x10
++#define PLX_9050_LINT2_STATUS	0x20
++#define PLX_9050_INTR_ENABLE	0x40
++#define PLX_9050_SW_INTR	0x80
++
++/* Masks to access the init_ctrl PLX register */
++#define 
+PC300_CLKSEL_MASK 
+	(0x00000004UL)
++#define 
+PC300_CHMEDIA_MASK(chan) 
+(0x00000020UL<<(chan*3))
++#define 
+PC300_CTYPE_MASK 
+	(0x00000800UL)
++
++/* CPLD Registers (base addr = falcbase, TE only) */
++/* CPLD v. 0 */
++#define CPLD_REG1	0x140	/* Chip resets, DCD/CTS status */
++#define CPLD_REG2	0x144	/* Clock enable , LED control */
++/* CPLD v. 2 or higher */
++#define CPLD_V2_REG1	0x100	/* Chip resets, DCD/CTS status */
++#define CPLD_V2_REG2	0x104	/* Clock enable , LED control */
++#define CPLD_ID_REG	0x108	/* CPLD version */
++
++/* CPLD Register bit description: for the FALC bits, they should always be
++   set based on the channel (use (bit<<(2*ch)) to access the correct 
+bit for
++   that channel) */
++#define CPLD_REG1_FALC_RESET	0x01
++#define CPLD_REG1_SCA_RESET	0x02
++#define CPLD_REG1_GLOBAL_CLK	0x08
++#define CPLD_REG1_FALC_DCD	0x10
++#define CPLD_REG1_FALC_CTS	0x20
++
++#define CPLD_REG2_FALC_TX_CLK	0x01
++#define CPLD_REG2_FALC_RX_CLK	0x02
++#define CPLD_REG2_FALC_LED1	0x10
++#define CPLD_REG2_FALC_LED2	0x20
++
++/* Structure with FALC-related fields (TE only) */
++#define PC300_FALC_MAXLOOP	0x0000ffff	/* for falc_issue_cmd() */
++
++typedef struct falc {
++ 
+ucchar sync;		/* If true FALC is synchronized */
++ 
+ucchar active;		/* if TRUE then already active */
++ 
+ucchar loop_active;	/* if TRUE a line loopback UP was received */
++ 
+ucchar loop_gen;	/* if TRUE a line loopback UP was issued */
 +
 + 
-Bit 
-Transmission 
-Reception
+ucchar num_channels;
++ 
+ucchar offset;		/* 1 for T1, 0 for E1 */
++ 
+ucchar full_bandwidth;
 +
 + 
-7 
-EOM 
-	EOM
+ucchar xmb_cause;
 + 
-6 
-- 
-	Short Frame
+ucchar multiframe_mode;
++
 + 
-5 
-- 
-	Abort
+/* Statistics */
 + 
-4 
-- 
-	Residual bit
+ucshort pden;	/* Pulse Density violation count */
 + 
-3 
-Underrun 
-Overrun 
-
+ucshort los;	/* Loss of Signal count */
 + 
-2 
-- 
-	CRC
+ucshort losr;	/* Loss of Signal recovery count */
 + 
-1 
-Ownership 
-Ownership
+ucshort lfa;	/* Loss of frame alignment count */
 + 
-0 
-EOT 
-	-
-+*/
-+#define DST_EOT		0x01	/* End of transmit command */
-+#define DST_OSB		0x02	/* Ownership bit */
-+#define DST_CRC		0x04	/* CRC Error */
-+#define DST_OVR		0x08	/* Overrun */
-+#define DST_UDR		0x08	/* Underrun */
-+#define DST_RBIT	0x10	/* Residual bit */
-+#define DST_ABT		0x20	/* Abort */
-+#define DST_SHRT	0x40	/* Short Frame  */
-+#define DST_EOM		0x80	/* End of Message  */
+ucshort farec;	/* Frame Alignment Recovery count */
++ 
+ucshort lmfa;	/* Loss of multiframe alignment count */
++ 
+ucshort ais;	/* Remote Alarm indication Signal count */
++ 
+ucshort sec;	/* One-second timer */
++ 
+ucshort es;	/* Errored second */
++ 
+ucshort rai;	/* remote alarm received */
++ 
+ucshort bec;
++ 
+ucshort fec;
++ 
+ucshort cvc;
++ 
+ucshort cec;
++ 
+ucshort ebc;
 +
-+/* Status Counter Registers */
-+#define CMCR	0x158	/* Counter Master Ctl Reg */
-+#define TECNTL	0x160	/* Tx EOM Counter L */
-+#define TECNTM	0x161	/* Tx EOM Counter M */
-+#define TECNTH	0x162	/* Tx EOM Counter H */
-+#define TECCR	0x163	/* Tx EOM Counter Ctl Reg */
-+#define URCNTL	0x164	/* Underrun Counter L */
-+#define URCNTH	0x165	/* Underrun Counter H */
-+#define URCCR	0x167	/* Underrun Counter Ctl Reg */
-+#define RECNTL	0x168	/* Rx EOM Counter L */
-+#define RECNTM	0x169	/* Rx EOM Counter M */
-+#define RECNTH	0x16a	/* Rx EOM Counter H */
-+#define RECCR	0x16b	/* Rx EOM Counter Ctl Reg */
-+#define ORCNTL	0x16c	/* Overrun Counter L */
-+#define ORCNTH	0x16d	/* Overrun Counter H */
-+#define ORCCR	0x16f	/* Overrun Counter Ctl Reg */
-+#define CECNTL	0x170	/* CRC Counter L */
-+#define CECNTH	0x171	/* CRC Counter H */
-+#define CECCR	0x173	/* CRC Counter Ctl Reg */
-+#define ABCNTL	0x174	/* Abort frame Counter L */
-+#define ABCNTH	0x175	/* Abort frame Counter H */
-+#define ABCCR	0x177	/* Abort frame Counter Ctl Reg */
-+#define SHCNTL	0x178	/* Short frame Counter L */
-+#define SHCNTH	0x179	/* Short frame Counter H */
-+#define SHCCR	0x17b	/* Short frame Counter Ctl Reg */
-+#define RSCNTL	0x17c	/* Residual bit Counter L */
-+#define RSCNTH	0x17d	/* Residual bit Counter H */
-+#define RSCCR	0x17f	/* Residual bit Counter Ctl Reg */
++ 
+/* Status */
++ 
+ucchar red_alarm;
++ 
+ucchar blue_alarm;
++ 
+ucchar loss_fa;
++ 
+ucchar yellow_alarm;
++ 
+ucchar loss_mfa;
++ 
+ucchar prbs;
++} falc_t;
 +
-+/* Register Programming Constants */
++typedef struct falc_status {
++ 
+ucchar sync;  /* If true FALC is synchronized */
++ 
+ucchar red_alarm;
++ 
+ucchar blue_alarm;
++ 
+ucchar loss_fa;
++ 
+ucchar yellow_alarm;
++ 
+ucchar loss_mfa;
++ 
+ucchar prbs;
++} falc_status_t;
 +
-+#define IR0_DMIC	0x00000001
-+#define IR0_DMIB	0x00000002
-+#define IR0_DMIA	0x00000004
-+#define IR0_EFT		0x00000008
-+#define IR0_DMAREQ	0x00010000
-+#define IR0_TXINT	0x00020000
-+#define IR0_RXINTB	0x00040000
-+#define IR0_RXINTA	0x00080000
-+#define IR0_TXRDY	0x00100000
-+#define IR0_RXRDY	0x00200000
++typedef struct rsv_x21_status {
++ 
+ucchar dcd;
++ 
+ucchar dsr;
++ 
+ucchar cts;
++ 
+ucchar rts;
++ 
+ucchar dtr;
++} rsv_x21_status_t;
 +
-+#define MD0_CRC16_0	0x00
-+#define MD0_CRC16_1	0x01
-+#define MD0_CRC32	0x02
-+#define MD0_CRC_CCITT	0x03
-+#define MD0_CRCC0	0x04
-+#define MD0_CRCC1	0x08
-+#define MD0_AUTO_ENA	0x10
-+#define MD0_ASYNC	0x00
-+#define MD0_BY_MSYNC	0x20
-+#define MD0_BY_BISYNC	0x40
-+#define MD0_BY_EXT	0x60
-+#define MD0_BIT_SYNC	0x80
-+#define MD0_TRANSP	0xc0
++typedef struct pc300stats {
++ 
+int hw_type;
++ 
+uclong line_on;
++ 
+uclong line_off;
++ 
+struct net_device_stats gen_stats;
++ 
+falc_t te_stats;
++} pc300stats_t;
 +
-+#define MD1_NOADDR	0x00
-+#define MD1_SADDR1	0x40
-+#define MD1_SADDR2	0x80
-+#define MD1_DADDR	0xc0
++typedef struct pc300status {
++ 
+int hw_type;
++ 
+rsv_x21_status_t gen_status;
++ 
+falc_status_t te_status;
++} pc300status_t;
 +
-+#define MD2_F_DUPLEX	0x00
-+#define MD2_AUTO_ECHO	0x01
-+#define MD2_LOOP_HI_Z	0x02
-+#define MD2_LOOP_MIR	0x03
-+#define MD2_ADPLL_X8	0x00
-+#define MD2_ADPLL_X16	0x08
-+#define MD2_ADPLL_X32	0x10
-+#define MD2_NRZ		0x00
-+#define MD2_NRZI	0x20
-+#define MD2_NRZ_IEEE	0x40
-+#define MD2_MANCH	0x00
-+#define MD2_FM1		0x20
-+#define MD2_FM0		0x40
-+#define MD2_FM		0x80
++typedef struct pc300loopback {
++ 
+char loop_type;
++ 
+char loop_on;
++} pc300loopback_t;
 +
-+#define CTL_RTS		0x01
-+#define CTL_DTR		0x02
-+#define CTL_SYN		0x04
-+#define CTL_IDLC	0x10
-+#define CTL_UDRNC	0x20
-+#define CTL_URSKP	0x40
-+#define CTL_URCT	0x80
++typedef struct pc300patterntst {
++ 
+char patrntst_on;       /* 0 - off; 1 - on; 2 - read num_errors */
++ 
+ucshort num_errors;
++} pc300patterntst_t;
 +
-+#define 
-RXS_BR0 
-	0x01
-+#define 
-RXS_BR1 
-	0x02
-+#define 
-RXS_BR2 
-	0x04
-+#define 
-RXS_BR3 
-	0x08
-+#define 
-RXS_ECLK 
-0x00
-+#define 
-RXS_ECLK_NS 
-0x20
-+#define 
-RXS_IBRG 
-0x40
-+#define 
-RXS_PLL1 
-0x50
-+#define 
-RXS_PLL2 
-0x60
-+#define 
-RXS_PLL3 
-0x70
-+#define 
-RXS_DRTXC 
-0x80
++typedef struct pc300dev {
++ 
+void *if_ptr;		/* General purpose pointer */
++ 
+struct pc300ch *chan;
++ 
+ucchar trace_on;
++ 
+uclong line_on;		/* DCD(X.21, RSV) / sync(TE) change counters */
++ 
+uclong line_off;
++#ifdef __KERNEL__
++ 
+char name[16];
++ 
+hdlc_device *hdlc;
 +
-+#define 
-TXS_BR0 
-	0x01
-+#define 
-TXS_BR1 
-	0x02
-+#define 
-TXS_BR2 
-	0x04
-+#define 
-TXS_BR3 
-	0x08
-+#define 
-TXS_ECLK 
-0x00
-+#define 
-TXS_IBRG 
-0x40
-+#define 
-TXS_RCLK 
-0x60
-+#define 
-TXS_DTRXC 
-0x80
++ 
+void *private;
++ 
+struct sk_buff *tx_skb;
++ 
+union {	/* This union has all the protocol-specific structures */
++ 
+	struct ppp_device pppdev;
++ 
+}ifu;
++#ifdef CONFIG_PC300_MLPPP
++ 
+void *cpc_tty;	/* information to PC300 TTY driver */
++#endif
++#endif /* __KERNEL__ */
++}pc300dev_t;
 +
++typedef struct pc300hw {
++ 
+int type;		/* RSV, X21, etc. */
++ 
+int bus;		/* Bus (PCI, PMC, etc.) */
++ 
+int nchan;		/* number of channels */
++ 
+int irq;		/* interrupt request level */
++ 
+uclong clock;		/* Board clock */
++ 
+ucchar cpld_id;		/* CPLD ID (TE only) */
++ 
+ucshort cpld_reg1;	/* CPLD reg 1 (TE only) */
++ 
+ucshort cpld_reg2;	/* CPLD reg 2 (TE only) */
++ 
+ucshort gpioc_reg;	/* PLX GPIOC reg */
++ 
+ucshort intctl_reg;	/* PLX Int Ctrl/Status reg */
++ 
+uclong iophys;		/* PLX registers I/O base */
++ 
+uclong iosize;		/* PLX registers I/O size */
++ 
+uclong plxphys;		/* PLX registers MMIO base (physical) */
++ 
+uclong plxbase;		/* PLX registers MMIO base (virtual) */
++ 
+uclong plxsize;		/* PLX registers MMIO size */
++ 
+uclong scaphys;		/* SCA registers MMIO base (physical) */
++ 
+uclong scabase;		/* SCA registers MMIO base (virtual) */
++ 
+uclong scasize;		/* SCA registers MMIO size */
++ 
+uclong ramphys;		/* On-board RAM MMIO base (physical) */
++ 
+uclong rambase;		/* On-board RAM MMIO base (virtual) */
++ 
+uclong alloc_ramsize;	/* RAM MMIO size allocated by the PCI bridge */
++ 
+uclong ramsize;		/* On-board RAM MMIO size */
++ 
+uclong falcphys;	/* FALC registers MMIO base (physical) */
++ 
+uclong falcbase;	/* FALC registers MMIO base (virtual) */
++ 
+uclong falcsize;	/* FALC registers MMIO size */
++} pc300hw_t;
++
++typedef struct pc300chconf {
++ 
+sync_serial_settings 
+phys_settings; 
+/* Clock type/rate (in bps),
++ 
+					   loopback mode */
++ 
+raw_hdlc_proto 
+	proto_settings;	/* Encoding, parity (CRC) */
++ 
+uclong media;		/* HW media (RS232, V.35, etc.) */
++ 
+uclong proto;		/* Protocol (PPP, X.25, etc.) */
++ 
+ucchar monitor;		/* Monitor mode (0 = off, !0 = on) */
++
++ 
+/* TE-specific parameters */
++ 
+ucchar lcode;		/* Line Code (AMI, B8ZS, etc.) */
++ 
+ucchar fr_mode;		/* Frame Mode (ESF, D4, etc.) */
++ 
+ucchar lbo;		/* Line Build Out */
++ 
+ucchar rx_sens;		/* Rx Sensitivity (long- or short-haul) */
++ 
+uclong tslot_bitmap;	/* bit[i]=1  =>  timeslot _i_ is active */
++} pc300chconf_t;
++
++typedef struct pc300ch {
++ 
+struct pc300 *card;
++ 
+int channel;
++ 
+pc300dev_t d;
++ 
+pc300chconf_t conf;
++ 
+ucchar tx_first_bd;	/* First TX DMA block descr. w/ data */
++ 
+ucchar tx_next_bd;	/* Next free TX DMA block descriptor */
++ 
+ucchar rx_first_bd;	/* First free RX DMA block descriptor */
++ 
+ucchar rx_last_bd;	/* Last free RX DMA block descriptor */
++ 
+ucchar nfree_tx_bd;	/* Number of free TX DMA block descriptors */
++ 
+falc_t falc;		/* FALC structure (TE only) */
++} pc300ch_t;
++
++typedef struct pc300 {
++ 
+pc300hw_t hw;			/* hardware config. */
++ 
+pc300ch_t chan[PC300_MAXCHAN];
++#ifdef __KERNEL__
++ 
+spinlock_t card_lock;
++#endif /* __KERNEL__ */
++} pc300_t;
++
++typedef struct pc300conf {
++ 
+pc300hw_t hw;
++ 
+pc300chconf_t conf;
++} pc300conf_t;
++
++/* DEV ioctl() commands */
 +#define 
-EXS_RES0 
+N_SPPP_IOCTLS 
+2
++
++enum pc300_ioctl_cmds {
++ 
+SIOCCPCRESERVED = (SIOCDEVPRIVATE + N_SPPP_IOCTLS),
++ 
+SIOCGPC300CONF,
++ 
+SIOCSPC300CONF,
++ 
+SIOCGPC300STATUS,
++ 
+SIOCGPC300FALCSTATUS,
++ 
+SIOCGPC300UTILSTATS,
++ 
+SIOCGPC300UTILSTATUS,
++ 
+SIOCSPC300TRACE,
++ 
+SIOCSPC300LOOPBACK,
++ 
+SIOCSPC300PATTERNTEST,
++};
++
++/* Loopback types - PC300/TE boards */
++enum pc300_loopback_cmds {
++ 
+PC300LOCLOOP = 1,
++ 
+PC300REMLOOP,
++ 
+PC300PAYLOADLOOP,
++ 
+PC300GENLOOPUP,
++ 
+PC300GENLOOPDOWN,
++};
++
++/* Control Constant Definitions */
++#define 
+PC300_RSV 
 0x01
 +#define 
-EXS_RES1 
+PC300_X21 
 0x02
 +#define 
-EXS_RES2 
-0x04
+PC300_TE 
+0x03
++
 +#define 
-EXS_TES0 
-0x10
+PC300_PCI 
+0x00
 +#define 
-EXS_TES1 
-0x20
+PC300_PMC 
+0x01
++
++#define PC300_LC_AMI	0x01
++#define PC300_LC_B8ZS	0x02
++#define PC300_LC_NRZ	0x03
++#define PC300_LC_HDB3	0x04
++
++/* Framing (T1) */
++#define PC300_FR_ESF		0x01
++#define PC300_FR_D4		0x02
++#define PC300_FR_ESF_JAPAN	0x03
++
++/* Framing (E1) */
++#define PC300_FR_MF_CRC4	0x04
++#define PC300_FR_MF_NON_CRC4	0x05
++#define PC300_FR_UNFRAMED	0x06
++
++#define PC300_LBO_0_DB		0x00
++#define PC300_LBO_7_5_DB	0x01
++#define PC300_LBO_15_DB		0x02
++#define PC300_LBO_22_5_DB	0x03
++
++#define PC300_RX_SENS_SH	0x01
++#define PC300_RX_SENS_LH	0x02
++
++#define PC300_TX_TIMEOUT	(2*HZ)
++#define PC300_TX_QUEUE_LEN	100
 +#define 
-EXS_TES2 
-0x40
+PC300_DEF_MTU 
+	1600
 +
-+#define CMD_RX_RST	0x11
-+#define CMD_RX_ENA	0x12
-+#define CMD_RX_DIS	0x13
-+#define CMD_RX_CRC_INIT	0x14
-+#define CMD_RX_MSG_REJ	0x15
-+#define CMD_RX_MP_SRCH	0x16
-+#define CMD_RX_CRC_EXC	0x17
-+#define CMD_RX_CRC_FRC	0x18
-+#define CMD_TX_RST	0x01
-+#define CMD_TX_ENA	0x02
-+#define CMD_TX_DISA	0x03
-+#define CMD_TX_CRC_INIT	0x04
-+#define CMD_TX_CRC_EXC	0x05
-+#define CMD_TX_EOM	0x06
-+#define CMD_TX_ABORT	0x07
-+#define CMD_TX_MP_ON	0x08
-+#define CMD_TX_BUF_CLR	0x09
-+#define CMD_TX_DISB	0x0b
-+#define CMD_CH_RST	0x21
-+#define CMD_SRCH_MODE	0x31
-+#define CMD_NOP		0x00
++#ifdef __KERNEL__
++/* Function Prototypes */
++int dma_buf_write(pc300_t *, int, ucchar *, int);
++int dma_buf_read(pc300_t *, int, struct sk_buff *);
++void tx_dma_start(pc300_t *, int);
++void rx_dma_start(pc300_t *, int);
++void tx_dma_stop(pc300_t *, int);
++void rx_dma_stop(pc300_t *, int);
++int cpc_queue_xmit(struct sk_buff *, struct net_device *);
++void cpc_net_rx(hdlc_device *);
++void cpc_sca_status(pc300_t *, int);
++int cpc_change_mtu(struct net_device *, int);
++int cpc_ioctl(struct net_device *, struct ifreq *, int);
++int ch_config(pc300dev_t *);
++int rx_config(pc300dev_t *);
++int tx_config(pc300dev_t *);
++void cpc_opench(pc300dev_t *);
++void cpc_closech(pc300dev_t *);
++int cpc_open(struct net_device *dev);
++int cpc_close(struct net_device *dev);
++int cpc_set_media(hdlc_device *, int);
++#endif /* __KERNEL__ */
 +
-+#define ST0_RXRDY	0x01
-+#define ST0_TXRDY	0x02
-+#define ST0_RXINTB	0x20
-+#define ST0_RXINTA	0x40
-+#define ST0_TXINT	0x80
++#endif 
+/* _PC300_H */
 +
-+#define ST1_IDLE	0x01
-+#define ST1_ABORT	0x02
-+#define ST1_CDCD	0x04
-+#define ST1_CCTS	0x08
-+#define ST1_SYN_FLAG	0x10
-+#define ST1_CLMD	0x20
-+#define ST1_TXIDLE	0x40
-+#define ST1_UDRN	0x80
-+
-+#define ST2_CRCE	0x04
-+#define ST2_ONRN	0x08
-+#define ST2_RBIT	0x10
-+#define ST2_ABORT	0x20
-+#define ST2_SHORT	0x40
-+#define ST2_EOM		0x80
-+
-+#define ST3_RX_ENA	0x01
-+#define ST3_TX_ENA	0x02
-+#define ST3_DCD		0x04
-+#define ST3_CTS		0x08
-+#define ST3_SRCH_MODE	0x10
-+#define ST3_SLOOP	0x20
-+#define ST3_GPI		0x80
-+
-+#define ST4_RDNR	0x01
-+#define ST4_RDCR	0x02
-+#define ST4_TDNR	0x04
-+#define ST4_TDCR	0x08
-+#define ST4_OCLM	0x20
-+#define ST4_CFT		0x40
-+#define ST4_CGPI	0x80
-+
-+#define FST_CRCEF	0x04
-+#define FST_OVRNF	0x08
-+#define FST_RBIF	0x10
-+#define FST_ABTF	0x20
-+#define FST_SHRTF	0x40
-+#define FST_EOMF	0x80
-+
-+#define IE0_RXRDY	0x01
-+#define IE0_TXRDY	0x02
-+#define IE0_RXINTB	0x20
-+#define IE0_RXINTA	0x40
-+#define IE0_TXINT	0x80
-+
-+#define IE1_IDLD	0x01
-+#define IE1_ABTD	0x02
-+#define IE1_CDCD	0x04
-+#define IE1_CCTS	0x08
-+#define IE1_SYNCD	0x10
-+#define IE1_CLMD	0x20
-+#define IE1_IDL		0x40
-+#define IE1_UDRN	0x80
-+
-+#define IE2_CRCE	0x04
-+#define IE2_OVRN	0x08
-+#define IE2_RBIT	0x10
-+#define IE2_ABT		0x20
-+#define IE2_SHRT	0x40
-+#define IE2_EOM		0x80
-+
-+#define IE4_RDNR	0x01
-+#define IE4_RDCR	0x02
-+#define IE4_TDNR	0x04
-+#define IE4_TDCR	0x08
-+#define IE4_OCLM	0x20
-+#define IE4_CFT		0x40
-+#define IE4_CGPI	0x80
-+
-+#define FIE_CRCEF	0x04
-+#define FIE_OVRNF	0x08
-+#define FIE_RBIF	0x10
-+#define FIE_ABTF	0x20
-+#define FIE_SHRTF	0x40
-+#define FIE_EOMF	0x80
-+
-+#define DSR_DWE		0x01
-+#define DSR_DE		0x02
-+#define DSR_REF		0x04
-+#define DSR_UDRF	0x04
-+#define DSR_COA		0x08
-+#define DSR_COF		0x10
-+#define DSR_BOF		0x20
-+#define DSR_EOM		0x40
-+#define DSR_EOT		0x80
-+
-+#define DIR_REF		0x04
-+#define DIR_UDRF	0x04
-+#define DIR_COA		0x08
-+#define DIR_COF		0x10
-+#define DIR_BOF		0x20
-+#define DIR_EOM		0x40
-+#define DIR_EOT		0x80
-+
-+#define DMR_CNTE	0x02
-+#define DMR_NF		0x04
-+#define DMR_SEOME	0x08
-+#define DMR_TMOD	0x10
-+
-+#define DCR_SW_ABT	0x01
-+#define DCR_FCT_CLR	0x02
-+
-+#define PCR_PR0		0x01
-+#define PCR_PR1		0x02
-+#define PCR_PR2		0x04
-+#define PCR_CCC		0x08
-+#define PCR_BRC		0x10
-+#define PCR_OSB		0x40
-+#define PCR_BURST	0x80
-+
-+#endif /* (_HD64572_H) */
+
 

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbTI3I2G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 04:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbTI3I2G
+	id S261217AbTI3IXG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 04:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTI3IXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 04:28:06 -0400
-Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:11508 "EHLO
-	mailrelay02.tugraz.at") by vger.kernel.org with ESMTP
-	id S261196AbTI3I2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 04:28:04 -0400
-From: Thomas Winkler <tom@qwws.net>
-Reply-To: tom@qwws.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: BugReport (test6): USB (ACPI), SWSUSP, E100
-Date: Tue, 30 Sep 2003 10:27:37 +0200
-User-Agent: KMail/1.5.1
-References: <200309291551.00446.tom@qwws.net> <20030929164950.GA27226@ppp0.net>
-In-Reply-To: <20030929164950.GA27226@ppp0.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Sep 2003 04:23:06 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:42117 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261217AbTI3IXE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 04:23:04 -0400
+Date: Tue, 30 Sep 2003 09:22:13 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: torvalds@osdl.org
+Cc: akpm@zip.com.au, "Hu, Boris" <boris.hu@intel.com>,
+       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: [PATCH] Bumbling follow-on to previous "perfect" futex patch
+Message-ID: <20030930082213.GC26649@mail.jlokier.co.uk>
+References: <20030930074246.GB26649@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309301027.37763.tom@qwws.net>
+In-Reply-To: <20030930074246.GB26649@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Patch: futex_refs2-2.6.0-test6
 
-I just tested to uhci-hsd one-line patch sent by Wim Van Sebroeck. USB works 
-fine again now.
+Please apply this on top of the previous patch, titled "Futex waiters
+take an mm or inode reference".
 
-In addition to that the strange e100 problems are also gone now. I double 
-checked this by removing the patch once again. Without the patch e100 is 
-dead, with the patch everything works fine. Interesting what an USB patch can 
-do to a NIC (a side effect of irq problems?).
+Thanks,
+-- Jamie
 
-This only leaves the SWSUP problem open. An 
-echo 4 > /proc/acpi/sleep
-still shows no effect at all (see also the original mail). Is SWSUP supposed 
-to work in test6?
 
-bye,
--- 
-Tom Winkler
-e-mail: tom@qwws.net
+--- dual-2.6.0-test6/kernel/futex.c.before	2003-09-30 06:43:17.000000000 +0100
++++ dual-2.6.0-test6/kernel/futex.c	2003-09-30 09:12:13.457796502 +0100
+@@ -444,6 +444,8 @@
+ 	if (unlikely(list_empty(&q.list))) {
+ 		/* We were woken already. */
+ 		spin_unlock(&bh->lock);
++		/* Equivalent to calling unqueue_me() here, but faster. */
++		drop_key_refs(&q.key);
+ 		return 0;
+ 	}
+ 

@@ -1,37 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbUEFGBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUEFGO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbUEFGBi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 02:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUEFGBi
+	id S261638AbUEFGO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 02:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUEFGO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 02:01:38 -0400
-Received: from ns.suse.de ([195.135.220.2]:55759 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261638AbUEFGBh (ORCPT
+	Thu, 6 May 2004 02:14:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26579 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261638AbUEFGO4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 02:01:37 -0400
-Date: Thu, 6 May 2004 08:00:35 +0200
-From: Andi Kleen <ak@suse.de>
-To: Paul Jackson <pj@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       hch@lst.de
-Subject: Re: [PATCH] NUMA API for Linux 5/ Add VMA hooks for policy
-Message-ID: <20040506060035.GA8804@wotan.suse.de>
-References: <20040406153322.5d6e986e.ak@suse.de> <20040406153713.52a64a26.ak@suse.de> <20040505090531.51ad5c89.pj@sgi.com> <20040505163934.GA14963@wotan.suse.de> <20040505094748.40bb7493.pj@sgi.com>
+	Thu, 6 May 2004 02:14:56 -0400
+Date: Wed, 5 May 2004 23:13:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: ashok.raj@intel.com, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+       anil.s.keshavamurthy@intel.com, pj@sgi.com
+Subject: Re: (resend-2) take3: Updated CPU Hotplug patches for IA64 (pj
+ blessed) Patch [6/7]
+Message-Id: <20040505231350.1d8a3ea6.akpm@osdl.org>
+In-Reply-To: <20040505104739.A24549@unix-os.sc.intel.com>
+References: <20040504211755.A13286@unix-os.sc.intel.com>
+	<20040504225907.6c2fe459.akpm@osdl.org>
+	<20040505104739.A24549@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040505094748.40bb7493.pj@sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 09:47:48AM -0700, Paul Jackson wrote:
-> > Perhaps you missed a patch? (several of the patches depended on each other) 
-> 
-> No - perhaps Christoph Hellwig removed the include.
+Ashok Raj <ashok.raj@intel.com> wrote:
+>
+> Name: cpu_present_map.patch
 
-Hmm, ok. I must have missed that going in. Your patch looks correct
-as an additional fix. 
+Ho-hum.  Please at least compile-test non-trivial patches with
+CONFIG_SMP=n, especially when they dink with bitmasks, bitmaps and
+SMP-specific features.
 
-Thanks,
+init/main.c: In function `fixup_cpu_present_map':
+init/main.c:636: warning: use of compound expressions as lvalues is deprecated
+init/main.c:636: error: invalid lvalue in assignment
 
--Andi
+Due to:
+
+			cpu_set(i, cpu_present_map);
+
+It appears that cpu_set() is simply broken on UP:
+
+
+#define	cpu_present_map			cpumask_of_cpu(0)
+
+#define cpumask_of_cpu(cpu)		({ ((cpumask_t)1) << (cpu); })
+
+#define cpu_set(cpu, map)		do { (void)(cpu); cpus_coerce(map) = 1UL; } while (0)
+
+Put those things together and there's no way it can work.  It's not even
+conceptually right: cpu_present_map is a "constant" on UP and we have no
+business trying to modify it.  So perhaps a build error is the appropriate
+response.
+
+I'll stick a CONFIG_SMP in the caller, let the bitmap beavers worry about
+the more general details.

@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSD3NYG>; Tue, 30 Apr 2002 09:24:06 -0400
+	id <S313529AbSD3Nc5>; Tue, 30 Apr 2002 09:32:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313533AbSD3NYF>; Tue, 30 Apr 2002 09:24:05 -0400
-Received: from ip68-1-63-129.pn.at.cox.net ([68.1.63.129]:1152 "EHLO
-	dps2.dpscon.com") by vger.kernel.org with ESMTP id <S313508AbSD3NYF>;
-	Tue, 30 Apr 2002 09:24:05 -0400
-Date: Tue, 30 Apr 2002 08:24:26 -0500
-Message-Id: <200204301324.g3UDOQW00938@dps2.dpscon.com>
-From: "Billy O'Connor" <billy@dpscon.com>
-To: indigoid@higherplane.net
-CC: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-In-Reply-To: <20020430131523.GA22705@higherplane.net>
-	(indigoid@higherplane.net)
-Subject: Re: [prepatch] address_space-based writeback
-Reply-to: billy@dpscon.com
+	id <S313533AbSD3Nc4>; Tue, 30 Apr 2002 09:32:56 -0400
+Received: from moutng1.kundenserver.de ([212.227.126.171]:53459 "EHLO
+	moutng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S313529AbSD3Nc4> convert rfc822-to-8bit; Tue, 30 Apr 2002 09:32:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, Gabor Kerenyi <wom@tateyama.hu>
+Subject: Re: What compiler to use
+Date: Tue, 30 Apr 2002 15:32:46 +0200
+X-Mailer: KMail [version 1.4]
+Cc: Frank Schaefer <frank.schafer@setuza.cz>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0204301508100.1644-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200204301532.47054.linux-kernel@borntraeger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roy Sigurd Karlsbakk wrote:
+> Is this common knowledge? Is 3.1 as stable as 2.95.[23] for compiling the
+> kernel? Does it make any difference in performace?
 
-   On Tue, Apr 30, 2002 at 03:19:17PM -0200, Denis Vlasenko wrote:
-   > Why do we have to stich to concept of inode *numbers*?
-   > Because there are inode numbers in traditional Unix filesystems?
+Not quite.
 
-   like much of unix it's been there forever and has become such a natural
-   concept in people's heads that to change it now seems unthinkable.
+http://www.tux.org/lkml/#s8-2
 
-   much like the missing e in creat().
-
-Wasn't that the one thing Ken Thompson said he would do differently
-if he had it to do all over(unix)?
+Gcc 2.95.3 is the recommended compiler for kernel 2.4.10 and later. 

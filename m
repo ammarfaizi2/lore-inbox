@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbTGKQyy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 12:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTGKQyy
+	id S264398AbTGKQxe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTGKQxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 12:54:54 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:15 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264455AbTGKQyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 12:54:25 -0400
-Date: Fri, 11 Jul 2003 18:09:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030711180901.A28202@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk> <Pine.SOL.4.30.0307111646470.9740-100000@mion.elka.pw.edu.pl> <20030711155843.GD2210@gtf.org>
+	Fri, 11 Jul 2003 12:53:34 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18616
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264398AbTGKQx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:53:29 -0400
+Subject: Sound updating, security of strlcpy and a question on pci v unload
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057943137.20637.27.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030711155843.GD2210@gtf.org>; from jgarzik@pobox.com on Fri, Jul 11, 2003 at 11:58:43AM -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Jul 2003 18:05:37 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 11:58:43AM -0400, Jeff Garzik wrote:
-> I like arjan's "fakeraid" or "ataraid" names.  ;-)
 
-I'd prefer fakeraid because this describes it best.
-It's a software raid that wants to look like hardware raid to
-(windows) users.
+I'm currently updating the prehistoric OSS audio code in 2.5 to include
+all the new 2.4 drivers and 2.4 work. While some of them overlap ALSA
+drivers others are not in ALSA yet either.
+
+Firstly someone turned half the kernel into using strlcpy. Every single
+change I looked at bar two in the sound layer introduced a security
+hole. It looks like whoever did it just fired up a perl macro without
+realising the strncpy properties matter for data copied to user space.
+Looks like the rest wants auditing
+
+Secondly a question. pci_driver structures seem to lack an owner: field.
+What stops a 2.5 module unload occuring while pci is calling the probe
+function having seen a new device ? 
+
+
+-- 
+Alan Cox <alan@lxorguk.ukuu.org.uk>

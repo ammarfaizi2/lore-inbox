@@ -1,83 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314680AbSHBOLS>; Fri, 2 Aug 2002 10:11:18 -0400
+	id <S313563AbSHBOJB>; Fri, 2 Aug 2002 10:09:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314811AbSHBOLS>; Fri, 2 Aug 2002 10:11:18 -0400
-Received: from tolkor.sgi.com ([192.48.180.13]:23197 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S314680AbSHBOLR>;
-	Fri, 2 Aug 2002 10:11:17 -0400
-Subject: Re: BIG files & file systems
-From: Steve Lord <lord@sgi.com>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Alexander Viro <viro@math.psu.edu>, "Peter J. Braam" <braam@clusterfs.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020802135620.GA29534@ravel.coda.cs.cmu.edu>
-References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
-	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
-	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>
-	<1028246981.11223.56.camel@snafu> 
-	<20020802135620.GA29534@ravel.coda.cs.cmu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 02 Aug 2002 09:06:34 -0500
-Message-Id: <1028297194.30192.25.camel@jen.americas.sgi.com>
-Mime-Version: 1.0
+	id <S313867AbSHBOJB>; Fri, 2 Aug 2002 10:09:01 -0400
+Received: from webmail30.rediffmail.com ([202.54.124.145]:53454 "HELO
+	webmail30.rediffmail.com") by vger.kernel.org with SMTP
+	id <S313563AbSHBOJA>; Fri, 2 Aug 2002 10:09:00 -0400
+Date: 2 Aug 2002 14:12:13 -0000
+Message-ID: <20020802141213.31759.qmail@webmail30.rediffmail.com>
+MIME-Version: 1.0
+From: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+Reply-To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: installation of latest kernel on compaq notebook
+Content-type: multipart/mixed;
+	boundary="Next_1028297533---0-202.54.124.145-31756"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-02 at 08:56, Jan Harkes wrote:
-> 
-> I was simply assuming that any filesystem that is using iget5 and
-> doesn't use the simpler iget helper has some reason why it cannot find
-> an inode given just the 32-bit ino_t.
+ This is a multipart mime message
 
-In XFS's case (remember, the iget5 code is based on XFS changes) it is
-more a matter of the code to read the inode sometimes needing to pass
-other info down to the read_inode part of the filesystem, so we want to
-do that internally. XFS can have 64 bit inode numbers, but you need more
-than 1 Tbyte in an fs to get that big (inode numbers are a disk
-address). We also have code which keeps them in the bottom 1 Tbyte
-which is turned on by default on Linux.
 
-> 
-> This is definitely true for Coda, we have 96-bit file identifiers.
-> Actually my development tree currently uses 128-bit, it is aware of
-> multiple administrative realms and distinguishes between objects with
-> FID 0x7f000001.0x1.0x1 in different administrative domains. There is a
-> hash-function that tries to map these large FIDs into the 32-bit ino_t
-> space with as few collisions as possible.
-> 
-> NFS has a >32-bit filehandle. ReiserFS might have unique inodes, but
-> seems to need access to the directory to find them. So I don't quickly
-> see how it would guarantee uniqueness. NTFS actually doesn't seem to use
-> iget5 yet, but it has multiple streams per object which would probably
-> end up using the same ino_t.
-> 
-> Userspace applications should either have an option to ignore hardlinks.
-> Very large filesystems either don't care because there is plenty of
-> space, don't support them across boundaries that are not visible to the
-> application, or could be dealing with them them automatically (COW
-> links). Besides, if I really have a trillion files, I don't want 'tar
-> and friends' to try to keep track of all those inode numbers (and device
-> numbers) in memory.
-> 
-> The other solution is that applications can actually use more of the
-> information from the inode to avoid confusion, like st_nlink and
-> st_mtime, which are useful when the filesystem is still mounted rw as
-> well. And to make it even better, st_uid, st_gid, st_size, st_blocks and
-> st_ctime, and a MD5/SHA checksum. Although this obviously would become
-> even worse for the trillion file backup case.
+--Next_1028297533---0-202.54.124.145-31756
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 
-If apps would have to change then I would vote for allowing larger
-inodes out of the kernel in an extended version of stat and getdents.
-I was going to say 64 bit versions, but if even 64 is not enough for
-you, it is getting a little hard to handle.
 
-Steve
+Hi Greg,
+Thanks for response.
+here i am attaching the usb_devices listing.
+Regards
+Venku.
 
-> Jan
--- 
 
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+On Thu, 01 Aug 2002 Greg KH wrote :
+>On Thu, Aug 01, 2002 at 04:40:26AM -0000, Enugala Venkata Ramana 
+>wrote:
+> > Hi ,
+> >  This is what is existing configuration
+> >    have compaq presario 1200 12XL506 model notebook
+> >    installed Redhat Linux 7.1
+> >    Everything is fine except the usb to ethernet (SmartNic2
+> > 1500
+> > ) does not work although it is shown in the 
+>/proc/usb/devices
+>
+>Please provide the USB specific information that is asked for in 
+>the
+>Linux USB FAQ at http://www.linux-usb.org/  That would help us 
+>out a lot
+>:)
+>
+>thanks,
+>
+>greg k-h
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  
+>http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+Give your Company an email address like
+ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
+Know more. http://www.rediffmailpro.com/signup/
+
+--Next_1028297533---0-202.54.124.145-31756
+Content-type: text/plain;
+	charset=iso-8859-1
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="usb_devices.txt"
+
+VDogIEJ1cz0wMSBMZXY9MDAgUHJudD0wMCBQb3J0PTAwIENudD0wMCBEZXYjPSAgMSBTcGQ9
+MTIgIE14Q2g9IDIKQjogIEFsbG9jPSA5OS85MDAgdXMgKDExJSksICNJbnQ9ICAxLCAjSXNv
+PSAgMApEOiAgVmVyPSAxLjAwIENscz0wOShodWIgICkgU3ViPTAwIFByb3Q9MDAgTXhQUz0g
+OCAjQ2Zncz0gIDEKUDogIFZlbmRvcj0wMDAwIFByb2RJRD0wMDAwIFJldj0gMC4wMApTOiAg
+UHJvZHVjdD1VU0IgVUhDSSBSb290IEh1YgpTOiAgU2VyaWFsTnVtYmVyPTE0MDAKQzoqICNJ
+ZnM9IDEgQ2ZnIz0gMSBBdHI9NDAgTXhQd3I9ICAwbUEKSTogIElmIz0gMCBBbHQ9IDAgI0VQ
+cz0gMSBDbHM9MDkoaHViICApIFN1Yj0wMCBQcm90PTAwIERyaXZlcj1odWIKRTogIEFkPTgx
+KEkpIEF0cj0wMyhJbnQuKSBNeFBTPSAgIDggSXZsPTI1NW1zClQ6ICBCdXM9MDEgTGV2PTAx
+IFBybnQ9MDEgUG9ydD0wMCBDbnQ9MDEgRGV2Iz0gIDIgU3BkPTEyICBNeENoPSAwCkQ6ICBW
+ZXI9IDEuMDAgQ2xzPTAwKD5pZmMgKSBTdWI9MDAgUHJvdD0wMCBNeFBTPSA4ICNDZmdzPSAg
+MQpQOiAgVmVuZG9yPTA4ZDEgUHJvZElEPTAwMDEgUmV2PSAyLjAwClM6ICBNYW51ZmFjdHVy
+ZXI9c21hcnRCcmlkZ2VzICAgICAgICAgICAgICAgICAgICAKUzogIFByb2R1Y3Q9c21hcnRO
+SUMgUG5QIE5ldHdvcmsgQWRhcHRlciAgICAKUzogIFNlcmlhbE51bWJlcj0/Pz8/Pz8/Pz8/
+Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/Pz8/PwpDOiogI0lmcz0gMSBDZmcjPSAxIEF0cj04MCBNeFB3
+cj0xMDBtQQpJOiAgSWYjPSAwIEFsdD0gMCAjRVBzPSAyIENscz1mZih2ZW5kLikgU3ViPWZm
+IFByb3Q9ZmYgRHJpdmVyPShub25lKQpFOiAgQWQ9MDEoTykgQXRyPTAyKEJ1bGspIE14UFM9
+ICA2NCBJdmw9ICAwbXMKRTogIEFkPTgxKEkpIEF0cj0wMihCdWxrKSBNeFBTPSAgNjQgSXZs
+PSAgMG1zCkk6ICBJZiM9IDAgQWx0PSAxICNFUHM9IDMgQ2xzPWZmKHZlbmQuKSBTdWI9ZmYg
+UHJvdD1mZiBEcml2ZXI9KG5vbmUpCkU6ICBBZD0wMShPKSBBdHI9MDIoQnVsaykgTXhQUz0g
+IDY0IEl2bD0gIDBtcwpFOiAgQWQ9ODEoSSkgQXRyPTAyKEJ1bGspIE14UFM9ICA2NCBJdmw9
+ICAwbXMKRTogIEFkPTgyKEkpIEF0cj0wMyhJbnQuKSBNeFBTPSAgIDIgSXZsPSAgMW1zCkk6
+ICBJZiM9IDAgQWx0PSAyICNFUHM9IDMgQ2xzPWZmKHZlbmQuKSBTdWI9ZmYgUHJvdD1mZiBE
+cml2ZXI9KG5vbmUpCkU6ICBBZD0wMShPKSBBdHI9MDIoQnVsaykgTXhQUz0gIDY0IEl2bD0g
+IDBtcwpFOiAgQWQ9ODEoSSkgQXRyPTAyKEJ1bGspIE14UFM9ICA2NCBJdmw9ICAwbXMKRTog
+IEFkPTgyKEkpIEF0cj0wMyhJbnQuKSBNeFBTPSAgIDIgSXZsPSAgMm1zClQ6ICBCdXM9MDEg
+TGV2PTAxIFBybnQ9MDEgUG9ydD0wMSBDbnQ9MDIgRGV2Iz0gIDMgU3BkPTEuNSBNeENoPSAw
+CkQ6ICBWZXI9IDEuMDAgQ2xzPTAwKD5pZmMgKSBTdWI9MDAgUHJvdD0wMCBNeFBTPSA4ICND
+ZmdzPSAgMQpQOiAgVmVuZG9yPTA1ZTMgUHJvZElEPTEyMDQgUmV2PSAxLjAxClM6ICBQcm9k
+dWN0PVVTQiBTY3JvbGwgTW91c2UKQzoqICNJZnM9IDEgQ2ZnIz0gMSBBdHI9YTAgTXhQd3I9
+IDQ4bUEKSTogIElmIz0gMCBBbHQ9IDAgI0VQcz0gMSBDbHM9MDMoSElEICApIFN1Yj0wMSBQ
+cm90PTAyIERyaXZlcj1oaWQKRTogIEFkPTgxKEkpIEF0cj0wMyhJbnQuKSBNeFBTPSAgIDUg
+SXZsPSAxMG1zCg==
+
+--Next_1028297533---0-202.54.124.145-31756--
+

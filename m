@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263770AbSITVaM>; Fri, 20 Sep 2002 17:30:12 -0400
+	id <S263870AbSITVhE>; Fri, 20 Sep 2002 17:37:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263810AbSITVaL>; Fri, 20 Sep 2002 17:30:11 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:16037 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263770AbSITVaE>;
-	Fri, 20 Sep 2002 17:30:04 -0400
-Date: Fri, 20 Sep 2002 14:30:23 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: 2.5.36-mm1 dbench 512 profiles
-Message-ID: <68810000.1032557423@flay>
-In-Reply-To: <20020920120358.GV28202@holomorphy.com>
-References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <20020920080628.GK3530@holomorphy.com> <20020920120358.GV28202@holomorphy.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S263874AbSITVhE>; Fri, 20 Sep 2002 17:37:04 -0400
+Received: from 213-152-55-49.dsl.eclipse.net.uk ([213.152.55.49]:16045 "EHLO
+	monkey.daikokuya.co.uk") by vger.kernel.org with ESMTP
+	id <S263870AbSITVhE>; Fri, 20 Sep 2002 17:37:04 -0400
+Date: Fri, 20 Sep 2002 22:41:38 +0100
+From: Neil Booth <neil@daikokuya.co.uk>
+To: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
+Cc: jt@hpl.hp.com, Jeff Garzik <jgarzik@mandrakesoft.com>,
+       thunder@lightweight.ods.org, linux-kernel@vger.kernel.org
+Subject: Re: FW: 2.5.34: IR __FUNCTION__ breakage
+Message-ID: <20020920214138.GA9638@daikokuya.co.uk>
+References: <20020920171901.GG8260@bougret.hpl.hp.com> <Pine.BSF.4.44.0209202006040.13460-100000@e0-0.zab2.int.zabbadoz.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.BSF.4.44.0209202006040.13460-100000@e0-0.zab2.int.zabbadoz.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AFAICT, with one bottleneck out of the way, a new one merely arises to
-> take its place. Ugly. OTOH the qualitative difference is striking. The
-> interactive responsiveness of the machine, even when entirely unloaded,
-> is drastically improved, along with such nice things as init scripts
-> and kernel compiles also markedly faster. I suspect this is just the
-> wrong benchmark to show throughput benefits with.
+Bjoern A. Zeeb wrote:-
+
+> > > Also, specifically relating to varargs macros as described above, you
+> > > can certainly have a varargs macro with zero args, just look at C99
+> > > varargs macros...
+> >
+> > 	I remember that it didn't work. Ok, I'll try again.
 > 
-> Also notable is that the system time was significantly reduced though
-> I didn't log it. Essentially a long period of 100% system time is
-> entered after a certain point in the benchmark, during which there are
-> few (around 60 or 70) context switches in a second, and the duration
-> of this period was shortened.
+> if I remember corretly with C99 if you do s.th. like this (simple
+> sample):
 > 
-> The results here contradict my prior conclusions wrt. HZ 100 vs. 1000.
+> #define LOG(level, format, ...)					\
+>                 log(level, format, ##__VA_ARGS__);
 
-Hmmm ... I think you need the NUMA aware scheduler ;-) 
-On the plus side, that does look like RCU pretty much obliterated the dcache
-problems ....
+No, this is only valid C99 if __VA_ARGS__ is the empty list.
 
-M.
+I posted the correct way to write this macro about a week ago that
+works with all versions of GCC (and follows their documented
+behaviour; this stuff *is* all documented).
 
-
+Neil.

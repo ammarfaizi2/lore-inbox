@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279499AbRKMVyh>; Tue, 13 Nov 2001 16:54:37 -0500
+	id <S278269AbRKNWOp>; Wed, 14 Nov 2001 17:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279462AbRKMVy1>; Tue, 13 Nov 2001 16:54:27 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:63874 "EHLO
-	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S279429AbRKMVyX>;
-	Tue, 13 Nov 2001 16:54:23 -0500
-Date: Tue, 13 Nov 2001 01:08:18 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] trivial patch to support for "ACPI" keys in pc_keyb.c
-Message-ID: <20011113010817.B37@toy.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0111120858430.1901-100000@netfinity.realnet.co.sz>
+	id <S278275AbRKNWOf>; Wed, 14 Nov 2001 17:14:35 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:30675 "EHLO
+	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278269AbRKNWOX>; Wed, 14 Nov 2001 17:14:23 -0500
+Date: Mon, 12 Nov 2001 21:19:33 +0100
+From: Norbert Tretkowski <nobse@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: error compiling 2.4.14
+Message-ID: <20011112201933.GA801@rollcage.bzimage.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111122053270.25006-100000@achilles.dreef.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0111120858430.1901-100000@netfinity.realnet.co.sz>; from zwane@linux.realnet.co.sz on Mon, Nov 12, 2001 at 09:08:45AM +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0111122053270.25006-100000@achilles.dreef.net>
+User-Agent: Mutt/1.3.23.1i
+Mail-Copies-To: never
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> I know this should normally be done with setkeycodes but it seems pretty
-> harmless to have them in pc_keyb.c and doesn't stomp (i think) on any of
-> the other entries. I have these keys on both my BTC keyboards and some
-> noname brand keyboards too and they seem to correspond to the proper keys.
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-These keys are common on recent keyboards so I'd vote for adding this.
+* Erik Verhulp wrote:
+> drivers/block/block.o(.text+0x889d): undefined reference to
+> `deactivate_page'
+> drivers/block/block.o(.text+0x88e9): undefined reference to
+> `deactivate_page'
+> make: *** [vmlinux] Error 1
 
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Take a look in the archive of this list. Remove the two lines with
+'deactivate_page' in drivers/block/loop.c.
 
+--CE+1k2dSO48ffgeK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE78C7Ur/RnCw96jQERAoPSAKCz8AbbqMlIp0kESiYm/O/x+FMEWACgp0Em
+cgZhz2dbRn90qL70hV5gpEM=
+=zbtv
+-----END PGP SIGNATURE-----
+
+--CE+1k2dSO48ffgeK--

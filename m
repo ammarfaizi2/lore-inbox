@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130048AbRCAVPW>; Thu, 1 Mar 2001 16:15:22 -0500
+	id <S130045AbRCAVQF>; Thu, 1 Mar 2001 16:16:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130045AbRCAVPO>; Thu, 1 Mar 2001 16:15:14 -0500
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:5374 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S130016AbRCAVN0>; Thu, 1 Mar 2001 16:13:26 -0500
-Message-Id: <4.3.2.7.2.20010302050232.02ba6b70@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Fri, 02 Mar 2001 05:04:47 +1100
-To: Hans Reiser <reiser@namesys.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: What is 2.4 Linux networking performance like compared to
-  BSD?
-Cc: Todd <todd@unm.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        brian jenkins <bjenkins@thresholdnetworks.com>
-In-Reply-To: <3A9E72D3.36B28B8F@namesys.com>
-In-Reply-To: <Pine.A41.4.33.0102282123180.68876-100000@aix09.unm.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130016AbRCAVPR>; Thu, 1 Mar 2001 16:15:17 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:24740 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130043AbRCAVOY>;
+	Thu, 1 Mar 2001 16:14:24 -0500
+Date: Thu, 1 Mar 2001 16:13:38 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Pavel Machek <pavel@suse.cz>, Bill Crawford <billc@netcomuk.co.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@innominate.de>
+Subject: Re: Hashing and directories
+In-Reply-To: <3A9EB984.C1F7E499@transmeta.com>
+Message-ID: <Pine.GSO.4.21.0103011608360.11577-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:03 PM 1/03/2001 +0300, Hans Reiser wrote:
-> > > They know that iMimic's polymix performance on Linux 2.2.* is half 
-> what it is on
-> > > BSD.  Has the Linux 2.4 networking code caught up to BSD?
-> > >
-> > > Can I tell them not to worry about the Linux networking code 
-> strangling their
-> > > webcache product's performance, or not?
-
-Hans, if iMimic's polygraph performance is "half" on linux versus that of 
-freebsd, then it is a sign that iMimic has some awful code and/or are doing 
-something wrong in linux versus freebsd.
-
->The problem is that I really need BSD vs. Linux experiences, not Linux 2.4 vs.
->2.2 experiences, because the webcache industry tends to strongly disparage 
->Linux
->networking code, so much better isn't necessarily good enough.
-
-please stop generalizing.  there is at least one vendor in the webcache 
-industry that is more than happy with the linux networking code.
 
 
-cheers,
+On Thu, 1 Mar 2001, H. Peter Anvin wrote:
 
-lincoln.
+> >         * userland issues (what, you thought that limits on the
+> > command size will go away?)
+> 
+> Last I checked, the command line size limit wasn't a userland issue, but
+> rather a limit of the kernel exec().  This might have changed.
+
+I _really_ don't want to trust the ability of shell to deal with long
+command lines. I also don't like the failure modes with history expansion
+causing OOM, etc.
+
+AFAICS right now we hit the kernel limit first, but I really doubt that
+raising said limit is a good idea.
+
+xargs is there for purpose...
+							Cheers,
+								Al
 

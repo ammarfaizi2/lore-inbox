@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266912AbUFZB3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266914AbUFZBbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266912AbUFZB3M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 21:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266913AbUFZB3M
+	id S266914AbUFZBbN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 21:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266915AbUFZBbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 21:29:12 -0400
-Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:16832 "EHLO
-	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266912AbUFZB3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 21:29:09 -0400
-Message-ID: <40DCD152.8050903@kolivas.org>
-Date: Sat, 26 Jun 2004 11:28:50 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Staircase scheduler v7.4
-References: <40DC38D0.9070905@kolivas.org> <pan.2004.06.25.18.32.36.821877@smurf.noris.de>
-In-Reply-To: <pan.2004.06.25.18.32.36.821877@smurf.noris.de>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Jun 2004 21:31:13 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:53661 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266914AbUFZBbM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 21:31:12 -0400
+Subject: Re: [PATCH] A generic_file_sendpage()
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <20040625200342.GE8656@wohnheim.fh-wedel.de>
+References: <20040608154438.GK18083@dualathlon.random>
+	 <20040608193621.GA12780@holomorphy.com> <1086783559.1194.24.camel@boxen>
+	 <20040625191924.GA8656@wohnheim.fh-wedel.de>
+	 <20040625194611.GQ12308@parcelfarce.linux.theplanet.co.uk>
+	 <20040625200342.GE8656@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1088211213.9740.16.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 25 Jun 2004 20:53:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+På fr , 25/06/2004 klokka 16:03, skreiv Jörn Engel:
+> Not sure.  NFSv3 appears to be fixable, the only context is the UID,
 
-Matthias Urlichs wrote:
-| Con Kolivas wrote:
-|
-|
-|>+// interactive - interactive tasks get longer intervals at best
-|>priority
-|
-|
-| Hmmm... IIRC, C++ comments are frowned upon in the kernel.
+Huh???? WTF happened to the actual credential?
 
-Good point. I will fatten it up with generous kernel style comments.
-|
-| Other than that: thanks for the work. Your comments seem to indicate that
-| INYO the staircase scheduler is ready for "real-world" kernels. Correct?
+> which happens to be stored in the inode as well.  NFSv4 and cifs could
+> be worse, I didn't look closely yet.  smbfs accesses the dentry, which
+> has similar effects, but should be fixable as well.
+> 
+> Do you know of any impossible cases?
 
-Almost. I needed wider audience testing which already has revealed two
-bugs it seems. Watch this space.
+NFS, CIFS, all other networked filesystems that need private context
+information beyond what is contained in the struct file. Why?
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA3NA0ZUg7+tp6mRURAnQCAKCAPG26O0YXCm75zjxnUBfm2N+UswCfeMxN
-NaguMXecXIIOeAl72wLYcRQ=
-=By+w
------END PGP SIGNATURE-----
+Trond

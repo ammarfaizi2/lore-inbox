@@ -1,58 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267555AbUHWVwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267774AbUHWWIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267555AbUHWVwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268082AbUHWViu
+	id S267774AbUHWWIj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 18:08:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267695AbUHWWFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:38:50 -0400
-Received: from host81-154-216-60.range81-154.btcentralplus.com ([81.154.216.60]:58023
-	"EHLO worthy.swandive.local") by vger.kernel.org with ESMTP
-	id S266553AbUHWULx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 16:11:53 -0400
-Message-ID: <412A4F87.1080707@btinternet.com>
-Date: Mon, 23 Aug 2004 21:11:51 +0100
-From: Grant Wilson <gww@btinternet.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
-X-Accept-Language: en-us, en
+	Mon, 23 Aug 2004 18:05:14 -0400
+Received: from adsl-209-204-138-32.sonic.net ([209.204.138.32]:33710 "EHLO
+	server.home") by vger.kernel.org with ESMTP id S267791AbUHWWBD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 18:01:03 -0400
+Date: Mon, 23 Aug 2004 15:00:12 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.home
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Hugh Dickins <hugh@veritas.com>, "David S. Miller" <davem@redhat.com>,
+       raybry@sgi.com, ak@muc.de, benh@kernel.crashing.org,
+       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: page fault fastpath patch v2: fix race conditions, stats for
+ 8,32     and    512 cpu SMP
+In-Reply-To: <20040819002038.GW11200@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0408231456150.17943@server.home>
+References: <2uexw-1Nn-1@gated-at.bofh.it> <2uCTq-2wa-55@gated-at.bofh.it>
+ <pan.2004.08.18.23.50.13.562750@umich.edu> <20040819000151.GU11200@holomorphy.com>
+ <Pine.GSO.4.58.0408182005080.9340@sapphire.engin.umich.edu>
+ <20040819002038.GW11200@holomorphy.com>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.8.1-mm4 [ls]trace freeze
-References: <87d61h90ak.fsf-news@hsp-law.de>
-In-Reply-To: <87d61h90ak.fsf-news@hsp-law.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -4.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get similar results on amd64 running Debian unstable:
+Would it not be better if exit_mmap would hold a writelock on
+mm->mmap_sem and the page_table_lock? This would insure that page faults
+would not change pte's. exit_mmap changes the memory map so it seems that
+the wrong lock is used here.
 
- > strace rxvt
-bad: scheduling while atomic!
-Call Trace: <ffffffff8039d62e>{schedule+94} 
-<ffffffff8013f27c>{ptrace_notify_info+316}
-       <ffffffff8013f468>{get_signal_to_deliver+456} 
-<ffffffff8010e9c3>{do_signal+163}
-       <ffffffff8010f52f>{sysret_signal+28} 
-<ffffffff8010f81b>{ptregsyscall_common+103}
+On Wed, 18 Aug 2004, William Lee Irwin III wrote:
 
-execve("/usr/bin/rxvt".....
-rxvt[3639]: segfault @ 0000002a95556e60 ...
-
-bad: scheduling while atomic!
-Call Trace: <ffffffff8039d26e>{schedule+94} 
-<ffffffff8010faca>{retint_careful+13}
-
-bad: scheduling while atomic!
-Call Trace: <ffffffff8039d62e>{schedule+94} 
-<ffffffff8013f27c>{ptrace_notify_info+316}
-       <ffffffff8013f468>{get_signal_to_deliver+456} 
-<ffffffff8010e9c3>{do_signal+163}
-       <ffffffff8013360d>{printk+141} <ffffffff8039dc01>{thread_return+41}
-       <ffffffff8010fb1c>{retint_signal}
---- SIGSEV (Segmentation fault) @ 0 (0) ---
-Kernel panic - not syncing: Aiee, killing interrupt handler!
-
-Rgds,
-Grant Wilson
-
+> On Wed, 18 Aug 2004, William Lee Irwin III wrote:
+> >> exit_mmap() has removed the vma from ->i_mmap and ->mmap prior to
+> >> unmapping the pages, so this should be safe unless that operation
+> >> can be caught while it's in progress.
+>
+> On Wed, Aug 18, 2004 at 08:07:24PM -0400, Rajesh Venkatasubramanian wrote:
+> > No. Unfortunately exit_mmap() removes vmas from ->i_mmap after removing
+> > page table pages. Maybe we can reverse this, though.
+>
+> Something like this?
+>
+>
+> Index: mm1-2.6.8.1/mm/mmap.c
+> ===================================================================
+> --- mm1-2.6.8.1.orig/mm/mmap.c	2004-08-16 23:47:16.000000000 -0700
+> +++ mm1-2.6.8.1/mm/mmap.c	2004-08-18 17:18:26.513559632 -0700
+> @@ -1810,6 +1810,14 @@
+>  	mm->map_count -= unmap_vmas(&tlb, mm, mm->mmap, 0,
+>  					~0UL, &nr_accounted, NULL);
+>  	vm_unacct_memory(nr_accounted);
+> +	/*
+> +	 * Walk the list again, actually closing and freeing it.
+> +	 */
+> +	while (vma) {
+> +		struct vm_area_struct *next = vma->vm_next;
+> +		remove_vm_struct(vma);
+> +		vma = next;
+> +	}
+>  	BUG_ON(mm->map_count);	/* This is just debugging */
+>  	clear_page_tables(tlb, FIRST_USER_PGD_NR, USER_PTRS_PER_PGD);
+>  	tlb_finish_mmu(tlb, 0, MM_VM_SIZE(mm));
+> @@ -1822,16 +1830,6 @@
+>  	mm->locked_vm = 0;
+>
+>  	spin_unlock(&mm->page_table_lock);
+> -
+> -	/*
+> -	 * Walk the list again, actually closing and freeing it
+> -	 * without holding any MM locks.
+> -	 */
+> -	while (vma) {
+> -		struct vm_area_struct *next = vma->vm_next;
+> -		remove_vm_struct(vma);
+> -		vma = next;
+> -	}
+>  }
+>
+>  /* Insert vm structure into process list sorted by address
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265750AbSKAU30>; Fri, 1 Nov 2002 15:29:26 -0500
+	id <S265764AbSKAUbM>; Fri, 1 Nov 2002 15:31:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265747AbSKAU30>; Fri, 1 Nov 2002 15:29:26 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:7437 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265750AbSKAU3X>; Fri, 1 Nov 2002 15:29:23 -0500
-Date: Fri, 1 Nov 2002 21:35:47 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Russell King <rmk@arm.linux.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Where's the documentation for Kconfig?
-In-Reply-To: <20021101193112.B26989@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211012119290.6949-100000@serv>
-References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.44.0210311452531.13258-100000@serv> <20021101125226.B16919@flint.arm.linux.org.uk>
- <Pine.LNX.4.44.0211011439420.6949-100000@serv> <20021101193112.B26989@flint.arm.linux.org.uk>
+	id <S265769AbSKAUbL>; Fri, 1 Nov 2002 15:31:11 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:17469 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S265764AbSKAUag>; Fri, 1 Nov 2002 15:30:36 -0500
+Date: Fri, 1 Nov 2002 20:37:56 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Joel Becker <Joel.Becker@oracle.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
+Subject: Re: What's left over.
+In-Reply-To: <Pine.LNX.4.44.0211011107470.4673-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0211012003290.2206-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 1 Nov 2002, Russell King wrote:
-
-> Ok, next problem.
+On Fri, 1 Nov 2002, Linus Torvalds wrote:
+> On Fri, 1 Nov 2002, Joel Becker wrote:
+> > 
+> > 	I always liked the AIX dumper choices.  You could either dump to
+> > the swap area (and startup detects the dump and moves it to the
+> > filesystem before swapon) or provide a dedicated dump partition.  The
+> > latter was prefered.
 > 
-> A "hex" config entry under the old config language used to omit the "0x"
-> prefix, requiring it to be added by whatever used it.  Kconfig adds the
-> "0x" prefix, thereby causing errors.
+> Ehh.. That was on closed hardware that was largely designed with and for
+> the OS.
+>... 
+> In other words: it's a huge risk to play with the disk when the system is
+> already known to be unstable. The disk drivers tend to be one of the main
+> issues even when everything else is _stable_, for chrissake!
 > 
-> Is this difference intentional?
+> To add insult to injury, you will not be able to actually _test_ any of 
+> the real error paths in real life. Sure, you will be able to test forced 
+> dumps on _your_ hardware, but while that is fine in the AIX model ("we 
+> control the hardware, and charge the user five times what it is worth"), 
+> again that doesn't mean _squat_ in the PC hardware space.
 
-No, but looking at it, I think it's better to fix the few users and to 
-keep it common instead. Is there anything that needs the numbers without 
-the prefix?
+I dealt with crash dumps quite a lot over 10 years with SCO UNIX,
+OpenServer and UnixWare: which were addressing the PC market, not
+own hardware.
 
-bye, Roman
+It's a real worry that writing a crash dump to disk might stomp in the
+wrong place, but I don't recall it ever happening in practice.  But
+occasionally, yes, a dump was not generated at all, or not completed.
+
+Of course, you could argue that SCO's disk drivers were more stable :-)
+which might or might not be a compliment to them.
+
+Hugh
 

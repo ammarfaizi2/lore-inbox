@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277144AbRJVRLS>; Mon, 22 Oct 2001 13:11:18 -0400
+	id <S277148AbRJVRO6>; Mon, 22 Oct 2001 13:14:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277135AbRJVRK6>; Mon, 22 Oct 2001 13:10:58 -0400
-Received: from a-pr10-15.tin.it ([212.216.147.238]:23174 "EHLO
-	eris.discordia.loc") by vger.kernel.org with ESMTP
-	id <S277188AbRJVRKw>; Mon, 22 Oct 2001 13:10:52 -0400
-Date: Mon, 22 Oct 2001 19:11:22 +0200 (CEST)
-From: Lorenzo Marcantonio <lomarcan@tin.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: VIA 686b Bug - once again :(
-In-Reply-To: <m3wv1n7guj.fsf@shakti.rupa.com>
-Message-ID: <Pine.LNX.4.31.0110221907510.30106-100000@eris.discordia.loc>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277151AbRJVROi>; Mon, 22 Oct 2001 13:14:38 -0400
+Received: from 24-28-205-10.mf3.cox.rr.com ([24.28.205.10]:3345 "EHLO
+	24-28-205-10.mf3.cox.rr.com") by vger.kernel.org with ESMTP
+	id <S277148AbRJVROe>; Mon, 22 Oct 2001 13:14:34 -0400
+To: linux-kernel@vger.kernel.org
+Path: 24-28-205-10.mf3.cox.rr.com!not-for-mail
+From: gsh@cox.rr.com (Greg Hennessy)
+Newsgroups: list.linux
+Subject: Re: Linux 2.2.20pre10
+Date: Mon, 22 Oct 2001 17:16:26 +0000 (UTC)
+Organization: A InterNetNews site
+Message-ID: <9r1k9a$173$1@24-28-205-10.mf3.cox.rr.com>
+In-Reply-To: <E15viGk-0002Xu-00@the-village.bc.nu>
+NNTP-Posting-Host: localhost
+X-Trace: 24-28-205-10.mf3.cox.rr.com 1003770986 1252 127.0.0.1 (22 Oct 2001 17:16:26 GMT)
+X-Complaints-To: news@24-28-205-10.mf3.cox.rr.com
+NNTP-Posting-Date: Mon, 22 Oct 2001 17:16:26 +0000 (UTC)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, Rupa Schomaker wrote:
+In article <E15viGk-0002Xu-00@the-village.bc.nu>,
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> As it stands I cannot legally advise the US security services about Linux 
+> security issues. Normally I'd find this excruciatingly funny but in the
+> current circumstances its rather less humourous.
 
-> Adaptec or Advansys scsi controller.  A 2.5G file dump to tape would
-> never restore the same.  One the Adaptec card, I would get 1 or 2
-> blocks of 64bytes that would differ.  On the Advansys it would be 1 or
-> 2 blocks of 63 bytes.
-
-Some month ago (about at 2.4.6 kernel) I've got the same problem with my
-DDS3 (the TAPE CORRUPTION thread). 64 bytes more or less aligned at page
-boundary. Tought it was the tape driver, it was an Adaptec driver issue
-(back to when you needed Berkeley DB to compile the firmware)!
-Now it works perfectly (and I've got an infamous Asus A7V...). BTW no HDD
-on secondary IDE, only a CDROM :)
-
--- Lorenzo Marcantonio
+Which part of the DMCA do you think prohibits this?
 

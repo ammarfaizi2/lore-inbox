@@ -1,87 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132114AbRAJQVm>; Wed, 10 Jan 2001 11:21:42 -0500
+	id <S131429AbRAJQZW>; Wed, 10 Jan 2001 11:25:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132127AbRAJQVW>; Wed, 10 Jan 2001 11:21:22 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:17676 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S132114AbRAJQVM>;
-	Wed, 10 Jan 2001 11:21:12 -0500
-Date: Wed, 10 Jan 2001 17:21:07 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Which driver took effect?
-Message-ID: <20010110172106.H10320@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S131270AbRAJQZC>; Wed, 10 Jan 2001 11:25:02 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:45583 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S130370AbRAJQY5>; Wed, 10 Jan 2001 11:24:57 -0500
+Date: Wed, 10 Jan 2001 17:23:33 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Mike Harrold <mharrold@cas.org>
+Cc: Jakob Østergaard <jakob@unthought.net>,
+        antirez <antirez@invece.org>, Brian Gerst <bgerst@didntduck.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: * 4 converted to << 2 for networking code
+Message-ID: <20010110172333.J30055@pcep-jamie.cern.ch>
+In-Reply-To: <20010110161146.A3252@unthought.net> <200101101518.KAA11519@mah21awu.cas.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRdC2OsRnuV8iIl8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux air 2.4.0-test8-pre1 
+In-Reply-To: <200101101518.KAA11519@mah21awu.cas.org>; from mharrold@cas.org on Wed, Jan 10, 2001 at 10:18:38AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Harrold wrote:
+> Be careful. *4 is not a simple <<2 substitution (by the compiler) if
+> the variable is signed. *4 translates to 3 instructions (on x86) if
+> it's an int.
 
---jRdC2OsRnuV8iIl8
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think you mean /4 is not the same as >>2 if the variable is signed.
 
-Hi!
+In general, non-widening multiplies give the same result for signed and
+unsigned variables.
 
-I'm building an installer (to install Linux as a .tar.gz off an
-SMB share) usind a single floppy with some compiled-in network
-drivers. These drivers are modular in the .tgz which gets uncompressed,
-but most of them need parameters (normally, you have to supply
-a base I/O address). Getting the address is no problem - ifconfig
-tells you. But I can't see an easy way (neither in 2.2.x nor in
-2.4.x) th be told "eth0 is driven by eepro, eth1 is driven by
-ne, ...")
-
-Parsing `dmesg` isn't fun at all (even not with restricted floppy
-disk space to store a number of output variants), and different
-drivers do have *very* different outputs (if they annouce themselves
-at all).
-
-So I'd like to know:
-
-        - Can you tell me a smart way to see which driver handles
-          which network interface?
-        - Would a patch to add eg. /proc/net/drivers reporting:
-
-                eth0,   eepro,  0x300,  10
-                eth1,   ne,     0x240,  5
-
-          be accepted? I think sth like that would be useful at all...
-
-In 2.4.x, register_netdev() would be a good starting point to do
-it...
-
-MfG, JBG
-
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
-
---jRdC2OsRnuV8iIl8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjpci/IACgkQHb1edYOZ4bvfxACbBi11sypMEwzzQFF9//l+o2p0
-a7EAnjf2NycMtvMz6bOdEnbNw+MlE8ym
-=lmjd
------END PGP SIGNATURE-----
-
---jRdC2OsRnuV8iIl8--
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

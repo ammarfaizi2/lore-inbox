@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUENXnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264600AbUENXoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264585AbUENXnW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUENXmR
+	id S264600AbUENXoK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 19:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264621AbUENXnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:42:17 -0400
-Received: from mail.kroah.org ([65.200.24.183]:32997 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264585AbUENXaI convert rfc822-to-8bit
+	Fri, 14 May 2004 19:43:23 -0400
+Received: from mail.kroah.org ([65.200.24.183]:18917 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264600AbUENX3w convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:30:08 -0400
+	Fri, 14 May 2004 19:29:52 -0400
 Subject: Re: [PATCH] I2C update for 2.6.6
-In-Reply-To: <10845773561979@kroah.com>
+In-Reply-To: <10845773582039@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 14 May 2004 16:29:16 -0700
-Message-Id: <10845773561233@kroah.com>
+Date: Fri, 14 May 2004 16:29:18 -0700
+Message-Id: <1084577358220@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,374 +22,232 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1587.15.2, 2004/05/01 22:32:34-07:00, greg@kroah.com
+ChangeSet 1.1587.15.16, 2004/05/14 14:58:42-07:00, jdgaston@snoqualmie.dp.intel.com
 
-I2C: rename i2c-ip4xx.c driver
+[PATCH] I2C: ICH6/6300ESB i2c support
+
+This patch adds DID support for ICH6 and 6300ESB to i2c-i801.c(SMBus).
+In order to add this support I needed to patch pci_ids.h with the SMBus
+DID's.  To keep things orginized I renumbered the ICH6 and ESB entries
+in pci_ids.h.  I then patched the piix IDE and i810 audio drivers to
+reflect the updated #define's.  I also removed an error from irq.c;
+there was a reference to a 6300ESB DID that does not exist.
 
 
- drivers/i2c/busses/i2c-ixp42x.c |  176 ----------------------------------------
- drivers/i2c/busses/i2c-ixp4xx.c |  176 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 176 insertions(+), 176 deletions(-)
+ arch/i386/pci/irq.c           |    3 ++-
+ drivers/i2c/busses/Kconfig    |    2 ++
+ drivers/i2c/busses/i2c-i801.c |   26 ++++++++++++++++++++------
+ drivers/ide/pci/piix.c        |    8 ++++----
+ drivers/ide/pci/piix.h        |    2 +-
+ include/linux/pci_ids.h       |   21 ++++++++++++++++++---
+ sound/oss/i810_audio.c        |   10 +++++-----
+ 7 files changed, 52 insertions(+), 20 deletions(-)
 
 
-diff -Nru a/drivers/i2c/busses/i2c-ixp42x.c b/drivers/i2c/busses/i2c-ixp42x.c
---- a/drivers/i2c/busses/i2c-ixp42x.c	Fri May 14 16:21:22 2004
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,176 +0,0 @@
--/*
-- * drivers/i2c/i2c-adap-ixp42x.c
-- *
-- * Intel's IXP42x XScale NPU chipsets (IXP420, 421, 422, 425) do not have
-- * an on board I2C controller but provide 16 GPIO pins that are often
-- * used to create an I2C bus. This driver provides an i2c_adapter 
-- * interface that plugs in under algo_bit and drives the GPIO pins
-- * as instructed by the alogorithm driver.
-- *
-- * Author: Deepak Saxena <dsaxena@plexity.net>
-- *
-- * Copyright (c) 2003-2004 MontaVista Software Inc.
-- *
-- * This file is licensed under the terms of the GNU General Public 
-- * License version 2. This program is licensed "as is" without any 
-- * warranty of any kind, whether express or implied.
-- *
-- * NOTE: Since different platforms will use different GPIO pins for
-- *       I2C, this driver uses an IXP42x-specific platform_data
-- *       pointer to pass the GPIO numbers to the driver. This 
-- *       allows us to support all the different IXP42x platforms
-- *       w/o having to put #ifdefs in this driver.
-- *
-- *       See arch/arm/mach-ixp42x/ixdp425.c for an example of building a 
-- *       device list and filling in the ixp42x_i2c_pins data structure 
-- *       that is passed as the platform_data to this driver.
-- */
+diff -Nru a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
+--- a/arch/i386/pci/irq.c	Fri May 14 16:18:51 2004
++++ b/arch/i386/pci/irq.c	Fri May 14 16:18:51 2004
+@@ -479,8 +479,9 @@
+ 		case PCI_DEVICE_ID_INTEL_82801DB_0:
+ 		case PCI_DEVICE_ID_INTEL_82801E_0:
+ 		case PCI_DEVICE_ID_INTEL_82801EB_0:
+-		case PCI_DEVICE_ID_INTEL_ESB_0:
++		case PCI_DEVICE_ID_INTEL_ESB_1:
+ 		case PCI_DEVICE_ID_INTEL_ICH6_0:
++		case PCI_DEVICE_ID_INTEL_ICH6_1:
+ 			r->name = "PIIX/ICH";
+ 			r->get = pirq_piix_get;
+ 			r->set = pirq_piix_set;
+diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig	Fri May 14 16:18:51 2004
++++ b/drivers/i2c/busses/Kconfig	Fri May 14 16:18:51 2004
+@@ -95,6 +95,8 @@
+ 	    82801CA/CAM
+ 	    82801DB
+ 	    82801EB
++	    6300ESB
++	    ICH6
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+--- a/drivers/i2c/busses/i2c-i801.c	Fri May 14 16:18:51 2004
++++ b/drivers/i2c/busses/i2c-i801.c	Fri May 14 16:18:51 2004
+@@ -28,7 +28,8 @@
+     82801CA/CAM		2483           
+     82801DB		24C3   (HW PEC supported, 32 byte buffer not supported)
+     82801EB		24D3   (HW PEC supported, 32 byte buffer not supported)
 -
--#include <linux/config.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
--#include <linux/device.h>
--#include <linux/module.h>
--#include <linux/i2c.h>
--
--#include <asm/hardware.h>	/* Pick up IXP42x-specific bits */
--
--static inline int ixp42x_scl_pin(void *data)
--{
--	return ((struct ixp42x_i2c_pins*)data)->scl_pin;
--}
--
--static inline int ixp42x_sda_pin(void *data)
--{
--	return ((struct ixp42x_i2c_pins*)data)->sda_pin;
--}
--
--static void ixp42x_bit_setscl(void *data, int val)
--{
--	gpio_line_set(ixp42x_scl_pin(data), 0);
--	gpio_line_config(ixp42x_scl_pin(data),
--		val ? IXP425_GPIO_IN : IXP425_GPIO_OUT );
--}
--
--static void ixp42x_bit_setsda(void *data, int val)
--{
--	gpio_line_set(ixp42x_sda_pin(data), 0);
--	gpio_line_config(ixp42x_sda_pin(data),
--		val ? IXP425_GPIO_IN : IXP425_GPIO_OUT );
--}
--
--static int ixp42x_bit_getscl(void *data)
--{
--	int scl;
--
--	gpio_line_config(ixp42x_scl_pin(data), IXP425_GPIO_IN );
--	gpio_line_get(ixp42x_scl_pin(data), &scl);
--
--	return scl;
--}	
--
--static int ixp42x_bit_getsda(void *data)
--{
--	int sda;
--
--	gpio_line_config(ixp42x_sda_pin(data), IXP425_GPIO_IN );
--	gpio_line_get(ixp42x_sda_pin(data), &sda);
--
--	return sda;
--}	
--
--struct ixp42x_i2c_data {
--	struct ixp42x_i2c_pins *gpio_pins;
--	struct i2c_adapter adapter;
--	struct i2c_algo_bit_data algo_data;
--};
--
--static int ixp42x_i2c_remove(struct device *dev)
--{
--	struct platform_device *plat_dev = to_platform_device(dev);
--	struct ixp42x_i2c_data *drv_data = dev_get_drvdata(&plat_dev->dev);
--
--	dev_set_drvdata(&plat_dev->dev, NULL);
--
--	i2c_bit_del_bus(&drv_data->adapter);
--
--	kfree(drv_data);
--
--	return 0;
--}
--
--static int ixp42x_i2c_probe(struct device *dev)
--{
--	int err;
--	struct platform_device *plat_dev = to_platform_device(dev);
--	struct ixp42x_i2c_pins *gpio = plat_dev->dev.platform_data;
--	struct ixp42x_i2c_data *drv_data = 
--		kmalloc(sizeof(struct ixp42x_i2c_data), GFP_KERNEL);
--
--	if(!drv_data)
--		return -ENOMEM;
--
--	memzero(drv_data, sizeof(struct ixp42x_i2c_data));
--	drv_data->gpio_pins = gpio;
--
--	/*
--	 * We could make a lot of these structures static, but
--	 * certain platforms may have multiple GPIO-based I2C
--	 * buses for various device domains, so we need per-device
--	 * algo_data->data. 
--	 */
--	drv_data->algo_data.data = gpio;
--	drv_data->algo_data.setsda = ixp42x_bit_setsda;
--	drv_data->algo_data.setscl = ixp42x_bit_setscl;
--	drv_data->algo_data.getsda = ixp42x_bit_getsda;
--	drv_data->algo_data.getscl = ixp42x_bit_getscl;
--	drv_data->algo_data.udelay = 10;
--	drv_data->algo_data.mdelay = 10;
--	drv_data->algo_data.timeout = 100;
--
--	drv_data->adapter.id = I2C_HW_B_IXP425,
--	drv_data->adapter.algo_data = &drv_data->algo_data,
--
--	drv_data->adapter.dev.parent = &plat_dev->dev;
--
--	gpio_line_config(gpio->scl_pin, IXP425_GPIO_IN);
--	gpio_line_config(gpio->sda_pin, IXP425_GPIO_IN);
--	gpio_line_set(gpio->scl_pin, 0);
--	gpio_line_set(gpio->sda_pin, 0);
--
--	if ((err = i2c_bit_add_bus(&drv_data->adapter) != 0)) {
--		printk(KERN_ERR "ERROR: Could not install %s\n", dev->bus_id);
--
--		kfree(drv_data);
--		return err;
--	}
--
--	dev_set_drvdata(&plat_dev->dev, drv_data);
--
--	return 0;
--}
--
--static struct device_driver ixp42x_i2c_driver = {
--	.name		= "IXP42X-I2C",
--	.bus		= &platform_bus_type,
--	.probe		= ixp42x_i2c_probe,
--	.remove		= ixp42x_i2c_remove,
--};
--
--static int __init ixp42x_i2c_init(void)
--{
--	return driver_register(&ixp42x_i2c_driver);
--}
--
--static void __exit ixp42x_i2c_exit(void)
--{
--	driver_unregister(&ixp42x_i2c_driver);
--}
--
--module_init(ixp42x_i2c_init);
--module_exit(ixp42x_i2c_exit);
--
--MODULE_DESCRIPTION("GPIO-based I2C driver for IXP42x systems");
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net>");
--
-diff -Nru a/drivers/i2c/busses/i2c-ixp4xx.c b/drivers/i2c/busses/i2c-ixp4xx.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/i2c/busses/i2c-ixp4xx.c	Fri May 14 16:21:22 2004
-@@ -0,0 +1,176 @@
-+/*
-+ * drivers/i2c/i2c-adap-ixp42x.c
-+ *
-+ * Intel's IXP42x XScale NPU chipsets (IXP420, 421, 422, 425) do not have
-+ * an on board I2C controller but provide 16 GPIO pins that are often
-+ * used to create an I2C bus. This driver provides an i2c_adapter 
-+ * interface that plugs in under algo_bit and drives the GPIO pins
-+ * as instructed by the alogorithm driver.
-+ *
-+ * Author: Deepak Saxena <dsaxena@plexity.net>
-+ *
-+ * Copyright (c) 2003-2004 MontaVista Software Inc.
-+ *
-+ * This file is licensed under the terms of the GNU General Public 
-+ * License version 2. This program is licensed "as is" without any 
-+ * warranty of any kind, whether express or implied.
-+ *
-+ * NOTE: Since different platforms will use different GPIO pins for
-+ *       I2C, this driver uses an IXP42x-specific platform_data
-+ *       pointer to pass the GPIO numbers to the driver. This 
-+ *       allows us to support all the different IXP42x platforms
-+ *       w/o having to put #ifdefs in this driver.
-+ *
-+ *       See arch/arm/mach-ixp42x/ixdp425.c for an example of building a 
-+ *       device list and filling in the ixp42x_i2c_pins data structure 
-+ *       that is passed as the platform_data to this driver.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+
-+#include <asm/hardware.h>	/* Pick up IXP42x-specific bits */
-+
-+static inline int ixp42x_scl_pin(void *data)
-+{
-+	return ((struct ixp42x_i2c_pins*)data)->scl_pin;
-+}
-+
-+static inline int ixp42x_sda_pin(void *data)
-+{
-+	return ((struct ixp42x_i2c_pins*)data)->sda_pin;
-+}
-+
-+static void ixp42x_bit_setscl(void *data, int val)
-+{
-+	gpio_line_set(ixp42x_scl_pin(data), 0);
-+	gpio_line_config(ixp42x_scl_pin(data),
-+		val ? IXP425_GPIO_IN : IXP425_GPIO_OUT );
-+}
-+
-+static void ixp42x_bit_setsda(void *data, int val)
-+{
-+	gpio_line_set(ixp42x_sda_pin(data), 0);
-+	gpio_line_config(ixp42x_sda_pin(data),
-+		val ? IXP425_GPIO_IN : IXP425_GPIO_OUT );
-+}
-+
-+static int ixp42x_bit_getscl(void *data)
-+{
-+	int scl;
-+
-+	gpio_line_config(ixp42x_scl_pin(data), IXP425_GPIO_IN );
-+	gpio_line_get(ixp42x_scl_pin(data), &scl);
-+
-+	return scl;
-+}	
-+
-+static int ixp42x_bit_getsda(void *data)
-+{
-+	int sda;
-+
-+	gpio_line_config(ixp42x_sda_pin(data), IXP425_GPIO_IN );
-+	gpio_line_get(ixp42x_sda_pin(data), &sda);
-+
-+	return sda;
-+}	
-+
-+struct ixp42x_i2c_data {
-+	struct ixp42x_i2c_pins *gpio_pins;
-+	struct i2c_adapter adapter;
-+	struct i2c_algo_bit_data algo_data;
-+};
-+
-+static int ixp42x_i2c_remove(struct device *dev)
-+{
-+	struct platform_device *plat_dev = to_platform_device(dev);
-+	struct ixp42x_i2c_data *drv_data = dev_get_drvdata(&plat_dev->dev);
-+
-+	dev_set_drvdata(&plat_dev->dev, NULL);
-+
-+	i2c_bit_del_bus(&drv_data->adapter);
-+
-+	kfree(drv_data);
-+
-+	return 0;
-+}
-+
-+static int ixp42x_i2c_probe(struct device *dev)
-+{
-+	int err;
-+	struct platform_device *plat_dev = to_platform_device(dev);
-+	struct ixp42x_i2c_pins *gpio = plat_dev->dev.platform_data;
-+	struct ixp42x_i2c_data *drv_data = 
-+		kmalloc(sizeof(struct ixp42x_i2c_data), GFP_KERNEL);
-+
-+	if(!drv_data)
-+		return -ENOMEM;
-+
-+	memzero(drv_data, sizeof(struct ixp42x_i2c_data));
-+	drv_data->gpio_pins = gpio;
-+
-+	/*
-+	 * We could make a lot of these structures static, but
-+	 * certain platforms may have multiple GPIO-based I2C
-+	 * buses for various device domains, so we need per-device
-+	 * algo_data->data. 
-+	 */
-+	drv_data->algo_data.data = gpio;
-+	drv_data->algo_data.setsda = ixp42x_bit_setsda;
-+	drv_data->algo_data.setscl = ixp42x_bit_setscl;
-+	drv_data->algo_data.getsda = ixp42x_bit_getsda;
-+	drv_data->algo_data.getscl = ixp42x_bit_getscl;
-+	drv_data->algo_data.udelay = 10;
-+	drv_data->algo_data.mdelay = 10;
-+	drv_data->algo_data.timeout = 100;
-+
-+	drv_data->adapter.id = I2C_HW_B_IXP425,
-+	drv_data->adapter.algo_data = &drv_data->algo_data,
-+
-+	drv_data->adapter.dev.parent = &plat_dev->dev;
-+
-+	gpio_line_config(gpio->scl_pin, IXP425_GPIO_IN);
-+	gpio_line_config(gpio->sda_pin, IXP425_GPIO_IN);
-+	gpio_line_set(gpio->scl_pin, 0);
-+	gpio_line_set(gpio->sda_pin, 0);
-+
-+	if ((err = i2c_bit_add_bus(&drv_data->adapter) != 0)) {
-+		printk(KERN_ERR "ERROR: Could not install %s\n", dev->bus_id);
-+
-+		kfree(drv_data);
-+		return err;
-+	}
-+
-+	dev_set_drvdata(&plat_dev->dev, drv_data);
-+
-+	return 0;
-+}
-+
-+static struct device_driver ixp42x_i2c_driver = {
-+	.name		= "IXP42X-I2C",
-+	.bus		= &platform_bus_type,
-+	.probe		= ixp42x_i2c_probe,
-+	.remove		= ixp42x_i2c_remove,
-+};
-+
-+static int __init ixp42x_i2c_init(void)
-+{
-+	return driver_register(&ixp42x_i2c_driver);
-+}
-+
-+static void __exit ixp42x_i2c_exit(void)
-+{
-+	driver_unregister(&ixp42x_i2c_driver);
-+}
-+
-+module_init(ixp42x_i2c_init);
-+module_exit(ixp42x_i2c_exit);
-+
-+MODULE_DESCRIPTION("GPIO-based I2C driver for IXP42x systems");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Deepak Saxena <dsaxena@plexity.net>");
-+
++    6300ESB		25A4
++    ICH6		266A
+     This driver supports several versions of Intel's I/O Controller Hubs (ICH).
+     For SMBus support, they are similar to the PIIX4 and are part
+     of Intel's '810' and other chipsets.
+@@ -121,7 +122,8 @@
+ 
+ 	I801_dev = dev;
+ 	if ((dev->device == PCI_DEVICE_ID_INTEL_82801DB_3) ||
+-	    (dev->device == PCI_DEVICE_ID_INTEL_82801EB_3))
++	    (dev->device == PCI_DEVICE_ID_INTEL_82801EB_3) ||
++	    (dev->device == PCI_DEVICE_ID_INTEL_ESB_4))
+ 		isich4 = 1;
+ 	else
+ 		isich4 = 0;
+@@ -576,10 +578,22 @@
+ 		.subdevice =	PCI_ANY_ID,
+ 	},
+ 	{
+-		.vendor =   PCI_VENDOR_ID_INTEL,
+-		.device =   PCI_DEVICE_ID_INTEL_82801EB_3,
+-		.subvendor =    PCI_ANY_ID,
+-		.subdevice =    PCI_ANY_ID,
++		.vendor =	PCI_VENDOR_ID_INTEL,
++		.device =	PCI_DEVICE_ID_INTEL_82801EB_3,
++		.subvendor =	PCI_ANY_ID,
++		.subdevice =	PCI_ANY_ID,
++	},
++	{
++		.vendor =	PCI_VENDOR_ID_INTEL,
++		.device =	PCI_DEVICE_ID_INTEL_ESB_4,
++		.subvendor =	PCI_ANY_ID,
++		.subdevice = 	PCI_ANY_ID,
++	},
++	{
++		.vendor =	PCI_VENDOR_ID_INTEL,
++		.device =	PCI_DEVICE_ID_INTEL_ICH6_16,
++		.subvendor =	PCI_ANY_ID,
++		.subdevice =	PCI_ANY_ID,
+ 	},
+ 	{ 0, }
+ };
+diff -Nru a/drivers/ide/pci/piix.c b/drivers/ide/pci/piix.c
+--- a/drivers/ide/pci/piix.c	Fri May 14 16:18:51 2004
++++ b/drivers/ide/pci/piix.c	Fri May 14 16:18:51 2004
+@@ -153,7 +153,7 @@
+ 			case PCI_DEVICE_ID_INTEL_82801EB_11:
+ 			case PCI_DEVICE_ID_INTEL_82801E_11:
+ 			case PCI_DEVICE_ID_INTEL_ESB_2:
+-			case PCI_DEVICE_ID_INTEL_ICH6_2:
++			case PCI_DEVICE_ID_INTEL_ICH6_19:
+ 				p += sprintf(p, "PIIX4 Ultra 100 ");
+ 				break;
+ 			case PCI_DEVICE_ID_INTEL_82372FB_1:
+@@ -292,7 +292,7 @@
+ 		case PCI_DEVICE_ID_INTEL_82801DB_11:
+ 		case PCI_DEVICE_ID_INTEL_82801EB_11:
+ 		case PCI_DEVICE_ID_INTEL_ESB_2:
+-		case PCI_DEVICE_ID_INTEL_ICH6_2:
++		case PCI_DEVICE_ID_INTEL_ICH6_19:
+ 			mode = 3;
+ 			break;
+ 		/* UDMA 66 capable */
+@@ -627,7 +627,7 @@
+ 		case PCI_DEVICE_ID_INTEL_82801EB_11:
+ 		case PCI_DEVICE_ID_INTEL_82801E_11:
+ 		case PCI_DEVICE_ID_INTEL_ESB_2:
+-		case PCI_DEVICE_ID_INTEL_ICH6_2:
++		case PCI_DEVICE_ID_INTEL_ICH6_19:
+ 		{
+ 			unsigned int extra = 0;
+ 			pci_read_config_dword(dev, 0x54, &extra);
+@@ -804,7 +804,7 @@
+  	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 18},
+ #endif /* !CONFIG_SCSI_SATA */
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 19},
+-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 20},
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_19, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 20},
+ 	{ 0, },
+ };
+ MODULE_DEVICE_TABLE(pci, piix_pci_tbl);
+diff -Nru a/drivers/ide/pci/piix.h b/drivers/ide/pci/piix.h
+--- a/drivers/ide/pci/piix.h	Fri May 14 16:18:51 2004
++++ b/drivers/ide/pci/piix.h	Fri May 14 16:18:51 2004
+@@ -70,7 +70,7 @@
+ 	/* 17 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_82801DB_10, "ICH4"),
+ 	/* 18 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_82801EB_1,  "ICH5-SATA"),
+ 	/* 19 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_ESB_2,      "ICH5"),
+-	/* 20 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_ICH6_2,     "ICH6"),
++	/* 20 */ DECLARE_PIIX_DEV(PCI_DEVICE_ID_INTEL_ICH6_19,     "ICH6"),
+ 	{
+ 		.vendor		= 0,
+ 		.device		= 0,
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	Fri May 14 16:18:51 2004
++++ b/include/linux/pci_ids.h	Fri May 14 16:18:51 2004
+@@ -2058,7 +2058,6 @@
+ #define PCI_DEVICE_ID_INTEL_82801EB_7	0x24d7
+ #define PCI_DEVICE_ID_INTEL_82801EB_11	0x24db
+ #define PCI_DEVICE_ID_INTEL_82801EB_13	0x24dd
+-#define PCI_DEVICE_ID_INTEL_ESB_0	0x25a0
+ #define PCI_DEVICE_ID_INTEL_ESB_1	0x25a1
+ #define PCI_DEVICE_ID_INTEL_ESB_2	0x25a2
+ #define PCI_DEVICE_ID_INTEL_ESB_3	0x25a3
+@@ -2084,8 +2083,24 @@
+ #define PCI_DEVICE_ID_INTEL_82875_IG	0x257b
+ #define PCI_DEVICE_ID_INTEL_ICH6_0	0x2640
+ #define PCI_DEVICE_ID_INTEL_ICH6_1	0x2641
+-#define PCI_DEVICE_ID_INTEL_ICH6_2	0x266f
+-#define PCI_DEVICE_ID_INTEL_ICH6_3	0x266e
++#define PCI_DEVICE_ID_INTEL_ICH6_2	0x2642
++#define PCI_DEVICE_ID_INTEL_ICH6_3	0x2651
++#define PCI_DEVICE_ID_INTEL_ICH6_4	0x2652
++#define PCI_DEVICE_ID_INTEL_ICH6_5	0x2653
++#define PCI_DEVICE_ID_INTEL_ICH6_6	0x2658
++#define PCI_DEVICE_ID_INTEL_ICH6_7	0x2659
++#define PCI_DEVICE_ID_INTEL_ICH6_8	0x265a
++#define PCI_DEVICE_ID_INTEL_ICH6_9	0x265b
++#define PCI_DEVICE_ID_INTEL_ICH6_10	0x265c
++#define PCI_DEVICE_ID_INTEL_ICH6_11	0x2660
++#define PCI_DEVICE_ID_INTEL_ICH6_12	0x2662
++#define PCI_DEVICE_ID_INTEL_ICH6_13	0x2664
++#define PCI_DEVICE_ID_INTEL_ICH6_14	0x2666
++#define PCI_DEVICE_ID_INTEL_ICH6_15	0x2668
++#define PCI_DEVICE_ID_INTEL_ICH6_16	0x266a
++#define PCI_DEVICE_ID_INTEL_ICH6_17	0x266d
++#define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
++#define PCI_DEVICE_ID_INTEL_ICH6_19	0x266f
+ #define PCI_DEVICE_ID_INTEL_82855PM_HB	0x3340
+ #define PCI_DEVICE_ID_INTEL_82830_HB	0x3575
+ #define PCI_DEVICE_ID_INTEL_82830_CGC	0x3577
+diff -Nru a/sound/oss/i810_audio.c b/sound/oss/i810_audio.c
+--- a/sound/oss/i810_audio.c	Fri May 14 16:18:51 2004
++++ b/sound/oss/i810_audio.c	Fri May 14 16:18:51 2004
+@@ -120,8 +120,8 @@
+ #ifndef PCI_DEVICE_ID_INTEL_ICH5
+ #define PCI_DEVICE_ID_INTEL_ICH5	0x24d5
+ #endif
+-#ifndef PCI_DEVICE_ID_INTEL_ICH6_3
+-#define PCI_DEVICE_ID_INTEL_ICH6_3	0x266e
++#ifndef PCI_DEVICE_ID_INTEL_ICH6_18
++#define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
+ #endif
+ #ifndef PCI_DEVICE_ID_INTEL_440MX
+ #define PCI_DEVICE_ID_INTEL_440MX	0x7195
+@@ -351,7 +351,7 @@
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, AMD8111},
+ 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_5,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH4},
+-	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_3,
++	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_18,
+ 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH4},
+ 
+ 	{0,}
+@@ -2797,7 +2797,7 @@
+ 	/* see i810_ac97_init for the next 7 lines (jsaw) */
+ 	inw(card->ac97base);
+ 	if ((card->pci_id == PCI_DEVICE_ID_INTEL_ICH4 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH5 ||
+-	     card->pci_id == PCI_DEVICE_ID_INTEL_ESB_5 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH6_3)
++	     card->pci_id == PCI_DEVICE_ID_INTEL_ESB_5 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH6_18)
+ 	    && (card->use_mmio)) {
+ 		primary_codec_id = (int) readl(card->iobase_mmio + SDM) & 0x3;
+ 		printk(KERN_INFO "i810_audio: Primary codec has ID %d\n",
+@@ -2868,7 +2868,7 @@
+ 		   last codec ID spoken to. 
+ 		*/
+ 		if ((card->pci_id == PCI_DEVICE_ID_INTEL_ICH4 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH5 ||
+-		     card->pci_id == PCI_DEVICE_ID_INTEL_ESB_5 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH6_3)
++		     card->pci_id == PCI_DEVICE_ID_INTEL_ESB_5 || card->pci_id == PCI_DEVICE_ID_INTEL_ICH6_18)
+ 		    && (card->use_mmio)) {
+ 			ac97_id = (int) readl(card->iobase_mmio + SDM) & 0x3;
+ 			printk(KERN_INFO "i810_audio: Connection %d with codec id %d\n",
 

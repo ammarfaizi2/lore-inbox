@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUHaPR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268696AbUHaPRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268686AbUHaPR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 11:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268693AbUHaPR4
+	id S268696AbUHaPRV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 11:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268693AbUHaPRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 11:17:56 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:44936 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268686AbUHaPO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 11:14:58 -0400
+	Tue, 31 Aug 2004 11:17:20 -0400
+Received: from mail.tmr.com ([216.238.38.203]:262 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S268717AbUHaPP5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 11:15:57 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
 Subject: Re: Driver retries disk errors.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-In-Reply-To: <20040831135403.GB2854@bitwizard.nl>
-References: <20040830163931.GA4295@bitwizard.nl>
-	 <1093952715.32684.12.camel@localhost.localdomain>
-	 <20040831135403.GB2854@bitwizard.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093961570.597.2.camel@localhost.localdomain>
+Date: Tue, 31 Aug 2004 11:16:47 -0400
+Organization: TMR Associates, Inc
+Message-ID: <ch24b2$8kk$1@gatekeeper.tmr.com>
+References: <20040830174632.GA21419@thunk.org><20040830174632.GA21419@thunk.org> <41337153.60505@superbug.demon.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 31 Aug 2004 15:12:52 +0100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1093964962 8852 192.168.12.100 (31 Aug 2004 15:09:22 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <41337153.60505@superbug.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-08-31 at 14:54, Rogier Wolff wrote:
-> So, can we agree on: 
-> 	- might be needed for 
-> 		- Floppies?
-> 		- MO drives
-> 		- older drives
+James Courtier-Dutton wrote:
 
-Other random stuff it saves our backside on we don't know about.
+> It does the same retries with CD-ROM and DVDs, and if the retries fail, 
+> it disables DMA! It even does the retries when reading CD-Audio.
+> Maybe there should be a "retrys" setting that can be set by hdparm, then 
+> we could set the retry counts, and what happens when a retry fails on a 
+> per device basis.
 
-> How about we set the num-retries to 1, and increase to 8 for
-> "weird devices" (floppy, MO), and older drives. 
+Thinking hotswap, I could suggest that "device category" would be useful 
+for this. Yes, you could build policy into the plug code, but it still 
+needs to get the policy from somewhere.
 
-Disagree. I want it robust. If you want to set low retry counts then
-the user should do so for special cases like forensics.
-
-> I do want to make the num_retries thing a configurable parameter,
-> should the autodetect get it wrong: We get drives that we want to
-> recover without the kernel-level retries...
-
-Making it configurable is good, but I can't help feeling that this
-belongs at the block layer - I wonder what Jens thinks, it might well
-have to be done by the driver because only the driver knows enough but
-the ioctl/config option ought to be common.
-
-> (still: I argue that you need to consider a "retry-works" error as an
-> early warning that your media is going bad, and you need to get your
-> data off ASAP! If the kernel silently retries and succeeds, the user
-> won't notice a thing and continue using the drive (or MO media) until
-> the error becomes irrecoverable. I recommend we put the retry at the
-> user level. As in "person behind keyboard".)
-
-M/O media retries generally do the right thing and have the right
-effect. If you want to know if your drive is failing use SMART and ask
-the drive
-
-Remember: Storage appliance not disk. Treat it like a storage
-appliance and you'll get better results.
-
-Alan
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

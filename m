@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265544AbTFRVfl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 17:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265547AbTFRVfl
+	id S265548AbTFRVhY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 17:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265552AbTFRVhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 17:35:41 -0400
-Received: from host204.cisp.cc ([65.196.203.204]:44045 "EHLO
-	nocmailsvc004.allthesites.org") by vger.kernel.org with ESMTP
-	id S265544AbTFRVff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 17:35:35 -0400
-From: "Thomas Molina" <tmolina@copper.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Panic while upgrading from 2.4.20 to 2.5.70
-Date: Wed, 18 Jun 2003 17:48:03 -0400
-Message-ID: <MIECJFNNBOIGKGCCGDDECEANCBAA.tmolina@copper.net>
+	Wed, 18 Jun 2003 17:37:23 -0400
+Received: from auemail1.lucent.com ([192.11.223.161]:43258 "EHLO
+	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S265548AbTFRVhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 17:37:18 -0400
+Message-ID: <16112.57021.420450.341367@gargle.gargle.HOWL>
+Date: Wed, 18 Jun 2003 17:50:53 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+From: "John Stoffel" <stoffel@lucent.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH CYCLADES 2/2] update drivers/char/Kconfig cyclades entry
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Sourabh Ladha (EED) wrote:
->> Hi,
->>
->> [I know this has been discussed before but I tried the previous fixes
-proposed without luck..so]
->>
->> I was trying to upgrade my kernel from 2.4.20 to 2.5.70. (I am running
-RedHat 9). After getting the sources I did:
->>
->> make clean; make mrproper; make distclean; make menuconfig; make bzImage;
-make modules; make modules_install; make install   >(got past all of these)
->>
->> The make install updated my grub.conf as well...
->
->Just a wild guess:  did you upgrade modutils to module-init-tools?  2.5.x
-won't be happy
->until you do.
 
+Hi Linus,
 
-Actually, I have seen similar before.  It happens when you install a new
-kernel on a RedHat system which requires an initrd to boot.  It happens
-specifically because you upgrade module-init-tools.  The upgraded
-module-init-tools replaces files used by the previous version of the
-utilities and creating links to them.  It appears that the RedHat system
-fails to find the proper version of the files it needs to build the initrd
-image and therefor fails when it tries to load the ext3 modules.  It then
-can't find the init on the disk because it can't read the filesystem and
-gives the error seen.
+I've cleaned up the Kconfig entry for the cyclades serial boards, this
+makes it more obvious what the entry refers to in my mind.  
 
-The two options are either build a kernel with everything required to boot
-built in rather than modular, or else reinstll the old module tools, install
-the new kernel (this allows RedHat to create a good initrd image), and then
-reinstall the new module init tools.
+I'd also ask you to remove drivers/char/README.cyclomY since it's
+*way* out of date and refers to an ancient version of the driver and
+MAKEDEV scripts.
 
+Thanks,
+John
+john@stoffel.org
+
+diff -ur l-2.5.72/drivers/char/Kconfig l-2.5.72-cyclades/drivers/char/Kconfig
+--- l-2.5.72/drivers/char/Kconfig	Wed Jun 18 10:26:21 2003
++++ l-2.5.72-cyclades/drivers/char/Kconfig	Wed Jun 18 17:37:42 2003
+@@ -110,17 +110,19 @@
+           you don't have a Comtrol RocketPort/RocketModem card installed, say N.
+ 
+ config CYCLADES
+-	tristate "Cyclades async mux support"
++	tristate "Cyclades Multiport Serial Board support"
+ 	depends on SERIAL_NONSTANDARD
+ 	---help---
+ 	  This is a driver for a card that gives you many serial ports. You
+ 	  would need something like this to connect more than two modems to
+ 	  your Linux box, for instance in order to become a dial-in server.
+-	  For information about the Cyclades-Z card, read
+-	  <file:drivers/char/README.cycladesZ>.
++          This driver supports the following boards:
++
++             Cyclom-Y (ISA or PCI)
++             Cyclades-Z (PCI)
+ 
+-	  As of 1.3.9x kernels, this driver's minor numbers start at 0 instead
+-	  of 32.
++          For information about the Cyclades-Z card, read
++	  <file:drivers/char/README.cycladesZ>.
+ 
+ 	  If you want to compile this as a module ( = code which can be
+ 	  inserted in and removed from the running kernel whenever you want),

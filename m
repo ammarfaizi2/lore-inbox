@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbUKCV2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUKCVbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbUKCV2w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 16:28:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbUKCV2V
+	id S261914AbUKCVbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 16:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbUKCV26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 16:28:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:51677 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261895AbUKCVXe (ORCPT
+	Wed, 3 Nov 2004 16:28:58 -0500
+Received: from fep18.inet.fi ([194.251.242.243]:47322 "EHLO fep18.inet.fi")
+	by vger.kernel.org with ESMTP id S261891AbUKCVYO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 16:23:34 -0500
-Date: Wed, 3 Nov 2004 13:23:19 -0800
-From: Greg KH <greg@kroah.com>
-To: "Kilau, Scott" <Scott_Kilau@digi.com>
-Cc: germano.barreiro@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: patch for sysfs in the cyclades driver
-Message-ID: <20041103212318.GA29830@kroah.com>
-References: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D81C@minimail.digi.com>
+	Wed, 3 Nov 2004 16:24:14 -0500
+Date: Wed, 3 Nov 2004 23:24:09 +0200
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: USB CD/disk not working after 2.6.7
+Message-ID: <20041103212409.GC13063@m.safari.iki.fi>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041103183425.GB13063@m.safari.iki.fi> <41893E4E.3090602@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D81C@minimail.digi.com>
+In-Reply-To: <41893E4E.3090602@tmr.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 02:20:39PM -0600, Kilau, Scott wrote:
-> > > Maybe we can allow a "custom" name to be sent into the
-> > > tty_register_device() call?  Like add another option parameter
-> called
-> > > "custom_name" that if non-NULL, is used instead of the derived name?
-> 
-> > Why?  What would you call it that would be any different from what we
-> > use today?  I guess I don't understand why you don't like the kernel
-> > names.
-> 
-> > greg k-h
-> 
-> Well, tty name compatibly reasons with a couple of our drivers.
-> 
-> Most of our new Linux users for a couple of our older products are
-> coming
-> from a specific different OS who are adamant that we keep the tty names
-> the way they were used to under that OS.
-> 
-> Also, I can see some oddball products out there that might need
-> only 1 tty out there.
-> 
-> Instead of forcing "ttyoddball0" for the name, it would
-> be nice to let the driver use "ttyoddball", or whatever it wanted.
+On Wed, Nov 03, 2004 at 03:23:42PM -0500, Bill Davidsen wrote:
+> Sami Farin wrote:
+> >On Wed, Nov 03, 2004 at 12:20:58PM -0500, Bill Davidsen wrote:
+> >
+> >>Since 2.6.7 no kernel has seen my USB CD burner or disk. I took the disk 
+> >>off to simplify the picture, it still doesn't work.
+> >
+> >...
+> >
+> >>Buffer I/O error on device uba, logical block 0
+> >>unable to read partition table
+> >
+> >
+> >remove this line from .config and rebuild kernel...
+> >CONFIG_BLK_DEV_UB=y
+> >
+> >...and it will just work.
+> >
+> Thank you for the prompt answer! I've started rebuilding the kernel.
 
-Your driver can use whatever name you wanted, as long as it's the
-LANNANA name that you asked for and were assigned.  We do have standards
-for a good reason, and the kernel will follow them.
+Good luck.
 
-That being said, have your customers use a tool like udev.  Then they
-can name their tty devices whatever they want.  No limitations there at
-all.
+> Do you know if  the incompatibility between flash key support and 
+> CD/disk a bug, design decision, or unavoidable characteristic of the 
+> devices involved? I have some kind of a flash key coming for evaluation, 
+> so I built with that on.
 
-Hope this helps,
+AFAIK, usb-storage works fine with all those USB memory sticks / pen drives
+without CONFIG_BLK_DEV_UB and I have absolutely no idea whatsoever what
+"flash keys" UB is supposed to support.
+I would have assumed that UB enables you to use some flash
+key (such as?) which isn't supported by any other USB driver but seems UB
+stomps on usb-storage and breaks in many cases and you can't use the usual
+USB CF-readers etc with CONFIG_BLK_DEV_UB=y because UB is buggy.
+well, defconfig has CONFIG_BLK_DEV_UB disabled.
 
-greg k-h
+maybe Pete Zaitcev can enlighten us.
+
+http://en.wikipedia.org/wiki/Keydrive
+"flash key" missing from that list? *shrug*
+
+-- 

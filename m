@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSE1WXf>; Tue, 28 May 2002 18:23:35 -0400
+	id <S290289AbSE1W25>; Tue, 28 May 2002 18:28:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSE1WXe>; Tue, 28 May 2002 18:23:34 -0400
-Received: from ns.suse.de ([213.95.15.193]:1289 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S310190AbSE1WXd>;
-	Tue, 28 May 2002 18:23:33 -0400
-To: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module question
-In-Reply-To: <03781128C7B74B4DBC27C55859C9D7380984062E@es06snlnt.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 29 May 2002 00:23:33 +0200
-Message-ID: <p73bsazewt6.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S293203AbSE1W24>; Tue, 28 May 2002 18:28:56 -0400
+Received: from holomorphy.com ([66.224.33.161]:62606 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S290289AbSE1W2z>;
+	Tue, 28 May 2002 18:28:55 -0400
+Date: Tue, 28 May 2002 15:28:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+Message-ID: <20020528222838.GX14918@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Pavel Machek <pavel@suse.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	ACPI mailing list <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <20020521222858.GA14737@elf.ucw.cz> <20020527194018.GQ14918@holomorphy.com> <20020528193220.GB189@elf.ucw.cz> <20020528210917.GU14918@holomorphy.com> <20020528211120.GA28189@atrey.karlin.mff.cuni.cz> <20020528212427.GV14918@holomorphy.com> <20020528213408.GE28189@atrey.karlin.mff.cuni.cz> <20020528215318.GW14918@holomorphy.com> <20020528220032.GA3476@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Shipman, Jeffrey E" <jeshipm@sandia.gov> writes:
+At some point in the past, I wrote:
+>> This looks good, though OTOH if we have a page from a zone we should know
+>> the zone exists, and then maybe the if (!curr) check isn't
+>> needed. If that's
 
-> I have been assigned to a project where we are trying to fool
-> OS footprinters into thinking the machine is running another
-> OS. I was thinking I could write a module which registers
-> a packet handler to modify the TCP/IP headers as necessary.
-> I haven't really looked into this all much.
+On Wed, May 29, 2002 at 12:00:32AM +0200, Pavel Machek wrote:
+> Good point. Killed.
 
-It's probably impossible to fool advanced tools like http://www.icir.org/tbit/
-unless you change some fundamental algorithms in linux TCP  (like the 
-retransmit state machine) or replace it with another TCP. 
+At some point in the past, I wrote:
+>> the case the scary check that almost looks like defensive programming won't
+>> be needed at all. Also, is it always expected that this will be a
+>> free page?
 
--Andi
+On Wed, May 29, 2002 at 12:00:32AM +0200, Pavel Machek wrote:
+> No. It may be used page, too. That's why it is asking. 
+> 								Pavel
+
+Aha, so it can't be a BUG() at the bottom then. Cool, this looks very
+nice!
+
+Cheers,
+Bill

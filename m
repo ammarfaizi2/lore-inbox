@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314083AbSG2JYC>; Mon, 29 Jul 2002 05:24:02 -0400
+	id <S314096AbSG2J1V>; Mon, 29 Jul 2002 05:27:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314085AbSG2JYC>; Mon, 29 Jul 2002 05:24:02 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25860 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314083AbSG2JYC>; Mon, 29 Jul 2002 05:24:02 -0400
-Date: Mon, 29 Jul 2002 10:27:21 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of PAGE_{CACHE_,}{MASK,ALIGN}
-Message-ID: <20020729102721.B23843@flint.arm.linux.org.uk>
-References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D448808.CF8D18BA@zip.com.au>; from akpm@zip.com.au on Sun, Jul 28, 2002 at 05:10:48PM -0700
+	id <S314138AbSG2J1V>; Mon, 29 Jul 2002 05:27:21 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:11756 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314096AbSG2J1U> convert rfc822-to-8bit; Mon, 29 Jul 2002 05:27:20 -0400
+MIME-Version: 1.0
+Subject: usb-core/uhci - scp problem
+From: d.e.jung-ludwigshafen@t-online.de (Dr. Dietmar Jung)
+Reply-To: <0621665841-0001@T-Online.de>
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: T-Online eMail 4.104
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: 29 Jul 2002 09:29 GMT
+Message-ID: <17Z6r9-1mkrJYC@fwd09.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 05:10:48PM -0700, Andrew Morton wrote:
-> - Remove ->virtual, do page_address() via a hash.  4(ish) bytes saved.
+On a Laptop Gericom 1.st Supersonic 
+Processot PIII 1000 MHz
+256 MB RAM
+30 GB HD
+2 USB 1.1 
+2 PCMCIA (1) eg. 1 PCMCIA (2)
 
-Hmmmmmmm.  page_address() is already 5 loads (on ARM) if page->virtual
-isn't used.  I'm seriously considering changing page_address() to cover
-the 3 cases more efficiently:
+with Linux SuSE 7.3
+Kernel 2.4.10-GB (SuSE)
 
-1. non-discontiguous case (should be around 2 loads + math)
-2. discontiguous case (currently 5 loads + lots of math)
-3. weirder setups where loading page->virtual is faster
+I have 
 
-We currently ignore (1) completely, and just assume its the same as (2).
+1 USB Mouse
+and
+1 Maxtor 40 GB Personal Storage 3000 LE USB 2.0
+1 Partition ext2,
+with uhci and usb-storage drivers for the HD.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Everything works fine.
+scp works fine when the external HD is not mounted.
+
+But, when trying to use scp over PCMCIA Gericom 10/100 Card with the external HD mounted,(writing to the internal or the external HD, working in an X-console or working console without any X) the console used will hang itself up. 
+
+Neither the console nor scp nor the mounts can be killed by kill -9 *. 
+
+You can lock and lockout on other consoles/terminals.
+
+Shutdown -h now does not give any comments, but does not shut the system down. You have to cut the power off.
+
+Used seperately the interrupts used by the PCMCIA-card and the external HD differ. That is not the cause.
+
+Is there an explanation? Can anything be done about it.
+
+d.e.jung-ludwigshafen@t-online.de
+
+Best regards
+
+Dietmar Jung
 

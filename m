@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbULDXNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbULDXXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbULDXNb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 18:13:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbULDXNb
+	id S261191AbULDXXM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 18:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbULDXXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 18:13:31 -0500
-Received: from 4.Red-80-32-108.pooles.rima-tde.net ([80.32.108.4]:12672 "EHLO
-	gimli") by vger.kernel.org with ESMTP id S261193AbULDXN2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 18:13:28 -0500
-Message-ID: <41B24542.7010803@sombragris.com>
-Date: Sun, 05 Dec 2004 00:16:18 +0100
-From: Miguel Angel Flores <maf@sombragris.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Sat, 4 Dec 2004 18:23:12 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:26549 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261191AbULDXXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 18:23:08 -0500
+Message-ID: <41B246E2.7070501@comcast.net>
+Date: Sat, 04 Dec 2004 18:23:14 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041119)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] aic7xxx large integer
-References: <41B222BE.9020205@sombragris.com>
-In-Reply-To: <41B222BE.9020205@sombragris.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: The __KERNEL__ #define
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miguel Angel Flores wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Hi all,
->
-> I noticed a large integer warning when compiling 2.6.10rc3 with the 
-> SCSI AIC-7xxx driver.
->
-> Here is the patch.
->
-> Cheers,
-> MaF
+Recently there has been talk of splitting up include/linux to obsolete
+the __KERNEL__ define.  I would like to request that __KERNEL__ remain
+defined in the kernel build process and in module building.
 
-I post the patch very quickly :(. The original code finally seems OK. My 
-controller is not working with 39 bit addressing, although I can't find 
-why the compiler warns. Maybe the length of dma_addr_t type, in the 
-2.6.9 the type of the mask_39bit variable is bus_addr_t.
+A modified specs file on Gentoo enables -fstack-protector{,-all} in gcc,
+two switches added by a patch[1][2] to gcc made by Etoh and Yoda of the
+IBM Tokyo Research Labs.  This patch relies on several symbols not
+defined in the kernel to do a type of artificial bounds checking,
+preventing stack-based buffer overflows from being utilized in security
+exploits.  It was determined that this is non-useful in the kernel
+(although possibly more research should be done-- is it worth it to
+panic when we think there's a kernel-level exploit occuring?), and so
+the specs file does not enable these if __KERNEL__ is defined.
 
-Forget the patch. I'll continue looking...
+The specs file also generates PIE-by-default executables, and disables
+this functionality if __KERNEL__ is defined; so if it is determined that
+~ SSP in the kernel would be useful, this define is still needed.  In
+general it is in itself harmless and should stay as an indicator.
 
-Thanks and excuse the inconvenience.
+The Hardened Debian project is going to implement a similar specs file
+alteration, which may be used in Ubuntu and Debian.
 
-Cheers,
-MaF
+[1] trl.ibm.com/projects/security/ssp/
+[2] trl.ibm.com/projects/security/ssp/main.html (paper)
 
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBskbihDd4aOud5P8RAqfyAJwKY9Krn8e8JFBNixlGRkFae9L7XACfQ/AV
+x7AtknAzLTVjfuOQjUE1IWs=
+=qx1O
+-----END PGP SIGNATURE-----

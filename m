@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284180AbRLFUNb>; Thu, 6 Dec 2001 15:13:31 -0500
+	id <S284164AbRLFUPV>; Thu, 6 Dec 2001 15:15:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284164AbRLFUNW>; Thu, 6 Dec 2001 15:13:22 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:32017 "HELO
+	id <S284181AbRLFUPI>; Thu, 6 Dec 2001 15:15:08 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:42001 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284180AbRLFUNM>; Thu, 6 Dec 2001 15:13:12 -0500
-Date: Thu, 6 Dec 2001 18:12:56 -0200 (BRST)
+	id <S284182AbRLFUOq>; Thu, 6 Dec 2001 15:14:46 -0500
+Date: Thu, 6 Dec 2001 18:14:23 -0200 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@duckman.distro.conectiva>
-To: Frank Cornelis <Frank.Cornelis@rug.ac.be>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: list_head makes me crazy
-In-Reply-To: <Pine.GSO.4.31.0112062004520.2339-100000@eduserv.rug.ac.be>
-Message-ID: <Pine.LNX.4.33L.0112061812380.2283-100000@duckman.distro.conectiva>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre5
+In-Reply-To: <20011206201815.C24176@emma1.emma.line.org>
+Message-ID: <Pine.LNX.4.33L.0112061813420.2283-100000@duckman.distro.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,14 +21,19 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Frank Cornelis wrote:
+On Thu, 6 Dec 2001, Matthias Andree wrote:
+> On Thu, 06 Dec 2001, Marcelo Tosatti wrote:
+>
+> > pre5:
+> ...
+> > - Networking updates				(David S. Miller)
+>
+> Would you deem it feasible to elaborate on these?
+> Or is there a place I haven't known of until know where I can
+> get that information?
 
-> In include/asm-i386/processor.h, struct thread_struct I can add
-> 	struct list_head *mylist;
-> but not
-> 	struct list_head mylist;
-
-A struct list_head is about twice as large as a pointer.
+Wait for Dave at the lokal Krispy Kream and don't allow
+him access to the donuts until he writes a changelog ?
 
 Rik
 -- 

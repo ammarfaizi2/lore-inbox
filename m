@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262746AbRFGSb3>; Thu, 7 Jun 2001 14:31:29 -0400
+	id <S262747AbRFGSc7>; Thu, 7 Jun 2001 14:32:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262742AbRFGSbT>; Thu, 7 Jun 2001 14:31:19 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:60642 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S262735AbRFGSbB>; Thu, 7 Jun 2001 14:31:01 -0400
-Date: Thu, 7 Jun 2001 20:31:46 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Tom Vier <tmv5@home.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        rth@twiddle.net
-Subject: Re: [patch] Re: Linux 2.4.5-ac6
-In-Reply-To: <20010607214808.A18298@jurassic.park.msu.ru>
-Message-ID: <Pine.GSO.3.96.1010607202832.16852C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S262750AbRFGSct>; Thu, 7 Jun 2001 14:32:49 -0400
+Received: from atlrel1.hp.com ([156.153.255.210]:5315 "HELO atlrel1.hp.com")
+	by vger.kernel.org with SMTP id <S262747AbRFGScj>;
+	Thu, 7 Jun 2001 14:32:39 -0400
+Message-ID: <3B1FC8E1.262586C0@fc.hp.com>
+Date: Thu, 07 Jun 2001 12:33:05 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nico Schottelius <nicos@pcsystems.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: scsi disk defect or kernel driver defect ?
+In-Reply-To: <3B1FAA63.130E556A@pcsystems.de> <3B1FAF79.DF86DA0A@fc.hp.com> <3B1FC660.D958CB6C@pcsystems.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Jun 2001, Ivan Kokshaysky wrote:
-
-> >  Note that personally I'm strongly against the -taso approach -- it's a
-> > hack to be meant as an excuse for fixing broken programs.
+Nico Schottelius wrote:
+> There is in fact no terminator, the scsi disc should terminate the bus
+> itself. It is directly connected to the onboard aix7880 scsi controller.
+> I will use another cable in about half an hour (when my friend arrives..)
 > 
-> Exactly. However, there are situations when you have only two options:
-> rewrite from scratch or use -taso. Netscape vs. mozilla is a good example. :-)
+> Thanks for the hint!
+> 
+> Nico
+> 
 
- Why can't mozilla be fixed?  With the -taso option there is actually less
-encouragement to do so.
+I would suggest checking "Term Enable" jumper on the disk just to be
+sure. This jumper needs to be on for most (I would think all) drives to
+terminate the bus.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+--
+Khalid
+ 
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

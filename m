@@ -1,45 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbRB1XFT>; Wed, 28 Feb 2001 18:05:19 -0500
+	id <S129350AbRB1XGF>; Wed, 28 Feb 2001 18:06:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129355AbRB1XFG>; Wed, 28 Feb 2001 18:05:06 -0500
-Received: from gateway.sequent.com ([192.148.1.10]:29330 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S129319AbRB1XEy>; Wed, 28 Feb 2001 18:04:54 -0500
-Date: Wed, 28 Feb 2001 15:04:44 -0800
-From: "Martin J. Bligh" <mbligh@mail.com>
-Reply-To: "Martin J. Bligh" <mbligh@mail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Confused by local APIC addressing in setup_IO_APIC_irqs()
-Message-ID: <4120141070.983372684@W-MBLIG.svc.sequent.com>
-In-Reply-To: <4104841651.983357385@W-MBLIG.svc.sequent.com>
-X-Mailer: Mulberry/2.0.1 (Win32)
+	id <S129344AbRB1XF5>; Wed, 28 Feb 2001 18:05:57 -0500
+Received: from adsl-64-167-146-94.dsl.snfc21.pacbell.net ([64.167.146.94]:43784
+	"EHLO eleanor.wdhq.scyld.com") by vger.kernel.org with ESMTP
+	id <S129350AbRB1XFq>; Wed, 28 Feb 2001 18:05:46 -0500
+Date: Wed, 28 Feb 2001 18:06:37 -0500 (EST)
+From: Daniel Ridge <newt@scyld.com>
+To: beowulf@beowulf.org
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Will Mosix go into the standard kernel?
+In-Reply-To: <Pine.LNX.4.33.0102271829030.5502-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0102281732210.22184-100000@eleanor.wdhq.scyld.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But cpu_online map seems to be a 32 bit bitmask of which
-> CPUs are online .... are we stuffing this directly into an 8-bit
-> logical desitination register?
->
-> Ironically, if I'm understanding this right, it kind of works anyway
-> for most systems - the low nibble of the logical ID is a bitmask
-> anyway, so it works normally for up to 4 way. For 8 way or more,
-> the high nibble will be set to 1111, which is the broadcast cluster ID,
-> so it'll direct interrupts anywhere .... but I can't believe that was
-> intentional ;-) For a start, a 7 way system would send to some
-> non-existant cluster ID ....
 
-Damn ... sorry - figured this out. The way Linux is doing it will work
-up to 8 CPUs. I'd forgotten that earlier on in my changes I'd switched
-the CPUs local APICs from FLAT logical addressing mode to
-CLUSTERED logical addressing mode. I need to switch the IO APIC code
-to match ...
+Fellow Beowulfers,
 
-Thanks,
+I have yet to hear a compelling argument about why any of them should 
+go into the standard kernel -- let alone a particular one or a duck of a
+compromise.
 
-Martin.
+The Scyld system is based on BProc -- which requires only a 1K patch to
+the kernel. This patch adds 339 net lines to the kernel, and changes 38
+existing lines.
+
+The Scyld 2-kernel-monte kernel inplace reboot facility is a 600-line
+module which doesn't require any patches whatsoever.
+
+Compare this total volume to the thousands of lines of patches that
+RedHat or VA add to their kernel RPMS before shipping. I just don't see 
+the value in fighting about what clustering should 'mean' or picking
+winners when it's just not a real problem.
+
+Scyld is shipping a for-real commercial product based on BProc and
+2-kernel-Monte and our better-than-stock implementation of LFS and and
+we're not losing any sleep over this issue.
+
+I think we should instead focus our collective will on removing things
+from the kernel. For years, projects like ALSA, pcmcia-cs, and VMware
+have done an outstanding job sans 'inclusion' and we should more
+frequently have the courage to do the same. RedHat and other linux vendors
+have demonstrated ably that they know how to build and package systems
+that draw together these components in an essentially reasonable way. 
+
+Regards,
+	Dan Ridge
+	Scyld Computing Corporation
+
+On Tue, 27 Feb 2001, Rik van Riel wrote:
+
+> On Tue, 27 Feb 2001, David L. Nicol wrote:
+> 
+> > I've thought that it would be good to break up the different
+> > clustering frills -- node identification, process migration,
+> > process hosting, distributed memory, yadda yadda blah, into
+> > separate bite-sized portions.
+> 
+> It would also be good to share parts of the infrastructure
+> between the different clustering architectures ...
+> 
+> > Is there a good list to discuss this on?  Is this the list?
+> > Which pieces of clustering-scheme patches would be good to have?
+> 
+> I know each of the cluster projects have mailing lists, but
+> I've never heard of a list where the different projects come
+> together to eg. find out which parts of the infrastructure
+> they could share, or ...
+> 
+> Since I agree with you that we need such a place, I've just
+> created a mailing list:
+> 
+> 	linux-cluster@nl.linux.org
+> 
+> To subscribe to the list, send an email with the text
+> "subscribe linux-cluster" to:
+> 
+> 	majordomo@nl.linux.org
+> 
+> 
+> I hope that we'll be able to split out some infrastructure
+> stuff from the different cluster projects and we'll be able
+> to put cluster support into the kernel in such a way that
+> we won't have to make the choice which of the N+1 cluster
+> projects should make it into the kernel...
+> 
+> regards,
+> 
+> Rik
+> --
+> Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+> 
+> Virtual memory is like a game you can't win;
+> However, without VM there's truly nothing to lose...
+> 
+> 		http://www.surriel.com/
+> http://www.conectiva.com/	http://distro.conectiva.com/
+> 
+> 
+> 
+> 
+> _______________________________________________
+> Beowulf mailing list, Beowulf@beowulf.org
+> To change your subscription (digest mode or unsubscribe) visit http://www.beowulf.org/mailman/listinfo/beowulf
+> 
 

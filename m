@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130176AbRCHWru>; Thu, 8 Mar 2001 17:47:50 -0500
+	id <S130090AbRCHW4k>; Thu, 8 Mar 2001 17:56:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130187AbRCHWrl>; Thu, 8 Mar 2001 17:47:41 -0500
-Received: from mailg.telia.com ([194.22.194.26]:14609 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S130176AbRCHWra>;
-	Thu, 8 Mar 2001 17:47:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roger Larsson <roger.larsson@norran.net>
-To: "Paul Larson" <plars@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel stress testing coverage
-Date: Thu, 8 Mar 2001 23:37:55 +0100
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <OF50B88864.0721DA46-ON85256A09.006EE3FD@raleigh.ibm.com>
-In-Reply-To: <OF50B88864.0721DA46-ON85256A09.006EE3FD@raleigh.ibm.com>
-MIME-Version: 1.0
-Message-Id: <01030823375501.03048@dox>
-Content-Transfer-Encoding: 7BIT
+	id <S130126AbRCHW4b>; Thu, 8 Mar 2001 17:56:31 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:20612 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S130090AbRCHW4O>;
+	Thu, 8 Mar 2001 17:56:14 -0500
+Date: Thu, 8 Mar 2001 23:55:33 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200103082255.XAA14402@harpo.it.uu.se>
+To: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] UP-APIC fix for Mobile P6
+Cc: linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl, mingo@redhat.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan et al,
 
-Here is a link to some memory usage related test programs:
+This patch (against 2.4.2-ac14) fixes a buglet in the UP-APIC support.
+As a side-effect of hpa's CPU detection rewrite in 2.4.0-test, the
+X86_FEATURE constants where changed from bit masks to bit numbers.
+Unfortunately one spot in apic.c:detect_init_APIC() wasn't updated,
+with the effect that we would fail to detect P6 processors lacking
+local APICs (all Mobile P6 CPUs it seems).
 
-  http://carpanta.dc.fi.udc.es/~quintela/memtest/
+This didn't cause failures in the NMI watchdog since the new detection
+code in setup.c would clear the APIC feature bit before any damage
+was done. However, some users were confused by the fact that their
+kernels would claim to have detected and initialised the local APIC,
+but still the NMI watchdog wouldn't run.
 
-They have proven their value many times...
+/Mikael
 
-
-/RogerL
-
-On Thursday 08 March 2001 21:57, Paul Larson wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> on 03/08/2001 02:06:06 PM
->
-> To:   Paul Larson/Austin/IBM@ibmus
-> cc:
-> Subject:  Re: Kernel stress testing coverage
->
-> >One thing I've been using for coverage (at least some coverage) is the
->
-> posix
->
-> >test suite
->
-> --------------------------
->
-> Are you talking about the same posix test suite that LSB is using?  I've
-> looked into that a little, but here are the two problems I'm wanting to
-> address:
->
-> 1. How much of the kernel is getting hit on a run of any given test?  Even
-> an approximate percentage is fine as long as I can prove it.
->
-> 2. I could run many many copies simultaneously I suppose and get some
-> stress, but I'd prefer to stress individual pieces one at a time.  Those
-> pieces could then be mixed together in later runs for mixed load stress.
-> Additional mixed load tests will be performed with general applications
-> (web servers, databases, etc) for more of a "real world" environment, but I
-> want to have focused tests as well.
->
-> I'm betting that there are probably a LOT of quick and dirty test programs
-> that kernel hackers have written to expose a problem or thoroughly test a
-> piece of the kernel that they modified.  These type of things would be
-> FYI this project will be going on sourceforge very soon.  I want to have a
-> little more to start out with though and finish putting together a good
-> project description, testplans, etc. to post as soon as we put it on there.
-> I hate it when people start projects and you don't see any good information
-> about it for weeks.
->
-> Thanks,
-> Paul Larson
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Home page:
-  none currently
+--- linux-2.4.2-ac14/arch/i386/kernel/apic.c.~1~	Thu Mar  8 22:18:04 2001
++++ linux-2.4.2-ac14/arch/i386/kernel/apic.c	Thu Mar  8 22:31:49 2001
+@@ -548,7 +548,7 @@
+ 
+ static int __init detect_init_APIC (void)
+ {
+-	u32 h, l, dummy, features;
++	u32 h, l, features;
+ 	int needs_pm = 0;
+ 	extern void get_cpu_vendor(struct cpuinfo_x86*);
+ 
+@@ -588,8 +588,8 @@
+ 	 * The APIC feature bit should now be enabled
+ 	 * in `cpuid'
+ 	 */
+-	cpuid(1, &dummy, &dummy, &dummy, &features);
+-	if (!(features & X86_FEATURE_APIC)) {
++	features = cpuid_edx(1);
++	if (!(features & (1 << X86_FEATURE_APIC))) {
+ 		printk("Could not enable APIC!\n");
+ 		return -1;
+ 	}

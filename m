@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280088AbRKEBHC>; Sun, 4 Nov 2001 20:07:02 -0500
+	id <S280086AbRKEBIO>; Sun, 4 Nov 2001 20:08:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280086AbRKEBGw>; Sun, 4 Nov 2001 20:06:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11788 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280089AbRKEBGm>; Sun, 4 Nov 2001 20:06:42 -0500
-Date: Sun, 4 Nov 2001 17:03:40 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VM: qsbench numbers
-In-Reply-To: <3.0.6.32.20011104221747.01ff8d30@pop.tiscalinet.it>
-Message-ID: <Pine.LNX.4.33.0111041657060.14237-100000@penguin.transmeta.com>
+	id <S280089AbRKEBID>; Sun, 4 Nov 2001 20:08:03 -0500
+Received: from brick.homesquared.com ([216.177.65.65]:31208 "EHLO
+	brick.homesquared.com") by vger.kernel.org with ESMTP
+	id <S280086AbRKEBHw>; Sun, 4 Nov 2001 20:07:52 -0500
+Message-ID: <002d01c16595$e4bb57e0$fe0aa8c0@kennet.coplanar.net>
+From: "Jeremy Jackson" <jerj@coplanar.net>
+To: "Lonnie Cumberland" <lonnie@outstep.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BE5D6EC.8040204@outstep.com>
+Subject: Re: Special Kernel Modification
+Date: Sun, 4 Nov 2001 17:04:59 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Um, what about chmod command?  You don't want people to be able to see
+directories like /bin?  You would have those anyway in a chroot environment.
+Use chmod to turn off read and execute(search) permissions to anything they
+don't
+need to run (ie /bin, /usr/bin, /lib, etc).  Sorry if that sounds dumb, but
+there's not much information to go on.
 
-On Sun, 4 Nov 2001, Lorenzo Allegrucci wrote:
-> >
-> >Does "free" after a run has completed imply that there's still lots of
-> >swap used? We _should_ have gotten rid of it at "free_swap_and_cache()"
-> >time, but if we missed it..
+Also, for a special xserver, all you need to make it run staroffice or
+something else, is change the
+shell script that starts the x server and/or the user's session.  Xdm has a
+bunch of options for that.
+
+There are also kernel "capabilities"...
+
+----- Original Message -----
+From: Lonnie Cumberland <lonnie@outstep.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, November 04, 2001 4:01 PM
+Subject: Special Kernel Modification
+
+
+> The basic problem that I am running into is that I am working on an
+> Internet related project and thus need to ensure various types of
+> document security for the eventual users of this system, if things go
+well.
 >
-> 70.590u 7.640s 2:31.06 51.7%    0+0k 0+0io 19036pf+0w
-> lenstra:~/src/qsort> free
->              total       used       free     shared    buffers     cached
-> Mem:        255984       6008     249976          0        100       1096
-> -/+ buffers/cache:       4812     251172
-> Swap:       195512       5080     190432
-
-That's not a noticeable amount, and is perfectly explainable by simply
-having deamons that got swapped out with truly inactive pages. So a
-swapcache leak does not seem to be the reason for the unstable numbers.
-
-> >What happens if you make the "vm_swap_full()" define in <linux/swap.h> be
-> >unconditionally defined to "1"?
+> I have look into using things like "chroot" to restrict the users for
+> this very special server, but that solution is not what we need.
 >
-> 70.530u 7.290s 2:33.26 50.7%    0+0k 0+0io 19689pf+0w
-> 70.830u 7.100s 2:29.52 52.1%    0+0k 0+0io 18488pf+0w
-> 70.560u 6.840s 2:28.66 52.0%    0+0k 0+0io 18203pf+0w
+> I am building a special xserver that will allow users to login and then
+> the xserver will run a single application such as StarOffice. When the
+> user exits from the application then the Xserver will log them out.
 >
-> Performace improved and numbers stabilized.
-
-Indeed.
-
-Mind doing some more tests? In particular, the "vm_swap_full()" macro is
-only used in two places: mm/memory.c and mm/swapfile.c. Are you willing to
-test _which_ one (or is it both together) it is that seems to bring on the
-unstable numbers?
-
-		Linus
+> My problem is that I need to find a way to prevent the user from
+> navigating out of their home directories.
+>
+> I have also looking the possiblility of writing my own filesystem, but I
+> am told that this needs to be done at the VFS level.
+>
+> Is there someone who might be able to give me some information on how I
+> could add a few lines to the VFS filesystem so that I might set some
+> type of extended attribute to prevent users from navigating out of the
+> locations.
+>
+> Any help would be greatly appreciated,
+> Lonnie Cumberland
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

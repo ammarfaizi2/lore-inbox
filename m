@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131564AbQLMPMP>; Wed, 13 Dec 2000 10:12:15 -0500
+	id <S131579AbQLMPMz>; Wed, 13 Dec 2000 10:12:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131544AbQLMPMG>; Wed, 13 Dec 2000 10:12:06 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31499 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131448AbQLMPLv>; Wed, 13 Dec 2000 10:11:51 -0500
-Subject: Re: USB mass storage backport status?
-To: mdharm-kernel@one-eyed-alien.net (Matthew Dharm)
-Date: Wed, 13 Dec 2000 14:42:52 +0000 (GMT)
-Cc: 0@pervalidus.net (Frédéric L . W . Meunier),
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <20001212215058.A3681@one-eyed-alien.net> from "Matthew Dharm" at Dec 12, 2000 09:50:58 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131600AbQLMPMt>; Wed, 13 Dec 2000 10:12:49 -0500
+Received: from terminus.zytor.com ([209.10.217.84]:9740 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S131579AbQLMPMc>; Wed, 13 Dec 2000 10:12:32 -0500
+Message-ID: <2741.194.236.209.133.976716626.squirrel@www.zytor.com>
+Date: Wed, 13 Dec 2000 06:10:26 -0800 (PST)
+Subject: Re: [PATCH] setup.c notsc Re: Microsecond accuracy
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: hugh@veritas.com
+In-Reply-To: <Pine.LNX.4.21.0012071856280.1138-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.21.0012071856280.1138-100000@localhost.localdomain>
+Cc: macro@ds2.pg.gda.pl, hpa@zytor.com, linux-kernel@vger.kernel.org
+X-Mailer: SquirrelMail (version 0.5)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E146D7P-0002q8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Okay, this must have changed somewhat recently.  When last I spoke to Alan
-> Cox (the maintainer of the 2.2.x code), I told him (and he agreed) that
-> this code should be marked EXPERIMENTAL.  If it's not marked thus in
-> 2.2.18pre21, then it's an error and should be corrected ASAP.
+> 
+> The present situation is inconsistent: "notsc" removes cpuinfo's
+> "tsc" flag in the UP case (when cpu_data[0] is boot_cpu_data), but
+> not in the SMP case.  I don't believe HPA's recent mods affected that
+> behaviour, but it is made consistent (cleared in SMP case too) by the
+> patch I sent him a couple of days ago, below updated for test12-pre7...
+> 
 
-It is marked experimental, but the help text is from 2.4test and doesnt
-say that. The experimental option is needed and the question asked does
-say (EXPERIMENTAL)
+Great.  You've taken something that was somewhat broken in the UP case and 
+introduced massive braindamage in the SMP case.  What really needs to be is 
+that the global enables (boot_cpu_data) should be exposed.
+
+    -hpa
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVAST0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVAST2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbVAST0D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 14:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVAST0D
+	id S261859AbVAST2B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 14:28:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVAST2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 14:26:03 -0500
-Received: from [207.168.29.180] ([207.168.29.180]:166 "EHLO jp.mwwireless.net")
-	by vger.kernel.org with ESMTP id S261860AbVASTZz (ORCPT
+	Wed, 19 Jan 2005 14:28:01 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:58078 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261859AbVAST15 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 14:25:55 -0500
-Message-ID: <41EEB440.8010108@mvista.com>
-Date: Wed, 19 Jan 2005 11:25:52 -0800
-From: Steve Longerbeam <stevel@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
+	Wed, 19 Jan 2005 14:27:57 -0500
+Date: Wed, 19 Jan 2005 20:27:56 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andreas Gruenbacher <agruen@suse.de>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [kbuild 2/5] Dont use the running kernels config file by default
+In-Reply-To: <1106160130.8642.46.camel@winden.suse.de>
+Message-ID: <Pine.LNX.4.61.0501192022010.30794@scrub.home>
+References: <20050118184123.729034000.suse.de>  <20050118192608.423265000.suse.de>
+  <Pine.LNX.4.61.0501182106340.6118@scrub.home>  <1106157119.8642.25.camel@winden.suse.de>
+  <Pine.LNX.4.61.0501191858060.30794@scrub.home> <1106160130.8642.46.camel@winden.suse.de>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG in shared_policy_replace() ?
-References: <Pine.LNX.4.44.0501191221400.4795-100000@localhost.localdomain> <41EE9991.6090606@mvista.com> <20050119174506.GH7445@wotan.suse.de> <41EEA575.9040007@mvista.com> <20050119183430.GK7445@wotan.suse.de> <41EEAE04.3050505@mvista.com> <20050119190927.GM7445@wotan.suse.de>
-In-Reply-To: <20050119190927.GM7445@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Wed, 19 Jan 2005, Andreas Gruenbacher wrote:
 
-Andi Kleen wrote:
+> Okay, more verbose then. On your machine which is running kernel version
+> x you build kernel version y. You grab the version y kernel source tree,
+> let's say a vendor tree, which has meaningful default configurations in
+> arch/$ARCH/defconfig. The runnig kernel's configuration may also work
+> for that kernel source tree, or it may not.
 
->On Wed, Jan 19, 2005 at 10:59:16AM -0800, Steve Longerbeam wrote:
->  
->
->>Andi Kleen wrote:
->>
->>    
->>
->>>>yeah, 2.6.10 makes sense to me too. But I'm working in -mm2, and
->>>>the new2 = NULL line is missing, hence my initial confusion. Trivial
->>>>patch to -mm2 attached. Just want to make sure it has been, or will be,
->>>>put back in.
->>>>  
->>>>
->>>>        
->>>>
->>>That sounds weird. Can you figure out which patch in mm removes it?
->>>
->>>
->>>      
->>>
->>found it:
->>
->>http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm1/broken-out/mempolicy-optimization.patch
->>    
->>
->
->Are you sure? I don't see it touching the new2 free at the end of the function.
->  
->
+How is that more verbose?
+Please provide an example config that worked under 2.4 but doesn't produce 
+a reasonable result under 2.6.
 
-it's not touching the new2 free, it's removing the new2 = NULL which is 
-the problem.
+> > So they should first try the 2.6 kernel provided by the distribution and 
+> > then try compiling their own kernel. In this situation it's actually more 
+> > likely that they produce a working kernel with the current behaviour, the 
+> > defconfig is not a guarantee for a working kernel either.
+> 
+> You assume that the user is already running the kind of kernel he is
+> trying to produce. Al least to me this assumption seems weird.
 
--				new2 = NULL;
+Why is that weird?
 
-
-
+bye, Roman

@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTE3IiH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 04:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbTE3IiH
+	id S263455AbTE3Ilv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 04:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTE3Ilv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 04:38:07 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:59916 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263452AbTE3IiG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 04:38:06 -0400
-Date: Fri, 30 May 2003 10:51:09 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: arjanv@redhat.com
-Cc: marcelo@conectiva.com.br, m.c.p@wolk-project.de, willy@w.ods.org,
-       gibbs@scsiguy.com, linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes
-Message-Id: <20030530105109.532a8c56.skraw@ithnet.com>
-In-Reply-To: <1054282892.4897.1.camel@laptop.fenrus.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<20030524111608.GA4599@alpha.home.local>
-	<20030525125811.68430bda.skraw@ithnet.com>
-	<200305251447.34027.m.c.p@wolk-project.de>
-	<20030526170058.105f0b9f.skraw@ithnet.com>
-	<20030526164404.GA11381@alpha.home.local>
-	<20030530100900.768ceeef.skraw@ithnet.com>
-	<1054282892.4897.1.camel@laptop.fenrus.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 30 May 2003 04:41:51 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:62926 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S263455AbTE3Ilu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 04:41:50 -0400
+Date: Fri, 30 May 2003 09:57:26 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] assorted he driver cleanup
+Message-ID: <20030530085726.GA14723@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"David S. Miller" <davem@redhat.com>, chas@cmf.nrl.navy.mil,
+	linux-kernel@vger.kernel.org
+References: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil> <20030529.200101.118622651.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030529.200101.118622651.davem@redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 May 2003 10:21:33 +0200
-Arjan van de Ven <arjanv@redhat.com> wrote:
+On Thu, May 29, 2003 at 08:01:01PM -0700, David S. Miller wrote:
 
-> 
-> 
-> > My personal opinion is a known-to-be-broken 2.4.21 should not be released,
-> > as a lot of people only try/use the releases and therefore an immediately
-> > released 2.4.22-pre1 with justins driver will not be a good solution.
-> 
-> I think you missed the point entirely before. 2.4.21 CANNOT cause
-> regressions most of all. At this point there is no way to know if the
-> thing that fixes your machine breaks on 100s others that DO work
-> correctly in 2.4.20. Even if it would fix 100s and break 1 it's still
-> not acceptable for stable kernel releases.
+ > BTW, can you use more consistent changeset messages?  I always
+ > at least allude to what is being changed, for example I changed
+ > all of your messages to be of the form:
+ > 
+ > 	[ATM]: Blah blah blah in HE driver.
+ > 
+ > This tells the reader that:
+ > 
+ > 1) It's an ATM change.
+ > 2) It's to the HE driver.
+ > 3) The change made was "Blah blah blah" :-)
 
-Unfortunately you miss my point (which is probably too simple to be clearly
-visible):
-I want to give some feedback on a topic/problem I am experiencing since _long_.
-I was _asked_ to do so. Additionally I am stating my _opinion_. I am _not_
-telling anybody what to do. I am not in a position to do so. Very likely only
-_few_ people are in such a position, very likely the maintainer of aic and
-hopefully Marcelo.
-Have you read all available bug reports Justin got? If you have not, don't play
-with numbers.
+I'd also add...
+4) keep the first line a brief oneliner summary, as it
+gets truncated when Linus generates the shortlog.
+ 
+A number of people (self included) have adopted this
+impromptu 'standard' for bk comments. Maybe it should
+get documented in Documentation/BK-usage/bk-kernel-howto.txt
 
-Another personal opinion: software development tends to make things possible
-that "cannot be". ;-)
+		Dave
 
-Regards,
-Stephan
 

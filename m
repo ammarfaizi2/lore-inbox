@@ -1,93 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbUB0AU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 19:20:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUB0AU6
+	id S261300AbUB0AaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 19:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbUB0AaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 19:20:58 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:43246 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261303AbUB0AUw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 19:20:52 -0500
-Message-ID: <403E8D5B.9040707@mvista.com>
-Date: Thu, 26 Feb 2004 16:20:43 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+	Thu, 26 Feb 2004 19:30:16 -0500
+Received: from smtp-out7.blueyonder.co.uk ([195.188.213.10]:30941 "EHLO
+	smtp-out7.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261300AbUB0AaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 19:30:14 -0500
+Message-ID: <403E8F95.9040209@blueyonder.co.uk>
+Date: Fri, 27 Feb 2004 00:30:13 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Albert Cahalan <albert@users.sourceforge.net>,
-       David Ford <david+powerix@blue-labs.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-References: <403C014F.2040504@blue-labs.org>	 <1077674048.10393.369.camel@cube>  <403C2E56.2060503@blue-labs.org>	 <1077679677.10393.431.camel@cube>  <403CCD3A.7080200@mvista.com>	 <1077725042.8084.482.camel@cube>  <403D0F63.3050101@mvista.com>	 <1077760348.2857.129.camel@cog.beaverton.ibm.com>	 <403E7BEE.9040203@mvista.com> <1077837016.2857.171.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1077837016.2857.171.camel@cog.beaverton.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Cisco vpnclient prevents proper shutdown starting with 2.6.2
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Feb 2004 00:30:13.0054 (UTC) FILETIME=[DD27D5E0:01C3FCC8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Thu, 2004-02-26 at 15:06, George Anzinger wrote:
-> 
->>john stultz wrote:
->>
->>>On Wed, 2004-02-25 at 13:10, George Anzinger wrote:
->>>
->>>
->>>>Albert Cahalan wrote:
->>>>
->>>>
->>>>>This is NOT sane. Remeber that procps doesn't get to see HZ.
->>>>>Only USER_HZ is available, as the AT_CLKTCK ELF note.
->>>>>
->>>>>I think the way to fix this is to skip or add a tick
->>>>>every now and then, so that the long-term HZ is exact.
->>>>>
->>>>>Another way is to simply choose between pure old-style
->>>>>tick-based timekeeping and pure new-style cycle-based
->>>>>(TSC or ACPI) timekeeping. Systems with uncooperative
->>>>>hardware have to use the old-style time keeping. This
->>>>>should simply the code greatly.
->>>>
->>>>On checking the code and thinking about this, I would suggest that we change 
->>>>start_time in the task struct to be the wall time (or monotonic time if that 
->>>>seems better).  I only find two places this is used, in proc and in the 
->>>>accounting code.  Both of these could easily be changed.  Of course, even 
->>>>leaving it as it is, they could be changed to report more correct values by 
->>>>using the correct conversions to translate the system HZ to USER_HZ.
->>>
->>>
->>>Is this close to what your thinking of? 
->>>I can't reproduce the issue on my systems, so I'll need someone else to
->>>test this. 
->>
->>More or less.  I wonder if:
-> 
-> 
->>static inline long jiffies_to_clock_t(long x)
->>{
->>	u64 tmp = (u64)x * TICK_NSEC;
->>	div64(tmp, (NSEC_PER_SEC / USER_HZ));
->>	return (long)x;
->>}
->>might be better as it addresses the overflow issue.  Should be able to toss the 
->>#if (HZ % USER_HZ)==0 test too.  We could get carried away and do scaled math to 
->>eliminate the div64 but I don't think this path is used enough to justify the 
->>clarity ;) that would make.
-> 
-> 
-> Sounds good to me. Would you mind sending the diff so Petri and David
-> could test it?
+Thanks both, that did it.
+Regards
+Sid.
 
-Oops, I have been caught :)  The above was composed in the email window.  I 
-don't have a 2.6.x kernel up at the moment and I don't have any free cycles...
-Late next week??
-> 
+Eugene Teo wrote:
+ > Thanks Gertjan, et al.
+ >
+ > I have uploaded the vpnclient with your fix, and some of my cleanups
+ > for Debian installation at:
+ >
+ > http://www.anomalistic.org/vpnclient/vpnclient-linux-4.0.3.B-k9.tar.gz
+ >
+ > Eugene
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 

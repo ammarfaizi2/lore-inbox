@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVBJWzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVBJXDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVBJWzM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 17:55:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVBJWzM
+	id S261882AbVBJXDw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 18:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVBJXDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 17:55:12 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:16108 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261874AbVBJWzH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 17:55:07 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Kendall Bennett <kendallb@scitechsoft.com>,
-       Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>,
-       Bill Davidsen <davidsen@tmr.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e47339105021013285e390e2a@mail.gmail.com>
-References: <1107695583.14847.167.camel@localhost.localdomain>
-	 <420BB267.8060108@tmr.com> <20050210192554.GA15726@sci.fi>
-	 <1108066096.4085.69.camel@tyrosine>
-	 <9e473391050210121756874a84@mail.gmail.com>
-	 <1108067388.4085.74.camel@tyrosine>
-	 <9e47339105021012341c94c441@mail.gmail.com>
-	 <420BC814.4050102@scitechsoft.com> <1108069596.4085.78.camel@tyrosine>
-	 <9e47339105021013285e390e2a@mail.gmail.com>
-Date: Thu, 10 Feb 2005 22:53:59 +0000
-Message-Id: <1108076039.4085.81.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Re: [RFC] Reliable video POSTing on resume
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
+	Thu, 10 Feb 2005 18:03:52 -0500
+Received: from [212.29.226.3] ([212.29.226.3]:5588 "HELO arava.co.il")
+	by vger.kernel.org with SMTP id S261882AbVBJXDv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 18:03:51 -0500
+Date: Fri, 11 Feb 2005 01:03:47 +0200 (IST)
+From: Matan Ziv-Av <matan@svgalib.org>
+X-X-Sender: matan@matan.home
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI]   Samsung
+ P35, S3, black screen (radeon))
+In-Reply-To: <420BB267.8060108@tmr.com>
+Message-ID: <Pine.LNX.4.61.0502110058230.9595@matan.home>
+References: <20050205093550.GC1158@elf.ucw.cz><e796392205020221387d4d8562@mail.gmail.com>
+ <1107695583.14847.167.camel@localhost.localdomain> <420BB267.8060108@tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-10 at 16:28 -0500, Jon Smirl wrote:
-> On Thu, 10 Feb 2005 21:06:36 +0000, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> > On Thu, 2005-02-10 at 12:46 -0800, Kendall Bennett wrote:
-> > 
-> > > So perhaps this problem is something similar?
-> 
-> What type of computer has the problem? Who makes it's video chips?
+On Thu, 10 Feb 2005, Bill Davidsen wrote:
 
-This one is an ECS G320 laptop, with an AMI BIOS and a VIA graphics
-chipset. I've had similar reports from people with a variety of
-different types of laptop hardware. 
+>> Some systems (intel notably) appear to expect you to use the bios
+>> save/restore video state not re-POST.
+>
+> Isn't that what it's there for? In any context other than save/restore I 
+> wouldn't think using the BIOS was a good approach. But this is a special 
+> case, and if there's a BIOS function which does the right thing, it would 
+> seem to be easier to assume that the BIOS works than that the driver can do 
+> every operation for a clean restart.
+
+Maybe with new cards it is different but a few years ago, most cards 
+that I tested had problems with those functions.
+
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Matan Ziv-Av.                         matan@svgalib.org
 

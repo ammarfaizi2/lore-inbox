@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269410AbUIYUhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269406AbUIYUlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269410AbUIYUhm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 16:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269411AbUIYUhm
+	id S269406AbUIYUlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 16:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269411AbUIYUlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 16:37:42 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:2568 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S269410AbUIYUhg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 16:37:36 -0400
-Message-ID: <4155D7D2.8000705@aknet.ru>
-Date: Sun, 26 Sep 2004 00:40:50 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Gabriel Paubert <paubert@iram.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ESP corruption bug - what CPUs are affected?
-References: <414C8924.1070701@aknet.ru> <20040918203529.GA4447@vana.vc.cvut.cz> <4151C949.1080807@aknet.ru> <20040922200228.GB11017@vana.vc.cvut.cz> <41530326.2050900@aknet.ru> <20040923180607.GA20678@vana.vc.cvut.cz> <4154853F.6070105@aknet.ru> <20040924214330.GD8151@vana.vc.cvut.cz> <20040925080426.GB12901@iram.es> <415563C7.8000701@aknet.ru> <20040925191808.GA5901@iram.es>
-In-Reply-To: <20040925191808.GA5901@iram.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 25 Sep 2004 16:41:49 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:34776 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269406AbUIYUlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 16:41:47 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org
+In-Reply-To: <20040925203841.GB28001@elte.hu>
+References: <20040903120957.00665413@mango.fruits.de>
+	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
+	 <1094597710.16954.207.camel@krustophenia.net>
+	 <1094598822.16954.219.camel@krustophenia.net>
+	 <32930.192.168.1.5.1094601493.squirrel@192.168.1.5>
+	 <20040908082358.GB680@elte.hu> <20040908083158.GA1611@elte.hu>
+	 <1096140366.3504.5.camel@krustophenia.net> <20040925203841.GB28001@elte.hu>
+Content-Type: text/plain
+Message-Id: <1096144856.3697.6.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 25 Sep 2004 16:40:57 -0400
 Content-Transfer-Encoding: 7bit
-X-AV-Checked: ClamAV using ClamSMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sat, 2004-09-25 at 16:38, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > > since your lockups occur under X, could you try to disable DRI/DRM in
+> > > your XConfig? Also, would it be possible to connect that box to another
+> > > box via a serial line and enable the kernel's serial console via the
+> > > 'console=ttyS0,38400 console=tty' boot option and run 'minicom' on that
+> > > other box, set the serial line to 38400 baud there too and capture all
+> > > kernel messages that occur when the lockups happens? Also enable the NMI
+> > > watchdog via nmi_watchdog=1.
+> > 
+> > Rui brought up an interesting point on the alsa list.  Is this
+> > procedure possible at all on a new laptop without a legacy serial
+> > port?
+> 
+> well, netconsole should work.
+> 
 
-Gabriel Paubert wrote:
-> Is ESP really properly restored for V86 bmode or is it that 
-> it does not hit the case of a default 32 bit code segment with 
-> a 16 bit stack?
-It does not restore it in any case for the 16bit
-stack (no matter whether the code is 16 or 32 in PM).
-Petr says V86 is not affected, but I have not tested
-that case because why to care? The problem is only for
-the 32bit code. For 16bit code (PM or V86) it just
-doesn't really matter I think (I don't think using
-prefixes for ESP is sane).
+OK just to save everyone a google search here is the procedure:
 
-> I'm absolutely amazed by the fact that this bug has been there
-> since the beginning and only seems to hit users right now.
-No, right now it just hits me:)
-It used to hit the dosemu users always, but people just
-blamed dosemu itself and that was it. Noone wanted
-to spend weeks traceing the DOS programs under dosemu,
-then traceing dosemu itself, then traceing kernel,
-then looking through the docs to track the problem down
-to something known, then writing to Intel's techsup for
-clarifications, and then writing to LKML:) And if not
-for the great help I got here, this will end up nowhere
-again. So that's how it used to stay "unnoticed" for
-years.
-As for the other instances of that problem, here are some:
+http://technocrat.net/article.pl?sid=04/08/14/0236245&mode=thread
 
-http://www.tenberry.com/dos4g/watcom/rn4gw.html
----
-B ** Fixed the mouse32 handler to ignore a Microsoft Windows DOS box bug
-     which mangles the high word of ESP.
----
+Lee
 
-http://clio.rice.edu/djgpp/r5bug04.txt
----
-On VCPI servers which mode switch using ESP upper bits, CWSDPMI does not
-clear those bits when swapping to it's own stack.
----
-
-Searching google reveals quite a few implicit
-instances of that problem.
-
-> Anyway, I've just read again Intel's doc about mixing 16 and 32 bit 
-> code and I have found the understament of the day:
-> "For most efficient and trouble-free operation of the processor,
->                         ^^^^^^^^^^^^
-What is to expect? They knew there are troubles,
-yet decided to make it a part of the specs...
 

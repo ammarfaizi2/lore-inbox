@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262958AbTC1LAo>; Fri, 28 Mar 2003 06:00:44 -0500
+	id <S262908AbTC1K6r>; Fri, 28 Mar 2003 05:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262959AbTC1LAo>; Fri, 28 Mar 2003 06:00:44 -0500
-Received: from bi-01pt1.bluebird.ibm.com ([129.42.208.186]:27295 "EHLO
-	bigbang.in.ibm.com") by vger.kernel.org with ESMTP
-	id <S262958AbTC1LAm>; Fri, 28 Mar 2003 06:00:42 -0500
-Date: Fri, 28 Mar 2003 16:44:34 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: dipankar@in.ibm.com, Paul.McKenney@us.ibm.com,
+	id <S262911AbTC1K6r>; Fri, 28 Mar 2003 05:58:47 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:43928 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262908AbTC1K6q>;
+	Fri, 28 Mar 2003 05:58:46 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 28 Mar 2003 12:10:01 +0100 (MET)
+Message-Id: <UTC200303281110.h2SBA1L24473.aeb@smtp.cwi.nl>
+To: greg@kroah.com, zippel@linux-m68k.org
+Subject: Re: 64-bit kdev_t - just for playing
+Cc: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] real_lookup fix
-Message-ID: <20030328111434.GB1127@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20030328104043.GA1127@in.ibm.com> <20030328025131.3363ef37.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030328025131.3363ef37.akpm@digeo.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 28, 2003 at 02:51:31AM -0800, Andrew Morton wrote:
-> Maneesh Soni <maneesh@in.ibm.com> wrote:
-> >
-> > Hi Andrew,
-> > 
-> > Here is a patch to use seqlock for real_lookup race with d_lookup as suggested
-> > by Linus. The race condition can result in duplicate dentry when d_lookup
-> > fails due concurrent d_move in some unrelated directory. 
-> 
-> I was not aware of this race.  Could you please explain it in more detail?
-> 
+Roman, Your questions are misguided.
+A larger dev_t is infrastructure.
+A sand road that is turned into an asphalt road.
 
-Sometime back, Linus has pointed a race regading d_lookup and concurrent
-d_move (rename). If lookup moves to a different bucket due to d_move, it may
-fail the lookup. rename in the same directory is protected by parent's i_sem
-but rename in some unrelated directory on the same hash chain can have
-this problem. This can result in real_lookup allocating a new dentry for an
-existing one.
+Nobody has to use this improved infrastructure.
+But many uses are conceivable.
 
-Now, similar problem is there with lookup_hash()->cached_lookup(), where
-lookup_hash() ends up in allocating a duplicate dentry.
+Long ago I reserved 2^40 values for dynamically
+assigned anonymous devices. Convenient, a very
+small fraction of the available space.
 
-Linus, actually fixed the race in real_lookup using dcache_lock around the
-d_lookup call. The patch I posted replaces this with seqlock and also fixes
-the cached_lookup() case.
+I can imagine that there will be people wanting
+to take part of the available space for a universal
+hash of disk serial number or partition label or
+I don't know what, so that devices are addressable
+by content instead of path.
 
-Regards,
-Maneesh
+A lot of room can be put to many uses.
 
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/
+Andries

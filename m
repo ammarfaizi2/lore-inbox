@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271159AbTHLVgd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 17:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271156AbTHLVgd
+	id S271182AbTHLVih (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 17:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271177AbTHLViY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 17:36:33 -0400
-Received: from mail.kroah.org ([65.200.24.183]:3279 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S271155AbTHLVga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 17:36:30 -0400
-Date: Tue, 12 Aug 2003 14:35:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, Andries Brouwer <aebr@win.tue.nl>,
-       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [PATCH] oops in sd_shutdown
-Message-ID: <20030812213549.GA2158@kroah.com>
-References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <20030812002844.B1353@pclin040.win.tue.nl> <20030812075353.A18547@infradead.org>
+	Tue, 12 Aug 2003 17:38:24 -0400
+Received: from dsl017-022-215.chi1.dsl.speakeasy.net ([69.17.22.215]:40710
+	"EHLO gateway.two14.net") by vger.kernel.org with ESMTP
+	id S271156AbTHLVg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 17:36:57 -0400
+Date: Tue, 12 Aug 2003 16:36:45 -0500
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, Stephan von Krawczynski <skraw@ithnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
+Message-ID: <20030812213645.GA1079@furrr.two14.net>
+Reply-To: maney@pobox.com
+References: <20030812165624.GA1070@furrr.two14.net> <Pine.LNX.4.44.0308121408450.10045-100000@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030812075353.A18547@infradead.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0308121408450.10045-100000@logos.cnet>
+User-Agent: Mutt/1.3.28i
+From: maney@two14.net (Martin Maney)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 07:53:53AM +0100, Christoph Hellwig wrote:
-> On Tue, Aug 12, 2003 at 12:28:44AM +0200, Andries Brouwer wrote:
-> > I see an Oops in the SCSI code, caused by the fact that sdkp is NULL
-> > in sd_shutdown. "How can that be?", you will ask - dev->driver_data was set
-> > in sd_probe. But in my case sd_probe never finished. An insmod usb-storage
-> > hangs forever, or at least for more than six hours, giving ample opportunity
-> > to observe this race between sd_probe and sd_shutdown.
-> > (Of course sd_probe hangs in sd_revalidate disk.)
-> 
-> Well, this same problem could show upb in any other driver.  Could
-> you instead send a patch to Pat that the driver model never calls
-> the shutdown method for a driver that hasn't finished ->probe?
+On Tue, Aug 12, 2003 at 02:09:53PM -0300, Marcelo Tosatti wrote:
+> Well, rc2 had a Promise change. I'm not sure if it could be the cause, but 
+> lets check.
 
-I think it already will not do that due to taking the bus->subsys.rwsem
-before calling either probe() or remove().
+> Please try -rc2 with the following patch unpplied (patch -R): 
 
-thanks,
+Oops, I overlooked the change.  Tried it with a relatively
+stripped-down 22-rc2 build (slimmed the vmlinuz down by about 100K),
+but that made no difference.  I popped a CMD648-based card in, disabled
+the on-board Promise chip, and it booted right up and works fine with
+22-rc2.  So if the .id -> .present is the only change that affected the
+Promise driver (I did some looking for obvious, but gave up after
+realizing that unless the change actually had a /* borks Promise IDE
+controllers*/ in it I wouldn't be likely to recognize it), then I guess
+that's it.
 
-greg k-h
+> # [PATCH] PATCH: Promise cable
+> # 
+> # The old driver used to check .id was NULL to detect drive absent
+> # (which is wrong but generally worked) with the IDE changes it always
+> # got it wrong. This fixes it to test .present instead.
+> # 
+> # Without this fix it mistakenly assumes that the empty drive slot
+> # cannot do UDMA66/100/133
+
+Does this really mean that the Promise has been running at only 33MHz
+all along, and that with this fix it stopped choking the speed and
+that's the cause of the problem?  I know that back when I first setup
+this drive on the Promise (over a year ago - I'm pretty sure I was
+runnign 2.2.latest back then and had to jumper the drive to get around
+the 64K cylinders problem) I know I saw transfer speeds greater than
+33MB reported by hdparm -T.
+
+Okay, for completeness I should back out that change and retest it with
+the Promise, and I'll try to remember to throw a quick throughput test
+in just to see what it's been doing to me.  ;-)
+
+BTW, yes, I am (and have been) using an 80-pin cable with this drive.
+
+-- 
+Faced with the choice between changing one's mind and proving there is
+no need to do so, almost everyone gets busy on the proof. -- JKG
+

@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315540AbSFCVKj>; Mon, 3 Jun 2002 17:10:39 -0400
+	id <S315546AbSFCVM4>; Mon, 3 Jun 2002 17:12:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315546AbSFCVKi>; Mon, 3 Jun 2002 17:10:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36881 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315540AbSFCVKh>;
-	Mon, 3 Jun 2002 17:10:37 -0400
-Message-ID: <3CFBDAF7.6E9398D4@zip.com.au>
-Date: Mon, 03 Jun 2002 14:09:11 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Mike Kravetz <kravetz@us.ibm.com>, Andi Kleen <ak@muc.de>,
-        linux-kernel@vger.kernel.org, icollinson@imerge.co.uk, andrea@suse.de
-Subject: Re: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
-In-Reply-To: <3CFBCCB1.A8F7D16B@zip.com.au> <1023135208.963.365.camel@sinai>
-Content-Type: text/plain; charset=us-ascii
+	id <S315547AbSFCVMz>; Mon, 3 Jun 2002 17:12:55 -0400
+Received: from mx1.afara.com ([63.113.218.20]:27224 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S315546AbSFCVMz>;
+	Mon, 3 Jun 2002 17:12:55 -0400
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, release 3.0 is
+	available
+From: Thomas Duffy <tduffy@directvinternet.com>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0206031405081.3833-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Jun 2002 14:12:32 -0700
+Message-Id: <1023138753.25501.16.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 03 Jun 2002 21:12:50.0270 (UTC) FILETIME=[6AD2A7E0:01C20B43]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> 
-> On Mon, 2002-06-03 at 13:08, Andrew Morton wrote:
-> 
-> > keventd is a "process context bottom half handler".  It's designed
-> > for use by interrupt handlers for handing off awkward, occasional
-> > things which need process context.  For example, device hotplugging,
-> > which was the original reason for its introduction.
-> >
-> > So it makes sense to give keventd SCHED_RR policy and maximum
-> > priority.  Which should fix this problem as well, yes?
-> 
-> Next to ditching keventd, this is probably the best thing we can do.
+On Mon, 2002-06-03 at 13:06, Thunder from the hill wrote:
 
-I think the design is OK.  It's for "misc stuff".  There's only
-a single instance, it's only lightly used.
+> Could you please try the core-14 beforehand? (Yes, beat me, Keith, but if 
+> it works, we'll have a stepping stone!)
 
-> I wonder how much code _really_ needs it - that is, what really needs to
-> be running in process-context?
+<= core-14 works fine...
 
-Pretty much every use of keventd make sense as-is, IMO.
+-tduffy
 
->  Obviously device hotplug probably does.
-> But for things like that, what about spawning (temporarily) a kernel
-> thread?
-
-We need process context for starting a thread...
-
-It's just an 8k stack.  I believe that keventd is OK, as
-long as people don't go nuts when using it.   It may make
-some sense to overload ksoftirqd to provide keventd functionality.
-Except ksoftirqd runs at super-low priority, which is exactly
-what keventd doesn't want.
-
--

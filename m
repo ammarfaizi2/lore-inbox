@@ -1,83 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbUKFD77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbUKFEqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbUKFD77 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 22:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbUKFD77
+	id S261314AbUKFEqe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 23:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbUKFEqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 22:59:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34785 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261309AbUKFD7w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 22:59:52 -0500
-Date: Sat, 6 Nov 2004 03:59:51 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Richard Waltham <richard@fars-robotics.net>
-Cc: Matthew Wilcox <matthew@wil.cx>, SUPPORT <support@4bridgeworks.com>,
-       Thomas Babut <thomas@babut.net>, linux-kernel@vger.kernel.org,
-       Linux SCSI <linux-scsi@vger.kernel.org>, groudier@free.fr
-Subject: Re: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Ada pter
-Message-ID: <20041106035951.GC24690@parcelfarce.linux.theplanet.co.uk>
+	Fri, 5 Nov 2004 23:46:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25729 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261314AbUKFEqX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 23:46:23 -0500
+Subject: Re: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Ada
+	pter
+From: Doug Ledford <dledford@redhat.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Richard Waltham <richard@fars-robotics.net>,
+       SUPPORT <support@4bridgeworks.com>, Thomas Babut <thomas@babut.net>,
+       linux-kernel@vger.kernel.org,
+       linux-scsi mailing list <linux-scsi@vger.kernel.org>, groudier@free.fr
+In-Reply-To: <20041106035951.GC24690@parcelfarce.linux.theplanet.co.uk>
 References: <D5169CBBC6369D4CBFFABD7905CC9D695D31@tehran.Fars-Robotics.local>
+	 <20041106035951.GC24690@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Date: Fri, 05 Nov 2004 23:46:14 -0500
+Message-Id: <1099716374.10944.48.camel@compaq-rhel4.xsintricity.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D5169CBBC6369D4CBFFABD7905CC9D695D31@tehran.Fars-Robotics.local>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 12:02:32AM -0000, Richard Waltham wrote:
-> Good as a backup but the original PPR capability is defined in
-> scan_scsi.c. Shouldn't scan_scsi.c take note of the bus mode and enable
-> PPR capabilities accordingly? This would then cover this issue for all
-> relevant LLDDs wouldn't it?
+On Sat, 2004-11-06 at 03:59 +0000, Matthew Wilcox wrote:
 
-scan_scsi.c doesn't know what mode the bus is in.  scan_scsi.c doesn't
-even know whether the bus is SPI, FC, iSCSI, SAS or SATA.
+> I think those devices need blacklisting.  Either that, or we need to do
+> DV in non-approved ways.  Perhaps start with SDTR+WDTR.  If we get up
+> to Fast-40, then try PPR.  I suspect James has Opinions on this though ;-)
 
-> > Thanks, those are interesting.  It's good to see that we 
-> > really are spitting PPR out onto the wire when we shouldn't be.
-> 
-> And from what I've seen is the PPR negotiation keeps on being retied on
-> all subsequent commands. So performance really is killed by this.
+Bleah.  I have opinions on this whether James does or not.  If you are
+going to control device negotiation at the mid layer level, then you
+need these things:
 
-Yes, we'll do that as long as the device target parameters differ from
-the achieved parameters.
+     1. Current bus state, as pointed out there are devices that reject
+        PPR unless on an LVD bus, and whether or not you can get at the
+        current bus mode and how is hardware dependent and changes from
+        driver to driver, so now you have to add a new entry into the
+        low level driver for all SPI class drivers hostt->bus_is_lvd()
+        in order to be able to do proper checks at the mid layer level.
+        This needs to be a call in function, not a static element.  Bus
+        mode can change, especially from something as simple as hot
+        plugging a new drive into an existing LVD JBOD, but the drive
+        accidentally has the FORCE_SE jumper enabled.  This will force
+        the whole bus to switch to SE instantly, and all drives will
+        have to renegotiate.  So, given hotplug issues, the bus state
+        needs to be checked at each negotiation, not based upon some
+        previous state.
+     2. Drivers *should*, when possible, honor user settings stored in
+        NVRAM on the cards.  So, add another entry point so that the low
+        level drivers with NVRAM can pass up the user specified max
+        speed, width, cache settings, etc.  Oh, and if it isn't obvious,
+        there are devices out there that reject attempted PPR messages
+        if the speed/width/mode that you are requesting can be
+        represented by a SDTR/WDTR pairs instead.  In other words, if
+        you aren't requesting a DT + possible options settings, then
+        don't use PPR.
+     3. Recovery operations in the LLDD interrupt handler need to change
+        the way commands are handled.  Given an attempt to send PPR
+        messages, both BUSFREE and subsequent MSG_REJECT situations need
+        to cancel the attempted and all future PPR messages, so now you
+        need a hook in the scsi layer for the driver to tell the mid
+        layer "Quit telling me to do PPR, it doesn't work you moron"
+     4. In the event that a device doesn't advertise in any given way
+        that it is capable of PPR, but does in fact send an unsolicited
+        PPR message to the driver, we now need a hook in the mid layer
+        so the driver can say "Well, would you look at that...it's a PPR
+        device hiding in the corner"
 
-> > I think disabling PPR on an SE bus should be a better fix than that.
-> 
-> And don't forget HVD as well;)   
+That's the level of API you'll need to properly do this from the mid
+level.
 
-Yes, I thought about HVD and decided that I wanted to code the check
-against LVD rather than against SE ;-)
-
-> My main concern with my patch to scan_scsi.c was to handle SCSI 3 LVD
-> devices that caused problems. Scan_scsi.c sets all SCSI 3 devices as PPR
-> capable - SE, HVD as well as LVD. I have no issue with explicitly
-> disallowing PPR for SE and HVD devices. But what about SCSI 3 and LVD
-> devices that don't handle PPR - OK they may be broken but...
-
-I've got some devices that fail PPR when the bus is in SE mode but
-work fine when the bus is in LVD mode.  So this patch certainly fixes
-those problems.  THe question is whether there exist devices that:
-
- - Claim to be SCSI3 compliant
- - Fail PPR when on an LVD bus
-
-> There is an issue that needs resolving where a drive appears to indicate
-> it is capable of PPR, i.e. says it is SCSI 3 + LVD, but does not
-> actually support PPR. Then when it receives at PPR message it causes
-> problems in the driver because it terminates the PPR MSG OUT early with
-> an unexpected phase change.
-
-I think those devices need blacklisting.  Either that, or we need to do
-DV in non-approved ways.  Perhaps start with SDTR+WDTR.  If we get up
-to Fast-40, then try PPR.  I suspect James has Opinions on this though ;-)
+Of course, you could genericize this a bit.  You could have a callin for
+current bus state in the LLDD.  Something like hostt->get_bus_type() and
+have it return an or'ed bitmask of state bits, BUS_WIDE | BUS_SYNC |
+BUS_{LVD,SE,HVD}, something like that, then it could possibly do more
+than just PPR/LVD negotiation, but personally this is one of those
+things that I think is card specific enough that it ought to just stay
+in the LLDD.  My $.02.
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc.
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+
+

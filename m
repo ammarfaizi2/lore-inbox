@@ -1,350 +1,618 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVC2VGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVC2VNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVC2VGc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVC2VGb
+	id S261454AbVC2VNT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVC2VNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:06:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58561 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261446AbVC2VEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:04:37 -0500
-Message-ID: <4249C2D5.8020509@pobox.com>
-Date: Tue, 29 Mar 2005 16:04:21 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [BK PATCHES] 2.6.x net driver fixes
-Content-Type: multipart/mixed;
- boundary="------------070401090307000803040802"
+	Tue, 29 Mar 2005 16:13:18 -0500
+Received: from verein.lst.de ([213.95.11.210]:24730 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261433AbVC2VHn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 16:07:43 -0500
+Date: Tue, 29 Mar 2005 23:07:35 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org, wendyx@us.ltcfwd.linux.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fixup newly added jsm driver
+Message-ID: <20050329210735.GA5664@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -3.849 () BAYES_00,DOMAIN_BODY
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070401090307000803040802
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+One more prematurely added drivers..
+
+ - plug various leaks and use after frees in the remove and
+   initialization failure path (some still left)
+ - remove useless global list of boards and use pci_set_drvdata instead
+ - unobsfucate init path by merging functions together
+ - kill various totally useless state variables
+ - .. probably more I forgot
+
+Note that the tty part still generates lots of sparse warnings and
+there's still a totally useless layer of function pointer indirections,
+but maybe someone else will fix that bit up.
 
 
---------------070401090307000803040802
-Content-Type: text/plain;
- name="changelog.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="changelog.txt"
-
-Please do a
-
-	bk pull bk://gkernel.bkbits.net/net-drivers-2.6
-
-This will update the following files:
-
- MAINTAINERS                     |    7 ++++---
- drivers/net/8139too.c           |    8 ++++++--
- drivers/net/Kconfig             |    5 +++--
- drivers/net/arcnet/arcnet.c     |    4 ++--
- drivers/net/bonding/bond_alb.c  |    4 +++-
- drivers/net/depca.c             |    2 +-
- drivers/net/mii.c               |    9 ++++++---
- drivers/net/sis900.c            |    2 ++
- drivers/net/sk98lin/skethtool.c |    3 ---
- drivers/net/via-velocity.c      |    6 ++++--
- drivers/net/wireless/airo.c     |    2 +-
- 11 files changed, 32 insertions(+), 20 deletions(-)
-
-through these ChangeSets:
-
-<komurojun-mbn:nifty.com>:
-  o net/Kconfig: remove unsupported network adapter names
-
-Adrian Bunk:
-  o drivers/net/wireless/airo.c: correct a wrong check
-  o drivers/net/sis900.c: fix a warning
-
-Andres Salomon:
-  o fix pci_disable_device in 8139too
-
-Andrew Morton:
-  o bonding needs inet
-
-Dale Farnsworth:
-  o mii: GigE support bug fixes
-
-Daniele Venzano:
-  o Maintainer change for the sis900 driver
-
-Domen Puncer:
-  o net/sk98lin: remove duplicate delay
-
-John W. Linville:
-  o bonding: avoid tx balance for IGMP (alb/tlb mode)
-
-Mikael Pettersson:
-  o drivers/net/depca.c gcc4 fix
-  o drivers/net/arcnet/arcnet.c gcc4 fixes
-
-Pavel Machek:
-  o Fix suspend/resume on via-velocity
-
-
---------------070401090307000803040802
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-diff -Nru a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS	2005-03-29 15:49:53 -05:00
-+++ b/MAINTAINERS	2005-03-29 15:49:54 -05:00
-@@ -2044,10 +2044,11 @@
- S:	Maintained
+===== drivers/serial/jsm/jsm.h 1.1 vs edited =====
+--- 1.1/drivers/serial/jsm/jsm.h	2005-03-29 00:21:43 +02:00
++++ edited/drivers/serial/jsm/jsm.h	2005-03-29 17:08:18 +02:00
+@@ -93,28 +93,6 @@
+ #define JSM_VERSION	"jsm: 1.1-1-INKERNEL"
+ #define JSM_PARTNUM	"40002438_A-INKERNEL"
  
- SIS 900/7016 FAST ETHERNET DRIVER
--P:	Ollie Lho
--M:	ollie@sis.com.tw
-+P:	Daniele Venzano
-+M:	venza@brownhat.org
-+W:	http://www.brownhat.org/sis900.html
- L:	linux-net@vger.kernel.org
--S:	Supported
-+S:	Maintained
+-/*
+- * All the possible states the driver can be while being loaded.
+- */
+-enum {
+-	DRIVER_INITIALIZED = 0,
+-	DRIVER_READY
+-};
+-
+-/*
+- * All the possible states the board can be while booting up.
+- */
+-enum {
+-	BOARD_FAILED = 0,
+-	BOARD_FOUND,
+-	BOARD_READY
+-};
+-
+-struct board_id {
+-	u8 *name;
+-	u32 maxports;
+-};
+-
+ struct jsm_board;
+ struct jsm_channel;
  
- SIS FRAMEBUFFER DRIVER
- P:	Thomas Winischhofer
-diff -Nru a/drivers/net/8139too.c b/drivers/net/8139too.c
---- a/drivers/net/8139too.c	2005-03-29 15:49:53 -05:00
-+++ b/drivers/net/8139too.c	2005-03-29 15:49:53 -05:00
-@@ -749,7 +749,6 @@
- 	pci_release_regions (pdev);
+@@ -149,7 +127,6 @@
+ 	int		boardnum;	/* Board number: 0-32 */
  
- 	free_netdev(dev);
--	pci_disable_device(pdev);
- 	pci_set_drvdata (pdev, NULL);
- }
+ 	int		type;		/* Type of board */
+-	char		*name;		/* Product Name */
+ 	u8		rev;		/* PCI revision ID */
+ 	struct pci_dev	*pci_dev;
+ 	u32		maxports;	/* MAX ports this board can handle */
+@@ -160,9 +137,6 @@
+ 					 * the interrupt routine from each other.
+ 					 */
  
-@@ -778,7 +777,7 @@
- 	struct net_device *dev;
- 	struct rtl8139_private *tp;
- 	u8 tmp8;
+-	u32		state;		/* State of card. */
+-	wait_queue_head_t state_wait;	/* Place to sleep on for state change */
+-
+ 	u32		nasync;		/* Number of ports on card */
+ 
+ 	u32		irq;		/* Interrupt request number */
+@@ -181,9 +155,6 @@
+ 	struct jsm_channel *channels[MAXPORTS]; /* array of pointers to our channels. */
+ 	char		*flipbuf;	/* Our flip buffer, alloced if board is found */
+ 
+-	u16		dpatype;	/* The board "type", as defined by DPA */
+-	u16		dpastatus;	/* The board "status", as defined by DPA */
+-
+ 	u32		bd_dividend;	/* Board/UARTs specific dividend */
+ 
+ 	struct board_ops *bd_ops;
+@@ -412,12 +384,6 @@
+ extern int	jsm_debug;
+ extern int	jsm_rawreadok;
+ 
+-extern int	jsm_driver_state;	/* The state of the driver	*/
+-extern char	*jsm_driver_state_text[];/* Array of driver state text */
+-
+-extern spinlock_t jsm_board_head_lock;
+-extern struct list_head jsm_board_head;
+-
+ /*************************************************************************
+  *
+  * Prototypes for non-static functions used in more than one module
+@@ -430,8 +396,5 @@
+ void jsm_input(struct jsm_channel *ch);
+ void jsm_carrier(struct jsm_channel *ch);
+ void jsm_check_queue_flow_control(struct jsm_channel *ch);
+-
+-void jsm_create_driver_sysfiles(struct device_driver *);
+-void jsm_remove_driver_sysfiles(struct device_driver *);
+ 
+ #endif
+===== drivers/serial/jsm/jsm_driver.c 1.1 vs edited =====
+--- 1.1/drivers/serial/jsm/jsm_driver.c	2005-03-29 00:21:43 +02:00
++++ edited/drivers/serial/jsm/jsm_driver.c	2005-03-29 17:03:51 +02:00
+@@ -29,7 +29,9 @@
+ #include "jsm.h"
+ 
+ MODULE_AUTHOR("Digi International, http://www.digi.com");
+-MODULE_DESCRIPTION("Driver for the Digi International Neo PCI based product line");
++MODULE_DESCRIPTION("Driver for the Digi International "
++		   "Neo PCI based product line");
++MODULE_LICENSE("GPL");
+ MODULE_SUPPORTED_DEVICE("jsm");
+ 
+ #define JSM_DRIVER_NAME "jsm"
+@@ -43,7 +45,6 @@
+ 	.major		= 253,
+ 	.minor		= JSM_MINOR_START,
+ 	.nr		= NR_PORTS,
+-	.cons		= NULL,
+ };
+ 
+ int jsm_debug;
+@@ -53,193 +54,99 @@
+ MODULE_PARM_DESC(jsm_debug, "Driver debugging level");
+ MODULE_PARM_DESC(jsm_rawreadok, "Bypass flip buffers on input");
+ 
+-/*
+- * Globals
+- */
+-int		jsm_driver_state = DRIVER_INITIALIZED;
+-spinlock_t	jsm_board_head_lock = SPIN_LOCK_UNLOCKED;
+-LIST_HEAD(jsm_board_head);
+-
+-static struct pci_device_id jsm_pci_tbl[] = {
+-	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2DB9),	0,	0,	0 },
+-	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2DB9PRI),	0,	0,	1 },
+-	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2RJ45),	0,	0,	2 },
+-	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2RJ45PRI),	0,	0,	3 },
+-	{ 0,}						/* 0 terminated list. */
+-};
+-MODULE_DEVICE_TABLE(pci, jsm_pci_tbl);
+-
+-static struct board_id jsm_Ids[] = {
+-	{ PCI_DEVICE_NEO_2DB9_PCI_NAME,		2 },
+-	{ PCI_DEVICE_NEO_2DB9PRI_PCI_NAME,	2 },
+-	{ PCI_DEVICE_NEO_2RJ45_PCI_NAME,	2 },
+-	{ PCI_DEVICE_NEO_2RJ45PRI_PCI_NAME,	2 },
+-	{ NULL,					0 }
+-};
+-
+-char *jsm_driver_state_text[] = {
+-	"Driver Initialized",
+-	"Driver Ready."
+-};
+-
+-static int jsm_finalize_board_init(struct jsm_board *brd)
++static int jsm_probe_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
+ 	int rc = 0;
++	struct jsm_board *brd;
++	static int adapter_count = 0;
++	int retval;
+ 
+-	jsm_printk(INIT, INFO, &brd->pci_dev, "start\n");
+-
+-	if (brd->irq) {
+-		rc = request_irq(brd->irq, brd->bd_ops->intr, SA_INTERRUPT|SA_SHIRQ, "JSM", brd);
+-
+-		if (rc) {
+-			printk(KERN_WARNING "Failed to hook IRQ %d\n",brd->irq);
+-			brd->state = BOARD_FAILED;
+-			brd->dpastatus = BD_NOFEP;
+-			rc = -ENODEV;
+-		} else
+-			jsm_printk(INIT, INFO, &brd->pci_dev,
+-				"Requested and received usage of IRQ %d\n", brd->irq);
++	rc = pci_enable_device(pdev);
++	if (rc) {
++		dev_err(&pdev->dev, "Device enable FAILED\n");
++		goto out;
+ 	}
+-	return rc;
+-}
+ 
+-/*
+- * jsm_found_board()
+- *
+- * A board has been found, init it.
+- */
+-static int jsm_found_board(struct pci_dev *pdev, int id)
+-{
+-	struct jsm_board *brd;
+-	int i = 0;
+-	int rc = 0;
+-	struct list_head *tmp;
+-	struct jsm_board *cur_board_entry;
+-	unsigned long lock_flags;
+-	int adapter_count = 0;
+-	int retval;
++	rc = pci_request_regions(pdev, "jsm");
++	if (rc) {
++		dev_err(&pdev->dev, "pci_request_region FAILED\n");
++		goto out_disable_device;
++	}
+ 
+ 	brd = kmalloc(sizeof(struct jsm_board), GFP_KERNEL);
+ 	if (!brd) {
+-		dev_err(&pdev->dev, "memory allocation for board structure failed\n");
+-		return -ENOMEM;
++		dev_err(&pdev->dev,
++			"memory allocation for board structure failed\n");
++		rc = -ENOMEM;
++		goto out_release_regions;
+ 	}
+ 	memset(brd, 0, sizeof(struct jsm_board));
+ 
+-	spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
+-	list_for_each(tmp, &jsm_board_head) {
+-		cur_board_entry =
+-			list_entry(tmp, struct jsm_board,
+-				jsm_board_entry);
+-		if (cur_board_entry->boardnum != adapter_count) {
+-			break;
+-		}
+-		adapter_count++;
+-	}
+-
+-	list_add_tail(&brd->jsm_board_entry, &jsm_board_head);
+-	spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
+-
+ 	/* store the info for the board we've found */
+-	brd->boardnum = adapter_count;
++	brd->boardnum = adapter_count++;
+ 	brd->pci_dev = pdev;
+-	brd->name = jsm_Ids[id].name;
+-	brd->maxports = jsm_Ids[id].maxports;
+-	brd->dpastatus = BD_NOFEP;
+-	init_waitqueue_head(&brd->state_wait);
++	brd->maxports = 2;
+ 
+ 	spin_lock_init(&brd->bd_lock);
+ 	spin_lock_init(&brd->bd_intr_lock);
+ 
+-	brd->state = BOARD_FOUND;
+-
+-	for (i = 0; i < brd->maxports; i++)
+-		brd->channels[i] = NULL;
+-
+ 	/* store which revision we have */
+ 	pci_read_config_byte(pdev, PCI_REVISION_ID, &brd->rev);
+ 
+ 	brd->irq = pdev->irq;
+ 
+-	switch(brd->pci_dev->device) {
++	jsm_printk(INIT, INFO, &brd->pci_dev,
++		"jsm_found_board - NEO adapter\n");
+ 
+-	case PCI_DEVICE_ID_NEO_2DB9:
+-	case PCI_DEVICE_ID_NEO_2DB9PRI:
+-	case PCI_DEVICE_ID_NEO_2RJ45:
+-	case PCI_DEVICE_ID_NEO_2RJ45PRI:
+-
+-		/*
+-		 * This chip is set up 100% when we get to it.
+-		 * No need to enable global interrupts or anything.
+-		 */
+-		brd->dpatype = T_NEO | T_PCIBUS;
+-
+-		jsm_printk(INIT, INFO, &brd->pci_dev,
+-			"jsm_found_board - NEO adapter\n");
+-
+-		/* get the PCI Base Address Registers */
+-		brd->membase	= pci_resource_start(pdev, 0);
+-		brd->membase_end = pci_resource_end(pdev, 0);
+-
+-		if (brd->membase & 1)
+-			brd->membase &= ~3;
+-		else
+-			brd->membase &= ~15;
+-
+-		/* Assign the board_ops struct */
+-		brd->bd_ops = &jsm_neo_ops;
+-
+-		brd->bd_uart_offset = 0x200;
+-		brd->bd_dividend = 921600;
+-
+-		brd->re_map_membase = ioremap(brd->membase, 0x1000);
+-		jsm_printk(INIT, INFO, &brd->pci_dev,
+-			"remapped mem: 0x%p\n", brd->re_map_membase);
+-		if (!brd->re_map_membase) {
+-			kfree(brd);
+-			dev_err(&pdev->dev, "card has no PCI Memory resources, failing board.\n");
+-			return -ENOMEM;
+-		}
+-		break;
+-
+-	default:
+-		dev_err(&pdev->dev, "Did not find any compatible Neo or Classic PCI boards in system.\n");
+-		kfree(brd);
+-		return -ENXIO;
++	/* get the PCI Base Address Registers */
++	brd->membase	= pci_resource_start(pdev, 0);
++	brd->membase_end = pci_resource_end(pdev, 0);
++
++	if (brd->membase & 1)
++		brd->membase &= ~3;
++	else
++		brd->membase &= ~15;
++
++	/* Assign the board_ops struct */
++	brd->bd_ops = &jsm_neo_ops;
++
++	brd->bd_uart_offset = 0x200;
++	brd->bd_dividend = 921600;
++
++	brd->re_map_membase = ioremap(brd->membase, 0x1000);
++	if (!brd->re_map_membase) {
++		dev_err(&pdev->dev,
++			"card has no PCI Memory resources, "
++			"failing board.\n");
++		rc = -ENOMEM;
++		goto out_kfree_brd;
+ 	}
+ 
+-	/*
+-	 * Do tty device initialization.
+-	 */
+-	rc = jsm_finalize_board_init(brd);
+-	if (rc < 0) {
+-		dev_err(&pdev->dev, "Can't finalize board init (%d)\n", rc);
+-		brd->state = BOARD_FAILED;
+-		retval = -ENXIO;
+-		goto failed0;
++	rc = request_irq(brd->irq, brd->bd_ops->intr,
++			SA_INTERRUPT|SA_SHIRQ, "JSM", brd);
++	if (rc) {
++		printk(KERN_WARNING "Failed to hook IRQ %d\n",brd->irq);
++		goto out_iounmap;
+ 	}
+ 
+ 	rc = jsm_tty_init(brd);
+ 	if (rc < 0) {
+ 		dev_err(&pdev->dev, "Can't init tty devices (%d)\n", rc);
+-		brd->state = BOARD_FAILED;
+ 		retval = -ENXIO;
+-		goto failed1;
++		goto out_free_irq;
+ 	}
+ 
+ 	rc = jsm_uart_port_init(brd);
+ 	if (rc < 0) {
++		/* XXX: leaking all resources from jsm_tty_init here! */
+ 		dev_err(&pdev->dev, "Can't init uart port (%d)\n", rc);
+-		brd->state = BOARD_FAILED;
+ 		retval = -ENXIO;
+-		goto failed1;
++		goto out_free_irq;
+ 	}
+ 
+-	brd->state = BOARD_READY;
+-	brd->dpastatus = BD_RUNNING;
+-
+ 	/* Log the information about the board */
+-	dev_info(&pdev->dev, "board %d: %s (rev %d), irq %d\n",adapter_count, brd->name, brd->rev, brd->irq);
++	dev_info(&pdev->dev, "board %d: Digi Neo (rev %d), irq %d\n",
++			adapter_count, brd->rev, brd->irq);
+ 
+ 	/*
+ 	 * allocate flip buffer for board.
+@@ -249,156 +156,91 @@
+ 	 */
+ 	brd->flipbuf = kmalloc(MYFLIPLEN, GFP_KERNEL);
+ 	if (!brd->flipbuf) {
++		/* XXX: leaking all resources from jsm_tty_init and
++		 	jsm_uart_port_init here! */
+ 		dev_err(&pdev->dev, "memory allocation for flipbuf failed\n");
+-		brd->state = BOARD_FAILED;
+ 		retval = -ENOMEM;
+-		goto failed1;
++		goto out_free_irq;
+ 	}
+ 	memset(brd->flipbuf, 0, MYFLIPLEN);
+ 
+-	jsm_create_driver_sysfiles(pdev->dev.driver);
++	pci_set_drvdata(pdev, brd);
+ 
+-	wake_up_interruptible(&brd->state_wait);
+ 	return 0;
+-failed1:
++ out_free_irq:
+ 	free_irq(brd->irq, brd);
+-failed0:
+-	kfree(brd);
++ out_iounmap:
+ 	iounmap(brd->re_map_membase);
+-	return retval;
+-}
+-
+-/* returns count (>= 0), or negative on error */
+-static int jsm_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+-{
 -	int rc;
-+	int rc, disable_dev_on_err = 0;
- 	unsigned int i;
- 	unsigned long pio_start, pio_end, pio_flags, pio_len;
- 	unsigned long mmio_start, mmio_end, mmio_flags, mmio_len;
-@@ -850,6 +849,7 @@
- 	rc = pci_request_regions (pdev, "8139too");
- 	if (rc)
- 		goto err_out;
-+	disable_dev_on_err = 1;
- 
- 	/* enable PCI bus-mastering */
- 	pci_set_master (pdev);
-@@ -935,6 +935,8 @@
- 
- err_out:
- 	__rtl8139_cleanup_dev (dev);
-+	if (disable_dev_on_err)
-+		pci_disable_device (pdev);
+-
+-	rc = pci_enable_device(pdev);
+-	if (rc) {
+-		dev_err(&pdev->dev, "Device enable FAILED\n");
+-		return rc;
+-	}
+-
+-	if ((rc = pci_request_regions(pdev, "jsm"))) {
+-	dev_err(&pdev->dev, "pci_request_region FAILED\n");
+-		pci_disable_device(pdev);
+-		return rc;
+-	}
+-
+-	if ((rc = jsm_found_board(pdev, ent->driver_data))) {
+-		dev_err(&pdev->dev, "jsm_found_board FAILED\n");
+-		pci_release_regions(pdev);
+-		pci_disable_device(pdev);
+-	 	return rc;
+-	}
++ out_kfree_brd:
++	kfree(brd);
++ out_release_regions:
++	pci_release_regions(pdev);
++ out_disable_device:
++	pci_disable_device(pdev);
++ out:
  	return rc;
  }
  
-@@ -1112,6 +1114,7 @@
- 
- err_out:
- 	__rtl8139_cleanup_dev (dev);
-+	pci_disable_device (pdev);
- 	return i;
- }
- 
-@@ -1125,6 +1128,7 @@
- 	unregister_netdev (dev);
- 
- 	__rtl8139_cleanup_dev (dev);
-+	pci_disable_device (pdev);
- }
- 
- 
-diff -Nru a/drivers/net/Kconfig b/drivers/net/Kconfig
---- a/drivers/net/Kconfig	2005-03-29 15:49:54 -05:00
-+++ b/drivers/net/Kconfig	2005-03-29 15:49:54 -05:00
-@@ -44,6 +44,7 @@
- config BONDING
- 	tristate "Bonding driver support"
- 	depends on NETDEVICES
-+	depends on INET
- 	---help---
- 	  Say 'Y' or 'M' if you wish to be able to 'bond' multiple Ethernet
- 	  Channels together. This is called 'Etherchannel' by Cisco,
-@@ -612,7 +613,7 @@
- 	  will be called 3c507.
- 
- config EL3
--	tristate "3c509/3c529 (MCA)/3c569B (98)/3c579 \"EtherLink III\" support"
-+	tristate "3c509/3c529 (MCA)/3c579 \"EtherLink III\" support"
- 	depends on NET_VENDOR_3COM && (ISA || EISA || MCA)
- 	---help---
- 	  If you have a network (Ethernet) card belonging to the 3Com
-@@ -876,7 +877,7 @@
- source "drivers/net/tulip/Kconfig"
- 
- config AT1700
--	tristate "AT1700/1720/RE1000Plus(C-Bus) support (EXPERIMENTAL)"
-+	tristate "AT1700/1720 support (EXPERIMENTAL)"
- 	depends on NET_ETHERNET && (ISA || MCA_LEGACY) && EXPERIMENTAL
- 	select CRC32
- 	---help---
-diff -Nru a/drivers/net/arcnet/arcnet.c b/drivers/net/arcnet/arcnet.c
---- a/drivers/net/arcnet/arcnet.c	2005-03-29 15:49:54 -05:00
-+++ b/drivers/net/arcnet/arcnet.c	2005-03-29 15:49:54 -05:00
-@@ -253,7 +253,7 @@
- 	BUGLVL(D_DURING) {
- 		BUGMSG(D_DURING, "release_arcbuf: freed #%d; buffer queue is now: ",
- 		       bufnum);
--		for (i = lp->next_buf; i != lp->first_free_buf; i = ++i % 5)
-+		for (i = lp->next_buf; i != lp->first_free_buf; i = (i+1) % 5)
- 			BUGMSG2(D_DURING, "#%d ", lp->buf_queue[i]);
- 		BUGMSG2(D_DURING, "\n");
- 	}
-@@ -289,7 +289,7 @@
- 
- 	BUGLVL(D_DURING) {
- 		BUGMSG(D_DURING, "get_arcbuf: got #%d; buffer queue is now: ", buf);
--		for (i = lp->next_buf; i != lp->first_free_buf; i = ++i % 5)
-+		for (i = lp->next_buf; i != lp->first_free_buf; i = (i+1) % 5)
- 			BUGMSG2(D_DURING, "#%d ", lp->buf_queue[i]);
- 		BUGMSG2(D_DURING, "\n");
- 	}
-diff -Nru a/drivers/net/bonding/bond_alb.c b/drivers/net/bonding/bond_alb.c
---- a/drivers/net/bonding/bond_alb.c	2005-03-29 15:49:54 -05:00
-+++ b/drivers/net/bonding/bond_alb.c	2005-03-29 15:49:54 -05:00
-@@ -54,6 +54,7 @@
- #include <linux/if_ether.h>
- #include <linux/if_bonding.h>
- #include <linux/if_vlan.h>
-+#include <linux/in.h>
- #include <net/ipx.h>
- #include <net/arp.h>
- #include <asm/byteorder.h>
-@@ -1300,7 +1301,8 @@
- 	switch (ntohs(skb->protocol)) {
- 	case ETH_P_IP:
- 		if ((memcmp(eth_data->h_dest, mac_bcast, ETH_ALEN) == 0) ||
--		    (skb->nh.iph->daddr == ip_bcast)) {
-+		    (skb->nh.iph->daddr == ip_bcast) ||
-+		    (skb->nh.iph->protocol == IPPROTO_IGMP)) {
- 			do_tx_balance = 0;
- 			break;
- 		}
-diff -Nru a/drivers/net/depca.c b/drivers/net/depca.c
---- a/drivers/net/depca.c	2005-03-29 15:49:53 -05:00
-+++ b/drivers/net/depca.c	2005-03-29 15:49:53 -05:00
-@@ -1827,7 +1827,7 @@
- 
- 		/* set up the buffer descriptors */
- 		len = (skb->len < ETH_ZLEN) ? ETH_ZLEN : skb->len;
--		for (i = entry; i != end; i = (++i) & lp->txRingMask) {
-+		for (i = entry; i != end; i = (i+1) & lp->txRingMask) {
- 			/* clean out flags */
- 			writel(readl(&lp->tx_ring[i].base) & ~T_FLAGS, &lp->tx_ring[i].base);
- 			writew(0x0000, &lp->tx_ring[i].misc);	/* clears other error flags */
-diff -Nru a/drivers/net/mii.c b/drivers/net/mii.c
---- a/drivers/net/mii.c	2005-03-29 15:49:53 -05:00
-+++ b/drivers/net/mii.c	2005-03-29 15:49:53 -05:00
-@@ -43,6 +43,9 @@
- 	    (SUPPORTED_10baseT_Half | SUPPORTED_10baseT_Full |
- 	     SUPPORTED_100baseT_Half | SUPPORTED_100baseT_Full |
- 	     SUPPORTED_Autoneg | SUPPORTED_TP | SUPPORTED_MII);
-+	if (mii->supports_gmii)
-+		ecmd->supported |= SUPPORTED_1000baseT_Half |
-+			SUPPORTED_1000baseT_Full;
- 
- 	/* only supports twisted-pair */
- 	ecmd->port = PORT_MII;
-@@ -100,7 +103,7 @@
- 	} else {
- 		ecmd->autoneg = AUTONEG_DISABLE;
- 
--		ecmd->speed = ((bmcr2 & BMCR_SPEED1000 && 
-+		ecmd->speed = ((bmcr & BMCR_SPEED1000 && 
- 				(bmcr & BMCR_SPEED100) == 0) ? SPEED_1000 :
- 			       (bmcr & BMCR_SPEED100) ? SPEED_100 : SPEED_10);
- 		ecmd->duplex = (bmcr & BMCR_FULLDPLX) ? DUPLEX_FULL : DUPLEX_HALF;
-@@ -163,9 +166,9 @@
- 			tmp |= ADVERTISE_100FULL;
- 		if (mii->supports_gmii) {
- 			if (ecmd->advertising & ADVERTISED_1000baseT_Half)
--				advert2 |= ADVERTISE_1000HALF;
-+				tmp2 |= ADVERTISE_1000HALF;
- 			if (ecmd->advertising & ADVERTISED_1000baseT_Full)
--				advert2 |= ADVERTISE_1000FULL;
-+				tmp2 |= ADVERTISE_1000FULL;
- 		}
- 		if (advert != tmp) {
- 			mii->mdio_write(dev, mii->phy_id, MII_ADVERTISE, tmp);
-diff -Nru a/drivers/net/sis900.c b/drivers/net/sis900.c
---- a/drivers/net/sis900.c	2005-03-29 15:49:53 -05:00
-+++ b/drivers/net/sis900.c	2005-03-29 15:49:53 -05:00
-@@ -196,7 +196,9 @@
- MODULE_PARM_DESC(max_interrupt_work, "SiS 900/7016 maximum events handled per interrupt");
- MODULE_PARM_DESC(sis900_debug, "SiS 900/7016 bitmapped debugging message level");
- 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
- static void sis900_poll(struct net_device *dev);
-+#endif
- static int sis900_open(struct net_device *net_dev);
- static int sis900_mii_probe (struct net_device * net_dev);
- static void sis900_init_rxfilter (struct net_device * net_dev);
-diff -Nru a/drivers/net/sk98lin/skethtool.c b/drivers/net/sk98lin/skethtool.c
---- a/drivers/net/sk98lin/skethtool.c	2005-03-29 15:49:54 -05:00
-+++ b/drivers/net/sk98lin/skethtool.c	2005-03-29 15:49:54 -05:00
-@@ -437,9 +437,6 @@
- 	pAC->LedsOn = 0;
- 	mod_timer(&pAC->BlinkTimer, jiffies);
- 	msleep_interruptible(data * 1000);
 -
--	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout(data * HZ);
- 	del_timer_sync(&pAC->BlinkTimer);
- 	toggleLeds(pNet, 0);
- 
-diff -Nru a/drivers/net/via-velocity.c b/drivers/net/via-velocity.c
---- a/drivers/net/via-velocity.c	2005-03-29 15:49:54 -05:00
-+++ b/drivers/net/via-velocity.c	2005-03-29 15:49:54 -05:00
-@@ -3212,7 +3212,8 @@
- 
- static int velocity_suspend(struct pci_dev *pdev, pm_message_t state)
+-/*
+- * jsm_cleanup_board()
+- *
+- * Free all the memory associated with a board
+- */
+-static void jsm_cleanup_board(struct jsm_board *brd)
++static void jsm_remove_one(struct pci_dev *pdev)
  {
--	struct velocity_info *vptr = pci_get_drvdata(pdev);
-+	struct net_device *dev = pci_get_drvdata(pdev);
-+	struct velocity_info *vptr = netdev_priv(dev);
- 	unsigned long flags;
++	struct jsm_board *brd = pci_get_drvdata(pdev);
+ 	int i = 0;
  
- 	if(!netif_running(vptr->dev))
-@@ -3245,7 +3246,8 @@
++	jsm_remove_uart_port(brd);
++
+ 	free_irq(brd->irq, brd);
+ 	iounmap(brd->re_map_membase);
  
- static int velocity_resume(struct pci_dev *pdev)
+ 	/* Free all allocated channels structs */
+ 	for (i = 0; i < brd->maxports; i++) {
+ 		if (brd->channels[i]) {
+-			if (brd->channels[i]->ch_rqueue)
+-				kfree(brd->channels[i]->ch_rqueue);
+-			if (brd->channels[i]->ch_equeue)
+-				kfree(brd->channels[i]->ch_equeue);
+-			if (brd->channels[i]->ch_wqueue)
+-				kfree(brd->channels[i]->ch_wqueue);
++			kfree(brd->channels[i]->ch_rqueue);
++			kfree(brd->channels[i]->ch_equeue);
++			kfree(brd->channels[i]->ch_wqueue);
+ 			kfree(brd->channels[i]);
+ 		}
+ 	}
+ 
+-	pci_release_regions(brd->pci_dev);
+-	pci_disable_device(brd->pci_dev);
++	pci_release_regions(pdev);
++	pci_disable_device(pdev);
+ 	kfree(brd->flipbuf);
+ 	kfree(brd);
+ }
+ 
+-static void jsm_remove_one(struct pci_dev *dev)
+-{
+-	unsigned long lock_flags;
+-	struct list_head *tmp;
+-	struct jsm_board *brd;
+-
+-	spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
+-	list_for_each(tmp, &jsm_board_head) {
+-		brd = list_entry(tmp, struct jsm_board,
+-					jsm_board_entry);
+-		if ( brd != NULL && brd->pci_dev == dev) {
+-			jsm_remove_uart_port(brd);
+-			jsm_cleanup_board(brd);
+-			list_del(&brd->jsm_board_entry);
+-			break;
+-		}
+-	}
+-	spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
+-	return;
+-}
++static struct pci_device_id jsm_pci_tbl[] = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2DB9), 0, 0, 0 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2DB9PRI), 0, 0, 1 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2RJ45), 0, 0, 2 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2RJ45PRI), 0, 0, 3 },
++	{ 0, }
++};
++MODULE_DEVICE_TABLE(pci, jsm_pci_tbl);
+ 
+-struct pci_driver jsm_driver = {
++static struct pci_driver jsm_driver = {
+ 	.name		= "jsm",
+-	.probe		= jsm_init_one,
+ 	.id_table	= jsm_pci_tbl,
++	.probe		= jsm_probe_one,
+ 	.remove		= __devexit_p(jsm_remove_one),
+ };
+ 
+-/*
+- * jsm_init_module()
+- *
+- * Module load.  This is where it all starts.
+- */
+ static int __init jsm_init_module(void)
  {
--	struct velocity_info *vptr = pci_get_drvdata(pdev);
-+	struct net_device *dev = pci_get_drvdata(pdev);
-+	struct velocity_info *vptr = netdev_priv(dev);
- 	unsigned long flags;
- 	int i;
+-	int rc = 0;
+-
+-	printk(KERN_INFO "%s, Digi International Part Number %s\n",
+-			JSM_VERSION, JSM_VERSION);
+-
+-	/*
+-	 * Initialize global stuff
+-	 */
++	int rc;
  
-diff -Nru a/drivers/net/wireless/airo.c b/drivers/net/wireless/airo.c
---- a/drivers/net/wireless/airo.c	2005-03-29 15:49:53 -05:00
-+++ b/drivers/net/wireless/airo.c	2005-03-29 15:49:53 -05:00
-@@ -3440,7 +3440,7 @@
- 	/* Make sure we got something */
- 	if (rxd.rdy && rxd.valid == 0) {
- 		len = rxd.len + 12;
--		if (len < 12 && len > 2048)
-+		if (len < 12 || len > 2048)
- 			goto badrx;
+ 	rc = uart_register_driver(&jsm_uart_driver);
+-	if (rc < 0) {
+-		return rc;
++	if (!rc) {
++		rc = pci_register_driver(&jsm_driver);
++		if (rc)
++			uart_unregister_driver(&jsm_uart_driver);
+ 	}
+-
+-	rc = pci_register_driver(&jsm_driver);
+-	if (rc < 0) {
+-		uart_unregister_driver(&jsm_uart_driver);
+-		return rc;
+-	}
+-	jsm_driver_state = DRIVER_READY;
+-
+ 	return rc;
+ }
  
- 		skb = dev_alloc_skb(len);
-
---------------070401090307000803040802--
+-module_init(jsm_init_module);
+-
+-/*
+- * jsm_exit_module()
+- *
+- * Module unload.  This is where it all ends.
+- */
+ static void __exit jsm_exit_module(void)
+ {
+-	jsm_remove_driver_sysfiles(&jsm_driver.driver);
+-
+ 	pci_unregister_driver(&jsm_driver);
+-
+ 	uart_unregister_driver(&jsm_uart_driver);
+ }
++
++module_init(jsm_init_module);
+ module_exit(jsm_exit_module);
+-MODULE_LICENSE("GPL");
+===== drivers/serial/jsm/jsm_tty.c 1.1 vs edited =====
+--- 1.1/drivers/serial/jsm/jsm_tty.c	2005-03-29 00:21:43 +02:00
++++ edited/drivers/serial/jsm/jsm_tty.c	2005-03-29 17:08:39 +02:00
+@@ -1016,28 +1016,4 @@
+ 	}
+ 
+ 	return data_count;
+-}
+-
+-static ssize_t jsm_driver_version_show(struct device_driver *ddp, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%s\n", JSM_VERSION);
+-}
+-static DRIVER_ATTR(version, S_IRUSR, jsm_driver_version_show, NULL);
+-
+-static ssize_t jsm_driver_state_show(struct device_driver *ddp, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%s\n", jsm_driver_state_text[jsm_driver_state]);
+-}
+-static DRIVER_ATTR(state, S_IRUSR, jsm_driver_state_show, NULL);
+-
+-void jsm_create_driver_sysfiles(struct device_driver *driverfs)
+-{
+-	driver_create_file(driverfs, &driver_attr_version);
+-	driver_create_file(driverfs, &driver_attr_state);
+-}
+-
+-void jsm_remove_driver_sysfiles(struct device_driver *driverfs)
+-{
+-	driver_remove_file(driverfs, &driver_attr_version);
+-	driver_remove_file(driverfs, &driver_attr_state);
+ }

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268386AbTCCHJt>; Mon, 3 Mar 2003 02:09:49 -0500
+	id <S268396AbTCCHQg>; Mon, 3 Mar 2003 02:16:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268396AbTCCHJt>; Mon, 3 Mar 2003 02:09:49 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:21223 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S268386AbTCCHJs>; Mon, 3 Mar 2003 02:09:48 -0500
-Date: Mon, 3 Mar 2003 08:18:55 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: generica@email.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: pcmcia no worky in 2.5.6[32]
-Message-ID: <20030303071855.GA1224@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S268399AbTCCHQg>; Mon, 3 Mar 2003 02:16:36 -0500
+Received: from [196.12.44.6] ([196.12.44.6]:12760 "EHLO students.iiit.net")
+	by vger.kernel.org with ESMTP id <S268396AbTCCHQf>;
+	Mon, 3 Mar 2003 02:16:35 -0500
+Date: Mon, 3 Mar 2003 12:58:24 +0530 (IST)
+From: Prasad <prasad_s@students.iiit.net>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: redirecting printk to the Serial port
+In-Reply-To: <95740000.1046676056@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0303031255570.27683-100000@students.iiit.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hey,
-> 
-> since 2.5.62, I've not been able to get pcmcia working.
-> 
-> Hardware: toshiba 100CS
-> 
-> I've attached my .config for 2.5.63,
-> and a dmesg directly after boot for 2.5.61 and 2.5.63
-> 
-> any other details needed, please let me know
-> 
-> thanks,
-> 
-> 	/ Brett
 
-Could you please try this patch? It *should* fix this problem:
 
---- linux/drivers/pcmcia/i82365.c.original	2003-02-26 09:45:00.000000000 +0100
-+++ linux/drivers/pcmcia/i82365.c	2003-03-03 08:14:29.000000000 +0100
-@@ -1628,11 +1628,11 @@
- 	request_irq(cs_irq, pcic_interrupt, 0, "i82365", pcic_interrupt);
- #endif
-     
--    platform_device_register(&i82365_device);
--
-     i82365_data.nsock = sockets;
-     i82365_device.dev.class_data = &i82365_data;
--    
-+
-+    platform_device_register(&i82365_device);
-+
-     /* Finally, schedule a polling interrupt */
-     if (poll_interval != 0) {
- 	poll_timer.function = pcic_interrupt_wrapper;
+I have seen the Documentation/serial-console.txt and accordingly gave the 
+kernel arguments console=/dev/ttyS0,9600n8, but even after giving that i 
+am not getting anything to the other end. To check if the serial 
+communication was in place... i tried echo "abc" > /dev/ttyS0 and that 
+worked.
+
+Prasad.
+
+On Sun, 2 Mar 2003, Martin J. Bligh wrote:
+
+> > 	Got a silly doubt. when trying to insert one of my modules into
+> > the kernel, its getting rebooted and unfortunately i am losing all the
+> > debug(printk) messages.  Can i in some fashion capture all the printk's
+> > through the serial port. (I have two linux boxes and a serial cable to
+> > connect both of them)
+> 
+> See Documentation/serial-console.txt
+> 
+> M.
+> 
+
+-- 
+Failure is not an option
 

@@ -1,91 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267679AbTBUVOn>; Fri, 21 Feb 2003 16:14:43 -0500
+	id <S267710AbTBUVSU>; Fri, 21 Feb 2003 16:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267710AbTBUVOn>; Fri, 21 Feb 2003 16:14:43 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:10760 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S267679AbTBUVOl>; Fri, 21 Feb 2003 16:14:41 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302212125.h1LLPgxE001759@81-2-122-30.bradfords.org.uk>
-Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
-To: warp@mercury.d2dc.net (Zephaniah E\. Hull)
-Date: Fri, 21 Feb 2003 21:25:42 +0000 (GMT)
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <20030221205333.GA1684@babylon.d2dc.net> from "Zephaniah E\. Hull" at Feb 21, 2003 03:53:33 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267714AbTBUVSU>; Fri, 21 Feb 2003 16:18:20 -0500
+Received: from packet.digeo.com ([12.110.80.53]:57071 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267710AbTBUVST>;
+	Fri, 21 Feb 2003 16:18:19 -0500
+Date: Fri, 21 Feb 2003 13:25:49 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: piggin@cyberone.com.au, wli@holomorphy.com, david.lang@digitalinsight.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: IO scheduler benchmarking
+Message-Id: <20030221132549.14fac60d.akpm@digeo.com>
+In-Reply-To: <20030221114143.GS31480@x30.school.suse.de>
+References: <20030220212304.4712fee9.akpm@digeo.com>
+	<Pine.LNX.4.44.0302202247110.12601-100000@dlang.diginsite.com>
+	<20030221001624.278ef232.akpm@digeo.com>
+	<20030221103140.GN31480@x30.school.suse.de>
+	<20030221105146.GA10411@holomorphy.com>
+	<20030221110807.GQ31480@x30.school.suse.de>
+	<3E560AE3.8030309@cyberone.com.au>
+	<20030221114143.GS31480@x30.school.suse.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Feb 2003 21:28:20.0651 (UTC) FILETIME=[2803C7B0:01C2D9F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 
-> --W/nzBZO5zC0uMSeA
-> Content-Type: text/plain; charset=us-ascii
-> Content-Disposition: inline
-> Content-Transfer-Encoding: quoted-printable
-> 
-> </lurk>
-> 
-> On Fri, Feb 21, 2003 at 08:40:45PM +0000, John Bradford wrote:
-> > > RFC3168 section 6.1.1.1 says this:
-> > >=20
-> > >    A host that receives no reply to an ECN-setup SYN within the normal
-> > >    SYN retransmission timeout interval MAY resend the SYN and any
-> > >    subsequent SYN retransmissions with CWR and ECE cleared.  To overcome
-> > >    normal packet loss that results in the original SYN being lost, the
-> > >    originating host may retransmit one or more ECN-setup SYN packets
-> > >    before giving up and retransmitting the SYN with the CWR and ECE bits
-> > >    cleared.
-> > >=20
-> > > Supporting this would make using ECN a lot less painful - currently, if
-> > > I want to use ECN by default, I get to turn it off anytime I find an
-> > > ECN-hostile site that I'd like to communicate with.
-> >=20
-> > Linux shouldn't encourage the use of equipment that violates RFCs, in
-> > this case, RFC 739.
-> 
-> Linux shouldn't encourage the use of equipment that attempts to emulate
-> <insert thing here> but screws it up.
-> >=20
-> > The correct way to deal with it, is to contact the maintainers of the
-> > site, and ask them to fix the non conforming equipment.
-> 
-> The correct way to deal with it, is to contact the manufactures of the
-> equipment.
-> >=20
-> > If the problem is caused upstream, by equipment out of the
-> > site's maintainers' control, it is their responsibility to contact the
-> > relevant maintainers, or change their upstream provider.
-> 
-> If the hardware is provided by people upstream, and is out of the
-> control of the sysadmin's control, it is their responsibility to contact
-> the relevant people, or change hardware providers.
-> 
-> Oh, look, does that mean that we can now remove all the work arounds in
-> the various network, ide, etc drivers?
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> I don't
+> buy Andrew complaining about the write throttling when he still allows
+> several dozen mbytes of ram in flight and invisible to the VM,
 
-No, I'm suggesting that at all.
+The 2.5 VM accounts for these pages (/proc/meminfo:Writeback) and throttling
+decisions are made upon the sum of dirty+writeback pages.
 
-> No, I believe Linus has stated many times that Linux is not a research
-> project, it is meant to actually be USED.
+The 2.5 VFS limits the amount of dirty+writeback memory, not just the amount
+of dirty memory.
 
-As far as I can see, though, implementing this gains less than we
-stand to loose.
+Throttling in both write() and the page allocator is fully decoupled from the
+queue size.  An 8192-slot (4 gigabyte) queue on a 32M machine has been
+tested.
 
-What if the first SYN packet, or the response to it is lost, (which is
-more possible on congested links, which is when ECN would be most
-useful), and we disable ECN - then we loose out on functionality we
-could have, and the work around is actually detremental to
-performance.  Once 99% of internet hosts support ECN, we could be
-loosing more than we gain.
+The only tasks which block in get_request_wait() are the ones which we want
+to block there: heavy writers.
 
-If a site is unreachable, ECN can be disabled, and the RFC violating
-equipment is easily identified.  Automatically disabling ECN just
-hides the problem from the user, who might then not be benefiting from
-ECN, and will quite possibly accept the degraded performance as
-normal.
+Page reclaim will never block page allocators in get_request_wait().  That
+causes terrible latency if the writer is still active.
 
-John.
+Page reclaim will never block a page-allocating process on I/O against a
+particular disk block.  Allocators are instead throttled against _any_ write
+I/O completion.  (This is broken in several ways, but it works well enough to
+leave it alone I think).
+

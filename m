@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267724AbTASXsm>; Sun, 19 Jan 2003 18:48:42 -0500
+	id <S267725AbTASX7w>; Sun, 19 Jan 2003 18:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267723AbTASXsm>; Sun, 19 Jan 2003 18:48:42 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:13551 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S267722AbTASXsl> convert rfc822-to-8bit; Sun, 19 Jan 2003 18:48:41 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <adilger@clusterfs.com>, Roman Zippel <zippel@linux-m68k.org>
-CC: Larry McVoy <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Sun, 19 Jan 2003 15:57:40 -0800
-In-Reply-To: <20030119162614.I1594@schatzie.adilger.int>
-Subject: Re: Is the BitKeeper network protocol documented?
+	id <S267726AbTASX7w>; Sun, 19 Jan 2003 18:59:52 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:2826 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267725AbTASX7v>; Sun, 19 Jan 2003 18:59:51 -0500
+Date: Mon, 20 Jan 2003 00:08:53 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [RFC][PATCH] Add LSM sysctl hook to 2.5.59
+Message-ID: <20030120000853.A9023@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Stephen D. Smalley" <sds@epoch.ncsc.mil>,
+	linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+References: <200301172154.QAA00757@moss-shockers.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030119235742.AAA13049@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200301172154.QAA00757@moss-shockers.ncsc.mil>; from sds@epoch.ncsc.mil on Fri, Jan 17, 2003 at 04:54:37PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Jan 2003 16:26:14 -0700, Andreas Dilger wrote:
+On Fri, Jan 17, 2003 at 04:54:37PM -0500, Stephen D. Smalley wrote:
+> 
+> This patch adds a LSM sysctl hook for controlling access to
+> sysctl variables to 2.5.59, split out from the lsm-2.5 BitKeeper tree.
+> SELinux uses this hook to control such accesses in accordance with the
+> security policy configuration.
 
->There is nothing in the GPL which requires anyone to make their
->changes
->available to you the minute they make them.  The fact that you have
->access
->to the changes within an hour of when they are made far exceeds the
->requirements in the GPL, which only require that the source code be
->made
->available if you distribute the OBJECT CODE OR EXECUTABLE.
+I'm not very happy with this hook.  This means every single security
+module needs a list of all sensitive sysctl variables, i.e. we duplicate
+information in (possible a large number of) different places.
 
-	I think you're ignoring the way the GPL defines the "source code". 
-The GPL defines the "source code" as the preferred form for modifying 
-the program. If the preferred form of a work for purposes of 
-modifying it is live access to a BK repository, then that's the 
-"source code" for GPL purposes.
-
->There
->are still lots of other ways to get the kernel source.
-
-	You are using the conventional meaning of "source code", which is 
-roughly, "whatever you compile to get the executable". However, this 
-is not the "source" for GPL purposes. For GPL purposes, the source is 
-the preferred form of a work for purposes of modifying it.
-
-	This means you can't remove meta information that's useful for 
-modifying because that is not the preferred form. Such meta 
-information includes whatever is useful for modifying it, such as 
-revision history and chain of custody.
-
-	You can't have two "source"s, one a private repository that you 
-prefer to use for making changes and the other an "obfuscated" public 
-version you distribute for GPL compliance which is missing all the 
-other useful information.
-
-	Checking source out of a repository, separating away the revision 
-history, is an obfuscatory act. The GPL prohibits such source 
-obfuscation and requires you to distribute the source in whatever is 
-the actual preferred form for modifying it. Really. Sorry.
-
-	DS
-
+What's the reason you can't just live with DAC for sysctls?
 

@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261198AbREZPfp>; Sat, 26 May 2001 11:35:45 -0400
+	id <S261471AbREZPjf>; Sat, 26 May 2001 11:39:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261482AbREZPff>; Sat, 26 May 2001 11:35:35 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1031 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261198AbREZPfT>;
-	Sat, 26 May 2001 11:35:19 -0400
-Date: Sat, 26 May 2001 12:08:34 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+	id <S261482AbREZPjZ>; Sat, 26 May 2001 11:39:25 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:18194 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S261471AbREZPjK>; Sat, 26 May 2001 11:39:10 -0400
+Date: Sat, 26 May 2001 17:38:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Ben LaHaise <bcrl@redhat.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Linux-2.4.5
-In-Reply-To: <20010526170306.X9634@athlon.random>
-Message-ID: <Pine.LNX.4.21.0105261206260.30264-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010526173847.C9634@athlon.random>
+In-Reply-To: <20010526171459.Y9634@athlon.random> <Pine.LNX.4.21.0105260818150.3684-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0105260818150.3684-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, May 26, 2001 at 08:23:00AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 May 2001, Andrea Arcangeli wrote:
+On Sat, May 26, 2001 at 08:23:00AM -0700, Linus Torvalds wrote:
+> 
+> On Sat, 26 May 2001, Andrea Arcangeli wrote:
+> > 
+> > I don't see where you fixed the deadlock in create_buffers, if you did
+> > please show me which line of code is supposed to do that, I show you
+> > below which lines of code in my patch should fix the wait_event deadlock
+> > in create_buffers:
+> 
+> Andrea, look at the page_alloc() path, and the "don't loop forever if
+> __GFP_IO isn't set and we're not making progress". That looks entirely
+> sane.
 
-> Others agreed that the real source of the create_buffers could be just
-> too few reserved pages in the unused_list
+yes, I was only talking about create_buffers, not __alloc_pages. That
+patch can certainly address problems in alloc_pages.
 
-To quote you, from the message to which I replied with the
-"No Comment" comment:
+> (and I like your patch that removes some more magic limits - I suspect the
+> proper fix is the 5 lines from Rik's patch in page_alloc.c, and your patch
+> together - amybody mind testing that out?)
 
-------> Andrea Arcangeli wrote:
-Anything supposed to work because there's enough memory between
-zone->pages_min*3/4 and zone->pages_min/4 is just obviously broken
-period.
-------
+Sounds the same to me.
 
-And not 10 lines lower you decide to raise some magic
-limit yourself. I guess my irony threshold must be
-lower than yours, or something.
+> Oh, and I still _do_ think that we should rename the silly "async" flag as
+> "can_do_io", and then use that to determine whether to do SLAB_KERNEL or
+> SLAB_BUFFER. That would make more things able to do IO, which in turn
+> should help balance things out.
 
-cheers,
+getblk still needs to use SLAB_BUFFER, not sure how many callers will be
+allowed to use SLAB_KERNEL, but certainly the "async" name was not very
+appropriate to indicate if the bh allocation can fail or not.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
-
+Andrea

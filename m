@@ -1,45 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbUJZOKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbUJZOM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbUJZOKi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 10:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbUJZOKi
+	id S262277AbUJZOM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 10:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUJZOM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 10:10:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15037 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262275AbUJZOKc (ORCPT
+	Tue, 26 Oct 2004 10:12:57 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:49372 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S262271AbUJZOMP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 10:10:32 -0400
-Date: Tue, 26 Oct 2004 15:09:25 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: jfannin1@columbus.rr.com, Christophe Saout <christophe@saout.de>,
-       Mathieu Segaud <matt@minas-morgul.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-mm1: LVM stopped working
-Message-ID: <20041026140925.GO16193@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Jeff Chua <jeffchua@silk.corp.fedex.com>, jfannin1@columbus.rr.com,
-	Christophe Saout <christophe@saout.de>,
-	Mathieu Segaud <matt@minas-morgul.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <87oeitdogw.fsf@barad-dur.crans.org> <1098731002.14877.3.camel@leto.cs.pocnet.net> <20041026123651.GA2987@zion.rivenstone.net> <Pine.LNX.4.61.0410262152510.31267@silk.corp.fedex.com>
+	Tue, 26 Oct 2004 10:12:15 -0400
+Date: Tue, 26 Oct 2004 16:11:48 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: linux-kernel@vger.kernel.org
+Cc: nfs@lists.sourceforge.net, trond.myklebust@fys.uio.no,
+       neilb@cse.unsw.edu.au, torvalds@osdl.org
+Subject: [PATCH] NFS mount hang fix
+Message-ID: <20041026141148.GM6408@fi.muni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410262152510.31267@silk.corp.fedex.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4.2i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 09:55:38PM +0800, Jeff Chua wrote:
-> It doesn't work on 2.6.10-rc1 either. Works fine on 2.6.9 and 2.4.8-rc1.
->   device-mapper ioctl cmd 0 failed: Inappropriate ioctl for device
+	Hi all,
 
-Do you get any corresponding kernel messages?
-Check /dev/mapper/control corresponds to  /proc/devices & /proc/misc.
-(See device-mapper scripts/devmap_mknod.sh)
-Use 'dmsetup version' and 'dmsetup targets' to test.
+The attached patch fixes the problem where Linux NFS server is not
+able to serve clients with FQDN longer than 49 characters (altough
+FQDN can be up to 255 characters, and I am not counting exports to
+subnet or wildcard, which can add to the total length). The patch
+also fixes at least the following two bugs from RH bugzilla:
 
-Alasdair
+http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=127521
+http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=135109
+
+I am sorry to repost this, but I have got no feedback from NFS maintainers,
+while I've got postitive feedback from three people whose problems
+was fixed by this patch. NFS maintaners - are you alive? If not,
+Linus, please apply this patch. Thanks,
+
+-Yenya
+
+Patch relative to 2.6.9:
+
+Signed-Off-By: Jan "Yenya" Kasprzak <kas@fi.muni.cz>
+
+
+--- linux-2.6.9/net/sunrpc/svcauth_unix.c.orig	2004-10-26 15:47:51.497924576 +0200
++++ linux-2.6.9/net/sunrpc/svcauth_unix.c	2004-10-26 16:01:20.121995032 +0200
+@@ -150,11 +150,13 @@
+ }
+ 
+ static struct ip_map *ip_map_lookup(struct ip_map *, int);
++#define DOMAINNAME_MAX  1024    /* FQDN + possible aliases/subnets/wildcards */
++#define CLASS_MAX    50
+ static int ip_map_parse(struct cache_detail *cd,
+ 			  char *mesg, int mlen)
+ {
+ 	/* class ipaddress [domainname] */
+-	char class[50], buf[50];
++	static char class[CLASS_MAX], buf[DOMAINNAME_MAX];
+ 	int len;
+ 	int b1,b2,b3,b4;
+ 	char c;
+@@ -167,13 +169,13 @@
+ 	mesg[mlen-1] = 0;
+ 
+ 	/* class */
+-	len = qword_get(&mesg, class, 50);
++	len = qword_get(&mesg, class, CLASS_MAX);
+ 	if (len <= 0) return -EINVAL;
+ 	if (len >= sizeof(ipm.m_class))
+ 		return -EINVAL;
+ 
+ 	/* ip address */
+-	len = qword_get(&mesg, buf, 50);
++	len = qword_get(&mesg, buf, DOMAINNAME_MAX);
+ 	if (len <= 0) return -EINVAL;
+ 
+ 	if (sscanf(buf, "%u.%u.%u.%u%c", &b1, &b2, &b3, &b4, &c) != 4)
+@@ -184,7 +186,7 @@
+ 		return -EINVAL;
+ 
+ 	/* domainname, or empty for NEGATIVE */
+-	len = qword_get(&mesg, buf, 50);
++	len = qword_get(&mesg, buf, DOMAINNAME_MAX);
+ 	if (len < 0) return -EINVAL;
+ 
+ 	if (len) {
 -- 
-agk@redhat.com
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Whatever the Java applications and desktop dances may lead to, Unix will <
+> still be pushing the packets around for a quite a while.      --Rob Pike <

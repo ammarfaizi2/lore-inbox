@@ -1,70 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267184AbUIJC1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUIJCcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267184AbUIJC1t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 22:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUIJC1t
+	id S267189AbUIJCcD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 22:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267212AbUIJCcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 22:27:49 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:25314 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267184AbUIJC1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 22:27:46 -0400
-Date: Thu, 9 Sep 2004 22:32:14 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>
-Subject: [PATCH] lock profiling update for x86_64
-Message-ID: <Pine.LNX.4.53.0409091005140.15086@montezuma.fsmlabs.com>
+	Thu, 9 Sep 2004 22:32:03 -0400
+Received: from relay.pair.com ([209.68.1.20]:35083 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S267189AbUIJCb5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 22:31:57 -0400
+X-pair-Authenticated: 66.188.111.210
+Message-ID: <41411214.4000205@cybsft.com>
+Date: Thu, 09 Sep 2004 21:31:48 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mark_H_Johnson@raytheon.com, Lee Revell <rlrevell@joe-job.com>,
+       Free Ekanayaka <free@agnula.org>,
+       Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+References: <OFD3DB738F.105F62D0-ON86256F08.005CDE25-86256F08.005CDE44@raytheon.com> <20040908184231.GA8318@elte.hu>
+In-Reply-To: <20040908184231.GA8318@elte.hu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is based on discussion with Andi regarding the usage of the 
-frame pointer or stack pointer when determining the caller of a specific 
-lock function.
+Ingo Molnar wrote:
+> * Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+> 
+> 
+>>If you look at the date / time of the traces, you will notice that
+>>most occur in the latter part of the test. This is during the "disk
+>>copy" and "disk read" parts of the testing. [...]
+> 
+> 
+> would it be possible to test with DMA disabled? (hdparm -d0 /dev/hda) It
+> might take some extra work to shun the extra latency reports from the
+> PIO IDE path (which is quite slow) but once that is done you should be
+> able to see whether these long 0.5 msec delays remain even if all (most)
+> DMA activity has been eliminated.
+> 
+> 
+>>preemption latency trace v1.0.5 on 2.6.9-rc1-VP-R1
+>>--------------------------------------------------
+>> latency: 550 us, entries: 6 (6)
+>>    -----------------
+>>    | task: cat/6771, uid:0 nice:0 policy:0 rt_prio:0
+>>    -----------------
+>> => started at: kmap_atomic+0x23/0xe0
+>> => ended at:   kunmap_atomic+0x7b/0xa0
+>>=======>
+>>00000001 0.000ms (+0.000ms): kmap_atomic (file_read_actor)
+>>00000001 0.000ms (+0.000ms): page_address (file_read_actor)
+>>00000001 0.000ms (+0.549ms): __copy_to_user_ll (file_read_actor)
+>>00000001 0.550ms (+0.000ms): kunmap_atomic (file_read_actor)
+>>00000001 0.550ms (+0.000ms): sub_preempt_count (kunmap_atomic)
+>>00000001 0.550ms (+0.000ms): update_max_trace (check_preempt_timing)
+>
+> 
+> this is a full page copy, from userspace into a kernelspace pagecache
+> page. This shouldnt take 500 usecs on any hardware. Since this is a
+> single instruction (memcpy's rep; movsl instruction) there's nothing
+> that Linux can do to avoid (or even to cause) such a situation.
 
-Tested on emt64
+I saw this one (or one very similar) on a system that I just started 
+testing on some today. Not quite as high (~219 usec if I remember 
+correctly). I don't have access to the system from here. I will forward 
+the trace tomorrow when I'm there tomorrow. However, I haven't seen this 
+on my slower system running the same stress tests.  There are several 
+possible points of interest:
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+System I saw this on:
+P4 2.4GHz or 3.0GHz
+2GB memory
+2.6.9-rc1-bk12-S0 built for SMP (even though hyperthreading is off 
+currently)
 
-Index: linux-2.6.9-rc1-mm4-amd64/include/asm-x86_64/ptrace.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm4/include/asm-x86_64/ptrace.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 ptrace.h
---- linux-2.6.9-rc1-mm4-amd64/include/asm-x86_64/ptrace.h	7 Sep 2004 11:52:00 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm4-amd64/include/asm-x86_64/ptrace.h	9 Sep 2004 13:13:34 -0000
-@@ -83,7 +83,7 @@ struct pt_regs {
- #if defined(__KERNEL__) && !defined(__ASSEMBLY__) 
- #define user_mode(regs) (!!((regs)->cs & 3))
- #define instruction_pointer(regs) ((regs)->rip)
--#if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
-+#ifdef CONFIG_SMP
- extern unsigned long profile_pc(struct pt_regs *regs);
- #else
- #define profile_pc(regs) instruction_pointer(regs)
-Index: linux-2.6.9-rc1-mm4-amd64/arch/x86_64/kernel/time.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm4/arch/x86_64/kernel/time.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 time.c
---- linux-2.6.9-rc1-mm4-amd64/arch/x86_64/kernel/time.c	7 Sep 2004 11:52:00 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm4-amd64/arch/x86_64/kernel/time.c	9 Sep 2004 14:03:46 -0000
-@@ -179,14 +179,14 @@ int do_settimeofday(struct timespec *tv)
- 
- EXPORT_SYMBOL(do_settimeofday);
- 
--#if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
-+#ifdef CONFIG_SMP
- unsigned long profile_pc(struct pt_regs *regs)
- {
- 	unsigned long pc = instruction_pointer(regs);
- 
- 	if (pc >= (unsigned long)&__lock_text_start &&
- 	    pc <= (unsigned long)&__lock_text_end)
--		return *(unsigned long *)regs->rbp;
-+		return *(unsigned long *)regs->rsp;
- 	return pc;
- }
- EXPORT_SYMBOL(profile_pc);
+System I haven't seen this on:
+PII 450
+256MB memory
+2.6.9-rc1-bk12-R6 built for UP
+
+Sorry I don't have more complete data in front of me. I will send the 
+concrete info tomorrow with the trace.
+
+kr

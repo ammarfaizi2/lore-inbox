@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266098AbRF2OuY>; Fri, 29 Jun 2001 10:50:24 -0400
+	id <S265666AbRF2PBp>; Fri, 29 Jun 2001 11:01:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266100AbRF2OuO>; Fri, 29 Jun 2001 10:50:14 -0400
-Received: from tonib-gw-old.customer.0rbitel.net ([195.24.39.218]:9747 "HELO
-	mail.ludost.net") by vger.kernel.org with SMTP id <S266098AbRF2OuA>;
-	Fri, 29 Jun 2001 10:50:00 -0400
-Date: Fri, 29 Jun 2001 17:49:58 +0300 (EEST)
-From: Vasil Kolev <lnxkrnl@mail.ludost.net>
-X-X-Sender: <lnxkrnl@doom.bastun.net>
-To: Eugenio Mastroviti <eugeniom@gointernet.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: __alloc_pages: 1-order allocation failed
-In-Reply-To: <3B3B28A6.A2457959@gointernet.co.uk>
-Message-ID: <Pine.LNX.4.33.0106291749010.2015-100000@doom.bastun.net>
+	id <S265694AbRF2PBf>; Fri, 29 Jun 2001 11:01:35 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:51204 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S265666AbRF2PBX>; Fri, 29 Jun 2001 11:01:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Ph. Marek" <marek@bmlv.gv.at>,
+        "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+Subject: Re: Q: sparse file creation in existing data?
+Date: Fri, 29 Jun 2001 17:03:41 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3.0.6.32.20010629133915.0091e470@pop3.bmlv.gv.at> <3.0.6.32.20010629145529.00922ae0@pop3.bmlv.gv.at>
+In-Reply-To: <3.0.6.32.20010629145529.00922ae0@pop3.bmlv.gv.at>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0106291703410C.00419@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the same problem, and some other strange problems, booting with the
-'noapic' option solved them ...
-(sorry for the late reply, I was still testing the machine... )
+On Friday 29 June 2001 14:55, Ph. Marek wrote:
+> Hmmm, on second thought ... But I'd like it better to have a fcntl for
+> hole-making :-)
+> Maybe I'll implement this myself.
 
-On Thu, 28 Jun 2001, Eugenio Mastroviti wrote:
+A far superior interface would be:
 
-> This is possibly not the best place to post this message, but if anybody
-> could help I'd be very grateful...
->
-> Twice at about the same time one of our server, running kernel 2.4.4,
-> has died. Attached is an excerpt from syslog - the actual list of
-> messages is 5 or 6 times longer, all with the same timestamp - after
-> this the machine froze until it was rebooted, about an hour later.
->
-> The server is a dual-CPU Dell 2450 with 1.5GB RAM, 1.5GB swap, Megaraid
-> controller, running application server software
->
-> Another identical server in the same subnet, running the same kind of
-> software with kernel 2.2.16 without any modification, is running fine in
-> spite of the bigger load on it (more threads, larger memory usage)
->
-> Eugenio Mastroviti
->
-> Systems Administrator
->
-> Go Internet Ltd
+    ssize_t sys_clear(unsigned int fd, size_t count)
 
+A stub implementation would just write zeroes.  You would need a generic way 
+of determining whether holes are supported for a particular file - this is 
+where an fcntl would be appropriate.  It would also be nice to know this 
+before opening/creating a file, perhaps by fcntling the directory.
+
+But don't expect to have a real, hole-creating implementation any time soon.  
+Taming the truncate races is hard enough as it is with a single boundary at 
+the end of a file.  Taking care of multiple boundaries inside the file is 
+far, far harder.  Talk to Al Viro or the Ext3 team if you want the whole ugly 
+story.
+
+--
+Daniel

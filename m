@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268496AbUJHKQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269745AbUJHKRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268496AbUJHKQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 06:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269717AbUJHKQZ
+	id S269745AbUJHKRv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 06:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUJHKRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 06:16:25 -0400
-Received: from mail01.hpce.nec.com ([193.141.139.228]:5015 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S268496AbUJHKQX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 06:16:23 -0400
-From: Erich Focht <efocht@hpce.nec.com>
-To: lse-tech@lists.sourceforge.net, colpatch@us.ibm.com
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-Date: Fri, 8 Oct 2004 12:14:20 +0200
-User-Agent: KMail/1.6.2
-Cc: Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
-       frankeh@watson.ibm.com
-References: <1097110266.4907.187.camel@arrakis>
-In-Reply-To: <1097110266.4907.187.camel@arrakis>
+	Fri, 8 Oct 2004 06:17:50 -0400
+Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:27311 "EHLO
+	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S269717AbUJHKRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 06:17:42 -0400
+Message-ID: <4166693D.1080207@kolivas.org>
+Date: Fri, 08 Oct 2004 20:17:33 +1000
+From: Con Kolivas <lkml@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200410081214.20907.efocht@hpce.nec.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3-mm3: firefox SIGSEGV
+References: <D1F168BB-1911-11D9-B4FB-000D9352858E@linuxmail.org>
+In-Reply-To: <D1F168BB-1911-11D9-B4FB-000D9352858E@linuxmail.org>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matthew,
-
-On Thursday 07 October 2004 02:51, Matthew Dobson wrote:
-> 1) Rip out sched_groups and move them into the sched_domains.
-> 2) Add some reference counting, and eventually locking, to
-> sched_domains.
-> 3) Rewrite & simplify the way sched_domains are built and linked into a
-> cohesive tree.
+Felipe Alfaro Solana wrote:
+> I'm having trouble launching firefox-0.10.1-1.0PR1.8 from Fedora Core 
+> Rawhide under 2.6.9-rc3-mm3 as it always segfaults. However, I can under 
+> 2.6.9-rc3-mm2. Don't know what's really going on, so I've attached the 
+> output of "strace".
 > 
-> This should allow us to support hotplug more easily, simply removing the
-> domain belonging to the going-away CPU, rather than throwing away the
-> whole domain tree and rebuilding from scratch.  This should also allow
-> us to support multiple, independent (ie: no shared root) domain trees
-> which will facilitate isolated CPU groups and exclusive domains.  I also
-> hope this will allow us to leverage the existing topology infrastructure
-> to build domains that closely resemble the physical structure of the
-> machine automagically, thus making supporting interesting NUMA machines
-> and SMT machines easier.
+> Any ideas?
 
-more flexibility in building the sched_domains is badly needed, so
-your effort towards providing this is the right step. I'm not sure
-yet whether your big change is really (and already) a simplification,
-but what you described sounded for me like getting the chance to
-configure the sched_domains at runtime, dynamically, from user
-space. I didn't notice any user interface in your patch, or overlooked
-it. Could you please describe the API you had in mind for that?
+Known issue.
 
-Regards,
-Erich
+This fixes it:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109714329614794&w=2
 
+Cheers,
+Con

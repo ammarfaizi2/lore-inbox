@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270711AbUJUSMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270759AbUJUSCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270711AbUJUSMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 14:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270746AbUJUSHy
+	id S270759AbUJUSCM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 14:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270781AbUJUR6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 14:07:54 -0400
-Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:16278 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S270778AbUJUSFW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 14:05:22 -0400
-Message-ID: <4177FB89.8030708@ru.mvista.com>
-Date: Thu, 21 Oct 2004 22:10:17 +0400
-From: "Eugeny S. Mints" <emints@ru.mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Scott Wood <scott@timesys.com>
-CC: john cooper <john.cooper@timesys.com>, Esben Nielsen <simlo@phys.au.dk>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Jens Axboe <axboe@suse.de>, Rui Nuno Capela <rncbc@rncbc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk> <4177CD3C.9020201@timesys.com> <4177DA11.4090902@ru.mvista.com> <4177E89A.1090100@timesys.com> <20041021173302.GA26318@yoda.timesys>
-In-Reply-To: <20041021173302.GA26318@yoda.timesys>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 13:58:39 -0400
+Received: from lum.tdiedrich.de ([193.24.211.71]:14037 "EHLO lum.tdiedrich.de")
+	by vger.kernel.org with ESMTP id S270782AbUJURxr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 13:53:47 -0400
+Date: Thu, 21 Oct 2004 19:53:31 +0200
+From: Tobias Diedrich <ranma@tdiedrich.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Timothy Miller <miller@techsource.com>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-ID: <20041021175331.GA21760@melchior.yamamaya.is-a-geek.org>
+Mail-Followup-To: Tobias Diedrich <ranma@tdiedrich.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Timothy Miller <miller@techsource.com>
+References: <4176E08B.2050706@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Disposition: inline
+In-Reply-To: <4176E08B.2050706@techsource.com>
+X-GPG-Fingerprint: 7168 1190 37D2 06E8 2496  2728 E6AF EC7A 9AC7 E0BC
+X-GPG-Key: http://www.uguu.de/~ranma/gpg-key
+User-Agent: Mutt/1.5.6+20040907i
+X-Virus: No
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.7
+X-Spam: No
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Wood wrote:
-> On Thu, Oct 21, 2004 at 12:49:30PM -0400, john cooper wrote:
-> 
->>It would seem a mutex ownership list still needs to be maintained.
->>Doing so in unordered priority will give a small fixed insertion
->>time, but will require an exhaustive search in order to calculate
->>maximum priority. Doing so in priority order will require an
->>average of #mutex_owned / 2 for the insertion, and gives a fixed
->>time for maximum priority calculation. The latter appears to offer
->>a performance benefit to the degree the incoming priorities are
->>random.
-> 
-> 
-> If you keep it in priority order, then you're paying the O(n) cost
-> every time you acquire a lock.  If you keep it unordered and only
-> search it when you need to recalculate a task's priority after a lock
-> has been released (or priorities have been changed), you pay the cost
-> much less often.  Plus, the number of locks held by any given thread
-> should generally be very small.
-As to locks held by any given thread - it's not always true - take a 
-look at mm/filemap.c locks nesting map in comments.
+Timothy Miller wrote:
 
-                        Eugeny
+> (2) How much would you be willing to pay for it?
 
+For a GFX card without 3D I'd say about $30, maybe double it for the
+geekness/support the idea factor.
 
+> (5) What's most important to you, performance, price, or stability?
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+I'd like to see a graphics card with a really good YV12 to RGB Overlay
+and/or a blitter that can do the conversion.  A lot of cards do
+ok when scaling YUY2, but have problems with YV12 (This _might_ be a
+driver problem).  Scaling is more difficult with YV12 because
+the chroma resolution is half the luma resolution in both dimensions
+and not just in the horizontal direction.
+
+Also more than 8Bits per Channel could noticably improve video quality.
+(AFAIK good Standalone DVD Players do 10bits per component, which is the
+maximum the mpeg2 spec supports)
+
+Many cards have 10bit DACs to improve precision when gamma correction is
+used, but AFAIK you can't directly output video with that precision.
+
+I also wondered wether it would be feasible to have a video capture card
+directly capture into GFX memory, show the video being captured on the
+overlay and do a dma transfer into cpu memory while reordering the data
+as to improve cpu cacheline usage for DCT processing (Have the
+macroblocks use contiguous memory chunks or let the card do
+the DCT). :-)
+
+And even if the card doesn't do 3D it might be useful to have some pixel
+shader functionality, IIRC the ATI Windoze drivers can use the pixel
+shaders to do deblock/dering video postprocessing on the card.
+
+-- 
+Tobias						PGP: http://9ac7e0bc.uguu.de
+失敗する可能性のあるものは、失敗する。
+np: RAID - 不誠実な道の上でのサバイバル
 

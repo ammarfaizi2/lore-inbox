@@ -1,63 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129804AbRCATC6>; Thu, 1 Mar 2001 14:02:58 -0500
+	id <S129807AbRCATGL>; Thu, 1 Mar 2001 14:06:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129807AbRCATCi>; Thu, 1 Mar 2001 14:02:38 -0500
-Received: from atlrel1.hp.com ([156.153.255.210]:39158 "HELO atlrel1.hp.com")
-	by vger.kernel.org with SMTP id <S129804AbRCATCa>;
-	Thu, 1 Mar 2001 14:02:30 -0500
-Message-ID: <3A9E80B7.F5010457@fc.hp.com>
-Date: Thu, 01 Mar 2001 12:02:47 -0500
-From: Khalid Aziz <khalid@fc.hp.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S129813AbRCATGA>; Thu, 1 Mar 2001 14:06:00 -0500
+Received: from mailf.telia.com ([194.22.194.25]:19208 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S129807AbRCATFs>;
+	Thu, 1 Mar 2001 14:05:48 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roger Larsson <roger.larsson@norran.net>
+To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Where is my memory
+Date: Thu, 1 Mar 2001 19:57:33 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <15006.2724.21532.387750@hertz.ikp.physik.tu-darmstadt.de>
+In-Reply-To: <15006.2724.21532.387750@hertz.ikp.physik.tu-darmstadt.de>
 MIME-Version: 1.0
-To: Camm Maguire <camm@enhanced.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 IDE tape problem, with ide-scsi
-In-Reply-To: <Pine.LNX.4.10.10102271103360.32662-100000@master.linux-ide.org> <54lmqrsyn9.fsf@intech19.enhanced.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01030119573300.01434@dox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Camm Maguire wrote:
->The third error I get is: 
+Hi,
+
+This is interesting.
+
+I have found out that my freezes most oftenly happen on cold boot.
+At cold boot the locatedb is run...
+
+I have added IKD...
+
+/RogerL
+
+
+On Thursday 01 March 2001 09:39, Uwe Bonnes wrote:
+> Hallo,
 >
->Feb 27 16:01:45 intech9 kernel: st0: Error: 28000000, cmd: 8 1 0 0 40 0 Len: 16 
->Feb 27 16:01:45 intech9 kernel: Info fld=0x40, FMK Current st09:00: sns = f0 80 
->Feb 27 16:01:45 intech9 kernel: ASC= 0 ASCQ= 1 
->Feb 27 16:01:45 intech9 kernel: Raw sense data:0xf0 0x00 0x80 0x00 0x00 0x00 0x40 0x0a 0x00 0x00 0x00 0x00 0x00 0x01 0x00 0x00 
->Feb 27 16:01:45 intech9 kernel: st0: Sense: f0 0 80 0 0 0 40 a 
->Feb 27 16:01:45 intech9 kernel: st0: EOF detected (0 bytes read). 
+> on two systems with 2.4.2. (actually the suse tree from Hubert mantel at
+> ftp://ftp.suse.com/people/mantel/next) on a single/dual celeron machine
+> with 256/384 MByte Memory all show increased memory consumption after the
+> daily locatedb run.
 >
->Restoring a tape typically then says 'gunzip: unexpected end of 
->file'. My guess was that the last fractional block of 32k wasn't 
->flushed to the drive. Of course, if I'm having media troubles 
->indicated by the first error above, then something else could be 
->happening, I suppose. But does erroneous block flushing in the driver 
->sound like a possibility? 
+> Here is the output in that situation after a shutdown to single user mode
+> ("init S"):
+>
+> (cat /proc/meminfo)
+>
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  261672960 217587712 44085248        0  7565312 87621632
+> Swap: 537214976        0 537214976
+> MemTotal:       255540 kB
+> MemFree:         43052 kB
+> MemShared:           0 kB
+> Buffers:          7388 kB
+> Cached:          85568 kB
+> Active:           6204 kB
+> Inact_dirty:     75768 kB
+> Inact_clean:     10984 kB
+> Inact_target:        8 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:       255540 kB
+> LowFree:         43052 kB
+> SwapTotal:      524624 kB
+> SwapFree:       524624 kB
+>
+> (ps axl)
+>
+>   F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME
+> COMMAND 100     0     1     0   9   0   404  220 do_sel S    ?         
+> 0:04 init 040     0     2     1   9   0     0    0 contex SW   ?         
+> 0:00 [keventd] 040     0     3     1   9   0     0    0 kswapd SW   ?      
+>    0:00 [kswapd] 040     0     4     1   9   0     0    0 krecla SW   ?    
+>      0:00 [kreclaimd] 040     0     5     1   9   0     0    0 bdflus SW  
+> ?          0:00 [bdflush] 040     0     6     1   9   0     0    0 kupdat
+> SW   ?          0:01 [kupdate] 040     0    37     1   9   0     0    0
+> reiser SW   ?          0:03 [kreiserfsd] 000     0 13559     1  14   0 
+> 2404 1392 wait4  S    tty2       0:00 bash 000     0 13565 13559  18   0 
+> 2980 1232 -      R    tty2       0:00 ps axl
+>
+> Any idea what's going on here?
+>
+> Thanks
 
-Above sense data indicates drive has encountered a filemark on a READ
-command. This READ did not read a partial block since the residual count
-in Sense data is set to 0x40 which is the same block count requested by
-the READ command. If you were writing 32K blocks to the tape and there
-indeed was a partial block at the end, the current position of the tape
-is not at that partial block. Tape seems to be positioned immediately
-after the last block where a filemark was written indicating end of
-archive. 
-
-Looking at the READ command (8 1 0 0 40 0), the "fixed" bit is set which
-means the tape is being read in fixed block length mode. This read
-command is trying to read 64 blocks from the tape. If the application is
-reading data in blocks of 32K, it implies the block size on the physical
-media is 512 Bytes. So when you say last 32K block may not have been
-flushed to the drive, I am assuming you mean not being flushed from the
-host to the tape drive. This is possible but there may be something else
-going on. I would suggest setting no block limits on the drive using "mt
-stsetoptions no-blklimits". See if that helps.
-
-====================================================================
-Khalid Aziz                             Linux Development Laboratory
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+-- 
+Home page:
+  none currently

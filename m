@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280797AbRKBTFj>; Fri, 2 Nov 2001 14:05:39 -0500
+	id <S280795AbRKBTFi>; Fri, 2 Nov 2001 14:05:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280791AbRKBTEW>; Fri, 2 Nov 2001 14:04:22 -0500
-Received: from mustard.heime.net ([194.234.65.222]:40380 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S280795AbRKBTDl>; Fri, 2 Nov 2001 14:03:41 -0500
-Date: Fri, 2 Nov 2001 20:03:39 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: SMART IDE drives
-Message-ID: <Pine.LNX.4.30.0111022001190.6396-100000@mustard.heime.net>
+	id <S280797AbRKBTET>; Fri, 2 Nov 2001 14:04:19 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18184 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280791AbRKBSwa>; Fri, 2 Nov 2001 13:52:30 -0500
+Subject: Re: bdevname(), cdevname(), kdevname() - static buffers
+To: rweight@us.ibm.com (Russ Weight)
+Date: Fri, 2 Nov 2001 18:59:21 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011102104211.A1279@us.ibm.com> from "Russ Weight" at Nov 02, 2001 10:42:11 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15zjXF-0003Gs-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+> I was looking at the usage of bdevname(), cdevname(), and kdevname(),
+> and noticed that they each return a pointer to a static buffer.
+> This buffer contains a formatted device name, which is typically
+> printed immediately following the call. However, I don't see any
+> explicit lock protection for these buffers.
+> 
+> For SMP systems, is there something implicit in their use that
+> prevents a race on these buffers? Has anyone seen garbled device
+> names being printed (which might be attributed to a race)?
 
-I've seen the /proc/ide/ide./hd./smart_(thresholds|values) files in 2.4,
-and I just wonder... Are there any available software to check these? Does
-the kernel do it, or is that some future project.
-
-please cc: to me as I'm not on the list
-
-roy
-
----
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Not currently, other than statistics being on our side. It probably should
+be touched up in 2.4 to use per cpu buffers and perhaps 2.5 pass a buffer
+in

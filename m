@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271272AbTHRGRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 02:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271278AbTHRGRK
+	id S271278AbTHRGoH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 02:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271279AbTHRGoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 02:17:10 -0400
-Received: from f22.mail.ru ([194.67.57.55]:62214 "EHLO f22.mail.ru")
-	by vger.kernel.org with ESMTP id S271272AbTHRGRF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 02:17:05 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=jw schultz=?koi8-r?Q?=22=20?= <jw@pegasys.ws>
-Cc: =?koi8-r?Q?=22?=Greg KH=?koi8-r?Q?=22=20?= <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
+	Mon, 18 Aug 2003 02:44:07 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:14066 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S271278AbTHRGoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 02:44:05 -0400
+Date: Mon, 18 Aug 2003 00:43:13 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, tytso@mit.edu, jmorris@intercode.com.au,
+       jamie@shareable.org, linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-ID: <20030818004313.T3708@schatzie.adilger.int>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	Andrew Morton <akpm@osdl.org>, tytso@mit.edu,
+	jmorris@intercode.com.au, jamie@shareable.org,
+	linux-kernel@vger.kernel.org, davem@redhat.com
+References: <20030809173329.GU31810@waste.org> <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au> <20030810174528.GZ31810@waste.org> <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030815221211.GA4306@think> <20030815235501.GB325@waste.org> <20030815170532.06e14e89.akpm@osdl.org> <20030816043816.GC325@waste.org>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Mon, 18 Aug 2003 10:21:22 +0400
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19odOM-000NwL-00.arvidjaar-mail-ru@f22.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030816043816.GC325@waste.org>; from mpm@selenic.com on Fri, Aug 15, 2003 at 11:38:16PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Aug 15, 2003  23:38 -0500, Matt Mackall wrote:
+> a) extract_entropy (pool->lock)
+> 
+>  For nitpickers, there remains a vanishingly small possibility that
+>  two readers could get identical results from the pool by hitting a
+>  window immediately after reseeding, after accounting, _and_ after
+>  feedback mixing.
 
-> Actually you have not answered his question.  And i think it
-> a reasonable one.  It could be it was answered elsewhere.
+It wasn't even vanishingly small...  We had a problem in our code where
+two readers got the same 64-bit value calling get_random_bytes(), and
+we were depending on this 64-bit value being unique.  This problem was
+fixed by putting a spinlock around the call to get_random_bytes().
 
-No it was not answered. Yes you got this exactly. Aparently my
-englisg is not as bad after all ... :)
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
->>>>> Question: how to configure udev so that "database" always refers to LUN 0
->>>>> on target 0 on bus 0 on HBA in PCI slot 1.
->>> Let's avoid this communication problem. You show me namedev.config line that 
->>> implements the above.
-
-> I'll try to put slightly differently.  I'll concede that we
-> cannot positionaly identify USB devices so lets set that
-> aside for the nonce.  We can persistently, positionaly
-> identify a device within the HBA context (BUS +ID + LUN) and
-> should be able to do the same for a PCI HBA (PCI slot +
-> device) or (PCI bridge topology).
-
-actually you can. As Greg pointed out, topology rarely changes,
-so it gives you enough information (of course if you constantly
-add and remove USB hubs it becomes a bit of pain). But it has
-the same problem - USB bus grows off PCI bus (usually) so adding
-new USB controller possibly invalidates all configuration.
-
-> So can i uniquely identify using persistent positional
-> information a drive at PCI_slot=1, HBA_on_card=0, BUS=0,
-> ID=1, LUN=0?  And how do i uniquely identify it in the udev
-> config file so that adding the same model drive in the same
-> BUS+ID+LUN on an same model HBA card in another PCI slot
-> does not confuse the two?  If i cannot, can i at least do
-> the identification so that adding ID=0,LUN=0 to the scsi buss
-> doesn't cause a name change.
-
-yep.
-
-just to show what I expected from sysfs - here is entry from Solaris
-/devices:
-
-brw-r-----   1 root     sys       32,240 Jan 24  2002 /devices/pci@16,4000/scsi@5,1/sd@0,0:a
-
-this entry identifies disk partition 0 on drive with SCSI ID 0, LUN 0
-connected to bus 1 of controller in slot 5 of PCI bus identified
-by 16. Now you can use whatever policy you like to give human
-meaningful name to this entry. And if you have USB it will continue
-further giving you exact topology starting from the root of your
-device tree.
-
-and this path does not contain single logical id so it is not subject
-to change if I add the same controller somewhere else.
-
-hopefully it clarifies what I mean ...
-
-regards
-
--andrey

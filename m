@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262964AbTDRPsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 11:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbTDRPsQ
+	id S263118AbTDRPyw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 11:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbTDRPyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 11:48:16 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:40199 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262964AbTDRPsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 11:48:15 -0400
-Date: Fri, 18 Apr 2003 11:45:58 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: John Jasen <jjasen@realityfailure.org>, John Bradford <john@grabjohn.com>,
-       jlnance@unity.ncsu.edu, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RedHat 9 and 2.5.x support
-In-Reply-To: <Pine.LNX.3.96.1030418102439.9185A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.10.10304181142200.13892-100000@clements.sc.steeleye.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Apr 2003 11:54:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:26006 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263118AbTDRPyv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 11:54:51 -0400
+Date: Fri, 18 Apr 2003 08:59:33 -0700 (PDT)
+Message-Id: <20030418.085933.131914868.davem@redhat.com>
+To: don-linux@isis.cs3-inc.com
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: proposed optimization for network drivers
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16032.7069.454420.811252@isis.cs3-inc.com>
+References: <200304170656.h3H6ujA28940@isis.cs3-inc.com>
+	<20030418.013640.28803567.davem@redhat.com>
+	<16032.7069.454420.811252@isis.cs3-inc.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: don-linux@isis.cs3-inc.com (Don Cohen)
+   Date: Fri, 18 Apr 2003 08:37:01 -0700
 
+   For instance, why does every driver have to call
+   eth_type_trans?  Could that be delayed for netif_rx ?
 
-On Fri, 18 Apr 2003, Bill Davidsen wrote:
-
-> The last I looked modprobe.conf was a seriously deficient subset of
-> modules.conf, but I haven't d/l the latest version, so some of the
-> omissions may have been addressed. The major feature missing is (or was)
-> the lack of probe capability (and probeall). 
-
-I think you can achieve the same outcome with a carefully crafted "install"
-command in modprobe.conf (granted it will be much more verbose than the
-equivalent "probe"). 
-
-Try "man modprobe.conf" after installing Rusty's new modutils...
-
---
-Paul
+Silly example.  Ethernet specific routines do not belong in
+device generic netif_rx().
 

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbTITSzh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 14:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTITSzh
+	id S261940AbTITSza (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 14:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbTITSz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 14:55:37 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:51469 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S261943AbTITSze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 14:55:34 -0400
-Date: Sat, 20 Sep 2003 13:55:17 -0500 (CDT)
-From: "Milton D. Miller II" <miltonm@realtime.net>
-Message-Id: <200309201855.h8KItHuf000466@sullivan.realtime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Omen Wild <Omen.Wild@Dartmouth.EDU>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: call_usermodehelper does not report exit status?
-In-Reply-To: <20030919124213.7fc93067.akpm@osdl.org>
+	Sat, 20 Sep 2003 14:55:29 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53896 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261940AbTITSz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 14:55:28 -0400
+Date: Sat, 20 Sep 2003 11:56:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Weber <shawk@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5-mm3 VFAT File system problem
+Message-Id: <20030920115647.5d1abfba.akpm@osdl.org>
+In-Reply-To: <1064081224.6093.5.camel@athxp.bwlinux.de>
+References: <1064081224.6093.5.camel@athxp.bwlinux.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
-> Omen Wild <Omen.Wild@Dartmouth.EDU> wrote:
-> >
-> > I found the call_usermodehelper function and
-> > call it with the wait flag set, but I cannot get a non-zero return
-> > status of the program to propagate into the kernel.
+Benjamin Weber <shawk@gmx.net> wrote:
+>
+> I can confirm this behavior. 
 > 
-> This might fix it.
+>  I checked my fstab entry. Was saying:
+> 
+>  /dev/hda5               /mnt/windows/D  vfat            rw,user,umask=0
+>  0 0
+> 
+>  After changing it to
+>  /dev/hda5               /mnt/windows/D  vfat           
+>  rw,user,uid=1001,gid=100 0 0
+> 
+>  I got it working again half of the time. Its strange. Sometimes I get
+>  the message that only root can unmount it, even when I mounted it as
+>  user. 
+> 
+>  Something is a little whacky there.
 
+Any mount option of the form `foo=0' will fail, because the parser is
+treating zero as an error.
 
-I think you missed the why behind the comment just above your first change.
-
- 		/* We don't have a SIGCHLD signal handler, so this
- 		 * always returns -ECHILD, but the important thing is
- 		 * that it blocks. */
--		sys_wait4(pid, NULL, 0, NULL);
-+		sys_wait4(pid, &sub_info->retval, 0, NULL);
-
-
-The exit code notices that there is no signal handler for SIGCHILD and
-does a fast exit, then we notice when woken up the child no longer exists.
-
-Rusty discovered this back in June when we were trying to fix a checker
-error on the wait call, and decided that at the time no one was using the
-return value, hence the simpler fix.  
-
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1046.366.23?nav=index.html|src/|src/kernel|related/kernel/kmod.c
-
-
-milton
+I'll fix that up for -mm4, thanks.

@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVAVUQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVAVUVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbVAVUQy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 15:16:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVAVUQy
+	id S262637AbVAVUVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 15:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbVAVUVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 15:16:54 -0500
-Received: from [61.135.145.13] ([61.135.145.13]:3351 "EHLO websmtp216.sohu.com")
-	by vger.kernel.org with ESMTP id S262732AbVAVUQn (ORCPT
+	Sat, 22 Jan 2005 15:21:24 -0500
+Received: from mail.joq.us ([67.65.12.105]:56971 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262637AbVAVUVO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 15:16:43 -0500
-Message-ID: <31531613.1106425001426.JavaMail.postfix@mx20.mail.sohu.com>
-Date: Sun, 23 Jan 2005 04:16:41 +0800 (CST)
-From: <stone_wang@sohu.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [patch to 2.6.10-rc2] ext3_find_goal
-Cc: <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: Sohu Web Mail 2.0.13
-X-SHIP: 210.21.32.84
-X-Priority: 3
-X-SHMOBILE: 0
-X-Sohu-Antivirus: 0
+	Sat, 22 Jan 2005 15:21:14 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
+       paul@linuxaudiosystems.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt 
+ scheduling
+References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>
+	<873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org>
+	<87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org>
+	<87oefkd7ew.fsf@sulphur.joq.us>
+	<10752.195.245.190.93.1106211979.squirrel@195.245.190.93>
+	<65352.195.245.190.94.1106240981.squirrel@195.245.190.94>
+	<41F19907.2020809@kolivas.org> <87k6q6c7fz.fsf@sulphur.joq.us>
+	<41F1F735.1000603@kolivas.org> <41F1F7AF.7000105@kolivas.org>
+	<41F1FC1D.10308@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Sat, 22 Jan 2005 14:22:42 -0600
+In-Reply-To: <41F1FC1D.10308@kolivas.org> (Con Kolivas's message of "Sat, 22
+ Jan 2005 18:09:17 +1100")
+Message-ID: <87wtu55i3x.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Con Kolivas <kernel@kolivas.org> writes:
 
+> So let's try again, sorry about the noise:
+>
+> ==> jack_test4-2.6.11-rc1-mm2-fifo.log <==
+> *********************************************
+> XRUN Count  . . . . . . . . . :     3
+> Delay Maximum . . . . . . . . : 20161   usecs
+> *********************************************
+>
+> ==> jack_test4-2.6.11-rc1-mm2-iso.log <==
+> *********************************************
+> XRUN Count  . . . . . . . . . :     6
+> Delay Maximum . . . . . . . . :  4604   usecs
+> *********************************************
+>
+> Pretty pictures:
+> http://ck.kolivas.org/patches/SCHED_ISO/iso2-benchmarks/
 
-We found strange blocks layout in our mail server, after careful study,
-we got the reason and tried to fix it.
+Neither run exhibits reliable audio performance.  There is some low
+latency performance problem with your system.  Maybe ReiserFS is
+causing trouble even with logging turned off.  Perhaps the problem is
+somewhere else.  Maybe some device is misbehaving.
 
-When loading an inode from buffer/disk(ext2/3_read_inode),then allocating the second block(block==1) of the corresponding file: i_next_alloc_block and i_next_alloc_goal are both zero,and in fact are not valid,
-but they(i_next_alloc_block/goal) take effect in the former codes. This causes non-contiguous file.
-
-Below patch add a check,and fixes this.
-
-Stone Wang.
-2005.01.23
-
-diff -urN linux-2.6.10-rc2/fs/ext2/inode.c linux-2.6.10-rc2-fixed/fs/ext2/inode.c
---- linux-2.6.10-rc2/fs/ext2/inode.c	2005-01-23 03:01:42.000000000 -0500
-+++ linux-2.6.10-rc2-fixed/fs/ext2/inode.c	2005-01-23 02:57:41.000000000 -0500
-@@ -354,7 +354,7 @@
- {
- 	struct ext2_inode_info *ei = EXT2_I(inode);
- 	write_lock(&ei->i_meta_lock);
--	if (block == ei->i_next_alloc_block + 1) {
-+	if ((block == ei->i_next_alloc_block + 1)&& ei->i_next_alloc_goal) {
- 		ei->i_next_alloc_block++;
- 		ei->i_next_alloc_goal++;
- 	} 
-diff -urN linux-2.6.10-rc2/fs/ext3/inode.c linux-2.6.10-rc2-fixed/fs/ext3/inode.c
---- linux-2.6.10-rc2/fs/ext3/inode.c	2005-01-23 03:01:42.000000000 -0500
-+++ linux-2.6.10-rc2-fixed/fs/ext3/inode.c	2005-01-23 02:08:58.000000000 -0500
-@@ -464,7 +464,7 @@
- {
- 	struct ext3_inode_info *ei = EXT3_I(inode);
- 	/* Writer: ->i_next_alloc* */
--	if (block == ei->i_next_alloc_block + 1) {
-+	if ((block == ei->i_next_alloc_block + 1)&& ei->i_next_alloc_goal) {
- 		ei->i_next_alloc_block++;
- 		ei->i_next_alloc_goal++;
- 	}
-
+Until you solve this problem, beware of drawing conclusions.
+-- 
+  joq

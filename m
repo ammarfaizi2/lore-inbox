@@ -1,69 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271723AbTG2OPs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 10:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271724AbTG2OPs
+	id S271816AbTG2ONY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271834AbTG2ONY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 10:15:48 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:19620 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S271723AbTG2OP3 (ORCPT
+	Tue, 29 Jul 2003 10:13:24 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:23998 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S271816AbTG2ONG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 10:15:29 -0400
-To: "Kathy Frazier" <kfrazier@mdc-dayton.com>
-Cc: <herbert@13thfloor.at>, <linux-kernel@vger.kernel.org>
-Subject: Re: Problems related to DMA or DDR memory on Intel 845 chipset?
-References: <PMEMILJKPKGMMELCJCIGOELDCDAA.kfrazier@mdc-dayton.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 29 Jul 2003 16:15:14 +0200
-In-Reply-To: <PMEMILJKPKGMMELCJCIGOELDCDAA.kfrazier@mdc-dayton.com>
-Message-ID: <m3d6ftxvv1.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Jul 2003 10:13:06 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 29 Jul 2003 16:12:58 +0200 (MEST)
+Message-Id: <UTC200307291412.h6TECwA17034.aeb@smtp.cwi.nl>
+To: akpm@osdl.org, torvalds@osdl.org
+Subject: [PATCH] select fix
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kathy Frazier" <kfrazier@mdc-dayton.com> writes:
+Recently people complained on lk about a problem: one sees
 
-> We are attached to some industrial equipment.  Yes, DMA busmaster.  Yes, the
-> device asserts it's interrupt.  At some point things get totally hosed and
-> that interrupt never gets through.  We then have to reset the machine . . .
+select(2, NULL, [1], NULL, NULL)        = 1 (out [1])
+write(1, "hi\n", 3)                     = -1 EAGAIN (Resource temporarily unavailable)
 
-Looks like malfunction of your card or driver. Is it a new design or
-is it already working with, say, Windows or something?
+for a stopped tty opened with O_NONBLOCK. This violates POSIX,
+and the 100% CPU use in a select loop does not look pretty either.
+The below fixes this.
 
-> 00:00.0 Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge
-> (rev 02)
-> 00:01.0 PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge
-> (rev 02)
-> 00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 02)
-> 00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 02)
-> 00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 02)
-> 00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 02)
-> 00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 82)
-> 00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 02)
-> 00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 02)
-> 01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 Pro Ultra
-> TF
-> 02:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host
-> Controller (rev 80)
-> 02:05.0 Ethernet controller: Broadcom Corporation BCM4401 100Base-T (rev 01)
-> 02:09.0 Communication controller: Altera Corporation PCI Fiber Optic Engrave
-> Interface (rev 02)
+Andries
 
-Does the above list include your card? Which one is it? Could you show
-lspci -vv output for that device?
-
-> Jul 22 08:22:29 rti10 aksparlnx: ^I/opt/aksparlnx/drv/2.4.19/aksparlnx.o was
-> compiled for kernel version 2.4.19
-> Jul 22 08:22:29 rti10 aksparlnx: ^Iwhile this kernel is version 2.4.20-8
-> Jul 22 08:22:29 rti10 aksparlnx: Warning: loading
-> /opt/aksparlnx/drv/2.4.19/aksparlnx.o will taint the kernel: non-GPL
-> license - Copyright 1999-2002 Aladdin Knowledge Systems.
-
-Is is your driver?
-
-Have you tried running the box (with your card) without any unnecessary
-devices (plugged/loaded)?
--- 
-Krzysztof Halasa
-Network Administrator
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/char/n_tty.c b/drivers/char/n_tty.c
+--- a/drivers/char/n_tty.c	Thu Jul  3 09:26:43 2003
++++ b/drivers/char/n_tty.c	Tue Jul 29 16:53:10 2003
+@@ -1231,7 +1231,8 @@
+ }
+ 
+ /* Called without the kernel lock held - fine */
+-static unsigned int normal_poll(struct tty_struct * tty, struct file * file, poll_table *wait)
++static unsigned int
++normal_poll(struct tty_struct *tty, struct file *file, poll_table *wait)
+ {
+ 	unsigned int mask = 0;
+ 
+@@ -1251,27 +1252,27 @@
+ 		else
+ 			tty->minimum_to_wake = 1;
+ 	}
+-	if (tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
++	if (!tty->stopped && tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
+ 		mask |= POLLOUT | POLLWRNORM;
+ 	return mask;
+ }
+ 
+ struct tty_ldisc tty_ldisc_N_TTY = {
+-	TTY_LDISC_MAGIC,	/* magic */
+-	"n_tty",		/* name */
+-	0,			/* num */
+-	0,			/* flags */
+-	n_tty_open,		/* open */
+-	n_tty_close,		/* close */
+-	n_tty_flush_buffer,	/* flush_buffer */
+-	n_tty_chars_in_buffer,	/* chars_in_buffer */
+-	read_chan,		/* read */
+-	write_chan,		/* write */
+-	n_tty_ioctl,		/* ioctl */
+-	n_tty_set_termios,	/* set_termios */
+-	normal_poll,		/* poll */
+-	n_tty_receive_buf,	/* receive_buf */
+-	n_tty_receive_room,	/* receive_room */
+-	n_tty_write_wakeup	/* write_wakeup */
++	.magic =		TTY_LDISC_MAGIC,
++	.name =			"n_tty",
++	.num =			0,
++	.flags =		0,
++	.open =			n_tty_open,
++	.close =		n_tty_close,
++	.flush_buffer =		n_tty_flush_buffer,
++	.chars_in_buffer =	n_tty_chars_in_buffer,
++	.read =			read_chan,
++	.write =		write_chan,
++	.ioctl =		n_tty_ioctl,
++	.set_termios =		n_tty_set_termios,
++	.poll =			normal_poll,
++	.receive_buf =		n_tty_receive_buf,
++	.receive_room =		n_tty_receive_room,
++	.write_wakeup =		n_tty_write_wakeup
+ };
+ 

@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267466AbRGPSBH>; Mon, 16 Jul 2001 14:01:07 -0400
+	id <S267473AbRGPSDh>; Mon, 16 Jul 2001 14:03:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267468AbRGPSA5>; Mon, 16 Jul 2001 14:00:57 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:36343 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S267466AbRGPSAq>;
-	Mon, 16 Jul 2001 14:00:46 -0400
-To: VGER kernel list <linux-kernel@vger.kernel.org>
+	id <S267476AbRGPSD3>; Mon, 16 Jul 2001 14:03:29 -0400
+Received: from a9163.upc-a.chello.nl ([62.163.9.163]:10039 "EHLO
+	casa.casa-etp.nl") by vger.kernel.org with ESMTP id <S267473AbRGPSDF>;
+	Mon, 16 Jul 2001 14:03:05 -0400
+Date: Mon, 16 Jul 2001 19:13:53 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Ulrich Drepper <drepper@cygnus.com>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: PATCH: /proc/sys/kernel/hz
-In-Reply-To: <938F7F15145BD311AECE00508B7152DB034C48DA@vts007.vertis.nl>
-	<m38zhorf6s.fsf@otr.mynet> <20010716191353.G16948@pckurt.casa-etp.nl>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 16 Jul 2001 10:45:48 -0700
-In-Reply-To: Kurt Garloff's message of "Mon, 16 Jul 2001 19:13:53 +0200"
-Message-ID: <m34rscrcmr.fsf@otr.mynet>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
-Content-Type: text/plain; charset=us-ascii
-MIME-Version: 1.0
+Message-ID: <20010716191353.G16948@pckurt.casa-etp.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Ulrich Drepper <drepper@cygnus.com>,
+	Linux kernel list <linux-kernel@vger.rutgers.edu>
+In-Reply-To: <938F7F15145BD311AECE00508B7152DB034C48DA@vts007.vertis.nl> <m38zhorf6s.fsf@otr.mynet>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5UGlQXeG3ziZS81+"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m38zhorf6s.fsf@otr.mynet>; from drepper@redhat.com on Mon, Jul 16, 2001 at 09:50:35AM -0700
+X-Operating-System: Linux 2.4.3-p7-amp-SMP i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff <garloff@suse.de> writes:
 
-> Suppose HZ is variable. How does glibc find out about HZ of the _running_
-> kernel? Just curious ... as I don't see a public place where the kernel
-> publishes such info.
+--5UGlQXeG3ziZS81+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You people don't even know your kernel:
+On Mon, Jul 16, 2001 at 09:50:35AM -0700, Ulrich Drepper wrote:
+>=20
+>   hz =3D sysconf (_SC_CLK_TCK);
+>=20
+> Update your libc and this info will come from the kernel.
 
-  $ LD_SHOW_AUXV=1 getconf CLK_TCK
+Suppose HZ is variable. How does glibc find out about HZ of the _running_
+kernel? Just curious ... as I don't see a public place where the kernel
+publishes such info.
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
+
+--5UGlQXeG3ziZS81+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7UyDQxmLh6hyYd04RAnPXAJ4h+TMPAh90IdZ9Wyp8hahRgJ8h+QCgqvMt
+9nTAecuzj39fbfJXon4VWFA=
+=QHP5
+-----END PGP SIGNATURE-----
+
+--5UGlQXeG3ziZS81+--
+

@@ -1,74 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266406AbUA2UQF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 15:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266408AbUA2UQF
+	id S266220AbUA2U2S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 15:28:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266340AbUA2U2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 15:16:05 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:20935 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S266406AbUA2UP7 (ORCPT
+	Thu, 29 Jan 2004 15:28:18 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:41897 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S266220AbUA2U2K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 15:15:59 -0500
-Date: Thu, 29 Jan 2004 21:15:56 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Lindent fixed to match reality
-Message-ID: <20040129201556.GK16675@khan.acc.umu.se>
-Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20040129193727.GJ21888@waste.org>
-Mime-Version: 1.0
+	Thu, 29 Jan 2004 15:28:10 -0500
+From: Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com>
+Message-Id: <200401292016.i0TKGraI034387@mtv-vpn-hw-mfl-2.corp.sgi.com>
+Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
+To: davidm@hpl.hp.com
+Date: Thu, 29 Jan 2004 21:16:52 +0100 ("CET)
+Cc: mfl@kernel.paris.sgi.com (Matthias Fouquet-Lapar), ak@suse.de (Andi Kleen),
+       davidm@napali.hpl.hp.com, iod00d@hp.com, ishii.hironobu@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+In-Reply-To: <16409.24257.589224.818006@napali.hpl.hp.com> from "David Mosberger" at Jan 29, 2004 11:28:01 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040129193727.GJ21888@waste.org>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 01:37:28PM -0600, Matt Mackall wrote:
-> I've been fiddling with cleaning up some old code here and suggest the
-> following to make Lindent match actual practice more closely. This does:
+>   Matthias> We have done a rather large study with DIMMs that had SBEs
+>   Matthias> and have found no evidence that a SBE turns into a UCE,
+>   Matthias> i.e. the fact that a SBE is reported, is no indication
+>   Matthias> that the device might fail soon.
 > 
-> a) (no -psl)
-> 
-> void *foo(void) {
-> 
->  instead of
-> 
-> void *
-> foo(void) {
-> 
-> b) (no -bs) "sizeof(foo)" rather than "sizeof (foo)"
+> Ehh, wait a second: you're saying that your study proved that if the
+> device isn't failing, it isn't failing. ;-) Of course you'll get noise
 
-I can't really see the logic in this, though I know a lot of people do
-it.  I try to stay consistent, thus I do:
-
-if ()
-for ()
-case ()
-while ()
-sizeof ()
-typeof ()
-
-since they're all parts of the language, rather than
-functions/macros or invocations of such.
-
-[snip]
-
-Of course, coding-style is religion, and religion as a topic is a
-sure-fire way to turn every civil conversation into full out battle,
-so I've begun building a bomb-shelter where I'm going to spend the next
-few months...
+I should have been more precice. We used field returned parts which 
+had reported SBEs and had been exchanged in the field. Our goal was to
+see if any of these parts "de-generate" over time. Most of these parts
+had hard single bit failures in one or more locations. As I said,
+we didn't find evidence that even hard SBEs turn into a multiple bit
+error. Of course the chances of getting a UCE are higher when a "soft"
+SBE occurs in a memory location which already has a hard SBE.
 
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+Thanks
+
+Matthias Fouquet-Lapar  Core Platform Software    mfl@sgi.com  VNET 521-8213
+Principal Engineer      Silicon Graphics          Home Office (+33) 1 3047 4127
+

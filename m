@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263399AbTJUWHk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 18:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTJUWHj
+	id S263396AbTJUV5g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 17:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbTJUV5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 18:07:39 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:38149 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S263399AbTJUWHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 18:07:38 -0400
-Subject: Re: 3Com pcmcia wlan with 2.6.0-test8
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Mathias =?ISO-8859-1?Q?Fr=F6hlich?= <Mathias.Froehlich@web.de>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <200310212258.34328.Mathias.Froehlich@web.de>
-References: <200310212258.34328.Mathias.Froehlich@web.de>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1066774046.866.70.camel@teapot.felipe-alfaro.com>
+	Tue, 21 Oct 2003 17:57:35 -0400
+Received: from thunk.org ([140.239.227.29]:15846 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S263396AbTJUV5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 17:57:34 -0400
+Date: Tue, 21 Oct 2003 17:53:46 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Valdis.Kletnieks@vt.edu
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, results are in
+Message-ID: <20031021215346.GA15109@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Valdis.Kletnieks@vt.edu,
+	root@chaos.analogic.com, linux-kernel@vger.kernel.org
+References: <175701c397e6$b36e5310$24ee4ca5@DIAMONDLX60> <20031021193128.GA18618@helium.inexs.com> <Pine.LNX.4.53.0310211558500.19942@chaos> <200310212021.h9LKLQK3009397@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
-Date: Wed, 22 Oct 2003 00:07:27 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310212021.h9LKLQK3009397@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.4i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-10-21 at 22:58, Mathias Fröhlich wrote:
-> I use a 3Com 3CRSHPW196 PCMCIA wlan card with the atmel_cs module on a IBM R40 
-> laptop. Installed is Fedora 0.95 together with linux 2.6.0-test8.
+On Tue, Oct 21, 2003 at 04:21:26PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 21 Oct 2003 16:05:15 EDT, "Richard B. Johnson" said:
 > 
-> The firmware is loaded using the kernel-hotplug firmware loader.
+> > If the respondent wants them isolated into a "BADBLOCKS" file,
+> > he can make a utility to do that. It's really quite easy because
+> > you can raw-read disks under Linux, plus there is already
+> > the `badblocks` program that will locate them.
 > 
-> When the device is stopped or unloaded i get this message:
-> 
-> unregister_netdevice: waiting for eth1 to become free. Usage count = 4
+> Yes, it's trivially easy to figure out that block 193453 on /dev/hdb is bad.
+> It's even not too bad to map that to an offset on /dev/hdb4.  Even if you're
+> using LVM or DM to map stuff, it's still attackable.  But how do you guarantee
+> that block 193453 gets allocated to your badblocks file and not to some other
+> file that just tried to extend itself by 32K?
 
-I have experienced the same behavior while playing with APM/ACPI
-suspend. It seems my machine gets frozen when trying to suspend with
-CardBus/USB modules loaded, so I usually unload them before suspending.
-Sometimes, I have seen the kernel complaining while unloading 3c59x with
-an usage count greater than 1, which is impossible, since I do only have
-a network card on my laptop and it's the 3Com.
+Read the e2fsck man page, and pay attention to the -c, -l, and -L
+options....
+
+						- Ted
 

@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbTDQA4W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 20:56:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTDQA4W
+	id S262134AbTDQA5N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 20:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTDQA5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 20:56:22 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:53153 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id S262024AbTDQA4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 20:56:20 -0400
-Date: Wed, 16 Apr 2003 18:07:40 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: WimMark I report for 2.5.67-mm3
-Message-ID: <20030417010739.GB7570@ca-server1.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+	Wed, 16 Apr 2003 20:57:12 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:65411 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262134AbTDQA5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 20:57:08 -0400
+Date: Wed, 16 Apr 2003 21:08:43 -0400 (EDT)
+From: Rik van Riel <riel@surriel.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: chas@cmf.nrl.navy.mil
+cc: "David S. Miller" <davem@redhat.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] compile fix for br2684
+Message-ID: <Pine.LNX.4.44.0304162107370.12494-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-WimMark I report for 2.5.67-mm3
 
-Runs (deadline):  1778.54 1656.24 1487.90
-Runs (antic):  635.58 636.05 592.61
+It looks like the recent ATM updates forgot br2684.c, here is
+the patch needed to make that driver compile.
 
-	WimMark I is a rough benchmark we have been running
-here at Oracle against various kernels.  Each run tests an OLTP
-workload on the Oracle database with somewhat restrictive memory
-conditions.  This reduces in-memory buffering of data, allowing for
-more I/O.  The I/O is read and sync write, random and seek-laden.  The
-runs all do ramp-up work to populate caches and the like.
-	The benchmark is called "WimMark I" because it has no
-official standing and is only a relative benchmark useful for comparing
-kernel changes.  The benchmark is normalized an arbitrary kernel, which
-scores 1000.0.  All other numbers are relative to this.  A bigger number
-is a better number.  All things being equal, a delta <50 is close to
-unimportant, and a delta < 20 is very identical.
-	This benchmark is sensitive to random system events.  I run
-three runs because of this.  If two runs are nearly identical and the
-remaining run is way off, that run should probably be ignored (it is
-often a low number, signifying that something on the system impacted
-the benchmark).
-	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
-of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
-10K RPM U2W SCSI of similar vintage.  The data files are living on an
-ext3 filesystem.  Unless mentioned, all runs are
-on this machine (variation in hardware would indeed change the
-benchmark).
+--- linux-2.4.20/net/atm/br2684.c.compile	2003-04-16 20:41:05.000000000 -0400
++++ linux-2.4.20/net/atm/br2684.c	2003-04-16 20:42:05.000000000 -0400
+@@ -188,7 +188,7 @@ static int br2684_xmit_vcc(struct sk_buf
+ 		dev_kfree_skb(skb);
+ 		return 0;
+ 		}
+-	atomic_add(skb->truesize, &atmvcc->tx_inuse);
++	atomic_add(skb->truesize, &atmvcc->sk->wmem_alloc);
+ 	ATM_SKB(skb)->iovcnt = 0;
+ 	ATM_SKB(skb)->atm_options = atmvcc->atm_options;
+ 	brdev->stats.tx_packets++;
+@@ -551,7 +551,7 @@ Note: we do not have explicit unassign, 
+ 	barrier();
+ 	atmvcc->push = br2684_push;
+ 	skb_queue_head_init(&copy);
+-	skb_migrate(&atmvcc->recvq, &copy);
++	skb_migrate(&atmvcc->sk->receive_queue, &copy);
+ 	while ((skb = skb_dequeue(&copy))) {
+ 		BRPRIV(skb->dev)->stats.rx_bytes -= skb->len;
+ 		BRPRIV(skb->dev)->stats.rx_packets--;
 
-
--- 
-
-"The opposite of a correct statement is a false statement. The
- opposite of a profound truth may well be another profound truth."
-         - Niels Bohr 
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

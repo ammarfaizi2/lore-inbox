@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbTAaObP>; Fri, 31 Jan 2003 09:31:15 -0500
+	id <S261286AbTAaO05>; Fri, 31 Jan 2003 09:26:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261292AbTAaObP>; Fri, 31 Jan 2003 09:31:15 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:35968 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S261290AbTAaObO>; Fri, 31 Jan 2003 09:31:14 -0500
-Message-Id: <200301311440.h0VEeRlH005883@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.59 morse code panics 
-In-Reply-To: Your message of "Fri, 31 Jan 2003 13:22:21 GMT."
-             <20030131132221.GA12834@codemonkey.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030131104326.GF12286@louise.pinerecords.com> <200301311112.h0VBCv00000575@darkstar.example.net>
-            <20030131132221.GA12834@codemonkey.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_492673070P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 31 Jan 2003 09:40:27 -0500
+	id <S261290AbTAaO05>; Fri, 31 Jan 2003 09:26:57 -0500
+Received: from surfer.sbm.temple.edu ([155.247.185.2]:58180 "EHLO
+	surfer.sbm.temple.edu") by vger.kernel.org with ESMTP
+	id <S261286AbTAaO04>; Fri, 31 Jan 2003 09:26:56 -0500
+Date: Fri, 31 Jan 2003 09:36:09 -0500
+From: AU <au@sbm.temple.edu>
+To: Chris Ison <cisos@bigpond.net.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Radeon PCI support
+In-Reply-To: <3E398E44.E2D16B4F@bigpond.net.au>
+Message-ID: <Pine.SGI.4.32.0301310930470.9740052-100000@surfer.sbm.temple.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_492673070P
-Content-Type: text/plain; charset=us-ascii
+I just got it working last night with my home computer, which has
+ATI-Radeon 7500 PCI version.
+However, now I am  at work, so I will post for you tonight when I get
+home.
 
-On Fri, 31 Jan 2003 13:22:21 GMT, Dave Jones said:
+Couple things I have done.
 
-> Or you could put down the crackpipe and run a serial console between
-> the two boxes. Or even netconsole would make more sense
-> (and be a lot more reliable).
+1) Modify kernel (/usr/src/linux/driver/char/drm/radeon_cp.c
+2) Download xfree 4.2.1 and modify couple files in it, and
+recompile.
 
-There's a classic Monty Python skit where John Cleese is organizing an
-expedition to build a bridge between the two peaks of Mt Kilamanjaro.
+I will post the diff file tonite.
 
-I have to do most of my kernel hacking at home, on my own time.  So I'm
-sitting there with a laptop and no second machine.  Now, if the intent is
-to say "Don't bother doing anything that might require debugging unless you
-can afford 2 machines", that's OK - but let's be open about that requirement.
-And has been pointed out, some laptops don't even *HAVE* a serial port.
-
-There's a *REASON* that IBM RS/6K boxes have at least a little 3-digit LED
-display - during boot or a panic, even if you can't trust the console drivers
-anymore, you can still output *something*.
-
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
+Progress: This morning I tested, I can run 3D Crack-Attack, and tuxracer.
+I will test more, and let you know.
 
 
---==_Exmh_492673070P
-Content-Type: application/pgp-signature
+On Fri, 31 Jan 2003, Chris Ison wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> just a couple of things I forgot to mention, my system doesn't have AGP
+> and I'm using kernel version 2.4.20-ac1
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-iD8DBQE+OoracC3lWbTT17ARAjATAKCq5hqmQX6HV+ElYCXjrFfU7jweDQCg05Uk
-66IJyVUcATfQu0czukDtOfs=
-=nTQj
------END PGP SIGNATURE-----
-
---==_Exmh_492673070P--

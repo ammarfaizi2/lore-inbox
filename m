@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317426AbSGXR0u>; Wed, 24 Jul 2002 13:26:50 -0400
+	id <S317431AbSGXRcI>; Wed, 24 Jul 2002 13:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317427AbSGXR0u>; Wed, 24 Jul 2002 13:26:50 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13542 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317426AbSGXR0t>;
-	Wed, 24 Jul 2002 13:26:49 -0400
-Date: Wed, 24 Jul 2002 13:30:01 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jens Axboe <axboe@suse.de>
-cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Subject: Re: DAC960 Bitrot
-In-Reply-To: <20020724170227.GD15201@suse.de>
-Message-ID: <Pine.GSO.4.21.0207241327250.13170-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317435AbSGXRcI>; Wed, 24 Jul 2002 13:32:08 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:10503 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317431AbSGXRcH>;
+	Wed, 24 Jul 2002 13:32:07 -0400
+Date: Wed, 24 Jul 2002 10:35:05 -0700
+From: Greg KH <greg@kroah.com>
+To: Sven.Riedel@tu-clausthal.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Keyboards with recent 2.4.19-pre/rcXX and 2.5.2X
+Message-ID: <20020724173505.GE10124@kroah.com>
+References: <20020724140026.GE9765@moog.heim1.tu-clausthal.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020724140026.GE9765@moog.heim1.tu-clausthal.de>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Wed, 26 Jun 2002 15:44:50 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 24, 2002 at 04:00:26PM +0200, Sven.Riedel@tu-clausthal.de wrote:
+> Hi,
+> USB keyboards don't work with recent 2.4.19-preXX (-pre2 works fine for
+> me, but pre-10 and up don't), as well as int (at least) 2.5.25.
+> The kernel does find the keyboard during bootup, but doesn't accept any
+> keypresses. This happens regardless of the UHCI driver selected in
+> 2.4.19 (normal or JE). 
+> Input core support has been compiled in, as well as the full HID.
+> Verified on one different machine.
 
+Is CONFIG_USB_HIDINPUT selected in your .config?  You _did_ run 
+'make oldconfig' when upgrading kernel versions, right?
 
-On Wed, 24 Jul 2002, Jens Axboe wrote:
+thanks,
 
-> > 3) DAC960.  Eep.  At some point it's all going to be SCSI, right?
-> 
-> Nah not really, at some point it will just be the 'disk' sub system.
-> BTW, you also forgot at least cpqarray and cciss :-)
-
-... along with paride.  And assorted floppies.  And oddball CDROMs.
-And nbd.  And...
-
-IOW, Daniel would really benefit from learning to use grep...
-
+greg k-h

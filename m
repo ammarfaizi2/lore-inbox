@@ -1,86 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268487AbTBWPL6>; Sun, 23 Feb 2003 10:11:58 -0500
+	id <S268485AbTBWPOe>; Sun, 23 Feb 2003 10:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268488AbTBWPKX>; Sun, 23 Feb 2003 10:10:23 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9233 "EHLO
+	id <S268486AbTBWPMk>; Sun, 23 Feb 2003 10:12:40 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10769 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268484AbTBWPKP>; Sun, 23 Feb 2003 10:10:15 -0500
+	id <S268485AbTBWPKT>; Sun, 23 Feb 2003 10:10:19 -0500
 To: LKML <linux-kernel@vger.kernel.org>
 CC: Linus Torvalds <torvalds@transmeta.com>
 From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] [3/6] Remove "fn" argument from read_cb_mem()
-Message-Id: <20020223151803@raistlin.arm.linux.org.uk>
-References: <20020223151802@raistlin.arm.linux.org.uk>
-In-Reply-To: <20020223151802@raistlin.arm.linux.org.uk>
-Date: Sun, 23 Feb 2003 15:20:23 +0000
+Subject: [PATCH] [5/6] Remove stack allocation of struct pci_dev
+Message-Id: <20020223151805@raistlin.arm.linux.org.uk>
+References: <20020223151804@raistlin.arm.linux.org.uk>
+In-Reply-To: <20020223151804@raistlin.arm.linux.org.uk>
+Date: Sun, 23 Feb 2003 15:20:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch appears not to be in 2.5.62, but applies cleanly.
 
-Subject: [3/6] Remove "fn" argument from read_cb_mem()
-read_cb_mem is only ever called with its "fn" argument set to zero.
-We therefore do not need to pass it.
+Subject: [5/6] Remove stack allocation of struct pci_dev
+cb_alloc() allocated a pci_dev on the stack to access PCI space.  This
+is unnecessary since we have pci_bus_*_config_* functions.  Use these
+functions instead.
 
- drivers/pcmcia/cardbus.c     |    5 ++---
- drivers/pcmcia/cistpl.c      |    4 ++--
- drivers/pcmcia/cs_internal.h |    3 +--
- 3 files changed, 5 insertions, 7 deletions
+ drivers/pcmcia/cardbus.c |   14 ++++----------
+ 1 files changed, 4 insertions, 10 deletions
 
 diff -ur -x sa11* -x Kconfig -x Makefile orig/drivers/pcmcia/cardbus.c linux/drivers/pcmcia/cardbus.c
---- orig/drivers/pcmcia/cardbus.c	Sun Feb 23 12:41:54 2003
-+++ linux/drivers/pcmcia/cardbus.c	Sun Feb 23 12:43:55 2003
-@@ -175,8 +175,7 @@
-     
- =====================================================================*/
- 
--int read_cb_mem(socket_info_t * s, u_char fn, int space,
--		u_int addr, u_int len, void *ptr)
-+int read_cb_mem(socket_info_t * s, int space, u_int addr, u_int len, void *ptr)
+--- orig/drivers/pcmcia/cardbus.c	Sun Feb 23 13:56:32 2003
++++ linux/drivers/pcmcia/cardbus.c	Sun Feb 23 14:04:29 2003
+@@ -224,29 +224,23 @@
+ int cb_alloc(socket_info_t * s)
  {
- 	struct pci_dev *dev;
- 	struct resource *res;
-@@ -186,7 +185,7 @@
- 	if (!s->cb_config)
- 		goto fail;
+ 	struct pci_bus *bus;
+-	struct pci_dev tmp;
+ 	u_short vend, v, dev;
+ 	u_char i, hdr, fn;
+ 	cb_config_t *c;
+ 	int irq;
  
--	dev = &s->cb_config[fn].dev;
-+	dev = &s->cb_config[0].dev;
+ 	bus = s->cap.cb_dev->subordinate;
+-	memset(&tmp, 0, sizeof(tmp));
+-	tmp.bus = bus;
+-	tmp.sysdata = bus->sysdata;
+-	tmp.devfn = 0;
  
- 	/* Config space? */
- 	if (space == 0) {
-diff -ur -x sa11* -x Kconfig -x Makefile orig/drivers/pcmcia/cistpl.c linux/drivers/pcmcia/cistpl.c
---- orig/drivers/pcmcia/cistpl.c	Sun Nov 24 10:12:25 2002
-+++ linux/drivers/pcmcia/cistpl.c	Sun Feb 23 10:23:58 2003
-@@ -327,7 +327,7 @@
-     }
- #ifdef CONFIG_CARDBUS
-     if (s->state & SOCKET_CARDBUS)
--	ret = read_cb_mem(s, 0, attr, addr, len, ptr);
-+	ret = read_cb_mem(s, attr, addr, len, ptr);
-     else
- #endif
- 	ret = read_cis_mem(s, attr, addr, len, ptr);
-@@ -358,7 +358,7 @@
-     for (i = 0; i < s->cis_used; i++) {
- #ifdef CONFIG_CARDBUS
- 	if (s->state & SOCKET_CARDBUS)
--	    read_cb_mem(s, 0, s->cis_table[i].attr, s->cis_table[i].addr,
-+	    read_cb_mem(s, s->cis_table[i].attr, s->cis_table[i].addr,
- 			s->cis_table[i].len, buf);
- 	else
- #endif
-diff -ur -x sa11* -x Kconfig -x Makefile orig/drivers/pcmcia/cs_internal.h linux/drivers/pcmcia/cs_internal.h
---- orig/drivers/pcmcia/cs_internal.h	Sun Feb 23 12:39:27 2003
-+++ linux/drivers/pcmcia/cs_internal.h	Sun Feb 23 11:39:32 2003
-@@ -200,8 +200,7 @@
- void cb_free(socket_info_t *s);
- void cb_enable(socket_info_t *s);
- void cb_disable(socket_info_t *s);
--int read_cb_mem(socket_info_t *s, u_char fn, int space,
--		u_int addr, u_int len, void *ptr);
-+int read_cb_mem(socket_info_t *s, int space, u_int addr, u_int len, void *ptr);
- void cb_release_cis_mem(socket_info_t *s);
+-	pci_read_config_word(&tmp, PCI_VENDOR_ID, &vend);
+-	pci_read_config_word(&tmp, PCI_DEVICE_ID, &dev);
++	pci_bus_read_config_word(bus, 0, PCI_VENDOR_ID, &vend);
++	pci_bus_read_config_word(bus, 0, PCI_DEVICE_ID, &dev);
+ 	printk(KERN_INFO "cs: cb_alloc(bus %d): vendor 0x%04x, "
+ 	       "device 0x%04x\n", bus->number, vend, dev);
  
- /* In cistpl.c */
+-	pci_read_config_byte(&tmp, PCI_HEADER_TYPE, &hdr);
++	pci_bus_read_config_byte(bus, 0, PCI_HEADER_TYPE, &hdr);
+ 	fn = 1;
+ 	if (hdr & 0x80) {
+ 		do {
+-			tmp.devfn = fn;
+-			if (pci_read_config_word(&tmp, PCI_VENDOR_ID, &v) ||
++			if (pci_bus_read_config_word(bus, fn, PCI_VENDOR_ID, &v) ||
+ 			    !v || v == 0xffff)
+ 				break;
+ 			fn++;

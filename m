@@ -1,76 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSGCJlL>; Wed, 3 Jul 2002 05:41:11 -0400
+	id <S316675AbSGCJxY>; Wed, 3 Jul 2002 05:53:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315437AbSGCJlK>; Wed, 3 Jul 2002 05:41:10 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:25101 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S315413AbSGCJlK>; Wed, 3 Jul 2002 05:41:10 -0400
-Message-ID: <3D22C735.7A5F299A@aitel.hist.no>
-Date: Wed, 03 Jul 2002 11:43:17 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.24-dj1 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: lilo/raid?
-References: <Pine.LNX.4.44.0207011758180.3104-100000@netfinity.realnet.co.sz> <3D216157.FC60B17E@aitel.hist.no> <200207021333.36435.roy@karlsbakk.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316088AbSGCJxX>; Wed, 3 Jul 2002 05:53:23 -0400
+Received: from angband.namesys.com ([212.16.7.85]:23936 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S315437AbSGCJxV>; Wed, 3 Jul 2002 05:53:21 -0400
+Date: Wed, 3 Jul 2002 13:55:45 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Paul Menage <pmenage@ensim.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Shift BKL into ->statfs()
+Message-ID: <20020703135545.A1154@namesys.com>
+References: <E17PYtv-0004Fd-00@pmenage-dt.ensim.com> <Pine.GSO.4.21.0207030208080.6472-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0207030208080.6472-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
+Hello!
 
-> I've seen it. 1GB of swap for caching heavy downloads (se earlier thread 'VM
-> fsckup' or somehting)
-> 
-> What is the reason of using swap for cache buffers?????
+On Wed, Jul 03, 2002 at 02:25:02AM -0400, Alexander Viro wrote:
 
-To be precise - swap is never used _for_ cache buffers - you'll
-never see file contents in the swap partition, perhaps with
-the exception of tmpfs stuff.
+> 	2) ext2, shmem, FAT, minix and sysv ->statfs() don't need BKL.
 
-But aggressive caching may indeed push other stuff into swap,
-typically little-used program memory.
+reiserfs does not need BKL in ->statfs() too.
 
-The balance is probably off, but the feature is a good one.
-The point is to minimize disk waiting by ensuring that
-often-used stuff is in memory, possibly pushing seldom-used
-stuff into swap.
-
-Some workload results in some files being accessed a lot,
-such as the homepage files for a webserver.  Caching them
-makes sense then, even if some little-used sleeping
-program is pushed into swap.  It is used less than those
-often-used files, so recovering it from swap when it
-eventually is needed results in less total waiting
-than what you get if every web server access hits the disk.
-
-The balance being off have several explanations:
-1. People don't _expect_ to wait for paging activity, while
-   they expect having to wait for the disk.
-2. Selecting wich pages to keep and which to swap (or
-   not cache if it is a data file) is hard.
-   The reverse mapping VM will limit the unnecessary swapping,
-   making the best decision is sometimes impossible without
-   it, or at least much harder.  
-3. The problem is still hard, even with rmap.  That's because
-   we don't know how files and executables will be used in
-   the future.  All we have to make the decision is statistics
-   about previous use.  
-   Allowing applications to give the kernel hints may help,
-   but giving good hints may be hard, and the potential
-   for abuse is there.  (App gives unrealistic hints - 
-   and seems more snappy than the competition.  And lots
-   of other processes suffer.)  This is avoidable by only
-   allowing negative hints, i.e. "Don't bother caching this"
-
-You probably agree that it makes sense to swap out
-program initialization code that won't be used
-again once the program is up and running.  The problem is
-that the VM system can't identify such code other than
-by the fact that it is a long time since the last use.
-
-Helge Hafting
+Bye,
+    Oleg

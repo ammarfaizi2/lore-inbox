@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSKDJhz>; Mon, 4 Nov 2002 04:37:55 -0500
+	id <S262370AbSKDJm3>; Mon, 4 Nov 2002 04:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262354AbSKDJhy>; Mon, 4 Nov 2002 04:37:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40603 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262067AbSKDJhx>;
-	Mon, 4 Nov 2002 04:37:53 -0500
-Date: Mon, 4 Nov 2002 10:44:13 +0100
+	id <S262441AbSKDJm3>; Mon, 4 Nov 2002 04:42:29 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:8860 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262370AbSKDJm2>;
+	Mon, 4 Nov 2002 04:42:28 -0500
+Date: Mon, 4 Nov 2002 10:48:47 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       benh@kernel.crashing.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: don't eat ide disks
-Message-ID: <20021104094413.GF13587@suse.de>
-References: <Pine.LNX.4.44.0211031439330.11657-100000@home.transmeta.com> <Pine.LNX.4.44.0211031452380.11657-100000@home.transmeta.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE BUG REPORT: 2.5.45 killed my / partition -- partially recovered
+Message-ID: <20021104094847.GH13587@suse.de>
+References: <3DC5C3A9.3060608@nortelnetworks.com> <3DC5E744.9020508@nortelnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211031452380.11657-100000@home.transmeta.com>
+In-Reply-To: <3DC5E744.9020508@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03 2002, Linus Torvalds wrote:
+On Sun, Nov 03 2002, Chris Friesen wrote:
+> Well, it turns out that the reason I couldn't boot was a conflict 
+> between the boot time checks and devfs (with devfs on /dev/hdb9 didn't 
+> exist...).  If I turned off devfs loading at boot everything went okay.
 > 
-> On Sun, 3 Nov 2002, Linus Torvalds wrote:
-> > 
-> > The above should work pretty much on all block drivers out there, btw:
-> > the ones that don't understand SCSI commands should just ignore requests
-> > that aren't the regular REQ_CMD commands.
-> 
-> Note that "should work" does not necessarily mean "does work". For
-> example, in the IDE world, some of the generic packet command stuff is
-> only understood by ide-cd.c, and the generic IDE layer doesn't necessarily
-> understand it even if you have a disk that speaks ATAPI. I think Jens will 
-> fix that wart.
+> However, there *were* those problems that fsck.ext3 found and I'm still 
+> kind of suspicious about them.
 
-It's probably not a good idea to rely on ata drives that also speak
-atapi, to my knowledge only a few old WDC drives ever did that. Since we
-are basically moving to the point where "SCSI" commands is the
-commandset that the block layer uses to make drivers do things for it,
-I had the idea of doing a rq -> taskfile conversion for ide. Just for
-simple things like read/write and sync cache, basically stuff that is
-directly translatable. That would make Linus' example actually work, and
-it would also make the direct read/write programs using SG_IO work on
-IDE drives as well.
+Be sure not to tell us what hard drive you have, if you used dma or not,
+etc. These kinds of clues might help us understand what the problem is.
+
+Usually, a boot log at the least is needed.
 
 -- 
 Jens Axboe

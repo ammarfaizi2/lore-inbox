@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319508AbSH3JCk>; Fri, 30 Aug 2002 05:02:40 -0400
+	id <S319518AbSH3JWQ>; Fri, 30 Aug 2002 05:22:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319517AbSH3JCk>; Fri, 30 Aug 2002 05:02:40 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:52665 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S319508AbSH3JCk>; Fri, 30 Aug 2002 05:02:40 -0400
-Date: Fri, 30 Aug 2002 11:02:43 +0200
-From: kladit@t-online.de (Klaus Dittrich)
-To: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: gcc-3.2
-Message-ID: <20020830090243.GA12075@df1tlpc.local.here>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S319520AbSH3JWP>; Fri, 30 Aug 2002 05:22:15 -0400
+Received: from nmh.informatik.uni-bremen.de ([134.102.224.3]:44231 "EHLO
+	nmh.informatik.uni-bremen.de") by vger.kernel.org with ESMTP
+	id <S319518AbSH3JWP>; Fri, 30 Aug 2002 05:22:15 -0400
+Message-Id: <200208300926.g7U9Qa305884@x06.informatik.uni-bremen.de>
+To: Padraig Brady <padraig.brady@corvil.com>
+From: Moritz Muehlenhoff <jmm@Informatik.Uni-Bremen.DE>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Keyboard freezes on SIS630 based Clevo notebooks
+In-Reply-To: <3D6F34AE.7040603@corvil.com>
+References: <20020829190533.GA11223@informatik.uni-bremen.de> <3D6F34AE.7040603@corvil.com>
+Date: Fri, 30 Aug 2002 11:26:36 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I compiled linux-2.4.20-pre5 using gcc-3.2,
-glibc2.2.5 (build with gcc-3.1.1) and binutils-2.13.90.0.4.
+In stuga.ml.linux.kernel, you wrote:
+>> I own a SIS630 based notebook from Baycom (model name "Worldbook II"), which
+>> indeed is a rebrand from a Clevo/Kapok model (normal model name 2700C).
+>> 
+>> I'm experiencing occasional, unreproducable keyboard lockups.
+> 
+> Me too (2700).
+> 
+> If noticed the lockups occur when the "battery low"
+> light starts flashing. I.E. it's realted to some
+> APM event. Also the mouse is unresponsive for me
+> when this happens.
 
-No problems here. (SMP, PIII-800, Intel-BX)
-
-Please mail me the location of the patch for glibc-2.2.5.
--- 
-Regards Klaus
+There were some lockups when I connected the AC plug, but these
+were rare and totally irreproducable as well.
+Alan had the same idea as you and gave me the hint to rebuild
+the kernel without APM and APIC. I'm running this configuration
+since two hours and I'll see if it works a whole week without
+freezes. Maybe you can do the same to eliminate statistical
+errors.

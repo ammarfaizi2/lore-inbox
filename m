@@ -1,52 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265476AbUABLad (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 06:30:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUABLad
+	id S265515AbUABL2K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 06:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbUABL2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 06:30:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:12491 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265476AbUABLaa (ORCPT
+	Fri, 2 Jan 2004 06:28:10 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37066 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265515AbUABL2B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 06:30:30 -0500
-Date: Fri, 2 Jan 2004 12:30:18 +0100
+	Fri, 2 Jan 2004 06:28:01 -0500
+Date: Fri, 2 Jan 2004 12:27:33 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Christophe Saout <christophe@saout.de>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: CPRM ?? Re: Possibly wrong BIO usage in ide_multwrite
-Message-ID: <20040102113018.GP5523@suse.de>
-References: <1073013643.20163.51.camel@leto.cs.pocnet.net> <Pine.LNX.4.10.10401012018030.32122-100000@master.linux-ide.org>
+To: Hugang <hugang@soulinfo.com>
+Cc: Bart Samwel <bart@samwel.tk>, Andrew Morton <akpm@osdl.org>,
+       smackinlay@mail.com, Bartek Kania <mrbk@gnarf.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] laptop-mode-2.6.0 version 5
+Message-ID: <20040102112733.GA19526@suse.de>
+References: <20031231210756.315.qmail@mail.com> <3FF3887C.90404@samwel.tk> <20031231184830.1168b8ff.akpm@osdl.org> <3FF43BAF.7040704@samwel.tk> <3FF457C0.2040303@samwel.tk> <20040101183545.GD5523@suse.de> <20040102170234.66d6811d@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10401012018030.32122-100000@master.linux-ide.org>
+In-Reply-To: <20040102170234.66d6811d@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 01 2004, Andre Hedrick wrote:
+On Fri, Jan 02 2004, Hugang wrote:
+> Organization: Beijing Soul
+> X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+> Mime-Version: 1.0
+> Content-Type: text/plain; charset=US-ASCII
+> Content-Transfer-Encoding: 7bit
 > 
-> Christophe,
+> On Thu, 1 Jan 2004 19:35:45 +0100
+> Jens Axboe <axboe@suse.de> wrote:
 > 
-> I am sorry but adding in a splitter to CPRM is not acceptable.
-> Digital Rights Management in the kernel is not acceptable to me, period.
+> > Patch is obviously bogus, just look at the comm definition in sched.h:
+> > 
+> > 	char comm[16];
+> > 
+> > IO submission must happen in process context, so we also know that
+> > current is valid.
 > 
-> Maybe I have misread your intent and the contents on your website.
-> 
-> Device-Mappers are one thing, intercepting buffers in the taskfile FSM
-> transport is another.  This stinks of CPRM at this level, regardless of
-> your intent.  Do correct me if I am wrong.
+> You are right. But why add this patch, My laptop not crash when I
+> enable block dump, So I try to find where is the Bug. Final, The bug
 
-       0   2   4   6   8   10
-                        /
-                       /
-                      /
-                     /
-                    /
-                   /
-                  /
-           PARANOIA-METER
+I dunno, I can't possibly tell since you haven't given any info about
+this crash. Where does it crash, do you have an oops? All I could say
+from your report + patch is that it wasn't valid. There's just no way
+for current->comm to be NULL, so your patch couldn't possibly have made
+a difference.
+
+> is in sector_t, I was enable CONFIG_LBD, So sector_t is u64, So We
+> have to change the code when enable CONFIG_LBD.
+> 
+> I'd like the 2.4 style so add count number into printf.
+> 
+> Here is the patch fix it
+> +
+> +   if (unlikely(block_dump)) {
+> +       char b[BDEVNAME_SIZE];
+> +       printk("%s(%d): %s block %llu/%u on %s\n",
+> +           current->comm, current->pid,
+> +           (rw & WRITE) ? "WRITE" : (rw == READA ? "READA" : "READ"),
+> +           (u64)bio->bi_sector, count, bdevname(bio->bi_bdev,b));
+> +   }
+
+It's best to keep the line as minimal as possible, count isn't really
+very interesting. What is interesting is process, offset (for finding
+the file, if you need to), and data direction.
+
+> I think, also have this bug in 2.4.23, here is the patch for it, Hope can helpful.
+> Index: linux-2.4.23/drivers/block/ll_rw_blk.c
+> ===================================================================
+> --- linux-2.4.23/drivers/block/ll_rw_blk.c      (revision 4)
+> +++ linux-2.4.23/drivers/block/ll_rw_blk.c      (working copy)
+> @@ -1298,7 +1298,7 @@
+>                 wake_up(&bh->b_wait);
+>  
+>         if (block_dump)
+> -               printk(KERN_DEBUG "%s: %s block %lu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", bh->b_rsector, count, kdevname(bh->b_rdev));
+> +               printk(KERN_DEBUG "%s: %s block %llu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", (u64)bh->b_rsector, count, kdevname(bh->b_rdev));
+
+2.4 stock doesn't have 64-bit sectors, please consult (again) the
+canonical source (include file). There's no need to cast.
 
 -- 
 Jens Axboe

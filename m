@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132147AbQKBOvl>; Thu, 2 Nov 2000 09:51:41 -0500
+	id <S132127AbQKBO4w>; Thu, 2 Nov 2000 09:56:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132177AbQKBOvb>; Thu, 2 Nov 2000 09:51:31 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:777 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S132147AbQKBOv1>;
-	Thu, 2 Nov 2000 09:51:27 -0500
-Message-ID: <3A017F33.BE30ACD@mandrakesoft.com>
-Date: Thu, 02 Nov 2000 09:50:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S132163AbQKBO4l>; Thu, 2 Nov 2000 09:56:41 -0500
+Received: from nnj-dialup-60-237.nni.com ([216.107.60.237]:4800 "EHLO
+	nnj-dialup-60-237.nni.com") by vger.kernel.org with ESMTP
+	id <S132127AbQKBO40>; Thu, 2 Nov 2000 09:56:26 -0500
+Message-ID: <3A017FBB.AF8C596D@cybernex.net>
+Date: Thu, 02 Nov 2000 09:52:43 -0500
+From: TenThumbs <tenthumbs@cybernex.net>
+Reply-To: tenthumbs@cybernex.net
+Organization: <>
+X-Mailer: Mozilla 4.08C-See the fnords. [en] (X11; U; Linux 2.2.18pre18 i486)
 MIME-Version: 1.0
-To: Thomas Sailer <sailer@ife.ee.ethz.ch>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Poll and OSS API
-In-Reply-To: <3A017443.8E436A97@ife.ee.ethz.ch>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.18pre18: many calls to kwhich
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Sailer wrote:
-> 
-> The OSS API (http://www.opensound.com/pguide/oss.pdf, page 102ff)
-> specifies that a select _with the sounddriver's filedescriptor
-> set in the read mask_ should start the recording.
-> 
-> Implementing this is currently not possible, as the driver does
-> not get to know whether the application had the filedescriptor
-> set in the select call. Similarily for poll, the driver does not
-> get the caller's events.
+I noticed that kwhich is called a lot:
 
-Well, it's only a problem for full duplex :)  If you are write-only in
-poll(), read doesn't apply.  Read-only in poll(), and you start DMA. 
-For full duplex...  my Via driver starts DMA'ing.  That was my
-interpretation of the spec.
+make oldconfig:        10
+make dep:              65
+make bzImage modules: 142
 
+Assuming that this is unintentional, this patch helps a lot.
 
-> I don't think this is all that important though, because
-> it's that way for more than a year and the first complaint
-> reached me yesterday.
+--- Makefile.orig       Sun Oct 29 09:09:16 2000
++++ Makefile    Tue Oct 31 11:39:11 2000
+@@ -28,7 +28,7 @@
+ #      kgcc for Conectiva and Red Hat 7
+ #      otherwise 'cc'
+ #
+-CC     =$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else \
++CC     :=$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else \
+        $(CONFIG_SHELL) scripts/kwhich gcc272 2>/dev/null || $(CONFIG_SHELL) scripts/kwhich kgcc 2>/dev/null || echo cc; fi) \
+        -D__KERNEL__ -I$(HPATH)
+ CPP    =$(CC) -E
 
-What was the complaint?
+(If it gets wrapped, it's just "=" -> ":=").
 
-FWIW I highly recommend Rui Sousa's oss-test stuff.  Check out the
-"emu10k1" module from Creative's CVS server, and look in the
-emu10k1/utils/oss-test directory.
-
-Regards,
-
-	Jeff
-
-
-Creative CVS info:
-export
-CVSROOT=:pserver:cvsguest@opensource.creative.com:/usr/local/cvsroot
-echo note - password is 'cvsguest'
-
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
+It's also interesting that make dep calls kwhich an odd number
+of times including one case where it looked for "gcc." I suspect
+a makefile isn't playing nice but I haven't looked for it.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

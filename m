@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVASHJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVASHLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbVASHJk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 02:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVASHJj
+	id S261607AbVASHLv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 02:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVASHLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 02:09:39 -0500
-Received: from gate.crashing.org ([63.228.1.57]:14563 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261606AbVASHJf (ORCPT
+	Wed, 19 Jan 2005 02:11:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38340 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261607AbVASHLo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:09:35 -0500
-Subject: Re: [PATCH] dynamic tick patch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
-       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050119063713.GB26932@atomide.com>
-References: <20050119000556.GB14749@atomide.com>
-	 <1106108467.4500.169.camel@gaston> <20050119050701.GA19542@atomide.com>
-	 <1106112525.4534.175.camel@gaston>  <20050119063713.GB26932@atomide.com>
-Content-Type: text/plain
-Date: Wed, 19 Jan 2005 18:08:52 +1100
-Message-Id: <1106118532.5295.3.camel@gaston>
+	Wed, 19 Jan 2005 02:11:44 -0500
+Date: Tue, 18 Jan 2005 23:11:43 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] /proc/<pid>/rlimit
+Message-ID: <20050118231143.K24171@build.pdx.osdl.net>
+References: <20050118204457.GA7824@ti64.telemetry-investments.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050118204457.GA7824@ti64.telemetry-investments.com>; from brugolsky@telemetry-investments.com on Tue, Jan 18, 2005 at 03:44:57PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-18 at 22:37 -0800, Tony Lindgren wrote:
-> * Benjamin Herrenschmidt <benh@kernel.crashing.org> [050118 21:29]:
-> > Hrm... reading more of the patch & Martin's previous work, I'm not sure
-> > I like the idea too much in the end... The main problem is that you are
-> > just "replaying" the ticks afterward, which I see as a problem for
-> > things like sched_clock() which returns the real current time, no ?
-> 
-> Well so far I haven't found problems with time. Since sched_clock()
-> returns the hw time, how does it cause a problem? Do you have some
-> example in mind? Maybe there's something I haven't even considered
-> yet.
-> 
-> > I'll toy a bit with my own implementation directly using Martin's work
-> > and see what kind of improvement I really get on ppc laptops.
-> 
-> I'd be interested in what you come up with :)
+* Bill Rugolsky Jr. (brugolsky@telemetry-investments.com) wrote:
+> This patch against 2.6.11-rc1-bk6 adds /proc/<pid>/rlimit to export
+> per-process resource limit settings.  It was written to help analyze
+> daemon core dump size settings, but may be more generally useful.
+> Tested on 2.6.10. Sample output:
 
-Well, I did a very simple implementation entirely local to
-arch/ppc/kernel, that basically calls timer_interrupt on every do_IRQ, I
-don't change timer_interrupt (our implementation already knows how to
-"catch up" already if missed ticks and knows how to deal beeing called
-to early as well). Then, when going to idle loop, I "override" the
-decrementer interrupt setting to be further in the future if
-next_timer_interrupt() returns more than 1.
+I can certainly see how it could be useful for debugging.  Perhaps it
+should be available to only oneself (like getrlimit restriction) or
+CAP_SYS_RESOURCE processes?  (Though, I'm not sure how useful the data
+would be to a malicious user).  Also, since the format is both arch
+dependent and release dependent I guess it's not ideal for anything that
+depends on the format.
 
-Strangely, I got not measurable improvement on power consumption despite
-putting the CPU longer into NAP mode. Note that this may be very
-different with earlier (G3 notably) CPUs, since G3 users repeately
-reported me havign a significant loss in battery life with HZ=1000
+> +const char * const rlim_name[RLIM_NLIMITS] = {
+> +#ifdef RLIMIT_CPU
+> +	[RLIMIT_CPU] = "cpu",
+> +#endif
 
-Later, I'll do some stats to check how long I really slept, and see if
-it's worth, when I predict a long sleep, flushing the cache and going
-into a deeper PM mode where cache coherency is disabled too.
+BTW, when I went through the resource.h files, I didn't notice any that
+leftout rlimits, it was only about ordering.  So I don't think those
+ifdefs are necessary.
 
-Ben.
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

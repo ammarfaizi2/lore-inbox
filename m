@@ -1,65 +1,222 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312419AbSDEJtH>; Fri, 5 Apr 2002 04:49:07 -0500
+	id <S312425AbSDEJu5>; Fri, 5 Apr 2002 04:50:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312426AbSDEJs6>; Fri, 5 Apr 2002 04:48:58 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:58163 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S312419AbSDEJsl>;
-	Fri, 5 Apr 2002 04:48:41 -0500
-Date: Fri, 5 Apr 2002 11:48:29 +0200
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: Greg KH <greg@kroah.com>
-Cc: davej@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.7-dj3 - BUG & PATCH
-Message-Id: <20020405114829.62111b5d.sebastian.droege@gmx.de>
-In-Reply-To: <20020405064545.GA19248@kroah.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S312431AbSDEJus>; Fri, 5 Apr 2002 04:50:48 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:20964 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S312425AbSDEJuk>; Fri, 5 Apr 2002 04:50:40 -0500
+Date: Fri, 5 Apr 2002 11:50:39 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: socket write(2) after remote shutdown(2) problem ?
+Message-ID: <20020405095038.GB16595@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.+7Vj)MPEY7+D'w"
+Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.+7Vj)MPEY7+D'w
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Thu, 4 Apr 2002 22:45:45 -0800
-Greg KH <greg@kroah.com> wrote:
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> On Thu, Apr 04, 2002 at 05:22:38PM +0200, Sebastian Droege wrote:
-> > Hi,
-> > I have a problem in 2.5.7-dj3 which doesn't exist in 2.5.8-pre1...
-> > My USB keyboard and mouse are detected properly but aren't usable
-> > I get the same behaviour when unsetting CONFIG_USB_HIDINPUT in 2.5.8-pre1
-> > grepping for CONFIG_USB_HIDINPUT in 2.5.7-dj3 finds something but the option doesn't show in old/menuconfig
-> > When setting CONFIG_USB_HIDINPUT=y by hand in 2.5.7-dj3 I get a compile error:
-> > 
-> > make[3]: Entering directory `/usr/src/linux-2.5.7/drivers/usb'
-> > gcc -D__KERNEL__ -I/usr/src/linux-2.5.7/include -Wall -Wstrict-prototypes -Wno-trigraphs -O6 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=hid_input  -c -o hid-input.o hid-input.c
-> > hid-input.c:335: redefinition of `hidinput_hid_event'
-> > hid.h:411: `hidinput_hid_event' previously defined here
-> > hid-input.c:413: redefinition of `hidinput_connect'
-> > hid.h:412: `hidinput_connect' previously defined here
-> > hid-input.c:458: redefinition of `hidinput_disconnect'
-> > hid.h:413: `hidinput_disconnect' previously defined here
-> > make[3]: *** [hid-input.o] Fehler 1
-> 
-> I can't duplicate this, can you send me your .config?
-Sure but I can't reproduce it either with a clean tree
-Strange... but I have done a make mrproper in the old tree and the compile error was still there...
+Hi,
 
-Bye
---=.+7Vj)MPEY7+D'w
-Content-Type: application/pgp-signature
+Is the following behaviour correct on a tcp connection: 
+	* the server issues a shutdown(sock, RW)
+	* the client side socket passes in CLOSE-WAIT state
+	* the client issues a write on the socket which succeds.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+I expected the last write to fail, since the other side is not
+capable any more to receive data. Can someone confirm to me one
+of the following:
+	1. behaviour is correct and why.
+	2. shutdown is buggy.
+	3. write is buggy.
 
-iD8DBQE8rXL0e9FFpVVDScsRAnQpAKDZtJ1pNxR8U8cc5aJ7MezNHPAI5ACg1EcH
-P3SqU/8+3etTp3vvGd5f9ic=
-=a7XN
------END PGP SIGNATURE-----
+Thanks.
 
---=.+7Vj)MPEY7+D'w--
+Attached are sample codes for the "server" and the "client". Test
+was done on latest 2.4 and 2.5 kernels.
 
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="client.c"
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/select.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <signal.h>
+
+char buf[1024];
+
+int main()
+{
+  int fd;
+  char * ptr;
+  struct sockaddr_in addr;
+  int ready = 0;
+  fd_set rfds, efds;
+  int nread;
+
+  /* establish connection */
+
+  fd = socket (PF_INET, SOCK_STREAM, 0);
+  if ( -1 == fd) {
+    perror ("socket");
+    exit (1);
+  }
+
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl (INADDR_ANY);
+  addr.sin_port = 0;
+  if (bind (fd, (struct sockaddr*)&addr, sizeof (struct sockaddr_in)) != 0) {
+    perror ("bind");
+    exit (1);
+  }
+
+  ptr = (char*)&addr.sin_addr.s_addr;
+  /*  ptr[0] = 162; ptr[1] = 0; ptr[2] = 120; ptr[3] = 98;*/
+  ptr[0] = 127; ptr[1] = 0; ptr[2] = 0; ptr[3] = 1;
+  addr.sin_port = htons(9999);
+  if (connect (fd, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
+    perror ("connect");
+    exit (1);
+  }
+  
+  FD_ZERO (&rfds);
+  FD_SET (fd, &rfds);
+  select (fd+1, &rfds, 0, 0, 0);
+
+  /* read everything from socket and print it to stdout */
+
+  while (!ready) {
+    struct timeval tv;
+
+    FD_ZERO (&rfds);
+    FD_SET (fd, &rfds);
+    FD_ZERO (&efds);
+    FD_SET (fd, &efds);
+    memset (&tv, 0, sizeof(tv));
+
+    switch (select (fd+1, &rfds, 0, &efds, &tv)) {
+    case -1:
+      perror("select");
+      exit (1);
+    case 0:
+      ready = 1;
+      break;
+    case 1:
+      if (FD_ISSET (fd, &efds)) {
+	fprintf (stderr, "select found exception");
+      }
+      nread = read (fd, &buf, 1024);
+      if (nread == 0)
+	ready = 1;
+      else
+	write (1, &buf, nread);
+      break;
+    }
+  }
+
+  /* here lsof will show CLOSE_WAIT */
+  raise (SIGSTOP);
+
+{
+int ret;
+
+  if ((ret = write (fd, "QUIT\n", 5)) == -1) {
+    perror ("write");
+    exit (1);
+  }
+  printf("write ok, ret=%d\n", ret);
+}
+
+  /* here the socket is orphaned, after write succeeded */
+  raise (SIGSTOP);
+
+  return 0;
+}
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="server.c"
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/select.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <signal.h>
+
+char buf[1024];
+
+int main()
+{
+  int fd, conn;
+  struct sockaddr_in addr;
+  socklen_t size;
+
+  /* get socket to client, listening on 9999 */
+
+  fd = socket (PF_INET, SOCK_STREAM, 0);
+  if ( -1 == fd) {
+    perror ("socket");
+    exit (1);
+  }
+
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl (INADDR_ANY);
+  addr.sin_port = htons(9999);
+  if (bind (fd, (struct sockaddr*)&addr, sizeof (struct sockaddr_in)) != 0) {
+    perror ("bind");
+    exit (1);
+  }
+
+  if (-1 == listen (fd, 1)) {
+    perror ("listen");
+    exit (1);
+  }
+
+  if (-1 == (conn = accept(fd, (struct sockaddr*)&addr, &size))) {
+    perror ("accept");
+    exit (1);
+  }
+
+  /* send some info */
+
+  if (write (conn, "Hello client !\n", 15) == -1) {
+    perror ("write");
+    exit (1);
+  }
+
+  /* finish */
+
+  if (-1 == shutdown (conn, SHUT_RDWR)) {
+    perror ("shutdown");
+    exit (1);
+  }
+
+  return 0;
+}
+
+--lrZ03NoBR/3+SXJZ--

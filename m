@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263144AbTCWS5l>; Sun, 23 Mar 2003 13:57:41 -0500
+	id <S263145AbTCWTCg>; Sun, 23 Mar 2003 14:02:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263145AbTCWS5k>; Sun, 23 Mar 2003 13:57:40 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:10764 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S263144AbTCWS5k>;
-	Sun, 23 Mar 2003 13:57:40 -0500
-Date: Sun, 23 Mar 2003 20:08:45 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add checkstack Makefile target
-Message-ID: <20030323190844.GA6699@mars.ravnborg.org>
-Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <20030303211647.GA25205@wohnheim.fh-wedel.de> <20030304070304.GP4579@actcom.co.il> <20030304072443.GA5503@wohnheim.fh-wedel.de> <20030304102121.GC6583@wohnheim.fh-wedel.de> <20030304105739.GD6583@wohnheim.fh-wedel.de> <20030304190854.GA1917@mars.ravnborg.org> <20030305145149.GA7509@wohnheim.fh-wedel.de> <20030305191516.GB1841@mars.ravnborg.org> <20030305195451.GB10871@wohnheim.fh-wedel.de>
+	id <S263146AbTCWTCg>; Sun, 23 Mar 2003 14:02:36 -0500
+Received: from dp.samba.org ([66.70.73.150]:10175 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263145AbTCWTCf>;
+	Sun, 23 Mar 2003 14:02:35 -0500
+Date: Mon, 24 Mar 2003 06:12:36 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Brian Gerst <bgerst@quark.didntduck.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] slab.c cleanup
+Message-ID: <20030323191236.GA27242@krispykreme>
+References: <3E7E03C9.6060804@quark.didntduck.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030305195451.GB10871@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3E7E03C9.6060804@quark.didntduck.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 08:54:51PM +0100, Jörn Engel wrote:
-> 
-> I wonder if checkstack should be added to noconfig_targets. In fact, I
-> wonder if I put checkstack in the right spot at all. Sam?
 
-checkstack needs a configured and build kernel, hence the
-prerequisite vmlinux.
-So it is located at the right spot and shall not be listed in
-noconfig_targets.
+> - Don't create caches that are not multiples of L1_CACHE_BYTES.
 
-Only tiny issue is that you miss:
-.PHONY: checkstack
+Nice idea, I often see the list walk (of the cache sizes) in kmalloc in kernel
+profiles. eg a bunch of kmalloc(2k) for network drivers.
 
-	Sam
+Since we have a 128byte cacheline on ppc64 this patch should reduce that.
+
+Anton

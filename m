@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132720AbRC2MGE>; Thu, 29 Mar 2001 07:06:04 -0500
+	id <S132725AbRC2MME>; Thu, 29 Mar 2001 07:12:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132722AbRC2MFy>; Thu, 29 Mar 2001 07:05:54 -0500
-Received: from tango.SoftHome.net ([204.144.231.49]:3813 "HELO
-	tango.SoftHome.net") by vger.kernel.org with SMTP
-	id <S132720AbRC2MFo>; Thu, 29 Mar 2001 07:05:44 -0500
-Message-ID: <3AC324FA.7E7F6919@softhome.net>
-Date: Thu, 29 Mar 2001 07:05:14 -0500
-From: "Todd M. Roy" <toddroy@softhome.net>
-Reply-To: toddroy@softhome.net
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
+	id <S132724AbRC2MLz>; Thu, 29 Mar 2001 07:11:55 -0500
+Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:26365
+	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
+	id <S132723AbRC2MLs>; Thu, 29 Mar 2001 07:11:48 -0500
+Message-ID: <3AC32666.9EF161@math.ethz.ch>
+Date: Thu, 29 Mar 2001 14:11:18 +0200
+From: Giacomo Catenazzi <cate@math.ethz.ch>
+Reply-To: cate@debian.org
+X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Wayne Whitney <whitney@math.berkeley.edu>, linux-kernel@vger.kernel.org
-Subject: re: 2.4.3-p8 pci_fixup_vt8363 + ASUS A7V "Optimal" = IDE disk corruption
+To: "Hen, Shmulik" <shmulik.hen@intel.com>
+CC: linux-kernel@vger.kernel.org, "'LNML'" <linux-net@vger.kernel.org>
+Subject: Re: Plans for 2.5
+In-Reply-To: <fa.ngc0npv.1dmkhh4@ifi.uio.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne,
-  I have also been seeing disk corruption with my ASUS A7V with both
-2.4.3-pre7 and pre8.
+"Hen, Shmulik" wrote:
+> 
+> Just some general questions:
+> 
+> 1) Is there anywhere a list that describes what is intended to be in 2.5.x ?
 
--- todd --
+General/Big changes are discussed in:
+http://lwn.net/2001/0329/a/kernel-summit-agenda.php3
 
-Hi,
+> 2) Are there any early releases of 2.5.x ?
+> 3) Are the things for 2.5.x being discussed on another mailing list ?
 
-I'm running kernel 2.4.3-pre8 on an ASUS A7V (BIOS 1007) motherboard and
-recently noticed that it sometimes corrupts my hard disk, an IBM 75GXP
-on
-the onboard PDC20265 IDE controller.  The corruption is detectable with
-a
-simple 'dd if=/dev/urandom of=test bs=16384 count=32768; cp test test2 ;
-diff test test2'.
+kbuild list discusses about:
 
-I traced the problem to a combination of choosing "Optimal" for the
-System
-Permorfance Setting in the BIOS and the the new pci_fixup_vt8363 added
-to
-arch/i386/kernel/pci-pc.c in kernel 2.4.3-pre3.  So I did a bunch of
-tests
-using no pci_fixup function, the pci_fixup_vt8363 function, and the
-following subset of pci_fixup_vt8363:
+new configuration language (an unified language: now there are
+three
+implementation: 2 shell like and one different, so it fail
+with most
+of changes).
 
-        pci_read_config_byte(d, 0x54, &tmp);
-        if(tmp & (1<<2)) {
-                printk("PCI: Bus master Pipeline request disabled\n");
-                pci_write_config_byte(d, 0x54, tmp & ~(1<<2));
-        }
-        pci_read_config_byte(d, 0x70, &tmp);
-        if(tmp & (1<<2)) {
-                printk("PCI: Disabled Master Read Caching\n");
-                pci_write_config_byte(d, 0x70, tmp & ~(1<<2));
-        }
+new makefiles. Actual makefile will fail with dependencies and
+modules.
 
-The results for me:
-				Normal		Optimal
-				------		-------
-no pci_fixup			no corruption	no corruption
-pci_fixup_vt8363 subset		corruption	corruption
-pci_fixup_vt8363		no corruption	corruption
+> 4) What is the time frame of releasing 2.5.x-final (or 2.6.x) ?
+> 
 
-At this point my skills and perseverance gave out, but if someone would
-like me to do a few more specific tests, I could.
-
-Below is the output of 'lspci -xxx -s 0:0' on this hardware, with no
-pci_fixup, for both the Normal and Optimal BIOS settings, in the form of
-a
-unified diff.  Hopefully this will shed some light on what the BIOS is
-doing, as we don't see to have pci_fixup_vt8363 quite right yet.
-
-Cheers,
-Wayne
+> Specifically, I'm more interested in the network driver aspect.
+> 1) Are there any intended changes to the networking layer ?
+> 2) I over heard something about making the driver reentrant - any news ?
+> 3) What about support for IPv6 ? (I noticed it was marked as experimental
+> until now)
+ 
 
 
--- 
-  .~.  Todd Roy, Senior Database Administrator  .~.
-  /V\     Holstein Association, U.S.A. Inc.     /V\         
- // \\           troy@holstein.com             // \\  
-/(   )\         1-802-254-4551x4230           /(   )\
- ^^-^^                                         ^^-^^
+	giacomo

@@ -1,138 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbULIT3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbULIT3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbULIT3A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 14:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbULIT3A
+	id S261593AbULIT3d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 14:29:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbULIT3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 14:29:00 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:29456 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261591AbULIT2U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 14:28:20 -0500
-Message-ID: <41B8A759.80806@aknet.ru>
-Date: Thu, 09 Dec 2004 22:28:25 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
+	Thu, 9 Dec 2004 14:29:33 -0500
+Received: from dfw-gate3.raytheon.com ([199.46.199.232]:1379 "EHLO
+	dfw-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S261593AbULIT3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 14:29:21 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF005FDB8A.72F792AC-ON86256F65.0063E013@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 9 Dec 2004 12:15:41 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 12/09/2004 12:15:43 PM
 MIME-Version: 1.0
-To: prasanna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kprobes: dont steal interrupts from vm86
-References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru> <20041117131552.GA11053@in.ibm.com> <41B1FD4B.9000208@aknet.ru> <20041207055348.GA1305@in.ibm.com> <41B5FA1B.9090507@aknet.ru> <20041209124738.GB5528@in.ibm.com>
-In-Reply-To: <20041209124738.GB5528@in.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------060104090406050204050405"
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060104090406050204050405
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+>* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+>
+>> >also, i'd like to take a look at latency traces, if you have them for
+>> >this run.
+>>
+>> I could if I had any. The _RT run had NO latency traces > 250 usec
+>> (the limit I had set for the test). The equivalent _PK run had 37 of
+>> those traces. I can rerun the test with a smaller limit to get some if
+>> it is really important. My build of -12 is almost done and we can see
+>> what kind of repeatability / results from the all_cpus trace shows.
+>
+>/me is puzzled.
+>
+>so all the CPU-loop delays within the -RT kernel are below 250 usecs? I
+>guess i dont understand what this means then:
 
-Hi.
+There were no cases where /proc/sys/kernel/preempt_max_latency went
+over 250 usec in the RT stress test that I did (for the same test, _PK
+had over 30 such traces).
 
-Prasanna S Panchamukhi wrote:
-> The patch below takes both the cases into 
-> consideration. 
-OK, perhaps this one is better, at least
-it no longer plays on gcc optimization,
-so that I can reproduce the Oopses again,
-for good and for test-case.
-But I think you really should consider
-checking regs->xcs instead of explicitly
-checking the corner cases like 0xcd,3.
+>| The max CPU latencies in RT are worse than PK as well. The values for
+>| RT range from 3.00 msec to 5.43 msec and on PK range from 1.45 msec to
+>| 2.24 msec.
+>
+>these come from userspace timestamping? So where userspace detects a
+>delay the kernel tracer doesnt measure any?
+Yes. That is correct. Very puzzling to me too.
 
-> I am not able to think of a case, where 
-> address is invalid when it enters int3 handler.
-> I would appreciate if you can provide such a
-> test case.
-I already did - it was my very first test-case
-which produced the Oops on the if(*addr!=...)
-dereference, but you worked around by checking
-the VM flag (well, it must be checked, but
-not after you already used "addr" a couple of
-times, IMHO).
-OK, but if you need another test-case,
-here it is. Much simpler than the vm86 one.
-It can work in 2 modes: started without args,
-it will print the diagnostic (passed or
-failed) and exit. If started with any arg,
-it will Oops the kernel.
-This happens both with your latest patch
-and without it. This doesn't happen with
-your previous patch (no Oops), but then fixing
-problems by exploiting the gcc optimization
-was not the best idea I think.
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 
-
---------------060104090406050204050405
-Content-Type: text/x-csrc;
- name="brk.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="brk.c"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <linux/unistd.h>
-#include <asm/ldt.h>
-#include <asm/segment.h>
-#include <asm/page.h>
-#include <sys/mman.h>
-
-_syscall3(int, modify_ldt, int, func, void *, ptr, unsigned long, bytecount)
-
-static int set_ldt_entry(int entry, unsigned long base, unsigned int limit,
-	      int seg_32bit_flag, int contents, int read_only_flag,
-	      int limit_in_pages_flag, int seg_not_present, int useable)
-{
-  struct modify_ldt_ldt_s ldt_info;
-  ldt_info.entry_number = entry;
-  ldt_info.base_addr = base;
-  ldt_info.limit = limit;
-  ldt_info.seg_32bit = seg_32bit_flag;
-  ldt_info.contents = contents;
-  ldt_info.read_exec_only = read_only_flag;
-  ldt_info.limit_in_pages = limit_in_pages_flag;
-  ldt_info.seg_not_present = seg_not_present;
-  ldt_info.useable = useable;
-
-  return modify_ldt(1, &ldt_info, sizeof(ldt_info));
-}
-
-void my_trap(int sig)
-{
-  printf("Test passed, All OK!\n");
-  exit(0);
-}
-
-int main(int argc, char *argv[])
-{
-  unsigned char *ptr;
-  if (mmap(0, PAGE_SIZE, PROT_READ | PROT_WRITE,
-      MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0) == MAP_FAILED) {
-    perror("mmap");
-    return 1;
-  }
-  if ((ptr = mmap(0, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC,
-      MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED) {
-    perror("mmap");
-    return 1;
-  }
-  if (argc == 1)		/* no-Oops mode */
-    *(unsigned char *)0 = 1;	/* Set the no-Oops flag :) */
-  /* Create the LDT entry */
-  #define MY_CS (__USER_CS | 4)
-  set_ldt_entry(MY_CS >> 3, (unsigned long)ptr, PAGE_SIZE - 1, 1,
-    MODIFY_LDT_CONTENTS_CODE, 1, 0, 0, 0);
-  ptr[0] = 0xcc;
-  ptr[1] = 0xcb;
-  signal(SIGTRAP, my_trap);
-  asm volatile ("lcall %0,$0\n"::"i"(MY_CS));
-  printf("Stolen interrupt, very bad.\n");
-  return 0;
-}
-
---------------060104090406050204050405--

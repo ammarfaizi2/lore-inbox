@@ -1,83 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVDES5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVDETAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVDES5m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVDES5T
+	id S261891AbVDETAV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVDES6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:57:19 -0400
-Received: from web88009.mail.re2.yahoo.com ([206.190.37.196]:22165 "HELO
-	web88009.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261892AbVDES4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:56:20 -0400
-Message-ID: <20050405185620.80060.qmail@web88009.mail.re2.yahoo.com>
-Date: Tue, 5 Apr 2005 14:56:20 -0400 (EDT)
-From: Shawn Starr <shawn.starr@rogers.com>
-Subject: Re: [2.6.12-rc1][ACPI][suspend] /proc/acpi/sleep vs /sys/power/state issue - 'standby' on a laptop
-To: Pavel Machek <pavel@ucw.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>, acpi-devel@lists.sourceforge.net
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Apr 2005 14:58:02 -0400
+Received: from vbo91-1-82-238-217-224.fbx.proxad.net ([82.238.217.224]:35209
+	"EHLO mirchusko.localnet") by vger.kernel.org with ESMTP
+	id S261891AbVDES4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:56:16 -0400
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+	copyright notice.
+From: Josselin Mouette <joss@debian.org>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4252DDE6.5040500@nortel.com>
+References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br>
+	 <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
+	 <1112723637.4878.14.camel@mirchusko.localnet> <4252DDE6.5040500@nortel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-a2vsdpsx0AWDhKydMk4E"
+Date: Tue, 05 Apr 2005 20:56:09 +0200
+Message-Id: <1112727369.4878.25.camel@mirchusko.localnet>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working o
 
---- Pavel Machek <pavel@ucw.cz> wrote:
-> Hi!
-> 
-> > I've noticed something strange with issuing
-> 'standby' to the system:
-> > 
-> > when echoing "standby" to /sys/power/state,
-> nothing happens, not even a log or 
-> > system activity to attempt standby mode.
-> > 
-> > However, trying echo "1" to /proc/acpi/sleep the
-> system attempts to (standby) 
-> > and aborts:
-> > 
-> > [4295945.236000] PM: Preparing system for suspend
-> > [4295946.270000] Stopping tasks: 
-> >
->
-=============================================================================|
-> > [4295946.370000] Restarting tasks... done
-> > 
-> > We get no reason as to why it quickly aborts. 
-> 
-> > [4294672.065000] ACPI: CPU0 (power states: C1[C1]
-> C2[C2] C3[C3])
-> > [4294676.827000] ACPI: (supports S0 S3 S4 S5)
-> 
-> 
-> ...aha, but your system does not support S1 aka
-> standby.
->  
+--=-a2vsdpsx0AWDhKydMk4E
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Right, so nothing should happen if I try to do it, but
-something does only in /proc/acpi/sleep does the
-system attempt S1 which is not supported.
+Le mardi 05 avril 2005 =C3=A0 12:50 -0600, Chris Friesen a =C3=A9crit :
+> Josselin Mouette wrote:
+>=20
+> > The fact is also that mixing them with a GPLed software gives
+> > an result you can't redistribute - although it seems many people
+> > disagree with that assertion now.
+>=20
+> This is only true if the result is considered a "derivative work" of the=20
+> gpl'd code.
+>=20
+> The GPL states "In addition, mere aggregation of another work not based=20
+> on the Program with the Program (or with a work based on the Program) on=20
+> a volume of a storage or distribution medium does not bring the other=20
+> work under the scope of this License."
+>=20
+> Since the main cpu does not actually run the binary firmware, the fact=20
+> that it lives in main memory with the code that the cpu *does* run is=20
+> irrelevent.  In this case, the Debian stance is that the kernel proper=20
+> and the binary firmware are "merely aggregated" in a volume of storage (=20
+> ie. system memory).
 
-Do you know if /proc/acpi/sleep will be deprecated in
-favour of /sys/power/state? If so, this thread will be
-moot ;)
+It merely depends on the definition of "aggregation". I'd say that two
+works that are only aggregated can be easily distinguished and
+separated. This is not the case for a binary kernel module, from which
+you cannot easily extract the firmware and code parts.
+--=20
+ .''`.           Josselin Mouette        /\./\
+: :' :           josselin.mouette@ens-lyon.org
+`. `'                        joss@debian.org
+  `-  Debian GNU/Linux -- The power of freedom
 
-> > What is '1' in /proc/acpi/sleep?  standby mode is
-> not the same as suspend to 
-> > ram? when I put a normal desktop in standby mode
-> its still 'on' but the hard 
-> > disk is put to sleep and the system runs in a
-> lower power mode. 
-> 
-> stanby != suspend to ram.
+--=-a2vsdpsx0AWDhKydMk4E
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
 
-Correct, I wanted to be sure.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-> 
-> 				Pavel
-> -- 
-> 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51
-> time=448769.1 ms         
-> 
-> 
+iD8DBQBCUt9JrSla4ddfhTMRAnd5AKD0KNlQR2AT75PDYjjAgpo3gCOf9wCfbx1X
+iurvf25OcXHY+XyoNW/PXy0=
+=E9qC
+-----END PGP SIGNATURE-----
+
+--=-a2vsdpsx0AWDhKydMk4E--

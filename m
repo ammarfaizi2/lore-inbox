@@ -1,68 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUJWLm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUJWMCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267360AbUJWLm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 07:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUJWLmz
+	id S267374AbUJWMCS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 08:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUJWMCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 07:42:55 -0400
-Received: from ipx20189.ipxserver.de ([80.190.249.56]:58758 "EHLO
-	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
-	id S267360AbUJWLmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 07:42:50 -0400
-Date: Sat, 23 Oct 2004 14:41:18 +0300 (EAT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
+	Sat, 23 Oct 2004 08:02:18 -0400
+Received: from mail.gmx.net ([213.165.64.20]:23207 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267374AbUJWMCP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 08:02:15 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
 To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-mm1: NForce3 problem (IRQ sharing issue?)
-In-Reply-To: <Pine.LNX.4.61.0410231424330.3073@musoma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.61.0410231440490.2974@musoma.fsmlabs.com>
-References: <200410222354.44563.rjw@sisk.pl> <20041022162656.2f9ca653.akpm@osdl.org>
- <Pine.LNX.4.61.0410231424330.3073@musoma.fsmlabs.com>
+Subject: Re: 2.6.9-mm1
+Date: Sat, 23 Oct 2004 14:06:27 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20041022032039.730eb226.akpm@osdl.org>
+In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1489113.QWPKAu1MWV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410231406.31265.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cc for LKML, (damned NNTP client)
+--nextPart1489113.QWPKAu1MWV
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Sat, 23 Oct 2004, Zwane Mwaikambo wrote:
+On Friday 22 October 2004 12:20, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.6.9-m
+>m1/
 
-> On Sat, 23 Oct 2004, Andrew Morton wrote:
-> 
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > >
-> > > Hi,
-> > > 
-> > > I have a problem with 2.6.9-mm1 on an AMD64 NForce3-based box.  Namely, after 
-> > > some time in X, USB suddenly stops working and sound goes off simultaneously 
-> > > (it's quite annoying, as I use a USB mouse ;-)).  It is 100% reproducible and 
-> > > it may be related to the sharing of IRQ 5:
-> > > 
-> > > rafael@albercik:~> cat /proc/interrupts
-> > >            CPU0
-> > >   0:    3499292          XT-PIC  timer
-> > >   1:       7135          XT-PIC  i8042
-> > >   2:          0          XT-PIC  cascade
-> > >   5:       6945          XT-PIC  NVidia nForce3, ohci_hcd
-> > >   8:          0          XT-PIC  rtc
-> > >   9:       1416          XT-PIC  acpi, yenta
-> > >  10:          2          XT-PIC  ehci_hcd
-> > >  11:      37266          XT-PIC  SysKonnect SK-98xx, yenta, ohci1394, ohci_hcd
-> > >  12:      13781          XT-PIC  i8042
-> > >  14:         16          XT-PIC  ide0
-> > >  15:      23601          XT-PIC  ide1
-> > > NMI:          0
-> > > LOC:    3498657
-> > > ERR:          1
-> > > MIS:          0
-> > > 
-> > > (NVidia nForce3 is a sound chip, snd_intel8x0).  After it happens I can't 
-> > > reboot the box cleanly (the ohci-hcd driver cannot be reloaded) and it does 
-> > > not leave any traces in the log.
-> > > 
-> > 
-> > Beats me.  Does the interrupt count stop increasing?
-> 
-> Could we also get a dmesg and lspci? Boot with the 'debug' kernel 
-> parameter.
+I got this page allocation failure:
+
+lisa: page allocation failure. order:0, mode:0x20
+ [<c01371d2>] __alloc_pages+0x380/0x3a1
+ [<c013720b>] __get_free_pages+0x18/0x31
+ [<c013a2a3>] kmem_getpages+0x19/0xab
+ [<c013ae98>] cache_grow+0xb4/0x182
+ [<c013b16c>] cache_alloc_refill+0x206/0x235
+ [<c013b39e>] kmem_cache_alloc+0x3b/0x3d
+ [<c027815f>] dst_alloc+0x31/0x9f
+ [<c02851a0>] ip_route_output_slow+0x2a4/0x808
+ [<c02857d7>] ip_route_output_flow+0x22/0x8a
+ [<c02a6aa8>] raw_sendmsg+0x27f/0x4fe
+ [<c02af6bd>] inet_sendmsg+0x4a/0x62
+ [<c026bd99>] sock_sendmsg+0xc9/0xeb
+ [<c01150de>] recalc_task_prio+0xbb/0x1a8
+ [<c02cfa7a>] schedule+0x27e/0x548
+ [<c01314d4>] irq_exit+0x35/0x37
+ [<c01060da>] do_IRQ+0x4e/0x6a
+ [<c012b680>] autoremove_wake_function+0x0/0x43
+ [<c01cdb42>] copy_from_user+0x34/0x62
+ [<c026d196>] sys_sendto+0xdf/0x112
+ [<c015fbf9>] __pollwait+0x0/0xc0
+ [<c01cda46>] __copy_to_user_ll+0x3e/0x61
+ [<c01150de>] recalc_task_prio+0xbb/0x1a8
+ [<c026da72>] sys_socketcall+0x194/0x246
+ [<c0103ee3>] syscall_call+0x7/0xb
+
+don't know when it exactly happens, just saw it in the dmesg output right now.
+
+best regards,
+dominik
+
+--nextPart1489113.QWPKAu1MWV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQCVAwUAQXpJRwvcoSHvsHMnAQJCIAP/QgkJm0RPRt0P4W/ia6zvaPFpIjhaxNJq
+fs1n1dKNZ8X4xCqjh++AZJnfp2oy99VamBh5GfzH5YbLxeT65pmfCemi5N+7H8Tb
+3ZP8ym57ZeTpxSbtBplttVEztqX6GcMPxyV18q3ms5W4jB/sKhtQJ2/OSP1k6nvI
+4uFBRinxqpU=
+=XAYF
+-----END PGP SIGNATURE-----
+
+--nextPart1489113.QWPKAu1MWV--

@@ -1,84 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbULKTAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbULKTBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbULKTAb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 14:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbULKTAb
+	id S261993AbULKTBx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 14:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbULKTBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 14:00:31 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:32386 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261993AbULKTAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 14:00:22 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>, Ingo Molnar <mingo@elte.hu>,
-       Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-In-Reply-To: <Pine.OSF.4.05.10412111844360.6963-100000@da410.ifa.au.dk>
-References: <Pine.OSF.4.05.10412111844360.6963-100000@da410.ifa.au.dk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Sat, 11 Dec 2004 13:59:34 -0500
-Message-Id: <1102791574.3691.15.camel@localhost.localdomain>
+	Sat, 11 Dec 2004 14:01:52 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24334 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261993AbULKTBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 14:01:45 -0500
+Date: Sat, 11 Dec 2004 20:01:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: andrea@suse.de
+Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [patch] update email address of Andrea Arcangeli
+Message-ID: <20041211190134.GZ22324@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-12-11 at 18:59 +0100, Esben Nielsen wrote:
-> On Fri, 10 Dec 2004, Steven Rostedt wrote:
+Hi Andrea,
 
-> I am not sure I understand you correctly.
-> 
-> If it is a general method of making priority sorting on  wait-queues: Yes,
-> certainly! The highest priority task nearly always ought to be woken
-> first.
-> 
-> But in a lot of cases you send messages from high to low and visa verse
-> without wanting to move their priorities by doing so. If forinstance you
-> want a IRQ-thread to be increased in priority when a RT task listens to
-> packets from that device I think it is a bad idea. The developer should
-> himself set the priorities right. The device might use a lot of CPU in
-> some cases. By increasing it's priority you might destroy the RT
-> properties of all the tasks in between. In general you don't know.
->  
+the patch below (applies against both 2.4 and 2.6) replaces your 
+bouncing andrea@e-mind.com email address in the MAINTAINERS entry for 
+parallel port support with andrea@suse.de .
 
-Actually, I was thinking of something more configurable (and so, more
-complex).  The main problem I've seen in general, is to differentiate
-services for RT tasks and others. So if a RT task is waiting for some
-disk activity while other RT tasks are running, the IRQ thread (or
-whatever will service the disk) may be starved. I agree that this is
-really more of a design issue, but I thought that there may be ways to
-facilitate the RT design by setting flags in a task before it reads from
-disk, so in case the RT task blocks waiting for a disk read, the disk
-serving thread would inherit the priority of that task. One could argue
-that the task could simply increase the service provider's priority
-before doing the read, but than it may not block, and this would be a
-waist.
 
-I guess servicing in general is very hard to predict, so a RT task must
-have all its information read and stored somewhere that it can receive
-in a predictable amount of time, and not on disk or someplace that takes
-another task to do the request that handles other tasks as well (thus
-complicating the priority scheme).  As for sockets, I did my Master's
-thesis on setting up RT sockets that are handle separately from other
-sockets with a protocol that allows for incoming packets to quickly be
-determined that they are RT packets and can go right to where they are
-needed. 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I just wanted to bring up this discussion, I guess a general approach is
-too difficult and not worth the effort.
+--- linux-2.6.10-rc2-mm4-full/MAINTAINERS.old	2004-12-11 19:57:52.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/MAINTAINERS	2004-12-11 19:58:10.000000000 +0100
+@@ -1694,3 +1694,3 @@
+ P:	Andrea Arcangeli
+-M:	andrea@e-mind.com
++M:	andrea@suse.de
+ L:	linux-parport@lists.infradead.org
 
-Thanks,
-
--- Steve

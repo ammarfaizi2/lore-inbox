@@ -1,45 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263359AbSIUTXR>; Sat, 21 Sep 2002 15:23:17 -0400
+	id <S263374AbSIUT2P>; Sat, 21 Sep 2002 15:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263374AbSIUTXR>; Sat, 21 Sep 2002 15:23:17 -0400
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:27094
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S263359AbSIUTXR>; Sat, 21 Sep 2002 15:23:17 -0400
-Date: Sat, 21 Sep 2002 15:28:22 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Dan Aloni <da-x@gmx.net>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix to strchr() in lib/string.c
-In-Reply-To: <20020921173033.GB19943@callisto.yi.org>
-Message-ID: <Pine.LNX.4.44.0209211518341.15918-100000@xanadu.home>
+	id <S263627AbSIUT2O>; Sat, 21 Sep 2002 15:28:14 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3064 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S263374AbSIUT2O>; Sat, 21 Sep 2002 15:28:14 -0400
+Date: Sat, 21 Sep 2002 21:33:16 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: R.E.Wolff@BitWizard.nl
+cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] fix drivers/char/sx.c __FUNCTION__ breakage
+Message-ID: <Pine.NEB.4.44.0209212128380.10334-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Sep 2002, Dan Aloni wrote:
+Hi Roger,
 
-> On Sat, Sep 21, 2002 at 12:25:59PM -0400, Nicolas Pitre wrote:
-> > 
-> > The return value of strchr("foo",0) should be the start address of
-> > "foo" + 3, not NULL.
-> 
-> Correct me if I'm wrong, but no fix is needed.
-> 
-> strchr("foo", 0) doesn't return NULL, for the simple fact that 
-> the loop will stop when reaching '\0' before the 'if' that returns
-> NULL, and then s will be returned.
+I got the following compile error in 2.5.37:
 
-Doh.  You're right.
+<--  snip  -->
 
-I was fixing some architecture specific version and someone I usually trust
-led me to believe this one was broken too, and I obviously didn't look
-carefully enough.
+...
+  gcc -Wp,-MD,./.sx.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.37-
+full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -I/home/bunk/linux/kernel-2.5/linux-2.5.37-full/arch/i386/mach-generic
+-nostdinc -iwithprefix include    -DKBUILD_BASENAME=sx   -c -o sx.o sx.c
+sx.c: In function `sx_busy_wait_eq':
+sx.c:521: called object is not a function
+sx.c:521: parse error before string constant
+...
+make[2]: *** [sx.o] Error 1
+make[2]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.37-full/drivers/char'
 
-(no no I won't say it was you Russell)  ;-)
+<--  snip  -->
+
+The following patch fixes it:
+
+--- linux-2.5.37-full/drivers/char/sx.c.old	2002-09-21 21:15:08.000000000 +0200
++++ linux-2.5.37-full/drivers/char/sx.c	2002-09-21 21:23:23.000000000 +0200
+@@ -405,11 +405,11 @@
 
 
-Nicolas
+
+-#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ "\n")
+-#define func_exit()  sx_dprintk (SX_DEBUG_FLOW, "sx: exit  " __FUNCTION__ "\n")
++#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s\n", __FUNCTION__)
++#define func_exit()  sx_dprintk (SX_DEBUG_FLOW, "sx: exit  %s\n", __FUNCTION__)
+
+-#define func_enter2() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ \
+-                                  "(port %d)\n", port->line)
++#define func_enter2() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s (port %d)\n", \
++                                  __FUNCTION__ , port->line)
+
+
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
 

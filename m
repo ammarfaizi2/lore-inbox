@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266900AbUGVS5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266905AbUGVTGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266900AbUGVS5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 14:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUGVS5M
+	id S266905AbUGVTGH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 15:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266908AbUGVTGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 14:57:12 -0400
-Received: from pm-mx6.mgn.net ([195.46.220.208]:16374 "EHLO mx.noos.fr")
-	by vger.kernel.org with ESMTP id S266900AbUGVS5I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 14:57:08 -0400
-X-Mailbox-Line: From pascal.ronecker@centrale-lille.net Thu Jul 22 20:57:05 2004
-Subject: System.map with kernel 2.6.7
-From: Pascal Ronecker <pascal.ronecker@centrale-lille.net>
+	Thu, 22 Jul 2004 15:06:07 -0400
+Received: from cfcafwp.sgi.com ([192.48.179.6]:40176 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266905AbUGVTGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 15:06:02 -0400
+Subject: Re: add core dump file name pattern option for cpu id
+From: Josh Aas <josha@sgi.com>
 To: linux-kernel@vger.kernel.org
+In-Reply-To: <1089922482.4644.7.camel@coetzee.americas.sgi.com>
+References: <1089922482.4644.7.camel@coetzee.americas.sgi.com>
 Content-Type: text/plain
-Message-Id: <1090522625.8583.5.camel@localhost>
+Message-Id: <1090523278.29373.12.camel@coetzee.americas.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Jul 2004 20:57:05 +0200
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 22 Jul 2004 14:07:58 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2004-07-15 at 15:14, Joshua Aas wrote:
+> Normally core dumps can be blamed on a program itself. However, core
+> dumps can also be the result of faulty hardware. Tracking down what CPU
+> a failure occurred on usually requires that hardware be powered off
+> piece by piece until no core dumps occur (on big machines this can take
+> a long time). Another option is to run the test pinned to each CPU until
+> the core dump occurs, but this can also take a long time on big
+> machines. It would be very beneficial if the kernel was capable of
+> making the CPU ID of the CPU the core dump occurred on available
+> somehow. The following patch adds an option (%c) to the core dump file
+> naming pattern convention for putting the CPU ID into core dump file
+> names.
+> 
+> Signed-off-by: Josh Aas <josha@sgi.com>
+> 
+-----------------------------------------------------------------
+--- a/fs/exec.c	2004-07-13 14:32:24.000000000 -0500
++++ b/fs/exec.c	2004-07-15 13:16:17.000000000 -0500
+@@ -1276,6 +1276,14 @@ void format_corename(char *corename, con
+ 					goto out;
+ 				out_ptr += rc;
+ 				break;
++			/* cpu id */
++			case 'c':
++				rc = snprintf(out_ptr, out_end - out_ptr,
++					      "%d", smp_processor_id());
++				if (rc > out_end - out_ptr)
++					goto out;
++				out_ptr += rc;
++				break;
+ 			default:
+ 				break;
+ 			}
+-----------------------------------------------------------------
 
-I'm surprised with a dumb problem at boot time. No answer anywhere on
-google. At boot the kernel complains :
-kernel : cannot find map.
+Is there any reason this couldn't be taken into the kernel? I didn't get
+any response at all and it seems to be a safe and useful patch. Any
+feedback would be appreciated.
 
-This is supposed to mean : no System.map file where it should be.
-But I swear it is :
-
-lrwxr-xr-x    1 root     root           16 Jul 17 12:03 System.map ->
-System.map-2.6.7
--rw-r--r--    1 root     root         837K Jul 22 18:49 System.map-2.6.7
-lrwxrwxrwx    1 root     root            1 Nov  5  2003 boot -> .
-drwxr-xr-x    2 root     root         1.0K Jul 22 19:20 grub
--rw-r--r--    1 root     root         1.7M Jul 22 18:49 kernel-2.6.7
-
-I tried to rebuild the kernel (in case I missed the file copy) : same
-result.
-
-Am I wrong somewhere ?
-
-(I only did make bzImage and copied the kernel image and system.map
-files in /boot, as usually)
-
-thx !
-
-bye
-
-
-
+--
+Josh Aas
+Silicon Graphics, Inc. (SGI)
+Linux System Software
+651-683-3068
 
 

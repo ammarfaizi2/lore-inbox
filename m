@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271372AbTGWXFd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 19:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271381AbTGWXFc
+	id S271386AbTGWXMx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 19:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271387AbTGWXMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 19:05:32 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48392 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271372AbTGWXFW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 19:05:22 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [bernie@develer.com: Kernel 2.6 size increase]
-Date: 23 Jul 2003 23:12:56 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bfn4po$lu3$1@gatekeeper.tmr.com>
-References: <20030723195355.A27597@infradead.org> <20030723195504.A27656@infradead.org> <20030723115858.75068294.davem@redhat.com> <20030723200658.A27856@infradead.org>
-X-Trace: gatekeeper.tmr.com 1059001976 22467 192.168.12.62 (23 Jul 2003 23:12:56 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 23 Jul 2003 19:12:53 -0400
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:12720 "EHLO
+	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S271386AbTGWXMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 19:12:51 -0400
+Date: Wed, 23 Jul 2003 19:27:06 -0400
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Glenn Fowler <gsf@research.att.com>, davem@redhat.com,
+       dgk@research.att.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: kernel bug in socketpair()
+Message-ID: <20030723192706.A962@ti21>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Glenn Fowler <gsf@research.att.com>, davem@redhat.com,
+	dgk@research.att.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	netdev@oss.sgi.com
+References: <200307231428.KAA15254@raptor.research.att.com> <20030723074615.25eea776.davem@redhat.com> <200307231656.MAA69129@raptor.research.att.com> <1058982641.5520.98.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <1058982641.5520.98.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Jul 23, 2003 at 06:50:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030723200658.A27856@infradead.org>,
-Christoph Hellwig  <hch@infradead.org> wrote:
+On Wed, Jul 23, 2003 at 06:50:41PM +0100, Alan Cox wrote:
+> > otherwise there is a bug in the /dev/fd/N -> /proc/self/fd/N implementation
+> > and /dev/fd/N should be separated out to its (original) dup(atoi(N))
+> > semantics
+>
+> I don't see a bug. I see differing behaviour between Linux and BSD on a
+> completely non standards defined item. Also btw nobody ever really wrote
+> a /dev/fd/ for Linux - it was just a byproduct of the proc stuff someone
+> noticed. I guess someone could write a Plan-9 style dev/fd or devfdfs
+> for Linux if they wanted.
 
-| half a megabyte more codesize is a lot if you're based on flash.
-| I know you absolutely disliked Andi's patch to make the xfrm subsystem
-| optional so we might need find other ways to make the code smaller
-| on those systems that need it.  Now I could talk a lot but I'm really
-| no networking insider so it's hard for me to suggest where to start.
-| I'll rather look at the fs/ issue but it would be nice if networking
-| folks could do their part, too.
+I first posted about this several years ago, and it came up again earlier
+in the year; see:
 
-Actually, perhaps some of the non-functional and misfunctional things
-might get fixed first and save the diet for 2.6.5 or so. There is no
-lack of things which haven't been quiet ported from 2.4, don't work
-right, etc.
+http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week14/0314.html
 
-I doubt that the people who care most about size are going to be doing
-a fast change to 2.6 until the dust settles.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+As HPA and I had previously discussed, ->open() methods always return
+a new file struct, so providing the dup() semantics would require a
+restructuring of the ->open() methods -- unless, (and this is a dirty
+hack,) one creates a devfdfs that abuses the ERESTART_RESTARTBLOCK
+mechanism to restart the open() syscall with dup() instead.  This requires
+some minor pollution to the open() syscall path to interpret the error
+return, but should require no other changes.
+
+Regards,
+
+        Bill Rugolsky
+

@@ -1,153 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265401AbSJRXxM>; Fri, 18 Oct 2002 19:53:12 -0400
+	id <S265411AbSJSACP>; Fri, 18 Oct 2002 20:02:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbSJRXxM>; Fri, 18 Oct 2002 19:53:12 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5650 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265401AbSJRXxI>;
-	Fri, 18 Oct 2002 19:53:08 -0400
-Date: Fri, 18 Oct 2002 16:58:38 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com
-Subject: [BK PATCH] PNP driver changes for 2.5.43
-Message-ID: <20021018235838.GA11924@kroah.com>
-Mime-Version: 1.0
+	id <S265412AbSJSACP>; Fri, 18 Oct 2002 20:02:15 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:13800 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265411AbSJSACK>; Fri, 18 Oct 2002 20:02:10 -0400
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH][RFC] 2.5.42 (1/2): Filesystem capabilities kernel patch
+References: <Pine.GSO.4.21.0210181845281.21677-100000@weyl.math.psu.edu>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Sat, 19 Oct 2002 02:07:56 +0200
+Message-ID: <87d6q7mgtf.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a changeset from Adam Belay that reworks the PNP driver layer.
-I've tested this out on my machines and seems to work well.  It also
-nicely integrates the pnp devices into driverfs.
+Alexander Viro <viro@math.psu.edu> writes:
 
-I took his patch and put it into a bk repository, handling the file
-renames that his original patch did.
+> On Fri, 18 Oct 2002, Olaf Dietsche wrote:
+>
+>> This patch adds filesystem capabilities to 2.5.42, but it applies to
+>> 2.5.43 as well.
+>> 
+>> It's very simple. In the root directory of every filesystem, there
+>> must be a file named ".capabilities". This is the capability database
+>> indexed by inode number. These files are populated by a chcap tool,
+>> see next mail.
+>> 
+>> This fs capability system should work on all filesystem, which can
+>> provide long dotted names and have some sort of inode. Another benefit
+>> is, when holes in files are allowed. Otherwise the .capabilities file
+>> could grow pretty large.
+>> 
+>> I use this on an ext2 filesystem. It boots and seems to work so far.
+>> 
+>> Comments?
+>
+> His-fscking-terical.
 
-Please pull from:  bk://linuxusb.bkbits.net/pnp-2.5
+Yes, I like it very much, too ;-)
 
-thanks,
+> Seriously, what comments do you expect?
 
-greg k-h
+Seriously, I'm more or less a newbie in this area, so I want thoughts
+and suggestions from more experienced people. That's what this list is
+about, isn't it?
 
+> To start
+> with, on a bunch of filesystems inode numbers are unstable.
 
- drivers/pnp/isapnp.c         | 2514 -------------------------------------------
- drivers/pnp/isapnp_proc.c    | 1134 -------------------
- drivers/pnp/pnpbios_core.c   | 1350 -----------------------
- drivers/pnp/pnpbios_proc.c   |  279 ----
- CREDITS                      |    5 
- Documentation/pnp.txt        |  250 ++++
- MAINTAINERS                  |    7 
- drivers/parport/parport_pc.c |   29 
- drivers/pnp/Config.help      |   29 
- drivers/pnp/Config.in        |   11 
- drivers/pnp/Makefile         |   14 
- drivers/pnp/base.h           |   11 
- drivers/pnp/compat.c         |   94 +
- drivers/pnp/core.c           |  176 +++
- drivers/pnp/driver.c         |  202 +++
- drivers/pnp/idlist.h         |  321 +++++
- drivers/pnp/interface.c      |  342 +++++
- drivers/pnp/isapnp/Makefile  |   11 
- drivers/pnp/isapnp/core.c    | 1193 ++++++++++++++++++++
- drivers/pnp/isapnp/proc.c    |  171 ++
- drivers/pnp/names.c          |   51 
- drivers/pnp/pnpbios/Makefile |   11 
- drivers/pnp/pnpbios/core.c   | 1572 ++++++++++++++++++++++++++
- drivers/pnp/pnpbios/proc.c   |  279 ++++
- drivers/pnp/quirks.c         |  140 +-
- drivers/pnp/resource.c       |  880 +++++++++++++++
- drivers/pnp/system.c         |  123 ++
- drivers/serial/8250_pnp.c    |  202 ---
- drivers/serial/Makefile      |    2 
- include/linux/isapnp.h       |   49 
- include/linux/pnp.h          |  285 ++++
- include/linux/pnpbios.h      |   75 -
- sound/oss/ad1848.c           |   52 
- sound/oss/opl3sa2.c          |  168 +-
- 34 files changed, 6268 insertions(+), 5764 deletions(-)
------
+Not really a problem, so restrict it to stable inode systems only.
 
-ChangeSet@1.803, 2002-10-18 16:51:11-07:00, ambx1@neo.rr.com
-  [PATCH] PnP Rewrite V0.9 - 2.5.43
-  
-  The included patch is essentially a Linux Plug and Play Support rewrite.  It
-  contains many significant improvements, including the following:
-  
-  
-  1.)  A Global Plug and Play Layer
-      - Now drivers do not have to worry about which plug and play
-        protocol they are using.  Calls are made directly to the Linux
-        Plug and Play Layer and then forwarded to the appropriate
-        protocol.
-      - This will make it very easy to integrate ACPI PnP support when
-        it's ready
-  
-  
-  2.)  A complete Plug and Play BIOS driver
-      - The Plug and Play BIOS now supports reading and writing of
-        resource configurations.
-      - It is now possible to enable disabled PNPBIOS devices.  Therefore
-        the user can safely enable PnP OS support in their BIOS.
-  
-  
-  3.)  Driver Model Integration
-      - The entire plug and play layer is integrated into the driver model
-      - The user interface is housed here
-      - PnP protocols are listed under the bus "pnp"
-  
-  
-  4.)  A powerful global resource configuration interface
-      - The user can use this to activate PnP devices for legacy and
-        user-level drivers
-      - See the documentation for how to configure devices.
-  
-  5.)  Automatic resource allocation for needed devices
-  
-  
-  6.)  A PnP device name database
-  
-  And many more improvements.
-  
-  This patch also adds me to the maintainers list, considering the current
-  PnP maintainer has been inactive for over 2 years now.
+> Moreover,
+> owner of that file suddenly gets _all_ capabilities that exist in the
+> system,
 
- drivers/pnp/isapnp.c         | 2514 -------------------------------------------
- drivers/pnp/isapnp_proc.c    | 1134 -------------------
- drivers/pnp/pnpbios_core.c   | 1350 -----------------------
- drivers/pnp/pnpbios_proc.c   |  279 ----
- CREDITS                      |    5 
- Documentation/pnp.txt        |  250 ++++
- MAINTAINERS                  |    7 
- drivers/parport/parport_pc.c |   29 
- drivers/pnp/Config.help      |   29 
- drivers/pnp/Config.in        |   11 
- drivers/pnp/Makefile         |   14 
- drivers/pnp/base.h           |   11 
- drivers/pnp/compat.c         |   94 +
- drivers/pnp/core.c           |  176 +++
- drivers/pnp/driver.c         |  202 +++
- drivers/pnp/idlist.h         |  321 +++++
- drivers/pnp/interface.c      |  342 +++++
- drivers/pnp/isapnp/Makefile  |   11 
- drivers/pnp/isapnp/core.c    | 1193 ++++++++++++++++++++
- drivers/pnp/isapnp/proc.c    |  171 ++
- drivers/pnp/names.c          |   51 
- drivers/pnp/pnpbios/Makefile |   11 
- drivers/pnp/pnpbios/core.c   | 1572 ++++++++++++++++++++++++++
- drivers/pnp/pnpbios/proc.c   |  279 ++++
- drivers/pnp/quirks.c         |  140 +-
- drivers/pnp/resource.c       |  880 +++++++++++++++
- drivers/pnp/system.c         |  123 ++
- drivers/serial/8250_pnp.c    |  202 ---
- drivers/serial/Makefile      |    2 
- include/linux/isapnp.h       |   49 
- include/linux/pnp.h          |  285 ++++
- include/linux/pnpbios.h      |   75 -
- sound/oss/ad1848.c           |   52 
- sound/oss/opl3sa2.c          |  168 +-
- 34 files changed, 6268 insertions(+), 5764 deletions(-)
-------
+Yup, like root for example.
 
+> ditto for any task capable of mount(2),
+
+How's that? I think this task must own the filesystem and root
+directory too.
+
+> ditto for owner of
+> root directory on some filesystem.
+
+Which is a problem for foreign (network) filesystems only. Should be
+solvable with a mount option (i.e. mount -o nocaps ...).
+
+> And there is no way to recognize
+> that file as such, so additional checks on write(), mount(), unlink().
+> etc. are not possible.
+
+Depends on, wether I want to recognize it and do these checks. Anyway,
+could be solved with a mount option too or something like quotactl(2)
+maybe.
+
+> And that is not to mention that binding of
+> non-root will play silly buggers with the entire scheme.
+
+I don't understand this sentence. What do you mean with "binding of
+non-root"?
+
+> IOW, idea is unsalvagable.
+
+I'm working on it. Thanks for sharing your thoughts.
+
+Regards, Olaf.

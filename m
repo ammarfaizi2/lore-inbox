@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277188AbRJDSM1>; Thu, 4 Oct 2001 14:12:27 -0400
+	id <S277159AbRJDSQI>; Thu, 4 Oct 2001 14:16:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277182AbRJDSMR>; Thu, 4 Oct 2001 14:12:17 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39437 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273724AbRJDSMK>; Thu, 4 Oct 2001 14:12:10 -0400
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Thu, 4 Oct 2001 19:16:32 +0100 (BST)
-Cc: greearb@candelatech.com (Ben Greear), hadi@cyberus.ca (jamal),
-        mingo@elte.hu (Ingo Molnar), linux-kernel@vger.kernel.org,
-        kuznet@ms2.inr.ac.ru (Alexey Kuznetsov),
-        Robert.Olsson@data.slu.se (Robert Olsson),
-        bcrl@redhat.com (Benjamin LaHaise), netdev@oss.sgi.com,
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.33.0110030920500.9427-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 03, 2001 09:33:12 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277182AbRJDSP5>; Thu, 4 Oct 2001 14:15:57 -0400
+Received: from Aniela.EU.ORG ([194.102.102.235]:1028 "EHLO NS1.Aniela.EU.ORG")
+	by vger.kernel.org with ESMTP id <S277159AbRJDSPl>;
+	Thu, 4 Oct 2001 14:15:41 -0400
+Date: Thu, 4 Oct 2001 21:16:04 +0300 (EEST)
+From: <lk@Aniela.EU.ORG>
+To: Karl Pitrich <pit@root.at>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 100% sync block device on 2.2 ?
+In-Reply-To: <Pine.LNX.4.33.0110041629170.1056-100000@warp.root.at>
+Message-ID: <Pine.LNX.4.33.0110042115300.398-100000@ns1.Aniela.EU.ORG>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pD2u-0003ae-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  (a) is not a major security issue. If you allow untrusted users full
->      100/1000Mbps access to your internal network, you have _other_
->      security issues, like packet sniffing etc that are much much MUCH
->      worse. So the packet flooding thing is very much a corner case, and
->      claiming that we have a big problem is silly.
+> 1 5000 5 25 1 100 100 1 1
+>
+> so, it should flush dirty buffers all 100hz, if i am right.
+>
+> is there any way to bypass/disable buffer cache for my block device?
+> why does this work in floppy.c?
+> how does sct's rawdevice stuff do this?
+> (i checked both .c but cant get the clue)
+>
 
-Not nowdays. 100Mbit pipes to the backbone are routine for web serving in
-the real world - at least the paying end (aka porn).
+while :; do sync ; done
 
-Alan
+
+and everything should be in sync :)
+
+
+> thanks a lot for help, karl.
+>
+>
+

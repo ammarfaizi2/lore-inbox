@@ -1,45 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315445AbSHMO4c>; Tue, 13 Aug 2002 10:56:32 -0400
+	id <S315483AbSHMPA2>; Tue, 13 Aug 2002 11:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSHMO4b>; Tue, 13 Aug 2002 10:56:31 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:20728 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315445AbSHMO4b>; Tue, 13 Aug 2002 10:56:31 -0400
-Subject: Re: [patch] PCI Cleanup
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: colpatch@us.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Greg KH <gregkh@us.ibm.com>
-In-Reply-To: <1847016869.1029223059@[10.10.2.3]>
-References: <1029239133.20980.10.camel@irongate.swansea.linux.org.uk> 
-	<1847016869.1029223059@[10.10.2.3]>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 13 Aug 2002 15:57:48 +0100
-Message-Id: <1029250668.22847.34.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S315503AbSHMPA2>; Tue, 13 Aug 2002 11:00:28 -0400
+Received: from iere.net.avaya.com ([198.152.12.101]:8933 "EHLO
+	iere.net.avaya.com") by vger.kernel.org with ESMTP
+	id <S315483AbSHMPA0>; Tue, 13 Aug 2002 11:00:26 -0400
+Date: Tue, 13 Aug 2002 09:04:16 -0600 (MDT)
+From: "Bhavesh P. Davda" <bhaveshd@drmail.dr.avaya.com>
+To: linux-kernel@vger.kernel.org
+cc: marcelo@conectiva.com.br
+Subject: Re: Linux 2.4.20-pre2
+Message-ID: <Pine.LNX.4.21.0208130859160.9829-100000@cof110earth.dr.avaya.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 13 Aug 2002 15:04:16.0617 (UTC) FILETIME=[B1633D90:01C242DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-13 at 15:17, Martin J. Bligh wrote:
-> Alan, please *look* at the patch. The NULL check is already
-> there, he's REMOVING about 60 lines of duplicated code,
-> reducing the complexity, and shifting the indirection up one
-> level to get rid of redundancy.
-> 
-> If you want to delete the NULL check as well, that's fine, but
-> totally a side issue. Ironically, the very snippet of code you
-> quoted is all prefaced with "-", no?
 
-I pointed out before the null check was flawed. And all I see is the
-same identical patch churned out again. Regardless of whether that
-paticular stupid error was in the old code, not fixing it in the new
-code when its pointed out is a bit of a mess.
+For the Nth time, here again is the patch for fixing the scheduler for
+correct SCHED_FIFO and SCHED_RR behaviour.
 
-I'm not sure its a simplification either. More function pointers don't
-always make for neater - but thats a side issue. If the NULL check goes
-I'm not too worried about the other stuff.
+I waited to see it in 2.4.20-pre1, not there, 2.4.20-pre2, not there...
+
+Please apply it in 2.4.20-pre3
+
+Thanks
+
+- Bhavesh
+-- 
+Bhavesh P. Davda
+Avaya Inc.
+bhavesh@avaya.com
+
+
+diff -aur linux-2.4.19/kernel/sched.c linux-2.4.19-sched/kernel/sched.c
+--- linux-2.4.19/kernel/sched.c	Tue Aug  6 11:37:49 2002
++++ linux-2.4.19-sched/kernel/sched.c	Tue Aug  6 13:42:20 2002
+@@ -318,13 +318,17 @@
+ /*
+  * Careful!
+  *
+- * This has to add the process to the _beginning_ of the
+- * run-queue, not the end. See the comment about "This is
+- * subtle" in the scheduler proper..
++ * This has to add the process to the _end_ of the 
++ * run-queue, not the beginning. The goodness value will
++ * determine whether this process will run next. This is
++ * important to get SCHED_FIFO and SCHED_RR right, where
++ * a process that is either pre-empted or its time slice
++ * has expired, should be moved to the tail of the run 
++ * queue for its priority - Bhavesh Davda
+  */
+ static inline void add_to_runqueue(struct task_struct * p)
+ {
+-	list_add(&p->run_list, &runqueue_head);
++	list_add_tail(&p->run_list, &runqueue_head);
+ 	nr_running++;
+ }
+ 
+@@ -334,12 +338,6 @@
+ 	list_add_tail(&p->run_list, &runqueue_head);
+ }
+ 
+-static inline void move_first_runqueue(struct task_struct * p)
+-{
+-	list_del(&p->run_list);
+-	list_add(&p->run_list, &runqueue_head);
+-}
+-
+ /*
+  * Wake up a process. Put it on the run-queue if it's not
+  * already there.  The "current" process is always on the
+@@ -955,8 +953,6 @@
+ 	retval = 0;
+ 	p->policy = policy;
+ 	p->rt_priority = lp.sched_priority;
+-	if (task_on_runqueue(p))
+-		move_first_runqueue(p);
+ 
+ 	current->need_resched = 1;
+ 
+diff -aur linux-2.4.19/kernel/timer.c linux-2.4.19-sched/kernel/timer.c
+--- linux-2.4.19/kernel/timer.c	Tue Aug  6 11:37:49 2002
++++ linux-2.4.19-sched/kernel/timer.c	Tue Aug  6 13:42:20 2002
+@@ -601,7 +601,14 @@
+ 	if (p->pid) {
+ 		if (--p->counter <= 0) {
+ 			p->counter = 0;
+-			p->need_resched = 1;
++			/*
++			 * SCHED_FIFO is priority preemption, so this is 
++			 * not the place to decide whether to reschedule a
++			 * SCHED_FIFO task or not - Bhavesh Davda
++			 */
++			if (p->policy != SCHED_FIFO) {
++				p->need_resched = 1;
++			}
+ 		}
+ 		if (p->nice > 0)
+ 			kstat.per_cpu_nice[cpu] += user_tick;
 

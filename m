@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318795AbSH1Mkh>; Wed, 28 Aug 2002 08:40:37 -0400
+	id <S318798AbSH1Mok>; Wed, 28 Aug 2002 08:44:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318796AbSH1Mkh>; Wed, 28 Aug 2002 08:40:37 -0400
-Received: from kiruna.synopsys.com ([204.176.20.18]:53893 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S318795AbSH1Mkg>; Wed, 28 Aug 2002 08:40:36 -0400
-Date: Wed, 28 Aug 2002 14:44:43 +0200
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Georg Demme <gdemme@graphics.cs.uni-sb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Server Hangups
-Message-ID: <20020828124443.GD16092@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: Georg Demme <gdemme@graphics.cs.uni-sb.de>,
-	linux-kernel@vger.kernel.org
-References: <200208281049.g7SAnFX7004638@pixel.cs.uni-sb.de> <20020828111240.GC16092@riesen-pc.gr05.synopsys.com> <200208281235.g7SCZZ9H001715@pixel.cs.uni-sb.de>
+	id <S318802AbSH1Moj>; Wed, 28 Aug 2002 08:44:39 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:57572 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318798AbSH1Moj>; Wed, 28 Aug 2002 08:44:39 -0400
+Subject: Re: Linux-2.4.20-pre4-ac1: i810_audio broken
+From: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
+To: Andris Pavenis <pavenis@latnet.lv>
+Cc: Doug Ledford <dledford@redhat.com>,
+       "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200208281004.07891.pavenis@latnet.lv>
+References: <200208271253.12192.pavenis@latnet.lv>
+	<20020827144629.E28828@redhat.com>  <200208281004.07891.pavenis@latnet.lv>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 28 Aug 2002 14:51:17 +0200
+Message-Id: <1030539078.1454.8.camel@voyager>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208281235.g7SCZZ9H001715@pixel.cs.uni-sb.de>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 02:35:35PM +0200, Georg Demme wrote:
-> Hi
+Can you drop in the old (working) source into the new tree and see if
+that works? If that works I'll try making a step by step patch series,
+to see what breaks it.
+
+George
+
+On Wed, 2002-08-28 at 09:04, Andris Pavenis wrote:
+> Verified that sound is already broken with 2.4.20-pre1-ac2, but works with
+> i810_audio.c from 2.4.19-pre1-ac1. Commenting 2 above mentioned lines out 
+> doesn't help
 > 
-> > syslog, dmesg output would be useful
-> > 
-> Aug 27 19:48:16 graphics kernel: nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2960  Tue May 14 07:41:42 PDT 2002
-> Aug 27 19:48:16 graphics kernel: devfs_register(nvidiactl): could not append to parent, err: -17
-> Aug 27 19:48:16 graphics kernel: devfs_register(nvidia0): could not append to parent, err: -17
+> Andris
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Juergen "George" Sawinski
+Max-Planck-Institute for Medical Research
+Dept. of Biomedical Optics
+Jahnstr. 29
+D-69120 Heidelberg
+Germany
 
-try to reproduce the problem without loading nvidia drivers.
-If it's a server, why do you load the nvdriver at all?
+Phone:  +49-6221-486-309
+Fax:    +49-6221-486-325
 
--alex
+priv.
+Phone:  +49-6221-418 848
+Mobile: +49-171-532 5302
+

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbTEMRAB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbTEMRAB
+	id S262368AbTEMQ5K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 12:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTEMQ5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:00:01 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:34053 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262378AbTEMRAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:00:00 -0400
-Subject: Re: 2.6 must-fix list, v2
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: akpm@diego.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 13 May 2003 12:12:32 -0500
-Message-Id: <1052845953.6663.23.camel@mulgrave>
+	Tue, 13 May 2003 12:57:10 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:12548 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262368AbTEMQ5I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 12:57:08 -0400
+Date: Tue, 13 May 2003 19:08:17 +0200
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.69-mm4 smp crash, seems fs/vm related
+Message-ID: <20030513170817.GA462@hh.idb.hist.no>
+References: <20030512225504.4baca409.akpm@digeo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030512225504.4baca409.akpm@digeo.com>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For SCSI, as far as the basics go we still have
+I tried 2.5.69-mm4 + your fblogo patch on my dual celeron.
+It oopsed during boot. 
+The machine has 384M RAM, it uses ext2 filessytems
+on various scsi partitions, root is on a raid-0 device.
+It is a nfsv3 server for another machine, I don't
+think there were any nfs traffic when it crashed though.
+The kernel uses preempt, devfs & framebuffer. 
 
-Need to convert to DMA-mapping:
+Some scrolled off screen, this remained:
 
-	am53c974 dpt_i2o initio pci2220i
+mempool_alloc
+mempool_alloc
+autoremove_wake_function
+autoremove_wake_function
+bio_alloc
+mpage_alloc
+do_mpage_readpage
+radix_tree_insert
+add_to_page_cache
+mpage_readpages
+ext2_get_block
+read_pages
+ext2_get_block
+__alloc_pages
+do_page_cache_readahead
+filemap_populate
+sys_remap_file_pages
+do_mmap_pgoff
+old_mmap
+syscall_call
+There were also a hex code listing at the end.
 
-Don't compile currently:
-
-	inia100 cpqfc pci2000 dc390t
-
-Need converting to the new eh:
-
-	wd33c99 based: a2091 a3000 gpv11 mvme174 sgiwd93 
-	53c7xx based: amiga7xxx bvme6000 mvme16x
-	initio am53c974 pci2000 pci2220i qla1280 sym53c8xx dc390t
-
-I think the sym53c8xx could probably be pulled out of the tree because
-the sym_2 replaces it.  I'm also looking at converting the qla1280.
-
-It also might be possible to shift the 53c7xx based drivers over to
-53c700 which does the new EH stuff, but I don't have the hardware to
-check such a shift.
-
-For the non-compiling stuff, I've probably missed a few that just aren't
-compilable on my platforms, so any updates would be welcome.  Also, are
-some of our non-compiling or unconverted drivers obsolete?
-
-James
-
-
+Helge Hafting
+ 

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293010AbSCJKMC>; Sun, 10 Mar 2002 05:12:02 -0500
+	id <S293024AbSCJMsQ>; Sun, 10 Mar 2002 07:48:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293012AbSCJKLm>; Sun, 10 Mar 2002 05:11:42 -0500
-Received: from 1Cust48.tnt6.lax7.da.uu.net ([67.193.244.48]:53230 "HELO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
-	id <S293010AbSCJKLm>; Sun, 10 Mar 2002 05:11:42 -0500
-Subject: [PATCH] 2.2.21pre[234] misreports Pentium II model names
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 10 Mar 2002 00:16:54 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16jWBa-0008Nc-00@the-village.bc.nu> from "Alan Cox" at Mar 09, 2002 02:02:14 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S293026AbSCJMsG>; Sun, 10 Mar 2002 07:48:06 -0500
+Received: from [194.228.240.11] ([194.228.240.11]:63916 "EHLO sakal.vgd.cz")
+	by vger.kernel.org with ESMTP id <S293024AbSCJMr7>;
+	Sun, 10 Mar 2002 07:47:59 -0500
+Subject: [PATCH] Build problems with kernel 2.5.6
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF9FF3C291.B3900C38-ONC1256B78.0037B49E@vgd.cz>
+From: Petr.Titera@whitesoft.cz
+Date: Sun, 10 Mar 2002 12:15:56 +0100
+X-MIMETrack: Serialize by Router on Sakal/SRV/SOCO/CZ(Release 5.0.8 |June 18, 2001) at
+ 03/10/2002 01:47:58 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20020310081654.1D8C789680@cx518206-b.irvn1.occa.home.com>
-From: barryn@pobox.com (Barry K. Nathan)
+Content-type: multipart/mixed; 
+	Boundary="0__=C1256B780037B49E8f9e8a93df938690918cC1256B780037B49E"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.2.21-pre2 through -pre4, many Intel CPUs are misreported in
-/proc/cpuinfo and dmesg as Mobile Pentium II's, even when they are
-Celerons in desktops or whatever.
+--0__=C1256B780037B49E8f9e8a93df938690918cC1256B780037B49E
+Content-type: text/plain; charset=us-ascii
 
-In init_intel, the correct CPU name is being assigned to p, but p isn't
-being copied into c->x86_model_id. As a result, the name from the tables,
-"Mobile Pentium II", is always being used.
+(See attached file: 08-ide-scsi.patch)Hello,
 
-This patch (backported from 2.4) fixes the problem. Alan, please apply.
+I have two problems with building kernel version 2.5.6.
 
--Barry K. Nathan <barryn@pobox.com>
+ - kernel cannot be build with ide-scsi support. Attached patch solves my
+problems.
+ - ALSA cannod be sucessfully build for AWE 64 without CSP support. depmod
+for snd-opl3-lib.o fails and driver does not initialize itself
 
---- linux-2.2.21-pre4/arch/i386/kernel/setup.c	Sat Mar  9 03:58:57 2002
-+++ linux-2.2.21-pre4-bknA-2/arch/i386/kernel/setup.c	Sat Mar  9 22:31:34 2002
-@@ -1232,6 +1232,9 @@
- 				break;
- 		}
- 	}
-+
-+	if ( p )
-+		strcpy(c->x86_model_id, p);
- }
- 
- struct cpu_model_info {
+Petr Titera
+
+--0__=C1256B780037B49E8f9e8a93df938690918cC1256B780037B49E
+Content-type: application/octet-stream; 
+	name="08-ide-scsi.patch"
+Content-Disposition: attachment; filename="08-ide-scsi.patch"
+Content-transfer-encoding: base64
+
+LS0tIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS5jLm9yaWcJU2F0IE1hciAgOSAxODoyNToxMyAyMDAy
+CisrKyBsaW51eC9kcml2ZXJzL2lkZS9pZGUuYwlTYXQgTWFyICA5IDE4OjI1OjMwIDIwMDIKQEAg
+LTM3MDQsMTQgKzM3MDQsNiBAQAogI2lmZGVmIENPTkZJR19CTEtfREVWX0lERUZMT1BQWQogCWlk
+ZWZsb3BweV9pbml0KCk7CiAjZW5kaWYKLSNpZmRlZiBDT05GSUdfQkxLX0RFVl9JREVTQ1NJCi0j
+IGlmZGVmIENPTkZJR19TQ1NJCi0JaWRlc2NzaV9pbml0KCk7Ci0jIGVsc2UKLSAgICN3YXJuaW5n
+IEFUQSBTQ1NJIGVtdWxhdGlvbiBzZWxlY3RlZCBidXQgbm8gU0NTSS1zdWJzeXN0ZW0gaW4ga2Vy
+bmVsCi0jIGVuZGlmCi0jZW5kaWYKLQogCWluaXRpYWxpemluZyA9IDA7CiAKIAlmb3IgKGkgPSAw
+OyBpIDwgTUFYX0hXSUZTOyArK2kpIHsK
+
+--0__=C1256B780037B49E8f9e8a93df938690918cC1256B780037B49E--
+

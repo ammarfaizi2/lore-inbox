@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbUCGU7g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 15:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbUCGU7f
+	id S262335AbUCGVCS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 16:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbUCGVCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 15:59:35 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:33187 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S262333AbUCGU7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 15:59:34 -0500
-Date: Mon, 08 Mar 2004 04:58:52 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: "David Weinehall" <tao@acc.umu.se>,
-       "Rene Herman" <rene.herman@keyaccess.nl>
-Subject: Re: Linux 2.4.26-pre2
-Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>,
-       "Eyal Lebedinsky" <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org
-References: <404AB6C7.7010803@eyal.emu.id.au> <200403071619.i27GJkOZ003480@eeyore.valparaiso.cl> <20040307192504.GS19111@khan.acc.umu.se> <404B7D8D.1060801@keyaccess.nl> <20040307200509.GT19111@khan.acc.umu.se>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr4ie8ex74evsfm@smtp.pacific.net.th>
-In-Reply-To: <20040307200509.GT19111@khan.acc.umu.se>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+	Sun, 7 Mar 2004 16:02:18 -0500
+Received: from cv150.neoplus.adsl.tpnet.pl ([80.54.218.150]:46096 "EHLO
+	satan.blackhosts") by vger.kernel.org with ESMTP id S262335AbUCGVCQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 16:02:16 -0500
+Date: Sun, 7 Mar 2004 22:07:01 +0100
+From: Jakub Bogusz <qboosh@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: (2.6 IDE) why PDC202XX_FORCE not allowed with BLK_DEV_PDC202XX_NEW=m?
+Message-ID: <20040307210701.GA23440@satan.blackhosts>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+Organization: Black Hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Mar 2004 21:05:09 +0100, David Weinehall <tao@acc.umu.se> wrote:
+PDC202XX_FORCE option is needed to override controller disable by BIOS
+when RAID is used. Or maybe there is another way to do this in 2.6.x?
 
-> On Sun, Mar 07, 2004 at 08:52:45PM +0100, Rene Herman wrote:
->> David Weinehall wrote:
->>
->> >>>In standard C we declare all variables at the top of a function. While
->> >>>some compilers allow extension, it is not a good idea to get used to
->> >>>them if we want portable code.
->> >>
->> >>Oh, come on. This is _kernel_ code, it won't ever be compiled with
->> >>anything
->> >>not GCC-compatible.
->> >
->> >Ugly warts don't become any less ugly just because gcc accepts them...
->>
->> Mixing code and declarations is also c99. For (a sane) gcc specifically,
->> you have to tell it -std=c89 -pedantic to have it even complain.
->
-> Ok, didn't know that.  Still doesn't make it any less ugly, though.
-> There are quite a lot of things that a valid in C.  That doesn't mean
-> they should be used...
+This option has "depends on BLK_DEV_PDC202XX_NEW=y" flag in
+drivers/ide/Kconfig, thus is not available with pdc202xx_new in
+module - why?
+I saw success report with modular pdc202xx_new after this simple change
+(without PDC202XX_FORCE controller ports were not detected):
 
-C99 is C++ish. I have my experience with these methods after following
-the PopularCppWays for some time. HellIsThisCrap which I wrote a pain
-to maintain...
-
-When a function is short and concise, there is no need to worry about
-the few variables at the top.
-
-Regards
-Michael
+--- linux/drivers/ide/Kconfig.orig        2004-03-04 07:16:45.000000000 +0100
++++ linux/drivers/ide/Kconfig     2004-03-07 17:37:25.000000000 +0100
+@@ -720,7 +720,7 @@
+ # FIXME - probably wants to be one for old and for new
+ config PDC202XX_FORCE
+        bool "Enable controller even if disabled by BIOS"
+-       depends on BLK_DEV_PDC202XX_NEW=y
++       depends on BLK_DEV_PDC202XX_NEW
+        help
+          Enable the PDC202xx controller even if it has been disabled in the BIOS setup.
 
 
+The same may apply to PDC202XX_BURST for pdc202xx_old module...
+(but not tested)
+
+
+-- 
+Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
+PLD Team        http://www.pld-linux.org/

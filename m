@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285060AbSCCNcb>; Sun, 3 Mar 2002 08:32:31 -0500
+	id <S285352AbSCCNdB>; Sun, 3 Mar 2002 08:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285352AbSCCNcV>; Sun, 3 Mar 2002 08:32:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32522 "EHLO
+	id <S285424AbSCCNcw>; Sun, 3 Mar 2002 08:32:52 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33290 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285060AbSCCNcL>; Sun, 3 Mar 2002 08:32:11 -0500
-Subject: Re: 2.4.19-pre2-ac2 + preempt + lock-break
-To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-15?q?N=FCtzel?=)
-Date: Sun, 3 Mar 2002 13:46:23 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rml@tech9.net (Robert Love),
-        mingo@elte.hu (Ingo Molnar), andrea@suse.de (Andrea Arcangeli),
-        linux-kernel@vger.kernel.org (Linux Kernel List),
-        riel@conectiva.com.br
-In-Reply-To: <200203030402.32814.Dieter.Nuetzel@hamburg.de> from "Dieter =?iso-8859-15?q?N=FCtzel?=" at Mar 03, 2002 04:02:32 AM
+	id <S285352AbSCCNcj>; Sun, 3 Mar 2002 08:32:39 -0500
+Subject: Re: PATCH 2.4.18-rc2-ac1: hang on spinlock in "expand_stack"
+To: buhr@telus.net (Kevin Buhr)
+Date: Sun, 3 Mar 2002 13:47:44 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <87d6ymfkdf.fsf@saurus.asaurus.invalid> from "Kevin Buhr" at Mar 02, 2002 06:36:12 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16hWJj-0004J0-00@the-village.bc.nu>
+Message-Id: <E16hWL2-0004JH-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> All OOM problems are fixed with vm_28 for me.
+> I've enclosed a patch against 2.4.18-rc2-ac1, but it appears the same
+> bug still exists in 2.4.19-pre1-ac1.  The "ac"-branch version of
+> "expand_stack" in "mm/mmap.c" has a code path that doesn't unlock the
+> spinlock.  I noticed when a "gdb" bug tickled it and locked up my
+> machine.
 
-Excellent - thats one of the important ones.
-
-> I've checked it with and without swap.
-> With former versions some system tasks (smpppd), kdeinit and desktop processes 
-> (xperfmon++, kpanel, kmail, kalarm, etc.) were falsely killed.
-
-As an aside, with the address space accounting code Im testing we can finally
-do precise OOM handling.
-
-> With 2.4.19-pre2-ac2 + pre and without swap (I disabled it before running the 
-> "test" prog) kswapd (?) goes into 20~25% system time usage and the whole 
-> system gets unusable. I had to reboot...
-
-I've not really done much testing without swap I must admit
-
-Alan
+Thanks. Thats one I accidentally introduced when I was doing the strict
+oom handling. I'll apply that

@@ -1,71 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288731AbSBIIqu>; Sat, 9 Feb 2002 03:46:50 -0500
+	id <S291882AbSBIJBP>; Sat, 9 Feb 2002 04:01:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288733AbSBIIqk>; Sat, 9 Feb 2002 03:46:40 -0500
-Received: from mtiwmhc26.worldnet.att.net ([204.127.131.51]:58782 "EHLO
-	mtiwmhc26.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S288731AbSBIIqa>; Sat, 9 Feb 2002 03:46:30 -0500
-Date: Sat, 9 Feb 2002 00:45:03 -0800
-From: "Luis A. Montes" <lmontes@worldnet.att.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 filesystem corruption
-Message-ID: <20020209004503.C662@penguin.montes2.org>
-In-Reply-To: <200202030538.g135chu00602@penguin.montes2.org> <E16XMwN-0004UB-00@the-village.bc.nu>
+	id <S291906AbSBIJBE>; Sat, 9 Feb 2002 04:01:04 -0500
+Received: from [202.54.26.202] ([202.54.26.202]:46522 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S291882AbSBIJAr>;
+	Sat, 9 Feb 2002 04:00:47 -0500
+X-Lotus-FromDomain: HSS
+From: alad@hss.hns.com
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>,
+        Benjamin LaHaise <bcrl@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
+Message-ID: <65256B5B.00314689.00@sandesh.hss.hns.com>
+Date: Sat, 9 Feb 2002 14:22:20 +0530
+Subject: Re: [PATCH] __free_pages_ok oops
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E16XMwN-0004UB-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Feb 03, 2002 at 05:44:19 -0800
-X-Mailer: Balsa 1.2.4
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002.02.03 05:44 Alan Cox wrote:
-> > this list to handle my SiS 735 chipset. It did seem more stable for a
-> > while, until I decided to try and enable ultra dma 66 on my primary
-> > drive. The two partitions that I had mounted got completely corrupted
-> 
-> How did you switch on UDMA66 ?
-Well, when you mentioned this I remember a couple of things that I probably
-shouldn't have done, that's why it took me so long to answer, I went back 
-and
-systematically tested different kernels on a test partition and taking 
-note of
-the hdparm's I used. I've still got a couple of kernels I want to test, so 
-I
-will post more complete results tomorrow. Still the answer seems to be that
-2.4.5 is stable while 2.4.17 is not.
-But to answer your question, I downloaded a utility from WD that switches 
-the
-drive from udma 33 to udma 66, and I then boot linux and type
-hdparm -c 1 -d 1 -m 8
-Last time before I wrote I also used -X66, but I'm not sure that's a good
-idea ...
 
-> 
-> > hda: Western Digital Caviar WDC AC313000R (it is *not* in the udma
-> > black list, should it be?)
-> 
-> There is certainly no evidence it should be
 
-> 
-> > hdb: Western Digital Caviar WDC AC23200L (this one is in the black
-> > list, but is not being mounted, so it shouldn't matter, right?)
-> 
-> Unknown. But you can test that
-> 
-> > - Was there some change between 2.4.5 and 2.4.17 that could have
-> >   introduced problems in the IDE layer? I really tried to test 2.4.5
-> 
-> For the SiS possibly.
-> 
-There is something in vanilla 2.4.17. Using the exact same .config and
-filesystem as the one for 2.4.5 it crashes while 2.4.5 remains stable.
-OTOH, I've finally managed to have an stable system for a week (I'm
-actually using it right now) with 2.4.17. The difference is that
-it's got the sis5513.c patch from Lionel Bouton that I found in
-the lkml. I'm not using dma yet, though! The driver, as the previous
-driver for this chipset, disables everything by default (but even
-that didn't help for plain 2.4.17) That's what I'm going to test next,
-using the above mentioned hdparm line.
+Is it possible to modify your patch from:
+
+if (in_interrupt())
+   BUG();
+
+to
+
+if (unlikely(in_interrupt())
+    BUG();
+
+-- Amol
+
+
+
+
+
+Hugh Dickins <hugh@veritas.com> on 02/08/2002 11:16:56 PM
+
+To:   Andrew Morton <akpm@zip.com.au>
+cc:   Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+      "David S. Miller" <davem@redhat.com>, Benjamin LaHaise <bcrl@redhat.com>,
+      Marcelo Tosatti <marcelo@conectiva.com.br>, Gerd Knorr
+      <kraxel@bytesex.org>, linux-kernel@vger.kernel.org (bcc: Amol Lad/HSS)
+
+Subject:  Re: [PATCH] __free_pages_ok oops
+
+
+
+
+On Thu, 7 Feb 2002, Andrew Morton wrote:
+>
+> OK, I agree the weird case won't trigger the bug.   So I think we
+> agree that we need to run with Hugh's BUG check and do nothing else.
+
+Thank you, Andrew and Andrea, for exploring and exploding those myths.
+I've checked back on the BUG which Ben submitted his 1st Jan patch for,
+and it was actually a PageLRU(page) in rmqueue, not in __free_pages_ok,
+so his patch would not have solved it.
+
+But I cannot yet agree that Marcelo should take my interrupt BUG patch.
+I've also checked back on the BUG which I submitted my 15th Nov patch
+for (making unmap_kiobuf use page_cache_release instead of put_page),
+and Gerd Knorr's report (extracts below) implies that his bttv driver
+was calling unmap_kiobuf at interrupt time.  Is that right, Gerd?
+
+If that's so, then my proposed in_interrupt check before lru_cache_del
+will just give him a BUG again (and my 15th Nov patch was mistaken to
+encourage him to unmap at interrupt time).  Now maybe Gerd's code is
+wrong anyway: a quick look suggests it may also vfree there, which
+would be wrong at interrupt time.  But whether his code is right or
+wrong, unmap_kiobuf used to be safe at interrupt time and now is not
+(in some rare circumstances): are we right to have made that change?
+
+Ben, you probably have an AIO opinion here.  Is there a circumstance
+in which AIO can unpin a user page at interrupt time, after the
+calling task has (exited or) unmapped the page?
+
+Hugh
+
+Subject: [PATCH] Re: kiobuf / vm bug
+On Thu, 15 Nov 2001, Gerd Knorr wrote:
+>
+> I think I have found a kiobuf-related bug in the VM of recent linux
+> kernels.  2.4.13 is fine, 2.4.14-pre1 doesn't boot my machine,
+> 2.4.14-pre2 + newer kernels are broken.
+>
+> /me runs a kernel with a few v4l-related patches and my current 0.8.x
+> bttv version (available from http://bytesex.org/patches/ +
+> http://bytesex.org/bttv/).
+>
+> With this kernel I can trigger the following BUG():
+> ksymoops 2.4.3 on i686 2.4.15-pre4.  Options used
+> kernel BUG at page_alloc.c:84!
+> >>EIP; c0129e5a <__free_pages_ok+aa/29c>   <=====
+> Trace; c012a6f2 <__free_pages+1a/1c>
+> Trace; c0121120 <unmap_kiobuf+34/48>
+>
+> The Oops seems to be triggered by the following actions:
+>
+> (1) the application maps /dev/video0.  bttv 0.8.x simply returns some
+>     shared anonymous memory to as mapping.
+> (2) the application asks the driver to capture a frame.  bttv will lock
+>     down the anonymous memory using kiobufs for I/O and prepare
+>     everything for DMA xfer.
+> (3) The applications exits for some reason, i.e. the anonymous memory
+>     will be unmapped while the DMA transfer is active and the pages are
+>     locked down for I/O.
+> (4) The DMA xfer is done and bttv's irq handler cleans up everything.
+>     This includes calling unlock_kiovec+unmap_kiobuf for the locked
+>     pages.  The unmap_kiobuf call at this point triggeres the Oops
+>     listed above ...
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

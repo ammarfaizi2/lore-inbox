@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130846AbRACBt6>; Tue, 2 Jan 2001 20:49:58 -0500
+	id <S130347AbRACCFc>; Tue, 2 Jan 2001 21:05:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131391AbRACBts>; Tue, 2 Jan 2001 20:49:48 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:4100 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130846AbRACBta>; Tue, 2 Jan 2001 20:49:30 -0500
-Date: Wed, 3 Jan 2001 01:17:39 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Paul Gortmaker <p_gortmaker@yahoo.com>,
-        linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: start___kallsyms missing from i386 vmlinux.lds ? 
-In-Reply-To: <27530.978431433@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.30.0101030116440.1221-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131943AbRACCFX>; Tue, 2 Jan 2001 21:05:23 -0500
+Received: from pD902B859.dip.t-dialin.net ([217.2.184.89]:15 "EHLO
+	spruce.forest") by vger.kernel.org with ESMTP id <S130347AbRACCFE>;
+	Tue, 2 Jan 2001 21:05:04 -0500
+Date: Wed, 3 Jan 2001 02:33:52 +0100
+To: linux-kernel@vger.kernel.org
+Subject: removing the bootlogo
+Message-ID: <20010103023351.A9753@spruce.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: Jens Nestel <niob@spruce.yi.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2001, Keith Owens wrote:
+hi,
 
-> Some sparc users have a slightly older version of gcc, built shortly
-> before 'weak' support was added, which required those symbols to be
-> defined.  Dave Miller thought the compiler problem was widespread
-> enough to justify changing the source to suit the compiler instead of
-> forcing sparc users to upgrade.  I suspect that super-h has the same
-> problem of old compilers, I noticed that somebody added the symbols to
-> sh/vmlinux.lds.
+I am using matroxfb with a MGA200 card,
+but I find the bootlogo quite annoying.
 
-I played with weak symbols recently. Couldn't get them to work on SH or
-MIPS, and gave up.
+Is there an easy way to remove it ?
 
--- 
-dwmw2
-
-
+thanks - Jens Nestel -< niob@spruce.yi.org >-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

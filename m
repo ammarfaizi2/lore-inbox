@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUAEX63 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 18:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUAEXyn
+	id S266039AbUAFABD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266015AbUAEX67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:54:43 -0500
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:43740 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S266013AbUAEXve convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:51:34 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: mru@kth.se (=?iso-8859-1?q?M=E5ns?= =?iso-8859-1?q?=20Rullg=E5rd?=),
-       linux-kernel@vger.kernel.org
-Subject: Re: GCC 3.4 Heads-up
-Date: Tue, 6 Jan 2004 00:49:31 +0100
+	Mon, 5 Jan 2004 18:58:59 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:33527 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266024AbUAEX4x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 18:56:53 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Christophe Saout <christophe@saout.de>
+Subject: Re: Possibly wrong BIO usage in ide_multwrite
+Date: Tue, 6 Jan 2004 00:59:52 +0100
 User-Agent: KMail/1.5.4
-References: <bsgav5$4qh$1@cesium.transmeta.com> <3FF8BDBB.4060708@tmr.com> <yw1xu13b2mz5.fsf@ford.guide>
-In-Reply-To: <yw1xu13b2mz5.fsf@ford.guide>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1072977507.4170.14.camel@leto.cs.pocnet.net> <200401051808.49010.bzolnier@elka.pw.edu.pl> <20040105225117.GA5841@leto.cs.pocnet.net>
+In-Reply-To: <20040105225117.GA5841@leto.cs.pocnet.net>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401060049.35935.ioe-lkml@rameria.de>
+Message-Id: <200401060059.52833.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 05 of January 2004 23:51, Christophe Saout wrote:
+> Remember? Can bio be NULL somewhere? Or what do you mean? It's our
+> scratchpad and ide_multwrite never puts a NULL bio on it.
 
-On Monday 05 January 2004 02:38, Måns Rullgård wrote:
-> What's wrong with
+After last sector of the whole transfer is processed ide_multwrite() will set
+it to NULL.  Next IRQ is only ACK of previous datablock, no transfer happens.
+
+> > Otherwise I patch is OK for me.
 >
-> 	d = long_expression;
->  	if (a)
->  		b = d;
->  	else
->  		c = d;
+> Ok, take two.
 >
-> Your long expression is still only in one place.
+> I also did legacy/pdc4030.c, it's more or less the same though I'm not
+> able to test it.
 
-This seperates control and data flow quite nicely, which is good
-programming practise anyway and helps the compiler optimizing, AFAIK.
+Looks OK.
 
-Regards
+> @@ -333,14 +332,17 @@
+>  			 *	we can end the original request.
+>  			 */
+>  			if (!rq->nr_sectors) {	/* all done? */
+> +				bio->bi_idx = bio->bi_vcnt - rq->nr_cbio_segments;
+>  				rq = hwgroup->rq;
+>  				ide_end_request(drive, 1, rq->nr_sectors);
+>  				return ide_stopped;
+>  			}
+>  		}
+>  		/* the original code did this here (?) */
+> +		bio->bi_idx = bio->bi_vcnt - rq->nr_cbio_segments;
+>  		return ide_stopped;
 
-Ingo Oeser
+Move it before the comment.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/+fgMU56oYWuOrkARAlOIAJ0c9QMsQRrXYv3RIV3r+8uAnJgETQCfQ7PJ
-Zscp0VfGY2jS1RvWnuCAqoc=
-=kY28
------END PGP SIGNATURE-----
+--bart
 

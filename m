@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316999AbSFWIed>; Sun, 23 Jun 2002 04:34:33 -0400
+	id <S317003AbSFWJBR>; Sun, 23 Jun 2002 05:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317002AbSFWIec>; Sun, 23 Jun 2002 04:34:32 -0400
-Received: from [62.40.73.125] ([62.40.73.125]:17090 "HELO Router")
-	by vger.kernel.org with SMTP id <S316999AbSFWIeb>;
-	Sun, 23 Jun 2002 04:34:31 -0400
-Date: Sun, 23 Jun 2002 10:40:12 +0200
-From: clock@atrey.karlin.mff.cuni.cz
-To: linux-kernel@vger.kernel.org
-Subject: kmalloc size too large
-Message-ID: <20020623104012.B532@ghost.cybernet.cz>
-Mime-Version: 1.0
+	id <S317004AbSFWJBQ>; Sun, 23 Jun 2002 05:01:16 -0400
+Received: from mons.uio.no ([129.240.130.14]:14815 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S317003AbSFWJBP>;
+	Sun, 23 Jun 2002 05:01:15 -0400
+To: Skip Gaede <sgaede@attbi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory abuse with NFS Root filesystem?
+References: <200206221648.36450.sgaede@attbi.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 23 Jun 2002 11:01:12 +0200
+In-Reply-To: <200206221648.36450.sgaede@attbi.com>
+Message-ID: <shs4rfuid2f.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+>>>>> " " == Skip Gaede <sgaede@attbi.com> writes:
 
-when dumping tracks from an IDE CD using cdda2wav I sometimes get this kernel
-message:
+     > Local boot: slabinfo after 30 minutes: size-2048 5 50 2048 3 25
+     > 1
 
-Jun 23 10:34:18 ghost kernel: kmalloc: Size (4294852048) too large
-Jun 23 10:34:18 ghost kernel: kmalloc: Size (4294852048) too large
-Jun 23 10:37:55 ghost last message repeated 29 times
-Jun 23 10:37:55 ghost last message repeated 29 times
+     > NFS Root: slabinfo after 15 & 60 minutes size-2048 187 228 2048
+     > 94 114 1 (15 min) size-2048 918 928 2048 460 464 1 (60 min)
 
-It is not deterministic but looks like some tracks cause it often and some not.
+     > Anyone ever seen or heard of this before? Any thoughts on how
+     > to isolate this to a root cause?
 
-Kernel 2.2.20
+Have you tried combining the 'local boot' test with NFS?
 
--- 
-Karel 'Clock' Kulhavy
+AFAICS there are no memory leaks on NFS with x86 systems, but there
+might be something wierd going on with other architectures.
+
+Cheers,
+   Trond

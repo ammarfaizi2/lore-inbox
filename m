@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263133AbTC1Ugc>; Fri, 28 Mar 2003 15:36:32 -0500
+	id <S263130AbTC1UgQ>; Fri, 28 Mar 2003 15:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263135AbTC1Ugc>; Fri, 28 Mar 2003 15:36:32 -0500
-Received: from tomts21-srv.bellnexxia.net ([209.226.175.183]:37823 "EHLO
-	tomts21-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S263133AbTC1Uga>; Fri, 28 Mar 2003 15:36:30 -0500
-Date: Fri, 28 Mar 2003 15:42:36 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: any resolution of keyboard problems?
-In-Reply-To: <20030328122349.55f76130.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.44.0303281541540.1124-100000@dell>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263133AbTC1UgQ>; Fri, 28 Mar 2003 15:36:16 -0500
+Received: from [12.47.58.223] ([12.47.58.223]:60518 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id <S263130AbTC1UgP>; Fri, 28 Mar 2003 15:36:15 -0500
+Date: Fri, 28 Mar 2003 12:48:32 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3c59x gives HWaddr FF:FF:...
+Message-Id: <20030328124832.44243f83.akpm@digeo.com>
+In-Reply-To: <20030328145159.GA4265@werewolf.able.es>
+References: <20030328145159.GA4265@werewolf.able.es>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Mar 2003 20:47:27.0060 (UTC) FILETIME=[3E04C140:01C2F56B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Mar 2003, Randy.Dunlap wrote:
-
-> On Fri, 28 Mar 2003 15:03:06 -0500 (EST) "Robert P. J. Day" <rpjday@mindspring.com> wrote:
+"J.A. Magallon" <jamagallon@able.es> wrote:
+>
+> Hi all...
 > 
-> |   i just downloaded the bk4 set of patches for 2.5.66 to see if
-> | anything has changed with respect to the weird keyboard problems
-> | i was having with my dell laptop and its external PS/2 keyboard.
-> | 
-> |   has anyone else been seeing this?  do any of the patches
-> | in the bk4 snapshot address this?  i'm recompiling as we speak,
-> | and i'll test it again as soon as i can.
+> I have just switched the network card for my internal network from a 8139
+> to a 3c905C-TX/TX-M. The 3c59x driver gives the buggy FF:FF:FF:FF:FF:FF
+> hardware address for the adapter. I had heard about the problem and looked
+> throug LKML archives, but they just point to a non existen web page.
+> I use 2.4.21-pre6+aa.
 > 
-> I looked at the config file that you posted and didn't see
-> any glaring issues with it, but then I don't have a Dell laptop
-> either.
+> What happens ? Any solution available ?
 > 
-> You might have to find an earlier kernel that works and then
-> find where it breaks.  Or turn off some big things, like APM
-> (just for testing).
 
-i turned off most of what i could think of to try to isolate the
-problem.  i'll poke around more later with the latest build.
+The eeprom wasn't powered up.
 
-rday
+Please take the 2.4.20 3c59x.c and place that into the 2.5 tree and confirm
+that it does the same thing (it will).
 
+Then try disabling APCI and/or otherwise fiddling with your power management
+options (maybe in BIOS too).
+
+One person has reported that turning off ACPI fixed this.
+
+Thanks.

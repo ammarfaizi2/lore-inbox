@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUGMKkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUGMKl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbUGMKkY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 06:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUGMKkX
+	id S264826AbUGMKl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 06:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUGMKlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 06:40:23 -0400
-Received: from web52510.mail.yahoo.com ([206.190.39.135]:36512 "HELO
-	web52510.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264826AbUGMKkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 06:40:06 -0400
-Message-ID: <20040713104002.10597.qmail@web52510.mail.yahoo.com>
-Date: Tue, 13 Jul 2004 03:40:02 -0700 (PDT)
-From: Shobhit Mathur <shobhitmmathur@yahoo.com>
-Subject: SCSI Query - cmd_per_lun & can_queue ...
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 13 Jul 2004 06:41:22 -0400
+Received: from holomorphy.com ([207.189.100.168]:27540 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264826AbUGMKlE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 06:41:04 -0400
+Date: Tue, 13 Jul 2004 03:40:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       devenyga@mcmaster.ca, ck@vds.kolivas.org, linux-kernel@vger.kernel.org
+Subject: Re: Preempt Threshold Measurements
+Message-ID: <20040713104059.GW21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+	devenyga@mcmaster.ca, ck@vds.kolivas.org,
+	linux-kernel@vger.kernel.org
+References: <200407121943.25196.devenyga@mcmaster.ca> <20040713024051.GQ21066@holomorphy.com> <200407122248.50377.devenyga@mcmaster.ca> <cone.1089687290.911943.12958.502@pc.kolivas.org> <20040712210107.1945ac34.akpm@osdl.org> <20040713100815.GU21066@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040713100815.GU21066@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Jul 12, 2004 at 09:01:07PM -0700, Andrew Morton wrote:
+>> This is a false positive.  Nothing is setting need_resched(), so
+>> unmap_vmas() doesn't bother dropping the lock.
 
-I have a basic query related to the Scsi_Host_Template
-fields namely : cmd_per_lun and can_queue. I would
-like
-to know what is the relation between the per-lun queue
-and the per-HBA queue ?
+On Tue, Jul 13, 2004 at 03:08:15AM -0700, William Lee Irwin III wrote:
+> I guess I sent too many updates and the whole thing got dropped. The false
+> positives were fixed in this way:
 
-To elaborate my query, I would like to know how are
-the
-I/Os from the upper-layers managed between per-lun and
-the host-queue depth. In most cases the host-queue
-depth
-is very large [128 or more], while the per-lun queue
-is
-a fraction [5 or 2]. I would like to know how is the
-relation between the two queues and how does this
-impact
-io-rate ?
+> -			if (!atomic && need_resched()) {
+> +			zap_bytes = ZAP_BLOCK_SIZE;
+> +			if (!atomic)
+> +				continue;
+> +			touch_preempt_timing();
+> +			if (need_resched()) {
 
-- Kindly let me know as I have a blurred picture of
-the
-role of the 2 queues.
+That's not quite right. Amazing it didn't catch might_sleep() warnings.
 
-- Thank you very much
-
-- Shobhit Mathur
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - 50x more storage than other providers!
-http://promotions.yahoo.com/new_mail
+Index: mm7-2.6.7/mm/memory.c
+===================================================================
+--- mm7-2.6.7.orig/mm/memory.c	2004-07-13 03:06:12.784491200 -0700
++++ mm7-2.6.7/mm/memory.c	2004-07-13 03:39:45.843459720 -0700
+@@ -568,16 +568,16 @@
+ 			if ((long)zap_bytes > 0)
+ 				continue;
+ 			zap_bytes = ZAP_BLOCK_SIZE;
+-			if (!atomic)
++			if (atomic)
+ 				continue;
+-			touch_preempt_timing();
+ 			if (need_resched()) {
+ 				int fullmm = tlb_is_full_mm(*tlbp);
+ 				tlb_finish_mmu(*tlbp, tlb_start, start);
+ 				cond_resched_lock(&mm->page_table_lock);
+ 				*tlbp = tlb_gather_mmu(mm, fullmm);
+ 				tlb_start_valid = 0;
+-			}
++			} else
++				touch_preempt_timing();
+ 		}
+ 	}
+ 	return ret;

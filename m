@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311009AbSCMTGS>; Wed, 13 Mar 2002 14:06:18 -0500
+	id <S311032AbSCMTIS>; Wed, 13 Mar 2002 14:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311006AbSCMTGI>; Wed, 13 Mar 2002 14:06:08 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44293 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310995AbSCMTFz>; Wed, 13 Mar 2002 14:05:55 -0500
-Subject: Re: [patch] vmalloc_to_page() backport for 2.4
-To: tigran@veritas.com (Tigran Aivazian)
-Date: Wed, 13 Mar 2002 19:20:58 +0000 (GMT)
-Cc: kraxel@bytesex.org (Gerd Knorr),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        linux-kernel@vger.kernel.org (Kernel List)
-In-Reply-To: <Pine.LNX.4.33.0203131848460.1251-100000@einstein.homenet> from "Tigran Aivazian" at Mar 13, 2002 06:50:49 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311029AbSCMTII>; Wed, 13 Mar 2002 14:08:08 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:36739 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S311026AbSCMTIF>; Wed, 13 Mar 2002 14:08:05 -0500
+Date: Wed, 13 Mar 2002 14:06:48 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: wli@holomorphy.com
+cc: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
+        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+In-Reply-To: <20020313021838.G14628@holomorphy.com>
+Message-ID: <Pine.LNX.3.95.1020313134921.28928A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16lEJ0-0007Bl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 13 Mar 2002, Gerd Knorr wrote:
-> > +EXPORT_SYMBOL_GPL(vmalloc_to_page);
-> 
-> Can you (or whoever made it EXPORT_SYMBOL_GPL in 2.5) please explain what
-> is so "GPL" about exporting this symbol, please? I can understand when
-> symbols related to the internals of some subsystem are GPL-only-exported
-> but this does not appear to be such a case.
+On Wed, 13 Mar 2002 wli@holomorphy.com wrote:
 
-Its an internal helper function shared by some GPL drivers, its not something
-you need to register a non free driver. As such its simply in the kernel
-core rather than duplicated for the convenience of free driver authors.
+[SNIPPED..]
+You might want to look at www.eece.unm.edu/faculty/heileman/hash/hash.html
+rather than assuming everyone is uninformed. Source-code is provided
+for several hashing functions as well as source-code for tests. This
+is a relatively old reference although it addresses both the chaos
+and fractal methods discussed here, plus chaotic probe strategies
+in address hashing.
 
-Alan
+A fast random number generator is essential to produce meaningful
+tests within a reasonable period of time. It is also used within one
+of the hashing functions to 'guess' at the direction of displacement
+when an insertion slot is not immediately located, as well as the
+displacement mechanism for several chaotic methods discussed.
+
+Using your own hash-function as a template for tests of the same
+hash-function, as you propose, is unlikely to provide meaningful
+results.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

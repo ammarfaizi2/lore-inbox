@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263460AbTJQNZk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 09:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTJQNZk
+	id S263463AbTJQNTX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 09:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTJQNTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 09:25:40 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:8833 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263460AbTJQNZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 09:25:38 -0400
-Date: Fri, 17 Oct 2003 14:26:47 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310171326.h9HDQlnR001046@81-2-122-30.bradfords.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Norman Diamond <ndiamond@wta.att.ne.jp>, Hans Reiser <reiser@namesys.com>,
-       Wes Janzen <superchkn@sbcglobal.net>, linux-kernel@vger.kernel.org,
-       R.E.Wolff@BitWizard.nl
-In-Reply-To: <20031017140354.A2415@flint.arm.linux.org.uk>
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
- <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
- <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
- <20031014064925.GA12342@bitwizard.nl>
- <3F8BA037.9000705@sbcglobal.net>
- <3F8BBC08.6030901@namesys.com>
- <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
- <3F8FBADE.7020107@namesys.com>
- <126d01c3949f$91bdecc0$3eee4ca5@DIAMONDLX60>
- <200310171253.h9HCr1tw000933@81-2-122-30.bradfords.org.uk>
- <20031017140354.A2415@flint.arm.linux.org.uk>
-Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
+	Fri, 17 Oct 2003 09:19:23 -0400
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:43712 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S263463AbTJQNTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 09:19:21 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Larry McVoy <lm@bitmover.com>
+Subject: Re: Transparent compression in the FS
+Date: Fri, 17 Oct 2003 15:16:06 +0200
+User-Agent: KMail/1.5.4
+Cc: val@nmt.edu, linux-kernel@vger.kernel.org
+References: <1066163449.4286.4.camel@Borogove> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com>
+In-Reply-To: <20031016172930.GA5653@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310171516.06990.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Russell King <rmk+lkml@arm.linux.org.uk>:
-> On Fri, Oct 17, 2003 at 01:53:01PM +0100, John Bradford wrote:
-> > I disagree - we haven't confirmed what happens in the error-on-write
-> > situation.  If it does indeed always remap the block, then I'd agree
-> > that that aspect was perfectly sane.
-> 
-> My comments were based upon the information contained within the mail
-> which appeared to originate from the manufacturer.
-> 
-> Plus, they were in *PRIVATE*.  Sheesh.
+On Thursday 16 October 2003 19:29, Larry McVoy wrote:
+> On Wed, Oct 15, 2003 at 11:13:27AM -0400, Jeff Garzik wrote:
+> > Josh and others should take a look at Plan9's venti file storage method
+> > -- archival storage is a series of unordered blocks, all of which are
+> > indexed by the sha1 hash of their contents.  This magically coalesces
+> > all duplicate blocks by its very nature, including the loooooong runs of
+> > zeroes that you'll find in many filesystems.  I bet savings on "all
+> > bytes in this block are zero" are worth a bunch right there.
+>
+> The only problem with this is that you can get false positives.  Val Hensen
+> recently wrote a paper about this.  It's really unlikely that you get false
+> positives but it can happen and it has happened in the field.
 
-Please note - _I_ only quoted what was already posted to the list as a
-quote.
+Which is solvable by expanding your index with an enumerator for identical keys
+but different content and have an overflow table exactly for this.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106638956902403&w=2
+Handling hash table overflow is normal for hashing (even for
+crypto-hashes). Why did they forget that? That's 2nd semester CS!
 
-John.
+Regards
+
+Ingo Oeser
+
+

@@ -1,70 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268706AbUHTU3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268730AbUHTUfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268706AbUHTU3c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 16:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268727AbUHTU3b
+	id S268730AbUHTUfG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 16:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268727AbUHTUcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 16:29:31 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:51194 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S268706AbUHTUYj
+	Fri, 20 Aug 2004 16:32:17 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:39123 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S264973AbUHTUbh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 16:24:39 -0400
-Subject: Re: [PATCH] HVSI driver
-From: Paul Larson <plars@linuxtestproject.org>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev@lists.linuxppc.org
-In-Reply-To: <1092850249.6840.9.camel@localhost>
-References: <1092850249.6840.9.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vzFJQ89egO3FSZhasqCP"
-Message-Id: <1093033432.9913.106.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 15:23:52 -0500
+	Fri, 20 Aug 2004 16:31:37 -0400
+Message-ID: <4126600F.4050302@drzeus.cx>
+Date: Fri, 20 Aug 2004 22:33:19 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Timer allocates too many ports
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-vzFJQ89egO3FSZhasqCP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The timer in linux allocates the io ports 0x40 to 0x5F. This is causing 
+some problems for me since the hardware I'm writing a driver for has its 
+ports at 0x4E and 0x4F. In Windows the ports 0x40 to 0x43 are used for 
+the timer. Why does linux allocate so many more ports?
 
-I saw that the HVSI patch made it into 2.6.8.1-mm2 so I decided to play
-with it some on my box.  So far, it seems to be working well for me.
-
-I was able to:
--boot with console=3Dhvsi0 and see console messages
--login over an hvsi device
--stable pushing lots of data though it (using things like yes and find
-/)
--disconnect and reconnect while pushing data through it without anything
-nasty happening
--Ran ppp across hvsi, was able to login via ssh, used tcpspray to stress
-it a bit.
-
-I'll keep running with it, but so far it's looking good on my machines.
-
-Thanks,
-Paul Larson
-
-On Wed, 2004-08-18 at 12:30, Hollis Blanchard wrote:
-> Hi Andrew, this is a console driver for IBM's p5 servers; please
-> consider it for inclusion. I've addressed all the comments I've received
-> so far.
->=20
-> Signed-off-by: Hollis Blanchard <hollisb@us.ibm.com>
-
---=-vzFJQ89egO3FSZhasqCP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBJl3XbkpggQiFDqcRAmcUAJ4j1mPjDT4Yd7g6jeE1gZYSUDr8jQCfX+gb
-9W8AvlJN44FjZlZwUqZlaC4=
-=/NHa
------END PGP SIGNATURE-----
-
---=-vzFJQ89egO3FSZhasqCP--
+Rgds
+Pierre Ossman
 

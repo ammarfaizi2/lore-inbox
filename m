@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbSLJPME>; Tue, 10 Dec 2002 10:12:04 -0500
+	id <S262038AbSLJPPs>; Tue, 10 Dec 2002 10:15:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262130AbSLJPME>; Tue, 10 Dec 2002 10:12:04 -0500
-Received: from B5b36.pppool.de ([213.7.91.54]:6547 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S262089AbSLJPMD>; Tue, 10 Dec 2002 10:12:03 -0500
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-From: Daniel Egger <degger@fhm.edu>
-To: Dave Jones <davej@suse.de>
-Cc: Joseph <jospehchan@yahoo.com.tw>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021210072440.GB9124@suse.de>
-References: <009f01c2a000$f38885d0$3716a8c0@taipei.via.com.tw>
-	 <20021210055215.GA9124@suse.de> <1039504941.30881.10.camel@sonja>
-	 <20021210072440.GB9124@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YMIK32boH2HYdKRHR996"
-Organization: 
-Message-Id: <1039506805.31061.23.camel@sonja>
+	id <S262130AbSLJPPs>; Tue, 10 Dec 2002 10:15:48 -0500
+Received: from 24-216-100-96.charter.com ([24.216.100.96]:37342 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S262038AbSLJPPr>;
+	Tue, 10 Dec 2002 10:15:47 -0500
+Date: Tue, 10 Dec 2002 10:23:30 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: RAID5 chunksize?
+Message-ID: <20021210152330.GP32203@rdlg.net>
+Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 10 Dec 2002 08:53:25 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-YMIK32boH2HYdKRHR996
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Am Die, 2002-12-10 um 08.24 schrieb Dave Jones:
+Ok, say I'm building a 4 disk raid5 array.  Performance is going to be
+critical as this system is going to be very IO intensive.  We had to go
+RAID5 though due to filesystem requirements.
 
-> Mine disagrees.
+According to the manufacturer the disks have:
 
-My bad, sorry. This conclusion came from a quick disassemble of a small
-program I run on those boxes which indeed contain cmovs and I believed
-that the boxes execercise the complete program but obviously not.=20
+  8Meg DataBuffer
+  10K RPM Rotational speed
+  SCSI Ultra 160
 
-A quick check with a just written testprogram calculating some primes=20
-revealed that -march=3Di686 -mcpu=3Di686 does *not* work...
+(Drive is:
+http://www.fel.fujitsu.com/home/product.asp?L=en&PID=248&INFO=fsp)
 
---=20
-Servus,
-       Daniel
+What is the ideal Chunksize?  
 
---=-YMIK32boH2HYdKRHR996
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+Also it's going to have a lot of pretty decent sized files (100Meg or 
+so average) so I was going to make it an ext3 with -T largefile and -M 1.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Any other thoughts on how to lay down the disks/filesystem on this
+bugger?
 
-iD8DBQA99Z10chlzsq9KoIYRAhzcAKDlY8bt8xKdyjnVte1UPGTL2H1waACfQJbG
-oex8ZttaZ20mhqfn4Sv2JhA=
-=r2az
------END PGP SIGNATURE-----
+Robert
 
---=-YMIK32boH2HYdKRHR996--
+
+
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | PGP Key ID: FC96D405
+                               
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+FYI:
+ perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
 

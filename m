@@ -1,98 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281668AbRLDTvE>; Tue, 4 Dec 2001 14:51:04 -0500
+	id <S283303AbRLDTwW>; Tue, 4 Dec 2001 14:52:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281664AbRLDRgP>; Tue, 4 Dec 2001 12:36:15 -0500
-Received: from abasin.nj.nec.com ([138.15.150.16]:51718 "HELO
-	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S281561AbRLDRfd>;
-	Tue, 4 Dec 2001 12:35:33 -0500
-From: Sven Heinicke <sven@research.nj.nec.com>
+	id <S283393AbRLDTvJ>; Tue, 4 Dec 2001 14:51:09 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:34729 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S283381AbRLDTua>; Tue, 4 Dec 2001 14:50:30 -0500
+Message-ID: <3C0D2843.5060708@antefacto.com>
+Date: Tue, 04 Dec 2001 19:47:15 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Roy S.C. Ho" <scho1208@yahoo.com>, david@gibson.dropbear.id.au,
+        tachino@open.nm.fujitsu.co.jp
+CC: linux-kernel@vger.kernel.org
+Subject: Re: question about kernel 2.4 ramdisk
+In-Reply-To: <20011204190109.68826.qmail@web21101.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15373.2398.495306.503255@abasin.nj.nec.com>
-Date: Tue, 4 Dec 2001 12:35:26 -0500 (EST)
-To: Ken Brownfield <brownfld@irridia.com>
-Cc: Sven Heinicke <sven@research.nj.nec.com>, linux-kernel@vger.kernel.org
-Subject: Re: hints at modifying kswapd params in 2.4.16
-In-Reply-To: <20011204003122.B31869@asooo.flowerfire.com>
-In-Reply-To: <15371.48585.441972.472493@abasin.nj.nec.com>
-	<20011204003122.B31869@asooo.flowerfire.com>
-X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+wrt the ramfs leak (the referenced patch below worked for me),
+is the ramfs usage limits patch + this fix going into
+the official 2.4 soon as it was in the ac series for ages?
 
-Does the AC kernel still have the old VM?  I really wanna stick the
-the new stuff but but a need a stable system.  Older kernels 2.4.8 had
-highmem issues, not the 2.4.16 has kswap issues.
+thanks,
+Padraig.
 
-Ken Brownfield writes:
- > Yes, 2.4.16 fixed a major source of kswapd thrashing for (at least)
- > mmapped memory, but there are still some corner cases left which I've
- > also seen.  For instance, in the new case I'm seeing kswapd thrashing
- > even when freepages hasn't been reached under heavy I/O.  I'm under the
- > impression that this behavior is more of a mis-behavior rather than a
- > mis-tuning.
- > 
- > I don't think I've seen a response to my recent post go by; hopefully
- > the VM issues can still be debugged soon even after the handoff to
- > Marcelo... :-)
- > -- 
- > Ken.
- > brownfld@irridia.com
- > 
- > PS: The hardware in question on my end is an HP LH6000r, 6-way Xeon, 4GB.
- > 
- > On Mon, Dec 03, 2001 at 01:00:41PM -0500, Sven Heinicke wrote:
- > | 
- > | We have been having many problems on a Dell PowerEdge 4400 with 4G of
- > | memory.  We are willing to get new hardware if, perhaps, there is
- > | something known to not work with that hardwares memory.  If there are
- > | known hardware configurations that work will in high load, high IO
- > | situations.  We really want to stay with Linux, but my boss is getting
- > | increasingly agitated with issues.
- > | 
- > | Our application has, on the order of 300 network sockets open at any
- > | one time primarily for input.  And only 1 or 2 for output.  We
- > | constantly malloc/free 100k of memory, I mean a lot.  Plus do a fair
- > | amount of SCSI IO.  The threads never use more then like 300M of
- > | memory at a time though caching memory fills up to like 2G.  I believe
- > | it would work on a system with 1G of memory.
- > | 
- > | With kernels 2.4.14 and before, including some AA kernels, the cache
- > | would fill up memory and do a little swapping to disk and then start
- > | the just-in-time free memory stuff.  We where very happy when 2.4.16
- > | seems smarter about this then previous version and never uses more
- > | then ~2G of cachememory.
- > | 
- > | But, after running for a time, kswapd starts taking more CPU time then
- > | the threads we are running and slowing down the processing.  Is this
- > | something wrong with kswapd or might modifying files in /proc/sys/vm/
- > | fix this?
- > | 
- > | If modifying files in /proc/sys/vm/ can fix it, what should one
- > | consider when modifying the /proc/sys/vm/kswapd and other files to
- > | suit my applications?  Also, in my /proc/sys/vm directory there is
- > | only the following files:
- > | 
- > | $ ls /proc/sys/vm
- > | bdflush  max-readahead  overcommit_memory  pagetable_cache
- > | kswapd   min-readahead  page-cluster
- > | 
- > | With 2.4.16 I though I should have others as described in the proc.txt
- > | file, like `buffermem', `pagecache' and others.  How do I get these,
- > | and once I do have them some hints on how to modify there values to
- > | optimize my applications might be useful.
- > | 
- > | 	 Sven
- > | -
- > | To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > | the body of a message to majordomo@vger.kernel.org
- > | More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > | Please read the FAQ at  http://www.tux.org/lkml/
- > -
- > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/
+-------- Original Message --------
+Subject: Re: ramfs leak
+Date: Mon, 12 Nov 2001 11:47:41 +0900
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: wcm@catnap.com (W Christopher Martin)
+CC: linux-kernel@vger.kernel.org, padraig@antefacto.com (Padraig Brady)
+
+Hello,
+
+At Fri, 9 Nov 2001 15:40:43 -0500 (EST),
+W Christopher Martin wrote:
+ >
+ > Padraig Brady writes:
+ > > When I remove files from a ramfs the space is not reclaimed?
+ > > What am I doing wrong? Details below.
+ >
+ > Nothing.  We've noticed the same thing.  It's a bug and was
+ > first reported back in July, but no one has provided a fix yet.
+ > I've had a brief look at the source code, but nothing obvious
+ > pops out at me.
+
+I think you should use tmpfs instead of ramfs, but if you really want to 
+use ramfs,
+the patch below may fix the problem.
+
+diff -Nur linux-2.4.13-ac7.org/fs/ramfs/inode.c 
+linux-2.4.13-ac7/fs/ramfs/inode.c
+--- linux-2.4.13-ac7.org/fs/ramfs/inode.c	Mon Nov 12 11:00:47 2001
++++ linux-2.4.13-ac7/fs/ramfs/inode.c	Mon Nov 12 11:26:40 2001
+@@ -182,12 +182,9 @@
+  {
+  	struct ramfs_sb_info *rsb = RAMFS_SB(inode->i_sb);
+
+- 
+if (! Page_Uptodate(page))
+- 
+	return;
+-
+  	lock_rsb(rsb);
+-
+- 
+ClearPageDirty(page);
++ 
+if (Page_Uptodate(page))
++ 
+	ClearPageDirty(page);
+  	
+  	rsb->free_pages++;
+  	inode->i_blocks -= IBLOCKS_PER_PAGE;
+
+Roy S.C. Ho wrote:
+
+> Hi, I am using linux kernel 2.4.2 and I have 1 GB ram.
+> I tried to boot the system with a ramdisk size of
+> 600MB. It was ok when I did "mke2fs" on it, but when I
+> mounted it, it failed (Magic number mismatch). I tried
+> this several times and found that all ramdisk sizes
+> larger than 513MB could cause trouble. Could anyone
+> please kindly give me some hints? I would like to have
+> a larger ramdisk (around 800MB).
+> 
+> (note: I tried ramfs but it seems to have memory
+> leakage when files are deleted and created frequently;
+> tmpfs is ok, but the pages may be swapped, which is
+> not desirable in my case...)
+
+
+does the patch attached fix your problem with ramfs?
+
+ 
+> Thank you very much!
+> 
+> Regards,
+> Roy
+
+

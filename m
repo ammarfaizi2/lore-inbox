@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268672AbTGIWTV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 18:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268673AbTGIWTV
+	id S268654AbTGIWW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 18:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268655AbTGIWW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 18:19:21 -0400
-Received: from aneto.able.es ([212.97.163.22]:59819 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S268672AbTGIWTU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 18:19:20 -0400
-Date: Thu, 10 Jul 2003 00:33:55 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] 2.4.22-pre3: P3 and P4 for chekc_gcc
-Message-ID: <20030709223355.GA2604@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.11
+	Wed, 9 Jul 2003 18:22:57 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:30863 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S268654AbTGIWWz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 18:22:55 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 9 Jul 2003 15:29:59 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Daniel Phillips <phillips@arcor.de>, Mel Gorman <mel@csn.ul.ie>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: 2.5.74-mm1
+In-Reply-To: <20030709222426.GA24923@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.55.0307091524240.4625@bigblue.dev.mcafeelabs.com>
+References: <20030703023714.55d13934.akpm@osdl.org>
+ <Pine.LNX.4.55.0307071007140.4704@bigblue.dev.mcafeelabs.com>
+ <20030707193628.GA10836@mail.jlokier.co.uk> <200307082027.13857.phillips@arcor.de>
+ <20030709222426.GA24923@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+On Wed, 9 Jul 2003, Jamie Lokier wrote:
 
-Her it goes again, just the P3 and P4 part.
+> Indeed.  But maybe true (bounded CPU) realtime, reliable, would more
+> accurately reflect what the user actually wants for some apps?
 
---- linux-2.4.21-bp1/arch/i386/Makefile.orig	2003-06-18 23:40:25.000000000 +0200
-+++ linux-2.4.21-bp1/arch/i386/Makefile	2003-06-18 23:59:25.000000000 +0200
-@@ -53,11 +53,11 @@
- endif
- 
- ifdef CONFIG_MPENTIUMIII
--CFLAGS += -march=i686
-+CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
- endif
- 
- ifdef CONFIG_MPENTIUM4
--CFLAGS += -march=i686
-+CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
- endif
- 
- ifdef CONFIG_MK6
+Hopefully I'll have a couple of hours free to code and test the
+SCHED_SOFTRR idea ;) It's hard to push for a new POSIX definition though :)
+Looking at recent posts it seems that this is not the only problem though.
+It seems interactivity lowered in the latest versions of the scheduler.
+The good news is that Ingo is back on Earth and he'll fix it :)
 
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-pre2-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-2mdk))
+
+- Davide
+

@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278692AbRJVTnT>; Mon, 22 Oct 2001 15:43:19 -0400
+	id <S278688AbRJVToJ>; Mon, 22 Oct 2001 15:44:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278688AbRJVTnA>; Mon, 22 Oct 2001 15:43:00 -0400
-Received: from cx552039-a.elcjn1.sdca.home.com ([24.177.44.17]:446 "EHLO
-	tigger.unnerving.org") by vger.kernel.org with ESMTP
-	id <S278692AbRJVTmy>; Mon, 22 Oct 2001 15:42:54 -0400
-Date: Mon, 22 Oct 2001 12:43:01 -0700 (PDT)
-From: Gregory Ade <gkade@bigbrother.net>
-X-X-Sender: <gkade@tigger.unnerving.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: bert hubert <ahu@ds9a.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <E15veDQ-0001nl-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110221237290.31371-100000@tigger.unnerving.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278844AbRJVToD>; Mon, 22 Oct 2001 15:44:03 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:47622 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S278688AbRJVTne>; Mon, 22 Oct 2001 15:43:34 -0400
+Date: Mon, 22 Oct 2001 15:44:09 -0400
+Message-Id: <200110221944.f9MJi9916137@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] A nicer nice scheduling
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <yam8695.480.153891320@mail.inwind.it>
+Organization: TMR Associates, Schenectady NY
+Cc: robertoragusa@technologist.com
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In article <yam8695.480.153891320@mail.inwind.it> robertoragusa@technologist.com wrote:
 
-On Mon, 22 Oct 2001, Alan Cox wrote:
+| So nice=19 vs. nice=0 has a 1:6 CPU ratio ( 14% - 86% ).
+| 
+| As we can't decrease 1 (n=19), we could increase 6 (n=0), with a more
+| aggressive linear dependence. But this way the time-slice would also
+| increase.
+| 
+| To balance this effect, we could also increase HZ (ref. TICK_SCALE).
+| But this way an n=19 process would run frequently and for a very little
+| time (with greater process switching overhead).
+| 
+| The right solution is IMHO to give an n=19 process less time and less
+| often than an n=0 process.
 
-> > This would then presumably lead to password protected access for US kernel
-> > developers that need to know? And some kind of NDA?
->
-> US kernel developers cannot be told. Period.
->
-> > 'IANAL', and neither are you, are you sure this sillyness is necessary?
->
-> Its based directly on legal opinion.
+| And we have a nice=19 vs. nice=0 ratio of 0.05:6 CPU
+| ratio ( 0.8% - 99.2% ).
+| 
+| 
+| So, this patch really solves the problem.
+| And yes, it is a problem: who wants dnetc/setiathome to slow
+| down (by 15%) apps like mozilla or gcc?
+| 
+| We don't want a "don't install dnetc on Linux 2.4.x, because it
+| does not multitask well" rumour around; that is true for MacOS 9
+| but should not for Linux. :-)
+| 
+| So, I think we should consider applying this patch (if noone
+| has some better solution).
+| 
+| Please CC to me any replies.
 
-<rantmode>
+  I will probably try this patch, assuming it applies nicely to newer
+kernels. But such an aggressive nice does have a downside as given, it
+can result in a process in memory which doesn't get scheduled. Or one
+which gets run only long enough to get the next page fault, and which
+takes resources while never getting anything done.
 
-So, then, just to satisfy my curiosity, how long until users of Linux in
-the U.S.A. will no longer be allowed to download new kernels?
+  So this is useful, but I hope people won't consider this as a complete
+colution. I still think we need a real idle process to do the low
+priority task feature in the most useful way. I think this would not
+provide good results in a system with significant memory pressure.
 
-After all, all it would really take for one of us to find out what was
-fixed is to download this patch and go through it line by line, and
-examine the context of the changes.
-
-Or are we no longer allowed to look at the sources either?
-
-I'm really confused by this gesture.  You're talking about both sides of
-your mouth by telling us that "US kernel developers cannot be told" and at
-the same time releasing the source/patch to the world.
-
-Make up your mind.
-
-</rantmode>
-
-I guess I was wrong about the Linux kernel being Open Source and freely
-available and distributable.
-
-- -- 
-Gregory K. Ade <gkade@unnerving.org>
-http://unnerving.org/~gkade
-OpenPGP Key ID: EAF4844B  keyserver: pgpkeys.mit.edu
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE71HbOeQUEYOr0hEsRAn39AKC7loLShLzNQvH2fbr4fsVz5pxfHACeIiAi
-1vzVfy+QQNpSlS6wEbkiWeI=
-=X7eo
------END PGP SIGNATURE-----
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

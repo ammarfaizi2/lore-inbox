@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264323AbRFSPpn>; Tue, 19 Jun 2001 11:45:43 -0400
+	id <S264339AbRFSPtd>; Tue, 19 Jun 2001 11:49:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264327AbRFSPpd>; Tue, 19 Jun 2001 11:45:33 -0400
-Received: from [32.97.182.103] ([32.97.182.103]:39156 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264323AbRFSPp2>;
-	Tue, 19 Jun 2001 11:45:28 -0400
-Importance: Normal
-Subject: [RFQ]  aic7xxx driver panics under heavy swap.
-To: gibbs@scsiguy.com
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFFC1B2C1B.7F406B4A-ON85256A70.00564265@pok.ibm.com>
-From: "Bulent Abali" <abali@us.ibm.com>
-Date: Tue, 19 Jun 2001 11:46:02 -0400
-X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Build V508_06042001 |June 4, 2001) at
- 06/19/2001 11:45:02 AM
+	id <S264330AbRFSPtY>; Tue, 19 Jun 2001 11:49:24 -0400
+Received: from t111.niisi.ras.ru ([193.232.173.111]:23561 "EHLO
+	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
+	id <S264339AbRFSPtS>; Tue, 19 Jun 2001 11:49:18 -0400
+Message-ID: <3B2F7374.9000707@niisi.msk.ru>
+Date: Tue, 19 Jun 2001 19:44:52 +0400
+From: Alexandr Andreev <andreev@niisi.msk.ru>
+Organization: niisi
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i586; en-US; rv:0.9) Gecko/20010507
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: "David L. Parsley" <parsley@linuxjedi.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Using cramfs as root filesystem on diskless machine
+In-Reply-To: <3B2A0F05.6050902@niisi.msk.ru> <3B2A538A.BA62148A@linuxjedi.org> <3B2F5282.30602@niisi.msk.ru> <3B2F5BEC.A94F33A3@linuxjedi.org>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David L. Parsley wrote
 
-Justin,
-When free memory is low, I get a series of aic7xxx messages followed by
-panic.
-It appears to be a race condition in the code.  Should you panic?  I tried
-the following
-patch to not panic.  But I am not sure if it is functionally correct.
-Bulent
+>>...
+>>RAMDISK driver initialized: 16 RAM disks of 4096K size 4096 blocksize
+>>
+>                                              ^^^^^
+>You also need to give the kernel 'ramdisk_size=XXXX'.  I've used
+>larger cramfs initrd's with no problem, but the kernel has to make
+>larger ramdisks.  By editing rd.c, you can make this stuff default.
+>
+>regards,
+>	David
+>
+My cramfs ramdisk size is less then 4096, it is only 2304Kb.
+Matthias Kilian wrote me in the private letter:
 
+ >  The cramfs does uncompression on the fly, i.e. on each file access.
+ >  This means that the ramdisk in your example actually uses 2304 k RAM.
 
-scsi0: Temporary Resource Shortage
-scsi0: Temporary Resource Shortage
-scsi0: Temporary Resource Shortage
-scsi0: Temporary Resource Shortage
-scsi0: Temporary Resource Shortage
-Kernel panic: running device on run list
+And besides, i have been tried this option already.
 
+But, thank you anyway, now i know that big cramfs initrd`s works.
+Possibly, some symlinks are broken, or some libraries are missed, on my 
+rootfs...
+But it is very strange, that ext2fs ramdisk image works with the same 
+rootfs on it.
+I'll try to investigate it by myself.
 
---- aic7xxx_linux.c.save Mon Jun 18 20:25:35 2001
-+++ aic7xxx_linux.c Mon Jun 18 20:26:29 2001
-@@ -1552,12 +1552,14 @@
-           * Get an scb to use.
-           */
-          if ((scb = ahc_get_scb(ahc)) == NULL) {
-+              ahc->flags |= AHC_RESOURCE_SHORTAGE;
-               if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
--                   panic("running device on run list");
-+                   return;
-+                   // panic("running device on run list");
-               LIST_INSERT_HEAD(&ahc->platform_data->device_runq,
-                          dev, links);
-               dev->flags |= AHC_DEV_ON_RUN_LIST;
--              ahc->flags |= AHC_RESOURCE_SHORTAGE;
-+              // ahc->flags |= AHC_RESOURCE_SHORTAGE;
-               printf("%s: Temporary Resource Shortage\n",
-                      ahc_name(ahc));
-               return;
-
-
+Regards.
 

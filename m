@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271472AbTGQOs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 10:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271474AbTGQOs0
+	id S271474AbTGQOuA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 10:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271476AbTGQOt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 10:48:26 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:33162 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S271472AbTGQOsR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 10:48:17 -0400
-Date: Thu, 17 Jul 2003 08:02:55 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 932] New: [OSS] loading cs4232 yields "kobject_register failed" 
-Message-ID: <16160000.1058454175@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Thu, 17 Jul 2003 10:49:59 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:2012 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S271474AbTGQOtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 10:49:55 -0400
+Message-ID: <3F1668FF.8060206@cornell.edu>
+Date: Thu, 17 Jul 2003 05:14:39 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "J. Hidding" <J.Hidding@student.rug.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.0-test1 freezes sometimes
+References: <web-8156551@mail.rug.nl>
+In-Reply-To: <web-8156551@mail.rug.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=932
+I experience freezes too, with recent 2.5 kernels, as well as i/o 
+lockups (attempted disk activity freezes programs, but I can move the 
+mouse, etc...). I posted an oops (kernel BUG) for the second here:
 
-           Summary: [OSS] loading cs4232 yields "kobject_register failed"
-    Kernel Version: 2.6.0-test1
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: jochen@jochen.org
+http://www.ussg.iu.edu/hypermail/linux/kernel/0307.1/1682.html
 
+Are you using tcq by any chance? Just curious.
 
-Distribution: Debian/testing
-Hardware Environment: IBM Thinkpad 600
-
-Problem Description:
-When loading OSS driver cs4232:
-pnp: the driver 'cs4232' has been registered
-kobject_register failed for cs4232 (-17)
-Call Trace:
- [<c01ad4f9>] kobject_register+0x59/0x60
- [<c01eadb4>] bus_add_driver+0x54/0xd0
- [<c01eb291>] driver_register+0x31/0x40
- [<c01bf431>] pnp_register_driver+0x41/0x80
- [<c6a7e65f>] init_cs4232+0x10f/0x11a [cs4232]
- [<c0131746>] sys_init_module+0x126/0x270
- [<c010936b>] syscall_call+0x7/0xb
-
-<Crystal audio controller (CS4238)> at 0x530 irq 9 dma 1,0
 
 

@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129745AbRBHRIs>; Thu, 8 Feb 2001 12:08:48 -0500
+	id <S129144AbRBHRN6>; Thu, 8 Feb 2001 12:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130158AbRBHRIi>; Thu, 8 Feb 2001 12:08:38 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:11861 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S129745AbRBHRIV>;
-	Thu, 8 Feb 2001 12:08:21 -0500
-Message-ID: <3A82D271.6010000@valinux.com>
-Date: Thu, 08 Feb 2001 10:08:01 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; 0.7) Gecko/20010126
-X-Accept-Language: en
+	id <S129741AbRBHRNs>; Thu, 8 Feb 2001 12:13:48 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:19647 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129144AbRBHRN2>; Thu, 8 Feb 2001 12:13:28 -0500
+Date: Thu, 8 Feb 2001 17:13:10 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>,
+        Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.21.0102081456030.2378-100000@duckman.distro.conectiva>
+Message-ID: <Pine.SOL.4.21.0102081711200.11832-100000@green.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: Alex Deucher <adeucher@UU.NET>
-CC: vandrove@vc.cvut.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x, drm, g400 and pci_set_master
-In-Reply-To: <3A82CBCE.6926AFAF@uu.net>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Deucher wrote:
+On Thu, 8 Feb 2001, Rik van Riel wrote:
 
-> I'm not sure about the mga source, but you can enable busmaster manually
-> as root.  See the dri-devel list for more.  I can't remember the exact
-> message off hand.  THere was also some discussion of this last week I
-> think.
+> On Thu, 8 Feb 2001, Mikulas Patocka wrote:
 > 
-> Alex
+> > > > You need aio_open.
+> > > Could you explain this? 
+> > 
+> > If the server is sending many small files, disk spends huge
+> > amount time walking directory tree and seeking to inodes. Maybe
+> > opening the file is even slower than reading it
 > 
-> 
-> ----------------------------
-> 
-> Hi, 
->   friend of mine bought g400 on my recommendation, and unfortunately, 
-> mga drm driver did not worked for me. I tracked it down to missing 
-> pci_enable_device and pci_set_master in mga* driver. But even after 
-> looking more than hour into that code I have no idea where I should 
-> place this call, as it looks like that mga driver is completely 
-> shielded from seeing pcidev structure :-( 
->   Does anybody know where I should place pci_enable_device and 
-> pci_set_master into mga code? I worked around pci_enable_device by 
-> using matroxfb, but pci_set_master is not invoked by matroxfb, and 
-> adding this call into matroxfb just to get mga drm driver to work does 
-> not look correctly to me - although it is what I had done just now. 
->                                     Thanks, 
->                                             Petr Vandrovec 
->                                             vandrove@vc.cvut.cz
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+> Not if you have a big enough inode_cache and dentry_cache.
 
-The DRM drivers don't know about the pcidev structure at all.  All this 
-is done in the XFree86 ddx driver.  You can probably add something like 
-this to MGAPreInit (after pMga->PciTag is set, in my copy its 
-mga_driver.c:1232 yours might be at a slightly different line number 
-depending on the version your using):
+Eh? However big the caches are, you can still get misses which will
+require multiple (blocking) disk accesses to handle...
 
-{
-   CARD32 temp;
-   temp = pciReadLong(pMga->PciTag, PCI_CMD_STAT_REG);
-   pciWriteLong(pMga->PciTag, PCI_CMD_STAT_REG, temp | 
-PCI_CMD_MASTER_ENABLE);
-}
+> OTOH ... if you have enough memory the whole async IO argument
+> is moot anyway because all your files will be in memory too.
 
--Jeff
+Only for cache hits. If you're doing a Mindcraft benchmark or something
+with everything in RAM, you're fine - for real world servers, that's not
+really an option ;-)
+
+Really, you want/need cache MISSES to be handled without blocking. However
+big the caches, short of running EVERYTHING from a ramdisk, these will
+still happen!
+
+
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

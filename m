@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135991AbREGEPI>; Mon, 7 May 2001 00:15:08 -0400
+	id <S135989AbREGEGH>; Mon, 7 May 2001 00:06:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135992AbREGEO6>; Mon, 7 May 2001 00:14:58 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:37360 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S135991AbREGEOw>; Mon, 7 May 2001 00:14:52 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105070408.f4748seA026331@webber.adilger.int>
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <E14wVc1-0002aj-00@the-village.bc.nu> "from Alan Cox at May 6, 2001
- 09:58:38 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sun, 6 May 2001 22:08:54 -0600 (MDT)
-CC: Andreas Dilger <adilger@turbolinux.com>,
-        Alexander Viro <viro@math.psu.edu>, Chris Wedgwood <cw@f00f.org>,
-        Andrea Arcangeli <andrea@suse.de>, Jens Axboe <axboe@suse.de>,
-        Rogier Wolff <R.E.Wolff@bitwizard.nl>,
-        Linus Torvalds <torvalds@transmeta.com>, volodya@mindspring.com,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S135990AbREGEF6>; Mon, 7 May 2001 00:05:58 -0400
+Received: from mail11.jump.net ([206.196.91.11]:61180 "EHLO mail11.jump.net")
+	by vger.kernel.org with ESMTP id <S135989AbREGEFt>;
+	Mon, 7 May 2001 00:05:49 -0400
+Message-ID: <3AF61F87.536AC034@sgi.com>
+Date: Sun, 06 May 2001 23:07:35 -0500
+From: Eric Sandeen <sandeen@sgi.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-SGI_XFS_1.0smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: afu@fugmann.dhs.org
+Subject: Re: CANBus driver.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan writes:
-> > Actually, the EVMS project does exactly this.  All I/O is done on a full
-> > disk basis, and essentially does block remapping for each partition.  This
-> > also solves the problem of cache inconsistency if accessing the parent
-> > device vs. accessing the partition.
+Hi Anders - 
+
+There is a bunch of code for Linux CANbus/DeviceNet drivers for SST
+cards (sstech.on.ca) here:
+
+http://home.att.net/~marksu/dn5136man.html
+
+"This is a Linux driver and library of useful functions and utility
+applications for the SST 5136-DN family of CAN bus/DeviceNet interface
+boards."
+
+SST makes these cards in various formats, pcmcia, PC104, isa...
+
+Also found something here, not familiar with it though:
+
+http://www.synergetic.com/linux/
+
+Good luck,
+
+-Eric
+
+Anders Peter Fugmann wrote:
+
+> Some of my fellow students and I, have started a project in which we 
+> have to implement a linux driver for a CANbus ISA card ( AROS: A-858D 
+> PCCAN -x ver. 1.12). 
 > 
-> Interesting. Can EVMS handle the partition labels used by the LVM layer - ie
-> could it replace it as well ?
+> Does there exist any work on a CANBus driver for linux already? 
 
-Yes, they already support all current LVM volumes (including snapshots).
-However, the user-space tools to set up new LVM volumes and manage existing
-ones is not ready yet.  The last I talked with the IBM folks (a week ago),
-they said they were starting to work on the user-space tools.
-
-Because the whole partition/volume code is modular in EVMS, they will be able
-to handle AIX LVM, HP/UX LVM, etc. volumes in addition to the normal DOS or
-other partitions.
-
-Cheers, Andreas
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Eric Sandeen      XFS for Linux     http://oss.sgi.com/projects/xfs
+sandeen@sgi.com   SGI, Inc.

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbSL2WSo>; Sun, 29 Dec 2002 17:18:44 -0500
+	id <S261868AbSL2WSJ>; Sun, 29 Dec 2002 17:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSL2WSo>; Sun, 29 Dec 2002 17:18:44 -0500
-Received: from holomorphy.com ([66.224.33.161]:40933 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261908AbSL2WSm>;
-	Sun, 29 Dec 2002 17:18:42 -0500
-Date: Sun, 29 Dec 2002 14:25:38 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: zippel@linux-m68k.org
-Cc: linux-kernel@vger.kernel.org
-Subject: tabs on otherwise empty lines
-Message-ID: <20021229222538.GK29422@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+	id <S261874AbSL2WSJ>; Sun, 29 Dec 2002 17:18:09 -0500
+Received: from smtp06.iddeo.es ([62.81.186.16]:5265 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id <S261868AbSL2WSH>;
+	Sun, 29 Dec 2002 17:18:07 -0500
+Date: Sun, 29 Dec 2002 23:26:28 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make i2c use initcalls everywhere
+Message-ID: <20021229222628.GC2259@werewolf.able.es>
+References: <20021229220436.A11420@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20021229220436.A11420@lst.de>; from hch@lst.de on Sun, Dec 29, 2002 at 22:04:36 +0100
+X-Mailer: Balsa 2.0.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The <HELP> state is willing to consume config options as part of help
-texts AFAICT:
 
-(1)	[ \t]+  {
-(2)	\n/[^ \t\n] {
-(3)	[ \t]*\n        {
-(4)	[^ \t\n].* {
-(5)	<<EOF>> {
+On 2002.12.29 Christoph Hellwig wrote:
+> The use of explicit initializers all over the i2c core anoyed for
+> long, but the lm_sensors merge with two new files just for initializers
+> was too much.  Conver all of i2c to sane initialization (mostly
+> initcall, but some driver also got other cleanups in that area)
+> 
 
-Now consider: "\tSome help text.\n\t\nconfig FOO\n\tdepends on BAR\n"
+Wil this reach the i2c maintainer or the next auto-generated patch from i2c
+2.8.x will undo what you do now and will be sized 4Gb  ?
 
-"\tSome help text." is consumed by (1).
-"\n" is consumed by (3).
-"\t\n" is consumed by (3) again.
-"config FOO" is consumed by (4), which resets first_ts to last_ts,
-	which does not actually change the value of first_ts.
-"\tdepends on BAR\n" is consumed by (1), and does not zconf_endhelp()
-	as the indentation level is the same as for "\tSome help text."
+Will i2c ever get in sync into 2.4 ? Nowadays the main of the patch is a ton
+of 'stupid' changes from printk(xxx) to I2C_DEBUG(xxx) or the like.
+Will this be accepted if I submit it, even independently of the maintainer ?
+Because I suppose (???) that maintainer is sending changes and they are going
+to trash...
 
-Better boundary detection logic is needed here.
-
-Thanks,
-Bill
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre2-jam2 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-2mdk))

@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281161AbRKZDfw>; Sun, 25 Nov 2001 22:35:52 -0500
+	id <S281455AbRKZDvE>; Sun, 25 Nov 2001 22:51:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281455AbRKZDfm>; Sun, 25 Nov 2001 22:35:42 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:12812 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281161AbRKZDfe>; Sun, 25 Nov 2001 22:35:34 -0500
-Message-ID: <3C01B845.33314F49@zip.com.au>
-Date: Sun, 25 Nov 2001 19:34:29 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S281460AbRKZDuz>; Sun, 25 Nov 2001 22:50:55 -0500
+Received: from ausmac.net ([203.12.68.15]:15270 "HELO ausmac.net")
+	by vger.kernel.org with SMTP id <S281455AbRKZDus>;
+	Sun, 25 Nov 2001 22:50:48 -0500
+Date: Mon, 26 Nov 2001 14:50:43 +1100 (EST)
+From: Grant Bayley <gbayley@ausmac.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: A Documentation suggestion (fwd)
+Message-ID: <Pine.BSO.4.33.0111261450030.28740-100000@ausmac.net>
 MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3: kjournald and spun-down disks
-In-Reply-To: <3BFF06CA.71B99D3C@zip.com.au> <Pine.LNX.4.40.0111252110490.2207-100000@waste.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
-> 
-> Ok, so what's the theory behind the journal timer? Why would we want
-> ext3 journal flushed more or less often than ext2 metadata given that
-> they're of equivalent importance?
 
-umm, err..  If your machine crashes, ext3 will restore its state
-to that which pertained between zero and five seconds before the crash.
+(I'm not on list due to volume; please reply privately)
 
-With ext2+fsck, things are not as clear.  Your data will be restored
-to that which pertained from zero to thirty seconds prior to crash.
-inodes and superblock to that which pertained from zero to thirty
-five seconds before the crash, stuff like that.
+---------- Forwarded message ----------
+Date: Mon, 26 Nov 2001 14:44:39 +1100 (EST)
+From: Grant Bayley <gbayley@ausmac.net>
+To: Alan.Cox@linux.org, torvalds@transmeta.com
+Subject: A Documentation suggestion
 
-A five second window is short enough for you to be confident that
-everything you want is still there.   With thirty seconds, uncertainty
-creeps in.
+Hi Alan, Linus,
 
-Yes, it needs to be configurable.
+Just wondering if this is the right place to start...
 
--
+I've been poking around in the Linux Kernel source for some time, and I've
+always been a bit mystified by the layout of the Documentation directory.
+Not so much the contents of it, but wondering why the layout is like it
+is.
+
+Now, without further ado, I've describe what I've done about it.
+
+>From the top level 00-INDEX file:
+---------------------------------
+
+This is a brief list of all the files and directories in ./Documentation
+and what they contain.  The layout of this directory closely mirrors
+that of the Linux kernel itself, and should act as an encouragement
+to developers to store documentation about their drivers etc. in
+the appropriate directories.
+
+Files kept at the top level of the Documentation hierarchy are
+prepended with README- to emphasise the importance of them.
+
+Please try and keep any additional descriptions small enough to fit
+on one line.
+
+---------------------------
+
+To have a look at the structure and to grab a tarball of the directory,
+have a squiz here:
+
+	http://orbital.wiretapped.net/linux/
+
+The only changes that have been made to the files themselves is correction of
+a typo in one file and renaming of several others to make the contents of
+the file more obvious from reading the name (ie pci.txt ->
+pci-driver-development.txt, pci.txt -> pci-power-management.txt).
+
+Hoping you'd be interested in using such a Documentation directory layout,
+
+Grant
+
+-------------------------------------------------------
+Grant Bayley                         gbayley@ausmac.net
+-Admin @ AusMac Archive, Wiretapped.net, 2600 Australia
+ www.ausmac.net   www.wiretapped.net   www.2600.org.au
+-------------------------------------------------------
+

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132886AbRA0XJu>; Sat, 27 Jan 2001 18:09:50 -0500
+	id <S132779AbRA0XPO>; Sat, 27 Jan 2001 18:15:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132790AbRA0XJk>; Sat, 27 Jan 2001 18:09:40 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:14723 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S132779AbRA0XJ3>; Sat, 27 Jan 2001 18:09:29 -0500
-Date: Sat, 27 Jan 2001 23:09:27 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: David Schwartz <davids@webmaster.com>
-cc: Gregory Maxwell <greg@linuxpower.cx>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: RE: hotmail not dealing with ECN
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCECMNFAA.davids@webmaster.com>
-Message-ID: <Pine.SOL.4.21.0101272308030.701-100000@green.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132790AbRA0XPE>; Sat, 27 Jan 2001 18:15:04 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:36114 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S132779AbRA0XOz>; Sat, 27 Jan 2001 18:14:55 -0500
+From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: routing between different subnets on same if.
+Date: Sat, 27 Jan 2001 23:15:45 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <94vkr1$p4k$1@ncc1701.cistron.net>
+In-Reply-To: <94v7nc$28g$1@ncc1701.cistron.net> <Pine.LNX.4.31.0101272202060.2119-100000@fogarty.jakma.org>
+X-Trace: ncc1701.cistron.net 980637345 25748 195.64.65.67 (27 Jan 2001 23:15:45 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Jan 2001, David Schwartz wrote:
+In article <Pine.LNX.4.31.0101272202060.2119-100000@fogarty.jakma.org>,
+Paul Jakma  <paul@clubi.ie> wrote:
+>On Sat, 27 Jan 2001, Miquel van Smoorenburg wrote:
+>
+>> Did you enable forwarding with echo 1 > /proc/sys/net/ipv4/ip_forward ?
+>>
+>
+>yes. the machine already routes correctly between the 2 subnets and
+>the internet which is on a seperate interface. i also disabled
+>/proc/sys/net/ipv4/conf/all/send_redirects, to no avail.
 
-> 
-> > Firewalling should be implemented on the hosts, perhaps with centralized
-> > policy management. In such a situation, there would be no reason to filter
-> > on funny IP options.
-> 
-> 	That's madness. If you have to implement your firewalling on every host,
-> what do you do when someone wants to run a new OS? Forbid it?
+What about /proc/sys/net/ipv4/conf/*/rp_filter ? Should be zero
+for the 192.* interface(s), I think.
 
-Of course. Then you find out about some new problem you want to block, so
-you spend the next week reconfiguring a dozen different OS firewalling
-systems. Hrm... I'll stick with a proper firewall, TYVM!
-
-
-James.
+Mike.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

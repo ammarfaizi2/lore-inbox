@@ -1,96 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264301AbTKZUOT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 15:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTKZUOT
+	id S264339AbTKZUWg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 15:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTKZUWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 15:14:19 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8322 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264301AbTKZUON
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 15:14:13 -0500
-Date: Wed, 26 Nov 2003 15:17:14 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG (non-kernel), can hurt developers.
-In-Reply-To: <20031126193310.GE14383@mail.shareable.org>
-Message-ID: <Pine.LNX.4.53.0311261459340.11574@chaos>
-References: <Pine.LNX.4.53.0311261153050.10929@chaos>
- <Pine.LNX.4.58.0311261021400.1524@home.osdl.org> <Pine.LNX.4.53.0311261344280.11326@chaos>
- <20031126193310.GE14383@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 Nov 2003 15:22:36 -0500
+Received: from thunk.org ([140.239.227.29]:62679 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S264339AbTKZUWe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 15:22:34 -0500
+Date: Wed, 26 Nov 2003 15:22:16 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Fire Engine??
+Message-ID: <20031126202216.GA13116@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	"David S. Miller" <davem@redhat.com>, Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel> <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel> <p73fzgbzca6.fsf@verdi.suse.de> <20031126113040.3b774360.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031126113040.3b774360.davem@redhat.com>
+User-Agent: Mutt/1.5.4i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Nov 2003, Jamie Lokier wrote:
+On Wed, Nov 26, 2003 at 11:30:40AM -0800, David S. Miller wrote:
+> > - Doing gettimeofday on each incoming packet is just dumb, especially
+> > when you have gettimeofday backed with a slow southbridge timer.
+> > This shows quite badly on many profile logs.
+> > I still think right solution for that would be to only take time stamps
+> > when there is any user for it (= no timestamps in 99% of all systems) 
+> 
+> Andi, I know this is a problem, but for the millionth time your idea
+> does not work because we don't know if the user asked for the timestamp
+> until we are deep within the recvmsg() processing, which is long after
+> the packet has arrived.
 
-> Richard B. Johnson wrote:
-> > The actual problem in the production machine involves two absolutely
-> > independent tasks that end up using the same shared 'C' runtime
-> > library. There should be no interaction between them, none
-> > whatsover. However, when they both execute rand(), they interact in
-> > bad ways. This interraction occurs on random days at monthly
-> > intervals.
->
-> On Linux (unlike Windows), there is _no_ interaction between the
-> libraries of different tasks.  Neither of them sees changes to the
-> other's memory space.
->
-> If you are seeing a fault, then there might well be a bug, even a
-> kernel bug, but your test program does not illustrate the same problem.
->
-> What is the "bad interaction" that you observed at monthly intervals?
-> Also a SIGSEGV?
->
+I believe what Andi was suggesting was if there was **no** processes
+that are currently requesting timestamps, then we can dispense with
+taking the timestamp.  If a single user asks for the timestamp, then
+we would still end up taking timestamps on all packets.  Is this worth
+the overhead to keep track of that factor?  It's arguable, but some
+platforms, probably yes.
 
-Yes. When the call to rand() was replaced with a static-linked
-clone it went away.
-
-> > This is likely caused by the failure to use "-s" in the compilation
-> > of a shared library function, fixed in subsequent releases.
->
-> No, this has nothing to do with it.  Unlike Windows and some embedded
-> environments, Linux shared libraries do not have "shared writable data"
-> sections.
-
-Well the libc rand() does something that looks like that.
-
->
-> > So, I allowed rand() to be "interrupted" just as it would be in a
-> > context-switch. I simply used a signal handler, knowing quite well
-> > that the "interrupt" could occur at any time. [...] What I brought
-> > to light was a SIGSEGV that can occur when the shared-library rand()
-> > function is "interrupted".
->
-> You have made a mistake.  You program shows a different problem to the
-> one which you noticed every month or so.
->
-
-The calling rand() from a handler in a newer libc doesn't seg-fault.
-
-> Calling a function from a signal handler while it is being interrupted
-> by that handler is _very_ different from tasks context switching.
-> They are not similar at all!  (Yes, signals can be used to simulate
-> context switches, but not like this!)
->
-
-Not with the emulation. The problem is that rand() uses a thread-
-specific pointer to find the seed (history variable), just like
-'errno' which isn't really a static variable, but a function
-that returns a pointer to a thread-specific integer. If this
-is interrupted in a critical section, and that same pointer
-is used, that pointer is left pointing to a variable in somebody
-else's address space. That same problem is observed to happen when
-the same shared runtime library was used by entirely different tasks.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+						- Ted

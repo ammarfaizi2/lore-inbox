@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262490AbTCMSjd>; Thu, 13 Mar 2003 13:39:33 -0500
+	id <S262532AbTCMSsc>; Thu, 13 Mar 2003 13:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262492AbTCMSjd>; Thu, 13 Mar 2003 13:39:33 -0500
-Received: from home.linuxhacker.ru ([194.67.236.68]:32676 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id <S262490AbTCMSjc>;
-	Thu, 13 Mar 2003 13:39:32 -0500
-Date: Thu, 13 Mar 2003 21:49:27 +0300
-From: Oleg Drokin <green@linuxhacker.ru>
-To: alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: [2.4] Memleak in drivers/scsi/cpqfcTSinit.c::cpqfcTS_ioctl()
-Message-ID: <20030313184927.GA2423@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262533AbTCMSsc>; Thu, 13 Mar 2003 13:48:32 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:4245 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP
+	id <S262532AbTCMSsb>; Thu, 13 Mar 2003 13:48:31 -0500
+Message-ID: <3E70D4F0.6060608@bogonomicon.net>
+Date: Thu, 13 Mar 2003 12:58:56 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       deanna_bonds@adaptec.com
+Subject: Re: dpt_i2o.c memleak/incorrectness
+References: <20030313182819.GA2213@linuxhacker.ru> <1047584663.25948.75.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>>   There is something strange going on in drivers/scsi/dpt_i2o.c in both
+>>   2.4 and 2.5. adpt_i2o_reset_hba() function allocates 4 bytes 
+>>   for "status" stuff, then tries to reset controller, then 
+>>   if timeout on first reset stage is reached, frees "status" and returns,
+>>   otherwise it proceeds to monitor "status" (which is modified by hardware
+>>   now, btw), and if timeout is reached, just exits.
+> 
+> Correctly - I2O does the same thing in this case. Its just better to
+> throw a few bytes away than risk corruption
 
-   There is a trivial memleak in drivers/scsi/cpqfcTSinit.c::cpqfcTS_ioctl()
-   on error exit paths if copy_to/from_user fails, see the patch below.
-   Found with help of smatch + enhanced unfree script.
+Better document it in the comments or it will get "corrected" by some 
+mem leak detector.  If possible try to use a static for the pointer to 
+the status block, but that may not work.  Re-enterant code and multi CPU 
+situations likely won't allow for that.  Also it might not be worth the 
+effort to properly determin if it is safe to use only one location.
 
-Bye,
-    Oleg
+- Bryan
 
-===== drivers/scsi/cpqfcTSinit.c 1.14 vs edited =====
---- 1.14/drivers/scsi/cpqfcTSinit.c	Tue Dec 17 16:18:20 2002
-+++ edited/drivers/scsi/cpqfcTSinit.c	Thu Mar 13 21:45:20 2003
-@@ -467,8 +467,10 @@
- 				// Need data from user?
- 				// make sure caller's buffer is in kernel space.
- 				if ((vendor_cmd->rw_flag == VENDOR_WRITE_OPCODE) && vendor_cmd->len)
--					if (copy_from_user(buf, vendor_cmd->bufp, vendor_cmd->len))
-+					if (copy_from_user(buf, vendor_cmd->bufp, vendor_cmd->len)) {
-+						kfree(buf);
- 						return (-EFAULT);
-+					}
- 
- 				// copy the CDB (if/when MAX_COMMAND_SIZE is 16, remove copy below)
- 				memcpy(&ScsiPassThruCmnd->cmnd[0], &vendor_cmd->cdb[0], MAX_COMMAND_SIZE);
-@@ -533,7 +535,7 @@
- 				// need to pass data back to user (space)?
- 				if ((vendor_cmd->rw_flag == VENDOR_READ_OPCODE) && vendor_cmd->len)
- 					if (copy_to_user(vendor_cmd->bufp, buf, vendor_cmd->len))
--						return (-EFAULT);
-+						result = -EFAULT;
- 
- 				if (buf)
- 					kfree(buf);

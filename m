@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312574AbSDOCKU>; Sun, 14 Apr 2002 22:10:20 -0400
+	id <S312575AbSDOCUJ>; Sun, 14 Apr 2002 22:20:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312581AbSDOCKT>; Sun, 14 Apr 2002 22:10:19 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32004
+	id <S312579AbSDOCUI>; Sun, 14 Apr 2002 22:20:08 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:34564
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312574AbSDOCKS>; Sun, 14 Apr 2002 22:10:18 -0400
-Date: Sun, 14 Apr 2002 19:09:58 -0700 (PDT)
+	id <S312575AbSDOCUH>; Sun, 14 Apr 2002 22:20:07 -0400
+Date: Sun, 14 Apr 2002 19:19:48 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] for 2.4.19-pre6
-In-Reply-To: <200204150023.g3F0NKi21975@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.10.10204141908040.1699-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.44.0204150958240.3759-100000@boston.corp.fedex.com>
+Message-ID: <Pine.LNX.4.10.10204141911180.1699-300000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; BOUNDARY="1430322656-6328172-1018837188=:1699"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Well I sent the rest of the patch in that got lost.
-It is the fs/* directory that is missing things.
+--1430322656-6328172-1018837188=:1699
+Content-Type: text/plain; charset=us-ascii
 
-There was a decouple of code from 2.4.X-ac to marcelo.
+
+Here is the original patch from its base, and the lost fragment.
 
 Cheers,
 
 Andre Hedrick
 LAD Storage Consulting Group
 
-On Sun, 14 Apr 2002, Richard Gooch wrote:
+On Mon, 15 Apr 2002, Jeff Chua wrote:
 
->   Hi, Marcelo. The last few pre-patches have broken IDE as modules. I
-> would have though this would have been fixed by now, but perhaps
-> no-one else noticed. Here is a patch that fixes the problem.
 > 
-> 				Regards,
+> On Sun, 14 Apr 2002, Richard Gooch wrote:
 > 
-> 					Richard....
-> Permanent: rgooch@atnf.csiro.au
-> Current:   rgooch@ras.ucalgary.ca
+> >   Hi, Marcelo. The last few pre-patches have broken IDE as modules. I
+> > would have though this would have been fixed by now, but perhaps
+> > no-one else noticed. Here is a patch that fixes the problem.
 > 
-> diff -urN linux-2.4.19-pre6/drivers/ide/ide-probe.c linux/drivers/ide/ide-probe.c
-> --- linux-2.4.19-pre6/drivers/ide/ide-probe.c	Sat Apr  6 14:15:17 2002
-> +++ linux/drivers/ide/ide-probe.c	Sun Apr 14 15:51:51 2002
-> @@ -987,7 +987,6 @@
->  }
->  
->  #ifdef MODULE
-> -extern int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
->  
->  int init_module (void)
->  {
-> @@ -997,14 +996,12 @@
->  		ide_unregister(index);
->  	ideprobe_init();
->  	create_proc_ide_interfaces();
-> -	ide_xlate_1024_hook = ide_xlate_1024;
->  	return 0;
->  }
->  
->  void cleanup_module (void)
->  {
->  	ide_probe = NULL;
-> -	ide_xlate_1024_hook = 0;
->  }
->  MODULE_LICENSE("GPL");
->  #endif /* MODULE */
+> Richard, I agree with you that seems like nobody cared. I had submitted
+> this patch several times, but it's still not fixed.
+> 
+> Jeff.
+> 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
@@ -74,3 +56,126 @@ On Sun, 14 Apr 2002, Richard Gooch wrote:
 > Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
+--1430322656-6328172-1018837188=:1699
+Content-Type: text/plain; charset=us-ascii; name="debian.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10204141919480.1699@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="debian.patch"
+
+LS0tIGxpbnV4LTIuNC4xMi5kZWJpYW4vZHJpdmVycy9pZGUvaWRlLWdlb21l
+dHJ5LmMub3JpZwlUaHUgSmFuICA0IDEyOjUwOjE3IDIwMDENCisrKyBsaW51
+eC0yLjQuMTIuZGViaWFuL2RyaXZlcnMvaWRlL2lkZS1nZW9tZXRyeS5jCVNh
+dCBPY3QgMjcgMjE6NTA6MjMgMjAwMQ0KQEAgLTYsNiArNiw4IEBADQogI2lu
+Y2x1ZGUgPGxpbnV4L21jMTQ2ODE4cnRjLmg+DQogI2luY2x1ZGUgPGFzbS9p
+by5oPg0KIA0KKyNpZmRlZiBDT05GSUdfQkxLX0RFVl9JREUNCisNCiAvKg0K
+ICAqIFdlIHF1ZXJ5IENNT1MgYWJvdXQgaGFyZCBkaXNrcyA6IGl0IGNvdWxk
+IGJlIHRoYXQgd2UgaGF2ZSBhIFNDU0kvRVNESS9ldGMNCiAgKiBjb250cm9s
+bGVyIHRoYXQgaXMgQklPUyBjb21wYXRpYmxlIHdpdGggU1QtNTA2LCBhbmQg
+dGh1cyBzaG93aW5nIHVwIGluIG91cg0KQEAgLTgwLDkgKzgyLDEwIEBADQog
+CX0NCiAjZW5kaWYNCiB9DQorI2VuZGlmIC8qIENPTkZJR19CTEtfREVWX0lE
+RSAqLw0KIA0KIA0KLSNpZmRlZiBDT05GSUdfQkxLX0RFVl9JREUNCisjaWYg
+ZGVmaW5lZChDT05GSUdfQkxLX0RFVl9JREUpIHx8IGRlZmluZWQoQ09ORklH
+X0JMS19ERVZfSURFX01PRFVMRSkNCiANCiBleHRlcm4gaWRlX2RyaXZlX3Qg
+KiBnZXRfaW5mb19wdHIoa2Rldl90KTsNCiBleHRlcm4gdW5zaWduZWQgbG9u
+ZyBjdXJyZW50X2NhcGFjaXR5IChpZGVfZHJpdmVfdCAqKTsNCkBAIC0yMTQs
+NCArMjE3LDQgQEANCiAJCSAgICAgICBkcml2ZS0+Ymlvc19jeWwsIGRyaXZl
+LT5iaW9zX2hlYWQsIGRyaXZlLT5iaW9zX3NlY3QpOw0KIAlyZXR1cm4gcmV0
+Ow0KIH0NCi0jZW5kaWYgLyogQ09ORklHX0JMS19ERVZfSURFICovDQorI2Vu
+ZGlmIC8qIGRlZmluZWQoQ09ORklHX0JMS19ERVZfSURFKSB8fCBkZWZpbmVk
+KENPTkZJR19CTEtfREVWX0lERV9NT0RVTEUpICovDQotLS0gbGludXgtMi40
+LjEyLmRlYmlhbi9kcml2ZXJzL2lkZS9pZGUtcHJvYmUuYy5vcmlnCVNhdCBT
+ZXAgIDggMTI6MDI6MzIgMjAwMQ0KKysrIGxpbnV4LTIuNC4xMi5kZWJpYW4v
+ZHJpdmVycy9pZGUvaWRlLXByb2JlLmMJU2F0IE9jdCAyNyAyMTo1MDoyMyAy
+MDAxDQpAQCAtOTEzLDYgKzkxMyw4IEBADQogfQ0KIA0KICNpZmRlZiBNT0RV
+TEUNCitleHRlcm4gaW50ICgqaWRlX3hsYXRlXzEwMjRfaG9vaykoa2Rldl90
+LCBpbnQsIGludCwgY29uc3QgY2hhciAqKTsNCisNCiBpbnQgaW5pdF9tb2R1
+bGUgKHZvaWQpDQogew0KIAl1bnNpZ25lZCBpbnQgaW5kZXg7DQpAQCAtOTIx
+LDExICs5MjMsMTMgQEANCiAJCWlkZV91bnJlZ2lzdGVyKGluZGV4KTsNCiAJ
+aWRlcHJvYmVfaW5pdCgpOw0KIAljcmVhdGVfcHJvY19pZGVfaW50ZXJmYWNl
+cygpOw0KKwlpZGVfeGxhdGVfMTAyNF9ob29rID0gaWRlX3hsYXRlXzEwMjQ7
+DQogCXJldHVybiAwOw0KIH0NCiANCiB2b2lkIGNsZWFudXBfbW9kdWxlICh2
+b2lkKQ0KIHsNCiAJaWRlX3Byb2JlID0gTlVMTDsNCisJaWRlX3hsYXRlXzEw
+MjRfaG9vayA9IDA7DQogfQ0KICNlbmRpZiAvKiBNT0RVTEUgKi8NCi0tLSBs
+aW51eC0yLjQuMTIuZGViaWFuL2ZzL3BhcnRpdGlvbnMvTWFrZWZpbGUub3Jp
+ZwlUaHUgSnVsIDI2IDE2OjMwOjA0IDIwMDENCisrKyBsaW51eC0yLjQuMTIu
+ZGViaWFuL2ZzL3BhcnRpdGlvbnMvTWFrZWZpbGUJU2F0IE9jdCAyNyAyMTo1
+MDoyNCAyMDAxDQpAQCAtOSw3ICs5LDcgQEANCiANCiBPX1RBUkdFVCA6PSBw
+YXJ0aXRpb25zLm8NCiANCi1leHBvcnQtb2JqcyA6PSBjaGVjay5vIGlibS5v
+DQorZXhwb3J0LW9ianMgOj0gY2hlY2subyBpYm0ubyBtc2Rvcy5vDQogDQog
+b2JqLXkgOj0gY2hlY2subw0KIA0KLS0tIGxpbnV4LTIuNC4xMi5kZWJpYW4v
+ZnMvcGFydGl0aW9ucy9tc2Rvcy5jLm9yaWcJTW9uIE9jdCAgMSAyMDowMzoy
+NiAyMDAxDQorKysgbGludXgtMi40LjEyLmRlYmlhbi9mcy9wYXJ0aXRpb25z
+L21zZG9zLmMJU2F0IE9jdCAyNyAyMTo1MDoyNSAyMDAxDQpAQCAtMjksNyAr
+MjksMTMgQEANCiANCiAjaWZkZWYgQ09ORklHX0JMS19ERVZfSURFDQogI2lu
+Y2x1ZGUgPGxpbnV4L2lkZS5oPgkvKiBJREUgeGxhdGUgKi8NCi0jZW5kaWYg
+LyogQ09ORklHX0JMS19ERVZfSURFICovDQorI2VsaWYgZGVmaW5lZChDT05G
+SUdfQkxLX0RFVl9JREVfTU9EVUxFKQ0KKyNpbmNsdWRlIDxsaW51eC9tb2R1
+bGUuaD4NCisNCitpbnQgKCppZGVfeGxhdGVfMTAyNF9ob29rKShrZGV2X3Qs
+IGludCwgaW50LCBjb25zdCBjaGFyICopOw0KK0VYUE9SVF9TWU1CT0woaWRl
+X3hsYXRlXzEwMjRfaG9vayk7DQorI2RlZmluZSBpZGVfeGxhdGVfMTAyNCBp
+ZGVfeGxhdGVfMTAyNF9ob29rDQorI2VuZGlmDQogDQogI2luY2x1ZGUgPGFz
+bS9zeXN0ZW0uaD4NCiANCkBAIC00NzAsNyArNDc2LDcgQEANCiAgKi8NCiBz
+dGF0aWMgaW50IGhhbmRsZV9pZGVfbWVzcyhzdHJ1Y3QgYmxvY2tfZGV2aWNl
+ICpiZGV2KQ0KIHsNCi0jaWZkZWYgQ09ORklHX0JMS19ERVZfSURFDQorI2lm
+IGRlZmluZWQoQ09ORklHX0JMS19ERVZfSURFKSB8fCBkZWZpbmVkKENPTkZJ
+R19CTEtfREVWX0lERV9NT0RVTEUpDQogCVNlY3RvciBzZWN0Ow0KIAl1bnNp
+Z25lZCBjaGFyICpkYXRhOw0KIAlrZGV2X3QgZGV2ID0gdG9fa2Rldl90KGJk
+ZXYtPmJkX2Rldik7DQpAQCAtNDc4LDYgKzQ4NCwxMCBAQA0KIAlpbnQgaGVh
+ZHMgPSAwOw0KIAlzdHJ1Y3QgcGFydGl0aW9uICpwOw0KIAlpbnQgaTsNCisj
+aWZkZWYgQ09ORklHX0JMS19ERVZfSURFX01PRFVMRQ0KKwlpZiAoIWlkZV94
+bGF0ZV8xMDI0KQ0KKwkJcmV0dXJuIDE7DQorI2VuZGlmDQogCS8qDQogCSAq
+IFRoZSBpMzg2IHBhcnRpdGlvbiBoYW5kbGluZyBwcm9ncmFtcyB2ZXJ5IG9m
+dGVuDQogCSAqIG1ha2UgcGFydGl0aW9ucyBlbmQgb24gY3lsaW5kZXIgYm91
+bmRhcmllcy4NCkBAIC01MzksNyArNTQ5LDcgQEANCiAJLyogRmx1c2ggdGhl
+IGNhY2hlICovDQogCWludmFsaWRhdGVfYmRldihiZGV2LCAxKTsNCiAJdHJ1
+bmNhdGVfaW5vZGVfcGFnZXMoYmRldi0+YmRfaW5vZGUtPmlfbWFwcGluZywg
+MCk7DQotI2VuZGlmIC8qIENPTkZJR19CTEtfREVWX0lERSAqLw0KKyNlbmRp
+ZiAvKiBkZWZpbmVkKENPTkZJR19CTEtfREVWX0lERSkgfHwgZGVmaW5lZChD
+T05GSUdfQkxLX0RFVl9JREVfTU9EVUxFKSAqLw0KIAlyZXR1cm4gMTsNCiB9
+DQogIA0K
+--1430322656-6328172-1018837188=:1699
+Content-Type: text/plain; charset=us-ascii; name="debian1.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10204141919481.1699@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="debian1.patch"
+
+LS0tIGxpbnV4LTIuNC4xMi5kZWJpYW4vZnMvcGFydGl0aW9ucy9NYWtlZmls
+ZS5vcmlnCVRodSBKdWwgMjYgMTY6MzA6MDQgMjAwMQ0KKysrIGxpbnV4LTIu
+NC4xMi5kZWJpYW4vZnMvcGFydGl0aW9ucy9NYWtlZmlsZQlTYXQgT2N0IDI3
+IDIxOjUwOjI0IDIwMDENCkBAIC05LDcgKzksNyBAQA0KIA0KIE9fVEFSR0VU
+IDo9IHBhcnRpdGlvbnMubw0KIA0KLWV4cG9ydC1vYmpzIDo9IGNoZWNrLm8g
+aWJtLm8NCitleHBvcnQtb2JqcyA6PSBjaGVjay5vIGlibS5vIG1zZG9zLm8N
+CiANCiBvYmoteSA6PSBjaGVjay5vDQogDQotLS0gbGludXgtMi40LjEyLmRl
+Ymlhbi9mcy9wYXJ0aXRpb25zL21zZG9zLmMub3JpZwlNb24gT2N0ICAxIDIw
+OjAzOjI2IDIwMDENCisrKyBsaW51eC0yLjQuMTIuZGViaWFuL2ZzL3BhcnRp
+dGlvbnMvbXNkb3MuYwlTYXQgT2N0IDI3IDIxOjUwOjI1IDIwMDENCkBAIC0y
+OSw3ICsyOSwxMyBAQA0KIA0KICNpZmRlZiBDT05GSUdfQkxLX0RFVl9JREUN
+CiAjaW5jbHVkZSA8bGludXgvaWRlLmg+CS8qIElERSB4bGF0ZSAqLw0KLSNl
+bmRpZiAvKiBDT05GSUdfQkxLX0RFVl9JREUgKi8NCisjZWxpZiBkZWZpbmVk
+KENPTkZJR19CTEtfREVWX0lERV9NT0RVTEUpDQorI2luY2x1ZGUgPGxpbnV4
+L21vZHVsZS5oPg0KKw0KK2ludCAoKmlkZV94bGF0ZV8xMDI0X2hvb2spKGtk
+ZXZfdCwgaW50LCBpbnQsIGNvbnN0IGNoYXIgKik7DQorRVhQT1JUX1NZTUJP
+TChpZGVfeGxhdGVfMTAyNF9ob29rKTsNCisjZGVmaW5lIGlkZV94bGF0ZV8x
+MDI0IGlkZV94bGF0ZV8xMDI0X2hvb2sNCisjZW5kaWYNCiANCiAjaW5jbHVk
+ZSA8YXNtL3N5c3RlbS5oPg0KIA0KQEAgLTQ3MCw3ICs0NzYsNyBAQA0KICAq
+Lw0KIHN0YXRpYyBpbnQgaGFuZGxlX2lkZV9tZXNzKHN0cnVjdCBibG9ja19k
+ZXZpY2UgKmJkZXYpDQogew0KLSNpZmRlZiBDT05GSUdfQkxLX0RFVl9JREUN
+CisjaWYgZGVmaW5lZChDT05GSUdfQkxLX0RFVl9JREUpIHx8IGRlZmluZWQo
+Q09ORklHX0JMS19ERVZfSURFX01PRFVMRSkNCiAJU2VjdG9yIHNlY3Q7DQog
+CXVuc2lnbmVkIGNoYXIgKmRhdGE7DQogCWtkZXZfdCBkZXYgPSB0b19rZGV2
+X3QoYmRldi0+YmRfZGV2KTsNCkBAIC00NzgsNiArNDg0LDEwIEBADQogCWlu
+dCBoZWFkcyA9IDA7DQogCXN0cnVjdCBwYXJ0aXRpb24gKnA7DQogCWludCBp
+Ow0KKyNpZmRlZiBDT05GSUdfQkxLX0RFVl9JREVfTU9EVUxFDQorCWlmICgh
+aWRlX3hsYXRlXzEwMjQpDQorCQlyZXR1cm4gMTsNCisjZW5kaWYNCiAJLyoN
+CiAJICogVGhlIGkzODYgcGFydGl0aW9uIGhhbmRsaW5nIHByb2dyYW1zIHZl
+cnkgb2Z0ZW4NCiAJICogbWFrZSBwYXJ0aXRpb25zIGVuZCBvbiBjeWxpbmRl
+ciBib3VuZGFyaWVzLg0KQEAgLTUzOSw3ICs1NDksNyBAQA0KIAkvKiBGbHVz
+aCB0aGUgY2FjaGUgKi8NCiAJaW52YWxpZGF0ZV9iZGV2KGJkZXYsIDEpOw0K
+IAl0cnVuY2F0ZV9pbm9kZV9wYWdlcyhiZGV2LT5iZF9pbm9kZS0+aV9tYXBw
+aW5nLCAwKTsNCi0jZW5kaWYgLyogQ09ORklHX0JMS19ERVZfSURFICovDQor
+I2VuZGlmIC8qIGRlZmluZWQoQ09ORklHX0JMS19ERVZfSURFKSB8fCBkZWZp
+bmVkKENPTkZJR19CTEtfREVWX0lERV9NT0RVTEUpICovDQogCXJldHVybiAx
+Ow0KIH0NCiAgDQo=
+--1430322656-6328172-1018837188=:1699--

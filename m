@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVBMBmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVBMCgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVBMBmF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 20:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVBMBmE
+	id S261233AbVBMCgi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 21:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVBMCgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 20:42:04 -0500
-Received: from dialin-209-183-21-100.tor.primus.ca ([209.183.21.100]:28800
-	"EHLO node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S261231AbVBMBl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 20:41:59 -0500
-Date: Sat, 12 Feb 2005 20:41:51 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: irq 10: nobody cared! (was: Re: 2.6.11-rc3-mm1)
-Message-ID: <20050213014151.GA2735@node1.opengeometry.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050204103350.241a907a.akpm@osdl.org> <20050205224558.GB3815@ime.usp.br> <20050212222104.GA1965@node1.opengeometry.net> <20050212224715.GA8249@ime.usp.br> <20050212232134.GA2242@node1.opengeometry.net> <20050212235043.GA4291@ime.usp.br>
+	Sat, 12 Feb 2005 21:36:38 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:10385 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261233AbVBMCgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 21:36:35 -0500
+Subject: Re: how to make a contribution
+From: Lee Revell <rlrevell@joe-job.com>
+To: sylvanino b <sylvanino@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <d14685de0502121349c2d5521@mail.gmail.com>
+References: <d14685de0502121349c2d5521@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 12 Feb 2005 21:36:33 -0500
+Message-Id: <1108262193.3273.49.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050212235043.GA4291@ime.usp.br>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 12, 2005 at 09:50:43PM -0200, Rog?rio Brito wrote:
-> On Feb 12 2005, William Park wrote:
-> > This looks awefully like 'acpi' is on.  If 'acpi=noirq' does not work,
-> > then try 'pci=noacpi'.
+On Sat, 2005-02-12 at 22:49 +0100, sylvanino b wrote:
+> I would like to share this tool if somebody is interested, but I dont
+> know how to proceed, I mean how to make a contribution an efficient
+> way. Any help/idea/information is welcome.
 > 
-> Hi, Willian.
-> 
-> First of all, thank you very much for both your attention and help.
-> 
-> Unfortunately, I have already tried booting the 2.6.11-rc3-mm2 that I just
-> compiled and I tried using many boot parameters like "acpi=noirq",
-> "irqpoll", "pci=noacpi", "acpi=off" and setting the BIOS of my motherboard
-> to "Plug'n'Play OS = Yes" (instead of "Off", which is my default).
-> 
-> To prevent the matters of loosing track of what is being done, I only
-> changed one option at a time. I put the dmesg logs of all my attempts at
-> <http://www.ime.usp.br/~rbrito/ide-problem/>.
-> 
-> Please let me know if I can provide any other useful information.
 
-Your 'dmesg' says
-    Warning: Secondary channel requires an 80-pin cable for operation.
-I assume it is.
+Put the patch on the web somewhere and post the URL to LKML.
 
-Do you have MSI on by any chance?  (CONFIG_PCI_MSI)  If so, try kernel
-without it.  My motherboard exhibits runaway IRQ with it.
+If anyone criticizes you who clearly doesn't understand the issues at
+hand, ignore them: if you have a patch that solves a real problem you
+will eventually be vindicated.
 
--- 
-William Park <opengeometry@yahoo.ca>, Toronto, Canada
-Slackware Linux -- because I can type.
+Lee
+

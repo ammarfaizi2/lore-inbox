@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262979AbSJNW23>; Mon, 14 Oct 2002 18:28:29 -0400
+	id <S262381AbSJNW0W>; Mon, 14 Oct 2002 18:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbSJNW14>; Mon, 14 Oct 2002 18:27:56 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:65529 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262407AbSJNW00>; Mon, 14 Oct 2002 18:26:26 -0400
-Date: Mon, 14 Oct 2002 15:27:42 -0700
+	id <S262390AbSJNW0W>; Mon, 14 Oct 2002 18:26:22 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:60615 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262381AbSJNW0T>; Mon, 14 Oct 2002 18:26:19 -0400
+Date: Mon, 14 Oct 2002 15:27:46 -0700
 From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Summit support for 2.5 - now with subarch! [2/5]
-Message-ID: <77120000.1034634462@flay>
+Subject: [PATCH] Summit support for 2.5 - now with subarch! [3/5]
+Message-ID: <77190000.1034634466@flay>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,119 +20,69 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This puts the DFR (desination format register) value into a #define, and
-calculates the LDR (logical desitination register) correctly dependant
-on platform. Similarly for TARGET_CPUS.
+This one sets up the apic broadcast id (the maximum allowable apic address)
+properly for whichever platform. It also abstracts out check_apicid_used,
+because that check doesn't work on Summit. Oh, and I bumped up 
+MAX_IO_APICS, but only for NUMA x86 platforms.
 
-diff -urpN -X /home/fletch/.diff.exclude subarch-1/arch/i386/kernel/apic.c subarch-2/arch/i386/kernel/apic.c
---- subarch-1/arch/i386/kernel/apic.c	Sun Oct 13 20:16:03 2002
-+++ subarch-2/arch/i386/kernel/apic.c	Sun Oct 13 20:22:18 2002
-@@ -329,15 +329,13 @@ void __init setup_local_APIC (void)
- 		 * Put the APIC into flat delivery mode.
- 		 * Must be "all ones" explicitly for 82489DX.
+diff -purN -X /home/mbligh/.diff.exclude subarch-2/arch/i386/kernel/io_apic.c subarch-3/arch/i386/kernel/io_apic.c
+--- subarch-2/arch/i386/kernel/io_apic.c	Mon Oct 14 10:59:11 2002
++++ subarch-3/arch/i386/kernel/io_apic.c	Mon Oct 14 11:00:19 2002
+@@ -1152,7 +1152,7 @@ static void __init setup_ioapic_ids_from
+ 		
+ 		old_id = mp_ioapics[apic].mpc_apicid;
+ 
+-		if (mp_ioapics[apic].mpc_apicid >= 0xf) {
++		if (mp_ioapics[apic].mpc_apicid >= APIC_BROADCAST_ID) {
+ 			printk(KERN_ERR "BIOS bug, IO-APIC#%d ID is %d in the MPC table!...\n",
+ 				apic, mp_ioapics[apic].mpc_apicid);
+ 			printk(KERN_ERR "... fixing up to %d. (tell your hw vendor)\n",
+@@ -1165,7 +1165,8 @@ static void __init setup_ioapic_ids_from
+ 		 * system must have a unique ID or we get lots of nice
+ 		 * 'stuck on smp_invalidate_needed IPI wait' messages.
  		 */
--		apic_write_around(APIC_DFR, 0xffffffff);
-+		apic_write_around(APIC_DFR, APIC_DFR_VALUE);
+-		if (phys_id_present_map & (1 << mp_ioapics[apic].mpc_apicid)) {
++		if (check_apicid_used(phys_id_present_map,
++					mp_ioapics[apic].mpc_apicid)) {
+ 			printk(KERN_ERR "BIOS bug, IO-APIC#%d ID %d is already used!...\n",
+ 				apic, mp_ioapics[apic].mpc_apicid);
+ 			for (i = 0; i < 0xf; i++)
+diff -purN -X /home/mbligh/.diff.exclude subarch-2/arch/i386/mach-generic/mach_apic.h subarch-3/arch/i386/mach-generic/mach_apic.h
+--- subarch-2/arch/i386/mach-generic/mach_apic.h	Mon Oct 14 10:59:14 2002
++++ subarch-3/arch/i386/mach-generic/mach_apic.h	Mon Oct 14 11:00:46 2002
+@@ -17,4 +17,7 @@ static inline unsigned long calculate_ld
+  #define TARGET_CPUS 0x01
+ #endif
  
- 		/*
- 		 * Set up the logical destination ID.
- 		 */
- 		value = apic_read(APIC_LDR);
--		value &= ~APIC_LDR_MASK;
--		value |= (1<<(smp_processor_id()+24));
--		apic_write_around(APIC_LDR, value);
-+		apic_write_around(APIC_LDR, calculate_ldr(value));
- 	}
++#define APIC_BROADCAST_ID      0x0F
++#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
++
+ #endif /* __ASM_MACH_APIC_H */
+diff -purN -X /home/mbligh/.diff.exclude subarch-2/arch/i386/mach-summit/mach_apic.h subarch-3/arch/i386/mach-summit/mach_apic.h
+--- subarch-2/arch/i386/mach-summit/mach_apic.h	Mon Oct 14 10:59:14 2002
++++ subarch-3/arch/i386/mach-summit/mach_apic.h	Mon Oct 14 11:01:00 2002
+@@ -23,4 +23,7 @@ static inline unsigned long calculate_ld
+ #define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
+ #define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
  
- 	/*
-diff -urpN -X /home/fletch/.diff.exclude subarch-1/arch/i386/mach-generic/mach_apic.h subarch-2/arch/i386/mach-generic/mach_apic.h
---- subarch-1/arch/i386/mach-generic/mach_apic.h	Sun Oct 13 20:16:21 2002
-+++ subarch-2/arch/i386/mach-generic/mach_apic.h	Sun Oct 13 20:22:18 2002
-@@ -1,4 +1,20 @@
- #ifndef __ASM_MACH_APIC_H
- #define __ASM_MACH_APIC_H
++#define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
++#define check_apicid_used(bitmap, apicid) (0)
++
+ #endif /* __ASM_MACH_APIC_H */
+diff -purN -X /home/mbligh/.diff.exclude subarch-2/include/asm-i386/apicdef.h subarch-3/include/asm-i386/apicdef.h
+--- subarch-2/include/asm-i386/apicdef.h	Mon Oct 14 10:59:14 2002
++++ subarch-3/include/asm-i386/apicdef.h	Mon Oct 14 11:02:38 2002
+@@ -110,7 +110,11 @@
  
-+static inline unsigned long calculate_ldr(unsigned long old)
-+{
-+	unsigned long id;
-+
-+	id = 1UL << smp_processor_id();
-+	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
-+}
-+
-+#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
-+
-+#ifdef CONFIG_SMP
-+ #define TARGET_CPUS (clustered_apic_mode ? 0xf : cpu_online_map)
+ #define APIC_BASE (fix_to_virt(FIX_APIC_BASE))
+ 
+-#define MAX_IO_APICS 8
++#ifdef CONFIG_X86_NUMA
++ #define MAX_IO_APICS 32
 +#else
-+ #define TARGET_CPUS 0x01
++ #define MAX_IO_APICS 8
 +#endif
-+
- #endif /* __ASM_MACH_APIC_H */
-diff -urpN -X /home/fletch/.diff.exclude subarch-1/arch/i386/mach-summit/mach_apic.h subarch-2/arch/i386/mach-summit/mach_apic.h
---- subarch-1/arch/i386/mach-summit/mach_apic.h	Sun Oct 13 20:16:52 2002
-+++ subarch-2/arch/i386/mach-summit/mach_apic.h	Sun Oct 13 21:43:23 2002
-@@ -1,4 +1,26 @@
- #ifndef __ASM_MACH_APIC_H
- #define __ASM_MACH_APIC_H
  
-+extern int x86_summit;
-+
-+#define XAPIC_DEST_CPUS_MASK    0x0Fu
-+#define XAPIC_DEST_CLUSTER_MASK 0xF0u
-+
-+#define xapic_phys_to_log_apicid(phys_apic) ( (1ul << ((phys_apic) & 0x3)) |\
-+		((phys_apic) & XAPIC_DEST_CLUSTER_MASK) )
-+
-+static inline unsigned long calculate_ldr(unsigned long old)
-+{
-+	unsigned long id;
-+
-+	if (x86_summit)
-+		id = xapic_phys_to_log_apicid(hard_smp_processor_id());
-+	else
-+		id = 1UL << smp_processor_id();
-+	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
-+}
-+
-+#define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
-+#define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
-+
- #endif /* __ASM_MACH_APIC_H */
-diff -urpN -X /home/fletch/.diff.exclude subarch-1/include/asm-i386/apicdef.h subarch-2/include/asm-i386/apicdef.h
---- subarch-1/include/asm-i386/apicdef.h	Fri Oct 11 21:22:09 2002
-+++ subarch-2/include/asm-i386/apicdef.h	Sun Oct 13 20:22:18 2002
-@@ -32,6 +32,8 @@
- #define			SET_APIC_LOGICAL_ID(x)	(((x)<<24))
- #define			APIC_ALL_CPUS		0xFF
- #define		APIC_DFR	0xE0
-+#define			APIC_DFR_CLUSTER		0x0FFFFFFFul
-+#define			APIC_DFR_FLAT			0xFFFFFFFFul
- #define		APIC_SPIV	0xF0
- #define			APIC_SPIV_FOCUS_DISABLED	(1<<9)
- #define			APIC_SPIV_APIC_ENABLED		(1<<8)
-diff -urpN -X /home/fletch/.diff.exclude subarch-1/include/asm-i386/smp.h subarch-2/include/asm-i386/smp.h
---- subarch-1/include/asm-i386/smp.h	Fri Oct 11 21:22:09 2002
-+++ subarch-2/include/asm-i386/smp.h	Sun Oct 13 20:22:18 2002
-@@ -21,17 +21,10 @@
- #endif
- #endif
- 
--#ifdef CONFIG_SMP
--# ifdef CONFIG_CLUSTERED_APIC
--#  define TARGET_CPUS 0xf     /* all CPUs in *THIS* quad */
--#  define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
--# else
--#  define TARGET_CPUS cpu_online_map
--#  define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
--# endif
-+#ifdef CONFIG_CLUSTERED_APIC
-+ #define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
- #else
--# define INT_DELIVERY_MODE 1     /* logical delivery */
--# define TARGET_CPUS 0x01
-+ #define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
- #endif
- 
- #ifndef clustered_apic_mode
+ /*
+  * the local APIC register structure, memory mapped. Not terribly well
 

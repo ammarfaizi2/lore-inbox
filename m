@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVAXSYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVAXSYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVAXSYV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 13:24:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVAXSYU
+	id S261551AbVAXSYL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 13:24:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVAXSYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 13:24:20 -0500
-Received: from novell.stoldgods.nu ([193.45.238.241]:61605 "EHLO
-	novell.stoldgods.nu") by vger.kernel.org with ESMTP id S261556AbVAXSYJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 13:24:09 -0500
-From: Magnus =?iso-8859-1?q?M=E4=E4tt=E4?= <novell@kiruna.se>
+	Mon, 24 Jan 2005 13:24:11 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:54214 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261551AbVAXSYH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 13:24:07 -0500
+Date: Mon, 24 Jan 2005 21:43:36 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: Linux 2.6.11-rc2
-Date: Mon, 24 Jan 2005 19:23:55 +0100
-User-Agent: KMail/1.7.1
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org> <200501232211.45924.novell@kiruna.se> <20050124104307.GB3515@stusta.de>
-In-Reply-To: <20050124104307.GB3515@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200501241923.56593.novell@kiruna.se>
+Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050124175449.GK3515@stusta.de>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	<20050124175449.GK3515@stusta.de>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 24 Jan 2005 18:54:49 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-On Monday 24 January 2005 11.43, Adrian Bunk wrote:
-> On Sun, Jan 23, 2005 at 10:11:45PM +0100, Magnus Määttä wrote:
-> > Hello
->
-> Hi Magnus,
->
-> > It doesn't compile here, here's the error:
-> >
-> >   CC      net/sched/sch_generic.o
-> > net/sched/sch_generic.c: In function `qdisc_restart':
-> > net/sched/sch_generic.c:128: error: label `requeue' used but not
-> > defined
-> > make[2]: *** [net/sched/sch_generic.o] Error 1
-> > make[1]: *** [net/sched] Error 2
-> > make: *** [net] Error 2
->
-> I wasn't able to reproduce your problem.
->
-> Do you have any patches applied on top of 2.6.11-rc2 ?
+> It seems noone who reviewed the SuperIO patches noticed that there are 
+> now two modules "scx200" in the kernel...
 
-Sorry about the noise. I forgot that I had Ingo's realtime preempt 
-patch applied (just saw that it was fixed anyway). I guess this is 
-what happens when you're compiling on several systems at once 
-(patched vs. unpatched ones).
+They are almost mutually exlusive(SuperIO contains more advanced), 
+so I do not see any problem here.
+Only one of them can be loaded in a time.
+
+So what does exactly bother you?
+
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
 
 
-Magnus
+	Evgeniy Polyakov
 
--- 
-panic("huh?\n");
-        linux-2.2.16/arch/i386/kernel/smp.c
+Only failure makes us experts. -- Theo de Raadt

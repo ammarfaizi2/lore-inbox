@@ -1,153 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264839AbUEPWVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264846AbUEPXT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264839AbUEPWVf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 18:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264838AbUEPWVf
+	id S264846AbUEPXT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 19:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264848AbUEPXT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 18:21:35 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:52370 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264849AbUEPWUz convert rfc822-to-8bit
+	Sun, 16 May 2004 19:19:26 -0400
+Received: from smtp-out6.xs4all.nl ([194.109.24.7]:36870 "EHLO
+	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S264846AbUEPXTT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 18:20:55 -0400
-Subject: Re: NFS & long symlinks = stack overflow
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Pascal Schmidt <der.eremit@email.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040516045538.GR17014@parcelfarce.linux.theplanet.co.uk>
-References: <1W7yE-3lZ-13@gated-at.bofh.it> <1W7S5-3Am-13@gated-at.bofh.it>
-	 <E1BP0BI-0000lo-09@localhost>
-	 <20040515145306.GQ17014@parcelfarce.linux.theplanet.co.uk>
-	 <1084642637.3490.29.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.58.0405152136380.25502@ppc970.osdl.org>
-	 <20040516045538.GR17014@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1084746048.21654.5.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 16 May 2004 18:20:48 -0400
+	Sun, 16 May 2004 19:19:19 -0400
+Date: Mon, 17 May 2004 01:19:16 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv.local
+To: Martin Schaffner <schaffner@gmx.li>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: hfsplus bugs in linux-2.6.5
+In-Reply-To: <09C01AA8-A53D-11D8-82DC-0003931E0B62@gmx.li>
+Message-ID: <Pine.LNX.4.44.0405170100430.766-100000@serv.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 16/05/2004 klokka 00:55, skreiv
-viro@parcelfarce.linux.theplanet.co.uk:
-> v2 has a hard limit in protocol (<= 1Kb).  However, we shouldn't assume that
-> server is sane...
+Hi,
 
-True... The other thing is that we need to return ENAMETOOLONG rather
-than EIO.
-Finally, the NFS readlink() methods all take a buffer length argument.
-Use that instead of assuming PAGE_SIZE...
+On Fri, 14 May 2004, Martin Schaffner wrote:
 
-OK... How about the following?
+> Here's how to trigger a hfsplus bug in linux-2.6.5:
+>
+> dd if=/dev/zero of=/test bs=1k count=10k
+> newfs_hfs /test
+> mount -t hfsplus /test /mnt/test -o loop
+> cd /mnt/test
+> mkdir a; mkdir b
+> mv a b
 
-Cheers,
-  Trond
+Thanks for the report, renames of directories were broken, the patch below
+fixes this. Could you please try again, if it solves your problem?
 
- nfs2xdr.c |   11 +++++++----
- nfs3xdr.c |   11 +++++++----
- nfs4xdr.c |   11 ++++++-----
- 3 files changed, 20 insertions(+), 13 deletions(-)
+> A second, less serious wierdness is that directories created with linux
+> are bigger than directories created with Mac OS X: When I do "for
+> ((i=1;i>0;i++)); do mkdir $i; done" on a new 1MB-HFS+-image on Mac OS
+> X, I can create about 6300 directories. With Linux, it's about 3600.
+> Funny that for both, I can't free up any space afterwards, even if I
+> delete everything inside the volume.
 
-diff -u --recursive --new-file --show-c-function linux-2.6.6-01-reconnect/fs/nfs/nfs2xdr.c linux-2.6.6-02-symlink_overflow/fs/nfs/nfs2xdr.c
---- linux-2.6.6-01-reconnect/fs/nfs/nfs2xdr.c	2004-05-16 17:07:24.000000000 -0400
-+++ linux-2.6.6-02-symlink_overflow/fs/nfs/nfs2xdr.c	2004-05-16 17:36:46.000000000 -0400
-@@ -511,8 +511,8 @@ static int
- nfs_xdr_readlinkargs(struct rpc_rqst *req, u32 *p, struct nfs_readlinkargs *args)
- {
- 	struct rpc_auth *auth = req->rq_task->tk_auth;
-+	unsigned int count = args->count - 5;
- 	unsigned int replen;
--	u32 count = args->count - 4;
- 
- 	p = xdr_encode_fhandle(p, args->fh);
- 	req->rq_slen = xdr_adjust_iovec(req->rq_svec, p);
-@@ -547,12 +547,15 @@ nfs_xdr_readlinkres(struct rpc_rqst *req
- 	strlen = (u32*)kmap_atomic(rcvbuf->pages[0], KM_USER0);
- 	/* Convert length of symlink */
- 	len = ntohl(*strlen);
--	if (len > rcvbuf->page_len)
--		len = rcvbuf->page_len;
-+	if (len > rcvbuf->page_len) {
-+		dprintk(KERN_WARNING "nfs: server returned giant symlink!\n");
-+		kunmap_atomic(strlen, KM_USER0);
-+		return -ENAMETOOLONG;
-+	}
- 	*strlen = len;
- 	/* NULL terminate the string we got */
- 	string = (char *)(strlen + 1);
--	string[len] = 0;
-+	string[len] = '\0';
- 	kunmap_atomic(strlen, KM_USER0);
- 	return 0;
- }
-diff -u --recursive --new-file --show-c-function linux-2.6.6-01-reconnect/fs/nfs/nfs3xdr.c linux-2.6.6-02-symlink_overflow/fs/nfs/nfs3xdr.c
---- linux-2.6.6-01-reconnect/fs/nfs/nfs3xdr.c	2004-05-16 17:08:10.000000000 -0400
-+++ linux-2.6.6-02-symlink_overflow/fs/nfs/nfs3xdr.c	2004-05-16 17:36:39.000000000 -0400
-@@ -702,8 +702,8 @@ static int
- nfs3_xdr_readlinkargs(struct rpc_rqst *req, u32 *p, struct nfs3_readlinkargs *args)
- {
- 	struct rpc_auth *auth = req->rq_task->tk_auth;
-+	unsigned int count = args->count - 5;
- 	unsigned int replen;
--	u32 count = args->count - 4;
- 
- 	p = xdr_encode_fhandle(p, args->fh);
- 	req->rq_slen = xdr_adjust_iovec(req->rq_svec, p);
-@@ -742,12 +742,15 @@ nfs3_xdr_readlinkres(struct rpc_rqst *re
- 	strlen = (u32*)kmap_atomic(rcvbuf->pages[0], KM_USER0);
- 	/* Convert length of symlink */
- 	len = ntohl(*strlen);
--	if (len > rcvbuf->page_len)
--		len = rcvbuf->page_len;
-+	if (len > rcvbuf->page_len) {
-+		dprintk(KERN_WARNING "nfs: server returned giant symlink!\n");
-+		kunmap_atomic(strlen, KM_USER0);
-+		return -ENAMETOOLONG;
-+	}
- 	*strlen = len;
- 	/* NULL terminate the string we got */
- 	string = (char *)(strlen + 1);
--	string[len] = 0;
-+	string[len] = '\0';
- 	kunmap_atomic(strlen, KM_USER0);
- 	return 0;
- }
-diff -u --recursive --new-file --show-c-function linux-2.6.6-01-reconnect/fs/nfs/nfs4xdr.c linux-2.6.6-02-symlink_overflow/fs/nfs/nfs4xdr.c
---- linux-2.6.6-01-reconnect/fs/nfs/nfs4xdr.c	2004-05-16 17:08:07.000000000 -0400
-+++ linux-2.6.6-02-symlink_overflow/fs/nfs/nfs4xdr.c	2004-05-16 17:36:29.000000000 -0400
-@@ -947,7 +947,8 @@ static int encode_readdir(struct xdr_str
- static int encode_readlink(struct xdr_stream *xdr, const struct nfs4_readlink *readlink, struct rpc_rqst *req)
- {
- 	struct rpc_auth *auth = req->rq_task->tk_auth;
--	int replen;
-+	unsigned int count = readlink->count - 5;
-+	unsigned int replen;
- 	uint32_t *p;
- 
- 	RESERVE_SPACE(4);
-@@ -958,7 +959,7 @@ static int encode_readlink(struct xdr_st
- 	 *      + OP_READLINK + status  = 7
- 	 */
- 	replen = (RPC_REPHDRSIZE + auth->au_rslack + 7) << 2;
--	xdr_inline_pages(&req->rq_rcv_buf, replen, readlink->pages, 0, readlink->count);
-+	xdr_inline_pages(&req->rq_rcv_buf, replen, readlink->pages, 0, count);
- 	
- 	return 0;
- }
-@@ -2921,10 +2922,10 @@ static int decode_readlink(struct xdr_st
- 	 */
- 	strlen = (uint32_t *) kmap_atomic(rcvbuf->pages[0], KM_USER0);
- 	len = ntohl(*strlen);
--	if (len > PAGE_CACHE_SIZE - 5) {
--		printk(KERN_WARNING "nfs: server returned giant symlink!\n");
-+	if (len > rcvbuf->page_len) {
-+		dprintk(KERN_WARNING "nfs: server returned giant symlink!\n");
- 		kunmap_atomic(strlen, KM_USER0);
--		return -EIO;
-+		return -ENAMETOOLONG;
+The HFS+ catalog file (roughly equivalent to the ext inode table) grows
+dynamically and the space is usually not used completely, OS X currently
+allocates them better than Linux and doesn't leave as much holes. The
+other problem is that the catalog file doesn't shrink, as that would
+require online defragmentation. It's possible but not really a priority
+right now.
+
+bye, Roman
+
+Index: fs/hfsplus/catalog.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.6/fs/hfsplus/catalog.c,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 catalog.c
+--- a/fs/hfsplus/catalog.c	11 Mar 2004 18:33:35 -0000	1.1.1.1
++++ b/fs/hfsplus/catalog.c	16 May 2004 19:04:38 -0000
+@@ -165,11 +165,11 @@ int hfsplus_create_cat(u32 cnid, struct
+ 	if (err != -ENOENT) {
+ 		if (!err)
+ 			err = -EEXIST;
+-		goto out;
++		goto err2;
  	}
- 	*strlen = len;
- 
+ 	err = hfs_brec_insert(&fd, &entry, entry_size);
+ 	if (err)
+-		goto out;
++		goto err2;
+
+ 	hfsplus_cat_build_key(fd.search_key, dir->i_ino, str);
+ 	entry_size = hfsplus_cat_build_record(&entry, cnid, inode);
+@@ -178,16 +178,23 @@ int hfsplus_create_cat(u32 cnid, struct
+ 		/* panic? */
+ 		if (!err)
+ 			err = -EEXIST;
+-		goto out;
++		goto err1;
+ 	}
+ 	err = hfs_brec_insert(&fd, &entry, entry_size);
+-	if (!err) {
+-		dir->i_size++;
+-		mark_inode_dirty(dir);
+-	}
+-out:
++	if (err)
++		goto err1;
++
++	dir->i_size++;
++	mark_inode_dirty(dir);
+ 	hfs_find_exit(&fd);
++	return 0;
+
++err1:
++	hfsplus_cat_build_key(fd.search_key, cnid, NULL);
++	if (!hfs_brec_find(&fd))
++		hfs_brec_remove(&fd);
++err2:
++	hfs_find_exit(&fd);
+ 	return err;
+ }
+
+Index: fs/hfsplus/dir.c
+===================================================================
+RCS file: /usr/src/cvsroot/linux-2.6/fs/hfsplus/dir.c,v
+retrieving revision 1.1.1.1
+diff -u -p -r1.1.1.1 dir.c
+--- a/fs/hfsplus/dir.c	11 Mar 2004 18:33:35 -0000	1.1.1.1
++++ b/fs/hfsplus/dir.c	16 May 2004 17:36:26 -0000
+@@ -18,6 +18,13 @@
+ #include "hfsplus_fs.h"
+ #include "hfsplus_raw.h"
+
++static inline void hfsplus_instantiate(struct dentry *dentry,
++				       struct inode *inode, u32 cnid)
++{
++	dentry->d_fsdata = (void *)(unsigned long)cnid;
++	d_instantiate(dentry, inode);
++}
++
+ /* Find the entry inside dir named dentry->d_name */
+ static struct dentry *hfsplus_lookup(struct inode *dir, struct dentry *dentry,
+ 				     struct nameidata *nd)
+@@ -52,6 +69,7 @@ again:
+ 			goto fail;
+ 		}
+ 		cnid = be32_to_cpu(entry.folder.id);
++		dentry->d_fsdata = (void *)(unsigned long)cnid;
+ 	} else if (type == HFSPLUS_FILE) {
+ 		if (fd.entrylength < sizeof(struct hfsplus_cat_file)) {
+ 			err = -EIO;
+@@ -233,11 +251,11 @@ int hfsplus_create(struct inode *dir, st
+ 	res = hfsplus_create_cat(inode->i_ino, dir, &dentry->d_name, inode);
+ 	if (res) {
+ 		inode->i_nlink = 0;
++		hfsplus_delete_inode(inode);
+ 		iput(inode);
+ 		return res;
+ 	}
+-	dentry->d_fsdata = (void *)inode->i_ino;
+-	d_instantiate(dentry, inode);
++	hfsplus_instantiate(dentry, inode, inode->i_ino);
+ 	mark_inode_dirty(inode);
+ 	return 0;
+ }
+@@ -284,8 +302,7 @@ int hfsplus_link(struct dentry *src_dent
+ 		return res;
+
+ 	inode->i_nlink++;
+-	dst_dentry->d_fsdata = (void *)(unsigned long)cnid;
+-	d_instantiate(dst_dentry, inode);
++	hfsplus_instantiate(dst_dentry, inode, cnid);
+ 	atomic_inc(&inode->i_count);
+ 	inode->i_ctime = CURRENT_TIME;
+ 	mark_inode_dirty(inode);
+@@ -351,10 +368,11 @@ int hfsplus_mkdir(struct inode *dir, str
+ 	res = hfsplus_create_cat(inode->i_ino, dir, &dentry->d_name, inode);
+ 	if (res) {
+ 		inode->i_nlink = 0;
++		hfsplus_delete_inode(inode);
+ 		iput(inode);
+ 		return res;
+ 	}
+-	d_instantiate(dentry, inode);
++	hfsplus_instantiate(dentry, inode, inode->i_ino);
+ 	mark_inode_dirty(inode);
+ 	return 0;
+ }
+@@ -391,7 +409,8 @@ int hfsplus_symlink(struct inode *dir, s
+ 	res = page_symlink(inode, symname, strlen(symname) + 1);
+ 	if (res) {
+ 		inode->i_nlink = 0;
+-		iput (inode);
++		hfsplus_delete_inode(inode);
++		iput(inode);
+ 		return res;
+ 	}
+
+@@ -399,8 +418,7 @@ int hfsplus_symlink(struct inode *dir, s
+ 	res = hfsplus_create_cat(inode->i_ino, dir, &dentry->d_name, inode);
+
+ 	if (!res) {
+-		dentry->d_fsdata = (void *)inode->i_ino;
+-		d_instantiate(dentry, inode);
++		hfsplus_instantiate(dentry, inode, inode->i_ino);
+ 		mark_inode_dirty(inode);
+ 	}
+
+@@ -421,12 +439,12 @@ int hfsplus_mknod(struct inode *dir, str
+ 	res = hfsplus_create_cat(inode->i_ino, dir, &dentry->d_name, inode);
+ 	if (res) {
+ 		inode->i_nlink = 0;
++		hfsplus_delete_inode(inode);
+ 		iput(inode);
+ 		return res;
+ 	}
+ 	init_special_inode(inode, mode, rdev);
+-	dentry->d_fsdata = (void *)inode->i_ino;
+-	d_instantiate(dentry, inode);
++	hfsplus_instantiate(dentry, inode, inode->i_ino);
+ 	mark_inode_dirty(inode);
+
+ 	return 0;
 

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263060AbSJBMGB>; Wed, 2 Oct 2002 08:06:01 -0400
+	id <S263063AbSJBMHc>; Wed, 2 Oct 2002 08:07:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263066AbSJBMGB>; Wed, 2 Oct 2002 08:06:01 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:13145 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S263060AbSJBMF7>;
-	Wed, 2 Oct 2002 08:05:59 -0400
-Date: Wed, 2 Oct 2002 14:11:27 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Christoph Hellwig <hch@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-Message-ID: <20021002121127.GA19416@win.tue.nl>
-References: <Pine.GSO.4.21.0210012037040.9782-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0210012007240.7688-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210012007240.7688-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.25i
+	id <S263064AbSJBMHc>; Wed, 2 Oct 2002 08:07:32 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53213 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S263063AbSJBMHb>; Wed, 2 Oct 2002 08:07:31 -0400
+Date: Wed, 2 Oct 2002 14:12:55 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel makefiles broken?
+In-Reply-To: <20021002114028.C24770@flint.arm.linux.org.uk>
+Message-ID: <Pine.NEB.4.44.0210021410150.10143-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 08:12:28PM -0700, Linus Torvalds wrote:
+On Wed, 2 Oct 2002, Russell King wrote:
 
-> There's also all the user-level interfaces for dev_t, and the disk layout 
-> interfaces used by various filesystems.
-> 
-> We can easily make kdev_t be 32-bit, but without a 32-bit dev_t that 
-> doesn't help much.
+> Hi,
 
-There is no real problem. You know I did this several times
-and also sent patches at various points in time. Asking Google yields
+Hi Russell,
 
-	http://www.uwsg.iu.edu/hypermail/linux/kernel/0103.3/0038.html
+> I've noticed on two machines now that the kernel makefiles seem to have
+> changed their behaviour.  One x86 RH-based, and one parisc debian based.
+>
+> make seems to ignores errors from gcc, and only stops when trying to link.
+> On a PARISC box, I've seen the build get all the way though to successfully
+> linking vmlinux, even with compilation failures.  Obviously not ideal,
+> since vmlinux may not reflect reality.
+>...
 
-as the first reference, and it has all relevant details and an example patch.
+known bug, already fixed in Linus' BK tree, patch is below.
 
-(There was a discussion about 32 vs 64 bits. Of course 64 is better
-in all respects, but it is no longer feasible so today it must be 32.
-Too bad.)
+cu
+Adrian
 
-Andries
+
+--- a/Rules.make	Tue Oct  1 21:00:23 2002
++++ b/Rules.make	Tue Oct  1 21:00:23 2002
+@@ -517,13 +517,6 @@
+   include $(cmd_files)
+ endif
+
+-# Emacs compile mode works best with relative paths to find files (OK
+-# if verbose, as it tracks the make[1] entries and exits, etc.)
+-
+-ifneq ($(KBUILD_VERBOSE),1)
+-  filter-output = 2>&1 | sed 's \(^[^/][A-Za-z0-9_./-]*:[ 0-9]\) $(RELDIR)/\1 '
+-endif
+-
+ # function to only execute the passed command if necessary
+
+ if_changed = $(if $(strip $? \
+@@ -543,7 +536,7 @@
+ 			  $(filter-out $(cmd_$@),$(cmd_$(1)))),\
+ 	@set -e; \
+ 	$(if $($(quiet)cmd_$(1)),echo '  $($(quiet)cmd_$(1))';) \
+-	$(cmd_$(1)) $(filter-output); \
++	$(cmd_$(1)); \
+ 	$(TOPDIR)/scripts/fixdep $(depfile) $@ $(TOPDIR) '$(cmd_$(1))' > $(@D)/.$(@F).tmp; \
+ 	rm -f $(depfile); \
+ 	mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd)
+

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbTFCP4s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 11:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTFCP4s
+	id S265064AbTFCPxK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 11:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbTFCPxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 11:56:48 -0400
-Received: from pat.uio.no ([129.240.130.16]:3797 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S265055AbTFCP4r (ORCPT
+	Tue, 3 Jun 2003 11:53:10 -0400
+Received: from pat.uio.no ([129.240.130.16]:53713 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S265064AbTFCPwM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 11:56:47 -0400
-To: Andrew Ryan <genanr@emsphone.com>
-Cc: Michael Frank <mflt1@micrologica.com.hk>, linux-kernel@vger.kernel.org
-Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
-References: <200306031912.53569.mflt1@micrologica.com.hk>
-	<20030603144257.GA31734@thumper2.emsphone.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 03 Jun 2003 18:10:01 +0200
-In-Reply-To: <20030603144257.GA31734@thumper2.emsphone.com>
-Message-ID: <shs7k83p2g6.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Tue, 3 Jun 2003 11:52:12 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+Content-Transfer-Encoding: 7bit
+Message-ID: <16092.50997.483311.566882@charged.uio.no>
+Date: Tue, 3 Jun 2003 18:05:09 +0200
+To: "Vivek Goyal" <vivek.goyal@wipro.com>
+Cc: "Ion Badulescu" <ionut@badula.org>, <viro@math.psu.edu>,
+       <davem@redhat.com>, <ezk@cs.sunysb.edu>, <indou.takao@jp.fujitsu.com>,
+       <nfs@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: [NFS] Disabling Symbolic Link Content Caching in NFS Client
+In-Reply-To: <2BB7146B38D9CA40B215AB3DAAE24C080BA622@blr-m2-msg.wipro.com>
+References: <2BB7146B38D9CA40B215AB3DAAE24C080BA622@blr-m2-msg.wipro.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have ques\tions about this scanning.
 X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrew Ryan <genanr@emsphone.com> writes:
+>>>>> " " == Vivek Goyal <vivek.goyal@wipro.com> writes:
 
-     > To me, there is something wrong with the changes that went in
-     > in 2.4.20pre4, it should work as it does in pre3 and/or other
-     > unix OSes such as FreeBSD. We should not have to work around
-     > the problem with hard links or using TCP instead of UDP.
+     > You are right. But our idea is to provide an option to
+     > disable/enable caching based on the nature of intended
+     > application.
 
-Tough. 'soft' is not a priority of mine. It is a broken feature...
+Apart from hlfsd, which applications actually depend on symlinks not
+being cached?
+
+     > With this, Linux will have enhanced flexibility in NFS client
+     > like other operating systems. For example.
+
+Again: Do you have any concrete examples of programs that need this
+functionality, and that cannot be replaced?
 
 Cheers,
   Trond

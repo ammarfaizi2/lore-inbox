@@ -1,80 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUFYPSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266757AbUFYPSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266758AbUFYPSz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 11:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266759AbUFYPSz
+	id S266757AbUFYPSs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 11:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266758AbUFYPSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 11:18:55 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:9112 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266758AbUFYPSu (ORCPT
+	Fri, 25 Jun 2004 11:18:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38843 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266757AbUFYPSq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 11:18:50 -0400
-Subject: Re: Merging Nonlinear and Numa style memory hotplug
-From: Dave Hansen <haveblue@us.ibm.com>
-To: shai@ftcon.com
-Cc: "'Yasunori Goto'" <ygoto@us.fujitsu.com>,
-       "'Linux Kernel ML'" <linux-kernel@vger.kernel.org>,
-       "'Linux Hotplug Memory Support'" <lhms-devel@lists.sourceforge.net>,
-       "'Linux-Node-Hotplug'" <lhns-devel@lists.sourceforge.net>,
-       "'linux-mm'" <linux-mm@kvack.org>,
-       "'BRADLEY CHRISTIANSEN [imap]'" <bradc1@us.ibm.com>
-In-Reply-To: <200406250449.BSB05018@ms6.netsolmail.com>
-References: <200406250449.BSB05018@ms6.netsolmail.com>
-Content-Type: text/plain
-Message-Id: <1088141355.3918.1493.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 25 Jun 2004 08:16:47 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Jun 2004 11:18:46 -0400
+Date: Fri, 25 Jun 2004 11:18:42 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [oom]: [0/4] fix OOM deadlock running OAST
+In-Reply-To: <20040623230730.GJ1552@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0406251118070.9066-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-24 at 21:49, Shai Fultheim wrote:
-> > > Doesn't this just find the lowest-numbered node's highmem?  Are you sure
-> > > that no NUMA systems have memory at lower physical addresses on
-> > > higher-numbered nodes?  I'm not sure that this is true.
+On Wed, 23 Jun 2004, William Lee Irwin III wrote:
+> On Wed, Jun 23, 2004 at 03:37:58PM -0700, Andrew Morton wrote:
+> > What about zone->all_unreclaimable?
 > 
-> In addition I'm involved in a NUMA-related project that might have
-> zone-normal on other nodes beside node0.  I also think that in some cases it
-> might be useful to have the code above and below in case of AMD machines
-> that have less than 1GB per processor (or at least less than 1GB on the
-> FIRST processor).
+> It's unclear which zones must be checked for this to be of use.
 
-But, this code is just for i386 processors.  Do you have a NUMA AMD i386
-system?
+It's perfectly obvious, try_to_free_pages() gets a zone list
+as one of its arguments (at least, it did last time I looked).
 
-> > > Again, I don't see what this loop is used for.  You appear to be trying
-> > > to detect which nodes have lowmem.  Is there currently any x86 NUMA
-> > > architecture that has lowmem on any node but node 0?
-> 
-> As noted above, this is possible, the cost of this code is not much, so I
-> would keep it in.
 
-OK, I'll revise and say that it's impossible for all of the in-tree NUMA
-systems.  I'd heavily encourage you to post your code so that we can
-more easily understand what kind of system you have.  It's very hard to
-analyze impact on systems that we've never seen code for.
-
-In any case, I believe that the original loop should be kept pretty
-close to what is there now:
-
-        for (tmp = 0; tmp < max_low_pfn; tmp++)
-                /*
-                 * Only count reserved RAM pages
-                 */
-                if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
-                        reservedpages++;
-
-If you do, indeed, have non-ram pages between pfns 0 and max_low_pfn,
-I'd suggest doing something like this:
-
-                if (page_is_ram(tmp) && 
-		    node_online(page_to_nid(tmp)) &&
-                    PageReserved(pfn_to_page(tmp)))
-                        reservedpages++;
-
-That's a lot cleaner and more likely to work than replacing the entire
-loop with an ifdef.
-
--- Dave
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267505AbUH0UOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267526AbUH0UOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267505AbUH0UOj (ORCPT <rfc822;willy@w.ods.org>);
+	id S267526AbUH0UOj (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 27 Aug 2004 16:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUH0UNc
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267514AbUH0UNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 16:13:32 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:49871 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S267514AbUH0UGr (ORCPT
+	Fri, 27 Aug 2004 16:13:40 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:19723 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S267526AbUH0UHG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 16:06:47 -0400
-Message-Id: <200408261817.i7QIH35O002702@localhost.localdomain>
-To: Helge Hafting <helge.hafting@hist.no>
-cc: Matt Mackall <mpm@selenic.com>, Nicholas Miell <nmiell@gmail.com>,
-       Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
-       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4 
-In-Reply-To: Message from Helge Hafting <helge.hafting@hist.no> 
-   of "Thu, 26 Aug 2004 10:31:54 +0200." <412D9FFA.6030307@hist.no> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Thu, 26 Aug 2004 14:17:03 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 27 Aug 2004 16:07:06 -0400
+Message-Id: <6.1.2.0.2.20040827215143.01d7b038@inet.uni2.dk>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
+Date: Fri, 27 Aug 2004 22:06:29 +0200
+To: Linus Torvalds <torvalds@osdl.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+From: Kenneth Lavrsen <kenneth@lavrsen.dk>
+Subject: Re: pwc+pwcx is not illegal
+Cc: pmarques@grupopie.com, greg@kroah.com, nemosoft@smcc.demon.nl,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.58.0408271226400.14196@ppc970.osdl.org>
+References: <1093634283.431.6370.camel@cube>
+ <Pine.LNX.4.58.0408271226400.14196@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helge.hafting@hist.no> said:
-> Matt Mackall wrote:
+At 21:29 2004-08-27, Linus Torvalds wrote:
 
-[...]
+>Can we drop this straw-man discussion now?
+>
+>We don't do binary hooks in the kernel. Full stop. It's a gray area
+>legally (and whatever you say won't change that), but it's absolutely not
+>gray from a distribution standpoint.
+>
+>AND IT WASN'T EVER THE REASON FOR REMOVING THE DRIVER IN THE FIRST PLACE!
+>
+>So stop whining about it. The driver got removed because the author asked
+>for it.
+>
+>                 Linus
 
-> >Find some silly person with an iBook and open a shell on OS X. Use cp
-> >to copy a file with a resource fork. Oh look, the Finder has no idea
-> >what the new file is, even though it looks exactly identical in the
-> >shell. Isn't that _wonderful_? 
+Try and see this from the developers perspective and then remember that he 
+is a human beeing.
 
-> It is what I'd expect.
+When I look at the postings from the past months I would say that he was 
+provoked to react the way he did by the arrogant way that Greg handled it.
+And from what Greg says himself that people has called him in the past (I 
+will not repeat it) I would advice Greg to consider changing behavour.
+Because this is what it all comes down to.
+Why did Nemosoft react to hard?
+When you love what you are doing and you have worked hard - not for your 
+own good - but to help others - it is hard to repeatedly being treated 
+badly. And there should be no need to in the open source community.
 
-Great. That means that all the tools of the trade stop working. Sounds like
-show-killer feature to me.
+I agree that the right way to go is to get all drivers open source. And I 
+think it is OK to reject new drivers.
+But accepting a hook that allows a driver to use an external binary module 
+for years and then suddenly remove this without making sure that it is 
+replaced with something better is just plain wrong because it harms a lot 
+of people.
 
->                         Now, use cp -R to copy  the file
-> _with its directory_,
+Just look at the reaction everywhere. I have rarely seen so many angry 
+Linux users. I have already started contacting computer magazines and news 
+papers. I just cannot accept that people can care so little for other people.
 
-Either it is a file or a directory. Make up your mind. If you have no clear
-distinction, you'll only get messed up. Badly.
+Kenneth
 
->                       and see if that fares better.  If not - bad
-> implementation of fs and/or cp.  The way I see file-as -directory
-> is that _file_ operations (like the reads issued by cat) only
-> work on the file part.  You want the directory part?  Use
-> directory operations such as those "cp -R" use.
 
-Excuse me, I must grab my sickness bag here.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Kenneth Lavrsen,
+Glostrup, Denmark
+kenneth@lavrsen.dk
+Home Page - http://www.lavrsen.dk 
+
+

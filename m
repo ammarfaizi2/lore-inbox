@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270907AbTGPPL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 11:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270919AbTGPPL3
+	id S270927AbTGPPRK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 11:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270931AbTGPPRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 11:11:29 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:40843 "EHLO
-	genius.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270907AbTGPPL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 11:11:26 -0400
-Date: Wed, 16 Jul 2003 16:25:32 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Ron Niles <Ron.Niles@falconstor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Question about free_one_pgd() changes in these 3.5G patches
-Message-ID: <20030716152532.GA18350@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Hugh Dickins <hugh@veritas.com>,
-	Ron Niles <Ron.Niles@falconstor.com>, linux-kernel@vger.kernel.org
-References: <E79B8AB303080F4096068F046CD1D89B01247A45@exchange1.FalconStor.Net> <Pine.LNX.4.44.0307161242280.1549-100000@localhost.localdomain>
+	Wed, 16 Jul 2003 11:17:09 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:13770
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270927AbTGPPRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 11:17:04 -0400
+Subject: Re: kernel 2.6.0-test-acl   make modules errors
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jose Luis Alarcon <jlalarcon@chevy.zzn.com>
+Cc: navneet_panda@yahoo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <C12506F5015D8FD47A30563EE997D686@jlalarcon.chevy.zzn.com>
+References: <C12506F5015D8FD47A30563EE997D686@jlalarcon.chevy.zzn.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058369358.6633.26.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307161242280.1549-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Jul 2003 16:29:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 01:31:39PM +0100, Hugh Dickins wrote:
+On Mer, 2003-07-16 at 08:35, Jose Luis Alarcon wrote:
+> I couldn't get over this error. This is my first post
+> to the list and I am sorry if I have made any
+> mistakes. I just wanted to help.
 
-Both this..
-
- > > 	for (j = 0; j < PTRS_PER_PMD ; j++) {
- > >  		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
- > > 		free_one_pmd(pmd+j);
- > > 	}
-
-and this..
-
- > > 	pmd_t * pmd, * md, * emd;
- > > 	for (md = pmd, emd = pmd + PTRS_PER_PMD; md < emd; md++) {
- > > 		prefetchw(md+(PREFETCH_STRIDE/16));
- > > 		free_one_pmd(md);
- > >  	}
-
-both use the prefetch that was removed in 2.5 for 'being bogus'.
-It can prefetch past the end iirc, which is fatal on some CPUs.
-
-		Dave
+Nobody has ported the riscom drivers to 2.6 yet
 

@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268684AbTBZIgP>; Wed, 26 Feb 2003 03:36:15 -0500
+	id <S268683AbTBZIeL>; Wed, 26 Feb 2003 03:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268686AbTBZIgP>; Wed, 26 Feb 2003 03:36:15 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49192 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S268684AbTBZIgO>; Wed, 26 Feb 2003 03:36:14 -0500
-To: davidm@hpl.hp.com
-Cc: David Lang <david.lang@digitalinsight.com>,
-       Gerrit Huizenga <gh@us.ibm.com>, Benjamin LaHaise <bcrl@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-References: <E18moa2-0005cP-00@w-gerrit2>
-	<Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com>
-	<15961.7487.465791.980935@napali.hpl.hp.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 26 Feb 2003 01:46:02 -0700
-In-Reply-To: <15961.7487.465791.980935@napali.hpl.hp.com>
-Message-ID: <m1bs0zmnud.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268684AbTBZIeL>; Wed, 26 Feb 2003 03:34:11 -0500
+Received: from packet.digeo.com ([12.110.80.53]:58052 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268683AbTBZIeK>;
+	Wed, 26 Feb 2003 03:34:10 -0500
+Date: Wed, 26 Feb 2003 00:44:54 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.62-mm2 slow file system writes across multiple disks
+Message-Id: <20030226004454.2bfd8deb.akpm@digeo.com>
+In-Reply-To: <20030225112458.A5618@beaverton.ibm.com>
+References: <20030224120304.A29472@beaverton.ibm.com>
+	<20030224135323.28bb2018.akpm@digeo.com>
+	<20030224174731.A31454@beaverton.ibm.com>
+	<20030224204321.5016ded6.akpm@digeo.com>
+	<20030225112458.A5618@beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Feb 2003 08:44:20.0508 (UTC) FILETIME=[4139CDC0:01C2DD73]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger <davidm@napali.hpl.hp.com> writes:
-
-> >>>>> On Sun, 23 Feb 2003 00:07:50 -0800 (PST), David Lang
-> <david.lang@digitalinsight.com> said:
+Patrick Mansfield <patmans@us.ibm.com> wrote:
+>
+> On Mon, Feb 24, 2003 at 08:43:21PM -0800, Andrew Morton wrote:
+> > Patrick Mansfield <patmans@us.ibm.com> wrote:
 > 
+> > > I moved to 2.5.62-mm3 [I had to drop back to qlogicisp for my boot disk,
+> > > and run the feral drver as a module in order to boot without hanging], and
+> > > ran write-and-fsync with -f, with and without -o (O_DIRECT).
 > 
->   David.L> Garrit, you missed the preior posters point. IA64 had the
->   David.L> same fundamental problem as the Alpha, PPC, and Sparc
->   David.L> processors, it doesn't run x86 binaries.
+> > Is this using an enormous request queue or really deep TCQ or something?
+> > I always turn TCQ off, stupid noxious thing it is.
 > 
-> This simply isn't true.  Itanium and Itanium 2 have full x86 hardware
-> built into the chip (for better or worse ;-).  The speed isn't as good
-> as the fastest x86 chips today, but it's faster (~300MHz P6) than the
-> PCs many of us are using and it certainly meets my needs better than
-> any other x86 "emulation" I have used in the past (which includes
-> FX!32 and its relatives for Alpha).
+> Yes - pretty high, the feral driver is defaulting to 63 (comments there
+> say "FIX LATER"). Changing it to 8 gave much improved performance. 
+> 
+> I'm on a slightly different kernel, anyway:
+> 
+> 10 fsync writes of 200 mb to 10 separate disks, queue depth (TCQ) of 63 gave:
+> 
+> 0.05user 37.14system 1:09.39elapsed 53%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (1986major+3228minor)pagefaults 0swaps
+> 
+> 10 fsync writes of 200 mb to 10 separate disks, queue depth of 8 gave:
+> 
+> 0.05user 38.56system 0:32.71elapsed 118%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (1986major+3228minor)pagefaults 0swaps
+> 
+> The total time dropped by almost half. vmstat numbers were much smoother.
 
-I have various random x86 binaries that do not work.
+Damn, I wonder what's up with that.  I tried to reproduce this with an
+Adaptec controller, but there did not appear to be a significant difference
+between zero tags and 64 tags.  Nor was there an appreciable difference between
+pagecache writeout and O_DIRECT writeout.
 
-My 32bit x86 user space does not run.
+> It would be nice if a larger queue depth did not kill performance.
 
-A 32bit kernel doesn't have a chance.
+Does the other qlogic driver exhibit the same thing?
 
-So for me at least the 32bit support is not useful in avoiding
-converting binaries.  For the handful of apps that cannot be
-recompiled I suspect the support is good enough so you can get them
-to run somehow.
+Does writeout to a single disk exhibit the same thing?
 
-Eric
+> The larger queue depths can be nice for disk arrays with lots of cache and
+> (more) random IO patterns.
+
+So says the scsi lore ;)  Have you observed this yourself?  Have you
+any numbers handy?
+

@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263455AbTE3Ilv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 04:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTE3Ilv
+	id S263458AbTE3Ipv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 04:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbTE3Ipv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 04:41:51 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:62926 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263455AbTE3Ilu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 04:41:50 -0400
-Date: Fri, 30 May 2003 09:57:26 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
+	Fri, 30 May 2003 04:45:51 -0400
+Received: from boden.synopsys.com ([204.176.20.19]:49150 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S263458AbTE3Ipu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 04:45:50 -0400
+Date: Fri, 30 May 2003 10:59:01 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
 To: "David S. Miller" <davem@redhat.com>
-Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] assorted he driver cleanup
-Message-ID: <20030530085726.GA14723@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"David S. Miller" <davem@redhat.com>, chas@cmf.nrl.navy.mil,
-	linux-kernel@vger.kernel.org
-References: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil> <20030529.200101.118622651.davem@redhat.com>
+Cc: scrosby@cs.rice.edu, linux-kernel@vger.kernel.org
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
+Message-ID: <20030530085901.GB11885@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	scrosby@cs.rice.edu, linux-kernel@vger.kernel.org
+References: <oydbrxlbi2o.fsf@bert.cs.rice.edu> <1054267067.2713.3.camel@rth.ninka.net> <oyd3cixc9ev.fsf@bert.cs.rice.edu> <20030529.232440.122068039.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030529.200101.118622651.davem@redhat.com>
+In-Reply-To: <20030529.232440.122068039.davem@redhat.com>
+Organization: Synopsys, Inc.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 08:01:01PM -0700, David S. Miller wrote:
+David S. Miller, Fri, May 30, 2003 08:24:40 +0200:
+>    From: Scott A Crosby <scrosby@cs.rice.edu>
+>    Date: 30 May 2003 00:04:24 -0500
+>    
+>    Have you seen the current dcache function?
+>    
+>    /* Linux dcache */
+>    #define HASH_3(hi,ho,c)  ho=(hi + (c << 4) + (c >> 4)) * 11
+>    
+> Awesome, moving the Jenkins will actually save us some
+> cycles :-)
 
- > BTW, can you use more consistent changeset messages?  I always
- > at least allude to what is being changed, for example I changed
- > all of your messages to be of the form:
- > 
- > 	[ATM]: Blah blah blah in HE driver.
- > 
- > This tells the reader that:
- > 
- > 1) It's an ATM change.
- > 2) It's to the HE driver.
- > 3) The change made was "Blah blah blah" :-)
+    static
+    int hash_3(int hi, int c)
+    {
+	return (hi + (c << 4) + (c >> 4)) * 11;
+    }
 
-I'd also add...
-4) keep the first line a brief oneliner summary, as it
-gets truncated when Linus generates the shortlog.
- 
-A number of people (self included) have adopted this
-impromptu 'standard' for bk comments. Maybe it should
-get documented in Documentation/BK-usage/bk-kernel-howto.txt
+gcc-3.2.1 -O2 -march=pentium
 
-		Dave
+    hash_3:
+	    pushl	%ebp
+	    movl	%esp, %ebp
+	    movl	12(%ebp), %eax
+	    movl	8(%ebp), %ecx
+	    movl	%eax, %edx
+	    popl	%ebp
+	    sall	$4, %edx
+	    sarl	$4, %eax
+	    addl	%ecx, %edx
+	    addl	%eax, %edx
+	    leal	(%edx,%edx,4), %eax
+	    leal	(%edx,%eax,2), %eax
+	    ret
 
+It is not guaranteed to be this way on all architectures, of course.
+But still - no multiplications.
 

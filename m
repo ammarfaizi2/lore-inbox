@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273334AbTG3TTx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 15:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273336AbTG3TTx
+	id S273335AbTG3TT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 15:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273336AbTG3TT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 15:19:53 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:50105 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S273334AbTG3TTv (ORCPT
+	Wed, 30 Jul 2003 15:19:57 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:50361 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S273335AbTG3TTv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 30 Jul 2003 15:19:51 -0400
-Date: Wed, 30 Jul 2003 21:18:54 +0200 (MEST)
-Message-Id: <200307301918.h6UJIskn020572@harpo.it.uu.se>
+Date: Wed, 30 Jul 2003 21:19:48 +0200 (MEST)
+Message-Id: <200307301919.h6UJJmMd020595@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@suse.de
-Subject: Re: [PATCH] NMI watchdog documentation
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, torvalds@osdl.org,
-       vherva@niksula.hut.fi
+To: johnstul@us.ibm.com
+Subject: Re: [BUG] 2.6.0-test2 loses time on 486
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003 18:06:30 +0200, Andi Kleen wrote:
->Right, 1 and 2 need to be exchanged. Anyways local apic mode does not seem
->to work, the kernel always reportss "NMI stuck" at bootup.
->IO APIC mode for is default.
+On 29 Jul 2003 11:59:06 -0700, john stultz wrote:
+>On Tue, 2003-07-29 at 10:34, Mikael Pettersson wrote:
+>> My old 486 test box is losing time at an alarming rate
+>> when running 2.6.0-test kernels. It loses almost 2 minutes
+>> per hour, less if it sits idle. This problem does not
+>> occur when it's running a 2.4 kernel.
+>> 
+>> There's nothing noteworthy in dmesg.
+>> 
+>> This has been going on since at least the 2.5.7x kernels,
+>> and possible also the 2.5.6x kernels. I strongly suspect
+>> a bug in the time-keeping changes in late 2.5 kernels.
+>> The 486 has no TSC, and I don't have an NTP server to
+>> keep my machines' times in sync.
+>
+>Hmm.  Sounds like you're loosing interrupts. This can happen due to
+>poorly behaving drivers (disabling interrupts for too long), or odd
+>hardware. The change from HZ=100 to HZ=1000 probably made this more
+>visible on your box, so could you try setting HZ back to 100 and see if
+>that helps (you may still lose time, but at a much slower rate). 
 
-That's strange. I've tested perfctr-generated interrupts through
-the local APIC on Opteron, and they work with the perfctr driver.
+Yep, reducing HZ to 100 in param.h eliminated the time losses.
 
-Two things you might want to test:
-- In case the unofficial event 0x76 really doesn't work in your
-  version of the chip, try this event specifier instead: it
-  creates a clock-like event using an inverted threshold approach.
-  I've tested this on K8 and P6 with the perfctr driver. The event
-  code (0xC0) is immaterial, 0x00 and 0xFF work equally well.
+>Also what drivers are you running with?
 
---- linux-2.6.0-test2/arch/x86_64/kernel/nmi.c.~1~	2003-07-03 12:32:44.000000000 +0200
-+++ linux-2.6.0-test2/arch/x86_64/kernel/nmi.c	2003-07-30 20:46:21.412657728 +0200
-@@ -51,7 +51,7 @@
- #define K7_EVNTSEL_OS		(1 << 17)
- #define K7_EVNTSEL_USR		(1 << 16)
- #define K7_EVENT_CYCLES_PROCESSOR_IS_RUNNING	0x76
--#define K7_NMI_EVENT		K7_EVENT_CYCLES_PROCESSOR_IS_RUNNING
-+#define K7_NMI_EVENT		(0xC0 | (1<<23) | (0xFF << 24))
- 
- #define P6_EVNTSEL0_ENABLE	(1 << 22)
- #define P6_EVNTSEL_INT		(1 << 20)
+IDE, no chipset driver, NE2000 ISA NIC (no traffic during the
+tests), AT keyboard + PS/2 mouse (unused during the tests).
 
-- My perfctr driver routes interrupts through LVTPC programmed for
-  Fixed delivery mode. Maybe the NMI delivery mode is broken. You
-  could try changing the NMI watchdog to use a new vector and Fixed
-  delivery mode, just to see if the watchdog starts ticking.
+The only things I can think of are:
+- a 486 simply cannot keep up with HZ=1000
+- the plain IDE driver w/o chipset & DMA support somehow
+  is much worse in 2.5/2.6 than in 2.4
+- the "no TSC" time-keeping code is broken
 
 /Mikael

@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbTFOUO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 16:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTFOUO0
+	id S262861AbTFOVHC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 17:07:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbTFOVHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 16:14:26 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41742 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262856AbTFOUOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 16:14:25 -0400
-Date: Sun, 15 Jun 2003 21:28:14 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jaakko Niemi <liiwi@lonesom.pp.fi>
+	Sun, 15 Jun 2003 17:07:02 -0400
+Received: from mail2.ewetel.de ([212.6.122.18]:1993 "EHLO mail2.ewetel.de")
+	by vger.kernel.org with ESMTP id S262861AbTFOVHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 17:07:01 -0400
+To: Christoph Hellwig <hch@infradead.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71 go boom
-Message-ID: <20030615212814.N5417@flint.arm.linux.org.uk>
-Mail-Followup-To: Jaakko Niemi <liiwi@lonesom.pp.fi>,
-	linux-kernel@vger.kernel.org
-References: <87isr7cjra.fsf@jumper.lonesom.pp.fi> <20030615191125.I5417@flint.arm.linux.org.uk> <87el1vcdrz.fsf@jumper.lonesom.pp.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <87el1vcdrz.fsf@jumper.lonesom.pp.fi>; from liiwi@lonesom.pp.fi on Sun, Jun 15, 2003 at 11:00:00PM +0300
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Subject: Re: [PATCH] make cramfs look less hostile
+In-Reply-To: <20030615183011$3fc0@gated-at.bofh.it>
+References: <20030615161009$6dde@gated-at.bofh.it> <20030615174004$76d0@gated-at.bofh.it> <20030615175007$7f59@gated-at.bofh.it> <20030615175012$0573@gated-at.bofh.it> <20030615181004$3663@gated-at.bofh.it> <20030615181010$7f10@gated-at.bofh.it> <20030615182013$7a4e@gated-at.bofh.it> <20030615183011$3fc0@gated-at.bofh.it>
+Date: Sun, 15 Jun 2003 23:20:19 +0200
+Message-Id: <E19RevD-0000jc-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 15, 2003 at 11:00:00PM +0300, Jaakko Niemi wrote:
-> Russell King <rmk@arm.linux.org.uk> writes:
-> > On Sun, Jun 15, 2003 at 08:50:49PM +0300, Jaakko Niemi wrote:
-> >>  I seem to be able to reproduce crash with 2.7.70-bk and .71.
-> >>  First, I tried getting dlink dwl-650 wlan card up on my thinkpad
-> >>  570e, but orinoco_cs does not seem to want to even look at it.
-> >>  (any ideas what's the deal with that, btw?) 
-> >
-> > What happens if you plug in your cardbus card before the dlink wlan card?
-> 
->  Same thing.
+On Sun, 15 Jun 2003 20:30:11 +0200, you wrote in linux.kernel:
 
-Ok, I'm confused.  I suspect that it may be something to do with two
-PCI device structures appearing for the same device, however I don't
-see that happening with the code which is in 2.5.7x.
+> The only places where this should happen is mounting the rootfs.
+> mount(8) has it's own filesystem type detection code and doesn't
+> call mount(2) unless it found a matching filesystem type.
 
-Which kernel version first showed the problem?
-Which modules are you loading?
-Which version of cardmgr are you using?
-Are you using any modules from the pcmcia-cs package?
+Not everybody uses mount(8) from util-linux... I don't think the
+more simplicistic versions in embedded systems will even want to
+do their own type detection. ;)
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Ciao,
+Pascal

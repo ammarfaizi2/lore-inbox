@@ -1,60 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274765AbRIUGBB>; Fri, 21 Sep 2001 02:01:01 -0400
+	id <S274766AbRIUGBb>; Fri, 21 Sep 2001 02:01:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274766AbRIUGAv>; Fri, 21 Sep 2001 02:00:51 -0400
-Received: from smtp7.xs4all.nl ([194.109.127.133]:24556 "EHLO smtp7.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S274765AbRIUGAm>;
-	Fri, 21 Sep 2001 02:00:42 -0400
-Path: Home.Lunix!not-for-mail
-Subject: Re: [PATCH] /dev/epoll update ...
-Date: Fri, 21 Sep 2001 05:59:23 +0000 (UTC)
-Organization: lunix confusion services
-In-Reply-To: <XFMail.20010919151147.davidel@xmailserver.org>
-NNTP-Posting-Host: kali.eth
+	id <S274767AbRIUGBW>; Fri, 21 Sep 2001 02:01:22 -0400
+Received: from sushi.toad.net ([162.33.130.105]:14007 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S274766AbRIUGBJ>;
+	Fri, 21 Sep 2001 02:01:09 -0400
+Message-ID: <3BAAD796.A766FBEC@yahoo.co.uk>
+Date: Fri, 21 Sep 2001 02:00:54 -0400
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: quasar.home.lunix 1001051963 508 10.253.0.3 (21 Sep 2001 05:59:23
-    GMT)
-X-Complaints-To: abuse-0@ton.iguana.be
-NNTP-Posting-Date: Fri, 21 Sep 2001 05:59:23 +0000 (UTC)
-X-Newsreader: knews 1.0b.0
-Xref: Home.Lunix mail.linux.kernel:113163
-X-Mailer: Perl5 Mail::Internet v1.33
-Message-Id: <9oekvr$fs$1@post.home.lunix>
-From: linux-kernel@ton.iguana.be (Ton Hospel)
 To: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
+Subject: Re: [PATCH] parport_pc.c PnP BIOS sanity check
+Content-Type: multipart/mixed;
+ boundary="------------D617D8139E9E5BF008AE30D1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <XFMail.20010919151147.davidel@xmailserver.org>,
-	Davide Libenzi <davidel@xmailserver.org> writes:
-> On 19-Sep-2001 Christopher K. St. John wrote:
->> Davide Libenzi wrote:
-> Again :
-> 
-> 1)      select()/poll();
-> 2)      recv()/send();
-> 
-> vs :
-> 
-> 1)      if (recv()/send() == FAIL)
-> 2)              ioctl(EP_POLL);
-> 
+This is a multi-part message in MIME format.
+--------------D617D8139E9E5BF008AE30D1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-mm, I don't really get the second one. What if the scenario is:
-In the place you are in your program, you now decide that a
-read is in order.  You try read, nothing there yet,
-the syscall returns, the data event happens and THEN you go into
-the ioctl ?
+I'm still wondering why this function in parport_pc.c rejects dma
+values of zero.  Is DMA0 not usable by the parallel port for some
+reason?  I should think that if the PnP BIOS returns a dma of zero
+then it means that the parallel port is using DMA0.  Sorry if I'm
+being obtuse.                      // Thomas Hood 
 
-Possibilities seem:
-1) You hang, having missed the only event that will happen
-2) Just having data triggers the ioctl (maybe only the first time),
-   why not leaving out the initial read then and just do it afterwards
-   like select ?
-3) It generates a fake event the first time you notify interest, but then
-   the startup case leads to doing the read uselessly twice.
+parport_pc.c line 2799:
+int init_pnp040x(struct pci_dev *dev)
+{       int io,iohi,irq,dma;
 
-Or is there a fourth way I'm missing this really works ?
+        io=dev->resource[0].start;
+        iohi=dev->resource[1].start;
+        irq=dev->irq_resource[0].start;
+        dma=dev->dma_resource[0].start;
+
+        if(dma==0) dma=-1;             <--- Why?
+
+        printk(KERN_INFO "PnPBIOS: Parport found %s %s at io=%04x,%04x irq=%d dma=%d\n",
+                dev->name,dev->slot_name,io,iohi,irq,dma);
+        if (parport_pc_probe_port(io,iohi,irq,dma,NULL))
+                return 1;
+        return 0;
+}
+--------------D617D8139E9E5BF008AE30D1
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-norejdma"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-norejdma"
+
+--- linux-2.4.7-ac10/drivers/parport/parport_pc.c_ORIG	Fri Aug 10 18:19:07 2001
++++ linux-2.4.7-ac10/drivers/parport/parport_pc.c	Mon Aug 13 17:40:38 2001
+@@ -2797,8 +2797,6 @@
+ 	irq=dev->irq_resource[0].start;
+ 	dma=dev->dma_resource[0].start;
+ 
+-	if (dma==0) dma=-1;
+-
+ 	printk(KERN_INFO "PnPBIOS: Parport found %s %s at io=%04x,%04x irq=%d dma=%d\n",
+ 		dev->name,dev->slot_name,io,iohi,irq,dma);
+ 	if (parport_pc_probe_port(io,iohi,irq,dma,NULL))
+
+
+--------------D617D8139E9E5BF008AE30D1
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-dmanone"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-dmanone"
+
+--- linux-2.4.7-ac10/drivers/parport/parport_pc.c_ORIG	Fri Aug 10 18:19:07 2001
++++ linux-2.4.7-ac10/drivers/parport/parport_pc.c	Fri Aug 10 18:19:55 2001
+@@ -2797,7 +2797,7 @@
+ 	irq=dev->irq_resource[0].start;
+ 	dma=dev->dma_resource[0].start;
+ 
+-	if (dma==0) dma=-1;
++	if (dma==0) dma=PARPORT_DMA_NONE;
+ 
+ 	printk(KERN_INFO "PnPBIOS: Parport found %s %s at io=%04x,%04x irq=%d dma=%d\n",
+ 		dev->name,dev->slot_name,io,iohi,irq,dma);
+
+
+--------------D617D8139E9E5BF008AE30D1--
+

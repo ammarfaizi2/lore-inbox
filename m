@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbUCQAdO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 19:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbUCQAdO
+	id S261897AbUCQAe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 19:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUCQAe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 19:33:14 -0500
-Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:50598 "HELO
-	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261874AbUCQAdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 19:33:11 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Karol Kozimor <sziwan@hell.org.pl>
-Subject: Re: [ACPI] X86_PM_TIMER: /proc/cpuinfo doesn't get updated
-Date: Tue, 16 Mar 2004 19:33:07 -0500
-User-Agent: KMail/1.6.1
-Cc: john stultz <johnstul@us.ibm.com>, Dominik Brodowski <linux@brodo.de>,
-       acpi-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
-References: <20040316182257.GA2734@dreamland.darkstar.lan> <1079479694.5408.47.camel@cog.beaverton.ibm.com> <20040317001324.GA19180@hell.org.pl>
-In-Reply-To: <20040317001324.GA19180@hell.org.pl>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403161933.07816.dtor_core@ameritech.net>
+	Tue, 16 Mar 2004 19:34:27 -0500
+Received: from main.gmane.org ([80.91.224.249]:50661 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261897AbUCQAeS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 19:34:18 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Status HPT374 (HighPoint 1540) Sata in 2.6
+Date: Wed, 17 Mar 2004 01:34:15 +0100
+Message-ID: <yw1xllm0gvlk.fsf@kth.se>
+References: <405786EC.5000803@matchmail.com> <40578F31.5090700@matchmail.com>
+ <405796B0.9070906@matchmail.com>
+ <200403170127.33424.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti211310a080-2480.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:6CHblLjwnWMP4JOk8RRghZoj62I=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 March 2004 07:13 pm, Karol Kozimor wrote:
-> Thus wrote john stultz:
-> > Hmm. This is untested, but I think this should do the trick.
-> 
-> Hmm... without the patch, neither cpu MHz nor bogomips are updated, with
-> the patch cpu MHz value seems correct (both using acpi.ko and
-> speedstep-ich.ko, but the bogomips is still at its initial value.
-> Best regards,
-> 
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
 
-Karol, do you have a P4? AFAIK P4's TSC is stable even if core frequence
-changes so loop_per_juffy (== bogomips) need not be updated.
+> I think that it may work with drivers/ide/hpt366.c
+
+Works for me.
+
+> AFAIK HPT374 is PATA only chipset and SATA support in HighPoint 1540
+> is achieved by using PATA-SATA bridges.
+
+That's correct, at least if the chips on the board can be trusted.
 
 -- 
-Dmitry
+Måns Rullgård
+mru@kth.se
+

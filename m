@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266320AbTBTRpm>; Thu, 20 Feb 2003 12:45:42 -0500
+	id <S266330AbTBTRwm>; Thu, 20 Feb 2003 12:52:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266330AbTBTRpl>; Thu, 20 Feb 2003 12:45:41 -0500
-Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:64952 "EHLO
-	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S266320AbTBTRpP>; Thu, 20 Feb 2003 12:45:15 -0500
-Date: Thu, 20 Feb 2003 14:54:50 -0300 (BRT)
-From: Rik van Riel <riel@imladris.surriel.com>
+	id <S266622AbTBTRwm>; Thu, 20 Feb 2003 12:52:42 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:60310 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S266330AbTBTRwj>;
+	Thu, 20 Feb 2003 12:52:39 -0500
+Date: Thu, 20 Feb 2003 13:02:39 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
 To: James Buchanan <jamesbuch@iprimus.com.au>
-cc: Tomas Szepe <szepe@pinerecords.com>, "" <linux-kernel@vger.kernel.org>
+Cc: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
 Subject: Re: Linux kernel rant
+Message-ID: <20030220180239.GK9800@gtf.org>
+References: <200302211551.28222.jamesbuch@iprimus.com.au> <20030220172606.GO1426@louise.pinerecords.com> <200302211642.31669.jamesbuch@iprimus.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <200302211642.31669.jamesbuch@iprimus.com.au>
-Message-ID: <Pine.LNX.4.50L.0302201453500.2329-100000@imladris.surriel.com>
-References: <200302211551.28222.jamesbuch@iprimus.com.au>
- <20030220172606.GO1426@louise.pinerecords.com> <200302211642.31669.jamesbuch@iprimus.com.au>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Feb 2003, James Buchanan wrote:
+On Fri, Feb 21, 2003 at 04:42:31PM +1100, James Buchanan wrote:
 > On Fri, 21 Feb 2003 04:26 am, Tomas Szepe wrote:
 > > Don't be naive, BSD people have to sign NDA's too if they want to
 > > have decent drivers for cheap hardware.
->
+> 
 > I'm not - Theo De Raadt refuses to sign them.
 
-And as a consequence he doesn't have the same hardware support.
+OpenBSD contains drivers _obviously_ written under NDA, just like every
+other free BSD.  Theo probably imported these drivers from FreeBSD,
+I would guess.
 
-Of course, you're free to run openbsd on any machine that
-supports it.  I'm sure you'll be able to put one together
-from various supported pieces of hardware.
+I pay attention to net drivers in all the BSD OS's, so if you know net
+drivers and their vendors, these things are obvious ;-)
 
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/
+	Jeff
+
+

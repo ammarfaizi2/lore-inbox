@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262886AbVA2I7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbVA2JQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262886AbVA2I7f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 03:59:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbVA2I7f
+	id S262883AbVA2JQp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 04:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262884AbVA2JQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 03:59:35 -0500
-Received: from news.suse.de ([195.135.220.2]:42169 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262886AbVA2I7c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 03:59:32 -0500
-Date: Sat, 29 Jan 2005 09:59:32 +0100
-From: Andi Kleen <ak@suse.de>
-To: Pavel Roskin <proski@gnu.org>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] [PATCH] Move HPET options from top level, enable HPET_TIMER prompt
-Message-ID: <20050129085932.GG2718@wotan.suse.de>
-References: <Pine.LNX.4.62.0501281143040.3332@localhost.localdomain>
+	Sat, 29 Jan 2005 04:16:45 -0500
+Received: from h80ad2532.async.vt.edu ([128.173.37.50]:45320 "EHLO
+	h80ad2532.async.vt.edu") by vger.kernel.org with ESMTP
+	id S262883AbVA2JQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 04:16:43 -0500
+Message-Id: <200501290915.j0T9FkVY012948@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, netdev@oss.sgi.com,
+       Hank Leininger <hlein@progressive-comp.com>
+Subject: Re: [PATCH] OpenBSD Networking-related randomization port 
+In-Reply-To: Your message of "Fri, 28 Jan 2005 21:47:45 +0100."
+             <1106945266.7776.41.camel@laptopd505.fenrus.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <1106932637.3778.92.camel@localhost.localdomain> <20050128100229.5c0e4ea1@dxpl.pdx.osdl.net> <1106937110.3864.5.camel@localhost.localdomain> <20050128105217.1dc5ef42@dxpl.pdx.osdl.net> <1106944492.3864.30.camel@localhost.localdomain>
+            <1106945266.7776.41.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0501281143040.3332@localhost.localdomain>
+Content-Type: multipart/signed; boundary="==_Exmh_1106990142_21005P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 29 Jan 2005 04:15:43 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 11:55:13AM -0500, Pavel Roskin wrote:
-> Hello!
-> 
-> "make menuconfig" for x86_64 looks somewhat funky:
-> 
-> [ ] Provide RTC interrupt (NEW)
+--==_Exmh_1106990142_21005P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I will move that thanks.
+On Fri, 28 Jan 2005 21:47:45 +0100, Arjan van de Ven said:
 
->     Code maturity level options  --->
->     General setup  --->
-> ...
-> 
-> I believe all x86_64 specific options for HPET timer should be moved to 
-> the "Processor type and features" menu.  That's where they are located for 
-> i386.  There are two such options - HPET_TIMER and HPET_EMULATE_RTC.
-> 
-> Also, there is no prompt for HPET_TIMER, so it's always set.  However, the 
-> help text ends with "If unsure, say Y".  Kind of pointless, isn't it?  I 
-> enabled the prompt and deselected HPET_TIMER.  The kernel compiled and 
-> booted just fine.  Kernel messages don't indicate that HPET is used, but 
-> they said so when HPET_TIMER was enabled.
+> as for obsd_get_random_long().. would it be possible to use the
+> get_random_int() function from the patches I posted the other day? They=
 
-I prefer to keep it always enabled.
+> use the existing random.c infrastructure instead of making a copy...
+>=20
+> I still don't understand why you need a obsd_rand.c and can't use the
+> normal random.c
 
--Andi
+Note that obsd_rand.c started off life as a BSD-licensed file - I was tol=
+d
+that was a show-stopper when I submitted basically the same patch a while=
+ back.
+
+So re-working it to use get_random_int()  would be a good idea, I think..=
+..
+
+--==_Exmh_1106990142_21005P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFB+1Q9cC3lWbTT17ARAsKUAJ9p3+YEyq2ZOwNJSAN1VG36ZEkVOgCg8zvs
+6EfUPjw0Y9WR6GK3azrO7WQ=
+=7riU
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1106990142_21005P--

@@ -1,74 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262449AbTB0JBv>; Thu, 27 Feb 2003 04:01:51 -0500
+	id <S262780AbTB0JLH>; Thu, 27 Feb 2003 04:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262452AbTB0JBv>; Thu, 27 Feb 2003 04:01:51 -0500
-Received: from dsl-212-144-205-077.arcor-ip.net ([212.144.205.77]:24961 "EHLO
-	server1.intern.kubla.de") by vger.kernel.org with ESMTP
-	id <S262449AbTB0JBu> convert rfc822-to-8bit; Thu, 27 Feb 2003 04:01:50 -0500
-From: Dominik Kubla <dominik@kubla.de>
-To: Kasper Dupont <kasperd@daimi.au.dk>
+	id <S262789AbTB0JLH>; Thu, 27 Feb 2003 04:11:07 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:10508 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S262780AbTB0JLG>; Thu, 27 Feb 2003 04:11:06 -0500
+Date: Thu, 27 Feb 2003 01:21:21 -0800
+From: jw schultz <jw@pegasys.ws>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: About /etc/mtab and /proc/mounts
-Date: Thu, 27 Feb 2003 10:11:59 +0100
-User-Agent: KMail/1.5
-Cc: Miles Bader <miles@gnu.org>, DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030219112111.GD130@DervishD> <200302270808.21035.dominik@kubla.de> <3E5DC86C.93AFA6CB@daimi.au.dk>
-In-Reply-To: <3E5DC86C.93AFA6CB@daimi.au.dk>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+Message-ID: <20030227092121.GG15254@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DB2CA.32539D41@daimi.au.dk> <buon0kirym1.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DCB89.9086582F@daimi.au.dk> <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200302271012.02283.dominik@kubla.de>
+In-Reply-To: <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 February 2003 09:12, Kasper Dupont wrote:
-> Dominik Kubla wrote:
-> > I would recommend to replace /etc/mtab with a pseudo-FS like Sun did
-> > for /etc/mnttab:
-...
-> How does that thing behave? I have considered a /proc/mtab implementation,
-> that might be slightly similar. 
+On Thu, Feb 27, 2003 at 05:42:30PM +0900, Miles Bader wrote:
+> Kasper Dupont <kasperd@daimi.au.dk> writes:
+> > > Yes.  On some systems, /var and /tmp are the _only_ read-write filesystems.
+> > 
+> > OK, but then on such a system with my approach it would be possible to
+> > make /mtab.d a symlink pointing to somewhere under /var.
+> 
+> ... you could do the same with /etc/mtab.
+> 
+> In fact since /etc is almost guaranteed to be on the same filesystem as
+> /, it seems like "/mtab.d" offers zero advantages over just /etc/mtab --
+> the case where /etc/mtab is the most annoying is when /etc is R/O, but
+> this almost always means that / will be R/O, making /mtab.d useless too.
 
-Quoting the Solaris 8 man page:
+If you netboot /etc as its own filesystem make sense.  Why
+duplicate the rest of root just for /etc.  /etc, /var and
+/tmp are the only filesystems that have much reason to be
+unique to a system; all others are easily sharable and most
+others read-only.
 
-File Formats                                            mnttab(4)
+> 
+> > But AFAIK fsck uses mtab.
+> 
+> It uses /etc/fstab.
+> 
+> > If mtab does not exist mount will attempt to create a new one with
+> > only the root listed.
+> 
+> Unless you use the `-n' flag, which an init-script should do if it
+> knows there's something wierd required to get /var mounted or something.
 
-NAME
-     mnttab - mounted file system table
+<voice of annoyance>
+/etc/mtab is a hack.  I suspect it was done so that fsck, df
+and umount wouldn't have to read /dev/kmem.  We now have
+much better ways to get data out of the kernel.
 
-DESCRIPTION
-     The file /etc/mnttab is really a file system  that  provides
-     read-only  access  to  the table of mounted file systems for
-     the current host. /etc/mnttab is read by programs using  the
-     routines  described in getmntent(3C). Mounting a file system
-     adds an entry to this table.  Unmounting  removes  an  entry
-     from  this table. Remounting a file system causes the infor-
-     mation in the mounted file system table  to  be  updated  to
-     reflect any changes caused by the remount. The list is main-
-     tained by the kernel in order of mount time.  That  is,  the
-     first  mounted file system is first in the list and the most
-     recently mounted file system is  last.  When  mounted  on  a
-     mount  point  the file system appears as a regular file con-
-     taining the current mnttab information.
-[...]
-NOTES
-     The snapshot of the mnttab information is taken any  time  a
-     read(2)  is  performed  at  offset  0 (the beginning) of the
-     mnttab file. The file modification time returned by  stat(2)
-     for  the  mnttab  file  is  the  time  of the last change to
-     mounted file  system  information.  A  poll(2)  system  call
-     requesting  a POLLRDBAND event can be used to block and wait
-     for the system's mounted file system information to be  dif-
-     ferent  from  the most recent snapshot since the mnttab file
-     was opened.
+The idea of storing the list of mounted filesystems on a
+mounted filesystem is a bad idea from the get-go.  The only
+advantage it ever really had was the possibility to manually
+play mountpoint monte with mv.  Duplicating the in-kernel
+data externally begs for inconsistencies that only get worse
+with pivot root.
 
-Regards,
-  Dominik Kubla
+Let the data reside in the kernel and have a procfs or sysfs
+entity for it.  A symlink from /etc/mtab can keep the old
+tools happy.
+
 -- 
-"What this  country needs is  a short, victorious war  to stem the  tide of
-revolution." (V.K. von Plehve, Russian Minister  of Interior on the  eve of
-the Russo-Japanese war.)
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

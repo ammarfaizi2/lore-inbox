@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131410AbRBBAGY>; Thu, 1 Feb 2001 19:06:24 -0500
+	id <S132120AbRBBAKo>; Thu, 1 Feb 2001 19:10:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131817AbRBBAGO>; Thu, 1 Feb 2001 19:06:14 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:1594 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S131410AbRBBAGB>; Thu, 1 Feb 2001 19:06:01 -0500
-Message-ID: <3A79F9D3.278A040A@linux.com>
-Date: Thu, 01 Feb 2001 16:05:39 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>, Rik van Riel <riel@conectiva.com.br>,
-        LKML <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
-Subject: Re: [reiserfs-list] Re: VM brokenness, possibly related to reiserfs
+	id <S132199AbRBBAKh>; Thu, 1 Feb 2001 19:10:37 -0500
+Received: from theirongiant.zip.net.au ([61.8.0.198]:2309 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S132120AbRBBAKU>; Thu, 1 Feb 2001 19:10:20 -0500
+Date: Fri, 2 Feb 2001 11:09:07 +1100
+From: CaT <cat@zip.com.au>
+To: Jagan_Pochimireddy@3com.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel ver 2.4.1 VFS problem
+Message-ID: <20010202110907.A365@zip.com.au>
+In-Reply-To: <882569E6.0083B746.00@hqoutbound.ops.3com.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <882569E6.0083B746.00@hqoutbound.ops.3com.com>; from Jagan_Pochimireddy@3com.com on Thu, Feb 01, 2001 at 03:58:58PM -0800
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My apologies...my internic data isn't updated, http://208.179.0.18/VM/
+On Thu, Feb 01, 2001 at 03:58:58PM -0800, Jagan_Pochimireddy@3com.com wrote:
+> I wamt to use the latest kernel version 2.4.1 . I taken defualt configuration
+> and built bzImage. When I try to boot with this image it's giving message like
+> this.
+> 
+> " VFS:Unable to mount root device 805 or 8:05"
+> kernel panic "VFS:please append correct "root=\"
+> "VFS:Unable to open root device"
+> 
+> Can any body help me where could be the problem
 
--d
+Do you have the correct SCSI driver compiled into your kernel? A friend
+of mine had a similar problem and that was the solution (he thought the 
+card was one thing but it was another).
 
-
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
-
-
+-- 
+CaT (cat@zip.com.au)		*** Jenna has joined the channel.
+				<cat> speaking of mental giants..
+				<Jenna> me, a giant, bullshit
+				<Jenna> And i'm not mental
+					- An IRC session, 20/12/2000
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

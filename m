@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265311AbUFHVCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265314AbUFHVD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265311AbUFHVCl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 17:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbUFHVCl
+	id S265314AbUFHVD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 17:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUFHVD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 17:02:41 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:18184 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265311AbUFHVCi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 17:02:38 -0400
-Date: Tue, 8 Jun 2004 23:08:46 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kbuild make deb patch
-Message-ID: <20040608210846.GA5216@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040607141353.GK21794@wiggy.net>
+	Tue, 8 Jun 2004 17:03:26 -0400
+Received: from outmx004.isp.belgacom.be ([195.238.2.101]:39915 "EHLO
+	outmx004.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265314AbUFHVCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 17:02:49 -0400
+Subject: [PATCH 2.6.7-rc3] nr_free_files ?
+From: FabF <fabian.frederick@skynet.be>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-HXJtszMg7w4gJDB3Hvvs"
+Message-Id: <1086728685.3865.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040607141353.GK21794@wiggy.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 08 Jun 2004 23:04:45 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 07, 2004 at 04:13:53PM +0200, Wichert Akkerman wrote:
-> I originally posted this before 2.6.0 was out and was told to wait until 
-> things have stabilized a bit. At least from my point of view that has
-> happened by now so I'm bringing this one up again.
-> 
-> kbuild has had a rpm make target for some time now. Since the concept of
-> kernel packages is quite convenient I added a deb target as well, using
-> the patch below.
-> 
-> Since I'm (still) not familiar with kbuild Makefile bits are quite
-> rough, but they Work For Me(Tm).
 
-I'm in progress of doing some infrastructure work to better support building
-different packages. I have requests for .tar.gz, tar.gz2 as well
-as deb.
+--=-HXJtszMg7w4gJDB3Hvvs
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I hope to post a few patches later this week.
-I will include your script in the patch-set then.
+Andrew,
 
-	Sam
+	Here's a patch removing nr_free_files.This one is unused in the whole
+tree + file-nr was tri-int exposed in /proc.This patch gives file-nr
+simple integer as file-max.Could you apply if this doesn't break
+historical features ?
+
+Regards,
+FabF
+
+--=-HXJtszMg7w4gJDB3Hvvs
+Content-Disposition: attachment; filename=filenr1.diff
+Content-Type: text/x-patch; name=filenr1.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -Naur orig/include/linux/fs.h edited/include/linux/fs.h
+--- orig/include/linux/fs.h	2004-06-08 00:04:43.000000000 +0200
++++ edited/include/linux/fs.h	2004-06-08 22:50:36.000000000 +0200
+@@ -49,7 +49,6 @@
+ /* And dynamically-tunable limits and defaults: */
+ struct files_stat_struct {
+ 	int nr_files;		/* read only */
+-	int nr_free_files;	/* read only */
+ 	int max_files;		/* tunable */
+ };
+ extern struct files_stat_struct files_stat;
+diff -Naur orig/kernel/sysctl.c edited/kernel/sysctl.c
+--- orig/kernel/sysctl.c	2004-06-08 00:04:44.000000000 +0200
++++ edited/kernel/sysctl.c	2004-06-08 22:53:09.000000000 +0200
+@@ -822,8 +822,8 @@
+ 	{
+ 		.ctl_name	= FS_NRFILE,
+ 		.procname	= "file-nr",
+-		.data		= &files_stat,
+-		.maxlen		= 3*sizeof(int),
++		.data		= &files_stat.nr_files,
++		.maxlen		= sizeof(int),
+ 		.mode		= 0444,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+
+--=-HXJtszMg7w4gJDB3Hvvs--
+

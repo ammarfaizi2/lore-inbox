@@ -1,89 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbTJPKcM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 06:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbTJPKcM
+	id S262805AbTJPKnK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 06:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbTJPKnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 06:32:12 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:12732 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262813AbTJPKcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 06:32:09 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Greg Stark <gsstark@mit.edu>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-Date: Thu, 16 Oct 2003 12:29:44 +0200
-User-Agent: KMail/1.5.4
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       Joel Becker <Joel.Becker@oracle.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0310120909050.12190-100000@home.osdl.org> <200310151525.40470.ioe-lkml@rameria.de> <87llrmbl1g.fsf@stark.dyndns.tv>
-In-Reply-To: <87llrmbl1g.fsf@stark.dyndns.tv>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 16 Oct 2003 06:43:10 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:44200 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262805AbTJPKnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 06:43:07 -0400
+Subject: Re: [Linux-fbdev-devel] Re: FBDEV 2.6.0-test7 updates.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Carlo E. Prelz" <fluido@fluido.as>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031016101905.GA7454@casa.fluido.as>
+References: <20031015162056.018737f1.akpm@osdl.org>
+	 <Pine.LNX.4.44.0310160022210.13660-100000@phoenix.infradead.org>
+	 <20031016091918.GA1002@casa.fluido.as> <1066298431.1407.119.camel@gaston>
+	 <20031016101905.GA7454@casa.fluido.as>
+Content-Type: text/plain
+Message-Id: <1066300935.646.136.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 16 Oct 2003 12:42:15 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310161229.44861.ioe-lkml@rameria.de>
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-first: I think the problem is solvable with mixing blocking and
-non-blocking IO or simply AIO, which will be supported nicely by 2.6.0,
-is a POSIX standard and is meant for doing your own IO scheduling.
+> PS I am BK-handicapped. I had downloaded the program, and tried your
+> instruction as per an old message of yours, and no download would take
+> place. Since, if I recall correctly, bk cannot be used for free on
+> closed-source projects, I cannot switch to it (nor lose too much time
+> on it): I work on projects of both types, and changing every time
+> between RCS/CVS and bk would be very umcomfortable.
 
-On Wednesday 15 October 2003 17:03, Greg Stark wrote:
-> Ingo Oeser <ioe-lkml@rameria.de> writes:
-> > On Monday 13 October 2003 10:45, Helge Hafting wrote:
-> > > This is easier than trying to tell the kernel that the job is
-> > > less important, that goes wrong wether the job runs too much
-> > > or too little.  Let that job  sleep a little when its services
-> > > aren't needed, or when you need the disk bandwith elsewhere.
->
-> Actually I think that's exactly backwards. The problem is that if the
-> user-space tries to throttle the process it doesn't know how much or when.
-> The kernel knows exactly when there are other higher priority writes, it
-> can schedule just enough writes from vacuum to not interfere.
+You also have an rsync mirror of that tree at
+source.mivsta.com::linuxppc-2.5-benh
 
-On dedicated servers this might be true. But on these you could also
-solve it in user space by measuring disk bandwidth and issueing just
-enough IO to keep up roughly with it.
-
-> So if vacuum slept a bit, say every 64k of data vacuumed. It could end up
-> sleeping when the disks are actually idle. Or it could be not sleeping
-> enough and still be interfering with transactions.
-
-The vacuum io is submitted (via AIO or simulation of it) normally in a
-unit U and waiting ALWAYS for U to complete, before submitting a new one.
-Between submitting units, the vacuums checks for outstanding transactions 
-and stops, when we have one.
-
-Now a transaction is submitted and the submitting from vacuum is stopped
-by it existing. The transaction waits for completion (e.g.  aio_suspend()) 
-and signals vacuum to continue.
-
-So the disk(s) should be always in good use.
-
-I don't know much of the design internals of your database, but this
-sounds promising and is portable.
-
-> > The questions are: How IO-intensive vacuum? How fast can a throttling
-> > free disk bandwidth (and memory)?
->
-> It's purely i/o bound on large sequential reads. Ideally it should still
-> have large enough sequential reads to not lose the streaming advantage, but
-> not so large that it preempts the more random-access transactions.
-
-Ok, so we can ignore the processing time and the above should just work.
-
-
-Regards
-
-Ingo Oeser
+Ben.
 
 

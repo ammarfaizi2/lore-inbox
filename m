@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289901AbSBSUgz>; Tue, 19 Feb 2002 15:36:55 -0500
+	id <S290047AbSBSU6A>; Tue, 19 Feb 2002 15:58:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289877AbSBSUfV>; Tue, 19 Feb 2002 15:35:21 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:16003 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S289820AbSBSUeG>; Tue, 19 Feb 2002 15:34:06 -0500
-Date: Tue, 19 Feb 2002 15:34:15 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	id <S290075AbSBSU5u>; Tue, 19 Feb 2002 15:57:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56329 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290047AbSBSU5j>;
+	Tue, 19 Feb 2002 15:57:39 -0500
+Message-ID: <3C72BC0C.821EAB90@zip.com.au>
+Date: Tue, 19 Feb 2002 12:56:44 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
+CC: kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: ENOTTY from ext3 code?
 In-Reply-To: <20020219190932.GA274@elf.ucw.cz>
-Message-ID: <Pine.LNX.3.95.1020219153119.30420A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Feb 2002, Pavel Machek wrote:
-
+Pavel Machek wrote:
+> 
 > Hi!
 > 
 > ext3/ioctl.c:
 > 
 > ...
-> 	return -ENOTTY;
+>         return -ENOTTY;
 > 
 > Does it really make sense to return "not a typewriter" from ext3
 > ioctl?
 
-But yes! The de-facto return code for a file-system ioctl() that
-is undefined, i.e., wrong parameter, is ENOTTY. This is because
-it really means "Not a terminal". Terminals have the most ioctls.
+ERRORS
+       ...
 
-Cheers,
-Dick Johnson
+       ENOTTY d  is  not  associated  with  a  character  special
+              device.
 
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+       ENOTTY The specified request does not apply to the kind of
+              object that the descriptor d references.
 
-        111,111,111 * 111,111,111 = 12,345,678,987,654,321
 
+Lots and lots of ioctls return ENOTTY when passed a request
+which they don't understand.  There's probably a great reason
+for this, but I can't immediately think what it might be.
+
+-

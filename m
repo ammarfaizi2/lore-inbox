@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270761AbTGNTtL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 15:49:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270764AbTGNTtK
+	id S270771AbTGNTur (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 15:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270774AbTGNTur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 15:49:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44938 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270761AbTGNTsY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 15:48:24 -0400
-Message-ID: <3F130C75.3010603@pobox.com>
-Date: Mon, 14 Jul 2003 16:03:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David griego <dagriego@hotmail.com>
-CC: alan@storlinksemi.com, linux-kernel@vger.kernel.org
-Subject: Re: Alan Shih: "TCP IP Offloading Interface"
-References: <Sea2-F4kWkKEsEXlwM9000178d9@hotmail.com>
-In-Reply-To: <Sea2-F4kWkKEsEXlwM9000178d9@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Jul 2003 15:50:47 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:41444 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S270771AbTGNTuh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 15:50:37 -0400
+Date: Mon, 14 Jul 2003 22:05:20 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5] via-rhine 1.19-2.5: One more Rhine-I fix
+Message-ID: <20030714200520.GB4774@k3.hellgate.ch>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="NMuMz9nt05w80d4+"
+Content-Disposition: inline
+In-Reply-To: <20030714200203.GA4774@k3.hellgate.ch>
+X-Operating-System: Linux 2.6.0-test1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David griego wrote:
-> Intel Clusters and Network Storage Volume Platforms Lab reported that it 
-> takes about 1MHz to process 1Mbps on a PIII.  Using this rule of thumb 
-> (they showed it scaling from 400MHz to 800MHz) it would take 10GHz to 
-> process 10Mbps.  Well you might say "what about multi-processers?"  This 
 
-Um.  It doesn't take nearly 10Ghz to handle 10Mbps, or even 100Mbps.
+--NMuMz9nt05w80d4+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+This patch fixes another way the Rhine-I found to break down under load. It
+should bring Rhine-I behavior on par with the Rhine-II.
 
-> would be good for people that have multi-processors, but there is a 
-> large segment of embedded processors that are not going have SMP, or be 
-> at 10GHz anytime soon.  Besides that processing interrupts does not 
-> scale across MPs liniarly.  The truth is that communication speeds are 
-> outpacing processor speeds at this time.
+Roger
 
-If the host CPU is a bottleneck after large-send and checksums have been 
-offloaded, then logically you aren't getting any work done _anyway_. 
-You have to interface with the net stack at some point, in which case 
-you incur a fixed cost, for socket handling, TCP exception handling, etc.
+--NMuMz9nt05w80d4+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="via-rhine-1.19-2.5.diff"
 
-Maybe somebody needs to be looking into AMP (asymmetric 
-multiprocessing), too.
+--- linux-2.5/drivers/net/via-rhine.c.org	2003-07-14 21:49:56.000000000 +0200
++++ linux-2.5/drivers/net/via-rhine.c	2003-07-14 21:50:09.000000000 +0200
+@@ -122,11 +122,14 @@
+ 	- No filtering multicast in promisc mode (Edward Peng)
+ 	- Fix for Rhine-I Tx timeouts
+ 
++	LK1.1.19 (Roger Luethi)
++	- Increase Tx threshold for unspecified errors
++
+ */
+ 
+ #define DRV_NAME	"via-rhine"
+-#define DRV_VERSION	"1.1.18-2.5"
+-#define DRV_RELDATE	"July-4-2003"
++#define DRV_VERSION	"1.1.19-2.5"
++#define DRV_RELDATE	"July-12-2003"
+ 
+ 
+ /* A few user-configurable values.
+@@ -1664,9 +1667,13 @@
+ 	}
+ 	if ((intr_status & IntrTxError) && ~( IntrTxAborted | IntrTxUnderrun |
+ 										   IntrTxDescRace )) {
+-		if (debug > 2)
+-			printk(KERN_INFO "%s: Unspecified error.\n",
+-				   dev->name);
++		if (np->tx_thresh < 0xE0) {
++			writeb(np->tx_thresh += 0x20, ioaddr + TxConfig);
++		}
++		if (debug > 1)
++			printk(KERN_INFO "%s: Unspecified error. Tx "
++				   "threshold now %2.2x.\n",
++				   dev->name, np->tx_thresh);
+ 	}
+ 	if (intr_status & ( IntrTxAborted | IntrTxUnderrun | IntrTxDescRace |
+ 						IntrTxError ))
 
-	Jeff
-
-
-
+--NMuMz9nt05w80d4+--

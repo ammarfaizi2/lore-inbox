@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbUBTM5h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 07:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUBTMz5
+	id S261239AbUBTNFH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 08:05:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUBTNBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 07:55:57 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:34658 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261200AbUBTMxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 07:53:07 -0500
-Date: Fri, 20 Feb 2004 13:48:24 +0100
-Message-Id: <200402201248.i1KCmOK9004317@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 413] Mac IOP spelling
+	Fri, 20 Feb 2004 08:01:46 -0500
+Received: from gprs156-117.eurotel.cz ([160.218.156.117]:61312 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261230AbUBTM72 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 07:59:28 -0500
+Date: Fri, 20 Feb 2004 13:59:12 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: eMachines M6805 (Athlon 64) laptop and Linux?
+Message-ID: <20040220125912.GA314@elf.ucw.cz>
+References: <402D32AE.3000006@coyotegulch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <402D32AE.3000006@coyotegulch.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mac IOP spelling fix (from Matthias Urlichs)
+Hi!
 
---- linux-2.6.3/arch/m68k/mac/iop.c	2003-05-27 19:02:33.000000000 +0200
-+++ linux-m68k-2.6.3/arch/m68k/mac/iop.c	2004-02-08 21:39:11.000000000 +0100
-@@ -87,7 +87,7 @@
-  * or more messages on the receive channels have gone to the MSG_NEW state.
-  *
-  * Since each channel handles only one message we have to implement a small
-- * interrupt-driven queue on our end. Messages to e sent are placed on the
-+ * interrupt-driven queue on our end. Messages to be sent are placed on the
-  * queue for sending and contain a pointer to an optional callback function.
-  * The handler for a message is called when the message state goes to
-  * MSG_COMPLETE.
+> I'm strongly tempted to buy one of these laptops -- but I want it to run 
+> Linux instead of that "other" operating system. Has anyone installed 
+> Linux (32- or 64-bit) on one of these machines?
+> 
+> Or does anyone have a suggestion for a "Linux certified" Athlon 64 system?
 
-Gr{oetje,eeting}s,
+There are some problems with ACPI, APIC and CPUFREQ, plus I do not
+think build-in wifi can be made to work.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Otherwise its a nice machine ;-).
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

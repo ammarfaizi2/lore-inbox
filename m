@@ -1,55 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292312AbSB0JuU>; Wed, 27 Feb 2002 04:50:20 -0500
+	id <S292316AbSB0KKG>; Wed, 27 Feb 2002 05:10:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292304AbSB0JuL>; Wed, 27 Feb 2002 04:50:11 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:50186 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S292294AbSB0Jtx>; Wed, 27 Feb 2002 04:49:53 -0500
-To: Todor Todorov <ttodorov@web.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.5-dj2 and vfat oopses (ksymoops output included)
-In-Reply-To: <3C7C72C3.60906@web.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 27 Feb 2002 18:49:39 +0900
-In-Reply-To: <3C7C72C3.60906@web.de>
-Message-ID: <87zo1vi79o.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S292315AbSB0KJ4>; Wed, 27 Feb 2002 05:09:56 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:47887 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292294AbSB0KJk>; Wed, 27 Feb 2002 05:09:40 -0500
+Message-ID: <3C7CB03A.4060901@evision-ventures.com>
+Date: Wed, 27 Feb 2002 11:08:58 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.5 IDE clean 14
+In-Reply-To: <24118.1014760152@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Todor Todorov <ttodorov@web.de> writes:
+Keith Owens wrote:
+> Martin, please fix your mailer on 195.63.194.11.  It retries the send
+> every minute which is far too fast.  It is absolutely broken because it
+> ignores 5xx response codes.
 
-> Hello everyone,
-> 
-> trying to copy a file to a fat 32 partition, the kernel oopses. Here
-> is the information
-> % uname -r
->         2.5.5-dj2
-> distro:
->         Debian GNU/Linux unstable
-> machine:
->         Dell Inspiron 8000
-> partition:
->         hda7, type c (FAT 32 LBA) on a 40 GB Toshiba HD
-> fstab entry for the partition:
->         /dev/hda7   /mnt/data   vfat
-> rw,quiet,uid=1000,gid=100,codepage=850  0  0
+This is *not my* responsibility. The resposible admin in question
+already knows about it. OK?
 
-Thanks for good bug report. Probably, the following patch fix this
-bug. Could you try the following patch?
-
---- linux-2.5.5-dj2/fs/nls/nls_cp850.c.orig	Wed Feb 27 16:55:36 2002
-+++ linux-2.5.5-dj2/fs/nls/nls_cp850.c	Wed Feb 27 18:31:20 2002
-@@ -296,6 +296,7 @@
- 	uni2char:	uni2char,
- 	char2uni:	char2uni,
- 	charset2lower:	charset2lower,
-+	charset2upper:	charset2upper,
- 	owner:		THIS_MODULE,
- };
-
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

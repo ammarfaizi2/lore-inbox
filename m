@@ -1,102 +1,344 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266305AbUG0HqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266308AbUG0Hs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266305AbUG0HqK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 03:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266308AbUG0HqK
+	id S266308AbUG0Hs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 03:48:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266314AbUG0Hs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 03:46:10 -0400
-Received: from tartu.cyber.ee ([193.40.6.68]:33040 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S266305AbUG0HqD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 03:46:03 -0400
-Date: Tue, 27 Jul 2004 10:45:57 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Gerard Roudier <groudier@free.fr>, linux-kernel@vger.kernel.org
-Subject: Sym53C896: CACHE INCORRECTLY CONFIGURED
-Message-ID: <Pine.LNX.4.58.0407271038530.13593@ondatra.tartu-labor>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Jul 2004 03:48:28 -0400
+Received: from science.horizon.com ([192.35.100.1]:37675 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S266308AbUG0HsO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 03:48:14 -0400
+Date: 27 Jul 2004 07:48:13 -0000
+Message-ID: <20040727074813.4596.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8-rc2 4K stack overflow
+Cc: linux@horizon.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a 53c896 dual channel 64-bit PCI card (Compaq series EOB003). Tried
-it in x86 (i815 mainboard) and Sun Ultra 5 (both with 32-bit PCI slots).
-Both errored out basically the same way (this is from the PC, Linux
-2.6.8-rc2):
+Just a crash report.  Machine locked hard - no caps lock, no ping.
 
-ACPI: PCI interrupt 0000:01:09.0[A] -> GSI 11 (level, low) -> IRQ 11
-sym0: <896> rev 0x5 at pci 0000:01:09.0 irq 11
-sym0: using 64 bit DMA addressing
-sym0: No NVRAM, ID 7, Fast-40, LVD, parity checking
-CACHE TEST FAILED: timeout.
-sym0: CACHE INCORRECTLY CONFIGURED.
-sym0: giving up ...
-ACPI: PCI interrupt 0000:01:09.1[B] -> GSI 9 (level, low) -> IRQ 9
-sym0: <896> rev 0x5 at pci 0000:01:09.1 irq 9
-sym0: using 64 bit DMA addressing
-sym0: No NVRAM, ID 7, Fast-40, LVD, parity checking
-CACHE TEST FAILED: timeout.
-sym0: CACHE INCORRECTLY CONFIGURED.
-sym0: giving up ...
+Machine mostly idle.  Amanda network backup was running, but not daily cron.
 
-Is the card toast or can I tweak something somewhere?
+Backtrace copied by hand. (I didn't copy the leading addresses.)
+FWIW, only one partition (a RAID-0 non-critical data partition) is
+mounted with ext2.
 
-0000:01:09.0 SCSI storage controller: LSI Logic / Symbios Logic 53C896/897 (rev 05)
-        Subsystem: Compaq Computer Corporation: Unknown device 6004
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at c400 [size=256]
-        Region 1: Memory at ff8ff800 (64-bit, non-prefetchable) [size=1K]
-        Region 3: Memory at ff8fa000 (64-bit, non-prefetchable) [size=8K]
-        Capabilities: [40] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: 00 10 0b 00 13 01 10 82 05 00 00 01 08 20 80 00
-10: 01 c4 00 00 04 f8 8f ff 00 00 00 00 04 a0 8f ff
-20: 00 00 00 00 00 00 00 00 00 00 00 00 11 0e 04 60
-30: 00 00 00 00 40 00 00 00 00 00 00 00 0b 01 11 40
-40: 01 00 02 06 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+.config follows.  Compiler is GCC 3.3.4 (Debian 3.3.4-3)  Hardware is
+Intel Celeron, 440BX motherboard.
 
-0000:01:09.1 SCSI storage controller: LSI Logic / Symbios Logic 53C896/897 (rev 05)
-        Subsystem: Compaq Computer Corporation: Unknown device 6004
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
-        Interrupt: pin B routed to IRQ 9
-        Region 0: I/O ports at c800 [size=256]
-        Region 1: Memory at ff8ffc00 (64-bit, non-prefetchable) [size=1K]
-        Region 3: Memory at ff8fc000 (64-bit, non-prefetchable) [size=8K]
-        Capabilities: [40] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: 00 10 0b 00 13 01 10 82 05 00 00 01 08 20 80 00
-10: 01 c8 00 00 04 fc 8f ff 00 00 00 00 04 c0 8f ff
-20: 00 00 00 00 00 00 00 00 00 00 00 00 11 0e 04 60
-30: 00 00 00 00 40 00 00 00 00 00 00 00 09 02 11 40
-40: 01 00 02 06 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Hopefully it helps someone.  I don't have frame pointers enabled, so I
+assume the confusing bits of the backtrace are clutter misidentified as
+a return address.
+
+<top of visible screen>
+do_exit+0x76/0x2c0
+die+0xc5/0xd0
+do_page_fault+0x0/0x528
+do_page_fault+0x277/0x528
+scrup+0xf3/0x110
+vt_console_printf+0x1e7/0x2e0
+do_page_fault+0x0/0x527
+error_code+0x2d/0x38
+mm_release+0x38/0xa0
+common_interrupt+0x18/0x20
+do_exit+0x76/0x2c0
+die+0xc5/0xd0
+do_invalid_op+0x0/0xb0
+do_invalid_op+0xac/0xb0
+free_pages_bulk+0x205/0x220
+free_hot_cold_page+0xbd/0xe0
+zap_pte_range+0x14b/0x240
+zap_pmd_range+0x4b/0x70
+unmap_page_range+0x3d/0x70
+unmap_vmas+0xfe/0x1b0
+exit_mmap+0x69/0x130
+mmput+0x40/0x60
+do_exit+0x11b/0x2c0
+die+0xc5/0xd0
+do_invalid_op+0x0/0xb0
+do_invalid_op+0xac/0xb0
+buffered_rmqueue+0xfc/0x150
+ext2_alloc_branch+0x2d/0x1f0
+ext2_get_block+0x297/0x320
+error_code+0x2d/0x38
+buffered_rmqueue+0xfc/0x150
+__alloc_pages+0x9f/0x320
+find_lock_page+0x19/0x90
+generic_file_aio_write_nolock+0x2b8/0x9c0
+buffered_rmqueue+0xc5/0x150
+do_select+0x18a/0x2b0
+generic_file_write_nolock+0x5a/0x80
+do_sync_read+0x6d/0xa0
+generic_file_write+0x3e/0x60
+vfs_write+0xb0/0x110
+sys_write+0x38/0x60
+syscall_call+0x7/0xb
+Code: 8b 46 14 48 7e 52 31 d2 b8 00 f0 ff ff 89 93 5c 01 00 00 89
+ <1>Unable to handle kernel NULL pointer dereferencedo_IRQ: Stack overflow: 316
 
 
--- 
-Meelis Roos
+And here is 'grep [A-Z] .config':
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_HOTPLUG=y
+CONFIG_IKCONFIG=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MSR=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_REGPARM=y
+CONFIG_ACPI_BOOT=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_PCMCIA=y
+CONFIG_PCMCIA_DEBUG=y
+CONFIG_YENTA=y
+CONFIG_CARDBUS=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_BINFMT_ELF=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_BUSLOGIC=y
+CONFIG_SCSI_OMIT_FLASHPOINT=y
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_NET_IPIP=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_NOTRACK=y
+CONFIG_IP_NF_RAW=y
+CONFIG_IP_NF_MATCH_ADDRTYPE=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CBQ=y
+CONFIG_NET_SCH_HTB=y
+CONFIG_NET_SCH_HFSC=y
+CONFIG_NET_SCH_RED=y
+CONFIG_NET_SCH_TBF=y
+CONFIG_NET_SCH_NETEM=y
+CONFIG_NET_SCH_INGRESS=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_TULIP_NAPI=y
+CONFIG_TULIP_NAPI_HW_MITIGATION=y
+CONFIG_NET_RADIO=y
+CONFIG_PCMCIA_WAVELAN=y
+CONFIG_PCMCIA_NETWAVE=y
+CONFIG_PCMCIA_RAYCS=y
+CONFIG_AIRO=y
+CONFIG_HERMES=y
+CONFIG_PCMCIA_HERMES=y
+CONFIG_AIRO_CS=y
+CONFIG_NET_WIRELESS=y
+CONFIG_NET_PCMCIA=y
+CONFIG_PPP=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SMB_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_4KSTACKS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_TWOFISH=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_TEA=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRC_CCITT=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y

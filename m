@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbULaIIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbULaJfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbULaIIO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 03:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbULaIIO
+	id S261834AbULaJfb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 04:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbULaJfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 03:08:14 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:44294 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261820AbULaIHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 03:07:47 -0500
-Subject: Re: kernel panic: Attempted to kill init!
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>
-Cc: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348112B889D@mail.esn.co.in>
-References: <4EE0CBA31942E547B99B3D4BFAB348112B889D@mail.esn.co.in>
-Content-Type: text/plain
-Date: Fri, 31 Dec 2004 09:07:42 +0100
-Message-Id: <1104480462.5402.9.camel@laptopd505.fenrus.org>
+	Fri, 31 Dec 2004 04:35:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31930 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261834AbULaJf1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 04:35:27 -0500
+Date: Fri, 31 Dec 2004 01:34:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, SYSLINUX@zytor.com
+Subject: Re: [PATCH] /proc/sys/kernel/bootloader_type
+Message-Id: <20041231013443.313a3320.akpm@osdl.org>
+In-Reply-To: <41D34E3A.3090708@zytor.com>
+References: <41D34E3A.3090708@zytor.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-31 at 10:10 +0530, Srinivas G. wrote:
-> Dear All,
+"H. Peter Anvin" <hpa@zytor.com> wrote:
+>
+> This patch exports to userspace the boot loader ID which has been 
+>  exported by (b)zImage boot loaders since boot protocol version 2.
 
-You asked this question on the fedora lists before. I gave you the
-answer. Why are you asking it AGAIN but now on this mailing list where
-it is somewhat offtopic ?????
+Why does userspace need to know this?
 
+>  --- linux-2.5/arch/i386/Makefile	24 Dec 2004 21:09:54 -0000	1.73
+>  +++ linux-2.5/arch/i386/Makefile	28 Dec 2004 04:56:17 -0000
+>  @@ -20,6 +20,10 @@
+>   LDFLAGS_vmlinux :=
+>   CHECKFLAGS	+= -D__i386__
+>   
+>  +# This allows compilation with an x86-64 compiler
+>  +CC_M32		:= $(call cc-option,-m32)
+>  +CC 		+= $(CC_M32)
 
-(and for those who are not called Srinivas and not subscribed to the
-fedora lists; the answer was that if you enable selinux on fedora core
-3, you need to run at least a 2.6.9 and preferably a 2.6.10 kernel,
-older 2.6 kernels are not new enough selinux wise; and Srinivas was
-trying a 2.6.6 kernel)
-
-
+Was this hunk deliberately a part of this patch?

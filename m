@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268529AbTBWTmS>; Sun, 23 Feb 2003 14:42:18 -0500
+	id <S268533AbTBWTou>; Sun, 23 Feb 2003 14:44:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268530AbTBWTmS>; Sun, 23 Feb 2003 14:42:18 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:37045 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S268529AbTBWTmR>; Sun, 23 Feb 2003 14:42:17 -0500
-Date: Sun, 23 Feb 2003 20:52:07 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] pcmcia: cs.c bugfix (Russell King)
-Message-ID: <20030223195207.GA3227@brodo.de>
-Mime-Version: 1.0
+	id <S268535AbTBWTou>; Sun, 23 Feb 2003 14:44:50 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5956 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S268533AbTBWToo>; Sun, 23 Feb 2003 14:44:44 -0500
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+References: <96700000.1045871294@w-hlinder>
+	<20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay>
+	<20030222024721.GA1489@work.bitmover.com>
+	<14450000.1045888349@[10.10.2.4]>
+	<20030222050514.GA3148@work.bitmover.com>
+	<19870000.1045895965@[10.10.2.4]> <20030222083810.GA4170@gtf.org>
+	<20030222221820.GI10401@holomorphy.com> <316510000.1045961436@flay>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Feb 2003 12:54:43 -0700
+In-Reply-To: <316510000.1045961436@flay>
+Message-ID: <m1k7fqn56k.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A small bugfix to pcmcia's cs.c - without it, we end up inquiring the same 
-socket all the time.
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-Please apply,
-	Dominik
+> > On Sat, Feb 22, 2003 at 03:38:10AM -0500, Jeff Garzik wrote:
+> >> ia32 big iron.  sigh.  I think that's so unfortunately in a number
+> >> of ways, but the main reason, of course, is that highmem is evil :)
+> 
+> One phrase ... "price:performance ratio". That's all it's about.
+> The only thing that will kill 32-bit big iron is the availability of 
+> cheap 64 bit chips. It's a free-market economy.
+> 
+> It's ugly to program, but it's cheap, and it works.
 
-diff -ruN linux-original/drivers/pcmcia/cs.c linux/drivers/pcmcia/cs.c
---- linux-original/drivers/pcmcia/cs.c	2003-02-23 20:49:56.000000000 +0100
-+++ linux/drivers/pcmcia/cs.c	2003-02-23 13:12:23.000000000 +0100
-@@ -360,7 +360,7 @@
- 		if (j == sockets) sockets++;
- 
- 		init_socket(s);
--		s->ss_entry->inquire_socket(i, &s->cap);
-+		s->ss_entry->inquire_socket(s->sock, &s->cap);
- #ifdef CONFIG_PROC_FS
- 		if (proc_pccard) {
- 			char name[3];
+I guess ugly to program is in the eye of the beholder.  The big platforms
+have always seemed much worse to me.  When every box is feels free to
+change things in arbitrary ways for no good reason.  Or where OS and
+other low-level software must know exactly which motherboard they are
+running on to work properly.
+
+Gratuitous incompatibilities are the ugliest thing I have ever seen.
+Much less ugly then the warts a real platform accumulates because it
+is designed to actually be used.
+
+Eric

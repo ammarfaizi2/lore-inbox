@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265953AbRGERVQ>; Thu, 5 Jul 2001 13:21:16 -0400
+	id <S265934AbRGERVQ>; Thu, 5 Jul 2001 13:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265934AbRGERVH>; Thu, 5 Jul 2001 13:21:07 -0400
-Received: from borg.metroweb.co.za ([196.23.181.81]:51974 "EHLO
-	borg.metroweb.co.za") by vger.kernel.org with ESMTP
-	id <S265953AbRGERVA>; Thu, 5 Jul 2001 13:21:00 -0400
-From: Henry <henry@borg.metroweb.co.za>
-To: whitney@math.berkeley.edu
-Subject: Re: OOPS (kswapd) in 2.4.5 and 2.4.6
-Date: Thu, 5 Jul 2001 19:09:41 +0200
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <01070516412506.06182@borg> <200107051653.f65GrC400989@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-In-Reply-To: <200107051653.f65GrC400989@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <01070519204000.13482@borg>
-Content-Transfer-Encoding: 7BIT
+	id <S265962AbRGERVG>; Thu, 5 Jul 2001 13:21:06 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:4482 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S265934AbRGERUy>; Thu, 5 Jul 2001 13:20:54 -0400
+From: mdaljeet@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: linux-kernel@vger.kernel.org
+Message-ID: <CA256A80.005F1790.00@d73mta01.au.ibm.com>
+Date: Thu, 5 Jul 2001 21:43:07 +0530
+Subject: floating point problem
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Jul 2001, Wayne Whitney wrote:
-> In mailing-lists.linux-kernel, you wrote:
-> 
-> > We've noticed the following kernel error since 2.4 (2.4.1-2.4.6).
-> > It appears to be swap (kswapd thread specific?) related.  The same
-> > error is reported on several SMP machines after only a short period
-> > (an hour or less).
-> 
-> FYI, I see a similar problem under 2.4.5, also SMP, although only
-> intermittently.  Two oopses are below, from two different, although
-> similarly configured, machines.
+In Linux PPC, the MSR[FP] bit (that is floating point available bit) is off
+(atleast for non-SMP).
 
-[snip]
+Due to this, whenever some floating point instruction is executed in 'user
+mode', it leads to a exception 'FPUnavailable'. The exception handler for
+this exception apart from setting the MSR[FP] bit, also sets the MSR[FE0]
+and MSR[FE1] bits. These bits basically enables the floating point
+exceptions so that if there are some floating point exception conditions
+encountered while exeuting a floating point instruction, an appropriate
+exception is raised.
+But whenever some floating point instruction is executed in 'kernel mode',
+'FPUnavailabe' exception handler code does not set the 'MSR[FE0] and
+MSR[FE1]' bits.
 
-Sounds very similar.  Our servers are all identical (except for RAM).
+The result is that when we execute a piece of code that executes floating
+point instructions with some large values, we get 'floating point
+exceptions for overflow etc' but we get some rounded off values when we
+execute the same piece of code in a kernel module. We made a modification
+in the head.S file and commented out the setting of 'MSR[FE0] and MSR[FE1]'
+bits in the 'FPUnavailable' exception handler for user mode. Due to this we
+are getting correct results i.e. rounded off values.
 
-What's unusual is that the machines we *expect* to fail sooner - don't
-(not even an oops).  Those are very busy cache servers (several of them
-in a sibling cluster) which do a lot of swapping.  The machines which
-*do* fail (or oops without any further catastrophe) are typically
-web/mail hosting servers (reasonably busy with about 25% swap being
-used).  Increasing swap did not help on 2.4.5.  We're still waiting for
-something to happen on 2.4.6 (ie, oops already appeared - waiting for
-meltdown, which, hopefully, will not occur).  We used to auto-reboot
-every morning at 2am or something to keep things stable - which I
-*hate* because I remember having a 2.0.35/6 workstation that had an
-uptime of 6 months a couple of years ago.  God, I loved that box.
+Problem is that we want to get the good results without changing the
+kernel. Either by having the user mode application to interact with some
+special module which can set the MSR[FP] bit before we execute the floating
+point instruction or by some other trick.....Is there any solution apart
+from changing the kernel?
 
-cheers
-Henry
+thanks,
+Daljeet.
+
+

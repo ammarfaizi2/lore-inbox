@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262894AbRE1BIp>; Sun, 27 May 2001 21:08:45 -0400
+	id <S261493AbRE1BF4>; Sun, 27 May 2001 21:05:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262895AbRE1BIf>; Sun, 27 May 2001 21:08:35 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43535 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262894AbRE1BI0>; Sun, 27 May 2001 21:08:26 -0400
-Subject: Re: [kbuild-devel] Configure.help entries wanted
-To: gnb@alphalink.com.au (Greg Banks)
-Date: Mon, 28 May 2001 02:05:22 +0100 (BST)
-Cc: pavel@suse.cz (Pavel Machek),
-        jaswinder.singh@3disystems.com (Jaswinder Singh),
-        linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <3B11A237.92F7CC76@alphalink.com.au> from "Greg Banks" at May 28, 2001 10:56:23 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262894AbRE1BFq>; Sun, 27 May 2001 21:05:46 -0400
+Received: from are.twiddle.net ([64.81.246.98]:24968 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S261493AbRE1BFh>;
+	Sun, 27 May 2001 21:05:37 -0400
+Date: Sun, 27 May 2001 18:05:18 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Ingo T. Storm" <it@lapavoni.de>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Re: 2.4.5 does not link on Ruffian (alpha)
+Message-ID: <20010527180518.A19209@twiddle.net>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	"Ingo T. Storm" <it@lapavoni.de>, linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de> <3B102822.625E01DF@mandrakesoft.com> <3B1032BE.72BD1336@mandrakesoft.com> <20010527163901.A18929@twiddle.net> <3B1193A8.6DB90579@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E154BTG-0002aM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B1193A8.6DB90579@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, May 27, 2001 at 07:54:17PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Their co-operation came not from a spirit of enlightment but
-> because this was a commercial venture to port Linux to the box
-> to replace WinCE.  You can buy these with Linux now.
+On Sun, May 27, 2001 at 07:54:17PM -0400, Jeff Garzik wrote:
+> FWIW the documentation seems to imply that the option is necessary only
+> when directly booting from SRM, i.e.. no bootloader is involved at all. 
 
-Including open source drivers for their touchscreen ?
+Err, well, you can't have _no_ bootloader.
+
+> It uses the example of MILO's presence or absence as indicating the need
+> for this option.
+
+Exactly.  aboot doesn't substitute.
+
+> So... is it safe to always enable this option, with a little hacking
+> perhaps?  :)   
+
+Well, yes, it is obviously possible.  The generic config
+does what you want.  You just need to permanently enable
+some of that configury.
+
+
+r~

@@ -1,66 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262445AbTD3UHE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 16:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbTD3UHD
+	id S262444AbTD3UFc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 16:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTD3UFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 16:07:03 -0400
-Received: from muss.CIS.mcmaster.ca ([130.113.64.9]:40377 "EHLO
-	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S262445AbTD3UHB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 16:07:01 -0400
-From: Gabriel Devenyi <devenyga@mcmaster.ca>
-To: linux-dev@micro-solutions.com
-Subject: [PATCH] Linux 2.5.68 - Debug statement after return in drivers/block/paride/bpck6.c
-Date: Thu, 1 May 2003 16:17:25 -0400
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
+	Wed, 30 Apr 2003 16:05:31 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17794 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262444AbTD3UFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 16:05:31 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304302021.h3UKLYlf001981@81-2-122-30.bradfords.org.uk>
+Subject: [Pointless Waffle] Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+To: miller@techsource.com (Timothy Miller)
+Date: Wed, 30 Apr 2003 21:21:34 +0100 (BST)
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3EB02D94.5020105@techsource.com> from "Timothy Miller" at Apr 30, 2003 04:09:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305011617.26267.devenyga@mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Was the whole DRM discussion off-topic?
 
-This patch applies to 2.5.68, it is listed on kbugs.org. The verbose debug statement is after the return so it is never executed.
+It was certainly ironic that the subject was 'Why DRM exists', when it
+clearly doesn't within the scope of the Linux kernel, and isn't on the
+horizon for the Linux kernel either, which is what this mailing list
+is intended for.
 
-Please CC me with any discussion.
-- -- 
-Building the Future,
-Gabriel Devenyi
-devenyga@mcmaster.ca
-
-- ---FILE---
-
-- --- linux-2.5.68/drivers/block/paride/bpck6.c	2003-04-19 22:49:57.000000000 -0400
-+++ linux-2.5.68-changed/drivers/block/paride/bpck6.c	2003-05-01 14:43:12.000000000 -0400
-@@ -193,11 +193,11 @@
-   	if(out)
-  	{
- 		ppc6_close(PPCSTRUCT(pi));
-- -		return(1);	
- 		if(verbose)
- 		{
- 			printk(KERN_DEBUG "leaving probe\n");
- 		}
-+		return(1);
- 	}
-   	else
-   	{
-
-- ---ENDFILE---
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+sYDV7I5UBdiZaF4RAkODAJ4wmY1AYo3dONkEbTjGLyQ9gEI1mwCgkxJW
-rJQttaDC4vtrXjaplT+9eAk=
-=bUUN
------END PGP SIGNATURE-----
-
+John.

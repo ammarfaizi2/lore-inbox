@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313131AbSDSXsa>; Fri, 19 Apr 2002 19:48:30 -0400
+	id <S313160AbSDSXt1>; Fri, 19 Apr 2002 19:49:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313160AbSDSXs3>; Fri, 19 Apr 2002 19:48:29 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:60681 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S313131AbSDSXs3>;
-	Fri, 19 Apr 2002 19:48:29 -0400
-Date: Fri, 19 Apr 2002 16:42:35 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Ben Greear <greearb@candelatech.com>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: unresolved symbol: __udivdi3
-In-Reply-To: <3CC0A95A.2070000@candelatech.com>
-Message-ID: <Pine.LNX.4.33L2.0204191640430.15597-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313299AbSDSXt0>; Fri, 19 Apr 2002 19:49:26 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:15369 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S313160AbSDSXtY>;
+	Fri, 19 Apr 2002 19:49:24 -0400
+Date: Sat, 20 Apr 2002 01:49:21 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Trouble rebooting Tyan Thunder K7 (S2462UNG)
+Message-ID: <20020419234921.GK17295@lug-owl.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAjQHXypTRWUeX0Da3WGxUUMKAAAAQAAAAb2jlXi9TM0a+IKeYbO47lAEAAAAA@attbi.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NqNl6FRZtoRUn5bW"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux mail 2.4.15-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-do_div(n, base) is defined (in some versions of the div64.h
-files) to be:
 
-  n = n / base; return rem;
+--NqNl6FRZtoRUn5bW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-so the first arg is modified.
+On Fri, 2002-04-19 23:15:23 -0000, Jordan Breeding <jordan.breeding@attbi.c=
+om>
+wrote in message <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAjQHXypTRWU=
+eX0Da3WGxUUMKAAAAQAAAAb2jlXi9TM0a+IKeYbO47lAEAAAAA@attbi.com>:
+>   I am having trouble getting a brand new Tyan Thunder K7 S2462UNG (the
+> one with onboard SCSI) to reboot successfully using Linux.  This board
 
-~Randy
+> FreeBSD do with this board, instead the text stays there for at least
+> 15-20 seconds (maybe longer) then when it finally blanks the video and
+> the monitor light begins to flash it goes straight into the Adaptec
+> SCSISelect scan (I can tell because my HD light comes on and the CDROMs
 
-On Fri, 19 Apr 2002, Ben Greear wrote:
+What is so uncommon? The board does use ECC RAM, so maybe the board's
+BIOS / firmware needs this time to blank and check all the RAM. Maybe
+othe OSes don't initiate a full "cold boot" but something that doesn't
+make the board to re-initialize all the RAM...
 
-| Also, for what it's worth, do_div on x86 seems to corrupt arguments
-| given to it, and may do other screwy things.  I'm just going to
-| go back to casting and let user-space do any precise division.
-|
-| David S. Miller wrote:
-|
-| >    From: Ben Greear <greearb@candelatech.com>
-| >    Date: Fri, 19 Apr 2002 14:58:10 -0700
-| >
-| >    then I get another unresolved symbol:
-| >    __umodi3
-| >
-| > Someone needs to add this routine under arch/sparc/lib/
-| >
-| >    I'm guessing that there is some optimization the compiler is doing that
-| >    is using the mod operator somehow, but I am unsure about how to work around
-| >    this.
-| >
-| > "guessing"?  Have a look the definition of do_div in asm-sparc/div64.h
-| > it explicitly does a mod operation :-)
+MfG, JBG
 
+--=20
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/
+
+--NqNl6FRZtoRUn5bW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjzArQEACgkQHb1edYOZ4buCLACfTBJva9HiHT7shMuZcO2zU86M
+LGMAnA258R+E5BAM7UQ19C8enF+YL1/v
+=jLrS
+-----END PGP SIGNATURE-----
+
+--NqNl6FRZtoRUn5bW--

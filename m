@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131157AbREEJPN>; Sat, 5 May 2001 05:15:13 -0400
+	id <S131246AbREEJWZ>; Sat, 5 May 2001 05:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131205AbREEJPD>; Sat, 5 May 2001 05:15:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41233 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131157AbREEJOy>; Sat, 5 May 2001 05:14:54 -0400
-Subject: Linux 2.2.20pre1
-To: linux-kernel@vger.kernel.org
-Date: Sat, 5 May 2001 10:18:52 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131588AbREEJWQ>; Sat, 5 May 2001 05:22:16 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:64518 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S131246AbREEJWK>;
+	Sat, 5 May 2001 05:22:10 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105050922.f459M7E252665@saturn.cs.uml.edu>
+Subject: Re: Possible README patch
+To: duncan@gauldd.freeserve.co.uk (Duncan Gauld)
+Date: Sat, 5 May 2001 05:22:07 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01050510040100.05769@pc-62-31-91-153-dn> from "Duncan Gauld" at May 05, 2001 10:04:01 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14vyDG-0000PM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Duncan Gauld writes:
 
-Linux 2.2 is now firmly into maintainance state. Patches for neat new ideas
-belong in 2.4. Generally new drivers belong in 2.4 (possibly in 2.2 as well
-after 2.4 shows them stable). Expect me to be very picky on changes to the
-core code now. 
+> Information in the README file says that when patching, the -p0 option is 
+> used with patch (eg tar xvzf <patch>.tar.gz | patch -p0). However I have 
+> never got this to work as I always get something like "can't find file to 
+> patch at line 5". However, replacing -p0 with -p1 seems to work perfectly.
+> Maybe the penguin doesn't like me, but still, whenever I've downloaded 
+> patches I had to say -p1, not -p0...
+...
+> -- README	Sat May  5 09:51:36 2001
+> +++ README	Sat May  5 09:52:24 2001
+> @@ -66,10 +66,10 @@
+>     install by patching, get all the newer patch files, enter the
+>     directory in which you unpacked the kernel source and execute:
 
-2.2.20pre1
-o	Fix SMP deadlock in NFS				(Trond Myklebust)
-o	Fix missing printk in bluesmoke handler		(me)
-o	Fix sparc64 nfs					(Dave Miller)
-o	Update io_apic code to avoid breaking dual	(Johannes Erdfelt)
-	Athlon 760MP
-o	Fix includes bugs in toshiba driver		(Justin Keene,
-							 Greg Kroah-Hartmann)
-o	Fix wanpipe cross compile			(Phil Blundell)
-o	AGPGART copy_from_user fix			(Dawson Engler)
-o	Fix alpha resource setup error			(Allan Frank)
-o	Eicon driver updates				(Armind Schindler)
-o	PC300 driver update				(Daniela Squassoni)
-o	Show lock owner on flocks			(Jim Mintha)
-o	Update cciss driver to 1.0.3			(Charles White)
-o	Backport cciss/cpqarray security fixes		(me)
-o	Update i810 random number generator		(Jeff Garzik)
-o	Update sk98 driver				(Mirko Lindner)
-o	Update sis900 ethernet driver			(Hui-Fen Hsu)
-o	Fix checklist glitch in make menuconfig		(Moritz Schulte)
-o	Update synclink driver				(Paul Fulghum)
-o	Update advansys scsi driver			(Bob Frey)
-o	Ver_linux fixes for 2.2				(Steven Cole)
-o	Bring 2.2 back into line with the master ISDN	(Kai Germaschewski)
-o	Whiteheat usb driver update			(Greg Kroah-Hartmann)
-o	Fix via_rhine byte counters			(Adam Lackorzynski)
-o	Fix modem control on rio serial			(Rogier Wolff)
-o	Add more Iomega Zip to the usb storage list	(Wim Coekaerts)
-o	Add ZF Micro watchdog 				(Fernando Fuganti)
+This is ambiguous:
+"the directory in which you unpacked the kernel source"
+
+If I do "cd /usr/src" then "tar Ixf linux-2.4.4.tar.bz2",
+then where did I unpack the kernel source? I think you could
+argue for /usr/src or /usr/src/linux equally well.
 

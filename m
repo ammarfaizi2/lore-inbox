@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129632AbQK0X2o>; Mon, 27 Nov 2000 18:28:44 -0500
+        id <S129742AbQK0XjQ>; Mon, 27 Nov 2000 18:39:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129639AbQK0X2e>; Mon, 27 Nov 2000 18:28:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48389 "EHLO
-        www.linux.org.uk") by vger.kernel.org with ESMTP id <S129632AbQK0X2V>;
-        Mon, 27 Nov 2000 18:28:21 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011272257.eARMvw302186@flint.arm.linux.org.uk>
-Subject: Re: [PATCH] removal of "static foo = 0"
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Mon, 27 Nov 2000 22:57:57 +0000 (GMT)
-Cc: aeb@veritas.com (Andries Brouwer), linux-kernel@vger.kernel.org
-In-Reply-To: <200011272033.eARKXgr497038@saturn.cs.uml.edu> from "Albert D. Cahalan" at Nov 27, 2000 03:33:42 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+        id <S129684AbQK0XjG>; Mon, 27 Nov 2000 18:39:06 -0500
+Received: from srvr2.telecom.lt ([212.59.0.1]:20999 "EHLO mail.takas.lt")
+        by vger.kernel.org with ESMTP id <S129639AbQK0XjC>;
+        Mon, 27 Nov 2000 18:39:02 -0500
+Reply-To: <nerijus@freemail.lt>
+From: "Nerijus Baliunas" <nerijus@users.sourceforge.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: bread in fat_access failed
+Date: Tue, 28 Nov 2000 01:01:56 +0200
+Message-ID: <MPBBJGBJAHHNDMMBBLMIEEHPEHAB.nerijus@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+        charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <1368.975364537@kao2.melbourne.sgi.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan writes:
-> It is too late to fix things now. It would have been good to
-> have the compiler put explicitly zeroed data in a segment that
-> isn't shared with non-zero or uninitialized data, so that the
-> uninitialized data could be set to 0xfff00fff to catch bugs.
-> It would take much effort over many years to make that work.
+Hello,
 
-Oh dear, here's that misconception again.
+I get a lot of such messages:
 
-static int a;
+Nov 28 01:00:28 sargis kernel: bread in fat_access failed
+Nov 28 01:00:28 sargis kernel: attempt to access beyond end of device
+Nov 28 01:00:28 sargis kernel: 02:00: rw=0, want=5, limit=4
+Nov 28 01:00:28 sargis kernel: dev 02:00 blksize=512 blocknr=9 sector=9 size=512
+count=1
 
-isn't a bug.  It is not "uninitialised data".  It is defined to be
-zero.  Setting the BSS of any C program to contain non-zero data will
-break it.  Fact.  The only bug you'll find is the fact that you're
-breaking the C standard.
+What do they mean? Problems with hdd?
 
-There is only two places where you come across uninitialised data:
-
-1. memory obtained from outside text, data, bss limit of the program
-   (ie, malloced memory)
-2. if you use auto variables which may be allocated on the stack
-
-All variables declared at top-level are initialised.  No questions
-asked.  And its not a bug to rely on such a fact.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

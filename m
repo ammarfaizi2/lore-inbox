@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267651AbRG0Pe2>; Fri, 27 Jul 2001 11:34:28 -0400
+	id <S267000AbRGXGbs>; Tue, 24 Jul 2001 02:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268865AbRG0PeS>; Fri, 27 Jul 2001 11:34:18 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:5892 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267651AbRG0PeI>;
-	Fri, 27 Jul 2001 11:34:08 -0400
-Date: Mon, 23 Jul 2001 13:38:40 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Detlev Offenbach <detlev@offenbach.fs.uunet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MO-Drive under 2.4.7 usinf vfat
-Message-ID: <20010723133840.A39@toy.ucw.cz>
-In-Reply-To: <01072115265800.02284@majestix>
+	id <S267009AbRGXGbi>; Tue, 24 Jul 2001 02:31:38 -0400
+Received: from [210.77.38.126] ([210.77.38.126]:55813 "EHLO
+	ns.turbolinux.com.cn") by vger.kernel.org with ESMTP
+	id <S267000AbRGXGbe>; Tue, 24 Jul 2001 02:31:34 -0400
+Date: Wed, 25 Jul 2001 14:32:31 +0800
+From: michael chen <michaelc@turbolinux.com.cn>
+X-Mailer: The Bat! (v1.49) UNREG / CD5BF9353B3B7091
+Reply-To: michaelc <michaelc@turbolinux.com.cn>
+X-Priority: 3 (Normal)
+Message-ID: <10618486625.20010725143231@turbolinux.com.cn>
+To: =?ISO-8859-1?B?0MIg1MI=?= <xinyuepeng@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to change the root filesystem
+In-Reply-To: <20010724055530.33747.qmail@web20004.mail.yahoo.com>
+In-Reply-To: <20010724055530.33747.qmail@web20004.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <01072115265800.02284@majestix>; from detlev@offenbach.fs.uunet.de on Sat, Jul 21, 2001 at 03:26:58PM +0200
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi!
+Hello 新,
 
-> I have just tested the new 2.4.7 kernel to see, whether it now works with a 
-> MO-Drive using the vfat filesystem. Unfortunately it still doesn't. Mounting 
-> a disk and writing to it is ok. However, when I try to read a file off the 
-> disk, the program crashes with a Segmentation fault and I get a oops in the 
-> messages file (see attachment). I tried ksymoops on this file, but either I 
-> did something wrong or it couldn't analyse it.
-> 
-> I hope, this issue will be fixed soon cause I would like to switch over to 
-> the 2.4 kernel series without scratching my set of MO-disks.
+Tuesday, July 24, 2001, 1:55:30 PM, you wrote:
 
-Try -o loop
+性> Hi:
+性>     I want change the root filesystem from ext2 to
+性> cramfs,I read the init code about the filesystem.But I
+性> cannot understand how to make a device that is used as
+性> cramfs device.
+
+
+性> -
+性> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+性> the body of a message to majordomo@vger.kernel.org
+性> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+性> Please read the FAQ at  http://www.tux.org/lkml/
+
+Pls download the relative tools for cramfs at
+http://cvs.bofh.asn.au/cramfs
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Best regards,
+ michael                            mailto:michaelc@turbolinux.com.cn
+
 

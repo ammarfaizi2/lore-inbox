@@ -1,28 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314083AbSDKPK0>; Thu, 11 Apr 2002 11:10:26 -0400
+	id <S314090AbSDKPNs>; Thu, 11 Apr 2002 11:13:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314084AbSDKPKZ>; Thu, 11 Apr 2002 11:10:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2518 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S314083AbSDKPKY>;
-	Thu, 11 Apr 2002 11:10:24 -0400
-Date: Thu, 11 Apr 2002 08:01:35 -0700 (PDT)
-Message-Id: <20020411.080135.92719326.davem@redhat.com>
-To: abraham@2d3d.co.za
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CHECKSUM_HW not behaving as expected
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020411170458.A2786@crystal.2d3d.co.za>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314089AbSDKPNr>; Thu, 11 Apr 2002 11:13:47 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:18901 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S314088AbSDKPNq>; Thu, 11 Apr 2002 11:13:46 -0400
+Date: Thu, 11 Apr 2002 16:15:50 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.5.8-pre] swapinfo accounting
+In-Reply-To: <3CB4DD71.DED82F57@zip.com.au>
+Message-ID: <Pine.LNX.4.21.0204111543340.1231-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Apr 2002, Andrew Morton wrote:
+> "Randy.Dunlap" wrote:
+> > 
+> > It looks to me like mm/swapfile.c::si_swapinfo()
+> > shouldn't be adding nr_to_be_unused to total_swap_pages
+> > or nr_swap_pages for return in val->freeswap and
+> > val->totalswap.
 
-Rubini's book is wrong, CHECKSUM_HW means the chip computed the pseudo
-checksum of the packet and this computed value is in skb->csum
+Good observation, thanks Randy, but wrong fix.
 
-You want to set CHECKSUM_UNNECESSARY, see include/linux/skbuff.h which
-documents all of these variables.
+> whee, an si_swapinfo() maintainer.
+
+That might be me?  I rewrote that code for 2.4.10
+(when you called attention to si_swapinfo slowness).
+
+> Your function sucks :)  I'm spending 15 CPU-seconds
+> in there during a kernel build.  The problem appears
+> to be that a fix from 2.4 hasn't been propagated
+> forward.
+
+Not a new fix needing propagation: it was right in 2.5.0.
+
+> 2.4 has:
+> 
+>                 if (swap_info[i].flags != SWP_USED)
+> 
+> and 2.5 has:
+> 
+>                 if (!(swap_info[i].flags & SWP_USED))
+
+It was mistakenly changed to this in 2.5.4, when an
+additional SWP_BLOCKDEV flag was added (gone in 2.5.6).
+
+> and I think the 2.4 version will fix the accounting
+> problem you're seeing?
+
+Yes, it does.
+
+> (I haven't checked whather it's the _right_ fix, but
+> it looks like it'll make it go away?)
+
+It is the right fix; but since that condition was misunderstood,
+and some other flag might be added in future, the safer patch
+would be this more explicit one (which I'll now send to Linus
+with a briefer description).
+
+But I hope nobody backports this to 2.4, where it would be
+wrong: 2.5.4 confusingly changed the nature of SWP_WRITEOK.
+
+Hugh
+
+--- 2.5.8-pre3/mm/swapfile.c	Mon Mar 11 12:30:56 2002
++++ linux/mm/swapfile.c	Thu Apr 11 15:26:51 2002
+@@ -1095,7 +1095,8 @@
+ 	swap_list_lock();
+ 	for (i = 0; i < nr_swapfiles; i++) {
+ 		unsigned int j;
+-		if (!(swap_info[i].flags & SWP_USED))
++		if (!(swap_info[i].flags & SWP_USED) ||
++		     (swap_info[i].flags & SWP_WRITEOK))
+ 			continue;
+ 		for (j = 0; j < swap_info[i].max; ++j) {
+ 			switch (swap_info[i].swap_map[j]) {
+

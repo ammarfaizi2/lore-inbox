@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbTICJ30 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 05:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTICJ3Z
+	id S261723AbTICJfh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 05:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTICJfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 05:29:25 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:6601 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261722AbTICJ0m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 05:26:42 -0400
-Date: Wed, 3 Sep 2003 11:26:03 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Kars de Jong <jongk@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <20030903091356.GA20528@mail.jlokier.co.uk>
-Message-ID: <Pine.GSO.4.21.0309031122460.6985-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Sep 2003 05:35:37 -0400
+Received: from ns1.mvps.org ([158.64.60.224]:18025 "EHLO
+	edge.zoo.securewave.com") by vger.kernel.org with ESMTP
+	id S261698AbTICJfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 05:35:33 -0400
+Subject: mmap(MAP_PRIVATE) question
+From: Gianni Tedesco <giannit@securewave.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1062581651.489.5.camel@lemsip>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 03 Sep 2003 11:34:11 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Jamie Lokier wrote:
-> Geert Uytterhoeven wrote:
-> > So the store buffer is coherent on 68020 with external MMU, while it
-> > isn't on 68040 with internal MMU...
-> 
-> Does the 68020 even _have_ the equivalent of a store buffer?
+Hi all,
 
-Good question :-)
+>From the mmap(2) manpage it says:
 
-After I sent the previous mail, I realized the '030 has 256 bytes I cache and
-256 bytes D cache, while the '020 has 256 bytes I cache only.
+MAP_PRIVATE
+Create a private copy-on-write mapping.  Stores to the region do not
+affect the  original  file.   It  is  unspecified whether changes made
+to the file after the mmap call are visible in the mapped region.
 
-Gr{oetje,eeting}s,
+What is linux behaivour in this area? I am guessing if the page is
+modified between the call to mmap() and fault-in then the modified copy
+is seen by the application? But what about modifications after the page
+is already in page-cache?
 
-						Geert
+Thanks.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Gianni Tedesco <giannit@securewave.com>
 

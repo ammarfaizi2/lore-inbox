@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310666AbSDAIUg>; Mon, 1 Apr 2002 03:20:36 -0500
+	id <S310740AbSDAIYi>; Mon, 1 Apr 2002 03:24:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310740AbSDAIU0>; Mon, 1 Apr 2002 03:20:26 -0500
-Received: from holomorphy.com ([66.224.33.161]:947 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S310666AbSDAIUH>;
-	Mon, 1 Apr 2002 03:20:07 -0500
-Date: Mon, 1 Apr 2002 00:19:44 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux needs new leadership.
-Message-ID: <20020401081944.GB21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
-Mime-Version: 1.0
+	id <S310749AbSDAIY1>; Mon, 1 Apr 2002 03:24:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55565 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310740AbSDAIYN>; Mon, 1 Apr 2002 03:24:13 -0500
+Subject: Re: ECC memory and SMP lockups on Gateway 6400 server
+To: Jason-Czerak@Jasnik.net (Jason Czerak)
+Date: Mon, 1 Apr 2002 09:41:13 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1017641806.17921.35.camel@neworder> from "Jason Czerak" at Apr 01, 2002 01:16:46 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16rxNJ-0007wZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 01, 2002 at 12:00:00AM -0700, Linus Torvalds wrote:
-[BS about Linux needing new leadership snipped]
+> slowed to a crawl. After an hour of messing around. I started to pull
+> memory and CPU's out. Turns out the 512meg DIMM ECC ram was the cause of
+> the slowness problem.  No error messages no nothing. looks like the ECC
+> was doing it's thing. But created a CPU useage of 100% all the time...
+> Is there a kernel switch I can flip to make it place nice with broken
+> ECC ram? or is this ram just worthless?
 
-No he didn't.
+Unless you loaded the extra ECC modules Linux really has no awareness of the
+ECC at all. More likely and the one I would check first is that the mtrr
+ranges are right and the BIOS set up the memory correctly. It could be
+continuous ecc faults (eg if the kernel puts something critical in an iffy
+spot in the DIMM and NT didnt) but that sounds dubious.
 
->From the forged headers:
-
-Received: from pkdt.proxel.ru ([194.190.195.189]:21594 "HELO pkdt.proxel.ru")
-        by vger.kernel.org with SMTP id <S310441AbSDAIHF>;        
-        Mon, 1 Apr 2002 03:07:05 -0500
-
-
-Cheers,
-Bill
+Alan

@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265927AbUBCHyt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 02:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265929AbUBCHyt
+	id S265922AbUBCHyY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 02:54:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265927AbUBCHyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 02:54:49 -0500
-Received: from ns.suse.de ([195.135.220.2]:64911 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265927AbUBCHyq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 02:54:46 -0500
-Date: Tue, 3 Feb 2004 08:48:46 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: oops in old isdn4linux and 2.6.2-rc3 (was in -rc2 too)
-Message-ID: <20040203074846.GA5873@pingi3.kke.suse.de>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <401E4A80.4050907@web.de> <20040202195139.GB2534@pingi3.kke.suse.de> <1075759213.29899.220.camel@pegasus>
+	Tue, 3 Feb 2004 02:54:23 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:7555 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S265922AbUBCHyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 02:54:19 -0500
+Date: Tue, 03 Feb 2004 16:53:59 +0900 (JST)
+Message-Id: <20040203.165359.149824126.nomura@linux.bs1.fc.nec.co.jp>
+To: hugh@veritas.com, linux-kernel@vger.kernel.org
+Cc: j-nomura@ce.jp.nec.com
+Subject: Re: [2.4] heavy-load under swap space shortage
+From: j-nomura@ce.jp.nec.com
+In-Reply-To: <Pine.LNX.4.44.0402021326170.16097-100000@localhost.localdomain>
+References: <20040202.191242.278747628.nomura@linux.bs1.fc.nec.co.jp>
+	<Pine.LNX.4.44.0402021326170.16097-100000@localhost.localdomain>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.14 (Reasonable Discussion)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075759213.29899.220.camel@pegasus>
-User-Agent: Mutt/1.4.1i
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.4.21-166-default i686
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 02, 2004 at 11:00:13PM +0100, Marcel Holtmann wrote:
-> Hi Karsten,
-> 
-> > try the actual I4L for 2.6 patch in 
-> > ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6
-> 
-> what is your current plan for including these patches into mainstream
-> once 2.6.2 is out?
-> 
+Thanks for for your comment.
 
-Was sent to Linus a week ago, but no answer so far.
+> Your patch just disables freeing mapped pages under memory pressure.
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Right.
+
+> You could try the untested patch below to swap_out_vma(), but I don't
+> really recommend it: it still skips freeing up a less common category
+> of clean pages, just when you'd most like to free them.
+
+Hmm, your patch to swap_out_vma didn't solve the problem.
+
+The main cause of the heavy load seems hard contention on page_table_lock.
+The CPUs are virtually seriarized for swap_out_mm with each unfruitful
+scannings.
+
+The contention could be avoided by changing the spinlock to trylock.
+How about the patch below?
+With this change, the scannings become more efficient because they can be
+done in parallel.
+
+I'm not sure in this case whether the test for nr_swap_pages is necessary.
+
+Best regards.
+--
+NOMURA, Jun'ichi <j-nomura@ce.jp.nec.com>
+
+--- linux-2.4.24/mm/vmscan.c
++++ linux/mm/vmscan.c
+@@ -292,7 +292,11 @@ static inline int swap_out_mm(struct mm_
+ 	 * Find the proper vm-area after freezing the vma chain 
+ 	 * and ptes.
+ 	 */
+-	spin_lock(&mm->page_table_lock);
++	if (nr_swap_pages <= 0) {
++		if (!spin_trylock(&mm->page_table_lock))
++			return count; /* avoid contention */
++	} else
++		spin_lock(&mm->page_table_lock);
+ 	address = mm->swap_address;
+ 	if (address == TASK_SIZE || swap_mm != mm) {
+ 		/* We raced: don't count this mm but try again */

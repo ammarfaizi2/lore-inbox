@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVBPNqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVBPOBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbVBPNqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 08:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVBPNqQ
+	id S262015AbVBPOBL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 09:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVBPOBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 08:46:16 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:62852 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262014AbVBPNqO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 08:46:14 -0500
-Subject: Re: avoiding pci_disable_device()...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Arjan van de Ven <arjan@infradead.org>,
-       Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <s5hhdkcbv94.wl@alsa2.suse.de>
-References: <4210021F.7060401@pobox.com> <20050214190619.GA9241@kroah.com>
-	 <4211013E.6@pobox.com> <1108411352.5994.27.camel@localhost.localdomain>
-	 <42115906.3040003@pobox.com>  <s5hhdkcbv94.wl@alsa2.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1108561461.8303.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 16 Feb 2005 13:44:26 +0000
+	Wed, 16 Feb 2005 09:01:11 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62638 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262015AbVBPOBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 09:01:06 -0500
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] /proc/cpumem
+References: <20050203154433.18E4.ODA@valinux.co.jp>
+	<m14qgu81bw.fsf@ebiederm.dsl.xmission.com>
+	<20050216170224.4C66.ODA@valinux.co.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Feb 2005 06:58:32 -0700
+In-Reply-To: <20050216170224.4C66.ODA@valinux.co.jp>
+Message-ID: <m1hdkcvc6v.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Itsuro Oda <oda@valinux.co.jp> writes:
 
-> OTOH this will introduce more buglets to broken drivers which don't
-> call pci_disable_device() properly.  Consequently, the ad hoc fix to
-> each driver like Jeff's patch might be most practical...
+> Hi, Eric and all
+> 
+> Attached is an implementation of /proc/cpumem.
+> /proc/cpumem shows the valid physical memory ranges.
 
-This is true but it does provide the mechanism to fix such devices. It
-also fails safe because a driver that fails to disable leaves the device
-always enabled.
+Interesting.  My imagination when I proposed this
+was something based on struct resource that works
+like /proc/iomem on x86 but can be meaningfully
+be used on systems with where ram lives in a separate
+address space from io device memory.
 
-With the ability to mark the specific awkward cases as "enabled on boot"
-we can remove some of the horrible special case issues like IDE
-controllers using BARs of the northbridge.
+> example: amd64 8GB Mem
+> # cat /proc/cpumem
+> 0000000000000000 000000000009b800
+> 0000000000100000 00000000fbe70000
+> 0000000100000000 0000000100000000
+> #
+> start address and size. hex digit.
 
-Alan
+The lack of a type field looses a fair amount of functionality compared
+to /proc/iomem.  In particular you can't see where the ACPI data is.
 
+The other direction something like this can go is to dump 
+the data structures in linux/mmzone.h 
+ 
+> Any comments, recomendations and suggestions are welcom.
+> 
+> BTW, does not kexec/kdump run on 2.6.11-rc3-mm2 ?
+> How do I get and examine the latest kexec/kdump ?
+
+I'm not quite certain what is happening.
+
+I have been playing with kexec user space a little bit and a new 
+development release is at:
+http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.101.tar.gz
+
+I have written a first pass at a user space core dump generator,
+using /dev/mem.  /sbin/kexec still needs some work to prepare
+the ELF headers before a crash.
+
+Eric

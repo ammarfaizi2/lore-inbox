@@ -1,38 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUEFMIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUEFMSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbUEFMIV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 08:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUEFMIV
+	id S262026AbUEFMSw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 08:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUEFMSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 08:08:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19348 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261862AbUEFMIU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 08:08:20 -0400
-Date: Thu, 6 May 2004 09:09:08 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@osdl.org>, Jakub Jelinek <jakub@redhat.com>
-Subject: Re: [PATCH] per-user signal pending and message queue limits
-Message-ID: <20040506120907.GB3133@logos.cnet>
-References: <20040420163443.7347da48.akpm@osdl.org> <20040421203456.GC16891@logos.cnet> <40875944.4060405@colorfullife.com> <20040427145424.GA10530@logos.cnet> <408EA1DF.6050303@colorfullife.com> <20040428170932.GA14993@logos.cnet> <20040428183315.T22989@build.pdx.osdl.net> <20040429121739.GB18352@logos.cnet> <20040429125820.O21045@build.pdx.osdl.net> <20040505170811.W22989@build.pdx.osdl.net>
+	Thu, 6 May 2004 08:18:52 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55301 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262026AbUEFMSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 08:18:50 -0400
+Date: Thu, 6 May 2004 13:18:46 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] get rid of "+m" constraint in i386 rwsems
+Message-ID: <20040506131846.A29621@flint.arm.linux.org.uk>
+Mail-Followup-To: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <4955.1083844733@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040505170811.W22989@build.pdx.osdl.net>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4955.1083844733@redhat.com>; from dhowells@redhat.com on Thu, May 06, 2004 at 12:58:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 05:08:11PM -0700, Chris Wright wrote:
-> * Chris Wright (chrisw@osdl.org) wrote:
-> > OK, here it is.
-> 
-> That last patch left the mqueue rlimit bits alone (was only an update to
-> the signal side).  After looking more closely at the mqueue side I have
-> the comments below:
+On Thu, May 06, 2004 at 12:58:53PM +0100, David Howells wrote:
+> Here's a patch to remove the usage of a "+m" constraint in the i386 optimised
+> rwsem implementation.
 
-Great, you have gone deeper analysis. This looks much better.
+Doesn't the assembly assume that %0 is the same as %4, though because
+they're memory operands, the chances of them not being so is pretty
+slim?  From the gcc manual, it appears that this may not always be
+the case:
 
-Thanks!
+|    The ordinary output operands must be write-only; GCC will assume that
+| the values in these operands before the instruction are dead and need
+| not be generated.  Extended asm supports input-output or read-write
+| operands.  Use the constraint character `+' to indicate such an operand
+| and list it with the output operands.
+| 
+|    When the constraints for the read-write operand (or the operand in
+| which only some of the bits are to be changed) allows a register, you
+| may, as an alternative, logically split its function into two separate
+| operands, one input operand and one write-only output operand.  The
+| connection between them is expressed by constraints which say they need
+| to be in the same location when the instruction executes.  You can use
+| the same C expression for both operands, or different expressions.  For
+| example, here we write the (fictitious) `combine' instruction with
+| `bar' as its read-only source operand and `foo' as its read-write
+| destination:
+| 
+|      asm ("combine %2,%0" : "=r" (foo) : "0" (foo), "g" (bar));
+| 
+| The constraint `"0"' for operand 1 says that it must occupy the same
+| location as operand 0.  A number in constraint is allowed only in an
+| input operand and it must refer to an output operand.
+| 
+|    Only a number in the constraint can guarantee that one operand will
+| be in the same place as another.  The mere fact that `foo' is the value
+| of both operands is not enough to guarantee that they will be in the
+| same place in the generated assembler code.  The following would not
+| work reliably:
+| 
+|      asm ("combine %2,%0" : "=r" (foo) : "r" (foo), "g" (bar));
+
+Can you explain the need for the change?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

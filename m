@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310324AbSCGNl5>; Thu, 7 Mar 2002 08:41:57 -0500
+	id <S310331AbSCGNpr>; Thu, 7 Mar 2002 08:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310328AbSCGNlr>; Thu, 7 Mar 2002 08:41:47 -0500
-Received: from dsl-213-023-043-059.arcor-ip.net ([213.23.43.59]:30899 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S310324AbSCGNle>;
-	Thu, 7 Mar 2002 08:41:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, jdike@karaya.com (Jeff Dike)
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-Date: Thu, 7 Mar 2002 14:36:08 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: bcrl@redhat.com (Benjamin LaHaise), hpa@zytor.com (H. Peter Anvin),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <E16iyGp-0002IL-00@the-village.bc.nu>
-In-Reply-To: <E16iyGp-0002IL-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16iy41-00037z-00@starship.berlin>
+	id <S310330AbSCGNph>; Thu, 7 Mar 2002 08:45:37 -0500
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:62241 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S310328AbSCGNpV>; Thu, 7 Mar 2002 08:45:21 -0500
+From: "Steven A. DuChene" <linux-clusters@mindspring.com>
+Date: Thu, 7 Mar 2002 08:45:14 -0500
+To: linux-kernel@vger.kernel.org
+Subject: SCHED_YIELD undeclared with Trond's NFS patch w/2.4.19-pre2-ac2
+Message-ID: <20020307084514.C16224@lapsony.mydomain.here>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 7, 2002 02:49 pm, Alan Cox wrote:
-> Jeff Dike Apparently wrote
-> > caller.  This is actually wrong because in this failure case, it effectively
-> > changes the semantics of GFP_USER, GFP_KERNEL, and the other blocking GFP_* 
-> > allocations to GFP_ATOMIC.  And that's what forced UML to segfault the 
-> > compilations.
-> 
-> GFP_KERNEL will sometimes return NULL.
+I am attempting to apply Trond's linux-2.4.18-NFS_ALL.dif patch to 2.4.19-pre2-ac2
+I get the patch to apply once I massage fs/nfs/inode.c a little bit but when I try
+to compile it I get:
 
-Sad but true.  IMHO we are on track to fix that in this kernel cycle, with
-better locked/dirty accounting and rmap to forcibly unmap pages when necessary.
+svcsock.c: In function `svc_recv':
+svcsock.c:987: `SCHED_YIELD' undeclared (first use in this function)
+svcsock.c:987: (Each undeclared identifier is reported only once
+svcsock.c:987: for each function it appears in.)
+make[3]: *** [svcsock.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.X/net/sunrpc'
+make[2]: *** [first_rule] Error 2
 
+Now I know there were some changes because of the O(1) stuff in the ac2 patch but
+what is the process for eliminating references to SCHED_YIELD?
 -- 
-Daniel
+Steven A. DuChene      linux-clusters@mindspring.com
+                      sduchene@mindspring.com
+
+        http://www.mindspring.com/~sduchene/

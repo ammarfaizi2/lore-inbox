@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266905AbUAXKzF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 05:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266907AbUAXKzF
+	id S266907AbUAXLGm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 06:06:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266908AbUAXLGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 05:55:05 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:6017 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266905AbUAXKzA (ORCPT
+	Sat, 24 Jan 2004 06:06:42 -0500
+Received: from main.gmane.org ([80.91.224.249]:55520 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266907AbUAXLGk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 05:55:00 -0500
-Date: Sat, 24 Jan 2004 11:55:06 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: rvalles <rvalles@es.gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: joydev: kernel panic accessing /dev/js0 with 2.6.2-rc1-bk1
-Message-ID: <20040124105506.GB9282@ucw.cz>
-References: <20040124090354.GA5285@217-126-33-148.uc.nombres.ttd.es>
+	Sat, 24 Jan 2004 06:06:40 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [OFFTOPIC]   "smack the penguin"
+Date: Sat, 24 Jan 2004 12:06:38 +0100
+Message-ID: <yw1x7jzh7ght.fsf@ford.guide>
+References: <401177DB.8010901@nortelnetworks.com> <20040124095208.GA20489@zombie.inka.de>
+ <yw1xbrot7j89.fsf@ford.guide> <20040124103029.GL10487@boetes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040124090354.GA5285@217-126-33-148.uc.nombres.ttd.es>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:l3Ra2ECiNdHxm4ayc+fu4nQuuSQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 10:03:54AM +0100, rvalles wrote:
+Han Boetes <han@mijncomputer.nl> writes:
 
-> I got a new USB gamepad called "Logitech WingMan RumblePad".
-> 
-> I had USB with UHCI HCD working on 2.6.1, for my mouse (USB full HID) on
-> kernel (not as a module). But I didn't have joystick support, so I got myself
-> 2.6.2-rc1-bk1 and built it, with Joystick Interface as a module.
-> 
-> Then, I do:
-> # modprobe joydev
-> # cat /dev/js0
-> 
-> and I get:
-> DIVIDE ERROR:0000[#1]
-> 
-> Calltrace:
-> hid_process_event
-> hid_input_field
-> add_timer_randomness
-> hid_input_report
-> hid_irq_in
-> usb_hcd_irq
-> handle_IRQ_event
-> do_IRQ
-> rest_init
-> common_interrupt
-> rest_init
-> <...>
-> 
-> Kernel Panic: Fatal exception in interrupt
-> 
-> I've shortened a lot of detail, through, because I had to copy it by hand. I
-> hope it's enough to debug it. Tell me otherwise, and I'll copy the needed
-> stuff.
+> Måns Rullgård wrote:
+>> Eduard Bloch wrote:
+>> > Chris Friesen wrote:
+>> > > Diversion for friday afternoon...how far can you get?
+>> > >
+>> > > Personal best is 586
+>> >
+>> > Which means that you are playing it either on a Windows box (what a
+>> > shame) or cheating somehow or you have a 5Ghz box or something else
+>> > is wrong on regular Linux systems. I do not any Linux user who got
+>> > more than 325.5 with the Linux version of the Shockwave plugin.
+>>
+>> I've gotten over 500 on my 2 GHz laptop running Linux 2.6.1. Even
+>> this fairly fast machine the flash thing frequently freezes for a
+>> split second.
+>
+> If you download the flashfile and then open that file in your browser
+> you'll see a part hidden from the sight by the html-frame. Then you will
+> also understand the freeze. :)
 
-If you also could get the function where EIP is, that'd be great.
+It just scales up to fill the window without showing anything I didn't
+see previously.  In my experience, almost all flash toys have the
+freezing problem, not just this one.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Måns Rullgård
+mru@kth.se
+

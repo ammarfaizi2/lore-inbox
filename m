@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265812AbUAUCBt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 21:01:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265842AbUAUCBt
+	id S265900AbUAUCIm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 21:08:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbUAUCIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 21:01:49 -0500
-Received: from uni01du.unity.ncsu.edu ([152.1.13.101]:42378 "EHLO
-	uni01du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S265812AbUAUCBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 21:01:48 -0500
-From: jlnance@unity.ncsu.edu
-Date: Tue, 20 Jan 2004 21:01:34 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Chris.Petersen@synopsys.com, jlnance@unity.ncsu.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: Awful NFS performance with attached test program
-Message-ID: <20040121020134.GA4577@ncsu.edu>
-References: <20040119211649.GA20200@ncsu.edu> <1074549226.1560.59.camel@nidelv.trondhjem.org> <20040120132803.GA2830@ncsu.edu> <1074607946.1871.37.camel@nidelv.trondhjem.org> <400D897C.A5439DFE@synopsys.com> <1074635444.5368.286.camel@nidelv.trondhjem.org>
+	Tue, 20 Jan 2004 21:08:41 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:11728 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265900AbUAUCIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 21:08:39 -0500
+Subject: Re: struct task_struct -> task_t
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: mort@bork.org, viro@parcelfarce.linux.theplanet.co.uk,
+       bluefoxicy@linux.net
+Content-Type: text/plain
+Organization: 
+Message-Id: <1074642648.828.40311.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1074635444.5368.286.camel@nidelv.trondhjem.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 20 Jan 2004 18:50:48 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 04:50:44PM -0500, Trond Myklebust wrote:
+Martin Hicks writes:
+> On Mon, Jan 19, 2004 at 10:24:34PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+>> On Mon, Jan 19, 2004 at 02:17:57PM -0800, john moser wrote:
 
-> Surprise! Linux and Solaris show exactly the same behaviour.
-> 
-> As I said before in 2.4.x we have a hard limit of 256 outstanding
-> requests before we have to wait on requests to complete. Remove that
-> limit, and all is well...
+>>> It has come to my attention that in some places
+>>> in the kernel, 'struct task_struct' is used; and
+>>> in others, 'task_t' is used.  Also, 'task_t' is
+>>> 'typedef struct task_struct task_t;'.
+>>>
+>>> I made a small script to change around as much
+>>> as I could so that everything uses task_t,
+>>
+>> What the fsck for?  If anything, the opposite
+>> (and removal of that typedef) would be preferable.
+>
+> John,
+>
+> As Al is trying to point out, we try to discourage
+> the use of typedefs in the kernel.  It is much
+> easier to see that blah_t is really a struct if
+> we always use 'struct blah'.
 
-Nice job with the 2.6 performance!  Im looking forward to the day when
-distributors start shipping it.
+That's no good for variable usage. We don't
+write "struct current".
 
-Thanks,
+You're giving the argument for Hungarian
+notation. Not that I'd suggest it, but that
+is where your argument leads.
 
-Jim
+IMHO, we type too much already.
+
+

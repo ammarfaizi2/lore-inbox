@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTEMVj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTEMVj0
+	id S261998AbTEMViI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTEMViI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:39:26 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:54709 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262001AbTEMVjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:39:24 -0400
-Subject: Re: 2.5.69+bk: "sleeping function called from illegal context" on
-	card release while shutting down
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: alexander.riesen@synopsys.COM, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052839860.2255.19.camel@diemos>
-References: <20030513135759.GG32559@Synopsys.COM>
-	 <1052837896.1000.2.camel@teapot.felipe-alfaro.com>
-	 <1052839860.2255.19.camel@diemos>
-Content-Type: text/plain
-Message-Id: <1052862721.2410.1.camel@teapot.felipe-alfaro.com>
+	Tue, 13 May 2003 17:38:08 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:56845 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261998AbTEMVhU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:37:20 -0400
+Date: Tue, 13 May 2003 23:48:30 +0200
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, Paul Fulghum <paulkf@microgate.com>,
+       Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Arnd Bergmann <arnd@arndb.de>, johannes@erdfelt.com
+Subject: Re: 2.5.69 Interrupt Latency
+Message-ID: <20030513214830.GA685@hh.idb.hist.no>
+References: <20030513181120.GA10790@kroah.com> <Pine.LNX.4.44L0.0305131719260.673-100000@ida.rowland.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 13 May 2003 23:52:01 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0305131719260.673-100000@ida.rowland.org>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-13 at 17:31, Paul Fulghum wrote:
-> > Don't know if this is fixed by latest Russell patches, but vanilla and
-> > -bk snapshots do *not* contain the latest PCMCIA/CardBus code. Is it
-> > possible for you to try 2.5.69-mm4?
-> 
-> Russell's patches do not address this.
+On Tue, May 13, 2003 at 05:35:47PM -0400, Alan Stern wrote:
+> My take is that wakeup_hc() is getting called whenever some stray signal
+> causes the device to generate an interrupt, and then a little while later
+> the stall timer routine calls suspend_hc() since nothing is active.  The
+> interrupts are probably indistinguishable from what you would get if a new
+> device really had just been attached to the bus.
+>
+Could this also happen if the USB interrupt is shared?
+The other device interrupts, and the kernel calls into
+usb interrupt routine just in case USB has some data too?
 
-I knew I were no expert on this... ;-)
-
-> Individual PCMCIA drivers need to be updated to call
-> thier release function directly when processing a
-> CARD_RELEASE message instead of from a timer procedure.
-
-Aha! I got you! Thanks.
-
+Helge Hafting

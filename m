@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267610AbUHRXY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUHRXdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267610AbUHRXY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 19:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUHRXY4
+	id S267615AbUHRXdt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 19:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUHRXdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 19:24:56 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:47878 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267610AbUHRXYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 19:24:54 -0400
-Date: Thu, 19 Aug 2004 00:24:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: hch@infradead.org, alan@lxorguk.ukuu.org.uk, wtogami@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Merge I2O patches from -mm
-Message-ID: <20040819002448.A3905@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Markus Lidel <Markus.Lidel@shadowconnect.com>,
-	alan@lxorguk.ukuu.org.uk, wtogami@redhat.com,
+	Wed, 18 Aug 2004 19:33:49 -0400
+Received: from holomorphy.com ([207.189.100.168]:60858 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267615AbUHRXdd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 19:33:33 -0400
+Date: Wed, 18 Aug 2004 16:33:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Does io_remap_page_range() take 5 or 6 args?
+Message-ID: <20040818233324.GT11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, pj@sgi.com,
 	linux-kernel@vger.kernel.org
-References: <4123E171.3070104@shadowconnect.com>
+References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com> <20040818135638.4326ca02.davem@redhat.com> <20040818210503.GG11200@holomorphy.com> <20040818143029.23db8740.davem@redhat.com> <20040818214026.GL11200@holomorphy.com> <20040818220001.GN11200@holomorphy.com> <20040818225915.GQ11200@holomorphy.com> <20040818161658.49aa8de3.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4123E171.3070104@shadowconnect.com>; from Markus.Lidel@shadowconnect.com on Thu, Aug 19, 2004 at 01:08:33AM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040818161658.49aa8de3.davem@redhat.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 01:08:33AM +0200, Markus Lidel wrote:
-> Okay, patch i2o_scsi-cleanup.patch adds a notification facility to the 
-> i2o_driver, which notify if a controller is added or removed. The 
-> i2o_controller structure has now the ability to store per-driver data 
-> and the SCSI-OSM now takes advantage of this. So all ugly parts should 
-> be removed now :-)
-> 
-> If you have further things which should be changed, please let me know...
+On Wed, 18 Aug 2004 15:59:15 -0700
+>> Given this, will a pfn suffice?
 
-Looks much better now, thanks.  But instead of the notify call please
-add a controller_add and add controller_remove method, taking a typesafe
-i2o_controller * instead of the multiplexer.
+On Wed, Aug 18, 2004 at 04:16:58PM -0700, David S. Miller wrote:
+> There is an error in the calculations.  16TB "RAM", means "RAM".
+> On many systems, a large chunk of the physical address space is
+> taken up by I/O areas, not real memory.
+> Such areas do not take up mem_map[] array space.
+> Regardless, I think an "unsigned long" page frame number is sufficient
+> for now.  Don't even make the new type.
 
-> 
-> 
-> 
-> Best regards,
-> 
-> 
-> Markus Lidel
-> ------------------------------------------
-> Markus Lidel (Senior IT Consultant)
-> 
-> Shadow Connect GmbH
-> Carl-Reisch-Weg 12
-> D-86381 Krumbach
-> Germany
-> 
-> Phone:  +49 82 82/99 51-0
-> Fax:    +49 82 82/99 51-11
-> 
-> E-Mail: Markus.Lidel@shadowconnect.com
-> URL:    http://www.shadowconnect.com
+Oh, virtualspace footprint of IO areas is far worse, as the convention
+is to direct map them into a single address space if they're ever used.
+Of course this convention is much more loosely established than e.g.
+struct page is for RAM. Some analogue of kmap_atomic() for such
+machines to multiplex virtualspace in interrupt context would help, but
+is unrelated to physical address passing issues.
 
 
----end quoted text---
+-- wli

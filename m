@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbUJWOrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbUJWOvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbUJWOrL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 10:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUJWOrK
+	id S261209AbUJWOvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 10:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUJWOr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 10:47:10 -0400
-Received: from adsl-20-74.swiftdsl.com.au ([218.214.20.74]:13444 "EHLO
-	gamma.soldator.com") by vger.kernel.org with ESMTP id S261207AbUJWOqf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 10:46:35 -0400
-Message-ID: <417A6EC9.5000503@swiftdsl.com.au>
-Date: Sun, 24 Oct 2004 00:46:33 +1000
-From: Taso Hatzi <ahg2@swiftdsl.com.au>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041023151819.GB2540@dantooine>
-In-Reply-To: <20041023151819.GB2540@dantooine>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 23 Oct 2004 10:47:56 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:46606 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261209AbUJWOrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 10:47:00 -0400
+Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       Dave Airlie <airlied@linux.ie>
+In-Reply-To: <9e473391041023073578b11eb6@mail.gmail.com>
+References: <9e473391041022214570eab48a@mail.gmail.com>
+	 <20041023095644.GC30137@infradead.org>
+	 <9e473391041023073578b11eb6@mail.gmail.com>
+Content-Type: text/plain
+Message-Id: <1098542801.7207.0.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sat, 23 Oct 2004 16:46:41 +0200
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Oct 2004 03:40:06 +0200, Linus Torvalds wrote:
+On Sat, 2004-10-23 at 10:35 -0400, Jon Smirl wrote:
+> How do I deal with something like a Red Hat kernel where CONFIG_AGP is
+> set but the kernel may be running on hardware without AGP present. 
 
- >
- > However, for some reason four numbers just looks visually too obnoxious to
- > me, so as I don't care that much, I'll just use "-rc", and we can all
-
-Drop the '2.'. What would make you go from 2 to 3 and realistically, is
-it likely to happen?
-
-In any case, if you replace the '-rc' suffix with just a number it will
-be interpreted as 2.x.y.1 is better than 2.x.y which is a nonsense.
-The "-rc" nomenclature makes it clear that the release will be 2.x.y
+Nowadays RH builds AGP into the kernel always ;)
+-- 
 

@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUEJQcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264861AbUEJQfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264860AbUEJQcX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 12:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264861AbUEJQcX
+	id S264861AbUEJQfS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 12:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbUEJQfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 12:32:23 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:29096 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S264860AbUEJQcV (ORCPT
+	Mon, 10 May 2004 12:35:16 -0400
+Received: from cs-public.bu.edu ([128.197.12.2]:57775 "EHLO cs.bu.edu")
+	by vger.kernel.org with ESMTP id S264861AbUEJQfF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 12:32:21 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+	Mon, 10 May 2004 12:35:05 -0400
+Date: Mon, 10 May 2004 12:36:07 -0400
+From: Gary Wong <gtw@cs.bu.edu>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix init_idle() locking problem
-Date: Mon, 10 May 2004 10:32:18 -0600
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
+Subject: Segmentation fault in i810_audio.c:__i810_update_lvi
+Message-ID: <20040510123607.T9078@cs.bu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405101032.18508.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When starting up secondary CPUs, most architectures do something
-like this:
+Hi,
 
-	do_boot_cpu(int cpu)
-	{
-		idle = fork_by_hand();
-		wake_up_forked_process(idle);
-		init_idle(idle, cpu);
+It seems that buggy programs can cause a segmentation fault in the
+i810_audio module.  (I noticed the problem in DRIVER_VERSION 0.23, and
+a quick peek at the 0.24 source looks as if it is still present
+there.)
 
-init_idle() removes "idle" from its runqueue, but there's a window
-between looking up the runqueue and locking it, where another CPU
-can move "idle" to a different runqueue, i.e., via load_balance().
+The problem is that if somebody opens the DSP as O_RDONLY, and then
+generates a SNDCTL_DSP_SETTRIGGER with both PCM_ENABLE_INPUT and
+PCM_ENABLE_OUTPUT, dmabuf->trigger will have both of those two bits
+set.  This doesn't cause an immediate problem, but once i810_release()
+is eventually called, it will notice the PCM_ENABLE_OUTPUT bit and
+call drain_dac(), which in turn calls i810_update_lvi(), and
+__i810_update_lvi(), which will cause a segmentation fault
+dereferencing dmabuf->write_channel->port (where write_channel is
+NULL; the channel was never established, since file->f_mode does
+not include FMODE_WRITE).
 
-This is based on 2.6.6.
+I believe that one of two fixes should be applied: either the
+SNDCTL_DSP_SETTRIGGER ioctl handling should not enable the
+PCM_ENABLE_{IN,OUT}PUT bits unless file->f_mode is compatible,
+or i810_release() should ignore the PCM_ENABLE_* bits without
+the corresponding FMODE_*.
 
-===== kernel/sched.c 1.261 vs edited =====
---- 1.261/kernel/sched.c	Mon Apr 26 23:07:43 2004
-+++ edited/kernel/sched.c	Mon May 10 09:59:54 2004
-@@ -2660,11 +2660,18 @@
- 
- void __init init_idle(task_t *idle, int cpu)
- {
--	runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(task_cpu(idle));
-+	runqueue_t *idle_rq = cpu_rq(cpu), *rq;
- 	unsigned long flags;
- 
-+repeat_lock_runqueues:
-+	rq = task_rq(idle);
- 	local_irq_save(flags);
- 	double_rq_lock(idle_rq, rq);
-+	if (rq != task_rq(idle)) {
-+		double_rq_unlock(idle_rq, rq);
-+		local_irq_restore(flags);
-+		goto repeat_lock_runqueues;
-+	}
- 
- 	idle_rq->curr = idle_rq->idle = idle;
- 	deactivate_task(idle, rq);
+I am happy to provide a patch to i810_audio.c implementing whichever
+solution you prefer, or I can send a test case and oops and backtrace
+information if it will help, but I wanted to check first to see if
+you already have a report about the problem and if it is still present
+in the latest revision.
+
+Cheers,
+Gary.
+-- 
+     Gary Wong          gtw@cs.bu.edu          http://cs-people.bu.edu/gtw/

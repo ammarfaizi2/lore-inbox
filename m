@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130204AbRAWHG1>; Tue, 23 Jan 2001 02:06:27 -0500
+	id <S130138AbRAWHUf>; Tue, 23 Jan 2001 02:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135522AbRAWHGR>; Tue, 23 Jan 2001 02:06:17 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:36366 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130204AbRAWHGD>;
-	Tue, 23 Jan 2001 02:06:03 -0500
-Message-ID: <3A6D2D54.619AFA7E@mandrakesoft.com>
-Date: Tue, 23 Jan 2001 02:05:56 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre9 i686)
-X-Accept-Language: en
+	id <S135522AbRAWHU0>; Tue, 23 Jan 2001 02:20:26 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:4113 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S130138AbRAWHUO>; Tue, 23 Jan 2001 02:20:14 -0500
+Date: Mon, 22 Jan 2001 23:20:08 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <7uDh9dHmw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.30.0101222314360.18469-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-To: David Ford <david@linux.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1-test10
-In-Reply-To: <Pine.LNX.4.10.10101221711560.1309-100000@penguin.transmeta.com> <3A6CF5B7.57DEDA11@linux.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
-> 
-> Linus Torvalds wrote:
-> 
-> > The ChangeLog may not be 100% complete. The physically big things are the
-> > PPC and ACPI updates, even if most people won't notice.
-> >
-> >                 Linus
-> >
-> > ----
-> >
-> > pre10:
-> >  - got a few too-new R128 #defines in the Radeon merge. Fix.
-> >  - tulip driver update from Jeff Garzik
-> >  - more cpq and DAC elevator fixes from Jens. Looks good.
-> >  - Petr Vandrovec: nicer ncpfs behaviour
-> >  - Andy Grover: APCI update
-> >  - Cort Dougan: PPC update
-> >  - David Miller: sparc updates
-> >  - David Miller: networking updates
-> >  - Neil Brown: RAID5 fixes
-> 
-> Do the tulip driver updates address the increasingly common NETDEV timeout
-> repots?
+On 20 Jan 2001, Kai Henningsen wrote:
 
-In general you can answer this yourself by reading
-drivers/net/tulip/ChangeLog.
+> dean-list-linux-kernel@arctic.org (dean gaudet)  wrote on 18.01.01 in <Pine.LNX.4.30.0101181840380.16292-100000@twinlark.arctic.org>:
+>
+> > i'm pretty sure the actual use of pipelining is pretty disappointing.
+> > the work i did in apache preceded the widespread use of HTTP/1.1 and we
+>
+> What widespread use of HTTP/1.1?
+>
+> I justtried the following excercise:
+>
+> Request a nonexistant page with HTTP/1.1 syntax.
+>
+> a. Directly from Apache: I get a nice chunked HTTP/1.1 answer.
+> b. Via Squid: I get a plain HTTP/1.0 answer.
+>
+> As long as not even Squid talks 1.1, how can we expect browsers to do it?
+>
+> WebMUX? In a thousand years perhaps.
 
-I don't see increasingly common timeout reports.. with which hardware? 
-They are likely on the newer LinkSys 4.1 cards, and there are still
-problesm with PNIC.  Outside of that, other cards should be ok.
+what's the widespread use of ECN?  or SACK when that was first put in?
+what about ipchains before 2.2 was released?
 
-	Jeff
+why bother being the first to implement anything new, might as well wait
+for the commercial folks to put it into a product and spread it wide and
+far eh?
 
+i'm pretty sure i said that it was our (the apache group's) position that
+we wanted as perfect as possible of a pipelining implementation so that
+should someone finally do a client-side version then there wouldn't be
+apache bottlenecks in the way.  i still think that's the right attitude.
+if we'd left the packet boundaries in there then there wouldn't even be
+motivation to bother doing a client-side pipelining implementation,
+there'd be little or no benefit.
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+btw, HTTP/1.1 proxying is more challenging than HTTP/1.0 proxying which is
+probably why squid doesn't support it yet (nor does the apache proxy
+module).
+
+-dean
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

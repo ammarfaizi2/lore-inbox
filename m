@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129756AbQKGPTs>; Tue, 7 Nov 2000 10:19:48 -0500
+	id <S130867AbQKGPYr>; Tue, 7 Nov 2000 10:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130360AbQKGPTi>; Tue, 7 Nov 2000 10:19:38 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:19716 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129756AbQKGPTS>;
-	Tue, 7 Nov 2000 10:19:18 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage - modutils design 
-In-Reply-To: Your message of "Tue, 07 Nov 2000 11:47:57 -0300."
-             <200011071447.eA7Elvw30830@pincoya.inf.utfsm.cl> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 08 Nov 2000 02:19:10 +1100
-Message-ID: <14576.973610350@ocs3.ocs-net>
+	id <S130865AbQKGPYh>; Tue, 7 Nov 2000 10:24:37 -0500
+Received: from [193.127.21.194] ([193.127.21.194]:29754 "HELO
+	postal.sl.trymedia.com") by vger.kernel.org with SMTP
+	id <S130543AbQKGPY3>; Tue, 7 Nov 2000 10:24:29 -0500
+From: Abel Muñoz Alcaraz <abel@trymedia.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: A question about memory fragmentation
+Date: Tue, 7 Nov 2000 16:20:20 +0100
+Message-ID: <CAEBJLAGJIDLDINHENLOGEMOCGAA.abel@trymedia.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Nov 2000 11:47:57 -0300, 
-Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
->Keith Owens <kaos@ocs.com.au> said:
->> It makes no sense to allow duplicate module names in the same kernel
->> tree.  "modprobe foo" - which one gets loaded?
->
->Why the tree then?
+Hi everybody,
+	I have a question for you; How Linux avoids the memory fragmentation in
+linked lists?
 
-Mainly so you can "modprobe -t net \*" and load all modules with /net/
-in their pathname.  pcmcia modules need to be identified and linked.
-mkinitrd also needs paths to identify scsi modules.  The old system of
-assigning pathnames was manual, fragile and error prone, copying the
-kernel tree works.  But whether modules are a flat directory, a
-manually built two level directory or a copy of the kernel tree, it
-still makes no sense to have duplicate names in the same kernel tree.
+	Windows 9x/NT/2000 (sorry, ;-)), have specific functions (like List_Create,
+ExInitializeSListHead, ...) to create generic linked lists but I don't find
+something similar in Linux.
+	Has Linux a generic linked list management API ?
+	Must I develop this?
+	Is the kernel memory fragmentation a solved problem in Linux? (I wish it).
+
+	I have develop my own API but I don't know if Linux can do this for me.
+
+Thanks in advance.
+
+Abel Muñoz Alcaraz.
+Media Security Software Developer.
+mailto:abel@trymedia.com
+Trymedia Systems
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

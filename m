@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129855AbRANMGe>; Sun, 14 Jan 2001 07:06:34 -0500
+	id <S130374AbRANMIX>; Sun, 14 Jan 2001 07:08:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130374AbRANMGX>; Sun, 14 Jan 2001 07:06:23 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:27035 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129855AbRANMGL>;
-	Sun, 14 Jan 2001 07:06:11 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14945.38406.478723.657639@pizda.ninka.net>
-Date: Sun, 14 Jan 2001 04:05:26 -0800 (PST)
-To: Andi Kleen <ak@suse.de>
-Cc: Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
-        Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 + iproute2
-In-Reply-To: <20010114124659.A23188@gruyere.muc.suse.de>
-In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net>
-	<Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl>
-	<14945.28354.209720.579437@pizda.ninka.net>
-	<20010114115215.A22550@gruyere.muc.suse.de>
-	<14945.34208.281500.226085@pizda.ninka.net>
-	<20010114123310.A23011@gruyere.muc.suse.de>
-	<14945.36695.669979.754755@pizda.ninka.net>
-	<20010114124659.A23188@gruyere.muc.suse.de>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S132279AbRANMIN>; Sun, 14 Jan 2001 07:08:13 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:61012 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S130374AbRANMIC>; Sun, 14 Jan 2001 07:08:02 -0500
+Date: Sun, 14 Jan 2001 12:07:59 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: LAMBERT Bernard <bga.lambert@wanadoo.fr>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: lp with kernel 2.2.18
+Message-ID: <20010114120759.A7887@redhat.com>
+In-Reply-To: <3A615D6D.AF2E8982@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A615D6D.AF2E8982@wanadoo.fr>; from bga.lambert@wanadoo.fr on Sun, Jan 14, 2001 at 09:03:57AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Andi Kleen writes:
- > > Textual error messages for system calls never belong in the kernel.
- > > Put it in glibc or wherever.
- > 
- > This just means that a table needs to be kept in sync between glibc and
- > netlink, and if someone e.g. gets a new CBQ module he would need to update
- > glibc. It's also bad for maintainers, because patches for tables of number 
- > tend to always reject ;) 
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Fine, then no textual messages at all.
+Looks like you didn't configure your kernel with printer support.  You
+want CONFIG_PRINTER.
 
-I cannot accept that an application writer goes through all the
-trouble of using socket extended errors, watches for error returns
-via this, and makes no attempt to understand what the different return
-values mean.
+Tim.
+*/
 
-People must be really suffering right now, and we ought to get
-/proc/errno_strings implemented as soon as possible... :-)
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Later,
-David S. Miller
-davem@redhat.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6YZaeONXnILZ4yVIRAorqAJ9ccTse9cwRE8/YuQzPYcamXvx46gCdGUOy
+/mwVrtFP2aPMPTdUrWEZAI0=
+=36Yn
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,91 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVB1HUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVB1HkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVB1HUs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 02:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVB1HUs
+	id S261175AbVB1HkM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 02:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVB1HkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 02:20:48 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:1681 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261159AbVB1HUi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 02:20:38 -0500
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, davem@redhat.com, jlan@sgi.com,
-       LSE-Tech <lse-tech@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-In-Reply-To: <42227AEA.6050002@ak.jp.nec.com>
-References: <42168D9E.1010900@sgi.com>
-	 <20050218171610.757ba9c9.akpm@osdl.org> <421993A2.4020308@ak.jp.nec.com>
-	 <421B955A.9060000@sgi.com> <421C2B99.2040600@ak.jp.nec.com>
-	 <421CEC38.7010008@sgi.com> <421EB299.4010906@ak.jp.nec.com>
-	 <20050224212839.7953167c.akpm@osdl.org> <20050227094949.GA22439@logos.cnet>
-	 <4221E548.4000008@ak.jp.nec.com> <20050227140355.GA23055@logos.cnet>
-	 <42227AEA.6050002@ak.jp.nec.com>
-Date: Mon, 28 Feb 2005 08:20:36 +0100
-Message-Id: <1109575236.8549.14.camel@frecb000711.frec.bull.fr>
+	Mon, 28 Feb 2005 02:40:12 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:31911 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261175AbVB1HkG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 02:40:06 -0500
+Date: Mon, 28 Feb 2005 08:40:05 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Christian Kujau <evil@g-house.de>
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com
+Subject: Re: unsupported PCI PM caps (again?)
+Message-ID: <20050228074005.GA2915@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Christian Kujau <evil@g-house.de>, linux-kernel@vger.kernel.org,
+	dhowells@redhat.com
+References: <42226647.4040000@g-house.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/02/2005 08:29:35,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/02/2005 08:29:38,
-	Serialize complete at 28/02/2005 08:29:38
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42226647.4040000@g-house.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-28 at 10:59 +0900, Kaigai Kohei wrote:
-> Marcelo Tosatti wrote:
->  > Yep, the netlink people should be able to help - they known what would be
->  > required for not sending messages in case there is no listener registered.
->  >
->  > Maybe its already possible? I have never used netlink myself.
+On Mon, Feb 28, 2005 at 01:31:03AM +0100, Christian Kujau wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> If we notify the fork/exec/exit-events to user-space directly as you said,
-> I don't think some hackings on netlink is necessary.
-> For example, such packets is sent only when /proc/sys/.../process_grouping is set,
-> and user-side daemon set this value, and unset when daemon will exit.
-> It's not necessary to take too seriously.
+> hi,
+> 
+> i'm running 2.6.11-rc2-bk10 and still get my syslog clobbered with
+> messages like this:
+> 
+> PCI: 0000:00:0c.0 has unsupported PM cap regs version (1)
+> 
+> $ lspci | grep 0000:00:0c.0
+> 0000:00:0c.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX
+> [Cyclone] (rev 30)
+> 
+> so everytime i "use" my eth0, a few more messages appear. 2.6.11-rc2-bk10
+> was released on Feb 2 i think, but "bk changes" reveals:
+> 
+> ChangeSet@1.1966.62.6, 2005-01-14 15:58:36-08:00, dhowells@redhat.com
+>   [PATCH] PCI: Downgrade printk that complains about unsupported PCI PM
+>           caps
+> 
+> my network card is working fine, what can i do to disable these messages?
+> i am NOT using APM or ACPI.
 
-  I wrote a new fork connector patch with a callback to enable/disable
-messages in case there is or isn't listener. I will post it this week.
+As the "unsupported PCI PM cap regs version (1)" handling caused trouble on
+some devices, it got removed in 2.6.11-rc5.
 
-  Basically there is a global variable that is manipulated with a
-connector callback so a user space daemon can manipulate the variable.
-In the fork_connector() function you have:
-
-static inline void fork_connector(pid_t parent, pid_t child)
-{
-	static DEFINE_SPINLOCK(cn_fork_lock);
-	static __u32 seq;   /* used to test if message is lost */
-
-	if (cn_fork_enable) {
-		[...]
-		cn_netlink_send(msg, CN_IDX_FORK);
-	}
-}
-
-and in the cn_fork module (drivers/connector/cn_fork.c) the callback is
-defined as:
-
-static void cn_fork_callback(void *data) 
-{
-	if (cn_already_initialized)
-		cn_fork_enable = cn_fork_enable ? 0 : 1;
-}
-
-  Ok the protocol is maybe too "basic" but with this mechanism the user
-space application that uses the fork connector can start and stop the
-send of messages. This implementation needs somme improvements because
-currently, if two application are using the fork connector one can
-enable it and the other don't know if it is enable or not, but the idea
-is here I think.
-
-Regards,
-Guillaume
-
+	Dominik

@@ -1,50 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317508AbSHQRFq>; Sat, 17 Aug 2002 13:05:46 -0400
+	id <S318016AbSHQRIq>; Sat, 17 Aug 2002 13:08:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318016AbSHQRFq>; Sat, 17 Aug 2002 13:05:46 -0400
-Received: from gra-vd1.iram.es ([150.214.224.250]:26556 "EHLO gra-vd1.iram.es")
-	by vger.kernel.org with ESMTP id <S317508AbSHQRFp>;
-	Sat, 17 Aug 2002 13:05:45 -0400
-Message-ID: <3D5E8346.5010101@iram.es>
-Date: Sat, 17 Aug 2002 19:09:26 +0200
-From: Gabriel Paubert <paubert@iram.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.0.0) Gecko/20020531
-X-Accept-Language: en-us, en
+	id <S318018AbSHQRIq>; Sat, 17 Aug 2002 13:08:46 -0400
+Received: from atlas015.atlas-iap.es ([194.224.1.15]:33995 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id <S318016AbSHQRIp>; Sat, 17 Aug 2002 13:08:45 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Subject: Re: BUG: 2.4.19 and Promise 20267 doesn't recognise ide raid
+Date: Sat, 17 Aug 2002 19:12:01 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <E17flxe-0007iH-00@antoli.gallimedina.net> <20020817133132.C23498@bitwizard.nl>
+In-Reply-To: <20020817133132.C23498@bitwizard.nl>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: James Bottomley <James.Bottomley@HansenPartnership.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Boot failure in 2.5.31 BK with new TLS patch
-References: <Pine.LNX.4.44.0208171810260.29714-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17g77J-00087z-00@antoli.gallimedina.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> On Sat, 17 Aug 2002, James Bottomley wrote:
-> 
-> 
->>The boot problem only happens with my quad pentium cards, the dyad
->>pentium and 486 are fine.  Originally, a voyager system with quad cards
->>just wouldn't boot (this was in the 2.2.x days).  Eventually, by trial
->>and error and long debug of the boot process I discovered it would boot
->>if the GDT was 8 bytes aligned (actually, the manuals say it should be
->>16 byte aligned, so perhaps we should also add this to the Linux
->>setup.S?). [...]
-> 
-> 
-> indeed it's not aligned:
-> 
-> 	c010025c T cpu_gdt_descr
+On Saturday 17 August 2002 13:31, Rogier Wolff wrote:
+> On Fri, Aug 16, 2002 at 08:36:38PM +0200, Ricardo Galli wrote:
+> > Just upgraded a server from 2.4.17 to 2.4.19, had to go down to 2.4.18.
+> >
+> > It doesn't boot with 2.4.19, the error is (ish, messages are not logged
+> > because the disk cannot be mounted, neither the root filesystem):
+>
+> What disks do you have?
+> 			Roger.
 
-Hey no, it's cpu_gdt_table that must be aligned. That one does not matter, 
-it's only used once for the lgdt instruction...
+Sorry...
 
-Ingo, for the layout of the gdt also, the location of the TSS descriptor
-is irrelevant AFAICT. It's only used when doing the initial LTR, after 
-that it's never referenced by the CPU.
+Disks:
 
-	Gabriel.
+# dmesg
+hde: ST320410A, ATA DISK drive
+hdg: ST320410A, ATA DISK drive
+...
+Drive 0 is 19092 Mb (33 / 0)
+Drive 1 is 19092 Mb (34 / 0)
+Raid1 array consists of 2 drives.
+Promise Fasttrak(tm) Softwareraid driver for linux version 0.03beta
+Highpoint HPT370 Softwareraid driver for linux version 0.01
+No raid array found
+^^^^^^^^^^^^^^^^^^^
+...
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+...
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.17, 10 Jan 2002 on ataraid(114,5), internal journal
+EXT3-fs: mounted filesystem with writeback data mode.
 
+
+
+
+
+# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/ataraid/d0p2      4805760   1971804   2589836  44% /
+/dev/ataraid/d0p1        13863      5391      7756  42% /boot
+/dev/ataraid/d0p5     13931584   1874316  11349584  15% /home
+
+
+
+
+
+Promise:
+# lspci -v
+00:0c.0 RAID bus controller: Promise Technology, Inc. 20267 (rev 02)
+        Subsystem: Promise Technology, Inc.: Unknown device 4d39
+        Flags: bus master, medium devsel, latency 32, IRQ 11
+        I/O ports at b000 [size=8]
+        I/O ports at b400 [size=4]
+        I/O ports at b800 [size=8]
+        I/O ports at bc00 [size=4]
+        I/O ports at c000 [size=64]
+        Memory at f8100000 (32-bit, non-prefetchable) [size=128K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [58] Power Management version 1
+
+-- 
+  ricardo
+       A paperless office has about as much a chance as a paperless bathroom

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287235AbRL2XYs>; Sat, 29 Dec 2001 18:24:48 -0500
+	id <S287238AbRL2X0i>; Sat, 29 Dec 2001 18:26:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287236AbRL2XYi>; Sat, 29 Dec 2001 18:24:38 -0500
-Received: from ns.suse.de ([213.95.15.193]:37133 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287235AbRL2XYf>;
-	Sat, 29 Dec 2001 18:24:35 -0500
-Date: Sun, 30 Dec 2001 00:24:29 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Oliver Xymoron <oxymoron@waste.org>, Larry McVoy <lm@bitmover.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <E16KSl8-00067w-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0112300021090.1336-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287247AbRL2X02>; Sat, 29 Dec 2001 18:26:28 -0500
+Received: from wolverine.avati.com.br ([200.198.91.2]:12558 "HELO
+	wolverine.avati.com.br") by vger.kernel.org with SMTP
+	id <S287243AbRL2X0T>; Sat, 29 Dec 2001 18:26:19 -0500
+Message-ID: <20011229232617.3284.qmail@wolverine.avati.com.br>
+From: "Wildcat" <mailinglists@avati.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: The syncookies firewall breaking problem are corrected?
+Date: Sat, 29 Dec 2001 23:26:17 GMT
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: scanned for viruses by Avati =?ISO-8859-1?Q?Seguran=E7a?= Digital (http://www.avati.com.br/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Alan Cox wrote:
+Hellow Guys, How are you? 
 
-> > The 'kill trailing spaces on each line' bug ? That has been fixed since
-> > 4.31 or so.  Or are there other evils lurking ?
-> Thats the beast. Last time I looked it was fixed in some vendor trees
+I search in kernel archives and Changelogs for information about the 
+syncookies firewall breaking problem , where one person can bypass the 
+firewall in one machine with TCP SYNCOOKIES enabled and where the firewall 
+are based on SYN filtering to block only incoming TCP connections, but let 
+outgoing connections pass. 
 
-Ah, explains why I've not seen it happen for a while.
+The lastest stable version of kernel 2.4.17 have it corrected?
+If yes, in which version of kernel it are corrected?
+If not, when it will be corrected? 
 
-> but the official pine people were refusing to take it
+ 
 
-*sigh*
-Another reason to be a mutt advocate I suppose 8)
+Thanks a lot for attention and sorry for my poor English. 
 
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 

@@ -1,81 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbTJMLzN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 07:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTJMLzN
+	id S261724AbTJMMIV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 08:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbTJMMIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 07:55:13 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:6038 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261696AbTJMLzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 07:55:07 -0400
-Subject: Re: [RFC][PATCH] Kernel thread signal handling.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20031013044042.23ab7f69.akpm@osdl.org>
-References: <1066041096.24015.431.camel@hades.cambridge.redhat.com>
-	 <20031013040219.6ad71a57.akpm@osdl.org>
-	 <1066044079.24015.442.camel@hades.cambridge.redhat.com>
-	 <20031013044042.23ab7f69.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1066046102.14783.11.camel@hades.cambridge.redhat.com>
+	Mon, 13 Oct 2003 08:08:21 -0400
+Received: from holomorphy.com ([66.224.33.161]:57733 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261724AbTJMMIS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 08:08:18 -0400
+Date: Mon, 13 Oct 2003 05:11:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Kirill Korotaev <kk@sw.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Invalidate_inodes can be very slow
+Message-ID: <20031013121109.GJ16158@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Kirill Korotaev <kk@sw.ru>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <200310131318.09234.kk@sw.ru> <200310131545.01779.kk@sw.ru> <20031013115458.GI16158@holomorphy.com> <200310131602.20479.kk@sw.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Mon, 13 Oct 2003 12:55:03 +0100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <dwmw2@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310131602.20479.kk@sw.ru>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-10-13 at 04:40 -0700, Andrew Morton wrote:
-> People think "I need to send a message to a kernel thread" and then,
-> immediately, "ah-hah!  I'll use a signal!"
+At some point in the past, I wrote:
+>> Sorry if I was unclear, I had in mind SMP performance testing of mount
+>> and unmount -heavy workloads, like uni setups with many automounted fs's,
+>> not stability testing per se.
 
-I've seen relatively little of this. Most of the problems I've been
-aware of have been kernel threads _not_ handling signals (or handling
-only SIGKILL) and going into endless loops of bouncing straight back out
-of schedule().
+On Mon, Oct 13, 2003 at 04:02:20PM +0400, Kirill Korotaev wrote:
+> Oh, sorry for misunderstanding.
+> In our internal testcase on 8-CPU 8Gb RAM machine with 4gb split kernel
+> w/o this patch mount/umount test longs in many-many (>10) times longer.
+> Moreover, during the test machine is very slow (due to lock_kernel)
+> and typing simple commands takes up to 30 seconds or so.
+> I think such a long hangs are due to number of umounts executed
+> subsequently. But ofcourse it's not numbers, just for you to know where
+> the patch comes from :)
 
-That problem is almost unrelated -- it happens because driver writes
-want to sleep in TASK_INTERRUPTIBLE state rather than
-TASK_UNINTERRUPTIBLE. The fix for that is to have a per-task 
-'uninterruptible_count' along much the same lines as preempt_count,
-where each function which is unable to handle an -EINTR return
-increments the count before calling down to another function which may
-have done that. But that's a 2.7 thing and mostly not related to this
-particular bug.
+Is this testcase available and/or trivial? Actually, even if it's trivial
+it might just save us the pain of writing the scripts ourselves.
 
-> Sounds like the GC should have been performed by a userspace process in the
-> first place?
 
-Well, it would have to actually be done in kernel space but I suppose
-there could be an ioctl or syscall or something which causes a call to
-jffs2_garbage_collect_pass() to happen in the context of the caller, and
-the variables which are used to decide when to wake up could be exposed
-to userspace via sysfs, and the userspace daemon itself could register
-with the JFFS2 code so that it gets woken when those variables change...
-or maybe I could poll() on the sysfs file which contains them I
-suppose... 
-
-Er, no :)
-
-> How does userspace identify the JFFS2 process to which to send the
-> signal?
-
-	daemonize("jffs2_gcd_mtd%d", c->mtd->index);
-
-> > I don't any the benefit in changing this practice.
-> 
-> Well I know I'm going to lose this one, but at least I get to bitch about
-> stuff.
-
-Fair enough :)
-
-Bitching accomplished; now can we fix the bug?
-
--- 
-dwmw2
-
+-- wli

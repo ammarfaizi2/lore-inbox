@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263506AbTDIPOg (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 11:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263508AbTDIPOg (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 11:14:36 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:58072 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S263506AbTDIPOf (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 11:14:35 -0400
-Subject: i2c questions in kernel 2.5.67
-From: Stian Jordet <liste@jordet.nu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049902006.1362.6.camel@chevrolet.hybel>
+	id S263490AbTDIPUx (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 11:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263508AbTDIPUx (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 11:20:53 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:27869 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S263490AbTDIPUw (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 11:20:52 -0400
+Date: Wed, 9 Apr 2003 18:30:41 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mounting partitions on loopback fs ?
+Message-ID: <20030409153040.GT159052@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Soeren Sonnenburg <kernel@nn7.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1049880018.2764.46.camel@fortknox>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 09 Apr 2003 17:26:46 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049880018.2764.46.camel@fortknox>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Apr 09, 2003 at 11:20:22AM +0200, you [Soeren Sonnenburg] wrote:
+> Hi!
+> 
+> I dd'ed a whole harddisk into a file and set it up using losetup...
+> 
+> when I fdisk /dev/loop0 I can clearly see all the partitions. However I
+> have no idea how I could mount them. Is that possible / what needs to be
+> tweaked to make that possible ?
 
-I have a Asus CUV266-DLS motherboard, with a as99127f hardware monitor
-chip. This is supposed to be supported by the W83781D sensor driver.
+See
 
-But, I'm I not supposed to get something under /sys/bus/i2c? Now it's
-only my tv-card that is listed as a device.
+http://groups.google.com/groups?safe=images&ie=ISO-8859-1&as_umsgid=20000729162632.A14849@veritas.com&lr=&hl=en
+http://groups.google.com/groups?safe=images&ie=ISO-8859-1&as_umsgid=200007291520.RAA02724@cave.bitwizard.nl&lr=&hl=en
 
-chevrolet:~# find /sys/bus/i2c/
-/sys/bus/i2c/
-/sys/bus/i2c/drivers
-/sys/bus/i2c/drivers/i2c TV tuner dri
-/sys/bus/i2c/drivers/i2c TV tuner dri/1-0060
-/sys/bus/i2c/drivers/w83781d
-/sys/bus/i2c/drivers/i2c-dev dummy dr
-/sys/bus/i2c/devices
-/sys/bus/i2c/devices/1-0060
-chevrolet:~# 
 
-Have I a somewhat incompatible motherboard? The chip on the board _is_ a
-as99127f, seen with my own eyes :) Or is there some other option I need?
 
-Thanks,
+-- v --
 
-Best regards,
-Stian
-
+v@iki.fi

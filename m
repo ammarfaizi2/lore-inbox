@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131845AbQK2ScK>; Wed, 29 Nov 2000 13:32:10 -0500
+        id <S131830AbQK2Shw>; Wed, 29 Nov 2000 13:37:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131830AbQK2ScA>; Wed, 29 Nov 2000 13:32:00 -0500
-Received: from c1075343-a.spngfld1.il.home.com ([24.14.189.192]:47621 "EHLO
-        bastion.yi.org") by vger.kernel.org with ESMTP id <S131127AbQK2Sbv>;
-        Wed, 29 Nov 2000 13:31:51 -0500
-Message-ID: <20001129130616.A4879@bastion.sprileet.net>
-Date: Wed, 29 Nov 2000 13:06:16 -0600
-From: --Damacus Porteng-- <kernel@bastion.yi.org>
-To: LinuxKernel <linux-kernel@vger.kernel.org>
-Subject: IDE-SCSI/HPT366 Problem
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
+        id <S131685AbQK2Shl>; Wed, 29 Nov 2000 13:37:41 -0500
+Received: from 213-123-77-235.btconnect.com ([213.123.77.235]:9735 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S131127AbQK2Shc>;
+        Wed, 29 Nov 2000 13:37:32 -0500
+Date: Wed, 29 Nov 2000 18:08:59 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: corruption
+In-Reply-To: <Pine.LNX.4.21.0011291753100.1306-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.21.0011291806020.1306-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LK Prodigies:
+On Wed, 29 Nov 2000, Tigran Aivazian wrote:
 
-This problem is current on the Linux-2.4.0-test11 kernel.  Please tell me if
-this has already been resolved - I am new to the list.
+> On Wed, 29 Nov 2000, Linus Torvalds wrote:
+> > That still leaves the SCSI corruption, which could not have been due to
+> > the request issue. What's the pattern there for people?
 
-Here is my setup:
-	Motherboard: Soyo 6BA+IV (built-in PIIX4 and HPT366 IDE controllers)
-	CDRWs: Yamaha 4416S (SCSI) & Yamaha 8424E (EIDE)
-	
-	Kernel: 2.4.0test11 -- I must use 2.3.X or 2.4.X since my main drives
-	are on the HPT366 channels.
-	
-	IDE: Using both HPT and PIIX chipsets.  Base system drives are on
-	HPT366 channels.  / == /dev/hde.  Works fine.
+one more thing I remember when this happened:
 
-	Software: cdrecord 1.8.1, cdrecord 1.9
+a) lots of ld processes from kernel compilation were failing with ENOSPC
+although df(1) was showing plenty of memory and I could manually "touch
+ok" in the same filesystem just fine.
 
-Problem:
-	The problem lies with using my EIDE CDRW - I set it up properly using
-	IDE-SCSI.  I can use my mp3tocdda shell script to encode mp3s to CD
-	(uses cdrecord as well) on the fly using either drive, however, when I
-	use cdrecord to write a data CD, the system hard-locks, no kernel
-	panic messages, and no Magic SysRQ keystroke works.  
+b) immediately restarting "make -j4 bzImage" would go on for quite a bit
+and then hit the same set of .c files and "run out of space" again.
 
-	Quite odd that I could do the cdrecord for audio tracks, but not
-	data..
+Regards,
+Tigran
 
-	Anyhow, I moved the CDRW to the PIIX4 channels (and changed my lilo
-	append line to make hda=scsi, instead of hdg=scsi) and now both the
-	mp3tocdda script and cdrecord for data images works fine.  
-
-	I'm thinking it's a problem with HPT366, since IDE-SCSI/PIIX4 worked
-	fine with the setup, and cdrecord has always been a working package
-	for me.
-
-	Also, the HPT366 setup screen (VERY simple) shows the CDRW using MW
-	DMA 2 and is unchangable thru the HPT366 BIOS.  Is there something
-	I should be doing with hdparm on the CD device?
-
-
-Thanks in advance,
-
-Damacus Porteng
-
---
-Damnit, Linus, I'm a network admin, not a kernel hacker!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,257 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267342AbUHDQNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUHDQNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267342AbUHDQNO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 12:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267341AbUHDQMv
+	id S267341AbUHDQNR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 12:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267331AbUHDQNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 12:12:51 -0400
-Received: from pegasus.allegientsystems.com ([208.251.178.236]:33289 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S267335AbUHDQKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 12:10:34 -0400
-Message-ID: <41110A79.40504@optonline.net>
-Date: Wed, 04 Aug 2004 12:10:33 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
+	Wed, 4 Aug 2004 12:13:15 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:49673 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S267343AbUHDQHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 12:07:46 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-CC: ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Shaohua Li <shaohua.li@intel.com>,
-       =?ISO-8859-1?Q?Stefan_D=F6singer?= <stefandoesinger@gmx.at>
-Subject: Re: [ACPI] Re: [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
-References: <41103F22.4090303@optonline.net> <1091588367.2297.49.camel@dhcppc4> <41110785.4040000@optonline.net>
-In-Reply-To: <41110785.4040000@optonline.net>
 Content-Type: multipart/mixed;
- boundary="------------060309030708080201090808"
+	boundary="----_=_NextPart_001_01C47A3D.1DC4DDCA"
+Subject: RE: [PATCH] ppc32: fix mktree utility in 64-bit cross-compileenvironment
+Date: Wed, 4 Aug 2004 11:07:17 -0500
+Message-ID: <8C91B010B3B7994C88A266E1A72184D306E13AFA@cceexc19.americas.cpqcorp.net>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] ppc32: fix mktree utility in 64-bit cross-compileenvironment
+Thread-Index: AcR6OqGzsnNjPAaBRimF1y0xRoMFbQAAjreA
+From: "Zink, Dan" <dan.zink@hp.com>
+To: "Hollis Blanchard" <hollisb@us.ibm.com>
+Cc: <akpm@osdl.org>, <linuxppc-dev@lists.linuxppc.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Aug 2004 16:07:39.0297 (UTC) FILETIME=[2A35A910:01C47A3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060309030708080201090808
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Nathan Bryant wrote:
-> 
-> Len-
-> 
-> Attached is a respin based on your comments.
-
-One more respin, this just cleans whitespace.
-
---------------060309030708080201090808
+------_=_NextPart_001_01C47A3D.1DC4DDCA
 Content-Type: text/plain;
- name="acpi-fixes.patch2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="acpi-fixes.patch2"
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/04 12:05:55-04:00 nbryant@optonline.net 
-#   [ACPI] drivers/acpi/pci_link.c: consistify whitespace
-# 
-# drivers/acpi/pci_link.c
-#   2004/08/04 12:05:47-04:00 nbryant@optonline.net +4 -4
-#   [ACPI] drivers/acpi/pci_link.c: consistify whitespace
-# 
-# ChangeSet
-#   2004/08/04 11:32:42-04:00 nbryant@optonline.net 
-#   [ACPI] drivers/acpi/pci_link.c: misc cleanups per suggestions
-# 
-# drivers/acpi/pci_link.c
-#   2004/08/04 11:32:33-04:00 nbryant@optonline.net +6 -8
-#   [ACPI] drivers/acpi/pci_link.c: misc cleanups per suggestions
-# 
-# ChangeSet
-#   2004/08/04 10:53:42-04:00 nbryant@optonline.net 
-#   Merge optonline.net:/home/nathan/linux-acpi-test-2.6.8
-#   into optonline.net:/home/nathan/acpi-fixes
-# 
-# BitKeeper/etc/ignore
-#   2004/08/04 10:53:30-04:00 nbryant@optonline.net +1 -2
-#   auto-union
-# 
-# ChangeSet
-#   2004/08/03 19:37:56-04:00 nbryant@optonline.net 
-#   drivers/acpi/pci_link.c: use device_initcall(irqrouter_init_sysfs);
-# 
-# drivers/acpi/pci_link.c
-#   2004/08/03 19:37:47-04:00 nbryant@optonline.net +13 -3
-#   use device_initcall(irqrouter_init_sysfs);
-# 
-# ChangeSet
-#   2004/08/03 18:09:20-04:00 nbryant@optonline.net 
-#   fix ACPI_FUNCTION_TRACE("irqrouter_resume");
-# 
-# drivers/acpi/pci_link.c
-#   2004/08/03 18:09:12-04:00 nbryant@optonline.net +1 -1
-#   fix ACPI_FUNCTION_TRACE("irqrouter_resume");
-# 
-# ChangeSet
-#   2004/08/03 18:03:39-04:00 nbryant@optonline.net 
-#   drivers/acpi/pci_link.c: register us as a sys_device so that we can get
-#   resume callbacks and restore interrupt state. Fixes interrupt problems
-#   reported on the mailing lists:
-#   
-#   http://marc.theaimsgroup.com/?l=acpi4linux&m=109142999328643&w=2
-# 
-# drivers/acpi/pci_link.c
-#   2004/08/03 18:03:31-04:00 nbryant@optonline.net +51 -14
-#   drivers/acpi/pci_link.c: register us as a sys_device so that we can get
-#   resume callbacks and restore interrupt state. Fixes interrupt problems
-#   reported on the mailing lists:
-#   
-#   http://marc.theaimsgroup.com/?l=acpi4linux&m=109142999328643&w=2
-# 
-# ChangeSet
-#   2004/08/02 20:41:54-04:00 nbryant@optonline.net 
-#   [ACPI] drivers/acpi/pci_link.c: add acpi_pci_link_resume(), which will be
-#   called when resuming from a suspend state that needs IRQ routing to be
-#   restored. This fixes issues reported on the mailing lists, e.g.:
-#   
-#   http://marc.theaimsgroup.com/?l=acpi4linux&m=109142999328643&w=2
-# 
-# drivers/acpi/pci_link.c
-#   2004/08/02 20:41:45-04:00 nbryant@optonline.net +23 -0
-#   [ACPI] drivers/acpi/pci_link.c: add acpi_pci_link_resume(), which will be
-#   called when resuming from a suspend state that needs IRQ routing to be
-#   restored. This fixes issues reported on the mailing lists, e.g.:
-#   
-#   http://marc.theaimsgroup.com/?l=acpi4linux&m=109142999328643&w=2
-# 
-# BitKeeper/etc/ignore
-#   2004/08/02 20:41:45-04:00 nbryant@optonline.net +2 -0
-#   Added Module.symvers drivers/acpi/pci_link.c~ to the ignore list
-# 
-diff -Nru a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
---- a/drivers/acpi/pci_link.c	2004-08-04 12:06:33 -04:00
-+++ b/drivers/acpi/pci_link.c	2004-08-04 12:06:33 -04:00
-@@ -29,6 +29,7 @@
-  *	   for IRQ management (e.g. start()->_SRS).
-  */
- 
-+#include <linux/sysdev.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -71,7 +72,7 @@
- 	u8			active;			/* Current IRQ */
- 	u8			edge_level;		/* All IRQs */
- 	u8			active_high_low;	/* All IRQs */
--	u8			setonboot;
-+	u8			initialized;
- 	u8			resource_type;
- 	u8			possible_count;
- 	u8			possible[ACPI_PCI_LINK_MAX_POSSIBLE];
-@@ -517,7 +518,7 @@
- 
- 	ACPI_FUNCTION_TRACE("acpi_pci_link_allocate");
- 
--	if (link->irq.setonboot)
-+	if (link->irq.initialized)
- 		return_VALUE(0);
- 
- 	/*
-@@ -571,7 +572,7 @@
- 			acpi_device_bid(link->device), link->irq.active);
- 	}
- 
--	link->irq.setonboot = 1;
-+	link->irq.initialized = 1;
- 
- 	return_VALUE(0);
- }
-@@ -695,6 +696,42 @@
- 
- 
- static int
-+acpi_pci_link_resume (
-+	struct acpi_pci_link	*link)
-+{
-+	ACPI_FUNCTION_TRACE("acpi_pci_link_resume");
-+	
-+	if (link->irq.active && link->irq.initialized)
-+		return_VALUE(acpi_pci_link_set(link, link->irq.active));
-+	else
-+		return_VALUE(0);
-+}
-+
-+
-+static int
-+irqrouter_resume(
-+	struct sys_device *dev)
-+{
-+	struct list_head        *node = NULL;
-+	struct acpi_pci_link    *link = NULL;
-+
-+	ACPI_FUNCTION_TRACE("irqrouter_resume");
-+
-+	list_for_each(node, &acpi_link.entries) {
-+
-+		link = list_entry(node, struct acpi_pci_link, node);
-+		if (!link) {
-+			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link context\n"));
-+			continue;
-+		}
-+
-+		acpi_pci_link_resume(link);
-+	}
-+	return_VALUE(0);
-+}
-+
-+
-+static int
- acpi_pci_link_remove (
- 	struct acpi_device	*device,
- 	int			type)
-@@ -786,11 +823,42 @@
- __setup("acpi_irq_balance", acpi_irq_balance_set);
- 
- 
-+static struct sysdev_class irqrouter_sysdev_class = {
-+        set_kset_name("irqrouter"),
-+        .resume = irqrouter_resume,
-+};
-+
-+
-+static struct sys_device device_irqrouter = {
-+	.id     = 0,
-+	.cls    = &irqrouter_sysdev_class,
-+};
-+
-+
-+static int __init irqrouter_init_sysfs(void)
-+{
-+	int error;
-+
-+	ACPI_FUNCTION_TRACE("irqrouter_init_sysfs");
-+
-+	if (acpi_disabled || acpi_noirq)
-+		return_VALUE(0);
-+
-+	error = sysdev_class_register(&irqrouter_sysdev_class);
-+	if (!error)
-+		error = sysdev_register(&device_irqrouter);
-+
-+	return_VALUE(error);
-+}                                        
-+
-+device_initcall(irqrouter_init_sysfs);
-+
-+
- static int __init acpi_pci_link_init (void)
- {
- 	ACPI_FUNCTION_TRACE("acpi_pci_link_init");
- 
--	if (acpi_pci_disabled)
-+	if (acpi_noirq)
- 		return_VALUE(0);
- 
- 	acpi_link.count = 0;
+> On Tue, 2004-08-03 at 17:01, Zink, Dan wrote:
+> > --- arch/ppc/boot/utils/mktree.c.old	2004-08-03=20
+> 16:31:09.568992888
+> > -0500
+> > +++ arch/ppc/boot/utils/mktree.c	2004-08-03 16:32:26.773256056
+> > -0500
+> > @@ -15,19 +15,20 @@
+> >  #include <sys/stat.h>
+> >  #include <unistd.h>
+> >  #include <netinet/in.h>
+> > +#include <asm/types.h>
+>=20
+> You'll notice we don't include any other <asm/*> headers;=20
+> this tool can be built standalone.
+>=20
+> Is there a reason not to use <stdint.h> and uint32_t?
+>=20
 
---------------060309030708080201090808--
+No reason.  If that's the way you prefer, here is a new patch.
 
+Dan
+
+------_=_NextPart_001_01C47A3D.1DC4DDCA
+Content-Type: application/octet-stream;
+	name="ppcfix.patch"
+Content-Transfer-Encoding: base64
+Content-Description: ppcfix.patch
+Content-Disposition: attachment;
+	filename="ppcfix.patch"
+
+LS0tIGFyY2gvcHBjL2Jvb3QvdXRpbHMvbWt0cmVlLmMub2xkCTIwMDQtMDgtMDMgMTY6MzE6MDku
+NTY4OTkyODg4IC0wNTAwCisrKyBhcmNoL3BwYy9ib290L3V0aWxzL21rdHJlZS5jCTIwMDQtMDgt
+MDQgMTE6MDY6MzkuNzk5MDUxMzI4IC0wNTAwCkBAIC0xNSwxOSArMTUsMjAgQEAKICNpbmNsdWRl
+IDxzeXMvc3RhdC5oPgogI2luY2x1ZGUgPHVuaXN0ZC5oPgogI2luY2x1ZGUgPG5ldGluZXQvaW4u
+aD4KKyNpbmNsdWRlIDxzdGRpbnQuaD4KIAogLyogVGhpcyBnZXRzIHRhY2tlZCBvbiB0aGUgZnJv
+bnQgb2YgdGhlIGltYWdlLiAgVGhlcmUgYXJlIGFsc28gYSBmZXcKICAqIGJ5dGVzIGFsbG9jYXRl
+ZCBhZnRlciB0aGUgX3N0YXJ0IGxhYmVsIHVzZWQgYnkgdGhlIGJvb3Qgcm9tIChzZWUKICAqIGhl
+YWQuUyBmb3IgZGV0YWlscykuCiAgKi8KIHR5cGVkZWYgc3RydWN0IGJvb3RfYmxvY2sgewotCXVu
+c2lnbmVkIGxvbmcgYmJfbWFnaWM7CQkvKiAweDAwNTI1MDRGICovCi0JdW5zaWduZWQgbG9uZyBi
+Yl9kZXN0OwkJLyogVGFyZ2V0IGFkZHJlc3Mgb2YgdGhlIGltYWdlICovCi0JdW5zaWduZWQgbG9u
+ZyBiYl9udW1fNTEyYmxvY2tzOwkvKiBTaXplLCByb3VuZGVkLXVwLCBpbiA1MTIgYnl0ZSBibGtz
+ICovCi0JdW5zaWduZWQgbG9uZyBiYl9kZWJ1Z19mbGFnOwkvKiBSdW4gZGVidWdnZXIgb3IgaW1h
+Z2UgYWZ0ZXIgbG9hZCAqLwotCXVuc2lnbmVkIGxvbmcgYmJfZW50cnlfcG9pbnQ7CS8qIFRoZSBp
+bWFnZSBhZGRyZXNzIHRvIHN0YXJ0ICovCi0JdW5zaWduZWQgbG9uZyBiYl9jaGVja3N1bTsJLyog
+MzIgYml0IGNoZWNrc3VtIGluY2x1ZGluZyBoZWFkZXIgKi8KLQl1bnNpZ25lZCBsb25nIHJlc2Vy
+dmVkWzJdOworCXVpbnQzMl90IGJiX21hZ2ljOwkJLyogMHgwMDUyNTA0RiAqLworCXVpbnQzMl90
+IGJiX2Rlc3Q7CQkvKiBUYXJnZXQgYWRkcmVzcyBvZiB0aGUgaW1hZ2UgKi8KKwl1aW50MzJfdCBi
+Yl9udW1fNTEyYmxvY2tzOwkvKiBTaXplLCByb3VuZGVkLXVwLCBpbiA1MTIgYnl0ZSBibGtzICov
+CisJdWludDMyX3QgYmJfZGVidWdfZmxhZzsJLyogUnVuIGRlYnVnZ2VyIG9yIGltYWdlIGFmdGVy
+IGxvYWQgKi8KKwl1aW50MzJfdCBiYl9lbnRyeV9wb2ludDsJLyogVGhlIGltYWdlIGFkZHJlc3Mg
+dG8gc3RhcnQgKi8KKwl1aW50MzJfdCBiYl9jaGVja3N1bTsJLyogMzIgYml0IGNoZWNrc3VtIGlu
+Y2x1ZGluZyBoZWFkZXIgKi8KKwl1aW50MzJfdCByZXNlcnZlZFsyXTsKIH0gYm9vdF9ibG9ja190
+OwogCiAjZGVmaW5lIElNR0JMSwk1MTIK
+
+------_=_NextPart_001_01C47A3D.1DC4DDCA--

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313309AbSDJQmG>; Wed, 10 Apr 2002 12:42:06 -0400
+	id <S313314AbSDJQmh>; Wed, 10 Apr 2002 12:42:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313314AbSDJQmF>; Wed, 10 Apr 2002 12:42:05 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:13746 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S313309AbSDJQmF>; Wed, 10 Apr 2002 12:42:05 -0400
-Date: Wed, 10 Apr 2002 09:40:22 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: 2.5.8-pre3: kernel BUG at usb.c:849!
- (preempt_count 1)
-To: Johannes Erdfelt <johannes@erdfelt.com>,
-        Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: Kernel List <linux-kernel@vger.kernel.org>, rml@tech9.net,
-        linux-usb-devel@lists.sourceforge.net
-Message-id: <06da01c1e0ae$69106ce0$6800000a@brownell.org>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-In-Reply-To: <E16vHsQ-0000Jy-00@baldrick> <20020410114144.N8314@sventech.com>
+	id <S313315AbSDJQmh>; Wed, 10 Apr 2002 12:42:37 -0400
+Received: from c2ce9fba.adsl.oleane.fr ([194.206.159.186]:11678 "EHLO
+	avalon.france.sdesigns.com") by vger.kernel.org with ESMTP
+	id <S313314AbSDJQmf>; Wed, 10 Apr 2002 12:42:35 -0400
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+Cc: Emmanuel Michon <emmanuel_michon@realmagic.fr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: module programming smp-safety howto?
+In-Reply-To: <Pine.SOL.3.96.1020410142815.250A-100000@draco.cus.cam.ac.uk>
+From: Emmanuel Michon <emmanuel_michon@realmagic.fr>
+Date: 10 Apr 2002 18:42:31 +0200
+Message-ID: <7whemjbj48.fsf@avalon.france.sdesigns.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > UP x86 K6 system running 2.5.8-pre3 with preemption.
-> > Using usb-uhci.  I got the following bug when powering off:
-> >
-> > usb.c: USB disconnect on device 3
-> > ...
+Anton Altaparmakov <aia21@cus.cam.ac.uk> writes:
 
-Does the same BUG happen with "uhci"?
+> http://www.moses.uklinux.net/patches/lki.html
 
-And what usb device driver(s) were supposed to have stopped
-using "device 3"?  I've only noticed such device refcounting bugs
-being caused by the USB device drivers with bad disconnect()
-routines, not usbcore or any of the host controller drivers, but of
-course that can change.
+thanks!
 
-- Dave
+> Also, are we going to see the driver published under GPL (I sure hope
+> so!) or is it going to be binary only as per usual Sigma Designs policy?
 
+The core library (supporting the PCI chip and all devices attached
+thru its i2c) is binary only.
 
+The connection between the usual linux module api and this library
+comes as source code for but is not GPL (NVIDIA driver like).
 
+Unfortunately I personnally do not decide of this: many engineers work
+at Sigma, with various backgrounds.
+
+[This mail is a bit off topic, sorry. Any following discussion will
+be completely for sure]
+
+Sincerely yours,
+
+-- 
+Emmanuel Michon
+Chef de projet
+REALmagic France SAS
+Mobile: 0614372733 GPGkeyID: D2997E42  

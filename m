@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265326AbSJaVzj>; Thu, 31 Oct 2002 16:55:39 -0500
+	id <S265376AbSJaV6f>; Thu, 31 Oct 2002 16:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265363AbSJaVzj>; Thu, 31 Oct 2002 16:55:39 -0500
-Received: from fep03-svc.mail.telepac.pt ([194.65.5.202]:37886 "EHLO
-	fep03-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id <S265326AbSJaVzf>; Thu, 31 Oct 2002 16:55:35 -0500
-Date: Thu, 31 Oct 2002 14:22:14 +0000
-From: Nuno Monteiro <nuno@itsari.org>
-To: lmtavora@saturno.fis.uc.pt
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext3 journalling file system
-Message-ID: <20021031142214.GA747@hobbes.itsari.int>
-References: <200210311309.NAA03653@saturno.fis.uc.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200210311309.NAA03653@saturno.fis.uc.pt>; from lmtavora@saturno.fis.uc.pt on Thu, Oct 31, 2002 at 13:09:13 +0000
-X-Mailer: Balsa 1.4.1
+	id <S265379AbSJaV6e>; Thu, 31 Oct 2002 16:58:34 -0500
+Received: from ns1.cypress.com ([157.95.67.4]:60657 "EHLO ns1.cypress.com")
+	by vger.kernel.org with ESMTP id <S265376AbSJaV6N>;
+	Thu, 31 Oct 2002 16:58:13 -0500
+Message-ID: <3DC1A804.1030204@cypress.com>
+Date: Thu, 31 Oct 2002 16:00:36 -0600
+From: Thomas Dodd <ted@cypress.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+References: <Pine.LNX.3.96.1021020184545.1160A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31.10.02 13:09 Luis Miguel Tavora wrote:
+
+
+Bill Davidsen wrote:
+> On Sat, 19 Oct 2002, Andre Hedrick wrote:
 > 
-> [1.] Ext3 jornalling file system
 > 
-> [2.] The system pt-get to update RH 7.3, on a
-> Compaq M700 Laptop the system is turned into a
-> highly critical stage: impossible to lauch
-> applications, no disk access and the machine doesn't
-> reboot with the shutdown command (but the CPU &
-> clock  keep working ok, I think...)
+>>So could you ask the question a little more blunt?
+>>
+>>"Gee, I am trying to break a US Law on content protection, would you be my
+>>enabler?  Don't worry, it only effects the US, and we are in a public
+>>forum.  Also, do you prefer gray or black in your future pin stripped
+>>suit?"
+> 
+> 
+> Unless the rules have changed VERY recently, making a copy of legally
+> owned music for personal use, such as in the car, MP3 player, etc, is
+> called "fair use" and is totally legal.
 
-Hi Luis,
+Actually the rules did change. read the DMCA. It's illegal to
+break the security, regardless of the reason. So you have fair
+use rights, but cannot take atvantage of them.
 
-Please pipe the oops messages through ksymoops (check 
-linux/Documentation/oops-tracing.txt on how to do so), as they're really 
-not useful as is. Also, you may want to check 2.4.20-rc1, quite a few ext3 
-fixes went in during the .20-pre series. I seem to remember some bugs in 
-transaction.c:226 during 2.4.18/.19-pre...
+Same as the DVD and Ebook cases. Breaking the protection is
+illegal. Eventually this will hit the courts, but it will take
+several tries to win on fair use grounds.
 
-Also, it would help a great deal if you could reproduce the crash without 
-any proprietary modules ever being loaded -- your kernel was marked as 
-"tainted", although all modules from the list you provide below should be 
-ok (GPL or Dual BSD/GPL). Did you have any nVidia binary only drivers 
-loaded at the the time of the crash?
+	-Thomas
 
-Cheers,
 
-		Nuno

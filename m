@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbTEYSAC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 14:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbTEYSAC
+	id S261651AbTEYR7g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 13:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbTEYR7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 14:00:02 -0400
-Received: from h80ad2667.async.vt.edu ([128.173.38.103]:56974 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261710AbTEYSAA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 14:00:00 -0400
-Message-Id: <200305251813.h4PID2oH021773@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE 
-In-Reply-To: Your message of "Sun, 25 May 2003 10:51:02 CDT."
-             <20030525155102.GN23715@waste.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030525000701.GG504@phunnypharm.org> <Pine.LNX.4.44.0305242045050.1666-100000@home.transmeta.com>
-            <20030525155102.GN23715@waste.org>
+	Sun, 25 May 2003 13:59:36 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:50153 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S261651AbTEYR7f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 13:59:35 -0400
+Date: Sun, 25 May 2003 19:31:20 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] fix do_fork() return value
+Message-ID: <20030525173119.GA26077@elf.ucw.cz>
+References: <20030520024801.535E02C002@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1416243708P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 25 May 2003 14:13:02 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030520024801.535E02C002@lists.samba.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1416243708P
-Content-Type: text/plain; charset=us-ascii
+Hi!
 
-On Sun, 25 May 2003 10:51:02 CDT, Matt Mackall said:
+> # Noticed by Julie DeWandel <jdewand@redhat.com>.
+> # 
+> # do_fork() needs to return the pid (or error), not the pointer to the
+> # resulting process structure.  The process structure may not even be
+> # valid any more, since do_fork() has already woken the process up (and as
+> # a result it might already have done its thing and gone away).
+> # 
+> # Besides, doing it this way cleans up the users, which all really just
+> # wanted the pid or error number _anyway_.
+> 
+> Just FYI: the change was done in the first place to allow spawning a
+> new init thread as CPUs come up.  But now we have copy_process it can
+> be done neatly (it should also be done out of keventd so we get a
+> clean thread, but that's another story).
+> 
+> Note that this version also has a (theoretical) race, except hidden
+> by the time to wrap PIDs ie. "never happens".
 
-> The return value here isn't particularly useful. The OpenBSD
-> strlcpy/strlcat variant tell you how big the result should have been
-> so that you can realloc if need be.
-
-A quick grep of the current source tree seems to indicate that there aren't
-any uses of 'strncpy' that actually save or check the return value.
-
-As such, actually *using*  the return value would make for a job for the
-kernel janitors, to actually do something useful at all 650 or so uses.
-
-Given that the kernel probably *shouldn't* be trying to strlcpy() into
-a destination that it won't fit, it may be more useful to do a BUG_ON()
-or similar (feel free to use a 'goto too_long;' if you prefer ;)
-
-
---==_Exmh_-1416243708P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+0QetcC3lWbTT17ARAs/fAKDs+fSKAMAZaoNuciSMmg+N276WjgCdHLgA
-43iny6oXZ8hVpg+BBbJ9oUQ=
-=+4au
------END PGP SIGNATURE-----
-
---==_Exmh_-1416243708P--
+We have more such wrappers. IIRC, it is possible to go into
+/proc/PID/something, and just stay there, kill the process, and wait
+for PIDs to wrap around, fun stuff happens...
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

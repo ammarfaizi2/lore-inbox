@@ -1,25 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268614AbRHPBWG>; Wed, 15 Aug 2001 21:22:06 -0400
+	id <S268617AbRHPBj5>; Wed, 15 Aug 2001 21:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268617AbRHPBVz>; Wed, 15 Aug 2001 21:21:55 -0400
-Received: from [213.97.137.182] ([213.97.137.182]:9234 "HELO
-	iceberg.activanet.net") by vger.kernel.org with SMTP
-	id <S268614AbRHPBVr>; Wed, 15 Aug 2001 21:21:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Eduardo =?iso-8859-1?q?Cort=E9s=20?= <the_beast@softhome.net>
-To: linux-kernel@vger.kernel.org
-Subject: limit cpu
-Date: Thu, 16 Aug 2001 03:21:58 +0200
-X-Mailer: KMail [version 1.3.1]
+	id <S268660AbRHPBjs>; Wed, 15 Aug 2001 21:39:48 -0400
+Received: from ns.suse.de ([213.95.15.193]:64524 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S268617AbRHPBjb>;
+	Wed, 15 Aug 2001 21:39:31 -0400
+To: Manfred Bartz <mbartz@optushome.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: connect() does not return ETIMEDOUT
+In-Reply-To: <Pine.LNX.4.21.0108151123510.4809-100000@w-sridhar2.des.sequent.com.suse.lists.linux.kernel> <20010816005902.16224.qmail@optushome.com.au.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 16 Aug 2001 03:39:42 +0200
+In-Reply-To: Manfred Bartz's message of "16 Aug 2001 03:09:27 +0200"
+Message-ID: <oupvgjog4v5.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010816012150Z268614-760+2237@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-i want to know if linux can limit the max cpu usage (not cpu time) per user, 
-like freebsd login classes. I see /etc/security/limits.conf and ulimit from 
-bash, but they limit the max cpu time, not de max cpu usage (%cpu). 
-Thanks.
+Manfred Bartz <mbartz@optushome.com.au> writes:
+> 
+> But in reality and going by the tcpdump, an unlimited number of
+> connections is accepted because the server side completes the 3-way
+> handshake regardless.  The connections are then lost later (with a
+> different error message).  This does not look right to me.
+
+The default is upto 128 queued syns before stopping acks, or an unlimited 
+number when syncookies are turned on. You can change both with the 
+tcp_max_syn_backlog or tcp_syncookies sysctls. 
+
+-Andi
+

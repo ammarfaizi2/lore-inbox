@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbTJ2T3d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 14:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbTJ2T3d
+	id S261486AbTJ2Tgu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 14:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTJ2Tgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 14:29:33 -0500
-Received: from mail.kroah.org ([65.200.24.183]:22968 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261380AbTJ2T3c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 14:29:32 -0500
-Date: Wed, 29 Oct 2003 11:18:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
-Message-ID: <20031029191858.GA4298@kroah.com>
-References: <3F9D82F0.4000307@mvista.com> <20031027210054.GR24286@marowsky-bree.de> <3F9D8AAA.7010308@mvista.com> <20031028110034.GG30725@marowsky-bree.de> <1067364727.4612.359.camel@persist.az.mvista.com> <20031028224416.GA8671@kroah.com> <pan.2003.10.29.14.30.29.628488@dungeon.inka.de>
+	Wed, 29 Oct 2003 14:36:50 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:3594
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S261486AbTJ2Tgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 14:36:48 -0500
+Date: Wed, 29 Oct 2003 11:36:46 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: ext3-users@redhat.com
+Subject: Possible to recover this Raid 5 Array?
+Message-ID: <20031029193646.GA18778@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, ext3-users@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <pan.2003.10.29.14.30.29.628488@dungeon.inka.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 29, 2003 at 03:30:30PM +0100, Andreas Jellinghaus wrote:
-> ---cut---
+Hi,
 
-Sweet shell script, nice job.
+I have a 3x160GB linux md raid5 array with ext3 that is having some problems
+(to put it lightly).
 
-> So udev is 99% overhead?
+One drive failed, and I set out yesterday to replace it with a new drive.
 
-To you, sure, it might be.  Don't use it then, I'm not forcing anyone.
+The drive that failed (started getting bad blocks (about 100
+of them so far according to smartctl -a) was also the boot drive (even
+though /boot was on a raid1)), so I booted into knoppix to rerun lilo on the
+drive to make it bootable.
 
-> > 	SDE:	57328 lines
-> > 	udev:	 9090 lines
->  shell script:     41 lines
+I re-assembled the array with mdadm, and set out to chroot into the array to
+run lilo, but started getting some filesystem errors.
 
-Hm, how about the size of bash?
+Ran fsck on the filesystem, and it found some errors (a lot!), so thought it
+might be good to log the output, so I canceled the fsck (maybe not a good
+idea), mounted a nfs volume (knoppix has some troubles with rpciod, but if
+you kill it, you get a working nfs mount -- strange but works -- haven't
+reported it to knoppix yet though), and ran fsck -yf /dev/md0 > nfs mount
+2>&1. (the last run out of about 4 is attached & compressed)
 
-> > that udev is suffering from "lack of maintainability and bloat" if you
-> > really want :)
-> 
-> bloat. lots of bloat. what is that tdb database for?
-> filesystems are persistent. if you want to save space,
-> create a tar file :-) 
+While that was happening, I started thinking about the array, and checked
+the disk that I replaced (mdadm -E), and found out that I replaced the wrong
+drive!  I immediately canceled the fsck that was running.
 
-Sweet, and then run everything on a in-ram compress filesystem just to
-save that precious disk space.
+The fsck was running on a degraded raid5 array with one drive that has
+current data, and one drive that was failed out of the array over two weeks
+ago!
 
-> > p.s. yes, I know lines of code is a horrible metric, and doesn't really
-> > mean squat.  I just want to point out the huge size difference between
-> > the current state of udev and SDE, with pretty much identical
-> > functionality from what I can tell.
-> 
-> I agree. lines of codes is a horrible metric, and comparing a shell
-> script that uses many external commands to a c application with
-> everything build is makes absolutely no sense. but I wonder why
-> the off the shelf machine needs a c applications, if all those
-> external commands are installed anyway.
+Now I have the two good drives put together in a degraded array, and luckily
+I'm able to mount the beast, and am able to read a surprising amount of data
+(it takes a long time to fully fsck 300GB, so it wasn't able to get to the
+entire filesystem with the old disk in the array before I canceled it)
 
-Remember, userspace is just a load test for the kernel, who really needs
-applications anyway.
+The array was about 10% full when this happened.
 
-</sarcasm>
+I'm checking what I can recover, but my home directory was on there, and I
+only had partial backups.  I have restored what was in the backups, but a
+lot of files I hoped were backed up weren't.
 
-greg k-h
+Is there some miracle that can be performed on with this?

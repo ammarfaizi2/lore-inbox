@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130523AbRCIOiw>; Fri, 9 Mar 2001 09:38:52 -0500
+	id <S130522AbRCIOfC>; Fri, 9 Mar 2001 09:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130532AbRCIOim>; Fri, 9 Mar 2001 09:38:42 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:19718 "HELO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S130523AbRCIOid>; Fri, 9 Mar 2001 09:38:33 -0500
-Message-ID: <879158D1D558D4118DBD0008C7CF32A9015834A7@tayexc07.tay.cpqcorp.net>
-From: "Hicks, Jamey" <Jamey.Hicks@compaq.com>
-To: "'linux-usb-devel@lists.sourceforge.net'" 
-	<linux-usb-devel@lists.sourceforge.net>,
-        David Brownell <david-b@pacbell.net>
-Cc: Manfred Spraul <manfred@colorfullife.com>, zaitcev@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: RE: [linux-usb-devel] Re: SLAB vs. pci_alloc_xxx in usb-uhci patc
-	h
-Date: Fri, 9 Mar 2001 09:27:53 -0500 
+	id <S130523AbRCIOex>; Fri, 9 Mar 2001 09:34:53 -0500
+Received: from www.wen-online.de ([212.223.88.39]:51974 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130522AbRCIOek>;
+	Fri, 9 Mar 2001 09:34:40 -0500
+Date: Fri, 9 Mar 2001 15:33:46 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Alexander Viro <viro@math.psu.edu>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ramdisk (and other) problems with 2.4.2
+In-Reply-To: <Pine.LNX.3.95.1010307121716.1838A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0103091449580.6037-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2652.78)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Mar 2001, Richard B. Johnson wrote:
 
-Are there any large-memory machines that need pci_alloc_consistent() in the
-USB controller driver?  If not, then let's just set up an uncached mapping
-of all of DRAM and use a modified version of virt_to_bus and bus_to_virt.
-It gets around all the issues of having a better allocator of uncached
-memory.  Even with a slab allocator for uncached memory, modified versions
-of virt_to_bus and bus_to_virt would have to be used.
+> On Wed, 7 Mar 2001, Mike Galbraith wrote:
+>
+> > On Wed, 7 Mar 2001, Richard B. Johnson wrote:
+> >
+> > > After attempting to run 2.4.2, and killing all my hard disks, I
+> > > have finally gotten 2.4.1 back up. There is a continual problem
+> > > that even exists on 2.4.1, that will show if you execute this.
+> > > However, unmount your hard disks before you execute this simple
+> > > harmless script.
+> > >
+> > >
+> > > dd if=/dev/zero of=/dev/ram0 bs=1k count=1440
+> > > /sbin/mke2fs -Fq /dev/ram0 1440
+> > > mount -t ext2 /dev/ram0 /mnt
+> > > dd if=/dev/zero of=/mnt/foo bs=1k count=1000
+> > > ls -la /mnt
+> > > umount /mnt
+> > >
+> > > The first time you execute it, fine. It runs. The second time, you
+> > > get:
+> > >
+> > > Mar  7 10:29:00 chaos last message repeated 11 times
+> > > Mar  7 10:29:00 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 631
+> > > Mar  7 10:30:32 chaos kernel: EXT2-fs error (device ramdisk(1,0)): ext2_free_blocks: bit already cleared for block 41
+> >
+> > Hmmm.. no problem here.
 
-The other choice is cache invalidation and flushing around all the code that
-touches ED's and TD's.  This might not be too bad if it is encapsulated in
-_read and _write macros.  How performance critical is the ED and TD code?
+I think I've figured it out.. at least I've found a way to reproduce
+the exact errors to the last detail and some pretty nasty corruption
+to go with it.  The operator must help though.. a lot ;-)
 
-The latest ARM -NP patches work on SA1110 with the SA1111 controller (which
-is OHCI-like).  With minimal tweaks they work on SA110/Footbridge with an
-OHCI controller.  We will be submitting these patches as tweaks.  It's not
-beautiful, but it doesn't change the mainstream (x86) code significantly.
+If you do mount -o remount /dev/somedisk / thinking that that will get
+rid of your /dev/ram0 root, that isn't the case, and you will corrupt
+the device you remounted (I did it to a scratch monkey) very badly when
+you write to the still mounted ramdisk.
 
-Jamey
+You must exec a shell (or something) chrooted to your mounted harddisk
+to un-busy the old root and then pivot_root/unmount that old root.  I
+tested this, and all is well.
+
+I think this is a consequence of the multiple mount changes.. not sure.
+(ergo cc to Al Viro.. he knows eeeeverything about mount points)
+
+	-Mike
+

@@ -1,193 +1,327 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317648AbSHUCIH>; Tue, 20 Aug 2002 22:08:07 -0400
+	id <S317661AbSHUCLp>; Tue, 20 Aug 2002 22:11:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317661AbSHUCIG>; Tue, 20 Aug 2002 22:08:06 -0400
-Received: from h24-71-173-70.ss.shawcable.net ([24.71.173.70]:9858 "EHLO
-	valhalla.homelinux.org") by vger.kernel.org with ESMTP
-	id <S317648AbSHUCIE>; Tue, 20 Aug 2002 22:08:04 -0400
-Date: Tue, 20 Aug 2002 20:11:53 -0600 (CST)
-From: "Jason C. Pion" <jpion@valhalla.homelinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre2-ac5 Promise PDC20269
-Message-ID: <Pine.LNX.4.44.0208201845060.10173-100000@valhalla.homelinux.org>
+	id <S317693AbSHUCLp>; Tue, 20 Aug 2002 22:11:45 -0400
+Received: from hdfdns01.hd.intel.com ([192.52.58.10]:34284 "EHLO
+	mail1.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S317661AbSHUCLl>; Tue, 20 Aug 2002 22:11:41 -0400
+Message-ID: <F2DBA543B89AD51184B600508B68D40004BA468B@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "'alan@redhat.com'" <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] threads in /proc/cpuinfo and cpu_num_threads (fka smp_num
+	_siblings)
+Date: Tue, 20 Aug 2002 19:15:38 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C248B8.A4334140"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-I've run across a bit of a strange occurrence since the "new" IDE code was 
-put into the ac patches in 2.4.20-pre2-acX.  I have 2 udma133 drives 
-attached to my Ultra133TX2 (PDC20269) controller.  Both drives are 
-connected using 80-wire cables.  I've never had any issues with this setup 
-until now.
+------_=_NextPart_000_01C248B8.A4334140
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-AMD7411: IDE controller on PCI bus 00 dev 39
-AMD7411: chipset revision 1
-AMD7411: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
-hdc: ASUS CD-S520/A, ATAPI CD/DVD-ROM drive
-hdd: HL-DT-ST GCE-8160B, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-PDC20269: IDE controller on PCI bus 00 dev 68
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-    ide2: BM-DMA at 0x1090-0x1097, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0x1098-0x109f, BIOS settings: hdg:pio, hdh:pio
-hde: MAXTOR 6L060J3, ATA DISK drive
-ide2 at 0x10c0-0x10c7,0x10ba on irq 17
-hdg: MAXTOR 6L060L3, ATA DISK drive
-ide3 at 0x10b0-0x10b7,0x10a6 on irq 17
-ULTRA 66/100/133: Primary channel of Ultra 66/100/133 requires an 80-pin cable for Ultra66 operation.
-         Switching to Ultra33 mode.
-Warning: Primary channel requires an 80-pin cable for operation.
-hde reduced to Ultra33 mode.
-hde: host protected area => 1
-hde: 117266688 sectors (60041 MB) w/1820KiB Cache, CHS=116336/16/63, UDMA(133)
-ULTRA 66/100/133: Secondary channel of Ultra 66/100/133 requires an 80-pin cable for Ultra66 operation.
-         Switching to Ultra33 mode.
-Warning: Secondary channel requires an 80-pin cable for operation.
-hdg reduced to Ultra33 mode.
-hdg: host protected area => 1
-hdg: 117266688 sectors (60041 MB) w/1819KiB Cache, CHS=116336/16/63, UDMA(133)
-Partition check:
- hde: [PTBL] [7299/255/63] hde1 hde2 hde3 hde4
- hdg: hdg1 hdg2 hdg3 hdg4
+I think this may have been our mistake, but "siblings" sometimes can be
+misleading, in the sense that the number of the siblings usually/often does
+not include yourself. 
 
+At the same time, as Alan pointed out, using cpu_num_threads is clearer than
+smp_num_sibling because there are going to be non X86 CPUs around one day
+with similar properties and it's a more generic name.
 
-The dmesg output seems to indicate that hde and hdg have been "reduced to 
-Ultra33 mode."  However, 2 lines later the drives are listed as 
-"UDMA(133)".  hdparm indicates that the drives are operating at udma6.
-
-Here's the relevant portion of my config:
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_CISS_SCSI_TAPE is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=m
-# CONFIG_BLK_DEV_NBD is not set
-# CONFIG_BLK_DEV_RAM is not set
-# CONFIG_BLK_DEV_INITRD is not set
-# CONFIG_BLK_STATS is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-# CONFIG_MD_LINEAR is not set
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-# CONFIG_MD_RAID5 is not set
-# CONFIG_MD_MULTIPATH is not set
-# CONFIG_BLK_DEV_LVM is not set
-# CONFIG_BLK_DEV_DM is not set
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE_KNOWS=y
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_IDEDISK_MULTI_MODE is not set
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
-# CONFIG_BLK_DEV_IDEDISK_IBM is not set
-# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
-# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
-# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
-# CONFIG_BLK_DEV_IDEDISK_WD is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-# CONFIG_BLK_DEV_TIVO is not set
-# CONFIG_BLK_DEV_IDECS is not set
-# CONFIG_BLK_DEV_IDECD is not set
-# CONFIG_BLK_DEV_IDECD_BAILOUT is not set
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-CONFIG_BLK_DEV_IDESCSI=y
-# CONFIG_IDE_TASK_IOCTL is not set
-CONFIG_IDE_TASKFILE_IO=y
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_BLK_DEV_GENERIC is not set
-# CONFIG_IDEPCI_SHARE_IRQ is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-CONFIG_BLK_DEV_AMD74XX=y
-# CONFIG_AMD74XX_OVERRIDE is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NFORCE is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_PDC202XX_BURST is not set
-CONFIG_BLK_DEV_PDC202XX_NEW=y
-# CONFIG_PDC202XX_FORCE is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_PDC202XX=y
-CONFIG_BLK_DEV_IDE_MODES=y
-# CONFIG_BLK_DEV_ATARAID is not set
-# CONFIG_BLK_DEV_ATARAID_PDC is not set
-# CONFIG_BLK_DEV_ATARAID_HPT is not set
-
-The system is a dual MP 1600+ Tyan S2460 with on-board AMD7411 IDE being 
-used for CD and CD-RW.
-
-The HDs do seem to work properly, but this message at boot about 
-reducing to ultra33 mode is somewhat confusing.  This has only ever 
-occurred with the new ide code.  Any ideas?
-
-Thanks.
-
-	Jason
+So here is a patch against linux-2.4.20-pre2-ac5.
+=========================================================================== 
+diff -urN linux-2.4.20-pre2-ac5/arch/i386/kernel/setup.c
+linux-1/arch/i386/kernel/setup.c
+--- linux-2.4.20-pre2-ac5/arch/i386/kernel/setup.c	Tue Aug 20 15:35:18
+2002
++++ linux-1/arch/i386/kernel/setup.c	Tue Aug 20 16:45:20 2002
+@@ -2331,29 +2331,29 @@
+ 		int 	cpu = smp_processor_id();
+ 
+ 		cpuid(1, &eax, &ebx, &ecx, &edx);
+-		smp_num_siblings = (ebx & 0xff0000) >> 16;
++		cpu_num_threads = (ebx & 0xff0000) >> 16;
+ 
+-		if (smp_num_siblings == 1) {
++		if (cpu_num_threads == 1) {
+ 			printk(KERN_INFO  "CPU: Hyper-Threading is
+disabled\n");
+-		} else if (smp_num_siblings > 1 ) {
++		} else if (cpu_num_threads > 1 ) {
+ 			index_lsb = 0;
+ 			index_msb = 31;
+ 			/*
+-			 * At this point we only support two siblings per
++			 * At this point we only support two threads per
+ 			 * processor package.
+ 			 */
+-#define NR_SIBLINGS	2
+-			if (smp_num_siblings != NR_SIBLINGS) {
+-				printk(KERN_WARNING "CPU: Unsupported number
+of the siblings %d", smp_num_siblings);
+-				smp_num_siblings = 1;
++#define NR_XEON_THREADS	2
++			if (cpu_num_threads != NR_XEON_THREADS) {
++				printk(KERN_WARNING "CPU: Unsupported number
+of SMT threads %d", cpu_num_threads);
++				cpu_num_threads = 1;
+ 				return;
+ 			}
+-			tmp = smp_num_siblings;
++			tmp = cpu_num_threads;
+ 			while ((tmp & 1) == 0) {
+ 				tmp >>=1 ;
+ 				index_lsb++;
+ 			}
+-			tmp = smp_num_siblings;
++			tmp = cpu_num_threads;
+ 			while ((tmp & 0x80000000 ) == 0) {
+ 				tmp <<=1 ;
+ 				index_msb--;
+@@ -2962,7 +2962,7 @@
+ 
+ #ifdef CONFIG_SMP
+ 	seq_printf(m, "physical id\t: %d\n",phys_proc_id[n]);
+-	seq_printf(m, "siblings\t: %d\n",smp_num_siblings);
++	seq_printf(m, "threads\t\t: %d\n",cpu_num_threads);
+ #endif
+ 	
+ 	
+ 	/* We use exception 16 if we have hardware math and we've either
+seen it or the CPU claims it is internal */
+diff -urN linux-2.4.20-pre2-ac5/arch/i386/kernel/smpboot.c
+linux-1/arch/i386/kernel/smpboot.c
+--- linux-2.4.20-pre2-ac5/arch/i386/kernel/smpboot.c	Tue Aug 20 15:35:18
+2002
++++ linux-1/arch/i386/kernel/smpboot.c	Tue Aug 20 15:39:56 2002
+@@ -56,8 +56,8 @@
+ /* Total count of live CPUs */
+ int smp_num_cpus = 1;
+ 
+-/* Number of siblings per CPU package */
+-int smp_num_siblings = 1;
++/* Number of threads per CPU package */
++int cpu_num_threads = 1;
+ int phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
+ 
+ /* Bitmask of currently online CPUs */
+@@ -1158,7 +1158,7 @@
+ 	 * that we can tell the sibling CPU efficiently.
+ 	 */
+ 	if (test_bit(X86_FEATURE_HT, boot_cpu_data.x86_capability)
+-	    && smp_num_siblings > 1) {
++	    && cpu_num_threads > 1) {
+ 		for (cpu = 0; cpu < NR_CPUS; cpu++)
+ 			cpu_sibling_map[cpu] = NO_PROC_ID;
+ 		
+@@ -1175,7 +1175,7 @@
+ 				}
+ 			}
+ 			if (cpu_sibling_map[cpu] == NO_PROC_ID) {
+-				smp_num_siblings = 1;
++				cpu_num_threads = 1;
+ 				printk(KERN_WARNING "WARNING: No sibling
+found for CPU %d.\n", cpu);
+ 			}
+ 		}
+diff -urN linux-2.4.20-pre2-ac5/fs/binfmt_elf.c linux-1/fs/binfmt_elf.c
+--- linux-2.4.20-pre2-ac5/fs/binfmt_elf.c	Tue Aug 20 15:35:20 2002
++++ linux-1/fs/binfmt_elf.c	Tue Aug 20 15:39:56 2002
+@@ -150,7 +150,7 @@
+ 	 * removed for 2.5
+ 	 */
+ 	 
+-	if(smp_num_siblings > 1)
++	if(cpu_num_threads > 1)
+ 		u_platform = u_platform - ((current->pid % 64) << 7);
+ #endif	
+ 
+diff -urN linux-2.4.20-pre2-ac5/include/asm-i386/smp.h
+linux-1/include/asm-i386/smp.h
+--- linux-2.4.20-pre2-ac5/include/asm-i386/smp.h	Tue Aug 20 15:35:20
+2002
++++ linux-1/include/asm-i386/smp.h	Tue Aug 20 16:48:22 2002
+@@ -74,7 +74,7 @@
+ extern unsigned long cpu_online_map;
+ extern volatile unsigned long smp_invalidate_needed;
+ extern int pic_mode;
+-extern int smp_num_siblings;
++extern int cpu_num_threads;
+ extern int cpu_sibling_map[];
+ 
+ extern void smp_flush_tlb(void);
+diff -urN linux-2.4.20-pre2-ac5/include/asm-i386/smp_balance.h
+linux-1/include/asm-i386/smp_balance.h
+--- linux-2.4.20-pre2-ac5/include/asm-i386/smp_balance.h	Tue Aug 20
+15:35:20 2002
++++ linux-1/include/asm-i386/smp_balance.h	Tue Aug 20 15:39:56 2002
+@@ -28,7 +28,7 @@
+ static inline int arch_load_balance(int this_cpu, int idle)
+ {
+ 	/* Special hack for hyperthreading */
+-       if (smp_num_siblings > 1 && idle &&
+!idle_cpu(cpu_sibling_map[this_cpu])) {
++       if (cpu_num_threads > 1 && idle &&
+!idle_cpu(cpu_sibling_map[this_cpu])) {
+                int found;
+                struct runqueue *rq_target;
+ 
 
 
+------_=_NextPart_000_01C248B8.A4334140
+Content-Type: application/octet-stream;
+	name="cpu_num_threads.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="cpu_num_threads.patch"
+
+diff -urN linux-2.4.20-pre2-ac5/arch/i386/kernel/setup.c =
+linux-1/arch/i386/kernel/setup.c=0A=
+--- linux-2.4.20-pre2-ac5/arch/i386/kernel/setup.c	Tue Aug 20 15:35:18 =
+2002=0A=
++++ linux-1/arch/i386/kernel/setup.c	Tue Aug 20 16:45:20 2002=0A=
+@@ -2331,29 +2331,29 @@=0A=
+ 		int 	cpu =3D smp_processor_id();=0A=
+ =0A=
+ 		cpuid(1, &eax, &ebx, &ecx, &edx);=0A=
+-		smp_num_siblings =3D (ebx & 0xff0000) >> 16;=0A=
++		cpu_num_threads =3D (ebx & 0xff0000) >> 16;=0A=
+ =0A=
+-		if (smp_num_siblings =3D=3D 1) {=0A=
++		if (cpu_num_threads =3D=3D 1) {=0A=
+ 			printk(KERN_INFO  "CPU: Hyper-Threading is disabled\n");=0A=
+-		} else if (smp_num_siblings > 1 ) {=0A=
++		} else if (cpu_num_threads > 1 ) {=0A=
+ 			index_lsb =3D 0;=0A=
+ 			index_msb =3D 31;=0A=
+ 			/*=0A=
+-			 * At this point we only support two siblings per=0A=
++			 * At this point we only support two threads per=0A=
+ 			 * processor package.=0A=
+ 			 */=0A=
+-#define NR_SIBLINGS	2=0A=
+-			if (smp_num_siblings !=3D NR_SIBLINGS) {=0A=
+-				printk(KERN_WARNING "CPU: Unsupported number of the siblings %d", =
+smp_num_siblings);=0A=
+-				smp_num_siblings =3D 1;=0A=
++#define NR_XEON_THREADS	2=0A=
++			if (cpu_num_threads !=3D NR_XEON_THREADS) {=0A=
++				printk(KERN_WARNING "CPU: Unsupported number of SMT threads %d", =
+cpu_num_threads);=0A=
++				cpu_num_threads =3D 1;=0A=
+ 				return;=0A=
+ 			}=0A=
+-			tmp =3D smp_num_siblings;=0A=
++			tmp =3D cpu_num_threads;=0A=
+ 			while ((tmp & 1) =3D=3D 0) {=0A=
+ 				tmp >>=3D1 ;=0A=
+ 				index_lsb++;=0A=
+ 			}=0A=
+-			tmp =3D smp_num_siblings;=0A=
++			tmp =3D cpu_num_threads;=0A=
+ 			while ((tmp & 0x80000000 ) =3D=3D 0) {=0A=
+ 				tmp <<=3D1 ;=0A=
+ 				index_msb--;=0A=
+@@ -2962,7 +2962,7 @@=0A=
+ =0A=
+ #ifdef CONFIG_SMP=0A=
+ 	seq_printf(m, "physical id\t: %d\n",phys_proc_id[n]);=0A=
+-	seq_printf(m, "siblings\t: %d\n",smp_num_siblings);=0A=
++	seq_printf(m, "threads\t\t: %d\n",cpu_num_threads);=0A=
+ #endif=0A=
+ 	=0A=
+ 	/* We use exception 16 if we have hardware math and we've either seen =
+it or the CPU claims it is internal */=0A=
+diff -urN linux-2.4.20-pre2-ac5/arch/i386/kernel/smpboot.c =
+linux-1/arch/i386/kernel/smpboot.c=0A=
+--- linux-2.4.20-pre2-ac5/arch/i386/kernel/smpboot.c	Tue Aug 20 =
+15:35:18 2002=0A=
++++ linux-1/arch/i386/kernel/smpboot.c	Tue Aug 20 15:39:56 2002=0A=
+@@ -56,8 +56,8 @@=0A=
+ /* Total count of live CPUs */=0A=
+ int smp_num_cpus =3D 1;=0A=
+ =0A=
+-/* Number of siblings per CPU package */=0A=
+-int smp_num_siblings =3D 1;=0A=
++/* Number of threads per CPU package */=0A=
++int cpu_num_threads =3D 1;=0A=
+ int phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */=0A=
+ =0A=
+ /* Bitmask of currently online CPUs */=0A=
+@@ -1158,7 +1158,7 @@=0A=
+ 	 * that we can tell the sibling CPU efficiently.=0A=
+ 	 */=0A=
+ 	if (test_bit(X86_FEATURE_HT, boot_cpu_data.x86_capability)=0A=
+-	    && smp_num_siblings > 1) {=0A=
++	    && cpu_num_threads > 1) {=0A=
+ 		for (cpu =3D 0; cpu < NR_CPUS; cpu++)=0A=
+ 			cpu_sibling_map[cpu] =3D NO_PROC_ID;=0A=
+ 		=0A=
+@@ -1175,7 +1175,7 @@=0A=
+ 				}=0A=
+ 			}=0A=
+ 			if (cpu_sibling_map[cpu] =3D=3D NO_PROC_ID) {=0A=
+-				smp_num_siblings =3D 1;=0A=
++				cpu_num_threads =3D 1;=0A=
+ 				printk(KERN_WARNING "WARNING: No sibling found for CPU %d.\n", =
+cpu);=0A=
+ 			}=0A=
+ 		}=0A=
+diff -urN linux-2.4.20-pre2-ac5/fs/binfmt_elf.c =
+linux-1/fs/binfmt_elf.c=0A=
+--- linux-2.4.20-pre2-ac5/fs/binfmt_elf.c	Tue Aug 20 15:35:20 2002=0A=
++++ linux-1/fs/binfmt_elf.c	Tue Aug 20 15:39:56 2002=0A=
+@@ -150,7 +150,7 @@=0A=
+ 	 * removed for 2.5=0A=
+ 	 */=0A=
+ 	 =0A=
+-	if(smp_num_siblings > 1)=0A=
++	if(cpu_num_threads > 1)=0A=
+ 		u_platform =3D u_platform - ((current->pid % 64) << 7);=0A=
+ #endif	=0A=
+ =0A=
+diff -urN linux-2.4.20-pre2-ac5/include/asm-i386/smp.h =
+linux-1/include/asm-i386/smp.h=0A=
+--- linux-2.4.20-pre2-ac5/include/asm-i386/smp.h	Tue Aug 20 15:35:20 =
+2002=0A=
++++ linux-1/include/asm-i386/smp.h	Tue Aug 20 16:48:22 2002=0A=
+@@ -74,7 +74,7 @@=0A=
+ extern unsigned long cpu_online_map;=0A=
+ extern volatile unsigned long smp_invalidate_needed;=0A=
+ extern int pic_mode;=0A=
+-extern int smp_num_siblings;=0A=
++extern int cpu_num_threads;=0A=
+ extern int cpu_sibling_map[];=0A=
+ =0A=
+ extern void smp_flush_tlb(void);=0A=
+diff -urN linux-2.4.20-pre2-ac5/include/asm-i386/smp_balance.h =
+linux-1/include/asm-i386/smp_balance.h=0A=
+--- linux-2.4.20-pre2-ac5/include/asm-i386/smp_balance.h	Tue Aug 20 =
+15:35:20 2002=0A=
++++ linux-1/include/asm-i386/smp_balance.h	Tue Aug 20 15:39:56 2002=0A=
+@@ -28,7 +28,7 @@=0A=
+ static inline int arch_load_balance(int this_cpu, int idle)=0A=
+ {=0A=
+ 	/* Special hack for hyperthreading */=0A=
+-       if (smp_num_siblings > 1 && idle && =
+!idle_cpu(cpu_sibling_map[this_cpu])) {=0A=
++       if (cpu_num_threads > 1 && idle && =
+!idle_cpu(cpu_sibling_map[this_cpu])) {=0A=
+                int found;=0A=
+                struct runqueue *rq_target;=0A=
+ =0A=
+=0A=
+=0A=
+=0A=
+=0A=
+=0A=
+=0A=
+
+------_=_NextPart_000_01C248B8.A4334140--
